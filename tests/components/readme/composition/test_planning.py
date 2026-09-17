@@ -23,6 +23,7 @@ from repository_presenter.components.readme.composition.planning import (
     write_plan,
 )
 from repository_presenter.components.readme.composition.policy import PlanningPolicy
+from repository_presenter.components.readme.investigation.dossier import UNIT_CAP
 from repository_presenter.core.facts import (
     FACT_KINDS,
     Evidence,
@@ -266,6 +267,11 @@ def test_a_rationale_naming_an_uncitable_fact_is_redacted_in_the_planners_view()
     (section 27.2 RC1) - the rule _selectable_dispositions already applied to fact_ids, now
     applied to the one free-text field a disposition carries. The stored dispositions are
     untouched; only the planner's view is bounded."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("inherited_unit:002.paragraph", "inherited_unit", "Waits on links.")),
+    )
     entries = [
         {
             "unit_id": "inherited_unit:001.paragraph",
@@ -285,7 +291,7 @@ def test_a_rationale_naming_an_uncitable_fact_is_redacted_in_the_planners_view()
             "rationale": "Waits on link_target:003 (dead) and format:input.obj (unverified).",
         },
     ]
-    packet = planning_packet(ENTRY, FACTS, {"i": 1}, {"dispositions": entries}, MANIFEST)
+    packet = planning_packet(ENTRY, facts, {"i": 1}, {"dispositions": entries}, MANIFEST)
     shown = packet["dispositions"]["dispositions"]
     assert shown[0]["rationale"] == (
         "The JavaScript block is contradicted by the [CONTRADICTED example, not citable] "
@@ -783,6 +789,63 @@ def test_a_verified_rewrite_disposition_names_link_targets_the_plan_must_carry()
     assert untouched["links"] == [
         {"link_fact_id": "link_target:002", "section_id": "documentation_resources"}
     ]
+
+
+def test_five_disposition_required_aspose_links_survive_the_ceiling_trim_unconditionally() -> None:
+    """G4-W17 arrival item 125. Measured on Slides-.NET: inherited_unit:085.paragraph's
+    VERIFIED_REWRITE disposition named five SUPPORTED link_target facts (015-019); plan.json's
+    links carried only 015-018, with 019 (last in the disposition's own fact_ids order) silently
+    trimmed by the Aspose-link ceiling trim below - the RC-01 links backstop (_missing_links)
+    appends every required link to output['links'] before that trim runs, and the trim could not
+    tell a backstop-appended, disposition-required link apart from the model's own free-choice
+    one; both land in the same list in the disposition's own arbitrary fact_ids order. Isolated
+    offline, zero provider calls: a disposition naming five required Aspose links against the
+    default ceiling of four, plus one further Aspose link the model chose entirely on its own
+    (link_target:002, _plan()'s own default). Before the fix, one of the five required links was
+    silently dropped to make room; after it, every required link survives unconditionally and
+    only the model's own optional link is trimmed away - the ceiling still applies, just to the
+    optional choice, never to the completeness obligation."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:085.paragraph", "inherited_unit", "See the guides below."),
+            _fact("link_target:015", "link_target", "https://docs.aspose.com/widget/one"),
+            _fact("link_target:016", "link_target", "https://docs.aspose.com/widget/two"),
+            _fact("link_target:017", "link_target", "https://docs.aspose.com/widget/three"),
+            _fact("link_target:018", "link_target", "https://docs.aspose.com/widget/four"),
+            _fact("link_target:019", "link_target", "https://forum.aspose.com/c/widget"),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:085.paragraph",
+                "disposition": "VERIFIED_REWRITE",
+                "destination_section": "documentation_resources",
+                "fact_ids": [
+                    "link_target:015",
+                    "link_target:016",
+                    "link_target:017",
+                    "link_target:018",
+                    "link_target:019",
+                ],
+                "rationale": "supported by facts, re-authored to the section's own format",
+            }
+        ]
+    }
+    plan = _plan()  # carries one Aspose link of its own free choice: link_target:002
+    assert plan_checks(plan, facts, dispositions=dispositions, ecosystem="python") == []
+    targets = [link["link_fact_id"] for link in plan["links"]]
+    assert set(targets) >= {
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+    }
+    assert "link_target:002" not in targets
 
 
 def test_a_placement_only_this_plans_own_recomputation_excludes_is_deferred_not_rejected() -> None:
@@ -1443,3 +1506,59 @@ def test_the_example_enum_size_grows_sub_linearly_not_proportionally() -> None:
     assert len(tenx["properties"]["quick_start_example_id"]["enum"]) < (
         10 * len(base["properties"]["quick_start_example_id"]["enum"])
     )
+
+
+def _inherited_units_facts(count: int) -> FactsDocument:
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        tuple(
+            _fact(f"inherited_unit:{i:05}.paragraph", "inherited_unit", f"Paragraph {i}.")
+            for i in range(count)
+        ),
+    )
+
+
+def _dispositions_for_every_unit(facts: FactsDocument) -> dict[str, Any]:
+    return {
+        "dispositions": [
+            {
+                "unit_id": fact.id,
+                "disposition": "OMIT_UNSUPPORTED",
+                "destination_section": None,
+                "fact_ids": [],
+                "rationale": "no supporting evidence",
+            }
+            for fact in facts.by_kind("inherited_unit")
+        ]
+    }
+
+
+def test_the_packets_facts_and_dispositions_share_one_inherited_unit_cap() -> None:
+    """G4-W17 arrival items 120/122. Before this fix, presentation_planning's packet built its
+    facts field from every inherited_unit fact with no cap at all, unlike investigation_packet's
+    own UNIT_CAP=400 for the same kind (investigation/dossier.py) - measured on PDF-TypeScript
+    (437 inherited units): a 694,205-character packet and a real ContextWindowExceededError
+    (298,865 tokens against a 262,144 limit). Item 122 found the sibling dispositions field
+    (_selectable_dispositions) equally unbounded - one entry per inherited unit, ~19 percent of
+    that packet - so capping facts alone would still leave dispositions exposed to the identical
+    failure on the next redraw. A synthetic repository with 1000 inherited units (well past
+    UNIT_CAP) isolates both fields at once, offline, zero provider calls: before the fix, both
+    lists below carry all 1000 entries; after it, both are capped to UNIT_CAP and agree on
+    exactly which units survived - one combined budget, not 400 admitted independently per
+    field, which would only double it."""
+    many = _inherited_units_facts(1000)
+    dispositions = _dispositions_for_every_unit(many)
+    packet = planning_packet(ENTRY, many, {}, dispositions, MANIFEST)
+    facts_units = [r["id"] for r in packet["facts"] if r["kind"] == "inherited_unit"]
+    disposition_units = [e["unit_id"] for e in packet["dispositions"]["dispositions"]]
+    assert len(facts_units) == UNIT_CAP
+    assert len(disposition_units) == UNIT_CAP
+    expected = {f"inherited_unit:{i:05}.paragraph" for i in range(UNIT_CAP)}
+    assert set(facts_units) == expected  # document order, the first UNIT_CAP units
+    assert set(disposition_units) == expected  # the same set - one combined budget
+
+    # citable_fact_ids (material_limitations.unit_ids' own enum) never widens past what the
+    # packet's facts field actually shows (RESEARCH_AND_GUIDELINES.md section 27.2 RC1).
+    citable = citable_fact_ids(many, {}, dispositions, MANIFEST)
+    assert {i for i in citable if i.startswith("inherited_unit:")} == expected

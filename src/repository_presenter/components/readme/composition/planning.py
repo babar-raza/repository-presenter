@@ -15,7 +15,7 @@ import copy
 import hashlib
 import json
 import re
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -44,6 +44,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
+from repository_presenter.components.readme.investigation.dossier import UNIT_CAP
 from repository_presenter.core.facts import (
     FACT_KINDS,
     POLARITIES,
@@ -167,8 +168,44 @@ def _uncitable_redaction(facts: FactsDocument) -> Callable[[str], str]:
     return lambda text: pattern.sub(lambda match: labels[match.group(0)], text)
 
 
+def _admitted_inherited_unit_ids(facts: FactsDocument) -> frozenset[str]:
+    """The SUPPORTED ``inherited_unit`` fact IDs presentation_planning's packet may show at all,
+    in document order, capped at ``UNIT_CAP`` (``investigation/dossier.py``) - the one combined
+    budget both the packet's ``facts`` field (``_capped_facts``) and its sibling ``dispositions``
+    field (``_selectable_dispositions``) are trimmed against.
+
+    ``bounded_records`` already caps ``public_symbol``, ``link_target`` and ``example`` per kind
+    (``core/facts.py``); ``inherited_unit`` was the one kind it left uncapped, so a repository
+    with many inherited units built an S5 packet unbounded in this field regardless of section
+    count (G4-W17 arrival item 120). A narrow fix scoped to ``facts`` alone would leave
+    ``dispositions`` - one entry per inherited unit, no cap of its own - fully exposed to the
+    identical failure (item 122); both fields are trimmed against this one set rather than each
+    being capped at ``UNIT_CAP`` independently, which would double the combined budget item 122
+    warns against. Measured on PDF-TypeScript (437 inherited units): the packet was 694,205
+    characters and a real ``ContextWindowExceededError`` (298,865 tokens against a 262,144
+    limit); ``dispositions`` alone was roughly 132,511 of those characters, about 19 percent.
+    """
+    ordered = bounded_records(facts, {"inherited_unit"})
+    return frozenset(record["id"] for record in ordered[:UNIT_CAP])
+
+
+def _capped_facts(facts: FactsDocument, kinds: Iterable[str]) -> list[dict[str, str]]:
+    """``bounded_records(facts, kinds)``, with any ``inherited_unit`` entries further trimmed to
+    ``_admitted_inherited_unit_ids`` - the one kind ``bounded_records`` itself leaves uncapped
+    (G4-W17 arrival item 120)."""
+    admitted = _admitted_inherited_unit_ids(facts)
+    return [
+        record
+        for record in bounded_records(facts, kinds)
+        if record["kind"] != "inherited_unit" or record["id"] in admitted
+    ]
+
+
 def _selectable_dispositions(dispositions: dict[str, Any], facts: FactsDocument) -> dict[str, Any]:
-    """The dispositions as the planner may act on them: only the fact IDs a plan may cite.
+    """The dispositions as the planner may act on them: only the fact IDs a plan may cite, and
+    only entries for an inherited unit ``_admitted_inherited_unit_ids`` admits (G4-W17 arrival
+    item 122 - the same combined budget ``_capped_facts`` trims the packet's ``facts`` field
+    against, so a unit missing from one field is never dangled in the other).
 
     A disposition legitimately cites a CONTRADICTED or UNRESOLVED fact - that is why it omits or
     defers its unit - while the plan's own binding admits SUPPORTED facts only. Showing the
@@ -178,12 +215,16 @@ def _selectable_dispositions(dispositions: dict[str, Any], facts: FactsDocument)
     citations a plan may not reuse are dropped from ``fact_ids`` and redacted from the one
     free-text field, ``rationale`` (``_uncitable_redaction``; the canary's fix left that field
     alone and Aspose.HTML's planner read the ID there instead). The stored dispositions are
-    untouched, and plan_checks still sees the whole document.
+    untouched, and plan_checks still sees the whole document - the cap here narrows only what
+    this packet shows, never what ``placements()``/``_missing_links`` act on afterward.
     """
     supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}
+    admitted_units = _admitted_inherited_unit_ids(facts)
     redact = _uncitable_redaction(facts)
     entries = []
     for entry in dispositions.get("dispositions", []):
+        if str(entry.get("unit_id")) not in admitted_units:
+            continue
         shown: dict[str, Any] = {}
         for key, value in entry.items():
             if key == "fact_ids":
@@ -253,7 +294,7 @@ def planning_packet(
     kinds = manifest.packet.fact_kinds or FACT_KINDS
     return {
         "repository": entry.repository,
-        "facts": bounded_records(facts, kinds),
+        "facts": _capped_facts(facts, kinds),
         "examples": _examples_summary(facts),
         "formats": _verified_formats(facts),
         "investigation": investigation,
@@ -319,7 +360,7 @@ def citable_fact_ids(
     """
     supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}
     kinds = manifest.packet.fact_kinds or FACT_KINDS
-    shown = {record["id"] for record in bounded_records(facts, kinds)}
+    shown = {record["id"] for record in _capped_facts(facts, kinds)}
     shown.update(_examples_summary(facts)["verified_ids"])
     shown.update(r["id"] for records in _verified_formats(facts).values() for r in records)
     shown.update(
@@ -538,11 +579,21 @@ def _apply_additional_examples(output: dict[str, Any], missing: list[Any]) -> No
     output["additional_example_ids"] = additional + missing
 
 
-def _missing_links(
-    output: dict[str, Any], facts: FactsDocument, dispositions: dict[str, Any] | None
-) -> list[dict[str, str]]:
+def _required_link_sections(dispositions: dict[str, Any] | None) -> dict[str, str]:
+    """Every ``link_target`` fact a ``VERIFIED_REWRITE`` disposition names, mapped to its
+    destination section - the plan's own completeness obligation (RC-01), regardless of whether
+    the model's own free choice already carries a given target or ``_missing_links`` below still
+    has to append it.
+
+    Item 125: this full set - not just what one particular plan happens to be missing - is what
+    ``plan_checks``' own Aspose-link ceiling trim needs to tell a disposition-required link apart
+    from the model's own free-choice ones; both used to land in ``output['links']`` in the
+    disposition's own arbitrary ``fact_ids`` order with no distinction, so a plan naming five
+    required Aspose links against a ceiling of four (Slides-.NET, RESEARCH_AND_GUIDELINES.md
+    section 29 item 125) silently lost whichever one sorted last, however it got into the list.
+    """
     if dispositions is None:
-        return []
+        return {}
     rewritten_link_sections: dict[str, str] = {}
     for entry in dispositions.get("dispositions", []):
         if entry.get("disposition") != "VERIFIED_REWRITE":
@@ -554,6 +605,13 @@ def _missing_links(
             fact_id = str(fact_id)
             if fact_id.startswith("link_target:") and fact_id not in _SHELL_OWNED_LINKS:
                 rewritten_link_sections[fact_id] = str(destination)
+    return rewritten_link_sections
+
+
+def _missing_links(
+    output: dict[str, Any], facts: FactsDocument, dispositions: dict[str, Any] | None
+) -> list[dict[str, str]]:
+    rewritten_link_sections = _required_link_sections(dispositions)
     planned_link_ids = {str(link.get("link_fact_id")) for link in output.get("links", [])}
     return [
         {"link_fact_id": fact_id, "section_id": section}
@@ -821,17 +879,39 @@ def plan_checks(
     link_facts = {
         fact.id: fact.value for fact in facts.by_kind("link_target") if fact.polarity == "SUPPORTED"
     }
+    # Item 125: every link_target a VERIFIED_REWRITE disposition names is a completeness
+    # obligation _missing_links' own backstop enforces (RC-01), not a free choice the ceiling
+    # trim below may judge the same way it judges the model's own optional links - both used to
+    # land in output['links'] in the disposition's own arbitrary fact_ids order with no
+    # distinction, which is how a plan with five required Aspose links against a ceiling of four
+    # silently lost whichever one sorted last (Slides-.NET, RESEARCH_AND_GUIDELINES.md section 29
+    # item 125). Computed from dispositions directly, independent of this plan's own links, so a
+    # required target is recognised whether the model already carried it or the backstop above
+    # had to append it.
+    required_link_sections = _required_link_sections(dispositions)
     # An Aspose link beyond the ceiling is trimmable in the plan's own order - a plan that placed
     # five ahead of a ceiling of four still named the right four first - so it is dropped here
     # rather than failing the whole plan for a count a fixed rule already knows how to enforce.
     # A shell-owned target is never touched here: it is invalid for a different reason (it
-    # renders on its own) and stays a hard error below regardless of the count.
+    # renders on its own) and stays a hard error below regardless of the count. A disposition-
+    # required target (above) is never touched here either: it is not the model's free choice to
+    # trim away.
     raw_links = output.get("links", [])
     kept_links: list[dict[str, Any]] = []
     aspose_kept = 0
     # G4-W17 arrival item 32: a preserved unit's own Aspose links already count against BC-06's
     # ceiling on the whole document, so the plan's own share is trimmed to what is left over.
-    trim_ceiling = max(policy.aspose_links_max - preserved_aspose, 0)
+    # Item 125: a disposition-required Aspose link reserves the same kind of headroom - it is
+    # going to render in output['links'] itself, unlike a preserved unit's own verbatim link, but
+    # it is equally outside the model's own free choice.
+    required_aspose = sum(
+        1
+        for target in required_link_sections
+        if target not in _SHELL_OWNED_LINKS
+        and link_facts.get(target) is not None
+        and any(domain in link_facts[target] for domain in _ASPOSE_DOMAINS)
+    )
+    trim_ceiling = max(policy.aspose_links_max - preserved_aspose - required_aspose, 0)
     for link in raw_links:
         target = link.get("link_fact_id")
         value = link_facts.get(target)
@@ -840,7 +920,7 @@ def plan_checks(
             and value is not None
             and any(domain in value for domain in _ASPOSE_DOMAINS)
         )
-        if is_aspose:
+        if is_aspose and target not in required_link_sections:
             if aspose_kept >= trim_ceiling:
                 continue
             aspose_kept += 1
@@ -871,7 +951,11 @@ def plan_checks(
             continue
         if target not in link_facts:
             errors.append(f"link {target!r} is not a verified link target")
-        elif any(domain in link_facts[target] for domain in _ASPOSE_DOMAINS):
+        elif target not in required_link_sections and any(
+            domain in link_facts[target] for domain in _ASPOSE_DOMAINS
+        ):
+            # A disposition-required link (above) is never counted against the ceiling here
+            # either - only the model's own optional Aspose links are (item 125).
             aspose += 1
         if section not in included:
             errors.append(
