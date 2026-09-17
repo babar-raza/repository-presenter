@@ -11,9 +11,11 @@ from repository_presenter.components.readme.composition.placement import (
     placed_texts,
     placements,
     planned_fact_ids,
+    planned_heading_slugs,
     rendered_example_ids,
     renderer_fact_ids,
     renders_verbatim,
+    resolve_intra_document_anchors,
 )
 from repository_presenter.components.readme.composition.planning import plan_checks
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
@@ -492,3 +494,82 @@ def test_a_command_block_is_never_dropped_for_overlap_but_restating_prose_is() -
     assert decisions["inherited_unit:074.paragraph"].outcome == "overlap"
     assert decisions["inherited_unit:074.paragraph"].overlap == ("build_test_asset:tests",)
     assert decisions["inherited_unit:071.code_block"].outcome == "placed"
+
+
+def test_planned_heading_slugs_are_the_included_shells_own_headings() -> None:
+    plan = _plan()
+    slugs = planned_heading_slugs(plan)
+    assert "scope-and-limitations" in slugs
+    assert "additional-examples" in slugs
+    # api_reference is excluded from this plan's overrides by nothing - confirm one genuinely
+    # excluded section (banner is never included by _plan()) contributes no slug at all.
+    assert "banner" not in slugs and not any("banner" in s for s in slugs)
+
+
+def test_resolve_intra_document_anchors_keeps_a_surviving_heading_and_drops_the_rest() -> None:
+    slugs = frozenset({"scope-and-limitations"})
+    assert (
+        resolve_intra_document_anchors(
+            "See [Scope and Limitations](#scope-and-limitations) for details.", slugs
+        )
+        == "See [Scope and Limitations](#scope-and-limitations) for details."
+    )
+    assert (
+        resolve_intra_document_anchors(
+            "See [Encryption and Signing](#encryption-and-signing) for details.", slugs
+        )
+        == "See Encryption and Signing for details."
+    )
+
+
+def test_a_preserved_units_intra_document_anchor_is_resolved_at_placement() -> None:
+    """Item 114 (RESEARCH_AND_GUIDELINES.md section 29, lane D PROPOSAL P30, PHASE1
+    supervisor-admitted 2026-09-17): repair may only edit authored units, never a preserved one,
+    so a VERIFIED_PRESERVE unit's own intra-document anchor to a heading this candidate never
+    renders could not be fixed at S9 and BC-06 failed with no repair route (measured on PDF-Go,
+    inherited_unit:025.paragraph, "[Encryption and Signing](#encryption-and-signing)" - the old
+    README's own heading, which a preserved ``heading`` unit never renders verbatim -
+    ``renders_verbatim`` already routes it to ``owned_elsewhere``). Resolved here, at placement,
+    deterministically: an anchor to a heading this plan will actually render (the shell's own
+    "Scope and Limitations") is kept; one to a heading it will not is dropped to plain text.
+    """
+    unit = _fact(
+        "inherited_unit:099.paragraph",
+        "inherited_unit",
+        "Encryption is covered in [Encryption and Signing](#encryption-and-signing) below, see "
+        "also [Scope and Limitations](#scope-and-limitations).",
+    )
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, unit))
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:099.paragraph", "additional_examples", "identity:repository")
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(_plan(), dispositions, facts, "python")}
+    placed = decisions["inherited_unit:099.paragraph"]
+    assert placed.outcome == "placed"
+    assert placed.text == (
+        "Encryption is covered in Encryption and Signing below, see "
+        "also [Scope and Limitations](#scope-and-limitations)."
+    )
+
+
+def test_a_preserved_code_blocks_own_anchor_looking_text_is_never_rewritten() -> None:
+    """A command block is content nothing else renders (README_CONTRACT.md), never prose to
+    rewrite: source that happens to look like "[label](#anchor)" inside a fenced code block is
+    the repository's own bytes, not a cross-reference, and must reach the document unchanged."""
+    block = _fact(
+        "inherited_unit:098.code_block",
+        "inherited_unit",
+        "```text\n[Encryption and Signing](#encryption-and-signing)\n```",
+    )
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, block))
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:098.code_block", "additional_examples", "identity:repository")
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(_plan(), dispositions, facts, "python")}
+    placed = decisions["inherited_unit:098.code_block"]
+    assert placed.outcome == "placed"
+    assert placed.text == "```text\n[Encryption and Signing](#encryption-and-signing)\n```"

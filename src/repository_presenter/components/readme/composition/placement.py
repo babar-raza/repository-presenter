@@ -27,6 +27,14 @@ the plan's own per-hub citations: ``api_reference_covered_fact_ids`` computes ex
 hubs - closing a real gap without discarding the plan's own signal, which several real
 candidates' dispositions turned out to depend on even though it is itself only an approximation
 (RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08).
+
+A unit that is actually placed also has its own intra-document anchors resolved here, against the
+plan's own section inclusion (``planned_heading_slugs``, ``resolve_intra_document_anchors``): an
+anchor to a heading this candidate will render is kept, one to a heading it will not (almost
+always the old README's own heading, since a preserved ``heading`` unit never renders - it is
+always ``owned_elsewhere``) is dropped to plain text (item 114, RESEARCH_AND_GUIDELINES.md section
+29, lane D PROPOSAL P30). This is the only stage a preserved unit is ever rewritten at all: repair
+may edit only authored units, so an anchor left unresolved here can never be fixed later.
 """
 
 from __future__ import annotations
@@ -35,7 +43,10 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
+from urllib.parse import unquote
 
+from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
+from repository_presenter.components.readme.evidence.facts.links import heading_slug
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
 
@@ -302,6 +313,57 @@ def renderer_fact_ids(
     )
 
 
+def planned_heading_slugs(plan: Mapping[str, Any]) -> frozenset[str]:
+    """The anchor slugs of every semantic-shell heading this candidate will actually render,
+    known from the plan's own section inclusion alone - at S4/S5, before the document exists.
+
+    Item 114 (RESEARCH_AND_GUIDELINES.md section 29, lane D PROPOSAL P30, PHASE1
+    supervisor-admitted 2026-09-17): a preserved unit's intra-document anchor almost never names
+    one of these. The heading it names was itself an inherited ``heading`` unit in the source
+    document, and ``renders_verbatim`` already routes every preserved heading to
+    ``owned_elsewhere`` - a preserved unit never renders a heading, only the shell does - so the
+    old heading the anchor points at is never reproduced verbatim by this candidate. This set is
+    deliberately the narrow, exactly-known one: it does not predict a conditional subsection
+    (Core API, Required Package Dependencies, ...) that composition or the renderer may or may not
+    emit later, because a false "resolved" here would carry an actually-broken anchor forward with
+    no repair route (the item 114 defect itself) while a false "unresolved" only drops a link to
+    its own plain text - safe, and never a broken link.
+    """
+    included = {
+        str(entry.get("section_id")) for entry in plan.get("sections", []) if entry.get("include")
+    }
+    return frozenset(
+        heading_slug(section.heading)
+        for section in SEMANTIC_SHELL
+        if section.id in included and section.heading
+    )
+
+
+_INTRA_DOC_ANCHOR = re.compile(r"\[([^\]]+)\]\(#([^)\s]+)\)")
+
+
+def resolve_intra_document_anchors(text: str, planned_slugs: frozenset[str]) -> str:
+    """``text`` with every intra-document anchor resolved against ``planned_slugs``: kept exactly
+    as written when its slug survives, dropped to its own plain link text otherwise.
+
+    Item 114: ``targeted_repair`` is handed only a section's authored units, never a preserved
+    one, so an anchor that resolves to no rendered heading could not be fixed at S9 and the repair
+    round recorded ``repaired`` on byte-identical text with an immediate re-raise (measured on
+    PDF-Go: ``inherited_unit:025.paragraph``, ``VERIFIED_PRESERVE``'d into ``additional_examples``,
+    carried ``"[Encryption and Signing](#encryption-and-signing)"`` forward with no heading of
+    that name anywhere in the candidate). Resolving here, at placement, is the only stage a
+    preserved unit's own copy is ever touched at all - deterministic, no provider call, and the
+    one rewrite ``renders_verbatim`` already proves is safe for this unit's shape (prose, not a
+    code block the renderer or plan owns).
+    """
+
+    def resolve(match: re.Match[str]) -> str:
+        label, slug = match.group(1), unquote(match.group(2)).lower()
+        return match.group(0) if slug in planned_slugs else label
+
+    return _INTRA_DOC_ANCHOR.sub(resolve, text)
+
+
 def placements(
     plan: dict[str, Any], dispositions: dict[str, Any], facts: FactsDocument, ecosystem: str
 ) -> list[Placement]:
@@ -309,6 +371,7 @@ def placements(
     included = {
         str(entry.get("section_id")) for entry in plan.get("sections", []) if entry.get("include")
     }
+    planned_slugs = planned_heading_slugs(plan)
     by_id = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
     # Where the plan actually renders each example - the paired code block's real destination,
     # whatever section the reconciliation named for the sentence introducing it (arrival item 65).
@@ -343,7 +406,14 @@ def placements(
             else tuple(sorted(set(entry.get("fact_ids") or []) & covered))
         )
         outcome: Outcome = "overlap" if overlap else "placed"
-        result.append(Placement(unit_id, destination, unit.value, outcome, overlap))
+        text = unit.value
+        # Item 114: resolved only for the text this candidate actually copies verbatim into the
+        # document, never a code block - a fenced example's own bytes are content, not prose, and
+        # "[...](#...)" inside one is source the unit must reproduce exactly, not a cross-reference
+        # to rewrite.
+        if outcome == "placed" and not unit_id.endswith(".code_block"):
+            text = resolve_intra_document_anchors(text, planned_slugs)
+        result.append(Placement(unit_id, destination, text, outcome, overlap))
     return result
 
 
