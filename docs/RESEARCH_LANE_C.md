@@ -1414,3 +1414,91 @@ overwritten by later diagnostic calls). `runs/` started empty in `C:\w\c129`; en
   verifier — and the second draw's rejection was diagnosed deterministically rather than redrawn.
   **Java cohort: 3 of 4 landed** — PDF (`099e70a8`), 3D (`e308de58`), Cells (`779c9640`);
   `repository-presenter status` reads **10/34** before and after.
+- **2026-09-17 · G4-W12-RERUN13 · PROPOSAL AF (`14cb4d3`) is confirmed closed on exactly the case
+  it names — genuine changed input, verified against origin/main before drawing.** Fresh short-path
+  worktree `C:\w\c12r13` off `origin/main` at `ec33096` (which carries `14cb4d3`,
+  `REVIEWER_LOGIC_VERSION` 9 → 10). Environment hash `f4406f1b…` confirmed before any candidate
+  work. Preflight against the unchanged revision `a03b119a…` reproduces RERUN12's own fact set
+  exactly (5235 facts, 0 unresolved) — the lane-owned `java_examples.py` fix still holds, 8 of 8
+  examples executed. Composed fresh, no held store: 47 ledger rows, 28 success, 14 cache_reuse, 5
+  `response_invalid`, **0 `cache_stale`** (PROPOSAL V stays closed). Measured with zero provider
+  calls by replaying RERUN12's own finding shape (a presentation finding on `documentation_resources`
+  whose own `fact_ids` names `link_target:023` directly) through `cited_fact_defect` on this draw's
+  own facts: it returns the fold reason verbatim — *"the quote contains the literal value of
+  SUPPORTED fact link_target:023 ('CODE_OF_CONDUCT.md'), which the finding itself cites as its
+  evidence…"*. `14cb4d3` does exactly what its commit message claims.
+- **2026-09-17 · G4-W12-RERUN13 · PROPOSAL AD (RERUN12, `docs/RESEARCH_LANE_C.md`/
+  `evidence/build/lanes/lane-c/G4-W12-RERUN12.json`, then recorded LATENT) is CONFIRMED LIVE on this
+  draw — the first time it has actually blocked a candidate rather than sit latent.** Finding `F05`
+  `presentation`/`scope_limitations`, `absent` `['## Requirements', '| | |', '| Java | **21 or
+  later.**']`, `fact_ids` `[]`, quoting the candidate's own opening sentence *"…supporting Java 21
+  and later."*, text: *"The candidate merges the 'Requirements' section into 'Scope and
+  Limitations' without clear separation…"*. **Measured, zero provider calls:**
+  `absence_partition(finding, README.md, evidence)` returns `present []`, `invented []`,
+  `remaining` = all three claims. `## Requirements` occurs verbatim in the original README as its
+  own heading, immediately followed by the two-column table whose first row is `| Java | **21 or
+  later.**…` — genuine upstream text, so not invented; it occurs nowhere in the candidate's own
+  `scope_limitations` section slice, which renders the identical fact as prose rather than a
+  restored heading and table, so not present either. Every deterministic refutation in
+  `scope_defect` returns `None`; the finding stands on a real remainder by AD's own mechanism,
+  exactly as written up after RERUN12's first draw. No new proposal letter spent; resume predicate
+  stays PROPOSAL AD.
+- **PROPOSAL 2026-09-17 AG · `_reviewed_unit_fact_ids` (and the `quote_located` anchor rule it
+  shares with `_carried_by_units`) cannot locate the one content unit that wrote a bullet's trailing
+  sentence when a reviewer quotes the renderer's own chrome prefixed onto it — so item 83/91's
+  "reviewed unit's own citations" widening, and therefore PROPOSAL AF's fix, never gets a chance to
+  run for this shape.** File: `src/repository_presenter/components/readme/review/independent/
+  review.py`, `_reviewed_unit_fact_ids()` and `_carried_by_units()` (both built on `quote_located`'s
+  opening-anchor rule), as read by `cited_fact_defect()`'s `if not product:` branch (item 83/91).
+  Repository and finding: Slides Java, RERUN13's only draw, `F06` `presentation`/
+  `documentation_resources`, `absent []`, `fact_ids []` — the *identical substantive complaint*
+  RERUN12's `F07` raised and PROPOSAL AF was written to close, quoting the candidate's own rendered
+  line *"- **[Code of Conduct](CODE_OF_CONDUCT.md)** — The Code of Conduct outlines expected
+  behavior…"*. **Measured, zero provider calls:** the content unit for `link_target:023` in
+  `content_units.json` carries `fact_ids: ["link_target:023"]` and `text` equal to the descriptive
+  sentence *alone* — *"The Code of Conduct outlines expected behavior for participants contributing
+  to or engaging with the Aspose.Slides FOSS for Java community."* — because the renderer composes
+  the visible bullet as its own chrome prefix (`"- **[Code of Conduct](CODE_OF_CONDUCT.md)** — "`)
+  followed by that unit's text. The reviewer's quote is the *whole rendered line*, chrome included.
+  `quote_located(quote, unit_text)` returns `False`: the normalized whole-quote containment check
+  fails because the unit's own text lacks the renderer's prefix entirely, and the eighty-character
+  opening anchor (`_ANCHOR_LENGTH`) also fails because it anchors to the quote's own *opening*
+  characters — exactly the renderer's prefix, absent from the haystack. Directly confirmed:
+  `_reviewed_unit_fact_ids(quote, units)` returns `()` for this quote against this
+  `content_units.json`, so `cited_fact_defect(finding, quote, by_id, ())` returns `None` even though
+  `link_target:023` (SUPPORTED, value `CODE_OF_CONDUCT.md`) is plainly the unit's own citation and
+  the quote plainly carries its value inside link syntax — confirmed the other way too: feeding the
+  same finding `fact_ids: ["link_target:023"]` directly (RERUN12's own self-cited shape) makes
+  `cited_fact_defect` fold it immediately, so PROPOSAL AF's fix is not in question; only the gate in
+  front of it, for this one shape, is. **The counterfactual:** `quote_located`'s own documented
+  anchor rule already tolerates a reviewer that "copies a whole block and drifts in its tail" — an
+  opening anchor for text that runs long *after* the match. This shape is the mirror image: the
+  extra text is a renderer-added *prefix*, ahead of the unit's own sentence, which no existing rule
+  anchors from the close. Fix: widen `_carried_by_units`/`_reviewed_unit_fact_ids` alone — never
+  `quote_located`'s own general contract, which `absence_defect` and `review_checks` also depend on
+  for an unrelated question — so that when the whole-quote and opening-anchor checks both fail, a
+  unit still "carries" the quote if the unit's own normalized text is itself a sufficiently long
+  trailing substring of the quote's normalized form (a closing anchor, symmetric to the existing
+  opening one). Alternative rejected: widening `quote_located` itself, which risks a false positive
+  on a short absence claim `absence_defect` was written to catch, for two callers that already carry
+  their own length-gated fragment logic beside it. Mutation test: a finding quoting a bullet's full
+  rendered line (chrome prefix + a unit's own trailing sentence) backed by a cited-or-reviewed-unit
+  fact must fold via `cited_fact_defect`; an otherwise identical quote whose trailing sentence no
+  unit wrote must still stand. Reversal: drop the closing-anchor check, back to opening-anchor only.
+  Not this lane's to write — `review/` is shared.
+- **2026-09-17 · G4-W12-RERUN13 · PROPOSAL AE recurs a further time.** `repairs.json`'s `F07`/`S6`/
+  `enterprise_relationship` attempt records one change, `R01`, with `before` equal to `after` to the
+  byte (*"Aspose.Slides FOSS for Java provides core presentation processing capabilities, while the
+  commercial edition extends functionality with additional features and support options."*),
+  recorded `outcome: "repaired"` — and this time it happened not to re-raise in the next
+  independent read, the same way RERUN12's own `F05`/`scope_limitations` no-op did.
+- **2026-09-17 · G4-W12-RERUN13 · `DISPOSITION BLOCKED_VALIDATION` for
+  `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` at BC-10, resume predicates PROPOSAL AD (confirmed
+  live, above) and PROPOSAL AG (new, above).** BC-01 through BC-09 `PASS`, BC-10 `FAIL` on exactly
+  these two findings, BC-11 never judged. Nothing was sealed and nothing was forced: `candidates/`
+  holds no directory for this repository, and `project/state.yaml` was not opened. No third
+  composition was attempted (loop-prompt.md §5): both causes are shared code (`review/`), not this
+  lane's to patch, and both are now named with zero-provider-call evidence, so a further redraw
+  without a code change would not narrow the diagnosis further. **Java cohort: 3 of 4 landed** — PDF
+  (`099e70a8`), 3D (`e308de58`), Cells (`779c9640`); `repository-presenter status` reads **18/34**
+  before this run (other lanes' landings since RERUN12), unchanged by it.
