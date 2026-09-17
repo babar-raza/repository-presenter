@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "lane": "lane-b",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W13-RERUN9",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-17T05:41:00+05:00",
+  "control_revision": "9cbd522",
+  "control_revision_note": "The single-use branch lane-b/G4-W13-RERUN9 was cut from origin/main at 9cbd522 in a fresh short-path worktree at C:\\w\\b14 (05:24:24). origin/main did not advance during the two draws below; re-fetched at recording time and confirmed still at 9cbd522, so no rebase is needed before landing.",
+  "resume_predicate_verification": "Before drawing: confirmed draw 8's named resume predicate, PROPOSAL LANE-B-R8-F1, landed as commit fd65028 ('recognize the bare <details>/</details> tag as renderer-owned chrome'), read in full via git show against origin/main - _RENDERED_CHROME now carries the two literal tag strings beside the two summary strings, REVIEWER_LOGIC_VERSION 8 -> 9, with a new mutation test (test_a_finding_quoting_the_bare_details_tag_is_the_reviewers_defect) and two updated pins. Also confirmed six other commits landed in shared code since draw 8's 25aae12 (912aa62 duplicate-subject reconciliation guard, 54fed24 domain checks regardless of binding-error state, 4df1b08 a unit never restates its own slot's title, c83d2c4 WORD_EXTENSIONS .one, 9cbd522 BC-07 subsystem noun/hyphen name) - none named as this repository's resume predicate, but all in scope for a genuine changed-input retry per loop-prompt-lane section 2's 'own only' rule (composition/, review/, repair/, core/ are read-only, not re-verified line by line beyond the named predicate).",
+  "time_box": {
+    "declared": "Spawn instruction 2026-09-17 04:xx (+05:00): re-draw aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp now that item 101 (commit fd65028, LANE-B-R8-F1) has landed, clearing draw 8's resume predicate.",
+    "started": "2026-09-17T05:24:00+05:00",
+    "closed": "2026-09-17T05:41:00+05:00",
+    "closed_by": "Two independent draws (fresh live section_authoring calls both times, not a cache replay) produced the identical hard failure - JobError 'output rejected twice' on the same slot, same title, four independent live samples all restating it - per loop-prompt section 5 ('two equivalent failed attempts... prohibit a third equivalent attempt'), a third draw was not run. Root cause is diagnosed and named as a shared-code PROPOSAL the lane may not land; the disposition is recorded and the box closes."
+  },
+  "environment": {
+    "os": "Microsoft Windows 11 Pro 10.0.26200.9457",
+    "python": "3.13.2",
+    "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . (loop-prompt-lane section 1.3, exactly)",
+    "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "worktree": "C:\\w\\b14",
+    "toolchain_registry": "C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt; not exercised this draw beyond the cached facts/examples stages - the transaction dies at S6 before any C++ toolchain step would re-run"
+  },
+  "what_this_run_tested": "Whether LANE-B-R8-F1's landing (the bare <details>/</details> chrome exemption) lets aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp actually reach a seal or a clean BC-10 verdict, now that its own S6-onward facts/plan are unchanged (same revision 888700a, same facts digest bd8f4a98... as every prior draw). No assumption was made about the outcome; the draw was run twice and the result measured both times.",
+  "answered": {
+    "did_lane_b_r8_f1_clear_bc10": "UNTESTED THIS DRAW - the transaction never reached S9 validation or S10 review in either draw, so BC-10 and the <details> chrome exemption were never exercised. A new, earlier-stage blocker intervened at S6 (section_authoring), before validation.",
+    "what_happened_instead": "core/llm/jobs.py raised JobError('section_authoring: output rejected twice; last rejection: ...') for the key_capabilities packet in both draws. unit_checks (composition/authoring.py, arrival item 99/E19, landed 4df1b08 - after draw 8's 25aae12, so never previously exercised on this repository) rejects a unit whose text contains its own slot's title verbatim. capability:3's plan-assigned title, 'Render pages to raster images' (plan.json core_capabilities[2], facts example:001 + public_symbol:aspose.pdf.devices, S5 output unchanged and cache_reused since draw 1's own S5 call), was echoed verbatim as the opening clause of capability:3's authored text in all four independent live section_authoring samples measured (draw 1 attempts 1 and 2; draw 2 attempts 1 and 2 - four different response_sha256 values, so not a cache replay of the same text, a genuinely different live sample each time), despite the packet's own title_rule sentence telling the model exactly this ('the unit never restates it... it adds what the title does not say') and despite the one-shot correction re-ask quoting the rejection back verbatim.",
+    "root_cause": "PROPOSAL LANE-B-R9-F1 (see docs/RESEARCH_LANE_B.md 2026-09-17 05:41 UTC): capability:3's facts (PngDevice, JpegDevice, BmpDevice, TiffDevice - a raster-image renderer with no other capability) admit essentially one accurate five-to-eight-word topic sentence, which is exactly what S5's presentation_planning already chose as the slot's title; unit_checks' title-restatement guard (an unqualified case-insensitive substring match, composition/authoring.py lines ~1190-1197) has no tolerance for a capability this narrowly scoped, where any faithful description of the same facts necessarily opens with near-identical wording to its own title. Not a flaw in the check's general design (it correctly caught a real coherence-revert defect on Words-Python per 4df1b08's own commit message) but an edge case the check's author had not measured against a single-purpose capability - this draw is the first time it has been exercised on one."
+  },
+  "findings": [
+    {
+      "id": "LANE-B-R9-F1",
+      "kind": "PROPOSAL",
+      "files": [
+        "src/repository_presenter/components/readme/composition/authoring.py (unit_checks title-restatement guard, lines ~1190-1197, added by arrival item 99/E19, commit 4df1b08)",
+        "src/repository_presenter/components/readme/composition/planning.py (capability_titles / core_capabilities title selection, S5 presentation_planning - the title itself, not just the guard, may need to allow a more oblique phrasing for a single-purpose capability)"
+      ],
+      "defect": "A slot whose title is already the maximally concise, accurate description of a single-purpose capability's facts (here, 'Render pages to raster images' for a device set that does exactly and only that) gives the model no accurate alternative topic sentence that both describes the facts and avoids the title's own wording; the title-restatement guard's unqualified substring match has no leeway for this case and rejects every live sample, twice per draw, across two independent draws (four samples total, four different response_sha256 values - a genuinely different live completion each time, not a cache artifact), even though the packet's own title_rule instructs the model correctly and the one-shot correction quotes the exact violation back to it.",
+      "evidence": "runs/transactions/aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp/888700a8e361d32df21d0810c2eb939345e0603e/calls.jsonl: four section_authoring response_invalid rows (2026-09-17T00:32:34, 00:33:11, 00:38:14, 00:38:57), all four citing 'unit capability:3: restates its own title '\\''Render pages to raster images'\\''...'; the two attempt-1 rejections (00:32:34, 00:38:14) additionally cite an unrelated, non-recurring identifier defect ('adbe.pkcs7.detached') that the one-shot correction resolved both times - only the title restatement survives to the final JobError both draws. runs/.../plan.json core_capabilities[2]: title 'Render pages to raster images', fact_ids [example:001, public_symbol:aspose.pdf.devices], unchanged and cache_reused from draw 1 across both draws (S5 never re-called). runs/.../calls/ffa0718357e7.rejected-1.json and .rejected-2.json hold the two full rejected texts from draw 1, both opening capability:3's unit with 'Render pages to raster images through PngDevice, JpegDevice, and BmpDevice...' verbatim.",
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "landed": false
+    }
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+      "disposition": "BLOCKED_COMPOSING (S6)",
+      "disposition_change": "MOVES from BLOCKED_REVIEW (BC-10, draw 8) to BLOCKED_COMPOSING (S6, JobError OutputRejected) - a stage regression, not a restatement: draw 8 reached S10 independent review and failed there; this draw never reaches S9 validation at all, because a shared-code check newly landed since draw 8 (arrival item 99/E19, commit 4df1b08) now blocks section_authoring itself on a title-restatement defect this repository never faced before (the check did not exist at draw 8's revision). sealed_by_lane stays 1; dispositions_by_lane stays 9 (moved, not a new repository).",
+      "facts": "1,846 records; digest bd8f4a983c791ea927ae01b7b0b848a8f88b1005863a5930e32560f8377965bb - unchanged from every prior draw (deterministic facts stage, unchanged source and extractor); 1,839 SUPPORTED, 5 UNRESOLVED, 2 CONTRADICTED; required contract rows without evidence: none",
+      "examples": "11 candidates: 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED (unchanged)",
+      "stages": "S3 repository_investigation: 1 live call draw 1, cache_reuse draw 2 (unchanged output). S4 source_reconciliation: 4 live calls draw 1, 4 cache_reuse draw 2 (unchanged output - accepted, not re-verified for a material split since it was reused, not re-recomputed). S5 presentation_planning: 1 live call draw 1, cache_reuse draw 2 (title 'Render pages to raster images' unchanged for capability:3 both draws). S6 section_authoring: both draws hard-fail on the key_capabilities packet after exactly 2 attempts each (the manifest's own one-retry shape); no content_units.json, validation.json, or review.json produced in either draw.",
+      "validation": "NOT REACHED. No validation.json in either draw's transaction directory; the run aborts inside S6 before S9 begins.",
+      "review": "NOT REACHED.",
+      "repair": "NOT REACHED - the targeted_repair mechanism operates on S9-validated, S10-reviewed content; this failure is a generation-time JobError, before either stage runs.",
+      "provider_calls": "22 ledger rows across both draws combined: 11 live completed (all HTTP 200 as 'success' outcomes), 7 cache_reuse (S3/S4/S5 reused unchanged in draw 2), 4 response_invalid (all four section_authoring, all four citing the title restatement), 0 cache_stale (an eighth independent non-materialisation of lane E's PROPOSAL E3 at this repository's surface size, this repository's sixth).",
+      "resume_predicate": "Re-run present --repo aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp once PROPOSAL LANE-B-R9-F1 lands (the title-restatement guard tolerates a single-purpose capability's necessarily title-echoing topic sentence, or S5's title selection for such a capability is revised to something the body text can elaborate on without echoing), or once the primary rules a narrower fix or an exception sufficient. Not before: two independent live draws already measured the identical failure on four independent samples; a third draw is prohibited by loop-prompt section 5 without a change to the evidence, prompt, model route, component, stage, boundary, or mechanism - none of which the lane may make itself."
+    }
+  ],
+  "not_drawn": {
+    "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "BLOCKED_REVIEW (BC-10) since G4-W14-RERUN3 (2026-09-16 17:59), resume predicate PROPOSAL LANE-B-W14R3-F1 (out of this item's named scope; not re-checked).",
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript": "SEALED at G4-W14-RERUN5 (2026-09-16 21:33); not applicable.",
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript": "BLOCKED_INVESTIGATION (S3) since G4-W14-RERUN4 (2026-09-16 20:36), resume predicate a shared-code multi-block citation class (out of this item's named scope, and disabled: disposition only per the lane file; not re-checked).",
+    "aspose-email-foss/Aspose.Email-FOSS-for-Cpp": "BLOCKED_PLANNING (S5), resume predicate arrival item (25) landing (out of this item's named scope; not re-checked).",
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp": "BLOCKED_REVIEW (BC-10) since G4-W13-RERUN5 (2026-09-16 15:48) (out of this item's named scope; not re-checked)."
+  },
+  "provider_calls": {
+    "total_ledger_rows": 22,
+    "completed": 11,
+    "output_rejections": 4,
+    "cache_reuse": 7,
+    "cache_stale": 0,
+    "by_job": "section_authoring 10, source_reconciliation 8, repository_investigation 2, presentation_planning 2",
+    "note": "22 ledger rows across two draws, 11 live provider calls, all HTTP 200 as raw completions, 0 cache_stale - the eighth independent non-materialisation of lane E's PROPOSAL E3 at this repository. 4 response_invalid rows, all section_authoring, all citing the same title-restatement defect on capability:3."
+  },
+  "progress": {
+    "sealed_by_lane": 1,
+    "candidates_after_run": "15/34 (repository-presenter status, run from this worktree already at origin/main's head; unchanged by this draw)",
+    "dispositions_by_lane": 9
+  },
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full suite immediately before the commit. No src/ or tests/ file changed this item (this draw's own blocker, LANE-B-R9-F1, is shared code the lane may not edit), so the suite is a control on the evidence, lane-file and RESEARCH log edits only.",
+    "ruff_check": "All checks passed!",
+    "ruff_format": "236 files already formatted",
+    "mypy_src": "Success: no issues found in 126 source files",
+    "pytest": "1,223 passed, 23 xfailed in 94.08s (-n auto)",
+    "runs_this_iteration": "1 full pytest run for 1 commit"
+  }
+}

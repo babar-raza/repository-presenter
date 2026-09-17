@@ -356,7 +356,30 @@ progress:
     non-determinism draw 6 already measured at this stage). No lane-owned code changed this run
     (the blocker is shared code). sealed_by_lane stays 1, dispositions_by_lane stays 9 (restated,
     not a new repository). repository-presenter status after the run: 15/34 - the rise is
-    another lane''s seal, not this draw''s, and is recorded as observed rather than assumed.'
+    another lane''s seal, not this draw''s, and is recorded as observed rather than assumed.
+    G4-W13-RERUN9 2026-09-17 05:41 against origin/main at 9cbd522 (branch lane-b/G4-W13-RERUN9,
+    fresh worktree C:/w/b14): resume PDF-Cpp now that item 101 (commit fd65028, LANE-B-R8-F1)
+    has landed, verified directly against the checked-out source before drawing. Two
+    independent draws, both genuinely fresh section_authoring samples (four distinct
+    response_sha256 values, not a cache replay), hit the same new hard failure:
+    composition/authoring.py''s title-restatement guard (arrival item 99/E19, landed at 4df1b08
+    after draw 8''s revision) rejects capability:3''s unit for opening with its own
+    plan-assigned title, "Render pages to raster images", verbatim - a single-purpose
+    capability whose facts (PngDevice/JpegDevice/BmpDevice/TiffDevice) admit no accurate
+    alternative topic sentence. core/llm/jobs.py raises JobError after the manifest''s own
+    two-attempt budget; the transaction never reaches S9 validation or S10 review, so
+    LANE-B-R8-F1''s own fix - the reason this repository was redrawn - was never exercised
+    either time. Per loop-prompt section 5, a third draw was not run: the failure recurred
+    identically on four independent live samples, narrowing the cause rather than leaving it
+    to chance. New PROPOSAL LANE-B-R9-F1 (shared code: composition/authoring.py''s
+    unit_checks title-restatement guard; possibly composition/planning.py''s
+    core_capabilities title selection) is in docs/RESEARCH_LANE_B.md and
+    evidence/build/lanes/lane-b/G4-W13-RERUN9.json, the live source. Disposition MOVES from
+    BLOCKED_REVIEW (BC-10) to BLOCKED_COMPOSING (S6) - a stage regression caused entirely by
+    shared code landed since draw 8, not by this repository''s own facts changing (digest
+    bd8f4a98... unchanged). No lane-owned code changed this run. sealed_by_lane stays 1,
+    dispositions_by_lane stays 9 (moved, not a new repository). repository-presenter status
+    after the run: 15/34, unchanged by this draw.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -690,4 +713,30 @@ items:
     narrower fix sufficient, or rules the corroborated F08 finding unblocking on some other
     ground.'
   run_2026_09_17_r12: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN8.json,
+    which is the live source for this run rather than a copy.
+- id: G4-W13-RERUN9
+  status: ACCEPTED
+  accepted_at: '2026-09-17T05:41:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W13-RERUN9.json
+  purpose: 'Spawn instruction 2026-09-17: re-draw aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp now that
+    item 101 (commit fd65028, LANE-B-R8-F1, "recognize the bare <details>/</details> tag as
+    renderer-owned chrome") has landed on origin/main, clearing draw 8''s resume predicate.
+    Verified directly against the checked-out source before drawing rather than trusted from the
+    spawn instruction alone: git show fd65028 confirms _RENDERED_CHROME now carries both bare
+    tag strings and REVIEWER_LOGIC_VERSION moved 8 to 9. A genuine changed-input retry. Never
+    force a seal, never weaken a check, report the verdict literally.'
+  resume_predicate: 'CLOSED for this item: PDF C++ was drawn twice, end to end through S6, and
+    has its verdict, reported literally (both draws hard-fail at section_authoring with
+    JobError "output rejected twice" on capability:3 restating its own plan-assigned title,
+    "Render pages to raster images", verbatim - four independent live samples across the two
+    draws, all four failing identically; LANE-B-R8-F1''s own fix was never exercised either
+    time since the transaction never reaches S9/S10). Per loop-prompt section 5, a third draw
+    was not run once the cause was narrowed to this specific title/facts pairing rather than
+    chance. What remains open is shared code the lane may not land: aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,
+    BLOCKED_COMPOSING (S6) - re-run once PROPOSAL LANE-B-R9-F1 lands
+    (composition/authoring.py''s unit_checks title-restatement guard gains tolerance for a
+    single-purpose capability whose title is already the only accurate short description of
+    its facts, or composition/planning.py''s S5 title selection is revised for such a
+    capability), or once the primary rules a narrower fix or an exception sufficient.'
+  run_2026_09_17_r13: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN9.json,
     which is the live source for this run rather than a copy.
