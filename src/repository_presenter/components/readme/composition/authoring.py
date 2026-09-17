@@ -54,6 +54,22 @@ _CALL = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\(\)")
 # text right after the code span - measured in PDF Java's very first paragraph, the one sealed
 # candidate whose review never even reopened.
 _COORDINATE = re.compile(r"\b[A-Za-z_][A-Za-z0-9_.]*:[A-Za-z0-9_.-]+\b")
+# A slash-delimited module path ("github.com/aspose-pdf-foss/aspose-pdf-foss-for-go") is one
+# token, not a dotted host that happens to sit next to a path. Item 113 (RESEARCH_AND_GUIDELINES
+# section 29, lane D PROPOSAL P26, PHASE1 supervisor-admitted 2026-09-17): without this, _DOTTED
+# alone matched "github.com" and the renderer wrapped only that, leaving the rest of the import
+# path as bare prose right after the code span - measured on PDF-Go's Quick Start lead-ins and its
+# documentation_resources link unit. Same shape as _COORDINATE, one delimiter over.
+_MODULE_PATH = re.compile(
+    r"\b[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+(?:/[A-Za-z0-9_.-]+)+\b"
+)
+# _MODULE_PATH is scanned only with every "scheme://address" run masked out first: a URL's own
+# host is already reached by _DOTTED and its whole address is judged by the "contains a URL"
+# check (unit_checks) - a schemeless Go module path is the one shape neither already covers, and
+# masking keeps this addition from also matching the path segment of an ordinary https:// link
+# (measured regression: "https://docs.example.com/3d" gained a spurious second, overlapping
+# "docs.example.com/3d" identifier alongside _DOTTED's existing "docs.example.com").
+_URL = re.compile(r"<?https?://\S+")
 # Where a Markdown source keeps code rather than prose: a word inside any of these is not a word
 # the source wrote, so it never licenses a spelling (prose_nouns).
 _NOT_PROSE = (
@@ -813,10 +829,11 @@ def identifier_allowed(
 
 def identifier_tokens(text: str) -> set[str]:
     """Tokens the renderer would have to wrap in a code span: dotted, snake, CamelCase, calls,
-    package coordinates."""
+    package coordinates, slash-delimited module paths."""
     found: set[str] = set()
     for pattern in (_DOTTED, _SNAKE, _CAMEL, _CALL, _COORDINATE):
         found.update(match.group(0) for match in pattern.finditer(text))
+    found.update(match.group(0) for match in _MODULE_PATH.finditer(_URL.sub(" ", text)))
     # An all-capital token with digits (U3D, A3DW, 3MF) is a format acronym, spelled in prose
     # as the contract's canonical abbreviations are, never an identifier.
     return {token for token in found if not (token.isupper() and token.isalnum())}

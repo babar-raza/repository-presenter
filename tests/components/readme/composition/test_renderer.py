@@ -467,6 +467,30 @@ def test_prose_wraps_a_package_coordinate_as_one_code_span_not_a_dotted_prefix()
     )
 
 
+def test_prose_wraps_a_slash_delimited_module_path_as_one_code_span() -> None:
+    # Item 113 (RESEARCH_AND_GUIDELINES.md section 29, lane D PROPOSAL P26, PHASE1
+    # supervisor-admitted 2026-09-17): measured on PDF-Go - identifier_tokens recognized only the
+    # dotted "github.com" host of the module path, so the renderer wrapped that alone and left
+    # "/aspose-pdf-foss/aspose-pdf-foss-for-go" as bare prose right after the code span, a split
+    # identifier loop-prompt.md section 6 rule 8 names a defect even when every check passes.
+    go_module = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "import_path:go_module",
+                "import_path",
+                "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go",
+            ),
+        ),
+    )
+    context = RenderContext(ENTRY, go_module, PLAN, UNITS, DISPOSITIONS)
+    assert context.prose(
+        "Use the Open and Save methods from github.com/aspose-pdf-foss/aspose-pdf-foss-for-go."
+    ) == ("Use the Open and Save methods from `github.com/aspose-pdf-foss/aspose-pdf-foss-for-go`.")
+
+
 def test_prose_folds_a_trailing_call_parens_into_the_same_code_span() -> None:
     # External audit, 2026-09-07: the un-widened match left a bare "()" outside the span -
     # `Scene.save`() - measured 16+ times in one sealed candidate and once in an unrelated one.
