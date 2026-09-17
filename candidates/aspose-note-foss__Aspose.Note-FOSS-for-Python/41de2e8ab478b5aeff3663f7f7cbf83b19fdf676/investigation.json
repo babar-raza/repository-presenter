@@ -1,0 +1,255 @@
+{
+  "audience": {
+    "fact_ids": [
+      "example:002",
+      "example:003",
+      "example:004",
+      "example:005",
+      "example:006",
+      "example:007",
+      "example:008",
+      "example:009",
+      "example:010",
+      "example:011",
+      "example:012"
+    ],
+    "text": "Python developers who need to parse OneNote documents programmatically without requiring Microsoft OneNote installation or COM automation."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "format:input.one",
+        "public_symbol:aspose.note.document"
+      ],
+      "text": "Parse .one files from paths or binary streams into a DOM tree of Page, Outline, OutlineElement, RichText, Image, Table, and AttachedFile nodes.",
+      "title": "Parse OneNote documents"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "public_symbol:aspose.note.documentvisitor",
+        "public_symbol:aspose.note.node"
+      ],
+      "text": "Traverse the document tree using GetChildNodes for type-based search or DocumentVisitor for full traversal.",
+      "title": "Traverse document structure"
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:011",
+        "public_symbol:aspose.note.richtext",
+        "public_symbol:aspose.note.textrun",
+        "public_symbol:aspose.note.textstyle"
+      ],
+      "text": "Extract text with per-run formatting including bold, italic, underline, hyperlinks, font name, size, and color via TextRun and TextStyle.",
+      "title": "Extract rich text with formatting"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:006",
+        "public_symbol:aspose.note.image",
+        "public_symbol:aspose.note.attachedfile"
+      ],
+      "text": "Extract embedded images and attached files by accessing their bytes and file names for saving to disk.",
+      "title": "Extract images and attachments"
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "example:007",
+        "public_symbol:aspose.note.table",
+        "public_symbol:aspose.note.notetag"
+      ],
+      "text": "Inspect tables through Table, TableRow, TableCell, and TableColumn; and OneNote tags through NoteTag with labels and statuses.",
+      "title": "Inspect tables and tags"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:010",
+        "format:output.pdf",
+        "public_symbol:aspose.note.saveformat"
+      ],
+      "text": "Export pages to PDF using Document.Save with SaveFormat.Pdf and PdfSaveOptions for JPEG quality and image compression control.",
+      "title": "Export to PDF"
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "public_symbol:aspose.note.numberlist"
+      ],
+      "text": "Inspect NumberList properties including format, number format, and restart behavior on OutlineElement nodes.",
+      "title": "Inspect numbered lists"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.filecorruptedexception",
+        "public_symbol:aspose.note.incorrectpasswordexception",
+        "public_symbol:aspose.note.unsupportedfileformatexception"
+      ],
+      "text": "Handle library-specific exceptions including FileCorruptedException, IncorrectPasswordException, and UnsupportedFileFormatException.",
+      "title": "Handle exceptions"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:083.list"
+      ],
+      "text": "Writing back to .one files is not implemented — this library only reads OneNote files."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list"
+      ],
+      "text": "Password-protected documents are not supported — supplying a password raises IncorrectPasswordException."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:aspose.note.saveformat"
+      ],
+      "text": "SaveFormat currently declares only Pdf — Document.Save raises UnsupportedSaveFormatException for any other format."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:aspose.note.license",
+        "public_symbol:aspose.note.metered"
+      ],
+      "text": "License.SetLicense() and Metered.SetMeteredKey() are no-ops in this edition — no license is required to use this library."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list"
+      ],
+      "text": "DetectLayoutChanges() is a compatibility stub and performs no layout computation."
+    },
+    {
+      "fact_ids": [
+        "dependency:optional.pdf.reportlab-3.6",
+        "inherited_unit:017.heading"
+      ],
+      "text": "PDF export requires the optional reportlab dependency; it is not included by default."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "example:008",
+        "example:009",
+        "example:010",
+        "example:011",
+        "example:012"
+      ],
+      "text": "Enables programmatic access to OneNote document content including pages, rich text, images, tables, attachments, tags, and numbered lists."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:010",
+        "format:output.pdf"
+      ],
+      "text": "Supports exporting OneNote pages to PDF with configurable image compression and JPEG quality."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "public_symbol:aspose.note.documentvisitor",
+        "public_symbol:aspose.note.node"
+      ],
+      "text": "Provides a tree-based DOM traversal API using DocumentVisitor and GetChildNodes for structured document inspection."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:006",
+        "public_symbol:aspose.note.image",
+        "public_symbol:aspose.note.attachedfile"
+      ],
+      "text": "Allows extraction of embedded images and attached files directly to disk without external dependencies."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name"
+    ],
+    "text": "Aspose.Note FOSS for Python is a free, open-source Python library for reading Microsoft OneNote (.one) files and exporting pages to PDF."
+  },
+  "uncertainties": [
+    "The exact scope of 'OneNote Online' format support is not specified beyond FileFormat.OneNoteOnline being declared.",
+    "Whether PageHistory supports full revision history beyond the current page is unclear from available facts.",
+    "The behavior of Document.DetectLayoutChanges() in the commercial product versus this FOSS edition is not detailed beyond being a stub."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:004",
+        "format:input.one"
+      ],
+      "name": "Load and inspect document",
+      "text": "Load a .one file from path or binary stream using Document, then inspect its display name and node count."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:011",
+        "public_symbol:aspose.note.richtext",
+        "public_symbol:aspose.note.textrun",
+        "public_symbol:aspose.note.textstyle"
+      ],
+      "name": "Extract rich text with formatting",
+      "text": "Traverse RichText nodes and inspect per-run formatting including hyperlinks, bold, italic, and font properties."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.note.image"
+      ],
+      "name": "Extract embedded images",
+      "text": "Iterate Image nodes, access their bytes and file names, and write them to disk."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "public_symbol:aspose.note.table",
+        "public_symbol:aspose.note.tablerow",
+        "public_symbol:aspose.note.tablecell"
+      ],
+      "name": "Parse tables",
+      "text": "Traverse Table, TableRow, and TableCell nodes to extract cell content as structured text."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "public_symbol:aspose.note.notetag",
+        "public_symbol:aspose.note.tagstatus"
+      ],
+      "name": "Inspect OneNote tags",
+      "text": "Access NoteTag objects attached to RichText nodes to read tag labels and statuses."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:010",
+        "format:output.pdf",
+        "public_symbol:aspose.note.saveformat"
+      ],
+      "name": "Export to PDF",
+      "text": "Call Document.Save with SaveFormat.Pdf and optional PdfSaveOptions to generate PDF output."
+    }
+  ]
+}

@@ -1,0 +1,441 @@
+{
+  "additional_example_ids": [
+    "example:004",
+    "example:005",
+    "example:006",
+    "example:007",
+    "example:008",
+    "example:009",
+    "example:010",
+    "example:011",
+    "example:012"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.document",
+        "example:002",
+        "example:004"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.document"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.richtext",
+        "example:009",
+        "example:011"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.richtext"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.image",
+        "example:003"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.image"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.attachedfile",
+        "example:006"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.attachedfile"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.table",
+        "example:005"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.table"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.saveformat",
+        "example:002",
+        "example:010"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.saveformat"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.documentvisitor",
+        "example:008"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.documentvisitor"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.notetag",
+        "example:007"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.notetag"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.numberlist",
+        "example:012"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.numberlist"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.filecorruptedexception"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.filecorruptedexception"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.incorrectpasswordexception"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.incorrectpasswordexception"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.unsupportedfileformatexception"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.note.unsupportedfileformatexception"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Parse OneNote documents",
+      "Traverse document structure",
+      "Extract rich text with formatting",
+      "Extract images and attachments",
+      "Inspect tables and tags",
+      "Export to PDF"
+    ],
+    "input_format_ids": [
+      "format:input.one"
+    ],
+    "output_format_ids": [
+      "format:output.pdf"
+    ]
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "format:input.one",
+        "public_symbol:aspose.note.document"
+      ],
+      "shared_fact_ids": [
+        "example:002"
+      ],
+      "title": "Parse OneNote documents"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "public_symbol:aspose.note.documentvisitor",
+        "public_symbol:aspose.note.node"
+      ],
+      "shared_fact_ids": [],
+      "title": "Traverse document structure"
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:011",
+        "public_symbol:aspose.note.richtext",
+        "public_symbol:aspose.note.textrun",
+        "public_symbol:aspose.note.textstyle"
+      ],
+      "shared_fact_ids": [],
+      "title": "Extract rich text with formatting"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:006",
+        "public_symbol:aspose.note.image",
+        "public_symbol:aspose.note.attachedfile"
+      ],
+      "shared_fact_ids": [],
+      "title": "Extract images and attachments"
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "example:007",
+        "public_symbol:aspose.note.table",
+        "public_symbol:aspose.note.notetag"
+      ],
+      "shared_fact_ids": [],
+      "title": "Inspect tables and tags"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:010",
+        "format:output.pdf",
+        "public_symbol:aspose.note.saveformat"
+      ],
+      "shared_fact_ids": [
+        "example:002"
+      ],
+      "title": "Export to PDF"
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "public_symbol:aspose.note.numberlist"
+      ],
+      "shared_fact_ids": [],
+      "title": "Inspect numbered lists"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.note.filecorruptedexception",
+        "public_symbol:aspose.note.incorrectpasswordexception",
+        "public_symbol:aspose.note.unsupportedfileformatexception"
+      ],
+      "shared_fact_ids": [],
+      "title": "Handle exceptions"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:008.code_block"
+      ],
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram from the inherited README is omitted because no fact supports its content."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:025.heading",
+        "inherited_unit:026.paragraph",
+        "inherited_unit:027.code_block",
+        "inherited_unit:028.paragraph",
+        "inherited_unit:029.code_block"
+      ],
+      "section_id": "quick_start",
+      "text": "The Quick Start heading and code blocks from the inherited README are omitted because no fact supports them."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:030.heading",
+        "inherited_unit:031.paragraph",
+        "inherited_unit:032.heading",
+        "inherited_unit:033.code_block",
+        "inherited_unit:034.html_block",
+        "inherited_unit:035.heading",
+        "inherited_unit:036.code_block",
+        "inherited_unit:037.heading",
+        "inherited_unit:038.code_block",
+        "inherited_unit:039.heading",
+        "inherited_unit:040.code_block",
+        "inherited_unit:053.html_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The Additional Examples heading and code blocks from the inherited README are omitted because no fact supports them."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:076.heading",
+        "inherited_unit:077.paragraph",
+        "inherited_unit:078.001.list",
+        "inherited_unit:078.002.list",
+        "inherited_unit:078.003.list",
+        "inherited_unit:078.004.list",
+        "inherited_unit:078.005.list",
+        "inherited_unit:078.006.list",
+        "inherited_unit:079.html_block"
+      ],
+      "section_id": "api_reference",
+      "text": "The API Reference section omits the exceptions subsection because exception details are covered under public symbols."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:084.paragraph"
+      ],
+      "section_id": "enterprise_relationship",
+      "text": "The Enterprise Edition reference is moved to a dedicated section per policy."
+    }
+  ],
+  "flagship_example_id": "example:007",
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:029",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:030",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:031",
+      "section_id": "third_party_notices"
+    },
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "license"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:083.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:aspose.note.saveformat"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:aspose.note.license",
+        "public_symbol:aspose.note.metered"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "dependency:optional.pdf.reportlab-3.6",
+        "inherited_unit:017.heading"
+      ],
+      "unit_ids": [
+        "inherited_unit:017.heading"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:002",
+  "second_quick_start_example_id": "example:003",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

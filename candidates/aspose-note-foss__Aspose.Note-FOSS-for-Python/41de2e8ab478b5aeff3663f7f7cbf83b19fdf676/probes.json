@@ -1,0 +1,122 @@
+[
+  {
+    "elapsed_ms": 839,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/note/python/"
+  },
+  {
+    "elapsed_ms": 1869,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/actions/workflows/ci.yml"
+  },
+  {
+    "elapsed_ms": 1367,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/actions/workflows/ci.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 1668,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/issues"
+  },
+  {
+    "elapsed_ms": 491,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 505,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/pypi/pyversions/aspose-note.svg"
+  },
+  {
+    "elapsed_ms": 538,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/pypi/v/aspose-note.svg"
+  },
+  {
+    "elapsed_ms": 857,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/note/python/"
+  },
+  {
+    "elapsed_ms": 625,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/note/"
+  },
+  {
+    "elapsed_ms": 565,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/note/python/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 544,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/note/python/"
+  },
+  {
+    "elapsed_ms": 1024,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://pypi.org/project/aspose-note/"
+  },
+  {
+    "elapsed_ms": 975,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://pypi.org/project/reportlab/"
+  },
+  {
+    "elapsed_ms": 780,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/note/python/"
+  },
+  {
+    "elapsed_ms": 1243,
+    "kind": "package_registry",
+    "observation": "latest 26.3.2",
+    "outcome": "FOUND",
+    "status": 200,
+    "target": "https://pypi.org/pypi/aspose-note/json"
+  }
+]

@@ -1,0 +1,88 @@
+{
+  "attempts": {
+    "2a6670181e3e53536c97f875": {
+      "changes": [
+        {
+          "after": "Convert a OneNote document to PDF by loading it and calling Save with Pdf format.",
+          "before": "Convert a OneNote document to PDF by loading it and calling Save with Pdf format, as shown in the example.",
+          "fact_ids": [
+            "example:002"
+          ],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F16",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "3ad566a5d1f7d803f8c36e1e0f6592379d7a0798b40229208504358646205149",
+      "section_id": "quick_start",
+      "source": "review",
+      "stage": "S6"
+    },
+    "4fcd5d6923bff0f7e2f1c81c": {
+      "changes": [
+        {
+          "after": "Control image compression quality and other export settings when exporting to PDF by invoking Save with SaveFormat.Pdf or a PdfSaveOptions instance.",
+          "before": "Export to PDF by invoking Save with SaveFormat.Pdf or a PdfSaveOptions instance, allowing control over image compression quality and other export settings.",
+          "fact_ids": [
+            "example:002",
+            "example:010",
+            "format:output.pdf",
+            "public_symbol:aspose.note.saveformat"
+          ],
+          "id": "R06",
+          "path": "revised_output.units[5].text"
+        }
+      ],
+      "label": "F02",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "3295c621777653dde748b2bc96262aa2d6dbd62b3a0e9f1aba80bb60b6eb10fe",
+      "section_id": "key_capabilities",
+      "source": "review",
+      "stage": "S6"
+    },
+    "b0e43fe2abafc344b9b794eb": {
+      "changes": [
+        {
+          "after": "Writing back to .one is not implemented — this library only reads OneNote files.",
+          "before": "This library is provided under a proprietary split license and is intended for developers who need programmatic read and PDF export of OneNote documents in Python applications.",
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "inherited_unit:083.list",
+            "package:license",
+            "package:name",
+            "package:python_requires",
+            "package:version"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[6].text"
+        },
+        {
+          "after": "[{  fact_id: package:license,  reason: The license value 'LicenseRef-Aspose-Split' contradicts 'MIT' and 'FOSS' claims; per the defect, the 'proprietary split license' phrasing is unsupported and must be removed.}]",
+          "before": "[]",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "revised_output.omitted"
+        }
+      ],
+      "label": "F03+F12",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "e7ead66cce779151702dd40465b8db5d088df6a37f3a8434c2501fb0a2132160",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "54943e3a518319b230528605ce506ec15a460885f69a7213e049655a2a4e8513",
+  "schema_version": 1
+}

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "lane": "one-off worker, NOT lane-e's own session (branch notepy/LANE-E-15) - spawned to re-draw one repository under a hard deadline while lane-e's own session stayed on Words-Python; project/lanes/lane-e.yaml and docs/RESEARCH_LANE_E.md were treated read-only and never touched",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "LANE-E-15",
+  "work_item_status": "SEALED",
+  "recorded_at": "2026-09-17T01:00:54+00:00",
+  "control_revision": "9cbd522",
+  "control_revision_note": "origin/main at the fetch that opened this run (also origin/main at commit time - no rebase needed, verified with `git log HEAD..origin/main` returning empty immediately before every push). Worktree C:\\w\\notepy2, branch notepy/LANE-E-15. Scope: one repository, aspose-note-foss/Aspose.Note-FOSS-for-Python, re-drawn because arrival item 104 (c83d2c4, landed 2026-09-17T04:48:21+05:00) names it as its own unlock, with items 102/103 (9cbd522) landed in the same window.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13 (.venv from C:\\Python313)",
+    "worktree": "C:\\w\\notepy2",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the first attempt, verified before any candidate work: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e . (project/loop-prompt-lane.md section 1.3's recipe)."
+  },
+  "toolchains": [
+    {
+      "tool": "python",
+      "resolved_by": "C:\\Python313\\python.exe -m venv .venv, then loop-prompt-lane.md 1.3",
+      "path": "C:\\w\\notepy2\\.venv\\Scripts\\python.exe",
+      "version": "3.13"
+    },
+    {
+      "tool": "git",
+      "resolved_by": "PATH",
+      "used_for": "the read-only clone under runs/clones"
+    }
+  ],
+  "gateway": {
+    "command": "repository-presenter preflight",
+    "host": "llm.professionalize.com",
+    "models": 7,
+    "prompt_manifests": 6,
+    "route": "qwen3-next",
+    "catalog_digest": "65b7049796ff5e89ea56b06f46c7cd0a104c6b54396062dc4219640e4d610e19"
+  },
+  "gate_check_before_starting": {
+    "question": "The spawn instruction asserted item 104 (WORD_EXTENSIONS missing 'one' for OneNote's .one extension) landed as c83d2c4 and asked this to be verified against origin/main before drawing rather than assumed.",
+    "verdict": "CONFIRMED: `git log origin/main --oneline` shows c83d2c4 ('fix(composition): WORD_EXTENSIONS admits OneNote's .one extension') as an ancestor of origin/main at 9cbd522, together with items 102/103's own landing (9cbd522, 'fix(validation): BC-07 admits a real subsystem noun and a hyphen-continued name'). The worktree was created fresh off `origin/main` at 9cbd522, not off any cached ref."
+  },
+  "runs": [
+    {
+      "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+      "source_revision": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676",
+      "source_revision_note": "The same revision LANE-E-02's original 2026-09-11 run, the G3 second pass, and LANE-E-11's 2026-09-16 draw all used.",
+      "outcome": "SEALED",
+      "gate_item_verdict": "ITEM 104 CLOSED for this repository, verified by running it end to end, not by reading the ledger. Items 102/103 (HTML-Python's own BC-07 gaps) do not recur here - neither the widened narration-noun exemption nor the hyphen-lookbehind change altered this repository's outcome; BC-07 passes solely because WORD_EXTENSIONS now admits 'one'.",
+      "stage_progress": {
+        "examples": "12 candidates; executed 11, failed 1 (example:001, the same genuine upstream AttributeError isolated as ordinary CONTRADICTED evidence since LANE-E-02's original run, per loop-prompt.md section 6 rule 16 - not this run's concern, unaffected by any of items 102-104)",
+        "facts": "352 records, identical to LANE-E-11's facts.json digest (3f65216f...): 351 SUPPORTED, 0 UNRESOLVED, 1 CONTRADICTED (example:001 above)",
+        "investigation/plan/units": "0 provider calls - model stored output reused byte for byte from the prior (unsealed) transaction cache; investigation 8 capabilities/6 workflows/6 limitations; plan 18/18 sections; 84 content units across 9 sections",
+        "coherence": "1 of 84 units revised (1 provider call on the first attempt; 0 provider calls, cache-reused, on the confirming rerun)",
+        "validation": "run 1: pass 10, fail 0, pending 1 (BC-11, not yet judged - awaits the no-op rerun). Run 2 (fresh process): pass 10, fail 0, pending 0 - BC-11 PASS, 'a fresh process reproduced every artifact byte for byte with zero provider calls'. All 11 checks PASS: BC-01..BC-11.",
+        "repair": "3 repaired in round 1 (F02 S6 key_capabilities, F03+F12 S6 scope_limitations, F16 S6 quick_start), 0 unrepairable; rounds 3 in the first attempt, 1 in the confirming rerun (cache-seeded)",
+        "review": "verdict ACCEPT both runs, 0 blocking findings, 15 advisory (all criterion=presentation, spanning opening/at_a_glance/key_capabilities/installation/dependencies/quick_start/api_reference/scope_limitations/enterprise_relationship/development_testing - read directly: none names a deterministic code defect, all are the reviewer's own non-blocking presentation-quality notes on already-ACCEPTed prose), 0 preserve"
+      },
+      "no_op_proof": {
+        "method": "Immediate rerun of `repository-presenter present --repo aspose-note-foss/Aspose.Note-FOSS-for-Python` in the same worktree, fresh process, cache seeded from the just-sealed bundle.",
+        "result": "provider calls: 0 (evaluation, investigation, dispositions, plan, units, coherence, review all read 'model stored output reused' or '0 changes'). Every artifact digest byte-identical to run 1: facts (3f65216f...), dispositions (ab079465...), plan (e2b2476a...), units (28838...), README.md (c9c9810e...), README.patch (be22e277...), validation.json (9fcabf03...), review.json (d83b8344...). bundle state moved ACCEPTED -> READY_FOR_PROPOSAL; BC-11 PASS."
+      },
+      "resume_predicate": "none - repository sealed, no further predicate outstanding for this item."
+    }
+  ],
+  "proposals": [],
+  "counted_unit": {
+    "before": "15/34",
+    "after": "16/34",
+    "method": "repository-presenter status, run from this worktree immediately before committing (after confirming `git log HEAD..origin/main` was empty, i.e. no rebase needed)",
+    "note": "project/state.yaml's progress.current_candidates edited from 15 to 16 in this same commit, per loop-prompt-lane.md's narrow carve-out: fetched origin, confirmed already at its tip (9cbd522, no concurrent lane had merged since this worktree was created), then set the field to `repository-presenter status`'s own freshly observed count (16) rather than an incremented-by-hand value. `tests/test_cli.py::test_status_reports_this_repository_cursor` failed red before this edit ('cursor records 15 current candidates but 16 sealed on disk') and passed after it - the expected, known shape this exception exists for, not a regression."
+  },
+  "checks": {
+    "ruff_check": "pass",
+    "ruff_format_check": "pass",
+    "mypy_src": "pass (Success: no issues found in 126 source files)",
+    "pytest_n_auto_run1": "1 failed (test_status_reports_this_repository_cursor, expected - cursor stale by exactly the candidate this run sealed), 1228 passed, 23 xfailed, 124.64s",
+    "pytest_n_auto_focused": "1 passed (test_status_reports_this_repository_cursor, after the state.yaml edit)",
+    "pytest_n_auto_run2": "1229 passed, 23 xfailed, 101.61s - full local CI-equivalent green a second time, per loop-prompt.md section 3's red-run protocol",
+    "note": "No src/ or tests/ path touched by this draw; only candidates/, project/state.yaml (current_candidates only), evidence/build/lanes/notepy/, docs/DECISION_LOG.md."
+  }
+}
