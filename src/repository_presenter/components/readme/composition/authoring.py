@@ -100,7 +100,12 @@ _TYPE_OBJECTIVE = (
 # "5" -> "6" (G4-W17 arrival item 104): WORD_EXTENSIONS gains "one" (Microsoft OneNote's own
 # format extension) - canonical_abbreviations() no longer maps the ordinary pronoun "one" to a
 # spurious "ONE" abbreviation, a real meaning change to what BC-07 accepts.
-NORMALISATION_VERSION = "6"
+# "6" -> "7" (G4-W17 arrival item 106/LANE-B-R9-F1): item 99's title-restatement guard now
+# tolerates a restatement that carries real member/format-level detail the title itself never
+# names - a single-purpose capability whose plan-assigned title is the only accurate short
+# description of its facts has no compliant way to open the unit without echoing it. A real
+# meaning change to what unit_checks accepts (narrower rejection, not a removed check).
+NORMALISATION_VERSION = "7"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -1187,9 +1192,24 @@ def unit_checks(
     # fresh authoring reply already was - measured on Words-Python: coherence silently
     # reverted six already-repaired key_capabilities units back to their pre-repair,
     # title-restating text, because unit_checks had no rule to catch it either time.
+    # G4-W17 arrival item 106 (LANE-B-R9-F1), narrowing item 99 above: a single-purpose
+    # capability whose plan-assigned title is itself the only accurate short description of its
+    # facts gives the model no compliant way to open the unit without echoing the title -
+    # measured on PDF-Cpp, whose exact plan title "Render pages to raster images" is the only
+    # accurate name for a device set (PngDevice/JpegDevice/BmpDevice/TiffDevice) that does
+    # exactly and only that. The guard still fires on a plain stutter (Words-Python's "Export
+    # Files to Disk with one call, no extra setup required." names nothing beyond the title), but
+    # not when the unit's text carries a real identifier or format term - member-level detail -
+    # that the title itself never names; title_terms already extracts exactly that concrete set
+    # from any string, title or unit text alike.
     for unit in output.get("units", []):
         title = task.slot_titles.get(str(unit.get("slot")))
-        if title and title.lower() in str(unit.get("text", "")).lower():
+        text = str(unit.get("text", ""))
+        if (
+            title
+            and title.lower() in text.lower()
+            and not (title_terms(text, facts) - title_terms(title, facts))
+        ):
             errors.append(
                 f"unit {unit.get('slot')}: restates its own title {title!r}; the title is "
                 "printed immediately before the unit, so its text adds what the title does "

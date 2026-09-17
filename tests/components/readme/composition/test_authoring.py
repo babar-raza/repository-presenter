@@ -1734,6 +1734,73 @@ def test_a_unit_never_restates_its_own_slots_title() -> None:
     assert unit_checks(same_text, untitled, FACTS, NAME) == []
 
 
+def test_a_unit_may_restate_its_title_when_it_also_names_real_member_detail() -> None:
+    """G4-W17 arrival item 106 (LANE-B-R9-F1), narrowing item 99 above. Item 99's guard rejected
+    every restatement unconditionally, which is correct for a plain stutter (the test above) but
+    too strict for a single-purpose capability whose plan-assigned title is itself the only
+    accurate short description of its facts - measured on PDF-Cpp, whose exact plan title
+    "Render pages to raster images" is the only accurate name for a device set
+    (PngDevice/JpegDevice/BmpDevice/TiffDevice) that does exactly and only that; the guard
+    rejected every one of four independent live completions, regressing the repository from
+    reaching S10 to failing at S6. This test proves the narrower fix lets that real case pass
+    while red-before/green-after against item 99's own fixture (the assertions above, unchanged)
+    still catches the original Words-Python coherence-revert case.
+    """
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact("public_symbol:pngdevice", "public_symbol", "PngDevice"),
+            _fact("public_symbol:jpegdevice", "public_symbol", "JpegDevice"),
+            _fact("public_symbol:bmpdevice", "public_symbol", "BmpDevice"),
+            _fact("public_symbol:tiffdevice", "public_symbol", "TiffDevice"),
+        ),
+    )
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"identity:repository"}),
+        ("capability:1",),
+        slot_facts={"capability:1": frozenset({"identity:repository"})},
+        slot_titles={"capability:1": "Export Files to Disk"},
+    )
+
+    def unit(text: str) -> dict[str, object]:
+        return {
+            "section": "key_capabilities",
+            "slot": "capability:1",
+            "text": text,
+            "fact_ids": ["identity:repository"],
+        }
+
+    # Restates the title verbatim, exactly like the rejected case above, but the rest of the
+    # sentence adds real member-level detail (four device identifiers) the title itself never
+    # names: stands.
+    detailed = {
+        "units": [
+            unit(
+                "Export Files to Disk using PngDevice, JpegDevice, BmpDevice, and TiffDevice "
+                "for raster output."
+            )
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(detailed, task, facts, NAME) == []
+    # Mutation control: the identical restatement with the added detail removed is caught exactly
+    # as item 99's own fixture already proves above - confirming this fix narrows, it does not
+    # disable, the guard.
+    plain = {
+        "units": [unit("Export Files to Disk using our device set for raster output.")],
+        "omitted": [],
+    }
+    assert unit_checks(plain, task, facts, NAME) == [
+        "unit capability:1: restates its own title 'Export Files to Disk'; the title is "
+        "printed immediately before the unit, so its text adds what the title does not "
+        "already say"
+    ]
+
+
 def test_the_schema_names_this_tasks_section_and_exactly_its_slots() -> None:
     # The canary's rejected replies name this failure exactly: "units must fill exactly these
     # slots once each: scope, limitation:1 .. limitation:6; got scope, limitation:1 ..
