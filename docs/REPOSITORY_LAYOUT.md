@@ -81,6 +81,7 @@ project/                     state.yaml, loop-prompt.md; loop-prompt-lane.md (th
 migration/                   reuse-manifest.yaml
 evidence/build/<gate-id>/    one manifest.json per accepted gate (EXECUTION_STATE_MACHINE.md §10)
 evidence/build/lanes/<lane>/ one <ITEM>.json per item a parallel lane accepts (the work-item record shape)
+evidence/upstream-defects/<owner>__<name>/<fingerprint>.json  one evidence-backed handoff per confirmed upstream defect (docs/investigations/03-issue-tracking.md §5), read-only boundary - no GitHub write capability; exists for a repository with no candidates/ bundle at all
 candidates/<owner>__<name>/<revision>/   sealed candidate bundles (README_CONTRACT.md §7)
 candidates/<owner>__<name>/CURRENT       pointer file naming the current revision
 tests/                       mirrors src/repository_presenter/ package for package (see §3)

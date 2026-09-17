@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-tex-foss/Aspose.TeX-FOSS-for-Python",
+  "source_revision": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c",
+  "defect_fingerprint": "sha256:c00f9615a81bb9f3c77f45df5ded5036d8da0cce6d6dee01634a27b3f3659188",
+  "triggering_check": {
+    "id": "NOT_PROCESSABLE",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "src/aspose_tex/presentation/__init__.py",
+      "detail": "At revision 181015d2eee3e19f8af3d84e4a932ac84ad47c7c, ast.parse raises IndentationError at line 108: \"expected an indented block after function definition on line 107\". Independently re-fetched via https://raw.githubusercontent.com/aspose-tex-foss/Aspose.TeX-FOSS-for-Python/181015d2eee3e19f8af3d84e4a932ac84ad47c7c/src/aspose_tex/presentation/__init__.py and re-parsed 2026-09-17, reproducing docs/DECISION_LOG.md:2232-2239 (G3-W04, 2026-09-07 12:20, confirmed by gh api against the pinned revision, not the clone)."
+    },
+    {
+      "path": "gh api repos/aspose-tex-foss/Aspose.TeX-FOSS-for-Python/git/trees/181015d2eee3e19f8af3d84e4a932ac84ad47c7c?recursive=true",
+      "detail": "45 .py files exist under src/aspose_tex/ at this revision. Independently fetching and ast.parse-ing every one 2026-09-17 gives 35 IndentationError, 10 parse OK - the same 35-of-45 count docs/DECISION_LOG.md:2233-2234 and evidence/build/G3_PYTHON_COHORT/manifest.json (line 499) already recorded. Every failure is the same shape: 'expected an indented block after ...'."
+    },
+    {
+      "path": "repos/aspose-tex-foss/Aspose.TeX-FOSS-for-Python (default branch HEAD)",
+      "detail": "gh api confirms default branch HEAD is still 181015d2eee3e19f8af3d84e4a932ac84ad47c7c as of 2026-09-17 (pushed_at 2026-09-02T10:10:31Z) - no revision drift since the original finding; this handoff's re-verification is against the identical revision docs/DECISION_LOG.md and RESEARCH_LANE_E.md already recorded (RESEARCH_LANE_E.md:1233-1234: 'aspose-tex-foss is NOT_PROCESSABLE')."
+    }
+  ],
+  "claim": "At revision 181015d2eee3e19f8af3d84e4a932ac84ad47c7c, 35 of the 45 Python files under aspose-tex-foss/Aspose.TeX-FOSS-for-Python's own src/aspose_tex/ tree, including src/aspose_tex/presentation/__init__.py (the module the repository's own docstring calls the user-facing entry point), raise IndentationError under Python's standard ast.parse, because the source's indentation is collapsed to one space per level throughout the affected files.",
+  "suggested_issue_title": "35 of 45 files under src/aspose_tex/ fail to parse (IndentationError) at HEAD, including the presentation entry point",
+  "suggested_issue_body": "## Summary\n\nMost of this repository's own Python source under `src/aspose_tex/` does not parse as valid Python. The module the package's own docstring names as the user-facing entry point is among the files that fail.\n\n## Environment\n\n- Repository: aspose-tex-foss/Aspose.TeX-FOSS-for-Python\n- Revision: `181015d2eee3e19f8af3d84e4a932ac84ad47c7c` (default branch `main`)\n- Tool: Python's standard `ast.parse` (reproducible with any Python 3 interpreter; no third-party tooling involved)\n\n## Steps to reproduce\n\nFor any `.py` file under `src/aspose_tex/`, run:\n\n```python\nimport ast\nast.parse(open(path, encoding=\"utf-8\").read())\n```\n\n## Actual result\n\n35 of the 45 `.py` files under `src/aspose_tex/` raise `IndentationError`. For example, `src/aspose_tex/presentation/__init__.py`:\n\n```\nIndentationError: expected an indented block after function definition on line 107 (line 108)\n```\n\nThe same shape (`expected an indented block after ...`) recurs across every failing file - the source's indentation is collapsed to one space per level throughout, rather than each file's own apparent intended indentation.\n\n## Files affected (not exhaustive - 35 of 45 total)\n\n`src/aspose_tex/presentation/__init__.py`, `src/aspose_tex/_engine/interpreter.py`, `src/aspose_tex/_engine/nodes.py`, `src/aspose_tex/_input/tokenizer.py`, `src/aspose_tex/_fonts/font_manager.py`, and 30 others under `_engine/`, `_fonts/`, `_input/`, and `_output/`.\n\n## Impact noted for context\n\n`src/aspose_tex/presentation/__init__.py` - the module whose own docstring calls it the user-facing entry point, and which defines `TeXJob`, `TeXOptions`, and the `OutputDevice` hierarchy - does not parse, so the package cannot be imported at all from this source tree at this revision.\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null
+}

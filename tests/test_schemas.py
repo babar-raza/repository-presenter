@@ -17,6 +17,7 @@ from support import REPO_ROOT
 SCHEMAS = REPO_ROOT / "schemas"
 CURSOR = REPO_ROOT / "project" / "state.yaml"
 MANIFEST = REPO_ROOT / "migration" / "reuse-manifest.yaml"
+UPSTREAM_DEFECTS = REPO_ROOT / "evidence" / "upstream-defects"
 BUNDLE_FILES = (
     "README.md",
     "README.patch",
@@ -274,6 +275,60 @@ def test_prompt_manifest_schema_rejects_drift() -> None:
 def test_counted_states_are_sealed_bundle_states() -> None:
     schema = json.loads((SCHEMAS / "candidate-bundle.schema.json").read_text(encoding="utf-8"))
     assert set(schema["properties"]["state"]["enum"]) >= COUNTED_STATES
+
+
+@pytest.mark.parametrize(
+    "path",
+    sorted(UPSTREAM_DEFECTS.glob("*/*.json")),
+    ids=lambda p: f"{p.parent.name}/{p.stem}",
+)
+def test_every_upstream_defect_handoff_validates_against_its_schema(path: Path) -> None:
+    instance = json.loads(path.read_text(encoding="utf-8"))
+    assert errors(load_schema("upstream-defect-handoff.schema.json"), instance) == []
+
+
+def test_upstream_defect_handoff_schema_rejects_drift() -> None:
+    """docs/investigations/03-issue-tracking.md section 5: the handoff is governed like any other
+    schema, and causal_stage is pinned to EXTRACTING - repair/targeted.py's STATE_STAGES maps only
+    the other four causal stages to a revisable stage, so EXTRACTING is this codebase's own
+    mechanical proof a finding is about the target repository, never repository-presenter's own
+    prose (section 3).
+    """
+    validator = load_schema("upstream-defect-handoff.schema.json")
+    handoff = json.loads(sorted(UPSTREAM_DEFECTS.glob("*/*.json"))[0].read_text(encoding="utf-8"))
+    assert errors(validator, handoff) == []
+
+    filed_without_ref = copy.deepcopy(handoff)
+    filed_without_ref["status"] = "FILED"
+    assert errors(validator, filed_without_ref)
+
+    filed_with_ref = copy.deepcopy(handoff)
+    filed_with_ref["status"] = "FILED"
+    filed_with_ref["issue_ref"] = {
+        "number": 1,
+        "url": "https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python/issues/1",
+    }
+    assert errors(validator, filed_with_ref) == []
+
+    pending_with_ref = copy.deepcopy(handoff)
+    pending_with_ref["issue_ref"] = {"number": 1, "url": "https://github.com/o/r/issues/1"}
+    assert errors(validator, pending_with_ref)
+
+    not_extracting = copy.deepcopy(handoff)
+    not_extracting["triggering_check"]["causal_stage"] = "COMPOSING"
+    assert errors(validator, not_extracting)
+
+    unknown_status = copy.deepcopy(handoff)
+    unknown_status["status"] = "DONE"
+    assert errors(validator, unknown_status)
+
+    bad_fingerprint = copy.deepcopy(handoff)
+    bad_fingerprint["defect_fingerprint"] = "not-a-hash"
+    assert errors(validator, bad_fingerprint)
+
+    extra_field = copy.deepcopy(handoff)
+    extra_field["filed_by"] = "someone"
+    assert errors(validator, extra_field)
 
 
 def test_manifest_schema_names_every_source_a_record_may_cite() -> None:

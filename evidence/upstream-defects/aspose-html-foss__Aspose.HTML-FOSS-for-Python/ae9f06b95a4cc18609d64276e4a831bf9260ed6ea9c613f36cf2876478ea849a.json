@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+  "source_revision": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11",
+  "defect_fingerprint": "sha256:ae9f06b95a4cc18609d64276e4a831bf9260ed6ea9c613f36cf2876478ea849a",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "https://pypi.org/pypi/aspose-html-foss/json",
+      "detail": "curl -s -o /dev/null -w '%{http_code}' https://pypi.org/pypi/aspose-html-foss/json -> 404. Reproduced independently outside the pipeline 2026-09-17 (this handoff's own re-check) and 2026-09-16 22:58 UTC (docs/RESEARCH_LANE_E.md:2083-2086, LANE-E-06)."
+    },
+    {
+      "path": "pyproject.toml",
+      "detail": "Line 3 at revision bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11 (fetched via `gh api repos/aspose-html-foss/Aspose.HTML-FOSS-for-Python/contents/pyproject.toml` and independently re-read 2026-09-17): build-backend = \"setuptools.backends.legacy:build\" - not a real setuptools entry point; the correct name is setuptools.build_meta."
+    },
+    {
+      "path": "pip install --target <dir> <pinned clone root>",
+      "detail": "Fails with pip._vendor.pyproject_hooks._impl.BackendUnavailable: ModuleNotFoundError: No module named 'setuptools.backends' (docs/RESEARCH_LANE_E.md:2086-2089, LANE-E-06, 2026-09-16 22:58 UTC; independently reproduced a first time docs/DECISION_LOG.md:2240-2242 G3-W04 2026-09-07, a third time docs/DECISION_LOG.md:3410-3415 2026-09-17 03:32 UTC LANE-E-17)."
+    },
+    {
+      "path": "evidence/build/lanes/htmlpy/LANE-E-17.json",
+      "detail": "validation.json: pass 8, fail 1 (BC-02); BC-02 detail 'install_command:pip is CONTRADICTED: package registry: distribution not found; no repair could act on it'; repair outcome 'unrepairable', reason 'EXTRACTING is not repairable by revision'. Four other sealed Python FOSS candidates (aspose-email-foss, aspose-3d-foss, aspose-cells-foss, aspose-slides-foss) carry install_command:pip SUPPORTED against genuinely published distributions of the same shape, ruling out a systemic extractor bug (docs/RESEARCH_LANE_E.md:2095-2100)."
+    }
+  ],
+  "claim": "At revision bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11, aspose-html-foss/Aspose.HTML-FOSS-for-Python is not published under the name \"aspose-html-foss\" on PyPI, and the repository's own pyproject.toml declares build-backend = \"setuptools.backends.legacy:build\", a module absent from every setuptools release, so a standard pip install of this exact source raises ModuleNotFoundError for any caller, independent of repository-presenter.",
+  "suggested_issue_title": "pyproject.toml build-backend \"setuptools.backends.legacy:build\" does not exist; package is not published on PyPI as aspose-html-foss",
+  "suggested_issue_body": "## Summary\n\nBuilding this repository's own source with the standard Python packaging toolchain fails, and no distribution named `aspose-html-foss` is published on PyPI.\n\n## Environment\n\n- Repository: aspose-html-foss/Aspose.HTML-FOSS-for-Python\n- Revision: `bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11` (default branch `main`)\n- Tool: pip (any standard version); Python 3.10+\n\n## Steps to reproduce\n\n1. `curl -s -o /dev/null -w '%{http_code}\\n' https://pypi.org/pypi/aspose-html-foss/json`\n2. Clone the repository at the revision above and run: `pip install --target <dir> .`\n\n## Actual result\n\n1. Returns `404` - no distribution named `aspose-html-foss` exists on PyPI.\n2. Fails during the build with:\n\n   ```\n   pip._vendor.pyproject_hooks._impl.BackendUnavailable: ModuleNotFoundError: No module named 'setuptools.backends'\n   ```\n\n## Root cause\n\n`pyproject.toml` line 3 declares:\n\n```toml\nbuild-backend = \"setuptools.backends.legacy:build\"\n```\n\n`setuptools.backends.legacy` is not a module any released version of `setuptools` ships. The corresponding entry point for a `setuptools`-based build is `setuptools.build_meta`. Because of this declaration, `pip install .` fails for any caller building this exact source, not only in one particular environment.\n\n## Additional note\n\nThis repository's own `README.md`, as of this revision, does not document `pip install aspose-html-foss` - it documents cloning the repository and adding `src/` to `PYTHONPATH` directly, which does work. Filing this in case a PyPI-published, `pip install`-able distribution is intended to be a supported install path.\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null
+}

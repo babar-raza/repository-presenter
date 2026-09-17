@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/babar-raza/repository-presenter/schemas/upstream-defect-handoff.schema.json",
+  "title": "Upstream defect handoff artifact",
+  "description": "Shape of evidence/upstream-defects/<owner>__<name>/<fingerprint>.json: an evidence-backed, precise handoff for a human to file, describing one confirmed defect in a target repository's own manifest or source, not a repository-presenter presentation gap (docs/investigations/03-issue-tracking.md section 5). This is a pure read-only-boundary artifact: it carries no GitHub Issues write capability and authorizes no automated filing. causal_stage is pinned to EXTRACTING because validation/registry.py's own repair routing (repair/targeted.py STATE_STAGES) already proves that stage structurally unrepairable by revising the candidate's prose - the one mechanical signal this codebase already has for 'about the target repository, not about our own composition' (investigation section 3). triggering_check.id names either a validation.json blocking check (e.g. BC-02) or, for a repository that never reaches candidate composition at all (a NOT_PROCESSABLE disposition, e.g. unparseable source), the disposition value itself - the repo-level parallel the investigation names in section 3 and section 5. evidence entries are populated only with reproductions run outside repository-presenter's own pipeline (a literal curl, pip install, ast.parse, or gh api observation), never a restatement of the pipeline's own polarity label alone (investigation section 3). suggested_issue_title/suggested_issue_body are literal text a human pastes unmodified into gh issue create; nothing in this schema or the artifacts it governs performs that call.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "repository",
+    "source_revision",
+    "defect_fingerprint",
+    "triggering_check",
+    "evidence",
+    "claim",
+    "suggested_issue_title",
+    "suggested_issue_body",
+    "status",
+    "issue_ref"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+    "source_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "defect_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "sha256 of {repository, triggering_check.id, a primary-evidence signature}, the stable dedup key of investigation section 4.1 - the same value embeddable as an HTML-comment marker in a filed issue body."
+    },
+    "triggering_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "causal_stage"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "validation/registry.py Check.id (e.g. BC-02) when a blocking check fired, or the repository-level disposition value (e.g. NOT_PROCESSABLE) when the repository never reached candidate composition."
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The check's Check.version at the time it fired (validation/registry.py), or \"1\" for a repository-level disposition with no independent versioning of its own."
+        },
+        "causal_stage": {
+          "const": "EXTRACTING",
+          "description": "Always EXTRACTING: repair/targeted.py's STATE_STAGES maps only INVESTIGATING/RECONCILING/PLANNING/COMPOSING to a revisable stage, so EXTRACTING is this codebase's own mechanical proof the defect is about the target repository, never the candidate's prose (investigation section 3)."
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "detail"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A target-repository file path, a registry/API URL, or the literal command that produced this observation."
+          },
+          "detail": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One plain factual sentence: what the evidence proves, no severity adjective, no fix claim (idea.md's own seed-example prose style)."
+    },
+    "suggested_issue_title": { "type": "string", "minLength": 1 },
+    "suggested_issue_body": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Literal text a human can paste unmodified into `gh issue create --body-file -`."
+    },
+    "status": {
+      "enum": ["HANDOFF_PENDING", "HANDOFF_ACKNOWLEDGED", "FILED", "RESOLVED_UPSTREAM"]
+    },
+    "issue_ref": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["number", "url"],
+          "properties": {
+            "number": { "type": "integer", "minimum": 1 },
+            "url": { "type": "string", "pattern": "^https://github\\.com/[^/]+/[^/]+/issues/[0-9]+$" }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "enum": ["HANDOFF_PENDING", "HANDOFF_ACKNOWLEDGED"] } } },
+      "then": { "properties": { "issue_ref": { "type": "null" } } }
+    },
+    {
+      "if": { "properties": { "status": { "enum": ["FILED", "RESOLVED_UPSTREAM"] } } },
+      "then": { "properties": { "issue_ref": { "type": "object" } } }
+    }
+  ]
+}
