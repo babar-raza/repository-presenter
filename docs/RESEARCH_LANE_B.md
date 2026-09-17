@@ -2286,3 +2286,93 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   `LANE-B-W14R6-F1` lands, or once the primary rules a narrower fix or an exception sufficient - not on
   `LANE-B-W14R3-F1` alone, since that class no longer appears in this transaction at all. Full detail:
   `evidence/build/lanes/lane-b/G4-W14-RERUN6.json`, the live source.
+
+- **2026-09-17 11:31 · G4-W14-RERUN7 · did not seal: `LANE-B-W14R6-F1` is CLOSED, a new, distinct
+  finding blocks.** Genuine changed-input retry of `G4-W14-RERUN6`'s `BLOCKED_REVIEW` (BC-10)
+  disposition, verified against the checked-out source before drawing: `git show af795f3` confirms
+  commit `af795f3` (arrival item 110, `LANE-B-W14R6-F1`) adds
+  `inherited_unit_named_symbols()` to `composition/authoring.py` and calls it from
+  `reconciliation/dispositions.py`'s `normalize()`, `NORMALISATION_VERSION` 7 to 8, and the commit's
+  own text names item 110/`LANE-B-W14R6-F1`/3D-TS. Redrew
+  `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` end to end (same revision
+  `7b959706f2ad976db929f26ec079f43a07d578e1` and 1190-fact digest `2257a892...` as `RERUN6`, not a
+  cache replay - 41 ledger rows, 25 live provider calls, 15 `cache_reuse`, 1 `response_invalid`, 0
+  `cache_stale`). `LANE-B-W14R6-F1` is CLOSED, confirmed by measurement: `RERUN6`'s surviving finding
+  (F05, `Scene.render`/`Node.selectSingleObject`/`Node.selectObjects` omitted from
+  `scope_limitations`) does not appear anywhere in this draw's `review.json`, blocking or advisory -
+  `content_units.json`'s `scope_limitations` unit `limitation:1` now carries all nine symbols
+  `inherited_unit:077.list`'s sentence names (`Mesh.union`/`difference`/`intersect`/`doBoolean`/
+  `optimize`/`isManifold`, `Watermark.encodeWatermark`/`decodeWatermark`,
+  `Node.selectSingleObject`/`selectObjects`, `Scene.render`, `FileSystem.createZipFileSystem`), the
+  fix functioning exactly as measured at landing. It did not seal: validation is again 9 PASS / 1
+  FAIL / 1 PENDING, BC-10 FAILs at COMPOSING on `REJECT_FACTUAL` after one repair round, on a third,
+  distinct, genuine finding (F03: `scope_limitations`'s `limitation:2` unit, citing
+  `inherited_unit:046.paragraph` (SUPPORTED, the upstream README's own verbatim workaround text for
+  the binary glTF `RangeError` bug) among its own `fact_ids`, paraphrases that fact rather than
+  quoting it, and the reviewer's `absent`/factuality fold cannot recognize the paraphrase as
+  grounded). Root-caused to shared review code - new PROPOSAL `LANE-B-W14R7-F1`, the lane may not
+  edit it. Disposition RESTATED (same check, cause changed): `BLOCKED_REVIEW` (BC-10). Full
+  mechanical detail in `evidence/build/lanes/lane-b/G4-W14-RERUN7.json`, the live source.
+
+- **2026-09-17 11:31 · G4-W14-RERUN7 · PROPOSAL `LANE-B-W14R7-F1` (shared code:
+  `review/independent/review.py`'s `factuality_defect`/`cited_fact_defect` literal-value refutation,
+  `_cited_literal`; secondarily `absence_defect`'s section-slice text lookup) · a composed unit that
+  faithfully paraphrases a SUPPORTED `inherited_unit` fact its own `fact_ids` cite - rather than
+  quoting that fact verbatim - gets no refutation from either fold path, so a factuality/absence
+  finding that misreads the paraphrase as unsupported or missing survives every check and blocks,
+  even though the exact right fact is genuinely among the unit's own citations.** Measured on 3D-TS:
+  `content_units.json`'s `scope_limitations` unit at `slot: "limitation:2"` (`fact_ids`:
+  `example:007`, `inherited_unit:046.paragraph`, `public_symbol:globaltransform`) reads "Binary glTF
+  export using binaryMode: true currently fails and throws a RangeError for any non-empty mesh, so
+  only JSON/ASCII glTF export (the default, binaryMode: false) is supported." -
+  `inherited_unit:046.paragraph` (SUPPORTED) is the upstream README's own verbatim text: "Binary
+  glTF (`.glb`, `binaryMode = true`) currently throws a `RangeError` for any non-empty mesh ... Use
+  the JSON/ASCII form (`binaryMode = false`, the default) shown above until that is fixed upstream."
+  - the same fact, correctly cited, faithfully paraphrased. Independent review's F03 calls "JSON/ASCII
+  glTF export (the default) is unaffected" `absent` and cites `example:007` (SUPPORTED - the very
+  example that runs this exact code path with `binaryMode = false`) for its factuality claim; its own
+  text admits "which the candidate correctly notes but fails to emphasize as the recommended
+  workaround" - not a missing fact, a de-emphasis complaint riding under the `factuality` criterion.
+  Traced mechanically against `scope_defect`'s fold stack: `absence_defect` requires the claimed-absent
+  string to occur (under the same spelling rules that locate a quote) inside the candidate's own
+  section slice - the candidate's paraphrase does not contain the string "is unaffected" - so it
+  returns `None` (a "real remainder" by its own literal-text rule) and falls through to
+  `factuality_defect`. There, `unit_fact_ids` correctly locates the unit and its citations (item 83's
+  own widening), `reviewed` correctly includes `inherited_unit:046.paragraph`, but `_cited_literal`
+  requires the **quote to contain the fact's literal value as a substring** - the candidate's sentence
+  and the fact's sentence share the same meaning and cite the same evidence but not one contiguous
+  matching run of text, so `_cited_literal` returns `None` and the finding is never folded.
+  `repairs.json` confirms this is not a fixable phrasing gap: the one repair attempt (label
+  `F03+F04`) revised the neighboring `limitation:4` unit for F04 but left `limitation:2`'s text
+  unchanged for F03 - the model had nothing to correct, since the statement is already accurate - and
+  the re-review re-raised F03 identically. Item 83 (`LANE-B-W14R3-F1`) closed the case where a
+  reviewed unit's own inherited_unit citation is never checked at all; this is the same shape one
+  level further - the citation is checked, but only by literal substring, which a legitimate paraphrase
+  never satisfies. Proposed, smallest first: widen `_cited_literal` (or add a sibling check reachable
+  from both `absence_defect` and `factuality_defect`/`cited_fact_defect`) to treat a cited SUPPORTED
+  fact as grounding a claim it substantially restates - e.g. a normalized token-overlap or
+  key-phrase test, not only contiguous substring containment - scoped exactly as `_cited_literal`
+  already is, to the finding's own and the reviewed unit's own citations, never the whole fact set.
+  Full detail: `evidence/build/lanes/lane-b/G4-W14-RERUN7.json`.
+
+- **2026-09-17 11:31 · G4-W14-RERUN7 · DISPOSITION (RESTATED, cause changed) ·
+  `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` at `7b959706f2ad976db929f26ec079f43a07d578e1` -
+  `BLOCKED_REVIEW (BC-10, REJECT_FACTUAL)`.** Same check and stage as `RERUN6`, different cause:
+  `LANE-B-W14R6-F1` is CLOSED (see above); the standing finding is now `LANE-B-W14R7-F1`'s class. 1190
+  facts unchanged (digest `2257a892...`); examples unchanged (8 EXECUTED, 1 CONTRADICTED, example:002).
+  41 ledger rows this draw: 25 live provider calls, 15 `cache_reuse`, 1 `response_invalid`, 0
+  `cache_stale`, 49,747 completion tokens; by job, `repository_investigation` 1 live/1 reused,
+  `source_reconciliation` 3 live/3 reused, `presentation_planning` 2 live, `section_authoring` 16
+  live/11 reused/1 invalid, `independent_review` 2 live, `targeted_repair` 1 live - a genuine re-run,
+  not a byte-identical replay of `RERUN6`. All 5 review findings (1 blocking F03, 4 advisory
+  F01/F02/F04/F05) are read fresh from this draw's own `review.json`; the deterministic fold logic
+  (current on `origin/main`) decided which stand. Rebased onto `origin/main`'s new head (`5e5db67`,
+  two docs-only commits unrelated to this repository's own facts) before landing;
+  `repository-presenter status` reads 18/34 in the just-rebased tree - unchanged by this draw, the
+  rise since `RERUN9`'s 15/34 is `RERUN10`'s own concurrent PDF-Cpp seal, recorded as observed rather
+  than assumed. `lane-b.yaml`'s own `sealed_by_lane`/`dispositions_by_lane` counters (2/8, set by
+  `RERUN10`) are unchanged by this draw - 3D-TS's disposition is restated, not a new repository, and
+  nothing sealed. Resume predicate: re-run once PROPOSAL `LANE-B-W14R7-F1` lands, or once the primary
+  rules a narrower fix or an exception sufficient - not on `LANE-B-W14R6-F1` alone, since that class
+  no longer appears in this transaction at all. Full detail:
+  `evidence/build/lanes/lane-b/G4-W14-RERUN7.json`, the live source.
