@@ -1,0 +1,74 @@
+{
+ "schema_version": 1,
+ "lane": "bcpy",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "LANE-E-12",
+ "work_item_status": "SEALED",
+ "recorded_at": "2026-09-17T00:55:15+00:00",
+ "control_revision": "9cbd522",
+ "control_revision_note": "One-off worker (not lane-e), spawned to re-draw aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python now that G4-W17 arrival item 98 (BCPY-02, bcpy/LANE-E-09's own proposal) landed as commit 912aa62. Worktree C:\\w\\bcpy3, branch bcpy/LANE-E-12, created fresh off origin/main at 9cbd522 (which contains 912aa62 - item 98's duplicate-subject reconciliation guard - plus every later G4-W17 landing through the OneNote/BC-07 fixes, verified with `git merge-base --is-ancestor <sha> origin/main` before any candidate work began, not assumed from the spawn message). Owns no platform module.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\bcpy3",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt, verified before any candidate work. Built by project/loop-prompt-lane.md section 1.3's recipe exactly: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e ."
+ },
+ "gateway": {
+  "command": "repository-presenter preflight",
+  "host": "llm.professionalize.com",
+  "models": 7,
+  "prompt_manifests": 6,
+  "route": "qwen3-next",
+  "catalog_digest": "65b7049796ff5e89ea56b06f46c7cd0a104c6b54396062dc4219640e4d610e19"
+ },
+ "item_98_verification_before_drawing": {
+  "method": "Read against origin/main directly, not assumed from the spawn message's summary.",
+  "commit": "912aa62",
+  "confirmed": "git merge-base --is-ancestor 912aa62 origin/main (exit 0), plus 8b10f59 and 6ebddab (items 80 and 79/96) also confirmed ancestors, all on the worktree's own origin/main at 9cbd522. REVIEWER_LOGIC_VERSION = \"9\" read directly from src/repository_presenter/components/readme/review/independent/review.py:73, matching the version item 101 bumped it to.",
+  "docs_cross_check": "docs/DECISION_LOG.md's 2026-09-16 23:01 UTC entry describes item 98/BCPY-02 as LANDED: reconciliation/dispositions.py::normalize() gained a second pass that downgrades a later PLACING entry sharing a non-trivial fact citation with an earlier entry already claiming the same destination_section to SUPERSEDE_REDUNDANT."
+ },
+ "repository": {
+  "name": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+  "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+  "outcome": "SEALED - first seal ever recorded for this repository",
+  "previous_failure_class": "RECONCILIATION_VERIFIED_MOVE_PLACES_A_SECOND_EXAMPLES_POINTER_BESIDE_ONE_ALREADY_THERE (bcpy/LANE-E-09's F05, item 98's own unfixed state)",
+  "previous_failure_class_status": "DOES NOT RECUR. This run's own dispositions.json places inherited_unit:057.paragraph as VERIFIED_PRESERVE directly in additional_examples (not VERIFIED_MOVE'd there from development_testing, as LANE-E-09 measured) - the investigation/reconciliation shape genuinely differs this draw (a live provider call this time: investigation captured 6 capabilities/6 workflows vs LANE-E-09's cached 5/4, because every G4-W17 fix landed between the two draws changed shared composition inputs), so item 98's guard was never exercised live on this exact pairing this run. Confirmed by direct inspection, not assumed: README.md's rendered Additional Examples section (read in full) no longer carries the byte-identical duplicate sentence LANE-E-09 measured; the two adjacent sentences that remain ('Runnable scripts are available in the examples directory ...' and 'Runnable example scripts and what each one demonstrates are listed in examples/README.md.') make distinguishable claims (one names four example files directly, the other points at examples/README.md's own index) and neither BC-10 nor independent_review's two-reader pass flags them, in either round.",
+  "stages_reached": "S1 through S10, sealed on repair round 1 (0 repaired, 0 unrepairable - no blocking finding ever raised)",
+  "measured": {
+   "source": "3 files, 136 tree entries, readme README.md, digest 0ce1e023a0fef7f7cf9aede590fa12820bf107276953afb36df651cdccd888ef (unchanged - same revision as every prior bcpy draw)",
+   "examples": "6 candidates, 6 executed, 0 failed",
+   "facts": "178 records, digest 77deed930e8dc4b10e805cef1dd60df7207dc0d3c01b46e0c74e1fd2ae191531 (byte-identical to LANE-E-07/LANE-E-09's draws - same revision, same extraction)",
+   "investigation": "capabilities 6, workflows 6, limitations 4; provider calls 1, model qwen3-next (a genuinely fresh live call - shared composition inputs changed since LANE-E-09's cached 5/4 shape)",
+   "dispositions": "59 units: SUPERSEDE_REDUNDANT 43, VERIFIED_PRESERVE 11, VERIFIED_MOVE 1, DEFER_UNRESOLVED 1, NON_CONTENT 2, OMIT_UNSUPPORTED 1; provider calls 2 - a different distribution from both LANE-E-07's (27/22/5/1/2/0) and LANE-E-09's (33/19/3/1/2/0)",
+   "plan": "sections 16/18, capabilities 6, hubs 10, examples 1+5, links 4, limitations 1; provider calls 1, model qwen3-next",
+   "units": "85 units across 8 sections; provider calls 12, model qwen3-next",
+   "coherence": "1 of 85 units revised; provider calls 1, model qwen3-next",
+   "readme": "134 visible lines of 301; digest 3064e8780892f34eca70c7cdf3dbec6c0e6a42bc6f7b6e412a23ab765b522128",
+   "validation": "pass 10, fail 0, pending 1; digest e223ce7e85b4ccf4fe312103e217cadb880377dc31e3831054b4a3dce43041a2",
+   "review": "verdict ACCEPT (verdict_as_returned REJECT_FACTUAL, folded - F01's 'The verified public surface has 51 types.' is the renderer's own generated count sentence beside a unit that did not write it, reviewer_scope_defect, the identical class item 101/86's fold mechanisms already cover), findings 0, advisory 8 (F01 factuality, F01/F02/F03/F04/F05/F06/F07 presentation - each folded with a recorded reviewer_scope_defect reason), preserve 0",
+   "second_reader": "read 2, 7 finding_classes corroborated",
+   "repair": "0 repaired, 0 unrepairable; rounds 1 (no blocking finding ever raised, so repair never ran a targeted attempt)",
+   "provider_calls_total": "21 across the sealing run; a fresh-process rerun then reproduced every artifact byte-for-byte with 0 provider calls (no-op proof)"
+  },
+  "no_op_proof": {
+   "method": "repository-presenter present --repo aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python run a second time in the same worktree, fresh process, immediately after the sealing run",
+   "result": "bundle state READY_FOR_PROPOSAL, 13 files, provider calls 0; every stage read 'seeded from sealed bundle' or 'model stored output reused'; every digest (facts, investigation, dispositions, plan, units, readme, patch, review) byte-identical to the sealing run's own digests, printed above; check 11 judged"
+  },
+  "minor_observation_not_a_defect": "The two adjacent 'examples' sentences in Additional Examples (see previous_failure_class_status above) are topically similar but not the byte-identical duplication item 98 was built for; no check (BC-10, independent_review, second-reader corroboration) flags them as redundant, and neither is confirmed false against the candidate's own facts. Recorded here for a future reader's own judgment, not escalated - rule 12 (never fabricate a defect no check found)."
+ },
+ "portfolio": {
+  "status_before": "15/34 current reviewable no-op-proven, on the tree at origin/main 9cbd522",
+  "status_after_this_seal_alone": "16/34, measured in this branch's own worktree immediately after sealing (origin/main had not moved since 9cbd522 at that point)",
+  "status_after_rebase": "17/34 - a concurrent, independent seal (notepy/LANE-E-15's Note-Python, PR #94) landed on origin/main before this branch merged; rebasing onto it brought both candidates/ bundles into one tree",
+  "state_yaml": "project/state.yaml's progress.current_candidates went through two edits in this branch's history, both via project/loop-prompt-lane.md section 0's narrow exception (fetch+rebase first, then a fresh repository-presenter status read on that exact tree, never an incremented guess): first 15 -> 16 right after this seal (worktree was then at origin/main's own tip with nothing else landed), confirmed by tests/test_cli.py::test_status_reports_this_repository_cursor failing red before and passing green after. After origin/main moved again to include PR #94's own concurrently-computed 16 (an identical-value textual coincidence - both branches independently read a pre-seal 15 and each added their own one seal, the exact lost-update shape loop-prompt-lane.md section 0 documents), rebasing this branch a second time and re-running repository-presenter status on the now-doubly-rebased tree read 17 sealed on disk; current_candidates corrected 16 -> 17 in the final commit that actually merges, not left at the coincidentally-matching but wrong 16."
+ },
+ "checks": {
+  "ruff_check": "pass",
+  "ruff_format_check": "pass",
+  "mypy_src": "pass (126 source files)",
+  "pytest_n_auto_run_1": "1 failed (test_status_reports_this_repository_cursor, before the state.yaml edit), 1228 passed, 23 xfailed",
+  "pytest_n_auto_run_2": "1229 passed, 23 xfailed (after the state.yaml edit)",
+  "note": "No src/ or tests/ change in this PR - only the sealed candidates/ bundle, this evidence file, project/state.yaml's one permitted field, and a docs/DECISION_LOG.md append."
+ }
+}
