@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "lane": "lane-c",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W12-RERUN13",
+  "work_item_status": "ACCEPTED",
+  "record_kind": "disposition re-run of one repository after arrival item 71/PROPOSAL AF landed; PROPOSAL AF measured live (it closes exactly its own case), and two distinct shared-code defects found live that AF's landing does not reach",
+  "recorded_at": "2026-09-17T11:28:00+05:00",
+  "control_revision": "ec33096",
+  "control_revision_note": "origin/main at the start of this run, which carries 14cb4d3 (arrival items 71/PROPOSAL AF and 91/PDFPY-01, REVIEWER_LOGIC_VERSION 9 -> 10) and ec33096 (a docs-only roadmap commit) on top of RERUN12's 4cd0219.",
+  "trigger": "Supervisor instruction: Slides-Java's blocker (PROPOSAL AF) landed as 14cb4d3; re-draw aspose-slides-foss/Aspose.Slides-FOSS-for-Java as a genuine changed-input retry from a fresh short-path worktree off the latest origin/main.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2",
+    "worktree": "C:\\w\\c12r13 - a fresh worktree off origin/main at ec33096, per loop-prompt-lane section 1.1",
+    "venv_build": "loop-prompt-lane section 1.3: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, pip install --no-deps -e .",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_check": "Confirmed BEFORE any candidate work; identical to the primary's and to every sealed bundle's.",
+    "preflight": "runs/preflight/catalog.json, digest 65b7049796ff5e89ea56b06f46c7cd0a104c6b54396062dc4219640e4d610e19; 7 models, 6 prompt manifests routed to qwen3-next.",
+    "toolchains": "javac C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE (21.0.11), resolved on PATH by shutil.which; mvn not needed - every declared dependency of the POM is test scope.",
+    "call_store_seeded_from": "nothing - composed fresh, no held store read or copied."
+  },
+  "headline": "Nothing sealed. The repository's own input did genuinely change (14cb4d3 landed) and PROPOSAL AF is confirmed closed on exactly the case it names - a finding that self-cites the SUPPORTED link_target fact its quote renders now folds. But this fresh draw's independent reviewer produced the same substantive Code-of-Conduct complaint WITHOUT self-citing the fact (fact_ids empty), which routes through a different, older gate (_reviewed_unit_fact_ids, item 83) that fails for an unrelated, structural reason: it cannot locate the owning content unit when a reviewer quotes the renderer's own bullet chrome prefixed onto the unit's own sentence. A second, independent, previously-latent finding (the '## Requirements' heading/table absence, already fully documented as PROPOSAL AD after RERUN12's first draw) is now genuinely live and blocking. BC-01 through BC-09 PASS, BC-10 FAIL on these two findings; BC-11 never judged.",
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+  "revision": "a03b119a38e1061f1345a094fc2db7f5e7db5494",
+  "preflight_record": "5235 facts, 5235 supported, 0 unresolved, 0 contradicted; identical revision and fact set to RERUN12's second draw, confirming the lane-owned java_examples.py fix (RERUN12) still holds: 8 of 8 examples executed.",
+  "draw": {
+    "outcome": "BC-10 FAIL at COMPOSING, REJECT_PRESENTATION, after repair attempts the equivalent failure stands (rounds 2).",
+    "ledger": "47 rows - 28 success, 14 cache_reuse, 5 response_invalid, 0 cache_stale (PROPOSAL V stays closed on this repository-run).",
+    "validation": "pass 9, fail 1, pending 1 - BC-01 through BC-09 PASS, BC-10 FAIL, BC-11 PENDING.",
+    "plan": "17 of 18 sections, hubs 5, examples 1+7, links 17, digest f759e32e51baafa70acf22f535afbbd15ba6889d4e5400af2f435d9eede9f5fd",
+    "dispositions": "85 units: SUPERSEDE_REDUNDANT 71, VERIFIED_MOVE 4, VERIFIED_PRESERVE 2, OMIT_UNSUPPORTED 7, DEFER_UNRESOLVED 1; digest 7f274563174817df536b5ff53ff573af06e8b0ee1d991af9b7aea96490ffed10",
+    "readme": "186 visible lines of 539, digest 47e4aad63a2fbcfe10f1d0e43de4dd1ac53679745568842f238141ea85513785",
+    "review": "verdict REJECT_PRESENTATION (as returned), 2 blocking findings, 5 advisories",
+    "repairs": "repairs.json: 3 attempts labelled repaired (F05/S5 a genuine edit, later escalated at S6 on a placement conflict; F07/S6/enterprise_relationship and F08/S6/development_testing at S6), 1 escalated to a plan-level repair. F07's own recorded change has before == after byte for byte (PROPOSAL AE recurring a further time; it happened not to re-raise in the next review). F08's change was a genuine edit (added the test-suite count sentence) and did not re-raise."
+  },
+  "blocking_finding_F05": {
+    "shape": "PROPOSAL AD (already fully documented in G4-W12-RERUN12.json / docs/RESEARCH_LANE_C.md after RERUN12's first draw, there recorded LATENT) - CONFIRMED LIVE on this draw, this repository, as a standing BC-10 blocker for the first time.",
+    "finding": "F05 presentation/scope_limitations, absent ['## Requirements', '| | |', '| Java | **21 or later.**'], fact_ids [], quoting the candidate's own opening sentence '...supporting Java 21 and later.', text: 'The candidate merges the ''Requirements'' section into ''Scope and Limitations'' without clear separation, making it harder for developers to quickly find essential setup information.'",
+    "measured_zero_provider_calls": "absence_partition(finding, README.md, evidence) returns present [], invented [], remaining = all 3 claims. '## Requirements' occurs verbatim in the original README (its own heading, immediately followed by a two-column table whose first data row is '| Java | **21 or later.** ...') so it is not invented; it occurs nowhere in the candidate's own scope_limitations section slice (the same information is rendered as prose, not as a restored heading and table), so it is not present either. Every deterministic refutation in scope_defect (absence_defect, excluded_evidence_defect, excluded_disposition_defect, rendered_defect, renderer_owned_defect, cited_fact_defect) returns None; the finding stands.",
+    "disposition": "This is not a new class: it is PROPOSAL AD's own mechanism, live for the first time. No new proposal letter is spent on it; the resume predicate is PROPOSAL AD as already recorded."
+  },
+  "blocking_finding_F06": {
+    "shape": "NEW - PROPOSAL AG.",
+    "finding": "F06 presentation/documentation_resources, absent [], fact_ids [], quoting the candidate's own rendered line '- **[Code of Conduct](CODE_OF_CONDUCT.md)** \u2014 The Code of Conduct outlines expected behavior for participants contributing to or engaging with the Aspose.Slides FOSS for Java community.', text calling the link misplaced - the identical substantive complaint RERUN12's F07 raised and PROPOSAL AF (14cb4d3) was written to close.",
+    "measured_zero_provider_calls": {
+      "AF_is_confirmed_closed_on_its_own_case": "Re-running cited_fact_defect(finding, quote, by_id, ()) with the finding's fact_ids set to ['link_target:023'] (RERUN12's own shape, self-cited) returns the fold reason verbatim: 'the quote contains the literal value of SUPPORTED fact link_target:023 (\\'CODE_OF_CONDUCT.md\\'), which the finding itself cites as its evidence...'. AF's fix is real and correct for the case it names.",
+      "this_draws_finding_takes_a_different_gate": "This draw's F06 has fact_ids: [] (the LLM sample did not self-cite the fact this time, though it is the same substantive complaint), so cited_fact_defect falls to its 'reviewed unit's own citations' branch (item 83/91's unit_fact_ids), which requires _reviewed_unit_fact_ids(quote, units) to locate the one content unit whose OWN text carries the quote.",
+      "the_lookup_fails_structurally": "content_units.json's documentation_resources unit for link_target:023 carries fact_ids ['link_target:023'] and text 'The Code of Conduct outlines expected behavior for participants contributing to or engaging with the Aspose.Slides FOSS for Java community.' - the descriptive sentence ALONE. The renderer composes the visible bullet as its own chrome prefix ('- **[Code of Conduct](CODE_OF_CONDUCT.md)** \u2014 ') followed by that unit's text. The reviewer's quote is the FULL rendered line, chrome included. quote_located(quote, unit_text) returns False: the normalized whole-quote containment check fails because the unit's text lacks the renderer's prefix entirely, and the 80-character opening-anchor check (_ANCHOR_LENGTH) also fails because it anchors the match to the quote's own OPENING characters - which are exactly the renderer's prefix, absent from the haystack. Confirmed directly: _reviewed_unit_fact_ids(quote, units) returns () for this quote against this content_units.json, and cited_fact_defect(finding, quote, by_id, ()) therefore returns None even though link_target:023 (SUPPORTED, value CODE_OF_CONDUCT.md) is plainly the unit's own citation and the quote plainly carries its value inside link syntax."
+    },
+    "root_cause": "quote_located's existing anchor rule (docs: 'a long quote anchors by its opening... a reviewer that copies a whole block and drifts in its tail still points at real text') only tolerates drift AFTER the matched prefix. It has no rule for a quote whose EXTRA text is a renderer-added PREFIX ahead of the unit's own sentence - the inverse drift shape, produced whenever a documentation_resources (or any bullet-styled) unit's rendered line is chrome-prefix + unit-text-suffix and a reviewer quotes the whole rendered line.",
+    "fix_proposed": "Widen _carried_by_units / _reviewed_unit_fact_ids (never quote_located's general contract, which absence_defect and review_checks also rely on) so that, when the whole-quote and opening-anchor checks both fail, a unit is still 'carrying' the quote if the unit's own normalized text is itself a sufficiently long (>= _ANCHOR_LENGTH, or the whole of a short unit's own text) trailing substring of the quote's normalized form - a closing anchor, symmetric to the existing opening one, scoped narrowly to the unit-lookup helpers rather than to quote_located's own general documented contract.",
+    "alternative_rejected": "Widening quote_located itself: absence_defect and review_checks both call quote_located directly for a different question (does the candidate/section contain this text at all), where a bare closing-anchor match on a short claim string risks false positives quote_located's own length floors were written to avoid; the two callers that actually need this (_carried_by_units, _reviewed_unit_fact_ids) already apply their own length-gated fragment logic beside it, so the fix belongs there.",
+    "mutation_test": "A finding quoting a bullet's full rendered line (renderer chrome-prefix + a unit's own trailing sentence) whose value a cited-or-reviewed-unit fact backs must fold via cited_fact_defect; an otherwise-identical quote whose trailing sentence no unit wrote must still stand.",
+    "not_this_lanes_to_write": "review/ is shared code; lane-c never patches it. Recorded as a PROPOSAL for the owner/reviewer to route."
+  },
+  "disposition": "BLOCKED_VALIDATION for aspose-slides-foss/Aspose.Slides-FOSS-for-Java at BC-10. Nothing sealed, nothing forced, no check widened. Resume predicate: PROPOSAL AD (already documented, now confirmed live) and PROPOSAL AG (new, this run). No third composition was attempted: the mechanism actually in question (shared review.py) is not this lane's to patch, and both causes are now named with zero-provider-call evidence, so a further redraw without a code change would not narrow the diagnosis further (loop-prompt.md section 5).",
+  "java_cohort_unchanged": "3 of 4 landed - PDF (099e70a8), 3D (e308de58), Cells (779c9640); Slides remains the fourth, now with two independently-named, evidence-backed shared-code resume predicates instead of one."
+}
