@@ -1,0 +1,112 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 3,
+      "job": "independent_review",
+      "response_sha256s": [
+        "7c4ae2c0dcde4b8c7091676146958c9cac69a9491f7618ccfe24a79ff7558c0c",
+        "c5245768868249a88f45592e477b231207857ac6aff3f0a58f23830ecd73d8b1",
+        "d9e11e3d601fc05a44f246424e16c8406e09399fff717dcbd37883bb1216867c"
+      ]
+    },
+    {
+      "distinct_responses": 11,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "07a83526b64ede203467396d9bd8228a10142d22e12ca26c2350426131696904",
+        "2064ea0636b7977733ad7e46c6aaf11ee575b26957c1acd0c8973d97ba9f22b9",
+        "30cb60d0fe236de7187fafa632e87010bfb3dcf49005715595d32cd9bcb08a1d",
+        "3c469f5cc82b21c45f48339b95d79720ca8477dd1a32788ff9936c0499a77015",
+        "667a5ae96d7605ded60d792be45488f7b804e1b4a212430b8e17bbb66284911e",
+        "8b37ef1dd7511501c7352e203612afdd584d712383e4aad999273a93f40fa7cb",
+        "bb54a7cf902c01196c56016dcc05de97dccd5d5a9cc83132eb49316af7729e0d",
+        "cfe5a01726e1f22556acf965cb7c5c66caf6f0572a06ecfbd74b343924ef2056",
+        "ead1877b0829622b2f65bb5bcc2ab5a77869e10f08e5aa528fabbb0c727b7328",
+        "f5968df045c9ece9d78ff71704dba4abb64bc4efb5895fb206af7c1a7c29b243",
+        "fe40da3ea9f54ff6ba8f2c137520ca831bc66d5194777590ce0e30fa84e2010b"
+      ]
+    },
+    {
+      "distinct_responses": 3,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "04d391676aed41931247e01239c79ba2280cc59f1d40cd581ea05c0632cc6295",
+        "8bb3ee50f8c9f173ccdc8bdcf6ed1c176ba6b4b433353528bd9fec9acf9707f8",
+        "f1c12004c5fa2084cedd06bdd79d13a7db2a4cb30b02663b3773d939f173852b"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 12,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 35542,
+      "sha256": "143ada6291cd9a0ab4d217d2b7e4fafacb45bca29560a11d6253c27d91d26042"
+    },
+    "README.patch": {
+      "bytes": 54538,
+      "sha256": "069fddc2fa58a86b40a7f6c172b54c41070ef3090dfafc7d17b55f7ce1b6fe6a"
+    },
+    "calls.jsonl": {
+      "bytes": 36818,
+      "sha256": "20617ada79ab5ee746f391e8ad50f627324a493e88848e3802b7f669920da672"
+    },
+    "content_units.json": {
+      "bytes": 20614,
+      "sha256": "88473dbd4762321c2cd6251aa479a2a22822efaf93f2a7dd9dcc35b4fe2f29ce"
+    },
+    "dependencies.json": {
+      "bytes": 726945,
+      "sha256": "66138d8c928ececc66cced02b7f4482dc08e345d1e4e91bcacef5ada3bafc09c"
+    },
+    "dispositions.json": {
+      "bytes": 45027,
+      "sha256": "da3ea3e34484417edbe4126b14d085d3807bf6c6e7947d1dc6f702ef9b007562"
+    },
+    "examples.json": {
+      "bytes": 5839,
+      "sha256": "64c1a8ce063307a014b4d29ac31b1bff554494432f690e81eff95b15252d1c3d"
+    },
+    "facts.json": {
+      "bytes": 3116108,
+      "sha256": "99ce8206ade59814235ad010c46cb847f8cfa232356f100c5c63b4f3f45078e1"
+    },
+    "investigation.json": {
+      "bytes": 8639,
+      "sha256": "f11667d7a262b4cc55c5dc90ddad671cd8cf037eb2531875471196403da99f7b"
+    },
+    "plan.json": {
+      "bytes": 9967,
+      "sha256": "1341e59f8ec2b5fa3445815988b515ece7c64380b055ef83eb9c4630845e8f78"
+    },
+    "probes.json": {
+      "bytes": 5371,
+      "sha256": "dac09bfb8656110c9dc8bee3a40f252f631900a0de755eede4f4aef3ff69a59e"
+    },
+    "review.json": {
+      "bytes": 15182,
+      "sha256": "442ec931964250c57b18577cddcd2e260ab9fb102f1a47a87757120d0e14349c"
+    },
+    "validation.json": {
+      "bytes": 10691,
+      "sha256": "0e0c9742663635527dbb7dc2debdc0ac107c04254bd2913abc522cbda4d0b66e"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-23T15:27:37Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+  "revision": "620a2614418854b4a18966a361e6907ddc88c7cb",
+  "schema_version": 1,
+  "sealed_at": "2026-09-23T15:27:37Z",
+  "state": "READY_FOR_PROPOSAL"
+}

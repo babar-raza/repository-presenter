@@ -1,0 +1,223 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:ecosystem",
+      "package:java_release",
+      "license:spdx"
+    ],
+    "text": "Developers who generate or modify PowerPoint presentations on a server or in a build pipeline and need a pure-Java, MIT-licensed dependency that operates entirely within the Office Open XML file format."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:009"
+      ],
+      "text": "The Presentation class serves as the root of the object model, supporting creation of new presentations and loading of existing .pptx files for modification.",
+      "title": "Create and edit presentations"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:012"
+      ],
+      "text": "Developers can add AutoShapes, PictureFrames, Tables, and Connectors to slides, with support for 190 ShapeType values and comprehensive formatting options.",
+      "title": "Add and format shapes"
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "public_symbol:relationship"
+      ],
+      "text": "Shapes support eight visual effects including outer shadow, inner shadow, glow, soft edge, reflection, blur, preset shadow, and fill overlay via EffectFormat.",
+      "title": "Apply visual effects and 3D formatting"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:006"
+      ],
+      "text": "Threaded comments support multiple authors with timestamps and positions, and speaker notes are managed per slide through NotesSlideManager.",
+      "title": "Manage threaded comments and speaker notes"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "example:011"
+      ],
+      "text": "Text formatting is available at TextFrame, Paragraph, and Portion levels, and document properties including title, author, subject, keywords, and custom properties are supported.",
+      "title": "Format text and document properties"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "example:013"
+      ],
+      "text": "Slides can be cloned, inserted, removed, and reordered through SlideCollection methods, with visibility control for slideshow purposes.",
+      "title": "Clone and manipulate slides"
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "public_symbol:relationship"
+      ],
+      "text": "Images are embedded from file, bytes, or InputStream via ImageCollection and attached to slides with PictureFrame, and tables can be created with custom cell content.",
+      "title": "Embed images and create tables"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:010",
+        "example:013"
+      ],
+      "text": "Presentations can be saved to PPTX, PPSX, and POTX formats using the save() method with explicit path or stream and SaveFormat parameter.",
+      "title": "Save to multiple output formats"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "The library does not support charts, SmartArt, OLE objects, video, audio, animations, slide transitions, group shapes, hyperlinks, sections, slide backgrounds, themes, or slide size configuration."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:013"
+      ],
+      "text": "Only three of the 25 declared SaveFormat values are supported: PPTX, PPSX, and POTX; all others raise UnsupportedOperationException."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
+      ],
+      "text": "Cloning a master slide via getMasters().addClone() has a known defect where the clone does not persist to the saved package despite the collection reporting a size increase."
+    },
+    {
+      "fact_ids": [
+        "example:012"
+      ],
+      "text": "Table.mergeCells() requires an XML-backed table and cannot merge cells on tables built without a backing OOXML element."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:getfontname"
+      ],
+      "text": "Text language attributes are not written to the package, so PowerPoint applies the authoring machine's default language instead of one specified in the file."
+    },
+    {
+      "fact_ids": [
+        "package:java_release",
+        "dependency:none"
+      ],
+      "text": "JDK 21 or later is required, and the library has no runtime dependencies beyond the JDK itself."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:platform",
+        "package:java_release"
+      ],
+      "text": "Enables server-side PowerPoint presentation generation and modification without requiring Microsoft Office, COM automation, or native code."
+    },
+    {
+      "fact_ids": [
+        "example:009"
+      ],
+      "text": "Preserves unknown XML content during round-trip operations, ensuring no content loss when loading and saving presentations."
+    },
+    {
+      "fact_ids": [
+        "package:version"
+      ],
+      "text": "Provides a secure XML parser that rejects DOCTYPE declarations and disables external entity resolution to prevent XXE vulnerabilities."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests",
+        "dependency:development.org.junit.jupiter-junit-jupiter-api",
+        "dependency:development.org.junit.jupiter-junit-jupiter-engine",
+        "dependency:development.org.junit.jupiter-junit-jupiter-params",
+        "dependency:development.org.assertj-assertj-core"
+      ],
+      "text": "Supports building and testing with standard Java tooling including Maven and JUnit, with reproducible builds verified across platforms."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:java_release"
+    ],
+    "text": "Aspose.Slides FOSS for Java is a free, open-source, pure-Java library for creating, reading, and editing PowerPoint .pptx presentations without requiring Microsoft Office or any native dependencies."
+  },
+  "uncertainties": [
+    "The exact behavior of Table.mergeCells() on tables created without XML backing is not fully described beyond the limitation statement.",
+    "The specific XML parts that are preserved byte-for-byte during round-tripping versus those that are regenerated is measured on one specific deck but may vary for others.",
+    "The behavior of save() when called with an unsupported SaveFormat value beyond raising UnsupportedOperationException is not detailed beyond the refusal message.",
+    "The exact mechanism and limitations of the 'Relationship' symbol referenced in public_symbol are not described beyond its existence."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:008",
+        "example:010",
+        "example:011",
+        "example:012",
+        "example:013"
+      ],
+      "name": "Create and save a new presentation",
+      "text": "Developers instantiate a Presentation object, add shapes and content, then save to .pptx, .ppsx, or .potx formats using the save() method."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:013"
+      ],
+      "name": "Open and modify existing presentations",
+      "text": "Developers load existing .pptx files using the Presentation constructor with a file path, then modify slides, shapes, or properties and save the changes."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:006"
+      ],
+      "name": "Add threaded comments and speaker notes",
+      "text": "Developers add comment authors and threaded comments with timestamps and positions, and manage speaker notes per slide through NotesSlideManager."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:005",
+        "example:011"
+      ],
+      "name": "Format text and shapes with effects",
+      "text": "Developers apply solid, gradient, pattern, and picture fills to shapes, format text at portion level, and apply visual effects like outer shadow."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven",
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "name": "Build and test with Maven",
+      "text": "Developers use Maven to install the dependency and run the full test suite including unit, integration, and conformance tests that verify the produced XML package structure."
+    }
+  ]
+}

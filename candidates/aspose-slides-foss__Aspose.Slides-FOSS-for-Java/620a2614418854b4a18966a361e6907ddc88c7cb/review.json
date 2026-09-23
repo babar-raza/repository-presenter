@@ -1,0 +1,271 @@
+{
+  "advisory": [
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:getfontname"
+      ],
+      "id": "F04",
+      "quote": "The getFontName method is the only font-related API exposed, and no other font management or text language attributes are available.",
+      "repair": "Remove the claim about getFontName being the only font API; the library exposes comprehensive font formatting through PortionFormat, ParagraphFormat, and FontData types.",
+      "reviewer_scope_defect": "the quote names public_symbol:getfontname, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate incorrectly states 'The getFontName method is the only font-related API exposed', which contradicts the detailed font-related API surface documented in the original README and supported by public_symbol facts."
+    },
+    {
+      "absent": [
+        "SECURITY.md",
+        "26.7.0",
+        "DOCTYPE",
+        "external entities"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:version",
+        "link_target:024"
+      ],
+      "id": "F05",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-slides-foss`, version 26.8.0):",
+      "repair": "Add the security warning about version 26.7.0 lacking XML hardening fixes and recommend building from source for production use with untrusted files.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "installation",
+      "text": "The candidate omits the critical security warning about version 26.7.0 lacking XML hardening fixes, which is explicitly stated in the original README and supported by facts."
+    },
+    {
+      "absent": [
+        "IOException",
+        "try-with-resources",
+        "close()"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001"
+      ],
+      "id": "F06",
+      "quote": "Create a new presentation, add a blue rectangle shape to the first slide, and save it as a PPTX file using the Aspose.Slides FOSS for Java library (package `org.aspose:aspose-slides-foss` version 26.8.0) for Java 21.",
+      "repair": "Add a note that `Presentation(String)` and `save()` throw `IOException`, and emphasize using try-with-resources for proper resource management.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "quick_start",
+      "text": "The candidate omits the key note that `Presentation(String)` constructor and `save()` methods throw `IOException`, which is explicitly stated in the original README and important for correct usage."
+    },
+    {
+      "absent": [
+        "Starting Points",
+        "Outputs",
+        "Nothing — authored from scratch",
+        "An existing PPTX presentation",
+        "A PPTX presentation"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001",
+        "example:009",
+        "example:013"
+      ],
+      "id": "F07",
+      "quote": "```mermaid flowchart TD PRODUCT[...]",
+      "repair": "Restore the complete Mermaid diagram with 'Starting Points' and 'Outputs' nodes to accurately reflect the library's workflow.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The candidate's Mermaid diagram is incomplete and omits the 'Starting Points' and 'Outputs' nodes present in the original README, reducing clarity about the library's input and output capabilities."
+    },
+    {
+      "absent": [
+        "190 ShapeType values",
+        "187 distinct <a:prstGeom prst=…> tokens",
+        "NOT_DEFINED/CUSTOM both write rect",
+        "ROUND_RECTANGLE/ROUND_CORNER_RECTANGLE both write roundRect",
+        "Unknown XML content encountered while loading a presentation is never silently discarded on save"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:012"
+      ],
+      "id": "F08",
+      "quote": "Add and format shapes. Add various shape types including rectangles and connectors, connect shapes using connection sites, and apply solid fill colors to define visual appearance.",
+      "repair": "Add specific implementation details about ShapeType support and XML preservation to match the original README's technical accuracy.",
+      "section_id": "key_capabilities",
+      "single_reader_advisory": true,
+      "text": "The candidate's key capabilities list is overly generic and omits specific implementation details present in the original README, such as the exact number of ShapeType values (190) and XML preservation behavior."
+    },
+    {
+      "absent": [
+        "org.apache.poi:poi-ooxml 5.4.1"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:development.org.apache.poi-poi-ooxml"
+      ],
+      "id": "F01",
+      "quote": "### Development Dependencies",
+      "reader": 2,
+      "repair": "Add 'org.apache.poi:poi-ooxml 5.4.1' to the Development Dependencies list.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'org.apache.poi:poi-ooxml 5.4.1', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The candidate omits the required 'org.apache.poi:poi-ooxml' dependency in the Development Dependencies list, which is explicitly listed in the facts and original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "### Relationship",
+      "reader": 2,
+      "repair": "Remove the 'Relationship' section and any mention of a 'Relationship' class, as it is not part of the verified public API surface.",
+      "reviewer_scope_defect": "the quote names public_symbol:relationship, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "api_reference",
+      "text": "The candidate introduces a non-existent 'Relationship' class in the API Reference section, which is not supported by any fact and misrepresents the public API surface."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:org"
+      ],
+      "id": "F03",
+      "quote": "### org",
+      "reader": 2,
+      "repair": "Remove the 'org' and 'aspose' package sections, as they misrepresent the package structure and are not part of the verified public API surface.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "api_reference",
+      "text": "The candidate includes a misleading 'org' package section that incorrectly suggests 'org' is a public symbol class rather than a namespace root, contradicting the public_symbol facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.textframe",
+        "public_symbol:org.aspose.slides.foss.paragraphcollection",
+        "public_symbol:org.aspose.slides.foss.textframeformat",
+        "public_symbol:org.aspose.slides.foss.threedformat",
+        "public_symbol:org.aspose.slides.foss.camera",
+        "public_symbol:org.aspose.slides.foss.lightrig",
+        "public_symbol:org.aspose.slides.foss.effectformat",
+        "public_symbol:org.aspose.slides.foss.effects.outershadow",
+        "public_symbol:org.aspose.slides.foss.effects.glow",
+        "public_symbol:org.aspose.slides.foss.fillformat",
+        "public_symbol:org.aspose.slides.foss.filltype",
+        "public_symbol:org.aspose.slides.foss.gradientformat",
+        "public_symbol:org.aspose.slides.foss.commentauthor",
+        "public_symbol:org.aspose.slides.foss.commentcollection",
+        "public_symbol:org.aspose.slides.foss.documentproperties",
+        "public_symbol:org.aspose.slides.foss.notesslidemanager",
+        "public_symbol:org.aspose.slides.foss.inotesslide",
+        "public_symbol:org.aspose.slides.foss.imagecollection",
+        "public_symbol:org.aspose.slides.foss.ippimage",
+        "public_symbol:org.aspose.slides.foss.lineformat",
+        "public_symbol:org.aspose.slides.foss.linedashstyle"
+      ],
+      "id": "F04",
+      "quote": "The getFontName method is the only font-related API exposed, and no other font management or text language attributes are available.",
+      "reader": 2,
+      "repair": "Remove the claim about 'getFontName' being the only font-related API, as it contradicts the verified public API surface.",
+      "reviewer_scope_defect": "the quote names public_symbol:getfontname, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate incorrectly states 'The getFontName method is the only font-related API exposed', which contradicts the facts that support multiple font-related APIs like PortionFormat and FontData."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:maven",
+        "package:version",
+        "link_target:024"
+      ],
+      "id": "F05",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-slides-foss`, version 26.8.0):",
+      "reader": 2,
+      "repair": "Add the security warning about version 26.7.0 lacking the XML hardening fix, as supported by the facts and original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "installation",
+      "text": "The candidate omits the critical security warning about version 26.7.0 lacking the XML hardening fix, which is explicitly supported by facts and the original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001"
+      ],
+      "id": "F06",
+      "quote": "Create a new presentation, add a blue rectangle shape to the first slide, and save it as a PPTX file using the Aspose.Slides FOSS for Java library (package `org.aspose:aspose-slides-foss` version 26.8.0) for Java 21.",
+      "reader": 2,
+      "repair": "Add the detail that `Presentation(String)` and `save()` throw `IOException`, as supported by the original README and quick start example.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "quick_start",
+      "text": "The candidate omits the key detail that `Presentation(String)` and `save()` throw `IOException`, which is explicitly stated in the original README and supported by the quick start example."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001",
+        "example:009",
+        "example:010",
+        "example:013"
+      ],
+      "id": "F07",
+      "quote": "```mermaid",
+      "reader": 2,
+      "repair": "Restore the 'Starting Points' and 'Outputs' subgraphs to the Mermaid diagram, as present in the original README.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The candidate's Mermaid diagram incorrectly omits the 'Starting Points' and 'Outputs' subgraphs, which are present in the original README and provide essential context for the library's purpose."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "143ada6291cd9a0ab4d217d2b7e4fafacb45bca29560a11d6253c27d91d26042",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "012d630ea87dd4b2ed3b6aaa",
+      "5b4af6802e28f2886ef081a2",
+      "75ce3972a5bdabd7147b459d",
+      "7bf2dd6eda183d6293dbc405",
+      "949e03aa2a199c11ad781c51",
+      "a4038de197be7270ac16f2d7"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}
