@@ -126,6 +126,24 @@ governance tracks, two directories, no overlap.
     tools/research_sweep/test_proposal_sweep.py`), same outside-collection-scope convention as
     `tools/discovery/test_portfolio_discovery.py`.
 
+- `github_app/` — one-time registration for `OWNER-04`'s production GitHub App, not ongoing
+  supervision.
+  - `manifest.json` — the static app manifest (name, permissions, no webhook) submitted through
+    GitHub's manifest flow. Requests `metadata:read`, `contents:write`, `issues:write`,
+    `pull_requests:write`, `administration:write` — the last is new, needed for WS2's repo
+    description/topics/homepage `PATCH`.
+  - `register.html` — a local, no-dependency HTML form that POSTs `manifest.json`'s contents to
+    `https://github.com/settings/apps/new`. The owner's one required click; opens locally, never
+    published or hosted.
+  - `register_exchange.py` — takes the code GitHub's redirect carries, exchanges it via
+    `POST /app-manifests/{code}/conversions`, and stores the resulting `GH_APP_ID` /
+    `GH_APP_PRIVATE_KEY` / `GH_APP_CLIENT_ID` / `GH_APP_CLIENT_SECRET` / `GH_APP_WEBHOOK_SECRET` as
+    encrypted `gh secret set` values on `babar-raza/repository-presenter` directly — never printed
+    in full, never written to disk, matching `OWNER-02`'s established process-env-only precedent.
+    A second manual click (approving installation per `aspose-*-foss` org) still follows; GitHub
+    has no API path around a first cross-org installation's consent. Full guide:
+    `docs/DECISION_LOG.md`, 2026-09-23 16:04 UTC.
+
 ## Environment variables
 
 Both `reviewer_check.py`, `stop_monitor.py`, and `timestamp_monitor.py` default to this machine's

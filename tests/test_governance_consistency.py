@@ -359,6 +359,14 @@ KNOWN_CEILING_RESTATEMENTS = {
         "'31/31' in 30.7's 2026-09-05 rate projection and 30.8's autonomy ruling: dated owner "
         "text at the 31 ceiling (PHASE1/F8)"
     ),
+    "RESEARCH 17": (
+        "'1/34, 7/34, 34/34' and '34/34' quoting revision 1's 2026-09-02 recovery-direction "
+        "narrative and decision, written when the registry genuinely held 34 entries - a "
+        "historical record of what that plan said, not a live restatement; rewriting it to "
+        "match a later registry size would falsify the history this section exists to record. "
+        "Denominator moved to 35 on OWNER-08's admission of aspose-imaging-foss's .NET repo "
+        "(docs/DECISION_LOG.md, 2026-09-23 16:36 UTC)."
+    ),
 }
 
 

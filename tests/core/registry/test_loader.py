@@ -53,7 +53,7 @@ def test_real_registry_validates_against_its_schema() -> None:
 
 def test_real_registry_is_the_frozen_portfolio() -> None:
     registry = load_registry(REGISTRY)
-    assert len(registry.entries) == 34
+    assert len(registry.entries) == 35
     assert [e.repository for e in registry.entries] == sorted(
         (e.repository for e in registry.entries), key=str.casefold
     )
@@ -62,7 +62,9 @@ def test_real_registry_is_the_frozen_portfolio() -> None:
     # G4-W17 arrival item 31: aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript's `disabled` mode
     # was a stale flag, not a content defect - no clone had ever been attempted
     # (evidence/build/lanes/lane-b/G4-W14.json). Flipped to dry_run; the reachable ceiling moves
-    # 31 to 32, one below the frozen portfolio denominator of 34.
+    # 31 to 32, one below the frozen portfolio denominator of 34 (unaffected by later registry
+    # growth - OWNER-08's 2026-09-23 admission of aspose-imaging-foss's .NET repo at mode
+    # disabled adds a 35th entry but not a 33rd enabled one; docs/DECISION_LOG.md has the entry).
     assert len(enabled_entries(registry)) == 32
 
 

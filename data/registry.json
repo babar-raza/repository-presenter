@@ -240,6 +240,20 @@
       }
     },
     {
+      "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
+      "family": "imaging",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "disabled",
+      "policy_profile": "aspose-imaging-foss-net",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1359836523,
+        "node_id": "R_kgDOUQ11aw"
+      }
+    },
+    {
       "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
       "family": "note",
       "platform": "python",

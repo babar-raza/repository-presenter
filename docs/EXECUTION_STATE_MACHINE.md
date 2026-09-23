@@ -328,7 +328,7 @@ contract freezes against thirteen sealed products rather than one (§28.5).
 
 ## G4 — Multi-Language Cohorts, Local
 
-Goal: a README for every enabled registry entry (`data/registry.json`, derived) and 34/34
+Goal: a README for every enabled registry entry (`data/registry.json`, derived) and 35/35
 dispositions through one shared surface extractor and six thin plugins, before hosted machinery.
 
 | Ecosystem | Mandatory truth |
