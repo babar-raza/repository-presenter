@@ -55,6 +55,7 @@ active_work_item:
   acceptance:
   - Every PROPOSAL recorded before the item's last iteration is either landed with its test or declined with a reason in section 31.
   - Hosted CI green.
+  - "Resealing keeps pace with landings, explicitly (added 2026-09-23, owner direction - a landed fix bumps sealed candidates' component versions, which repository-presenter status --stale surfaces; a fix landing without its dependents resealed is not this item's acceptance bar met, it is new debt). At any point where status --stale shows more than a small, actively-being-worked remainder, resealing those candidates is this item's own critical, ongoing work - not a separate, lower-priority task to get to later. A spawned agent finding nothing else ready should pick the next stale candidate, not idle."
   evidence_required:
   - Each landed fix's mutation test.
   - The work-item record in evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json, naming which proposals landed and which were declined.
