@@ -4,7 +4,7 @@ matches the proposal has nothing to propose."""
 
 from __future__ import annotations
 
-from repository_presenter.components.repo_metadata.proposal import (
+from repository_presenter.components.metadata.proposal import (
     build_proposal,
     diff_against_observed,
     opening_paragraph,

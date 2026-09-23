@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from repository_presenter.components.repo_metadata.capture import (
+from repository_presenter.components.metadata.capture import (
     CAPTURE_FILENAME,
     capture_repo_metadata,
     write_capture,

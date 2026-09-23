@@ -13,6 +13,15 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter import __version__
+from repository_presenter.components.metadata.capture import (
+    CAPTURE_FILENAME,
+    capture_repo_metadata,
+    write_capture,
+)
+from repository_presenter.components.metadata.proposal import (
+    build_proposal,
+    diff_against_observed,
+)
 from repository_presenter.components.readme.bundle.evaluation import (
     EVALUATION_FILENAME,
     evaluate,
@@ -94,15 +103,6 @@ from repository_presenter.components.readme.validation.registry import (
     blocking_failures,
     coverage_rows,
     summarize_validation,
-)
-from repository_presenter.components.repo_metadata.capture import (
-    CAPTURE_FILENAME,
-    capture_repo_metadata,
-    write_capture,
-)
-from repository_presenter.components.repo_metadata.proposal import (
-    build_proposal,
-    diff_against_observed,
 )
 from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
@@ -253,21 +253,21 @@ def build_parser() -> argparse.ArgumentParser:
             "GitHub effect); a dry-run report only when omitted"
         ),
     )
-    repo_metadata = subcommands.add_parser(
-        "repo-metadata",
+    metadata = subcommands.add_parser(
+        "metadata",
         help=(
             "capture GitHub's observed description/homepage/topics for one admitted repository "
             "and diff them against a proposal derived from already-verified facts - read-only, "
             "never a PATCH/PUT (workstream 2 Phase 0/1, OWNER-04/G5 still gates any write)"
         ),
     )
-    repo_metadata.add_argument(
+    metadata.add_argument(
         "--repo",
         required=True,
         metavar="OWNER/NAME",
         help="repository coordinates exactly as listed in the registry",
     )
-    repo_metadata.add_argument("--root", type=Path, default=None, help=root_help)
+    metadata.add_argument("--root", type=Path, default=None, help=root_help)
     return parser
 
 
@@ -283,8 +283,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_preflight(args.root)
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(args.root, repository=args.repo, apply=args.apply)
-    if args.command == "repo-metadata":
-        return run_repo_metadata(args.repo, args.root)
+    if args.command == "metadata":
+        return run_metadata(args.repo, args.root)
     parser.error(f"unknown command {args.command!r}")
 
 
@@ -377,7 +377,7 @@ def run_redetect_upstream_defects(
     return EXIT_OK
 
 
-def run_repo_metadata(repository: str, root_argument: Path | None) -> int:
+def run_metadata(repository: str, root_argument: Path | None) -> int:
     """Capture GitHub's observed description/homepage/topics for ``repository`` and diff them
     against a proposal derived only from already-verified facts (workstream 2 Phase 0/1,
     docs/investigations/02-repo-metadata-community-files.md section 5).
@@ -402,8 +402,8 @@ def run_repo_metadata(repository: str, root_argument: Path | None) -> int:
         print(f"admitted: {entry.repository} (mode {entry.mode})")
         token = os.environ.get("GH_TOKEN") or None
         observed = capture_repo_metadata(entry, token=token)
-        repo_metadata_dir = root / RUNS_DIRNAME / "repo_metadata" / f"{entry.owner}__{entry.name}"
-        capture_path = repo_metadata_dir / CAPTURE_FILENAME
+        metadata_dir = root / RUNS_DIRNAME / "metadata" / f"{entry.owner}__{entry.name}"
+        capture_path = metadata_dir / CAPTURE_FILENAME
         digest = write_capture(observed, capture_path)
         print(
             f"observed: description={observed.description!r} homepage={observed.homepage!r} "
