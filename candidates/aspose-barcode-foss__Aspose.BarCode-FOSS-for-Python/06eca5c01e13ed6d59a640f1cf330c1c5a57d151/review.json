@@ -1,110 +1,57 @@
 {
   "advisory": [
     {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "factuality",
-      "fact_ids": [
-        "public_symbol:aspose_barcode_foss",
-        "public_symbol:aspose_barcode_foss.api",
-        "public_symbol:aspose_barcode_foss.barcode",
-        "public_symbol:aspose_barcode_foss.barcode.render",
-        "public_symbol:aspose_barcode_foss.barcode.to_pdf",
-        "public_symbol:aspose_barcode_foss.barcode.to_png",
-        "public_symbol:aspose_barcode_foss.barcode.to_svg",
-        "public_symbol:aspose_barcode_foss.barcodeerror",
-        "public_symbol:aspose_barcode_foss.code128",
-        "public_symbol:aspose_barcode_foss.code128encodemode",
-        "public_symbol:aspose_barcode_foss.code128options",
-        "public_symbol:aspose_barcode_foss.code39",
-        "public_symbol:aspose_barcode_foss.code39encodemode",
-        "public_symbol:aspose_barcode_foss.code39ext",
-        "public_symbol:aspose_barcode_foss.code39options",
-        "public_symbol:aspose_barcode_foss.ean13",
-        "public_symbol:aspose_barcode_foss.ean13options",
-        "public_symbol:aspose_barcode_foss.ean8",
-        "public_symbol:aspose_barcode_foss.ean8options",
-        "public_symbol:aspose_barcode_foss.encodeoptions",
-        "public_symbol:aspose_barcode_foss.encodingerror",
-        "public_symbol:aspose_barcode_foss.exceptions",
-        "public_symbol:aspose_barcode_foss.exceptions.barcodeerror",
-        "public_symbol:aspose_barcode_foss.exceptions.encodingerror",
-        "public_symbol:aspose_barcode_foss.exceptions.invalidinputerror",
-        "public_symbol:aspose_barcode_foss.exceptions.renderingerror",
-        "public_symbol:aspose_barcode_foss.exceptions.symbologynotfounderror",
-        "public_symbol:aspose_barcode_foss.exceptions.unsupportedcapabilityerror",
-        "public_symbol:aspose_barcode_foss.exceptions.unsupportedfeatureerror",
-        "public_symbol:aspose_barcode_foss.generate",
-        "public_symbol:aspose_barcode_foss.invalidinputerror",
-        "public_symbol:aspose_barcode_foss.options",
-        "public_symbol:aspose_barcode_foss.options.code128encodemode",
-        "public_symbol:aspose_barcode_foss.options.code128options",
-        "public_symbol:aspose_barcode_foss.options.code39encodemode",
-        "public_symbol:aspose_barcode_foss.options.code39options",
-        "public_symbol:aspose_barcode_foss.options.ean13options",
-        "public_symbol:aspose_barcode_foss.options.ean8options",
-        "public_symbol:aspose_barcode_foss.options.encodeoptions",
-        "public_symbol:aspose_barcode_foss.options.qrencodemode",
-        "public_symbol:aspose_barcode_foss.options.qrerrorcorrectionlevel",
-        "public_symbol:aspose_barcode_foss.options.qroptions",
-        "public_symbol:aspose_barcode_foss.options.renderoptions",
-        "public_symbol:aspose_barcode_foss.options.resolvedrenderoptions",
-        "public_symbol:aspose_barcode_foss.options.upcaoptions",
-        "public_symbol:aspose_barcode_foss.options.upceoptions",
-        "public_symbol:aspose_barcode_foss.pdfrenderer",
-        "public_symbol:aspose_barcode_foss.pngrenderer",
-        "public_symbol:aspose_barcode_foss.qr",
-        "public_symbol:aspose_barcode_foss.qrencodemode",
-        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
-        "public_symbol:aspose_barcode_foss.qroptions",
-        "public_symbol:aspose_barcode_foss.renderer",
-        "public_symbol:aspose_barcode_foss.renderers",
-        "public_symbol:aspose_barcode_foss.renderers.pdfrenderer",
-        "public_symbol:aspose_barcode_foss.renderers.pngrenderer",
-        "public_symbol:aspose_barcode_foss.renderers.renderer",
-        "public_symbol:aspose_barcode_foss.renderers.svgrenderer",
-        "public_symbol:aspose_barcode_foss.renderingerror",
-        "public_symbol:aspose_barcode_foss.renderoptions",
-        "public_symbol:aspose_barcode_foss.resolvedrenderoptions",
-        "public_symbol:aspose_barcode_foss.result",
-        "public_symbol:aspose_barcode_foss.svgrenderer",
-        "public_symbol:aspose_barcode_foss.symbologynotfounderror",
-        "public_symbol:aspose_barcode_foss.unsupportedcapabilityerror",
-        "public_symbol:aspose_barcode_foss.unsupportedfeatureerror",
-        "public_symbol:aspose_barcode_foss.upca",
-        "public_symbol:aspose_barcode_foss.upcaoptions",
-        "public_symbol:aspose_barcode_foss.upce",
-        "public_symbol:aspose_barcode_foss.upceoptions"
+      "absent": [
+        "versioned at 0.1.0"
       ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
       "id": "F01",
-      "quote": "The verified public surface has 51 types.",
-      "repair": "Remove the claim 'The verified public surface has 51 types' as no fact supports this count; the candidate lists 51 items but the facts do not enumerate a fixed count.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "api_reference",
-      "text": "The verified public surface has 51 types."
+      "quote": "Aspose.BarCode FOSS for Python is a Python library for generating barcodes in common formats such as code128, code39, ean13, ean8, upca, upce, and qr. It provides a simple API to create barcodes and export them as SVG or PNG without external dependencies beyond Pillow. Developers use it to embed barcodes in reports, labels, and digital documents by calling methods like `to_png` and `to_svg`, and to customize output with `RenderOptions` or custom renderers like `SvgRenderer` and `PngRenderer`. **",
+      "repair": "Remove the version number and Python badge from the opening paragraph to match the original README's factual, unversioned description.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'versioned at 0.1.0', which the candidate contains",
+      "section_id": "identity",
+      "text": "The candidate adds a Python version badge and a version number (0.1.0) that are not present in the original README and are not supported by facts."
     },
     {
       "absent": [
-        "subgraph Outputs[...]",
-        "o1[...]",
-        "o2[...]",
-        "PRODUCT --> Capabilities --> Outputs"
+        "c1[",
+        "c2[",
+        "c3[",
+        "c4[",
+        "c5[",
+        "o1[",
+        "o2["
       ],
       "causal_stage": "S7",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
         "example:001",
-        "example:002"
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "public_symbol:aspose_barcode_foss.code128",
+        "public_symbol:aspose_barcode_foss.code39",
+        "public_symbol:aspose_barcode_foss.ean13",
+        "public_symbol:aspose_barcode_foss.ean8",
+        "public_symbol:aspose_barcode_foss.upca",
+        "public_symbol:aspose_barcode_foss.upce",
+        "public_symbol:aspose_barcode_foss.qr",
+        "public_symbol:aspose_barcode_foss.generate",
+        "public_symbol:aspose_barcode_foss.barcode.to_svg",
+        "public_symbol:aspose_barcode_foss.barcode.to_png"
       ],
-      "id": "F01",
-      "quote": "```mermaid flowchart TD   PRODUCT[...]",
-      "reader": 2,
-      "repair": "Restore the original Mermaid diagram structure with the 'Outputs' subgraph and the flow from Capabilities to Outputs to match the original README and clearly show SVG and PNG outputs.",
+      "id": "F02",
+      "quote": "  subgraph Capabilities[",
+      "repair": "Restore the original Mermaid diagram with specific symbologies (Code 128, Code 39, EAN-13, EAN-8, UPC-A, UPC-E, QR Code) and outputs (SVG string, PNG image bytes) to match the original README and support the detailed capabilities.",
       "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
       "section_id": "at_a_glance",
-      "text": "The At a Glance Mermaid diagram in the candidate omits the explicit 'Outputs' subgraph and the flow from Capabilities to Outputs, which is present in the original and supported by the example facts (example:001, example:002) showing SVG and PNG outputs."
+      "text": "The Mermaid diagram in the At a Glance section is simplified and omits specific symbologies and output types that are explicitly listed in the original README and supported by facts."
     },
     {
       "absent": [
@@ -118,19 +65,32 @@
       "criterion": "presentation",
       "fact_ids": [
         "example:001",
-        "example:004"
+        "example:003",
+        "example:004",
+        "example:005",
+        "public_symbol:aspose_barcode_foss.code128",
+        "public_symbol:aspose_barcode_foss.code39",
+        "public_symbol:aspose_barcode_foss.ean13",
+        "public_symbol:aspose_barcode_foss.ean8",
+        "public_symbol:aspose_barcode_foss.upca",
+        "public_symbol:aspose_barcode_foss.upce",
+        "public_symbol:aspose_barcode_foss.qr",
+        "public_symbol:aspose_barcode_foss.generate",
+        "public_symbol:aspose_barcode_foss.options.code128encodemode",
+        "public_symbol:aspose_barcode_foss.options.code39options",
+        "public_symbol:aspose_barcode_foss.options.qrerrorcorrectionlevel",
+        "public_symbol:aspose_barcode_foss.options.qrencodemode"
       ],
-      "id": "F02",
-      "quote": "- **Generate multiple linear symbologies.** Generate linear barcodes using code128, code39, code39ext, ean13, ean8, upca, and upce symbologies with built-in support for encoding options and check digits.",
-      "reader": 2,
-      "repair": "Replace generic phrasing with specific, fact-supported descriptions of each capability, including symbology names, encoding options, and check-digit behavior as in the original README.",
+      "id": "F03",
+      "quote": "- **Generate multiple barcode symbologies.** Generate barcodes using built-in constructors for code128, code39, ean13, ean8, upca, upce, and qr symbologies, each accepting payload data and optional encoding parameters.",
+      "repair": "Expand each Key Capabilities bullet to include the specific features described in the original README, such as automatic Code Set switching, check-digit options, and QR encoding controls.",
       "section_id": "key_capabilities",
       "single_reader_advisory": true,
-      "text": "The Key Capabilities section in the candidate uses generic, vague phrasing (e.g., 'Generate multiple linear symbologies') instead of the specific symbology names (Code 128, Code 39, EAN-13, etc.) and encoding options (e.g., 'automatic optimal Code Set A/B/C switching', 'modulo-43 check character') present in the original and supported by the facts."
+      "text": "The Key Capabilities section omits critical details present in the original README, such as automatic Code Set switching for Code 128, modulo-43 check digit for Code 39, check-digit computation/validation for EAN/UPC, and QR version/error correction controls."
     },
     {
       "absent": [
-        "The package is not yet published to PyPI. Install it from a source checkout:"
+        "pip install ."
       ],
       "causal_stage": "S7",
       "causal_state": null,
@@ -138,40 +98,18 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "id": "F03",
-      "quote": "`aspose-barcode-foss` is not yet published on PyPI; build it from a source checkout instead, verified against this revision:",
-      "reader": 2,
-      "repair": "Restore the explicit statement that the package is not yet published to PyPI to match the original and avoid misleading users about availability on PyPI.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose_barcode_foss.barcode, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "installation",
-      "text": "The Installation section in the candidate omits the explicit statement that the package is not yet published to PyPI, which is present in the original and supported by the install_command fact."
-    },
-    {
-      "absent": [
-        "### Development Dependencies",
-        "- `pytest` >=8.0 and `ruff` >=0.15.7 — used only by the test suite and linter, never required to install or use the"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "dependency:pillow-10.1.0",
-        "package:python_requires"
-      ],
       "id": "F04",
-      "quote": "### Required Package Dependencies",
-      "reader": 2,
-      "repair": "Restore the Development Dependencies subsection with pytest and ruff to match the original and clarify that these are only needed for development, not runtime.",
-      "reviewer_scope_defect": "the omission it names is inherited_unit:021.list's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
-      "section_id": "dependencies",
-      "text": "The Dependencies section in the candidate omits the Development Dependencies subsection (pytest, ruff) present in the original and supported by the inherited_unit:020.heading and inherited_unit:021.list facts."
+      "quote": "```bash git clone https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python.git cd Aspose.BarCode-FOSS-for-Python export PYTHONPATH=",
+      "repair": "Replace the PYTHONPATH export with the correct `pip install .` command as verified in the install_command:pip fact.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The installation command in the candidate is incorrect: it uses `export PYTHONPATH` instead of the verified `pip install .` command from the facts."
     },
     {
       "absent": [
-        "### Core API",
-        "### Internal",
-        "### Enumerations",
-        "### Detailed Member Reference"
+        "Core API",
+        "Internal",
+        "Enumerations"
       ],
       "causal_stage": "S7",
       "causal_state": null,
@@ -179,15 +117,25 @@
       "fact_ids": [
         "public_symbol:aspose_barcode_foss",
         "public_symbol:aspose_barcode_foss.barcode",
-        "public_symbol:aspose_barcode_foss.generate"
+        "public_symbol:aspose_barcode_foss.generate",
+        "public_symbol:aspose_barcode_foss.code128",
+        "public_symbol:aspose_barcode_foss.code39",
+        "public_symbol:aspose_barcode_foss.ean13",
+        "public_symbol:aspose_barcode_foss.ean8",
+        "public_symbol:aspose_barcode_foss.upca",
+        "public_symbol:aspose_barcode_foss.upce",
+        "public_symbol:aspose_barcode_foss.qr",
+        "public_symbol:aspose_barcode_foss.barcode.to_svg",
+        "public_symbol:aspose_barcode_foss.barcode.to_png",
+        "public_symbol:aspose_barcode_foss.renderers.svgrenderer",
+        "public_symbol:aspose_barcode_foss.renderers.pngrenderer"
       ],
       "id": "F05",
-      "quote": "The verified public surface has 51 types.",
-      "reader": 2,
-      "repair": "Consolidate the API Reference section into a single, unified list of all verified public symbols without duplicative headings, matching the original structure.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "quote": "| Class | Description | | --- | --- | | `Barcode` | Public barcode object returned by the high-level API. | | `aspose_barcode_foss.BarcodeError` | aspose_barcode_foss.BarcodeError represents a base exception for barcode-related errors. |",
+      "repair": "Restore the original API Reference structure with a single `Barcode` class, a concise list of key types, and enumerations, avoiding duplicated entries and excessive detail.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_barcode_foss, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "api_reference",
-      "text": "The API Reference section in the candidate duplicates the public symbol list under both 'Core API' and 'Internal' headings and includes a 'Complete Public API Surface' heading, which is inconsistent with the original's single, unified API Reference section and supported by the inherited_unit:041.html_block disposition."
+      "text": "The API Reference section duplicates entries (e.g., `aspose_barcode_foss.BarcodeError` and `aspose_barcode_foss.exceptions.BarcodeError`) and lists 51 types, while the original README lists 20 types and groups them logically without duplication."
     },
     {
       "absent": [
@@ -198,21 +146,19 @@
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "inherited_unit:052.list"
+        "public_symbol:aspose_barcode_foss.options.encodeoptions"
       ],
       "id": "F06",
-      "quote": "Aspose.BarCode FOSS for Python version 0.1.0 provides barcode generation capabilities for Python 3.12 and later under the MIT license, supporting PNG and SVG output formats for all symbologies.",
-      "reader": 2,
-      "repair": "Restore the explicit mention of ECI and GS1 data parsing limitations to match the original and accurately reflect the FOSS scope.",
+      "quote": "- The library supports only the AUTO, H, data, render, `to_png`, and `to_svg` members for barcode generation and output.",
+      "repair": "Replace the unsupported claim about limited members with the accurate limitations about ECI and GS1 parsing as described in the original README and supported by facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_barcode_foss.barcode.to_png, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "scope_limitations",
-      "single_reader_advisory": true,
-      "text": "The Scope and Limitations section in the candidate omits the explicit mention of ECI and GS1 data parsing limitations, which are present in the original and supported by the inherited_unit:052.list fact."
+      "text": "The Scope and Limitations section incorrectly states that the library supports only 'AUTO, H, data, render, to_png, and to_svg' members, which is not supported by facts and contradicts the original README's accurate description of ECI and GS1 limitations."
     },
     {
       "absent": [
-        "Build and test the package using the assets in the tests/ and examples/ directories, ensuring compatibility with Python ",
-        "The suite covers 48 test files under `tests/`.",
-        "verify functionality with the AUTO, H, data, render, `to_png`, and `to_svg` members"
+        "Clone the repository and run the test suite",
+        "pytest"
       ],
       "causal_stage": "S7",
       "causal_state": null,
@@ -223,22 +169,182 @@
       ],
       "id": "F07",
       "quote": "The suite covers 48 test files under `tests/`.",
-      "reader": 2,
-      "repair": "Remove unsupported claims about test file counts and member verification, and restore the original Development and Testing section that focuses on building and testing from actual build files.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Build and test the package using the assets in the tests/ and examples/ directories, ensuring compatibility with Python', 'The suite covers 48 test files under `tests/`.', 'verify functionality with the AUTO, H, data, render, `to_png`, and `to_svg` members', which the candidate contains",
+      "repair": "Remove the unsupported claim about 48 test files and restore the original instruction to clone and run the test suite with pytest.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
       "section_id": "development_testing",
-      "text": "The Development and Testing section in the candidate adds unsupported claims about test file counts (48 test files) and member verification (AUTO, H, data, render, to_png, to_svg), which are not supported by any fact and introduce promotional or misleading content."
+      "text": "The Development and Testing section adds unsupported claims about 48 test files and a build process not present in the original README."
+    },
+    {
+      "absent": [
+        "The full API reference documents all public classes, methods, and properties including AUTO, H, data, render, `to_png`,"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "It covers all 51 verified public types; the [API Reference](#api-reference) section above covers the essentials.",
+      "repair": "Remove the redundant sentence about 51 types and restore the original concise description of the documentation links.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'The full API reference documents all public classes, methods, and properties including AUTO, H, data, render, `to_png`,', which the candidate contains",
+      "section_id": "documentation_resources",
+      "text": "The Documentation & Resources section adds a redundant sentence about the API Reference covering 51 types, which is unsupported and duplicates the API Reference section."
+    },
+    {
+      "absent": [
+        "0.1.0",
+        "Python 3.12+",
+        "versioned at 0.1.0"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "Aspose.BarCode FOSS for Python is a Python library for generating barcodes in common formats such as code128, code39, ean13, ean8, upca, upce, and qr. It provides a simple API to create barcodes and export them as SVG or PNG without external dependencies beyond Pillow. Developers use it to embed barcodes in reports, labels, and digital documents by calling methods like `to_png` and `to_svg`, and to customize output with `RenderOptions` or custom renderers like `SvgRenderer` and `PngRenderer`. **",
+      "reader": 2,
+      "repair": "Remove the version number and Python version badge from the opening paragraph to match the original README's factual, unversioned description.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_barcode_foss.barcode.to_png, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate adds a Python version badge and a version number (0.1.0) that are not present in the original README and are not supported by facts."
+    },
+    {
+      "absent": [
+        "Code 128 (linear, Code Sets A/B/C)",
+        "Code 39 (base and Extended/Full-ASCII)",
+        "EAN/UPC retail symbologies (EAN-13, EAN-8, UPC-A, UPC-E)",
+        "QR Code (Model 2, versions 1-40)",
+        "SVG string",
+        "PNG image bytes"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "public_symbol:aspose_barcode_foss.code128",
+        "public_symbol:aspose_barcode_foss.code39",
+        "public_symbol:aspose_barcode_foss.ean13",
+        "public_symbol:aspose_barcode_foss.ean8",
+        "public_symbol:aspose_barcode_foss.upca",
+        "public_symbol:aspose_barcode_foss.upce",
+        "public_symbol:aspose_barcode_foss.qr",
+        "public_symbol:aspose_barcode_foss.generate",
+        "public_symbol:aspose_barcode_foss.barcode.to_svg",
+        "public_symbol:aspose_barcode_foss.barcode.to_png"
+      ],
+      "id": "F02",
+      "quote": "  subgraph Capabilities[**Core Capabilities**]  direction TB  c1[**Generate multiple barcode symbologies**]  c2[**Encode with symbology-specific options**]  c3[**Render to SVG and PNG**]  c4[**Custom rendering via Renderer subclasses**]  end",
+      "reader": 2,
+      "repair": "Restore the original Mermaid diagram's specificity by listing the exact symbologies (Code 128, Code 39, EAN/UPC, QR Code) and outputs (SVG string, PNG image bytes) supported by the library.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_barcode_foss.renderer, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the At a Glance section is simplified and omits specific symbologies and outputs, reducing specificity compared to the original."
+    },
+    {
+      "absent": [
+        "pip install ."
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F03",
+      "quote": "```bash  git clone https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python.git  cd Aspose.BarCode-FOSS-for-Python  export PYTHONPATH=**src:.:$PYTHONPATH**  ```",
+      "reader": 2,
+      "repair": "Replace the PYTHONPATH export with the verified installation command: `git clone ...`, `cd ...`, `pip install .`.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_barcode_foss.barcode, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "installation",
+      "text": "The installation instructions omit the `pip install .` step and instead show an incomplete PYTHONPATH export, which contradicts the verified install_command fact."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.barcodeerror",
+        "public_symbol:aspose_barcode_foss.exceptions.barcodeerror"
+      ],
+      "id": "F05",
+      "quote": "| `aspose_barcode_foss.BarcodeError` | aspose_barcode_foss.BarcodeError represents a base exception for barcode-related errors. |  | `aspose_barcode_foss.exceptions.BarcodeError` | aspose_barcode_foss.exceptions.BarcodeError represents a base exception for barcode-related errors. |",
+      "reader": 2,
+      "repair": "Remove duplicate entries for exception classes and other types that appear under both top-level and namespaced paths, keeping only the canonical public symbol paths supported by facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_barcode_foss, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "api_reference",
+      "text": "The API Reference section duplicates entries under both top-level and namespaced paths (e.g., `aspose_barcode_foss.BarcodeError` and `aspose_barcode_foss.exceptions.BarcodeError`), which is misleading and not supported by facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "The verified public surface has **51 types**.",
+      "reader": 2,
+      "repair": "Remove the specific count of 51 types and instead describe the public surface as including the Barcode class, generate() function, per-symbology helpers, options, renderers, and exceptions, as supported by the public_symbol facts.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The API Reference section claims the verified public surface has 51 types, but the facts do not support this exact count and the table includes duplicates."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.code128encodemode",
+        "public_symbol:aspose_barcode_foss.code39encodemode",
+        "public_symbol:aspose_barcode_foss.qrencodemode",
+        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
+        "public_symbol:aspose_barcode_foss.renderers.svgrenderer",
+        "public_symbol:aspose_barcode_foss.renderers.pngrenderer",
+        "public_symbol:aspose_barcode_foss.renderers.pdfrenderer",
+        "public_symbol:aspose_barcode_foss.renderers.renderer"
+      ],
+      "id": "F07",
+      "quote": "- The library supports only the **AUTO, H, data, render, `to_png`, and `to_svg`** members for barcode generation and output.",
+      "reader": 2,
+      "repair": "Remove the unsupported claim about only 'AUTO, H, data, render, to_png, and to_svg' members and instead state the limitations factually: PDF rendering is not implemented, decoding is not supported, and ECI/GS1 features are not implemented in this FOSS build.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_barcode_foss.barcode.to_png, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section incorrectly states that the library supports only 'AUTO, H, data, render, to_png, and to_svg' members, which is not supported by facts and omits other key members."
+    },
+    {
+      "absent": [
+        "48"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "id": "F08",
+      "quote": "The suite covers **48 test files** under `tests/`.",
+      "reader": 2,
+      "repair": "Remove the specific count of 48 test files and instead state that the test suite is located in the tests/ directory, as supported by the build_test_asset:tests fact.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '48', which the candidate contains",
+      "section_id": "development_testing",
+      "text": "The Development and Testing section claims the suite covers 48 test files, but no fact supports this number."
     }
   ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "25d3e6922e03185d92404cbf8924f37d943341a50bc0d112acdc192ef7b710a2",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "3064e8780892f34eca70c7cdf3dbec6c0e6a42bc6f7b6e412a23ab765b522128",
+  "readme_sha256": "087a77b8c0924c6564be0f8a8e6dfeac7fb5267fc76f947fec7fb1a7489413b3",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -252,12 +358,11 @@
       "2d3ea3878413689aba562346",
       "2e3e72ea29414d0b61e310f7",
       "3c3b7985b1f0977c7f120bba",
-      "5a7b3d4f0db5c30bca2069e8",
-      "a3b6ba4d451861363f1cdb3d",
-      "ae6948684db4e2c953bd56e9"
+      "573348ddd0e6b2ea5b590f8a",
+      "a3b6ba4d451861363f1cdb3d"
     ],
     "read": 2
   },
   "verdict": "ACCEPT",
-  "verdict_as_returned": "REJECT_FACTUAL"
+  "verdict_as_returned": "REJECT_PRESENTATION"
 }

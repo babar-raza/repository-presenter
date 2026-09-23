@@ -1,112 +1,135 @@
 {
+  "adopted": {
+    "adopted_at": "2026-09-23T11:30:14Z",
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "dispositions.json",
+      "examples.json",
+      "facts.json",
+      "investigation.json",
+      "plan.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
+    "previous_proof": {
+      "byte_identical": true,
+      "fresh_process": true,
+      "proven_at": "2026-09-17T00:44:47Z",
+      "provider_calls": 0
+    },
+    "recorded_at": "2026-09-23T11:28:55Z"
+  },
   "call_variance": [
     {
       "distinct_responses": 2,
       "job": "independent_review",
       "response_sha256s": [
-        "75a31e4cc1f8fdb9c3999d1f6fb39d0eb7f16bad61f934b8a7805f153616390c",
-        "bcf110f344067e8537df5cb22065757e771e24b3aa44f698ecf55661f63ff34c"
+        "73c8702dbbd84792b47c99f899d2eaae86cd29b8e25d50cf2a493f054ccbb493",
+        "a987327f611064a9c88a1ea58c53e4e1d778dd5dbaaa9a72746139c543919fcc"
       ]
     },
     {
-      "distinct_responses": 13,
+      "distinct_responses": 11,
       "job": "section_authoring",
       "response_sha256s": [
-        "03a7ef4d939b2fd6b371ed2535f06c48c9442c28f9488e9b02411af03eba5c7f",
-        "3d0196ceb6ad44ec1c1569d9515753de67a9706b8ba387e36405531e2a12fe67",
-        "564bd24e5d0c5cfd62a63328fda82dce8469c009e72e72b5b4e48c37ac8acc6b",
-        "69c6f479cd6c2db06deb71f8f63e8444aa87ce6b5625c6b822c6a290ac76cd81",
-        "7a1842d67d453bf560b465f9ea99047be2bea8e6d832311b75191af4977a1d34",
-        "8a799a86f990141624cbe1830fb76ad16377c245d28bdd6ae94370bda4053ab7",
-        "8d367c35d3bda78335f94cdd9abbca7a74a6ececf979594056246c35cf0bcaf9",
-        "9c95fcb87894500c1a19f856b6084f95e1bacbc38b4ce45107492cca499d6533",
-        "c685980f3cf0228a7a3b9a51848022c1267b47a1252b62ab12f494523e1170d7",
-        "d8a0ff2109af234a92779669011154b4ad69b976b947b537d78accaa0cfa1450",
-        "e40d782aadcd40d4bf54426aff491549601416e6b9e09190729916d7f44f4e61",
-        "ee61e615d5d329def2c69ef072d51f25cd203af5d2481a76f2711a9a85fb5ceb",
-        "f9f6928237c1e0acffeb3a2d4b68d78555c38d56e491f1896c5e058863757ca4"
+        "0b632b867131571a11adff8198ab6c89aedbd63c57d46cbfe42a18b72cbe3f02",
+        "115435e69aec1f6371319cba6ccd46f923bfccf040b80457231617613b37374c",
+        "154af042b1978b135e91a0820ef81c7fdab0f2886eb1304c6976b0fa438b8ba1",
+        "1ce8a14fb98151415b8e1661ac60ff41eb54d0fa3860efd583798f67edad03a7",
+        "1d815900b4ba7964f94b455c6a56c34c075ac9fdbd79ad9ae7df1e483acf0e3f",
+        "26591f8cee75401426f477d91aee641b415b149c6f148619a9dd065e9c9c5b96",
+        "656b50c3dc658e9d1eb98e4981a5104a12774a63c67bfb20d5d47b5773154266",
+        "8a59e5639865aca6a912d0d9c9af790c1c564b36e9cc7ed73a1f150c18530c8a",
+        "ad5380834e32ebd0d51b2e7a4139678e97d0514088c7aa7e30ce797234a7c45d",
+        "b0c9adf669ff4e2adb63b5829632c3fc2981e75e621e025c2cf11e5686a1222a",
+        "fab75df841b3ec9918e4a912e53875ce532646ed00c707f4d7f64d4286455570"
       ]
     },
     {
       "distinct_responses": 2,
       "job": "source_reconciliation",
       "response_sha256s": [
-        "9479f7e55704c6cc429a56223232dac1607583f3fabb5d879be16614de926b26",
-        "f4120cb28d1adc15f7ab8724663039e1e8693883816328cd2ada48c7e839ae4a"
+        "74ee6a91bcd22d4cf3cc114503e1451fbc06907eed5525bac3d58065384c93c0",
+        "e3757b7ce695743680c38b4ddb1502258093bf889be02390a6109e13ad7a3341"
       ]
     }
   ],
   "composition": {
-    "advisories": 8,
+    "advisories": 15,
     "blocking_failures": [],
     "coverage_advisories": 0,
     "review_verdict": "ACCEPT",
-    "review_verdict_as_returned": "REJECT_FACTUAL"
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
   },
   "files": {
     "README.md": {
-      "bytes": 18306,
-      "sha256": "3064e8780892f34eca70c7cdf3dbec6c0e6a42bc6f7b6e412a23ab765b522128"
+      "bytes": 17905,
+      "sha256": "087a77b8c0924c6564be0f8a8e6dfeac7fb5267fc76f947fec7fb1a7489413b3"
     },
     "README.patch": {
-      "bytes": 26337,
-      "sha256": "40804e8905dc2fb939054c42c55cc7e8d0d6c6bd9a2a37cd4f27c28cf1aa43d0"
+      "bytes": 25923,
+      "sha256": "eecf98fe533de8387e209b235929c6dcfbc5107967d63dfa6cdac754a5ca2860"
     },
     "calls.jsonl": {
-      "bytes": 37162,
-      "sha256": "41632d6a7060efd13fa61bf5d01432438519c0c5a34f8604d757ef0b5e2c5e48"
+      "bytes": 32997,
+      "sha256": "4d1c2b2acf784849ca2a5f35cf17159ca742339a041944103ff1f8e412f08655"
     },
     "content_units.json": {
-      "bytes": 39053,
-      "sha256": "62c40b7991e6e40ed7d307c36aff6ac85938b095ed209a58327a2e1a0116eb5b"
+      "bytes": 38234,
+      "sha256": "ec948aad8075f3fb8101fadf263addffb5b3065a35d157ec54d406510d10687a"
     },
     "dependencies.json": {
-      "bytes": 21602,
-      "sha256": "a17c751b425dfd935df7dba663e3294bfc5b218dc7e3cc2889ff2e1cb36bc396"
+      "bytes": 21604,
+      "sha256": "6cd6e657a53bb118c727c05bdc5b785cd1c4290a4eddc41fbb0b42e8b0d0db3c"
     },
     "dispositions.json": {
-      "bytes": 57452,
-      "sha256": "9cf2282bfe61d700708309ce169e20ab17d6daa42331306d5f653762fdade258"
+      "bytes": 29163,
+      "sha256": "b6211db31f1a0011f30620b8a598b4ed6db4eafc658c1df711e776f322749e7e"
     },
     "examples.json": {
-      "bytes": 1251,
-      "sha256": "49a8df58f371c523fa7c39eeef08b6fade1dbf9d2084a51aa2913b69b2895063"
+      "bytes": 1983,
+      "sha256": "b646d77defb9fad015851163ac9698bd577d794efe6a3eba719839af4a613656"
     },
     "facts.json": {
-      "bytes": 100817,
-      "sha256": "77deed930e8dc4b10e805cef1dd60df7207dc0d3c01b46e0c74e1fd2ae191531"
+      "bytes": 101426,
+      "sha256": "db691e96c812fc2510850fc0c6abfd930a72246a299be8ca7e200977212fac00"
     },
     "investigation.json": {
-      "bytes": 8541,
-      "sha256": "9d80ee95e1b70d6144ec2f8d3236679a332f3d9e2357d7165c6b34f3f9009bc8"
+      "bytes": 7309,
+      "sha256": "51058b4a81a0b99799e91bbd5196338ee97ee5a44a29f019567a9ee5cf3aa6c4"
     },
     "plan.json": {
-      "bytes": 10250,
-      "sha256": "d2af94855261784235b3b32144123b0fc267aabbfc971e277f0a92d64ca6f362"
+      "bytes": 10262,
+      "sha256": "b4d9836bcedb5204860356bb2693700a33ba43573d898318a983c6179eff5a89"
     },
     "probes.json": {
-      "bytes": 2200,
-      "sha256": "4d1c62200480a78873cb96226c4f529bc1836906b577e30576d38aa2732e53e1"
+      "bytes": 2194,
+      "sha256": "e25b27baecc02e158411ce3cb2ad8f60fb6671564a8781f576311c43434ed558"
     },
     "review.json": {
-      "bytes": 15033,
-      "sha256": "0f68ff57a82a011e4b9327e97bb347d9ed500a80427cbe02d472e2ec55636c0e"
+      "bytes": 22336,
+      "sha256": "33a7ba1db50e317c6dac94d48ed959adb424e2b77b600b56e3cbff8c9404ba42"
     },
     "validation.json": {
-      "bytes": 10415,
-      "sha256": "4ed6edfb6f7a73b7ca01ca99935a5596da1654e0da81b3385ff7e403424756c3"
+      "bytes": 10498,
+      "sha256": "167029632d6632e058e68674ae44139965997ecd1971fd9aa04d33941502a34e"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-17T00:44:47Z",
+    "proven_at": "2026-09-23T11:30:14Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
   "revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
   "schema_version": 1,
-  "sealed_at": "2026-09-17T00:44:47Z",
+  "sealed_at": "2026-09-23T11:30:14Z",
   "state": "READY_FOR_PROPOSAL"
 }

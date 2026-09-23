@@ -91,7 +91,7 @@
           "path": "README.md"
         },
         {
-          "detail": "example 1: EXECUTED; exit 0",
+          "detail": "example 1: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
           "path": "examples.json"
         }
       ],
@@ -109,7 +109,7 @@
           "path": "README.md"
         },
         {
-          "detail": "example 2: EXECUTED; exit 0",
+          "detail": "example 2: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
           "path": "examples.json"
         }
       ],
@@ -127,7 +127,7 @@
           "path": "README.md"
         },
         {
-          "detail": "example 3: EXECUTED; exit 0",
+          "detail": "example 3: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
           "path": "examples.json"
         }
       ],
@@ -145,7 +145,7 @@
           "path": "README.md"
         },
         {
-          "detail": "example 4: EXECUTED; exit 0",
+          "detail": "example 4: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
           "path": "examples.json"
         }
       ],
@@ -163,7 +163,7 @@
           "path": "README.md"
         },
         {
-          "detail": "example 5: EXECUTED; exit 0",
+          "detail": "example 5: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
           "path": "examples.json"
         }
       ],
@@ -181,7 +181,7 @@
           "path": "README.md"
         },
         {
-          "detail": "example 6: EXECUTED; exit 0",
+          "detail": "example 6: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
           "path": "examples.json"
         }
       ],
@@ -1218,7 +1218,7 @@
     },
     {
       "attributes": {
-        "install_kind": "source"
+        "install_kind": "source_checkout"
       },
       "confidence": 1.0,
       "evidence": [
@@ -1231,14 +1231,14 @@
           "path": "https://pypi.org/pypi/aspose-barcode-foss/json"
         },
         {
-          "detail": "verified source build: an example executed against this revision, proving the source compiles even though the registry does not yet list the package",
+          "detail": "source checkout only: every build/install attempt failed identically for this revision, but an example executed against the repository's own source tree with no build step - the advertised step is adding that tree to the interpreter's path, never a build or install command, which was never proven to succeed",
           "path": "examples.json"
         }
       ],
       "id": "install_command:pip",
       "kind": "install_command",
       "polarity": "SUPPORTED",
-      "value": "git clone https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python.git\ncd Aspose.BarCode-FOSS-for-Python\npip install ."
+      "value": "git clone https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python.git\ncd Aspose.BarCode-FOSS-for-Python\nexport PYTHONPATH=\"src:.:$PYTHONPATH\""
     },
     {
       "attributes": null,

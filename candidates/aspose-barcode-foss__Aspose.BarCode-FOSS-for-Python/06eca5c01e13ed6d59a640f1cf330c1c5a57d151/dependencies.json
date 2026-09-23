@@ -1,9 +1,9 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "6",
-    "renderer": "23",
-    "reviewer_logic": "9",
+    "normalisation": "11",
+    "renderer": "24",
+    "reviewer_logic": "11",
     "shell": "6"
   },
   "contract_version": "readme-contract-v1-draft",
@@ -11,19 +11,19 @@
     "extractor_version": "1",
     "inherited_units_version": "1",
     "os": "Windows",
-    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest": "75b3f0a88fc9863226b4e3c503bb92c7131d15419eefc8a4037fe4a7f017f8b7",
     "python_version": "3.13.2"
   },
   "facts": {
     "build_test_asset:examples": "b8bcae16710da52f70384494ba2c97a22ea77a3f6083228441cabd06a01b8c99",
     "build_test_asset:tests": "7e7775c4d7383de2018c5ed7141a1d9bda4bf216d369ccb14b42437f956101a2",
     "dependency:pillow-10.1.0": "1f813d5f35a5cef21c42c572a4f419c0cffec52e5d36d201c9401c26bebb8adc",
-    "example:001": "7ab98f55842a8dc48c36ee9ee6df842493c891b79b4c9689a537830fbc820cb2",
-    "example:002": "f09a6ba3022de3104e39d51aaf2f381dfb968547689b9136eac11bd0f5eb5568",
-    "example:003": "95d343248c905a5059bb949057a5997c9c8a940a6b97382850035ae65a40c771",
-    "example:004": "a0d42c66597db5b2848764e078d3fe28253f85e051b43a414a1bc2770c745f72",
-    "example:005": "c9a4d2e216283c9d372163cf513f907a65ea4eba7892ddec407a81a11e906537",
-    "example:006": "a7b5c4ddbe4f3b2b25aaf789f8ed97070a96d159b9023c55db68a2eca9877dc8",
+    "example:001": "769d8dad0445675ee516039a71b81762a2bc79dce65c239423aa25e4938cf891",
+    "example:002": "401c3eedf0bdaf3a6fc9765b1e2ce2b7d45d2d6361ddbe38f69b7e70f51c973c",
+    "example:003": "f14cbea62fb9edc662925a0df42ade3d2bc1f33da2ce81b9db19011070b284f4",
+    "example:004": "56a003f36eddf7910358b9bfd35d48ebeabc6549a4ff0f8968b8db5aa2cdf1b5",
+    "example:005": "34a6ede6442e3ff655ae75acca7c3638abf625a74931ae08eebacb881026fb57",
+    "example:006": "86f08e23cf73ffddb0c472545c664102aa9d807bdd66ee82fee235a0754ac42a",
     "identity:ecosystem": "3d81bdbfc6aa95958c65dd386e88c2301c35db8419950e88c1ffbf21366d04f2",
     "identity:family": "695f3adc05663cbb42538f8ce6789ab1c02a9c950037e56ba4a5b4869b296a49",
     "identity:platform": "1c3f481995322c332689f177c16c48dc9d2900336b11144eb41e6155e944df23",
@@ -89,7 +89,7 @@
     "inherited_unit:057.paragraph": "5ac787c0d6da83c413ba5386243a57c91d508c6e59450d4bc4377dbf143633fb",
     "inherited_unit:058.heading": "ced0a0fa90756aac7ce3ce688e0a9655399ba8fd093eae962107a01a898bd370",
     "inherited_unit:059.paragraph": "07a181261dcc366f31205c9bea43ac9174119c5bb749dd7aba4d51ba9b607ced",
-    "install_command:pip": "08a8794aebe7da158730f3c43003cf23d5bd6336b12ec9e2d0803f74db7b59fb",
+    "install_command:pip": "a49607141ebc495baed8d02183c00976e0c5ed65278d3777fc2d18dd0c0ffea4",
     "license:file": "4d120bd6fe7ea62aad075b68f94315f2fab58d3a5bf8a6d63ea221334ac5e3ff",
     "license:spdx": "ceb6ce5bf3986503b24dc2912f86a900b6b2ff3631822ffd1d9233de7587f57e",
     "link_target:001": "136b641cdd76af4fba7c3b5da2f70bedb2600c52f2d3b07b89db2cc03d4fbf91",
@@ -216,8 +216,8 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "25d3e6922e03185d92404cbf8924f37d943341a50bc0d112acdc192ef7b710a2",
-      "version": "15"
+      "sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+      "version": "16"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
@@ -230,7 +230,7 @@
       "version": "9"
     }
   },
-  "protected_content_fingerprint": "786262abb12c177308e17389a8a30defddbf2fe675c5d16049a3b228ee10fb07",
+  "protected_content_fingerprint": "ad75d0dbf187c1afe17998efdd7277e435003285566248c991781bd913d3d802",
   "schema_version": 1,
   "source": {
     "revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
@@ -239,12 +239,12 @@
   "validator_version": "3",
   "validators": {
     "BC-01": "1",
-    "BC-02": "2",
+    "BC-02": "3",
     "BC-03": "2",
     "BC-04": "2",
     "BC-05": "1",
-    "BC-06": "2",
-    "BC-07": "5",
+    "BC-06": "3",
+    "BC-07": "7",
     "BC-08": "2",
     "BC-09": "1",
     "BC-10": "4",

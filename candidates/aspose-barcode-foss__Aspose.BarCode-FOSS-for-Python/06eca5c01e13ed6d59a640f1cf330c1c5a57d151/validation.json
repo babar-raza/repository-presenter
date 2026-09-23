@@ -20,12 +20,12 @@
       "failures": [],
       "id": "BC-02",
       "judged_at": "S9",
-      "name": "Install command verified against the manifest and the package-registry observation, or against the source-build receipt naming exactly the steps it proved",
+      "name": "Install command verified against the manifest and the package-registry observation, against the source-build receipt naming exactly the steps it proved, or - when no build/install command ever succeeds - against a source-checkout receipt",
       "sections": [
         "installation"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -85,7 +85,7 @@
         "badges"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -98,7 +98,7 @@
         "structure"
       ],
       "verdict": "PASS",
-      "version": "5"
+      "version": "7"
     },
     {
       "causal_stage": null,
@@ -439,8 +439,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "786262abb12c177308e17389a8a30defddbf2fe675c5d16049a3b228ee10fb07",
-  "readme_sha256": "3064e8780892f34eca70c7cdf3dbec6c0e6a42bc6f7b6e412a23ab765b522128",
+  "protected_content_fingerprint": "ad75d0dbf187c1afe17998efdd7277e435003285566248c991781bd913d3d802",
+  "readme_sha256": "087a77b8c0924c6564be0f8a8e6dfeac7fb5267fc76f947fec7fb1a7489413b3",
   "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
