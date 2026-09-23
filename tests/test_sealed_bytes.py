@@ -213,14 +213,13 @@ KNOWN_BLOCKED_STALE = {
     # 2026-09-23 11:45 UTC. The stored bytes now include item 69's fix, so a fresh render matches
     # them again; leaving the entry would XPASS(strict) forever, which is exactly the signal this
     # file's own docstring says to act on rather than silence.
-    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java": {
-        "reason": (
-            "item 69's cited_inherited_identifiers now wraps `LaTeX` and "
-            "`UnsupportedOperationException` (scope_limitations limitation:1, citing "
-            "inherited_unit:126.paragraph/127.list, which spell them) - see comment above"
-        ),
-        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
-    },
+    # aspose-pdf-foss__Aspose.PDF-FOSS-for-Java's entry here is removed as of 2026-09-23: this
+    # candidate drew a genuinely new upstream revision (5a49de5d..., an upstream
+    # /readme-refresh commit dated 2026-09-12, confirmed live via `gh api .../commits/<sha>` -
+    # not merely the old revision replayed under new code) and sealed READY_FOR_PROPOSAL with a
+    # fresh no-op proof - docs/DECISION_LOG.md section 31 2026-09-23 entry. The old revision's
+    # item-69 diff is moot for the new bundle; leaving the entry would XPASS(strict) forever,
+    # since `sealed_bundles()` now follows CURRENT to the new revision.
     "aspose-slides-foss__Aspose.Slides-FOSS-for-Python": {
         "reason": (
             "item 69's cited_inherited_identifiers now wraps `PowerPoint`, `ValueError`, "

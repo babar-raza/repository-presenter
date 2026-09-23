@@ -1,0 +1,286 @@
+{
+  "additional_example_ids": [
+    "example:002",
+    "example:003",
+    "example:004",
+    "example:005",
+    "example:006",
+    "example:008",
+    "example:009",
+    "example:007"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "symbol_fact_id": "public_symbol:org"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.pdf"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose.pdf"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and modify PDF documents",
+      "Extract text and images",
+      "Work with form fields",
+      "Manage annotations",
+      "Build and inspect table content",
+      "Configure annotation borders"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:005"
+      ],
+      "shared_fact_ids": [],
+      "title": "Create and modify PDF documents"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "shared_fact_ids": [],
+      "title": "Extract text and images"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007",
+        "example:009"
+      ],
+      "shared_fact_ids": [
+        "example:007",
+        "example:009"
+      ],
+      "title": "Work with form fields"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008"
+      ],
+      "shared_fact_ids": [],
+      "title": "Manage annotations"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:007"
+      ],
+      "shared_fact_ids": [
+        "example:007"
+      ],
+      "title": "Build and inspect table content"
+    },
+    {
+      "fact_ids": [
+        "example:009"
+      ],
+      "shared_fact_ids": [
+        "example:009"
+      ],
+      "title": "Configure annotation borders"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "install_command:maven",
+        "package:version"
+      ],
+      "section_id": "installation",
+      "text": "The Maven and Gradle dependency snippets in the inherited README use version 26.6.0; corrected to 26.8.0 per package:version fact."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:007"
+      ],
+      "section_id": "additional_examples",
+      "text": "The 'Append Multiple Form Fields to a Cell in Order' heading and its code block were omitted as no supporting example fact exists; examples:002 and 007 cover adding fields to cells."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "example:009"
+      ],
+      "section_id": "additional_examples",
+      "text": "The 'Set and Read a Widget Annotation's Background Color' and 'Set a Radio Button Option's Border Style' headings were moved from the inherited README's API Reference section to Additional Examples per example:008 and example:009."
+    },
+    {
+      "fact_ids": [
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
+      ],
+      "section_id": "scope_limitations",
+      "text": "The Enterprise Edition reference paragraph was moved to the enterprise_relationship section per link_target:product.enterprise and link_target:product.homepage facts."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:048",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "link_fact_id": "link_target:049",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:050",
+      "section_id": "development_testing"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "unit_ids": [
+        "inherited_unit:128.paragraph",
+        "inherited_unit:129.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "unit_ids": [
+        "inherited_unit:132.paragraph"
+      ]
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "unit_ids": [
+        "inherited_unit:130.paragraph",
+        "inherited_unit:131.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:java_release",
+      "dependency:none"
+    ],
+    "text": "Java developers building server-side or desktop applications that require PDF document generation, manipulation, and extraction without third-party runtime dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:005"
+      ],
+      "text": "Developers can create new PDF documents from scratch, add pages, and insert text, tables, and other content elements.",
+      "title": "Create and modify PDF documents"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "text": "The library supports extracting plain text using TextAbsorber and extracting images as XImage objects from PDF pages.",
+      "title": "Extract text and images"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007",
+        "example:009"
+      ],
+      "text": "Developers can read and populate AcroForm fields including TextBoxField and RadioButtonOptionField through the Form interface.",
+      "title": "Work with form fields"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008"
+      ],
+      "text": "The library supports creating and configuring widget annotations with customizable border and background characteristics.",
+      "title": "Manage annotations"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:007"
+      ],
+      "text": "Developers can create table structures with cells, add text fragments and form fields to cells, and inspect cell contents.",
+      "title": "Build and inspect table content"
+    },
+    {
+      "fact_ids": [
+        "example:009"
+      ],
+      "text": "Developers can set and read border styles and colors for annotations including radio button options using the Border class.",
+      "title": "Configure annotation borders"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "No OCR functionality is provided; recognition of text in scanned images requires a dedicated OCR library."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "Concurrency is not supported for a single Document instance; separate instances must be used for parallel processing."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "Text replacement with non-Latin scripts may differ from a reference renderer due to limited bidirectional reordering and shaping support."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "example:008",
+        "example:009"
+      ],
+      "text": "Enables programmatic creation and modification of PDF documents including text, tables, forms, annotations, and images using a consistent Java API."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "text": "Supports extraction of text and images from existing PDFs through dedicated absorber and resource access classes."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007",
+        "example:009"
+      ],
+      "text": "Provides form field population and interaction capabilities for AcroForm fields including text boxes and radio button options."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008"
+      ],
+      "text": "Offers annotation support including widget annotations with customizable border and background characteristics."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:java_release",
+      "license:spdx"
+    ],
+    "text": "Aspose.PDF FOSS for Java is a free, open-source, pure-Java library for creating, reading, and modifying PDF documents targeting ISO 32000-1:2008 compliance."
+  },
+  "uncertainties": [
+    "The exact scope of partial tagged PDF / logical structure support beyond basic structure tree readability is not specified.",
+    "The extent of PDF/X validation and conversion test coverage is not confirmed despite API support.",
+    "Whether all public symbols listed in the inherited README are fully implemented in this FOSS edition is not verifiable from facts."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:005"
+      ],
+      "name": "Create PDF from scratch",
+      "text": "Developers instantiate a Document, add pages, insert text fragments, and save the result as a PDF file."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "name": "Extract text from PDF",
+      "text": "Developers load a PDF, apply a TextAbsorber to its pages, and retrieve the extracted text content."
+    },
+    {
+      "fact_ids": [
+        "example:004"
+      ],
+      "name": "Extract images from PDF",
+      "text": "Developers iterate over page resources to access XImage objects and save them to image files."
+    },
+    {
+      "fact_ids": [
+        "example:006"
+      ],
+      "name": "Populate form fields",
+      "text": "Developers load a PDF with forms, access the Form object, retrieve specific fields, set values, and save the filled form."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:007"
+      ],
+      "name": "Add form fields to table cells",
+      "text": "Developers create table cells, add text fragments and radio button option fields to them, and maintain insertion order."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008"
+      ],
+      "name": "Configure widget annotation properties",
+      "text": "Developers create widget annotations, set border and background colors, and read back their characteristics."
+    }
+  ]
+}
