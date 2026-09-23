@@ -36,6 +36,8 @@ src/repository_presenter/
     git_safety/              push-neutered clone, safety checks
     snapshot/                immutable repository snapshot capture
     github/                  read and write GitHub API clients
+      client.py               read-only GET /repos/{owner}/{repo} (workstream 2 Phase 0); no write call anywhere yet
+      read_client.py          read-only file/tree/default-branch-head reads (workstream 3 redetection); no write call anywhere yet
     preflight.py            fail-closed LLM gateway check recording the model catalog (the GitHub check joins it at G4)
     llm/                     transport, ledger, call schema, prompt registry, prompt hygiene
     state/                   repository/proposal records, backend, migrations
@@ -70,6 +72,9 @@ src/repository_presenter/
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
         product_pages.py        live product-page facts: Enterprise target, homepage, banner (RESEARCH §20)
+  components/repo_metadata/  workstream 2 read+proposal only (docs/investigations/02-repo-metadata-community-files.md §5); never README-specific, never a write
+    capture.py                Phase 0: read GitHub's observed description/homepage/topics via core/github, write the typed evidence artifact
+    proposal.py                Phase 1: derive description/topics/homepage from already-verified facts (identity/license/link_target), diff against Phase 0's observation
 
 prompts/                     one governed manifest per job (README_CONTRACT.md §3), flat, six files at G1
 schemas/                     JSON Schemas for the cursor, manifest, candidate bundle, prompt manifests

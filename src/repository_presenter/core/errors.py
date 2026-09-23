@@ -42,3 +42,7 @@ class GitSafetyError(PresenterError):
 
 class RepositorySnapshotError(GitSafetyError):
     """The immutable repository view is absent or drifted while a transaction used it."""
+
+
+class RepositoryMetadataError(PresenterError):
+    """A read-only GitHub repository-metadata call failed, was denied, or answered unusably."""

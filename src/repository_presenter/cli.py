@@ -95,8 +95,18 @@ from repository_presenter.components.readme.validation.registry import (
     coverage_rows,
     summarize_validation,
 )
+from repository_presenter.components.repo_metadata.capture import (
+    CAPTURE_FILENAME,
+    capture_repo_metadata,
+    write_capture,
+)
+from repository_presenter.components.repo_metadata.proposal import (
+    build_proposal,
+    diff_against_observed,
+)
 from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
+    CURRENT_FILENAME,
     BundleError,
     count_current_candidates,
     examples_verification_summary,
@@ -117,6 +127,7 @@ from repository_presenter.core.examples import (
 from repository_presenter.core.facts import (
     FACTS_FILENAME,
     FactsDocument,
+    read_facts,
     write_facts,
 )
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
@@ -242,6 +253,21 @@ def build_parser() -> argparse.ArgumentParser:
             "GitHub effect); a dry-run report only when omitted"
         ),
     )
+    repo_metadata = subcommands.add_parser(
+        "repo-metadata",
+        help=(
+            "capture GitHub's observed description/homepage/topics for one admitted repository "
+            "and diff them against a proposal derived from already-verified facts - read-only, "
+            "never a PATCH/PUT (workstream 2 Phase 0/1, OWNER-04/G5 still gates any write)"
+        ),
+    )
+    repo_metadata.add_argument(
+        "--repo",
+        required=True,
+        metavar="OWNER/NAME",
+        help="repository coordinates exactly as listed in the registry",
+    )
+    repo_metadata.add_argument("--root", type=Path, default=None, help=root_help)
     return parser
 
 
@@ -257,6 +283,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_preflight(args.root)
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(args.root, repository=args.repo, apply=args.apply)
+    if args.command == "repo-metadata":
+        return run_repo_metadata(args.repo, args.root)
     parser.error(f"unknown command {args.command!r}")
 
 
@@ -346,6 +374,82 @@ def run_redetect_upstream_defects(
                 updated = apply_redetection(handoff, result)
                 write_handoff(updated, entry.path)
                 print(f"  applied: {entry.path.relative_to(root).as_posix()} now {updated.status}")
+    return EXIT_OK
+
+
+def run_repo_metadata(repository: str, root_argument: Path | None) -> int:
+    """Capture GitHub's observed description/homepage/topics for ``repository`` and diff them
+    against a proposal derived only from already-verified facts (workstream 2 Phase 0/1,
+    docs/investigations/02-repo-metadata-community-files.md section 5).
+
+    Read-only end to end: the one live call this makes is ``GET /repos/{owner}/{repo}``, at the
+    same repository-scoped ``GH_TOKEN`` read access ``present`` already uses to clone. No
+    ``PATCH``/``PUT`` call exists anywhere this reaches - that needs the ``Administration: write``
+    scope ``OWNER-04``/G5 has not granted (``project/state.yaml``); this command stops at a
+    printed and written proposal, never a repository write.
+
+    A repository with no sealed ``CURRENT`` candidate yet - or whose sealed bundle has no
+    ``facts.json`` - still gets its observation captured and written; only the proposal (which
+    needs verified facts to derive from) is skipped, reported plainly rather than guessed.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        entry = require_listed(registry, repository)
+        print(f"admitted: {entry.repository} (mode {entry.mode})")
+        token = os.environ.get("GH_TOKEN") or None
+        observed = capture_repo_metadata(entry, token=token)
+        repo_metadata_dir = root / RUNS_DIRNAME / "repo_metadata" / f"{entry.owner}__{entry.name}"
+        capture_path = repo_metadata_dir / CAPTURE_FILENAME
+        digest = write_capture(observed, capture_path)
+        print(
+            f"observed: description={observed.description!r} homepage={observed.homepage!r} "
+            f"topics={list(observed.topics)} (as of {observed.observed_at})"
+        )
+        print(f"capture: {capture_path.relative_to(root).as_posix()} (digest {digest})")
+        current_path = root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}" / CURRENT_FILENAME
+        if not current_path.is_file():
+            print("proposal: no sealed CURRENT candidate for this repository yet - capture only")
+            return EXIT_OK
+        revision = current_path.read_text(encoding="utf-8").strip()
+        bundle = root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}" / revision
+        facts_path = bundle / FACTS_FILENAME
+        if not facts_path.is_file():
+            print(f"proposal: sealed bundle at {revision} has no {FACTS_FILENAME} - capture only")
+            return EXIT_OK
+        facts = read_facts(facts_path)
+        readme_path = bundle / README_FILENAME
+        readme_text = readme_path.read_text(encoding="utf-8") if readme_path.is_file() else None
+        proposal = build_proposal(facts, readme_text)
+        diff = diff_against_observed(
+            entry.repository,
+            proposal,
+            observed_description=observed.description,
+            observed_homepage=observed.homepage,
+            observed_topics=observed.topics,
+        )
+        print(
+            f"proposed: description={proposal.description!r} "
+            f"(source: {proposal.description_source})"
+        )
+        print(
+            f"proposed: topics={list(proposal.topics)} (sources: {list(proposal.topics_sources)})"
+        )
+        print(f"proposed: homepage={proposal.homepage!r} (source: {proposal.homepage_source})")
+        if diff.has_changes:
+            print(
+                f"diff: description_changed={diff.description_changed} "
+                f"homepage_changed={diff.homepage_changed} topics_changed={diff.topics_changed} "
+                "- no write made (PATCH/PUT stay gated on OWNER-04/G5)"
+            )
+        else:
+            print("diff: none - GitHub's observed metadata already matches the proposal")
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
     return EXIT_OK
 
 

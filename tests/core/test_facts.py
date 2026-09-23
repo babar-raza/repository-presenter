@@ -17,6 +17,7 @@ from repository_presenter.core.facts import (
     FactsDocument,
     bounded_records,
     fact_id,
+    read_facts,
     slug,
     write_facts,
 )
@@ -114,6 +115,17 @@ def test_json_is_sorted_and_byte_identical_across_orderings(tmp_path: Path) -> N
     assert len(digest) == 64
     assert (tmp_path / "facts.json").read_bytes() == document.to_json().encode("utf-8")
     assert b"\r\n" not in (tmp_path / "facts.json").read_bytes()
+
+
+def test_read_facts_round_trips_write_facts(tmp_path: Path) -> None:
+    document = sample_document()
+    path = tmp_path / "facts.json"
+    write_facts(document, path)
+    reloaded = read_facts(path)
+    assert reloaded.repository == document.repository
+    assert reloaded.source_revision == document.source_revision
+    assert reloaded.schema_version == document.schema_version
+    assert reloaded.canonical().to_json() == document.canonical().to_json()
 
 
 def test_document_validates_against_the_schema() -> None:

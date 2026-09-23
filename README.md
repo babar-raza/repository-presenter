@@ -46,7 +46,7 @@ authorized repository, it:
 | Capability | Status |
 |---|---|
 | Facts → investigation → reconciliation → planning → composition → validation → independent review → seal pipeline | **Built** (gates G0–G2 accepted) |
-| Local CLI (`status`, `present`, `preflight`) | **Built** |
+| Local CLI (`status`, `present`, `preflight`, `repo-metadata`) | **Built** |
 | Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript) | **Partially built** — extractor plugins exist for all seven; sealed candidates so far cover fewer |
 | Deterministic Markdown renderer; the LLM never writes the final document, only fact-ID-bound content units | **Built** |
 | Safety: pinned, read-only, push-neutered git clones; secret-canary scan before any bundle is sealed | **Built** |
@@ -55,7 +55,8 @@ authorized repository, it:
 | Production deployment and continuous unattended operation | **Planned** (Gate G7) |
 | Upstream defect reporting (filing genuine product defects found during reconciliation) | **Planned** — marked not required for the initial pilot in `plans/idea.md` |
 | Visual-asset / social-preview image preparation | **Planned** — same pilot carve-out |
-| Non-README presentation surfaces (website, topics, community/security files, release links) | **Planned** — README health is the foundational surface only |
+| Repo description/topics/homepage: read GitHub's observed values, propose a candidate from verified facts, diff | **Built** — read-only; no write call (needs `Administration: write`, not yet granted) |
+| Repo description/topics/homepage: apply the proposal to GitHub; community/security file generation; release-link auditing | **Planned** |
 
 For the exact current candidate count against the full target set, run `repository-presenter
 status` — see [Project status](#project-status).
@@ -129,7 +130,7 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `GPT_OSS_ENDPOINT` | `present`, `preflight` | OpenAI-compatible chat-completions gateway URL |
 | `GPT_OSS_API_KEY` | `present`, `preflight` | Read once, never printed or written to disk |
 | `GPT_OSS_MODEL` | optional | Overrides a prompt manifest's default model route; local experimentation only |
-| `GH_TOKEN` | optional | Repository-scoped, read-only; used only for `present`'s clone step |
+| `GH_TOKEN` | optional | Repository-scoped, read-only; used for `present`'s clone step and `repo-metadata`'s `GET /repos/{owner}/{repo}` call |
 
 `GPT_OSS_ENDPOINT` and `GPT_OSS_API_KEY` are required even for `present --facts-only`: the gateway
 configuration loads before that flag's short-circuit.
@@ -145,6 +146,7 @@ repository-presenter status [--root PATH] [--stale]
 repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
 repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply]
+repository-presenter repo-metadata --repo OWNER/NAME [--root PATH]
 ```
 
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
@@ -164,6 +166,11 @@ repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME]
   fires. `--repo OWNER/NAME` limits the pass to one repository. `--apply` writes back the one
   schema-valid status change this can ever propose (`FILED` -> `RESOLVED_UPSTREAM`); a dry-run
   report otherwise.
+- **`repo-metadata --repo OWNER/NAME`** — read-only workstream 2 capture and proposal (Gate C0
+  scope, never a write): reads GitHub's currently-observed `description`/`homepage`/`topics` for
+  the repository, and, when a sealed `CURRENT` candidate exists, proposes a candidate value for
+  each field derived only from already-verified facts, diffed against the observation. Makes one
+  `GET /repos/{owner}/{repo}` call; no `PATCH`/`PUT` call exists anywhere in this path.
 - `--root PATH` — project root holding `project/state.yaml`; discovered from the working directory
   when omitted.
 

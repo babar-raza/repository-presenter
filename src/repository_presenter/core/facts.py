@@ -290,3 +290,35 @@ def write_facts(document: FactsDocument, path: Path) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(data)
     return hashlib.sha256(data).hexdigest()
+
+
+def read_facts(path: Path) -> FactsDocument:
+    """Parse a ``facts.json`` written by :func:`write_facts` back into a :class:`FactsDocument`.
+
+    The counterpart reader no earlier work item needed: every stage that runs a transaction builds
+    its ``FactsDocument`` fresh in memory and only ever writes ``facts.json`` as an artifact. A
+    consumer outside a live transaction - a sealed candidate's already-verified facts, read back
+    for a later, independent purpose such as workstream 2's repo-metadata proposal - needs to load
+    them from disk instead.
+    """
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    facts = tuple(
+        Fact(
+            id=record["id"],
+            kind=record["kind"],
+            value=record["value"],
+            evidence=tuple(
+                Evidence(item["path"], item.get("detail")) for item in record["evidence"]
+            ),
+            polarity=record.get("polarity", "SUPPORTED"),
+            confidence=record.get("confidence", 1.0),
+            attributes=record.get("attributes"),
+        )
+        for record in payload["facts"]
+    )
+    return FactsDocument(
+        repository=payload["repository"],
+        source_revision=payload["source_revision"],
+        facts=facts,
+        schema_version=payload.get("schema_version", 1),
+    )
