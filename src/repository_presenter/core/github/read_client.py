@@ -8,7 +8,7 @@ token: an optional bearer token (the same ``GH_TOKEN`` `core/secrets.py` already
 raises the anonymous rate limit, never grants a write capability the read-only clone token
 (`core/git_safety/clone.py`) does not already carry.
 
-First consumer: `components/readme/upstream_defects/redetect.py`, which re-observes the exact
+First consumer: `components/issues/redetect.py`, which re-observes the exact
 file or tree a handoff artifact's evidence already cites, at the repository's *current* revision
 (which may have moved since the handoff was recorded) rather than the frozen one the artifact
 carries — the mechanical form of `docs/investigations/03-issue-tracking.md` section 6's "a fresh

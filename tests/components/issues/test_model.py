@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from repository_presenter.components.readme.upstream_defects.model import (
+from repository_presenter.components.issues.model import (
     EvidenceEntry,
     Handoff,
     HandoffError,

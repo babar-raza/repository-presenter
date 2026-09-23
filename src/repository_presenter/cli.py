@@ -13,6 +13,20 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter import __version__
+from repository_presenter.components.issues.ledger import (
+    UPSTREAM_DEFECTS_DIRNAME,
+    load_ledger,
+)
+from repository_presenter.components.issues.model import (
+    HandoffError,
+    load_handoff,
+    write_handoff,
+)
+from repository_presenter.components.issues.redetect import (
+    RedetectorNotRegisteredError,
+    apply_redetection,
+    redetect,
+)
 from repository_presenter.components.metadata.capture import (
     CAPTURE_FILENAME,
     capture_repo_metadata,
@@ -81,20 +95,6 @@ from repository_presenter.components.readme.review.independent.review import (
     REVIEW_FILENAME,
     REVIEWER_LOGIC_VERSION,
     summarize_review,
-)
-from repository_presenter.components.readme.upstream_defects.ledger import (
-    UPSTREAM_DEFECTS_DIRNAME,
-    load_ledger,
-)
-from repository_presenter.components.readme.upstream_defects.model import (
-    HandoffError,
-    load_handoff,
-    write_handoff,
-)
-from repository_presenter.components.readme.upstream_defects.redetect import (
-    RedetectorNotRegisteredError,
-    apply_redetection,
-    redetect,
 )
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
@@ -323,7 +323,7 @@ def run_redetect_upstream_defects(
 
     Read + local-JSON only (`docs/DECISION_LOG.md`'s 2026-09-17 15:40 UTC ruling): builds the
     dedup ledger from `evidence/upstream-defects/`, then for each entry calls
-    `upstream_defects.redetect.redetect` and prints whether the check still fires. `--apply`
+    `issues.redetect.redetect` and prints whether the check still fires. `--apply`
     writes back only the one schema-valid transition `redetect.py` can ever propose (`FILED` ->
     `RESOLVED_UPSTREAM`, `issue_ref` unchanged) - never a `gh issue create`/`close` call, which
     stays out of scope until its own separate write-authorization work item.

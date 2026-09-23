@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from repository_presenter.components.readme.upstream_defects.ledger import (
+from repository_presenter.components.issues.ledger import (
     LedgerError,
     discover_handoff_paths,
     load_ledger,

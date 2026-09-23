@@ -10,16 +10,16 @@ from dataclasses import replace
 
 import pytest
 
-from repository_presenter.components.readme.extractors.platforms.python_registry import (
-    RegistryObservation,
-)
-from repository_presenter.components.readme.upstream_defects.model import IssueRef, load_handoff
-from repository_presenter.components.readme.upstream_defects.redetect import (
+from repository_presenter.components.issues.model import IssueRef, load_handoff
+from repository_presenter.components.issues.redetect import (
     RedetectionReads,
     RedetectorNotRegisteredError,
     apply_redetection,
     redetect,
     registered_check_ids,
+)
+from repository_presenter.components.readme.extractors.platforms.python_registry import (
+    RegistryObservation,
 )
 from repository_presenter.core.github.read_client import DefaultBranchRead, FileRead
 from support import REPO_ROOT

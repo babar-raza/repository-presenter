@@ -22,7 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from repository_presenter.components.readme.upstream_defects.model import (
+from repository_presenter.components.issues.model import (
     Handoff,
     IssueRef,
     load_handoff,

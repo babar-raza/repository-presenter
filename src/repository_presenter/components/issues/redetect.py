@@ -34,14 +34,14 @@ from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 
-from repository_presenter.components.readme.extractors.platforms.python_registry import (
-    RegistryObservation,
-    observe_pypi,
-)
-from repository_presenter.components.readme.upstream_defects.model import (
+from repository_presenter.components.issues.model import (
     EvidenceEntry,
     Handoff,
     Status,
+)
+from repository_presenter.components.readme.extractors.platforms.python_registry import (
+    RegistryObservation,
+    observe_pypi,
 )
 from repository_presenter.core.github.read_client import (
     DefaultBranchRead,
