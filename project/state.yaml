@@ -14,7 +14,7 @@ authority:
 
 progress:
   unit: current reviewable no-op-proven README candidates
-  current_candidates: 21
+  current_candidates: 20
   denominator: 34
   denominator_status: observed at the legacy freeze; frozen as a registry revision at G4
   canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python
@@ -39,6 +39,7 @@ active_work_item:
   - Runs before G3-W04 (owner, 2026-09-06 09:00) and stays active while any lane has an open item.
   - Time box 90 minutes per landing pass (owner, 2026-09-06 10:45, RESEARCH section 28.12); at each box, run repository-presenter status and report the sealed-candidate delta; two consecutive zero-delta boxes freezes new PROPOSAL intake to items with two or more corroborating lanes.
   - "2026-09-11: arrival items 40 (reconciliation symbol_kinds/fact_ids, e2a1a83) and 44 (authoring command-block identifiers, f29d9fb) landed - two PRs (#29, #30) stranded since 2026-09-07, found during this session own Orient step, never rejected, just never reached their own self-merge Land step; docs/DECISION_LOG.md has both entries. One tracked consequence: aspose-cells-foss-Cpp is no longer current-code reproducible (correct rendering change, tests/test_sealed_bytes.py KNOWN_BLOCKED_STALE) - needs a real re-seal, not yet done."
+  - "2026-09-23: the re-seal above done - the one honest attempt the 2026-09-11 11:19 owner ruling authorized (docs/DECISION_LOG.md). present re-ran clean against current origin/main in an isolated worktree; BC-02 failed at EXTRACTING (install_command:cmake UNRESOLVED), reproducing - independently re-verified byte-for-byte against a live cmake --build, not assumed - Taskcard D's 2026-09-10 15:47 UTC diagnosis (NumberFormat.cpp:30 trigraph '??/' turned fatal by the repository's own -Werror=trigraphs; no alternate C++ toolchain on this machine). Not a new blocker; not forced. The bundle's manifest.json now carries state: INVALIDATED (README/facts/validation/review bytes untouched - only the state and an invalidated block changed), dropping current_candidates 21 -> 20, an honest count correction, not a new un-seal. docs/DECISION_LOG.md 2026-09-23 10:31 UTC has the full entry. Stays blocked until upstream fixes the trigraph or a second C++ toolchain becomes available - neither is this project's own code to fix."
   owned_paths:
   - src/repository_presenter/components/readme/composition/
   - src/repository_presenter/components/readme/review/
