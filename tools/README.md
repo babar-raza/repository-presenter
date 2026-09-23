@@ -79,6 +79,26 @@ governance tracks, two directories, no overlap.
     `pythonpath`/collection scope, so it never runs as part of `pytest tests/`), same convention as
     `tools/reviewer/test_research_edit.py`. Every test injects a fake fetch function — no test
     makes a live network call.
+- `git/` — deterministic git-mechanics wrapper for the moment an isolated worktree's branch needs
+  to land on a shared target branch other concurrently-live write-capable agents may also be
+  pushing to right now (`docs/investigations/05-production-autonomy.md` §5's own highest-leverage
+  recommendation; `docs/PRODUCTION_ROADMAP.md` WS5).
+  - `push_retry.py` — fetch → rebase → push, bounded retries (`--max-retries`, default 5), never
+    `--force`. On a rebase conflict, auto-resolves only the narrow, clean append-only case confined
+    to `docs/DECISION_LOG.md` and/or `docs/RESEARCH_AND_GUIDELINES.md` (both sides only appended
+    new content after a shared, unedited base — proven via `git -c merge.conflictstyle=diff3`'s
+    base section, never guessed) — keeping both sides in chronological order and removing only the
+    markers. Any other conflict shape or file aborts the rebase (`git rebase --abort`) and reports
+    the exact file(s) needing human/agent judgment, never a guess. Run it with
+    `python tools/git/push_retry.py [--branch main] [--remote origin] [--max-retries 5]`.
+  - `test_push_retry.py` — regression tests, run directly (`pytest tools/git/test_push_retry.py`;
+    same outside-`pyproject.toml`-scope convention as the other `tools/` test files). Includes
+    pure-function tests against conflict text captured verbatim from real
+    `git -c merge.conflictstyle=diff3 rebase` runs (both the clean append-only shape and a
+    genuinely ambiguous edit-and-append shape), and integration tests driving real local git
+    repositories end to end (bare "remote" plus two clones, no live network call) proving the
+    auto-resolved case lands both sides on the remote and the ambiguous/out-of-scope cases abort
+    and land nothing.
 
 ## Environment variables
 
