@@ -28,7 +28,7 @@ started`; several have real ready-now pieces, none has landed `src/`/`tests/` co
 |---|---|---|---|---|
 | 1 | CI/deployment sustainability — verify locally via `act`, then on real GitHub Actions runners | "Execution Environments and GitHub Access" | investigated; one ruling landed (pip caching, `e74077b`/`ci.yml`), rest blocked on `OWNER-04`/G5 | supervisor, 2026-09-17 |
 | 2 | Repo metadata / social appearance / community-files component | "Visual Assets and Social Preview", "Central Agent" responsibilities bullet 2 | **partially ruled 2026-09-17 (supersedes the earlier full withdrawal):** description/topics/homepage ("product URL") — build the capture+proposal logic now, ready for a taskcard; visual assets and community-file *generation* stay next-phase. `OWNER-07` (SECURITY.md's verified-contact dependency) still stands. | supervisor, 2026-09-17 |
-| 3 | Issue-tracking component — file confirmed upstream defects, dedupe, close stale ones | "Upstream Defect Reporting" | schema + evidence layout landed (`a024836`); closing-side design already complete (investigation §6); dedup ledger + re-detection logic ruled unblocked; **elevated 2026-09-17: ruled required to be complete within the pilot** (overrides `idea.md`'s own "not required for the initial pilot" allowance) — only the actual `gh issue create`/`close` calls stay blocked on `OWNER-04`/G5 | supervisor, 2026-09-17 |
+| 3 | Issue-tracking component — file confirmed upstream defects, dedupe, close stale ones | "Upstream Defect Reporting" | schema + evidence layout landed (`a024836`); dedup ledger (`components/readme/upstream_defects/ledger.py`) and re-detection pass (`redetect.py`, `repository-presenter redetect-upstream-defects`) landed and exercised live against both backfilled artifacts (HTML-Python BC-02, TeX-Python NOT_PROCESSABLE — both still `HANDOFF_PENDING`, both re-confirmed still firing 2026-09-23); **elevated 2026-09-17: ruled required to be complete within the pilot** (overrides `idea.md`'s own "not required for the initial pilot" allowance) — only the actual `gh issue create`/`close` calls stay blocked on `OWNER-04`/G5 | supervisor, 2026-09-17; ledger/redetect landed 2026-09-23 |
 | 4 | Portfolio discovery module — find new repos/products, reuse an existing aspose.org discovery mechanism if one exists | "Common Gate C0" | scanner built and run (`ea8ab8c`, `10-portfolio-discovery.md`); one admission decision pending (`OWNER-08`) | supervisor, 2026-09-17 |
 | 5 | Full production autonomy — the system runs without routine human intervention | "Operating Model", "Production-Readiness Standard" | investigated (`05-production-autonomy.md`); worktree-isolation-for-every-write-role ruled as standing practice; two concrete hardening items queued, unscheduled | supervisor, 2026-09-17 |
 | 6 | Deployer — open and merge the PR carrying a sealed candidate on its target repo (Gate C) | "Gate C", `propose.yml` | investigated live against `Aspose/aspose.org`'s own proven `readme_refresh_run.py` (owner-directed reuse target, 2026-09-17); design principles ruled adopted; **first live push stays owner-gated, same as a registry write** | supervisor, 2026-09-17 |
@@ -102,8 +102,11 @@ rulings above.
 - WS1: `ci.yml` pip cache — **landed** (`e74077b`).
 - WS2: repo description/topics/homepage capture-and-proposal logic — **ready for a taskcard**
   (write calls stay gated on `OWNER-04`/G5).
-- WS3: the dedup ledger and re-detection/auto-close-on-fix pass — **ready for a taskcard** (the
-  actual `gh issue create`/`close` calls stay gated).
+- WS3: the dedup ledger and re-detection pass — **landed** (2026-09-23:
+  `components/readme/upstream_defects/{model,ledger,redetect}.py`,
+  `repository-presenter redetect-upstream-defects`, `core/github/read_client.py` for the
+  read-only file/tree/default-branch-head reads it needs). The actual `gh issue create`/`close`
+  calls, and auto-close-on-fix (which needs them), stay gated on `OWNER-04`/G5.
 - WS4: `Registry.validate_stable_identities`'s `node_id`-relaxation fix, and porting the
   family/platform classifier from `Aspose/aspose.org` into `tools/discovery/` — **both ready for a
   taskcard**.

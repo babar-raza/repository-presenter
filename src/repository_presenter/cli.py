@@ -73,6 +73,20 @@ from repository_presenter.components.readme.review.independent.review import (
     REVIEWER_LOGIC_VERSION,
     summarize_review,
 )
+from repository_presenter.components.readme.upstream_defects.ledger import (
+    UPSTREAM_DEFECTS_DIRNAME,
+    load_ledger,
+)
+from repository_presenter.components.readme.upstream_defects.model import (
+    HandoffError,
+    load_handoff,
+    write_handoff,
+)
+from repository_presenter.components.readme.upstream_defects.redetect import (
+    RedetectorNotRegisteredError,
+    apply_redetection,
+    redetect,
+)
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
     VALIDATION_FILENAME,
@@ -205,6 +219,29 @@ def build_parser() -> argparse.ArgumentParser:
         help="reach the LLM gateway from the process environment and record its model catalog",
     )
     preflight.add_argument("--root", type=Path, default=None, help=root_help)
+    redetect_cmd = subcommands.add_parser(
+        "redetect-upstream-defects",
+        help=(
+            "re-evaluate each evidence/upstream-defects/ handoff's own triggering_check against "
+            "the target repository's current state (docs/investigations/03-issue-tracking.md "
+            "section 6); read-only, no gh issue create/close call"
+        ),
+    )
+    redetect_cmd.add_argument("--root", type=Path, default=None, help=root_help)
+    redetect_cmd.add_argument(
+        "--repo",
+        default=None,
+        metavar="OWNER/NAME",
+        help="only re-evaluate handoffs for this repository; every handoff when omitted",
+    )
+    redetect_cmd.add_argument(
+        "--apply",
+        action="store_true",
+        help=(
+            "write back a proposed status change (only ever FILED -> RESOLVED_UPSTREAM, never a "
+            "GitHub effect); a dry-run report only when omitted"
+        ),
+    )
     return parser
 
 
@@ -218,6 +255,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_present(args.repo, args.root, facts_only=args.facts_only, fresh=args.fresh)
     if args.command == "preflight":
         return run_preflight(args.root)
+    if args.command == "redetect-upstream-defects":
+        return run_redetect_upstream_defects(args.root, repository=args.repo, apply=args.apply)
     parser.error(f"unknown command {args.command!r}")
 
 
@@ -246,6 +285,67 @@ def run_preflight(root_argument: Path | None) -> int:
         "content hashes recorded"
     )
     print(f"catalog: {catalog_path.relative_to(root).as_posix()} (digest {digest})")
+    return EXIT_OK
+
+
+def run_redetect_upstream_defects(
+    root_argument: Path | None, *, repository: str | None = None, apply: bool = False
+) -> int:
+    """Re-evaluate every (or one `--repo`) handoff's own `triggering_check` right now.
+
+    Read + local-JSON only (`docs/DECISION_LOG.md`'s 2026-09-17 15:40 UTC ruling): builds the
+    dedup ledger from `evidence/upstream-defects/`, then for each entry calls
+    `upstream_defects.redetect.redetect` and prints whether the check still fires. `--apply`
+    writes back only the one schema-valid transition `redetect.py` can ever propose (`FILED` ->
+    `RESOLVED_UPSTREAM`, `issue_ref` unchanged) - never a `gh issue create`/`close` call, which
+    stays out of scope until its own separate write-authorization work item.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
+    except HandoffError as exc:
+        _fail(str(exc))
+        return EXIT_INCONSISTENT
+    entries = [
+        entry
+        for entry in sorted(ledger.values(), key=lambda e: (e.repository, e.defect_fingerprint))
+        if repository is None or entry.repository == repository
+    ]
+    if not entries:
+        print(
+            f"redetect: no handoff found for {repository!r}"
+            if repository
+            else "redetect: no handoffs on record"
+        )
+        return EXIT_OK
+    for entry in entries:
+        try:
+            handoff = load_handoff(entry.path)
+        except HandoffError as exc:
+            _fail(str(exc))
+            return EXIT_INCONSISTENT
+        try:
+            result = redetect(handoff)
+        except RedetectorNotRegisteredError as exc:
+            print(f"redetect: {entry.repository} {entry.defect_fingerprint[:19]}...: {exc}")
+            continue
+        print(
+            f"redetect: {entry.repository} {entry.triggering_check_id} "
+            f"(status {handoff.status}): {result.note}"
+        )
+        if result.revision_drifted:
+            print(
+                f"  revision drifted: handoff recorded {handoff.source_revision}, "
+                f"current default-branch head is {result.checked_at_revision}"
+            )
+        if result.proposed_status is not None:
+            print(f"  proposed status: {handoff.status} -> {result.proposed_status}")
+            if apply:
+                updated = apply_redetection(handoff, result)
+                write_handoff(updated, entry.path)
+                print(f"  applied: {entry.path.relative_to(root).as_posix()} now {updated.status}")
     return EXIT_OK
 
 

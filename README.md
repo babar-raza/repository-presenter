@@ -144,6 +144,7 @@ repository-presenter --version
 repository-presenter status [--root PATH] [--stale]
 repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
+repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply]
 ```
 
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
@@ -157,6 +158,12 @@ repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--f
   independent review, and seal. `--facts-only` stops after the facts stage with a processability
   and coverage record, making no provider call. `--fresh` skips seeding this run's call cache from
   the sealed bundle's own history, forcing every job to make a genuinely live call.
+- **`redetect-upstream-defects`** — re-evaluates each `evidence/upstream-defects/` handoff's own
+  `triggering_check` against the target repository's current state (read-only: package-registry
+  and GitHub Contents/tree reads, no `gh issue create`/`close` call) and reports whether it still
+  fires. `--repo OWNER/NAME` limits the pass to one repository. `--apply` writes back the one
+  schema-valid status change this can ever propose (`FILED` -> `RESOLVED_UPSTREAM`); a dry-run
+  report otherwise.
 - `--root PATH` — project root holding `project/state.yaml`; discovered from the working directory
   when omitted.
 
