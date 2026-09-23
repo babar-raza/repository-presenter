@@ -183,14 +183,6 @@ KNOWN_BLOCKED_STALE = {
     # each candidate needs a real re-seal (through `present`, not a bare re-render) to pick it up,
     # since validation/review were judged against the old bytes; that re-seal is separate
     # follow-up work, not this fix's own scope. `strict=True` for the same reason as above.
-    "aspose-3d-foss__Aspose.3D-FOSS-for-.NET": {
-        "reason": (
-            "item 69's cited_inherited_identifiers now wraps `NotImplementedException` (three "
-            "occurrences, scope_limitations limitation:1-3, all citing inherited_unit:061.list, "
-            "which spells the same exception name) - see comment above"
-        ),
-        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
-    },
     "aspose-3d-foss__Aspose.3D-FOSS-for-Java": {
         "reason": (
             "item 69's cited_inherited_identifiers now wraps `UnsupportedOperationException` "

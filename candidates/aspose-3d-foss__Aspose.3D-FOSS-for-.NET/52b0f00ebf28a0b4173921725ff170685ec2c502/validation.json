@@ -1,8 +1,5 @@
 {
-  "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names AddChildNode()",
-    "inherited_unit:047.paragraph: the rewrite no longer names FromFile(), FromStream(), Save()"
-  ],
+  "advisory": [],
   "checks": [
     {
       "causal_stage": null,
@@ -23,12 +20,12 @@
       "failures": [],
       "id": "BC-02",
       "judged_at": "S9",
-      "name": "Install command verified against the manifest and the package-registry observation",
+      "name": "Install command verified against the manifest and the package-registry observation, against the source-build receipt naming exactly the steps it proved, or - when no build/install command ever succeeds - against a source-checkout receipt",
       "sections": [
         "installation"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -60,7 +57,7 @@
         "enterprise_relationship"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -88,7 +85,7 @@
         "badges"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -101,7 +98,7 @@
         "structure"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "7"
     },
     {
       "causal_stage": null,
@@ -326,7 +323,7 @@
           "supported": 6
         }
       ],
-      "required": true,
+      "required": false,
       "section_id": "quick_start"
     },
     {
@@ -442,8 +439,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "d95b8d9a7f94d6fefbe5ee19749c467abcdfc464f736172d9f11bf44decc6701",
-  "readme_sha256": "b50e27564d30f5da8ff1daadc6b4d7adc1761f6f8d169e67eb29ee1c12cd6571",
+  "protected_content_fingerprint": "2f9bcb2abab08596152c74744cdf3ec3f49d48001b7e050b6043acae71b9d572",
+  "readme_sha256": "a65fa0b3d7ef1c2b9bb91c281600b5bfbf2245d92659c6cd9004daecca56f82d",
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
   "schema_version": 1,
   "source_revision": "52b0f00ebf28a0b4173921725ff170685ec2c502",

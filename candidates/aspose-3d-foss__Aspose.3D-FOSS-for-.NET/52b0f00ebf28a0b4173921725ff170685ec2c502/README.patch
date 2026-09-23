@@ -14,11 +14,11 @@
 -IFC-style profile geometry, assigning shading materials, animating hierarchies, and reading and
 -writing widely used interchange formats such as FBX, glTF, Wavefront OBJ, STL, COLLADA, and
 -Universal 3D, as pure managed code with no native dependencies.
-+Aspose.3D FOSS for .NET is a free and open-source library that enables developers to create, read, convert, and manipulate 3D scenes and models in .NET applications. It supports common 3D formats such as FBX, OBJ, STL, and GLTF, allowing users to load existing files, modify scene hierarchies, and export to target formats without requiring a commercial license. Developers working with 3D content in .NET Core or .NET 5+ projects use this library to integrate 3D modeling capabilities, including primitive geometry creation, material assignment, and scene graph manipulation. The package targets netcoreapp3.1 and is distributed under the MIT license.
++Aspose.3D FOSS for .NET is a free and open-source library that enables developers to create, read, convert, and manipulate 3D scenes and models in .NET applications. It supports a wide range of 3D file formats including FBX, STL, OBJ, GLTF, Collada, and many others, allowing seamless import and export operations without requiring external dependencies. Developers working with 3D content in domains such as game development, CAD visualization, and simulation benefit from its programmatic control over geometry, materials, nodes, and scene hierarchy. The library exposes core functionality through namespaces like `Aspose.ThreeD.Entities`, `Aspose.ThreeD.Profiles`, `Aspose.ThreeD.Shading`, `Aspose.ThreeD.Formats`, and `Aspose.ThreeD.Animation`, and targets netcoreapp3.1 and later.
  
  ## Navigation
  
-@@ -29,102 +24,63 @@
+@@ -29,102 +24,65 @@
  
  ```mermaid
  flowchart TD
@@ -37,17 +37,18 @@
 -      c2["Primitive and IFC profile geometry"]
 -      c3["Material assignment (Lambert, Phong, PBR)"]
 +      c1["Scene graph construction"]
-+      c2["Primitive geometry creation"]
++      c2["Format conversion"]
 +      c3["Material assignment and conversion"]
++      c4["Customizable import/export options"]
      end
      subgraph capr[" "]
        direction TB
 -      c4["Skeletal animation (bones, keyframes, morph targets)"]
 -      c5["NURBS curve and surface definition"]
 -      c6["Format import and export"]
-+      c4["Format import and export"]
-+      c5["Format-specific load/save options"]
-+      c6["Vertex data manipulation"]
++      c5["Animation support"]
++      c6["NURBS geometry definition"]
++      c7["Per-vertex mesh data handling"]
      end
    end
 -  subgraph Outputs["Outputs"]
@@ -88,12 +89,13 @@
 -  `StlLoadOptions`/`StlSaveOptions`, and their COLLADA/3MF/RVM/U3D counterparts).
 -- Read and write per-vertex mesh data through a custom `VertexDeclaration` and `VertexElement`
 -  subclasses — normals, UVs, vertex color, tangent/binormal, smoothing groups, and user data.
-+- **Scene graph construction.** Create and manage a hierarchical 3D scene graph using `Scene` and `Node` objects, where each `Scene` initializes with a `RootNode` and child nodes are added via `Node.CreateChildNode()` or `Node.AddChildNode()` to carry entities, transforms, and materials.
-+- **Primitive geometry creation.** Generate primitive geometry such as boxes, cylinders, spheres, and IFC-compatible 2D profiles like `LShape`, `TShape`, and `RectangleShape` directly within the scene graph using classes from the `Aspose.ThreeD.Entities` namespace.
-+- **Material assignment and conversion.** Assign and convert shading materials including `LambertMaterial`, `PhongMaterial`, and `PbrMaterial` to nodes, with support for converting legacy materials to physically based rendering via `PbrMaterial.FromMaterial()`.
-+- **Format import and export.** Import and export scenes across multiple formats including FBX, glTF, Wavefront OBJ, STL, COLLADA, U3D, 3MF, RVM, AMF, and HTML5 viewer exports using `Scene.FromFile()`, `Scene.Open()`, and `Scene.Save()` with corresponding `FileFormat` constants.
-+- **Format-specific load/save options.** Apply format-specific load and save options such as coordinate system flipping and normal normalization for OBJ, or stream-based saving with COLLADA save options, through dedicated options classes like `ObjLoadOptions` and `ColladaSaveOptions`.
-+- **Vertex data manipulation.** Manipulate per-vertex mesh data including normals, UV coordinates, vertex colors, tangents, binormals, smoothing groups, and custom user data using `VertexDeclaration` and `VertexElement` subclasses from the `Aspose.ThreeD.Entities` namespace.
++- **Scene graph construction.** Create and manipulate scene graphs by constructing a new `Scene`, adding child nodes with primitives like `Box`, and assigning materials directly during node creation.
++- **Format conversion.** Convert between 3D formats such as glTF and OBJ by loading a scene from a file and saving it to a different format using `FileFormat.WavefrontOBJ`.
++- **Material assignment and conversion.** Assign and convert materials by creating a `LambertMaterial` with custom diffuse color and converting it to a physically based rendering material using `PbrMaterial.FromMaterial`.
++- **Customizable import/export options.** Customize import and export behavior through options like `ObjLoadOptions` for coordinate system flipping and normal normalization, and `ColladaSaveOptions` for export.
++- **Animation support.** Handle animation data including bones, poses, and deformers through the Animation, Deformers, `BonePose`, `Pose`, and `PoseType` classes provided by `Aspose.ThreeD.Animation`.
++- **NURBS geometry definition.** Define NURBS geometry using the `CustomObject` class from `Aspose.ThreeD.CustomObject` to create parametric surfaces for 3D modeling.
++- **Per-vertex mesh data handling.** Access and manage per-vertex mesh data through the Entities namespace, which includes primitives and mesh objects that store vertex positions, normals, and texture coordinates.
  
  ## Installation
  
@@ -144,11 +146,11 @@
  ## Quick Start
  
 -Build a scene from a primitive, assign a material, and save it to FBX:
-+Create a new scene with a box primitive, assign a Lambert material, and save it as FBX using Aspose.3D.FOSS version 26.1.0 for netcoreapp3.1.
++Create a new scene with a box primitive, apply a Lambert material, and export it to FBX format using Aspose.3D.FOSS version 26.1.0 for netcoreapp3.1.
  
  ```csharp
  using Aspose.ThreeD;
-@@ -143,11 +99,7 @@
+@@ -143,11 +101,7 @@
  scene.Save("output.fbx", FileFormat.FBX7400Binary);
  ```
  
@@ -157,11 +159,11 @@
 -Additional worked examples cover loading an existing scene and converting between formats.
 -
 -Load an existing glTF scene and re-save it as an OBJ:
-+Load a GLTF file into a scene and export it to OBJ format using Aspose.3D.FOSS version 26.1.0 for netcoreapp3.1.
++Load an existing GLTF file into a scene and convert it to OBJ format using Aspose.3D.FOSS version 26.1.0 for netcoreapp3.1.
  
  ```csharp
  using Aspose.ThreeD;
-@@ -156,36 +108,11 @@
+@@ -156,25 +110,30 @@
  scene.Save("output.obj", FileFormat.WavefrontOBJ);
  ```
  
@@ -170,9 +172,14 @@
 -### Enumerate a Scene's Node Hierarchy
 -
 -Enumerate a loaded scene's node hierarchy:
--
--```csharp
--using Aspose.ThreeD;
++## Additional Examples
++
++The Aspose.3D FOSS for .NET library supports material conversion, scene loading, format conversion, and error handling for unrecognized formats.
++
++### Create a box node and export to Collada format
+ 
+ ```csharp
+ using Aspose.ThreeD;
 -
 -var scene = Scene.FromFile("input.fbx", FileFormat.FBX7400Binary);
 -foreach (var node in scene.RootNode.ChildNodes)
@@ -184,67 +191,80 @@
 -### Convert a Lambert Material to PBR
 -
 -Assign a PBR material converted from an existing Lambert material:
--
--```csharp
--using Aspose.ThreeD.Shading;
--
--var lambert = new LambertMaterial("Body");
--var pbr = PbrMaterial.FromMaterial(lambert);
--```
--
++using Aspose.ThreeD.Entities;
++using Aspose.ThreeD.Formats;
++
++var scene = new Scene();
++var box = new Box(2, 2, 2);
++scene.RootNode.CreateChildNode("BoxNode", box);
++
++using var stream = new MemoryStream();
++var options = new ColladaSaveOptions();
++scene.Save(stream, options);
++```
++
++<details>
++<summary>View Additional Examples</summary>
++
++### Convert a Lambert material to `PbrMaterial`
+ 
+ ```csharp
+ using Aspose.ThreeD.Shading;
+@@ -183,9 +142,7 @@
+ var pbr = PbrMaterial.FromMaterial(lambert);
+ ```
+ 
 -### Load OBJ With Custom Options and Export to STL
 -
 -Load OBJ with options and export as STL:
-+## Additional Examples
-+
-+The Aspose.3D FOSS for .NET library supports material conversion, format conversion, and stream-based saving. The following examples demonstrate these workflows.
-+
-+### Load OBJ with custom options and export to STL
++### Load an OBJ file and save as STL
  
  ```csharp
  using Aspose.ThreeD;
-@@ -200,9 +127,19 @@
+@@ -200,27 +157,7 @@
  scene.Save("mesh.stl");
  ```
  
 -### Save a Scene to COLLADA Through a Stream
 -
 -Save a scene to COLLADA through a stream:
-+<details>
-+<summary>View Additional Examples</summary>
-+
-+### Convert a Lambert material to PBR using Aspose.3D.FOSS
-+
-+```csharp
-+using Aspose.ThreeD.Shading;
-+
-+var lambert = new LambertMaterial("Body");
-+var pbr = PbrMaterial.FromMaterial(lambert);
-+```
-+
-+### Save a scene to COLLADA through a stream
- 
- ```csharp
- using Aspose.ThreeD;
-@@ -218,9 +155,7 @@
- scene.Save(stream, options);
- ```
- 
+-
+-```csharp
+-using Aspose.ThreeD;
+-using Aspose.ThreeD.Entities;
+-using Aspose.ThreeD.Formats;
+-
+-var scene = new Scene();
+-var box = new Box(2, 2, 2);
+-scene.RootNode.CreateChildNode("BoxNode", box);
+-
+-using var stream = new MemoryStream();
+-var options = new ColladaSaveOptions();
+-scene.Save(stream, options);
+-```
+-
 -### Handle an Unrecognized 3D File Format
 -
 -Handle an unrecognized file format:
-+### Handle unsupported file formats with exception handling
++### Catch an exception for an unrecognized file format
  
  ```csharp
  using Aspose.ThreeD;
-@@ -240,375 +175,387 @@
+@@ -236,385 +173,582 @@
+ }
+ ```
+ 
++
++Handle an unrecognized file format:
++
+ </details>
  
  ## API Reference
  
 -`Scene` is the primary entry point: it owns a `RootNode` (`Node`) hierarchy, and its static
 -`FromFile()`/`FromStream()` and instance `Save()` methods perform format-aware loading and
 -saving via the `FileFormat` registry.
-+Aspose.3D.FOSS for .NET provides core 3D scene management through the `Scene` and `Node` classes, where `Scene` acts as the container for the entire 3D hierarchy and `Node` represents individual elements within that hierarchy.
++Aspose.3D FOSS for .NET provides core 3D scene management through the `Aspose.ThreeD.Scene` class, which serves as the primary entry point for loading, creating, and saving 3D content, and the `Aspose.ThreeD.Node` class, which represents individual objects within a scene hierarchy. The `Scene` class contains the scene graph through its `RootNode` property and manages assets like materials, animations, and geometry via its Library and `ChildNodes` collections.
 +
 +The verified public surface has 293 types.
  
@@ -283,13 +303,13 @@
 -| `CompositeCurve` | A curve consisting of several curve segments. |
 +| --- | --- |
 +| `A3DObject` | The base class of all Aspose.ThreeD objects, all sub classes will support dynamic properties. |
-+| `AnimationChannel` | Represents an animation channel that controls how properties change over time in Aspose.3D FOSS for .NET. |
++| `AnimationChannel` | AnimationChannel represents an animation channel that controls a property of an object over time using a sequence of keyframes. |
 +| `AnimationClip` | The Animation clip is a collection of animations. |
 +| `AnimationNode` | Aspose.3D's supports animation hierarchy, each animation can be composed by several animations and animation's key-frame definition. |
 +| `BindPoint` | A BindPoint is usually created on an object's property, some property types contains multiple component fields(like a Vector3 field), will generate channel for each component field and connects the field to one or more keyframe sequence instance(s) through the channels. |
-+| `Extrapolation` | Defines how animation behavior is extended beyond the defined keyframe range in Aspose.3D FOSS for .NET. |
-+| `KeyFrame` | Represents a single keyframe containing time, value, and interpolation parameters for animation curves in Aspose.3D FOSS for .NET. |
-+| `KeyframeSequence` | Represents a sequence of keyframes that define an animation curve in Aspose.3D FOSS for .NET. |
++| `Extrapolation` | Extrapolation defines how animation values are extended beyond the defined keyframe range using a repeat count and extrapolation type. |
++| `KeyFrame` | KeyFrame stores a single keyframe with a time, value, and interpolation parameters for animation curves. |
++| `KeyframeSequence` | KeyframeSequence holds a collection of keyframes that define how a property changes over time. |
 +| `AssetInfo` | Information of asset. |
 +| `AxisSystem` | Axis system is an combination of coordinate system, up vector and front vector. |
 +| `BonePose` | The  contains the transformation matrix for a bone node |
@@ -300,7 +320,7 @@
 +| `MorphTargetDeformer` | MorphTargetDeformer provides per-vertex animation. |
 +| `SkinDeformer` | A skin deformer contains multiple bones to work, each bone blends a part of the geometry by control point's weights. |
 +| `BooleanOperand` | This class encapsulates the transformed mesh as Boolean operation's operand. |
-+| `BooleanOperator` | Performs boolean operations between geometric entities in Aspose.3D FOSS for .NET. |
++| `BooleanOperator` | BooleanOperator performs boolean operations such as union, intersection, or difference between two 3D entities. |
 +| `Box` | Box. |
 +| `Camera` | The camera describes the eye point of the viewer looking at the scene. |
 +| `Circle` | A  curve consists of a set of points in the edge of the circle shape. |
@@ -460,7 +480,7 @@
 +| `Plane` | Parameterized plane. |
 +| `PointCloud` | The point cloud contains no topology information but only the control points and the vertex elements. |
 +| `PolygonBuilder` | A helper class to build polygon for |
-+| `PolygonModifier` | Provides functionality to modify polygonal geometry in Aspose.3D FOSS for .NET. |
++| `PolygonModifier` | PolygonModifier provides functionality to modify polygonal meshes by altering their structure or attributes. |
 +| `Primitive` | Base class for all primitives |
 +| `Pyramid` | Parameterized pyramid. |
 +| `RectangularTorus` | Parameterized rectangular torus. |
@@ -475,18 +495,18 @@
 +| `TriMesh` | A TriMesh contains raw data that can be used by GPU directly. |
 +| `TrimmedCurve` | A bounded curve that trimmed the basis curve at both ends. |
 +| `VertexElement` | Base class of vertex elements. |
-+| `VertexElementBinormal` | Represents a vertex element storing binormal data for 3D geometry in Aspose.3D FOSS for .NET. |
++| `VertexElementBinormal` | VertexElementBinormal stores binormal data for each vertex in a mesh, used for lighting and normal mapping calculations. |
 +| `VertexElementDoublesTemplate` | A helper class for defining concrete implementations. |
 +| `VertexElementEdgeCrease` | Defines the edge crease for specified components |
 +| `VertexElementFVector` | A helper class for defining concrete implementations. |
 +| `VertexElementHole` | Defines if specified polygon is hole |
 +| `VertexElementIntsTemplate` | A helper class for defining concrete implementations. |
 +| `VertexElementMaterial` | Defines material index for specified components. |
-+| `VertexElementNormal` | Represents a vertex element storing normal data for 3D geometry in Aspose.3D FOSS for .NET. |
++| `VertexElementNormal` | VertexElementNormal stores normal vectors for each vertex in a mesh, essential for lighting computations. |
 +| `VertexElementPolygonGroup` | Defines polygon group for specified components to group related polygons together. |
 +| `VertexElementSmoothingGroup` | A smoothing group is a group of polygons in a polygon mesh which should appear to form a smooth surface. |
 +| `VertexElementSpecular` | Defines specular color for specified components. |
-+| `VertexElementTangent` | Represents a vertex element storing tangent data for 3D geometry in Aspose.3D FOSS for .NET. |
++| `VertexElementTangent` | VertexElementTangent stores tangent vectors for each vertex in a mesh, used for normal mapping and advanced lighting. |
 +| `VertexElementTemplate` | A helper class for defining concrete implementations. |
 +| `VertexElementUV` | Defines the UV coordinates for specified components. |
 +| `VertexElementUserData` | Defines custom user data for specified components. |
@@ -510,10 +530,10 @@
 +| `FbxLoadOptions` | Load options for FBX format |
 +| `FbxSaveOptions` | Save options for FBX format |
 +| `ClassType` | The class definitions . |
-+| `EnumType` | Defines the type of an enumeration in GLTF format for Aspose.3D FOSS for .NET. |
-+| `EnumValue` | Represents a single value within a GLTF enumeration in Aspose.3D FOSS for .NET. |
-+| `GLTF.Property` | Represents a named property with a value in GLTF format for Aspose.3D FOSS for .NET. |
-+| `PropertyTable` | Groups related GLTF properties into a table structure in Aspose.3D FOSS for .NET. |
++| `EnumType` | EnumType defines the type of an enumeration used in a GLTF property table. |
++| `EnumValue` | EnumValue represents a specific value within a GLTF enumeration. |
++| `GLTF.Property` | Property describes a named attribute with a type and optional default value in a GLTF property table. |
++| `PropertyTable` | PropertyTable groups a set of properties and their values for extended GLTF metadata. |
 +| `StructuralMetadata` | This class provides support for EXT_structural_metadata, only used in glTF. |
 +| `GltfLoadOptions` | Load options for glTF format |
 +| `GltfSaveOptions` | Save options for glTF format |
@@ -522,15 +542,15 @@
 +| `JtLoadOptions` | Load options for Siemens JT |
 +| `LoadOptions` | The base class to configure options in file loading for different types |
 +| `Microsoft3MFFormat` | File format instance for Microsoft 3MF with 3MF related utilities. |
-+| `Microsoft3MFSaveOptions` | Controls how 3MF documents are saved in Aspose.3D FOSS for .NET. |
++| `Microsoft3MFSaveOptions` | Microsoft3MFSaveOptions controls how a 3D scene is saved to the Microsoft 3MF format. |
 +| `ObjLoadOptions` | Load options for Wavefront OBJ format |
 +| `ObjSaveOptions` | Save options for Wavefront OBJ format |
 +| `PdfFormat` | Adobe's Portable Document Format |
 +| `PdfLoadOptions` | Options for PDF loading |
 +| `PdfSaveOptions` | The save options in PDF exporting. |
 +| `PlyFormat` | The PLY format. |
-+| `PlyLoadOptions` | Specifies options for loading PLY files in Aspose.3D FOSS for .NET. |
-+| `PlySaveOptions` | Specifies options for saving PLY files in Aspose.3D FOSS for .NET. |
++| `PlyLoadOptions` | PlyLoadOptions specifies settings used when loading a PLY file into a 3D scene. |
++| `PlySaveOptions` | PlySaveOptions controls how a 3D scene is exported to the PLY file format. |
 +| `RvmFormat` | The RVM Format |
 +| `RvmLoadOptions` | Load options for AVEVA Plant Design Management System's RVM file. |
 +| `RvmSaveOptions` | Save options for Aveva PDMS RVM file. |
@@ -595,7 +615,7 @@
 +| `ITextureUnit` | represents a texture in the memory that shared between GPU and CPU and can be sampled by the shader, where the  only represents a reference to an external file. |
 +| `IVertexBuffer` | The vertex buffer holds the polygon vertex data that will be sent to rendering pipeline |
 +| `InitializationException` | Initialization exception |
-+| `PixelMapping` | Defines how texture coordinates map to pixels during rendering in Aspose.3D FOSS for .NET. |
++| `PixelMapping` | PixelMapping specifies the mapping between texture coordinates and pixel data for rendering. |
 +| `PostProcessing` | The post-processing effects |
 +| `PushConstant` | A utility to provide data to shader through push constant. |
 +| `RenderFactory` | RenderFactory creates all resources that represented in rendering pipeline. |
@@ -721,29 +741,29 @@
 +| `Transform` | A transform contains information that allow access to object's translate/scale/rotation or transform matrix at minimum cost This is used by local transform. |
 +| `TrialException` | Trial exception |
 +| `BoundingBox` | The axis-aligned bounding box |
-+| `BoundingBox2D` | Represents a two-dimensional bounding box in Aspose.3D FOSS for .NET. |
-+| `FMatrix4` | Represents a 4x4 matrix of single-precision floating-point values in Aspose.3D FOSS for .NET. |
-+| `FVector2` | Represents a two-dimensional vector of single-precision floating-point values in Aspose.3D FOSS for .NET. |
++| `BoundingBox2D` | BoundingBox2D represents a two-dimensional bounding box defined by minimum and maximum coordinates. |
++| `FMatrix4` | FMatrix4 provides a 4x4 matrix structure using single-precision floating-point numbers for geometric transformations. |
++| `FVector2` | FVector2 represents a two-dimensional vector using single-precision floating-point components. |
 +| `FVector3` | Represents a 3D vector |
-+| `FVector4` | Represents a four-dimensional vector of single-precision floating-point values in Aspose.3D FOSS for .NET. |
++| `FVector4` | FVector4 represents a four-dimensional vector using single-precision floating-point components. |
 +| `FileSystem` | File system encapsulation. |
 +| `IArrayList` | Aspose.3D has its own highly optimized implementation of List{T} for better loading/saving performance Only this interface is exposed for user with IList{T} compatible and similar interfaces. |
-+| `IOExtension` | Provides input and output extension methods for file operations in Aspose.3D FOSS for .NET. |
-+| `MathUtils` | Offers utility methods for common mathematical operations in Aspose.3D FOSS for .NET. |
-+| `Matrix4` | Represents a 4x4 matrix of double-precision floating-point values in Aspose.3D FOSS for .NET. |
-+| `ParseException` | Represents an error that occurs during parsing of 3D data in Aspose.3D FOSS for .NET. |
++| `IOExtension` | IOExtension provides utility methods for handling file I/O operations and path manipulations. |
++| `MathUtils` | MathUtils offers common mathematical helper functions for 3D calculations. |
++| `Matrix4` | Matrix4 provides a 4x4 matrix structure using double-precision floating-point numbers for geometric transformations. |
++| `ParseException` | ParseException is thrown when an error occurs during parsing of a 3D file format. |
 +| `Quaternion` | Quaternion is usually used to perform rotation in computer graphics. |
-+| `Rect` | Represents a rectangle defined by position and size in Aspose.3D FOSS for .NET. |
-+| `RelativeRectangle` | Represents a rectangle with relative coordinates in Aspose.3D FOSS for .NET. |
-+| `SemanticAttribute` | Defines semantic meaning for vertex attributes in Aspose.3D FOSS for .NET. |
-+| `TransformBuilder` | Assists in constructing transformation matrices in Aspose.3D FOSS for .NET. |
-+| `Vector2` | Represents a two-dimensional vector of double-precision floating-point values in Aspose.3D FOSS for .NET. |
-+| `Vector3` | Represents a three-dimensional vector of double-precision floating-point values in Aspose.3D FOSS for .NET. |
-+| `Vector4` | Represents a four-dimensional vector of double-precision floating-point values in Aspose.3D FOSS for .NET. |
-+| `Vertex` | Represents a single vertex in a 3D mesh in Aspose.3D FOSS for .NET. |
-+| `VertexDeclaration` | Describes the layout of vertex data in Aspose.3D FOSS for .NET. |
-+| `VertexField` | Represents a single field within a vertex declaration in Aspose.3D FOSS for .NET. |
-+| `Watermark` | Represents a watermark that can be applied to 3D scenes in Aspose.3D FOSS for .NET. |
++| `Rect` | Rect defines a rectangle using integer coordinates for layout and rendering operations. |
++| `RelativeRectangle` | RelativeRectangle represents a rectangle whose dimensions and position can be specified as relative values. |
++| `SemanticAttribute` | SemanticAttribute associates a semantic meaning with a vertex field for shader binding. |
++| `TransformBuilder` | TransformBuilder constructs transformation matrices from translation, rotation, and scale components. |
++| `Vector2` | Vector2 represents a two-dimensional vector using double-precision floating-point components. |
++| `Vector3` | Vector3 represents a three-dimensional vector using double-precision floating-point components. |
++| `Vector4` | Vector4 represents a four-dimensional vector using double-precision floating-point components. |
++| `Vertex` | Vertex encapsulates the position and other attributes of a single point in a 3D mesh. |
++| `VertexDeclaration` | VertexDeclaration describes the layout and types of fields in a vertex structure. |
++| `VertexField` | VertexField defines a single attribute within a vertex, such as position, normal, or texture coordinate. |
++| `Watermark` | Watermark embeds identifying information into a 3D file during save operations. |
  
  #### Enumerations
  
@@ -797,7 +817,7 @@
 +| `ProjectionType` | Camera's projection types. |
 +| `ReferenceMode` | defines how mapping information is stored and referenced by. |
 +| `RotationMode` | The frustum's rotation mode |
-+| `SkeletonType` | Specifies the type of skeleton used for skeletal animation in Aspose.3D FOSS for .NET. |
++| `SkeletonType` | SkeletonType specifies the type of skeleton used for character animation in a 3D scene. |
 +| `SplitMeshPolicy` | Share vertex/control point data between sub-meshes or each sub-mesh has its own compacted data. |
 +| `TextureMapping` | The texture mapping type for Describes which kind of texture mapping is used. |
 +| `VertexElementType` | The type of the vertex element, defined how it will be used in modeling. |
@@ -839,7 +859,7 @@
 +| `FrontFace` | Front face winding |
 +| `IndexDataType` | The data type of the elements in |
 +| `PixelFormat` | The pixel's format used in texture unit. |
-+| `PixelMapMode` | Determines how pixel maps are interpreted during rendering in Aspose.3D FOSS for .NET. |
++| `PixelMapMode` | PixelMapMode defines how pixel data is mapped during rendering operations. |
 +| `PolygonMode` | Polygon mode |
 +| `PresetShaders` | This defines the preset internal shaders used by the renderer. |
 +| `RenderQueueGroupId` | The group id of render queue |
@@ -860,7 +880,7 @@
 +
 +### Scene
 +
-+The `Scene` class serves as the primary entry point, owning a `RootNode` hierarchy and providing static `FromFile` and `FromStream` methods for loading scenes as well as instance Save methods for exporting, with support for animation clips, asset information, and scene properties through its API surface.
++The `Aspose.ThreeD.Scene` class enables loading existing 3D files from disk or streams, creating new scenes from scratch, and saving results in various formats; it provides access to the scene graph through `RootNode`, manages materials and animations via Library and `AnimationClips`, and supports property inspection and modification through Properties and `FindProperty` methods.
 +
 +- `A3DObject`: Initializes a new instance of the A3DObject class with no name.
 +- `AnimationClips`: Gets all AnimationClip defined in the scene.
@@ -888,17 +908,202 @@
 +- `SubScenes`: Gets all sub-scenes
 +- `Version`: Version of the Aspose.3D library.
 +
-+### Entities
++### Node
 +
-+The `Aspose.ThreeD.Entities` namespace provides geometric primitives such as `Box` and methods to add them to nodes, enabling construction of 3D geometry within a scene hierarchy.
++The `Aspose.ThreeD.Node` class represents an object in the 3D scene graph, containing geometry through its Entities collection, child nodes via `ChildNodes`, and transformation state through `Transform`; it supports material assignment, visibility control, and scene graph traversal using methods like Accept, `AddChildNode`, and `SelectObjects`.
++
++- `A3DObject`: Initializes a new instance of the A3DObject class with no name.
++- `Accept`: Walks through all descendant nodes(including the current node) and call the visitor with the node.
++- `AddChildNode`: Add a child node to this node
++- `AddEntity`: Add an entity to the node.
++- `AssetInfo`: Per-node asset info
++- `ChildNodes`: Gets the children nodes.
++- `CreateChildNode`: Creates a child node
++- `Entities`: Gets all node entities.
++- `Entity`: Gets or sets the first entity attached to this node, if sets, will clear other entities.
++- `EvaluateGlobalTransform`: Evaluate the global transform, include the geometric transform or not.
++- `Excluded`: Gets or sets whether to exclude this node and all child nodes/entities during exporting.
++- `FindProperty`: Finds the property.
++- `GetBoundingBox`: Calculate the bounding box of the node
++- `GetChild`: Gets the child node at specified index.
++- `GetEntity`: Gets the first entity that matches the specified type T.
++- `GetProperty`: Get the value of specified property
++- `GlobalTransform`: Gets the global transform.
++- `Material`: Gets or sets the first material associated with this node, if sets, will clear other materials
++- `Materials`: Gets the materials associated with this node.
++- `Merge`: Detach everything under the node and attach them to current node.
++- `MetaDatas`: Gets the meta data defined in this node.
++- `Name`: Gets or sets the name.
++- `Node`: Initializes a new instance of the Node class.
++- `ParentNode`: Gets or sets the parent node.
++- `Properties`: Gets the collection of all properties.
++- `RemoveProperty`: Removes a dynamic property.
++- `Scene`: Gets the scene that this object belongs to
++- `SceneObject`: Initialize an SceneObject with a default name
++- `SelectObjects`: Select multiple objects under current node using XPath-like query syntax.
++- `SelectSingleObject`: Select single object under current node using XPath-like query syntax.
++- `SetProperty`: Sets the value of specified property
++- `ToString`: Gets the string representation of this node.
++- `Transform`: Gets the local transform.
++- `Visible`: Gets or sets to show the node
++
++### FileFormat
++
++The `Aspose.ThreeD.FileFormat` class defines supported 3D file formats such as FBX, OBJ, STL, and GLTF, enabling explicit format specification when saving scenes to ensure correct output encoding and compatibility.
++
++- `AMF`: Defined as `FileFormat`.
++- `ASE`: Defined as `FileFormat`.
++- `Aspose3DWeb`: Defined as `FileFormat`.
++- `Blender`: Defined as `FileFormat`.
++- `CanExport`: Gets whether Aspose.3D supports export scene to current file format.
++- `CanImport`: Gets whether Aspose.3D supports import scene from current file format.
++- `Collada`: Defined as `FileFormat`.
++- `ContentType`: Gets file format content type
++- `CreateLoadOptions`: Create a default load options for this file format
++- `CreateSaveOptions`: Create a default save options for this file format
++- `DXF`: Defined as `FileFormat`.
++- `Detect`: Detects file format from file name, file must be readable so Aspose.3D can detect file format through file header.
++- `Draco`: Defined as `Formats.DracoFormat`.
++- `Extension`: Gets the extension name of this type.
++- `Extensions`: Gets the extension names of this type.
++- `FBX6100ASCII`: Defined as `FileFormat`.
++- `FBX6100Binary`: Defined as `FileFormat`.
++- `FBX7200ASCII`: Defined as `FileFormat`.
++- `FBX7200Binary`: Defined as `FileFormat`.
++- `FBX7300ASCII`: Defined as `FileFormat`.
++- `FBX7300Binary`: Defined as `FileFormat`.
++- `FBX7400ASCII`: Defined as `FileFormat`.
++- `FBX7400Binary`: Defined as `FileFormat`.
++- `FBX7500ASCII`: Defined as `FileFormat`.
++- `FBX7500Binary`: Defined as `FileFormat`.
++- `FBX7600ASCII`: Defined as `FileFormat`.
++- `FBX7600Binary`: Defined as `FileFormat`.
++- `FBX7700ASCII`: Defined as `FileFormat`.
++- `FBX7700Binary`: Defined as `FileFormat`.
++- `FileFormatType`: Gets file format type
++- `Formats`: Access to all supported formats
++- `GLTF`: Defined as `FileFormat`.
++- `GLTF2`: Defined as `FileFormat`.
++- `GLTF2_Binary`: Defined as `FileFormat`.
++- `GLTF_Binary`: Defined as `FileFormat`.
++- `GetFormatByExtension`: Gets the preferred file format from the file extension name The extension name should starts with a dot('.').
++- `HTML5`: Defined as `FileFormat`.
++- `IFC`: Defined as `FileFormat`.
++- `MayaASCII`: Defined as `FileFormat`.
++- `MayaBinary`: Defined as `FileFormat`.
++- `Microsoft3MF`: Defined as `Formats.Microsoft3MFFormat`.
++- `PDF`: Defined as `Formats.PdfFormat`.
++- `PLY`: Defined as `Formats.PlyFormat`.
++- `Pcd`: Defined as `FileFormat`.
++- `PcdBinary`: Defined as `FileFormat`.
++- `RvmBinary`: Defined as `Formats.RvmFormat`.
++- `RvmText`: Defined as `Formats.RvmFormat`.
++- `STLASCII`: Defined as `FileFormat`.
++- `STLBinary`: Defined as `FileFormat`.
++- `SiemensJT8`: Defined as `FileFormat`.
++- `SiemensJT9`: Defined as `FileFormat`.
++- `ToString`: Formats to string
++- `USD`: Defined as `FileFormat`.
++- `USDA`: Defined as `FileFormat`.
++- `USDZ`: Defined as `FileFormat`.
++- `Universal3D`: Defined as `FileFormat`.
++- `VRML`: Defined as `FileFormat`.
++- `Version`: Gets file format version
++- `WavefrontOBJ`: Defined as `FileFormat`.
++- `XBinary`: Defined as `FileFormat`.
++- `XText`: Defined as `FileFormat`.
++- `Xyz`: Defined as `FileFormat`.
++- `Zip`: Defined as `FileFormat`.
 +
 +### Shading
 +
-+The `Aspose.ThreeD.Shading` namespace enables material definition and manipulation, including creating Lambert materials and converting them to physically based rendering materials for realistic rendering.
++The `Aspose.ThreeD.Shading` namespace provides material types including `LambertMaterial` and `PbrMaterial`, allowing developers to define surface appearance for 3D entities; it supports creating physically based rendering materials from standard materials using conversion methods.
++
++### Entities
++
++The `Aspose.ThreeD.Entities` namespace includes primitive geometry types such as `Box`, `Sphere`, and `Cylinder`, which can be added to nodes using `CreateChildNode` or `AddEntity` to build 3D scenes programmatically.
++
++### Animation
++
++The `Aspose.ThreeD.Animation` and `Aspose.ThreeD.Deformers` namespaces provide support for skeletal animation and mesh deformation, enabling complex character animation workflows through animation clips and deformation operators.
 +
 +### Formats
 +
-+The `Aspose.ThreeD.Formats` namespace supports loading and saving 3D files in various formats including FBX, OBJ, STL, and Collada, with format-specific options such as coordinate system flipping and normal normalization.
++The `Aspose.ThreeD.Formats` namespace includes loader and saver classes such as `ObjLoadOptions` and `ColladaSaveOptions`, allowing fine-grained control over import and export behavior through format-specific options.
++
++### CustomObject
++
++The `Aspose.ThreeD.CustomObject` class serves as a base for user-defined 3D entities, enabling developers to implement custom geometry or behavior by extending the core object model.
++
++- `A3DObject`: Initializes a new instance of the A3DObject class with no name.
++- `CustomObject`: Initializes a new instance of the CustomObject class
++- `FindProperty`: Finds the property.
++- `GetProperty`: Get the value of specified property
++- `Name`: Gets or sets the name.
++- `Properties`: Gets the collection of all properties.
++- `RemoveProperty`: Removes a dynamic property.
++- `SetProperty`: Sets the value of specified property
++
++### Utilities
++
++The `Aspose.ThreeD.Utilities` namespace provides helper methods and tools for common 3D operations such as coordinate system conversion, bounding box calculations, and other utility functions.
++
++### ThreeD.Property
++
++The `Aspose.ThreeD.Property` class represents metadata properties attached to 3D objects, supporting custom data storage and retrieval through name-value pairs.
++
++- `GetBindPoint`: Gets the property bind point on specified animation instance.
++- `GetExtra`: Gets extra data of the property associated by name.
++- `GetKeyframeSequence`: Gets the keyframe sequence on specified animation instance.
++- `Name`: Gets the name of the property.
++- `SetExtra`: Sets extra data of the property associated by name.
++- `ToString`: Returns a string that represents the current property.
++- `Value`: Gets or sets the value.
++- `ValueType`: Gets the type of the property value.
++
++### PropertyCollection
++
++The `Aspose.ThreeD.PropertyCollection` class manages a collection of properties associated with a 3D object, providing methods to add, remove, and query properties by name.
++
++- `Count`: Gets the count of declared properties.
++- `FindProperty`: Finds the property.
++- `GetEnumerator`: Returns an enumerator that iterates through the collection.
++- `RemoveProperty`: Removes a dynamic property.
++
++### Transform
++
++The `Aspose.ThreeD.Transform` class encapsulates transformation data including translation, rotation, and scale, used by nodes to define their position and orientation in 3D space.
++
++- `A3DObject`: Initializes a new instance of the A3DObject class with no name.
++- `EulerAngles`: Gets or sets the rotation represented in Euler angles, measured in degree
++- `FindProperty`: Finds the property.
++- `GeometricRotation`: Gets or sets the geometric Euler rotation(measured in degree).
++- `GeometricScaling`: Gets or sets the geometric scaling.
++- `GeometricTranslation`: Gets or sets the geometric translation.
++- `GetProperty`: Get the value of specified property
++- `Name`: Gets or sets the name.
++- `PostRotation`: Gets or sets the post-rotation represented in degree
++- `PreRotation`: Gets or sets the pre-rotation represented in degree
++- `Properties`: Gets the collection of all properties.
++- `RemoveProperty`: Removes a dynamic property.
++- `Rotation`: Gets or sets the rotation represented in quaternion.
++- `RotationOffset`: Gets or sets the rotation offset
++- `RotationPivot`: Gets or sets the rotation pivot
++- `Scaling`: Gets or sets the scaling
++- `ScalingOffset`: Gets or sets the scaling offset
++- `ScalingPivot`: Gets or sets the scaling pivot
++- `SetEulerAngles`: Sets the Euler angles in degrees of current transform.
++- `SetGeometricRotation`: Sets the geometric Euler rotation(measured in degree).
++- `SetGeometricScaling`: Sets the geometric scaling.
++- `SetGeometricTranslation`: Sets the geometric translation.
++- `SetPostRotation`: Sets the post-rotation represented in degree
++- `SetPreRotation`: Sets the pre-rotation represented in degree
++- `SetProperty`: Sets the value of specified property
++- `SetRotation`: Sets the rotation(as quaternion components) of current transform.
++- `SetScale`: Sets the scale of current transform.
++- `SetTranslation`: Sets the translation of current transform.
++- `TransformMatrix`: Gets or sets the transform matrix.
++- `Translation`: Gets or sets the translation
  
  </details>
  
@@ -912,10 +1117,11 @@
 -- **[AGENTS.md](AGENTS.md)** — implementation status and development guidelines for contributors.
 -- **[Issues and feature requests](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET/issues)** — report a bug or request a feature on GitHub.
 +- **[Getting started guide](https://docs.aspose.org/3d/net/)** — The getting started guide covers installation, step-by-step walkthroughs, and feature introductions for Aspose.3D FOSS for .NET.
-+- **[How-to articles and FAQ](https://kb.aspose.org/3d/net/)** — How-to articles and the FAQ provide task-focused instructions and answers to frequently asked questions for Aspose.3D FOSS for .NET.
++- **[How-to articles and FAQ](https://kb.aspose.org/3d/net/)** — The how-to articles and FAQ provide task-focused instructions and answers to frequently asked questions for Aspose.3D FOSS for .NET.
 +- **[Full API reference](https://reference.aspose.org/3d/net/)** — The full API reference delivers complete, generated documentation for every public type in Aspose.3D FOSS for .NET. It covers all 293 verified public types; the [API Reference](#api-reference) section above covers the essentials.
-+- **[Implementation progress notes](docs/foss-net-progress.md)** — Implementation progress notes detail the current FOSS-edition implementation status within the repository.
-+- **[Release 26.2.0 notes](docs/release-26.2.0.md)** — Release 26.2.0 notes document changes introduced in that release, as maintained in the repository.
++- **[Implementation progress notes](docs/foss-net-progress.md)** — The implementation progress notes document the current state of the FOSS edition implementation within the repository.
++- **[Release 26.2.0 notes](docs/release-26.2.0.md)** — The release 26.2.0 notes present the change log for this specific release of Aspose.3D FOSS for .NET.
++- **[AGENTS.md](AGENTS.md)** — `AGENTS.md` outlines implementation status and development guidelines for contributors to the repository.
 +- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET/issues).
  
  ## Scope and Limitations
@@ -952,37 +1158,28 @@
 -[Aspose.3D for .NET Enterprise Edition](https://products.aspose.com/3d/net/), which adds the full
 -commercial rendering pipeline, additional proprietary format support, and license management on
 -top of this FOSS API surface.
-+Aspose.3D FOSS for .NET version 26.1.0 supports reading and writing common 3D formats such as PLY through the `Scene.Open` and `Scene.Save` APIs on the netcoreapp3.1 target framework, but excludes rendering, advanced mesh processing, NURBS evaluation, and metadata handling.
++Aspose.3D FOSS for .NET version 26.1.0 targets netcoreapp3.1 and provides a subset of the Aspose.3D API surface for 3D scene construction, file I/O, and basic entity manipulation, with rendering, advanced mesh processing, and certain format-specific features disabled in this open-source edition.
 +
-+- Rendering is not implemented in this FOSS build — `Scene.Render`, `RenderFactory`, and the `IRenderTarget`/`IRenderWindow` rendering pipeline all throw NotImplementedException.
-+- `PolygonModifier` and most `TriMesh` raw-buffer conversion helpers throw NotImplementedException, so mesh post-processing utilities beyond basic scene-graph construction are not functional.
-+- NURBS evaluation is not functional — `NurbsCurve.Evaluate`/`EvaluateAt` and `NurbsSurface.ToMesh` throw NotImplementedException.
-+- `Text` watermarking is not currently functional in this FOSS build.
-+- `License` and trial-management APIs (`License`, `Metered`) are present for API-surface compatibility but are not applicable to this open-source edition.
-+- PDF and Google Draco import/export are genuinely not functional — `PdfFormat` and `DracoFormat` have no reader/writer implementation anywhere in the codebase.
++- Rendering is not implemented in this FOSS build — `Scene.Render`, `RenderFactory`, and the `IRenderTarget`/`IRenderWindow` rendering pipeline all throw `NotImplementedException`, and the `Aspose.ThreeD.Render` and `Aspose.ThreeD.ImageRenderOptions` types are present only for API compatibility.
++- The `Aspose.ThreeD.CustomObject` type is present for API compatibility but its core functionality is not implemented in this FOSS build.
++- `Mesh` post-processing utilities such as `Aspose.ThreeD.Entities.PolygonModifier` and most `Aspose.ThreeD.Entities.TriMesh` raw-buffer conversion helpers throw `NotImplementedException`, limiting functionality beyond basic scene-graph construction.
++- PDF and Google Draco import and export are genuinely not functional in this FOSS build — `Aspose.ThreeD.Formats.PdfFormat` and `Aspose.ThreeD.Formats.DracoFormat` have no reader/writer implementation anywhere in the codebase.
++- `License` and trial-management APIs `Aspose.ThreeD.License` and `Aspose.ThreeD.Metered` are present for API-surface compatibility but are not applicable to this open-source edition.
++- `Text` watermarking is not currently functional in this FOSS build — the `Aspose.ThreeD.Utilities.Watermark` type is present but throws `NotImplementedException` when used.
 +
-+These limitations don't apply to [Aspose.3D for .NET — Enterprise Edition](https://products.aspose.com/3d/net/). Aspose.3D FOSS for .NET provides open-source access to core 3D file format capabilities, while Aspose.3D commercial edition adds advanced features such as scene optimization, custom material support, and enhanced export formats.
++These limitations don't apply to [Aspose.3D for .NET — Enterprise Edition](https://products.aspose.com/3d/net/). Aspose.3D.FOSS provides open-source access to core 3D functionality for .NET developers targeting netcoreapp3.1, while Aspose.3D commercial edition extends this with additional formats, performance optimizations, and commercial support.
  
  ## Development and Testing
  
--Clone the repository and run the test suite with the .NET SDK:
-+Clone the repository and run the test suite with the .NET SDK, or build the console converter tool separately as a project reference to the library.
- 
- ```bash
- git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET.git
-@@ -616,15 +563,10 @@
- dotnet test src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj
- ```
- 
--The console converter tool builds separately as a project reference to the library:
++Build the Aspose.3D.FOSS library and its console converter tool using the .NET SDK by running dotnet build on the respective project files.
++
+ Clone the repository and run the test suite with the .NET SDK:
 -
- ```bash
- dotnet build src/converter/Converter.csproj
- ```
+-```bash
+-git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET.git
+-cd Aspose.3D-FOSS-for-.NET
+-dotnet test src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj
+-```
  
--See [AGENTS.md](AGENTS.md) in the repository root for current implementation status and
--development guidelines.
--
- ## License
+ The console converter tool builds separately as a project reference to the library:
  
- This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying, modification, distribution, sublicensing, and commercial use, provided its copyright and permission notice are retained. The software is provided without warranty.

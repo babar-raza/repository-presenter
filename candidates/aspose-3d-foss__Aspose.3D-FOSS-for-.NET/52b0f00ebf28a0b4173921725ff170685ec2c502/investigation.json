@@ -3,130 +3,148 @@
     "fact_ids": [
       "identity:platform",
       "identity:ecosystem",
-      "package:target_framework"
+      "package:target_framework",
+      "dependency:none"
     ],
-    "text": "Developers building .NET applications that require 3D scene construction, manipulation, and format conversion without native dependencies."
+    "text": "Developers building .NET applications that require programmatic 3D scene creation, manipulation, and format conversion without native dependencies."
   },
   "capabilities": [
     {
       "fact_ids": [
+        "example:001",
         "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node",
-        "example:001"
+        "public_symbol:aspose.threed.entities"
       ],
-      "text": "Build and manage 3D scene graphs using Scene, RootNode, and Node.CreateChildNode with entities and transforms.",
+      "text": "Construct and traverse 3D scene graphs using Scene, Node, and primitive entities like Box, Cylinder, and Sphere.",
       "title": "Scene graph construction"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.entities",
-        "example:001"
+        "example:002",
+        "example:005",
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.fileformattype"
       ],
-      "text": "Construct primitive shapes such as Box, Cylinder, Sphere, and IFC-style profiles directly in code.",
-      "title": "Primitive geometry creation"
+      "text": "Read and write 3D scenes in FBX, glTF, Wavefront OBJ, STL, COLLADA, U3D, 3MF, RVM, AMF, and HTML5/Aspose 3D Web viewer formats.",
+      "title": "Format conversion"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading",
-        "example:001",
-        "example:004"
+        "example:004",
+        "public_symbol:aspose.threed.shading"
       ],
-      "text": "Assign shading materials like LambertMaterial, PhongMaterial, and PbrMaterial, and convert between them.",
+      "text": "Assign shading materials such as LambertMaterial, PhongMaterial, and PbrMaterial, and convert between material types.",
       "title": "Material assignment and conversion"
     },
     {
       "fact_ids": [
-        "example:001",
-        "example:002",
         "example:005",
-        "example:006"
+        "example:006",
+        "public_symbol:aspose.threed.formats"
       ],
-      "text": "Read and write FBX, glTF, Wavefront OBJ, STL, COLLADA, U3D, 3MF, RVM, AMF, and HTML5 viewer exports.",
-      "title": "Format import and export"
+      "text": "Configure per-format load/save behavior using dedicated options types like ObjLoadOptions and ColladaSaveOptions.",
+      "title": "Customizable import/export options"
     },
     {
       "fact_ids": [
-        "example:005",
-        "example:006"
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.deformers",
+        "public_symbol:aspose.threed.bonepose",
+        "public_symbol:aspose.threed.pose",
+        "public_symbol:aspose.threed.posetype"
       ],
-      "text": "Configure import and export behavior using dedicated options types like ObjLoadOptions and ColladaSaveOptions.",
-      "title": "Format-specific load/save options"
+      "text": "Animate scenes using AnimationClip, AnimationChannel, KeyFrame, Bone, Skeleton, SkinDeformer, and MorphTargetDeformer.",
+      "title": "Animation support"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.customobject"
+      ],
+      "text": "Define NURBS curves and surfaces using NurbsCurve and NurbsSurface with control points, weights, and knot vectors.",
+      "title": "NURBS geometry definition"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.entities"
       ],
-      "text": "Define and manipulate per-vertex mesh data including normals, UVs, colors, and tangents via VertexDeclaration.",
-      "title": "Vertex data manipulation"
+      "text": "Read and write per-vertex mesh data including normals, UVs, vertex color, tangent/binormal, smoothing groups, and user data.",
+      "title": "Per-vertex mesh data handling"
     }
   ],
   "limitations": [
     {
       "fact_ids": [
-        "inherited_unit:061.list"
+        "install_command:dotnet",
+        "build_test_asset:docs"
       ],
-      "text": "Rendering is not implemented — Scene.Render and related APIs throw NotImplementedException."
+      "text": "Rendering is not implemented — Scene.Render and related rendering pipeline components throw NotImplementedException."
     },
     {
       "fact_ids": [
-        "inherited_unit:061.list"
+        "public_symbol:aspose.threed.customobject"
       ],
-      "text": "PLY import/export works via Scene.Open/Save but the public FileFormat.PLY field and its Encode/Decode methods throw NotImplementedException."
+      "text": "NURBS evaluation and surface-to-mesh conversion are not functional — NurbsCurve.Evaluate and NurbsSurface.ToMesh throw NotImplementedException."
     },
     {
       "fact_ids": [
-        "inherited_unit:061.list"
+        "public_symbol:aspose.threed.utilities"
       ],
-      "text": "PolygonModifier and most TriMesh helpers throw NotImplementedException — mesh post-processing utilities are not functional."
+      "text": "PolygonModifier and most TriMesh mesh post-processing utilities throw NotImplementedException."
     },
     {
       "fact_ids": [
-        "inherited_unit:061.list"
+        "public_symbol:aspose.threed.fileformat"
       ],
-      "text": "NURBS evaluation and surface-to-mesh conversion throw NotImplementedException despite data construction support."
+      "text": "PDF and Google Draco import/export are not functional — PdfFormat and DracoFormat have no reader/writer implementation."
     },
     {
       "fact_ids": [
-        "inherited_unit:061.list"
+        "public_symbol:aspose.threed.license",
+        "public_symbol:aspose.threed.metered"
       ],
-      "text": "3MF build-instruction metadata and RVM attribute loading are not implemented despite core geometry support."
+      "text": "License and trial-management APIs (License, Metered) exist for API compatibility but are not applicable to this open-source edition."
     },
     {
       "fact_ids": [
-        "inherited_unit:061.list"
+        "build_test_asset:docs"
       ],
-      "text": "License and Metered APIs exist for API compatibility but are not applicable to this open-source edition."
+      "text": "Text watermarking is not currently functional in this FOSS build."
     }
   ],
   "problems_solved": [
     {
       "fact_ids": [
         "example:001",
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.profiles"
+      ],
+      "text": "Enables 3D scene graph construction from primitives and CAD-style profiles using pure managed code."
+    },
+    {
+      "fact_ids": [
         "example:002",
         "example:004",
         "example:005",
-        "example:006",
-        "example:007"
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.fileformattype"
       ],
-      "text": "Enables programmatic creation and conversion of 3D scenes using pure managed code with no native dependencies."
+      "text": "Supports round-trip conversion between widely used 3D interchange formats including FBX, glTF, OBJ, STL, COLLADA, and U3D."
     },
     {
       "fact_ids": [
-        "example:001",
-        "example:002",
-        "example:005",
-        "example:006"
+        "example:004",
+        "public_symbol:aspose.threed.shading"
       ],
-      "text": "Supports round-trip interchange with widely used 3D formats including FBX, glTF, OBJ, STL, COLLADA, and U3D."
+      "text": "Provides shading material support and conversion between material types such as Lambert and PBR."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.threed",
+        "dependency:none",
         "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node"
       ],
-      "text": "Provides a consistent API surface compatible with Aspose.3D Enterprise Edition for migration and feature parity."
+      "text": "Eliminates external 3D engine dependencies by offering a self-contained API surface for 3D operations."
     }
   ],
   "product_summary": {
@@ -138,55 +156,56 @@
       "package:name",
       "license:spdx"
     ],
-    "text": "Aspose.3D FOSS for .NET is a free, open-source, MIT-licensed .NET library for building, traversing, and converting 3D scenes without external dependencies."
+    "text": "Aspose.3D FOSS for .NET is a free, open-source, MIT-licensed .NET library for building and converting 3D scenes without any external 3D engine."
   },
   "uncertainties": [
-    "The exact set of supported IFC profiles beyond those named in the README is not confirmed by facts.",
-    "Whether PLY round-tripping works for all vertex element types is not explicitly verified beyond general support.",
-    "The behavior of Scene.Open when multiple readers could match a format is not described beyond the unknown.xyz example."
+    "The exact set of supported IFC profiles beyond those explicitly named in examples is not fully enumerated in facts.",
+    "Whether all format-specific options types (e.g., RvmLoadOptions, A3dwSaveOptions) have working encoders/decoders behind them is not fully confirmed by examples.",
+    "The behavior of Scene.FromStream() and related stream-based APIs beyond the COLLADA example is not explicitly demonstrated.",
+    "The scope of vertex declaration and vertex element support beyond normals, UVs, and color is not fully detailed in examples."
   ],
   "workflows": [
     {
       "fact_ids": [
         "example:001"
       ],
-      "name": "Scene construction from primitives",
-      "text": "Create a new Scene, add primitive entities like Box, assign materials, and save to FBX."
+      "name": "Create and export a 3D scene",
+      "text": "Create a new scene, add a primitive with a material, and save it to FBX format."
     },
     {
       "fact_ids": [
         "example:002"
       ],
-      "name": "Format conversion",
-      "text": "Load an existing scene from glTF and save it as OBJ using Scene.FromFile and Scene.Save."
+      "name": "Load and convert between formats",
+      "text": "Load an existing glTF scene and save it as Wavefront OBJ."
     },
     {
       "fact_ids": [
         "example:004"
       ],
-      "name": "Material conversion",
-      "text": "Convert a Lambert material to a PBR material using PbrMaterial.FromMaterial."
+      "name": "Convert materials to PBR",
+      "text": "Convert a Lambert material to a PBR material using the PbrMaterial.FromMaterial method."
     },
     {
       "fact_ids": [
         "example:005"
       ],
-      "name": "Customized import and export",
-      "text": "Load OBJ with coordinate system flipping and normal normalization, then export to STL."
+      "name": "Load OBJ with options and export to STL",
+      "text": "Load an OBJ file with coordinate system flipping and normal normalization, then export to STL."
     },
     {
       "fact_ids": [
         "example:006"
       ],
-      "name": "Stream-based export",
-      "text": "Save a scene to COLLADA format through a MemoryStream using Scene.Save with options."
+      "name": "Save to COLLADA via stream",
+      "text": "Save a scene to COLLADA format through a MemoryStream using ColladaSaveOptions."
     },
     {
       "fact_ids": [
         "example:007"
       ],
-      "name": "Error handling for unrecognized formats",
-      "text": "Catch ArgumentException when opening a file with an unsupported extension."
+      "name": "Handle unrecognized formats",
+      "text": "Catch ArgumentException when attempting to open a file with an unsupported extension."
     }
   ]
 }

@@ -1,123 +1,14 @@
 {
-  "advisory": [
-    {
-      "absent": [
-        "StartingPoints",
-        "Outputs",
-        "i1",
-        "i2",
-        "i3",
-        "o1",
-        "o2",
-        "o3"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F01",
-      "quote": "```mermaid flowchart TD PRODUCT[...]",
-      "repair": "Restore the full Mermaid diagram with 'Starting Points' and 'Outputs' subgraphs, preserving all input and output format nodes from the original README.",
-      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "at_a_glance",
-      "text": "The Mermaid diagram in the At a Glance section is truncated and omits the 'Starting Points' and 'Outputs' subgraphs present in the original, breaking the visual workflow and removing critical input/output format information."
-    },
-    {
-      "absent": [
-        "--version 26.1.0",
-        "net6.0",
-        "net8.0",
-        "net10.0",
-        "netcoreapp3.1"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "package:version"
-      ],
-      "id": "F02",
-      "quote": "Install the published package from NuGet (Aspose.3D.FOSS, version 26.1.0):",
-      "repair": "Add the explicit version pin (--version 26.1.0) and list all supported target frameworks (netcoreapp3.1, net6.0, net8.0, net10.0) to match the original installation details.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "installation",
-      "text": "The installation section omits the explicit version pin (26.1.0) and the net6.0/net8.0/net10.0 target framework information present in the original, reducing reproducibility and compatibility clarity."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F04",
-      "quote": "Create a new scene with a box primitive, assign a Lambert material, and save it as FBX using Aspose.3D.FOSS version 26.1.0 for netcoreapp3.1.",
-      "repair": "Remove the redundant version/framework prose from the quick start examples and present only the code blocks with clear, concise comments.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "quick_start",
-      "text": "The quick start examples redundantly repeat 'Aspose.3D.FOSS version 26.1.0 for netcoreapp3.1' in prose, which is unnecessary and deviates from the clean, self-contained code examples in the original."
-    },
-    {
-      "absent": [
-        "### Main",
-        "#### Interfaces",
-        "#### Structs",
-        "#### Enumerations"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F05",
-      "quote": "The verified public surface has 293 types.",
-      "repair": "Restore the original API Reference structure with separate tables for Main classes, Interfaces, Structs, and Enumerations to preserve navigability and logical grouping.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain '### Main', '#### Enumerations', '#### Interfaces', which the candidate contains",
-      "section_id": "api_reference",
-      "text": "The API Reference section replaces the original's structured, categorized tables (Main, Interfaces, Structs, Enumerations) with a single, undifferentiated list, losing the logical grouping that helps developers navigate the surface."
-    },
-    {
-      "absent": [
-        "Aspose.3D for .NET — Enterprise Edition",
-        "https://products.aspose.com/3d/net/"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "link_target:product.enterprise"
-      ],
-      "id": "F07",
-      "quote": "These limitations don't apply to Aspose.3D for .NET — Enterprise Edition",
-      "repair": "Add a dedicated Enterprise Relationship section linking to the commercial edition and summarizing the additional features it provides.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "enterprise_relationship",
-      "text": "The Enterprise Relationship section is missing entirely, though the original explicitly directs users to the commercial edition for advanced features like rendering and PDF/Draco support."
-    },
-    {
-      "absent": [
-        "<details><summary>View Additional Examples</summary>",
-        "</details>"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F08",
-      "quote": "<details>",
-      "repair": "Restore the HTML details wrapper with the 'View Additional Examples' summary to preserve the original collapsible example structure.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain '</details>', '<details><summary>View Additional Examples</summary>', which the candidate contains",
-      "section_id": "additional_examples",
-      "text": "The Additional Examples section omits the HTML details wrapper and the 'View Additional Examples' summary, which are part of the original's collapsible structure and user experience."
-    }
-  ],
+  "advisory": [],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "b50e27564d30f5da8ff1daadc6b4d7adc1761f6f8d169e67eb29ee1c12cd6571",
+  "readme_sha256": "a65fa0b3d7ef1c2b9bb91c281600b5bfbf2245d92659c6cd9004daecca56f82d",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -130,5 +21,5 @@
     "read": 2
   },
   "verdict": "ACCEPT",
-  "verdict_as_returned": "REJECT_PRESENTATION"
+  "verdict_as_returned": "ACCEPT"
 }
