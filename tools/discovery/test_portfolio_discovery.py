@@ -25,8 +25,10 @@ from portfolio_discovery import (  # noqa: E402
     KNOWN_FAMILY_SLUGS,
     DiscoveryReport,
     OrgResult,
+    RepoClassification,
     RepoObservation,
     _noise_hint,
+    classify_repo_name,
     list_org_repos,
     load_registered_repositories,
     matches_product_convention,
@@ -115,6 +117,55 @@ def test_matches_product_convention_accepts_the_canonical_shape_case_insensitive
     # shape alone cannot make that adjudication; it is a "new candidate" for a human to exclude,
     # never a silent auto-exclusion.
     assert matches_product_convention("Aspose-PDF-FOSS-for-Go-MCP")
+
+
+def test_classify_repo_name_matches_the_canonical_dot_form() -> None:
+    result = classify_repo_name("Aspose.3D-FOSS-for-Python")
+    assert result == RepoClassification(family="3d", platform="python", matched=True)
+
+
+def test_classify_repo_name_matches_the_lowercase_foss_for_variant() -> None:
+    result = classify_repo_name("aspose-pdf-foss-for-go")
+    assert result == RepoClassification(family="pdf", platform="go", matched=True)
+
+
+def test_classify_repo_name_matches_the_legacy_form() -> None:
+    result = classify_repo_name("aspose-3d-python")
+    assert result == RepoClassification(family="3d", platform="python", matched=True)
+
+
+def test_classify_repo_name_is_case_insensitive_for_the_real_2026_09_11_miss() -> None:
+    # The real historical bug this classifier must not repeat: a case-sensitive canonical
+    # pattern silently failed to classify "Aspose.Imaging-Foss-for-.NET" (mixed-case "Foss"),
+    # docs/investigations/04-portfolio-discovery.md §2.5.
+    result = classify_repo_name("Aspose.Imaging-Foss-for-.NET")
+    assert result == RepoClassification(family="imaging", platform="net", matched=True)
+    # Also confirm an all-uppercase / all-lowercase spelling of the same shape still matches.
+    assert classify_repo_name("ASPOSE.IMAGING-FOSS-FOR-.NET").matched
+    assert classify_repo_name("aspose.imaging-foss-for-.net").matched
+
+
+def test_classify_repo_name_reports_an_unmatched_name_explicitly_not_silently() -> None:
+    result = classify_repo_name(".github")
+    # Explicit typed outcome, never a bare None - the field is present and False, not absent.
+    assert result.matched is False
+    assert result.family is None
+    assert result.platform is None
+    assert isinstance(result, RepoClassification)
+
+
+def test_repo_observation_from_api_carries_the_classification_through() -> None:
+    observation = RepoObservation.from_api(
+        "aspose-imaging-foss", _repo("aspose-imaging-foss", "Aspose.Imaging-Foss-for-.NET")
+    )
+    assert observation.classification == RepoClassification(
+        family="imaging", platform="net", matched=True
+    )
+
+    unmatched_observation = RepoObservation.from_api(
+        "aspose-imaging-foss", _repo("aspose-imaging-foss", ".github")
+    )
+    assert unmatched_observation.classification.matched is False
 
 
 def test_load_registered_repositories_lowercases_and_reads_only(tmp_path: Path) -> None:
@@ -281,6 +332,7 @@ def test_render_report_includes_every_required_section() -> None:
                 fork=False,
                 pushed_at="2026-09-01T00:00:00Z",
                 matches_convention=True,
+                classification=RepoClassification(family="3d", platform="python", matched=True),
             ),
         ),
         new_candidates=(
@@ -295,6 +347,7 @@ def test_render_report_includes_every_required_section() -> None:
                 fork=False,
                 pushed_at="2026-09-16T00:00:00Z",
                 matches_convention=True,
+                classification=RepoClassification(family="imaging", platform="net", matched=True),
             ),
         ),
         unmatched_repos=(),

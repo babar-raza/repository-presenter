@@ -14,6 +14,14 @@ read by the loop's own acceptance predicates, never wired into the production CL
 read-only, planning-time data-gathering script, not ongoing supervision or a production pipeline
 stage.
 
+Every repository this module observes - already registered or newly discovered - is also
+classified into a `family`/`platform` pair (`classify_repo_name`, `RepoObservation.classification`)
+via the three-regex convention classifier (see that function's own docstring). A name that matches
+none of the three patterns is reported with an explicit `matched=False` outcome, never silently
+dropped or left blank - the same "always evidence-backed, never silent" discipline this module
+already applies to org-level exclusions (see `docs/PRODUCTION_ROADMAP.md` WS4, "Confirmed gap,
+2026-09-17", and `docs/investigations/10-portfolio-discovery.md`).
+
 Eligibility scope (owner's explicit, standing rule, enforced here): a candidate is only real when
 it lives in a GitHub organization literally named `aspose-<family>-foss`. No other org naming
 pattern, and no independently-hosted or external repository, counts - this module never looks
@@ -185,6 +193,106 @@ def matches_product_convention(name: str) -> bool:
     return bool(NAME_PATTERN.match(name))
 
 
+# Family/platform classifier (docs/PRODUCTION_ROADMAP.md WS4, "Confirmed gap, 2026-09-17": this
+# module enumerated repositories but never classified family/platform). A clean-room
+# reimplementation of `Aspose/aspose.org`'s own `scripts/pipeline/commands/ops/
+# update_product_registry.py`'s `_classify_repo` - studied read-only via that private sibling
+# repository's Contents API (`gh api repos/Aspose/aspose.org/contents/...`), never cloned or
+# pulled from directly, per this project's existing pull-discipline precedent (study, then write
+# an independent implementation here). Same three-regex shape, in the same precedence order:
+#
+# 1. Canonical: ``Aspose.<Family>-FOSS-for-<Platform>`` (dot form).
+# 2. Lowercase variant: ``aspose-<family>-foss-for-<platform>``.
+# 3. Legacy: ``aspose-<family>-<platform>`` - the loosest shape, tried last so it never shadows a
+#    canonical or lowercase match.
+#
+# All three are matched case-insensitively from the start. That upstream module's own code
+# comment records a real historical bug worth not repeating: a case-sensitive version of pattern 1
+# silently failed to classify the real repository "Aspose.Imaging-Foss-for-.NET" (mixed-case
+# "Foss") with no error - fixed there, and never introduced here, by using ``re.IGNORECASE`` from
+# the first commit rather than as a later patch.
+_CLASSIFY_PATTERN_CANONICAL = re.compile(
+    r"^Aspose\.([A-Za-z0-9]+)-FOSS-for-([A-Za-z0-9.]+)$", re.IGNORECASE
+)
+_CLASSIFY_PATTERN_LOWERCASE = re.compile(r"^aspose-([a-z0-9]+)-foss-for-([a-z0-9]+)$")
+_CLASSIFY_PATTERN_LEGACY = re.compile(r"^aspose-([a-z0-9]+)-([a-z0-9]+)$")
+
+# Platform-token normalization: matches this project's own data/registry.json convention (every
+# entry there already stores e.g. "net", not ".NET" - see data/registry.json's "platform" values),
+# so a freshly classified repository's platform string lines up with an existing registry entry's
+# for the same family/platform pair rather than needing a second normalization pass later.
+_PLATFORM_NORMALIZATION: dict[str, str] = {
+    "python": "python",
+    "java": "java",
+    ".net": "net",
+    "net": "net",
+    "cpp": "cpp",
+    "c++": "cpp",
+    "typescript": "typescript",
+    "javascript": "javascript",
+    "nodejs": "nodejs",
+    "go": "go",
+    "rust": "rust",
+}
+
+
+@dataclass(frozen=True)
+class RepoClassification:
+    """The outcome of matching one repository name against the family/platform classifier.
+
+    ``matched`` is its own explicit field - never inferred from ``family``/``platform`` being
+    ``None`` - so a caller can tell "classified" apart from "unmatched" without relying on a
+    field-presence convention. This mirrors this module's existing discipline of never silently
+    excluding a repository (see ``unmatched_repos`` / the "Unmatched / noise repositories" report
+    section): a name that fails all three classifier patterns is reported as explicitly
+    unmatched, not dropped.
+    """
+
+    family: str | None
+    platform: str | None
+    matched: bool
+
+
+def classify_repo_name(name: str) -> RepoClassification:
+    """Classify a bare repository ``name`` (not ``org/name``) into ``(family, platform)``.
+
+    Tries the three patterns documented on this module above, in precedence order, all
+    case-insensitively. Returns ``RepoClassification(family=None, platform=None, matched=False)``
+    - an explicit, typed "unmatched" outcome, never a bare ``None`` - when no pattern matches.
+    """
+    match = _CLASSIFY_PATTERN_CANONICAL.match(name)
+    if match:
+        family = match.group(1).lower()
+        platform_raw = match.group(2).lower()
+        return RepoClassification(
+            family=family,
+            platform=_PLATFORM_NORMALIZATION.get(platform_raw, platform_raw),
+            matched=True,
+        )
+
+    match = _CLASSIFY_PATTERN_LOWERCASE.match(name.lower())
+    if match:
+        family = match.group(1)
+        platform_raw = match.group(2)
+        return RepoClassification(
+            family=family,
+            platform=_PLATFORM_NORMALIZATION.get(platform_raw, platform_raw),
+            matched=True,
+        )
+
+    match = _CLASSIFY_PATTERN_LEGACY.match(name.lower())
+    if match:
+        family = match.group(1)
+        platform_raw = match.group(2)
+        return RepoClassification(
+            family=family,
+            platform=_PLATFORM_NORMALIZATION.get(platform_raw, platform_raw),
+            matched=True,
+        )
+
+    return RepoClassification(family=None, platform=None, matched=False)
+
+
 @dataclass(frozen=True)
 class RepoObservation:
     """One repository as GitHub actually reported it, by stable provider identity."""
@@ -199,6 +307,7 @@ class RepoObservation:
     fork: bool
     pushed_at: str | None
     matches_convention: bool
+    classification: RepoClassification
 
     @staticmethod
     def from_api(org: str, item: dict[str, Any]) -> RepoObservation:
@@ -214,6 +323,7 @@ class RepoObservation:
             fork=bool(item.get("fork", False)),
             pushed_at=item.get("pushed_at"),
             matches_convention=matches_product_convention(name),
+            classification=classify_repo_name(name),
         )
 
 
@@ -414,9 +524,17 @@ def _repo_row(repo: RepoObservation) -> str:
     if hint:
         flags.append(hint)
     flags_text = "; ".join(flags) or "-"
+    if repo.classification.matched:
+        family_text = f"`{repo.classification.family}`"
+        platform_text = f"`{repo.classification.platform}`"
+    else:
+        # Explicit, never a blank cell - an unmatched classification is reported the same way
+        # this module already reports every other exclusion: named, not silently omitted.
+        family_text = "unmatched"
+        platform_text = "unmatched"
     return (
-        f"| `{repo.full_name}` | {repo.repository_id} | `{repo.node_id}` | "
-        f"{repo.pushed_at or '-'} | {flags_text} |"
+        f"| `{repo.full_name}` | {family_text} | {platform_text} | {repo.repository_id} | "
+        f"`{repo.node_id}` | {repo.pushed_at or '-'} | {flags_text} |"
     )
 
 
@@ -482,8 +600,8 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
     )
     add("")
     if report.already_registered:
-        add("| Repository | `repository_id` | `node_id` | Last push | Flags |")
-        add("|---|---|---|---|---|")
+        add("| Repository | Family | Platform | `repository_id` | `node_id` | Last push | Flags |")
+        add("|---|---|---|---|---|---|---|")
         for repo in sorted(report.already_registered, key=lambda r: r.full_name.lower()):
             add(_repo_row(repo))
     else:
@@ -503,8 +621,8 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
     )
     add("")
     if report.new_candidates:
-        add("| Repository | `repository_id` | `node_id` | Last push | Flags |")
-        add("|---|---|---|---|---|")
+        add("| Repository | Family | Platform | `repository_id` | `node_id` | Last push | Flags |")
+        add("|---|---|---|---|---|---|---|")
         for repo in sorted(report.new_candidates, key=lambda r: r.full_name.lower()):
             add(_repo_row(repo))
     else:
@@ -521,8 +639,8 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
     )
     add("")
     if report.unmatched_repos:
-        add("| Repository | `repository_id` | `node_id` | Last push | Flags |")
-        add("|---|---|---|---|---|")
+        add("| Repository | Family | Platform | `repository_id` | `node_id` | Last push | Flags |")
+        add("|---|---|---|---|---|---|---|")
         for repo in sorted(report.unmatched_repos, key=lambda r: r.full_name.lower()):
             add(_repo_row(repo))
     else:
