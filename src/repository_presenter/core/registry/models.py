@@ -19,7 +19,16 @@ REPOSITORY_PATTERN = r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
 
 
 class ProviderIdentity(BaseModel):
-    """Stable provider identity for one admitted repository."""
+    """Stable provider identity for one admitted repository.
+
+    ``repository_id`` (GitHub's numeric database ID) is the authoritative anti-rename/
+    anti-transfer signal: confirmed stable across both operations. ``node_id`` (the GraphQL
+    global ID) is recorded as corroborating/informational only — GitHub ran a platform-wide
+    global-ID re-encoding (2021-2022) that changed ``node_id`` values for existing, unmoved
+    repositories, so it is never compared strictly against a frozen historical value as
+    evidence of identity (`docs/investigations/04-portfolio-discovery.md` §3.4,
+    `docs/DECISION_LOG.md` 2026-09-17 WS4 ruling).
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -75,16 +84,22 @@ class Registry(BaseModel):
 
 
 def validate_stable_identities(entries: tuple[RegistryEntry, ...]) -> None:
-    """Fail closed when two admitted entries claim the same repository or provider identity."""
+    """Fail closed when two admitted entries claim the same repository or ``repository_id``.
+
+    ``repository_id`` is the sole authoritative, load-bearing anti-rename/anti-transfer
+    signal and stays a hard uniqueness invariant. ``node_id`` is corroborating/informational
+    only (see ``ProviderIdentity``'s docstring): it is deliberately never checked for
+    uniqueness or compared against a frozen historical value here, since GitHub's own
+    2021-2022 GraphQL global-ID re-encoding changed ``node_id`` for existing, unmoved
+    repositories — treating a ``node_id`` difference as a mismatch would produce a false
+    rename/transfer signal the next time that recurs.
+    """
     duplicates = _duplicates(entry.repository.casefold() for entry in entries)
     if duplicates:
         raise ValueError(f"duplicate repositories: {duplicates}")
     duplicates = _duplicates(entry.provider_identity.repository_id for entry in entries)
     if duplicates:
         raise ValueError(f"duplicate provider repository IDs: {duplicates}")
-    duplicates = _duplicates(entry.provider_identity.node_id for entry in entries)
-    if duplicates:
-        raise ValueError(f"duplicate provider node IDs: {duplicates}")
 
 
 def _duplicates(values: Iterable[Hashable]) -> list[str]:
