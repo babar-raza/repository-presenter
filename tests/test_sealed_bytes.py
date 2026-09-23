@@ -91,11 +91,14 @@ def test_there_is_at_least_one_sealed_bundle_to_hold_the_renderer_to() -> None:
 # reassessment.md) landed 2026-09-10 and was live-validated against this exact candidate: the
 # original F03-shaped duplication is confirmed GONE from a real present run (no repeated table +
 # list content, real method bullets under every hub including the mis-hubbed MapiMessage - see
-# docs/DECISION_LOG.md). The candidate still cannot be sealed, but for a different, newly-surfaced,
-# unrelated reason: F07, "the Development and Testing section omits the CI run details ... and
-# release tagging convention ... present in the original" - not yet investigated, not RC-06's
-# scope, needs its own taskcard. `strict=True` so an accidental future fix shows as XPASS (a
-# failure) instead of silently staying invisible under an outdated xfail.
+# docs/DECISION_LOG.md). A later redraw (2026-09-23) confirms the next-surfaced blocker, F07
+# ("the Development and Testing section omits the CI run details ... and release tagging
+# convention ... present in the original"), is ALSO now fixed - the current content unit carries
+# the CI/release detail F07 asked for. The candidate still cannot be sealed, but for a third,
+# newly-surfaced, unrelated reason: F08 (scope_limitations) - see the ledger entry below and
+# docs/DECISION_LOG.md's 2026-09-23 09:59 UTC entry for the full mechanical diagnosis.
+# `strict=True` so an accidental future fix shows as XPASS (a failure) instead of silently
+# staying invisible under an outdated xfail.
 # G4-W17 arrival item 44 (docs/DECISION_LOG.md, 2026-09-11) is a renderer-affecting fix:
 # allowed_identifiers() now also extracts identifiers from a
 # SUPPORTED fact's own shell-command fence (command_block_tokens), not from an executed example
@@ -140,13 +143,19 @@ KNOWN_BLOCKED_STALE = {
     },
     "aspose-email-foss__Aspose.Email-FOSS-for-Python": {
         "reason": (
-            "genuine BC-10 rejection (F07, development_testing content gap) - unrelated to the "
-            "original RC-06-targeted duplication, which is confirmed fixed; see comment above"
+            "F07 (development_testing content gap) CONFIRMED FIXED by a fresh redraw, "
+            "2026-09-23 - genuine BC-10 rejection now stands on a different finding, F08 "
+            "(scope_limitations): a faithful paraphrase of one bullet of a bundled "
+            "multi-item inherited_unit list fact that _cited_paraphrase cannot refute "
+            "because its overlap ratio is computed against the fact's whole value, not the "
+            "bullet the quote restates - the same mechanism already recorded for "
+            "Aspose.Words-FOSS-for-.NET's F05; see comment above and docs/DECISION_LOG.md"
         ),
         "ref": (
-            "PHASE0/EMAIL-PYTHON-F07 - the F07 content-gap record: diagnosed as an "
-            "authoring-stage content-compression choice, docs/DECISION_LOG.md section 31 "
-            "2026-09-10 12:23 UTC; re-seal queued in the sprint plan's re-run wave"
+            "docs/DECISION_LOG.md section 31 2026-09-23 09:59 UTC (this repository's own "
+            "F08 reproduction) and section 31 2026-09-17 10:32 UTC (the first recorded "
+            "instance, Aspose.Words-FOSS-for-.NET F05) - both share one resume predicate: "
+            "a _cited_paraphrase fix scoped to the specific bullet a quote restates"
         ),
     },
     "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp": {
