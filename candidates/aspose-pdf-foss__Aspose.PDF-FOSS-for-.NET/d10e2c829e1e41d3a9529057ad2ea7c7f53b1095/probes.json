@@ -1,6 +1,6 @@
 [
   {
-    "elapsed_ms": 928,
+    "elapsed_ms": 714,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -8,7 +8,7 @@
     "target": "https://docs.aspose.org/pdf/net/"
   },
   {
-    "elapsed_ms": 1425,
+    "elapsed_ms": 1402,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -16,7 +16,7 @@
     "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET/issues"
   },
   {
-    "elapsed_ms": 428,
+    "elapsed_ms": 432,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -24,7 +24,7 @@
     "target": "https://img.shields.io/badge/.NET-8.0-blue.svg"
   },
   {
-    "elapsed_ms": 421,
+    "elapsed_ms": 441,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -32,7 +32,7 @@
     "target": "https://img.shields.io/badge/License-MIT-blue.svg"
   },
   {
-    "elapsed_ms": 1853,
+    "elapsed_ms": 1280,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -40,7 +40,7 @@
     "target": "https://img.shields.io/nuget/v/Aspose.PDF.FOSS.svg"
   },
   {
-    "elapsed_ms": 949,
+    "elapsed_ms": 770,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -48,7 +48,7 @@
     "target": "https://kb.aspose.org/pdf/net/"
   },
   {
-    "elapsed_ms": 539,
+    "elapsed_ms": 633,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -56,7 +56,7 @@
     "target": "https://products.aspose.com/pdf/net/"
   },
   {
-    "elapsed_ms": 481,
+    "elapsed_ms": 495,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -64,7 +64,7 @@
     "target": "https://products.aspose.org/media/pdf/net/banner-readme.png"
   },
   {
-    "elapsed_ms": 607,
+    "elapsed_ms": 467,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -72,7 +72,7 @@
     "target": "https://products.aspose.org/pdf/net/"
   },
   {
-    "elapsed_ms": 874,
+    "elapsed_ms": 667,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -80,7 +80,7 @@
     "target": "https://reference.aspose.org/pdf/net/"
   },
   {
-    "elapsed_ms": 1933,
+    "elapsed_ms": 2023,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",

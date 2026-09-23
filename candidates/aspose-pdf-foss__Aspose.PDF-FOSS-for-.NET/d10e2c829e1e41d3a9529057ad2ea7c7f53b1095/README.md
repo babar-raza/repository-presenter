@@ -4,7 +4,7 @@
 
 [![Aspose.PDF FOSS for .NET](https://products.aspose.org/media/pdf/net/banner-readme.png)](https://products.aspose.org/pdf/net/)
 
-Aspose.PDF FOSS for .NET is a free, open-source PDF library for .NET 8+ that reads, creates, modifies, and converts PDF documents. It solves the problem of needing a drop-in, API-compatible alternative to Aspose.PDF for .NET for common PDF scenarios, allowing existing code to compile and run unchanged. Developers building document processing applications in .NET use it to generate reports, fill forms, add annotations, encrypt documents, and compare PDFs. The library supports the `Aspose.Pdf.Comparison` namespace for side-by-side and graphical comparison workflows.
+Aspose.PDF FOSS for .NET is a free, open-source library that enables developers to create, read, convert, and manipulate PDF documents in .NET applications. It solves problems related to PDF generation, text extraction, form handling, annotation management, and document security without requiring Adobe Acrobat. Developers building desktop, web, or cloud applications use this library to automate PDF workflows, such as converting HTML to PDF, extracting text content, adding watermarks or stamps, and applying encryption with AES-256. The library supports .NET 8.0 and exposes core types like `Aspose.Pdf.Document`, `Aspose.Pdf.PageCollection`, `Aspose.Pdf.Page`, `Aspose.Pdf.Text`, and `Aspose.Pdf.TextStamp`.
 
 ## Navigation
 
@@ -29,17 +29,17 @@ flowchart TD
     direction LR
     subgraph capl[" "]
       direction TB
-      c1["Create and modify PDF documents"]
-      c2["Extract and replace text"]
-      c3["Process interactive forms"]
-      c4["Add annotations and stamps"]
+      c1["Create and edit PDF documents"]
+      c2["Text extraction and manipulation"]
+      c3["Form handling"]
+      c4["Annotations and stamps"]
     end
     subgraph capr[" "]
       direction TB
-      c5["Encrypt and sign documents"]
-      c6["Render pages to images and SVG"]
-      c7["Convert between formats"]
-      c8["Compare documents"]
+      c5["Security features"]
+      c6["Format conversion and rendering"]
+      c7["Tagged PDF and accessibility"]
+      c8["Table and image handling"]
     end
   end
   PRODUCT --> Capabilities
@@ -47,14 +47,14 @@ flowchart TD
 
 ## Key Capabilities
 
-- **Create and modify PDF documents.** Create a new document with `Document.Create` or open an existing one with `Document.Open`, then manipulate pages through `Page` and `PageCollection` operations such as add, delete, reorder, rotate, resize, or copy across documents, preserving bookmarks, outlines, page labels, named destinations, document info, XMP metadata, and optional content layers on full or incremental save.
-- **Extract and replace text.** Extract text from pages using `TextAbsorber`, `TextFragmentAbsorber`, `ParagraphAbsorber`, or `TableAbsorber`, then find and replace text across pages—including cross-operator and ligature-aware spans—using `TextFragmentAbsorber` and `TextFragment`, and build new text with `TextBuilder`, `TextFragment`, `TextSegment`, `TextStamp`, and `FormattedText` including Bidi (RTL) support and AGL Unicode mapping.
-- **Process interactive forms.** Read, fill, and build AcroForm fields—including text, checkbox, radio, choice, button, signature, and rich text—through `Form`, `Field`, `FormFieldBuilder`, `FormEditor`, and `FormDataConverter`, with field-level flatten and JSON/XFDF form-data import and export.
-- **Add annotations and stamps.** Add and edit every standard annotation type—including link, text, free-text, highlight, square/circle/line/polyline, ink, stamp, popup, file attachment, screen, redaction, watermark, pre-press marks, and rich media—with appearance generation and flatten, as demonstrated by adding a link annotation with `PdfAction.CreateUri` and a stamp annotation with `StampAnnotation`.
-- **Encrypt and sign documents.** Encrypt and decrypt documents with RC4-40, RC4-128, AES-128, and AES-256 using `Document.Encrypt`, and sign documents with PKCS#7/CMS detached signatures—including DocMDP certifying signatures—through `PdfFileSignature`, `PdfSigner`, and `PdfCertificate`, with document permissions set directly on `Document`.
-- **Render pages to images and SVG.** Render pages to PNG, JPEG, BMP, TIFF, or SVG using `PngDevice`, `JpegDevice`, `BmpDevice`, `TiffDevice`, and `SvgDevice` through the pluggable `IPageRenderer` interface, supporting mesh shading types 4-7, a JBIG2 decoder, and JPEG/JPEG2000/CCITT-Fax filters.
-- **Convert between formats.** Convert PDF to and from HTML and SVG, load Markdown, XML, or plain-text files, and export to Markdown, plain text, or PDF/A (1A through 4F) using `HtmlLoadOptions`, `HtmlSaveOptions`, `SvgLoadOptions`, `MdLoadOptions`, and `TxtLoadOptions`.
-- **Compare documents.** Compare two documents or two pages using `Aspose.Pdf.Comparison`, where `SideBySidePdfComparer` writes a result PDF with both versions side by side marking deletions on the left and insertions on the right, and `GraphicalPdfComparer` diffs rendered pixels of two pages.
+- **Create and edit PDF documents.** Create or open PDF documents using the `Aspose.Pdf.Document` class, then manipulate pages—add, delete, reorder, rotate, resize, or copy—through `Aspose.Pdf.Page` and `Aspose.Pdf.PageCollection`, preserving bookmarks, outlines, page labels, named destinations, document info, XMP metadata, and optional content layers on full round-trip or incremental save.
+- **Text extraction and manipulation.** Extract text with `Aspose.Pdf.Text` classes such as `TextAbsorber`, `TextFragmentAbsorber`, and `ParagraphAbsorber`, and build or modify text content using `Aspose.Pdf.TextStamp`, `TextFragment`, `TextSegment`, and `FormattedText`, supporting bidirectional text, ligature-aware spans, and cross-operator replacements.
+- **Form handling.** Read, fill, and build AcroForm fields—including text, checkbox, radio, choice, button, signature, and rich text—through `Aspose.Pdf.Forms` and `Aspose.Pdf.FieldValueType`, with field-level flatten and JSON/XFDF form-data import and export.
+- **Annotations and stamps.** Add and edit every standard annotation type—link, text, free-text, highlight, square/circle/line/polyline, ink, stamp, popup, file attachment, screen, redaction, watermark, pre-press marks, and rich media—using `Aspose.Pdf.Annotations` and `Aspose.Pdf.Stamps`, with appearance generation and flatten support.
+- **Security features.** Encrypt and decrypt documents with RC4-40, RC4-128, AES-128, and AES-256 using `Aspose.Pdf.Security`, and sign documents with PKCS#7/CMS detached signatures—including DocMDP certifying signatures—through `Aspose.Pdf.CryptoAlgorithm` and `Aspose.Pdf.Permissions`, with document permissions set directly on `Document`.
+- **Format conversion and rendering.** Render pages to PNG, JPEG, BMP, TIFF, or SVG using `Aspose.Pdf.Devices` such as `PngDevice` and `JpegDevice`, and convert PDF to and from HTML and SVG, load Markdown, XML, or plain text, and export to PDF/A (1A through 4F) with `Aspose.Pdf.Converters` and `Aspose.Pdf.HtmlLoadOptions`.
+- **Tagged PDF and accessibility.** Read an existing structural tree and walk its `Aspose.Pdf.LogicalStructure` element hierarchy, or build tagged content from scratch with `Aspose.Pdf.Tagged`'s 37 typed structure elements, setting document language, title, alternate text, and marked content for accessibility.
+- **Table and image handling.** Extract tabular data and build tables using `Aspose.Pdf.Table`, `Row`, `Cell`, and `TableAbsorber`, draw shapes with `Graph`, `Rectangle`, `Circle`, `Ellipse`, `Arc`, `Line`, and `Curve`, and extract or place images through `Aspose.Pdf.ImagePlacementAbsorber` and `Aspose.Pdf.XImageCollection`.
 
 ## Installation
 
@@ -88,7 +88,7 @@ dotnet build
 
 ## Quick Start
 
-This example shows how to create a new PDF document with a text fragment and how to open an existing PDF to extract its text using `Aspose.PDF.FOSS` version 26.9.0 targeting net8.0.
+This example demonstrates creating a new PDF document with a text fragment and opening an existing PDF to extract its text content using `Aspose.PDF.FOSS` version 26.9.0 for net8.0.
 
 ```csharp
 using Aspose.Pdf;
@@ -111,9 +111,9 @@ Console.WriteLine(absorber.Text);
 
 ## Additional Examples
 
-The Aspose.PDF FOSS for .NET library supports common PDF operations such as adding annotations, searching and replacing text, converting formats, encrypting documents, and applying digital signatures. The following examples demonstrate these capabilities.
+Create, inspect, and modify PDF documents with Aspose.PDF FOSS for .NET using these concise workflows.
 
-### Render a PDF page to SVG format
+### Render a page to SVG format
 
 ```csharp
 using Aspose.Pdf;
@@ -128,7 +128,7 @@ File.WriteAllText("page1.svg", svg);
 <details>
 <summary>View Additional Examples</summary>
 
-### Add a clickable link annotation to a PDF page
+### Add a clickable link annotation to a page
 
 ```csharp
 using Aspose.Pdf;
@@ -143,7 +143,7 @@ page.Annotations.AddLinkAnnotation(new Rectangle(10, 10, 100, 30), action);
 doc.Save("output.pdf");
 ```
 
-### Find occurrences of specific text in a PDF page
+### Find occurrences of a text string in a page
 
 ```csharp
 using Aspose.Pdf;
@@ -155,7 +155,7 @@ absorber.Visit(doc.Pages[1]);
 Console.WriteLine($"Found {absorber.TextFragments.Count} matches");
 ```
 
-### Add a stamp annotation to a PDF page
+### Add a text stamp annotation to a page
 
 ```csharp
 using Aspose.Pdf;
@@ -166,7 +166,7 @@ doc.Pages[1].Annotations.AddStampAnnotation(
 doc.Save("output.pdf");
 ```
 
-### Find and replace text throughout a PDF document
+### Find and replace text across the document
 
 ```csharp
 using Aspose.Pdf;
@@ -192,7 +192,7 @@ foreach (var field in doc.Form!.Fields)
     Console.WriteLine($"{field.FullName} = {field.Value}");
 ```
 
-### Encrypt a PDF with user and owner passwords
+### Encrypt a PDF with AES-256 and permissions
 
 ```csharp
 using Aspose.Pdf;
@@ -211,7 +211,7 @@ using var doc = Document.Open("input.html", new HtmlLoadOptions());
 doc.Save("output.pdf");
 ```
 
-### Render a PDF page to PNG at 300 DPI
+### Render a page to PNG at 300 DPI
 
 ```csharp
 using Aspose.Pdf;
@@ -222,7 +222,7 @@ var device = new PngDevice(new Resolution(300));
 device.Process(doc.Pages[1], "page1.png");
 ```
 
-### Apply a digital signature to a PDF document
+### Apply a digital signature to a PDF
 
 ```csharp
 using Aspose.Pdf.Facades;
@@ -240,7 +240,7 @@ signer.Save("signed.pdf");
 
 ## API Reference
 
-`Aspose.PDF.FOSS` for .NET 26.9.0 targets net8.0 and exposes its core functionality through the `Aspose.Pdf.Document` class and related types in the `Aspose.Pdf` namespace.
+Aspose.PDF FOSS for .NET provides the `Document` class as its primary entry point, exposing pages through `Document.Pages` (a `PageCollection` of `Page` objects), interactive forms through `Document.Form`, and security features through `PdfFileSecurity` and `PdfFileSignature`. The library supports PDF creation, manipulation, and conversion across .NET 8.0 with version 26.9.0.
 
 The verified public surface has 899 types.
 
@@ -258,12 +258,12 @@ The verified public surface has 899 types.
 | `AnnotationCollection` | Collection of annotations on a page. |
 | `AnnotationSelector` | Visitor that filters annotations across one or more pages. |
 | `AppearanceDictionary` | Appearance-stream dictionary on an annotation (/AP entry): maps appearance-state name -> XForm. |
-| `BleedMarkAnnotation` | BleedMarkAnnotation represents a bleed mark annotation used to indicate the trim area in print production. |
+| `BleedMarkAnnotation` | BleedMarkAnnotation represents a bleed mark annotation used to indicate the trim area in a PDF document. |
 | `Border` | Represents the border of an annotation or field widget. |
-| `CaretAnnotation` | CaretAnnotation represents a caret annotation used to indicate the insertion point for text. |
+| `CaretAnnotation` | CaretAnnotation represents a caret annotation used to indicate the insertion point in a PDF document. |
 | `Characteristics` | Annotation characteristics (border, rotation, etc.). |
-| `CircleAnnotation` | CircleAnnotation represents a circular annotation used to highlight or emphasize content. |
-| `ColorBarAnnotation` | ColorBarAnnotation represents a color bar annotation used for color calibration in print workflows. |
+| `CircleAnnotation` | CircleAnnotation represents a circular annotation used to highlight or mark areas in a PDF document. |
+| `ColorBarAnnotation` | ColorBarAnnotation represents a color bar annotation used to display color information in a PDF document. |
 | `CommonFigureAnnotation` | Common base for square and circle annotations — a figure drawn inside a rectangle, optionally inset by /RD (PDF 32000 §12.5.6.8). |
 | `Dash` | Represents a dash pattern for borders. |
 | `DefaultAppearance` | Represents the default appearance of a free text annotation. |
@@ -277,35 +277,35 @@ The verified public surface has 899 types.
 | `FitHExplicitDestination` | Fit horizontally at /Top (/FitH). |
 | `FitRExplicitDestination` | FitR rectangle destination (/FitR). |
 | `FitVExplicitDestination` | Fit vertically at /Left (/FitV). |
-| `FixedPrint` | FixedPrint represents a fixed print annotation used to define static print properties. |
-| `FreeTextAnnotation` | FreeTextAnnotation represents a text annotation that allows free-form text placement on a page. |
+| `FixedPrint` | FixedPrint indicates whether an annotation should be printed at a fixed size regardless of zoom level. |
+| `FreeTextAnnotation` | FreeTextAnnotation represents a text annotation that allows free-form text placement in a PDF document. |
 | `GenericAnnotation` | Fallback annotation class for annotation subtypes that have no dedicated model (e.g. |
-| `GoToAction` | GoToAction represents an action that navigates to a specified destination within the document. |
+| `GoToAction` | GoToAction represents an action that navigates to a specified destination within the PDF document. |
 | `GoToRemoteAction` | Go-to-remote action — jumps to a destination in a different PDF file . |
 | `GoToURIAction` | Alias for UriAction, matching the public API name. |
 | `HideAction` | Hide action (/S /Hide, PDF 32000 §12.6.4.10): sets the hidden flag of the named field(s) or annotation(s). |
 | `HighlightAnnotation` | Highlight text markup annotation. |
 | `IAppointment` | Marker interface for any object that can be stored in an outline item's Destination, a link annotation's Destination, Document.OpenAction, or a named-destination collection. |
 | `ImportDataAction` | An import-data action (/S /ImportData): imports field data from the FDF/XFDF file identified by the action's /F file specification. |
-| `InkAnnotation` | InkAnnotation represents an ink annotation used to capture freehand drawing input. |
-| `JavascriptAction` | JavascriptAction represents an action that executes JavaScript code when triggered. |
+| `InkAnnotation` | InkAnnotation represents a freehand drawing annotation used to annotate PDF documents. |
+| `JavascriptAction` | JavascriptAction represents an action that executes JavaScript code when triggered in a PDF document. |
 | `FieldDateTimeFormatter` | Formats a date/time value string according to an Acrobat-style date format. |
 | `FieldNumberCurrencyFormatter` | Formats a numeric string as a currency value. |
 | `FieldNumberPercentFormatter` | Formats a numeric string as a percentage (multiplies by 100 first). |
-| `LaunchAction` | LaunchAction represents an action that launches an external application or opens a file. |
-| `LineAnnotation` | LineAnnotation represents a line annotation used to draw a straight line on a page. |
-| `LinkAnnotation` | LinkAnnotation represents a link annotation used to create hyperlinks within or outside the document. |
-| `MarkupAnnotation` | MarkupAnnotation is a base class for annotations that provide markup capabilities such as highlighting. |
+| `LaunchAction` | LaunchAction represents an action that launches an external application or opens a file in a PDF document. |
+| `LineAnnotation` | LineAnnotation represents a line annotation used to draw lines or arrows in a PDF document. |
+| `LinkAnnotation` | LinkAnnotation represents a hyperlink annotation used to create clickable links in a PDF document. |
+| `MarkupAnnotation` | MarkupAnnotation is a base class for annotations that provide markup functionality in a PDF document. |
 | `Measure` | Measure-units metadata attached to a LineAnnotation (PDF 32000 §12.5.6.13 measure dictionaries). |
 | `MediaClip` | A media clip object (PDF §13.2.4) — the actual media data or section thereof. |
 | `MediaClipData` | A media clip data object (PDF §13.2.4.2) — full media data via a file specification. |
 | `MediaClipSection` | A media clip section object (PDF §13.2.4.3) — a temporal section of another clip. |
 | `MediaRendition` | A media rendition (PDF §13.2.3.2) — pairs a media clip with playback parameters. |
-| `MovieAnnotation` | MovieAnnotation represents a movie annotation used to embed and play video content. |
-| `NamedAction` | NamedAction represents an action that performs a predefined operation identified by a name. |
+| `MovieAnnotation` | MovieAnnotation represents a movie annotation used to embed and play video content in a PDF document. |
+| `NamedAction` | NamedAction represents an action that performs a predefined operation in a PDF document. |
 | `NumberFormat` | One number-format entry — describes how a measurement value is rendered (precision, separators, before/after text). |
 | `NumberFormatList` | Nested number-format list (public-API shape: Measure+NumberFormatList). |
-| `PDF3DAnnotation` | PDF3DAnnotation represents a 3D annotation used to embed and interact with 3D content. |
+| `PDF3DAnnotation` | PDF3DAnnotation represents a three-dimensional annotation used to embed 3D content in a PDF document. |
 | `PDF3DArtwork` | A 3D artwork dictionary referenced by a PDF 3D annotation (public-API shape). |
 | `PDF3DContent` | Embedded-stream content for a 3D artwork (U3D or PRC). |
 | `PDF3DCrossSection` | Single cross-section through a PDF 3D model (public-API shape). |
@@ -316,39 +316,39 @@ The verified public surface has 899 types.
 | `PDF3DStream` | PDF /3DD stream wrapper — pairs a PDF3DArtwork with its document-owned content stream. |
 | `PDF3DView` | Camera + render-state snapshot of a 3D artwork (public-API shape). |
 | `PDF3DViewArray` | Indexed collection of PDF3DView snapshots (public-API shape). |
-| `PageInformationAnnotation` | PageInformationAnnotation represents metadata or information associated with a specific page. |
+| `PageInformationAnnotation` | PageInformationAnnotation represents metadata or information associated with a specific page in a PDF document. |
 | `PdfAction` | Base class for PDF actions. |
 | `PdfActionCollection` | Collection of PdfAction entries attached to an annotation (or any other action-bearing PDF object). |
 | `PolyAnnotation` | Common base for polygon and polyline annotations — a chain of connected vertices (PDF 32000 §12.5.6.9). |
-| `PolygonAnnotation` | PolygonAnnotation represents a polygon annotation used to highlight or annotate irregular areas. |
-| `PolylineAnnotation` | PolylineAnnotation represents a polyline annotation used to draw connected line segments. |
-| `PopupAnnotation` | PopupAnnotation represents a popup annotation that displays additional content when opened. |
+| `PolygonAnnotation` | PolygonAnnotation represents a polygon annotation used to highlight or mark areas in a PDF document. |
+| `PolylineAnnotation` | PolylineAnnotation represents a polyline annotation used to draw connected line segments in a PDF document. |
+| `PopupAnnotation` | PopupAnnotation represents a popup window annotation that displays additional information when opened. |
 | `PrinterMarkAnnotation` | Aggregate printer's-mark generator. |
 | `RedactAnnotation` | Backward-compatible alias for RedactionAnnotation. |
 | `RedactionAnnotation` | Represents a redaction annotation. |
-| `RegistrationMarkAnnotation` | RegistrationMarkAnnotation represents a registration mark annotation used for alignment in printing. |
+| `RegistrationMarkAnnotation` | RegistrationMarkAnnotation represents a registration mark annotation used for alignment in printing workflows. |
 | `Rendition` | A rendition object (PDF §13.2.3) — describes a media object to be played by a rendition action. |
 | `RenditionAction` | A rendition action (PDF §12.6.4.14) — controls the playing of multimedia content. |
-| `RichMediaAnnotation` | RichMediaAnnotation represents an annotation that embeds rich media content such as audio or video. |
+| `RichMediaAnnotation` | RichMediaAnnotation represents an annotation that embeds rich media content such as audio or video in a PDF document. |
 | `RichTextToFlatStructureTransformer` | Transforms rich text annotation content (XHTML with arbitrarily nested spans) into a flat structure where every leaf text node becomes a single &lt;span style="."&gt; with the fully-merged CSS from all ancestor elements. |
-| `ScreenAnnotation` | ScreenAnnotation represents a screen annotation used to create interactive screen elements. |
+| `ScreenAnnotation` | ScreenAnnotation represents a screen annotation used to create interactive elements in a PDF document. |
 | `SelectorRendition` | A selector rendition (PDF §13.2.3.3) — chooses among alternative renditions. |
-| `SoundAnnotation` | SoundAnnotation represents a sound annotation used to attach audio content to a page. |
-| `SoundData` | SoundData represents the raw data of a sound used in a sound annotation. |
-| `SoundSampleData` | SoundSampleData represents the sample data of a sound used in a sound annotation. |
-| `SquareAnnotation` | SquareAnnotation represents a square annotation used to highlight or annotate rectangular areas. |
+| `SoundAnnotation` | SoundAnnotation represents a sound annotation used to embed and play audio content in a PDF document. |
+| `SoundData` | SoundData represents the audio data associated with a sound annotation in a PDF document. |
+| `SoundSampleData` | SoundSampleData represents the raw audio sample data used in a sound annotation. |
+| `SquareAnnotation` | SquareAnnotation represents a rectangular annotation used to highlight or mark areas in a PDF document. |
 | `SquigglyAnnotation` | Squiggly text markup annotation. |
-| `StampAnnotation` | StampAnnotation represents a stamp annotation used to apply predefined or custom stamps to a page. |
+| `StampAnnotation` | StampAnnotation represents a stamp annotation used to apply predefined or custom stamps to a PDF document. |
 | `StrikeOutAnnotation` | StrikeOut text markup annotation. |
 | `SubmitFormAction` | Submit-form action — sends form field data to a URL or remote file (PDF 32000-1:2008 §12.7.5.2). |
-| `TextAnnotation` | TextAnnotation represents a text annotation used to add notes or comments to a page. |
+| `TextAnnotation` | TextAnnotation represents a sticky note annotation used to add comments or notes in a PDF document. |
 | `TextMarkupAnnotation` | Base class for the text-markup annotations (Highlight, Underline, StrikeOut, Squiggly) — those whose geometry is a set of QuadPoints over page text. |
 | `TextStyle` | Bundled font / colour / alignment style applied to a free-text annotation's rich text. |
-| `TrimMarkAnnotation` | TrimMarkAnnotation represents a trim mark annotation used to indicate the final trim size in printing. |
+| `TrimMarkAnnotation` | TrimMarkAnnotation represents a trim mark annotation used to indicate the final trim size in a PDF document. |
 | `UnderlineAnnotation` | Underline text markup annotation. |
-| `UriAction` | UriAction represents an action that opens a Uniform Resource Identifier (URI) in a web browser. |
+| `UriAction` | UriAction represents an action that opens a Uniform Resource Identifier in a PDF document. |
 | `WatermarkAnnotation` | Represents a watermark annotation that can be added to a PDF page. |
-| `WidgetAnnotation` | WidgetAnnotation represents a widget annotation used to render interactive form fields. |
+| `WidgetAnnotation` | WidgetAnnotation represents a widget annotation used to create interactive form fields in a PDF document. |
 | `XYZExplicitDestination` | XYZ explicit destination: display the page at position (left, top) with zoom factor. |
 | `AppearanceEntry` | One state of a widget appearance variant (the body of an /AP/N, AP/D, or /AP/R entry). |
 | `AppearanceImageData` | One image XObject of a widget appearance's /Resources, captured decoded (samples, not filtered bytes) for the JSON round-trip. |
@@ -359,9 +359,9 @@ The verified public surface has 899 types.
 | `BaseOperatorCollection` | Standalone operator-list class — surface mirrors OperatorCollection but is detached from any page. |
 | `BaseParagraph` | Base class for paragraph-level DOM content (text fragments, tables, images, header/footer fragments, floating boxes). |
 | `BatesNArtifact` | A Bates-numbering pagination artifact: a zero-padded running number with optional prefix and suffix. |
-| `BitmapInfo` | BitmapInfo provides information about a bitmap image used in annotations or page elements. |
+| `BitmapInfo` | BitmapInfo provides information about bitmap images used in a PDF document. |
 | `BorderInfo` | Represents border information for table cells and rows. |
-| `BorderPartStyle` | BorderPartStyle defines the style of individual parts of an annotation's border. |
+| `BorderPartStyle` | BorderPartStyle defines the style of individual parts of an annotation's border in a PDF document. |
 | `BoundsCheckableList` | A list of T that optionally enforces container bounds on insertion: under ThrowExceptionIfDoesNotFit an item whose CheckBounds fails raises BoundsOutOfRangeException at add time. |
 | `BoundsOutOfRangeException` | Thrown when an element is inserted into a parent container whose bounds check mode is ThrowExceptionIfDoesNotFit and the element does not fit the container rectangle. |
 | `BuildVersionInfo` | Build and version information for the library. |
@@ -372,7 +372,7 @@ The verified public surface has 899 types.
 | `CollectionItem` | Per-file metadata entries declared by a portfolio /Collection's schema, exposed as a typed dictionary on CollectionItem. |
 | `CollectionSchema` | Schema of a PDF Portfolio collection (PDF spec §7.11.5 Table 74). |
 | `Pdf.Color` | Represents a color value used in PDF documents. |
-| `ColumnInfo` | ColumnInfo provides information about the layout and properties of a column in a document. |
+| `ColumnInfo` | ColumnInfo specifies layout properties for columns in a PDF document. |
 | `DiffOperation` | A single edit produced when diffing two texts: an Operation (Equal / Delete / Insert) together with the run of text it applies to. |
 | `IDiffOptimizationOperation` | A post-processing pass that normalises a diff — a mutable list of DiffOperations — in place, preserving the source and destination texts while producing a cleaner or more canonical sequence of edits. |
 | `MergingOptimizer` | Reduces a diff to its canonical form: coalesce adjacent runs of the same operation and factor the common prefix and suffix out of a mixed delete/insert run (OperationsMerger), then slide any single edit that is fenced by two equalities sideways to dissolve one of them (OperationsSlideMerger). |
@@ -430,7 +430,7 @@ The verified public surface has 899 types.
 | `TiffDevice` | Renders PDF document pages into TIFF image format. |
 | `TiffSettings` | Settings for TIFF image generation (color depth, compression). |
 | `Document` | Represents a PDF document. |
-| `DocumentCollection` | Aspose.Pdf.DocumentCollection represents a collection of documents managed by Aspose.PDF FOSS for .NET. |
+| `DocumentCollection` | Aspose.Pdf.DocumentCollection represents a collection of PDF documents that can be managed and manipulated as a single unit. |
 | `DocumentInfo` | Represents the document information dictionary. |
 | `Arc` | An arc shape (portion of an ellipse). |
 | `Circle` | A circle shape. |
@@ -470,8 +470,8 @@ The verified public surface has 899 types.
 | `FormImportResult` | Per-field result of a form-data import operation. |
 | `FormattedText` | Represents formatted text used in stamp and mend operations. |
 | `FormattedTextFont` | Represents a font reference returned by FormattedText.getFont(). |
-| `IFacade` | Aspose.Pdf.Facades.IFacade defines the interface for facade classes that provide high-level PDF processing operations. |
-| `ISaveableFacade` | Aspose.Pdf.Facades.ISaveableFacade defines the interface for facade classes that support saving processed PDF documents. |
+| `IFacade` | Aspose.Pdf.Facades.IFacade provides a common interface for facade classes that wrap PDF document operations. |
+| `ISaveableFacade` | Aspose.Pdf.Facades.ISaveableFacade defines methods for binding, saving, and closing PDF documents through a facade pattern. |
 | `LineInfo` | Line drawing parameters for PdfContentEditor.DrawCurve. |
 | `PageBreak` | Describes a single horizontal cut on a source page: PageNumber (1-based) identifies the page in the source document, Position the PDF y-coordinate where the page is split. |
 | `PdfAnnotationEditor` | Facade for annotation manipulation: import/export XFDF, delete, flatten, redact. |
@@ -488,7 +488,7 @@ The verified public surface has 899 types.
 | `PdfFileStamp` | Facade for adding stamps, page numbers, headers, footers, and watermarks. |
 | `PdfJavaScriptStripper` | Removes all JavaScript from a PDF document. |
 | `PdfPageEditor` | Facade for page-level editing: rotation, resizing, margin adjustment, and page box manipulation (CropBox, TrimBox, BleedBox, ArtBox). |
-| `PdfPrintPageInfo` | Aspose.Pdf.Facades.PdfPrintPageInfo provides information about a specific page to be printed in a PDF document. |
+| `PdfPrintPageInfo` | Aspose.Pdf.Facades.PdfPrintPageInfo holds information about a specific page to be printed in a PDF document. |
 | `PdfViewer` | Façade for viewing / printing a PDF document. |
 | `PdfXmpMetadata` | Dictionary-style facade over a PDF document's XMP metadata stream. |
 | `Facades.RenderingOptions` | Rendering options used by PdfConverter and other facade classes. |
@@ -511,8 +511,8 @@ The verified public surface has 899 types.
 | `FontUtilities` | Provides font management utilities for a document. |
 | `BarcodeField` | A Tx form field whose widget carries a /PMD (PaperMetaData) dictionary — an Acrobat paper-barcode field. |
 | `ButtonField` | Push-button form field (FT=Btn with Pushbutton flag set). |
-| `CheckboxField` | Aspose.Pdf.Forms.CheckboxField represents a checkbox form field in a PDF document. |
-| `ChoiceField` | Aspose.Pdf.Forms.ChoiceField represents a choice form field in a PDF document, allowing users to select from multiple options. |
+| `CheckboxField` | Aspose.Pdf.Forms.CheckboxField represents a checkbox form field in a PDF document that allows users to select or clear an option. |
+| `ChoiceField` | Aspose.Pdf.Forms.ChoiceField represents a form field that lets users select one or more options from a list of choices. |
 | `ComboBoxField` | Combo box (drop-down) form field — a ChoiceField with the Combo flag set. |
 | `DateField` | A text field presenting a date with a popup JavaScript calendar. |
 | `DocMDPSignature` | Pairs a Signature (which carries the signing certificate) with the DocMDPAccessPermissions level a certifying signature will impose. |
@@ -525,18 +525,18 @@ The verified public surface has 899 types.
 | `ListBoxField` | List box form field — a ChoiceField without the Combo flag. |
 | `Option` | Class represents option of choice field. |
 | `OptionCollection` | Mutable collection of Option values backed by the owning ChoiceField's /Opt entry. |
-| `PKCS1` | Aspose.Pdf.Forms.PKCS1 represents a PKCS#1 signature format used for digital signatures in PDF documents. |
-| `PKCS7` | Aspose.Pdf.Forms.PKCS7 represents a PKCS#7 signature format used for digital signatures in PDF documents. |
+| `PKCS1` | Aspose.Pdf.Forms.PKCS1 defines the PKCS#1 standard for RSA cryptographic signatures in PDF documents. |
+| `PKCS7` | Aspose.Pdf.Forms.PKCS7 defines the PKCS#7 standard for cryptographic message syntax used in digital signatures. |
 | `PKCS7Detached` | A detached PKCS#7 (CMS) signature configuration. |
-| `RadioButtonField` | Aspose.Pdf.Forms.RadioButtonField represents a radio button form field in a PDF document. |
+| `RadioButtonField` | Aspose.Pdf.Forms.RadioButtonField represents a radio button form field that allows users to select only one option from a group. |
 | `RadioButtonGroup` | A logical radio-button group — a set of mutually exclusive options sharing the same field name in the AcroForm hierarchy. |
 | `RadioButtonOption` | A single option within a radio button group. |
 | `RadioButtonOptionField` | One option of a RadioButtonField. |
 | `RichTextBoxField` | A Tx form field that carries the rich-text flag (bit 26 of /Ff). |
 | `Signature` | Represents a digital signature in a PDF document. |
 | `SignatureCustomAppearance` | Visual-layout knobs for a signature's appearance stream — font, size, padding and which signer metadata strings are rendered inside the widget annotation. |
-| `SignatureField` | Aspose.Pdf.Forms.SignatureField represents a signature form field in a PDF document. |
-| `TextBoxField` | Aspose.Pdf.Forms.TextBoxField represents a text box form field in a PDF document. |
+| `SignatureField` | Aspose.Pdf.Forms.SignatureField represents a digital signature field in a PDF document that enables secure signing. |
+| `TextBoxField` | Aspose.Pdf.Forms.TextBoxField represents a text box form field where users can enter or edit text content. |
 | `XFA` | XmlNode-based accessor for the document's XFA packets (template / datasets / config / form / xdp). |
 | `XfaAccessor` | Provides indexer access to XFA field values by path. |
 | `XfaField` | Represents a single field of an XFA form addressed by its template SOM path (e.g. |
@@ -560,11 +560,11 @@ The verified public surface has 899 types.
 | `HtmlSaveOptions` | Options for saving a PDF document as HTML. |
 | `Hyperlink` | Base type for hyperlinks attached to text fragments or annotations. |
 | `IDocumentFontUtilities` | Per-document font helper contract — implemented by FontUtilities. |
-| `IIndexBitmapConverter` | Aspose.Pdf.IIndexBitmapConverter defines a contract for converting indexed bitmaps during PDF processing. |
+| `IIndexBitmapConverter` | Aspose.Pdf.IIndexBitmapConverter provides an interface for converting indexed bitmaps during PDF processing. |
 | `IOperatorSelector` | Visitor interface for Accept(IOperatorSelector). |
-| `IWarningCallback` | Aspose.Pdf.IWarningCallback defines a contract for receiving warnings during PDF processing operations. |
+| `IWarningCallback` | Aspose.Pdf.IWarningCallback defines a contract for handling warnings that occur during PDF processing operations. |
 | `Id` | Pair of byte strings that make up the /ID array in the PDF trailer. |
-| `Image` | Aspose.Pdf.Image represents an image object embedded in a PDF document. |
+| `Image` | Aspose.Pdf.Image represents an image object that can be embedded in a PDF document. |
 | `ImageCollection` | Collection of image XObjects on a page. |
 | `ImagePlacement` | Represents an image placement found on a PDF page — the position, size, and resolution of an image XObject as it appears on the page (after CTM transformation). |
 | `ImagePlacementAbsorber` | Absorbs image placement information from PDF pages. |
@@ -572,7 +572,7 @@ The verified public surface has 899 types.
 | `ImageStamp` | Adds an image to a PDF page. |
 | `ImageXObject` | Represents an image XObject found in a PDF page's resources. |
 | `IncorrectFontUsageException` | Thrown during text extraction when the content stream issues a text-showing operator (Tj/TJ/'/") while no font is set in the current graphics state — i.e. |
-| `InterruptMonitor` | Aspose.Pdf.InterruptMonitor provides a mechanism to monitor and interrupt long-running PDF processing operations. |
+| `InterruptMonitor` | Aspose.Pdf.InterruptMonitor allows monitoring and interrupting long-running PDF processing operations. |
 | `InvalidFormTypeOperationException` | Thrown when an operation is attempted on the wrong form type (e.g. |
 | `InvalidPasswordException` | Thrown when a password-protected operation is attempted without supplying a valid password (e.g. |
 | `InvalidPdfFileFormatException` | Thrown when a stream cannot be opened as a PDF (bad header, truncated file, or otherwise unrecognisable as PDF). |
@@ -582,10 +582,10 @@ The verified public surface has 899 types.
 | `LayerCollection` | Represents the collection of layers on a specific page. |
 | `LayerEntry` | Represents a layer being built by OptionalContentBuilder. |
 | `LevelFormat` | Per-heading-level TOC formatting descriptor (line-dash style, margins, indent, text state). |
-| `LoadOptions` | Aspose.Pdf.LoadOptions specifies options used when loading a PDF document. |
+| `LoadOptions` | Aspose.Pdf.LoadOptions specifies settings that control how a PDF document is loaded and initialized. |
 | `LocalHyperlink` | Hyperlink that jumps to another paragraph or page in the same document. |
 | `AnnotElement` | Aspose.Pdf.LogicalStructure.AnnotElement represents an annotation element in the logical structure of a PDF document. |
-| `ArtElement` | Aspose.Pdf.LogicalStructure.ArtElement represents an artifact element in the logical structure of a PDF document. |
+| `ArtElement` | Aspose.Pdf.LogicalStructure.ArtElement represents an art element in the logical structure of a PDF document. |
 | `AttributeName` | A typed value for a standard attribute name (the /Name-valued entries in an attribute object, e.g. |
 | `BibEntryElement` | Aspose.Pdf.LogicalStructure.BibEntryElement represents a bibliographic entry element in the logical structure of a PDF document. |
 | `BlockQuoteElement` | Aspose.Pdf.LogicalStructure.BlockQuoteElement represents a block quote element in the logical structure of a PDF document. |
@@ -605,7 +605,7 @@ The verified public surface has 899 types.
 | `IndexElement` | Aspose.Pdf.LogicalStructure.IndexElement represents an index element in the logical structure of a PDF document. |
 | `LinkElement` | Aspose.Pdf.LogicalStructure.LinkElement represents a link element in the logical structure of a PDF document. |
 | `ListElement` | Aspose.Pdf.LogicalStructure.ListElement represents a list element in the logical structure of a PDF document. |
-| `ListLBodyElement` | Aspose.Pdf.LogicalStructure.ListLBodyElement represents a list body element in the logical structure of a PDF document. |
+| `ListLBodyElement` | Aspose.Pdf.LogicalStructure.ListLBodyElement represents the body of a list item in the logical structure of a PDF document. |
 | `ListLIElement` | Aspose.Pdf.LogicalStructure.ListLIElement represents a list item element in the logical structure of a PDF document. |
 | `ListLblElement` | Aspose.Pdf.LogicalStructure.ListLblElement represents a list label element in the logical structure of a PDF document. |
 | `MCRElement` | A marked-content reference leaf (role "MCR") emitted by the auto-tagger to mark where a structure element's page content lives. |
@@ -613,17 +613,17 @@ The verified public surface has 899 types.
 | `NoteElement` | Aspose.Pdf.LogicalStructure.NoteElement represents a note element in the logical structure of a PDF document. |
 | `OBJRElement` | An object reference (role "OBJR") — links a structure element to a PDF object on a page (typically an annotation, e.g. |
 | `ParagraphElement` | Aspose.Pdf.LogicalStructure.ParagraphElement represents a paragraph element in the logical structure of a PDF document. |
-| `PartElement` | PartElement represents a logical structure part element in a PDF document. |
-| `PrivateElement` | PrivateElement represents a private logical structure element in a PDF document. |
-| `QuoteElement` | QuoteElement represents a quoted content element in a PDF document. |
-| `ReferenceElement` | ReferenceElement represents a reference element in a PDF document. |
+| `PartElement` | PartElement represents a logical structure part element in a PDF document, providing methods to manage its children, attributes, and text content. |
+| `PrivateElement` | PrivateElement represents a private logical structure element in a PDF document, supporting standard structure element operations. |
+| `QuoteElement` | QuoteElement represents a quoted content element in a PDF document's logical structure. |
+| `ReferenceElement` | ReferenceElement represents a reference element in a PDF document's logical structure. |
 | `RubyChildElement` | Base for the ruby-annotation content elements (RB, RT, RP) that appear only inside a RubyElement. |
-| `RubyElement` | RubyElement represents a ruby annotation element in a PDF document. |
-| `RubyRBElement` | RubyRBElement represents a ruby base element in a PDF document. |
-| `RubyRPElement` | RubyRPElement represents a ruby pronunciation element in a PDF document. |
-| `RubyRTElement` | RubyRTElement represents a ruby text element in a PDF document. |
-| `SectElement` | SectElement represents a section element in a PDF document. |
-| `SpanElement` | SpanElement represents a span element in a PDF document. |
+| `RubyElement` | RubyElement represents a ruby annotation element in a PDF document's logical structure. |
+| `RubyRBElement` | RubyRBElement represents a ruby base element in a PDF document's logical structure. |
+| `RubyRPElement` | RubyRPElement represents a ruby parenthetical element in a PDF document's logical structure. |
+| `RubyRTElement` | RubyRTElement represents a ruby text element in a PDF document's logical structure. |
+| `SectElement` | SectElement represents a section element in a PDF document's logical structure. |
+| `SpanElement` | SpanElement represents a span element in a PDF document's logical structure. |
 | `StructTreeRootElement` | The /StructTreeRoot wrapper at the top of the logical- structure tree. |
 | `StructureAttribute` | A single tagged-PDF structure attribute (key plus one typed value). |
 | `StructureAttributes` | An owner-scoped set of StructureAttribute objects attached to a structure element (one PDF attribute dictionary with a fixed /O owner). |
@@ -633,20 +633,20 @@ The verified public surface has 899 types.
 | `StructureType` | A structure-type role (the /S entry value), exposed via S. |
 | `StructureTypeCategory` | Category of a standard structure type per ISO 32000-1 §14.8.4: grouping elements, block-level structure elements (BLSEs), inline-level structure elements (ILSEs) and illustration elements. |
 | `StructureTypeStandard` | The PDF standard structure types (ISO 32000-1 Tables 333–337), exposed as singletons so StructureType reads compare by identity. |
-| `TOCElement` | TOCElement represents a table of contents element in a PDF document. |
-| `TOCIElement` | TOCIElement represents a table of contents item element in a PDF document. |
+| `TOCElement` | TOCElement represents a table of contents element in a PDF document's logical structure. |
+| `TOCIElement` | TOCIElement represents a table of contents item element in a PDF document's logical structure. |
 | `TOCpageHasNoTitleException` | Thrown by LinkTocPageTitleToHeaderElement when the TOC page's TocInfo carries no title — the tagged-TOC navigation header must mirror an existing page title (PDF/UA-1 tagged TOC support). |
-| `TableElement` | TableElement represents a table element in a PDF document. |
-| `TableTBodyElement` | TableTBodyElement represents a table body element in a PDF document. |
-| `TableTDElement` | TableTDElement represents a table data cell element in a PDF document. |
-| `TableTFootElement` | TableTFootElement represents a table footer element in a PDF document. |
-| `TableTHElement` | TableTHElement represents a table header cell element in a PDF document. |
-| `TableTHeadElement` | TableTHeadElement represents a table header element in a PDF document. |
-| `TableTRElement` | TableTRElement represents a table row element in a PDF document. |
+| `TableElement` | TableElement represents a table element in a PDF document's logical structure. |
+| `TableTBodyElement` | TableTBodyElement represents a table body element in a PDF document's logical structure. |
+| `TableTDElement` | TableTDElement represents a table data cell element in a PDF document's logical structure. |
+| `TableTFootElement` | TableTFootElement represents a table footer element in a PDF document's logical structure. |
+| `TableTHElement` | TableTHElement represents a table header cell element in a PDF document's logical structure. |
+| `TableTHeadElement` | TableTHeadElement represents a table header element in a PDF document's logical structure. |
+| `TableTRElement` | TableTRElement represents a table row element in a PDF document's logical structure. |
 | `WarichuChildElement` | Base for the warichu content elements (WT, WP) that appear only inside a WarichuElement. |
-| `WarichuElement` | WarichuElement represents a warichu annotation element in a PDF document. |
-| `WarichuWPElement` | WarichuWPElement represents a warichu wrapped paragraph element in a PDF document. |
-| `WarichuWTElement` | WarichuWTElement represents a warichu wrapped text element in a PDF document. |
+| `WarichuElement` | WarichuElement represents a warichu (inline ruby) element in a PDF document's logical structure. |
+| `WarichuWPElement` | WarichuWPElement represents a warichu with parenthetical element in a PDF document's logical structure. |
+| `WarichuWTElement` | WarichuWTElement represents a warichu with text element in a PDF document's logical structure. |
 | `MarginInfo` | Represents margin information for page elements. |
 | `MarginPartStyle` | One side of a MarginInfo: either a fixed PDF-point value or an auto-fit hint. |
 | `Matrix` | Represents a 3x3 transformation matrix [a b 0; c d 0; e f 1]. |
@@ -791,7 +791,7 @@ The verified public surface has 899 types.
 | `PolygonsHelper` | Polygon and rectangle geometry utilities — point/polygon containment, segment hit-testing and rectangle/polygon classification. |
 | `CustomPrintEventArgs` | Event args raised by PdfViewer.CustomPrint. |
 | `PageSettings` | Per-page print settings (paper size / orientation / margins). |
-| `PaperSize` | PaperSize represents the dimensions of a paper size used in printing. |
+| `PaperSize` | PaperSize represents the paper size used for printing a PDF document. |
 | `PdfQueryPageSettingsEventArgs` | Event args supplied to PdfViewer.PdfQueryPageSettings. |
 | `PrinterSettings` | Printer-side settings (printer name, copies, range). |
 | `PrintingOptionalDependencyGuard` | Guards the printing API's optional platform dependency: on modern .NET the printing pipeline needs System.Drawing.Common, which ships as a NuGet package the consuming application must reference itself. |
@@ -803,10 +803,10 @@ The verified public surface has 899 types.
 | `Pdf.RenderingOptions` | Rendering options used by the page-to-image converters (PngDevice, JpegDevice, PdfConverter, …). |
 | `RepairOptions` | Options describing what repair is needed. |
 | `ResourceLoadingResult` | ResourceLoadingResult indicates the result of loading a resource during document processing. |
-| `ResourceSavingInfo` | ResourceSavingInfo provides information about saving a resource during document processing. |
+| `ResourceSavingInfo` | ResourceSavingInfo provides information about saving a resource during document export. |
 | `Resources` | Type alias for PageResources, matching the Resources class name. |
 | `RgbToDeviceGrayConversionStrategy` | Converts all RGB color operators and image color spaces on a page to DeviceGray. |
-| `Row` | Row represents a row in a table element within a PDF document. |
+| `Row` | Row represents a row in a table within a PDF document. |
 | `Rows` | A collection of rows in a table. |
 | `SanitizationException` | Thrown when a document structure is recognised as a signature-forgery attack (e.g. |
 | `SaveOptions` | SaveOptions provides base settings for saving a document. |
@@ -853,7 +853,7 @@ The verified public surface has 899 types.
 | `RootElement` | Top-level wrapper for the PDF /StructTreeRoot dictionary. |
 | `StructElement` | A generic structure element (anything other than the recognised typed subclasses). |
 | `TextElement` | A text-bearing structure element (Span / P / Quote / Note / Reference / BibEntry). |
-| `SvgImageSavingInfo` | SvgImageSavingInfo provides information about saving an SVG image during document processing. |
+| `SvgImageSavingInfo` | SvgImageSavingInfo provides information about saving an SVG image during document export. |
 | `SvgLoadOptions` | Options for loading SVG files as PDF documents. |
 | `SvgSaveOptions` | SvgSaveOptions provides settings for saving a document to SVG format. |
 | `Table` | Represents a table that can be added to a PDF page. |
@@ -871,7 +871,7 @@ The verified public surface has 899 types.
 | `AbsorbedTable` | Represents a table detected on a PDF page. |
 | `CharInfo` | Per-character layout information (glyph rectangle + page position). |
 | `CharInfoCollection` | Collection of CharInfo entries — supports the public surface used by TextSegment.Characters but stays empty by default. |
-| `CustomFontSubstitutionBase` | CustomFontSubstitutionBase provides a base class for implementing custom font substitution logic, allowing developers to define how fonts are replaced during document processing. |
+| `CustomFontSubstitutionBase` | CustomFontSubstitutionBase provides a base class for implementing custom font substitution logic, allowing developers to define how fonts are replaced during document processing by overriding its TrySubstitute method. |
 | `ExternalFontCache` | Manages the set of folders searched for external (non-embedded) TrueType/OpenType faces during rendering and conversion. |
 | `FileFontSource` | A font source backed by a single font file on disk. |
 | `FolderFontSource` | A font source that searches fonts in a specific directory. |
@@ -885,21 +885,21 @@ The verified public surface has 899 types.
 | `FontSource` | Base class for font sources. |
 | `FontSourceCollection` | A collection of font sources used by FontRepository. |
 | `FontSubstitution` | Base type for font substitutions held in FontSubstitutionCollection. |
-| `FontSubstitutionCollection` | FontSubstitutionCollection manages a collection of font substitution rules, supporting operations such as adding, removing, and checking for specific substitution entries. |
+| `FontSubstitutionCollection` | FontSubstitutionCollection manages a collection of font substitution rules, supporting operations such as adding, removing, and checking for specific substitutions via its Add, Remove, Contains, and other collection methods. |
 | `IFontOptions` | Per-font runtime options (currently only the font-embedding error toggle). |
 | `MarkupParagraph` | A paragraph within a markup section. |
 | `MarkupSection` | A section of text on a page — a spatially coherent group of lines. |
 | `MemoryFontSource` | A font source backed by an in-memory font byte buffer. |
 | `OneBasedList` | Read-only list with 1-based indexer, matching the public API. |
-| `OriginalFontSpecification` | OriginalFontSpecification describes the original font used in a document, including whether it is embedded and whether substitution is unavoidable. |
+| `OriginalFontSpecification` | OriginalFontSpecification describes the original font being substituted, exposing properties such as OriginalFontName, IsEmbedded, and IsSubstitutionUnavoidable to provide context for font replacement decisions. |
 | `PageMarkup` | Represents the text markup of a single page, organized into sections. |
 | `ParagraphAbsorber` | Absorbs text from PDF pages and organizes it into sections and paragraphs. |
 | `ParagraphAbsorberOptions` | Options for ParagraphAbsorber controlling section detection thresholds. |
 | `PdfFontView` | Thin engine-font view exposed for public-API compatibility (Font.iPdfFont). |
 | `PhysicalTextSegment` | Physical (page-space) projection of an absorbed TextSegment. |
-| `Position` | Position represents a coordinate point in a document with X and Y indentation values, supporting equality comparisons and string representation. |
+| `Position` | Position represents a coordinate in a document, storing horizontal and vertical offsets via XIndent and YIndent, and supports equality comparison and string representation through its Equals, GetHashCode, and ToString methods. |
 | `RegexManager` | Global configuration for regular-expression text search (for example via TextFragmentAbsorber). |
-| `SimpleFontSubstitution` | SimpleFontSubstitution defines a straightforward font replacement rule that maps an original font name to a substitution font name. |
+| `SimpleFontSubstitution` | SimpleFontSubstitution defines a straightforward font replacement rule mapping an original font name to a substitution font name, with properties OriginalFontName and SubstitutionFontName, and a TrySubstitute method to apply the substitution. |
 | `SystemFontSource` | A font source that searches the system's installed fonts. |
 | `TabStop` | Represents a single tab stop position. |
 | `TabStops` | A collection of tab stop positions for text layout. |
@@ -928,7 +928,7 @@ The verified public surface has 899 types.
 | `ToUnicodeProcessingRules` | Rules applied when generating ToUnicode CMaps during conversion. |
 | `TocInfo` | Table of contents information for a page. |
 | `TxtLoadOptions` | Options for loading a plain-text (.txt) file as a PDF document. |
-| `UnifiedSaveOptions` | UnifiedSaveOptions controls how a document is saved, offering settings for output format, file path, glyph caching, and warning handling. |
+| `UnifiedSaveOptions` | UnifiedSaveOptions controls how a document is saved in unified save mode, offering settings such as SaveFormat, SaveFullPath, CacheGlyphs, ExtractOcrSublayerOnly, and WarningHandler to customize the output and behavior. |
 | `UnsupportedFontTypeException` | Thrown when a file cannot be opened as a font because its format is not a supported font program (e.g. |
 | `ValidationIssue` | Represents a validation issue found in a PDF document. |
 | `Value` | One typed value pulled out of a CollectionItem dict by TryGet*Value. |
@@ -938,7 +938,7 @@ The verified public surface has 899 types.
 | `SubPath` | A single painted sub-path extracted from a content stream: its construction operators (in their original user-space coordinates), the CTM in effect when it was drawn, and the painting operator that closed it. |
 | `XFormPlacement` | A Form XObject invocation (Do) found in a content stream. |
 | `ViewerPreferences` | Represents the document's viewer preferences (PDF32000 §12.2). |
-| `WarningInfo` | WarningInfo captures details about warnings generated during document processing, including the warning message and its type. |
+| `WarningInfo` | WarningInfo captures information about a warning generated during document processing, including the WarningMessage, WarningType, and WarningTypeProperty to help diagnose issues encountered during operations. |
 | `Watermark` | Watermark applied to a page. |
 | `WatermarkArtifact` | Represents a watermark artifact that can be added to a PDF page. |
 | `WebHyperlink` | Hyperlink that opens an external URL. |
@@ -967,7 +967,7 @@ The verified public surface has 899 types.
 | --- | --- |
 | `AFRelationship` | Relationship between an embedded file and the document content that references it (/AFRelationship, PDF 2.0 §7.11.3). |
 | `ActionType` | The type of a PDF action. |
-| `ActivationEvent` | ActivationEvent represents an event that occurs when an annotation is activated in Aspose.PDF FOSS for .NET. |
+| `ActivationEvent` | ActivationEvent represents an event that occurs when an annotation is activated in a PDF document. |
 | `AnnotationFlags` | Annotation flags as defined in PDF spec Table 165. |
 | `AnnotationState` | Review or marked-state of a markup annotation, as defined by PDF 32000 §12.5.6.3 (text annotations, /StateModel + /State entries). |
 | `AnnotationStateModel` | Which state model a AnnotationState belongs to. |
@@ -978,7 +978,7 @@ The verified public surface has 899 types.
 | `CaptionPosition` | Caption-position within a LineAnnotation. |
 | `CaretSymbol` | Caret-symbol style for CaretAnnotation. |
 | `ColorsOfCMYK` | CMYK channel selector used by ColorBarAnnotation. |
-| `ContentType` | ContentType specifies the type of content associated with an annotation in Aspose.PDF FOSS for .NET. |
+| `ContentType` | ContentType specifies the type of content associated with an annotation in a PDF document. |
 | `ExplicitDestinationType` | Explicit destination type, mirroring PDF 32000 §12.3.2.2 names. |
 | `FileIcon` | Named-icon style for FileAttachmentAnnotation (/Name entry). |
 | `FractionStyle` | How fractional values are rendered (decimal / fraction / round / truncate). |
@@ -997,9 +997,9 @@ The verified public surface has 899 types.
 | `RenderModeType` | Render-mode nominal type (PDF 32000-1 §13.6.5). |
 | `ReplyType` | Reply-relationship between a markup annotation and its InReplyTo target. |
 | `RichTextFontStyles` | Rich-text run styles applied via Color). |
-| `SoundEncoding` | SoundEncoding specifies the encoding format used for sound data in annotations. |
-| `SoundIcon` | SoundIcon specifies the icon used to represent a sound annotation visually. |
-| `SoundSampleDataEncodingFormat` | SoundSampleDataEncodingFormat specifies the encoding format for sound sample data. |
+| `SoundEncoding` | SoundEncoding specifies the encoding format used for audio data in a sound annotation. |
+| `SoundIcon` | SoundIcon specifies the icon used to represent a sound annotation in a PDF document. |
+| `SoundSampleDataEncodingFormat` | SoundSampleDataEncodingFormat specifies the encoding format for audio sample data in a sound annotation. |
 | `StampIcon` | Named stamp-icon style for StampAnnotation (/Name entry, PDF 32000 §12.5.6.14). |
 | `TextAlignment` | Horizontal text alignment for annotation text boxes. |
 | `TextIcon` | Named-icon style for TextAnnotation (PDF 32000 §12.5.6.4 /Name entries). |
@@ -1077,7 +1077,7 @@ The verified public surface has 899 types.
 | `Symbology` | Barcode symbology carried by a barcode form field's /PMD (PaperMetaData) dictionary. |
 | `HeadingRecognitionStrategy` | Algorithm used to detect headings during auto-tagging. |
 | `HorizontalAlignment` | Describes horizontal alignment. |
-| `HtmlBorderLineType` | Aspose.Pdf.HtmlBorderLineType specifies the line type used for borders in HTML content imported into a PDF document. |
+| `HtmlBorderLineType` | Aspose.Pdf.HtmlBorderLineType specifies the line style used for borders when converting HTML content to PDF. |
 | `HtmlDocumentType` | HTML document flavour produced by HtmlSaveOptions. |
 | `HtmlImageType` | Image type produced for embedded raster content. |
 | `HtmlMarkupGenerationModes` | Granularity of HTML markup produced. |
@@ -1085,7 +1085,7 @@ The verified public surface has 899 types.
 | `HtmlPageLayoutOption` | How the generated PDF page layout reacts to wide HTML content. |
 | `ImageDeleteAction` | Action taken by Delete(int, ImageDeleteAction) when the image being removed is still referenced from the page content. |
 | `ImageFileType` | Recognised image-source file types reported by Image.FileType. |
-| `ImageFilterType` | Aspose.Pdf.ImageFilterType specifies the filter used to encode image data within a PDF document. |
+| `ImageFilterType` | Aspose.Pdf.ImageFilterType specifies the compression algorithm used for images within a PDF document. |
 | `ImageParentTypes` | Container element that hosts an image. |
 | `LaunchActionOperation` | Aspose.Pdf.LaunchActionOperation represents an action that launches an external application or file from a PDF document. |
 | `LettersPositioningMethods` | How letter positions are encoded in the output CSS. |
@@ -1093,7 +1093,7 @@ The verified public surface has 899 types.
 | `AttributeKey` | Standard tagged-PDF attribute keys (ISO 32000-1 §14.8.5). |
 | `AttributeOwnerStandard` | Standard owners of a tagged-PDF attribute set (the /O entry of an attribute object, ISO 32000-1 Table 348). |
 | `Pdf.NoCharacterAction` | Action taken when the configured font does not have a glyph for a character in the stamp text. |
-| `NodeLevelResourceType` | NodeLevelResourceType specifies the type of resource associated with a logical structure node. |
+| `NodeLevelResourceType` | NodeLevelResourceType specifies the type of resource associated with a node in a PDF document. |
 | `NumberingStyle` | Numbering style for page labels and auto-sequenced headings. |
 | `LineCap` | Line cap style. |
 | `LineJoin` | Line join style. |
@@ -1119,7 +1119,7 @@ The verified public surface has 899 types.
 | `RasterImagesSavingModes` | How raster images are saved alongside the HTML. |
 | `RectanglePosition` | Position of a rectangle relative to a polygon, as returned by GetRectanglePositionRelativePolygon. |
 | `RemoveFontsStrategy` | Strategy for removing or excluding fonts during conversion. |
-| `ReturnAction` | ReturnAction defines an action to be performed when returning to a previous state in a PDF document. |
+| `ReturnAction` | ReturnAction represents an action that returns to a previous location in a PDF document. |
 | `Rotation` | Rotation specifies the rotation angle applied to a page or element in a PDF document. |
 | `SaveFormat` | Save format enumeration. |
 | `CryptographicStandard` | Cryptographic envelope standard reported by a PDF signature SubFilter entry. |
@@ -1133,7 +1133,7 @@ The verified public surface has 899 types.
 | `Subset` | Which pages of a document a pagination artifact applies to. |
 | `SvgExternalImageType` | Image format used by the SVG embedded-image saver. |
 | `TabOrder` | Tab order applied to widget annotations on a page (PDF 32000 /Tabs entry). |
-| `TableBroken` | TableBroken indicates whether a table spans across multiple pages in a PDF document. |
+| `TableBroken` | TableBroken indicates whether a table is broken across pages in a PDF document. |
 | `ClippingPathsProcessingMode` | How clipping paths are processed when text edits affect clipped regions. |
 | `CoordinateOrigin` | How the lowest Y coordinate of a text fragment is interpreted in positioning APIs (CoordinateOrigin and per-segment SetPosition overloads). |
 | `FontReplace` | Font-replacement strategy when the original font cannot encode replacement text. |
@@ -1158,61 +1158,315 @@ The verified public surface has 899 types.
 
 #### Detailed Member Reference
 
-### Pdf
+### Document
 
-The `Aspose.Pdf` namespace provides the primary entry points for working with PDF documents, including document creation, manipulation, and conversion through classes such as `Aspose.Pdf.Document`, `Aspose.Pdf.Annotations.AnnotationCollection`, and `Aspose.Pdf.AcroFormData`.
+The `Document` class serves as the core container for PDF content, providing access to pages via `Document.Pages`, form fields through `Document.Form`, embedded files via `Document.EmbeddedFiles`, and security controls via `Document.CryptoAlgorithm` and `Document.Encrypt`.
+
+- `Actions`: Catalog /AA additional-action dictionary.
+- `AddEmbeddedFile`: Add an embedded file to the document.
+- `AddNamedDestination`: Add a named destination to the document using the /Names → /Dests name tree.
+- `AllowReusePageContent`: Whether the saver may reuse identical page-content streams.
+- `Background`: Document-wide background colour painted on every page before content during Save.
+- `BindXml`: Bind an Aspose.Pdf XML template to this document.
+- `CenterWindow`: /CenterWindow viewer preference: position document window in the centre of the screen.
+- `ChangePasswords`: Change the password on the bound document.
+- `Check`: Validate / repair the document.
+- `Collection`: PDF Portfolio (collection) wrapper — returns the catalog's Collection dictionary as a Collection, or null if the document is not a portfolio.
+- `Convert`: Render each page to an image, hand it to the OCR callback, then overlay the returned hOCR text on the page as an invisible text layer (text rendering mode 3, /Tr 3) so the PDF becomes searchable / copy-pasteable.
+- `ConvertPageToPNGMemoryStream`: Convert one page to a PNG memory stream.
+- `Create`: Create a new empty PDF document.
+- `CryptoAlgorithm`: The encryption algorithm in use, or null when the document is not encrypted.
+- `CustomSecurityHandler`: Stored custom security handler when set via the ICustomSecurityHandler Encrypt overloads.
+- `Decrypt`: Remove encryption from the document.
+- `DefaultNodesNumInSubtrees`: Default page-tree branching factor (PDF table 30 /Count vs /Kids ratio).
+- `Destinations`: Provides destination lookup methods (e.g., GetPageNumber by destination name).
+- `Direction`: The /Direction viewer preference (text-flow direction).
+- `DisableFontLicenseVerifications`: Whether the face licence gate is lifted for this document: with it set, a face whose OS/2 fsType forbids embedding is embedded anyway and no FontEmbeddingException is raised.
+- `DisplayDocTitle`: /DisplayDocTitle viewer preference: show the document title in the window's title bar instead of the file name.
+- `Dispose`: Defined as `void Dispose()`.
+- `Document`: Create a new empty PDF document (parameterless constructor, matches public API).
+- `Duplex`: The /Duplex viewer preference (default Simplex when unset).
+- `EmbedStandardFonts`: When true, the standard 14 PostScript fonts (Helvetica / Times / Courier × 4 styles + Symbol + ZapfDingbats) are embedded into the saved document so the output renders identically without relying on viewer-side font fallbacks.
+- `EmbeddedFiles`: Embedded files collection.
+- `EnableNotificationLogging`: Whether the document emits notification log entries.
+- `EnableObjectUnload`: Whether to unload large objects after use to reduce memory pressure.
+- `EnableSignatureSanitization`: When true (default), the writer scrubs invalid signature references during save.
+- `Encrypt`: Encrypt the document with the specified algorithm, passwords, and permissions.
+- `EncryptionInfo`: Encryption details, or null if not encrypted.
+- `ExportAnnotationsToXfdf`: Export every annotation in the document to an XFDF stream.
+- `FileName`: The file name/path this document was loaded from, or null if loaded from a stream.
+- `FileSizeLimitToMemoryLoading`: Maximum file size (bytes) loaded entirely into memory.
+- `FitWindow`: /FitWindow viewer preference: resize the window to fit the first displayed page.
+- `Flatten`: Flatten all form fields — renders their visual appearance into page content and removes the interactive form.
+- `FlattenTransparency`: Flatten transparency to opaque graphics.
+- `FontUtilities`: Font utilities for subsetting and font management.
+- `Form`: The interactive form (AcroForm).
+- `FreeMemory`: Clears memory.
+- `GetCatalogValue`: Reads a value from the document's /Catalog by name.
+- `GetObjectById`: Resolve a PDF object by string id.
+- `GetOrCreateMetadata`: Get or create XMP metadata for this document.
+- `GetOrCreateViewerPreferences`: Get or create viewer preferences for this document.
+- `GetPdfACompliance`: Returns the PDF/A compliance level detected from XMP metadata, or null if not a PDF/A document.
+- `GetXmpMetadata`: Write the document's XMP /Metadata packet to stream.
+- `HandleSignatureChange`: Whether signature fields fire change-handlers when their dict mutates.
+- `HasCollection`: Whether the document is a PDF Portfolio (has a /Collection dictionary in the catalog).
+- `HasDestinations`: Whether the document has named destinations.
+- `HasEmbeddedFiles`: Whether the document has embedded files.
+- `HasForm`: Whether the document has an interactive form.
+- `HasIncrementalUpdate`: Returns true if this PDF uses incremental updates (has multiple %%EOF markers).
+- `HasLayers`: Whether the document has optional content (layers).
+- `HasMetadata`: Whether the document has XMP metadata.
+- `HasOutlines`: Whether the document has bookmarks.
+- `HasPageLabels`: Whether the document has page labels.
+- `HasStructTree`: Whether the document has a structure tree.
+- `HideMenubar`: Viewer preference: hide the menu bar (/ViewerPreferences /HideMenubar).
+- `HideToolBar`: Viewer preference: hide the toolbar (/ViewerPreferences /HideToolbar).
+- `HideWindowUI`: Viewer preference: hide window UI chrome (/ViewerPreferences /HideWindowUI).
+- `Id`: The /ID array from the trailer, or null when no /ID entry is present.
+- `IgnoreCorruptedObjects`: When true, the parser tolerates corrupted indirect-object declarations (extra/garbled bytes between objects) instead of throwing.
+- `ImportAnnotationsFromXfdf`: Import annotations from an XFDF stream into the document.
+- `ImportPage`: Import a single page from another document into this document.
+- `ImportPages`: Import specified pages from another document into this document.
+- `Info`: The document information dictionary (title, author, etc.).
+- `IsDecrypted`: Whether the document has been successfully decrypted (i.e., the decryptor was initialised).
+- `IsEncrypted`: Whether the document is encrypted.
+- `IsLicensed`: Whether a license is currently applied.
+- `IsLinearized`: Defined as `bool`.
+- `IsPdfUaCompliant`: True when the document's XMP metadata carries a pdfuaid:part entry (PDF/UA-1 identifier).
+- `IsPdfaCompliant`: True if the document declares itself PDF/A compliant.
+- `IsRepairNeeded`: Check whether the document needs repair.
+- `IsTagged`: Whether the document is tagged PDF.
+- `IsXrefGapsAllowed`: Allow gaps in the xref table during parse.
+- `JavaScript`: Document-level JavaScript (PDF spec §12.6.4.16 — /Names/JavaScript name tree in the catalog).
+- `Language`: The natural language of the document (BCP 47).
+- `LinearizeDocument`: Linearize the document for fast web viewing.
+- `LoadFrom`: Async file load wrapper (currently synchronous).
+- `LogicalStructure`: The root of the document's logical-structure tree.
+- `Merge`: Merge every page of each documents entry into this document, preserving source order.
+- `MergeDocuments`: Defined as `MergeDocuments(documents)`.
+- `Metadata`: XMP metadata for the document.
+- `NamedDestinations`: Named destinations in the document.
+- `NonFullScreenPageMode`: The /NonFullScreenPageMode viewer preference (which page mode to revert to when leaving full-screen).
+- `Open`: Open a PDF document from a byte array.
+- `OpenAction`: The document open action (action or destination executed when opening the PDF), or null.
+- `Optimize`: Optimize document resources by removing unused objects and deduplicating streams.
+- `OptimizeResources`: Defined as `OptimizeResources()`.
+- `OptimizeSize`: Gets or sets a flag indicating whether the document should be optimized for size on save.
+- `OptionalContent`: Optional content properties (layers), or null if none.
+- `Outlines`: The document outline (bookmarks), or null if none exists.
+- `OutputIntents`: Output intents declared in the document catalog.
+- `PageCount`: Shortcut for Pages.Count.
+- `PageInfo`: Default page dimensions/margins applied to pages added after this is set.
+- `PageLabels`: Page labels, or null.
+- `PageLayout`: The /PageLayout entry as a typed enum.
+- `PageLayoutName`: Raw /PageLayout name read from the catalog (e.g., "SinglePage", "TwoColumnLeft").
+- `PageMode`: The /PageMode entry as a typed enum.
+- `PageModeName`: Raw /PageMode name read from the catalog (e.g., "UseNone", "UseOutlines").
+- `PageNodesToBalancedTree`: Rebuild the page tree so each subtree has nodesNumInSubtrees children.
+- `Pages`: The collection of pages in this document.
+- `PdfFormat`: Returns the PDF format declared by this document.
+- `PdfVersion`: The PDF version from the file header (e.g., "1.4", "1.7", "2.0").
+- `Permissions`: Raw /P permissions bitmask from the encryption dictionary (PDF 32000-1:2008 Table 22).
+- `PickTrayByPdfSize`: Viewer preference: pick the paper tray by PDF page size (/ViewerPreferences /PickTrayByPDFSize).
+- `PrintScaling`: The /PrintScaling viewer preference.
+- `ProcessParagraphs`: Process paragraphs in the document (layout step before save).
+- `RemoveFormField`: Remove a form field by name from all pages and the AcroForm.
+- `RemoveMetadata`: Remove all metadata.
+- `RemoveNamedDestination`: Remove a named destination from the document's /Names → /Dests name tree.
+- `RemovePdfUaCompliance`: Remove PDF/UA compliance markers.
+- `RemovePdfaCompliance`: Remove PDF/A compliance identification from XMP metadata.
+- `Repair`: Repair the document by re-serializing it.
+- `Save`: Save the document in-place: writes back to the file the document was opened from (FileName), or performs an incremental save to the original source stream when the document was opened from a writable FileStream.
+- `SaveAsync`: Async wrapper around Save().
+- `SaveXml`: Write the document's generator DOM as Aspose.Pdf template XML — the counterpart of BindXml(string), so a document can be saved and read back.
+- `SendTo`: Render this document through device into output — delegates to Stream).
+- `SetDefaultFileSizeLimitToMemoryLoading`: Reset FileSizeLimitToMemoryLoading to its built-in default.
+- `SetTitle`: Update the /Info /Title entry.
+- `SetVersion`: Set the PDF version for the output header (e.g., "1.7", "2.0").
+- `SetXmpMetadata`: Replace the document's XMP /Metadata packet from stream.
+- `SplitSharedImages`: Give each of the passed pages a private copy of the image XObjects they share, so an in-place edit reached through one page (e.g.
+- `StructTreeRoot`: The structure-tree root (/StructTreeRoot) for reading a tagged document's logical structure, or null when the document is not tagged.
+- `TaggedContent`: Tagged-content surface for accessibility metadata and the logical-structure tree.
+- `ToArray`: Serialize the document into a fresh byte array.
+- `Validate`: Validate the document structure and return any issues found.
+- `Version`: Alias for PdfVersion.
+- `ViewerPreferences`: Viewer preferences that control how the document is displayed.
+
+### Text
+
+The Text class enables programmatic text manipulation within PDF documents, supporting operations such as text extraction, replacement, and positioning alongside the `TextStamp` class for adding stamped text content.
+
+### Forms
+
+The Forms class provides access to interactive form fields and their properties, working with `FieldValueType` to define and validate field data types across form controls.
+
+### Annotations
+
+The Annotations class supports managing annotation collections on PDF pages, while the Stamps class provides functionality for adding and manipulating stamp elements on document pages.
+
+### Security
+
+The Security class offers encryption and permission controls, utilizing `CryptoAlgorithm` for encryption methods and `Permissions` to define user access rights for PDF documents.
+
+### Devices
+
+The Devices class provides rendering capabilities for converting PDF pages to images and other formats, supporting operations through Converters and `HtmlLoadOptions` for web content integration.
+
+### LogicalStructure
+
+The `LogicalStructure` class enables working with the logical structure tree of tagged PDF documents, supporting accessibility and reflow capabilities through the Tagged module.
+
+### Table
+
+The `Table` class provides functionality for creating and manipulating tabular content in PDF documents, supporting image placement through `ImagePlacementAbsorber` and `XImageCollection` for complex layouts.
+
+- `Alignment`: Defined as `HorizontalAlignment`.
+- `BackgroundColor`: Table background color.
+- `Border`: Table border.
+- `BreakText`: Optional indicator drawn at the page break when a row is split across pages.
+- `Broken`: How the table breaks across pages.
+- `Build`: Build the table content stream bytes for the given page.
+- `BuildMultiPage`: Build the table across multiple pages.
+- `Clone`: Shallow clone of the table.
+- `ColumnAdjustment`: How columns are sized when the table is rendered (API compatibility).
+- `ColumnWidths`: Space-separated column widths (e.g.
+- `CornerStyle`: Corner-rounding style applied to the table's border box.
+- `DefaultCellBorder`: Default cell border applied to all cells unless overridden.
+- `DefaultCellPadding`: Default cell padding.
+- `DefaultCellTextState`: Default text state for cells.
+- `DefaultColumnWidth`: Default column-width used when ColumnWidths is empty.
+- `GetHeight`: Approximate rendered height of the table, independent of any hosting page.
+- `GetWidth`: Sum of column widths from ColumnWidths.
+- `HorizontalAlignment`: Horizontal alignment applied to this paragraph.
+- `Hyperlink`: Typed hyperlink decoration applied to the paragraph.
+- `HyperlinkText`: Legacy string-typed hyperlink target.
+- `ImportArray`: Import a one-dimensional object array into the table, wrapping the values into rows by the table's column count.
+- `ImportDataTable`: Import all rows of a DataTable.
+- `ImportDataView`: Import a DataView.
+- `IsBordersIncluded`: When true, cell-border widths count against cell padding and row-height calculations.
+- `IsBroken`: Whether the table is allowed to break across pages.
+- `IsFirstParagraphInColumn`: Force the paragraph to start a new column.
+- `IsInLineParagraph`: Inline paragraph flag (does not start a new line).
+- `IsInNewPage`: Force the paragraph to start on a new page.
+- `IsKeptWithNext`: Keep this paragraph on the same page as the next one.
+- `Left`: Left position of the table on the page.
+- `Margin`: Table margin.
+- `RepeatingColumnsCount`: Maximum columns count for the table.
+- `RepeatingRowsCount`: Number of rows to repeat at the top of each page when the table spans pages.
+- `RepeatingRowsStyle`: Default text state for the rows repeated on continuation pages (see RepeatingRowsCount).
+- `Rows`: The collection of rows in this table.
+- `SetColumnTextState`: Apply textState to every cell in the given (0-based) column number.
+- `Table`: Defined as `Table()`.
+- `Top`: Top position of the table on the page (distance from page top).
+- `VerticalAlignment`: Vertical alignment applied to this paragraph.
+- `ZIndex`: Z-order index used by the DOM renderer.
+
+### PageCollection
+
+The `PageCollection` class manages the collection of pages within a `Document`, providing indexed access to individual `Page` objects and supporting page manipulation operations.
+
+- `Accept`: Accept a TextAbsorber visitor; iterates every page.
+- `Add`: Add a new blank page.
+- `AddUnrestricted`: Add a new blank page bypassing licensing page-count restrictions.
+- `At`: Alias for indexer — get page by 1-based page number.
+- `BeginUpdate`: Suspend page-tree maintenance during a batch of mutations.
+- `Clear`: Remove every page from the collection.
+- `Contains`: Whether the supplied page belongs to this collection.
+- `CopyTo`: Copy the collection contents into an array starting at index.
+- `Count`: Total number of pages.
+- `Delete`: Delete a page by 1-based page number.
+- `EndUpdate`: Resume page-tree maintenance after a BeginUpdate batch.
+- `Flatten`: Flatten every form and annotation on every page.
+- `FreeMemory`: Clears cached data on every page.
+- `GetEnumerator`: Defined as `GetEnumerator()`.
+- `IndexOf`: Returns the 1-based index of the given page, or -1 if not found.
+- `Insert`: Insert a new blank page before the given 1-based index.
+- `IsReadOnly`: Whether the collection is read-only.
+- `IsSynchronized`: Whether the collection is thread-safe.
+- `Remove`: Remove the supplied page and report whether it was present.
+- `SyncRoot`: Synchronization root for IsSynchronized; returns this collection.
+
+### Pdf.TextStamp
+
+The `TextStamp` class allows adding and positioning text stamps on PDF pages, supporting customization of font, color, rotation, and alignment for stamped content.
+
+- `AutoAdjustFontSizePrecision`: When auto-adjusting font size to fit the stamp rectangle, the precision (in points).
+- `AutoAdjustFontSizeToFitStampRectangle`: When true, the renderer shrinks the font size until the text fits the stamp's Width/Height.
+- `Draw`: When false, the stamp records intent but skips drawing.
+- `FontSize`: Font size in points.
+- `Height`: Defined as `double`.
+- `Justify`: When true, the stamp's text is full-justified within the stamp width.
+- `MaxRowWidth`: Maximum row width before wrapping.
+- `NoCharacterBehavior`: Strategy used when a character has no glyph in the configured font.
+- `Put`: Add this stamp to a page.
+- `ReplacementFont`: Fallback font used when the main font lacks a required glyph; consulted only when NoCharacterBehavior is UseReplacementFont.
+- `Scale`: Defined as `bool`.
+- `TextAlignment`: Defined as `Aspose.Pdf.HorizontalAlignment`.
+- `TextStamp`: Defined as `TextStamp(string value)`.
+- `TextState`: Text-state snapshot.
+- `TreatYIndentAsBaseLine`: When true, the stamp's Y-indent is treated as the text baseline rather than the bounding-box top.
+- `Value`: Defined as `string`.
+- `Width`: Defined as `double`.
+- `WordWrap`: Defined as `bool`.
+- `WordWrapMode`: Defined as `Aspose.Pdf.Text.TextFormattingOptions.WordWrapMode`.
+
+### FieldValueType
+
+The `FieldValueType` class defines the data types supported for interactive form fields, enabling validation and type-specific handling of user input in PDF forms.
+
+### Stamps
+
+The Stamps class provides functionality for adding and manipulating stamp elements on PDF pages, supporting both text and image-based stamp operations.
+
+
+The primary entry point is `Document`, which exposes its pages through `Document.Pages` (a
+`PageCollection` of `Page` objects), its interactive form through `Document.Form`, and its
+security surface through `PdfFileSecurity` and `PdfFileSignature`. The public API surface includes
+881 public types across 37 modules, summarized in the module-grouped tables below.
 
 </details>
 
 ## Documentation & Resources
 
-- **[Getting started guide](https://docs.aspose.org/pdf/net/)** — The getting started guide covers installation, walkthroughs, and feature guides for Aspose.PDF FOSS for .NET.
-- **[How-to guides & FAQ](https://kb.aspose.org/pdf/net/)** — The how-to guides and FAQ provide task-focused answers for common PDF-processing questions.
-- **[Full API reference](https://reference.aspose.org/pdf/net/)** — The full API reference offers a complete, browsable reference for all 881 public types in Aspose.PDF FOSS for .NET. It covers all 899 verified public types; the [API Reference](#api-reference) section above covers the essentials.
+- **[Getting started guide](https://docs.aspose.org/pdf/net/)** — The getting started guide covers installation, first program, and core concepts including document lifecycle, 1-based page indexing, and saving.
+- **[How-to guides & FAQ](https://kb.aspose.org/pdf/net/)** — The how-to guides and FAQ provide practical examples and answers to common questions for using Aspose.PDF FOSS for .NET.
+- **[Getting Started](docs/getting-started.md)** — The getting started documentation covers installation, first program, and core concepts such as document lifecycle, 1-based page indexing, and saving.
+- **[Working with Text](docs/working-with-text.md)** — The working with text documentation explains how to extract, search, and replace text, build new text with `TextBuilder` and `TextParagraph`, and use tab stops.
+- **[Working with Pages](docs/working-with-pages.md)** — The working with pages documentation covers adding, deleting, reordering, rotating, and resizing pages, copying pages across documents, and merging or splitting documents.
+- **[Fonts](docs/fonts.md)** — The fonts documentation describes standard 14 fonts, embedding and subsetting, custom fonts via `FontRepository`, substitution, and inspection capabilities.
+- **[Working with Forms](docs/working-with-forms.md)** — The working with forms documentation explains how to read, fill, and build AcroForm fields including text, checkbox, radio, choice, button, and signature fields.
+- **[Working with Annotations](docs/working-with-annotations.md)** — The working with annotations documentation covers reading, creating, and modifying PDF annotations, watermarks, and flattening annotations.
+- **[Bookmarks & Navigation](docs/bookmarks-and-navigation.md)** — The bookmarks and navigation documentation explains how to work with outlines, named destinations, and page labels.
+- **[Security and Encryption](docs/security-and-encryption.md)** — The security and encryption documentation covers encrypting and decrypting PDFs with RC4, AES-128, or AES-256, managing document permissions, and applying digital signatures using PKCS#7.
+- **[Metadata & XMP](docs/metadata-and-xmp.md)** — The metadata and XMP documentation explains how to work with the `Document` Info dictionary and the XMP metadata packet.
+- **[Converters](docs/converters.md)** — The converters documentation covers converting PDF to and from HTML, Markdown, SVG, and plain text.
+- **[Rendering](docs/rendering.md)** — The rendering documentation explains how to render pages to PNG, JPEG, BMP, TIFF, and SVG with control over resolution and color depth.
+- **[Optimization](docs/optimization.md)** — The optimization documentation covers compressing images, subsetting fonts, linking duplicate streams, and validating or converting to PDF/A.
+- **[Working with Tables](docs/working-with-tables.md)** — The working with tables documentation explains how to extract tabular data using `TableAbsorber` and build tables using `Table`, `Row`, and `Cell` objects.
+- **[Tagged PDF](docs/tagged-pdf.md)** — The tagged PDF documentation covers reading and building `StructTreeRoot` trees and using the `ITaggedContent` authoring API.
+- **[Comparison](docs/comparison.md)** — The comparison documentation explains how to perform side-by-side text comparison into a result PDF, generate graphical page diffs, and use the Diff edit model.
+- **[Facades](docs/facades.md)** — The facades documentation describes high-level task-oriented APIs including `PdfFileEditor`, `PdfFileSecurity`, `PdfFileSignature`, `PdfBookmarkEditor`, and `PdfContentEditor`.
+- **[API Reference](docs/api-reference.md)** — The API reference documents public classes organized by namespace and includes a list of features not included compared to Aspose.PDF for .NET.
 - Found a bug or have a feature request? [Open an issue](https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET/issues).
-
-| Guide | Description |
-|-------|-------------|
-| [Getting Started](docs/getting-started.md) | Installation, first program, core concepts (document lifecycle, 1-based page indexing, saving) |
-| [Working with Text](docs/working-with-text.md) | Extract, search, and replace text; build new text with `TextBuilder` / `TextParagraph`; tab stops |
-| [Working with Pages](docs/working-with-pages.md) | Add, delete, reorder, rotate, and resize pages; copy pages across documents; merge & split |
-| [Fonts](docs/fonts.md) | Standard 14, embedding & subsetting, custom fonts (`FontRepository`), substitution, inspection |
-| [Working with Forms](docs/working-with-forms.md) | Read, fill, and build AcroForm fields (text, checkbox, radio, choice, button, signature) |
-| [Working with Annotations](docs/working-with-annotations.md) | Read, create, and modify PDF annotations; watermarks; flatten |
-| [Bookmarks & Navigation](docs/bookmarks-and-navigation.md) | Outlines/bookmarks, named destinations, and page labels |
-| [Security and Encryption](docs/security-and-encryption.md) | Encrypt / decrypt (RC4 / AES-128 / AES-256), document permissions, digital signatures (PKCS#7) |
-| [Metadata & XMP](docs/metadata-and-xmp.md) | Document Info dictionary (Title/Author/…) and the XMP metadata packet |
-| [Converters](docs/converters.md) | PDF ↔ HTML, PDF ↔ Markdown, PDF ↔ SVG, PDF → plain text |
-| [Rendering](docs/rendering.md) | Render pages to PNG, JPEG, BMP, TIFF; SVG output; resolution + color depth control |
-| [Optimization](docs/optimization.md) | Compress images, subset fonts, link duplicate streams, PDF/A validation + conversion |
-| [Working with Tables](docs/working-with-tables.md) | Extract tabular data with `TableAbsorber`; build tables with `Table` / `Row` / `Cell` |
-| [Tagged PDF](docs/tagged-pdf.md) | Read and build `/StructTreeRoot` trees; `ITaggedContent` authoring API |
-| [Comparison](docs/comparison.md) | Side-by-side text comparison into a result PDF, graphical page diff, and the `Diff` edit model |
-| [Facades](docs/facades.md) | High-level task-oriented APIs (`PdfFileEditor`, `PdfFileSecurity`, `PdfFileSignature`, `PdfBookmarkEditor`, `PdfContentEditor`, ...) |
-| [API Reference](docs/api-reference.md) | Public classes organised by namespace, plus a "not included vs Aspose.PDF for .NET" list |
 
 ## Scope and Limitations
 
-Aspose.PDF FOSS for .NET version 26.9.0 targets net8.0 and provides a free, open-source subset of Aspose.PDF for .NET for PDF creation, reading, and basic editing.
+Aspose.PDF FOSS for .NET is a free, open-source subset of Aspose.PDF for .NET that supports PDF creation, reading, editing, and conversion to HTML, SVG, Markdown, and XML, targeting .NET 8.0 and running on Windows, Linux, and macOS.
 
-- AI and LowCode workflows, multithreading APIs, and format converters beyond PDF, HTML, SVG, Markdown, and XML are not included in this edition.
-- `PdfViewer`'s Print methods throw PlatformNotSupportedException, requiring users to render to an image and use their own printing stack.
-- Basic digital signatures work, but advanced validation features such as OCSP, network timestamping, and custom remote-sign delegates are stored but not active.
-- Advanced `PdfFileEditor` features like `MakeNUp` imposition and `MakeBooklet` from a Stream with non-trivial margins accept input but emit a simplified layout on save.
-- Dynamic `XFA` forms can be read, laid out, and flattened to AcroForm pages, but fine-grained authoring of individual `XFA` dataset fields remains limited.
-- Rendering output is pixel-close but not byte-identical to Aspose.PDF for .NET, and `TiffDevice.BinarizeBradley` and `DocumentCollection.GetEnumerator()` throw NotImplementedException.
+- The library depends on `System.Drawing.Common` 8.0.0, which is Windows-only for certain image-interop members such as `ImageDevice.GetBitmap` and `StampInfo.Image`, causing `PlatformNotSupportedException` on Linux and macOS, while all other functionality is pure-managed and cross-platform.
+- These limitations do not apply to Aspose.PDF for .NET — Enterprise Edition, which adds broader format support and full feature coverage including AI / `LowCode` workflows, complete `XFA` authoring, advanced digital-signature validation, multithreading, and conversion to many additional formats.
+- AI / `LowCode` workflows, multithreading APIs, and advanced format converters such as DOCX, EPUB, MHT, XPS, PCL, `LaTeX`, DJVU, OFD, `PostScript`, and CGM are out of scope, and `PdfViewer`'s Print* methods throw `PlatformNotSupportedException`.
+- `ToUnicodeProcessingRules` is available but advanced features like `ToUnicodeProcessingRules.MapNonLinkedSymbolsOnSpace` and `ToUnicodeProcessingRules.RemoveSpacesFromCMapNames` are not active, and the `ToUnicodeProcessingRules` constructor is present but limited in effect.
+- `OcspSettings` is present but not active; its properties such as `OcspSettings.RequestTimeout` and `OcspSettings.ServerUrl` are stored but not used during digital signature validation.
+- `PdfVersion` is supported for reading and writing standard PDF versions, but advanced PDF/A conversion fix-ups such as transparency flattening, embedded-file constraints, and ICC profile downgrade are stored but not applied.
 
-These limitations don't apply to [Aspose.PDF for .NET — Enterprise Edition](https://products.aspose.com/pdf/net/). Aspose.PDF FOSS for .NET provides open-source PDF processing capabilities, while the commercial Aspose.PDF for .NET adds advanced features such as digital signatures, form filling, and document protection.
+These limitations don't apply to [Aspose.PDF for .NET — Enterprise Edition](https://products.aspose.com/pdf/net/). Aspose.PDF FOSS for .NET is the open-source variant of Aspose.PDF, and the commercial edition extends it with additional features, advanced rendering capabilities, and enterprise support.
 
 ## Development and Testing
 
-Run the xUnit test suite included in the repository by executing dotnet test tests/`Aspose.Pdf.Foss.Tests.csproj` from the repository root.
+Build and test Aspose.PDF FOSS for .NET using the tests/ directory and CI workflows in .github/workflows/ to validate functionality against the net8.0 target framework.
 
 The suite covers 128 test files under `tests/`. Releases run through the [build workflow](.github/workflows/build.yml).
-
-```bash
-dotnet test tests/Aspose.Pdf.Foss.Tests.csproj
-```
 
 ## License
 

@@ -206,15 +206,13 @@ KNOWN_BLOCKED_STALE = {
         ),
         "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
     },
-    "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET": {
-        "reason": (
-            "item 69's cited_inherited_identifiers now wraps `LowCode`, "
-            "`PlatformNotSupportedException`, `AcroForm`, and `NotImplementedException` "
-            "(scope_limitations limitation:5, citing inherited_unit:227.list, which spells all "
-            "four) - see comment above"
-        ),
-        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
-    },
+    # aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET's entry here (item 69's backtick-wrapping, the
+    # same class as the siblings above) is removed as of 2026-09-23: this candidate had a real
+    # re-seal (through `present`, not a bare re-render, exactly as the comment above requires),
+    # landed READY_FOR_PROPOSAL with a fresh no-op proof - docs/DECISION_LOG.md section 31
+    # 2026-09-23 11:45 UTC. The stored bytes now include item 69's fix, so a fresh render matches
+    # them again; leaving the entry would XPASS(strict) forever, which is exactly the signal this
+    # file's own docstring says to act on rather than silence.
     "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java": {
         "reason": (
             "item 69's cited_inherited_identifiers now wraps `LaTeX` and "

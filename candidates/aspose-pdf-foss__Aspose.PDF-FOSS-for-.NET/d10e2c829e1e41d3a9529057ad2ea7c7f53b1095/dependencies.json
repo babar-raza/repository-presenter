@@ -1,17 +1,17 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "2",
-    "renderer": "22",
-    "reviewer_logic": "5",
-    "shell": "5"
+    "normalisation": "11",
+    "renderer": "24",
+    "reviewer_logic": "11",
+    "shell": "6"
   },
   "contract_version": "readme-contract-v1-draft",
   "environment": {
     "extractor_version": "1",
     "inherited_units_version": "1",
     "os": "Windows",
-    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest": "75b3f0a88fc9863226b4e3c503bb92c7131d15419eefc8a4037fe4a7f017f8b7",
     "python_version": "3.13.2"
   },
   "facts": {
@@ -12610,8 +12610,8 @@
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "4ec6cda41bece5d3a4f520e75b30a6d287c5e63a26e361a5444a2755bfc35f55",
-      "version": "12"
+      "sha256": "17d2351fafb18615218603d9b19642037d715136e31c8413faaeb10c7d1dba98",
+      "version": "14"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",
@@ -12620,8 +12620,8 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
-      "version": "14"
+      "sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+      "version": "16"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
@@ -12630,11 +12630,11 @@
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "51d7553957ad5646432d644a79b87245789e5e70162c58030383ac757762b1ee",
+      "sha256": "554832bbb64e95b9cce6c26926d875fc4100d99ffec3975cbbb236c56e4a49d3",
       "version": "9"
     }
   },
-  "protected_content_fingerprint": "c18ff188d06d26f575226981c12e8a9ccdcdbdfe53cddd9e00ad50b4fb0ea7b4",
+  "protected_content_fingerprint": "194d0e9a7996763e42bc83b88341e50e98c0c3143389f7c3504f4ec50b8fd0c5",
   "schema_version": 1,
   "source": {
     "revision": "d10e2c829e1e41d3a9529057ad2ea7c7f53b1095",
@@ -12643,12 +12643,12 @@
   "validator_version": "3",
   "validators": {
     "BC-01": "1",
-    "BC-02": "2",
+    "BC-02": "3",
     "BC-03": "2",
-    "BC-04": "1",
+    "BC-04": "2",
     "BC-05": "1",
-    "BC-06": "2",
-    "BC-07": "3",
+    "BC-06": "3",
+    "BC-07": "7",
     "BC-08": "2",
     "BC-09": "1",
     "BC-10": "4",

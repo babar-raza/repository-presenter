@@ -1,41 +1,60 @@
 {
   "advisory": [
     {
+      "absent": [
+        ".NET 8+"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:target_framework"
+      ],
+      "id": "F01",
+      "quote": "Aspose.PDF FOSS for .NET is a free, open-source library that enables developers to create, read, convert, and manipulate PDF documents in .NET applications.",
+      "repair": "Rewrite the opening paragraph to include the .NET 8+ requirement explicitly, matching the original README's phrasing.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The H1 heading and opening paragraph are rephrased from the original README but omit the explicit mention of .NET 8+ in the product summary, which is present in the original and supported by the package:target_framework fact."
+    },
+    {
+      "absent": [
+        "flowchart TD",
+        "StartingPoints",
+        "Capabilities",
+        "Outputs"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "```mermaid",
+      "repair": "Restore the Mermaid flowchart diagram from the original README to the At a Glance section.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the At a Glance section is omitted in the candidate, while the original README includes it and the facts support its presence."
+    },
+    {
       "absent": [],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "inherited_unit:059.paragraph"
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.pagecollection",
+        "public_symbol:aspose.pdf.page"
       ],
-      "id": "F01",
-      "quote": "The verified public surface has 899 types.",
-      "repair": "Change '899' to '881' to match the documented public symbol count.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "api_reference",
-      "text": "The API Reference section lists 899 public types, but the original README and facts consistently state 881 public types."
+      "id": "F03",
+      "quote": "- **Create and edit PDF documents.** Create or open PDF documents using the `Aspose.Pdf.Document` class, then manipulate pages—add, delete, reorder, rotate, resize, or copy—through `Aspose.Pdf.Page` and `Aspose.Pdf.PageCollection`, preserving bookmarks, outlines, page labels, named destinations, document info, XMP metadata, and optional content layers on full round-trip or incremental save.",
+      "repair": "Expand the Key Capabilities section to include the detailed, specific descriptions from the original README, matching the level of detail supported by the public_symbol facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities section in the candidate is a high-level summary, while the original README provides detailed, specific descriptions of capabilities supported by the public_symbol facts."
     },
     {
       "absent": [
-        "--version 26.9.0"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "install_command:dotnet",
-        "package:version"
-      ],
-      "id": "F02",
-      "quote": "Install the published package from NuGet (`Aspose.PDF.FOSS`, version 26.9.0):",
-      "repair": "Add '--version 26.9.0' to the dotnet add package command to match the fact.",
-      "reviewer_scope_defect": "the finding asks for '--version 26.9.0', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
-      "section_id": "installation",
-      "text": "The installation example omits the version pin (26.9.0) that is present in the facts and original README."
-    },
-    {
-      "absent": [
-        "dotnet build src/Aspose.Pdf.Foss.csproj"
+        "<PackageReference Include=Aspose.PDF.FOSS Version=26.9.0 />"
       ],
       "causal_stage": "S6",
       "causal_state": null,
@@ -43,130 +62,175 @@
       "fact_ids": [
         "install_command:dotnet"
       ],
-      "id": "F03",
-      "quote": "To work from a source checkout instead, build the clone with dotnet build:",
-      "repair": "Replace 'dotnet build' with 'dotnet build src/Aspose.Pdf.Foss.csproj' to match the fact.",
-      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "installation",
-      "text": "The build-from-source instructions are incomplete: they omit the project path argument to dotnet build."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "dependency:development.sonaranalyzer.csharp"
-      ],
       "id": "F04",
-      "quote": "### Development Dependencies",
-      "repair": "Remove the SonarAnalyzer.CSharp dependency from the Development Dependencies section to match the original README.",
-      "reviewer_scope_defect": "the quote is the heading 'Development Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
-      "section_id": "dependencies",
-      "text": "The dependencies section lists SonarAnalyzer.CSharp as a development dependency, but the original README and facts do not mention it in the dependencies section."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "example:001"
-      ],
-      "id": "F05",
-      "quote": "This example shows how to create a new PDF document with a text fragment and how to open an existing PDF to extract its text using `Aspose.PDF.FOSS` version 26.9.0 targeting net8.0.",
-      "repair": "Remove 'version 26.9.0 targeting net8.0' to match the original Quick Start lead-in.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "quick_start",
-      "text": "The Quick Start example includes a version and target framework mention that are not in the original README."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "example:002",
-        "example:003",
-        "example:004",
-        "example:006",
-        "example:007",
-        "example:008",
-        "example:009",
-        "example:010",
-        "example:011",
-        "example:012"
-      ],
-      "id": "F06",
-      "quote": "The Aspose.PDF FOSS for .NET library supports common PDF operations such as adding annotations, searching and replacing text, converting formats, encrypting documents, and applying digital signatures. The following examples demonstrate these capabilities.",
-      "repair": "Reorder examples to match the original README's grouping and remove the generic lead-in paragraph.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "additional_examples",
-      "text": "The Additional Examples section reorders and duplicates examples in a way that breaks the original README's logical grouping."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:228.paragraph"
-      ],
-      "id": "F07",
-      "quote": "Aspose.PDF FOSS for .NET provides open-source PDF processing capabilities, while the commercial Aspose.PDF for .NET adds advanced features such as digital signatures, form filling, and document protection.",
-      "repair": "Remove the sentence about the commercial edition to match the original Scope and Limitations section.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "scope_limitations",
-      "text": "The Scope and Limitations section adds a new sentence about the commercial edition that is not in the original README."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:061.heading"
-      ],
-      "id": "F08",
-      "quote": "### Core API",
-      "repair": "Reorder the tables under 'Core API' to match the original README's structure: Core API, Interfaces, Enumerations.",
-      "reviewer_scope_defect": "the quote is the heading 'Core API', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
-      "section_id": "api_reference",
-      "text": "The API Reference section's 'Core API' table is presented as a standalone table but the original README groups it under a 'Core API' heading with Interfaces and Enumerations."
+      "quote": "Install the published package from NuGet (`Aspose.PDF.FOSS`, version 26.9.0):",
+      "repair": "Add the PackageReference XML example to the installation section, matching the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '<PackageReference Include=Aspose.PDF.FOSS Version=26.9.0 />', which the candidate contains",
+      "section_id": "installation",
+      "text": "The installation section in the candidate omits the PackageReference XML example, which is present in the original README and supported by the install_command:dotnet fact."
     },
     {
       "absent": [
-        "dotnet add package Aspose.PDF.FOSS --version 26.9.0"
+        "which is Windows-only for certain image-interop members such as ImageDevice.GetBitmap and StampInfo.Image, causing",
+        "PlatformNotSupportedException on Linux and macOS, while all other functionality is pure-managed and cross-platform"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "package:version"
+        "dependency:system.drawing.common"
       ],
-      "id": "F01",
-      "quote": "Install the published package from NuGet (`Aspose.PDF.FOSS`, version 26.9.0):",
-      "reader": 2,
-      "repair": "Replace the installation command with `dotnet add package Aspose.PDF.FOSS --version 26.9.0` to match the fact.",
-      "reviewer_scope_defect": "the finding asks for 'dotnet add package Aspose.PDF.FOSS --version 26.9.0', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
-      "section_id": "installation",
-      "text": "The installation section omits the explicit version requirement (26.9.0) in the dotnet add package command, which contradicts the fact that the package version is 26.9.0."
+      "id": "F05",
+      "quote": "### Required Package Dependencies",
+      "repair": "Add the detailed explanation about System.Drawing.Common's Windows-only behavior to the dependencies section, matching the original README.",
+      "reviewer_scope_defect": "the finding asks for 'PlatformNotSupportedException on Linux and macOS, while all other functionality is pure-managed and cross-platform', 'which is Windows-only for certain image-interop members such as ImageDevice.GetBitmap and StampInfo.Image, causing', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "dependencies",
+      "text": "The dependencies section in the candidate omits the detailed explanation about System.Drawing.Common being Windows-only for certain members, which is present in the original README and supported by the dependency:system.drawing.common fact."
     },
     {
       "absent": [],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "dependency:development.sonaranalyzer.csharp"
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "This example demonstrates creating a new PDF document with a text fragment and opening an existing PDF to extract its text content using Aspose.PDF.FOSS version 26.9.0 for net8.0.",
+      "repair": "Remove the version-specific sentence from the quick start section to match the original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "quick_start",
+      "text": "The quick start section in the candidate adds a version-specific sentence not present in the original README, which is not supported by any fact."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "The verified public surface has 899 types.",
+      "repair": "Correct the public symbol count to 881 to match the original README and the facts.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The API Reference section in the candidate lists 899 types, while the original README states 881 types, and the facts do not support a change in the count."
+    },
+    {
+      "absent": [
+        "ToUnicodeProcessingRules is available but advanced features like ToUnicodeProcessingRules.MapNonLinkedSymbolsOnSpace and",
+        "ToUnicodeProcessingRules.RemoveSpacesFromCMapNames are not active, and the ToUnicodeProcessingRules constructor is",
+        "present but limited in effect",
+        "OcspSettings is present but not active; its properties such as OcspSettings.RequestTimeout and OcspSettings.ServerUrl",
+        "are stored but not used during digital signature validation",
+        "PdfVersion is supported for reading and writing standard PDF versions, but advanced PDF/A conversion fix-ups such as",
+        "transparency flattening, embedded-file constraints, and ICC profile downgrade are stored but not applied"
       ],
-      "id": "F02",
-      "quote": "### Development Dependencies",
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.tounicodeprocessingrules",
+        "public_symbol:aspose.pdf.ocspsettings",
+        "public_symbol:aspose.pdf.pdfversion"
+      ],
+      "id": "F08",
+      "quote": "These limitations do not apply to Aspose.PDF for .NET — Enterprise Edition, which adds broader format support and full feature coverage including AI / LowCode workflows, complete XFA authoring, advanced digital-signature validation, multithreading, and conversion to many additional formats.",
+      "repair": "Restore the specific limitations about ToUnicodeProcessingRules, OcspSettings, and PdfVersion to the Scope and Limitations section, matching the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'OcspSettings is present but not active; its properties such as OcspSettings.RequestTimeout and OcspSettings.ServerUrl', 'PdfVersion is supported for reading and writing standard PDF versions, but advanced PDF/A conversion fix-ups such as', 'ToUnicodeProcessingRules is available but advanced features like ToUnicodeProcessingRules.MapNonLinkedSymbolsOnSpace and', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section in the candidate omits the specific limitations about ToUnicodeProcessingRules, OcspSettings, and PdfVersion that are present in the original README and supported by the public_symbol facts."
+    },
+    {
+      "absent": [
+        "Aspose.PDF FOSS for .NET 26.9.0"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "package:name",
+        "package:version",
+        "package:target_framework"
+      ],
+      "id": "F01",
+      "quote": "# Aspose.PDF FOSS for .NET",
       "reader": 2,
-      "repair": "Remove the SonarAnalyzer.CSharp dependency from the Development Dependencies section to avoid introducing unsupported claims.",
-      "reviewer_scope_defect": "the quote is the heading 'Development Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "repair": "Change the H1 heading to '# Aspose.PDF FOSS for .NET 26.9.0' to match the canonical product name verified by identity and package facts.",
+      "reviewer_scope_defect": "the finding asks for 'Aspose.PDF FOSS for .NET 26.9.0', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "identity",
+      "text": "The H1 heading in the candidate omits the versioned product name 'Aspose.PDF FOSS for .NET' and instead uses a generic 'Aspose.PDF FOSS for .NET' without the version, which does not match the canonical product name verified by identity and package facts."
+    },
+    {
+      "absent": [
+        "[![Contributors](https://img.shields.io/github/contributors/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET)](https://github. …"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "[![Contributors](https://img.shields.io/github/contributors/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET)](https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET/graphs/contributors)",
+      "reader": 2,
+      "repair": "Remove the 'Contributors' badge from the badge row to match the original README and avoid promotional content.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '[![Contributors](https://img.shields.io/github/contributors/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET)](https://github. …', which the candidate contains",
+      "section_id": "badges",
+      "text": "The candidate's badge row adds a 'Contributors' badge that is not present in the original README and is not supported by any fact, making it promotional content that crowds out product substance."
+    },
+    {
+      "absent": [
+        "StartingPoints",
+        "Outputs",
+        "i1",
+        "i2",
+        "i3",
+        "i4",
+        "i5",
+        "o10"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "```mermaid",
+      "reader": 2,
+      "repair": "Restore the full Mermaid diagram with 'Starting Points' and 'Outputs' subgraphs to match the original README and preserve the coherent developer journey.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The candidate's Mermaid diagram in 'At a Glance' is truncated and omits the 'Starting Points' and 'Outputs' subgraphs present in the original README, which reduces the diagram's utility and breaks the coherent developer journey."
+    },
+    {
+      "absent": [
+        "<PackageReference Include=Aspose.PDF.FOSS Version=26.9.0 />"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "To work from a source checkout instead, build the clone with dotnet build:",
+      "reader": 2,
+      "repair": "Add the PackageReference XML example to the installation section to match the original README and preserve standard .NET installation patterns.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '<PackageReference Include=Aspose.PDF.FOSS Version=26.9.0 />', which the candidate contains",
+      "section_id": "installation",
+      "text": "The candidate's installation section omits the PackageReference XML example present in the original README, which is a standard .NET installation pattern and should be preserved for completeness."
+    },
+    {
+      "absent": [
+        "System.Drawing.Common 8.0.0",
+        "Windows-only",
+        "PlatformNotSupportedException"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "### Required Package Dependencies",
+      "reader": 2,
+      "repair": "Add the detailed explanation about System.Drawing.Common being Windows-only for certain image-interop members to the dependencies section to match the original README and preserve critical platform guidance.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
       "section_id": "dependencies",
-      "text": "The dependencies section lists `SonarAnalyzer.CSharp 10.33.0.1635` as a development dependency, but the original README does not mention this dependency, and the fact only confirms its presence in the project file without indicating it is a development dependency."
+      "text": "The candidate's dependencies section omits the detailed explanation about System.Drawing.Common being Windows-only for certain image-interop members, which is a critical platform limitation and should be preserved for developer guidance."
     },
     {
       "absent": [],
@@ -176,62 +240,31 @@
       "fact_ids": [
         "public_symbol:aspose"
       ],
-      "id": "F03",
+      "id": "F06",
       "quote": "The verified public surface has 899 types.",
       "reader": 2,
-      "repair": "Correct the claim to state that the public API surface includes 881 types, matching the fact and the original README.",
+      "repair": "Correct the public type count to 881 in the API Reference section to match the verified public symbol inventory.",
       "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
       "section_id": "api_reference",
-      "text": "The API Reference section claims the verified public surface has 899 types, but the fact only supports 881 public types, and the original README also states 881 public types."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:227.list"
-      ],
-      "id": "F04",
-      "quote": "These limitations don't apply to [Aspose.PDF for .NET — Enterprise Edition](https://products.aspose.com/pdf/net/). Aspose.PDF FOSS for .NET provides open-source PDF processing capabilities, while the commercial Aspose.PDF for .NET adds advanced features such as digital signatures, form filling, and document protection.",
-      "reader": 2,
-      "repair": "Remove the unsupported attribution to version 26.9.0 and retain the original phrasing to avoid introducing unsupported claims.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "scope_limitations",
-      "text": "The Scope and Limitations section states that `TiffDevice.BinarizeBradley` and `DocumentCollection.GetEnumerator()` throw `NotImplementedException`, but the original README also mentions `DocumentCollection.GetEnumerator()` throws `NotImplementedException`, and the fact supports this, but the candidate incorrectly attributes this to version 26.9.0 without supporting evidence."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "example:001"
-      ],
-      "id": "F06",
-      "quote": "This example shows how to create a new PDF document with a text fragment and how to open an existing PDF to extract its text using `Aspose.PDF.FOSS` version 26.9.0 targeting net8.0.",
-      "reader": 2,
-      "repair": "Remove the version-specific claim to align with the original README and avoid introducing unsupported specificity.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "quick_start",
-      "text": "The Quick Start section includes a version-specific claim ('using `Aspose.PDF.FOSS` version 26.9.0 targeting net8.0'), which is not present in the original README and introduces unsupported specificity."
+      "text": "The candidate's API Reference section lists 899 public types, but the original README and facts verify 881 public types, making the count inaccurate and misleading for developers."
     },
     {
       "absent": [
-        "subgraph StartingPoints[",
-        "subgraph Outputs["
+        "PdfViewer's Print* methods throw PlatformNotSupportedException",
+        "TiffDevice.BinarizeBradley",
+        "DocumentCollection.GetEnumerator()"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [],
       "id": "F07",
-      "quote": "```mermaid",
+      "quote": "These limitations do not apply to Aspose.PDF for .NET — Enterprise Edition, which adds broader format support and full feature coverage including AI / LowCode workflows, complete XFA authoring, advanced digital-signature validation, multithreading, and conversion to many additional formats.",
       "reader": 2,
-      "repair": "Restore the input and output format subgraphs to the Mermaid diagram to match the original README and ensure completeness.",
-      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "at_a_glance",
-      "text": "The At a Glance section's Mermaid diagram omits input and output formats, which are present in the original README and supported by facts, reducing completeness."
+      "repair": "Add the specific limitations about PdfViewer's Print* methods, TiffDevice.BinarizeBradley, and DocumentCollection.GetEnumerator() to the 'Scope and Limitations' section to match the original README and preserve material limitations.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate's 'Scope and Limitations' section omits the specific limitations about PdfViewer's Print* methods throwing PlatformNotSupportedException and the incomplete implementation of TiffDevice.BinarizeBradley and DocumentCollection.GetEnumerator(), which are material limitations and should be preserved."
     },
     {
       "absent": [],
@@ -239,26 +272,26 @@
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "inherited_unit:010.list"
+        "link_target:product.enterprise"
       ],
       "id": "F08",
-      "quote": "- **Render pages to images and SVG.** Render pages to PNG, JPEG, BMP, TIFF, or SVG using `PngDevice`, `JpegDevice`, `BmpDevice`, `TiffDevice`, and `SvgDevice` through the pluggable `IPageRenderer` interface, supporting mesh shading types 4-7, a JBIG2 decoder, and JPEG/JPEG2000/CCITT-Fax filters.",
+      "quote": "These limitations do not apply to Aspose.PDF for .NET — Enterprise Edition, which adds broader format support and full feature coverage including AI / LowCode workflows, complete XFA authoring, advanced digital-signature validation, multithreading, and conversion to many additional formats.",
       "reader": 2,
-      "repair": "Restore the specific details about mesh shading, JBIG2 decoder, and JPEG/JPEG2000/CCITT-Fax filters to ensure specificity and completeness.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose.pdf.devices.bmpdevice, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "key_capabilities",
-      "text": "The Key Capabilities section's bullet points are overly generic and omit specific details present in the original README, such as mesh shading types 4-7, JBIG2 decoder, and JPEG/JPEG2000/CCITT-Fax filters, reducing specificity."
+      "repair": "Move the paragraph about Aspose.PDF for .NET — Enterprise Edition to a dedicated 'Enterprise relationship' section to improve document structure and developer navigation.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate's 'Scope and Limitations' section includes a paragraph about Aspose.PDF for .NET — Enterprise Edition that should be moved to a dedicated 'Enterprise relationship' section to improve document structure and developer navigation."
     }
   ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "d84f2346b968a0ddcfff3e6d7425ad38a8a4f564b6c2c5303192b37a5fee91c1",
+  "readme_sha256": "7c2cbbcc61faa2065d77e30116c5d6d90fb105d76632bcb656fb56d2f4477e23",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -269,12 +302,13 @@
   "second_reader": {
     "corroborated": [
       "012d630ea87dd4b2ed3b6aaa",
+      "2b74619334a10897ae424e4d",
       "5b4af6802e28f2886ef081a2",
       "75ce3972a5bdabd7147b459d",
+      "7b39d108aee98d84de885f46",
       "7bf2dd6eda183d6293dbc405",
       "949e03aa2a199c11ad781c51",
-      "a4038de197be7270ac16f2d7",
-      "dcdff0a647163c5adef33c0b"
+      "d781ad532f35f6143cb672ef"
     ],
     "read": 2
   },

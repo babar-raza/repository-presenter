@@ -1,6 +1,6 @@
 {
   "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names Aspose.Pdf.Comparison.Diff, Aspose.Pdf.LogicalStructure, Rectangle"
+    "inherited_unit:010.list: the rewrite no longer names /StructTreeRoot, Aspose.Pdf.Comparison.Diff"
   ],
   "checks": [
     {
@@ -22,12 +22,12 @@
       "failures": [],
       "id": "BC-02",
       "judged_at": "S9",
-      "name": "Install command verified against the manifest and the package-registry observation, or against the source-build receipt naming exactly the steps it proved",
+      "name": "Install command verified against the manifest and the package-registry observation, against the source-build receipt naming exactly the steps it proved, or - when no build/install command ever succeeds - against a source-checkout receipt",
       "sections": [
         "installation"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -59,7 +59,7 @@
         "enterprise_relationship"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -87,7 +87,7 @@
         "badges"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -100,7 +100,7 @@
         "structure"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "7"
     },
     {
       "causal_stage": null,
@@ -325,7 +325,7 @@
           "supported": 11
         }
       ],
-      "required": true,
+      "required": false,
       "section_id": "quick_start"
     },
     {
@@ -441,8 +441,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "c18ff188d06d26f575226981c12e8a9ccdcdbdfe53cddd9e00ad50b4fb0ea7b4",
-  "readme_sha256": "d84f2346b968a0ddcfff3e6d7425ad38a8a4f564b6c2c5303192b37a5fee91c1",
+  "protected_content_fingerprint": "194d0e9a7996763e42bc83b88341e50e98c0c3143389f7c3504f4ec50b8fd0c5",
+  "readme_sha256": "7c2cbbcc61faa2065d77e30116c5d6d90fb105d76632bcb656fb56d2f4477e23",
   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
   "schema_version": 1,
   "source_revision": "d10e2c829e1e41d3a9529057ad2ea7c7f53b1095",
