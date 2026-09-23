@@ -1,0 +1,744 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "opening/opening"
+    ]
+  },
+  "omitted": [
+    {
+      "fact_id": "inherited_unit:022.paragraph",
+      "reason": "Provided as a static link block by the renderer; not part of the prose units.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:024.badge_row",
+      "reason": "Provided as a static image link by the renderer; not part of the prose units.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:027.paragraph",
+      "reason": "Not cited by any slot; omitted per evidence discipline.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:032.heading",
+      "reason": "Provided as a heading by the renderer; not part of the prose units.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:036.heading",
+      "reason": "Provided as a heading by the renderer; not part of the prose units.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:038.heading",
+      "reason": "Provided as a heading by the renderer; not part of the prose units.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "build_test_asset:ci",
+      "reason": "The renderer already provides the build and test commands; this fact only indicates the CI workflow location and is not needed for the summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "build_test_asset:docs",
+      "reason": "This fact refers to documentation assets and does not pertain to the build or test process described in the summary slot.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "The repository name is not used in the summary sentence because the product name Aspose PDF FOSS for Go already identifies it, and the renderer does not require it here.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "The revision hash is not relevant to describing how to build and test the library and is omitted per the length and relevance constraints.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "The family identity (pdf) is already implied by the product name and is not needed in the summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:085.heading",
+      "reason": "The heading is rendered by the system and must not be repeated in prose.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:086.code_block",
+      "reason": "The code block is rendered by the system and must not be repeated in prose.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:go_version",
+        "import_path:github.com-aspose-pdf-foss-aspose-pdf-foss-for-go",
+        "dependency:none",
+        "example:001",
+        "example:002",
+        "example:003",
+        "public_symbol:document",
+        "public_symbol:ai",
+        "public_symbol:document.split",
+        "public_symbol:document.append",
+        "public_symbol:document.reorder",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.info",
+        "public_symbol:document.xmp",
+        "public_symbol:document.setencryption",
+        "public_symbol:encryptionoptions",
+        "public_symbol:flow",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.render",
+        "public_symbol:table",
+        "public_symbol:form",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.addbarcodefield",
+        "public_symbol:textboxfield",
+        "public_symbol:form.exportjson",
+        "public_symbol:document.savehtml",
+        "public_symbol:document.savesvg",
+        "public_symbol:document.savedocx",
+        "public_symbol:document.saveepub",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose PDF FOSS for Go provides a Go library for creating, editing, and converting PDF documents without external dependencies. Developers use it to split, merge, reorder, and secure PDFs using Document.Split, Document.Append, Document.Reorder, and Document.SetEncryption, as shown in the core examples. It supports rich content creation with Flow, Table, and form fields like Form.AddTextField and Form.AddBarcodeField, and can export to HTML, SVG, DOCX, and EPUB formats. The ai package offers AI copilots such as SummaryCopilot, OcrCopilot, ChatCopilot, and ImageDescriptionCopilot for summarization, text recognition, conversational interaction, and image description tasks."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:document.append",
+        "public_symbol:document.info",
+        "public_symbol:document.reorder",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.split",
+        "public_symbol:document.xmp"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Split a document into individual page files, append another document to the current one, reorder pages, set custom page labels, retrieve document metadata, and access or modify XMP metadata."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:document.setencryption",
+        "public_symbol:document.sign",
+        "public_symbol:document.verifysignatures",
+        "public_symbol:encryptionoptions"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Encrypt a document using AES-128 or AES-256 with user and owner passwords and specific permissions, apply a digital signature, and verify existing signatures on a document."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:flow",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.render"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Create structured content using Flow layout by adding paragraphs, lists, and tables, then render the flow into pages for the document."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "public_symbol:gradient",
+        "public_symbol:page.drawline",
+        "public_symbol:page.drawrectangle",
+        "public_symbol:path",
+        "public_symbol:table"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Draw vector graphics such as lines and rectangles on a page, define custom paths, and apply gradients to shapes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:form",
+        "public_symbol:form.addbarcodefield",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.exportjson",
+        "public_symbol:textboxfield"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Add interactive text and barcode fields to a form, and export form field data as JSON."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.converttopdfa",
+        "public_symbol:document.savedocx",
+        "public_symbol:document.saveepub",
+        "public_symbol:document.savehtml",
+        "public_symbol:document.savesvg",
+        "public_symbol:document.validatepdfua"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Export a document to HTML, SVG, DOCX, or EPUB, and convert a document to PDF/A for long-term archiving."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ai",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Use AI copilots to generate document summaries, recognize text from images, describe images with alt text, and interact with the document via chat."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:document.validateredactions",
+        "public_symbol:redactannotation",
+        "public_symbol:taggedcontent"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Validate documents against PDF/A and PDF/UA standards, inspect tagged content, apply redaction annotations, and verify redactions."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "The first example opens an existing PDF, splits it into individual page documents, and merges two PDFs into one using the Aspose PDF FOSS for Go library."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "The second example creates a new PDF document with a heading, paragraph, and list using the Aspose PDF FOSS for Go library."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:005",
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "Create encrypted documents, build tables with the Flow layout engine, and render pages to images."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Encrypt a document with AES-128 and verify it cannot be opened without a password."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Build a table with custom column widths, borders, and header styling."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Render a page with text to a 96 DPI image and confirm successful rendering."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:042.paragraph",
+        "package:go_version",
+        "package:name",
+        "public_symbol:ai",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:document"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose PDF FOSS for Go provides the Document class as the primary entry point for working with PDF documents, supporting opening, splitting, appending, and saving operations. The ai subpackage offers AI copilots for summarization, OCR, chat, and image description tasks."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:document",
+        "public_symbol:document.append",
+        "public_symbol:document.split",
+        "public_symbol:document.writeto",
+        "public_symbol:open",
+        "public_symbol:openstream",
+        "public_symbol:openstreamwithpassword",
+        "public_symbol:openwithpassword"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:document",
+      "text": "The Document class provides core PDF operations including opening documents via Open, OpenStream, OpenWithPassword, or OpenStreamWithPassword, and saving via Document.WriteTo; it supports splitting with Document.Split and appending content with Document.Append."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:flow",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.render"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:flow",
+      "text": "The Flow class enables building structured content by adding paragraphs with Flow.AddParagraph, tables with Flow.AddTable, and lists with Flow.AddList, then rendering the result with Flow.Render."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:form",
+        "public_symbol:form.addbarcodefield",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.exportfdf",
+        "public_symbol:form.exportjson"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:form",
+      "text": "The Form class supports working with AcroForm fields by adding text fields with Form.AddTextField and barcode fields with Form.AddBarcodeField, then exporting form data using Form.ExportFDF or Form.ExportJSON."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:ai",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:ai",
+      "text": "The ai subpackage provides AI copilots including SummaryCopilot for document summarization, OcrCopilot for text recognition and searchable PDF creation, ChatCopilot for conversational interactions, and ImageDescriptionCopilot for image analysis and alt text generation."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:cell",
+        "public_symbol:page.addtable",
+        "public_symbol:row",
+        "public_symbol:table"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:table",
+      "text": "The Table class enables creating tabular content with rows and cells, added to pages via Page.AddTable, where Row and Cell provide structured access to table elements."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:page",
+        "public_symbol:page.drawline",
+        "public_symbol:page.drawrectangle",
+        "public_symbol:page.renderimage",
+        "public_symbol:page.rendertiff"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:page",
+      "text": "The Page class supports drawing vector graphics with Page.DrawLine and Page.DrawRectangle, and rendering content to images using Page.RenderImage or Page.RenderTIFF."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:annotation",
+        "public_symbol:annotationcollection",
+        "public_symbol:redactannotation",
+        "public_symbol:stampannotation"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:annotation",
+      "text": "The Annotation class provides annotation support, with AnnotationCollection managing collections of annotations, and specialized types including StampAnnotation and RedactAnnotation for specific use cases."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:taggedcontent"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:taggedcontent",
+      "text": "TaggedContent enables working with structured PDF content, while Document.ValidatePDFA and Document.ValidatePDFUA verify compliance with PDF/A and PDF/UA accessibility standards."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:document.setencryption",
+        "public_symbol:document.sign",
+        "public_symbol:document.verifysignatures",
+        "public_symbol:encryptionoptions"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:document.setencryption",
+      "text": "Document.SetEncryption applies encryption using EncryptionOptions, while Document.Sign and Document.VerifySignatures handle digital signatures for document security and verification."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:document.converttopdfa",
+        "public_symbol:document.saveepub",
+        "public_symbol:document.savehtml",
+        "public_symbol:document.savesvg"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:document.savehtml",
+      "text": "Document.SaveHTML, Document.SaveSVG, Document.SaveEpub, and Document.ConvertToPDFA enable exporting PDF content to HTML, SVG, EPUB, and PDF/A formats respectively."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:document.extractimages",
+        "public_symbol:page.extractimages",
+        "public_symbol:page.renderimage",
+        "public_symbol:page.rendertiff"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:page.renderimage",
+      "text": "Image extraction and rendering are supported via Page.ExtractImages and Page.RenderImage, while Document.ExtractImages provides document-level image extraction, and Page.RenderTIFF enables TIFF output."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:ai.summarycopilot",
+      "text": "SummaryCopilot provides document summarization capabilities through GetSummary, GetSummaryDocument, and SaveSummary methods for generating and saving concise document summaries."
+    },
+    {
+      "fact_ids": [
+        "link_target:032"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:032",
+      "text": "The getting started guide introduces the core concepts and initial setup steps for using Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:033"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:033",
+      "text": "The how-to guides and FAQ provide practical examples and answers to common questions encountered while working with Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:034"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:034",
+      "text": "The full API reference documents all exported types, functions, and methods available in the github.com/aspose-pdf-foss/aspose-pdf-foss-for-go package."
+    },
+    {
+      "fact_ids": [
+        "link_target:035"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:035",
+      "text": "The contributing guide outlines the process for submitting code changes, reporting issues, and participating in the development of Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:036"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:036",
+      "text": "The changelog records notable changes, bug fixes, and new features introduced in each release of Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:037"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:037",
+      "text": "The issue tracker allows users to report bugs, request features, and engage with the maintainers of Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:082.heading",
+        "inherited_unit:083.list",
+        "install_command:go",
+        "package:go_version",
+        "package:name",
+        "public_symbol:document.converttopdfa",
+        "public_symbol:document.flattentransparency",
+        "public_symbol:document.replacetext",
+        "public_symbol:document.searchtext",
+        "public_symbol:encryptionoptions",
+        "public_symbol:markdownsaveoptions",
+        "public_symbol:markdowntodocument",
+        "public_symbol:page.renderimage"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose PDF FOSS for Go provides a Go API to create, read, convert, and inspect PDF documents, including support for PDF/A conversion, transparency flattening, text search and replace, image rendering, and Markdown import."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:083.list",
+        "install_command:go",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "The library does not enforce viewer permissions itself — the encryption bitfield is written into the file, but the library itself is not a DRM mechanism, and linearization cannot be combined with encryption or digital signing in the same document."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:083.list",
+        "package:go_version",
+        "package:name",
+        "public_symbol:encryptionoptions"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Certificate-based encryption accepts RSA recipients only (PKCS#1 v1.5 key transport); elliptic curve recipients (key agreement) and the legacy RC4 sub-filters are not written."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:083.list",
+        "package:go_version",
+        "package:name",
+        "public_symbol:document.replacetext",
+        "public_symbol:document.searchtext"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "SearchText and ReplaceText match within a single text line only — a query that straddles a line break is not found."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:083.list",
+        "package:go_version",
+        "package:name",
+        "public_symbol:page.renderimage"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Page.RenderImage renders whole pages as images but does not support mesh shadings (PDF shading types 4-7); other shading types, patterns, and blend modes render normally."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:083.list",
+        "package:go_version",
+        "package:name",
+        "public_symbol:document.converttopdfa",
+        "public_symbol:document.flattentransparency"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "Document.ConvertToPDFA embeds a font only when a face is available through AddFontFile or AddFontFolder (no metric-compatible clone is bundled), does not flatten transparency itself (call Document.FlattenTransparency before converting to PDF/A-1), and does not draw appearances for icon annotations; FlattenTransparency only rasterizes whole pages and leaves text non-extractable."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:083.list",
+        "package:go_version",
+        "package:name",
+        "public_symbol:markdownsaveoptions",
+        "public_symbol:markdowntodocument"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "MarkdownToDocument has no syntax highlighting, and MarkdownSaveOptions does not reconstruct tables from a PDF (cell text flows as paragraphs) and caps inferred heading levels at 3."
+    },
+    {
+      "fact_ids": [
+        "package:go_version",
+        "identity:ecosystem",
+        "identity:platform",
+        "package:name"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test the Aspose PDF FOSS for Go library by running go build ./... and go test ./... in the repository root, which uses Go version 1.24 and targets the go ecosystem."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "package:name"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "This open-source package provides core PDF processing capabilities in Go, while Aspose PDF FOSS for Go commercial edition extends functionality with advanced features such as digital signature validation, document protection, and commercial support."
+    }
+  ]
+}

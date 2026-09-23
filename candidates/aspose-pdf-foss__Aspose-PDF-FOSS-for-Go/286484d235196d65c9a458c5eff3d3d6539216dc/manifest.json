@@ -1,0 +1,110 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 2,
+      "job": "presentation_planning",
+      "response_sha256s": [
+        "93f67b7e68f284dc41c6c6f3f786e25030a65ebfe8f01a49d62c268f3e5d4963",
+        "dfbc1738d0aea56f8f0ba2d1864f35046c99084cc2a9ec6bdd7e48278b5020e8"
+      ]
+    },
+    {
+      "distinct_responses": 10,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "03df412a4172bf19f8431af97246f1ce21323b40dc55176c974bce1c2373087b",
+        "10bd787f50e2c503a532ef573366111504d1854571abedc37a889eb17b2449cc",
+        "1d4a5bbe36849b5adec4849af16dc75de95f244ce139ebcca7b7bd30f1ae1fd4",
+        "3ab3614dcbb48af77e583132f5b1b37c0b67778774dfd110bb76c356ec19e482",
+        "74c40470060589b58ef1c0c48edd3c089d7306679913ecb597e2ab852219787f",
+        "75e9b18ea02eb4a628316db8b3c565d0315dc511bb269e1a8a80837d912f980d",
+        "89589097b9916b4db654ff07f1e03144ab3bf7abc7dee7e0da64b4ec001b3307",
+        "bbf11bf82f6dd2ccf31bdce897bdc5806f226b0b6fb8d8098a9c4a44a7552b64",
+        "d256e78d2263412bbfcbbaa36efb6cef4983f5efa587468e87ab43c816f3d03a",
+        "e0aa7defd82c9ac16c8e6d7b7015becfbd04353cbf7d8e4fb79a8c924e68bc49"
+      ]
+    },
+    {
+      "distinct_responses": 3,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "407b0d5c4cfeebff87d845e37dcdcc60d68e5d37db19bec50caeeb57d65f5870",
+        "6b05473af04af44503ef0bf5b7c96d86cfcc0977e501a95494cf3e6ebb09c56f",
+        "a6ab2f264952b80babb91f0225775f63059a0d051cf4179f9e19534f597ab427"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 0,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "ACCEPT"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 65868,
+      "sha256": "63254ee705a90858e71236ae679c391321e8ead11257d0c7f4caf0ffff8cc48c"
+    },
+    "README.patch": {
+      "bytes": 108943,
+      "sha256": "d58ad22dae1e03efbf66d0e79fe859a39ff5c6b60ff15f7171540283b5d5c473"
+    },
+    "calls.jsonl": {
+      "bytes": 34633,
+      "sha256": "75dbda435daf21bf4e9a49c5691a93c1f74ca4eba08685dfec63f858b9f415da"
+    },
+    "content_units.json": {
+      "bytes": 28530,
+      "sha256": "1416d5ce00a1ca799f3daa44e4868b566b7ba51b15337df502655b94f6f65adf"
+    },
+    "dependencies.json": {
+      "bytes": 197663,
+      "sha256": "a017613c938cc1fa127d7aa7863fa0b0f807df042d6b1f7bb8f36dad3b96da87"
+    },
+    "dispositions.json": {
+      "bytes": 53614,
+      "sha256": "d71df5199c0f4126a077b05953def9948e4be7220dad0b3f5902e24c6bfada24"
+    },
+    "examples.json": {
+      "bytes": 2285,
+      "sha256": "a198a8d04aec94bda0ede52adc3b836e611935c7ed89989f8123e7024735b22d"
+    },
+    "facts.json": {
+      "bytes": 965566,
+      "sha256": "8ff3f11c071cc37fd08067ddb8335466988349c2468c2f6ba3b6312993e27804"
+    },
+    "investigation.json": {
+      "bytes": 10324,
+      "sha256": "4002963ae6c1392b4bed611f62716129f546e7fcfb6780bd077e21ea1c77d457"
+    },
+    "plan.json": {
+      "bytes": 11727,
+      "sha256": "83f11fda6ec5cafe023bf8a268b90f20020cf01cb9617a036184d4b37ee9df0f"
+    },
+    "probes.json": {
+      "bytes": 3557,
+      "sha256": "297576e8d3e4832b273c023283a1250d2d996471bdbbfa5c4a8a37f2c884b3ed"
+    },
+    "review.json": {
+      "bytes": 674,
+      "sha256": "a325e3b53935480c3bf1069a19d0e84a4dc66d9f6f48e4c89f27a7a28d838fec"
+    },
+    "validation.json": {
+      "bytes": 10821,
+      "sha256": "4691ef2bb7802fd8c83c5a82c7d884f18b8d0ea713bdd8ecc9b25353d9700f13"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-23T14:31:44Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "revision": "286484d235196d65c9a458c5eff3d3d6539216dc",
+  "schema_version": 1,
+  "sealed_at": "2026-09-23T14:31:44Z",
+  "state": "READY_FOR_PROPOSAL"
+}

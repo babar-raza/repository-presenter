@@ -1,0 +1,74 @@
+[
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-pdf-foss__Aspose-PDF-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-pdf-foss__Aspose-PDF-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-pdf-foss__Aspose-PDF-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "the snippet uses package `big`, `cryptorand`, `ecdsa`, `elliptic`, `pkix`, `x509` and the verifier cannot tell which import binds it",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "# rpexample\n.\\main.go:4:12: undefined: ecdsa\n.\\main.go:4:30: undefined: elliptic\n.\\main.go:4:47: undefined: cryptorand\n.\\main.go:5:11: undefined: x509\n.\\main.go:6:17: undefined: big\n.\\main.go:7:17: undefined: pkix\n.\\main.go:8:17: undefined: time\n.\\main.go:9:17: undefined: time\n.\\main.go:10:17: undefined: x509\n.\\main.go:12:12: undefined: x509\n.\\main.go:12:12: too many errors\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-pdf-foss__Aspose-PDF-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-pdf-foss__Aspose-PDF-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  }
+]

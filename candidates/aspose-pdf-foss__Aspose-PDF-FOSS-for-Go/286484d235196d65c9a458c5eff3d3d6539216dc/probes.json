@@ -1,0 +1,146 @@
+[
+  {
+    "elapsed_ms": 1384,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/pdf/go/"
+  },
+  {
+    "elapsed_ms": 2400,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/lint.yml"
+  },
+  {
+    "elapsed_ms": 1685,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/lint.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 2240,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/test.yml"
+  },
+  {
+    "elapsed_ms": 1534,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/test.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 1518,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/issues"
+  },
+  {
+    "elapsed_ms": 2044,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://go.dev/dl/"
+  },
+  {
+    "elapsed_ms": 614,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-yellow.svg"
+  },
+  {
+    "elapsed_ms": 648,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/go-1.24+-00ADD8?logo=go"
+  },
+  {
+    "elapsed_ms": 1587,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/pdf/go/"
+  },
+  {
+    "elapsed_ms": 903,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://opensource.org/licenses/MIT"
+  },
+  {
+    "elapsed_ms": 1280,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://pkg.go.dev/badge/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go.svg"
+  },
+  {
+    "elapsed_ms": 3914,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://pkg.go.dev/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+  },
+  {
+    "elapsed_ms": 857,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/pdf/go-cpp/"
+  },
+  {
+    "elapsed_ms": 694,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/pdf/go/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 792,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/pdf/go/"
+  },
+  {
+    "elapsed_ms": 688,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/pdf/go/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "go-proxy-api",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "go_modules:github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+  }
+]

@@ -1,0 +1,254 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:go_version",
+      "dependency:none"
+    ],
+    "text": "Go developers building server-side or cross-platform applications that require PDF processing, including document generation, form handling, digital signing, conversion to/from other formats, and accessibility compliance."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:document.split",
+        "public_symbol:document.append",
+        "public_symbol:document.reorder",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.info",
+        "public_symbol:document.xmp"
+      ],
+      "text": "Split, merge, extract, reorder, rotate, and delete pages; manage page labels, metadata (Info/XMP), and page geometry (MediaBox, CropBox, etc.).",
+      "title": "Page operations and metadata"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:document.setencryption",
+        "public_symbol:document.sign",
+        "public_symbol:document.verifysignatures",
+        "public_symbol:encryptionoptions"
+      ],
+      "text": "Apply password-based encryption (AES-128/AES-256/RC4) with granular permissions, sign documents with PKCS#7/PAdES signatures (RSA/ECDSA) with timestamps and LTV support, and use certificate-based encryption.",
+      "title": "Encryption and digital signatures"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:flow",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.render"
+      ],
+      "text": "Build documents top-to-bottom using the Flow layout engine for paragraphs, headings, images, tables, and lists with automatic pagination and multi-column support.",
+      "title": "Content authoring with Flow layout"
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "public_symbol:table",
+        "public_symbol:page.drawline",
+        "public_symbol:page.drawrectangle",
+        "public_symbol:path",
+        "public_symbol:gradient"
+      ],
+      "text": "Create multi-page tables with repeating headers, cell merging, and styling; draw vector graphics (lines, rectangles, circles, paths, polygons) and use gradients and tiling patterns.",
+      "title": "Tables and vector graphics"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:form",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.addbarcodefield",
+        "public_symbol:textboxfield",
+        "public_symbol:form.exportjson"
+      ],
+      "text": "Create and manipulate form fields (text, checkbox, radio, combo, list, button, barcode, password, file select, rich text, number, date) with appearance generation and data interchange formats.",
+      "title": "AcroForms and interactive fields"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.savehtml",
+        "public_symbol:document.savesvg",
+        "public_symbol:document.savedocx",
+        "public_symbol:document.saveepub",
+        "public_symbol:document.converttopdfa",
+        "public_symbol:document.validatepdfua"
+      ],
+      "text": "Convert PDF to/from Markdown, HTML, SVG, DOCX, XLSX, EPUB, and TIFF; validate and convert to PDF/A and PDF/UA; and export forms in FDF, XFDF, and JSON.",
+      "title": "Conversion and export"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ai",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot"
+      ],
+      "text": "Perform document summarization, OCR of scanned pages, document Q&A with conversation history, and automatic alt-text generation for figures using AI copilots over OpenAI-compatible endpoints.",
+      "title": "AI copilots for document intelligence"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:taggedcontent",
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:redactannotation",
+        "public_symbol:document.validateredactions"
+      ],
+      "text": "Create and validate Tagged PDF for PDF/UA accessibility; validate structural integrity, PDF/A conformance, and PDF/UA prerequisites; and apply redactions with validation.",
+      "title": "Accessibility and validation"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:go"
+      ],
+      "text": "Linearization cannot be combined with encryption or digital signing in the same document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:encryptionoptions"
+      ],
+      "text": "Certificate-based encryption accepts RSA recipients only; elliptic curve recipients and legacy RC4 sub-filters are not written."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.searchtext",
+        "public_symbol:document.replacetext"
+      ],
+      "text": "SearchText and ReplaceText match within a single text line only; queries that straddle line breaks are not found."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:page.renderimage"
+      ],
+      "text": "The built-in renderer does not support mesh shadings (PDF shading types 4-7); other shading types, patterns, and blend modes render normally."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.converttopdfa",
+        "public_symbol:document.flattentransparency"
+      ],
+      "text": "ConvertToPDFA does not flatten transparency; call Document.FlattenTransparency() separately before converting to PDF/A-1."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:markdowntodocument",
+        "public_symbol:markdownsaveoptions"
+      ],
+      "text": "MarkdownToDocument has no syntax highlighting; SaveMarkdown does not reconstruct tables from a PDF and caps inferred heading levels at 3."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "text": "Enables PDF document creation, merging, splitting, and page manipulation using a pure Go API without external native dependencies."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "text": "Supports building PDF content with a high-level Flow layout engine for paragraphs, headings, tables, lists, and images with automatic pagination."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "text": "Provides encryption (AES-128/AES-256/RC4), password protection, digital signatures (PKCS#7, PAdES, timestamps), and certificate-based encryption for document security."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document",
+        "public_symbol:ai"
+      ],
+      "text": "Offers conversion to/from Markdown, HTML, SVG, DOCX, XLSX, EPUB, and TIFF, plus PDF/A and PDF/UA validation and conversion for archival and accessibility compliance."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "import_path:github.com-aspose-pdf-foss-aspose-pdf-foss-for-go"
+    ],
+    "text": "Aspose-PDF-FOSS-for-Go is a pure Go library for creating, editing, rendering, signing, encrypting, converting, and validating PDF documents without CGo, native libraries, or third-party dependencies."
+  },
+  "uncertainties": [],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:newdocument",
+        "public_symbol:newdocumentfromformat",
+        "public_symbol:flow",
+        "public_symbol:flow.render"
+      ],
+      "name": "Document creation and layout",
+      "text": "Create a new document using NewDocument or NewDocumentFromFormat, use the Flow layout engine to add paragraphs, headings, tables, and lists, then render to pages and save."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:open",
+        "public_symbol:document",
+        "public_symbol:document.split",
+        "public_symbol:document.append"
+      ],
+      "name": "Document editing and manipulation",
+      "text": "Open an existing PDF using Open or OpenStream, perform operations like Split, Append, Rotate, Reorder, DeletePage, and AddBlankPage, then save the modified document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:form",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.exportfdf",
+        "public_symbol:form.importjson"
+      ],
+      "name": "Form handling and field population",
+      "text": "Access the Form object, add or modify AcroForm fields (text, checkbox, radio, combo, list, button, barcode), set field values and styles, and export/import data in FDF, XFDF, or JSON formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:annotation",
+        "public_symbol:stampannotation",
+        "public_symbol:redactannotation",
+        "public_symbol:newhighlightannotation",
+        "public_symbol:newstampannotation"
+      ],
+      "name": "Annotations, stamps, and redaction",
+      "text": "Add annotations (highlight, underline, text, link, stamp, file attachment, redact) to pages, apply stamps (text, image, page number), and use redaction to permanently remove content."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:page.renderimage",
+        "public_symbol:page.rendertiff",
+        "public_symbol:page.extractimages",
+        "public_symbol:document.extractimages"
+      ],
+      "name": "Rendering and image extraction",
+      "text": "Render pages to raster images (PNG, JPEG, GIF, BMP, TIFF) using Page.RenderImage or Document.RenderTIFF, or extract existing images from pages using Page.ExtractImages or Document.ExtractImages."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ai",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot"
+      ],
+      "name": "AI-powered document processing",
+      "text": "Use AI copilots in the ai subpackage for summarization, OCR of scanned pages, document Q&A, and automatic alt-text generation, connecting to any OpenAI-compatible endpoint."
+    }
+  ]
+}
