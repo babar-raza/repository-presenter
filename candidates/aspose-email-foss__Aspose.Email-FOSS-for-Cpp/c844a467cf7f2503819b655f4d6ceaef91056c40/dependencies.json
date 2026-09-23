@@ -1,9 +1,9 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "9",
-    "renderer": "23",
-    "reviewer_logic": "10",
+    "normalisation": "11",
+    "renderer": "24",
+    "reviewer_logic": "11",
     "shell": "6"
   },
   "contract_version": "readme-contract-v1-draft",
@@ -11,7 +11,7 @@
     "extractor_version": "1",
     "inherited_units_version": "1",
     "os": "Windows",
-    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest": "f35e1a9ec9b37f7d653f38c0baae1c1ddae0b90035a02ef18e897bea26614f37",
     "python_version": "3.13.2"
   },
   "facts": {
@@ -395,8 +395,8 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "25d3e6922e03185d92404cbf8924f37d943341a50bc0d112acdc192ef7b710a2",
-      "version": "15"
+      "sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+      "version": "16"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
@@ -409,7 +409,7 @@
       "version": "9"
     }
   },
-  "protected_content_fingerprint": "daa42de9aef69c2bd74f351053295edd3ced90b1a12558f0146f62b7b4056350",
+  "protected_content_fingerprint": "6577384acef86a87db998d493f6aac52bcca4d09f7725c4ddee12f2d42cedab7",
   "schema_version": 1,
   "source": {
     "revision": "c844a467cf7f2503819b655f4d6ceaef91056c40",
@@ -418,7 +418,7 @@
   "validator_version": "3",
   "validators": {
     "BC-01": "1",
-    "BC-02": "2",
+    "BC-02": "3",
     "BC-03": "2",
     "BC-04": "2",
     "BC-05": "1",

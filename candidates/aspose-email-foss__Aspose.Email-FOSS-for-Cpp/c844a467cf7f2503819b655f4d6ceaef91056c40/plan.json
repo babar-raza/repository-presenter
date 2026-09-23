@@ -1,29 +1,12 @@
 {
-  "additional_example_ids": [
-    "example:002"
-  ],
+  "additional_example_ids": [],
   "api_hubs": [
-    {
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.email",
-        "public_symbol:aspose.email.foss"
-      ],
-      "symbol_fact_id": "public_symbol:aspose"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.email",
-        "public_symbol:aspose.email.foss"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.email"
-    },
     {
       "fact_ids": [
         "public_symbol:aspose.email.foss",
         "public_symbol:aspose.email.foss.msg.mapi_message",
-        "public_symbol:aspose.email.foss.msg.msg_reader",
-        "public_symbol:aspose.email.foss.cfb.cfb_reader"
+        "public_symbol:aspose.email.foss.cfb.cfb_reader",
+        "public_symbol:aspose.email.foss.msg.msg_reader"
       ],
       "symbol_fact_id": "public_symbol:aspose.email.foss"
     }
@@ -42,17 +25,20 @@
     {
       "fact_ids": [
         "example:002",
-        "public_symbol:aspose.email.foss"
+        "public_symbol:aspose.email.foss",
+        "public_symbol:aspose.email.foss.msg.mapi_message"
       ],
       "shared_fact_ids": [
         "example:002",
-        "public_symbol:aspose.email.foss"
+        "public_symbol:aspose.email.foss",
+        "public_symbol:aspose.email.foss.msg.mapi_message"
       ],
       "title": "High-level message authoring"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.email.foss"
+        "public_symbol:aspose.email.foss",
+        "public_symbol:aspose.email.foss.cfb"
       ],
       "shared_fact_ids": [
         "public_symbol:aspose.email.foss"
@@ -62,18 +48,22 @@
     {
       "fact_ids": [
         "example:002",
-        "public_symbol:aspose.email.foss"
+        "public_symbol:aspose.email.foss",
+        "public_symbol:aspose.email.foss.msg.mapi_message"
       ],
       "shared_fact_ids": [
         "example:002",
-        "public_symbol:aspose.email.foss"
+        "public_symbol:aspose.email.foss",
+        "public_symbol:aspose.email.foss.msg.mapi_message"
       ],
       "title": "MSG/EML interoperability"
     },
     {
       "fact_ids": [
         "example:002",
-        "public_symbol:aspose.email.foss"
+        "public_symbol:aspose.email.foss",
+        "public_symbol:aspose.email.foss.msg.mapi_recipient",
+        "public_symbol:aspose.email.foss.msg.mapi_attachment"
       ],
       "shared_fact_ids": [
         "example:002",
@@ -85,69 +75,27 @@
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:007.heading",
         "inherited_unit:008.code_block"
       ],
       "section_id": "at_a_glance",
-      "text": "The Mermaid diagram in the inherited README is CONTRADICTED and omitted; the section is rendered without the diagram."
+      "text": "The Mermaid flowchart is omitted because no verified input or output format facts are present."
     },
     {
       "fact_ids": [
-        "inherited_unit:031.heading",
-        "inherited_unit:032.paragraph",
         "inherited_unit:033.heading",
         "inherited_unit:034.code_block",
-        "inherited_unit:035.paragraph",
-        "inherited_unit:036.html_block",
         "inherited_unit:037.heading",
-        "inherited_unit:038.code_block",
-        "inherited_unit:039.paragraph",
-        "inherited_unit:040.paragraph"
+        "inherited_unit:038.code_block"
       ],
       "section_id": "additional_examples",
-      "text": "No further examples beyond the Quick Start are verified; the Additional Examples section is omitted."
+      "text": "The example code blocks under 'Create a Message' and 'Inspect Low-Level MSG and CFB Structure' are omitted because they are marked as CONTRADICTED."
     },
     {
       "fact_ids": [
-        "inherited_unit:014.heading",
-        "inherited_unit:015.code_block",
-        "inherited_unit:016.paragraph",
-        "inherited_unit:017.heading",
-        "inherited_unit:018.code_block",
-        "inherited_unit:019.paragraph"
+        "link_target:product.enterprise"
       ],
-      "section_id": "installation",
-      "text": "Build and install subsections are omitted as build/install details beyond the install command are not verified."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:023.heading",
-        "inherited_unit:024.list"
-      ],
-      "section_id": "dependencies",
-      "text": "Native and system requirements subsection is omitted as those facts are not verified."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:028.paragraph",
-        "inherited_unit:029.code_block"
-      ],
-      "section_id": "quick_start",
-      "text": "Only one example is verified; the second Quick Start example and its lead-in are omitted."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:051.heading"
-      ],
-      "section_id": "api_reference",
-      "text": "The 'Detailed Member Reference' subsection is omitted as it is not supported by facts."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:069.paragraph"
-      ],
-      "section_id": "development_testing",
-      "text": "Example build instructions beyond the main build commands are omitted as they are not verified."
+      "section_id": "enterprise_relationship",
+      "text": "The Enterprise Edition relationship is included as a below-the-fold section per policy."
     }
   ],
   "flagship_example_id": null,
@@ -175,26 +123,6 @@
     {
       "link_fact_id": "link_target:028",
       "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:001",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:002",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:003",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:004",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:005",
-      "section_id": "banner"
     }
   ],
   "material_limitations": [
@@ -208,7 +136,7 @@
     }
   ],
   "quick_start_example_id": "example:001",
-  "second_quick_start_example_id": null,
+  "second_quick_start_example_id": "example:002",
   "sections": [
     {
       "include": true,
@@ -261,8 +189,8 @@
       "section_id": "quick_start"
     },
     {
-      "include": true,
-      "reason": "its condition holds",
+      "include": false,
+      "reason": "its condition does not hold",
       "section_id": "additional_examples"
     },
     {

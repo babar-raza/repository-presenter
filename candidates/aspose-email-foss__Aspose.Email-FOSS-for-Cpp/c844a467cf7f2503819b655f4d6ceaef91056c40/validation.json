@@ -1,6 +1,6 @@
 {
   "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names .eml, add_attachment(), add_embedded_message_attachment(), add_recipient(), validation_issues()"
+    "inherited_unit:010.list: the rewrite no longer names .eml, validation_issues()"
   ],
   "checks": [
     {
@@ -22,12 +22,12 @@
       "failures": [],
       "id": "BC-02",
       "judged_at": "S9",
-      "name": "Install command verified against the manifest and the package-registry observation, or against the source-build receipt naming exactly the steps it proved",
+      "name": "Install command verified against the manifest and the package-registry observation, against the source-build receipt naming exactly the steps it proved, or - when no build/install command ever succeeds - against a source-checkout receipt",
       "sections": [
         "installation"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -331,7 +331,7 @@
       "section_id": "quick_start"
     },
     {
-      "included": true,
+      "included": false,
       "kinds": [
         {
           "extracted": 4,
@@ -445,8 +445,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "daa42de9aef69c2bd74f351053295edd3ced90b1a12558f0146f62b7b4056350",
-  "readme_sha256": "bdeba3c39175e9551310f20ce700fed4914089ae88d15dc652fbd6ec2663c87c",
+  "protected_content_fingerprint": "6577384acef86a87db998d493f6aac52bcca4d09f7725c4ddee12f2d42cedab7",
+  "readme_sha256": "1cc52648995850196d131d51d468b18aceae45852c6f3d3387fcef333e1c8e42",
   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
   "schema_version": 1,
   "source_revision": "c844a467cf7f2503819b655f4d6ceaef91056c40",
