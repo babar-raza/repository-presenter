@@ -99,6 +99,32 @@ governance tracks, two directories, no overlap.
     repositories end to end (bare "remote" plus two clones, no live network call) proving the
     auto-resolved case lands both sides on the remote and the ambiguous/out-of-scope cases abort
     and land nothing.
+- `research_sweep/` — one-shot or recurring detection, same non-mutating shape as `discovery/`.
+  - `proposal_sweep.py` — scans every `docs/RESEARCH_LANE_*.md` file for `PROPOSAL`-headed
+    findings (both marker conventions the lane files actually use — a `###` heading, or the lead
+    bold span of a list item/paragraph) and cross-references each detected code against
+    `docs/DECISION_LOG.md`'s admission log (`--admission-file` to point elsewhere). **Read-only,
+    report-only**: it never edits a lane file or the admission log, and never decides whether a
+    PROPOSAL is correct or where it belongs — see its own module docstring's "Detection vs.
+    admission" note, which is this tool's whole design boundary
+    (`docs/investigations/05-production-autonomy.md` class H: "detection is automatable; admission
+    is not"). Commissioned by that investigation and `docs/PRODUCTION_ROADMAP.md` WS5's queued
+    "scheduled sweep of `docs/RESEARCH_LANE_*.md` for un-admitted `PROPOSAL` headings" hardening
+    item — this lands the detection half; wiring it into an actual recurring cadence (cron,
+    `liveness.yml`, or a `reviewer_check.py` addition) is a separate, later decision, deliberately
+    not built here. Run it with `python tools/research_sweep/proposal_sweep.py`; add
+    `--fail-on-findings` to get a non-zero exit when something needs review (useful once it is
+    wired into a cadence — off by default, since a bare report is never itself a gate). A
+    code-bearing PROPOSAL (lanes D/E/F's `<letter><digits>` codes, lane B's `LANE-B-...` shared-code
+    codes) is checked by exact citation match; lane C's bare 1-2 letter codes are the weakest
+    category (the admission log sometimes cites the lane/repository/check in prose instead of
+    restating the letter — the tool's own report says so up front when it matters); lane B's plain
+    parenthetical `PROPOSAL (primary loop, ...)` shape carries no identifier at all and is always
+    surfaced for manual review, by design.
+  - `test_proposal_sweep.py` — regression tests against small synthetic fixture text built to match
+    the real marker conventions (never the real, large `docs/` files), run directly (`pytest
+    tools/research_sweep/test_proposal_sweep.py`), same outside-collection-scope convention as
+    `tools/discovery/test_portfolio_discovery.py`.
 
 ## Environment variables
 
