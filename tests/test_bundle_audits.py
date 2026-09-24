@@ -72,11 +72,13 @@ LINK_COMPLETENESS_KNOWN = {
         "before the VERIFIED_REWRITE/links fix landed - see audit_link_completeness.py's "
         "own docstring"
     ),
-    "aspose-email-foss__Aspose.Email-FOSS-for-Python/10a906b48c0c": (
-        "pre-existing gap (6 link_target citations absent from plan.json's links), sealed "
-        "before the VERIFIED_REWRITE/links fix landed - see audit_link_completeness.py's "
-        "own docstring"
-    ),
+    # aspose-email-foss__Aspose.Email-FOSS-for-Python's entry here (6 link_target citations
+    # absent from plan.json's links) is removed as of the shared paraphrase-dilution fix's
+    # reseal (docs/DECISION_LOG.md): the fresh present run picked up every fix landed since
+    # this candidate's prior seal, including the already-existing VERIFIED_REWRITE/links fix
+    # this dict's own comment names - confirmed directly, audit_link_completeness.audit_one()
+    # now returns [] for this bundle. Leaving the entry would XPASS(strict) forever, the same
+    # reasoning the other KNOWN_* removals in this project's test files already establish.
 }
 
 
