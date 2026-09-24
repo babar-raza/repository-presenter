@@ -1,12 +1,27 @@
 """Portfolio discovery scan: enumerate every `aspose-<family>-foss` GitHub organization and its
 public repositories, diff against `data/registry.json`, and write a structured report.
 
-READ-ONLY, REPORT-ONLY. This module and its CLI never write to `data/registry.json` or any other
-production/governance file except the one investigation report it is told to produce. It answers
-"what exists that the registry does not yet know about," never "what the registry should now
-contain" - admitting a discovered repository into the registry is a separate, deliberate,
-human-reviewed act (owner standing rule, 2026-09-17: no new candidate ever enters
-`data/registry.json` without asking first, however real and well-formed it looks).
+READ-ONLY, REPORT-ONLY BY DEFAULT. With no flag, this module and its CLI never write to
+`data/registry.json` or any other production/governance file except the one investigation report
+it is told to produce - the original owner standing rule (2026-09-17: no new candidate ever enters
+`data/registry.json` without asking first, however real and well-formed it looks) still governs
+every run of this tool that does not pass `--auto-admit`.
+
+`--auto-admit` (OWNER-08 follow-up, `docs/DECISION_LOG.md` 2026-09-23 16:04 UTC proposal / 2026-09-24
+build): the owner explicitly superseded that standing rule for *future* discovery finds only
+("make the process automatic for every intake - if the repo has code, and it can be compiled, it
+should be admitted without asking the human", chat 2026-09-23/24). This is a real, deliberate,
+dated policy change, not a relaxation invented here. What did **not** change is scope: a candidate
+is still only real when found by this same scan under a maintained `KNOWN_FAMILY_SLUGS` org
+(the "no external repos" rule, unchanged - see `run_auto_admission`/`evaluate_admission_criteria`).
+Passing `--auto-admit` evaluates every not-yet-registered repository this scan finds against four
+criteria - (a) found under a `KNOWN_FAMILY_SLUGS` org and satisfies the registry's own strict
+naming contract, (b) not a fork, (c) not archived, (d) its default branch actually builds/installs
+- and writes every repository that passes all four to `data/registry.json` at `mode: disabled`
+(Gate C0's disabled-and-read-only intake shape, the same shape every prior manually-admitted find
+already got). A repository failing any criterion is left unregistered and reported with the
+specific reason - never silently admitted, never silently dropped. With no `--auto-admit` flag,
+behavior is unchanged from every prior version of this tool.
 
 Owner/reviewer tooling (`tools/README.md`): never imported by `src/repository_presenter`, never
 read by the loop's own acceptance predicates, never wired into the production CLI
@@ -68,18 +83,32 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.error
 import urllib.request
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+# The one reuse of `src/repository_presenter` this owner/reviewer tool makes (tools/README.md's
+# boundary is one-directional: the product never imports `tools/`, but `tools/` reusing an
+# already-accepted `src/` facility instead of re-deriving it is exactly AGENTS.md's own
+# "research a battle-tested...facility before writing a custom mechanism" and "reuse accepted
+# unaffected work" discipline. This one import is pure regex, no heavier dependency - the
+# registry's own authoritative name/family/platform contract, reused rather than duplicated so
+# `evaluate_admission_criteria` below can never silently drift from what `RegistryEntry` itself
+# would accept.
+from repository_presenter.core.registry.naming import classify_managed_repository_name
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REGISTRY_PATH = REPO_ROOT / "data" / "registry.json"
-DEFAULT_REPORT_PATH = REPO_ROOT / "docs" / "investigations" / "10-portfolio-discovery.md"
+DEFAULT_REPORT_PATH = (
+    REPO_ROOT / "docs" / "investigations" / "10-portfolio-discovery.md"
+)
+DEFAULT_AUTO_ADMIT_WORKDIR = Path(__file__).resolve().parent / ".local" / "auto-admit"
 
 API_ROOT = "https://api.github.com"
 USER_AGENT = "repository-presenter-portfolio-discovery/1 (owner review, read-only)"
@@ -367,11 +396,15 @@ def list_org_repos(
     return repos
 
 
-def probe_org(org: str, *, token: str | None, fetch: FetchFn = default_fetch) -> OrgResult:
+def probe_org(
+    org: str, *, token: str | None, fetch: FetchFn = default_fetch
+) -> OrgResult:
     """Check whether ``org`` exists and, if so, enumerate its public repositories."""
     meta_status, meta_body = fetch(f"{API_ROOT}/orgs/{org}", token)
     if meta_status == 404:
-        return OrgResult(org=org, status="not_found", public_repos_reported=None, repos=())
+        return OrgResult(
+            org=org, status="not_found", public_repos_reported=None, repos=()
+        )
     if meta_status != 200 or not isinstance(meta_body, dict):
         return OrgResult(
             org=org,
@@ -392,10 +425,14 @@ def probe_org(org: str, *, token: str | None, fetch: FetchFn = default_fetch) ->
             detail=str(exc),
         )
     status = "populated" if repos else "empty"
-    return OrgResult(org=org, status=status, public_repos_reported=reported, repos=tuple(repos))
+    return OrgResult(
+        org=org, status=status, public_repos_reported=reported, repos=tuple(repos)
+    )
 
 
-def search_candidate_orgs(*, token: str | None, fetch: FetchFn = default_fetch) -> set[str]:
+def search_candidate_orgs(
+    *, token: str | None, fetch: FetchFn = default_fetch
+) -> set[str]:
     """Search leg: return every ``aspose-<slug>-foss`` org login with a name-matching repo.
 
     See this module's docstring for the documented recall limitation of this leg.
@@ -514,7 +551,9 @@ def _noise_hint(name: str) -> str | None:
     module silently excluding or reclassifying anything on its own.
     """
     if _NOISE_HINT_PATTERN.search(name):
-        return "name ends in -MCP: matches a known non-SDK companion pattern, see 04 §2.5"
+        return (
+            "name ends in -MCP: matches a known non-SDK companion pattern, see 04 §2.5"
+        )
     return None
 
 
@@ -564,7 +603,7 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
     add("## How the candidate organization list was assembled")
     add("")
     add(
-        "GitHub has no direct \"list orgs by name pattern\" API, so this scan unions two legs "
+        'GitHub has no direct "list orgs by name pattern" API, so this scan unions two legs '
         "(full method and its documented limitation in `portfolio_discovery.py`'s own module "
         "docstring):"
     )
@@ -572,12 +611,15 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
     add(
         f"1. **Search leg** - `GET /search/repositories?q=FOSS-for-+in:name`. Found "
         f"{len(report.search_discovered_orgs)} matching org login(s): "
-        + (", ".join(f"`{o}`" for o in report.search_discovered_orgs) or "none") + "."
+        + (", ".join(f"`{o}`" for o in report.search_discovered_orgs) or "none")
+        + "."
     )
     add(
         f"2. **Probe leg** - `GET /orgs/aspose-<slug>-foss` for each of "
         f"{len(report.probed_slugs)} maintained candidate family slugs "
-        f"(`KNOWN_FAMILY_SLUGS`): " + ", ".join(f"`{s}`" for s in report.probed_slugs) + "."
+        f"(`KNOWN_FAMILY_SLUGS`): "
+        + ", ".join(f"`{s}`" for s in report.probed_slugs)
+        + "."
     )
     add("")
     add(
@@ -600,9 +642,13 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
     )
     add("")
     if report.already_registered:
-        add("| Repository | Family | Platform | `repository_id` | `node_id` | Last push | Flags |")
+        add(
+            "| Repository | Family | Platform | `repository_id` | `node_id` | Last push | Flags |"
+        )
         add("|---|---|---|---|---|---|---|")
-        for repo in sorted(report.already_registered, key=lambda r: r.full_name.lower()):
+        for repo in sorted(
+            report.already_registered, key=lambda r: r.full_name.lower()
+        ):
             add(_repo_row(repo))
     else:
         add("None.")
@@ -621,7 +667,9 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
     )
     add("")
     if report.new_candidates:
-        add("| Repository | Family | Platform | `repository_id` | `node_id` | Last push | Flags |")
+        add(
+            "| Repository | Family | Platform | `repository_id` | `node_id` | Last push | Flags |"
+        )
         add("|---|---|---|---|---|---|---|")
         for repo in sorted(report.new_candidates, key=lambda r: r.full_name.lower()):
             add(_repo_row(repo))
@@ -639,7 +687,9 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
     )
     add("")
     if report.unmatched_repos:
-        add("| Repository | Family | Platform | `repository_id` | `node_id` | Last push | Flags |")
+        add(
+            "| Repository | Family | Platform | `repository_id` | `node_id` | Last push | Flags |"
+        )
         add("|---|---|---|---|---|---|---|")
         for repo in sorted(report.unmatched_repos, key=lambda r: r.full_name.lower()):
             add(_repo_row(repo))
@@ -666,7 +716,9 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
         add("None - every probed slug resolved to a real organization.")
     add("")
     inaccessible = report.inaccessible_orgs
-    add(f"### Inaccessible organizations - scan failed, not treated as empty ({len(inaccessible)})")
+    add(
+        f"### Inaccessible organizations - scan failed, not treated as empty ({len(inaccessible)})"
+    )
     add("")
     if inaccessible:
         for result in sorted(inaccessible, key=lambda r: r.org):
@@ -675,6 +727,362 @@ def render_report(report: DiscoveryReport, *, investigation_number: str = "10") 
         add("None.")
     add("")
     return "\n".join(lines) + "\n"
+
+
+# --- Auto-admission (OWNER-08 follow-up: docs/DECISION_LOG.md 2026-09-23 16:04 UTC proposal,
+# built 2026-09-24) ------------------------------------------------------------------------------
+#
+# Everything below is reached only through `--auto-admit` (or `run_auto_admission` called
+# directly) - never through `run_discovery`/`main()`'s existing default path, which is unchanged.
+# The only writer `data/registry.json` has ever had in this module is `write_admitted_entries`,
+# and it is called from exactly one place: `run_auto_admission`, only for a repository that passed
+# every one of the four criteria below.
+
+# Ecosystems whose `EcosystemSpec.clone_and_build` (core/ecosystems.py) already names one
+# build/install command that is true for every repository of that ecosystem - reused verbatim,
+# the same command `_source_build_fact` (components/readme/evidence/facts/extract.py, "BC-02")
+# advertises to a reader once a verified source build is admitted for a sealed candidate. Three
+# ecosystems (go, java, typescript) declare no such template - each one's own spec carries a code
+# comment explaining why no single command is true for every repository of that ecosystem (e.g.
+# TypeScript: "no build script" is legitimate for one repository and a real gap for another).
+# `_FALLBACK_BUILD_COMMAND` below is this probe's own, narrower answer for exactly those three -
+# not a claim that BC-02 itself would advertise the same command to a reader, only that it is a
+# reasonable, real "does this compile" bar for an auto-admission gate.
+_FALLBACK_BUILD_COMMAND: dict[str, str] = {
+    "go": "go build ./...",
+    "java": "mvn -q -B compile",
+    "typescript": "npm install",
+}
+
+
+@dataclass(frozen=True)
+class BuildProbeResult:
+    """Criterion (d)'s outcome for one repository - never a bare bool, always carries why."""
+
+    ok: bool
+    detail: str
+    build_command: str | None = None
+
+
+# A repository plus a GitHub token in, a typed build outcome out - never a bare bool, and never
+# hidden behind a default a test cannot replace: every test in this suite injects a fake one, the
+# same convention `FetchFn` already established above for network access.
+BuildProbeFn = Callable[["RepoObservation", "str | None"], BuildProbeResult]
+
+
+def default_build_probe(
+    repo: RepoObservation,
+    token: str | None,
+    *,
+    workdir: Path = DEFAULT_AUTO_ADMIT_WORKDIR,
+) -> BuildProbeResult:
+    """Real criterion-(d) probe: clone the default branch read-only, then run the ecosystem's own
+    build/install command against it.
+
+    Reuses the exact production clone/push-safety machinery (`core/git_safety/clone.py`'s
+    `pinned_read_only_clone` - the same pinned, shallow, push-neutered, proof-verified clone every
+    `repository-presenter present` run takes) and the platform-plugin registry's own manifest
+    detection (`extractors/platforms/registry.py`'s `plugin_for`) rather than re-deriving either.
+    There is, by design, no standalone "just try to build" function anywhere in `src/` to call
+    instead (investigated 2026-09-24, before writing this): every existing build-verification path
+    is a side effect of running a repository's own README examples
+    (`components/readme/evidence/facts/extract.py::_source_build_fact` reads already-produced
+    `ExampleReceipt`s; it never triggers a build itself), gated on the README actually containing a
+    runnable example - which a not-yet-admitted repository has no guarantee of. This function is
+    therefore a genuinely new, narrower, purpose-built probe, not a thin wrapper around an existing
+    one; it is real and does a real build/install attempt, but it is not literally BC-02's own code
+    path - see `_FALLBACK_BUILD_COMMAND` above for the one place its answer is this module's own
+    judgment rather than the exact command BC-02 would advertise.
+
+    Heavy imports (git subprocesses, the platform-plugin registry) are local to this function on
+    purpose: every other function in this module, including `evaluate_admission_criteria` and the
+    whole default report-only path, stays importable without ever touching git or a subprocess;
+    only an actual build attempt does.
+    """
+    from repository_presenter.components.readme.extractors.platforms.registry import (
+        plugin_for,
+    )
+    from repository_presenter.core.ecosystems import spec_for
+    from repository_presenter.core.errors import PresenterError
+    from repository_presenter.core.git_safety.clone import (
+        force_rmtree,
+        pinned_read_only_clone,
+    )
+
+    platform = repo.classification.platform
+    if platform is None:
+        return BuildProbeResult(
+            ok=False, detail="no classified platform to select an ecosystem plugin with"
+        )
+    try:
+        plugin = plugin_for(platform)
+    except PresenterError as exc:
+        return BuildProbeResult(
+            ok=False,
+            detail=f"no platform plugin registered for ecosystem {platform!r}: {exc}",
+        )
+
+    destination = workdir / f"{repo.org}__{repo.name}"
+    clone_url = f"https://github.com/{repo.full_name}.git"
+    try:
+        clone = pinned_read_only_clone(clone_url, destination, token=token)
+    except PresenterError as exc:
+        return BuildProbeResult(ok=False, detail=f"read-only clone failed: {exc}")
+
+    try:
+        manifest = plugin.detect_manifest(clone.path)
+        if manifest is None:
+            return BuildProbeResult(
+                ok=False, detail=f"no {platform} manifest found on the default branch"
+            )
+
+        spec = spec_for(platform)
+        templated = spec.clone_and_build(repo.full_name, repo.name)
+        build_command = (
+            templated.splitlines()[-1]
+            if templated
+            else _FALLBACK_BUILD_COMMAND.get(platform)
+        )
+        if not build_command:
+            return BuildProbeResult(
+                ok=False,
+                detail=f"ecosystem {platform!r} names no admissible build/install probe command",
+            )
+
+        try:
+            completed = subprocess.run(
+                build_command,
+                shell=True,
+                cwd=clone.path,
+                capture_output=True,
+                text=True,
+                timeout=spec.install_timeout_seconds,
+                check=False,
+            )
+        except subprocess.TimeoutExpired:
+            return BuildProbeResult(
+                ok=False,
+                detail=f"`{build_command}` timed out after {spec.install_timeout_seconds:.0f}s",
+                build_command=build_command,
+            )
+        if completed.returncode != 0:
+            tail = (
+                (completed.stderr or completed.stdout or "").strip().splitlines()[-1:]
+            )
+            detail = f"`{build_command}` exited {completed.returncode}"
+            if tail:
+                detail += f": {tail[0]}"
+            return BuildProbeResult(
+                ok=False, detail=detail, build_command=build_command
+            )
+        return BuildProbeResult(
+            ok=True, detail=f"`{build_command}` exited 0", build_command=build_command
+        )
+    finally:
+        force_rmtree(clone.path)
+
+
+@dataclass(frozen=True)
+class AdmissionOutcome:
+    """One repository's OWNER-08 auto-admission verdict - always produced, admitted or not, and
+    always carries a specific reason (this module's own "never silent" discipline; see
+    `_noise_hint`'s own doc-comment for the same discipline applied to noise annotation)."""
+
+    repo: RepoObservation
+    admitted: bool
+    reason: str
+    build_probe: BuildProbeResult | None = None
+
+
+def _scope_and_naming_reason(repo: RepoObservation) -> str | None:
+    """Criterion (a): found under a maintained `KNOWN_FAMILY_SLUGS` org, and the repository name
+    satisfies the registry's own strict naming contract - not merely this module's own looser
+    discovery-time prefix check.
+
+    Two distinct sub-checks, both load-bearing:
+
+    1. **Scope stays `KNOWN_FAMILY_SLUGS`-only, never "any aspose-<family>-foss org this scan
+       happened to find".** `run_discovery` unions a maintained probe leg (`KNOWN_FAMILY_SLUGS`)
+       with a search leg that can surface an org neither this list nor a human anticipated - this
+       module's own docstring already documents that the search leg "ranks by relevance" and can
+       both under- and over-recall. Auto-admission only ever draws from the human-reviewed probe
+       leg; a search-leg-only find still needs a human to fold its slug into `KNOWN_FAMILY_SLUGS`
+       first (this module's own "How the candidate organization list is assembled" docstring
+       already asks a report's reader to do exactly this) - after which a future `--auto-admit`
+       run admits its repositories with no further asking, per the owner's actual ruling.
+    2. **The strict registry naming contract, not the loose discovery prefix.** `matches_convention`
+       (`NAME_PATTERN`) only requires a name to *start with* `Aspose[.-]<Family>-FOSS-for-`; the
+       registry's own `RegistryEntry` model additionally requires `core/registry/naming.py`'s
+       *full-match* contract, whose platform segment excludes hyphens. A real, previously
+       documented repository, `Aspose-PDF-FOSS-for-Go-MCP` (a non-SDK companion, not a product
+       port - docs/investigations/04-portfolio-discovery.md §2.5), matches the loose prefix but
+       not the full-match contract. Writing such a name to `data/registry.json` anyway would not
+       merely mis-admit one entry - it would violate `RegistryEntry`'s own
+       `_name_matches_coordinates` validator and break `load_registry` for the *whole* file the
+       next time anything loads it. Checked directly against the authoritative naming module
+       (`classify_managed_repository_name`), never re-derived as a second regex that could drift.
+    """
+    match = ORG_PATTERN.match(repo.org)
+    if not match:
+        return f"org {repo.org!r} is not an aspose-<family>-foss org"
+    slug = match.group(1).lower()
+    if slug not in KNOWN_FAMILY_SLUGS:
+        return (
+            f"org {repo.org!r} was found only by the search leg, not the maintained "
+            "KNOWN_FAMILY_SLUGS probe list - auto-admission is scoped to the human-reviewed "
+            "family list; fold this slug into KNOWN_FAMILY_SLUGS first, then a future "
+            "--auto-admit run admits its repositories automatically"
+        )
+    if classify_managed_repository_name(repo.name) is None:
+        return (
+            "repository name does not satisfy the registry's strict naming contract "
+            "(core/registry/naming.py) even though it matched the looser discovery-time prefix - "
+            "likely a non-SDK companion repository, see "
+            "docs/investigations/04-portfolio-discovery.md §2.5"
+        )
+    return None
+
+
+def evaluate_admission_criteria(repo: RepoObservation) -> str | None:
+    """Criteria (a)-(c): pure, offline, no network or filesystem access. Returns `None` when all
+    three pass, else the specific, human-readable failing reason. Criterion (d) (an actual
+    build/install attempt) is checked separately by a `BuildProbeFn` since it is the only one of
+    the four that ever touches the network or a filesystem.
+    """
+    reason = _scope_and_naming_reason(repo)
+    if reason is not None:
+        return reason
+    if repo.fork:
+        return "repository is a fork"
+    if repo.archived:
+        return "repository is archived"
+    return None
+
+
+def _registry_entry_for(repo: RepoObservation) -> dict[str, Any]:
+    """The exact `data/registry.json` entry shape for one auto-admitted repository - `mode:
+    "disabled"`, matching Gate C0's disabled-and-read-only intake shape (the same shape every
+    prior manually-admitted discovery find already got, e.g. the two `aspose-psd-foss` entries and
+    `aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET`, `docs/DECISION_LOG.md` 2026-09-23 16:36
+    UTC)."""
+    coordinates = classify_managed_repository_name(repo.name)
+    if coordinates is None:
+        # evaluate_admission_criteria already proved this repository's name satisfies the
+        # naming contract before it was ever considered admitted; a caller reaching this branch
+        # skipped that check.
+        raise ValueError(
+            f"{repo.full_name} does not satisfy the registry naming contract"
+        )
+    family, platform = coordinates
+    return {
+        "repository": repo.full_name,
+        "family": family,
+        "platform": platform,
+        "ecosystem": platform,
+        "mode": "disabled",
+        "policy_profile": f"{repo.org}-{platform}",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": repo.repository_id,
+            "node_id": repo.node_id,
+        },
+    }
+
+
+def write_admitted_entries(
+    registry_path: Path, admitted: Sequence[RepoObservation]
+) -> None:
+    """Append every `admitted` repository to `registry_path`, alphabetically by `repository`
+    casefold - the sort order `tests/core/registry/test_loader.py::
+    test_real_registry_is_the_frozen_portfolio` asserts - and re-serialize the whole file
+    byte-for-byte in its own existing style (checked 2026-09-24: `json.dumps(data, indent=2,
+    ensure_ascii=False) + "\\n"` round-trips the real file exactly). The only place this module
+    ever writes `data/registry.json`; every other function in this file stays read-only.
+    """
+    data = json.loads(registry_path.read_text(encoding="utf-8"))
+    entries = list(data["entries"])
+    entries.extend(_registry_entry_for(repo) for repo in admitted)
+    entries.sort(key=lambda entry: str(entry["repository"]).casefold())
+    data["entries"] = entries
+    registry_path.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
+def run_auto_admission(
+    *,
+    registry_path: Path = DEFAULT_REGISTRY_PATH,
+    token: str | None,
+    fetch: FetchFn = default_fetch,
+    build_probe: BuildProbeFn = default_build_probe,
+    extra_slugs: Iterable[str] = (),
+    discovery: DiscoveryReport | None = None,
+) -> tuple[DiscoveryReport, tuple[AdmissionOutcome, ...]]:
+    """Evaluate every `new_candidates` repository from a discovery pass against the four
+    auto-admission criteria and write every one that passes all four to `registry_path` at
+    `mode: disabled`. A repository failing any criterion is left unregistered and returned with
+    its specific reason - never silently admitted, never silently dropped without explanation.
+
+    `discovery` lets a caller reuse an already-run `DiscoveryReport` (the CLI runs one scan and
+    both renders the usual report and evaluates admission from that same pass, rather than
+    scanning twice; a test can hand-build a `DiscoveryReport` directly, matching this suite's own
+    fake-fetch convention while skipping the network entirely for the criteria/write logic).
+    Omit it to run a fresh `run_discovery` scan.
+
+    A repository_id already claimed by a *different* registered repository (a rename or transfer
+    - `RegistryEntry`'s own `validate_stable_identities` treats a duplicate `repository_id` as a
+    hard invariant violation) is treated as a fifth, defensive failure reason, never written -
+    a rename/transfer needs owner review, not an automatic second entry for the same repository.
+    """
+    report = (
+        discovery
+        if discovery is not None
+        else run_discovery(
+            registry_path=registry_path,
+            token=token,
+            fetch=fetch,
+            extra_slugs=extra_slugs,
+        )
+    )
+    existing_ids = {
+        int(entry["provider_identity"]["repository_id"])
+        for entry in json.loads(registry_path.read_text(encoding="utf-8"))["entries"]
+    }
+
+    outcomes: list[AdmissionOutcome] = []
+    admitted: list[RepoObservation] = []
+    for repo in report.new_candidates:
+        reason = evaluate_admission_criteria(repo)
+        if reason is None and repo.repository_id in existing_ids:
+            reason = (
+                f"repository_id {repo.repository_id} already claimed by a different registered "
+                "repository - a rename/transfer needs owner review, never an automatic second entry"
+            )
+        if reason is not None:
+            outcomes.append(AdmissionOutcome(repo=repo, admitted=False, reason=reason))
+            continue
+        probe = build_probe(repo, token)
+        if not probe.ok:
+            outcomes.append(
+                AdmissionOutcome(
+                    repo=repo, admitted=False, reason=probe.detail, build_probe=probe
+                )
+            )
+            continue
+        outcomes.append(
+            AdmissionOutcome(
+                repo=repo, admitted=True, reason="admitted", build_probe=probe
+            )
+        )
+        admitted.append(repo)
+
+    if admitted:
+        write_admitted_entries(registry_path, admitted)
+
+    return report, tuple(outcomes)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -717,6 +1125,20 @@ def _build_parser() -> argparse.ArgumentParser:
         default="GH_TOKEN",
         help="environment variable holding the GitHub token to authenticate with",
     )
+    parser.add_argument(
+        "--auto-admit",
+        action="store_true",
+        help=(
+            "OWNER-08 follow-up (docs/DECISION_LOG.md 2026-09-23 16:04 UTC / 2026-09-24 build): "
+            "evaluate every newly discovered repository against the auto-admission criteria "
+            "(found under a KNOWN_FAMILY_SLUGS org and satisfies the registry's strict naming "
+            "contract, not a fork, not archived, default branch actually builds/installs) and "
+            "write every one that passes all four to data/registry.json at mode: disabled. Off "
+            "by default - with no flag this tool stays exactly as report-only as it has always "
+            "been; a repository failing any criterion is reported with the specific reason, "
+            "never silently admitted or silently dropped."
+        ),
+    )
     return parser
 
 
@@ -724,6 +1146,28 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     token = os.environ.get(args.token_env) or None
+
+    if args.auto_admit:
+        report, outcomes = run_auto_admission(
+            registry_path=args.registry,
+            token=token,
+            extra_slugs=args.extra_slug,
+        )
+        text = render_report(report, investigation_number=args.investigation_number)
+        args.output.write_text(text, encoding="utf-8", newline="\n")
+        admitted = [o for o in outcomes if o.admitted]
+        left = [o for o in outcomes if not o.admitted]
+        print(
+            f"wrote {args.output} - --auto-admit evaluated {len(outcomes)} new candidate(s): "
+            f"{len(admitted)} admitted to {args.registry} (mode: disabled), "
+            f"{len(left)} left unregistered"
+        )
+        for outcome in admitted:
+            print(f"  admitted: {outcome.repo.full_name}")
+        for outcome in left:
+            print(f"  left unregistered: {outcome.repo.full_name} - {outcome.reason}")
+        return 0
+
     report = run_discovery(
         registry_path=args.registry,
         token=token,

@@ -66,19 +66,52 @@ governance tracks, two directories, no overlap.
     (search leg + a maintained/extensible probe leg over plausible family slugs, since GitHub has
     no direct "list orgs by name pattern" API — see the module's own docstring for exactly how the
     candidate list is assembled and its documented recall limitation), lists each org's public
-    repositories, and diffs them against `data/registry.json`. **Read-only and report-only: it
-    never writes `data/registry.json`** — admitting a discovered repository is a separate,
-    human-reviewed decision, always (owner standing rule, 2026-09-17). Run it with
+    repositories, and diffs them against `data/registry.json`. **Read-only and report-only by
+    default: with no flag it never writes `data/registry.json`** — admitting a discovered
+    repository was a separate, human-reviewed decision, always (owner standing rule, 2026-09-17),
+    and still is for every run that does not pass `--auto-admit`. Run it with
     `python tools/discovery/portfolio_discovery.py`; it writes
     `docs/investigations/10-portfolio-discovery.md` by default (`--output` to change). Commissioned
     by `docs/PRODUCTION_ROADMAP.md` workstream 4 / `plans/idea.md`'s Common Gate C0, following up
     `docs/investigations/04-portfolio-discovery.md`'s design analysis with the first actual
     enumeration pass.
-  - `test_portfolio_discovery.py` — regression tests for the search/probe/diff/render logic, run
-    directly (`pytest tools/discovery/test_portfolio_discovery.py`; outside `pyproject.toml`'s
-    `pythonpath`/collection scope, so it never runs as part of `pytest tests/`), same convention as
-    `tools/reviewer/test_research_edit.py`. Every test injects a fake fetch function — no test
-    makes a live network call.
+    - **`--auto-admit`** (OWNER-08 follow-up — `docs/DECISION_LOG.md` 2026-09-23 16:04 UTC
+      proposal, built 2026-09-24): the owner explicitly superseded the 2026-09-17 standing rule
+      for *future* discovery finds only ("if the repo has code, and it can be compiled, it should
+      be admitted without asking the human," chat 2026-09-23/24). Scope is unchanged — a
+      candidate is still only real when it lives under a maintained `KNOWN_FAMILY_SLUGS` org; a
+      search-leg-only find still needs a human to fold its slug into `KNOWN_FAMILY_SLUGS` first.
+      With the flag, every not-yet-registered repository the scan finds is evaluated against four
+      criteria — (a) found under a `KNOWN_FAMILY_SLUGS` org *and* satisfies the registry's own
+      strict naming contract (`core/registry/naming.py`, stricter than this module's own
+      discovery-time prefix check — a real precedent, the non-SDK companion repo
+      `Aspose-PDF-FOSS-for-Go-MCP`, matches the loose prefix but not the strict contract); (b) not
+      a fork; (c) not archived; (d) its default branch actually builds/installs, checked by a real
+      (not simulated) read-only clone plus the ecosystem's own build/install command
+      (`default_build_probe` — reuses `core/git_safety/clone.py`'s `pinned_read_only_clone` and
+      the platform-plugin registry's manifest detection; there is no standalone "just try to
+      build" function anywhere in `src/` to call instead, since every existing build-verification
+      path is a side effect of running a repository's own README examples, so this is a genuinely
+      new, narrower, purpose-built probe — see the function's own docstring for exactly what it
+      does and does not share with BC-02's own code path). Every repository that passes all four
+      is written to `data/registry.json` at `mode: disabled` (Gate C0's disabled-and-read-only
+      intake shape — the same shape every prior manually-admitted find already got, e.g. the two
+      `aspose-psd-foss` entries and `aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET`). A
+      repository failing any criterion is left unregistered and reported with the specific
+      reason — never silently admitted, never silently dropped. A repository whose
+      `repository_id` already belongs to a *different* registered repository (a rename/transfer)
+      is also left unregistered, defensively, rather than risking a duplicate-identity registry.
+      Not run against live data as part of landing this capability — building and testing it was
+      the work; actually invoking `--auto-admit` against the live portfolio is a separate,
+      later decision.
+  - `test_portfolio_discovery.py` — regression tests for the search/probe/diff/render/auto-admit
+    logic, run directly (`pytest tools/discovery/test_portfolio_discovery.py`; outside
+    `pyproject.toml`'s `pythonpath`/collection scope, so it never runs as part of `pytest tests/`),
+    same convention as `tools/reviewer/test_research_edit.py`. Every test injects a fake fetch
+    function or a fake `BuildProbeFn` — no test makes a live network call, real clone, or real
+    build/install attempt; `default_build_probe`'s own real clone/subprocess path is exercised
+    only through two of its purely-offline early-exit branches (an unclassified platform, an
+    ecosystem with no registered plugin), both of which return before ever touching the network.
 - `git/` — deterministic git-mechanics wrapper for the moment an isolated worktree's branch needs
   to land on a shared target branch other concurrently-live write-capable agents may also be
   pushing to right now (`docs/investigations/05-production-autonomy.md` §5's own highest-leverage
