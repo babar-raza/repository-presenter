@@ -585,3 +585,132 @@ The full vertical slice is complete only when a disposable target demonstrates:
 12. recovery from a deliberately interrupted transaction and a lost-effect response.
 
 Only after this transaction passes should ecosystem and portfolio rollout expand.
+
+## 20. Hosted execution and the local/production boundary
+
+Written 2026-09-24 after a local drive-letter remap (`C:`→`G:`, `D:`→`H:`) broke this machine's
+`.venv` and stale worktree state, prompting the question this section answers: which of the local
+development-time hazards this project has already fought (`docs/investigations/05-production-
+autonomy.md`'s classes A-J) actually threaten the future hosted, disposable-runner execution this
+document specifies, and which are structurally impossible there. Grounded in that investigation,
+`docs/investigations/01-ci-deployment-sustainability.md`, and `docs/RESEARCH_AND_GUIDELINES.md`
+§27.1/§18.4; full reasoning trail in `docs/DECISION_LOG.md`, 2026-09-24.
+
+### 20.1 A disposable runner eliminates a whole failure class by construction
+
+`monitor.yml`/`present.yml` (G5) each run `actions/checkout` into their own fresh container
+filesystem that no other job's filesystem ever touches, and the machine is destroyed when the job
+ends. This is not a mitigation of the following local failure classes — it is their precondition
+never existing in the first place:
+
+| Investigation 05 class | Local failure | Why it cannot occur on a hosted job |
+|---|---|---|
+| A | Push race under concurrent commits to one shared checkout | Each job has its own checkout; no second job ever edits the same working tree mid-run. |
+| B/B′ | Unscoped `git stash` sweeping a concurrent agent's uncommitted work | No concurrent agent shares the container; there is nothing else's work to sweep. |
+| D | `git worktree remove --force` gutting a `.venv` junction shared with another live agent | No worktrees, no shared `.venv` — a fresh `pip install` happens inside the one job that needs it. |
+| G | A local liveness timestamp with no expiry reading "live" forever | Not applicable — a hosted job either completes or is killed by its own timeout; there is no long-lived local process to go stale. |
+| J | A chat session believing an unheard background signal will wake it | Not applicable — a workflow's control flow is its own YAML steps and job dependencies, not an LLM-driven wait loop. |
+
+None of these need porting to `monitor.yml`/`present.yml`. Treating them as risks to design against
+there would be solving a problem the execution model already removed.
+
+Two classes carry over as genuinely reusable, not because the hazard repeats but because the fix is
+general-purpose: class E's `run_git` environment-scrubbing (`core/git_safety/git.py`) protects any
+git operation, hosted or local, against inherited `GIT_*` variables — keep it as-is, no hosted-
+specific change needed. Class F's dead-man double-trigger (`schedule:` plus a `workflow_run`
+fallback, because cron alone was observed to go silent 3h54m under heavy Actions load) is direct,
+already-hosted prior art for `monitor.yml`'s own trigger design, not a lesson to relearn.
+
+Classes C and H are development-time-only concerns (concurrent *agents* editing `src/`, and a
+supervisor sweeping per-lane research logs) with no runtime analog at all — the hosted pipeline
+only ever runs already-committed, already-tested code; nothing "edits source" in production.
+
+### 20.2 The CAS backend's concrete write mechanism
+
+§13.2 requires "compare-and-swap update" for each repository's durable state record without naming
+a concrete mechanism. If that backend is git-commit-based (a file per repository under the control
+repository's own state namespace, per §13.1's record shape), then a bounded fan-out of N concurrent
+`present.yml` jobs — one per due repository — will each try to commit and push to the *same*
+control-repository branch at close to the same time. Different jobs touch disjoint files, but a
+`git push` is still one serialized ref update: this reconstructs class A's push race at hosted
+scale, with disjoint paths lowering but not eliminating the collision window.
+
+`tools/git/push_retry.py` (built 2026-09-23, WS5: fetch → rebase → bounded-retry, never `--force`)
+is the concrete mechanism this needs, and a simpler case than the one it was built for: its own
+conflict auto-resolution today is narrowly scoped to `DECISION_LOG.md`/`RESEARCH_AND_GUIDELINES.md`
+append-only shapes, but a CAS-record push race never has real content conflicts at all — each job
+only ever writes its own repository's file, so a rebase onto a newer `main` is always a clean
+fast-forward-equivalent replay, not a merge. This is a design note for whenever G5 work item 2
+builds the state backend, not a change to `push_retry.py` itself today.
+
+### 20.3 Two-level concurrency, and what stays unmeasured
+
+Two distinct concurrency questions exist and must not be conflated:
+
+1. **Within one repository's own composition** — section-authoring, type-batch, and review calls
+   fan out with bounded concurrency of 4 and backoff on 429 (`docs/RESEARCH_AND_GUIDELINES.md`
+   §27.1). This is G5-W03's own scope, still `PENDING` — not built yet.
+2. **Across repositories** — §3's portfolio machine runs "isolated per-repository workers" (plural)
+   and §14 permits parallelism "only when state and evidence paths are disjoint" (which per-
+   repository paths always are). `docs/RESEARCH_AND_GUIDELINES.md`'s "repository workers stay
+   serial" phrasing (used to contrast G5-W03's narrower scope, "this is not repository-level
+   parallelism") should be read as *one repository never runs two concurrent workers*, not as a ban
+   on different repositories running at once — but the two texts read in tension if quoted without
+   this context, and are worth an explicit confirming ruling before the Actions matrix's own
+   `max-parallel` value gets set, rather than resolving the ambiguity by implementation accident.
+
+The LLM gateway's rate-limit behavior under real parallel composition is **explicitly unmeasured**
+today (`docs/RESEARCH_AND_GUIDELINES.md` lines 2639, 2789: "unknown until measured... a lane that
+meets them scales to one composition at a time"). This has to be measured before `monitor.yml`'s
+fan-out width is chosen, or the first hosted run risks either needless serial throttling or a
+rate-limit storm across every job. GitHub's own API rate limits under N parallel installation-token
+holders are not yet budgeted anywhere in this project's docs either — the same open measurement.
+
+### 20.4 Credential minting is already specified correctly for disposable compute
+
+§12 and `docs/investigations/01-ci-deployment-sustainability.md` §2 point 3 already require a fresh
+installation token minted *inside* each job, never passed between jobs or cached in an artifact —
+exactly right for disposable runners, where a cache entry or uploaded artifact is an explicitly
+untrusted place to put a secret (§13.2, §16). No design change needed here, only implementation.
+
+Two concrete gaps remain before that implementation can start: no JWT-signing dependency
+(`PyJWT` + `cryptography`) is in `pyproject.toml`/`requirements-lock.txt` yet, and no
+`core/config`-equivalent module exists for GitHub-App auth (only the LLM gateway side does). Both
+are small, well-scoped additions — good candidates to land ahead of the hosted transition rather
+than discovered mid-build.
+
+`docs/investigations/01-ci-deployment-sustainability.md` §3.3 flagged an open naming question:
+does `OWNER-04` mean the OAuth client ID or the numeric App ID GitHub's token-minting flow actually
+needs? This is now answered in practice, not by guesswork: `tools/github_app/register_exchange.py`
+(built 2026-09-23) reads both `id` (the numeric App ID) and `client_id` from the manifest-conversion
+response and stores them as two distinct secrets, `GH_APP_ID` and `GH_APP_CLIENT_ID` — the real API
+response resolves the ambiguity the moment `OWNER-04` completes.
+
+### 20.5 The local/hosted verification gap: `act`
+
+`act` (github.com/nektos/act) is not installed on this machine (`docs/investigations/01-...md`
+§3.1); Docker is already configured correctly for it (Linux containers via WSL2, confirmed). This
+is the one real proof-loop gap before any hosted transition: installing it now and running it
+against the three *existing* workflows (`ci.yml`, `liveness.yml`, `mirror-gitlab.yml`) is a cheap,
+immediately available proof point that surfaces action-version or runner-image incompatibilities
+before `monitor.yml`/`present.yml` exist to test — cheaper to find now than after they're written.
+
+### 20.6 Checklist: what must be true before the first hosted run of the real pipeline
+
+Not new gates — a consolidated reading of what G5's own work items and owner items already require,
+gathered here so it is not lost across documents:
+
+- `OWNER-04` resolved (App created, installed, secrets stored) — automation ready
+  (`tools/github_app/`), one owner click away.
+- The durable state backend built (`state/git_backend.py`, `cas.py`, `trigger_v2.py`,
+  `recovery.py`, `health.py`, `freshness_contract.py` per ESM G5 work item 2) — confirmed absent
+  from `src/` today.
+- `push_retry.py`'s mechanism (or a direct reuse of the module) wired as the state backend's own
+  commit path (§20.2).
+- JWT-signing dependency added; GitHub-App auth ported into a `core/config`-equivalent boundary.
+- `act` installed and run clean against the three existing workflows first (§20.5).
+- `monitor.yml`/`present.yml` authored, then `act`-tested locally before any hosted run.
+- The gateway's real rate-limit behavior measured under parallel composition (§20.3), before the
+  Actions matrix's fan-out width is chosen.
+- G4 substantively closed — every registry entry carries a disposition — since G5 formally opens
+  after it, per this project's own gate-sequencing rule.
