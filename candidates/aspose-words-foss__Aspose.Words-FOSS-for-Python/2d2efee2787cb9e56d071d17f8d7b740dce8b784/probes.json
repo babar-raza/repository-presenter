@@ -1,0 +1,122 @@
+[
+  {
+    "elapsed_ms": 839,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/words/python/"
+  },
+  {
+    "elapsed_ms": 1989,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 1471,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python/issues"
+  },
+  {
+    "elapsed_ms": 1540,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-words/Aspose.Words-for-Python-via-.NET"
+  },
+  {
+    "elapsed_ms": 834,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1413,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-words-foss/Aspose.Words-FOSS-for-Python.svg"
+  },
+  {
+    "elapsed_ms": 902,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/pypi/pyversions/aspose-words-foss.svg"
+  },
+  {
+    "elapsed_ms": 920,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/pypi/v/aspose-words-foss.svg"
+  },
+  {
+    "elapsed_ms": 738,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/words/python/"
+  },
+  {
+    "elapsed_ms": 675,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/words/python-net/"
+  },
+  {
+    "elapsed_ms": 723,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/words/python/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 743,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/words/python/"
+  },
+  {
+    "elapsed_ms": 1474,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://pypi.org/project/aspose-words-foss/"
+  },
+  {
+    "elapsed_ms": 836,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/words/python/"
+  },
+  {
+    "elapsed_ms": 1345,
+    "kind": "package_registry",
+    "observation": "latest 26.7.0",
+    "outcome": "FOUND",
+    "status": 200,
+    "target": "https://pypi.org/pypi/aspose-words-foss/json"
+  }
+]

@@ -1,0 +1,299 @@
+{
+  "additional_example_ids": [],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.document",
+        "public_symbol:aspose.words_foss.saveformat",
+        "public_symbol:aspose.words_foss.loadformat"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words_foss.document"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.saveformat"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words_foss.saveformat"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.doc_reader",
+        "public_symbol:aspose.words_foss.rtf_reader",
+        "public_symbol:aspose.words_foss.markdown_reader",
+        "public_symbol:aspose.words_foss.text_reader"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words_foss.doc_reader"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.docx_writer",
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.pdf_writer"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words_foss.docx_writer"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.markdownloadoptions",
+        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words_foss.markdownloadoptions"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions"
+      ],
+      "symbol_fact_id": "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+      ],
+      "symbol_fact_id": "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.light_document_model",
+        "public_symbol:aspose.words_foss.model",
+        "public_symbol:aspose.words_foss.models"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words_foss.light_document_model"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.drawing",
+        "public_symbol:apiexamples.working_with_images.workingwithimages"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words_foss.drawing"
+    },
+    {
+      "fact_ids": [
+        "import_path:apiexamples",
+        "public_symbol:apiexamples"
+      ],
+      "symbol_fact_id": "public_symbol:apiexamples"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Read multiple input formats",
+      "Export to multiple output formats",
+      "Handle images in documents",
+      "Configure output formatting",
+      "Extract plain text"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.doc_reader",
+        "public_symbol:aspose.words_foss.rtf_reader",
+        "public_symbol:aspose.words_foss.markdown_reader",
+        "public_symbol:aspose.words_foss.text_reader"
+      ],
+      "shared_fact_ids": [],
+      "title": "Read multiple input formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.saveformat",
+        "public_symbol:aspose.words_foss.docx_writer",
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.pdf_writer"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.words_foss.saveformat"
+      ],
+      "title": "Export to multiple output formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.drawing",
+        "public_symbol:apiexamples.working_with_images.workingwithimages",
+        "dependency:development.dev.pillow-10.0.0"
+      ],
+      "shared_fact_ids": [],
+      "title": "Handle images in documents"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.markdownloadoptions",
+        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions",
+        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
+        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+      ],
+      "shared_fact_ids": [],
+      "title": "Configure output formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.document",
+        "public_symbol:aspose.words_foss.saveformat"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.words_foss.saveformat"
+      ],
+      "title": "Extract plain text"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "section_id": "quick_start",
+      "text": "No verified example fact is available; the Quick Start section is omitted."
+    },
+    {
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "section_id": "additional_examples",
+      "text": "No verified additional example facts are available; the Additional Examples section is omitted."
+    },
+    {
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "section_id": "enterprise_relationship",
+      "text": "No verified aspose.com product target exists in policy; the Enterprise Relationship section is omitted."
+    }
+  ],
+  "flagship_example_id": null,
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.saveformat"
+      ],
+      "unit_ids": [
+        "inherited_unit:101.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions"
+      ],
+      "unit_ids": [
+        "inherited_unit:101.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+      ],
+      "unit_ids": [
+        "inherited_unit:101.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": null,
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "quick_start"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

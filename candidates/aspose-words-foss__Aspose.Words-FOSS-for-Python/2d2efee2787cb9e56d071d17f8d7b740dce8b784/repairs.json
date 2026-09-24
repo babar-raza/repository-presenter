@@ -1,0 +1,51 @@
+{
+  "attempts": {
+    "4fcd5d6923bff0f7e2f1c81c": {
+      "changes": [
+        {
+          "after": "Read DOCX, DOC, RTF, Markdown, and plain text files by passing a file path to the Document constructor, where the reader is selected automatically based on the file extension, with DOCX parsing implemented as a pure-Python parser built on the standard library zipfile module, DOC and RTF files delegated to the OLE2 path via olefile, and Markdown parsing supporting headings, lists, emphasis, tables, block quotes, code blocks, links, and embedded images as document-model nodes.",
+          "before": "Read DOCX, DOC, RTF, Markdown, and plain text files by passing a file path to the Document constructor, where the reader is selected automatically based on the file extension, with DOCX parsing implemented as a pure-Python parser built on the standard library zipfile and xml.etree modules, DOC and RTF files delegated to the OLE2 path via olefile, and Markdown parsing supporting headings, lists, emphasis, tables, block quotes, code blocks, links, and embedded images as document-model nodes.",
+          "fact_ids": [
+            "public_symbol:aspose.words_foss.doc_reader",
+            "public_symbol:aspose.words_foss.markdown_reader",
+            "public_symbol:aspose.words_foss.rtf_reader",
+            "public_symbol:aspose.words_foss.text_reader"
+          ],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F02",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "0268e03db83865c7492d3c0ddeb2c01c11903132d2327d45bacf36aad5cb0219",
+      "section_id": "key_capabilities",
+      "source": "review",
+      "stage": "S6"
+    },
+    "fb4981ad60536b4915a48815": {
+      "changes": [
+        {
+          "after": "Install the development dependencies and run the example test suite, or execute an individual example script directly. Test fixtures live under `tests/data/input/` and generated output is written to `ApiExamples/output/` (git-ignored).",
+          "before": "Install the development dependencies and run the example test suite, or execute an individual example script directly.",
+          "fact_ids": [
+            "build_test_asset:tests"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        }
+      ],
+      "label": "F07",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "6cf862fc99c4158d9efbbd31ee4296f5e1238d2975b17a70e582ffd1ff2e20e4",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "228c84e2d58ac29d3f6a1790be147505539568032516145ed15f6105d92a77a2",
+  "schema_version": 1
+}
