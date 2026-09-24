@@ -140,7 +140,23 @@ _TYPE_OBJECTIVE = (
 # the code-span precedent already gets - instead of leaving the echo for the strays guard to
 # reject. A real meaning change to what unit_checks accepts (a shape that used to be rejected,
 # and sometimes survive a re-ask uncorrected, is now normalised away on the first attempt).
-NORMALISATION_VERSION = "11"
+# "11" -> "12" (Cells-Java authoring-hint duplication fix, docs/DECISION_LOG.md 2026-09-24):
+# two changes to development_testing, both real meaning changes, landed together since the
+# second is what the first's own live measurement found still needed. (1) unit_checks now
+# rejects a unit whose own text restates one of its slot's placed command-block lines verbatim
+# (SectionTask.slot_render_lines, authoring_tasks()) - the same "restates its neighbour" defect
+# the title-restatement guard above already closes for a slot's title, but which this class only
+# ever had an advisory prompt sentence for (slot_rendering's own renders_rule), measured live on
+# a fresh Aspose.Cells FOSS for Java draw with two real VERIFIED_PRESERVE Maven command blocks.
+# (2) _OBJECTIVES["development_testing"] now tells the model not to describe what a placed
+# command accomplishes at all, even without repeating the command's own words - a second, live,
+# independent-reviewer-caught case (BC-10 F05, "duplicates the test command and build
+# instructions... redundancy") on the same draw, where the summary's own text ("compile,
+# package, and generate API documentation using standard Maven goals") restated the blocks'
+# substance with none of their literal text, so (1) alone let it through; repair could not
+# resolve it in one round (the re-ask returned byte-identical text), so a narrower, upfront
+# objective is the correct earlier-stage fix rather than a second repair attempt.
+NORMALISATION_VERSION = "12"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -285,8 +301,13 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one scope unit, then one unit per limitation, one sentence each",
     ),
     "development_testing": (
-        "One or two sentences on how to build and test from the repository's own assets; never "
-        "a file count or a release statement, which the renderer states from the facts.",
+        "One or two sentences on the toolchain and requirements to build and test from the "
+        "repository's own assets (for example, the runtime/JDK version and the build tool); "
+        "never describe what a placed command accomplishes - compiling, testing, packaging, "
+        "generating docs - since the renderer prints that command verbatim right after this "
+        "unit, and a sentence that says what it does duplicates it in substance even when no "
+        "word of the command itself is repeated; never a file count or a release statement, "
+        "which the renderer states from the facts.",
         "one unit of one or two sentences",
     ),
     "enterprise_relationship": (
@@ -313,6 +334,14 @@ class SectionTask:
     # The subject the plan gave a slot - a capability's title - so the unit filling it is held to
     # describing that subject (README_CONTRACT.md check 4, section 27.5 D2).
     slot_titles: Mapping[str, str] = field(default_factory=dict)
+    # The literal command lines a slot's neighbour will already print verbatim (today: only
+    # development_testing's placed command blocks) - the same "restates its neighbour" defect
+    # slot_rendering's own docstring already names as equivalent to restating a title, but which
+    # only the title case ever got a deterministic unit_checks guard for. Kept as raw lines, not
+    # the packet's wrapped hint sentence, so unit_checks can match a unit's own text against the
+    # exact text the renderer will place beside it (G4-W17, Cells-Java authoring-hint duplication
+    # fix, docs/DECISION_LOG.md 2026-09-24).
+    slot_render_lines: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
 
     @property
     def label(self) -> str:
@@ -421,15 +450,46 @@ def slot_rendering(
                 code = " ".join(example.value.split())
                 rendered[slot] = f"as a fenced code block after your sentence: {code}"
     elif section == "development_testing":
-        blocks = [
-            by_id[unit_id].value
-            for unit_id in _placed_units(dispositions, section)
-            if unit_id.endswith(".code_block") and unit_id in by_id
-        ]
+        blocks = _development_testing_blocks(dispositions, by_id)
         if blocks and slots:
             joined = "; ".join(" ".join(block.split()) for block in blocks)
             rendered[slots[0]] = f"as fenced blocks after your sentence: {joined}"
     return rendered
+
+
+def _development_testing_blocks(
+    dispositions: dict[str, Any], by_id: Mapping[str, Fact]
+) -> list[str]:
+    """The raw text of every placed ``development_testing`` command block, in disposition order -
+    the single source both ``slot_rendering``'s packet hint and ``unit_checks``'s own guard read,
+    so the two can never again disagree about what the renderer is about to print verbatim."""
+    return [
+        by_id[unit_id].value
+        for unit_id in _placed_units(dispositions, "development_testing")
+        if unit_id.endswith(".code_block") and unit_id in by_id
+    ]
+
+
+_FENCE_LINE = re.compile(r"^```.*$")
+# A trailing shell comment ("mvn javadoc:javadoc   # generates docs/apidocs/index.html") is the
+# maintainer's own annotation, never part of the command a unit could restate - stripped before
+# comparison the same way a comment-only line is dropped outright below.
+_TRAILING_COMMENT = re.compile(r"\s+#.*$")
+
+
+def command_lines(blocks: Iterable[str]) -> tuple[str, ...]:
+    """Every non-empty, non-fence command inside ``blocks``, one per source line, with any
+    trailing comment stripped and whitespace collapsed - the exact granularity a unit's own prose
+    could restate verbatim (a single command), rather than the whole multi-line block, which
+    prose never reproduces byte for byte."""
+    lines: list[str] = []
+    for block in blocks:
+        for raw_line in block.splitlines():
+            line = _TRAILING_COMMENT.sub("", " ".join(raw_line.split())).strip()
+            if not line or _FENCE_LINE.match(line) or line.startswith("#"):
+                continue
+            lines.append(line)
+    return tuple(dict.fromkeys(lines))
 
 
 def title_terms(title: str, facts: FactsDocument) -> set[str]:
@@ -748,6 +808,20 @@ def authoring_tasks(
         titles = capability_titles(plan) if section == "key_capabilities" else {}
         renders = slot_rendering(section, slots, facts, dispositions, slot_facts)
         records = slot_records(slots, slot_facts, titles, renders)
+        # G4-W17, Cells-Java authoring-hint duplication fix (docs/DECISION_LOG.md 2026-09-24):
+        # development_testing's own placed command blocks, at line granularity, so unit_checks
+        # can mechanically reject a unit that restates one - the same "restates its neighbour"
+        # defect slot_rendering's own docstring already names as equivalent to restating a
+        # title, but which the packet's renders_rule text above only ever asked the model not to
+        # commit, never enforced. Scoped to development_testing today (the diagnosed section);
+        # empty for every other section, so no other section's behavior changes.
+        render_lines = (
+            {slots[0]: command_lines(_development_testing_blocks(dispositions, by_id))}
+            if section == "development_testing"
+            and slots
+            and _development_testing_blocks(dispositions, by_id)
+            else {}
+        )
         # The renderer prints links, commands, and code blocks itself. A unit that repeats one
         # of them is rejected for writing a URL or a command, which is how the canary lost two
         # authoring calls on 2026-09-05; saying what is already printed removes the reason to.
@@ -800,6 +874,7 @@ def authoring_tasks(
                 slots,
                 slot_facts=slot_facts,
                 slot_titles=titles,
+                slot_render_lines=render_lines,
             )
         )
         if section == "api_reference":
@@ -1325,6 +1400,30 @@ def unit_checks(
                 f"unit {unit.get('slot')}: restates its own title {title!r}; the title is "
                 "printed immediately before the unit, so its text adds what the title does "
                 "not already say"
+            )
+    # G4-W17, Cells-Java authoring-hint duplication fix (docs/DECISION_LOG.md 2026-09-24): the
+    # same "restates its neighbour" defect as the title check just above, but for a placed
+    # command block instead of a title - slot_rendering's own docstring already names the two as
+    # equivalent (both were real 2026-09-05 canary rejections), but only the title case ever got
+    # a deterministic backstop; this one had an advisory prompt sentence only
+    # (slot_rendering's renders_rule). A hard, literal backstop for the verbatim shape (a unit
+    # that spells out the exact command a placed block is about to print again right after it);
+    # the harder semantic case - describing what a command does without repeating its words - is
+    # not mechanically detectable this way and is the companion objective-text change beside
+    # NORMALISATION_VERSION's own comment above. Line-granular (not the whole block): prose
+    # paraphrases a block, it does not reproduce it byte for byte, so matching one full command
+    # line verbatim is the same precision the title check above already uses for a whole title.
+    for unit in output.get("units", []):
+        lines = task.slot_render_lines.get(str(unit.get("slot")))
+        if not lines:
+            continue
+        text_lower = str(unit.get("text", "")).lower()
+        restated = [line for line in lines if line.lower() in text_lower]
+        if restated:
+            errors.append(
+                f"unit {unit.get('slot')}: restates {restated[0]!r}, a command the renderer "
+                "already prints verbatim in a fenced block right after this unit; write only "
+                "what the block does not already say, never the command itself"
             )
     # README_CONTRACT.md check 4: a unit's facts lie within the set the plan assigned to its
     # slot; identity and package facts belong to no slot and may support any unit.

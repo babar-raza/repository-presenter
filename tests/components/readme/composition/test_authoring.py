@@ -22,6 +22,7 @@ from repository_presenter.components.readme.composition.authoring import (
     citable,
     cited_inherited_identifiers,
     command_block_tokens,
+    command_lines,
     forbidden_text_pattern,
     identifier_allowed,
     identifier_tokens,
@@ -1009,6 +1010,168 @@ def test_the_unit_that_names_a_command_blocks_output_path_passes_the_guard() -> 
     assert unit_checks(
         _output("docs/apidocs/output.html"), task, CELLS_JAVA_FACTS, CELLS_JAVA_NAME
     ) == ["unit summary: identifiers that are not accepted fact values: output.html"]
+
+
+def test_command_lines_extracts_one_normalised_line_per_real_command() -> None:
+    """The new helper behind the Cells-Java authoring-hint duplication fix (docs/DECISION_LOG.md
+    2026-09-24): a fence marker and a comment-only remainder are never a command to match
+    against, and a repeated line (two blocks that both open with the same command) collapses to
+    one - a unit only needs to say it once to restate it."""
+    assert command_lines([MAVEN_BLOCK]) == (
+        "mvn compile",
+        "mvn clean package",
+        "mvn javadoc:javadoc",
+    )
+    assert command_lines(["```bash\nmvn test\n```", "```bash\nmvn test\n```"]) == ("mvn test",)
+    assert command_lines([]) == ()
+
+
+def _development_testing_task() -> SectionTask:
+    """The real shape a fresh Cells-Java draw builds: one placed Maven command block (the same
+    ``inherited_unit:047.code_block``/``MAVEN_BLOCK`` fact), its lines threaded onto the task the
+    same way authoring_tasks() wires them for development_testing (docs/DECISION_LOG.md
+    2026-09-24)."""
+    return SectionTask(
+        "development_testing",
+        {},
+        frozenset({"inherited_unit:047.code_block", "build_test_asset:pom"}),
+        ("summary",),
+        slot_facts={
+            "summary": frozenset({"inherited_unit:047.code_block", "build_test_asset:pom"})
+        },
+        slot_render_lines={"summary": command_lines([MAVEN_BLOCK])},
+    )
+
+
+def test_a_unit_that_restates_a_placed_command_block_is_rejected() -> None:
+    """The real defect, reproduced: measured live on Aspose.Cells FOSS for Java, the
+    development_testing summary wrote the exact Maven commands the renderer was about to place
+    verbatim in a fenced block right after it - slot_rendering's own packet hint only ever asked
+    the model not to, never enforced it (docs/DECISION_LOG.md 2026-09-24, root cause). This is
+    the negative control: the same duplication shape must fail unit_checks now."""
+    task = _development_testing_task()
+
+    def _output(text: str) -> dict[str, Any]:
+        return {
+            "units": [
+                {
+                    "section": "development_testing",
+                    "slot": "summary",
+                    "text": text,
+                    "fact_ids": ["inherited_unit:047.code_block", "build_test_asset:pom"],
+                }
+            ],
+            "omitted": [],
+        }
+
+    # The duplication itself: the summary spells out a command the renderer already places
+    # verbatim right below it.
+    assert unit_checks(
+        _output("Build and test from the repository's own pom.xml; run mvn compile first."),
+        task,
+        CELLS_JAVA_FACTS,
+        CELLS_JAVA_NAME,
+    ) == [
+        "unit summary: restates 'mvn compile', a command the renderer already prints verbatim "
+        "in a fenced block right after this unit; write only what the block does not already "
+        "say, never the command itself"
+    ]
+    # A genuine paraphrase - naming the tool and what the commands cover without reproducing one
+    # verbatim - is not a restatement and passes clean.
+    assert (
+        unit_checks(
+            _output(
+                "Build and test from the repository's own pom.xml with Maven, including "
+                "generating the Javadoc API documentation."
+            ),
+            task,
+            CELLS_JAVA_FACTS,
+            CELLS_JAVA_NAME,
+        )
+        == []
+    )
+    # A section with no placed command block (slot_render_lines empty) is untouched by this
+    # guard - only development_testing's own real neighbour is ever checked.
+    bare_task = SectionTask(
+        "development_testing",
+        {},
+        frozenset({"build_test_asset:pom"}),
+        ("summary",),
+        slot_facts={"summary": frozenset({"build_test_asset:pom"})},
+    )
+
+    def _bare_output(text: str) -> dict[str, Any]:
+        return {
+            "units": [
+                {
+                    "section": "development_testing",
+                    "slot": "summary",
+                    "text": text,
+                    "fact_ids": ["build_test_asset:pom"],
+                }
+            ],
+            "omitted": [],
+        }
+
+    assert (
+        unit_checks(
+            _bare_output(
+                "Build and test from the repository's own pom.xml; run mvn compile first."
+            ),
+            bare_task,
+            CELLS_JAVA_FACTS,
+            CELLS_JAVA_NAME,
+        )
+        == []
+    )
+
+
+def test_authoring_tasks_threads_development_testings_placed_command_lines() -> None:
+    """End to end through the real production wiring (not a hand-built task): authoring_tasks()
+    computes slot_render_lines for development_testing's own placed command block and leaves
+    every other section's slot_render_lines empty, exactly mirroring slot_rendering's own hint."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("inherited_unit:071.code_block", "inherited_unit", MAVEN_BLOCK)),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:071.code_block",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "development_testing",
+                "fact_ids": [],
+                "rationale": "r",
+            }
+        ]
+    }
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, dispositions, PLAN)
+    }
+    assert tasks["development_testing"].slot_render_lines == {
+        "summary": ("mvn compile", "mvn clean package", "mvn javadoc:javadoc")
+    }
+    assert tasks["opening"].slot_render_lines == {}
+    assert tasks["quick_start"].slot_render_lines == {}
+
+
+def test_development_testings_objective_forbids_describing_a_placed_commands_own_effect() -> None:
+    """The companion half of the Cells-Java fix (docs/DECISION_LOG.md 2026-09-24): measured live
+    on a fresh draw, the independent reviewer rejected (BC-10 F05, REJECT_PRESENTATION) a summary
+    that described what the placed Maven commands accomplish ('compile, package, and generate API
+    documentation using standard Maven goals') without repeating one command's own words - a
+    duplication the line-level unit_checks guard above cannot mechanically see. One repair round
+    returned byte-identical text and the finding re-raised, so the objective itself now says not
+    to describe a placed command's effect at all, the earliest stage this is fixable at."""
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, FACTS, INVESTIGATION, DISPOSITIONS, PLAN)
+    }
+    objective = tasks["development_testing"].packet["objective"]
+    assert "never describe what a placed command accomplishes" in objective
+    assert "compiling, testing, packaging, generating docs" in objective
 
 
 def test_a_unit_may_spell_an_identifier_its_own_cited_inherited_unit_fact_spells_verbatim() -> None:
