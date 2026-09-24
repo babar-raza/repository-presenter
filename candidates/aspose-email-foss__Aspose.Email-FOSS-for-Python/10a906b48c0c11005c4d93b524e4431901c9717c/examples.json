@@ -1,5 +1,7 @@
 [
   {
+    "build_command": "",
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [
       {
@@ -11,10 +13,13 @@
     "ordinal": 1,
     "outcome": "EXECUTED",
     "return_code": 0,
+    "source_roots": [],
     "stderr": "",
     "stdout": "Hello\r\n"
   },
   {
+    "build_command": "",
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [
       {
@@ -26,10 +31,13 @@
     "ordinal": 2,
     "outcome": "EXECUTED",
     "return_code": 0,
+    "source_roots": [],
     "stderr": "",
     "stdout": ""
   },
   {
+    "build_command": "",
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [
       {
@@ -46,10 +54,13 @@
     "ordinal": 3,
     "outcome": "EXECUTED",
     "return_code": 0,
+    "source_roots": [],
     "stderr": "",
     "stdout": ""
   },
   {
+    "build_command": "",
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [
       {
@@ -66,24 +77,31 @@
     "ordinal": 4,
     "outcome": "EXECUTED",
     "return_code": 0,
+    "source_roots": [],
     "stderr": "",
     "stdout": ""
   },
   {
+    "build_command": "",
+    "build_verified": true,
     "detail": "NameError",
     "fixtures": [],
     "ordinal": 5,
     "outcome": "FAILED",
     "return_code": 1,
+    "source_roots": [],
     "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_005\\example.py\", line 3, in <module>\r\n    with msg.MsgReader.from_file(msg_path) as reader:\r\n                                 ^^^^^^^^\r\nNameError: name 'msg_path' is not defined\r\n",
     "stdout": ""
   },
   {
+    "build_command": "",
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [],
     "ordinal": 6,
     "outcome": "EXECUTED",
     "return_code": 0,
+    "source_roots": [],
     "stderr": "",
     "stdout": "b'hello'\r\n"
   }

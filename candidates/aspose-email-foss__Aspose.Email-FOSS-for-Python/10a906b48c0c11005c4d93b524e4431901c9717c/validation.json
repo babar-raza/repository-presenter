@@ -1,8 +1,5 @@
 {
-  "advisory": [
-    "inherited_unit:011.list: the rewrite no longer names CFBReader(data), CFBReader.from_file(), CFBWriter.to_bytes(), EmailMessage, EmailMessage.as_bytes(), MapiAttachment.is_embedded_message, MapiMessage.add_attachment(), SMTP, add_embedded_message_attachment(), from_email_message(), iter_storages(), iter_streams(), iter_tree(), parse_subobject_property_stream(), parse_top_level_property_stream(), resolve_path(), write_file()",
-    "inherited_unit:041.paragraph: the rewrite no longer names aspose.email_foss"
-  ],
+  "advisory": [],
   "checks": [
     {
       "causal_stage": null,
@@ -23,12 +20,12 @@
       "failures": [],
       "id": "BC-02",
       "judged_at": "S9",
-      "name": "Install command verified against the manifest and the package-registry observation",
+      "name": "Install command verified against the manifest and the package-registry observation, against the source-build receipt naming exactly the steps it proved, or - when no build/install command ever succeeds - against a source-checkout receipt",
       "sections": [
         "installation"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -42,7 +39,7 @@
         "additional_examples"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -60,7 +57,7 @@
         "enterprise_relationship"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -88,7 +85,7 @@
         "badges"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -101,7 +98,7 @@
         "structure"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "7"
     },
     {
       "causal_stage": null,
@@ -114,7 +111,7 @@
         "all"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -135,13 +132,13 @@
       "failures": [],
       "id": "BC-10",
       "judged_at": "S10",
-      "name": "Independent review returns ACCEPT under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
+      "name": "Independent review returns ACCEPT corroborated by a second independent read, under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
       "review_verdict": "ACCEPT",
       "sections": [
         "review"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "4"
     },
     {
       "causal_stage": null,
@@ -341,7 +338,7 @@
           "supported": 5
         }
       ],
-      "required": true,
+      "required": false,
       "section_id": "quick_start"
     },
     {
@@ -392,9 +389,9 @@
       "included": true,
       "kinds": [
         {
-          "extracted": 75,
+          "extracted": 94,
           "kind": "inherited_unit",
-          "supported": 75
+          "supported": 94
         },
         {
           "extracted": 6,
@@ -467,8 +464,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "e7e423563b90aadf0aa66d159925ac2c5985b15d03cbcdda9d8b7b803d79b7ad",
-  "readme_sha256": "c884185eb05bbfb9bd3e71791f1f3197512bdea9d144c215351ce15b727a755f",
+  "protected_content_fingerprint": "d6fa7383460e83c43000662fe3559c3107c9feec550074ca33a9505dc285fb29",
+  "readme_sha256": "8ed4f4b549993522969f9d0005b9e2572632fdc3814dda8430bf1b43d7bfc9fa",
   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "10a906b48c0c11005c4d93b524e4431901c9717c",

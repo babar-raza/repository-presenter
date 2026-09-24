@@ -7,89 +7,47 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:email_foss.msg.mapi_message"
+        "public_symbol:email_foss",
+        "import_path:aspose.email_foss"
       ],
-      "symbol_fact_id": "public_symbol:email_foss.msg.mapi_message"
+      "symbol_fact_id": "public_symbol:email_foss"
     },
     {
       "fact_ids": [
-        "public_symbol:email_foss.msg.msgreader"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.msg.msgreader"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.msg.msgwriter"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.msg.msgwriter"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.cfb.cfbreader"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.cfb.cfbreader"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.cfb.cfbwriter"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.cfb.cfbwriter"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.msg.mapiattachment"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.msg.mapiattachment"
-    },
-    {
-      "fact_ids": [
+        "public_symbol:email_foss.msg",
+        "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.msg.mapiattachment",
+        "public_symbol:email_foss.msg.mapinamedproperty",
+        "public_symbol:email_foss.msg.mapiproperty",
         "public_symbol:email_foss.msg.mapirecipient"
       ],
-      "symbol_fact_id": "public_symbol:email_foss.msg.mapirecipient"
+      "symbol_fact_id": "public_symbol:email_foss.msg"
     },
     {
       "fact_ids": [
-        "public_symbol:email_foss.msg.msgdocument"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.msg.msgdocument"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.cfb.cfbdocument"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.cfb.cfbdocument"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.msg.property_id"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.msg.property_id"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.cfb"
+        "public_symbol:email_foss.cfb",
+        "public_symbol:email_foss.cfb.cfbreader",
+        "public_symbol:email_foss.cfb.cfbwriter",
+        "public_symbol:email_foss.cfb.cfbdocument",
+        "public_symbol:email_foss.cfb.cfbstorage",
+        "public_symbol:email_foss.cfb.cfbstream"
       ],
       "symbol_fact_id": "public_symbol:email_foss.cfb"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.msg"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.msg"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
-      "Read and write Outlook .msg files",
-      "Convert between .msg and .eml",
-      "Inspect and build CFB containers",
-      "Manage message properties and attachments",
-      "No external dependencies"
+      "Read MSG files",
+      "Write MSG files",
+      "Convert MSG to EML",
+      "Convert EML to MSG",
+      "Low-level CFB access",
+      "MAPI property support",
+      "Attachment handling"
     ],
     "input_format_ids": [
       "format:input.msg",
-      "format:input.eml",
-      "format:input.txt"
+      "format:input.eml"
     ],
     "output_format_ids": [
       "format:output.msg"
@@ -98,76 +56,115 @@
   "core_capabilities": [
     {
       "fact_ids": [
-        "format:input.msg",
-        "format:output.msg",
+        "example:001",
+        "public_symbol:email_foss.msg.mapi_message"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:email_foss.msg.mapi_message"
+      ],
+      "title": "Read MSG files"
+    },
+    {
+      "fact_ids": [
+        "example:002",
         "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.msg.mapiattachment"
+      ],
+      "shared_fact_ids": [
+        "example:002",
+        "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.msg.mapiattachment"
+      ],
+      "title": "Write MSG files"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "format:input.msg",
+        "format:input.eml"
+      ],
+      "shared_fact_ids": [
+        "format:input.eml"
+      ],
+      "title": "Convert MSG to EML"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "format:input.eml",
+        "format:output.msg"
+      ],
+      "shared_fact_ids": [
+        "format:input.eml"
+      ],
+      "title": "Convert EML to MSG"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:email_foss.cfb",
+        "public_symbol:email_foss.cfb.cfbreader",
+        "public_symbol:email_foss.cfb.cfbwriter"
+      ],
+      "shared_fact_ids": [],
+      "title": "Low-level CFB access"
+    },
+    {
+      "fact_ids": [
         "public_symbol:email_foss.msg.msgreader",
         "public_symbol:email_foss.msg.msgwriter"
       ],
+      "shared_fact_ids": [],
+      "title": "Low-level MSG access"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:email_foss.msg.property_id",
+        "public_symbol:email_foss.msg.mapinamedproperty"
+      ],
       "shared_fact_ids": [
-        "public_symbol:email_foss.msg.mapi_message"
-      ],
-      "title": "Read and write Outlook .msg files"
-    },
-    {
-      "fact_ids": [
-        "format:input.eml",
-        "format:input.eml",
-        "example:003",
-        "example:004"
-      ],
-      "shared_fact_ids": [],
-      "title": "Convert between .msg and .eml"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.cfb",
-        "example:006"
-      ],
-      "shared_fact_ids": [],
-      "title": "Inspect and build CFB containers"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.msg.mapi_message",
-        "public_symbol:email_foss.msg.mapiattachment",
-        "public_symbol:email_foss.msg.mapirecipient",
         "example:002"
       ],
-      "shared_fact_ids": [
-        "public_symbol:email_foss.msg.mapi_message"
-      ],
-      "title": "Manage message properties and attachments"
+      "title": "MAPI property support"
     },
     {
       "fact_ids": [
-        "dependency:none",
-        "package:python_requires"
+        "example:002",
+        "public_symbol:email_foss.msg.mapiattachment"
       ],
-      "shared_fact_ids": [],
-      "title": "No external dependencies"
+      "shared_fact_ids": [
+        "example:002",
+        "public_symbol:email_foss.msg.mapiattachment"
+      ],
+      "title": "Attachment handling"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:030.html_block",
-        "inherited_unit:039.html_block",
-        "inherited_unit:062.html_block"
+        "inherited_unit:008.code_block"
       ],
-      "section_id": "additional_examples",
-      "text": "The HTML details block separators are omitted as non-content."
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the inherited README is omitted because no fact supports its structure or content; the section is rendered deterministically instead."
     },
     {
       "fact_ids": [
-        "inherited_unit:042.html_block",
-        "inherited_unit:062.html_block"
+        "inherited_unit:035.code_block"
       ],
-      "section_id": "api_reference",
-      "text": "The HTML details block separators are omitted as non-content."
+      "section_id": "additional_examples",
+      "text": "The example in inherited_unit:035.code_block is marked [CONTRADICTED example, not citable] and is omitted entirely."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.paragraph",
+        "link_target:product.enterprise"
+      ],
+      "section_id": "enterprise_relationship",
+      "text": "The Enterprise Edition paragraph from inherited_unit:067.paragraph is moved to this section because the product target link_target:product.enterprise is verified."
     }
   ],
-  "flagship_example_id": "example:003",
+  "flagship_example_id": "example:006",
   "links": [
     {
       "link_fact_id": "link_target:026",
@@ -182,6 +179,10 @@
       "section_id": "documentation_resources"
     },
     {
+      "link_fact_id": "link_target:034",
+      "section_id": "documentation_resources"
+    },
+    {
       "link_fact_id": "link_target:035",
       "section_id": "enterprise_relationship"
     }
@@ -189,9 +190,11 @@
   "material_limitations": [
     {
       "fact_ids": [
-        "inherited_unit:066.list"
+        "install_command:pip"
       ],
-      "unit_ids": []
+      "unit_ids": [
+        "inherited_unit:066.list"
+      ]
     }
   ],
   "quick_start_example_id": "example:001",
@@ -244,7 +247,7 @@
     },
     {
       "include": true,
-      "reason": "the shell requires it",
+      "reason": "its condition holds",
       "section_id": "quick_start"
     },
     {

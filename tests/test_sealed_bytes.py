@@ -141,23 +141,15 @@ KNOWN_BLOCKED_STALE = {
             "re-verification of this one bundle is post-sprint debt"
         ),
     },
-    "aspose-email-foss__Aspose.Email-FOSS-for-Python": {
-        "reason": (
-            "F07 (development_testing content gap) CONFIRMED FIXED by a fresh redraw, "
-            "2026-09-23 - genuine BC-10 rejection now stands on a different finding, F08 "
-            "(scope_limitations): a faithful paraphrase of one bullet of a bundled "
-            "multi-item inherited_unit list fact that _cited_paraphrase cannot refute "
-            "because its overlap ratio is computed against the fact's whole value, not the "
-            "bullet the quote restates - the same mechanism already recorded for "
-            "Aspose.Words-FOSS-for-.NET's F05; see comment above and docs/DECISION_LOG.md"
-        ),
-        "ref": (
-            "docs/DECISION_LOG.md section 31 2026-09-23 09:59 UTC (this repository's own "
-            "F08 reproduction) and section 31 2026-09-17 10:32 UTC (the first recorded "
-            "instance, Aspose.Words-FOSS-for-.NET F05) - both share one resume predicate: "
-            "a _cited_paraphrase fix scoped to the specific bullet a quote restates"
-        ),
-    },
+    # aspose-email-foss__Aspose.Email-FOSS-for-Python's entry here (F08, the _cited_paraphrase
+    # whole-fact-denominator dilution - a faithful paraphrase of one bullet of a bundled
+    # multi-item inherited_unit list fact scored below _PARAPHRASE_MIN_OVERLAP because the ratio
+    # was computed against the fact's WHOLE value, not the bullet the quote restates) is removed
+    # as of the shared-defect investigation fix (REVIEWER_LOGIC_VERSION 11 -> 12, new
+    # _value_segments in review/independent/review.py, docs/DECISION_LOG.md section 31): this
+    # candidate re-sealed READY_FOR_PROPOSAL with a fresh no-op proof, `review.json` verdict
+    # ACCEPT, findings 0 - F08 does not recur. Leaving the entry would XPASS(strict) forever,
+    # the same reasoning the PDF-.NET/PDF-Java removals below already establish.
     "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp": {
         "reason": (
             "G4-W17 item 44's command_block_tokens landing correctly wraps Aspose.Cells.Cpp.FOSS "

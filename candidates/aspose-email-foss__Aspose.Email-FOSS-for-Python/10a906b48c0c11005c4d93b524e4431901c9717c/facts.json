@@ -273,10 +273,6 @@
         {
           "detail": "staged as message.msg; example 3 read it: EXECUTED",
           "path": "hello.msg"
-        },
-        {
-          "detail": "staged as message.msg; example 4 read it: EXECUTED",
-          "path": "hello.msg"
         }
       ],
       "id": "format:input.msg",
@@ -423,7 +419,9 @@
       "value": "# Aspose.Email FOSS for Python"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -437,7 +435,9 @@
       "value": "[![PyPI version](https://img.shields.io/pypi/v/aspose-email-foss.svg)](https://pypi.org/project/aspose-email-foss/) [![Python versions](https://img.shields.io/pypi/pyversions/aspose-email-foss.svg)](https://pypi.org/project/aspose-email-foss/) [![Build](https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python/actions/workflows/ci.yml/badge.svg)](https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-email-foss/Aspose.Email-FOSS-for-Python.svg)](https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python/graphs/contributors)"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -451,7 +451,9 @@
       "value": "[![Aspose.Email FOSS for Python](https://products.aspose.org/media/email/python/banner-readme.png)](https://products.aspose.org/email/python/)"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -465,7 +467,9 @@
       "value": "Aspose.Email FOSS for Python is a free, open-source, MIT-licensed, pure-Python library for\ndeterministic Compound File Binary (CFB) and Outlook `.msg` message processing \u2014 no Microsoft\nOutlook installation, COM interop, or compiled extensions required. It provides low-level CFB and\nMSG readers/writers alongside a high-level, mutable `MapiMessage` API for creating, editing, and\nsaving messages, including two-way conversion with Python's own\n[`email.message.EmailMessage`](https://docs.python.org/3/library/email.message.html#email.message.EmailMessage)."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -479,7 +483,9 @@
       "value": "## Navigation"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Navigation"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -493,7 +499,9 @@
       "value": "- [At a Glance](#at-a-glance)\n- [Key Capabilities](#key-capabilities)\n- [Installation](#installation)\n- [Dependencies](#dependencies)\n- [Quick Start](#quick-start)\n- [Additional Examples](#additional-examples)\n- [API Reference](#api-reference)\n- [Documentation & Resources](#documentation--resources)\n- [Scope and Limitations](#scope-and-limitations)\n- [Development and Testing](#development-and-testing)\n- [License](#license)"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -507,7 +515,9 @@
       "value": "## At a Glance"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > At a Glance"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -521,7 +531,9 @@
       "value": "```mermaid\nflowchart TD\n  subgraph StartingPoints[\"Starting Points\"]\n    direction LR\n    i1[\"An existing CFB container (file or bytes)\"]\n    i2[\"An existing .msg file (file or bytes)\"]\n    i3[\"An existing EML file (via Python's email package)\"]\n  end\n  PRODUCT[\"Aspose.Email FOSS for Python\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction TB\n    c1[\"Low-level CFB container read/write (CFBReader / CFBWriter)\"]\n    c2[\"Low-level MSG document read/write (MsgReader / MsgWriter / MsgDocument)\"]\n    c3[\"High-level MapiMessage API (create, edit, save, reload)\"]\n    c4[\"Export a MapiMessage to a Python EmailMessage (to_email_message)\"]\n    c5[\"Import a Python EmailMessage into a MapiMessage (from_email_message)\"]\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"CFB containers\"]\n    o2[\".msg files\"]\n    o3[\"EML files (via Python's email package)\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -535,7 +547,9 @@
       "value": "## Key Capabilities"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Key Capabilities"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -549,7 +563,9 @@
       "value": "The following features are grouped by processing layer, from low-level CFB and MSG access up\nthrough the high-level `MapiMessage` API and its `EmailMessage` bridge. Together they cover the\nlibrary's main supported scenarios."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Key Capabilities"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -563,7 +579,9 @@
       "value": "- `CFBReader` reads Compound File Binary (CFB) containers from a file path or raw bytes\n  (`CFBReader.from_file()` or `CFBReader(data)`), and traverses storages, streams, and the\n  directory tree (`iter_storages()`, `iter_streams()`, `iter_tree()`, `resolve_path()`).\n- Build and write CFB containers with `CFBStorage`, `CFBStream`, `CFBDocument`, and `CFBWriter`\n  (`CFBWriter.to_bytes()` / `write_file()`).\n- Low-level Outlook `.msg` documents, including direct property-stream parsing, are read and\n  written through `MsgReader`, `MsgDocument`, and `MsgWriter` (`parse_top_level_property_stream()`,\n  `parse_subobject_property_stream()`).\n- Create, edit, save, and reload high-level messages through `MapiMessage` \u2014 subject, body, HTML\n  body, MAPI properties, recipients, attachments, and named properties (`MapiNamedProperty`).\n- Regular attachments (`MapiMessage.add_attachment()`) and embedded-message attachments\n  (`MapiAttachment.is_embedded_message`, `add_embedded_message_attachment()`) are both supported.\n- Bridge to Python's standard `EmailMessage` object with `to_email_message()`, serializable\n  straight to `.eml` bytes via `EmailMessage.as_bytes()`, and reconstruct a `MapiMessage` from an\n  `EmailMessage` with `from_email_message()`.\n- Outlook-oriented compatibility defaults \u2014 a default `SMTP` sender address type, one-off\n  recipient entry IDs, and search keys \u2014 are applied automatically when creating a new message\n  from scratch, so authored messages interoperate cleanly with real Outlook clients."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -577,7 +595,9 @@
       "value": "## Installation"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Installation"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -591,7 +611,9 @@
       "value": "Install the library from PyPI:"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Installation"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -605,7 +627,9 @@
       "value": "```bash\npip install aspose-email-foss\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Installation"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -619,7 +643,9 @@
       "value": "The package targets Python 3.10 or later and ships as pure Python source (`aspose.email_foss`) \u2014\nsee [Dependencies](#dependencies) below for the full package, native, and development dependency\nbreakdown."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -633,7 +659,9 @@
       "value": "## Dependencies"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Dependencies"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -647,7 +675,9 @@
       "value": "### Required Package Dependencies"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Dependencies > Required Package Dependencies"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -661,7 +691,9 @@
       "value": "No required third-party package dependencies."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Dependencies"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -675,7 +707,9 @@
       "value": "### Native and System Requirements"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Dependencies > Native and System Requirements"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -689,7 +723,9 @@
       "value": "- Requires Python 3.10 or later, per `pyproject.toml`'s `requires-python` constraint.\n- Ships as pure Python source with no compiled extensions to build and no native/system\n  libraries to install."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -703,7 +739,9 @@
       "value": "## Quick Start"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Quick Start"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -717,7 +755,9 @@
       "value": "Read a subject from an MSG file:"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Quick Start"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -731,7 +771,9 @@
       "value": "```python\nfrom aspose.email_foss import msg\n\nwith msg.MapiMessage.from_file(\"sample.msg\") as message:\n    print(message.subject)\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Quick Start"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -745,7 +787,9 @@
       "value": "Create a message and save it as both MSG and EML:"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Quick Start"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -759,7 +803,9 @@
       "value": "```python\nfrom aspose.email_foss import msg\n\nmessage = msg.MapiMessage.create(\"Hello\", \"Body\")\nmessage.set_property(msg.PropertyId.SENDER_NAME, \"Alice\")\nmessage.set_property(msg.PropertyId.SENDER_EMAIL_ADDRESS, \"alice@example.com\")\nmessage.add_recipient(\"bob@example.com\", display_name=\"Bob\")\nmessage.add_attachment(\"note.txt\", b\"abc\", mime_type=\"text/plain\")\nmessage.save(\"hello.msg\")\n\nwith msg.MapiMessage.from_file(\"hello.msg\") as loaded:\n    email_message = loaded.to_email_message()\n    with open(\"hello.eml\", \"wb\") as target:\n        target.write(email_message.as_bytes())\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -773,7 +819,9 @@
       "value": "## Additional Examples"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -787,7 +835,9 @@
       "value": "Full runnable examples are available under [`examples/`](examples/) (see\n[`examples/README.md`](examples/README.md) for a task-to-script index)."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -801,7 +851,9 @@
       "value": "### Convert MSG to EML"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples > Convert MSG to EML"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -815,7 +867,9 @@
       "value": "```python\nfrom aspose.email_foss import msg\n\nwith msg.MapiMessage.from_file(\"message.msg\") as message:\n    email_message = message.to_email_message()\n\nwith open(\"message.eml\", \"wb\") as target:\n    target.write(email_message.as_bytes())\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples > Convert MSG to EML"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -829,7 +883,9 @@
       "value": "<details>\n<summary>View Additional Examples</summary>"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -843,7 +899,9 @@
       "value": "### Convert EML to MSG"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples > Convert EML to MSG"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -857,7 +915,9 @@
       "value": "```python\nfrom email import policy\nfrom email.parser import BytesParser\n\nfrom aspose.email_foss import msg\n\nwith open(\"message.eml\", \"rb\") as source:\n    email_message = BytesParser(policy=policy.default).parse(source)\n\nmessage = msg.MapiMessage.from_email_message(email_message)\nmessage.save(\"message.msg\")\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -871,7 +931,9 @@
       "value": "### Inspect Low-Level MSG and CFB Structure"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples > Inspect Low-Level MSG and CFB Structure"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -885,7 +947,9 @@
       "value": "Open a `.msg` through `MsgReader` and inspect the underlying CFB container and property-stream\nheader (excerpted from `examples/msg_reader.py`):"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples > Inspect Low-Level MSG and CFB Structure"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -899,7 +963,9 @@
       "value": "```python\nfrom aspose.email_foss import msg\n\nwith msg.MsgReader.from_file(msg_path) as reader:\n    cfb = reader.cfb_reader\n    print(f\"major_version={cfb.major_version} sector_size={cfb.sector_size}\")\n\n    header = reader.top_level_header\n    print(f\"recipient_count={header.recipient_count} attachment_count={header.attachment_count}\")\n\n    for entry in reader.iter_recipient_storages():\n        print(f\"recipient storage: {entry.name}\")\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -913,7 +979,9 @@
       "value": "### Build a CFB Container Directly"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples > Build a CFB Container Directly"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -927,7 +995,9 @@
       "value": "Construct a CFB container from scratch, write it to bytes, and read a stream back (mirrors the\nlibrary's own round-trip test suite):"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples > Build a CFB Container Directly"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -941,7 +1011,9 @@
       "value": "```python\nfrom aspose.email_foss.cfb import CFBDocument, CFBReader, CFBStorage, CFBStream, CFBWriter, ROOT_ENTRY_NAME\n\nroot = CFBStorage(ROOT_ENTRY_NAME)\nroot.add_stream(CFBStream(\"Summary\", b\"hello\"))\n\ndata = CFBWriter.to_bytes(CFBDocument(root=root, major_version=3))\nreader = CFBReader(data)\nentry = reader.resolve_path([\"Summary\"])\nprint(reader.get_stream_data(entry.stream_id))\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Additional Examples > Build a CFB Container Directly"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -955,7 +1027,9 @@
       "value": "</details>"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -969,7 +1043,9 @@
       "value": "## API Reference"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -983,7 +1059,9 @@
       "value": "The library's package entry points are organized into three stable layers, all importable from\n`aspose.email_foss`: the high-level MSG API, centered on `MapiMessage`, for creating, editing, and\nconverting messages; the low-level MSG API, centered on `MsgReader`, `MsgWriter`, and\n`MsgDocument`, for direct property-stream access; and the low-level CFB API, centered on\n`CFBReader`, `CFBWriter`, and `CFBDocument`, for raw Compound File Binary container access. The\nCFB and MSG modules are listed separately in the tables below."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -997,7 +1075,9 @@
       "value": "<details>\n<summary>View the Core API Surface</summary>"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1011,7 +1091,9 @@
       "value": "### CFB Format (Compound File Binary)"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > CFB Format (Compound File Binary)"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1025,7 +1107,9 @@
       "value": "| Class | Description |\n|---|---|\n| `CFBDocument` | Mutable Compound File Binary (CFB) document description. |\n| `CFBError` | Raised for malformed or unsupported Compound File Binary (CFB) content. |\n| `CFBReader` | Reusable reader for Compound File Binary (CFB) containers. |\n| `CFBStorage` | Mutable storage node used by the CFB writer. |\n| `CFBStream` | Mutable stream node used by the CFB writer. |\n| `CFBWriter` | Deterministic serializer for Compound File Binary (CFB) containers. |\n| `DirectoryEntry` | Fixed-size directory record for one storage/stream object and its tree links. |\n| `Header` | Header record at file offset 0 defining Compound File Binary (CFB) geometry and allocation chain entry points. |"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > CFB Format (Compound File Binary)"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1039,7 +1123,9 @@
       "value": "#### Enumerations"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > CFB Format (Compound File Binary) > Enumerations"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1053,7 +1139,9 @@
       "value": "| Enumeration | Description |\n|---|---|\n| `DirectoryColorFlag` | Stores the red-black tree color used by directory sibling links. |\n| `DirectoryObjectType` | Classifies the directory entry payload as unallocated, storage, stream, or root storage. |\n| `SectorMarker` | Special FAT marker values reserved for sector allocation metadata. |"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1067,7 +1155,9 @@
       "value": "### MSG Format"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > MSG Format"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1081,7 +1171,9 @@
       "value": "| Class | Description |\n|---|---|\n| `MapiAttachment` | Mutable attachment object. |\n| `MapiMessage` | Mutable high-level MSG object with MSG and EmailMessage conversion support. |\n| `MapiNamedProperty` | Identifier for a named MAPI property. |\n| `MapiProperty` | Logical MAPI property with optional named-property identity. |\n| `MapiPropertyCollection` | MapiPropertyCollection.set adds or replaces a MapiProperty in the collection and returns it. |\n| `MapiRecipient` | Mutable recipient object. |\n| `MsgDocument` | Mutable MSG document model that can be serialized through the CFB writer. |\n| `MsgError` | Raised for malformed or unsupported MSG structures. |\n| `MsgReader` | Normative top-level MSG containment and stream requirements for container traversal. |\n| `MsgStorage` | Mutable MSG storage node with role classification and parsed property-stream metadata. |\n| `MsgStream` | Mutable MSG stream node with raw bytes and CFB metadata. |\n| `MsgWriter` | Serializer that writes a MsgDocument into a CFB-backed .msg payload. |\n| `PropertyEntryFixedLength` | Fixed-length property stream entry containing property tag, flags, and inline 8-byte value payload. |\n| `PropertyStreamHeaderSubobject` | Property stream header used in recipient and attachment storages, containing only reserved bytes. |\n| `PropertyStreamHeaderTopLevel` | Top-level property stream header containing next-id counters and counts for recipients and attachments. |\n| `StorageLayout` | Naming and containment rules for recipient, attachment, embedded message, and nameid storages. |"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > MSG Format"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1095,7 +1187,9 @@
       "value": "#### Enumerations"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > MSG Format > Enumerations"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1109,7 +1203,9 @@
       "value": "| Enumeration | Description |\n|---|---|\n| `CommonMessagePropertyId` | Common MAPI property identifiers used by the MSG reader/writer for core message semantics. |\n| `PropertyId` | Common property identifiers paired with their default MAPI property types. |\n| `PropertyTypeCode` | MAPI property type codes used in MSG property tags and value stream names. |"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > MSG Format"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1123,7 +1219,9 @@
       "value": "#### Detailed Member Reference"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1137,21 +1235,105 @@
       "value": "### High-Level Message API"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > High-Level Message API"
+      },
       "confidence": 1.0,
       "evidence": [
         {
-          "detail": "lines 277-303; list; under Aspose.Email FOSS for Python > API Reference > High-Level Message API",
+          "detail": "lines 277-295; list; under Aspose.Email FOSS for Python > API Reference > High-Level Message API",
           "path": "README.md"
         }
       ],
-      "id": "inherited_unit:053.list",
+      "id": "inherited_unit:053.001.list",
       "kind": "inherited_unit",
       "polarity": "SUPPORTED",
-      "value": "- `MapiMessage`\n  - `create(subject, body, unicode_strings) -> \"MapiMessage\"`\n  - `from_file(path, strict) -> \"MapiMessage\"`\n  - `from_msg_document(document) -> \"MapiMessage\"`\n  - `from_email_message(email_message, unicode_strings) -> \"MapiMessage\"`\n  - `to_email_message() -> EmailMessage`\n  - `to_bytes() -> bytes` / `save(path) -> None`\n  - `set_property(property_id, property_type_or_value, value, flags)` /\n    `get_property(property_id, property_type, storage_stream_id, decode)` /\n    `get_property_value(...)`\n  - `set_named_property(named_property, property_type, value, flags)` /\n    `get_named_property(named_property, property_type)`\n  - `add_recipient(email_address, display_name, recipient_type)`\n  - `add_attachment(filename, data, mime_type, content_id)`\n  - `add_embedded_message_attachment(message, filename, mime_type)`\n  - `iter_properties()` / `iter_property_keys(storage_stream_id)` / `iter_attachments_info()`\n  - `to_msg_document() -> MsgDocument`\n  - properties: `subject`, `body`, `body_html`, `message_class`, `unicode_strings`, `properties`,\n    `recipients`, `attachments`, `validation_issues`\n- `MapiAttachment`\n  - `from_bytes(filename, data, mime_type, content_id)` / `from_embedded_message(message, filename, mime_type)`\n  - properties: `filename`, `data`, `mime_type`, `content_id`, `is_embedded_message`, `embedded_message`, `properties`\n- `MapiRecipient` \u2014 properties: `display_name`, `email_address`, `recipient_type`, `address_type`, `properties`\n- `MapiProperty` \u2014 properties: `property_tag`, `property_id`, `property_type`, `value`, `flags`, `named`\n- `MapiPropertyCollection` \u2014 `set(property)`, `add(property_id, property_type, value, flags, named)`,\n  `get(property_id, property_type)`, `remove(property_id, property_type)`, `iter_properties()`\n- `MapiNamedProperty` \u2014 `string(name, property_set)` / `numeric(lid, property_set)`; properties: `property_set`, `kind`, `name`, `lid`"
+      "value": "- `MapiMessage`\n  - `create(subject, body, unicode_strings) -> \"MapiMessage\"`\n  - `from_file(path, strict) -> \"MapiMessage\"`\n  - `from_msg_document(document) -> \"MapiMessage\"`\n  - `from_email_message(email_message, unicode_strings) -> \"MapiMessage\"`\n  - `to_email_message() -> EmailMessage`\n  - `to_bytes() -> bytes` / `save(path) -> None`\n  - `set_property(property_id, property_type_or_value, value, flags)` /\n    `get_property(property_id, property_type, storage_stream_id, decode)` /\n    `get_property_value(...)`\n  - `set_named_property(named_property, property_type, value, flags)` /\n    `get_named_property(named_property, property_type)`\n  - `add_recipient(email_address, display_name, recipient_type)`\n  - `add_attachment(filename, data, mime_type, content_id)`\n  - `add_embedded_message_attachment(message, filename, mime_type)`\n  - `iter_properties()` / `iter_property_keys(storage_stream_id)` / `iter_attachments_info()`\n  - `to_msg_document() -> MsgDocument`\n  - properties: `subject`, `body`, `body_html`, `message_class`, `unicode_strings`, `properties`,\n    `recipients`, `attachments`, `validation_issues`"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > High-Level Message API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 296-298; list; under Aspose.Email FOSS for Python > API Reference > High-Level Message API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:053.002.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MapiAttachment`\n  - `from_bytes(filename, data, mime_type, content_id)` / `from_embedded_message(message, filename, mime_type)`\n  - properties: `filename`, `data`, `mime_type`, `content_id`, `is_embedded_message`, `embedded_message`, `properties`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > High-Level Message API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 299-299; list; under Aspose.Email FOSS for Python > API Reference > High-Level Message API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:053.003.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MapiRecipient` \u2014 properties: `display_name`, `email_address`, `recipient_type`, `address_type`, `properties`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > High-Level Message API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 300-300; list; under Aspose.Email FOSS for Python > API Reference > High-Level Message API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:053.004.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MapiProperty` \u2014 properties: `property_tag`, `property_id`, `property_type`, `value`, `flags`, `named`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > High-Level Message API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 301-302; list; under Aspose.Email FOSS for Python > API Reference > High-Level Message API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:053.005.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MapiPropertyCollection` \u2014 `set(property)`, `add(property_id, property_type, value, flags, named)`,\n  `get(property_id, property_type)`, `remove(property_id, property_type)`, `iter_properties()`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > High-Level Message API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 303-303; list; under Aspose.Email FOSS for Python > API Reference > High-Level Message API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:053.006.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MapiNamedProperty` \u2014 `string(name, property_set)` / `numeric(lid, property_set)`; properties: `property_set`, `kind`, `name`, `lid`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1165,21 +1347,105 @@
       "value": "### Low-Level MSG API"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level MSG API"
+      },
       "confidence": 1.0,
       "evidence": [
         {
-          "detail": "lines 307-321; list; under Aspose.Email FOSS for Python > API Reference > Low-Level MSG API",
+          "detail": "lines 307-312; list; under Aspose.Email FOSS for Python > API Reference > Low-Level MSG API",
           "path": "README.md"
         }
       ],
-      "id": "inherited_unit:055.list",
+      "id": "inherited_unit:055.001.list",
       "kind": "inherited_unit",
       "polarity": "SUPPORTED",
-      "value": "- `MsgReader`\n  - `from_file(path, strict) -> \"MsgReader\"`\n  - `iter_top_level_fixed_length_properties()` / `iter_recipient_storages()` / `iter_attachment_storages()`\n  - `parse_message_property_stream(storage_stream_id)` / `parse_subobject_property_stream(storage_stream_id)`\n  - `parse_top_level_property_stream(data)` (classmethod) / `parse_subobject_property_stream_data(data)` (classmethod)\n  - properties: `cfb_reader`, `storage_layout`, `strict`, `validation_issues`\n- `MsgWriter` (classmethod-only) \u2014 `to_bytes(document)`, `write_file(document, path)`\n- `MsgDocument`\n  - `from_reader(reader)`, `from_file(path, strict)`, `to_cfb_document() -> CFBDocument`\n  - properties: `root`, `major_version`, `minor_version`, `transaction_signature_number`\n- `MsgStorage` \u2014 `add_stream(stream)`, `add_storage(storage)`, `find_stream(name)`, `find_storage(name)`,\n  `iter_streams()`, `iter_storages()`; properties: `name`, `role`, `streams`, `storages`\n- `MsgStream` \u2014 properties: `name`, `data`, `clsid`, `state_bits`, `creation_time`, `modified_time`\n- `StorageLayout` \u2014 properties: `recipient_storages`, `attachment_storages`,\n  `named_property_mapping_storage`, `top_level_property_stream`"
+      "value": "- `MsgReader`\n  - `from_file(path, strict) -> \"MsgReader\"`\n  - `iter_top_level_fixed_length_properties()` / `iter_recipient_storages()` / `iter_attachment_storages()`\n  - `parse_message_property_stream(storage_stream_id)` / `parse_subobject_property_stream(storage_stream_id)`\n  - `parse_top_level_property_stream(data)` (classmethod) / `parse_subobject_property_stream_data(data)` (classmethod)\n  - properties: `cfb_reader`, `storage_layout`, `strict`, `validation_issues`"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level MSG API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 313-313; list; under Aspose.Email FOSS for Python > API Reference > Low-Level MSG API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:055.002.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MsgWriter` (classmethod-only) \u2014 `to_bytes(document)`, `write_file(document, path)`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level MSG API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 314-316; list; under Aspose.Email FOSS for Python > API Reference > Low-Level MSG API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:055.003.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MsgDocument`\n  - `from_reader(reader)`, `from_file(path, strict)`, `to_cfb_document() -> CFBDocument`\n  - properties: `root`, `major_version`, `minor_version`, `transaction_signature_number`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level MSG API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 317-318; list; under Aspose.Email FOSS for Python > API Reference > Low-Level MSG API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:055.004.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MsgStorage` \u2014 `add_stream(stream)`, `add_storage(storage)`, `find_stream(name)`, `find_storage(name)`,\n  `iter_streams()`, `iter_storages()`; properties: `name`, `role`, `streams`, `storages`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level MSG API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 319-319; list; under Aspose.Email FOSS for Python > API Reference > Low-Level MSG API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:055.005.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MsgStream` \u2014 properties: `name`, `data`, `clsid`, `state_bits`, `creation_time`, `modified_time`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level MSG API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 320-321; list; under Aspose.Email FOSS for Python > API Reference > Low-Level MSG API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:055.006.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `StorageLayout` \u2014 properties: `recipient_storages`, `attachment_storages`,\n  `named_property_mapping_storage`, `top_level_property_stream`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1193,21 +1459,121 @@
       "value": "### Low-Level CFB API"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level CFB API"
+      },
       "confidence": 1.0,
       "evidence": [
         {
-          "detail": "lines 325-338; list; under Aspose.Email FOSS for Python > API Reference > Low-Level CFB API",
+          "detail": "lines 325-331; list; under Aspose.Email FOSS for Python > API Reference > Low-Level CFB API",
           "path": "README.md"
         }
       ],
-      "id": "inherited_unit:057.list",
+      "id": "inherited_unit:057.001.list",
       "kind": "inherited_unit",
       "polarity": "SUPPORTED",
-      "value": "- `CFBReader`\n  - `from_file(path) -> \"CFBReader\"` / `CFBReader(data)` (constructs directly from `bytes`)\n  - `get_entry(stream_id)`, `get_stream_data(stream_id)`\n  - `iter_storages()`, `iter_streams()`, `iter_children(storage_stream_id)`, `iter_tree(start_stream_id)`\n  - `find_child_by_name(storage_stream_id, name)`, `resolve_path(names, start_stream_id)`\n  - properties: `header`, `difat`, `fat`, `mini_fat`, `directory_entries`, `root_entry`, `data_size`,\n    `major_version`, `sector_size`, `mini_sector_size`, `file_size`\n- `CFBWriter` (classmethod-only) \u2014 `to_bytes(document)`, `write_file(document, path)`\n- `CFBDocument` \u2014 `from_file(path)`, `from_reader(reader)`; properties: `root`, `major_version`,\n  `minor_version`, `transaction_signature_number`\n- `CFBStorage` \u2014 `add_storage(storage)`, `add_stream(stream)`; properties: `name`, `children`\n- `CFBStream` \u2014 properties: `name`, `data`\n- `DirectoryEntry` \u2014 `is_storage()`, `is_stream()`, `is_root()`\n- `Header` \u2014 CFB header fields (`sector_size`, `mini_sector_size`, FAT/DIFAT layout counters)"
+      "value": "- `CFBReader`\n  - `from_file(path) -> \"CFBReader\"` / `CFBReader(data)` (constructs directly from `bytes`)\n  - `get_entry(stream_id)`, `get_stream_data(stream_id)`\n  - `iter_storages()`, `iter_streams()`, `iter_children(storage_stream_id)`, `iter_tree(start_stream_id)`\n  - `find_child_by_name(storage_stream_id, name)`, `resolve_path(names, start_stream_id)`\n  - properties: `header`, `difat`, `fat`, `mini_fat`, `directory_entries`, `root_entry`, `data_size`,\n    `major_version`, `sector_size`, `mini_sector_size`, `file_size`"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level CFB API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 332-332; list; under Aspose.Email FOSS for Python > API Reference > Low-Level CFB API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:057.002.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `CFBWriter` (classmethod-only) \u2014 `to_bytes(document)`, `write_file(document, path)`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level CFB API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 333-334; list; under Aspose.Email FOSS for Python > API Reference > Low-Level CFB API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:057.003.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `CFBDocument` \u2014 `from_file(path)`, `from_reader(reader)`; properties: `root`, `major_version`,\n  `minor_version`, `transaction_signature_number`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level CFB API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 335-335; list; under Aspose.Email FOSS for Python > API Reference > Low-Level CFB API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:057.004.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `CFBStorage` \u2014 `add_storage(storage)`, `add_stream(stream)`; properties: `name`, `children`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level CFB API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 336-336; list; under Aspose.Email FOSS for Python > API Reference > Low-Level CFB API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:057.005.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `CFBStream` \u2014 properties: `name`, `data`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level CFB API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 337-337; list; under Aspose.Email FOSS for Python > API Reference > Low-Level CFB API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:057.006.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `DirectoryEntry` \u2014 `is_storage()`, `is_stream()`, `is_root()`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Low-Level CFB API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 338-338; list; under Aspose.Email FOSS for Python > API Reference > Low-Level CFB API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:057.007.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `Header` \u2014 CFB header fields (`sector_size`, `mini_sector_size`, FAT/DIFAT layout counters)"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1221,21 +1587,57 @@
       "value": "### Enumerations"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Enumerations"
+      },
       "confidence": 1.0,
       "evidence": [
         {
-          "detail": "lines 342-346; list; under Aspose.Email FOSS for Python > API Reference > Enumerations",
+          "detail": "lines 342-343; list; under Aspose.Email FOSS for Python > API Reference > Enumerations",
           "path": "README.md"
         }
       ],
-      "id": "inherited_unit:059.list",
+      "id": "inherited_unit:059.001.list",
       "kind": "inherited_unit",
       "polarity": "SUPPORTED",
-      "value": "- `CommonMessagePropertyId` / `PropertyId` \u2014 common MAPI property identifiers (`SUBJECT`,\n  `SENDER_NAME`, `SENDER_EMAIL_ADDRESS`, `ATTACH_FILENAME`, `MESSAGE_DELIVERY_TIME`, and more)\n- `PropertyTypeCode` \u2014 MAPI property type codes (`PTYP_STRING`, `PTYP_BINARY`, `PTYP_INTEGER32`,\n  `PTYP_TIME`, and other MAPI property type codes, including their `PTYP_MULTIPLE_*` variants)\n- `DirectoryObjectType`, `DirectoryColorFlag`, `SectorMarker`"
+      "value": "- `CommonMessagePropertyId` / `PropertyId` \u2014 common MAPI property identifiers (`SUBJECT`,\n  `SENDER_NAME`, `SENDER_EMAIL_ADDRESS`, `ATTACH_FILENAME`, `MESSAGE_DELIVERY_TIME`, and more)"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Enumerations"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 344-345; list; under Aspose.Email FOSS for Python > API Reference > Enumerations",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:059.002.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `PropertyTypeCode` \u2014 MAPI property type codes (`PTYP_STRING`, `PTYP_BINARY`, `PTYP_INTEGER32`,\n  `PTYP_TIME`, and other MAPI property type codes, including their `PTYP_MULTIPLE_*` variants)"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Enumerations"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 346-346; list; under Aspose.Email FOSS for Python > API Reference > Enumerations",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:059.003.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `DirectoryObjectType`, `DirectoryColorFlag`, `SectorMarker`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1249,21 +1651,41 @@
       "value": "### Exceptions"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Exceptions"
+      },
       "confidence": 1.0,
       "evidence": [
         {
-          "detail": "lines 350-351; list; under Aspose.Email FOSS for Python > API Reference > Exceptions",
+          "detail": "lines 350-350; list; under Aspose.Email FOSS for Python > API Reference > Exceptions",
           "path": "README.md"
         }
       ],
-      "id": "inherited_unit:061.list",
+      "id": "inherited_unit:061.001.list",
       "kind": "inherited_unit",
       "polarity": "SUPPORTED",
-      "value": "- `CFBError`\n- `MsgError`"
+      "value": "- `CFBError`"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Exceptions"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 351-351; list; under Aspose.Email FOSS for Python > API Reference > Exceptions",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:061.002.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MsgError`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > API Reference > Exceptions"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1277,7 +1699,9 @@
       "value": "</details>"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1291,7 +1715,9 @@
       "value": "## Documentation & Resources"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Documentation & Resources"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1305,7 +1731,9 @@
       "value": "- **[Getting started guide](https://docs.aspose.org/email/python/)** \u2014 installation, walkthroughs, and feature guides for this library.\n- **[How-to guides & FAQ](https://kb.aspose.org/email/python/)** \u2014 task-focused answers for common CFB/MSG/EML-processing questions.\n- **[Full API reference](https://reference.aspose.org/email/python/)** \u2014 the complete, browsable reference for all 30 public types (the [API reference](#api-reference) section above covers the essentials).\n- **[Stable API summary](PUBLIC_API.md)** \u2014 the maintained summary of the supported public surface and its package entry points.\n- **[Contributor guide](AGENTS.md)** \u2014 repository layout, API rules, and packaging/changelog conventions for contributors and AI agents.\n- **[PyPI package](https://pypi.org/project/aspose-email-foss/)** \u2014 the published package and release history.\n- **[Contributing guide](CONTRIBUTING.md)** \u2014 development setup and the release checklist.\n- **[Security policy](SECURITY.md)** \u2014 how to report a vulnerability.\n- **[Changelog](CHANGELOG.md)** \u2014 release history.\n- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python/issues) on GitHub \u2014 the repository page also links to source and discussions."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1319,7 +1747,9 @@
       "value": "## Scope and Limitations"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Scope and Limitations"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1333,7 +1763,9 @@
       "value": "- This library reads and writes local CFB and MSG files, and converts to/from EML through\n  Python's own `email` package \u2014 it does not connect to mail servers (no IMAP, SMTP, or POP3\n  support).\n- TNEF (Transport Neutral Encapsulation Format, `winmail.dat`) is not parsed or generated.\n- There is no dedicated calendar/appointment API (calendar-specific MAPI properties can still be\n  accessed generically through `set_property()` / `get_property_value()`).\n- Direct `.eml` file parsing is not implemented by this library itself \u2014 EML support goes through\n  `MapiMessage.from_email_message()` / `to_email_message()` together with Python's own\n  `email.parser` / `email.message.EmailMessage`, not a dedicated `load_from_eml()` method."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Scope and Limitations"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1347,7 +1779,9 @@
       "value": "These limitations don't apply to\n[Aspose.Email for Python \u2014 Enterprise Edition](https://products.aspose.com/email/python-net/), which adds\nbroader mail-server connectivity and format coverage \u2014 IMAP/SMTP/POP3, TNEF parsing and\ngeneration, a dedicated calendar/appointment API, and direct EML file parsing \u2014 plus commercial\nsupport."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1361,7 +1795,9 @@
       "value": "## Development and Testing"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Development and Testing"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1375,7 +1811,9 @@
       "value": "Install the package in editable mode and run the test suite:"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Development and Testing"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1389,7 +1827,9 @@
       "value": "```bash\npip install -e .\npython -m unittest discover -s tests -v\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Development and Testing"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1403,7 +1843,9 @@
       "value": "Build and validate distributable packages:"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Development and Testing"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1417,7 +1859,9 @@
       "value": "```bash\npython -m build\npython -m twine check --strict dist/*\n```"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > Development and Testing"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1431,7 +1875,9 @@
       "value": "CI runs the test suite on Python 3.10 through 3.13 and validates packaging on every push and pull\nrequest to `master`. Releases are tagged `vYY.M` (for example `v26.3`) and published to PyPI\nautomatically by the [`Release`](.github/workflows/release.yml) GitHub Actions workflow. See\n[CONTRIBUTING.md](CONTRIBUTING.md) for the full development and release checklist."
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python"
+      },
       "confidence": 1.0,
       "evidence": [
         {
@@ -1445,7 +1891,9 @@
       "value": "## License"
     },
     {
-      "attributes": null,
+      "attributes": {
+        "section": "Aspose.Email FOSS for Python > License"
+      },
       "confidence": 1.0,
       "evidence": [
         {

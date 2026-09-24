@@ -2,82 +2,109 @@
   "advisory": [
     {
       "absent": [
-        "i1[...]",
-        "i2[...]",
-        "i3[...]",
-        "o3[...]"
+        "i2[An existing CFB container (file or bytes)]",
+        "i3[An existing EML file (via Python's email package)]",
+        "o2[.msg files]",
+        "o3[EML files (via Python's email package)]",
+        "c1[Low-level CFB container read/write (CFBReader / CFBWriter)]",
+        "c2[Low-level MSG document read/write (MsgReader / MsgWriter / MsgDocument)]",
+        "c3[High-level MapiMessage API (create, edit, save, reload)]",
+        "c4[Export a MapiMessage to a Python EmailMessage (to_email_message)]"
       ],
       "causal_stage": "S7",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [],
       "id": "F01",
-      "quote": "  subgraph StartingPoints[...]",
-      "repair": "Restore the original At a Glance diagram structure with three starting points (CFB, MSG, EML) and three outputs (CFB, MSG, EML) to accurately reflect the library's capabilities.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'i1[...]', which the candidate contains",
+      "quote": "```mermaid flowchart TD subgraph StartingPoints[Starting Points] direction LR i1[An existing MSG or EML file] end PRODUCT[Aspose.Email FOSS for Python] subgraph Capabilities[Core Capabilities] direction LR subgraph capl[ ] direction TB c1[Read MSG files] c2[Write MSG files] c3[Convert MSG to EML] c4[Convert EML to MSG] end subgraph capr[ ] direction TB c5[Low-level CFB access] c6[MAPI property support] c7[Attachment handling] end end subgraph Outputs[Outputs] direction TB o1[MSG file] end Starti",
+      "repair": "Restore the original Mermaid diagram structure with all three Starting Points (CFB, MSG, EML), all five capabilities (CFBReader/CFBWriter, MsgReader/MsgWriter/MsgDocument, MapiMessage, to_email_message, from_email_message), and all three Outputs (CFB, MSG, EML) as supported by the original README and the 'at_a_glance' plan.",
+      "reviewer_scope_defect": "the omission it names is inherited_unit:008.code_block's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
       "section_id": "at_a_glance",
-      "text": "The At a Glance diagram incorrectly omits EML and TXT as starting points and MSG as the only output, contradicting the original diagram and the library's EML conversion support."
+      "text": "The Mermaid diagram in the candidate omits the 'Starting Points' and 'Outputs' subgraphs and simplifies the capabilities to a single horizontal row, which misrepresents the library's architecture and is not supported by any fact."
     },
     {
       "absent": [
-        "to_email_message",
-        "from_email_message",
-        "EmailMessage"
+        "two-way conversion with Python's own",
+        "email.message.EmailMessage"
       ],
       "causal_stage": "S7",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "format:input.eml",
-        "public_symbol:email_foss.msg.mapi_message"
-      ],
+      "fact_ids": [],
       "id": "F02",
-      "quote": "- **No external dependencies.** No external dependencies are required beyond Python 3.10 or later, as the package depends on no external runtime libraries.",
-      "repair": "Add a bullet point explicitly describing the two-way conversion with Python's EmailMessage, including the methods `to_email_message()` and `from_email_message()`.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'EmailMessage', 'from_email_message', 'to_email_message', which the candidate contains",
+      "quote": "- **Read MSG files.** Read MSG files by loading a `.msg` file into a `MapiMessage` instance and accessing its subject and other properties directly. - **Write MSG files.** Write MSG files by creating a `MapiMessage` programmatically, setting sender and recipient properties, adding attachments, and saving the result to disk. - **Convert MSG to EML.** Convert MSG to EML by loading a `.msg` file with `MapiMessage`, transforming it to an email message, and writing the resulting bytes to an `.eml` fi",
+      "repair": "Restore the original ordering and phrasing of the Key Capabilities list, including the explicit mention of two-way conversion with Python's own `email.message.EmailMessage`, and ensure 'Low-level MSG access' is listed separately as in the original.",
+      "reviewer_scope_defect": "the quote names public_symbol:email_foss.msg, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "key_capabilities",
-      "text": "The Key Capabilities section omits the explicit mention of two-way conversion with Python's EmailMessage, a core capability described in the original README."
+      "text": "The candidate's 'Key Capabilities' section reorders and merges items (e.g., 'Low-level MSG access' is added but not in the original list order) and omits the explicit mention of 'two-way conversion with Python's own EmailMessage', which is a core capability in the original."
     },
     {
-      "absent": [
-        "git clone",
-        "pip install .",
-        "python -c"
-      ],
+      "absent": [],
       "causal_stage": "S7",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
+      "fact_ids": [],
       "id": "F03",
-      "quote": "To work from a source checkout instead, install the clone with pip:",
-      "repair": "Remove the source checkout and verification steps to match the original README's installation instructions.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'git clone', 'pip install .', 'python -c', which the candidate contains",
+      "quote": "Install the published package from PyPI (`aspose-email-foss`, version 26.3):",
+      "repair": "Remove the version number from the installation command and use the generic 'pip install aspose-email-foss' as supported by the install_command:pip fact.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
       "section_id": "installation",
-      "text": "The installation section adds an unverified source checkout example and verification command not present in the original README, introducing unsupported procedural steps."
+      "text": "The candidate adds an unverified version number (26.3) to the installation command, which is not supported by any fact and introduces a specific version that may mislead users."
     },
     {
       "absent": [
-        "MapiMessage"
+        "MapiPropertyCollection"
       ],
       "causal_stage": "S7",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:email_foss.msg.mapi_message"
-      ],
+      "fact_ids": [],
       "id": "F04",
-      "quote": "The high-level MSG API centers on `email_foss.msg.mapi_message` for creating, editing, and converting messages",
-      "repair": "Replace `email_foss.msg.mapi_message` with `MapiMessage` to match the verified public symbol and original README.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'MapiMessage', which the candidate contains",
+      "quote": "The verified public surface has 30 types.",
+      "repair": "Restore the original API Reference structure with `MapiPropertyCollection` listed as a distinct class and ensure the order of classes matches the original README's tables.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'MapiPropertyCollection', which the candidate contains",
       "section_id": "api_reference",
-      "text": "The API Reference section incorrectly lists `email_foss.msg.mapi_message` as the class name instead of `MapiMessage`, contradicting the verified public symbol and original README."
+      "text": "The candidate's API Reference section reorders the public symbols and omits the explicit mention of `MapiPropertyCollection` as a distinct class, which is supported by the public_symbol facts and present in the original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "These limitations don't apply to [Aspose.Email for Python — Enterprise Edition](https://products.aspose.com/email/python-net/). Aspose.Email FOSS for Python provides open-source access to core email processing capabilities, while Aspose.Email commercial edition extends this with additional formats, advanced features, and commercial support.",
+      "repair": "Move the Enterprise Edition reference to a separate 'Enterprise Edition' section as in the original README, and remove the promotional phrasing about 'open-source access' and 'commercial support'.",
+      "reviewer_scope_defect": "the finding names neither a fact_id nor an absent claim, and the quote contains the literal value of SUPPORTED fact identity:ecosystem ('python') which the reviewed unit cites as its own evidence: nothing in evidence supports judging it, and what evidence exists contradicts it",
+      "section_id": "scope_limitations",
+      "text": "The candidate's 'Scope and Limitations' section adds a new paragraph about the commercial edition that is not present in the original README's limitations list, and the phrasing 'These limitations don't apply to Aspose.Email for Python — Enterprise Edition' is promotional and not supported by a fact."
     },
     {
       "absent": [
-        "MsgReader",
-        "MsgWriter"
+        "StartingPoints",
+        "Outputs",
+        "direction LR",
+        "i1[",
+        "i2[",
+        "i3[",
+        "o1[",
+        "o2["
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "```mermaid",
+      "reader": 2,
+      "repair": "Restore the original Mermaid diagram structure from the inherited README, including the 'Starting Points', 'Capabilities', and 'Outputs' subgraphs, with correct directionality and node labels.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the candidate omits the 'Starting Points' and 'Outputs' subgraphs and simplifies the capabilities to a single horizontal row, which misrepresents the library's architecture and is not supported by any fact."
+    },
+    {
+      "absent": [
+        "- **Low-level MSG access.** Access MSG file internals such as attachment and recipient storages using `MsgReader` and `M"
       ],
       "causal_stage": "S7",
       "causal_state": null,
@@ -86,31 +113,13 @@
         "public_symbol:email_foss.msg.msgreader",
         "public_symbol:email_foss.msg.msgwriter"
       ],
-      "id": "F05",
-      "quote": "while the low-level MSG API uses `email_foss.msg.MsgReader` and `email_foss.msg.MsgWriter` for direct property-stream access",
-      "repair": "Replace `email_foss.msg.MsgReader` and `email_foss.msg.MsgWriter` with `MsgReader` and `MsgWriter` to match the verified public symbols and original README.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'MsgReader', 'MsgWriter', which the candidate contains",
-      "section_id": "api_reference",
-      "text": "The API Reference section incorrectly lists `email_foss.msg.MsgReader` and `email_foss.msg.MsgWriter` as class names instead of `MsgReader` and `MsgWriter`, contradicting the verified public symbols and original README."
-    },
-    {
-      "absent": [
-        "CFBReader",
-        "CFBWriter"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:email_foss.cfb.cfbreader",
-        "public_symbol:email_foss.cfb.cfbwriter"
-      ],
-      "id": "F06",
-      "quote": "and the low-level CFB API uses `email_foss.cfb.CFBReader` and `email_foss.cfb.CFBWriter` for raw Compound File Binary container access.",
-      "repair": "Replace `email_foss.cfb.CFBReader` and `email_foss.cfb.CFBWriter` with `CFBReader` and `CFBWriter` to match the verified public symbols and original README.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'CFBReader', 'CFBWriter', which the candidate contains",
-      "section_id": "api_reference",
-      "text": "The API Reference section incorrectly lists `email_foss.cfb.CFBReader` and `email_foss.cfb.CFBWriter` as class names instead of `CFBReader` and `CFBWriter`, contradicting the verified public symbols and original README."
+      "id": "F02",
+      "quote": "- **Low-level CFB access.** Inspect and construct Compound File Binary structures through `CFBReader` and `CFBWriter`, enabling direct access to internal MSG storage layouts.",
+      "reader": 2,
+      "repair": "Add a dedicated bullet point for 'Low-level MSG access' that explicitly mentions `MsgReader` and `MsgWriter` and their purpose for inspecting MSG internals.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '- **Low-level MSG access.** Access MSG file internals such as attachment and recipient storages using `MsgReader` and `M', which the candidate contains",
+      "section_id": "key_capabilities",
+      "text": "The candidate's 'Key Capabilities' section omits the explicit mention of 'Low-level MSG access' as a distinct capability, even though the public_symbol facts support MsgReader and MsgWriter as separate public symbols."
     },
     {
       "absent": [],
@@ -118,25 +127,96 @@
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "link_target:product.enterprise"
+        "package:version"
       ],
-      "id": "F07",
-      "quote": "The commercial Aspose.Email for Python — commercial edition extends this open-source offering with additional capabilities for handling complex email formats and enterprise-scale processing, though the specific enhancements are not detailed in the accepted facts.",
-      "repair": "Remove the unsupported promotional text about the Enterprise Edition's unspecified enhancements to match the original README's factual description.",
+      "id": "F03",
+      "quote": "Install the published package from PyPI (`aspose-email-foss`, version 26.3):",
+      "reader": 2,
+      "repair": "Remove the explicit version number from the installation command and rely solely on the verified `pip install aspose-email-foss` command.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The candidate adds an unverified version number (26.3) to the installation command, which is not supported by any fact and introduces a specific version that may mislead users."
+    },
+    {
+      "absent": [
+        "MapiPropertyCollection",
+        "PropertyEntryFixedLength",
+        "PropertyStreamHeaderSubobject",
+        "PropertyStreamHeaderTopLevel",
+        "StorageLayout",
+        "DirectoryColorFlag",
+        "DirectoryObjectType",
+        "SectorMarker"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:email_foss",
+        "public_symbol:email_foss.cfb",
+        "public_symbol:email_foss.msg"
+      ],
+      "id": "F04",
+      "quote": "The verified public surface has 30 types.",
+      "reader": 2,
+      "repair": "Re-author the API Reference section to include all 30 verified public types, including enumerations and exceptions, and ensure the table structure matches the original README's completeness.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'DirectoryColorFlag', 'DirectoryObjectType', 'MapiPropertyCollection', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate's API Reference section reorganizes the public surface into three modules (`email_foss`, `email_foss.msg`, `email_foss.cfb`) but fails to list all 30 verified public types, and the table of core API classes is incomplete and lacks enumerations and exceptions."
+    },
+    {
+      "absent": [
+        "TNEF (Transport Neutral Encapsulation Format, commonly encountered as `winmail.dat` attachments) is not parsed or",
+        "There is no dedicated calendar or appointment API"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F05",
+      "quote": "Aspose.Email FOSS for Python provides programmatic handling of local CFB and MSG files, conversion to and from EML via Python's built-in email package, and generic access to MAPI properties through the `MapiMessage` class and its members.",
+      "reader": 2,
+      "repair": "Restore the explicit limitations about TNEF and calendar/appointment support from the inherited README to ensure the scope and limitations section is complete and accurate.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'TNEF (Transport Neutral Encapsulation Format, commonly encountered as `winmail.dat` attachments) is not parsed or', 'There is no dedicated calendar or appointment API', which the candidate contains",
       "section_id": "scope_limitations",
-      "single_reader_advisory": true,
-      "text": "The Scope and Limitations section adds unsupported promotional text about the Enterprise Edition's unspecified enhancements, which is not supported by the facts."
+      "text": "The candidate's 'Scope and Limitations' section omits the explicit mention of the lack of TNEF support and calendar/appointment API, even though these limitations are supported by the inherited README and the product facts."
+    },
+    {
+      "absent": [
+        "python -m build",
+        "python -m twine check --strict dist/*",
+        "CI runs the test suite on Python 3.10 through 3.13",
+        "Releases are tagged `vYY.M`"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci",
+        "build_test_asset:examples",
+        "link_target:036"
+      ],
+      "id": "F06",
+      "quote": "Build and test Aspose.Email FOSS for Python using the tests in tests/, examples in examples/, and CI workflows in .github/workflows/; the package requires Python >=3.10 and is licensed under MIT.",
+      "reader": 2,
+      "repair": "Restore the detailed development and testing instructions from the inherited README, including the build, validation, CI, and release workflow details.",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact build_test_asset:tests ('tests/'), which the finding itself cites as its evidence; literal fact text is supported whatever criterion the finding files itself under",
+      "section_id": "development_testing",
+      "text": "The candidate's 'Development and Testing' section is overly concise and omits critical details about CI workflows, release tagging, and the build/validation commands, which are supported by the build_test_asset and link_target facts."
     }
   ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "71879bc1aeea2edb8b269d9497fb109c770530e74510f3ebf547d0b29be2b6f5",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "c884185eb05bbfb9bd3e71791f1f3197512bdea9d144c215351ce15b727a755f",
+  "readme_sha256": "8ed4f4b549993522969f9d0005b9e2572632fdc3814dda8430bf1b43d7bfc9fa",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -146,11 +226,14 @@
   "schema_version": 1,
   "second_reader": {
     "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
       "2d3ea3878413689aba562346",
+      "2e3e72ea29414d0b61e310f7",
       "3c3b7985b1f0977c7f120bba",
+      "a3b6ba4d451861363f1cdb3d",
       "ae6948684db4e2c953bd56e9"
     ],
-    "read": true
+    "read": 2
   },
   "verdict": "ACCEPT",
   "verdict_as_returned": "REJECT_PRESENTATION"

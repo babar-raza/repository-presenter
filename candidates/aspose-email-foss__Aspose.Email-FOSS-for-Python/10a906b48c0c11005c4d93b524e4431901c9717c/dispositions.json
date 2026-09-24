@@ -14,7 +14,7 @@
         "package:python_requires",
         "package:version"
       ],
-      "rationale": "The H1 product name matches the verified repository identity and is placed in the identity section.",
+      "rationale": "The H1 heading matches the canonical product name supported by identity and package facts.",
       "unit_id": "inherited_unit:001.heading"
     },
     {
@@ -61,7 +61,7 @@
         "link_target:product.enterprise",
         "link_target:product.homepage"
       ],
-      "rationale": "The badge row contains only verified links and is placed in the badges section.",
+      "rationale": "All badge links are verified and supported; the badge row is placed in the badges section.",
       "unit_id": "inherited_unit:002.badge_row"
     },
     {
@@ -71,7 +71,7 @@
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "The banner image link is verified and moved to the banner section as a product illustration.",
+      "rationale": "The banner image link and target homepage are verified; it is placed in the banner section.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -79,15 +79,22 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "identity:repository",
+        "identity:family",
         "identity:platform",
+        "identity:ecosystem",
+        "package:name",
         "package:license",
-        "dependency:none",
+        "license:spdx",
         "package:python_requires",
+        "dependency:none",
+        "import_path:aspose.email_foss",
         "format:input.msg",
         "format:input.eml",
-        "public_symbol:email_foss.msg.mapi_message"
+        "format:output.msg",
+        "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.cfb"
       ],
-      "rationale": "The paragraph's substance is captured in the opening section by facts; wording is re-authored to match the required format.",
+      "rationale": "The paragraph's substance is covered by the opening section; facts support its claims about pure Python, MIT license, MSG/CFB processing, and EmailMessage bridg",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -100,7 +107,7 @@
         "identity:repository",
         "identity:revision"
       ],
-      "rationale": "The Navigation heading is rendered by the deterministic navigation section and is redundant.",
+      "rationale": "The 'Navigation' heading is rendered by the deterministic navigation section and is redundant.",
       "unit_id": "inherited_unit:005.heading"
     },
     {
@@ -120,50 +127,35 @@
       "destination_section": "at_a_glance",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The At a Glance heading is rendered by the deterministic at_a_glance section and is redundant.",
+      "rationale": "The 'At a Glance' heading is rendered by the deterministic at_a_glance section and is redundant.",
       "unit_id": "inherited_unit:007.heading"
     },
     {
       "destination_section": null,
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "format:input.msg",
-        "format:input.eml",
-        "public_symbol:email_foss.msg.mapi_message",
-        "public_symbol:email_foss.msg.msgreader",
-        "public_symbol:email_foss.msg.msgwriter",
-        "public_symbol:email_foss.cfb"
-      ],
-      "rationale": "The Mermaid diagram is verified and preserved in the at_a_glance section.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Mermaid diagram is not supported by any fact; no verified Starting Points or Outputs are confirmed.",
       "unit_id": "inherited_unit:008.code_block"
     },
     {
       "destination_section": "key_capabilities",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The Key Capabilities heading is rendered by the deterministic key_capabilities section and is redundant.",
+      "rationale": "The 'Key Capabilities' heading is rendered by the deterministic key_capabilities section and is redundant.",
       "unit_id": "inherited_unit:009.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph introduces capabilities but no supporting fact describes its phrasing; no evidence supports its wording.",
+      "unit_id": "inherited_unit:010.paragraph"
     },
     {
       "destination_section": "key_capabilities",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The Key Capabilities paragraph is redundant with the deterministic key_capabilities section.",
-      "unit_id": "inherited_unit:010.paragraph"
-    },
-    {
-      "destination_section": "key_capabilities",
-      "disposition": "VERIFIED_REWRITE",
-      "fact_ids": [
-        "public_symbol:email_foss.msg.mapi_message",
-        "public_symbol:email_foss.msg.msgreader",
-        "public_symbol:email_foss.msg.msgwriter",
-        "public_symbol:email_foss.cfb",
-        "format:input.eml",
-        "format:input.msg",
-        "example:002"
-      ],
-      "rationale": "The list's substance is captured in the key_capabilities section by facts; wording is re-authored to match the required format.",
+      "rationale": "The list's substance is covered by the key_capabilities section; the list is redundant.",
       "unit_id": "inherited_unit:011.list"
     },
     {
@@ -172,16 +164,14 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The Installation heading is rendered by the deterministic installation section and is redundant.",
+      "rationale": "The 'Installation' heading is rendered by the deterministic installation section and is redundant.",
       "unit_id": "inherited_unit:012.heading"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "rationale": "The Installation paragraph is redundant with the deterministic installation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph's phrasing is not supported; only the install command is verified.",
       "unit_id": "inherited_unit:013.paragraph"
     },
     {
@@ -190,16 +180,14 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The pip install command is verified and preserved in the installation section.",
+      "rationale": "The pip install command matches the verified install command fact.",
       "unit_id": "inherited_unit:014.code_block"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:none"
-      ],
-      "rationale": "The paragraph about Python version and pure Python shipping is redundant with the deterministic dependencies section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph's phrasing is not supported; only the Python version and pure-Python facts are verified.",
       "unit_id": "inherited_unit:015.paragraph"
     },
     {
@@ -208,60 +196,49 @@
       "fact_ids": [
         "dependency:none"
       ],
-      "rationale": "The Dependencies heading is rendered by the deterministic dependencies section and is redundant.",
+      "rationale": "The 'Dependencies' heading is rendered by the deterministic dependencies section and is redundant.",
       "unit_id": "inherited_unit:016.heading"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:none"
-      ],
-      "rationale": "The Required Package Dependencies heading is redundant with the deterministic dependencies section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Required Package Dependencies' heading is not supported; no fact describes subsections.",
       "unit_id": "inherited_unit:017.heading"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:none"
-      ],
-      "rationale": "The statement about no required third-party dependencies is verified and preserved in the dependencies section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The phrasing is not supported; only the dependency:none fact is verified.",
       "unit_id": "inherited_unit:018.paragraph"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:none"
-      ],
-      "rationale": "The Native and System Requirements heading is redundant with the deterministic dependencies section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Native and System Requirements' heading is not supported; no fact describes subsections.",
       "unit_id": "inherited_unit:019.heading"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:none",
-        "package:python_requires"
-      ],
-      "rationale": "The list's substance about Python version is captured in the dependencies section by facts; wording is re-authored.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The phrasing is not supported; only the Python version and pure-Python facts are verified.",
       "unit_id": "inherited_unit:020.list"
     },
     {
       "destination_section": "quick_start",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The Quick Start heading is rendered by the deterministic quick_start section and is redundant.",
+      "rationale": "The 'Quick Start' heading is rendered by the deterministic quick_start section and is redundant.",
       "unit_id": "inherited_unit:021.heading"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "VERIFIED_REWRITE",
-      "fact_ids": [
-        "example:001"
-      ],
-      "rationale": "The Quick Start paragraph is re-authored to match the required format and placed in the quick_start section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The phrasing is not supported; only the example fact is verified.",
       "unit_id": "inherited_unit:022.paragraph"
     },
     {
@@ -270,168 +247,153 @@
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The example code is verified and preserved in the quick_start section.",
+      "rationale": "The code block matches the verified example:001 fact.",
       "unit_id": "inherited_unit:023.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The paragraph about creating a message and saving as both MSG and EML is not a Quick Start example and is unsupported as a separate unit.",
+      "rationale": "The phrasing is not supported; only the example fact is verified.",
       "unit_id": "inherited_unit:024.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The second example code block is not a Quick Start example and is unsupported as a separate unit.",
+      "rationale": "The code block is not supported; example:002 is verified but the exact phrasing is not.",
       "unit_id": "inherited_unit:025.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The Additional Examples heading is rendered by the deterministic additional_examples section and is redundant.",
+      "rationale": "The 'Additional Examples' heading is rendered by the deterministic additional_examples section and is redundant.",
       "unit_id": "inherited_unit:026.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "link_target:024",
-        "link_target:025"
-      ],
-      "rationale": "The Additional Examples paragraph is verified and preserved in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The phrasing is not supported; only the examples/ and examples/README.md links are verified.",
       "unit_id": "inherited_unit:027.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:003"
-      ],
-      "rationale": "The Convert MSG to EML heading is verified and preserved in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Convert MSG to EML' heading is not supported; no fact describes subsections.",
       "unit_id": "inherited_unit:028.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:003"
-      ],
-      "rationale": "The Convert MSG to EML example code is verified and preserved in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block is not supported; example:003 is verified but the exact phrasing is not.",
       "unit_id": "inherited_unit:029.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is a non-content separator and is omitted.",
+      "rationale": "The HTML block is not supported; no fact describes collapsible sections.",
       "unit_id": "inherited_unit:030.html_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:004"
-      ],
-      "rationale": "The Convert EML to MSG heading is verified and preserved in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Convert EML to MSG' heading is not supported; no fact describes subsections.",
       "unit_id": "inherited_unit:031.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:004"
-      ],
-      "rationale": "The Convert EML to MSG example code is verified and preserved in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block is not supported; example:004 is verified but the exact phrasing is not.",
       "unit_id": "inherited_unit:032.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The Inspect Low-Level MSG and CFB Structure heading is unsupported as a separate unit.",
+      "rationale": "The 'Inspect Low-Level MSG and CFB Structure' heading is not supported; no fact describes subsections.",
       "unit_id": "inherited_unit:033.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The paragraph about inspecting low-level MSG and CFB structure is unsupported as a separate unit.",
+      "rationale": "The phrasing is not supported; example:005 is CONTRADICTED.",
       "unit_id": "inherited_unit:034.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:005"
-      ],
-      "rationale": "The example code is contradicted by example:005 and is omitted.",
+      "fact_ids": [],
+      "rationale": "The code block is CONTRADICTED by example:005.",
       "unit_id": "inherited_unit:035.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The Build a CFB Container Directly heading is unsupported as a separate unit.",
+      "rationale": "The 'Build a CFB Container Directly' heading is not supported; no fact describes subsections.",
       "unit_id": "inherited_unit:036.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The paragraph about building a CFB container is unsupported as a separate unit.",
+      "rationale": "The phrasing is not supported; only the example:006 fact is verified.",
       "unit_id": "inherited_unit:037.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:006"
-      ],
-      "rationale": "The CFB container example code is verified and preserved in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block is not supported; example:006 is verified but the exact phrasing is not.",
       "unit_id": "inherited_unit:038.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The closing HTML details block is a non-content separator and is omitted.",
+      "rationale": "The HTML block is not supported; no fact describes collapsible sections.",
       "unit_id": "inherited_unit:039.html_block"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The API Reference heading is rendered by the deterministic api_reference section and is redundant.",
+      "rationale": "The 'API Reference' heading is rendered by the deterministic api_reference section and is redundant.",
       "unit_id": "inherited_unit:040.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_REWRITE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:email_foss",
         "public_symbol:email_foss.cfb",
         "public_symbol:email_foss.msg"
       ],
-      "rationale": "The API Reference paragraph is re-authored to match the required format and placed in the api_reference section.",
+      "rationale": "The three-layer API structure is already covered by the public_symbol facts and will be re-authored in the API Reference section.",
       "unit_id": "inherited_unit:041.paragraph"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is a non-content separator and is omitted.",
+      "rationale": "No fact supports the presence or purpose of this HTML details block; it is omitted.",
       "unit_id": "inherited_unit:042.html_block"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:email_foss.cfb"
       ],
-      "rationale": "The CFB Format heading is verified and preserved in the api_reference section.",
+      "rationale": "The CFB Format heading and its table are superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:043.heading"
     },
     {
@@ -447,16 +409,18 @@
         "public_symbol:email_foss.cfb.directoryentry",
         "public_symbol:email_foss.cfb.header"
       ],
-      "rationale": "The CFB classes table is verified and preserved in the api_reference section.",
+      "rationale": "The CFB classes table is superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:044.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.cfb"
+        "public_symbol:email_foss.cfb.directorycolorflag",
+        "public_symbol:email_foss.cfb.directoryobjecttype",
+        "public_symbol:email_foss.cfb.sectormarker"
       ],
-      "rationale": "The Enumerations heading is verified and preserved in the api_reference section.",
+      "rationale": "The CFB Enumerations heading and its table are superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:045.heading"
     },
     {
@@ -467,16 +431,16 @@
         "public_symbol:email_foss.cfb.directoryobjecttype",
         "public_symbol:email_foss.cfb.sectormarker"
       ],
-      "rationale": "The CFB enumerations table is verified and preserved in the api_reference section.",
+      "rationale": "The CFB enumerations table is superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:046.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:email_foss.msg"
       ],
-      "rationale": "The MSG Format heading is verified and preserved in the api_reference section.",
+      "rationale": "The MSG Format heading and its table are superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:047.heading"
     },
     {
@@ -484,9 +448,10 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:email_foss.msg.mapiattachment",
-        "public_symbol:email_foss.msg.mapimessage",
+        "public_symbol:email_foss.msg.mapi_message",
         "public_symbol:email_foss.msg.mapinamedproperty",
         "public_symbol:email_foss.msg.mapiproperty",
+        "public_symbol:email_foss.msg.mapi_message.mapipropertycollection",
         "public_symbol:email_foss.msg.mapirecipient",
         "public_symbol:email_foss.msg.msgdocument",
         "public_symbol:email_foss.msg.msgerror",
@@ -499,16 +464,18 @@
         "public_symbol:email_foss.msg.propertystreamheadertoplevel",
         "public_symbol:email_foss.msg.storagelayout"
       ],
-      "rationale": "The MSG classes table is verified and preserved in the api_reference section.",
+      "rationale": "The MSG classes table is superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:048.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.msg"
+        "public_symbol:email_foss.msg.commonmessagepropertyid",
+        "public_symbol:email_foss.msg.property_id",
+        "public_symbol:email_foss.msg.propertytypecode"
       ],
-      "rationale": "The Enumerations heading is verified and preserved in the api_reference section.",
+      "rationale": "The MSG Enumerations heading and its table are superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:049.heading"
     },
     {
@@ -516,149 +483,311 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:email_foss.msg.commonmessagepropertyid",
-        "public_symbol:email_foss.msg.propertyid",
+        "public_symbol:email_foss.msg.property_id",
         "public_symbol:email_foss.msg.propertytypecode"
       ],
-      "rationale": "The MSG enumerations table is verified and preserved in the api_reference section.",
+      "rationale": "The MSG enumerations table is superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:050.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.msg"
+        "public_symbol:email_foss.msg.mapi_message"
       ],
-      "rationale": "The Detailed Member Reference heading is verified and preserved in the api_reference section.",
+      "rationale": "The Detailed Member Reference heading is superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:051.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.msg"
+        "public_symbol:email_foss.msg.mapi_message"
       ],
-      "rationale": "The High-Level Message API heading is verified and preserved in the api_reference section.",
+      "rationale": "The High-Level Message API heading is superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:052.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.msg.mapi_message",
-        "public_symbol:email_foss.msg.mapiattachment",
-        "public_symbol:email_foss.msg.mapirecipient",
-        "public_symbol:email_foss.msg.mapiproperty",
-        "public_symbol:email_foss.msg.mapinamedproperty"
+        "public_symbol:email_foss.msg.mapi_message"
       ],
-      "rationale": "The High-Level Message API list is verified and preserved in the api_reference section.",
-      "unit_id": "inherited_unit:053.list"
+      "rationale": "The MapiMessage member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:053.001.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.msg"
+        "public_symbol:email_foss.msg.mapiattachment"
       ],
-      "rationale": "The Low-Level MSG API heading is verified and preserved in the api_reference section.",
+      "rationale": "The MapiAttachment member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:053.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapirecipient"
+      ],
+      "rationale": "The MapiRecipient member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:053.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapiproperty"
+      ],
+      "rationale": "The MapiProperty member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:053.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapi_message.mapipropertycollection"
+      ],
+      "rationale": "The MapiPropertyCollection member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:053.005.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapinamedproperty"
+      ],
+      "rationale": "The MapiNamedProperty member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:053.006.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgreader",
+        "public_symbol:email_foss.msg.msgwriter"
+      ],
+      "rationale": "The Low-Level MSG API heading is superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:054.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.msg.msgreader",
-        "public_symbol:email_foss.msg.msgwriter",
-        "public_symbol:email_foss.msg.msgdocument",
-        "public_symbol:email_foss.msg.msgstorage",
-        "public_symbol:email_foss.msg.msgstream",
-        "public_symbol:email_foss.msg.storagelayout"
+        "public_symbol:email_foss.msg.msgreader"
       ],
-      "rationale": "The Low-Level MSG API list is verified and preserved in the api_reference section.",
-      "unit_id": "inherited_unit:055.list"
+      "rationale": "The MsgReader member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:055.001.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgwriter"
+      ],
+      "rationale": "The MsgWriter member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:055.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgdocument"
+      ],
+      "rationale": "The MsgDocument member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:055.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgstorage"
+      ],
+      "rationale": "The MsgStorage member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:055.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgstream"
+      ],
+      "rationale": "The MsgStream member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:055.005.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.storagelayout"
+      ],
+      "rationale": "The StorageLayout member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:055.006.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:email_foss.cfb"
       ],
-      "rationale": "The Low-Level CFB API heading is verified and preserved in the api_reference section.",
+      "rationale": "The Low-Level CFB API heading is superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:056.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.cfb.cfbreader",
-        "public_symbol:email_foss.cfb.cfbwriter",
-        "public_symbol:email_foss.cfb.cfbdocument",
-        "public_symbol:email_foss.cfb.cfbstorage",
+        "public_symbol:email_foss.cfb.cfbreader"
+      ],
+      "rationale": "The CFBReader member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:057.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfbwriter"
+      ],
+      "rationale": "The CFBWriter member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:057.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfbdocument"
+      ],
+      "rationale": "The CFBDocument member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:057.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfbstorage"
+      ],
+      "rationale": "The CFBStorage member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:057.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
         "public_symbol:email_foss.cfb.cfbstream"
       ],
-      "rationale": "The Low-Level CFB API list is verified and preserved in the api_reference section.",
-      "unit_id": "inherited_unit:057.list"
+      "rationale": "The CFBStream member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:057.005.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.msg",
-        "public_symbol:email_foss.cfb"
+        "public_symbol:email_foss.cfb.directoryentry"
       ],
-      "rationale": "The Enumerations heading is verified and preserved in the api_reference section.",
-      "unit_id": "inherited_unit:058.heading"
+      "rationale": "The DirectoryEntry member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:057.006.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.header"
+      ],
+      "rationale": "The Header member list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:057.007.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:email_foss.msg.commonmessagepropertyid",
-        "public_symbol:email_foss.msg.propertyid",
+        "public_symbol:email_foss.msg.property_id",
         "public_symbol:email_foss.msg.propertytypecode",
         "public_symbol:email_foss.cfb.directorycolorflag",
         "public_symbol:email_foss.cfb.directoryobjecttype",
         "public_symbol:email_foss.cfb.sectormarker"
       ],
-      "rationale": "The Enumerations list is verified and preserved in the api_reference section.",
-      "unit_id": "inherited_unit:059.list"
+      "rationale": "The Enumerations heading and its content are superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:058.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.commonmessagepropertyid",
+        "public_symbol:email_foss.msg.property_id"
+      ],
+      "rationale": "The CommonMessagePropertyId/PropertyId list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:059.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.propertytypecode"
+      ],
+      "rationale": "The PropertyTypeCode list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:059.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.directorycolorflag",
+        "public_symbol:email_foss.cfb.directoryobjecttype",
+        "public_symbol:email_foss.cfb.sectormarker"
+      ],
+      "rationale": "The DirectoryObjectType/ColorFlag/SectorMarker list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:059.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:email_foss.cfb.cfberror",
         "public_symbol:email_foss.msg.msgerror"
       ],
-      "rationale": "The Exceptions heading is verified and preserved in the api_reference section.",
+      "rationale": "The Exceptions heading and its content are superseded by the API Reference section that re-authors the public surface.",
       "unit_id": "inherited_unit:060.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:email_foss.cfb.cfberror",
+        "public_symbol:email_foss.cfb.cfberror"
+      ],
+      "rationale": "The CFBError list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:061.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
         "public_symbol:email_foss.msg.msgerror"
       ],
-      "rationale": "The Exceptions list is verified and preserved in the api_reference section.",
-      "unit_id": "inherited_unit:061.list"
+      "rationale": "The MsgError list is superseded by the API Reference section that re-authors the public surface.",
+      "unit_id": "inherited_unit:061.002.list"
     },
     {
       "destination_section": null,
       "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "The closing HTML details block is a non-content separator and is omitted.",
+      "rationale": "The closing </details> tag is non-content HTML markup with no factual basis required.",
       "unit_id": "inherited_unit:062.html_block"
     },
     {
       "destination_section": "documentation_resources",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The Documentation & Resources heading is rendered by the deterministic documentation_resources section and is redundant.",
+      "fact_ids": [
+        "link_target:020"
+      ],
+      "rationale": "The 'Documentation & Resources' heading is superseded by the deterministic 'Documentation & Resources' section which renders from verified links.",
       "unit_id": "inherited_unit:063.heading"
     },
     {
       "destination_section": "documentation_resources",
-      "disposition": "VERIFIED_REWRITE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "link_target:026",
         "link_target:027",
@@ -670,23 +799,25 @@
         "link_target:033",
         "link_target:034"
       ],
-      "rationale": "The list's substance is captured in the documentation_resources section by facts; wording is re-authored.",
+      "rationale": "The list of documentation links is superseded by the 'Documentation & Resources' section which renders verified links deterministically.",
       "unit_id": "inherited_unit:064.list"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The Scope and Limitations heading is rendered by the deterministic scope_limitations section and is redundant.",
+      "fact_ids": [
+        "link_target:021"
+      ],
+      "rationale": "The 'Scope and Limitations' heading is superseded by the deterministic 'Scope and Limitations' section which renders limitations from evidence.",
       "unit_id": "inherited_unit:065.heading"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "inherited_unit:066.list"
+        "install_command:pip"
       ],
-      "rationale": "The limitations list is verified and preserved in the scope_limitations section.",
+      "rationale": "The list of limitations is superseded by the 'Scope and Limitations' section which renders the same limitations from evidence and inherited units.",
       "unit_id": "inherited_unit:066.list"
     },
     {
@@ -695,58 +826,64 @@
       "fact_ids": [
         "link_target:product.enterprise"
       ],
-      "rationale": "The Enterprise Edition paragraph is verified and moved to the enterprise_relationship section.",
+      "rationale": "The paragraph about Enterprise Edition is moved to the 'enterprise_relationship' section where it is supported by the verified product target.",
       "unit_id": "inherited_unit:067.paragraph"
     },
     {
       "destination_section": "development_testing",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The Development and Testing heading is rendered by the deterministic development_testing section and is redundant.",
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "rationale": "The 'Development and Testing' heading is superseded by the deterministic 'Development and Testing' section which renders build/test assets.",
       "unit_id": "inherited_unit:068.heading"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_REWRITE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "build_test_asset:tests",
-        "build_test_asset:ci"
+        "install_command:pip"
       ],
-      "rationale": "The Development and Testing paragraph is re-authored to match the required format and placed in the development_testing section.",
+      "rationale": "The installation and test command description is superseded by the 'Development and Testing' section which renders verified test assets.",
       "unit_id": "inherited_unit:069.paragraph"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "build_test_asset:tests"
+        "build_test_asset:tests",
+        "install_command:pip"
       ],
-      "rationale": "The test suite code block is verified and preserved in the development_testing section.",
+      "rationale": "The test installation and execution code block is superseded by the 'Development and Testing' section which renders verified test assets.",
       "unit_id": "inherited_unit:070.code_block"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_REWRITE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "build_test_asset:ci"
+        "build_test_asset:examples"
       ],
-      "rationale": "The build and validate paragraph is re-authored to match the required format and placed in the development_testing section.",
+      "rationale": "The paragraph about building and validating packages is superseded by the 'Development and Testing' section which renders verified build assets.",
       "unit_id": "inherited_unit:071.paragraph"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "build_test_asset:ci"
+        "build_test_asset:examples"
       ],
-      "rationale": "The build and validate code block is verified and preserved in the development_testing section.",
+      "rationale": "The build and twine check code block is superseded by the 'Development and Testing' section which renders verified build assets.",
       "unit_id": "inherited_unit:072.code_block"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The CI paragraph is unsupported as a separate unit.",
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "link_target:036"
+      ],
+      "rationale": "The CI and release workflow description is superseded by the 'Development and Testing' section which renders verified CI assets.",
       "unit_id": "inherited_unit:073.paragraph"
     },
     {
@@ -754,9 +891,10 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "license:file",
-        "license:spdx"
+        "license:spdx",
+        "link_target:023"
       ],
-      "rationale": "The License heading is rendered by the deterministic license section and is redundant.",
+      "rationale": "The 'License' heading is superseded by the deterministic 'License' section which renders the license declaration.",
       "unit_id": "inherited_unit:074.heading"
     },
     {
@@ -766,7 +904,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The license paragraph is verified and preserved in the license section.",
+      "rationale": "The license prose is superseded by the deterministic 'License' section which renders the MIT license declaration from facts.",
       "unit_id": "inherited_unit:075.paragraph"
     }
   ]
