@@ -1,0 +1,381 @@
+{
+  "additional_example_ids": [
+    "example:003",
+    "example:004",
+    "example:005",
+    "example:007"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.htmldocument",
+        "public_symbol:aspose_html.htmldocument.parse",
+        "public_symbol:aspose_html.htmldocument.parse_fragment",
+        "public_symbol:aspose_html.htmldocument.load"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.htmldocument"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.dom",
+        "public_symbol:aspose_html.dom.document",
+        "public_symbol:aspose_html.dom.element",
+        "public_symbol:aspose_html.dom.html"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.dom"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.cssom",
+        "public_symbol:aspose_html.cssom.cssstylesheet",
+        "public_symbol:aspose_html.cssom.cssstylerule",
+        "public_symbol:aspose_html.cssom.cssmediarule",
+        "public_symbol:aspose_html.cssom.cssfontfacerule",
+        "public_symbol:aspose_html.cssom.csskeyframesrule",
+        "public_symbol:aspose_html.cssom.cssrule",
+        "public_symbol:aspose_html.dom.computedstyledeclaration"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.cssom"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.url",
+        "public_symbol:aspose_html.url.url",
+        "public_symbol:aspose_html.url.urlsearchparams",
+        "public_symbol:aspose_html.encoding.detect_encoding"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.url"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.js.jscontext",
+        "dependency:optional.js.quickjs-1.19-2"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.js.jscontext"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.tokenizer.tokenizer",
+        "example:007"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.tokenizer.tokenizer"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.serialise",
+        "public_symbol:aspose_html.xmlserializer",
+        "public_symbol:aspose_html.serialiser.outer_html",
+        "public_symbol:aspose_html.serialiser.inner_html"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.serialise"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.encoding.detect_encoding",
+        "example:005"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.encoding.detect_encoding"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.dom.treewalker",
+        "public_symbol:aspose_html.dom.nodeiterator",
+        "public_symbol:aspose_html.dom.range",
+        "public_symbol:aspose_html.dom.staticrange",
+        "public_symbol:aspose_html.dom.selection"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.dom.treewalker"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.dom.event",
+        "public_symbol:aspose_html.dom.customevent",
+        "public_symbol:aspose_html.dom.mouseevent",
+        "public_symbol:aspose_html.dom.keyboardevent",
+        "public_symbol:aspose_html.dom.focusevent",
+        "public_symbol:aspose_html.dom.inputevent",
+        "public_symbol:aspose_html.dom.eventtarget",
+        "public_symbol:aspose_html.dom.mutationobserver"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.dom.event"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.dom.document",
+        "public_symbol:aspose_html.dom.element",
+        "public_symbol:aspose_html.dom.html",
+        "public_symbol:aspose_html.dom.documentfragment",
+        "public_symbol:aspose_html.dom.nodelist",
+        "public_symbol:aspose_html.dom.htmlcollection"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.dom.document"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.dom.element",
+        "public_symbol:aspose_html.dom.htmlelement",
+        "public_symbol:aspose_html.dom.htmlformelement",
+        "public_symbol:aspose_html.dom.htmlinputelement",
+        "public_symbol:aspose_html.dom.htmltableelement",
+        "public_symbol:aspose_html.dom.htmlmediaelement"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_html.dom.element"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Parse HTML into a DOM tree",
+      "Query and mutate DOM elements",
+      "Apply CSS and resolve computed styles",
+      "Serialize HTML output",
+      "Handle URLs and query parameters",
+      "Execute JavaScript against the DOM"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.htmldocument.parse",
+        "public_symbol:aspose_html.htmldocument.parse_fragment",
+        "public_symbol:aspose_html.htmldocument.load",
+        "public_symbol:aspose_html.htmldocument"
+      ],
+      "title": "Parse HTML into a DOM tree"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.dom.document",
+        "public_symbol:aspose_html.dom.element",
+        "public_symbol:aspose_html.dom.html"
+      ],
+      "title": "Query and mutate DOM elements"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.css",
+        "public_symbol:aspose_html.cssom",
+        "public_symbol:aspose_html.cssom.cssstylesheet",
+        "public_symbol:aspose_html.css.element_matches",
+        "example:002"
+      ],
+      "shared_fact_ids": [],
+      "title": "Apply CSS and resolve computed styles"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.serialise",
+        "public_symbol:aspose_html.xmlserializer",
+        "public_symbol:aspose_html.serialiser.outer_html",
+        "public_symbol:aspose_html.serialiser.inner_html"
+      ],
+      "title": "Serialize HTML output"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.url",
+        "public_symbol:aspose_html.url.url",
+        "public_symbol:aspose_html.url.urlsearchparams",
+        "public_symbol:aspose_html.encoding.detect_encoding"
+      ],
+      "title": "Handle URLs and query parameters"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_html.js.jscontext",
+        "dependency:optional.js.quickjs-1.19-2"
+      ],
+      "title": "Execute JavaScript against the DOM"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:040.heading",
+        "inherited_unit:041.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The JavaScript execution example (example:041) was omitted because it was marked as CONTRADICTED and not citable."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:047.html_block",
+        "inherited_unit:085.html_block"
+      ],
+      "section_id": "api_reference",
+      "text": "The HTML details wrapper around the API table was omitted as it is not supported by any fact and is not rendered by any deterministic section."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:019",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:018",
+      "section_id": "additional_examples"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "enterprise_relationship"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "unit_ids": [
+        "inherited_unit:089.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "unit_ids": [
+        "inherited_unit:089.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "unit_ids": [
+        "inherited_unit:089.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "dependency:optional.js.quickjs-1.19-2"
+      ],
+      "unit_ids": [
+        "inherited_unit:089.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

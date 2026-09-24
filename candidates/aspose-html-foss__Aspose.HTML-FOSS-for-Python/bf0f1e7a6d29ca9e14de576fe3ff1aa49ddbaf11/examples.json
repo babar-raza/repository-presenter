@@ -1,0 +1,107 @@
+[
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": "<main id=\"content\"><h1>Hello</h1><p>Updated through the DOM API.</p></main>\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": "blue\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": "https://example.com/articles?category=html&page=2\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": "News\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": "utf-8\r\ncertain\r\n<p>x</p>\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "ImportError; ran against the repository source tree; the package would not build; retried after installing declared extra providing 'quickjs' (quickjs>=1.19,<2)",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "Traceback (most recent call last):\r\n  File \"C:\\w\\html2\\runs\\clones\\aspose-html-foss__Aspose.HTML-FOSS-for-Python\\src\\aspose_html\\js\\__init__.py\", line 36, in <module>\r\n    import quickjs as _quickjs  # noqa: F401\r\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nModuleNotFoundError: No module named 'quickjs'\r\n\r\nThe above exception was the direct cause of the following exception:\r\n\r\nTraceback (most recent call last):\r\n  File \"<workspace>\\example_006\\example.py\", line 2, in <module>\r\n    from aspose_html.js import JSContext\r\n  File \"C:\\w\\html2\\runs\\clones\\aspose-html-foss__Aspose.HTML-FOSS-for-Python\\src\\aspose_html\\js\\__init__.py\", line 38, in <module>\r\n    raise ImportError(\r\n    ...<2 lines>...\r\n    ) from exc\r\nImportError: aspose_html.js requires the 'quickjs' package. Install it with: pip install quickjs\r\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": "p\r\n"
+  }
+]

@@ -1,0 +1,1022 @@
+{
+  "dispositions": [
+    {
+      "destination_section": "identity",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "license:spdx",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "rationale": "The H1 heading matches the canonical product name supported by identity and package facts.",
+      "unit_id": "inherited_unit:001.heading"
+    },
+    {
+      "destination_section": "badges",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "license:file",
+        "license:spdx",
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:product.banner",
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The license and contributor badges are supported by license and repository facts.",
+      "unit_id": "inherited_unit:002.badge_row"
+    },
+    {
+      "destination_section": "banner",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:005",
+        "link_target:006",
+        "link_target:product.banner",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The banner image link is supported by verified product banner and homepage targets.",
+      "unit_id": "inherited_unit:003.badge_row"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:license",
+        "license:spdx",
+        "import_path:src.aspose_html",
+        "public_symbol:aspose_html",
+        "public_symbol:aspose_html.htmldocument",
+        "public_symbol:aspose_html.cssom",
+        "public_symbol:aspose_html.url",
+        "public_symbol:aspose_html.encoding.detect_encoding",
+        "public_symbol:aspose_html.js.jscontext",
+        "dependency:optional.js.quickjs-1.19-2"
+      ],
+      "rationale": "The paragraph's substance is covered by product_summary and capabilities facts; it will be re-authored for the opening section.",
+      "unit_id": "inherited_unit:004.paragraph"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The 'Navigation' heading is rendered by the deterministic navigation section.",
+      "unit_id": "inherited_unit:005.heading"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The navigation list is rendered by the deterministic navigation section.",
+      "unit_id": "inherited_unit:006.list"
+    },
+    {
+      "destination_section": "at_a_glance",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The 'At a Glance' heading is rendered by the deterministic at_a_glance section.",
+      "unit_id": "inherited_unit:007.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:examples",
+        "public_symbol:aspose_html.htmldocument",
+        "public_symbol:aspose_html.htmldocument.parse",
+        "public_symbol:aspose_html.htmldocument.parse_fragment",
+        "public_symbol:aspose_html.htmldocument.load",
+        "public_symbol:aspose_html.dom",
+        "public_symbol:aspose_html.dom.element",
+        "public_symbol:aspose_html.dom.html",
+        "public_symbol:aspose_html.serialise",
+        "public_symbol:aspose_html.cssom",
+        "public_symbol:aspose_html.cssom.cssstylesheet",
+        "public_symbol:aspose_html.url",
+        "public_symbol:aspose_html.encoding.detect_encoding",
+        "public_symbol:aspose_html.js.jscontext",
+        "dependency:optional.js.quickjs-1.19-2"
+      ],
+      "rationale": "The Mermaid diagram is supported by verified capabilities and examples; it is placed in the at_a_glance section.",
+      "unit_id": "inherited_unit:008.code_block"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The 'Key Capabilities' heading is rendered by the deterministic key_capabilities section.",
+      "unit_id": "inherited_unit:009.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "public_symbol:aspose_html.htmldocument.parse",
+        "public_symbol:aspose_html.htmldocument.parse_fragment",
+        "public_symbol:aspose_html.htmldocument.load",
+        "public_symbol:aspose_html.dom",
+        "public_symbol:aspose_html.dom.element",
+        "public_symbol:aspose_html.dom.html",
+        "public_symbol:aspose_html.css",
+        "public_symbol:aspose_html.cssom",
+        "public_symbol:aspose_html.cssom.cssstylesheet",
+        "public_symbol:aspose_html.css.element_matches",
+        "public_symbol:aspose_html.serialise",
+        "public_symbol:aspose_html.xmlserializer",
+        "public_symbol:aspose_html.url",
+        "public_symbol:aspose_html.url.url",
+        "public_symbol:aspose_html.url.urlsearchparams",
+        "public_symbol:aspose_html.encoding.detect_encoding",
+        "public_symbol:aspose_html.js.jscontext",
+        "dependency:optional.js.quickjs-1.19-2"
+      ],
+      "rationale": "The list items are supported by public_symbol and dependency facts; the wording will be re-authored for the key_capabilities section.",
+      "unit_id": "inherited_unit:010.list"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The 'Installation' heading is rendered by the deterministic installation section.",
+      "unit_id": "inherited_unit:011.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The paragraph describes the installation mechanism supported by the install_command fact.",
+      "unit_id": "inherited_unit:012.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The code block's install command is supported but the PYTHONPATH export command differs from the verified fact; corrected to match the fact.",
+      "unit_id": "inherited_unit:013.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The paragraph describes adding src/ to PYTHONPATH, which is supported by the install_command fact.",
+      "unit_id": "inherited_unit:014.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0",
+        "package:name",
+        "package:python_requires"
+      ],
+      "rationale": "The paragraph describes the package name, Python version requirement, and dependencies, all supported by facts.",
+      "unit_id": "inherited_unit:015.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0"
+      ],
+      "rationale": "The code block installs the optional quickjs dependency, which is supported by the fact.",
+      "unit_id": "inherited_unit:016.code_block"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0"
+      ],
+      "rationale": "The 'Dependencies' heading is rendered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:017.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0"
+      ],
+      "rationale": "The 'Required Package Dependencies' heading is rendered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:018.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0"
+      ],
+      "rationale": "The list item for skia-python is supported by the dependency facts.",
+      "unit_id": "inherited_unit:019.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0"
+      ],
+      "rationale": "The 'Optional Dependencies' heading is rendered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:020.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0"
+      ],
+      "rationale": "The list item for quickjs is supported by the dependency fact.",
+      "unit_id": "inherited_unit:021.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0"
+      ],
+      "rationale": "The 'Native and System Requirements' heading is rendered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:022.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0",
+        "package:python_requires"
+      ],
+      "rationale": "The list item for Python version is supported by the package fact.",
+      "unit_id": "inherited_unit:023.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0"
+      ],
+      "rationale": "The 'Development Dependencies' heading is rendered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:024.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:145",
+        "dependency:development.test.pytest-8",
+        "dependency:optional.js.quickjs-1.19-2",
+        "dependency:skia-python-87.0"
+      ],
+      "rationale": "The list item for pytest is supported by the dependency fact.",
+      "unit_id": "inherited_unit:025.list"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The 'Quick Start' heading is rendered by the deterministic quick_start section.",
+      "unit_id": "inherited_unit:026.heading"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The paragraph introduces the quick start example, which is supported by example:001.",
+      "unit_id": "inherited_unit:027.paragraph"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The code block is the verified quick start example.",
+      "unit_id": "inherited_unit:028.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "example:002"
+      ],
+      "rationale": "The paragraph introduces the CSS example, which is supported by example:002.",
+      "unit_id": "inherited_unit:029.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:002"
+      ],
+      "rationale": "The code block is the verified CSS example.",
+      "unit_id": "inherited_unit:030.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The 'Additional Examples' heading is rendered by the deterministic additional_examples section.",
+      "unit_id": "inherited_unit:031.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "build_test_asset:examples"
+      ],
+      "rationale": "The paragraph points to the examples directory, which is supported by the build_test_asset fact.",
+      "unit_id": "inherited_unit:032.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose_html.url",
+        "public_symbol:aspose_html.url.url",
+        "public_symbol:aspose_html.url.urlsearchparams"
+      ],
+      "rationale": "The heading 'Work With URLs and Search Parameters' matches the example and public_symbol facts.",
+      "unit_id": "inherited_unit:033.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose_html.url",
+        "public_symbol:aspose_html.url.url",
+        "public_symbol:aspose_html.url.urlsearchparams"
+      ],
+      "rationale": "The code block is the verified URL example.",
+      "unit_id": "inherited_unit:034.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The HTML details block is not supported by any fact and is not rendered by any deterministic section.",
+      "unit_id": "inherited_unit:035.html_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose_html.htmldocument",
+        "public_symbol:aspose_html.dom.element"
+      ],
+      "rationale": "The heading 'Query Elements By Tag Name' matches the example and public_symbol facts.",
+      "unit_id": "inherited_unit:036.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose_html.htmldocument",
+        "public_symbol:aspose_html.dom.element"
+      ],
+      "rationale": "The code block is the verified tag query example.",
+      "unit_id": "inherited_unit:037.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:005",
+        "public_symbol:aspose_html.encoding.detect_encoding",
+        "public_symbol:aspose_html.encoding.encodingdetectionresult"
+      ],
+      "rationale": "The heading 'Detect Character Encoding From Bytes' matches the example and public_symbol facts.",
+      "unit_id": "inherited_unit:038.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:005",
+        "public_symbol:aspose_html.encoding.detect_encoding",
+        "public_symbol:aspose_html.encoding.encodingdetectionresult"
+      ],
+      "rationale": "The code block is the verified encoding detection example.",
+      "unit_id": "inherited_unit:039.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading 'Execute JavaScript Against The DOM' is not supported by any fact and is not rendered by any deterministic section.",
+      "unit_id": "inherited_unit:040.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The example code uses JSContext but example:006 is CONTRADICTED, so the code block is unsupported.",
+      "unit_id": "inherited_unit:041.code_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The heading 'Drive The Tokenizer Directly' is superseded by the API Reference section which re-authors tokenizer content.",
+      "unit_id": "inherited_unit:042.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:007"
+      ],
+      "rationale": "The tokenizer example is supported by example:007 and fits under Additional Examples.",
+      "unit_id": "inherited_unit:043.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The closing HTML tag is unsupported and unnecessary in the new structure.",
+      "unit_id": "inherited_unit:044.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'API Reference' is preserved as the section heading for the API Reference section.",
+      "unit_id": "inherited_unit:045.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The paragraph describing the public surface is superseded by the API Reference section which re-authors the public surface.",
+      "unit_id": "inherited_unit:046.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The opening HTML details tag is unsupported and unnecessary in the new structure.",
+      "unit_id": "inherited_unit:047.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Core API' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:048.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Core API table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:049.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'CSS' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:050.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The CSS table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:051.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Enumerations' is preserved as a subsection heading under CSS.",
+      "unit_id": "inherited_unit:052.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The CSS enumerations table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:053.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'CSSOM' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:054.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The CSSOM table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:055.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'DOM' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:056.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The DOM table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:057.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Encoding' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:058.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Encoding table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:059.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'JS' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:060.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The JS table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:061.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Layout' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:062.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Layout table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:063.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Tokenizer' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:064.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Tokenizer table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:065.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Enumerations' is preserved as a subsection heading under Tokenizer.",
+      "unit_id": "inherited_unit:066.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Tokenizer enumerations table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:067.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Tree' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:068.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Tree table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:069.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Enumerations' is preserved as a subsection heading under Tree.",
+      "unit_id": "inherited_unit:070.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Tree enumerations table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:071.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'URL' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:072.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The URL table is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:073.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Detailed Member Reference' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:074.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'HTML Parsing and Documents' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:075.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list of HTML parsing and document methods is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:076.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'DOM Core' is preserved as a subsection heading under API Reference.",
+      "unit_id": "inherited_unit:077.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list of DOM Core methods is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:078.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list of Element methods is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:078.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list of Node methods is preserved as it lists public symbols supported by the facts.",
+      "unit_id": "inherited_unit:078.003.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_html.dom.treewalker",
+        "public_symbol:aspose_html.dom.nodeiterator",
+        "public_symbol:aspose_html.dom.range",
+        "public_symbol:aspose_html.dom.staticrange",
+        "public_symbol:aspose_html.dom.selection"
+      ],
+      "rationale": "The list item describes DOM traversal and range/selection APIs, which are covered by the Key Capabilities section's verified capabilities.",
+      "unit_id": "inherited_unit:078.004.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_html.dom.event",
+        "public_symbol:aspose_html.dom.customevent",
+        "public_symbol:aspose_html.dom.mouseevent",
+        "public_symbol:aspose_html.dom.keyboardevent",
+        "public_symbol:aspose_html.dom.focusevent",
+        "public_symbol:aspose_html.dom.inputevent",
+        "public_symbol:aspose_html.dom.eventtarget",
+        "public_symbol:aspose_html.dom.mutationobserver"
+      ],
+      "rationale": "The list item describes DOM event and mutation-observation APIs, which are covered by the Key Capabilities section's verified capabilities.",
+      "unit_id": "inherited_unit:078.005.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading '### CSS And CSSOM' is not a standalone unit; its content is covered by the Key Capabilities section.",
+      "unit_id": "inherited_unit:079.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_html.cssom.cssstylesheet",
+        "public_symbol:aspose_html.cssom.cssstylerule",
+        "public_symbol:aspose_html.cssom.cssmediarule",
+        "public_symbol:aspose_html.cssom.cssfontfacerule",
+        "public_symbol:aspose_html.cssom.csskeyframesrule",
+        "public_symbol:aspose_html.cssom.cssrule",
+        "public_symbol:aspose_html.cssom.cssstylerule",
+        "public_symbol:aspose_html.cssom.cssstylesheet",
+        "public_symbol:aspose_html.dom.computedstyledeclaration"
+      ],
+      "rationale": "The list item describes CSSOM stylesheet and rule objects, which are covered by the Key Capabilities section's verified capabilities.",
+      "unit_id": "inherited_unit:080.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading '### URL And Encoding' is not a standalone unit; its content is covered by the Key Capabilities section.",
+      "unit_id": "inherited_unit:081.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_html.url",
+        "public_symbol:aspose_html.url.url",
+        "public_symbol:aspose_html.url.urlsearchparams",
+        "public_symbol:aspose_html.encoding.detect_encoding"
+      ],
+      "rationale": "The list item describes URL and encoding APIs, which are covered by the Key Capabilities section's verified capabilities.",
+      "unit_id": "inherited_unit:082.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading '### JavaScript Bridge (Optional)' is not a standalone unit; its content is covered by the Key Capabilities section.",
+      "unit_id": "inherited_unit:083.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_html.js.jscontext",
+        "public_symbol:aspose_html.js.moduleregistry"
+      ],
+      "rationale": "The list item describes JavaScript bridge APIs, which are covered by the Key Capabilities section's verified capabilities.",
+      "unit_id": "inherited_unit:084.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The closing HTML block is a structural separator, not a content unit.",
+      "unit_id": "inherited_unit:085.html_block"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:014"
+      ],
+      "rationale": "The heading '## Documentation & Resources' is moved to the Documentation & Resources section as it matches the section ID.",
+      "unit_id": "inherited_unit:086.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "link_target:019",
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:018",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026"
+      ],
+      "rationale": "The list items are verified documentation and resource links, matching the Documentation & Resources section.",
+      "unit_id": "inherited_unit:087.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:015"
+      ],
+      "rationale": "The heading '## Scope and Limitations' is moved to the Scope and Limitations section as it matches the section ID.",
+      "unit_id": "inherited_unit:088.heading"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "install_command:pip",
+        "dependency:optional.js.quickjs-1.19-2"
+      ],
+      "rationale": "The list items describe verified limitations, matching the Scope and Limitations section.",
+      "unit_id": "inherited_unit:089.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:027",
+        "link_target:product.enterprise"
+      ],
+      "rationale": "The paragraph relates the FOSS scope to the Enterprise Edition, matching the Enterprise Relationship section.",
+      "unit_id": "inherited_unit:090.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "rationale": "The heading '## Development and Testing' is moved to the Development and Testing section as it matches the section ID.",
+      "unit_id": "inherited_unit:091.heading"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:examples",
+        "dependency:development.test.pytest-8"
+      ],
+      "rationale": "The paragraph describes testing setup, matching the Development and Testing section.",
+      "unit_id": "inherited_unit:092.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:skia-python-87.0",
+        "dependency:145",
+        "dependency:development.test.pytest-8"
+      ],
+      "rationale": "The code block is a verified test installation command, matching the Development and Testing section.",
+      "unit_id": "inherited_unit:093.code_block"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "dependency:optional.js.quickjs-1.19-2"
+      ],
+      "rationale": "The paragraph describes optional JavaScript testing setup, matching the Development and Testing section.",
+      "unit_id": "inherited_unit:094.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:optional.js.quickjs-1.19-2"
+      ],
+      "rationale": "The code block is a verified optional dependency installation command, matching the Development and Testing section.",
+      "unit_id": "inherited_unit:095.code_block"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:examples"
+      ],
+      "rationale": "The paragraph describes test skipping behavior, matching the Development and Testing section.",
+      "unit_id": "inherited_unit:096.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "rationale": "The paragraph describes test organization, matching the Development and Testing section.",
+      "unit_id": "inherited_unit:097.paragraph"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx",
+        "link_target:017"
+      ],
+      "rationale": "The heading '## License' is moved to the License section as it matches the section ID.",
+      "unit_id": "inherited_unit:098.heading"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The paragraph is a verified license declaration, matching the License section.",
+      "unit_id": "inherited_unit:099.paragraph"
+    }
+  ]
+}

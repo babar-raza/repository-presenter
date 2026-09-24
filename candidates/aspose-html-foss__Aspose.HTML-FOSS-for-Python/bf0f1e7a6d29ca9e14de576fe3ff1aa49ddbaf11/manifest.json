@@ -1,0 +1,122 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 2,
+      "job": "independent_review",
+      "response_sha256s": [
+        "25e73485f1b193bca1eca6f93dfe20228995779566108614b089a3fa546f5dc6",
+        "c34bfcfb274e81698c1683f47d87edb250658a02b8a0e25de305c52aea20e330"
+      ]
+    },
+    {
+      "distinct_responses": 22,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "111de39fc05c574b6fbfc38c67e6f23c97a6d696e1e6f9489782e67f04a7034d",
+        "11500f37503a33613a174a73dc4aac47dc1b778282e189f4cb3d09494fab65ac",
+        "1966b853d01c2878acf604a2415fd8d2d9914c9e3bee51162f9723c7c8c0331d",
+        "1af2f366ad8ff1bf8a073460ca18ec30a6d0d4ed920182ffa92960a3747f850c",
+        "29cfa5500c240a89d0dc7fd4cb4587c236586e13c8f21b05d35cf1fc1933e744",
+        "307c914ff76ca486ce52fd780e37cd33c0d9bd50e406fd9e5083104eacf321ae",
+        "3d0f280dede5b48025abe2e3e102ad44d42edf838ca34b46841c52c6237cd315",
+        "3e6a2a1f5e0ec0d0001321db8c0fa62ad3a0432415fb590ad940541ecf16da73",
+        "438a829b1c6dc995ac35699ed5a1979cbf68e0583ef816a305c29670abb20b08",
+        "46a2fdf5c8ee9b9304648d2a7a29aa8f34acab575593f9e2f664fe36b703153b",
+        "545465718ab38462a6ad391d8a6c4adb69ccedd553bf42ea11f1b58bc12fef78",
+        "731d55f70d1f2b5da8f2efe9f0cd326676d1bb50de1f4c6acf4cbc4c5da8d248",
+        "7edc2e30a08f71a38d417a76b15e0de00addc403beda9140f834ce6ec4711e05",
+        "8f00fc4ec32bce291661d17a0aef1bf34ab9a9bb311fbbde7283350af8e05a15",
+        "a282c40afc492208d91e1e6e72847b9d9b6d523a746a9c1c1646cbbd189d932b",
+        "a6e4a6cc443b320620bbb10be01b89a0a0ef0937d62412e1964407b68ee6ea60",
+        "c406f43673ebe137bd02955387e54c24a1cbca7565f7f885d8390bcc77a87a1e",
+        "c656f6e7b79d706463e89df751e807b1d3ccfc1dacae179ddddc7e5d3ed6014b",
+        "cab657f72499a8b90d5a46327098c93a56667b8a7c1b50ad380ce009c0ca891f",
+        "cf94f706d279318128e7dea5a312c36a5c544e1a8dc48f59668f398b578d95cd",
+        "e1ed4c75344bd8ebd674d9d56530d34b17c50ecfeceb60eff5d231bb04af9ce9",
+        "ef479159293a135fba490afb5f564fe1a287e979e0e334e35dacddd2e9245e34"
+      ]
+    },
+    {
+      "distinct_responses": 3,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "1363c97657c8a43b82dc2f31bec7f831be3b82cedc3bc802b05e2f974f9ffbaf",
+        "5b2638daa79efb48ef40255b5fad39ab64ecc0c03ad9068cd17c2cbd7cb44c67",
+        "ee49ebe15984c72a24b38f9bbf69023692d121d5041e17938ec2ad2f3cc6b498"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 9,
+    "blocking_failures": [],
+    "coverage_advisories": 1,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_FACTUAL"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 54904,
+      "sha256": "32a3a87493c393e67e3a6e26a83e4e75e3385e11e307f7217e2a4ec31d91447b"
+    },
+    "README.patch": {
+      "bytes": 83420,
+      "sha256": "2ec8719cf534812eb0624b5435b76804f8f3850888dccfe65ce6f2dfa1d3e2dd"
+    },
+    "calls.jsonl": {
+      "bytes": 58899,
+      "sha256": "31f669b7af64f94dc688676e26e60b4bf3b5b0b6d13e83125cddaf8b8212d7f8"
+    },
+    "content_units.json": {
+      "bytes": 125964,
+      "sha256": "bacdc2ac5e6c2c3e913c38e555c9c88c61fb444ef0f8c485742d42f143c7cf76"
+    },
+    "dependencies.json": {
+      "bytes": 59105,
+      "sha256": "bcc7129bd1856c115b07235daabf843d2683f32e28cd61d0edce9177a8ed9e28"
+    },
+    "dispositions.json": {
+      "bytes": 39005,
+      "sha256": "37a12a60d33285dae12699e7fe6f32cfa1dd8ab986114f92e2983bd8690b47d5"
+    },
+    "examples.json": {
+      "bytes": 3444,
+      "sha256": "bb8338bc9f9e25a59caf322c5e7badffc6972a70ac0987830014fef6fb21d19f"
+    },
+    "facts.json": {
+      "bytes": 276625,
+      "sha256": "09085690546145aaf9a4e943dd09d5d96b33ed70935ac0ee58e1575ec6c57719"
+    },
+    "investigation.json": {
+      "bytes": 8739,
+      "sha256": "ff99566f7738edcb5abd739913416150a58f4fbaa3931ffc5a4dd7c0589a62f4"
+    },
+    "plan.json": {
+      "bytes": 10717,
+      "sha256": "059aeb32da79193bd7c016d09a675f21c0b617104b785cf341c442ff0d30a0be"
+    },
+    "probes.json": {
+      "bytes": 2161,
+      "sha256": "7243c17c6d06ca96f9f892c7207f4d12662933e0f6564e16951410ab7632cfa1"
+    },
+    "review.json": {
+      "bytes": 8472,
+      "sha256": "064f4813486182815165be596cb43fecb059bea66687e0f753f38eb2edd9b536"
+    },
+    "validation.json": {
+      "bytes": 11816,
+      "sha256": "85996a1827a54d754ce91f11e54f57338c65f16e10fa8170debaf62c07931751"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-24T14:07:12Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+  "revision": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11",
+  "schema_version": 1,
+  "sealed_at": "2026-09-24T14:07:12Z",
+  "state": "READY_FOR_PROPOSAL"
+}

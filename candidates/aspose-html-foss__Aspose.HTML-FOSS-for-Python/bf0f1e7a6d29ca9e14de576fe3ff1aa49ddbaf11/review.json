@@ -1,0 +1,174 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "skia-python>=87.0,<145"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "dependency:skia-python-87.0",
+        "dependency:145"
+      ],
+      "id": "F01",
+      "quote": "### Required Package Dependencies",
+      "repair": "Consolidate the required dependency into a single line: `skia-python>=87.0,<145`.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate incorrectly lists the required dependency as '<145' and 'skia-python>=87.0' as separate items, when the fact specifies 'skia-python>=87.0,<145' as a single version constraint."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "The verified public surface has 303 types.",
+      "repair": "Change '303' to '243' to match the original README and the absence of supporting facts for 303.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate claims the verified public surface has 303 types, but the original README states 243 public types and no fact supports 303."
+    },
+    {
+      "absent": [
+        "aspose_html.domparser"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "public_symbol:aspose_html.dom.domparser"
+      ],
+      "id": "F03",
+      "quote": "| `aspose_html.DOMParser` | The DOMParser class provides a method to parse HTML or XML strings into a document object for further manipulation. |",
+      "repair": "Remove the duplicate entry and ensure only 'aspose_html.dom.DOMParser' is listed under the public symbols.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'aspose_html.domparser', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate lists 'aspose_html.domparser' and 'aspose_html.dom.DOMParser' as separate public symbols, but the facts only support 'aspose_html.dom.DOMParser' and do not list a standalone 'aspose_html.domparser' symbol."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "package:version"
+      ],
+      "id": "F07",
+      "quote": "Aspose.HTML FOSS for Python version 0.1.0 provides a Python API for parsing, querying, and manipulating HTML documents using the `Document` Object Model, supporting Python 3.10 and later under the MIT license.",
+      "repair": "Remove the version-specific claim 'version 0.1.0' to align with the original README, which does not specify a version in this section.",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact package:version ('0.1.0'); literal fact text is supported",
+      "section_id": "scope_limitations",
+      "text": "The candidate states 'Aspose.HTML FOSS for Python version 0.1.0 provides a Python API...', but the original README does not mention version 0.1.0 and no fact supports this version claim in the Scope and Limitations section."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "id": "F08",
+      "quote": "The suite covers 218 test files under `tests/`.",
+      "repair": "Remove the specific count '218' as it is unsupported by facts and not present in the original README.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The candidate states 'The suite covers 218 test files under `tests/`', but no fact supports this specific count, and the original README does not mention 218 test files."
+    },
+    {
+      "absent": [
+        "skia-python>=87.0,<145"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "dependency:skia-python-87.0",
+        "dependency:145"
+      ],
+      "id": "F01",
+      "quote": "### Required Package Dependencies",
+      "reader": 2,
+      "repair": "List the required dependency as a single version constraint: `skia-python>=87.0,<145`.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate incorrectly lists the required dependency as '<145' and 'skia-python>=87.0' as separate items, when the fact specifies 'skia-python>=87.0,<145' as a single version constraint."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "The verified public surface has 303 types.",
+      "reader": 2,
+      "repair": "Change '303' to '243' to match the original README and the absence of supporting facts for 303.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate claims the verified public surface has 303 types, but the original README states 243 public types and no fact supports 303."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "package:version"
+      ],
+      "id": "F07",
+      "quote": "Aspose.HTML FOSS for Python version 0.1.0 provides a Python API for parsing, querying, and manipulating HTML documents using the `Document` Object Model, supporting Python 3.10 and later under the MIT license.",
+      "reader": 2,
+      "repair": "Remove the version-specific claim 'version 0.1.0' to avoid unsupported version assertions.",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact package:version ('0.1.0'); literal fact text is supported",
+      "section_id": "scope_limitations",
+      "text": "The candidate states 'Aspose.HTML FOSS for Python version 0.1.0 provides a Python API...', but the version is not mentioned in the original README and no fact supports this version-specific claim."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "id": "F08",
+      "quote": "The suite covers 218 test files under `tests/`.",
+      "reader": 2,
+      "repair": "Remove the unsupported claim '218 test files' as no fact provides this specific count.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The candidate states 'The suite covers 218 test files under `tests/`', but no fact supports this specific count."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "32a3a87493c393e67e3a6e26a83e4e75e3385e11e307f7217e2a4ec31d91447b",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "2ff79593f7408870b8bfb439",
+      "aac3a3748135837a01d577d1",
+      "d6b338c08a90e6aacfe36bf1",
+      "ebf4b4254be6ba6d22495871"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_FACTUAL"
+}
