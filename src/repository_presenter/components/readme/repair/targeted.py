@@ -507,11 +507,31 @@ _UNRESOLVED = _Unresolved()
 def _resolve_change_path(document: Any, path: str) -> Any:
     """The value ``path`` names inside ``document``, or ``_UNRESOLVED`` when any segment fails to
     resolve - never raises, since ``path`` is the repair's own free-text claim about where it
-    edited, not a schema-checked field (item 93)."""
+    edited, not a schema-checked field (item 93).
+
+    PROPOSAL PGPY-06 (docs/DECISION_LOG.md, 2026-09-17 10:57 UTC), confirmed live measured on
+    Aspose.Words-FOSS-for-.NET's own first seal attempt (docs/DECISION_LOG.md, this fix's entry):
+    a leading ``"revised_output."`` token (or a bare ``"revised_output"``) is stripped the same
+    way a leading ``"$."`` already is. The model's own reply schema's one required top-level key
+    is literally ``revised_output`` (prompts/targeted_repair.yaml) - a reasonable reply spells its
+    own change path starting with that key, exactly as ``"$."`` is a reasonable, already-handled
+    JSONPath-style prefix. Both ``original`` and ``revised`` (``repair_checks``, this module, and
+    ``rounds.py``) are always the bare causal-stage object with no ``revised_output`` wrapper of
+    its own, so a path retaining this prefix never resolved against either side before this fix -
+    always ``_UNRESOLVED`` on both, comparing equal, so a real, textually different edit was
+    reported as an untruthful/uncorroborated ledger entry and refused. Stripping the correct
+    prefix can only let a genuine before/after difference become visible; it cannot manufacture
+    one where none exists, so this widens what a truthful ``changes[]`` entry may spell, never
+    what a false one may claim.
+    """
     value: Any = document
     trimmed = path.strip()
     if trimmed.startswith("$."):
         trimmed = trimmed[2:]
+    elif trimmed == "revised_output":
+        trimmed = ""
+    elif trimmed.startswith("revised_output."):
+        trimmed = trimmed[len("revised_output.") :]
     for match in _PATH_SEGMENT.finditer(trimmed):
         index, key = match.groups()
         if index is not None:

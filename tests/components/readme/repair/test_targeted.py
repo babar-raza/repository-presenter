@@ -755,6 +755,80 @@ def test_a_changes_entry_naming_a_path_that_never_resolves_is_also_refused() -> 
     ]
 
 
+def test_a_changes_entry_prefixed_with_revised_output_is_corroborated_not_refused() -> None:
+    """PROPOSAL PGPY-06 (docs/DECISION_LOG.md, 2026-09-17 10:57 UTC), confirmed live on
+    Aspose.Words-FOSS-for-.NET's own first seal attempt: the model's reply schema's one required
+    top-level key is literally `revised_output` (prompts/targeted_repair.yaml), so a reasonable
+    reply spells its own change path starting with that key - `_resolve_change_path` stripped
+    only a leading `"$."`, never `"revised_output."`, so this path never resolved against either
+    `original` or `revised` (both already the bare causal-stage object, no wrapper of their own)
+    and a real, textually different edit was reported as an untruthful ledger entry and refused.
+    Measured directly: `revised_output.units[3].text` on Words-.NET's real transaction, the exact
+    shape reproduced here with a smaller fixture."""
+    defect = Defect(
+        defect_fingerprint("validation", None, "S5", "BC-07"), "validation", "BC-07", None, "S5", {}
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    original_output = {"core_capabilities": [{"title": "Old title"}]}
+    changes = [
+        {
+            "id": "R01",
+            "path": "revised_output.core_capabilities[0].title",
+            "before": "Old title",
+            "after": "New title",
+            "fact_ids": [],
+        }
+    ]
+    revised_output = {"core_capabilities": [{"title": "New title"}]}
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S5",
+        "revised_output": revised_output,
+        "changes": changes,
+    }
+    assert (
+        repair_checks(output, defect, contract, "selection_ids", FACTS, original=original_output)
+        == []
+    )
+
+
+def test_a_revised_output_prefixed_change_claiming_an_untrue_edit_is_still_refused() -> None:
+    """Mutation control: the identical `revised_output.`-prefixed path, but the value it names
+    genuinely did not change - proves the new prefix-stripping only widens which TRUTHFUL paths
+    resolve, never lets a false claim slip through the way a bad fix (e.g. always treating an
+    unresolved path as corroborated) would."""
+    defect = Defect(
+        defect_fingerprint("validation", None, "S5", "BC-07"), "validation", "BC-07", None, "S5", {}
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    original_output = {"core_capabilities": [{"title": "Old title"}]}
+    changes = [
+        {
+            "id": "R01",
+            "path": "revised_output.core_capabilities[0].title",
+            "before": "Old title",
+            "after": "New title",
+            "fact_ids": [],
+        }
+    ]
+    # Unchanged from original_output, unlike the corroborated test above.
+    revised_output = {"core_capabilities": [{"title": "Old title"}]}
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S5",
+        "revised_output": revised_output,
+        "changes": changes,
+    }
+    errors = repair_checks(
+        output, defect, contract, "selection_ids", FACTS, original=original_output
+    )
+    assert errors == [
+        "revised_output: change R01 claims 'revised_output.core_capabilities[0].title' changed "
+        "('Old title' to 'New title'), but the causal stage's own input and this revision hold "
+        "the identical value there"
+    ]
+
+
 def test_a_changes_entry_is_never_checked_when_the_causal_stages_original_is_not_given() -> None:
     """Backward-compatible control: repair_checks is still called with no `original=` at all in
     the existing tests above - the item 93 check is skipped, not a spurious error, whenever the
