@@ -1,0 +1,73 @@
+{
+  "attempts": {
+    "4fcd5d6923bff0f7e2f1c81c": {
+      "changes": [
+        {
+          "after": "Create, load, and save Excel workbooks in XLSX format with support for repair options when handling corrupted files using the Workbook class, LoadOptions with strict mode disabled and try-repair flags, and DocumentProperties to update metadata before saving.",
+          "before": "Create, load, and save Excel workbooks in XLSX format with support for repair options when handling corrupted files, as demonstrated by loading a workbook with strict mode disabled and saving the repaired document with updated metadata.",
+          "fact_ids": [
+            "example:001",
+            "example:002"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        },
+        {
+          "after": "Apply cell styling including font bolding and custom number formats using the Style class, and adjust row heights and column widths using Cells.getRows().setHeight() and Cells.getColumns().setWidth() to control layout and presentation in the output workbook.",
+          "before": "Apply cell styling including font bolding and custom number formats, and adjust row heights and column widths to control layout and presentation in the output workbook.",
+          "fact_ids": [
+            "example:001"
+          ],
+          "id": "R02",
+          "path": "revised_output.units[1].text"
+        },
+        {
+          "after": "Define data validation rules for cell ranges using Validation with whole number constraints and apply conditional formatting using FormatConditionCollection to highlight cells whose values fall between specified thresholds with custom styling.",
+          "before": "Define data validation rules for cell ranges using whole number constraints and apply conditional formatting to highlight cells whose values fall between specified thresholds with custom styling.",
+          "fact_ids": [
+            "example:003"
+          ],
+          "id": "R03",
+          "path": "revised_output.units[2].text"
+        },
+        {
+          "after": "Configure page setup options such as paper size, orientation, margins, and print area for worksheets using PageSetup to prepare documents for printing or PDF export.",
+          "before": "Configure page setup options such as paper size, orientation, margins, and print area for worksheets to prepare documents for printing or PDF export.",
+          "fact_ids": [
+            "public_symbol:org.aspose.cells_foss"
+          ],
+          "id": "R04",
+          "path": "revised_output.units[3].text"
+        },
+        {
+          "after": "Embed images into worksheets using Picture and attach comments to individual cells using CommentCollection to enrich workbook content with visual elements and annotations.",
+          "before": "Embed images into worksheets and attach comments to individual cells to enrich workbook content with visual elements and annotations.",
+          "fact_ids": [
+            "public_symbol:org.aspose.cells_foss"
+          ],
+          "id": "R05",
+          "path": "revised_output.units[4].text"
+        },
+        {
+          "after": "Create Excel tables from cell ranges using ListObject and insert shapes such as rectangles and arrows using Shape to enhance data presentation and visual structure.",
+          "before": "Create Excel tables from cell ranges and insert shapes such as rectangles and arrows to enhance data presentation and visual structure.",
+          "fact_ids": [
+            "public_symbol:org.aspose.cells_foss"
+          ],
+          "id": "R06",
+          "path": "revised_output.units[5].text"
+        }
+      ],
+      "label": "F02",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "138f20e44ec551e7296a677a529df4f38e337eb6c726d9fbb7c08ea65f220a2d",
+      "section_id": "key_capabilities",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "b82f644e939cbe2cd646f03960ec42ce282a37fd918e86f9d691c3138188c833",
+  "schema_version": 1
+}

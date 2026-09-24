@@ -1,0 +1,322 @@
+{
+  "additional_example_ids": [
+    "example:003"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "symbol_fact_id": "public_symbol:org"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss",
+        "public_symbol:org.aspose.cells_foss.core",
+        "public_symbol:org.aspose.cells_foss.packaging",
+        "public_symbol:org.aspose.cells_foss.validation",
+        "public_symbol:org.aspose.cells_foss.xml"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose.cells_foss"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Read and write Excel workbooks",
+      "Styling and formatting cells",
+      "Data validation and conditional formatting",
+      "Page setup and print configuration",
+      "Embed images and add comments",
+      "Create and manage Excel tables and shapes"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Read and write Excel workbooks"
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Styling and formatting cells"
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "shared_fact_ids": [],
+      "title": "Data validation and conditional formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "title": "Page setup and print configuration"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "title": "Embed images and add comments"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "title": "Create and manage Excel tables and shapes"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss.packaging.ipackagereader",
+        "public_symbol:org.aspose.cells_foss.packaging.ipackagewriter",
+        "public_symbol:org.aspose.cells_foss.iwarningcallback",
+        "public_symbol:org.aspose.cells_foss.autoshapetype",
+        "public_symbol:org.aspose.cells_foss.borderstyletype",
+        "public_symbol:org.aspose.cells_foss.cellvaluetype",
+        "public_symbol:org.aspose.cells_foss.charttype",
+        "public_symbol:org.aspose.cells_foss.diagnosticseverity",
+        "public_symbol:org.aspose.cells_foss.fillpattern",
+        "public_symbol:org.aspose.cells_foss.filtercolumncollection",
+        "public_symbol:org.aspose.cells_foss.formatconditiontype",
+        "public_symbol:org.aspose.cells_foss.horizontalalignmenttype",
+        "public_symbol:org.aspose.cells_foss.imagetype",
+        "public_symbol:org.aspose.cells_foss.loadformat",
+        "public_symbol:org.aspose.cells_foss.operatortype",
+        "public_symbol:org.aspose.cells_foss.pageorientationtype",
+        "public_symbol:org.aspose.cells_foss.papersizetype",
+        "public_symbol:org.aspose.cells_foss.saveformat",
+        "public_symbol:org.aspose.cells_foss.tablestyletype",
+        "public_symbol:org.aspose.cells_foss.targetmodetype",
+        "public_symbol:org.aspose.cells_foss.totalscalculation",
+        "public_symbol:org.aspose.cells_foss.validationalerttype",
+        "public_symbol:org.aspose.cells_foss.validationtype",
+        "public_symbol:org.aspose.cells_foss.verticalalignmenttype",
+        "public_symbol:org.aspose.cells_foss.visibilitytype"
+      ],
+      "section_id": "api_reference",
+      "text": "The '#### Interfaces' and '#### Enumerations' headings from the inherited README are omitted because the semantic shell does not support subheadings under API Reference and the public symbol facts already cover all interfaces and enumerations."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:032.heading",
+        "inherited_unit:033.paragraph",
+        "inherited_unit:034.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The 'Project Structure' section from the inherited README is omitted because no facts support it."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:001",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:002",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:003",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:004",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:005",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:006",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:007",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:008",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:009",
+      "section_id": "banner"
+    },
+    {
+      "link_fact_id": "link_target:010",
+      "section_id": "banner"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:030",
+      "section_id": "development_testing"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "unit_ids": [
+        "inherited_unit:047.heading",
+        "inherited_unit:048.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "unit_ids": [
+        "inherited_unit:047.heading",
+        "inherited_unit:048.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

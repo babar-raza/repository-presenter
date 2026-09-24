@@ -191,13 +191,14 @@ KNOWN_BLOCKED_STALE = {
         ),
         "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
     },
-    "aspose-cells-foss__Aspose.Cells-FOSS-for-Java": {
-        "reason": (
-            "item 69's cited_inherited_identifiers now wraps `ChartEx` (scope_limitations "
-            "limitation:2, citing inherited_unit:041.list, which spells it) - see comment above"
-        ),
-        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
-    },
+    # aspose-cells-foss__Aspose.Cells-FOSS-for-Java's entry here (item 69's `ChartEx` wrapping,
+    # the same class as the siblings above) is removed as of 2026-09-24: this candidate drew a
+    # genuinely new upstream revision (c65329e7..., which also carries the Maven Central publish
+    # this repository was previously blocked on) and re-sealed READY_FOR_PROPOSAL with a fresh
+    # no-op proof, past the Cells-Java authoring-hint duplication fix (docs/DECISION_LOG.md
+    # 2026-09-24). The old revision's item-69 diff is moot for the new bundle; leaving the entry
+    # would XPASS(strict) forever, since `sealed_bundles()` now follows CURRENT to the new
+    # revision.
     # aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET's entry here (item 69's backtick-wrapping, the
     # same class as the siblings above) is removed as of 2026-09-23: this candidate had a real
     # re-seal (through `present`, not a bare re-render, exactly as the comment above requires),

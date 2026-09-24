@@ -1,0 +1,109 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 4,
+      "job": "independent_review",
+      "response_sha256s": [
+        "28ce71e94720061ddedc5e21f28a5cec826b5ef63d9c69be2584176a9c815079",
+        "5bc88e6b4e51ac426ae45486e6eb628302cbbd35accfaaaea4f2e6ea7abaed41",
+        "a26b55714f1dfb89c0a8495e0fc535b1b342f18e0c7b8aa11dd66bb2e91068ac",
+        "f332bea7cf67265057ef9081e823a145dbb887c603ddcf974ad5662e7ae1c7c9"
+      ]
+    },
+    {
+      "distinct_responses": 4,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "0a793bf07a702be788128cd85417cc206f1116c6b744e3adfd26ceb48068791e",
+        "28daf90412686f8e1fc2d04f981f236ae924d035147649b73db1b394761981bf",
+        "69a57b509dcc581a955ba9cb6db3f90f7e75f4e41905e4057b90f02c1866ea04",
+        "9d090c2914ab5134734732e67d2d160921ba0d59d4dec583cb6c10d2505b9589"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "27fef0623b594faacaf08a17b601e6c446d7d694ae7a4b42f48cb8766dd81594",
+        "53b24b6344bf1d44bc7e5ef838f9f9d06ef93b4ed23a73627c8c86020bd64374"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 13,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 27008,
+      "sha256": "5a3380ff5f57aaf207cd0d6274a35bcf7e32c830af54c216497785f26e0af816"
+    },
+    "README.patch": {
+      "bytes": 43485,
+      "sha256": "bee194ad0827a92e94337185093de58ed978141d568ab4f3cf81890fa0d45d54"
+    },
+    "calls.jsonl": {
+      "bytes": 44953,
+      "sha256": "b5b836f3d7b939162dda944eed320fcab59fdf049e507bc9ff90781577d0ef95"
+    },
+    "content_units.json": {
+      "bytes": 13348,
+      "sha256": "a4e26721dcaa426564cd776dcbaf86419d9c1268243fddf308c5a8082e0a88e2"
+    },
+    "dependencies.json": {
+      "bytes": 400808,
+      "sha256": "4908d08fd45e85f714446c809ec463a63c393dce20ab65f489e14cea8dd4ff4a"
+    },
+    "dispositions.json": {
+      "bytes": 24482,
+      "sha256": "44c19e544a13fb42d3e567f9ae47ae7ace0ecc9e178b6ad07e62091fa943736c"
+    },
+    "examples.json": {
+      "bytes": 1053,
+      "sha256": "0a1f409e81b1f6adf4d026b95aa9fb4b4f79cc471d7b8d5425a58b74413b32bb"
+    },
+    "facts.json": {
+      "bytes": 1708879,
+      "sha256": "02c96d82ecbbed306d64aa8de3addee946fb22003607f24f143119a564e9d9be"
+    },
+    "investigation.json": {
+      "bytes": 4495,
+      "sha256": "c08a1da952835e7973947cce26de8fb583fc3857dc1a5cfc1f5f1ccc632293b0"
+    },
+    "plan.json": {
+      "bytes": 8696,
+      "sha256": "e2ac85d82541a41a7d9bdc598d5afb245f21f183a39ce2bf3d985db971ec5e78"
+    },
+    "probes.json": {
+      "bytes": 2927,
+      "sha256": "7d0d8c6a136fb87c0af17a54619e0ab0fc413258adfd95a0542159ec86e0a51c"
+    },
+    "repairs.json": {
+      "bytes": 4068,
+      "sha256": "4b4fec27da8ab54b6ec85c750ca0907a4813b683b6dc02008c172d347b6de208"
+    },
+    "review.json": {
+      "bytes": 17986,
+      "sha256": "5db2f8055370f2e198b95fb20727fd6dc5325f5279965ca28408bdfe1b3754fe"
+    },
+    "validation.json": {
+      "bytes": 9947,
+      "sha256": "8cae3c578b62a1b091711a062069bbaf83aeb236b2125e88b55d28cbd33b55ea"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-24T14:25:14Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "revision": "c65329e7257b1311abb9686d7e4957a8cc002955",
+  "schema_version": 1,
+  "sealed_at": "2026-09-24T14:25:14Z",
+  "state": "READY_FOR_PROPOSAL"
+}

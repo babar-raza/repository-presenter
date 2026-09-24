@@ -1,0 +1,135 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:ecosystem",
+      "package:java_release",
+      "dependency:none"
+    ],
+    "text": "Java developers building applications that require reading, writing, and manipulating Excel .xlsx workbooks without runtime dependencies on third-party libraries."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002"
+      ],
+      "text": "The library supports creating new workbooks and loading existing .xlsx files through the Workbook class.",
+      "title": "Read and write Excel workbooks"
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "text": "Developers can set font properties, number formats, borders, and other style attributes on individual cells.",
+      "title": "Styling and formatting cells"
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "text": "The library supports adding data validation rules and conditional formatting to worksheet ranges.",
+      "title": "Data validation and conditional formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "text": "Developers can configure page setup, freeze panes, and apply worksheet and workbook protection.",
+      "title": "Page setup and print configuration"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "text": "Pictures can be embedded with two-cell anchor positioning and cell comments support author, text, and visibility.",
+      "title": "Embed images and add comments"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "text": "ListObjects (Excel tables) and drawing shapes with 38 preset geometries are supported.",
+      "title": "Create and manage Excel tables and shapes"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "Saving is currently limited to .xlsx format only."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "text": "ChartEx chart types (Waterfall, Treemap, Sunburst, Histogram, Box and Whisker, Funnel, and Map) cannot be created programmatically."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "text": "Formulas are stored and round-tripped but the library is not a full spreadsheet calculation engine."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "text": "Enables programmatic creation and editing of Excel workbooks using a pure Java API without requiring Microsoft Excel or native libraries."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "text": "Supports robust loading of potentially corrupted Excel files with repair options and diagnostic reporting."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "text": "Provides data validation and conditional formatting capabilities to enforce and highlight data rules in spreadsheets."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:java_release",
+      "license:spdx"
+    ],
+    "text": "Aspose.Cells FOSS for Java is a free, open-source, pure-Java spreadsheet library for creating, loading, modifying, and saving Excel .xlsx workbooks targeting Java 17."
+  },
+  "uncertainties": [
+    "The exact set of unimplemented XML-mapper classes and their impact on metadata preservation is not fully specified.",
+    "Whether all 183 public types are fully documented in the Javadoc is not confirmed by the facts."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "name": "Create and style workbooks",
+      "text": "Developers instantiate a Workbook, add worksheets, write cell values, apply styles, and save to .xlsx format."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "name": "Load and repair workbooks",
+      "text": "Developers use LoadOptions to enable strict mode toggles and repair features, then inspect diagnostics after loading."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "name": "Apply validation and conditional formatting",
+      "text": "Developers define data validation rules and conditional formatting conditions on worksheet ranges."
+    }
+  ]
+}
