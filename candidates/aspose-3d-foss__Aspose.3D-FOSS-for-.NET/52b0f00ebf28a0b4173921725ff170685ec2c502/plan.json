@@ -10,44 +10,32 @@
       "fact_ids": [
         "public_symbol:aspose.threed.scene",
         "example:001",
-        "example:002",
-        "example:005",
-        "example:006"
+        "example:002"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.scene"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.node",
-        "example:001",
-        "example:002"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.node"
-    },
-    {
-      "fact_ids": [
         "public_symbol:aspose.threed.fileformat",
         "example:002",
-        "example:005",
-        "example:006"
+        "example:005"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.fileformat"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.entities",
         "example:001",
-        "example:004"
+        "public_symbol:aspose.threed.profiles"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.shading"
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.entities",
-        "example:001",
-        "example:006"
+        "public_symbol:aspose.threed.shading",
+        "example:004"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.entities"
+      "symbol_fact_id": "public_symbol:aspose.threed.shading"
     },
     {
       "fact_ids": [
@@ -66,33 +54,46 @@
     },
     {
       "fact_ids": [
+        "public_symbol:aspose.threed.utilities",
+        "public_symbol:aspose.threed.utilities.boundingbox",
+        "public_symbol:aspose.threed.utilities.matrix4",
+        "public_symbol:aspose.threed.utilities.vector3"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
+    },
+    {
+      "fact_ids": [
         "public_symbol:aspose.threed.customobject"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.customobject"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.utilities"
+        "public_symbol:aspose.threed.node",
+        "example:001"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
+      "symbol_fact_id": "public_symbol:aspose.threed.node"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.property"
+        "public_symbol:aspose.threed.deformers",
+        "public_symbol:aspose.threed.bonepose"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.property"
+      "symbol_fact_id": "public_symbol:aspose.threed.deformers"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.propertycollection"
+        "public_symbol:aspose.threed.fileformattype",
+        "example:002"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.propertycollection"
+      "symbol_fact_id": "public_symbol:aspose.threed.fileformattype"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.transform"
+        "public_symbol:aspose.threed.bonepose",
+        "public_symbol:aspose.threed.pose"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.transform"
+      "symbol_fact_id": "public_symbol:aspose.threed.bonepose"
     }
   ],
   "at_a_glance": {
@@ -183,57 +184,76 @@
   "deviations": [
     {
       "fact_ids": [
+        "inherited_unit:007.heading",
         "inherited_unit:008.code_block"
       ],
       "section_id": "at_a_glance",
-      "text": "The Mermaid diagram in the inherited README includes outputs (AMF, HTML5) and Starting Points (3MF, RVM) not supported by the format facts; the diagram is omitted."
+      "text": "The Mermaid diagram in the inherited README is not supported by facts and is omitted; the section is rendered as a capability inventory instead."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:032.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The enumeration code block (inherited_unit:032.code_block) is CONTRADICTED and not citable; it is omitted."
     },
     {
       "fact_ids": [
         "inherited_unit:029.html_block",
-        "inherited_unit:030.heading",
-        "inherited_unit:031.paragraph",
-        "inherited_unit:032.code_block",
-        "inherited_unit:033.heading",
-        "inherited_unit:034.paragraph",
-        "inherited_unit:035.code_block",
-        "inherited_unit:036.heading",
-        "inherited_unit:037.paragraph",
-        "inherited_unit:038.code_block",
-        "inherited_unit:039.heading",
-        "inherited_unit:040.paragraph",
-        "inherited_unit:041.code_block",
-        "inherited_unit:042.heading",
-        "inherited_unit:043.paragraph",
-        "inherited_unit:044.code_block",
         "inherited_unit:045.html_block"
       ],
       "section_id": "additional_examples",
-      "text": "The inherited README contains additional examples under collapsible HTML details blocks that are not supported by facts; only verified examples are included."
+      "text": "The HTML details block (inherited_unit:029.html_block and inherited_unit:045.html_block) is omitted as non-content separators."
     },
     {
       "fact_ids": [
         "inherited_unit:048.html_block",
-        "inherited_unit:049.heading",
-        "inherited_unit:050.table",
-        "inherited_unit:051.heading",
-        "inherited_unit:052.table",
-        "inherited_unit:053.heading",
-        "inherited_unit:054.table",
-        "inherited_unit:055.heading",
-        "inherited_unit:056.table",
         "inherited_unit:057.html_block"
       ],
       "section_id": "api_reference",
-      "text": "The inherited README contains a large collapsible HTML block of API tables that are redundant with the freshly authored API Reference section."
+      "text": "The HTML details block (inherited_unit:048.html_block and inherited_unit:057.html_block) is omitted as non-content separators."
     },
     {
       "fact_ids": [
-        "inherited_unit:062.paragraph",
+        "inherited_unit:014.paragraph"
+      ],
+      "section_id": "installation",
+      "text": "The paragraph about target frameworks and the converter tool (inherited_unit:014.paragraph) is not supported by facts and is omitted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:021.list"
+      ],
+      "section_id": "dependencies",
+      "text": "The development dependencies list (inherited_unit:021.list) is not supported by facts and is omitted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:042.heading"
+      ],
+      "section_id": "additional_examples",
+      "text": "The 'Handle an Unrecognized 3D File Format' heading (inherited_unit:042.heading) is redundant because the subsequent code block is the correct example for this scenario."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:043.paragraph"
+      ],
+      "section_id": "additional_examples",
+      "text": "The paragraph 'Handle an unrecognized file format' (inherited_unit:043.paragraph) is not supported by facts; the example for this scenario is example:007."
+    },
+    {
+      "fact_ids": [
         "link_target:product.enterprise"
       ],
       "section_id": "enterprise_relationship",
-      "text": "The inherited README paragraph directing users to the Enterprise Edition is moved from Scope and Limitations to this section."
+      "text": "The Enterprise Edition link (link_target:product.enterprise) is used in scope_limitations and omitted here to avoid duplication."
+    },
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "section_id": "third_party_notices",
+      "text": "The third-party notices section is omitted because the LICENSE file exists but no third-party notices file is verified."
     }
   ],
   "flagship_example_id": "example:006",
@@ -268,7 +288,75 @@
     },
     {
       "link_fact_id": "link_target:027",
-      "section_id": "enterprise_relationship"
+      "section_id": "scope_limitations"
+    },
+    {
+      "link_fact_id": "link_target:001",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:002",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:003",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:004",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:005",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:006",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:009",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:010",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:011",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:012",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:013",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:014",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:015",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:016",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:017",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:018",
+      "section_id": "navigation"
+    },
+    {
+      "link_fact_id": "link_target:019",
+      "section_id": "navigation"
     }
   ],
   "material_limitations": [
@@ -291,8 +379,7 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.entities.polygonmodifier",
-        "public_symbol:aspose.threed.entities.trimesh"
+        "public_symbol:aspose.threed.utilities"
       ],
       "unit_ids": [
         "inherited_unit:061.list"
@@ -318,7 +405,7 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.utilities.watermark"
+        "build_test_asset:docs"
       ],
       "unit_ids": [
         "inherited_unit:061.list"
