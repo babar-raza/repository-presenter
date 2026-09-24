@@ -3,7 +3,7 @@
   "components": {
     "normalisation": "11",
     "renderer": "24",
-    "reviewer_logic": "11",
+    "reviewer_logic": "12",
     "shell": "6"
   },
   "contract_version": "readme-contract-v1-draft",
@@ -11,7 +11,7 @@
     "extractor_version": "1",
     "inherited_units_version": "1",
     "os": "Windows",
-    "presenter_site_manifest": "f35e1a9ec9b37f7d653f38c0baae1c1ddae0b90035a02ef18e897bea26614f37",
+    "presenter_site_manifest": "92947966fd86faf734b7b0d8124b977424ccbc5e5e53f2bf357450ace940cf2b",
     "python_version": "3.13.2"
   },
   "facts": {

@@ -5,9 +5,14 @@
   },
   "omitted": [
     {
-      "fact_id": "inherited_unit:010.list",
-      "reason": "This fact is an inherited unit listing multiple capabilities; it is not a direct source for prose in any single capability slot and is omitted per the rule that provenance facts not used by units must be listed here with a concrete reason.",
-      "section": "key_capabilities"
+      "fact_id": "example:003",
+      "reason": "The example is marked as CONTRADICTED and must not be cited or described.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:004",
+      "reason": "The example is marked as CONTRADICTED and must not be cited or described.",
+      "section": "opening"
     },
     {
       "fact_id": "inherited_unit:026.paragraph",
@@ -18,111 +23,6 @@
       "fact_id": "inherited_unit:028.paragraph",
       "reason": "The renderer prints this exact text as a heading above the second code block; the unit must not repeat it.",
       "section": "quick_start"
-    },
-    {
-      "fact_id": "inherited_unit:042.heading",
-      "reason": "inherited_unit:042.heading is a rendered heading and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:043.paragraph",
-      "reason": "inherited_unit:043.paragraph is a rendered paragraph and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:045.heading",
-      "reason": "inherited_unit:045.heading is a rendered heading and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:047.heading",
-      "reason": "inherited_unit:047.heading is a rendered heading and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:049.heading",
-      "reason": "inherited_unit:049.heading is a rendered heading and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:052.heading",
-      "reason": "inherited_unit:052.heading is a rendered heading and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:054.heading",
-      "reason": "inherited_unit:054.heading is a rendered heading and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:055.002.list",
-      "reason": "inherited_unit:055.002.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:055.003.list",
-      "reason": "inherited_unit:055.003.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:055.004.list",
-      "reason": "inherited_unit:055.004.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:056.heading",
-      "reason": "inherited_unit:056.heading is a rendered heading and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:057.002.list",
-      "reason": "inherited_unit:057.002.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:057.003.list",
-      "reason": "inherited_unit:057.003.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:057.004.list",
-      "reason": "inherited_unit:057.004.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:058.heading",
-      "reason": "inherited_unit:058.heading is a rendered heading and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:059.001.list",
-      "reason": "inherited_unit:059.001.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:059.002.list",
-      "reason": "inherited_unit:059.002.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:059.003.list",
-      "reason": "inherited_unit:059.003.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "inherited_unit:059.004.list",
-      "reason": "inherited_unit:059.004.list is a rendered list item and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "example:003",
-      "reason": "example:003 is contradicted and not a fact the prose may cite",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "example:004",
-      "reason": "example:004 is contradicted and not a fact the prose may cite",
-      "section": "api_reference"
     },
     {
       "fact_id": "example:003",
@@ -148,28 +48,11 @@
         "package:version",
         "package:cxx_standard",
         "package:cmake_minimum",
-        "dependency:none",
-        "example:001",
-        "example:002",
-        "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_message",
-        "public_symbol:aspose.email.foss.cfb",
-        "public_symbol:aspose.email.foss.msg.mapi_recipient",
-        "public_symbol:aspose.email.foss.msg.mapi_attachment"
+        "dependency:none"
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.Email FOSS for Cpp is a C++ library for reading, writing, and manipulating email messages in Microsoft Outlook MSG and standard EML formats. It enables developers to create, load, and modify message objects with recipients, attachments, and properties using a single, dependency-free API. Users can parse existing MSG files, construct new messages programmatically, and export to both MSG and EML formats for interoperability. The library supports C++17 and requires CMake 3.26 or later, with no external runtime dependencies."
-    },
-    {
-      "fact_ids": [
-        "example:002",
-        "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_message"
-      ],
-      "section": "key_capabilities",
-      "slot": "capability:1",
-      "text": "Create and edit Outlook-style messages with mapi_message, setting the subject, plain-text and HTML bodies, and sender identity, or reaching arbitrary MAPI properties via set_property() and get_property_value() with common_message_property_id and property_type_code."
+      "text": "Aspose.Email FOSS for Cpp is a C++ library that enables reading and writing email messages in MSG and EML formats. It solves the problem of programmatic email handling in C++ applications by providing a straightforward API to create, inspect, and save messages without external dependencies. Developers building desktop or server applications that need to process email content, such as parsing incoming messages or generating outgoing reports, use this library. The library is version 0.1.0, targets C++17, and requires CMake 3.26 or later."
     },
     {
       "fact_ids": [
@@ -177,29 +60,35 @@
         "public_symbol:aspose.email.foss.cfb"
       ],
       "section": "key_capabilities",
-      "slot": "capability:2",
-      "text": "Read, build, and write generic Compound File Binary containers directly through cfb_reader, cfb_storage/cfb_stream, and cfb_writer, working with file paths, in-memory streams, or raw byte buffers."
+      "slot": "capability:1",
+      "text": "The aspose.email.foss.cfb module provides direct access to Compound File Binary structures, enabling inspection and manipulation of the underlying file format used by MSG files."
     },
     {
       "fact_ids": [
         "example:002",
-        "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_message"
+        "public_symbol:aspose.email.foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "High-level message authoring is supported through the aspose::email::foss::msg::mapi_message::create factory method, which initializes a new message with subject and body content."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss"
       ],
       "section": "key_capabilities",
       "slot": "capability:3",
-      "text": "Save an in-memory mapi_message to .eml and load .eml back into a mapi_message, both through the library's own MIME engine, with no external MIME dependency."
+      "text": "Recipients and attachments are added using the add_recipient and add_attachment methods on mapi_message instances, supporting email addresses, display names, and MIME content types."
     },
     {
       "fact_ids": [
         "example:002",
-        "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_attachment",
-        "public_symbol:aspose.email.foss.msg.mapi_recipient"
+        "package:name"
       ],
       "section": "key_capabilities",
       "slot": "capability:4",
-      "text": "Add To/Cc/Bcc recipients with add_recipient(), attach regular files from byte buffers or streams with add_attachment(), and nest a full mapi_message as an embedded-message attachment with add_embedded_message_attachment()."
+      "text": "The AsposeEmailFoss library enables bidirectional conversion between MSG and EML formats, allowing messages to be saved in either format using the save and save_to_eml methods."
     },
     {
       "fact_ids": [
@@ -219,14 +108,32 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.cfb.cfb_reader",
         "public_symbol:aspose.email.foss.msg.mapi_message",
-        "public_symbol:aspose.email.foss.msg.msg_reader"
+        "public_symbol:aspose.email.foss.msg.msg_reader",
+        "public_symbol:aspose.email.foss.cfb.cfb_reader"
       ],
       "section": "api_reference",
       "slot": "intro",
-      "text": "Aspose.Email FOSS for Cpp 0.1.0 provides the aspose.email.foss.msg.mapi_message class as the primary high-level entry point for creating, editing, and reloading messages, while aspose.email.foss.msg.msg_reader and aspose.email.foss.cfb.cfb_reader expose lower-level access to the underlying MSG and CFB container structures."
+      "text": "Aspose.Email FOSS for Cpp exposes the mapi_message class as the primary high-level entry point for creating, editing, and reloading messages, while msg_reader and cfb_reader provide lower-level access to MSG and CFB container structures respectively."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.email",
+        "public_symbol:aspose.email.foss"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose",
+      "text": "The aspose namespace serves as the top-level container for the Aspose.Email FOSS for Cpp library, with aspose.email providing the email-specific functionality and aspose.email.foss exposing the open-source MSG and CFB processing components."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.email",
+        "public_symbol:aspose.email.foss"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.email",
+      "text": "The aspose.email namespace contains the core email processing APIs, including the aspose.email.foss submodule that provides open-source implementations for reading and writing MSG and CFB formats."
     },
     {
       "fact_ids": [
@@ -237,7 +144,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.email.foss",
-      "text": "The aspose.email.foss.msg.mapi_message class supports message creation with aspose.email.foss.msg.mapi_message.create, loading from files or streams with aspose.email.foss.msg.mapi_message.from_file, aspose.email.foss.msg.mapi_message.from_stream, and aspose.email.foss.msg.mapi_message.from_msg_document, saving to MSG and EML formats with aspose.email.foss.msg.mapi_message.save and aspose.email.foss.msg.mapi_message.save_to_eml, and manipulation of recipients, attachments, body content, and properties through methods such as aspose.email.foss.msg.mapi_message.add_recipient, aspose.email.foss.msg.mapi_message.add_attachment, aspose.email.foss.msg.mapi_message.set_body, aspose.email.foss.msg.mapi_message.set_html_body, and aspose.email.foss.msg.mapi_message.set_property."
+      "text": "The aspose.email.foss submodule provides open-source MSG and CFB processing through the mapi_message class for high-level message authoring, the msg_reader class for low-level MSG parsing, and the cfb_reader class for direct CFB container inspection."
     },
     {
       "fact_ids": [
@@ -261,7 +168,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.cfb.cfb_node",
-      "text": "Represents a node in a Compound File Binary structure, which can be a storage or a stream with associated metadata."
+      "text": "Represents a node in a Compound File Binary structure, which can be a storage or a stream, and exposes its metadata and state."
     },
     {
       "fact_ids": [
@@ -269,7 +176,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.cfb.cfb_reader",
-      "text": "Reads and provides access to the internal structure of a Compound File Binary document, including its header, directory entries, and streams."
+      "text": "Reads a Compound File Binary document and provides access to its header, directory entries, and streams."
     },
     {
       "fact_ids": [
@@ -285,7 +192,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.cfb.cfb_stream",
-      "text": "Represents a stream node in a Compound File Binary document and provides access to its data."
+      "text": "Represents a stream node in a Compound File Binary document and holds its data."
     },
     {
       "fact_ids": [
@@ -301,7 +208,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.cfb.directory_color_flag",
-      "text": "Indicates the color of a directory entry in a Compound File Binary structure, used for red-black tree balancing."
+      "text": "Indicates the color of a directory entry in a Compound File Binary structure, used for tree balancing."
     },
     {
       "fact_ids": [
@@ -309,7 +216,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.cfb.directory_entry",
-      "text": "Represents an entry in the directory of a Compound File Binary document, describing a storage or stream node."
+      "text": "Represents an entry in the directory of a Compound File Binary document and exposes its metadata and type."
     },
     {
       "fact_ids": [
@@ -317,7 +224,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.cfb.directory_object_type",
-      "text": "Specifies whether a directory entry represents a storage or a stream in a Compound File Binary document."
+      "text": "Specifies whether a directory entry in a Compound File Binary document is a storage, a stream, or the root."
     },
     {
       "fact_ids": [
@@ -325,7 +232,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.cfb.header",
-      "text": "Contains the header information of a Compound File Binary document, such as version numbers and sector sizes."
+      "text": "Contains the header information of a Compound File Binary document."
     },
     {
       "fact_ids": [
@@ -333,7 +240,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.cfb.sector_marker",
-      "text": "Represents special markers used in the sector allocation tables of a Compound File Binary document."
+      "text": "Represents a sector marker used in the sector allocation tables of a Compound File Binary document."
     },
     {
       "fact_ids": [
@@ -341,7 +248,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.common_message_property_id",
-      "text": "Defines standard property identifiers used in MAPI message structures."
+      "text": "Defines common property identifiers for MAPI messages."
     },
     {
       "fact_ids": [
@@ -349,7 +256,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.mapi_attachment",
-      "text": "Represents an attachment in a MAPI message, including its data and metadata."
+      "text": "Represents an attachment in a MAPI message."
     },
     {
       "fact_ids": [
@@ -357,7 +264,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.mapi_message",
-      "text": "Represents a MAPI message and provides methods to create, modify, and save it in MSG format."
+      "text": "Represents a MAPI message and provides methods to create, modify, and save it."
     },
     {
       "fact_ids": [
@@ -373,7 +280,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.mapi_property_collection",
-      "text": "Holds a collection of MAPI properties associated with a message, attachment, or recipient."
+      "text": "Holds a collection of MAPI properties associated with a message or attachment."
     },
     {
       "fact_ids": [
@@ -381,7 +288,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.mapi_recipient",
-      "text": "Represents a recipient in a MAPI message, including their address, name, and type."
+      "text": "Represents a recipient in a MAPI message."
     },
     {
       "fact_ids": [
@@ -389,7 +296,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.msg_document",
-      "text": "Represents a parsed MSG document and provides access to its internal structure and properties."
+      "text": "Represents a parsed MSG document and provides access to its internal structure."
     },
     {
       "fact_ids": [
@@ -405,7 +312,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.msg_reader",
-      "text": "Reads and provides access to the internal structure of an MSG document."
+      "text": "Reads an MSG document from a file or stream and exposes its raw data."
     },
     {
       "fact_ids": [
@@ -413,7 +320,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.msg_storage",
-      "text": "Represents a storage node in an MSG document and allows adding child storages and streams."
+      "text": "Represents a storage node in an MSG document and provides access to its children."
     },
     {
       "fact_ids": [
@@ -421,7 +328,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.msg_storage_role",
-      "text": "Specifies the role of a storage node within an MSG document, such as message or attachment storage."
+      "text": "Indicates the role of a storage node in an MSG document."
     },
     {
       "fact_ids": [
@@ -429,7 +336,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.msg_stream",
-      "text": "Represents a stream node in an MSG document and provides access to its data."
+      "text": "Represents a stream node in an MSG document."
     },
     {
       "fact_ids": [
@@ -437,7 +344,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.msg_writer",
-      "text": "Writes an MSG document to a file or stream."
+      "text": "Writes a MAPI message to an MSG file."
     },
     {
       "fact_ids": [
@@ -445,7 +352,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.email.foss.msg.property_type_code",
-      "text": "Defines the data type codes used for MAPI properties."
+      "text": "Defines the data type of a MAPI property."
     },
     {
       "fact_ids": [

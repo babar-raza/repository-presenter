@@ -1,7 +1,5 @@
 {
-  "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names .eml, validation_issues()"
-  ],
+  "advisory": [],
   "checks": [
     {
       "causal_stage": null,
@@ -446,7 +444,7 @@
     }
   ],
   "protected_content_fingerprint": "6577384acef86a87db998d493f6aac52bcca4d09f7725c4ddee12f2d42cedab7",
-  "readme_sha256": "1cc52648995850196d131d51d468b18aceae45852c6f3d3387fcef333e1c8e42",
+  "readme_sha256": "8dd1b28de2a17da64fe0eca8f5b3e933274244a7d3c5b43908f0b42610866be4",
   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
   "schema_version": 1,
   "source_revision": "c844a467cf7f2503819b655f4d6ceaef91056c40",

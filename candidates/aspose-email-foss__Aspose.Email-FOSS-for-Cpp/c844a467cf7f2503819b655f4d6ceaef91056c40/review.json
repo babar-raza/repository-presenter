@@ -1,8 +1,125 @@
 {
   "advisory": [
     {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "id": "F01",
+      "quote": "Aspose.Email FOSS for Cpp is a C++ library that enables reading and writing email messages in MSG and EML formats.",
+      "repair": "Change 'Aspose.Email FOSS for Cpp' to 'Aspose.Email FOSS for C++' throughout the document to match the official product name.",
+      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "identity",
+      "text": "The candidate uses 'Aspose.Email FOSS for Cpp' as the product name, but the repository identity facts and original README consistently use 'Aspose.Email FOSS for C++' (with 'C++', not 'Cpp')."
+    },
+    {
       "absent": [
-        "Aspose.Email FOSS for C++"
+        "StartingPoints",
+        "Outputs",
+        "i1",
+        "i2",
+        "i3",
+        "o1",
+        "o2",
+        "o3"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "```mermaid flowchart TD  PRODUCT[...]",
+      "repair": "Restore the complete Mermaid flowchart structure with StartingPoints, Capabilities, and Outputs as in the original README to ensure visual completeness.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid flowchart in At a Glance is incomplete and omits inputs and outputs, unlike the original which showed StartingPoints and Outputs explicitly."
+    },
+    {
+      "absent": [
+        "add_subdirectory(Aspose.Email-FOSS-for-Cpp)",
+        "target_link_libraries(your_app PRIVATE AsposeEmailFoss::AsposeEmailFoss)",
+        "find_package(AsposeEmailFoss)"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "id": "F03",
+      "quote": "AsposeEmailFoss is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+      "repair": "Add the standard CMake integration patterns (`add_subdirectory` and `find_package`) to show how consumers integrate the library, as in the original README.",
+      "reviewer_scope_defect": "the omission it names is inherited_unit:013.code_block's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
+      "section_id": "installation",
+      "text": "The installation section omits the `add_subdirectory` and `find_package` usage patterns that are present in the original and supported by the facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:version",
+        "package:cxx_standard"
+      ],
+      "id": "F05",
+      "quote": "Read a subject from an MSG file opened as a binary stream using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support.",
+      "repair": "Remove the redundant version and C++ standard mentions from the prose and keep them only in the code comments or dependencies, to match the original's cleaner presentation.",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact package:version ('0.1.0'), which the finding itself cites as its evidence; literal fact text is supported whatever criterion the finding files itself under",
+      "section_id": "quick_start",
+      "text": "The Quick Start examples are missing the version and C++ standard references that appear in the original and help users verify compatibility."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.email",
+        "public_symbol:aspose.email.foss"
+      ],
+      "id": "F06",
+      "quote": "### aspose The aspose namespace serves as the top-level container...",
+      "repair": "Restore the namespace hierarchy section ('aspose', 'email', 'foss') as in the original README to clarify the public API structure.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "api_reference",
+      "text": "The API Reference section omits the 'aspose', 'email', and 'foss' namespace hierarchy descriptions that are present in the original and supported by public_symbol facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "Aspose.Email FOSS for Cpp version 0.1.0 provides a C++17 library for reading and writing MSG, CFB, and EML message containers and single messages stored on disk, in memory, or in a stream, using the `AsposeEmailFoss` namespace.",
+      "repair": "Reformat the Scope and Limitations section to separate the introductory sentence from the bullet list, matching the original's structure.",
+      "reviewer_scope_defect": "the finding names neither a fact_id nor an absent claim, and the quote contains the literal value of SUPPORTED fact identity:ecosystem ('cpp') which the reviewed unit cites as its own evidence: nothing in evidence supports judging it, and what evidence exists contradicts it",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section is presented as a single paragraph before the bullet list, unlike the original which had a clear introductory sentence followed by the list."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "id": "F08",
+      "quote": "The suite covers 4 test files under `tests/`.",
+      "repair": "Correct the count to '3 test executables' to match the original README and the facts about test executables.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The Development and Testing section incorrectly states 'The suite covers 4 test files under `tests/`', but the original and facts indicate 3 test executables, not 4 test files."
+    },
+    {
+      "absent": [
+        "Aspose.Email FOSS for Cpp"
       ],
       "causal_stage": "S6",
       "causal_state": null,
@@ -11,29 +128,72 @@
         "identity:repository"
       ],
       "id": "F01",
-      "quote": "Aspose.Email FOSS for Cpp is a C++ library for reading, writing, and manipulating email messages in Microsoft Outlook MSG and standard EML formats.",
-      "repair": "Change 'Aspose.Email FOSS for Cpp' to 'Aspose.Email FOSS for C++' to match the verified product name.",
-      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "quote": "Aspose.Email FOSS for Cpp is a C++ library that enables reading and writing email messages in MSG and EML formats.",
+      "reader": 2,
+      "repair": "Change the product name to 'Aspose.Email FOSS for C++' to match the repository identity and original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Aspose.Email FOSS for Cpp', which the candidate contains",
       "section_id": "identity",
-      "text": "The candidate uses 'Aspose.Email FOSS for Cpp' instead of the exact product name 'Aspose.Email FOSS for C++' as verified by the repository identity and original README."
+      "text": "The candidate uses 'Aspose.Email FOSS for Cpp' as the product name, but the repository identity facts specify 'Aspose.Email FOSS for Cpp' (with 'Cpp' capitalized) and the original README uses 'Aspose.Email FOSS for C++'. This mismatch creates inconsistency in product identification."
     },
     {
       "absent": [
-        "Ninja",
-        "Ninja generator"
+        "subgraph StartingPoints",
+        "subgraph Capabilities",
+        "subgraph Outputs",
+        "i1",
+        "i2",
+        "i3",
+        "o1",
+        "o2"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "package:cmake_minimum"
-      ],
+      "fact_ids": [],
       "id": "F02",
-      "quote": "Requires C++ `17` (`CMAKE_CXX_STANDARD` in `CMakeLists.txt`).",
-      "repair": "Add that Ninja is required as the generator configured by the repository's default CMake preset, or that any CMake-supported generator works if configured directly.",
-      "reviewer_scope_defect": "section dependencies renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "quote": "```mermaid",
+      "reader": 2,
+      "repair": "Restore the complete Mermaid flowchart with StartingPoints, Capabilities, and Outputs subgraphs as in the original README to maintain structural fidelity.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid flowchart in the candidate is incomplete and simplified compared to the original, omitting input/output nodes and capabilities structure. This reduces clarity and deviates from the original's detailed visualization."
+    },
+    {
+      "absent": [
+        "add_subdirectory(Aspose.Email-FOSS-for-Cpp)",
+        "target_link_libraries(your_app PRIVATE AsposeEmailFoss::AsposeEmailFoss)",
+        "find_package(AsposeEmailFoss)"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "AsposeEmailFoss is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+      "reader": 2,
+      "repair": "Include the standard CMake integration patterns (`add_subdirectory` and `find_package`) to match the original README's installation guidance.",
+      "reviewer_scope_defect": "the omission it names is inherited_unit:013.code_block's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
+      "section_id": "installation",
+      "text": "The candidate omits the `add_subdirectory` and `find_package` usage patterns shown in the original README's installation section, which are critical for understanding how to integrate the library into a CMake project."
+    },
+    {
+      "absent": [
+        "### Native and System Requirements",
+        "CMake 3.26 or later",
+        "A C++17 compiler",
+        "Ninja"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "### Required Package Dependencies",
+      "reader": 2,
+      "repair": "Restore the 'Native and System Requirements' section with CMake, C++17, and Ninja requirements as specified in the original README.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
       "section_id": "dependencies",
-      "text": "The candidate omits the Ninja generator requirement specified in the original README and supported by the CMake preset fact."
+      "text": "The candidate drops the 'Native and System Requirements' section entirely, which in the original README specifies CMake 3.26+, C++17 compiler, and Ninja generator — key system-level information for users."
     },
     {
       "absent": [
@@ -43,177 +203,31 @@
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [],
-      "id": "F03",
+      "id": "F05",
       "quote": "Read a subject from an MSG file opened as a binary stream using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support.",
-      "repair": "Remove the version- and standard-specific phrasing and use the original concise instruction.",
+      "reader": 2,
+      "repair": "Remove the redundant version and standard mentions from the Quick Start code comments to match the original README's clean presentation.",
       "reviewer_scope_defect": "the finding claims the candidate does not contain 'using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support', which the candidate contains",
       "section_id": "quick_start",
-      "text": "The candidate adds version-specific phrasing ('using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support') not present in the original README and unsupported by facts."
+      "text": "The candidate adds redundant version and standard mentions ('using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support') in the Quick Start code comments, which clutters the examples and is not present in the original README."
     },
     {
       "absent": [
-        "## Additional Examples",
-        "Additional Examples"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "link_target:018",
-        "link_target:019",
-        "link_target:020"
-      ],
-      "id": "F04",
-      "quote": "## API Reference",
-      "repair": "Restore the 'Additional Examples' section with a brief description and links to the example files.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "api_reference",
-      "text": "The candidate omits the 'Additional Examples' section entirely, which is present in the original README and supported by link_target facts for example files."
-    },
-    {
-      "absent": [
-        "three test executables",
-        "aspose_email_foss_cfb_tests",
-        "aspose_email_foss_msg_tests",
-        "aspose_email_foss_public_tests"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "build_test_asset:tests"
-      ],
-      "id": "F05",
-      "quote": "The suite covers 4 test files under `tests/`.",
-      "repair": "Replace '4 test files' with 'three test executables' and name them: `aspose_email_foss_cfb_tests`, `aspose_email_foss_msg_tests`, and `aspose_email_foss_public_tests`.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "development_testing",
-      "text": "The candidate states 'The suite covers 4 test files under `tests/`' but no fact supports this count; the original README specifies three test executables."
-    },
-    {
-      "absent": [
-        "byte-level output",
-        "deterministic"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "identity:repository"
-      ],
-      "id": "F06",
-      "quote": "Aspose.Email FOSS for Cpp version 0.1.0 provides a C++17 library for reading and writing MSG, CFB, and EML message containers and single messages stored on disk, in memory, or in a stream, using the `AsposeEmailFoss` namespace.",
-      "repair": "Add that the library provides deterministic, byte-level output.",
-      "reviewer_scope_defect": "the quote substantially restates SUPPORTED fact identity:repository ('aspose-email-foss/Aspose.Email-FOSS-for-Cpp'), which the finding itself cites as its evidence; a faithful paraphrase (G4-W17 item 116) is supported whatever criterion the finding files itself under",
-      "section_id": "scope_limitations",
-      "text": "The candidate omits the explicit mention of 'byte-level output' and 'deterministic' output, which are key claims in the original README and supported by the product summary."
-    },
-    {
-      "absent": [
-        "- [Additional Examples](#additional-examples)"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "link_target:012"
-      ],
-      "id": "F07",
-      "quote": "- [At a Glance](#at-a-glance)",
-      "repair": "Add the 'Additional Examples' link to the navigation list.",
-      "reviewer_scope_defect": "section navigation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "navigation",
-      "text": "The candidate's navigation list omits 'Additional Examples', which is present in the original README and supported by link_target facts."
-    },
-    {
-      "absent": [
-        "Aspose.Email FOSS for C++"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "identity:repository"
-      ],
-      "id": "F01",
-      "quote": "Aspose.Email FOSS for Cpp is a C++ library for reading, writing, and manipulating email messages in Microsoft Outlook MSG and standard EML formats.",
-      "reader": 2,
-      "repair": "Change 'Aspose.Email FOSS for Cpp' to 'Aspose.Email FOSS for C++' in the opening paragraph and throughout the document to match the repository name and official branding.",
-      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "identity",
-      "text": "The product name is rendered as 'Aspose.Email FOSS for Cpp' instead of the canonical 'Aspose.Email FOSS for C++' (with '++' suffix)."
-    },
-    {
-      "absent": [
-        "flowchart TD",
-        "subgraph StartingPoints",
-        "subgraph Capabilities",
-        "subgraph Outputs"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F02",
-      "quote": "```mermaid",
-      "reader": 2,
-      "repair": "Restore the Mermaid flowchart with Starting Points (MSG, EML, CFB), Capabilities (low-level CFB, low-level MSG, high-level authoring, recipients/attachments, MSG/EML interoperability), and Outputs (MSG, EML, CFB) as present in the original README.",
-      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "at_a_glance",
-      "text": "The Mermaid flowchart is omitted entirely, but the original README included one with specific Starting Points and Outputs that are supported by the product's capabilities."
-    },
-    {
-      "absent": [
-        "Aspose.Email FOSS for Cpp 0.1.0 with C++17 support"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F05",
-      "quote": "Read a subject from an MSG file opened as a binary stream using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support.",
-      "reader": 2,
-      "repair": "Remove the redundant version and standard mentions from the quick start prose descriptions to match the original README's concise style.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Aspose.Email FOSS for Cpp 0.1.0 with C++17 support', which the candidate contains",
-      "section_id": "quick_start",
-      "text": "The quick start examples redundantly mention 'Aspose.Email FOSS for Cpp 0.1.0 with C++17 support' in prose, which is unnecessary and not present in the original README."
-    },
-    {
-      "absent": [
-        "### Message Authoring",
-        "### Low-Level MSG Access",
-        "### Low-Level CFB Access",
-        "### Attachments, Recipients, and Properties"
+        "### aspose",
+        "### email",
+        "### foss"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [],
       "id": "F06",
-      "quote": "#### Detailed Member Reference",
+      "quote": "### aspose",
       "reader": 2,
-      "repair": "Restore the detailed member reference subsections with method signatures for `mapi_message`, `msg_reader`, `msg_document`, `msg_writer`, `cfb_reader`, `cfb_document`, `cfb_writer`, `mapi_attachment`, `mapi_recipient`, and `mapi_property_collection`.",
-      "reviewer_scope_defect": "the quote is the heading 'Detailed Member Reference', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "repair": "Remove the namespace hierarchy subsections ('### aspose', '### email', '### foss') to match the original README's API Reference structure.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### aspose', '### email', '### foss', which the candidate contains",
       "section_id": "api_reference",
-      "text": "The API reference section omits the 'Detailed Member Reference' subsections for each class, which are present in the original README and provide essential method signatures."
-    },
-    {
-      "absent": [
-        "aspose_email_foss_cfb_tests",
-        "aspose_email_foss_msg_tests",
-        "aspose_email_foss_public_tests"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F07",
-      "quote": "The suite covers 4 test files under `tests/`.",
-      "reader": 2,
-      "repair": "Correct the test count and list the three test executables by name as specified in the original README.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "development_testing",
-      "text": "The development and testing section incorrectly states 'The suite covers 4 test files under `tests/`' while the original README specifies three test executables (`aspose_email_foss_cfb_tests`, `aspose_email_foss_msg_tests`, `aspose_email_foss_public_tests`)."
+      "text": "The candidate adds namespace hierarchy sections ('### aspose', '### email', '### foss') that are not present in the original README's API Reference section, introducing an unverified organizational layer."
     },
     {
       "absent": [
@@ -223,13 +237,32 @@
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [],
-      "id": "F08",
+      "id": "F07",
       "quote": "Aspose.Email FOSS for Cpp version 0.1.0 provides a C++17 library for reading and writing MSG, CFB, and EML message containers and single messages stored on disk, in memory, or in a stream, using the `AsposeEmailFoss` namespace.",
       "reader": 2,
-      "repair": "Remove the redundant version and standard mentions from the first bullet in the scope and limitations section to match the original README's concise phrasing.",
+      "repair": "Rephrase the first limitation to match the original README's concise phrasing: 'No SMTP, IMAP, POP3, or other network mail-protocol support — this library reads and writes MSG, CFB, and EML containers and messages already on disk, in memory, or in a stream; it is not a mail client or transport library.'",
       "reviewer_scope_defect": "the finding claims the candidate does not contain 'Aspose.Email FOSS for Cpp version 0.1.0 provides a C++17 library', which the candidate contains",
       "section_id": "scope_limitations",
-      "text": "The scope and limitations section redundantly repeats 'Aspose.Email FOSS for Cpp version 0.1.0 provides a C++17 library...' in the first bullet, which is unnecessary and not present in the original README."
+      "text": "The candidate rephrases the first limitation as 'Aspose.Email FOSS for Cpp version 0.1.0 provides a C++17 library...' which is verbose and introduces version-specific phrasing not in the original README."
+    },
+    {
+      "absent": [
+        "4 test files",
+        "aspose_email_foss_cfb_tests",
+        "aspose_email_foss_msg_tests",
+        "aspose_email_foss_public_tests"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "The suite covers 4 test files under `tests/`.",
+      "reader": 2,
+      "repair": "Correct the test count to three and name the test executables as in the original README: `aspose_email_foss_cfb_tests`, `aspose_email_foss_msg_tests`, and `aspose_email_foss_public_tests`.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The candidate states 'The suite covers 4 test files under `tests/`' but the original README specifies three test executables (`aspose_email_foss_cfb_tests`, `aspose_email_foss_msg_tests`, `aspose_email_foss_public_tests`), making the count inaccurate."
     }
   ],
   "authoring": {
@@ -240,7 +273,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "1cc52648995850196d131d51d468b18aceae45852c6f3d3387fcef333e1c8e42",
+  "readme_sha256": "8dd1b28de2a17da64fe0eca8f5b3e933274244a7d3c5b43908f0b42610866be4",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -254,6 +287,8 @@
       "5b4af6802e28f2886ef081a2",
       "75ce3972a5bdabd7147b459d",
       "7b39d108aee98d84de885f46",
+      "7bf2dd6eda183d6293dbc405",
+      "949e03aa2a199c11ad781c51",
       "a4038de197be7270ac16f2d7",
       "fda854a22f02daa23e26407a"
     ],

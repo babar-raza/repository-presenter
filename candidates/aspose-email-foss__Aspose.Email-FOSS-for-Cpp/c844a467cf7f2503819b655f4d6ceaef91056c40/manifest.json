@@ -1,92 +1,101 @@
 {
-  "adopted": {
-    "adopted_at": "2026-09-23T12:01:38Z",
-    "changed": [
-      "README.md",
-      "README.patch",
-      "content_units.json",
-      "dependencies.json",
-      "dispositions.json",
-      "examples.json",
-      "plan.json",
-      "review.json",
-      "validation.json"
-    ],
-    "classification": "factual",
-    "earliest_affected_stage": "EXTRACTING",
-    "previous_proof": {
-      "byte_identical": true,
-      "fresh_process": true,
-      "proven_at": "2026-09-17T08:14:25Z",
-      "provider_calls": 0
-    },
-    "recorded_at": "2026-09-23T12:01:06Z"
-  },
   "call_variance": [
     {
       "distinct_responses": 2,
       "job": "independent_review",
       "response_sha256s": [
-        "6e303721c5d33d8273b8ef211b9b275fbb25fb46d373433ff5aae0786acdfe91",
-        "886a8cae2c1994ac5dce3eb937a0808858963183a7fa2bcd7889e07dfc005550"
+        "525d0eac03f459024f0369049197a5fa84bed02d747d675951de18281e44d0c1",
+        "71091aebf891568555e35cb213f16c7504e7b2c46eb72db32fec9a6b874f9390"
       ]
     },
     {
-      "distinct_responses": 10,
+      "distinct_responses": 5,
+      "job": "presentation_planning",
+      "response_sha256s": [
+        "399400292b4c9debf024c671405a307777f6726ea6c5ceeca34c93cda78cadd3",
+        "3e48cf96a1d8bf62e4335a3201d08f0d2aba0b244b7c737e90bedb8d0f359e8f",
+        "834bad6e694dd2ed50e200ddee4b5c0b89ece9ddf320ef442f678dcf88996ef1",
+        "8f518bfd630552d8a8d371851788c68e2e394110baa27a01272ad5328ae43b76",
+        "b1beba46bcbd07c29f4c57a9bec0f4fe8faba6faaa4b6b86bbb52b2db6a74047"
+      ]
+    },
+    {
+      "distinct_responses": 3,
+      "job": "repository_investigation",
+      "response_sha256s": [
+        "025c16a2ea2b9c37faaf576dc4a12fdad39dbbf4c7509144f60a41683975caa3",
+        "766afa8ffdfac05b40ef72da7bed6c7dc78f8fff29b5a42d3faabccadd3a9081",
+        "fe0de9a26a21be5105cd9cd45e7672f83c3177dd308ab5ba82bb89d4ce324db1"
+      ]
+    },
+    {
+      "distinct_responses": 18,
       "job": "section_authoring",
       "response_sha256s": [
-        "6d838551f085605bc0dbb5591efa3055521bb23456d330b939a09db69b2b35ae",
-        "797c5b9016800dfe22d85d467a9ee325f51792291caa0c8bf5ea985b4e389be7",
-        "83b218e2459e35adbff63331d6e6fd534c4fa3310638bc6911afed8be010e96e",
-        "88de0bd426e2075b21af648af554cb5975e327d265c44476c5ee68d4d6789ff4",
-        "acecc74468ecba81a7043bf5d47e54ca0ddd656874cff7ef893143d3a18ec320",
-        "b09ee8e2a7ff44ea9a5a4771d9a0e1d2cf169bd639b6b201e5d8aa0c55d89621",
-        "ba641f5a1e10114b9c9d3adb50b60afa014cd964de884bf9f871248195afec98",
-        "cd391fea56d204b38ffe77a2127f2902a0e4a785f451fed8c17baa82f7146e5e",
-        "cf4e41aec7fe0dac8712f6d81b0526f5dddad90ea64c8e3ad663a5059861f7f2",
-        "f82d7bc7bdcfe9845e649b40f156daf6c602e4e65e4de5384f92a0e7a173aa73"
+        "162226d4278c21659d1d09c0097fa1977e72bef129600613a369ce36f6c371f6",
+        "253855f967bec03aff4e0cf52a27cba658050beec3b102a571ca070ca42bb68e",
+        "5609d2d5ab5cc6d97a9c221cb99b65560046f70041276f87b589d5d92583d90e",
+        "60e355687ac9a000da2f2e0d8c880bd0f32b16425246088c0b3f9dbc00c6f4c4",
+        "63714d40186276e04a3f0d964a681655020365ae2cce46461b31858048422481",
+        "6bfbafe0839ebdc0fbd8e8bb90f996b0690e141148348dd4c5bb1faf304b8890",
+        "b0d6a49e658b66b83e007e2b6d679ca06ee24361720437495e608bb1d3b9cd17",
+        "c546bfccafd3a53ab3d1cdafc1078372b97c79b1596b92271890e58c6b5d709b",
+        "c55ab0b931f05c2dde6332ee2eeeb012b54f579026b3d53d61477e31acd7c483",
+        "c7a03d9787d5337ecc367e494cc390bbd317ebd67db61a923c0079849109712a",
+        "cc6593422d070877d7a4662c9593b62443512fec97287a02c6acdb7bf47abfd6",
+        "cd28b4465d490f891f1a0a17c053670f495b95b12b545c3cd3f6299618a08097",
+        "d704a3ff8bd060bc61a150a081cf1abcdba0651292b470838149df7f848614d9",
+        "d9c703c612d5d4e382535d63c58480d76aa41850ca22faf3608a7abc11d8e7bf",
+        "e2004120788d628d3458eb80c5cded96d88c9855a5ac99ea1f30169f6a2caae1",
+        "e249a01e396bbbcffbb133d32f7bfc20d7e89980f911b2f12f912a3da368ed40",
+        "e7aeec84afcdc2d1bb811bbb81a4d247dfa0a9d730536477c883827f0b2a3989",
+        "f2a7e2d7ce495a31ffc97a3eb04a99521e50727a7cf4d8593b778b5a669173d0"
       ]
     },
     {
-      "distinct_responses": 2,
+      "distinct_responses": 6,
       "job": "source_reconciliation",
       "response_sha256s": [
-        "9e6fcd8b8e322b0415ab10d3931818f39b1aa247791322d6daea3ca2ba3e236a",
-        "f335a5605cb48de67373deb2c55960ecf64debc0bd24555d20e217bf7c8ac381"
+        "09ec4eaf9245fbe3cc46d06d575786412755631cb82761956e6ca53fb72b2380",
+        "0aa382acb34be274565489caba8a18453b81712f3b3b7ea0616e9603a9646a2a",
+        "55c44245e3a54007aac609aecfd440de7f723ea29aba6657ff64c32e71d36d72",
+        "cc84081bb099fb2a73e9a5917d6dfb2cb53769237a2f667163cd6a07cc13631e",
+        "eaef33bf31f16d8e0327a8b78247b4216c3a59a96cdd40a041100e7e4dc0a23d",
+        "f91e069e4062c6185b6eb586d23379e565bd3936effd3afff839563b78fd580b"
       ]
     }
   ],
   "composition": {
-    "advisories": 13,
+    "advisories": 15,
     "blocking_failures": [],
-    "coverage_advisories": 1,
+    "coverage_advisories": 0,
     "review_verdict": "ACCEPT",
     "review_verdict_as_returned": "REJECT_PRESENTATION"
   },
   "files": {
     "README.md": {
-      "bytes": 11858,
-      "sha256": "1cc52648995850196d131d51d468b18aceae45852c6f3d3387fcef333e1c8e42"
+      "bytes": 11232,
+      "sha256": "8dd1b28de2a17da64fe0eca8f5b3e933274244a7d3c5b43908f0b42610866be4"
     },
     "README.patch": {
-      "bytes": 33655,
-      "sha256": "37327444bb109e7b0025dfbc7c6ffdd3bbb119e1baeb245cbda6afe3789cdad2"
+      "bytes": 33029,
+      "sha256": "1bb31a722551c0f8e58b8dcad189ec5d5172daf14ce51ca7d7c2e8e888f09172"
     },
     "calls.jsonl": {
-      "bytes": 30804,
-      "sha256": "1e27f9214cd4f5cfe3f86cbbcf210788fea18ff631fe17004f582eebc0c9da63"
+      "bytes": 32619,
+      "sha256": "db530f7e9d530f1507a26eaf16642b1334b046d5084f262640b3773e51b6acda"
     },
     "content_units.json": {
-      "bytes": 23723,
-      "sha256": "91299c17db614e501ae66e09049a718e2aef88b0174d935ae5d97b6009f01de1"
+      "bytes": 18861,
+      "sha256": "abe364b95dee6da9635544ef9357d14d1edb921394908f0219b385c6b8f82020"
     },
     "dependencies.json": {
       "bytes": 45563,
-      "sha256": "302cf7b17fe346c26f67778b6f6585f02cc7e0f57833c40969145e636afe433f"
+      "sha256": "418c6ebd570b7787b0d2d45fd40e2600bf99cb92ed1cd9f8b6e12a6892e10323"
     },
     "dispositions.json": {
-      "bytes": 29558,
-      "sha256": "76fe4ffec6f4b78d1694046563c6ab83830001988081c2d8662710786a48efcf"
+      "bytes": 29210,
+      "sha256": "3e594c43c215928bebf4ed145aae759f022778ba79e93a29ac883cd7471841c4"
     },
     "examples.json": {
       "bytes": 7956,
@@ -97,36 +106,40 @@
       "sha256": "c9fa65042ec489e7e4fd6a08834f12a8eb465c7a2f91b39b0b2e625e8b1fc05e"
     },
     "investigation.json": {
-      "bytes": 5073,
-      "sha256": "910383a5b25cbd5b5986d4f295c6210ff25b9888916ffef99c6eb536f372fe34"
+      "bytes": 5119,
+      "sha256": "e37873a45ab392c29a703b73fe4ee051c8147fa93c4f35680ff8cc3ca7a8e838"
     },
     "plan.json": {
-      "bytes": 5899,
-      "sha256": "0f5d4dfe804a6106ef729b6e7506ea43b29c95d862b7805f1f4915ae123065f4"
+      "bytes": 5848,
+      "sha256": "17911832bb3b5d0acd9f12156eaddd21cdfaea4eb16a9b3419362dae7ae31ba1"
     },
     "probes.json": {
-      "bytes": 1879,
-      "sha256": "a4439be9eb0dc3d89c5a191a60d4618f3fbc69af16c1ed573eccf8bb32395c9b"
+      "bytes": 1886,
+      "sha256": "32ee8782d71da2bb1b87c35b2ad5c25d701bc6e49f1d4976f33fef90ac073797"
+    },
+    "repairs.json": {
+      "bytes": 442,
+      "sha256": "aa10229ae2438038216c22ec26ec437fde91519ab44be4d94be3ef444ac75787"
     },
     "review.json": {
-      "bytes": 13512,
-      "sha256": "c3ce84bbafd902467588319dce29981b87ea266fc2082a0a12e19c5e3da823fd"
+      "bytes": 16424,
+      "sha256": "a14f1cd87740e572d912c2cc1949e64986c291c49309c23de317cbad95a2c61c"
     },
     "validation.json": {
-      "bytes": 11089,
-      "sha256": "8e8d9283f1047f52b7b2b8d5dd2d219aa5b297c6b3a945225057cda665f55baa"
+      "bytes": 11001,
+      "sha256": "bd8f4299fc0330c8bb03944550ee94fa454e729f8c9d0cd4e6e8ea5e7fb4f05a"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-23T12:01:38Z",
+    "proven_at": "2026-09-24T14:19:48Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
   "revision": "c844a467cf7f2503819b655f4d6ceaef91056c40",
   "schema_version": 1,
-  "sealed_at": "2026-09-23T12:01:38Z",
+  "sealed_at": "2026-09-24T14:19:48Z",
   "state": "READY_FOR_PROPOSAL"
 }

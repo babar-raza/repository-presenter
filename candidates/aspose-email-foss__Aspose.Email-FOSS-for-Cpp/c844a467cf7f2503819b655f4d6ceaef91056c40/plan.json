@@ -3,38 +3,40 @@
   "api_hubs": [
     {
       "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.email",
+        "public_symbol:aspose.email.foss"
+      ],
+      "symbol_fact_id": "public_symbol:aspose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.email",
+        "public_symbol:aspose.email.foss"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.email"
+    },
+    {
+      "fact_ids": [
         "public_symbol:aspose.email.foss",
         "public_symbol:aspose.email.foss.msg.mapi_message",
-        "public_symbol:aspose.email.foss.cfb.cfb_reader",
-        "public_symbol:aspose.email.foss.msg.msg_reader"
+        "public_symbol:aspose.email.foss.msg.msg_reader",
+        "public_symbol:aspose.email.foss.cfb.cfb_reader"
       ],
       "symbol_fact_id": "public_symbol:aspose.email.foss"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
-      "High-level message authoring",
       "Low-level CFB access",
-      "MSG/EML interoperability",
-      "Recipient and attachment management"
+      "High-level message authoring",
+      "Recipients and attachments",
+      "MSG/EML interoperability"
     ],
     "input_format_ids": [],
     "output_format_ids": []
   },
   "core_capabilities": [
-    {
-      "fact_ids": [
-        "example:002",
-        "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_message"
-      ],
-      "shared_fact_ids": [
-        "example:002",
-        "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_message"
-      ],
-      "title": "High-level message authoring"
-    },
     {
       "fact_ids": [
         "public_symbol:aspose.email.foss",
@@ -47,29 +49,35 @@
     },
     {
       "fact_ids": [
-        "example:002",
         "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_message"
-      ],
-      "shared_fact_ids": [
-        "example:002",
-        "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_message"
-      ],
-      "title": "MSG/EML interoperability"
-    },
-    {
-      "fact_ids": [
-        "example:002",
-        "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_recipient",
-        "public_symbol:aspose.email.foss.msg.mapi_attachment"
+        "example:002"
       ],
       "shared_fact_ids": [
         "example:002",
         "public_symbol:aspose.email.foss"
       ],
-      "title": "Recipient and attachment management"
+      "title": "High-level message authoring"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss"
+      ],
+      "shared_fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss"
+      ],
+      "title": "Recipients and attachments"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "package:name"
+      ],
+      "shared_fact_ids": [
+        "example:002"
+      ],
+      "title": "MSG/EML interoperability"
     }
   ],
   "deviations": [
@@ -78,24 +86,22 @@
         "inherited_unit:008.code_block"
       ],
       "section_id": "at_a_glance",
-      "text": "The Mermaid flowchart is omitted because no verified input or output format facts are present."
+      "text": "The Mermaid flowchart from the inherited README is omitted because no fact verifies its structure or content."
     },
     {
       "fact_ids": [
-        "inherited_unit:033.heading",
         "inherited_unit:034.code_block",
-        "inherited_unit:037.heading",
         "inherited_unit:038.code_block"
       ],
       "section_id": "additional_examples",
-      "text": "The example code blocks under 'Create a Message' and 'Inspect Low-Level MSG and CFB Structure' are omitted because they are marked as CONTRADICTED."
+      "text": "The example code blocks from inherited units 034 and 038 are omitted because they are marked as CONTRADICTED and not citable."
     },
     {
       "fact_ids": [
-        "link_target:product.enterprise"
+        "inherited_unit:065.paragraph"
       ],
       "section_id": "enterprise_relationship",
-      "text": "The Enterprise Edition relationship is included as a below-the-fold section per policy."
+      "text": "The Enterprise Edition paragraph is moved from scope_limitations to its own section per the semantic shell."
     }
   ],
   "flagship_example_id": null,
@@ -123,6 +129,10 @@
     {
       "link_fact_id": "link_target:028",
       "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:005",
+      "section_id": "banner"
     }
   ],
   "material_limitations": [
