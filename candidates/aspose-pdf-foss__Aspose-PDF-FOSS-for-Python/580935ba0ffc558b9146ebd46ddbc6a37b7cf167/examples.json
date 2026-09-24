@@ -1,0 +1,294 @@
+[
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "FileExistsError",
+    "fixtures": [
+      {
+        "literal": "hello.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 1,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_001\\example.py\", line 11, in <module>\r\n    document.save(\"hello.pdf\")\r\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose_pdf\\document.py\", line 2253, in save\r\n    raise FileExistsError(f\"File already exists: {path}\")\r\nFileExistsError: File already exists: hello.pdf\r\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "input.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": "Pages: 4\r\nPDF version: 1.7\r\n{}\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "input.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "FileNotFoundError: the example opens an input the repository does not provide",
+    "fixtures": [
+      {
+        "literal": "report.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      },
+      {
+        "literal": "report-sealed.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 4,
+    "outcome": "NEEDS_INPUT",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_004\\example.py\", line 6, in <module>\r\n    auditor = x509.load_pem_x509_certificate(Path(\"auditor.pem\").read_bytes())\r\n                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\r\n  File \"C:\\Python313\\Lib\\pathlib\\_abc.py\", line 625, in read_bytes\r\n    with self.open(mode='rb') as f:\r\n         ~~~~~~~~~^^^^^^^^^^^\r\n  File \"C:\\Python313\\Lib\\pathlib\\_local.py\", line 537, in open\r\n    return io.open(self, mode, buffering, encoding, errors, newline)\r\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nFileNotFoundError: [Errno 2] No such file or directory: 'auditor.pem'\r\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "FileNotFoundError: the example opens an input the repository does not provide",
+    "fixtures": [
+      {
+        "literal": "contract.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      },
+      {
+        "literal": "contract-signed.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 5,
+    "outcome": "NEEDS_INPUT",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_005\\example.py\", line 7, in <module>\r\n    Path(\"signer.p12\").read_bytes(), b\"p12-password\"\r\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\r\n  File \"C:\\Python313\\Lib\\pathlib\\_abc.py\", line 625, in read_bytes\r\n    with self.open(mode='rb') as f:\r\n         ~~~~~~~~~^^^^^^^^^^^\r\n  File \"C:\\Python313\\Lib\\pathlib\\_local.py\", line 537, in open\r\n    return io.open(self, mode, buffering, encoding, errors, newline)\r\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nFileNotFoundError: [Errno 2] No such file or directory: 'signer.p12'\r\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "FileExistsError",
+    "fixtures": [
+      {
+        "literal": "report.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      },
+      {
+        "literal": "with-layers.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      },
+      {
+        "literal": "final.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 6,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_006\\example.py\", line 7, in <module>\r\n    document.save(\"with-layers.pdf\")\r\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose_pdf\\document.py\", line 2253, in save\r\n    raise FileExistsError(f\"File already exists: {path}\")\r\nFileExistsError: File already exists: with-layers.pdf\r\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "report.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      },
+      {
+        "literal": "report.md",
+        "produced_by": null,
+        "source_path": ".github/PULL_REQUEST_TEMPLATE.md"
+      }
+    ],
+    "ordinal": 7,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": "\r\n\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "report.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 8,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "report-cjk.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      },
+      {
+        "literal": "page-1.png",
+        "produced_by": 3,
+        "source_path": "page-1.png"
+      }
+    ],
+    "ordinal": 9,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "NameError",
+    "fixtures": [
+      {
+        "literal": "unicode.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 10,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_010\\example.py\", line 1, in <module>\r\n    with Document() as document:\r\n         ^^^^^^^^\r\nNameError: name 'Document' is not defined\r\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "aspose_pdf.exceptions.FontEmbeddingException",
+    "fixtures": [
+      {
+        "literal": "complex-text.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 11,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\site\\aspose_pdf\\engine\\font_authoring.py\", line 446, in _read_source\r\n    size = path.stat().st_size\r\n           ~~~~~~~~~^^\r\n  File \"C:\\Python313\\Lib\\pathlib\\_local.py\", line 515, in stat\r\n    return os.stat(self, follow_symlinks=follow_symlinks)\r\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nFileNotFoundError: [WinError 2] The system cannot find the file specified: 'NotoSansArabic-Regular.ttf'\r\n\r\nThe above exception was the direct cause of the following exception:\r\n\r\nTraceback (most recent call last):\r\n  File \"<workspace>\\site\\aspose_pdf\\engine\\simple_pdf.py\", line 7577, in _build_laid_out_text_content\r\n    prepared = prepare_authored_font(\r\n        source,\r\n        font_name=font_name if index == 0 else None,\r\n        limits=self._load_limits,\r\n    )\r\n  File \"<workspace>\\site\\aspose_pdf\\engine\\font_authoring.py\", line 367, in prepare_authored_font\r\n    raw, face_index, suggested_name = _read_source(source, resolved_limits)\r\n                                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose_pdf\\engine\\font_authoring.py\", line 452, in _read_source\r\n    raise FontEmbeddingException(\r\n        f\"Could not read font file {str(path)!r}: {exc}\"\r\n    ) from exc\r\naspose_pdf.exceptions.FontEmbeddingException: Could not read font file 'NotoSansArabic-Regular.ttf': [WinError 2] The system cannot find the file specified: 'NotoSansArabic-Regular.ttf'\r\n\r\nThe above exception was the direct cause of the following exception:\r\n\r\nTraceback (most recent call last):\r\n  File \"<workspace>\\example_011\\example.py\", line 5, in <module>\r\n    page.add_text(\r\n    ~~~~~~~~~~~~~^\r\n        \"English \u0627\u0644\u0639\u0631\u0628\u064a\u0629 123\",\r\n        ^^^^^^^^^^^^^^^^^^^^^^\r\n    ...<9 lines>...\r\n        ),\r\n        ^^\r\n    )\r\n    ^\r\n  File \"<workspace>\\site\\aspose_pdf\\pages.py\", line 198, in add_text\r\n    eng.add_text_to_page(\r\n    ~~~~~~~~~~~~~~~~~~~~^\r\n        self._index,\r\n        ^^^^^^^^^^^^\r\n    ...<9 lines>...\r\n        layout=layout,\r\n        ^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\n  File \"<workspace>\\site\\aspose_pdf\\engine\\simple_pdf.py\", line 7491, in add_text_to_page\r\n    content = self._build_laid_out_text_content(\r\n        page_index,\r\n    ...<7 lines>...\r\n        layout,\r\n    )\r\n  File \"<workspace>\\site\\aspose_pdf\\engine\\simple_pdf.py\", line 7584, in _build_laid_out_text_content\r\n    raise FontEmbeddingException(\r\n        f\"The {label} layout font could not be prepared: {exc}\"\r\n    ) from exc\r\naspose_pdf.exceptions.FontEmbeddingException: The primary layout font could not be prepared: Could not read font file 'NotoSansArabic-Regular.ttf': [WinError 2] The system cannot find the file specified: 'NotoSansArabic-Regular.ttf'\r\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "input.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 12,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": "\r\n\r\n\r\n\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "merged.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      },
+      {
+        "literal": "part-1.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      },
+      {
+        "literal": "part-2.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 13,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "input.pdf",
+        "produced_by": null,
+        "source_path": "tests/fixtures_4pages.pdf"
+      }
+    ],
+    "ordinal": 14,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  }
+]

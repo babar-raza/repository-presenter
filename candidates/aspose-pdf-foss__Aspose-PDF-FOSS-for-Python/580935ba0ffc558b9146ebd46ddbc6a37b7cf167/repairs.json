@@ -1,0 +1,39 @@
+{
+  "attempts": {
+    "3a6ee44df90be5b3ae57e801": {
+      "changes": [
+        {
+          "after": "Public-key encryption via aspose_pdf.Document.encrypt_for_recipients covers RSA recipients only; key-agreement, password, and KEK recipient types, and RC2-encrypted envelopes, are rejected explicitly, and no PDF 2.0 message authentication code (/AuthCode) is produced or checked.",
+          "before": "Public-key encryption via aspose_pdf.Document.encrypt_for_recipients covers RSA recipients only; key-agreement, password, and KEK recipient types, and RC2-encrypted envelopes, are rejected explicitly, and no PDF 2.0 message authentication code is produced or checked.",
+          "fact_ids": [
+            "inherited_unit:096.list",
+            "public_symbol:aspose_pdf.document.encrypt_for_recipients"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[4].text"
+        }
+      ],
+      "label": "F07",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "bbe6befa29a9ce8e429cf3aa729fefa9bca270fdf6af11cc20bcd76505a7dac6",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
+    "fb4981ad60536b4915a48815": {
+      "changes": [],
+      "label": "F08",
+      "misrouted": false,
+      "outcome": "unrepairable",
+      "reason": "targeted_repair: output rejected twice; last rejection: revised_output: matches the causal stage's own output unchanged; a no-op cannot repair a defect this stage's content did not change",
+      "request_sha256": null,
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "30e947ea4eeee99a04b023f52709f7539ae9b46bdcf3955c9fec9ee5da49ecb4",
+  "schema_version": 1
+}

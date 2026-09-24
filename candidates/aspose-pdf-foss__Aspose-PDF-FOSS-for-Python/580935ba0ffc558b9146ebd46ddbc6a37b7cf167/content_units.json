@@ -1,0 +1,1033 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "example:001",
+      "reason": "example:001 is contradicted and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:004",
+      "reason": "example:004 is unresolved and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "example:005 is unresolved and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "example:006 is contradicted and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:010",
+      "reason": "example:010 is contradicted and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:011",
+      "reason": "example:011 is contradicted and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "format:input.p12",
+      "reason": "format:input.p12 is unresolved and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "format:input.pem",
+      "reason": "format:input.pem is unresolved and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "format:output.pdf",
+      "reason": "format:output.pdf is unresolved and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "link_target:product.enterprise",
+      "reason": "link_target:product.enterprise is unresolved and not used.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "inherited_unit:009.heading",
+      "reason": "inherited_unit:009.heading is provenance and not used in prose.",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "Repository name is not needed in the summary sentence as the package name and context make the source clear.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision hash is not relevant to describing how to build and test.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "Family context is not required in this summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "Platform context is not required in this summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "Ecosystem context is not required in this summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "Package name is not required in this summary sentence as the context makes it clear.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:version",
+      "reason": "Version is not required in this summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:python_requires",
+      "reason": "Python version requirement is not required in this summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:license",
+      "reason": "License is not required in this summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:098.heading",
+      "reason": "Heading is rendered by the system and not part of the prose unit.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:python_requires",
+        "package:license",
+        "license:spdx",
+        "format:input.pdf",
+        "format:output.html",
+        "format:output.md",
+        "format:output.png",
+        "format:output.svg",
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.document.load_from",
+        "public_symbol:aspose_pdf.pdfextractor",
+        "public_symbol:aspose_pdf.pdfextractor.extract_text",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.redact_text",
+        "public_symbol:aspose_pdf.document.save_page_as_image",
+        "public_symbol:aspose_pdf.document.save_as_svg",
+        "public_symbol:aspose_pdf.page.save_as_image",
+        "public_symbol:aspose_pdf.page.save_as_svg",
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua",
+        "public_symbol:aspose_pdf.document.auto_tag",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.form",
+        "public_symbol:aspose_pdf.page.add_text",
+        "public_symbol:aspose_pdf.form.add_text_field",
+        "public_symbol:aspose_pdf.annotationcollection.add",
+        "public_symbol:aspose_pdf.pdfextractor.get_text",
+        "public_symbol:aspose_pdf.form.add_checkbox",
+        "public_symbol:aspose_pdf.annotation.generate_appearance",
+        "public_symbol:aspose_pdf.document.encrypt",
+        "public_symbol:aspose_pdf.document.decrypt",
+        "public_symbol:aspose_pdf.pdfsignature.validate",
+        "public_symbol:aspose_pdf.document.font_substitution",
+        "public_symbol:aspose_pdf.fontsubstitutionoptions.system",
+        "public_symbol:aspose_pdf.fontrepository.add_source",
+        "public_symbol:aspose_pdf.fontrepository.find_font",
+        "public_symbol:aspose_pdf.document.optimize",
+        "public_symbol:aspose_pdf.document.merge",
+        "public_symbol:aspose_pdf.pdffileeditor.concatenate"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose PDF FOSS for Python is a Python library for processing PDF documents, supporting operations such as loading, converting, extracting text, redacting, signing, and optimizing .pdf files. It enables developers to read page counts and metadata, convert pages to .png or .svg, export to .html or .md, validate compliance with PDF/A and PDF/UA standards, and add interactive elements like text fields and checkboxes. Users include developers building document automation, compliance, and content extraction workflows in Python 3.11 and later. The library is distributed under the MIT license and is version 0.1.0."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:003",
+        "public_symbol:aspose_pdf.annotationcollection.add",
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.document.load_from",
+        "public_symbol:aspose_pdf.form.add_text_field",
+        "public_symbol:aspose_pdf.page.add_text"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create and edit PDF documents by loading existing files with load_from, adding text to pages via add_text, and inserting interactive form fields such as text fields using add_text_field, all managed through the Document and AnnotationCollection APIs."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:008",
+        "public_symbol:aspose_pdf.document.save_as_svg",
+        "public_symbol:aspose_pdf.document.save_page_as_image",
+        "public_symbol:aspose_pdf.page.save_as_image",
+        "public_symbol:aspose_pdf.page.save_as_svg"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Render pages to images and SVG by saving individual pages as images with save_page_as_image or save_as_image at a specified DPI, and exporting entire documents or pages as SVG using save_as_svg or save_as_svg respectively."
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "public_symbol:aspose_pdf.document.redact_text",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.pdfextractor.extract_text",
+        "public_symbol:aspose_pdf.pdfextractor.get_text"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Extract and edit text by binding a PDF to PdfExtractor and calling extract_text followed by get_text to retrieve content, or directly replacing text with replace_text and redacting sensitive content using redact_text on the Document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.auto_tag",
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Validate PDF/A and PDF/UA compliance by calling validate_pdfa or validate_pdfua to check conformance and auto_tag to add structural tags required for accessibility standards."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.annotation.generate_appearance",
+        "public_symbol:aspose_pdf.annotationcollection.add",
+        "public_symbol:aspose_pdf.form.add_checkbox",
+        "public_symbol:aspose_pdf.form.add_text_field"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Manage forms and annotations by adding interactive form fields like checkboxes and text fields with add_checkbox and add_text_field, and generating visual appearances for annotations using generate_appearance."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.decrypt",
+        "public_symbol:aspose_pdf.document.encrypt",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.pdfsignature.validate"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Apply security and signing by encrypting and decrypting documents with encrypt and decrypt, signing documents using sign, and validating digital signatures through PdfSignature.validate."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "public_symbol:aspose_pdf.document.font_substitution",
+        "public_symbol:aspose_pdf.fontrepository.add_source",
+        "public_symbol:aspose_pdf.fontrepository.find_font",
+        "public_symbol:aspose_pdf.fontsubstitutionoptions.system"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Handle fonts and substitution by assigning system fonts via FontSubstitutionOptions.system to font_substitution, adding custom font sources with FontRepository.add_source, and locating fonts using FontRepository.find_font."
+    },
+    {
+      "fact_ids": [
+        "example:013",
+        "public_symbol:aspose_pdf.document.merge",
+        "public_symbol:aspose_pdf.document.optimize",
+        "public_symbol:aspose_pdf.pdffileeditor.concatenate"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Optimize and merge documents by combining multiple PDFs with PdfFileEditor.concatenate, reducing file size through Document.optimize, and merging content using Document.merge."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "The first example opens an existing PDF file and prints its page count, version, and metadata using the Document class from aspose_pdf."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "The second example loads a PDF from a file path, then renders the first page as a PNG image with 144 DPI resolution."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008",
+        "example:009",
+        "example:012",
+        "example:013",
+        "example:014",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "The following workflows demonstrate converting PDFs to Markdown and HTML, exporting pages as SVG, rendering pages with system fonts, extracting text, merging files, and applying resource limits for untrusted input."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Convert a PDF to Markdown and HTML with page splitting."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:008",
+      "text": "Export a PDF page and the entire document as SVG."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:009",
+      "text": "Render a page using system fonts when embedded fonts are missing."
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:012",
+      "text": "Extract text from a PDF using PdfExtractor."
+    },
+    {
+      "fact_ids": [
+        "example:013",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:013",
+      "text": "Merge multiple PDF files into one using PdfFileEditor."
+    },
+    {
+      "fact_ids": [
+        "example:014",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:014",
+      "text": "Apply resource limits to reject oversized or complex PDFs."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.page",
+        "public_symbol:aspose_pdf.pdfextractor",
+        "public_symbol:aspose_pdf.form",
+        "public_symbol:aspose_pdf.annotationcollection",
+        "public_symbol:aspose_pdf.pdfsignature",
+        "public_symbol:aspose_pdf.merger",
+        "public_symbol:aspose_pdf.splitter",
+        "public_symbol:aspose_pdf.optimizer",
+        "public_symbol:aspose_pdf.textextractor",
+        "public_symbol:aspose_pdf.fontrepository",
+        "public_symbol:aspose_pdf.pdfloadlimits"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "The aspose_pdf.Document class serves as the primary entry point for working with PDF documents, providing access to pages, forms, outlines, and tagged content alongside encryption, merging, and optimization operations. Supporting modules include aspose_pdf.Page for per-page editing, aspose_pdf.PdfExtractor for extracting text, images, and attachments, aspose_pdf.Form for form field management, aspose_pdf.AnnotationCollection for annotation handling, aspose_pdf.PdfSignature for digital signature validation, aspose_pdf.Merger and aspose_pdf.Splitter for document assembly and disassembly, aspose_pdf.Optimizer for file size reduction, aspose_pdf.TextExtractor for text extraction workflows, aspose_pdf.FontRepository for font management, and aspose_pdf.PdfLoadLimits for controlling resource consumption."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.document.auto_tag",
+        "public_symbol:aspose_pdf.document.decrypt",
+        "public_symbol:aspose_pdf.document.encrypt",
+        "public_symbol:aspose_pdf.document.font_substitution",
+        "public_symbol:aspose_pdf.document.form",
+        "public_symbol:aspose_pdf.document.info",
+        "public_symbol:aspose_pdf.document.layers",
+        "public_symbol:aspose_pdf.document.load_from",
+        "public_symbol:aspose_pdf.document.merge",
+        "public_symbol:aspose_pdf.document.optimize",
+        "public_symbol:aspose_pdf.document.outlines",
+        "public_symbol:aspose_pdf.document.page_count",
+        "public_symbol:aspose_pdf.document.pages",
+        "public_symbol:aspose_pdf.document.redact_text",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.save",
+        "public_symbol:aspose_pdf.document.save_as_html",
+        "public_symbol:aspose_pdf.document.save_as_markdown",
+        "public_symbol:aspose_pdf.document.save_as_svg",
+        "public_symbol:aspose_pdf.document.save_page_as_image",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.document.signatures",
+        "public_symbol:aspose_pdf.document.tagged_content",
+        "public_symbol:aspose_pdf.document.to_html",
+        "public_symbol:aspose_pdf.document.to_markdown",
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua",
+        "public_symbol:aspose_pdf.document.version",
+        "public_symbol:aspose_pdf.document.xmp_metadata"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.document",
+      "text": "The aspose_pdf.Document class enables loading PDFs from files or streams, accessing page collections and metadata, and performing operations such as encryption, decryption, signing, validation against PDF/A and PDF/UA standards, auto-tagging, optimization, merging, text replacement, redaction, and conversion to HTML, Markdown, and SVG formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.page",
+        "public_symbol:aspose_pdf.page.add_text",
+        "public_symbol:aspose_pdf.page.annotations",
+        "public_symbol:aspose_pdf.page.content",
+        "public_symbol:aspose_pdf.page.crop_box",
+        "public_symbol:aspose_pdf.page.index",
+        "public_symbol:aspose_pdf.page.label",
+        "public_symbol:aspose_pdf.page.media_box",
+        "public_symbol:aspose_pdf.page.rect",
+        "public_symbol:aspose_pdf.page.redact_text",
+        "public_symbol:aspose_pdf.page.render",
+        "public_symbol:aspose_pdf.page.replace_text",
+        "public_symbol:aspose_pdf.page.rotation",
+        "public_symbol:aspose_pdf.page.save_as_image",
+        "public_symbol:aspose_pdf.page.save_as_svg"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.page",
+      "text": "The aspose_pdf.Page class provides access to individual page properties such as index, label, rotation, media box, crop box, and content stream, along with methods for adding text, rendering to images or SVG, replacing text, redacting content, and managing annotations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.pdfextractor",
+        "public_symbol:aspose_pdf.pdfextractor.bind_pdf",
+        "public_symbol:aspose_pdf.pdfextractor.extract_attachment",
+        "public_symbol:aspose_pdf.pdfextractor.extract_image",
+        "public_symbol:aspose_pdf.pdfextractor.extract_text",
+        "public_symbol:aspose_pdf.pdfextractor.get_attach_names",
+        "public_symbol:aspose_pdf.pdfextractor.get_attachment",
+        "public_symbol:aspose_pdf.pdfextractor.get_next_image",
+        "public_symbol:aspose_pdf.pdfextractor.get_text"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.pdfextractor",
+      "text": "The aspose_pdf.PdfExtractor class enables binding to a PDF document and extracting text, images, and attachments using methods such as extract_text, get_text, extract_image, get_next_image, extract_attachment, get_attachment, and get_attach_names."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.form",
+        "public_symbol:aspose_pdf.form.add_checkbox",
+        "public_symbol:aspose_pdf.form.add_combo_box",
+        "public_symbol:aspose_pdf.form.add_list_box",
+        "public_symbol:aspose_pdf.form.add_push_button",
+        "public_symbol:aspose_pdf.form.add_radio_group",
+        "public_symbol:aspose_pdf.form.add_signature_field",
+        "public_symbol:aspose_pdf.form.add_text_field",
+        "public_symbol:aspose_pdf.form.export_fdf",
+        "public_symbol:aspose_pdf.form.export_xfdf",
+        "public_symbol:aspose_pdf.form.fields",
+        "public_symbol:aspose_pdf.form.flatten",
+        "public_symbol:aspose_pdf.form.generate_appearances",
+        "public_symbol:aspose_pdf.form.import_fdf",
+        "public_symbol:aspose_pdf.form.import_xfdf",
+        "public_symbol:aspose_pdf.form.remove_field"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.form",
+      "text": "The aspose_pdf.Form class supports adding text fields, checkboxes, combo boxes, list boxes, push buttons, radio groups, and signature fields to a PDF, as well as removing fields, flattening the form, generating appearances, and importing or exporting form data in FDF and XFDF formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.annotationcollection",
+        "public_symbol:aspose_pdf.annotationcollection.add",
+        "public_symbol:aspose_pdf.annotationcollection.clear",
+        "public_symbol:aspose_pdf.annotationcollection.delete",
+        "public_symbol:aspose_pdf.annotationcollection.generate_appearances",
+        "public_symbol:aspose_pdf.annotationcollection.insert"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.annotationcollection",
+      "text": "The aspose_pdf.AnnotationCollection class provides methods to add, insert, and delete annotations on a page, clear all annotations, and generate appearances for annotation visuals."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.pdfsignature",
+        "public_symbol:aspose_pdf.pdfsignature.valid",
+        "public_symbol:aspose_pdf.pdfsignature.validate"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.pdfsignature",
+      "text": "The aspose_pdf.PdfSignature class exposes properties and methods to validate digital signatures and check their validity status."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.merger",
+        "public_symbol:aspose_pdf.merger.process"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.merger",
+      "text": "The aspose_pdf.Merger class provides a process method to concatenate multiple PDF documents into a single output file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.splitter",
+        "public_symbol:aspose_pdf.splitter.process"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.splitter",
+      "text": "The aspose_pdf.Splitter class provides a process method to split a PDF document into separate files, either by page ranges or individual pages."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.optimizer",
+        "public_symbol:aspose_pdf.optimizer.process"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.optimizer",
+      "text": "The aspose_pdf.Optimizer class provides a process method to reduce PDF file size by optimizing images, fonts, and other resources within the document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.textextractor",
+        "public_symbol:aspose_pdf.textextractor.process"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.textextractor",
+      "text": "The aspose_pdf.TextExtractor class provides a process method to extract text content from a PDF document for further processing or analysis."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.fontrepository",
+        "public_symbol:aspose_pdf.fontrepository.add_source",
+        "public_symbol:aspose_pdf.fontrepository.find_font",
+        "public_symbol:aspose_pdf.fontrepository.get_available_fonts",
+        "public_symbol:aspose_pdf.fontrepository.get_sources",
+        "public_symbol:aspose_pdf.fontrepository.open_font",
+        "public_symbol:aspose_pdf.fontrepository.reset_sources",
+        "public_symbol:aspose_pdf.fontrepository.search"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.fontrepository",
+      "text": "The aspose_pdf.FontRepository class allows managing font sources by adding or resetting sources, searching for fonts, finding specific fonts, opening fonts, and retrieving available fonts."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.pdfloadlimits",
+        "public_symbol:aspose_pdf.pdfloadlimits.unlimited"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_pdf.pdfloadlimits",
+      "text": "The aspose_pdf.PdfLoadLimits class provides a setting to configure unlimited resource limits when loading PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.optimizationoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.optimizationoptions",
+      "text": "OptimizationOptions represents settings that control how a PDF document is optimized for size or quality."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.annotations.pdf3d.pdf3dlightingscheme"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.annotations.pdf3d.pdf3dlightingscheme",
+      "text": "PDF3DLightingScheme defines named lighting schemes used to render 3D annotations in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.annotations.pdf3d.pdf3drendermode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.annotations.pdf3d.pdf3drendermode",
+      "text": "PDF3DRenderMode specifies the rendering mode for 3D annotations, such as wireframe or solid shading."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.ccitt.decoder"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.ccitt.decoder",
+      "text": "Decoder performs CCITT fax compression decoding on image data streams."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.cos.pdfarray"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.cos.pdfarray",
+      "text": "PdfArray holds an ordered collection of PDF objects and supports appending new elements."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.cos.pdfboolean"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.cos.pdfboolean",
+      "text": "PdfBoolean wraps a true or false value as a PDF boolean object."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.cos.pdfdictionary"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.cos.pdfdictionary",
+      "text": "PdfDictionary stores key-value pairs of PDF objects and provides methods to retrieve or remove entries."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.cos.pdfindirectreference"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.cos.pdfindirectreference",
+      "text": "PdfIndirectReference points to an object stored elsewhere in the PDF file by its object identifier."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.cos.pdfname"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.cos.pdfname",
+      "text": "PdfName represents a PDF name object, a short string used as a key or identifier."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.cos.pdfnumber"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.cos.pdfnumber",
+      "text": "PdfNumber wraps numeric values and provides conversion to integer or double."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.cos.pdfstring"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.cos.pdfstring",
+      "text": "PdfString holds a sequence of bytes encoded as a PDF string object."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.data.encoding"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.data.encoding",
+      "text": "Encoding converts Unicode text into a specific byte representation using a defined character set."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.data.encodingtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.data.encodingtype",
+      "text": "EncodingType enumerates the supported text encoding schemes used within PDF content streams."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.data.filtertype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.data.filtertype",
+      "text": "FilterType enumerates the compression filters that can be applied to PDF streams."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.data.pdfnull"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.data.pdfnull",
+      "text": "PdfNull represents the null object in the PDF object model, indicating the absence of a value."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.data.pdfobjectid"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.data.pdfobjectid",
+      "text": "PdfObjectID uniquely identifies an indirect object within a PDF file using an object number and generation number."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.data.pdfobjectregistry"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.data.pdfobjectregistry",
+      "text": "PdfObjectRegistry manages the registration and lookup of indirect objects during PDF construction."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.data.pdftrailerable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.data.pdftrailerable",
+      "text": "PdfTrailerable provides access to the trailer dictionary of a PDF file, which contains metadata about the document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.primitives.matrix"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.primitives.matrix",
+      "text": "Matrix represents a 3x3 transformation matrix used for coordinate transformations in PDF rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.revocation.revocationresult"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.revocation.revocationresult",
+      "text": "RevocationResult indicates whether a digital signature's certificate chain has been revoked."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.engine.rich_text.richrun"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.engine.rich_text.richrun",
+      "text": "RichRun holds a segment of text with consistent formatting attributes for rich text rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.logical_structure.structuretypestandard"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.logical_structure.structuretypestandard",
+      "text": "StructureTypeStandard enumerates the standard structure types defined by the PDF specification for tagged PDF content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.pdf_consts.pdfconsts"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.pdf_consts.pdfconsts",
+      "text": "PdfConsts provides utility methods for converting between decimal and octal representations of numbers."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.printing.duplex"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.printing.duplex",
+      "text": "Duplex specifies the double-sided printing mode for a printer when outputting a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.printing.printrange"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.printing.printrange",
+      "text": "PrintRange defines the range of pages to print when sending a PDF document to a printer."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.printing.printersettings"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.printing.printersettings",
+      "text": "PrinterSettings holds configuration options for printing a PDF document, such as page range and duplex mode."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.security.compromisecheckresult"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.security.compromisecheckresult",
+      "text": "CompromiseCheckResult reports whether a digital signature's certificate has been compromised."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.svg.margin"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.svg.margin",
+      "text": "Margin defines the whitespace around an SVG element when rendering it to a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.svg.pageinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.svg.pageinfo",
+      "text": "PageInfo specifies the dimensions and layout of a page when converting SVG content to PDF."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.svg.svgloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.svg.svgloadoptions",
+      "text": "SvgLoadOptions controls how SVG files are loaded and converted into PDF content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.tagged.taggedcontext"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_pdf.tagged.taggedcontext",
+      "text": "TaggedContext provides access to the logical structure and metadata of a tagged PDF document."
+    },
+    {
+      "fact_ids": [
+        "link_target:020"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:020",
+      "text": "The getting started guide introduces the core concepts and basic usage patterns for Aspose PDF FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:021"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:021",
+      "text": "The how-to guides and FAQ provide practical examples and answers to common questions about using Aspose PDF FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "The full API reference documents every class, method, and property available in Aspose PDF FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "The full feature and limitations matrix outlines which PDF features Aspose PDF FOSS for Python supports and which it does not."
+    },
+    {
+      "fact_ids": [
+        "link_target:024"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:024",
+      "text": "The contributor guide explains how to set up the development environment and contribute code to Aspose PDF FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:025"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:025",
+      "text": "The security policy describes how to report vulnerabilities and how the project handles security issues."
+    },
+    {
+      "fact_ids": [
+        "link_target:026"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "The changelog lists all notable changes between versions of Aspose PDF FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:027"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:027",
+      "text": "The issue tracker allows users to report bugs, request features, and discuss improvements for Aspose PDF FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:095.heading",
+        "inherited_unit:096.list",
+        "install_command:pip",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_pdf.document.encrypt_for_recipients",
+        "public_symbol:aspose_pdf.document.redact_text",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.to_html",
+        "public_symbol:aspose_pdf.document.to_markdown",
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose PDF FOSS for Python provides a Pythonic API for reading, inspecting, and converting PDF documents, supporting PDF/A and PDF/UA validation, text replacement and redaction, and export to HTML and Markdown. It targets developers who need lightweight, open-source PDF processing in Python 3.11 or later under the MIT license."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:096.list",
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "PDF/A and PDF/UA validation provided by aspose_pdf.Document.validate_pdfa and aspose_pdf.Document.validate_pdfua are heuristic checks against document structure and not certification-grade validation, and a dedicated validator such as veraPDF should be used for formal compliance."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:096.list",
+        "public_symbol:aspose_pdf.document.redact_text",
+        "public_symbol:aspose_pdf.document.replace_text"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Text replacement and redaction via aspose_pdf.Document.replace_text and aspose_pdf.Document.redact_text rewrite matched runs in place but never reflow the surrounding layout, and OCR and layout reflow are not implemented."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:096.list",
+        "public_symbol:aspose_pdf.document.to_html",
+        "public_symbol:aspose_pdf.document.to_markdown"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Export to HTML and Markdown via aspose_pdf.Document.to_html and aspose_pdf.Document.to_markdown carries structure, not appearance: positioning, colour, and fonts are dropped, and the structure is auto_tag's, so headings come from font size alone, list nesting is flat, and a table needs a regular grid."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:096.list",
+        "public_symbol:aspose_pdf.document.encrypt_for_recipients"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Public-key encryption via aspose_pdf.Document.encrypt_for_recipients covers RSA recipients only; key-agreement, password, and KEK recipient types, and RC2-encrypted envelopes, are rejected explicitly, and no PDF 2.0 message authentication code (/AuthCode) is produced or checked."
+    },
+    {
+      "fact_ids": [
+        "dependency:optional.images.pillow-12.3",
+        "inherited_unit:096.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "Rendering quality and speed depend on the optional Pillow>=12.3 dependency: the bundled JPEG 2000 decoder is pure Python and slow, roughly a second per 100k pixels, and complex-text shaping and WOFF2 decoding need the optional text-layout and woff2 extras."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:095.heading",
+        "inherited_unit:096.list",
+        "install_command:pip",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_pdf.document.encrypt_for_recipients",
+        "public_symbol:aspose_pdf.document.redact_text",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.to_html",
+        "public_symbol:aspose_pdf.document.to_markdown",
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "Page rendering is a best-effort rasterizer, not a certification-grade visual engine: its overprint support is a composite RGB preview rather than a plate-accurate separation model, and complete PDF 2.0 imaging semantics are not implemented."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test the aspose-pdf-foss-for-python package by running tests from the tests/ directory using the CI workflow defined in .github/workflows/."
+    }
+  ]
+}

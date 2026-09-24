@@ -1,0 +1,278 @@
+{
+  "audience": {
+    "fact_ids": [
+      "example:002",
+      "example:003",
+      "example:007",
+      "example:008",
+      "example:009",
+      "example:012",
+      "example:013",
+      "example:014",
+      "import_path:aspose_pdf"
+    ],
+    "text": "Python developers building applications that process PDF documents, especially those requiring PDF/A and PDF/UA compliance checks, text extraction, form handling, annotation management, and rendering to images or vector formats."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:002",
+        "example:003",
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.document.load_from",
+        "public_symbol:aspose_pdf.page.add_text",
+        "public_symbol:aspose_pdf.form.add_text_field",
+        "public_symbol:aspose_pdf.annotationcollection.add"
+      ],
+      "text": "Create new PDFs or load existing ones from file paths, raw bytes, or streams using Document(), and edit pages, text, forms, annotations, and structure through a comprehensive API surface.",
+      "title": "Create and edit PDF documents"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:008",
+        "public_symbol:aspose_pdf.document.save_page_as_image",
+        "public_symbol:aspose_pdf.page.save_as_image",
+        "public_symbol:aspose_pdf.document.save_as_svg",
+        "public_symbol:aspose_pdf.page.save_as_svg"
+      ],
+      "text": "Render pages to PNG, TIFF, or JPEG using Document.save_page_as_image() or Page.save_as_image() with options for DPI, scale, and output mode, and export to SVG using Document.save_as_svg() or Page.save_as_svg() for vector output.",
+      "title": "Render pages to images and SVG"
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "public_symbol:aspose_pdf.pdfextractor.extract_text",
+        "public_symbol:aspose_pdf.pdfextractor.get_text",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.redact_text"
+      ],
+      "text": "Extract text using PdfExtractor.get_text() or Document.extract_text(), replace matched text using Document.replace_text(), and redact text using Document.redact_text() with regex or exact phrase matching.",
+      "title": "Extract and edit text"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua",
+        "public_symbol:aspose_pdf.document.auto_tag"
+      ],
+      "text": "Validate documents against PDF/A and PDF/UA standards using Document.validate_pdfa() and Document.validate_pdfua(), and generate structure trees for existing content using Document.auto_tag().",
+      "title": "Validate PDF/A and PDF/UA compliance"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.form.add_text_field",
+        "public_symbol:aspose_pdf.form.add_checkbox",
+        "public_symbol:aspose_pdf.annotationcollection.add",
+        "public_symbol:aspose_pdf.annotation.generate_appearance"
+      ],
+      "text": "Create and manage AcroForm fields using Form.add_text_field(), Form.add_checkbox(), and related methods, or add and edit annotations using AnnotationCollection.add() and Annotation.generate_appearance().",
+      "title": "Manage forms and annotations"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.encrypt",
+        "public_symbol:aspose_pdf.document.decrypt",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.pdfsignature.validate"
+      ],
+      "text": "Encrypt or decrypt documents using Document.encrypt() or Document.decrypt(), sign documents with certificates using Document.sign(), and validate signatures with PdfSignature.validate() following PAdES baseline levels.",
+      "title": "Apply security and signing"
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "public_symbol:aspose_pdf.document.font_substitution",
+        "public_symbol:aspose_pdf.fontsubstitutionoptions.system",
+        "public_symbol:aspose_pdf.fontrepository.add_source",
+        "public_symbol:aspose_pdf.fontrepository.find_font"
+      ],
+      "text": "Substitute fonts for non-embedded references using Document.font_substitution with FontSubstitutionOptions.system(), directories, or programmatic font data, and manage font sources via FontRepository.",
+      "title": "Handle fonts and substitution"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.optimize",
+        "public_symbol:aspose_pdf.document.merge",
+        "public_symbol:aspose_pdf.pdffileeditor.concatenate",
+        "example:013"
+      ],
+      "text": "Optimize documents using Document.optimize() to remove unreachable objects, deduplicate images, subset fonts, and recompress streams, and merge documents using Document.merge() or PdfFileEditor.concatenate().",
+      "title": "Optimize and merge documents"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "text": "Page rendering is a best-effort rasterizer, not a certification-grade visual engine: its overprint support is a composite RGB preview rather than a plate-accurate separation model, and complete PDF 2.0 imaging semantics are not implemented."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua"
+      ],
+      "text": "Document.validate_pdfa() and Document.validate_pdfua() are heuristic checks against document structure, not certification-grade validation — use a dedicated validator such as veraPDF for formal compliance."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.redact_text"
+      ],
+      "text": "OCR and layout reflow are not implemented; Document.replace_text() and Document.redact_text() rewrite matched runs in place but never reflow the surrounding layout."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.to_html",
+        "public_symbol:aspose_pdf.document.to_markdown"
+      ],
+      "text": "HTML and Markdown export carry structure, not appearance: positioning, colour, and fonts are dropped, and the structure is auto_tag's, so headings come from font size alone, list nesting is flat, and a table needs a regular grid."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.encrypt_for_recipients"
+      ],
+      "text": "Public-key encryption covers RSA recipients only; key-agreement, password, and KEK recipient types, and RC2-encrypted envelopes, are rejected explicitly. No PDF 2.0 message authentication code (/AuthCode) is produced or checked for either security handler."
+    },
+    {
+      "fact_ids": [
+        "dependency:optional.images.pillow-12.3"
+      ],
+      "text": "The bundled JPEG 2000 decoder is pure Python and slow — roughly a second per 100k pixels, so a 300 dpi page takes minutes. Install the images extra for anything larger than a thumbnail."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:002",
+        "example:003",
+        "example:014",
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.document.load_from"
+      ],
+      "text": "Enables programmatic PDF creation, reading, and editing through a single central Document class that supports loading from file paths, raw bytes, or binary streams."
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "public_symbol:aspose_pdf.pdfextractor",
+        "public_symbol:aspose_pdf.pdfextractor.extract_text",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.redact_text"
+      ],
+      "text": "Provides text extraction, replacement, and redaction capabilities via PdfExtractor and Document methods that rewrite matched runs directly inside existing content streams."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:008",
+        "example:009",
+        "public_symbol:aspose_pdf.document.save_page_as_image",
+        "public_symbol:aspose_pdf.document.save_as_svg",
+        "public_symbol:aspose_pdf.page.save_as_image",
+        "public_symbol:aspose_pdf.page.save_as_svg"
+      ],
+      "text": "Supports rendering pages to raster images (PNG, TIFF, JPEG) and vector SVG without third-party dependencies, using a bundled renderer that honors glyph outlines, soft masks, blend modes, and shadings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua",
+        "public_symbol:aspose_pdf.document.auto_tag",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.form"
+      ],
+      "text": "Enables PDF/A and PDF/UA compliance validation and auto-tagging, along with form field creation, annotation management, and document signing with PAdES-LTA support."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:license",
+      "license:spdx"
+    ],
+    "text": "Aspose-PDF-FOSS-for-Python is an open-source, MIT-licensed Python library for creating, reading, editing, rendering, and validating PDF documents, targeting Python 3.11 and later."
+  },
+  "uncertainties": [
+    "The inherited README mentions that 'Aspose.PDF for Python — Enterprise Edition' adds full format conversion and certification-grade validation, but the facts do not confirm the exact feature differences or whether this FOSS library is a subset of the commercial product beyond stated limitations.",
+    "The README states that 'Public-key encryption covers RSA recipients only', but the facts do not explicitly list all supported recipient types or confirm rejection of key-agreement, password, and KEK types in the public API surface.",
+    "The README mentions that 'Signature validation follows the ETSI PAdES baseline levels (B/T/LT/LTA)', but the facts do not confirm which specific PAdES levels are implemented or validated by PdfSignature.validate().",
+    "The README states that 'SVG export writes polylines rather than curves', but the facts do not confirm whether Béziers are flattened or whether text is exported as outlines in the public API surface.",
+    "The README mentions that 'WOFF2 decoding and complex-text shaping each need an optional extra', but the facts do not confirm whether these features are fully implemented or only partially supported when the optional dependencies are present."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose_pdf.document.page_count",
+        "public_symbol:aspose_pdf.document.version",
+        "public_symbol:aspose_pdf.document.info",
+        "public_symbol:aspose_pdf.document.pages",
+        "public_symbol:aspose_pdf.document.outlines",
+        "public_symbol:aspose_pdf.document.tagged_content"
+      ],
+      "name": "Document inspection",
+      "text": "Load a PDF using Document(source) and inspect its page count, version, metadata, and structure through properties like page_count, version, info, pages, outlines, and tagged_content."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:009",
+        "public_symbol:aspose_pdf.document.save_page_as_image",
+        "public_symbol:aspose_pdf.page.save_as_image"
+      ],
+      "name": "Page rendering",
+      "text": "Render a specific page to an image using Document.save_page_as_image(page_index, destination, dpi) or Page.save_as_image(destination, dpi) with options for DPI, scale, background, and output mode."
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "public_symbol:aspose_pdf.pdfextractor.extract_text",
+        "public_symbol:aspose_pdf.pdfextractor.get_text",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.redact_text"
+      ],
+      "name": "Text extraction and editing",
+      "text": "Extract text using PdfExtractor.get_text() or Document.extract_text(), then replace or redact matched text using Document.replace_text() or Document.redact_text() with regex or exact phrase matching."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008",
+        "public_symbol:aspose_pdf.document.to_html",
+        "public_symbol:aspose_pdf.document.to_markdown",
+        "public_symbol:aspose_pdf.document.save_as_html",
+        "public_symbol:aspose_pdf.document.save_as_markdown",
+        "public_symbol:aspose_pdf.document.save_as_svg"
+      ],
+      "name": "Document conversion",
+      "text": "Convert a document to HTML or Markdown using Document.to_html() or Document.to_markdown() for flowing content, or to SVG using Document.save_as_svg() for vector output."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.form.add_text_field",
+        "public_symbol:aspose_pdf.form.add_checkbox",
+        "public_symbol:aspose_pdf.annotationcollection.add",
+        "public_symbol:aspose_pdf.annotation.generate_appearance"
+      ],
+      "name": "Form and annotation handling",
+      "text": "Create and manage form fields using Form.add_text_field(), Form.add_checkbox(), and related methods, or add annotations using AnnotationCollection.add() and generate their appearance streams."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.encrypt",
+        "public_symbol:aspose_pdf.document.decrypt",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.pdfsignature.validate"
+      ],
+      "name": "Security and signing",
+      "text": "Encrypt or decrypt a document using Document.encrypt() or Document.decrypt(), sign it with a certificate using Document.sign(), and validate signatures with PdfSignature.validate()."
+    }
+  ]
+}

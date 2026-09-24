@@ -1,0 +1,1370 @@
+{
+  "dispositions": [
+    {
+      "destination_section": "identity",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "rationale": "The H1 heading matches the canonical product name supported by identity and package facts.",
+      "unit_id": "inherited_unit:001.heading"
+    },
+    {
+      "destination_section": "badges",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:spdx",
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "link_target:029",
+        "link_target:030",
+        "link_target:031",
+        "link_target:032",
+        "link_target:product.banner",
+        "link_target:product.homepage",
+        "package:python_requires"
+      ],
+      "rationale": "The badge row contains CI, Python version, and license badges whose targets and values are verified.",
+      "unit_id": "inherited_unit:002.badge_row"
+    },
+    {
+      "destination_section": "banner",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:product.banner",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The banner image link is verified and should appear in the banner section, not as a standalone badge.",
+      "unit_id": "inherited_unit:003.badge_row"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:license",
+        "package:python_requires",
+        "license:spdx",
+        "example:002",
+        "example:003",
+        "example:014",
+        "public_symbol:aspose_pdf.document"
+      ],
+      "rationale": "The paragraph's substance is captured by the product summary and examples, and should be rephrased for the opening section.",
+      "unit_id": "inherited_unit:004.paragraph"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The 'Navigation' heading is redundant; the navigation section will be authored from the plan.",
+      "unit_id": "inherited_unit:005.heading"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The navigation list is redundant; the navigation section will be authored from the plan.",
+      "unit_id": "inherited_unit:006.list"
+    },
+    {
+      "destination_section": "at_a_glance",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The 'At a Glance' heading is redundant; the at_a_glance section will be authored from the plan.",
+      "unit_id": "inherited_unit:007.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Mermaid diagram is not supported by any fact; the example facts do not confirm its structure or content.",
+      "unit_id": "inherited_unit:008.code_block"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.page.add_text",
+        "public_symbol:aspose_pdf.pdfextractor",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.redact_text",
+        "public_symbol:aspose_pdf.document.to_html",
+        "public_symbol:aspose_pdf.document.to_markdown",
+        "public_symbol:aspose_pdf.page.save_as_svg",
+        "public_symbol:aspose_pdf.document.save_as_svg",
+        "public_symbol:aspose_pdf.page.save_as_image",
+        "public_symbol:aspose_pdf.document.save_page_as_image",
+        "public_symbol:aspose_pdf.document.encrypt_for_recipients",
+        "public_symbol:aspose_pdf.document.font_substitution",
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua",
+        "public_symbol:aspose_pdf.document.auto_tag",
+        "public_symbol:aspose_pdf.document.optimize",
+        "public_symbol:aspose_pdf.form",
+        "public_symbol:aspose_pdf.annotationcollection.add",
+        "public_symbol:aspose_pdf.annotation.generate_appearance",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.pdfsignature.validate",
+        "public_symbol:aspose_pdf.pdfloadlimits",
+        "public_symbol:aspose_pdf.pdfresourcelimitexception"
+      ],
+      "rationale": "The 'Key Capabilities' heading is supported by the capabilities listed in the plan and public symbols.",
+      "unit_id": "inherited_unit:009.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.page.add_text",
+        "public_symbol:aspose_pdf.pdfextractor",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.redact_text",
+        "public_symbol:aspose_pdf.document.to_html",
+        "public_symbol:aspose_pdf.document.to_markdown",
+        "public_symbol:aspose_pdf.page.save_as_svg",
+        "public_symbol:aspose_pdf.document.save_as_svg",
+        "public_symbol:aspose_pdf.page.save_as_image",
+        "public_symbol:aspose_pdf.document.save_page_as_image",
+        "public_symbol:aspose_pdf.document.encrypt_for_recipients",
+        "public_symbol:aspose_pdf.document.font_substitution",
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua",
+        "public_symbol:aspose_pdf.document.auto_tag",
+        "public_symbol:aspose_pdf.document.optimize",
+        "public_symbol:aspose_pdf.form",
+        "public_symbol:aspose_pdf.annotationcollection.add",
+        "public_symbol:aspose_pdf.annotation.generate_appearance",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.pdfsignature.validate",
+        "public_symbol:aspose_pdf.pdfloadlimits",
+        "public_symbol:aspose_pdf.pdfresourcelimitexception"
+      ],
+      "rationale": "The list items are supported by public symbols and examples, but must be rephrased to match the key capabilities section's style.",
+      "unit_id": "inherited_unit:010.list"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The 'Installation' heading is supported by the install_command fact.",
+      "unit_id": "inherited_unit:011.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The paragraph introduces the installation command, which is verified; it should be rephrased to match the installation section.",
+      "unit_id": "inherited_unit:012.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The installation code block matches the verified install_command fact.",
+      "unit_id": "inherited_unit:013.code_block"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The paragraph introduces optional extras, which are supported by dependency facts; it should be rephrased for the dependencies section.",
+      "unit_id": "inherited_unit:014.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The code block shows optional extras installation, which is supported by dependency facts; it should be rephrased for the dependencies section.",
+      "unit_id": "inherited_unit:015.code_block"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The list describes optional extras, which are supported by dependency facts; it should be rephrased for the dependencies section.",
+      "unit_id": "inherited_unit:016.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The 'Dependencies' heading is supported by the dependency facts.",
+      "unit_id": "inherited_unit:017.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The 'Required Package Dependencies' heading is supported by the required dependency facts.",
+      "unit_id": "inherited_unit:018.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The required dependency list matches the verified dependency facts.",
+      "unit_id": "inherited_unit:019.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The 'Optional Dependencies' heading is supported by the optional dependency facts.",
+      "unit_id": "inherited_unit:020.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The optional dependency list matches the verified dependency facts.",
+      "unit_id": "inherited_unit:021.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2",
+        "package:python_requires"
+      ],
+      "rationale": "The 'Native and System Requirements' heading is supported by the package:python_requires fact.",
+      "unit_id": "inherited_unit:022.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2",
+        "package:python_requires"
+      ],
+      "rationale": "The Python version requirement list matches the verified package:python_requires fact.",
+      "unit_id": "inherited_unit:023.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The 'Development Dependencies' heading is supported by the development dependency facts.",
+      "unit_id": "inherited_unit:024.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:asn1crypto-1.5",
+        "dependency:cryptography-50",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.wheel",
+        "dependency:optional.fuzz.atheris-2.3",
+        "dependency:optional.images.pillow-12.3",
+        "dependency:optional.text-layout.fonttools-4.60.2",
+        "dependency:optional.text-layout.python-bidi-0.6",
+        "dependency:optional.text-layout.uharfbuzz-0.37",
+        "dependency:optional.woff2.brotli-1.2"
+      ],
+      "rationale": "The development dependency list matches the verified dependency facts.",
+      "unit_id": "inherited_unit:025.list"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The 'Quick Start' heading is supported by the example facts.",
+      "unit_id": "inherited_unit:026.heading"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The paragraph introduces the quick start example, which is CONTRADICTED; it should be rephrased to reflect the contradiction.",
+      "unit_id": "inherited_unit:027.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The example code block is CONTRADICTED by the example fact, so it is omitted.",
+      "unit_id": "inherited_unit:028.code_block"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "example:002"
+      ],
+      "rationale": "The paragraph introduces another example, which is SUPPORTED; it should be rephrased for the quick start section.",
+      "unit_id": "inherited_unit:029.paragraph"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:002"
+      ],
+      "rationale": "The example code block matches the verified example fact.",
+      "unit_id": "inherited_unit:030.code_block"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:002"
+      ],
+      "rationale": "The paragraph explains the equivalence of Document constructors, which is supported by the example fact; it should be rephrased for the quick start section.",
+      "unit_id": "inherited_unit:031.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:003",
+        "example:007",
+        "example:008",
+        "example:009",
+        "example:012",
+        "example:013",
+        "example:014"
+      ],
+      "rationale": "The 'Additional Examples' heading is supported by the example facts.",
+      "unit_id": "inherited_unit:032.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:003",
+        "example:007",
+        "example:008",
+        "example:009",
+        "example:012",
+        "example:013",
+        "example:014"
+      ],
+      "rationale": "The paragraph introduces the additional examples, which are supported; it should be rephrased for the additional examples section.",
+      "unit_id": "inherited_unit:033.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:003"
+      ],
+      "rationale": "The 'Render a Page to an Image' heading is supported by the example:003 fact.",
+      "unit_id": "inherited_unit:034.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:003"
+      ],
+      "rationale": "The example code block matches the verified example:003 fact.",
+      "unit_id": "inherited_unit:035.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The HTML block is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:036.html_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.encrypt_for_recipients",
+        "public_symbol:aspose_pdf.recipient"
+      ],
+      "rationale": "The 'Encrypt for Certificate Recipients' heading is supported by the public symbols.",
+      "unit_id": "inherited_unit:037.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The example code block is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:038.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.pdfsignature.validate"
+      ],
+      "rationale": "The 'Sign a Document' heading is supported by the public symbols.",
+      "unit_id": "inherited_unit:039.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The example code block is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:040.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The heading 'Put a Watermark on a Layer, Then Resolve It' introduces an example not supported by facts; example:006 is CONTRADICTED.",
+      "unit_id": "inherited_unit:041.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block for layer watermarking is based on example:006, which is CONTRADICTED; no supporting facts exist.",
+      "unit_id": "inherited_unit:042.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:007"
+      ],
+      "rationale": "The heading 'Convert a Document to HTML or Markdown' is supported by example:007, which is verified.",
+      "unit_id": "inherited_unit:043.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:007"
+      ],
+      "rationale": "The code block for HTML/Markdown conversion is verified by example:007.",
+      "unit_id": "inherited_unit:044.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:008"
+      ],
+      "rationale": "The heading 'Export a Page as SVG' is supported by example:008, which is verified.",
+      "unit_id": "inherited_unit:045.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:008"
+      ],
+      "rationale": "The code block for SVG export is verified by example:008.",
+      "unit_id": "inherited_unit:046.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:009"
+      ],
+      "rationale": "The heading 'Render a Page Whose Fonts Are Not Embedded' is supported by example:009, which is verified.",
+      "unit_id": "inherited_unit:047.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:009"
+      ],
+      "rationale": "The code block for font substitution rendering is verified by example:009.",
+      "unit_id": "inherited_unit:048.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading 'Author Multi-Script Unicode Text' introduces example:010, which is CONTRADICTED; no supporting facts exist.",
+      "unit_id": "inherited_unit:049.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block for multi-script Unicode text is based on example:010, which is CONTRADICTED; no supporting facts exist.",
+      "unit_id": "inherited_unit:050.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading 'Author Complex-Script Text With TextLayoutOptions' introduces example:011, which is CONTRADICTED; no supporting facts exist.",
+      "unit_id": "inherited_unit:051.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block for complex-script text is based on example:011, which is CONTRADICTED; no supporting facts exist.",
+      "unit_id": "inherited_unit:052.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:012"
+      ],
+      "rationale": "The heading 'Extract Text From a PDF' is supported by example:012, which is verified.",
+      "unit_id": "inherited_unit:053.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:012"
+      ],
+      "rationale": "The code block for text extraction is verified by example:012.",
+      "unit_id": "inherited_unit:054.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:013"
+      ],
+      "rationale": "The heading 'Merge PDF Files' is supported by example:013, which is verified.",
+      "unit_id": "inherited_unit:055.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:013"
+      ],
+      "rationale": "The code block for merging PDFs is verified by example:013.",
+      "unit_id": "inherited_unit:056.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:014"
+      ],
+      "rationale": "The heading 'Apply Resource Limits for Untrusted PDF Input' is supported by example:014, which is verified.",
+      "unit_id": "inherited_unit:057.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:014"
+      ],
+      "rationale": "The code block for resource limits is verified by example:014.",
+      "unit_id": "inherited_unit:058.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The HTML closing tag '</details>' has no supporting fact and serves no purpose without a matching opening tag in the current context.",
+      "unit_id": "inherited_unit:059.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '## API Reference' is a standard section heading and is placeable under api_reference.",
+      "unit_id": "inherited_unit:060.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The paragraph introduces the API reference section and is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:061.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The HTML details opening tag has no matching closing tag in the facts and is not supported.",
+      "unit_id": "inherited_unit:062.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Core API' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:063.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists core API classes and is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:064.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Annotations' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:065.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists annotation classes and is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:066.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '#### Enumerations' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:067.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists annotation enumerations and is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:068.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Clustering' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:069.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists clustering classes and is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:070.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Engine' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:071.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists engine classes and is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:072.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Generated' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:073.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists generated classes and is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:074.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Security' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:075.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists security classes and is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:076.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '#### Detailed Member Reference' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:077.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Document Lifecycle' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:078.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list of Document methods is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:079.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Pages And Content' is a standard heading for the API reference section.",
+      "unit_id": "inherited_unit:080.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.page.add_text",
+        "public_symbol:aspose_pdf.page.save_as_image",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.redact_text"
+      ],
+      "rationale": "The list of Page methods is redundant with the Key Capabilities section, which already covers page editing and rendering capabilities.",
+      "unit_id": "inherited_unit:081.001.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.pagecollection"
+      ],
+      "rationale": "PageCollection methods are covered by the broader 'Create and edit PDF documents' capability.",
+      "unit_id": "inherited_unit:081.002.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.pagelabelcollection"
+      ],
+      "rationale": "PageLabelCollection is covered by the 'Create and edit PDF documents' capability.",
+      "unit_id": "inherited_unit:081.003.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The inherited heading 'Text Extraction And Editing' is not used in the plan; its content is covered under 'Key Capabilities'.",
+      "unit_id": "inherited_unit:082.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.pdfextractor"
+      ],
+      "rationale": "PdfExtractor methods are covered by the 'Extract and edit text' capability.",
+      "unit_id": "inherited_unit:083.001.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.text.textfragmentabsorber"
+      ],
+      "rationale": "TextFragmentAbsorber is covered by the 'Extract and edit text' capability.",
+      "unit_id": "inherited_unit:083.002.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.pdffileeditor"
+      ],
+      "rationale": "PdfFileEditor methods are covered by the 'Optimize and merge documents' capability.",
+      "unit_id": "inherited_unit:083.003.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The inherited heading 'Forms And Annotations' is not used in the plan; its content is covered under 'Key Capabilities'.",
+      "unit_id": "inherited_unit:084.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.form"
+      ],
+      "rationale": "Form methods are covered by the 'Manage forms and annotations' capability.",
+      "unit_id": "inherited_unit:085.001.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.field"
+      ],
+      "rationale": "Field properties are covered by the 'Manage forms and annotations' capability.",
+      "unit_id": "inherited_unit:085.002.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.annotation"
+      ],
+      "rationale": "Annotation methods are covered by the 'Manage forms and annotations' capability.",
+      "unit_id": "inherited_unit:085.003.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.annotationcollection"
+      ],
+      "rationale": "AnnotationCollection methods are covered by the 'Manage forms and annotations' capability.",
+      "unit_id": "inherited_unit:085.004.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The inherited heading 'Security And Signatures' is not used in the plan; its content is covered under 'Key Capabilities'.",
+      "unit_id": "inherited_unit:086.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document.encrypt",
+        "public_symbol:aspose_pdf.document.decrypt",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.pdfsignature.validate"
+      ],
+      "rationale": "Security and signing methods are covered by the 'Apply security and signing' capability.",
+      "unit_id": "inherited_unit:087.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The inherited heading 'Low-Code Plugins' is not used in the plan; its content is covered under 'Key Capabilities'.",
+      "unit_id": "inherited_unit:088.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.merger",
+        "public_symbol:aspose_pdf.splitter",
+        "public_symbol:aspose_pdf.optimizer",
+        "public_symbol:aspose_pdf.textextractor"
+      ],
+      "rationale": "Plugin classes are covered by the 'Optimize and merge documents' capability.",
+      "unit_id": "inherited_unit:089.001.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.filedatasource",
+        "public_symbol:aspose_pdf.bytearraydatasource",
+        "public_symbol:aspose_pdf.streamdatasource"
+      ],
+      "rationale": "DataSource implementations are covered by the 'Create and edit PDF documents' capability.",
+      "unit_id": "inherited_unit:089.002.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.pluginoptions"
+      ],
+      "rationale": "PluginOptions is covered by the 'Create and edit PDF documents' capability.",
+      "unit_id": "inherited_unit:089.003.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The inherited heading 'Fonts' is not used in the plan; its content is covered under 'Key Capabilities'.",
+      "unit_id": "inherited_unit:090.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.fontrepository"
+      ],
+      "rationale": "FontRepository methods are covered by the 'Handle fonts and substitution' capability.",
+      "unit_id": "inherited_unit:091.001.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.fontsource"
+      ],
+      "rationale": "FontSource hierarchy is covered by the 'Handle fonts and substitution' capability.",
+      "unit_id": "inherited_unit:091.002.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "HTML closing tag is a non-content separator.",
+      "unit_id": "inherited_unit:092.html_block"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027"
+      ],
+      "rationale": "The heading 'Documentation & Resources' and its list of links are verified and moved to the documentation_resources section.",
+      "unit_id": "inherited_unit:093.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027"
+      ],
+      "rationale": "The list of documentation links is verified and moved to the documentation_resources section.",
+      "unit_id": "inherited_unit:094.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests"
+      ],
+      "rationale": "The heading 'Scope and Limitations' is preserved as it matches the scope_limitations section.",
+      "unit_id": "inherited_unit:095.heading"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests",
+        "public_symbol:aspose_pdf.document.validate_pdfa",
+        "public_symbol:aspose_pdf.document.validate_pdfua",
+        "public_symbol:aspose_pdf.document.replace_text",
+        "public_symbol:aspose_pdf.document.redact_text",
+        "public_symbol:aspose_pdf.document.to_html",
+        "public_symbol:aspose_pdf.document.to_markdown",
+        "public_symbol:aspose_pdf.document.encrypt_for_recipients",
+        "dependency:optional.images.pillow-12.3"
+      ],
+      "rationale": "The limitations list is verified and preserved in the scope_limitations section.",
+      "unit_id": "inherited_unit:096.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "link_target:028"
+      ],
+      "rationale": "The paragraph about Enterprise Edition is moved to the enterprise_relationship section.",
+      "unit_id": "inherited_unit:097.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests"
+      ],
+      "rationale": "The heading 'Development and Testing' is preserved as it matches the development_testing section.",
+      "unit_id": "inherited_unit:098.heading"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests"
+      ],
+      "rationale": "The paragraph about development setup is preserved in the development_testing section.",
+      "unit_id": "inherited_unit:099.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests"
+      ],
+      "rationale": "The code block with development commands is preserved in the development_testing section.",
+      "unit_id": "inherited_unit:100.code_block"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests"
+      ],
+      "rationale": "The paragraph about wrapper scripts is preserved in the development_testing section.",
+      "unit_id": "inherited_unit:101.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "HTML opening tag is a non-content separator.",
+      "unit_id": "inherited_unit:102.html_block"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests"
+      ],
+      "rationale": "The paragraph about CI workflows is preserved in the development_testing section.",
+      "unit_id": "inherited_unit:103.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "HTML closing tag is a non-content separator.",
+      "unit_id": "inherited_unit:104.html_block"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The heading 'License' is preserved as it matches the license section.",
+      "unit_id": "inherited_unit:105.heading"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The license paragraph is preserved in the license section.",
+      "unit_id": "inherited_unit:106.paragraph"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The copyright notice is preserved in the license section.",
+      "unit_id": "inherited_unit:107.paragraph"
+    }
+  ]
+}

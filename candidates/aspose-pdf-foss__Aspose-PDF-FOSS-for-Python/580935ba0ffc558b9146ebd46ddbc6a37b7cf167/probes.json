@@ -1,0 +1,106 @@
+[
+  {
+    "elapsed_ms": 1212,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/pdf/python/"
+  },
+  {
+    "elapsed_ms": 3067,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python/actions/workflows/ci.yml"
+  },
+  {
+    "elapsed_ms": 2518,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python/actions/workflows/ci.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 2295,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python/issues"
+  },
+  {
+    "elapsed_ms": 1094,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/license-MIT-green.svg"
+  },
+  {
+    "elapsed_ms": 1101,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/python-3.11%2B-blue.svg"
+  },
+  {
+    "elapsed_ms": 1298,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/pdf/python/"
+  },
+  {
+    "elapsed_ms": 1533,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/pdf/python-net/"
+  },
+  {
+    "elapsed_ms": 1130,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/pdf/python/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 1263,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/pdf/python/"
+  },
+  {
+    "elapsed_ms": 1400,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/pdf/python/"
+  },
+  {
+    "elapsed_ms": 1693,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://www.python.org/downloads/"
+  },
+  {
+    "elapsed_ms": 1909,
+    "kind": "package_registry",
+    "observation": null,
+    "outcome": "NOT_FOUND",
+    "status": 404,
+    "target": "https://pypi.org/pypi/aspose-pdf-foss-for-python/json"
+  }
+]
