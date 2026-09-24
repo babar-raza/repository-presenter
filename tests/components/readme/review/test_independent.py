@@ -1687,6 +1687,80 @@ def test_a_finding_whose_quote_paraphrases_a_cited_supported_fact_is_the_reviewe
     assert scope_defect(weak, CANDIDATE, by_id, units={"units": [weak_unit]}) is None
 
 
+def test_a_paraphrase_of_one_bullet_of_a_multi_bullet_fact_is_not_diluted_by_its_siblings() -> None:
+    """Shared-defect investigation (two independent repositories): Aspose.Words-FOSS-for-.NET's
+    F05 (2026-09-17 10:32 UTC entry, docs/DECISION_LOG.md) and Aspose.Email-FOSS-for-Python's F08
+    (2026-09-23 09:59 UTC entry) both blocked on the identical mechanism, measured live against
+    each repository's own real transaction. ``_cited_paraphrase`` (item 116, above) grounds a
+    paraphrase by the SHARE of a cited fact's own distinctive tokens the quote also contains - but
+    it measured that share against the fact's WHOLE value. A multi-bullet ``inherited_unit:*.list``
+    fact bundles several distinct upstream sentences into one fact record (evidence/facts/
+    inherited.py's RC-06 split only pulls a bullet into its own fact when it opens on a known
+    class/enum identifier - an ordinary prose scope/limitations list, like this one, stays one
+    fact). A unit that faithfully and completely restates only the FIRST bullet then has its ratio
+    computed against every bullet's tokens combined, diluting a complete, correct paraphrase below
+    threshold for a reason with nothing to do with whether the quote is supported - exactly the
+    shape measured on both repositories (Words-.NET: 16/41 = 0.39; Email-Python: 7/56 = 0.125,
+    both under the 0.6 gate) with no repair lever (a repair round cannot productively reword text
+    that is already faithful, so the finding re-raised identically every round on both).
+    """
+    limitations = (
+        "- The library does not support connecting to mail servers directly, lacking IMAP, SMTP, "
+        "and POP3 client functionality entirely.\n"
+        "- TNEF winmail.dat attachments require the optional tnefparse package to decode.\n"
+        "- The calendar module does not expand recurring events beyond their first occurrence.\n"
+        "- PST file writing is not supported, only reading."
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("inherited_unit:066.list", "inherited_unit", limitations, (Evidence("x"),)),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    paraphrase = (
+        "This package cannot connect to mail servers at all, since IMAP, SMTP, and POP3 client "
+        "support is missing entirely."
+    )
+    unit = {
+        "section": "scope_limitations",
+        "slot": "limitation:1",
+        "text": paraphrase,
+        "fact_ids": ["format:output.glb", "inherited_unit:066.list"],
+    }
+    units = {"units": [unit]}
+    # Item 39's own "cites at least one product fact" gate is satisfied through an unrelated
+    # SUPPORTED product fact (the finding's own citation), matching item 116's test above - the
+    # paraphrase grounding itself comes from the reviewed unit's own inherited_unit citation.
+    f08 = {
+        **_finding("F08", "scope_limitations", "S6", paraphrase),
+        "criterion": "factuality",
+        "fact_ids": ["format:output.glb"],
+    }
+    assert scope_defect(f08, CANDIDATE, by_id, units=units) == (
+        "the quote substantially restates SUPPORTED fact inherited_unit:066.list "
+        f"({limitations!r}) in different words; a faithful paraphrase of cited evidence is "
+        "supported exactly as a literal quote is (G4-W17 item 116)"
+    )
+    # Mutation control: the SAME fact, but the quote only weakly echoes a couple of words from
+    # several different bullets rather than substantially restating any single one of them (or
+    # the whole value) - this must still stand. Segmenting a multi-bullet fact widens WHICH text
+    # the ratio is measured against, never the ratio itself; a real dilution bug fixed the wrong
+    # way would instead make every bullet's tokens available to ground almost any quote at all.
+    weak = {
+        **f08,
+        "quote": "The library has some limitations around mail servers and calendars.",
+        "text": "unrelated",
+    }
+    weak_unit = {
+        **unit,
+        "text": "The library has some limitations around mail servers and calendars.",
+    }
+    assert scope_defect(weak, CANDIDATE, by_id, units={"units": [weak_unit]}) is None
+
+
 def test_a_chrome_prefixed_quote_still_finds_its_unit_via_a_closing_anchor() -> None:
     """G4-W17 arrival item 118 (PROPOSAL AG). ``_reviewed_unit_fact_ids``/``_carried_by_units``
     (both built on ``quote_located``'s opening-anchor rule) cannot locate the content unit that

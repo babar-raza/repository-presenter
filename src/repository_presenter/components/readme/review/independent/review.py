@@ -88,7 +88,20 @@ ACCEPT = "ACCEPT"
 # carries even when the renderer's own chrome is prefixed onto it in the quote - a closing anchor
 # symmetric to quote_located's existing opening one, scoped to exactly these two functions;
 # quote_located's own general contract (absence_defect, review_checks) is untouched by either.
-REVIEWER_LOGIC_VERSION = "11"
+# "12" (shared-defect investigation, two-repository corroboration: Aspose.Words-FOSS-for-.NET F05,
+# 2026-09-17 10:32 UTC, and Aspose.Email-FOSS-for-Python F08, 2026-09-23 09:59 UTC):
+# _cited_paraphrase's overlap ratio was computed against a cited fact's WHOLE value, so a quote
+# that faithfully and completely restates only one bullet of a multi-bullet inherited_unit:*.list
+# fact (an ordinary prose scope/limitations list - RC-06 only splits a "member reference list" into
+# per-bullet facts, never this shape) had its ratio diluted by the OTHER bullets' unrelated tokens
+# and fell under _PARAPHRASE_MIN_OVERLAP even though the paraphrase itself was complete and true -
+# a reviewer false positive with no repair lever (repair cannot alter text that is already
+# faithful, so the finding re-raised identically every round). New _value_segments splits such a
+# fact's value into its own top-level bullets; _cited_paraphrase now also scores each bullet on its
+# own (its own token count as the denominator), alongside the whole value as before - neither
+# _PARAPHRASE_MIN_TOKENS nor _PARAPHRASE_MIN_OVERLAP changed, and a quote that does not
+# substantially restate any single bullet (or the whole fact) still fails exactly as before.
+REVIEWER_LOGIC_VERSION = "12"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -483,6 +496,49 @@ def _content_tokens(normalized_text: str) -> frozenset[str]:
     )
 
 
+# A top-level Markdown bullet marker opening a line: "- ", "* ", "+ ", or "1. "/"1) " followed by
+# real content. Deliberately simple (line-anchored, no nested-indent handling) - it only needs to
+# separate an inherited_unit:*.list fact's own top-level bullets from each other, the same
+# granularity evidence/facts/inherited.py's RC-06 split already reasons about for a *different*
+# purpose (which bullets qualify for their own fact record, not how one bundled fact's value reads).
+_BULLET_MARKER = re.compile(r"^(?:[-*+]|\d+[.)])\s+\S")
+
+
+def _value_segments(value: str) -> tuple[str, ...]:
+    """``value``'s own top-level Markdown bullets, when it has at least two; ``()`` otherwise.
+
+    G4-W17 arrival items F05 (Words-.NET) and F08 (Email-Python), 2026-09-17/2026-09-23: a
+    multi-bullet ``inherited_unit:*.list`` fact bundles several distinct upstream sentences into
+    one fact record (evidence/facts/inherited.py only splits a "member reference list" whose every
+    bullet opens on a known class/enum identifier, RC-06 - an ordinary prose limitations/scope list
+    stays one fact). A composed quote that faithfully and completely paraphrases just ONE of those
+    bullets still has its ``_cited_paraphrase`` overlap ratio computed against every OTHER bullet's
+    tokens too, diluting a genuine, complete restatement below ``_PARAPHRASE_MIN_OVERLAP`` for no
+    reason connected to whether the quote is actually supported. Measured twice, independently:
+    Words-.NET's ``inherited_unit:067.list`` (three bullets; a quote restating only the first
+    scored 16/41 = 0.39) and Email-Python's ``inherited_unit:066.list`` (four bullets; a quote
+    restating only the first scored 7/56 = 0.125) - both well below 0.6 despite each quote being a
+    complete, faithful restatement of the one bullet it actually paraphrases.
+
+    A continuation line (wrapped prose, or a nested sub-bullet) is folded into the bullet above it
+    rather than starting its own segment, since it is part of that bullet's own content, not a
+    sibling claim.
+    """
+    lines = value.splitlines()
+    segments: list[str] = []
+    current: list[str] = []
+    for line in lines:
+        if _BULLET_MARKER.match(line):
+            if current:
+                segments.append("\n".join(current))
+            current = [line]
+        elif current:
+            current.append(line)
+    if current:
+        segments.append("\n".join(current))
+    return tuple(segments) if len(segments) >= 2 else ()
+
+
 def _cited_paraphrase(product: Sequence[Fact], quote: str) -> Fact | None:
     """The first cited SUPPORTED product fact the quote substantially restates in different
     words, or None.
@@ -506,18 +562,29 @@ def _cited_paraphrase(product: Sequence[Fact], quote: str) -> Fact | None:
     genuine restatement, a fact only grounds a quote when a strong majority of the fact's OWN
     distinctive tokens also occur in the quote, and there are enough of them that the overlap could
     not be chance (``_PARAPHRASE_MIN_TOKENS``/``_PARAPHRASE_MIN_OVERLAP``).
+
+    G4-W17 arrival items F05/F08 (this version): a fact's whole value is always tried first (a
+    quote may genuinely restate an entire multi-bullet fact at once), but when the value is a
+    multi-bullet list (``_value_segments``), each bullet is ALSO tried on its own - both the
+    denominator (the bullet's own distinctive-token count) and the overlap are scoped to that one
+    bullet, so a complete, faithful paraphrase of a single bullet is no longer diluted by its
+    siblings' unrelated tokens. A quote that only weakly echoes one bullet, or borrows a few
+    ordinary words from several without substantially restating any one of them, still fails every
+    candidate exactly as before - this widens which TEXT the ratio is measured against, never the
+    ratio or token-count thresholds themselves.
     """
     wanted = _content_tokens(_normalized(quote))
     wanted_with_targets = _content_tokens(_normalized_with_targets(quote))
     for fact in product:
         if fact.polarity != "SUPPORTED":
             continue
-        value_tokens = _content_tokens(_normalized(fact.value))
-        if len(value_tokens) < _PARAPHRASE_MIN_TOKENS:
-            continue
-        overlap = max(len(value_tokens & wanted), len(value_tokens & wanted_with_targets))
-        if overlap / len(value_tokens) >= _PARAPHRASE_MIN_OVERLAP:
-            return fact
+        for candidate_text in (fact.value, *_value_segments(fact.value)):
+            value_tokens = _content_tokens(_normalized(candidate_text))
+            if len(value_tokens) < _PARAPHRASE_MIN_TOKENS:
+                continue
+            overlap = max(len(value_tokens & wanted), len(value_tokens & wanted_with_targets))
+            if overlap / len(value_tokens) >= _PARAPHRASE_MIN_OVERLAP:
+                return fact
     return None
 
 
