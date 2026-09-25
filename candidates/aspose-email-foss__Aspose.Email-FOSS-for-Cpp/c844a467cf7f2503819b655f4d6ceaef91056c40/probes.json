@@ -1,6 +1,6 @@
 [
   {
-    "elapsed_ms": 2547,
+    "elapsed_ms": 1015,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -8,7 +8,7 @@
     "target": "https://docs.aspose.org/email/cpp/"
   },
   {
-    "elapsed_ms": 2374,
+    "elapsed_ms": 1934,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -16,7 +16,7 @@
     "target": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Cpp/issues"
   },
   {
-    "elapsed_ms": 954,
+    "elapsed_ms": 738,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -24,7 +24,7 @@
     "target": "https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus"
   },
   {
-    "elapsed_ms": 1365,
+    "elapsed_ms": 980,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -32,7 +32,7 @@
     "target": "https://img.shields.io/badge/License-MIT-blue.svg"
   },
   {
-    "elapsed_ms": 2850,
+    "elapsed_ms": 863,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -40,7 +40,7 @@
     "target": "https://kb.aspose.org/email/cpp/"
   },
   {
-    "elapsed_ms": 2129,
+    "elapsed_ms": 833,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -48,7 +48,7 @@
     "target": "https://products.aspose.com/email/cpp/"
   },
   {
-    "elapsed_ms": 1808,
+    "elapsed_ms": 706,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -56,7 +56,7 @@
     "target": "https://products.aspose.org/email/cpp/"
   },
   {
-    "elapsed_ms": 1782,
+    "elapsed_ms": 723,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -64,7 +64,7 @@
     "target": "https://products.aspose.org/media/email/cpp/banner-readme.png"
   },
   {
-    "elapsed_ms": 2868,
+    "elapsed_ms": 857,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",

@@ -1,17 +1,32 @@
 {
   "attempts": {
-    "5be24f04a6deb53de671216f": {
-      "changes": [],
-      "label": "BC-02",
+    "84363a542e369feaf64c63bf": {
+      "changes": [
+        {
+          "after": "Read a subject from an MSG file opened as a binary stream.",
+          "before": "Read a subject from an MSG file opened as a binary stream using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        },
+        {
+          "after": "Create a message and save it as both MSG and EML.",
+          "before": "Create a message and save it as both MSG and EML using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support.",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "revised_output.units[1].text"
+        }
+      ],
+      "label": "F05",
       "misrouted": false,
-      "outcome": "unrepairable",
-      "reason": "EXTRACTING is not repairable by revision",
-      "request_sha256": null,
-      "section_id": null,
-      "source": "validation",
-      "stage": null
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "491bd4f161b04f85a1441630c732fec43017da39b32adb953d4133b475030457",
+      "section_id": "quick_start",
+      "source": "review",
+      "stage": "S6"
     }
   },
-  "composition": "3953df96de746e67c5046ec408c8abe47bf2ea940b472392c0558af245192d34",
+  "composition": "a04a7bfb7c421b3c7ac6cb3684d465847acf39ccabda4c30cbd1a951f000fd96",
   "schema_version": 1
 }

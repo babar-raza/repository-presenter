@@ -1,101 +1,88 @@
 {
+  "adopted": {
+    "adopted_at": "2026-09-25T07:02:33Z",
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "dispositions.json",
+      "plan.json",
+      "repairs.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
+    "previous_proof": {
+      "byte_identical": true,
+      "fresh_process": true,
+      "proven_at": "2026-09-24T14:19:48Z",
+      "provider_calls": 0
+    },
+    "recorded_at": "2026-09-25T07:01:03Z"
+  },
   "call_variance": [
     {
-      "distinct_responses": 2,
+      "distinct_responses": 3,
       "job": "independent_review",
       "response_sha256s": [
-        "525d0eac03f459024f0369049197a5fa84bed02d747d675951de18281e44d0c1",
-        "71091aebf891568555e35cb213f16c7504e7b2c46eb72db32fec9a6b874f9390"
+        "44acb5443fd9a1b306d9727351e22522eca31ef5b156f5a1f6cc5d33a6c4a80e",
+        "58cf8314599d0b056c2a5173c6063fbde566962b628a520831dd73d61861b30a",
+        "b00a33981bb7c8d982942989d63b938751dc1b9fa1510df6a2309b122347f71e"
       ]
     },
     {
       "distinct_responses": 5,
-      "job": "presentation_planning",
-      "response_sha256s": [
-        "399400292b4c9debf024c671405a307777f6726ea6c5ceeca34c93cda78cadd3",
-        "3e48cf96a1d8bf62e4335a3201d08f0d2aba0b244b7c737e90bedb8d0f359e8f",
-        "834bad6e694dd2ed50e200ddee4b5c0b89ece9ddf320ef442f678dcf88996ef1",
-        "8f518bfd630552d8a8d371851788c68e2e394110baa27a01272ad5328ae43b76",
-        "b1beba46bcbd07c29f4c57a9bec0f4fe8faba6faaa4b6b86bbb52b2db6a74047"
-      ]
-    },
-    {
-      "distinct_responses": 3,
-      "job": "repository_investigation",
-      "response_sha256s": [
-        "025c16a2ea2b9c37faaf576dc4a12fdad39dbbf4c7509144f60a41683975caa3",
-        "766afa8ffdfac05b40ef72da7bed6c7dc78f8fff29b5a42d3faabccadd3a9081",
-        "fe0de9a26a21be5105cd9cd45e7672f83c3177dd308ab5ba82bb89d4ce324db1"
-      ]
-    },
-    {
-      "distinct_responses": 18,
       "job": "section_authoring",
       "response_sha256s": [
-        "162226d4278c21659d1d09c0097fa1977e72bef129600613a369ce36f6c371f6",
-        "253855f967bec03aff4e0cf52a27cba658050beec3b102a571ca070ca42bb68e",
-        "5609d2d5ab5cc6d97a9c221cb99b65560046f70041276f87b589d5d92583d90e",
-        "60e355687ac9a000da2f2e0d8c880bd0f32b16425246088c0b3f9dbc00c6f4c4",
-        "63714d40186276e04a3f0d964a681655020365ae2cce46461b31858048422481",
-        "6bfbafe0839ebdc0fbd8e8bb90f996b0690e141148348dd4c5bb1faf304b8890",
-        "b0d6a49e658b66b83e007e2b6d679ca06ee24361720437495e608bb1d3b9cd17",
-        "c546bfccafd3a53ab3d1cdafc1078372b97c79b1596b92271890e58c6b5d709b",
-        "c55ab0b931f05c2dde6332ee2eeeb012b54f579026b3d53d61477e31acd7c483",
-        "c7a03d9787d5337ecc367e494cc390bbd317ebd67db61a923c0079849109712a",
-        "cc6593422d070877d7a4662c9593b62443512fec97287a02c6acdb7bf47abfd6",
-        "cd28b4465d490f891f1a0a17c053670f495b95b12b545c3cd3f6299618a08097",
-        "d704a3ff8bd060bc61a150a081cf1abcdba0651292b470838149df7f848614d9",
-        "d9c703c612d5d4e382535d63c58480d76aa41850ca22faf3608a7abc11d8e7bf",
-        "e2004120788d628d3458eb80c5cded96d88c9855a5ac99ea1f30169f6a2caae1",
-        "e249a01e396bbbcffbb133d32f7bfc20d7e89980f911b2f12f912a3da368ed40",
-        "e7aeec84afcdc2d1bb811bbb81a4d247dfa0a9d730536477c883827f0b2a3989",
-        "f2a7e2d7ce495a31ffc97a3eb04a99521e50727a7cf4d8593b778b5a669173d0"
+        "33d12bdd14fd20c232677b6f50ad6d9eae63598034365f45e5dadc3136cdf289",
+        "41035f270eaa04908f4a6b0f3cf87346b965dcf0401e69662ffd578295f00a66",
+        "c4a8e2a6bd08ca45d85135cf0552ddc3d1bd2260c548c3b1912a8a188a8c1884",
+        "cba33a38423e1a91bfbcd09ff3b07d9a8d5b0bdb55ca030cc4fabc0250b74eae",
+        "eb3f56eb7d8aa74d0f741aedb466839a844ae0282546ea6cc828ddc0a0ab9738"
       ]
     },
     {
-      "distinct_responses": 6,
+      "distinct_responses": 2,
       "job": "source_reconciliation",
       "response_sha256s": [
-        "09ec4eaf9245fbe3cc46d06d575786412755631cb82761956e6ca53fb72b2380",
-        "0aa382acb34be274565489caba8a18453b81712f3b3b7ea0616e9603a9646a2a",
-        "55c44245e3a54007aac609aecfd440de7f723ea29aba6657ff64c32e71d36d72",
-        "cc84081bb099fb2a73e9a5917d6dfb2cb53769237a2f667163cd6a07cc13631e",
-        "eaef33bf31f16d8e0327a8b78247b4216c3a59a96cdd40a041100e7e4dc0a23d",
-        "f91e069e4062c6185b6eb586d23379e565bd3936effd3afff839563b78fd580b"
+        "125bcb6e8470db16e389d9bcd3ee60add54c33893c1851f0bd93010f88a57a3e",
+        "8db93585998fe0b140c425117499c89bf54d1ddd937ce94987d7a5884292ce6c"
       ]
     }
   ],
   "composition": {
-    "advisories": 15,
+    "advisories": 13,
     "blocking_failures": [],
-    "coverage_advisories": 0,
+    "coverage_advisories": 1,
     "review_verdict": "ACCEPT",
     "review_verdict_as_returned": "REJECT_PRESENTATION"
   },
   "files": {
     "README.md": {
-      "bytes": 11232,
-      "sha256": "8dd1b28de2a17da64fe0eca8f5b3e933274244a7d3c5b43908f0b42610866be4"
+      "bytes": 12666,
+      "sha256": "fc092b6aaab919d331321909bec1dfe76fcd1b06cd99e601c7cd458bc45f3358"
     },
     "README.patch": {
-      "bytes": 33029,
-      "sha256": "1bb31a722551c0f8e58b8dcad189ec5d5172daf14ce51ca7d7c2e8e888f09172"
+      "bytes": 34463,
+      "sha256": "5c01d2585b30b04a9f1afdb90ab40456aa8f31d523ef7585b7557b676c50be77"
     },
     "calls.jsonl": {
-      "bytes": 32619,
-      "sha256": "db530f7e9d530f1507a26eaf16642b1334b046d5084f262640b3773e51b6acda"
+      "bytes": 44910,
+      "sha256": "8c4637034ea6a6f000caafe92ee34fd539aeb7f09e762fde2339d65266e96169"
     },
     "content_units.json": {
-      "bytes": 18861,
-      "sha256": "abe364b95dee6da9635544ef9357d14d1edb921394908f0219b385c6b8f82020"
+      "bytes": 27995,
+      "sha256": "c3ef22124f8db43b7892fb19bb3216e5dbf97b7432a6187ad71c124a4aafebe7"
     },
     "dependencies.json": {
       "bytes": 45563,
-      "sha256": "418c6ebd570b7787b0d2d45fd40e2600bf99cb92ed1cd9f8b6e12a6892e10323"
+      "sha256": "5ffc6b7468bbe6faf7f45e483d1adc723a4dc8bf777fc72070c1232b3dde4e7e"
     },
     "dispositions.json": {
-      "bytes": 29210,
-      "sha256": "3e594c43c215928bebf4ed145aae759f022778ba79e93a29ac883cd7471841c4"
+      "bytes": 29573,
+      "sha256": "2f2112623bfb2ad3983a56cdabf94ccc47d77a6ba45439d4608700ff7009fdc2"
     },
     "examples.json": {
       "bytes": 7956,
@@ -110,36 +97,36 @@
       "sha256": "e37873a45ab392c29a703b73fe4ee051c8147fa93c4f35680ff8cc3ca7a8e838"
     },
     "plan.json": {
-      "bytes": 5848,
-      "sha256": "17911832bb3b5d0acd9f12156eaddd21cdfaea4eb16a9b3419362dae7ae31ba1"
+      "bytes": 5876,
+      "sha256": "28387377d68fd38c58f13337d1bec4ef856b192b5c31979679ef5fdfc567ed07"
     },
     "probes.json": {
-      "bytes": 1886,
-      "sha256": "32ee8782d71da2bb1b87c35b2ad5c25d701bc6e49f1d4976f33fef90ac073797"
+      "bytes": 1880,
+      "sha256": "6127370c22d5700154109e7ad9f9f638e05a20aefca70822c3f03669a64dfa00"
     },
     "repairs.json": {
-      "bytes": 442,
-      "sha256": "aa10229ae2438038216c22ec26ec437fde91519ab44be4d94be3ef444ac75787"
+      "bytes": 1131,
+      "sha256": "3b296ef55b4cebe260dfc720fb7d6ed4fd5baeb3344b7bf06494308e5bad1d2c"
     },
     "review.json": {
-      "bytes": 16424,
-      "sha256": "a14f1cd87740e572d912c2cc1949e64986c291c49309c23de317cbad95a2c61c"
+      "bytes": 13977,
+      "sha256": "67b13c36d86b5bc0f0d085ac8986afc4869b6e22ba4638bd3fb40e90d81f3106"
     },
     "validation.json": {
-      "bytes": 11001,
-      "sha256": "bd8f4299fc0330c8bb03944550ee94fa454e729f8c9d0cd4e6e8ea5e7fb4f05a"
+      "bytes": 11159,
+      "sha256": "990e093ab2b7489155c293015566037dd783de8dcae52ad8b46f55e3ed1b7c08"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-24T14:19:48Z",
+    "proven_at": "2026-09-25T07:02:33Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
   "revision": "c844a467cf7f2503819b655f4d6ceaef91056c40",
   "schema_version": 1,
-  "sealed_at": "2026-09-24T14:19:48Z",
+  "sealed_at": "2026-09-25T07:02:33Z",
   "state": "READY_FOR_PROPOSAL"
 }

@@ -19,9 +19,8 @@
     {
       "fact_ids": [
         "public_symbol:aspose.email.foss",
-        "public_symbol:aspose.email.foss.msg.mapi_message",
-        "public_symbol:aspose.email.foss.msg.msg_reader",
-        "public_symbol:aspose.email.foss.cfb.cfb_reader"
+        "public_symbol:aspose.email.foss.msg",
+        "public_symbol:aspose.email.foss.cfb"
       ],
       "symbol_fact_id": "public_symbol:aspose.email.foss"
     }
@@ -86,7 +85,7 @@
         "inherited_unit:008.code_block"
       ],
       "section_id": "at_a_glance",
-      "text": "The Mermaid flowchart from the inherited README is omitted because no fact verifies its structure or content."
+      "text": "The Mermaid diagram in the inherited README is omitted because no verified input or output format facts are present to populate Starting Points or Outputs."
     },
     {
       "fact_ids": [
@@ -94,14 +93,7 @@
         "inherited_unit:038.code_block"
       ],
       "section_id": "additional_examples",
-      "text": "The example code blocks from inherited units 034 and 038 are omitted because they are marked as CONTRADICTED and not citable."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:065.paragraph"
-      ],
-      "section_id": "enterprise_relationship",
-      "text": "The Enterprise Edition paragraph is moved from scope_limitations to its own section per the semantic shell."
+      "text": "Two examples referenced in the inherited README are marked CONTRADICTED and not citable, so they are omitted."
     }
   ],
   "flagship_example_id": null,
@@ -129,6 +121,22 @@
     {
       "link_fact_id": "link_target:028",
       "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:001",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:002",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:003",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:004",
+      "section_id": "badges"
     },
     {
       "link_fact_id": "link_target:005",

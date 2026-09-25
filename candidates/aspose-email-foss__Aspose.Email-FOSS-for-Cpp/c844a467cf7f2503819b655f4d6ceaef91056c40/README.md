@@ -63,7 +63,7 @@ No required third-party package dependencies; in `CMakeLists.txt`, no dependency
 
 ## Quick Start
 
-Read a subject from an MSG file opened as a binary stream using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support.
+Read a subject from an MSG file opened as a binary stream.
 
 ```cpp
 #include <fstream>
@@ -79,7 +79,7 @@ int main()
 }
 ```
 
-Create a message and save it as both MSG and EML using Aspose.Email FOSS for Cpp 0.1.0 with C++17 support.
+Create a message and save it as both MSG and EML.
 
 ```cpp
 #include <fstream>
@@ -104,7 +104,7 @@ int main()
 
 ## API Reference
 
-Aspose.Email FOSS for Cpp exposes the `mapi_message` class as the primary high-level entry point for creating, editing, and reloading messages, while `msg_reader` and `cfb_reader` provide lower-level access to MSG and CFB container structures respectively.
+Aspose.Email FOSS for Cpp exposes the `mapi_message` class as the primary high-level entry point for creating, editing, and reloading messages, while lower-level classes such as `msg_reader`, `msg_document`, `msg_writer`, `cfb_reader`, `cfb_document`, and `cfb_writer` provide direct access to the underlying MSG and CFB container structures.
 
 The verified public surface has 26 types.
 
@@ -115,51 +115,51 @@ The verified public surface has 26 types.
 
 | Class | Description |
 | --- | --- |
-| `cfb_document` | Represents a Compound File Binary document and provides methods to load it from various sources and access its version and root storage. |
-| `cfb_exception` | Represents an exception thrown during operations on Compound File Binary structures. |
-| `cfb_node` | Represents a node in a Compound File Binary structure, which can be a storage or a stream, and exposes its metadata and state. |
-| `cfb_reader` | Reads a Compound File Binary document and provides access to its header, directory entries, and streams. |
-| `cfb_storage` | Represents a storage node in a Compound File Binary document and allows adding child storages and streams. |
-| `cfb_stream` | Represents a stream node in a Compound File Binary document and holds its data. |
-| `cfb_writer` | Writes a Compound File Binary document to a file or stream. |
-| `directory_entry` | Represents an entry in the directory of a Compound File Binary document and exposes its metadata and type. |
-| `header` | Contains the header information of a Compound File Binary document. |
-| `mapi_attachment` | Represents an attachment in a MAPI message. |
-| `mapi_message` | Represents a MAPI message and provides methods to create, modify, and save it. |
-| `mapi_property` | Represents a single MAPI property with its identifier, type, and value. |
-| `mapi_property_collection` | Holds a collection of MAPI properties associated with a message or attachment. |
-| `mapi_recipient` | Represents a recipient in a MAPI message. |
-| `msg_document` | Represents a parsed MSG document and provides access to its internal structure. |
-| `msg_exception` | Represents an exception thrown during operations on MSG documents. |
-| `msg_reader` | Reads an MSG document from a file or stream and exposes its raw data. |
-| `msg_storage` | Represents a storage node in an MSG document and provides access to its children. |
-| `msg_stream` | Represents a stream node in an MSG document. |
-| `msg_writer` | Writes a MAPI message to an MSG file. |
+| `cfb_document` | The cfb_document class represents a Compound File Binary document and provides methods to load it from various sources such as a file, stream, buffer, or bytes, while exposing its major and minor version numbers and root storage. |
+| `cfb_exception` | The cfb_exception class represents an error condition that can occur during operations on Compound File Binary documents. |
+| `cfb_node` | The cfb_node class represents a node in a Compound File Binary structure, providing access to its name, class identifier, creation and modification times, state bits, and whether it is a storage or stream. |
+| `cfb_reader` | The cfb_reader class provides methods to read and inspect the contents of a Compound File Binary document, including accessing directory entries, streams, storages, and metadata such as sector markers and FAT tables. |
+| `cfb_storage` | The cfb_storage class represents a storage node in a Compound File Binary document and allows adding child storages or streams. |
+| `cfb_stream` | The cfb_stream class represents a stream node in a Compound File Binary document and provides access to its data content. |
+| `cfb_writer` | The cfb_writer class provides methods to write a Compound File Binary document to a file or stream. |
+| `directory_entry` | The directory_entry class represents an entry in the directory of a Compound File Binary document, exposing properties such as name length, object type, color flag, creation and modification times, and class identifier. |
+| `header` | The header class encapsulates the header information of a Compound File Binary document, including version numbers and sector sizes. |
+| `mapi_attachment` | The mapi_attachment class represents an attachment in a MAPI message, providing access to its data, filename, and content type. |
+| `mapi_message` | The mapi_message class represents a MAPI message and provides methods to set properties, add recipients and attachments, and save the message to a file. |
+| `mapi_property` | The mapi_property class represents a single MAPI property, storing its identifier, type, and value. |
+| `mapi_property_collection` | The mapi_property_collection class provides a container for MAPI properties associated with a message or attachment. |
+| `mapi_recipient` | The mapi_recipient class represents a recipient in a MAPI message, including name, email address, and recipient type. |
+| `msg_document` | The msg_document class represents a parsed MSG document and provides access to its internal structure and metadata. |
+| `msg_exception` | The msg_exception class represents an error condition that can occur during operations on MSG documents. |
+| `msg_reader` | The msg_reader class provides methods to read and inspect the contents of an MSG file, including accessing its internal CFB structure. |
+| `msg_storage` | The msg_storage class represents a storage node in an MSG document and provides access to its child nodes. |
+| `msg_stream` | The msg_stream class represents a stream node in an MSG document and provides access to its data. |
+| `msg_writer` | The msg_writer class provides methods to write a MAPI message to a file in MSG format. |
 
 #### Enumerations
 
 | Enumeration | Description |
 | --- | --- |
-| `directory_color_flag` | Indicates the color of a directory entry in a Compound File Binary structure, used for tree balancing. |
-| `directory_object_type` | Specifies whether a directory entry in a Compound File Binary document is a storage, a stream, or the root. |
-| `sector_marker` | Represents a sector marker used in the sector allocation tables of a Compound File Binary document. |
-| `common_message_property_id` | Defines common property identifiers for MAPI messages. |
-| `msg_storage_role` | Indicates the role of a storage node in an MSG document. |
-| `property_type_code` | Defines the data type of a MAPI property. |
+| `directory_color_flag` | The directory_color_flag enumeration indicates the color of a directory entry in a Compound File Binary document, used for red-black tree balancing. |
+| `directory_object_type` | The directory_object_type enumeration specifies whether a directory entry represents a storage, a stream, or the root storage in a Compound File Binary document. |
+| `sector_marker` | The sector_marker enumeration defines special values used to mark sectors in a Compound File Binary document, such as end-of-chain or free sectors. |
+| `common_message_property_id` | The common_message_property_id enumeration defines standard property identifiers used in MAPI message structures. |
+| `msg_storage_role` | The msg_storage_role enumeration specifies the role of a storage node within an MSG document, such as root or message storage. |
+| `property_type_code` | The property_type_code enumeration defines the data types used for MAPI properties, such as strings, integers, or binary data. |
 
 #### Detailed Member Reference
 
 ### aspose
 
-The aspose namespace serves as the top-level container for the Aspose.Email FOSS for Cpp library, with `aspose.email` providing the email-specific functionality and `aspose.email.foss` exposing the open-source MSG and CFB processing components.
+The aspose namespace serves as the top-level container for the Aspose.Email FOSS for Cpp library, grouping the `aspose.email` and `aspose.email.foss` sub-namespaces that provide the core email processing functionality.
 
 ### email
 
-The `aspose.email` namespace contains the core email processing APIs, including the `aspose.email.foss` submodule that provides open-source implementations for reading and writing MSG and CFB formats.
+The `aspose.email` namespace provides the main public API surface for email processing, with `aspose.email.foss` offering the free and open source subset of functionality built on top of the core library.
 
 ### foss
 
-The `aspose.email.foss` submodule provides open-source MSG and CFB processing through the `mapi_message` class for high-level message authoring, the `msg_reader` class for low-level MSG parsing, and the `cfb_reader` class for direct CFB container inspection.
+The `aspose.email.foss` namespace includes the `mapi_message` class for high-level message authoring and the low-level `msg_reader`, `msg_document`, `msg_writer`, `cfb_reader`, `cfb_document`, and `cfb_writer` classes for direct access to MSG and CFB container structures.
 
 </details>
 
@@ -184,7 +184,7 @@ These limitations don't apply to [Aspose.Email for Cpp — Enterprise Edition](h
 
 ## Development and Testing
 
-Build and test Aspose.Email FOSS for Cpp using the provided CMake presets: run cmake --preset default to configure, cmake --build --preset default to compile, and ctest --preset default to execute tests.
+Build and test Aspose.Email FOSS for Cpp using CMake 3.26 or later with C++17 support, following the repository's default preset configuration.
 
 The suite covers 4 test files under `tests/`.
 
