@@ -14,7 +14,7 @@
         "package:python_requires",
         "package:version"
       ],
-      "rationale": "The H1 product name is rendered deterministically from identity and package facts.",
+      "rationale": "The H1 product name is rendered from facts in the identity section.",
       "unit_id": "inherited_unit:001.heading"
     },
     {
@@ -51,7 +51,7 @@
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "The badge row is rendered deterministically from verified badge targets.",
+      "rationale": "The badge row is rendered from facts in the badges section.",
       "unit_id": "inherited_unit:002.badge_row"
     },
     {
@@ -61,7 +61,7 @@
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "The banner image is rendered deterministically from verified banner and homepage targets.",
+      "rationale": "The banner image is rendered from facts in the banner section.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -73,18 +73,20 @@
         "identity:platform",
         "identity:ecosystem",
         "package:name",
-        "package:python_requires",
+        "package:version",
+        "package:license",
+        "license:spdx",
         "dependency:pycryptodome-3.15.0",
         "dependency:olefile-0.46",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cells",
         "format:input.xlsx",
         "format:output.xlsx",
         "format:output.csv",
-        "format:output.xlsx"
+        "format:output.xlsx",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "rationale": "The paragraph's substance is supported and placed in the opening section, reworded from facts.",
+      "rationale": "The paragraph's substance is covered by the product summary and dependencies facts and is placed in the opening section.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -108,20 +110,9 @@
         "identity:family",
         "identity:platform",
         "identity:repository",
-        "identity:revision",
-        "link_target:010",
-        "link_target:011",
-        "link_target:012",
-        "link_target:013",
-        "link_target:014",
-        "link_target:015",
-        "link_target:016",
-        "link_target:017",
-        "link_target:018",
-        "link_target:019",
-        "link_target:020"
+        "identity:revision"
       ],
-      "rationale": "The navigation list is rendered deterministically from in-page link targets.",
+      "rationale": "The navigation list is rendered by the deterministic navigation section.",
       "unit_id": "inherited_unit:006.list"
     },
     {
@@ -138,11 +129,10 @@
         "example:001",
         "example:002",
         "format:input.xlsx",
-        "format:output.csv",
+        "format:output.xlsx",
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cells",
-        "public_symbol:aspose.cells_foss.save_workbook_as_csv"
+        "public_symbol:aspose.cells_foss.cell"
       ],
       "rationale": "The Mermaid diagram is replaced by the deterministic at_a_glance section.",
       "unit_id": "inherited_unit:008.code_block"
@@ -166,19 +156,23 @@
         "example:006",
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell",
         "public_symbol:aspose.cells_foss.style",
         "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.numberformat",
         "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.datavalidationtype",
         "public_symbol:aspose.cells_foss.conditional_format",
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.sparkline",
         "public_symbol:aspose.cells_foss.save_workbook_as_csv",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor",
-        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "public_symbol:aspose.cells_foss.save_workbook_as_json",
+        "public_symbol:aspose.cells_foss.save_workbook_as_markdown",
+        "public_symbol:aspose.cells_foss.chart",
         "public_symbol:aspose.cells_foss.shape",
+        "public_symbol:aspose.cells_foss.sparkline",
         "public_symbol:aspose.cells_foss.table",
-        "public_symbol:aspose.cells_foss.comment_xml"
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor"
       ],
       "rationale": "The Key Capabilities list is replaced by the deterministic key_capabilities section.",
       "unit_id": "inherited_unit:010.list"
@@ -198,7 +192,7 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The installation command is rendered deterministically from the install_command fact.",
+      "rationale": "The installation command is rendered from facts in the installation section.",
       "unit_id": "inherited_unit:012.code_block"
     },
     {
@@ -211,7 +205,7 @@
         "dependency:pycryptodome-3.15.0",
         "package:python_requires"
       ],
-      "rationale": "The dependency information is rendered deterministically in the dependencies section.",
+      "rationale": "The dependency information is rendered in the dependencies section.",
       "unit_id": "inherited_unit:013.paragraph"
     },
     {
@@ -247,7 +241,7 @@
         "dependency:olefile-0.46",
         "dependency:pycryptodome-3.15.0"
       ],
-      "rationale": "The required dependencies list is rendered deterministically in the dependencies section.",
+      "rationale": "The dependency list is rendered in the dependencies section.",
       "unit_id": "inherited_unit:016.list"
     },
     {
@@ -272,7 +266,7 @@
         "dependency:pycryptodome-3.15.0",
         "package:python_requires"
       ],
-      "rationale": "The Python version requirement is rendered deterministically in the dependencies section.",
+      "rationale": "The Python version requirement is rendered in the dependencies section.",
       "unit_id": "inherited_unit:018.list"
     },
     {
@@ -296,7 +290,7 @@
         "dependency:olefile-0.46",
         "dependency:pycryptodome-3.15.0"
       ],
-      "rationale": "The development dependencies list is rendered deterministically in the dependencies section.",
+      "rationale": "The development dependency list is rendered in the dependencies section.",
       "unit_id": "inherited_unit:020.list"
     },
     {
@@ -308,38 +302,34 @@
     },
     {
       "destination_section": "quick_start",
-      "disposition": "VERIFIED_REWRITE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The Quick Start lead-in is supported and placed in the quick_start section, reworded from facts.",
+      "rationale": "The Quick Start lead-in sentence is preserved and moved to the quick_start section.",
       "unit_id": "inherited_unit:022.paragraph"
     },
     {
       "destination_section": "quick_start",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The Quick Start example code block is supported and preserved as written.",
+      "rationale": "The Quick Start example is replaced by the deterministic quick_start section.",
       "unit_id": "inherited_unit:023.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_REWRITE",
-      "fact_ids": [
-        "example:002"
-      ],
-      "rationale": "The Additional Examples lead-in is supported and placed in the additional_examples section, reworded from facts.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Read an existing workbook' lead-in is not supported by a corresponding example in the accepted investigation.",
       "unit_id": "inherited_unit:024.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:002"
-      ],
-      "rationale": "The read existing workbook example is supported and preserved as written.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Read an existing workbook' example is not supported by a corresponding example in the accepted investigation.",
       "unit_id": "inherited_unit:025.code_block"
     },
     {
@@ -351,27 +341,27 @@
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_REWRITE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "example:003"
       ],
-      "rationale": "The styling example lead-in is supported and placed in the additional_examples section, reworded from facts.",
+      "rationale": "The 'Apply cell styling' lead-in sentence is preserved and moved to the additional_examples section.",
       "unit_id": "inherited_unit:027.paragraph"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "example:003"
       ],
-      "rationale": "The styling example code block is supported and preserved as written.",
+      "rationale": "The 'Apply cell styling' example is replaced by the deterministic additional_examples section.",
       "unit_id": "inherited_unit:028.code_block"
     },
     {
       "destination_section": null,
       "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "The HTML details block is a non-content separator.",
+      "rationale": "The HTML details summary is a separator and is non-content.",
       "unit_id": "inherited_unit:029.html_block"
     },
     {
@@ -380,16 +370,16 @@
       "fact_ids": [
         "example:004"
       ],
-      "rationale": "The data validation heading is moved to the additional_examples section.",
+      "rationale": "The 'Add Data Validation (Dropdown List)' heading is preserved and moved to the additional_examples section.",
       "unit_id": "inherited_unit:030.heading"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "example:004"
       ],
-      "rationale": "The data validation example code block is supported and preserved as written.",
+      "rationale": "The 'Add Data Validation' example is replaced by the deterministic additional_examples section.",
       "unit_id": "inherited_unit:031.code_block"
     },
     {
@@ -398,16 +388,16 @@
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The CSV export heading is moved to the additional_examples section.",
+      "rationale": "The 'Export to CSV' heading is preserved and moved to the additional_examples section.",
       "unit_id": "inherited_unit:032.heading"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The CSV export example code block is supported and preserved as written.",
+      "rationale": "The 'Export to CSV' example is replaced by the deterministic additional_examples section.",
       "unit_id": "inherited_unit:033.code_block"
     },
     {
@@ -416,23 +406,23 @@
       "fact_ids": [
         "example:006"
       ],
-      "rationale": "The password protection heading is moved to the additional_examples section.",
+      "rationale": "The 'Password-Protect a Workbook' heading is preserved and moved to the additional_examples section.",
       "unit_id": "inherited_unit:034.heading"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "example:006"
       ],
-      "rationale": "The password protection example code block is supported and preserved as written.",
+      "rationale": "The 'Password-Protect a Workbook' example is replaced by the deterministic additional_examples section.",
       "unit_id": "inherited_unit:035.code_block"
     },
     {
       "destination_section": null,
       "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "The closing HTML details tag is a non-content separator.",
+      "rationale": "The HTML details close tag is a separator and is non-content.",
       "unit_id": "inherited_unit:036.html_block"
     },
     {
@@ -443,267 +433,53 @@
       "unit_id": "inherited_unit:037.heading"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "VERIFIED_REWRITE",
-      "fact_ids": [
-        "import_path:aspose",
-        "import_path:aspose.cells_foss",
-        "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cells"
-      ],
-      "rationale": "The API Reference intro is supported and placed in the api_reference section, reworded from facts.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The API Reference paragraph's claim of 130 public types is not supported by facts.",
       "unit_id": "inherited_unit:038.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "The API Reference details block opener is a non-content separator.",
+      "rationale": "The HTML details summary is a separator and is non-content.",
       "unit_id": "inherited_unit:039.html_block"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_MOVE",
-      "fact_ids": [],
-      "rationale": "The Core API heading is moved to the api_reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Core API heading is preserved and moved to the api_reference section.",
       "unit_id": "inherited_unit:040.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
+        "import_path:aspose",
+        "import_path:aspose.cells_foss",
         "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss",
-        "public_symbol:aspose.cells_foss.agileencryptionparameters",
-        "public_symbol:aspose.cells_foss.auto_filter",
-        "public_symbol:aspose.cells_foss.auto_filter.autofilter",
-        "public_symbol:aspose.cells_foss.auto_filter.filtercolumn",
-        "public_symbol:aspose.cells_foss.cell",
-        "public_symbol:aspose.cells_foss.cell-2",
-        "public_symbol:aspose.cells_foss.cell_value_handler",
-        "public_symbol:aspose.cells_foss.cell_value_handler.cellvaluehandler",
-        "public_symbol:aspose.cells_foss.cells",
-        "public_symbol:aspose.cells_foss.cells-2",
-        "public_symbol:aspose.cells_foss.cfb_handler",
-        "public_symbol:aspose.cells_foss.cfb_handler.cfbreader",
-        "public_symbol:aspose.cells_foss.cfb_handler.cfbwriter",
-        "public_symbol:aspose.cells_foss.cfb_handler.is_encrypted_file",
-        "public_symbol:aspose.cells_foss.cfb_writer",
-        "public_symbol:aspose.cells_foss.cfb_writer.cfbwriter",
-        "public_symbol:aspose.cells_foss.cfb_writer_minimal",
-        "public_symbol:aspose.cells_foss.cfb_writer_minimal.minimalcfbwriter",
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.chart-2",
-        "public_symbol:aspose.cells_foss.chartaxis",
-        "public_symbol:aspose.cells_foss.chartcollection",
-        "public_symbol:aspose.cells_foss.charterrorbars",
-        "public_symbol:aspose.cells_foss.chartseries",
-        "public_symbol:aspose.cells_foss.charttype",
-        "public_symbol:aspose.cells_foss.chartview3d",
-        "public_symbol:aspose.cells_foss.cipheralgorithm",
-        "public_symbol:aspose.cells_foss.comment_xml",
-        "public_symbol:aspose.cells_foss.comment_xml.commentxmlreader",
-        "public_symbol:aspose.cells_foss.comment_xml.commentxmlwriter",
-        "public_symbol:aspose.cells_foss.conditional_format",
-        "public_symbol:aspose.cells_foss.conditional_format.conditionalformat",
-        "public_symbol:aspose.cells_foss.conditional_format.conditionalformatcollection",
-        "public_symbol:aspose.cells_foss.csv_handler",
-        "public_symbol:aspose.cells_foss.csvhandler",
-        "public_symbol:aspose.cells_foss.csvloadoptions",
-        "public_symbol:aspose.cells_foss.csvsaveoptions",
-        "public_symbol:aspose.cells_foss.data_validation",
-        "public_symbol:aspose.cells_foss.datavalidation",
-        "public_symbol:aspose.cells_foss.datavalidationalertstyle",
-        "public_symbol:aspose.cells_foss.datavalidationcollection",
-        "public_symbol:aspose.cells_foss.datavalidationimemode",
-        "public_symbol:aspose.cells_foss.datavalidationoperator",
-        "public_symbol:aspose.cells_foss.datavalidationtype",
-        "public_symbol:aspose.cells_foss.decrypt_xlsx",
-        "public_symbol:aspose.cells_foss.document_properties",
-        "public_symbol:aspose.cells_foss.document_properties.coreproperties",
-        "public_symbol:aspose.cells_foss.document_properties.documentproperties",
-        "public_symbol:aspose.cells_foss.document_properties.extendedproperties",
-        "public_symbol:aspose.cells_foss.encrypt_xlsx",
-        "public_symbol:aspose.cells_foss.encryption_crypto",
-        "public_symbol:aspose.cells_foss.encryption_crypto.encryptionverifier",
-        "public_symbol:aspose.cells_foss.encryption_crypto.packageencryption",
-        "public_symbol:aspose.cells_foss.encryption_crypto.passwordderivation",
-        "public_symbol:aspose.cells_foss.encryption_params",
-        "public_symbol:aspose.cells_foss.encryption_params.encryptionparameters",
-        "public_symbol:aspose.cells_foss.encryption_params.encryptiontype",
-        "public_symbol:aspose.cells_foss.filltype",
-        "public_symbol:aspose.cells_foss.font",
-        "public_symbol:aspose.cells_foss.formula_evaluator",
-        "public_symbol:aspose.cells_foss.formula_evaluator.formulaevaluator",
-        "public_symbol:aspose.cells_foss.get_default_encryption_params",
-        "public_symbol:aspose.cells_foss.hashalgorithm",
-        "public_symbol:aspose.cells_foss.horizontalpagebreakcollection",
-        "public_symbol:aspose.cells_foss.hyperlink",
-        "public_symbol:aspose.cells_foss.hyperlink.hyperlink",
-        "public_symbol:aspose.cells_foss.hyperlink.hyperlinks",
-        "public_symbol:aspose.cells_foss.json_handler",
-        "public_symbol:aspose.cells_foss.jsonhandler",
-        "public_symbol:aspose.cells_foss.jsonsaveoptions",
-        "public_symbol:aspose.cells_foss.load_csv_workbook",
-        "public_symbol:aspose.cells_foss.markdown_handler",
-        "public_symbol:aspose.cells_foss.markdownhandler",
-        "public_symbol:aspose.cells_foss.markdownsaveoptions",
-        "public_symbol:aspose.cells_foss.msodrawingtype",
-        "public_symbol:aspose.cells_foss.msofillformat",
-        "public_symbol:aspose.cells_foss.msolinedashstyle",
-        "public_symbol:aspose.cells_foss.msolineformat",
-        "public_symbol:aspose.cells_foss.nseries",
-        "public_symbol:aspose.cells_foss.numberformat",
-        "public_symbol:aspose.cells_foss.page_break",
-        "public_symbol:aspose.cells_foss.picture",
-        "public_symbol:aspose.cells_foss.picture-2",
-        "public_symbol:aspose.cells_foss.picturecollection",
-        "public_symbol:aspose.cells_foss.save_workbook_as_csv",
-        "public_symbol:aspose.cells_foss.save_workbook_as_json",
-        "public_symbol:aspose.cells_foss.save_workbook_as_markdown",
-        "public_symbol:aspose.cells_foss.saveformat",
-        "public_symbol:aspose.cells_foss.shape",
-        "public_symbol:aspose.cells_foss.shape-2",
-        "public_symbol:aspose.cells_foss.shapecollection",
-        "public_symbol:aspose.cells_foss.shapefont",
-        "public_symbol:aspose.cells_foss.shared_strings",
-        "public_symbol:aspose.cells_foss.shared_strings.sharedstringtable",
-        "public_symbol:aspose.cells_foss.sparkline",
-        "public_symbol:aspose.cells_foss.sparkline-2",
-        "public_symbol:aspose.cells_foss.sparklineemptycells",
-        "public_symbol:aspose.cells_foss.sparklinegroup",
-        "public_symbol:aspose.cells_foss.sparklinegroupcollection",
-        "public_symbol:aspose.cells_foss.sparklinetype",
-        "public_symbol:aspose.cells_foss.standardencryptionparameters",
-        "public_symbol:aspose.cells_foss.style",
-        "public_symbol:aspose.cells_foss.style-2",
-        "public_symbol:aspose.cells_foss.style.alignment",
-        "public_symbol:aspose.cells_foss.style.border",
-        "public_symbol:aspose.cells_foss.style.borders",
-        "public_symbol:aspose.cells_foss.style.fill",
-        "public_symbol:aspose.cells_foss.style.protection",
-        "public_symbol:aspose.cells_foss.table",
-        "public_symbol:aspose.cells_foss.table-2",
-        "public_symbol:aspose.cells_foss.tablecollection",
-        "public_symbol:aspose.cells_foss.tablecolumn",
-        "public_symbol:aspose.cells_foss.tablestyleinfo",
-        "public_symbol:aspose.cells_foss.textalignmenttype",
-        "public_symbol:aspose.cells_foss.textanchortype",
-        "public_symbol:aspose.cells_foss.verticalpagebreakcollection",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.workbook-2",
-        "public_symbol:aspose.cells_foss.workbook_hash_password",
-        "public_symbol:aspose.cells_foss.workbook_hash_password.hash_password",
-        "public_symbol:aspose.cells_foss.workbook_properties",
-        "public_symbol:aspose.cells_foss.workbook_properties.calculationproperties",
-        "public_symbol:aspose.cells_foss.workbook_properties.definedname",
-        "public_symbol:aspose.cells_foss.workbook_properties.definednamecollection",
-        "public_symbol:aspose.cells_foss.workbook_properties.fileversion",
-        "public_symbol:aspose.cells_foss.workbook_properties.workbookpr",
-        "public_symbol:aspose.cells_foss.workbook_properties.workbookproperties",
-        "public_symbol:aspose.cells_foss.workbook_properties.workbookprotection",
-        "public_symbol:aspose.cells_foss.workbook_properties.workbookview",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.worksheet-2",
-        "public_symbol:aspose.cells_foss.worksheet.sheetprotectiondictwrapper",
-        "public_symbol:aspose.cells_foss.worksheet_properties",
-        "public_symbol:aspose.cells_foss.worksheet_properties.headerfooter",
-        "public_symbol:aspose.cells_foss.worksheet_properties.pagemargins",
-        "public_symbol:aspose.cells_foss.worksheet_properties.pagesetup",
-        "public_symbol:aspose.cells_foss.worksheet_properties.pane",
-        "public_symbol:aspose.cells_foss.worksheet_properties.printoptions",
-        "public_symbol:aspose.cells_foss.worksheet_properties.selection",
-        "public_symbol:aspose.cells_foss.worksheet_properties.sheetformatproperties",
-        "public_symbol:aspose.cells_foss.worksheet_properties.sheetprotection",
-        "public_symbol:aspose.cells_foss.worksheet_properties.sheetview",
-        "public_symbol:aspose.cells_foss.worksheet_properties.worksheetproperties",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor.xlsxdecryptor",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor.xlsxencryptor",
-        "public_symbol:aspose.cells_foss.xml_autofilter_loader",
-        "public_symbol:aspose.cells_foss.xml_autofilter_loader.autofilterxmlloader",
-        "public_symbol:aspose.cells_foss.xml_autofilter_saver",
-        "public_symbol:aspose.cells_foss.xml_autofilter_saver.autofilterxmlwriter",
-        "public_symbol:aspose.cells_foss.xml_chart_loader",
-        "public_symbol:aspose.cells_foss.xml_chart_loader.chartxmlloader",
-        "public_symbol:aspose.cells_foss.xml_chart_saver",
-        "public_symbol:aspose.cells_foss.xml_chart_saver.chartxmlsaver",
-        "public_symbol:aspose.cells_foss.xml_conditional_format_loader",
-        "public_symbol:aspose.cells_foss.xml_conditional_format_loader.conditionalformatxmlloader",
-        "public_symbol:aspose.cells_foss.xml_conditional_format_saver",
-        "public_symbol:aspose.cells_foss.xml_conditional_format_saver.conditionalformatxmlwriter",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_loader",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_loader.datavalidationxmlloader",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_loader.load_data_validations_from_worksheet_xml",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_saver",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_saver.datavalidationxmlsaver",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_saver.save_data_validations_to_worksheet_xml",
-        "public_symbol:aspose.cells_foss.xml_hyperlink_handler",
-        "public_symbol:aspose.cells_foss.xml_hyperlink_handler.hyperlinkrelationshipwriter",
-        "public_symbol:aspose.cells_foss.xml_hyperlink_handler.hyperlinkxmlloader",
-        "public_symbol:aspose.cells_foss.xml_hyperlink_handler.hyperlinkxmlsaver",
-        "public_symbol:aspose.cells_foss.xml_loader",
-        "public_symbol:aspose.cells_foss.xml_loader.xmlloader",
-        "public_symbol:aspose.cells_foss.xml_picture_loader",
-        "public_symbol:aspose.cells_foss.xml_picture_loader.picturexmlloader",
-        "public_symbol:aspose.cells_foss.xml_picture_saver",
-        "public_symbol:aspose.cells_foss.xml_picture_saver.picturexmlsaver",
-        "public_symbol:aspose.cells_foss.xml_properties_loader",
-        "public_symbol:aspose.cells_foss.xml_properties_loader.workbookpropertiesxmlloader",
-        "public_symbol:aspose.cells_foss.xml_properties_loader.worksheetpropertiesxmlloader",
-        "public_symbol:aspose.cells_foss.xml_properties_saver",
-        "public_symbol:aspose.cells_foss.xml_properties_saver.workbookpropertiesxmlwriter",
-        "public_symbol:aspose.cells_foss.xml_properties_saver.worksheetpropertiesxmlwriter",
-        "public_symbol:aspose.cells_foss.xml_saver",
-        "public_symbol:aspose.cells_foss.xml_saver.xmlsaver",
-        "public_symbol:aspose.cells_foss.xml_shape_loader",
-        "public_symbol:aspose.cells_foss.xml_shape_loader.shapexmlloader",
-        "public_symbol:aspose.cells_foss.xml_shape_saver",
-        "public_symbol:aspose.cells_foss.xml_shape_saver.shapexmlsaver",
-        "public_symbol:aspose.cells_foss.xml_sparkline_loader",
-        "public_symbol:aspose.cells_foss.xml_sparkline_loader.sparklinexmlloader",
-        "public_symbol:aspose.cells_foss.xml_sparkline_saver",
-        "public_symbol:aspose.cells_foss.xml_sparkline_saver.sparklinexmlsaver",
-        "public_symbol:aspose.cells_foss.xml_table_loader",
-        "public_symbol:aspose.cells_foss.xml_table_loader.tablexmlloader",
-        "public_symbol:aspose.cells_foss.xml_table_saver",
-        "public_symbol:aspose.cells_foss.xml_table_saver.tablexmlsaver"
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The table of classes is superseded by the API Reference section, which deterministically renders the complete verified public surface.",
+      "rationale": "The table of classes is superseded by the API Reference section, which deterministically renders the complete public surface.",
       "unit_id": "inherited_unit:041.table"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The heading '#### Enumerations' is redundant because the API Reference section deterministically renders the public surface with appropriate headings.",
+      "rationale": "The heading '#### Enumerations' is redundant with the API Reference section structure.",
       "unit_id": "inherited_unit:042.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.charttype",
-        "public_symbol:aspose.cells_foss.cipheralgorithm",
-        "public_symbol:aspose.cells_foss.datavalidationalertstyle",
-        "public_symbol:aspose.cells_foss.datavalidationimemode",
-        "public_symbol:aspose.cells_foss.datavalidationoperator",
-        "public_symbol:aspose.cells_foss.datavalidationtype",
-        "public_symbol:aspose.cells_foss.encryption_params.encryptiontype",
-        "public_symbol:aspose.cells_foss.filltype",
-        "public_symbol:aspose.cells_foss.hashalgorithm",
-        "public_symbol:aspose.cells_foss.msodrawingtype",
-        "public_symbol:aspose.cells_foss.msolinedashstyle",
-        "public_symbol:aspose.cells_foss.saveformat",
-        "public_symbol:aspose.cells_foss.sparklineemptycells",
-        "public_symbol:aspose.cells_foss.sparklinetype",
-        "public_symbol:aspose.cells_foss.textalignmenttype",
-        "public_symbol:aspose.cells_foss.textanchortype"
-      ],
-      "rationale": "The table of enumerations is superseded by the API Reference section, which deterministically renders the complete verified public surface.",
+      "fact_ids": [],
+      "rationale": "The table of enumerations is superseded by the API Reference section, which deterministically renders the complete public surface.",
       "unit_id": "inherited_unit:043.table"
     },
     {
@@ -724,12 +500,12 @@
         "link_target:025",
         "link_target:026"
       ],
-      "rationale": "The heading '## Documentation & Resources' is placed under the documentation_resources section, which is verified by the listed documentation and resource links",
+      "rationale": "The heading '## Documentation & Resources' is moved to the Documentation & Resources section, which is placeable and supported by the listed targets.",
       "unit_id": "inherited_unit:045.heading"
     },
     {
       "destination_section": "documentation_resources",
-      "disposition": "VERIFIED_MOVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "link_target:021",
         "link_target:022",
@@ -738,14 +514,14 @@
         "link_target:025",
         "link_target:026"
       ],
-      "rationale": "The list of documentation and resource links is moved to the documentation_resources section, which is verified by the corresponding link targets.",
+      "rationale": "The list of documentation links is moved to the Documentation & Resources section, which is placeable and supported by the listed targets.",
       "unit_id": "inherited_unit:046.list"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading '## Scope and Limitations' is preserved as it matches the scope_limitations section heading.",
+      "rationale": "The heading '## Scope and Limitations' is moved to the Scope and Limitations section, which is placeable and matches the inherited content.",
       "unit_id": "inherited_unit:047.heading"
     },
     {
@@ -753,11 +529,15 @@
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
         "format:input.xlsx",
+        "format:output.csv",
         "format:output.xlsx",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters",
         "public_symbol:aspose.cells_foss.standardencryptionparameters",
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
         "public_symbol:aspose.cells_foss.formula_evaluator"
       ],
-      "rationale": "The list of limitations is preserved as it matches the scope_limitations section and is supported by the corresponding facts.",
+      "rationale": "The list of limitations is preserved as written because facts support each claim.",
       "unit_id": "inherited_unit:048.list"
     },
     {
@@ -766,22 +546,15 @@
       "fact_ids": [
         "link_target:027"
       ],
-      "rationale": "The paragraph about the Enterprise Edition is moved to the enterprise_relationship section, which is verified by the product target link.",
+      "rationale": "The paragraph linking to the Enterprise Edition is moved to the Enterprise Relationship section, which is placeable and supported by the product target.",
       "unit_id": "inherited_unit:049.paragraph"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading '## Development and Testing' is preserved as it matches the development_testing section heading.",
+      "rationale": "The heading '## Development and Testing' is moved to the Development and Testing section, which is placeable.",
       "unit_id": "inherited_unit:050.heading"
-    },
-    {
-      "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The paragraph introducing the development and testing section is preserved as it matches the development_testing section content.",
-      "unit_id": "inherited_unit:051.paragraph"
     },
     {
       "destination_section": "development_testing",
@@ -791,7 +564,18 @@
         "dependency:development.dev.pytest-7.0.0",
         "dependency:development.dev.pytest-cov-4.0.0"
       ],
-      "rationale": "The code block for installing development dependencies and running tests is preserved as it matches the development_testing section and is supported by the fact",
+      "rationale": "The paragraph introducing the test command is preserved as written because facts support its content.",
+      "unit_id": "inherited_unit:051.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip",
+        "dependency:development.dev.pytest-7.0.0",
+        "dependency:development.dev.pytest-cov-4.0.0"
+      ],
+      "rationale": "The test command code block is preserved as written because facts support its content.",
       "unit_id": "inherited_unit:052.code_block"
     },
     {
@@ -801,7 +585,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The heading '## License' is preserved as it matches the license section heading.",
+      "rationale": "The heading '## License' is moved to the License section, which is placeable.",
       "unit_id": "inherited_unit:053.heading"
     },
     {
@@ -811,7 +595,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The license paragraph is preserved as it matches the license section and is supported by the license facts.",
+      "rationale": "The license paragraph is preserved as written because facts support its content.",
       "unit_id": "inherited_unit:054.paragraph"
     }
   ]

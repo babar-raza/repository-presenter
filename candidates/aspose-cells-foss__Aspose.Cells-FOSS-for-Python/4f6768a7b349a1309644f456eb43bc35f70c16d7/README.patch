@@ -14,11 +14,11 @@
 -handling). It covers cell values and formulas, styling, data validation, conditional formatting,
 -auto filters, charts, drawing shapes, tables, sparklines, comments, embedded pictures, password
 -protection, and CSV/JSON/Markdown export.
-+Aspose.Cells FOSS for Python provides a free, open-source Python library for creating, reading, and manipulating Excel files in the `.xlsx` format. It enables developers to work with worksheets, cells, styles, data validation, charts, and encryption without requiring Microsoft Excel or a commercial license. Users can apply formatting via the `Style` and `Font` classes, enforce data rules with `DataValidation`, and protect workbooks using password-based encryption through `xlsx_encryptor` and `decrypt_xlsx`. The library supports exporting to `.csv` and other formats, making it suitable for data processing, reporting, and automation tasks in Python environments.
++Aspose.Cells FOSS for Python is a free, open-source library for Python developers to create, read, and convert Excel workbooks without requiring Microsoft Excel. It supports reading and writing `.xlsx` files, exporting to `.csv`, JSON, and Markdown, and includes features such as data validation, conditional formatting, auto-filtering, charts, shapes, tables, sparklines, and cell styling. Developers use it to automate spreadsheet workflows, enforce data entry rules, and generate reports programmatically. The library requires Python >=3.7, depends on pycryptodome>=3.15.0 for encryption, and is distributed under the MIT license.
  
  ## Navigation
  
-@@ -31,109 +26,87 @@
+@@ -31,109 +26,83 @@
  flowchart TD
    subgraph StartingPoints["Starting Points"]
      direction LR
@@ -41,7 +41,6 @@
 +      c1["Create and edit Excel workbooks"]
 +      c2["Apply cell styling and formatting"]
 +      c3["Add data validation and conditional formatting"]
-+      c4["Generate charts and sparklines"]
      end
      subgraph capr[" "]
        direction TB
@@ -52,10 +51,9 @@
 -      c12["Sparklines"]
 -      c13["Cell comments and embedded pictures"]
 -      c14["Password protection and Agile encryption"]
-+      c5["Export to text formats"]
-+      c6["Encrypt and protect workbooks"]
-+      c7["Embed shapes, tables, and comments"]
-+      c8["Configure print layout and page breaks"]
++      c4["Export to text formats"]
++      c5["Support charts, shapes, and tables"]
++      c6["Encrypt and decrypt workbooks"]
      end
    end
    subgraph Outputs["Outputs"]
@@ -104,14 +102,12 @@
 -  independently of encryption.
 -- `Workbook.save_as_csv()`/`load_csv()`, `save_as_json()`, and `save_as_markdown()` export/import
 -  workbook data in CSV, JSON, and Markdown text formats alongside native `.xlsx` I/O.
-+- **Create and edit Excel workbooks.** Create new workbooks from scratch or load existing Excel files, then read or write cell values using the `Cells` collection on a `Worksheet` obtained by index, name, or active sheet.
-+- **Apply cell styling and formatting.** Modify cell appearance by retrieving a `Style` object, adjusting its `Font` properties such as bold, color, and size, and applying the updated style back to the cell.
-+- **Add data validation and conditional formatting.** Enforce input rules on cell ranges using `DataValidation` with a list type and configure conditional formatting rules to highlight cells based on their values.
-+- **Generate charts and sparklines.** Insert visual data representations by adding `Chart` objects to a worksheet and specifying their `ChartType`, or create `Sparkline` charts that display trends within single cells.
-+- **Export to text formats.** Export a workbook to plain text formats including `.csv`, JSON, and Markdown using dedicated save methods on the `Workbook` object.
-+- **Encrypt and protect workbooks.** Secure workbooks by saving them with a password using `xlsx_encryptor` and `AgileEncryptionParameters`, or open encrypted files by providing the correct password.
-+- **Embed shapes, tables, and comments.** Enhance spreadsheets by embedding `Shape` objects, creating `Table` structures from cell ranges, and adding `comment_xml` content to cells.
-+- **Configure print layout and page breaks.** Control printed output by adding `HorizontalPageBreakCollection` and `VerticalPageBreakCollection` entries to define where page breaks occur on the worksheet.
++- **Create and edit Excel workbooks.** Create new workbooks or load existing `.xlsx` files, then read or write cell values using the `aspose.cells_foss.Workbook`, `aspose.cells_foss.Worksheet`, and `aspose.cells_foss.Cell` classes, and save the result back to `.xlsx` format.
++- **Apply cell styling and formatting.** Modify cell appearance by retrieving and applying `aspose.cells_foss.Style` objects that configure `aspose.cells_foss.Font` properties such as bold, color, and size, or set `aspose.cells_foss.NumberFormat` patterns.
++- **Add data validation and conditional formatting.** Enforce data entry rules using `aspose.cells_foss.DataValidation` objects with types from `aspose.cells_foss.DataValidationType`, and apply conditional formatting rules via `aspose.cells_foss.conditional_format`.
++- **Export to text formats.** Export workbook contents to plain text formats including `.csv`, JSON, and Markdown using the `aspose.cells_foss.save_workbook_as_csv`, `aspose.cells_foss.save_workbook_as_json`, and `aspose.cells_foss.save_workbook_as_markdown` methods.
++- **Support charts, shapes, and tables.** Insert and manipulate visual elements such as charts, shapes, sparklines, and tables through the `aspose.cells_foss.Chart`, `aspose.cells_foss.Shape`, `aspose.cells_foss.Sparkline`, and `aspose.cells_foss.Table` classes.
++- **Encrypt and decrypt workbooks.** Protect workbooks with a password using the `aspose.cells_foss.encrypt_xlsx` mechanism and open encrypted files by providing the password to the `aspose.cells_foss.decrypt_xlsx` operation via the `aspose.cells_foss.xlsx_encryptor` interface.
  
  ## Installation
 +
@@ -165,31 +161,31 @@
  ## Quick Start
  
 -Create a new workbook and save it:
-+Create a new workbook, populate cells with text and numbers, and save the file as `output.xlsx`.
++Create a new workbook, populate cells with text and numbers, and save the file as `output.xlsx` using the aspose-cells-foss package.
  
  ```python
  from aspose.cells_foss import Workbook
-@@ -149,7 +122,7 @@
+@@ -149,7 +118,7 @@
  workbook.save("output.xlsx")
  ```
  
 -Read an existing workbook:
-+Open an existing Excel file, read the value from cell A1, and print it to the console.
++Open an existing Excel file, read the value from cell A1, and print it to the console using the aspose-cells-foss package.
  
  ```python
  from aspose.cells_foss import Workbook
-@@ -163,7 +136,9 @@
+@@ -163,7 +132,9 @@
  
  ## Additional Examples
  
 -Apply cell styling:
-+Create styled cells, add dropdown lists, export to CSV, and password-protect workbooks using aspose-cells-foss.
++Create styled cells, add dropdown lists, export to CSV, and password-protect workbooks using aspose-cells-foss 26.7.0.
 +
 +### Apply bold red font styling to a cell
  
  ```python
  from aspose.cells_foss import Workbook
-@@ -186,7 +161,7 @@
+@@ -186,7 +157,7 @@
  <details>
  <summary>View Additional Examples</summary>
  
@@ -198,7 +194,7 @@
  
  ```python
  from aspose.cells_foss import Workbook, DataValidationType
-@@ -201,7 +176,7 @@
+@@ -201,7 +172,7 @@
  workbook.save("validation.xlsx")
  ```
  
@@ -207,7 +203,7 @@
  
  ```python
  from aspose.cells_foss import Workbook
-@@ -210,7 +185,7 @@
+@@ -210,7 +181,7 @@
  workbook.save_as_csv("output.csv")
  ```
  
@@ -216,14 +212,14 @@
  
  ```python
  from aspose.cells_foss import Workbook
-@@ -228,33 +203,22 @@
+@@ -228,33 +199,22 @@
  
  ## API Reference
  
 -The public entry point is the `aspose.cells_foss` package (import: `from aspose.cells_foss import
 -Workbook`). The classes below cover the full supported public API surface — 130 public types
 -organized into one module.
-+The public entry point is the `aspose.cells_foss` package, with `Workbook` as the primary class for creating and manipulating workbooks. Each `Workbook` contains one or more `Worksheet` objects, and each `Worksheet` exposes a `Cells` collection for accessing individual `Cell` instances.
++Aspose.Cells FOSS for Python provides the `aspose.cells_foss.Workbook` class as the primary entry point for working with spreadsheet files, and the `aspose.cells_foss.Worksheet` class as the main container for tabular data within a workbook.
 +
 +The verified public surface has 130 types.
  
@@ -255,7 +251,7 @@
  | `Cells` | Represents a collection of cells in a worksheet. |
  | `Chart` | Represents a chart in a worksheet. |
  | `ChartAxis` | Represents a chart axis (category, value, or series). |
-@@ -262,145 +226,442 @@
+@@ -262,155 +222,412 @@
  | `ChartErrorBars` | Represents error bars attached to a chart series. |
  | `ChartSeries` | Represents a single chart series. |
  | `ChartView3D` | Represents chart-level 3D view settings. |
@@ -445,8 +441,8 @@
  | `SaveFormat` | Specifies the format for saving a workbook. |
 -| `SparklineEmptyCells` | How a sparkline handles empty cells in its data range: `ZERO`, `GAP`, or `CONNECTED`. |
 -| `SparklineType` | The visual form of a sparkline: `LINE`, `COLUMN`, or `WIN_LOSS`. |
-+| `SparklineEmptyCells` | Represents the behavior for handling empty cells in sparklines, as defined by the aspose.cells_foss.SparklineEmptyCells enumeration. |
-+| `SparklineType` | Represents the type of sparkline to render, as defined by the aspose.cells_foss.SparklineType enumeration. |
++| `SparklineEmptyCells` | SparklineEmptyCells represents how empty cells are treated in sparkline rendering, with members defining options such as connecting data points or leaving gaps. |
++| `SparklineType` | SparklineType defines the visual style of a sparkline, such as line, column, or win/loss, and is used when creating or modifying sparkline groups. |
  | `TextAlignmentType` | Horizontal text alignment inside a shape (ECMA-376 a:pPr algn attribute). |
  | `TextAnchorType` | Vertical text anchor inside a shape (ECMA-376 a:bodyPr anchor attribute). |
 +| `EncryptionType` | Encryption type enumeration. |
@@ -455,7 +451,7 @@
 +
 +### Workbook
 +
-+The `Workbook` class provides methods to create, load, protect, and save workbooks, as well as manage worksheets through `add_worksheet`, `copy_worksheet`, and `remove_worksheet`, and exposes workbook-level properties via the `workbook_properties` module including `WorkbookProperties`, `WorkbookPr`, `WorkbookView`, and `WorkbookProtection`.
++The `aspose.cells_foss.Workbook` class represents a spreadsheet file and provides methods to create, load, protect, and save workbooks, including operations like `add_worksheet`, `copy_worksheet`, `create_worksheet`, `get_worksheet`, `get_worksheet_by_index`, `get_worksheet_by_name`, `remove_worksheet`, save, `save_as_csv`, `save_as_json`, `save_as_markdown`, protect, unprotect, and access to worksheets, properties, and document properties.
 +
 +- `add_worksheet`: Adds a new worksheet to the workbook.
 +- `copy_worksheet`: Copy a worksheet and append the copy to the workbook. Returns the new worksheet.
@@ -482,7 +478,7 @@
 +
 +### Worksheet
 +
-+The `Worksheet` class represents a single worksheet within a workbook and provides access to its cells, shapes, charts, and properties through the `worksheet_properties` module including `WorksheetProperties`, `SheetView`, `Selection`, `Pane`, `PrintOptions`, `PageMargins`, `PageSetup`, `HeaderFooter`, `SheetFormatProperties`, `SheetProtection`, and `SheetProtectionDictWrapper`.
++The `aspose.cells_foss.Worksheet` class represents a single worksheet within a workbook and provides methods to manage its content and appearance, including operations like activate, rename, copy, delete, select, `get_range`, cells, charts, shapes, tables, sparklines, `data_validations`, hyperlinks, `conditional_formats`, `merged_cells`, `page_setup`, `print_area`, `tab_color`, visibility, protection, and properties.
 +
 +- `ClearPrintArea`: Defined as `def ClearPrintArea(self)`.
 +- `SetPrintArea`: Defined as `def SetPrintArea(self, print_area)`.
@@ -535,71 +531,95 @@
 +- `vertical_page_breaks`: Gets manual vertical page break collection.
 +- `visible`: Gets or sets the visibility state of the worksheet.
 +
-+### Cells
++### Cell
 +
-+The `Cells` class provides access to all cells in a worksheet and supports reading and writing cell values, formulas, and styles, with individual `Cell` instances accessible by index or name, and shared string tables managed through the `shared_strings` module.
++The `aspose.cells_foss.Cell` class represents a single cell in a worksheet and provides access to its value, formula, style, and formatting, while the `aspose.cells_foss.Cells` collection provides methods to manage groups of cells including add, `get_style`, `apply_style`, and size.
 +
-+- `ClearHorizontalPageBreaks`: Defined as `def ClearHorizontalPageBreaks(self)`.
-+- `ClearVerticalPageBreaks`: Defined as `def ClearVerticalPageBreaks(self)`.
-+- `GetColumnWidth`: Defined as `def GetColumnWidth(self, column)`.
-+- `GetRowHeight`: Defined as `def GetRowHeight(self, row)`.
-+- `IsColumnHidden`: Defined as `def IsColumnHidden(self, column)`.
-+- `IsRowHidden`: Defined as `def IsRowHidden(self, row)`.
-+- `Merge`: Defined as `def Merge(self, first_row, first_column, total_rows, total_columns)`.
-+- `RemoveHorizontalPageBreak`: Defined as `def RemoveHorizontalPageBreak(self, row)`.
-+- `RemoveVerticalPageBreak`: Defined as `def RemoveVerticalPageBreak(self, column)`.
-+- `SetColumnHidden`: Defined as `def SetColumnHidden(self, column, is_hidden)`.
-+- `SetColumnWidth`: Defined as `def SetColumnWidth(self, column, width)`.
-+- `SetHorizontalPageBreak`: Defined as `def SetHorizontalPageBreak(self, row)`.
-+- `SetRowHeight`: Defined as `def SetRowHeight(self, row, height)`.
-+- `SetRowHidden`: Defined as `def SetRowHidden(self, row, is_hidden)`.
-+- `SetVerticalPageBreak`: Defined as `def SetVerticalPageBreak(self, column)`.
-+- `UnMerge`: Defined as `def UnMerge(self, first_row, first_column, total_rows, total_columns)`.
-+- `cell`: Accesses a cell by row and column (1-based).
-+- `clear`: Clears all cells in the collection.
-+- `clear_horizontal_page_breaks`: Clears all manual horizontal page breaks.
-+- `clear_vertical_page_breaks`: Clears all manual vertical page breaks.
-+- `column_index_from_string`: Converts a column letter to a 1-based index.
-+- `column_letter_from_index`: Converts a 1-based column index to a letter.
-+- `coordinate_from_string`: Converts an A1 coordinate string to (row, column) tuple (1-based).
-+- `coordinate_to_string`: Converts row and column (1-based) to an A1 coordinate string.
-+- `count`: Gets the number of cells in the collection.
-+- `delete_cell`: Deletes a cell from the collection.
-+- `get_all_cells`: Gets all cells in the collection.
-+- `get_cell`: Gets a cell by row and column (1-based).
-+- `get_cell_by_name`: Gets a cell by its name (reference).
-+- `get_column_width`: Gets the width of the specified column in character units.
-+- `get_horizontal_page_breaks`: Gets all manual horizontal page breaks.
-+- `get_merged_cells`: Gets all merged cell ranges in A1 notation.
-+- `get_range`: Gets a range of cells as a list of lists.
-+- `get_row_height`: Gets the height of the specified row in points.
-+- `get_vertical_page_breaks`: Gets all manual vertical page breaks.
-+- `has_cell`: Checks if a cell exists in the collection.
-+- `hide_column`: Hides the specified column.
-+- `hide_row`: Hides the specified row.
-+- `is_column_hidden`: Checks if the specified column is hidden.
-+- `is_row_hidden`: Checks if the specified row is hidden.
-+- `iter_cols`: Iterates over columns in the worksheet.
-+- `iter_rows`: Iterates over rows in the worksheet.
-+- `merge`: Merges a rectangular range of cells.
-+- `merge_range`: Merges a range specified in A1 notation.
-+- `remove_horizontal_page_break`: Removes a manual horizontal page break at the specified 0-based row index.
-+- `remove_vertical_page_break`: Removes a manual vertical page break at the specified 0-based column index.
-+- `set_cell`: Sets a cell value by row and column (1-based).
-+- `set_cell_by_name`: Sets a cell value by its name (reference).
-+- `set_column_width`: Sets the width of the specified column in character units.
-+- `set_horizontal_page_break`: Adds a manual horizontal page break at the specified 0-based row index.
-+- `set_range`: Sets values for a range of cells.
-+- `set_row_height`: Sets the height of the specified row in points.
-+- `set_vertical_page_break`: Adds a manual vertical page break at the specified 0-based column index.
-+- `unhide_column`: Unhides the specified column.
-+- `unhide_row`: Unhides the specified row.
-+- `unmerge`: Unmerges a previously merged rectangular range of cells.
-+- `unmerge_range`: Unmerges a range specified in A1 notation.
++- `apply_style`: Applies a style to the cell.
++- `clear`: Clears both the value and formula of the cell.
++- `clear_comment`: Clears the comment from the cell.
++- `clear_formula`: Clears the formula of the cell (sets it to None).
++- `clear_style`: Clears the style of the cell (resets to default).
++- `clear_value`: Clears the value of the cell (sets it to None).
++- `comment`: Gets the comment associated with the cell.
++- `data_type`: Gets the data type of the cell value.
++- `formula`: Gets or sets the formula of the cell.
++- `get_comment`: Gets the comment from the cell.
++- `get_comment_size`: Gets the size of the comment box.
++- `get_style`: Gets the style of the cell.
++- `has_comment`: Checks if the cell has a comment.
++- `has_formula`: Checks if the cell has a formula.
++- `is_boolean_value`: Checks if the cell value is boolean.
++- `is_date_time_value`: Checks if the cell value is a date/time.
++- `is_empty`: Checks if the cell is empty.
++- `is_numeric_value`: Checks if the cell value is numeric.
++- `is_text_value`: Checks if the cell value is text.
++- `put_value`: Sets the value of the cell. Alias for the value setter, provided for
++- `set_comment`: Sets a comment on the cell.
++- `set_comment_size`: Sets the size of the comment box.
++- `style`: Gets or sets the style of the cell.
++- `value`: Gets or sets the value of the cell.
++
++### Style
++
++The `aspose.cells_foss.Style` class defines the formatting attributes for cells, including font, number format, color, and bold settings, while the `aspose.cells_foss.Font` and `aspose.cells_foss.NumberFormat` classes provide detailed control over typography and numeric presentation.
++
++- `copy`: Creates a deep copy of this Style object.
++- `set_border`: Sets complete border properties for a specific side.
++- `set_border_color`: Sets the border color for a specific side.
++- `set_border_style`: Sets the border line style for a specific side.
++- `set_border_weight`: Sets the border line weight for a specific side.
++- `set_builtin_number_format`: Sets the number format using a built-in format ID.
++- `set_diagonal_border`: Sets diagonal border properties.
++- `set_fill_color`: Sets the cell fill color using a solid fill pattern.
++- `set_fill_pattern`: Sets the cell fill pattern and colors.
++- `set_formula_hidden`: Sets whether the cell's formula is hidden when the worksheet is protected.
++- `set_horizontal_alignment`: Sets the horizontal alignment of cell content.
++- `set_indent`: Sets the indent level for cell content.
++- `set_locked`: Sets whether the cell is locked when the worksheet is protected.
++- `set_no_fill`: Removes the cell fill (transparent background).
++- `set_number_format`: Sets the number format code for the cell.
++- `set_reading_order`: Sets the reading order for cell content.
++- `set_shrink_to_fit`: Sets whether text shrinks to fit the cell width.
++- `set_text_rotation`: Sets the text rotation angle.
++- `set_text_wrap`: Sets whether text wraps within the cell.
++- `set_vertical_alignment`: Sets the vertical alignment of cell content.
++
++### DataValidation
++
++The `aspose.cells_foss.DataValidation` class enables data validation rules on cells, with `aspose.cells_foss.DataValidationCollection` managing collections of rules, `aspose.cells_foss.DataValidationType` specifying rule types, and `aspose.cells_foss.DataValidationAlertStyle` controlling alert behavior.
++
++- `add`: Configures the data validation with the specified parameters.
++- `alert_style`: Gets or sets the style of the error alert.
++- `allow_blank`: Gets or sets whether blank/empty entries are valid.
++- `copy`: Creates a copy of this DataValidation.
++- `delete`: Clears the validation settings (resets to no validation).
++- `error`: Alias for error_message (ECMA-376 compatibility).
++- `error_message`: Gets or sets the error message displayed when invalid data is entered.
++- `error_title`: Gets or sets the title of the error alert dialog.
++- `formula1`: Gets or sets the first formula for validation.
++- `formula2`: Gets or sets the second formula for validation.
++- `ignore_blank`: Alias for allow_blank (Excel VBA compatibility).
++- `ime_mode`: Gets or sets the IME (Input Method Editor) mode.
++- `in_cell_dropdown`: Alias for show_dropdown (Excel VBA compatibility).
++- `input_message`: Gets or sets the input message displayed when the cell is selected.
++- `input_title`: Gets or sets the title of the input message dialog.
++- `modify`: Modifies the data validation settings.
++- `operator`: Gets or sets the comparison operator.
++- `prompt`: Alias for input_message (ECMA-376 compatibility).
++- `prompt_title`: Alias for input_title (ECMA-376 compatibility).
++- `ranges`: Gets the cell range(s) as a list.
++- `show_dropdown`: Gets or sets whether to show the dropdown arrow for list validation.
++- `show_error`: Alias for show_error_message (Excel VBA compatibility).
++- `show_error_message`: Gets or sets whether to show the error alert when invalid data is entered.
++- `show_input`: Alias for show_input_message (Excel VBA compatibility).
++- `show_input_message`: Gets or sets whether to show the input message when the cell is selected.
++- `sqref`: Gets or sets the cell range(s) for this validation.
++- `type`: Gets or sets the validation type.
 +
 +### Chart
 +
-+The `Chart` class enables creation and configuration of charts within a worksheet, with `ChartCollection` managing multiple charts per worksheet, and supporting chart types, axes, series, error bars, and 3D view through the charttype, chartaxis, chartseries, charterrorbars, and chartview3d modules.
++The `aspose.cells_foss.Chart` class represents a chart object in a worksheet, with `aspose.cells_foss.ChartCollection` managing multiple charts, and `aspose.cells_foss.ChartAxis` providing control over chart axes.
 +
 +- `NSeries`: PascalCase alias of n_series.
 +- `View3D`: PascalCase alias of view_3d.
@@ -646,66 +666,9 @@
 +- `view_3d`: Defined as `def view_3d(self)`.
 +- `wireframe`: Whether the surface chart uses wireframe display mode (<c:wireframe val='1'/>).
 +
-+### DataValidation
-+
-+The `DataValidation` class provides data validation rules for cells, with `DataValidationCollection` managing multiple validations per worksheet, supporting validation types, operators, alert styles, and IME modes, and enabling XML-based loading and saving of validation rules.
-+
-+- `add`: Configures the data validation with the specified parameters.
-+- `alert_style`: Gets or sets the style of the error alert.
-+- `allow_blank`: Gets or sets whether blank/empty entries are valid.
-+- `copy`: Creates a copy of this DataValidation.
-+- `delete`: Clears the validation settings (resets to no validation).
-+- `error`: Alias for error_message (ECMA-376 compatibility).
-+- `error_message`: Gets or sets the error message displayed when invalid data is entered.
-+- `error_title`: Gets or sets the title of the error alert dialog.
-+- `formula1`: Gets or sets the first formula for validation.
-+- `formula2`: Gets or sets the second formula for validation.
-+- `ignore_blank`: Alias for allow_blank (Excel VBA compatibility).
-+- `ime_mode`: Gets or sets the IME (Input Method Editor) mode.
-+- `in_cell_dropdown`: Alias for show_dropdown (Excel VBA compatibility).
-+- `input_message`: Gets or sets the input message displayed when the cell is selected.
-+- `input_title`: Gets or sets the title of the input message dialog.
-+- `modify`: Modifies the data validation settings.
-+- `operator`: Gets or sets the comparison operator.
-+- `prompt`: Alias for input_message (ECMA-376 compatibility).
-+- `prompt_title`: Alias for input_title (ECMA-376 compatibility).
-+- `ranges`: Gets the cell range(s) as a list.
-+- `show_dropdown`: Gets or sets whether to show the dropdown arrow for list validation.
-+- `show_error`: Alias for show_error_message (Excel VBA compatibility).
-+- `show_error_message`: Gets or sets whether to show the error alert when invalid data is entered.
-+- `show_input`: Alias for show_input_message (Excel VBA compatibility).
-+- `show_input_message`: Gets or sets whether to show the input message when the cell is selected.
-+- `sqref`: Gets or sets the cell range(s) for this validation.
-+- `type`: Gets or sets the validation type.
-+
-+### Style
-+
-+The `Style` class provides formatting options for cells including alignment, borders, fill, and protection, with `Font` and `NumberFormat` supporting text appearance and numeric display, and `TextAlignmentType` and `TextAnchorType` controlling text positioning.
-+
-+- `copy`: Creates a deep copy of this Style object.
-+- `set_border`: Sets complete border properties for a specific side.
-+- `set_border_color`: Sets the border color for a specific side.
-+- `set_border_style`: Sets the border line style for a specific side.
-+- `set_border_weight`: Sets the border line weight for a specific side.
-+- `set_builtin_number_format`: Sets the number format using a built-in format ID.
-+- `set_diagonal_border`: Sets diagonal border properties.
-+- `set_fill_color`: Sets the cell fill color using a solid fill pattern.
-+- `set_fill_pattern`: Sets the cell fill pattern and colors.
-+- `set_formula_hidden`: Sets whether the cell's formula is hidden when the worksheet is protected.
-+- `set_horizontal_alignment`: Sets the horizontal alignment of cell content.
-+- `set_indent`: Sets the indent level for cell content.
-+- `set_locked`: Sets whether the cell is locked when the worksheet is protected.
-+- `set_no_fill`: Removes the cell fill (transparent background).
-+- `set_number_format`: Sets the number format code for the cell.
-+- `set_reading_order`: Sets the reading order for cell content.
-+- `set_shrink_to_fit`: Sets whether text shrinks to fit the cell width.
-+- `set_text_rotation`: Sets the text rotation angle.
-+- `set_text_wrap`: Sets whether text wraps within the cell.
-+- `set_vertical_alignment`: Sets the vertical alignment of cell content.
-+
 +### Shape
 +
-+The `Shape` class represents drawing objects such as lines, rectangles, and OLE objects, with `ShapeCollection` managing multiple shapes per worksheet, and supporting shape fonts, drawing types, fill formats, line formats, and dash styles.
++The `aspose.cells_foss.Shape` class represents drawing objects such as images and OLE objects, with `aspose.cells_foss.ShapeCollection` managing shapes, and `aspose.cells_foss.MsoDrawingType` specifying the type of drawing object.
 +
 +- `copy`: Defined as `def copy(self)`.
 +- `lower_right_column`: Defined as `def lower_right_column(self)`.
@@ -719,27 +682,27 @@
 +
 +### Table
 +
-+The `Table` class represents Excel tables with structured references, with `TableCollection` managing multiple tables per worksheet, and supporting table columns and style information for consistent formatting.
++The `aspose.cells_foss.Table` class represents an Excel table object, with `aspose.cells_foss.TableCollection` managing multiple tables, and `aspose.cells_foss.TableColumn` providing access to individual table columns.
 +
 +- `copy`: Defined as `def copy(self)`.
 +
 +### Sparkline
 +
-+The `Sparkline` class provides mini charts within cells, with `SparklineGroup` managing groups of sparklines per worksheet, supporting different sparkline types and handling of empty cells through `SparklineEmptyCells`.
++The `aspose.cells_foss.Sparkline` class represents a sparkline graphic, with `aspose.cells_foss.SparklineGroup` managing groups of sparklines, and `aspose.cells_foss.SparklineGroupCollection` managing multiple sparkline groups.
 +
 +- `copy`: Defined as `def copy(self)`.
 +
-+### comment_xml
++### encrypt_xlsx
 +
-+The `comment_xml` module provides `CommentXMLReader` and `CommentXMLWriter` for reading and writing cell comments in XML format, enabling structured comment management.
++The `aspose.cells_foss.encrypt_xlsx` function provides XLSX encryption capabilities using `aspose.cells_foss.xlsx_encryptor` and `aspose.cells_foss.AgileEncryptionParameters`, while `aspose.cells_foss.decrypt_xlsx` handles decryption operations.
 +
-+### cfb_handler
++### save_workbook_as_csv
 +
-+The `cfb_handler` module provides `CFBReader` and `CFBWriter` for reading and writing Compound File Binary structures, with `is_encrypted_file` detecting encrypted files and `MinimalCFBWriter` offering a lightweight writer option.
++The `aspose.cells_foss.save_workbook_as_csv` function enables saving workbooks as CSV files, with `aspose.cells_foss.CSVSaveOptions` controlling save behavior, and additional support for saving as JSON and Markdown formats.
 +
-+### encryption_crypto
++### load_csv_workbook
 +
-+The `encryption_crypto` module provides encryption support for XLSX files with `XLSXEncryptor` and `XLSXDecryptor`, supporting `AgileEncryptionParameters` and `StandardEncryptionParameters`, and including helper classes for password derivation, encryption verification, and package encryption.
++The `aspose.cells_foss.load_csv_workbook` function loads CSV data into a workbook using `aspose.cells_foss.CSVLoadOptions` and `aspose.cells_foss.CSVHandler`, with `aspose.cells_foss.JsonHandler` supporting JSON-based loading workflows.
  
  </details>
  
@@ -751,11 +714,11 @@
 -- More examples live in the repository's [`examples`](examples) directory.
 -- **[Contributor guide](AGENTS.md)** — architecture notes and conventions for contributors.
 -- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python/issues) on GitHub.
-+- **[Getting started guide](https://docs.aspose.org/cells/python/)** — The getting started guide covers Python documentation for Aspose.Cells FOSS, including workbook creation, cell operations, styling, and data validation.
-+- **[How-to guides & FAQ](https://kb.aspose.org/cells/python/)** — The how-to guides and FAQ provide Python knowledge base articles, step-by-step instructions, and troubleshooting resources for Aspose.Cells FOSS.
-+- **[Full API reference](https://reference.aspose.org/cells/python/)** — The full API reference offers a complete, browsable reference for all 130 public types in Aspose.Cells FOSS for Python. It covers all 130 verified public types; the [API Reference](#api-reference) section above covers the essentials.
-+- **[examples](examples)** — The examples directory contains additional sample code demonstrating workbook creation, cell manipulation, and formatting with Aspose.Cells FOSS.
-+- **[Contributor guide](AGENTS.md)** — The contributor guide documents architecture notes and conventions for developers contributing to Aspose.Cells FOSS for Python.
++- **[Getting started guide](https://docs.aspose.org/cells/python/)** — The getting started guide introduces core concepts and initial setup steps for using Aspose.Cells FOSS for Python.
++- **[How-to guides & FAQ](https://kb.aspose.org/cells/python/)** — The how-to guides and FAQ provide practical solutions and answers to common questions encountered during development.
++- **[Full API reference](https://reference.aspose.org/cells/python/)** — The full API reference documents all available classes, methods, and properties of the library. It covers all 130 verified public types; the [API Reference](#api-reference) section above covers the essentials.
++- **[examples](examples)** — The examples directory contains sample code demonstrating typical usage patterns and workflows.
++- **[Contributor guide](AGENTS.md)** — The contributor guide outlines procedures for setting up the development environment and submitting contributions.
 +- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python/issues).
  
  ## Scope and Limitations
@@ -771,20 +734,23 @@
 -[Aspose.Cells for Python — Enterprise Edition](https://products.aspose.com/cells/python-net/),
 -which adds a full formula calculation engine, Standard encryption support, additional
 -spreadsheet formats, and dedicated enterprise support.
-+Aspose.Cells FOSS for Python provides a free, open-source library for working with Excel files in Python, supporting the `.xlsx` format for loading and saving workbooks, with additional export capabilities for CSV, JSON, and Markdown, and includes a basic formula evaluator for cells without cached values.
++Aspose.Cells FOSS for Python provides a free, open-source Python library for creating, reading, and converting Excel workbooks in the `.xlsx` format, with additional support for exporting to `.csv`, while offering basic encryption operations and formula evaluation.
 +
-+- Only `.xlsx` is supported for native load and save operations, while CSV, JSON, and Markdown are additional text-format export targets (CSV also supports import), not general spreadsheet formats.
-+- Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing password-protected workbooks; Standard encryption (Section 3) is not yet supported for reading, and the `aspose.cells_foss.StandardEncryptionParameters` class is not available for use.
-+- The `aspose.cells_foss.formula_evaluator` module provides a basic evaluator for cells without cached values and is not a full spreadsheet calculation engine.
++- Native load and save operations support only the `.xlsx` format, while CSV, JSON, and Markdown are limited to export targets, with CSV also permitting import, and none serving as general spreadsheet formats.
++- Password-protected workbooks support only Agile encryption (ECMA-376 Part 2, Section 4) for reading and writing, and Standard encryption (Section 3) is not supported for reading.
++- The `formula_evaluator` is a basic evaluator for cells without cached values and does not provide a full spreadsheet calculation engine.
  
  ## Development and Testing
-+
-+Developers can install the package in editable mode with development dependencies using pip and run the included test suite to validate functionality.
  
++The toolchain requires Python >=3.7 and uses the aspose-cells-foss package version 26.7.0 under the MIT license, with examples in the examples/ directory for building and testing.
++
  Install the development dependencies and run the test suite:
  
-@@ -411,6 +672,4 @@
- 
+-```bash
+-pip install -e ".[dev]"
+-pytest
+-```
+-
  ## License
  
 -This project is licensed under the [MIT License](License/LICENSE.txt). The MIT License permits

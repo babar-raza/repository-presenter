@@ -1,57 +1,49 @@
 {
   "coherence": {
     "applied": true,
-    "revised": []
+    "revised": [
+      "opening/opening"
+    ]
   },
   "omitted": [
     {
       "fact_id": "identity:repository",
-      "reason": "not relevant to the summary sentence about building and testing",
+      "reason": "Repository name is not needed in the summary sentence about toolchain requirements.",
       "section": "development_testing"
     },
     {
       "fact_id": "identity:revision",
-      "reason": "not relevant to the summary sentence about building and testing",
+      "reason": "Revision hash is not relevant to toolchain requirements or runtime environment.",
       "section": "development_testing"
     },
     {
       "fact_id": "identity:family",
-      "reason": "not relevant to the summary sentence about building and testing",
+      "reason": "Family identity is not needed in the summary sentence about toolchain requirements.",
       "section": "development_testing"
     },
     {
       "fact_id": "identity:platform",
-      "reason": "not relevant to the summary sentence about building and testing",
+      "reason": "Platform identity is not needed in the summary sentence about toolchain requirements.",
       "section": "development_testing"
     },
     {
       "fact_id": "identity:ecosystem",
-      "reason": "not relevant to the summary sentence about building and testing",
+      "reason": "Ecosystem identity is not needed in the summary sentence about toolchain requirements.",
       "section": "development_testing"
     },
     {
       "fact_id": "package:name",
-      "reason": "not relevant to the summary sentence about building and testing",
-      "section": "development_testing"
-    },
-    {
-      "fact_id": "package:version",
-      "reason": "not relevant to the summary sentence about building and testing",
-      "section": "development_testing"
-    },
-    {
-      "fact_id": "package:python_requires",
-      "reason": "not relevant to the summary sentence about building and testing",
-      "section": "development_testing"
-    },
-    {
-      "fact_id": "package:license",
-      "reason": "not relevant to the summary sentence about building and testing",
+      "reason": "Package name is not needed in the summary sentence about toolchain requirements.",
       "section": "development_testing"
     },
     {
       "fact_id": "inherited_unit:050.heading",
-      "reason": "renderer handles heading; omitted per prose discipline",
+      "reason": "Heading is rendered by the deterministic renderer and must not be repeated in prose.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:051.paragraph",
+      "reason": "Paragraph is rendered by the deterministic renderer and must not be repeated in prose.",
       "section": "development_testing"
     }
   ],
@@ -59,70 +51,89 @@
   "units": [
     {
       "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
         "identity:repository",
-        "package:name",
-        "package:version",
+        "identity:revision",
         "package:license",
+        "package:name",
         "package:python_requires",
-        "format:input.xlsx",
-        "format:output.xlsx",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor",
-        "public_symbol:aspose.cells_foss.decrypt_xlsx",
-        "public_symbol:aspose.cells_foss.style",
-        "public_symbol:aspose.cells_foss.datavalidation",
-        "public_symbol:aspose.cells_foss.chart",
+        "package:version",
+        "import_path:aspose",
+        "import_path:aspose.cells_foss",
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss",
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cells",
-        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.cell",
         "public_symbol:aspose.cells_foss.save_workbook_as_csv",
-        "format:output.csv"
+        "public_symbol:aspose.cells_foss.save_workbook_as_json",
+        "public_symbol:aspose.cells_foss.save_workbook_as_markdown",
+        "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.conditional_format",
+        "public_symbol:aspose.cells_foss.auto_filter",
+        "public_symbol:aspose.cells_foss.chart",
+        "public_symbol:aspose.cells_foss.shape",
+        "public_symbol:aspose.cells_foss.table",
+        "public_symbol:aspose.cells_foss.sparkline",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.numberformat",
+        "public_symbol:aspose.cells_foss.datavalidationtype",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "format:input.xlsx",
+        "format:output.xlsx",
+        "format:output.csv",
+        "dependency:pycryptodome-3.15.0",
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006"
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.Cells FOSS for Python provides a free, open-source Python library for creating, reading, and manipulating Excel files in the .xlsx format. It enables developers to work with worksheets, cells, styles, data validation, charts, and encryption without requiring Microsoft Excel or a commercial license. Users can apply formatting via the Style and Font classes, enforce data rules with DataValidation, and protect workbooks using password-based encryption through xlsx_encryptor and decrypt_xlsx. The library supports exporting to .csv and other formats, making it suitable for data processing, reporting, and automation tasks in Python environments."
+      "text": "Aspose.Cells FOSS for Python is a free, open-source library for Python developers to create, read, and convert Excel workbooks without requiring Microsoft Excel. It supports reading and writing .xlsx files, exporting to .csv, JSON, and Markdown, and includes features such as data validation, conditional formatting, auto-filtering, charts, shapes, tables, sparklines, and cell styling. Developers use it to automate spreadsheet workflows, enforce data entry rules, and generate reports programmatically. The library requires Python >=3.7, depends on pycryptodome>=3.15.0 for encryption, and is distributed under the MIT license."
     },
     {
       "fact_ids": [
         "example:001",
         "example:002",
-        "public_symbol:aspose.cells_foss.cells",
+        "format:input.xlsx",
+        "format:output.xlsx",
+        "public_symbol:aspose.cells_foss.cell",
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.worksheet"
       ],
       "section": "key_capabilities",
       "slot": "capability:1",
-      "text": "Create new workbooks from scratch or load existing Excel files, then read or write cell values using the Cells collection on a Worksheet obtained by index, name, or active sheet."
+      "text": "Create new workbooks or load existing .xlsx files, then read or write cell values using the aspose.cells_foss.Workbook, aspose.cells_foss.Worksheet, and aspose.cells_foss.Cell classes, and save the result back to .xlsx format."
     },
     {
       "fact_ids": [
         "example:003",
         "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.numberformat",
         "public_symbol:aspose.cells_foss.style"
       ],
       "section": "key_capabilities",
       "slot": "capability:2",
-      "text": "Modify cell appearance by retrieving a Style object, adjusting its Font properties such as bold, color, and size, and applying the updated style back to the cell."
+      "text": "Modify cell appearance by retrieving and applying aspose.cells_foss.Style objects that configure aspose.cells_foss.Font properties such as bold, color, and size, or set aspose.cells_foss.NumberFormat patterns."
     },
     {
       "fact_ids": [
         "example:004",
         "public_symbol:aspose.cells_foss.conditional_format",
-        "public_symbol:aspose.cells_foss.datavalidation"
+        "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.datavalidationtype"
       ],
       "section": "key_capabilities",
       "slot": "capability:3",
-      "text": "Enforce input rules on cell ranges using DataValidation with a list type and configure conditional formatting rules to highlight cells based on their values."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.charttype",
-        "public_symbol:aspose.cells_foss.sparkline"
-      ],
-      "section": "key_capabilities",
-      "slot": "capability:4",
-      "text": "Insert visual data representations by adding Chart objects to a worksheet and specifying their ChartType, or create Sparkline charts that display trends within single cells."
+      "text": "Enforce data entry rules using aspose.cells_foss.DataValidation objects with types from aspose.cells_foss.DataValidationType, and apply conditional formatting rules via aspose.cells_foss.conditional_format."
     },
     {
       "fact_ids": [
@@ -133,37 +144,30 @@
         "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
       ],
       "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Export workbook contents to plain text formats including .csv, JSON, and Markdown using the aspose.cells_foss.save_workbook_as_csv, aspose.cells_foss.save_workbook_as_json, and aspose.cells_foss.save_workbook_as_markdown methods."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.chart",
+        "public_symbol:aspose.cells_foss.shape",
+        "public_symbol:aspose.cells_foss.sparkline",
+        "public_symbol:aspose.cells_foss.table"
+      ],
+      "section": "key_capabilities",
       "slot": "capability:5",
-      "text": "Export a workbook to plain text formats including .csv, JSON, and Markdown using dedicated save methods on the Workbook object."
+      "text": "Insert and manipulate visual elements such as charts, shapes, sparklines, and tables through the aspose.cells_foss.Chart, aspose.cells_foss.Shape, aspose.cells_foss.Sparkline, and aspose.cells_foss.Table classes."
     },
     {
       "fact_ids": [
         "example:006",
-        "public_symbol:aspose.cells_foss.agileencryptionparameters",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
         "public_symbol:aspose.cells_foss.xlsx_encryptor"
       ],
       "section": "key_capabilities",
       "slot": "capability:6",
-      "text": "Secure workbooks by saving them with a password using xlsx_encryptor and AgileEncryptionParameters, or open encrypted files by providing the correct password."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.comment_xml",
-        "public_symbol:aspose.cells_foss.shape",
-        "public_symbol:aspose.cells_foss.table"
-      ],
-      "section": "key_capabilities",
-      "slot": "capability:7",
-      "text": "Enhance spreadsheets by embedding Shape objects, creating Table structures from cell ranges, and adding comment_xml content to cells."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.horizontalpagebreakcollection",
-        "public_symbol:aspose.cells_foss.verticalpagebreakcollection"
-      ],
-      "section": "key_capabilities",
-      "slot": "capability:8",
-      "text": "Control printed output by adding HorizontalPageBreakCollection and VerticalPageBreakCollection entries to define where page breaks occur on the worksheet."
+      "text": "Protect workbooks with a password using the aspose.cells_foss.encrypt_xlsx mechanism and open encrypted files by providing the password to the aspose.cells_foss.decrypt_xlsx operation via the aspose.cells_foss.xlsx_encryptor interface."
     },
     {
       "fact_ids": [
@@ -171,7 +175,7 @@
       ],
       "section": "quick_start",
       "slot": "lead_in",
-      "text": "Create a new workbook, populate cells with text and numbers, and save the file as output.xlsx."
+      "text": "Create a new workbook, populate cells with text and numbers, and save the file as output.xlsx using the aspose-cells-foss package."
     },
     {
       "fact_ids": [
@@ -179,7 +183,7 @@
       ],
       "section": "quick_start",
       "slot": "lead_in:2",
-      "text": "Open an existing Excel file, read the value from cell A1, and print it to the console."
+      "text": "Open an existing Excel file, read the value from cell A1, and print it to the console using the aspose-cells-foss package."
     },
     {
       "fact_ids": [
@@ -199,7 +203,7 @@
       ],
       "section": "additional_examples",
       "slot": "preview",
-      "text": "Create styled cells, add dropdown lists, export to CSV, and password-protect workbooks using aspose-cells-foss."
+      "text": "Create styled cells, add dropdown lists, export to CSV, and password-protect workbooks using aspose-cells-foss 26.7.0."
     },
     {
       "fact_ids": [
@@ -271,236 +275,262 @@
     },
     {
       "fact_ids": [
-        "inherited_unit:038.paragraph"
-      ],
-      "section": "api_reference",
-      "slot": "intro",
-      "text": "The public entry point is the aspose.cells_foss package, with Workbook as the primary class for creating and manipulating workbooks. Each Workbook contains one or more Worksheet objects, and each Worksheet exposes a Cells collection for accessing individual Cell instances."
-    },
-    {
-      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.workbook-2",
         "public_symbol:aspose.cells_foss.workbook_hash_password",
-        "public_symbol:aspose.cells_foss.workbook_properties",
-        "public_symbol:aspose.cells_foss.workbook_properties.calculationproperties",
-        "public_symbol:aspose.cells_foss.workbook_properties.definedname",
-        "public_symbol:aspose.cells_foss.workbook_properties.definednamecollection",
-        "public_symbol:aspose.cells_foss.workbook_properties.fileversion",
-        "public_symbol:aspose.cells_foss.workbook_properties.workbookpr",
-        "public_symbol:aspose.cells_foss.workbook_properties.workbookproperties",
-        "public_symbol:aspose.cells_foss.workbook_properties.workbookprotection",
-        "public_symbol:aspose.cells_foss.workbook_properties.workbookview",
-        "public_symbol:aspose.cells_foss.xml_properties_loader",
-        "public_symbol:aspose.cells_foss.xml_properties_loader.workbookpropertiesxmlloader",
-        "public_symbol:aspose.cells_foss.xml_properties_saver",
-        "public_symbol:aspose.cells_foss.xml_properties_saver.workbookpropertiesxmlwriter"
+        "public_symbol:aspose.cells_foss.workbook_properties"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Cells FOSS for Python provides the aspose.cells_foss.Workbook class as the primary entry point for working with spreadsheet files, and the aspose.cells_foss.Worksheet class as the main container for tabular data within a workbook."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.workbook-2",
+        "public_symbol:aspose.cells_foss.workbook_hash_password",
+        "public_symbol:aspose.cells_foss.workbook_properties"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.workbook",
-      "text": "The Workbook class provides methods to create, load, protect, and save workbooks, as well as manage worksheets through add_worksheet, copy_worksheet, and remove_worksheet, and exposes workbook-level properties via the workbook_properties module including WorkbookProperties, WorkbookPr, WorkbookView, and WorkbookProtection."
+      "text": "The aspose.cells_foss.Workbook class represents a spreadsheet file and provides methods to create, load, protect, and save workbooks, including operations like add_worksheet, copy_worksheet, create_worksheet, get_worksheet, get_worksheet_by_index, get_worksheet_by_name, remove_worksheet, save, save_as_csv, save_as_json, save_as_markdown, protect, unprotect, and access to worksheets, properties, and document properties."
     },
     {
       "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
         "public_symbol:aspose.cells_foss.worksheet",
         "public_symbol:aspose.cells_foss.worksheet-2",
-        "public_symbol:aspose.cells_foss.worksheet.sheetprotectiondictwrapper",
-        "public_symbol:aspose.cells_foss.worksheet_properties",
-        "public_symbol:aspose.cells_foss.worksheet_properties.headerfooter",
-        "public_symbol:aspose.cells_foss.worksheet_properties.pagemargins",
-        "public_symbol:aspose.cells_foss.worksheet_properties.pagesetup",
-        "public_symbol:aspose.cells_foss.worksheet_properties.pane",
-        "public_symbol:aspose.cells_foss.worksheet_properties.printoptions",
-        "public_symbol:aspose.cells_foss.worksheet_properties.selection",
-        "public_symbol:aspose.cells_foss.worksheet_properties.sheetformatproperties",
-        "public_symbol:aspose.cells_foss.worksheet_properties.sheetprotection",
-        "public_symbol:aspose.cells_foss.worksheet_properties.sheetview",
-        "public_symbol:aspose.cells_foss.worksheet_properties.worksheetproperties",
-        "public_symbol:aspose.cells_foss.xml_properties_loader",
-        "public_symbol:aspose.cells_foss.xml_properties_loader.worksheetpropertiesxmlloader",
-        "public_symbol:aspose.cells_foss.xml_properties_saver",
-        "public_symbol:aspose.cells_foss.xml_properties_saver.worksheetpropertiesxmlwriter"
+        "public_symbol:aspose.cells_foss.worksheet_properties"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.worksheet",
-      "text": "The Worksheet class represents a single worksheet within a workbook and provides access to its cells, shapes, charts, and properties through the worksheet_properties module including WorksheetProperties, SheetView, Selection, Pane, PrintOptions, PageMargins, PageSetup, HeaderFooter, SheetFormatProperties, SheetProtection, and SheetProtectionDictWrapper."
+      "text": "The aspose.cells_foss.Worksheet class represents a single worksheet within a workbook and provides methods to manage its content and appearance, including operations like activate, rename, copy, delete, select, get_range, cells, charts, shapes, tables, sparklines, data_validations, hyperlinks, conditional_formats, merged_cells, page_setup, print_area, tab_color, visibility, protection, and properties."
     },
     {
       "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
         "public_symbol:aspose.cells_foss.cell",
         "public_symbol:aspose.cells_foss.cell-2",
-        "public_symbol:aspose.cells_foss.cell_value_handler",
-        "public_symbol:aspose.cells_foss.cell_value_handler.cellvaluehandler",
         "public_symbol:aspose.cells_foss.cells",
-        "public_symbol:aspose.cells_foss.cells-2",
-        "public_symbol:aspose.cells_foss.shared_strings",
-        "public_symbol:aspose.cells_foss.shared_strings.sharedstringtable",
-        "public_symbol:aspose.cells_foss.xml_loader",
-        "public_symbol:aspose.cells_foss.xml_loader.xmlloader",
-        "public_symbol:aspose.cells_foss.xml_saver",
-        "public_symbol:aspose.cells_foss.xml_saver.xmlsaver"
+        "public_symbol:aspose.cells_foss.cells-2"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.cells",
-      "text": "The Cells class provides access to all cells in a worksheet and supports reading and writing cell values, formulas, and styles, with individual Cell instances accessible by index or name, and shared string tables managed through the shared_strings module."
+      "slot": "hub:public_symbol:aspose.cells_foss.cell",
+      "text": "The aspose.cells_foss.Cell class represents a single cell in a worksheet and provides access to its value, formula, style, and formatting, while the aspose.cells_foss.Cells collection provides methods to manage groups of cells including add, get_style, apply_style, and size."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.chart-2",
-        "public_symbol:aspose.cells_foss.chartaxis",
-        "public_symbol:aspose.cells_foss.chartcollection",
-        "public_symbol:aspose.cells_foss.charterrorbars",
-        "public_symbol:aspose.cells_foss.chartseries",
-        "public_symbol:aspose.cells_foss.charttype",
-        "public_symbol:aspose.cells_foss.chartview3d",
-        "public_symbol:aspose.cells_foss.nseries",
-        "public_symbol:aspose.cells_foss.xml_chart_loader",
-        "public_symbol:aspose.cells_foss.xml_chart_loader.chartxmlloader",
-        "public_symbol:aspose.cells_foss.xml_chart_saver",
-        "public_symbol:aspose.cells_foss.xml_chart_saver.chartxmlsaver"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.chart",
-      "text": "The Chart class enables creation and configuration of charts within a worksheet, with ChartCollection managing multiple charts per worksheet, and supporting chart types, axes, series, error bars, and 3D view through the charttype, chartaxis, chartseries, charterrorbars, and chartview3d modules."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.datavalidation",
-        "public_symbol:aspose.cells_foss.datavalidationalertstyle",
-        "public_symbol:aspose.cells_foss.datavalidationcollection",
-        "public_symbol:aspose.cells_foss.datavalidationimemode",
-        "public_symbol:aspose.cells_foss.datavalidationoperator",
-        "public_symbol:aspose.cells_foss.datavalidationtype",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_loader",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_loader.datavalidationxmlloader",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_loader.load_data_validations_from_worksheet_xml",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_saver",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_saver.datavalidationxmlsaver",
-        "public_symbol:aspose.cells_foss.xml_datavalidation_saver.save_data_validations_to_worksheet_xml"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.datavalidation",
-      "text": "The DataValidation class provides data validation rules for cells, with DataValidationCollection managing multiple validations per worksheet, supporting validation types, operators, alert styles, and IME modes, and enabling XML-based loading and saving of validation rules."
-    },
-    {
-      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
         "public_symbol:aspose.cells_foss.font",
         "public_symbol:aspose.cells_foss.numberformat",
         "public_symbol:aspose.cells_foss.style",
-        "public_symbol:aspose.cells_foss.style-2",
-        "public_symbol:aspose.cells_foss.style.alignment",
-        "public_symbol:aspose.cells_foss.style.border",
-        "public_symbol:aspose.cells_foss.style.borders",
-        "public_symbol:aspose.cells_foss.style.fill",
-        "public_symbol:aspose.cells_foss.style.protection",
-        "public_symbol:aspose.cells_foss.textalignmenttype",
-        "public_symbol:aspose.cells_foss.textanchortype"
+        "public_symbol:aspose.cells_foss.style-2"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.style",
-      "text": "The Style class provides formatting options for cells including alignment, borders, fill, and protection, with Font and NumberFormat supporting text appearance and numeric display, and TextAlignmentType and TextAnchorType controlling text positioning."
+      "text": "The aspose.cells_foss.Style class defines the formatting attributes for cells, including font, number format, color, and bold settings, while the aspose.cells_foss.Font and aspose.cells_foss.NumberFormat classes provide detailed control over typography and numeric presentation."
     },
     {
       "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.datavalidationalertstyle",
+        "public_symbol:aspose.cells_foss.datavalidationcollection",
+        "public_symbol:aspose.cells_foss.datavalidationtype"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.datavalidation",
+      "text": "The aspose.cells_foss.DataValidation class enables data validation rules on cells, with aspose.cells_foss.DataValidationCollection managing collections of rules, aspose.cells_foss.DataValidationType specifying rule types, and aspose.cells_foss.DataValidationAlertStyle controlling alert behavior."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose.cells_foss.chart",
+        "public_symbol:aspose.cells_foss.chart-2",
+        "public_symbol:aspose.cells_foss.chartaxis",
+        "public_symbol:aspose.cells_foss.chartcollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.chart",
+      "text": "The aspose.cells_foss.Chart class represents a chart object in a worksheet, with aspose.cells_foss.ChartCollection managing multiple charts, and aspose.cells_foss.ChartAxis providing control over chart axes."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
         "public_symbol:aspose.cells_foss.msodrawingtype",
-        "public_symbol:aspose.cells_foss.msofillformat",
-        "public_symbol:aspose.cells_foss.msolinedashstyle",
-        "public_symbol:aspose.cells_foss.msolineformat",
         "public_symbol:aspose.cells_foss.shape",
         "public_symbol:aspose.cells_foss.shape-2",
-        "public_symbol:aspose.cells_foss.shapecollection",
-        "public_symbol:aspose.cells_foss.shapefont",
-        "public_symbol:aspose.cells_foss.xml_shape_loader",
-        "public_symbol:aspose.cells_foss.xml_shape_loader.shapexmlloader",
-        "public_symbol:aspose.cells_foss.xml_shape_saver",
-        "public_symbol:aspose.cells_foss.xml_shape_saver.shapexmlsaver"
+        "public_symbol:aspose.cells_foss.shapecollection"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.shape",
-      "text": "The Shape class represents drawing objects such as lines, rectangles, and OLE objects, with ShapeCollection managing multiple shapes per worksheet, and supporting shape fonts, drawing types, fill formats, line formats, and dash styles."
+      "text": "The aspose.cells_foss.Shape class represents drawing objects such as images and OLE objects, with aspose.cells_foss.ShapeCollection managing shapes, and aspose.cells_foss.MsoDrawingType specifying the type of drawing object."
     },
     {
       "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
         "public_symbol:aspose.cells_foss.table",
         "public_symbol:aspose.cells_foss.table-2",
         "public_symbol:aspose.cells_foss.tablecollection",
-        "public_symbol:aspose.cells_foss.tablecolumn",
-        "public_symbol:aspose.cells_foss.tablestyleinfo",
-        "public_symbol:aspose.cells_foss.xml_table_loader",
-        "public_symbol:aspose.cells_foss.xml_table_loader.tablexmlloader",
-        "public_symbol:aspose.cells_foss.xml_table_saver",
-        "public_symbol:aspose.cells_foss.xml_table_saver.tablexmlsaver"
+        "public_symbol:aspose.cells_foss.tablecolumn"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.table",
-      "text": "The Table class represents Excel tables with structured references, with TableCollection managing multiple tables per worksheet, and supporting table columns and style information for consistent formatting."
+      "text": "The aspose.cells_foss.Table class represents an Excel table object, with aspose.cells_foss.TableCollection managing multiple tables, and aspose.cells_foss.TableColumn providing access to individual table columns."
     },
     {
       "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
         "public_symbol:aspose.cells_foss.sparkline",
         "public_symbol:aspose.cells_foss.sparkline-2",
-        "public_symbol:aspose.cells_foss.sparklineemptycells",
         "public_symbol:aspose.cells_foss.sparklinegroup",
-        "public_symbol:aspose.cells_foss.sparklinegroupcollection",
-        "public_symbol:aspose.cells_foss.sparklinetype",
-        "public_symbol:aspose.cells_foss.xml_sparkline_loader",
-        "public_symbol:aspose.cells_foss.xml_sparkline_loader.sparklinexmlloader",
-        "public_symbol:aspose.cells_foss.xml_sparkline_saver",
-        "public_symbol:aspose.cells_foss.xml_sparkline_saver.sparklinexmlsaver"
+        "public_symbol:aspose.cells_foss.sparklinegroupcollection"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.sparkline",
-      "text": "The Sparkline class provides mini charts within cells, with SparklineGroup managing groups of sparklines per worksheet, supporting different sparkline types and handling of empty cells through SparklineEmptyCells."
+      "text": "The aspose.cells_foss.Sparkline class represents a sparkline graphic, with aspose.cells_foss.SparklineGroup managing groups of sparklines, and aspose.cells_foss.SparklineGroupCollection managing multiple sparkline groups."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.comment_xml",
-        "public_symbol:aspose.cells_foss.comment_xml.commentxmlreader",
-        "public_symbol:aspose.cells_foss.comment_xml.commentxmlwriter"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.comment_xml",
-      "text": "The comment_xml module provides CommentXMLReader and CommentXMLWriter for reading and writing cell comments in XML format, enabling structured comment management."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.cfb_handler",
-        "public_symbol:aspose.cells_foss.cfb_handler.cfbreader",
-        "public_symbol:aspose.cells_foss.cfb_handler.cfbwriter",
-        "public_symbol:aspose.cells_foss.cfb_handler.is_encrypted_file",
-        "public_symbol:aspose.cells_foss.cfb_writer",
-        "public_symbol:aspose.cells_foss.cfb_writer.cfbwriter",
-        "public_symbol:aspose.cells_foss.cfb_writer_minimal",
-        "public_symbol:aspose.cells_foss.cfb_writer_minimal.minimalcfbwriter"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.cfb_handler",
-      "text": "The cfb_handler module provides CFBReader and CFBWriter for reading and writing Compound File Binary structures, with is_encrypted_file detecting encrypted files and MinimalCFBWriter offering a lightweight writer option."
-    },
-    {
-      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
         "public_symbol:aspose.cells_foss.agileencryptionparameters",
-        "public_symbol:aspose.cells_foss.cipheralgorithm",
         "public_symbol:aspose.cells_foss.decrypt_xlsx",
         "public_symbol:aspose.cells_foss.encrypt_xlsx",
-        "public_symbol:aspose.cells_foss.encryption_crypto",
-        "public_symbol:aspose.cells_foss.encryption_crypto.encryptionverifier",
-        "public_symbol:aspose.cells_foss.encryption_crypto.packageencryption",
-        "public_symbol:aspose.cells_foss.encryption_crypto.passwordderivation",
-        "public_symbol:aspose.cells_foss.encryption_params",
-        "public_symbol:aspose.cells_foss.encryption_params.encryptionparameters",
-        "public_symbol:aspose.cells_foss.encryption_params.encryptiontype",
-        "public_symbol:aspose.cells_foss.get_default_encryption_params",
-        "public_symbol:aspose.cells_foss.hashalgorithm",
-        "public_symbol:aspose.cells_foss.standardencryptionparameters",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor.xlsxdecryptor",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor.xlsxencryptor"
+        "public_symbol:aspose.cells_foss.xlsx_encryptor"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.encryption_crypto",
-      "text": "The encryption_crypto module provides encryption support for XLSX files with XLSXEncryptor and XLSXDecryptor, supporting AgileEncryptionParameters and StandardEncryptionParameters, and including helper classes for password derivation, encryption verification, and package encryption."
+      "slot": "hub:public_symbol:aspose.cells_foss.encrypt_xlsx",
+      "text": "The aspose.cells_foss.encrypt_xlsx function provides XLSX encryption capabilities using aspose.cells_foss.xlsx_encryptor and aspose.cells_foss.AgileEncryptionParameters, while aspose.cells_foss.decrypt_xlsx handles decryption operations."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose.cells_foss.csvsaveoptions",
+        "public_symbol:aspose.cells_foss.save_workbook_as_csv",
+        "public_symbol:aspose.cells_foss.save_workbook_as_json",
+        "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.save_workbook_as_csv",
+      "text": "The aspose.cells_foss.save_workbook_as_csv function enables saving workbooks as CSV files, with aspose.cells_foss.CSVSaveOptions controlling save behavior, and additional support for saving as JSON and Markdown formats."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose.cells_foss.csvhandler",
+        "public_symbol:aspose.cells_foss.csvloadoptions",
+        "public_symbol:aspose.cells_foss.jsonhandler",
+        "public_symbol:aspose.cells_foss.load_csv_workbook"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.load_csv_workbook",
+      "text": "The aspose.cells_foss.load_csv_workbook function loads CSV data into a workbook using aspose.cells_foss.CSVLoadOptions and aspose.cells_foss.CSVHandler, with aspose.cells_foss.JsonHandler supporting JSON-based loading workflows."
     },
     {
       "fact_ids": [
@@ -508,7 +538,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.cells_foss.sparklineemptycells",
-      "text": "Represents the behavior for handling empty cells in sparklines, as defined by the aspose.cells_foss.SparklineEmptyCells enumeration."
+      "text": "SparklineEmptyCells represents how empty cells are treated in sparkline rendering, with members defining options such as connecting data points or leaving gaps."
     },
     {
       "fact_ids": [
@@ -516,7 +546,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.cells_foss.sparklinetype",
-      "text": "Represents the type of sparkline to render, as defined by the aspose.cells_foss.SparklineType enumeration."
+      "text": "SparklineType defines the visual style of a sparkline, such as line, column, or win/loss, and is used when creating or modifying sparkline groups."
     },
     {
       "fact_ids": [
@@ -524,7 +554,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:021",
-      "text": "The getting started guide covers Python documentation for Aspose.Cells FOSS, including workbook creation, cell operations, styling, and data validation."
+      "text": "The getting started guide introduces core concepts and initial setup steps for using Aspose.Cells FOSS for Python."
     },
     {
       "fact_ids": [
@@ -532,7 +562,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:022",
-      "text": "The how-to guides and FAQ provide Python knowledge base articles, step-by-step instructions, and troubleshooting resources for Aspose.Cells FOSS."
+      "text": "The how-to guides and FAQ provide practical solutions and answers to common questions encountered during development."
     },
     {
       "fact_ids": [
@@ -540,7 +570,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:023",
-      "text": "The full API reference offers a complete, browsable reference for all 130 public types in Aspose.Cells FOSS for Python."
+      "text": "The full API reference documents all available classes, methods, and properties of the library."
     },
     {
       "fact_ids": [
@@ -548,7 +578,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:024",
-      "text": "The examples directory contains additional sample code demonstrating workbook creation, cell manipulation, and formatting with Aspose.Cells FOSS."
+      "text": "The examples directory contains sample code demonstrating typical usage patterns and workflows."
     },
     {
       "fact_ids": [
@@ -556,7 +586,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:025",
-      "text": "The contributor guide documents architecture notes and conventions for developers contributing to Aspose.Cells FOSS for Python."
+      "text": "The contributor guide outlines procedures for setting up the development environment and submitting contributions."
     },
     {
       "fact_ids": [
@@ -564,11 +594,12 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:026",
-      "text": "The issue tracker on GitHub allows users to report bugs and submit feature requests for Aspose.Cells FOSS for Python."
+      "text": "The issue tracker allows users to report bugs, request features, and track the status of known problems."
     },
     {
       "fact_ids": [
         "format:input.xlsx",
+        "format:output.csv",
         "format:output.xlsx",
         "identity:ecosystem",
         "identity:family",
@@ -583,26 +614,30 @@
       ],
       "section": "scope_limitations",
       "slot": "scope",
-      "text": "Aspose.Cells FOSS for Python provides a free, open-source library for working with Excel files in Python, supporting the .xlsx format for loading and saving workbooks, with additional export capabilities for CSV, JSON, and Markdown, and includes a basic formula evaluator for cells without cached values."
+      "text": "Aspose.Cells FOSS for Python provides a free, open-source Python library for creating, reading, and converting Excel workbooks in the .xlsx format, with additional support for exporting to .csv, while offering basic encryption operations and formula evaluation."
     },
     {
       "fact_ids": [
         "format:input.xlsx",
+        "format:output.csv",
         "format:output.xlsx",
         "inherited_unit:048.list"
       ],
       "section": "scope_limitations",
       "slot": "limitation:1",
-      "text": "Only .xlsx is supported for native load and save operations, while CSV, JSON, and Markdown are additional text-format export targets (CSV also supports import), not general spreadsheet formats."
+      "text": "Native load and save operations support only the .xlsx format, while CSV, JSON, and Markdown are limited to export targets, with CSV also permitting import, and none serving as general spreadsheet formats."
     },
     {
       "fact_ids": [
         "inherited_unit:048.list",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
         "public_symbol:aspose.cells_foss.standardencryptionparameters"
       ],
       "section": "scope_limitations",
       "slot": "limitation:2",
-      "text": "Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing password-protected workbooks; Standard encryption (Section 3) is not yet supported for reading, and the aspose.cells_foss.StandardEncryptionParameters class is not available for use."
+      "text": "Password-protected workbooks support only Agile encryption (ECMA-376 Part 2, Section 4) for reading and writing, and Standard encryption (Section 3) is not supported for reading."
     },
     {
       "fact_ids": [
@@ -611,17 +646,18 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:3",
-      "text": "The aspose.cells_foss.formula_evaluator module provides a basic evaluator for cells without cached values and is not a full spreadsheet calculation engine."
+      "text": "The formula_evaluator is a basic evaluator for cells without cached values and does not provide a full spreadsheet calculation engine."
     },
     {
       "fact_ids": [
-        "build_test_asset:examples",
-        "inherited_unit:051.paragraph",
-        "inherited_unit:052.code_block"
+        "package:python_requires",
+        "package:version",
+        "package:license",
+        "build_test_asset:examples"
       ],
       "section": "development_testing",
       "slot": "summary",
-      "text": "Developers can install the package in editable mode with development dependencies using pip and run the included test suite to validate functionality."
+      "text": "The toolchain requires Python >=3.7 and uses the aspose-cells-foss package version 26.7.0 under the MIT license, with examples in the examples/ directory for building and testing."
     }
   ]
 }

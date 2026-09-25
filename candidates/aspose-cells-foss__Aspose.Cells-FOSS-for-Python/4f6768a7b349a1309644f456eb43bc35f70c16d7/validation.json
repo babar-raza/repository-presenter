@@ -1,7 +1,5 @@
 {
-  "advisory": [
-    "inherited_unit:038.paragraph: the rewrite no longer names from aspose.cells_foss import\nWorkbook"
-  ],
+  "advisory": [],
   "checks": [
     {
       "causal_stage": null,
@@ -22,12 +20,12 @@
       "failures": [],
       "id": "BC-02",
       "judged_at": "S9",
-      "name": "Install command verified against the manifest and the package-registry observation",
+      "name": "Install command verified against the manifest and the package-registry observation, against the source-build receipt naming exactly the steps it proved, or - when no build/install command ever succeeds - against a source-checkout receipt",
       "sections": [
         "installation"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -59,7 +57,7 @@
         "enterprise_relationship"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -87,7 +85,7 @@
         "badges"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -100,7 +98,7 @@
         "structure"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "7"
     },
     {
       "causal_stage": null,
@@ -325,7 +323,7 @@
           "supported": 6
         }
       ],
-      "required": true,
+      "required": false,
       "section_id": "quick_start"
     },
     {
@@ -442,7 +440,7 @@
     }
   ],
   "protected_content_fingerprint": "2f1060cb7eb2868382295d3cd92274bb37f99fe5759cc1850467d55e12621ab9",
-  "readme_sha256": "fa2093a6c35a24a724feae1c0a93713661e8260620a05d516830b02e833ebcc2",
+  "readme_sha256": "bd1568d364082d388dfa92a3f2a5177c0a66dfdad943a6ca4cb2a9aa887d1eef",
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "4f6768a7b349a1309644f456eb43bc35f70c16d7",

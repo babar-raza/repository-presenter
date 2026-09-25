@@ -1,53 +1,47 @@
 {
   "audience": {
     "fact_ids": [
-      "example:001",
-      "example:002",
-      "example:003",
-      "example:004",
-      "example:005",
-      "example:006"
+      "package:python_requires",
+      "import_path:aspose",
+      "import_path:aspose.cells_foss",
+      "public_symbol:aspose",
+      "public_symbol:aspose.cells_foss"
     ],
-    "text": "Python developers building applications that require programmatic Excel workbook manipulation, including data entry, report generation, and format conversion."
+    "text": "Python developers who need to programmatically create, read, and modify Excel .xlsx workbooks in applications running on Python 3.7 or later."
   },
   "capabilities": [
     {
       "fact_ids": [
         "example:001",
         "example:002",
+        "format:input.xlsx",
+        "format:output.xlsx",
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cells"
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "text": "Create new workbooks or load existing .xlsx files and manipulate worksheets, cells, and content.",
+      "text": "Create new workbooks or load existing .xlsx files and modify worksheets, cells, and content.",
       "title": "Create and edit Excel workbooks"
     },
     {
       "fact_ids": [
         "example:003",
         "public_symbol:aspose.cells_foss.style",
-        "public_symbol:aspose.cells_foss.font"
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.numberformat"
       ],
-      "text": "Modify fonts, colors, alignment, number formats, and other style properties for individual cells.",
+      "text": "Modify fonts, colors, sizes, alignment, and number formats via Style objects applied to cells.",
       "title": "Apply cell styling and formatting"
     },
     {
       "fact_ids": [
         "example:004",
         "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.datavalidationtype",
         "public_symbol:aspose.cells_foss.conditional_format"
       ],
-      "text": "Define dropdown lists, number ranges, and custom formulas for cell validation and formatting rules.",
+      "text": "Define dropdown lists, number ranges, and custom formulas using DataValidation, and apply rule-based formatting.",
       "title": "Add data validation and conditional formatting"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.sparkline",
-        "public_symbol:aspose.cells_foss.charttype"
-      ],
-      "text": "Create and configure 16 chart types and sparkline groups for data visualization.",
-      "title": "Generate charts and sparklines"
     },
     {
       "fact_ids": [
@@ -57,49 +51,48 @@
         "public_symbol:aspose.cells_foss.save_workbook_as_json",
         "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
       ],
-      "text": "Export workbook data to CSV, JSON, and Markdown formats using dedicated save methods.",
+      "text": "Export workbook data to CSV, JSON, and Markdown using dedicated save methods.",
       "title": "Export to text formats"
     },
     {
       "fact_ids": [
-        "example:006",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor",
-        "public_symbol:aspose.cells_foss.agileencryptionparameters"
-      ],
-      "text": "Apply AES-based Agile encryption using a password and protect workbook structure or individual sheets.",
-      "title": "Encrypt and protect workbooks"
-    },
-    {
-      "fact_ids": [
+        "public_symbol:aspose.cells_foss.chart",
         "public_symbol:aspose.cells_foss.shape",
-        "public_symbol:aspose.cells_foss.table",
-        "public_symbol:aspose.cells_foss.comment_xml"
+        "public_symbol:aspose.cells_foss.sparkline",
+        "public_symbol:aspose.cells_foss.table"
       ],
-      "text": "Add drawing shapes, structured Excel tables, and cell comments with rich text.",
-      "title": "Embed shapes, tables, and comments"
+      "text": "Create and modify charts, shapes, sparklines, and structured Excel tables with auto-filters.",
+      "title": "Support charts, shapes, and tables"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.horizontalpagebreakcollection",
-        "public_symbol:aspose.cells_foss.verticalpagebreakcollection"
+        "example:006",
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor"
       ],
-      "text": "Set up page setup, margins, and horizontal/vertical page breaks for printing.",
-      "title": "Configure print layout and page breaks"
+      "text": "Apply and remove password protection using Agile encryption per ECMA-376 Part 2 §4.",
+      "title": "Encrypt and decrypt workbooks"
     }
   ],
   "limitations": [
     {
       "fact_ids": [
+        "install_command:pip",
         "format:input.xlsx",
+        "format:output.csv",
         "format:output.xlsx"
       ],
-      "text": "Only .xlsx is supported for native load/save; other Excel formats like .xls are not supported."
+      "text": "Only .xlsx is supported for native load/save; CSV, JSON, and Markdown are additional text-format export targets, not general spreadsheet formats."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.standardencryptionparameters"
+        "public_symbol:aspose.cells_foss.agileencryptionparameters",
+        "public_symbol:aspose.cells_foss.standardencryptionparameters",
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx"
       ],
-      "text": "Standard encryption is not supported for reading password-protected workbooks; only Agile encryption is supported."
+      "text": "Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing password-protected workbooks; Standard encryption is not yet supported for reading."
     },
     {
       "fact_ids": [
@@ -117,32 +110,38 @@
         "identity:ecosystem",
         "package:name"
       ],
-      "text": "Enables programmatic Excel workbook creation and editing in pure Python without external dependencies like Microsoft Excel."
+      "text": "Enables programmatic Excel workbook manipulation without Microsoft Excel installed, using pure Python."
+    },
+    {
+      "fact_ids": [
+        "dependency:pycryptodome-3.15.0",
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "example:006"
+      ],
+      "text": "Supports password protection for workbooks using Agile encryption per ECMA-376 Part 2 §4."
     },
     {
       "fact_ids": [
         "format:output.csv",
-        "example:005"
+        "public_symbol:aspose.cells_foss.save_workbook_as_csv",
+        "public_symbol:aspose.cells_foss.save_workbook_as_json",
+        "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
       ],
-      "text": "Supports exporting workbook data to common text formats such as CSV, JSON, and Markdown."
+      "text": "Provides export to common text formats including CSV, JSON, and Markdown."
     },
     {
       "fact_ids": [
-        "example:006",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor",
-        "public_symbol:aspose.cells_foss.decrypt_xlsx"
-      ],
-      "text": "Provides password-based AES encryption for protecting Excel workbooks using Agile encryption per ECMA-376."
-    },
-    {
-      "fact_ids": [
-        "example:003",
-        "example:004",
-        "public_symbol:aspose.cells_foss.style",
         "public_symbol:aspose.cells_foss.datavalidation",
-        "public_symbol:aspose.cells_foss.chart"
+        "public_symbol:aspose.cells_foss.conditional_format",
+        "public_symbol:aspose.cells_foss.auto_filter",
+        "public_symbol:aspose.cells_foss.chart",
+        "public_symbol:aspose.cells_foss.shape",
+        "public_symbol:aspose.cells_foss.table",
+        "public_symbol:aspose.cells_foss.sparkline",
+        "public_symbol:aspose.cells_foss.style"
       ],
-      "text": "Enables styling, data validation, charts, tables, sparklines, and comments for rich Excel document generation."
+      "text": "Supports data validation, conditional formatting, auto filters, charts, shapes, tables, sparklines, and cell styling."
     }
   ],
   "product_summary": {
@@ -151,60 +150,79 @@
       "identity:family",
       "identity:platform",
       "identity:ecosystem",
-      "package:name"
+      "package:name",
+      "package:version",
+      "package:license",
+      "license:spdx"
     ],
-    "text": "Aspose.Cells FOSS for Python is a pure-Python library for creating, reading, and modifying Excel .xlsx workbooks without requiring Microsoft Excel."
+    "text": "Aspose.Cells FOSS for Python is a free, open-source, pure-Python library for creating, reading, and modifying Excel .xlsx workbooks without requiring Microsoft Excel."
   },
   "uncertainties": [
-    "The exact set of supported Excel features beyond those explicitly listed in examples and public symbols is not fully documented.",
-    "Whether the library supports reading Standard-encrypted workbooks is unclear from available facts.",
-    "The scope of formula support in FormulaEvaluator is not specified beyond basic evaluation."
+    "Whether Standard encryption (ECMA-376 Part 2, Section 3) is supported for writing workbooks is not stated.",
+    "The exact set of supported chart types beyond the 16 named in the inherited README is not confirmed by facts.",
+    "Whether embedded OLE objects beyond pictures are supported is not confirmed by facts.",
+    "Whether pivot tables are supported is not confirmed by facts."
   ],
   "workflows": [
     {
       "fact_ids": [
-        "example:001"
+        "example:001",
+        "format:output.xlsx",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "name": "Create and populate workbook",
-      "text": "Create a new workbook, write values and formulas to cells, and save as .xlsx."
+      "name": "Create and save a new workbook",
+      "text": "Create a new Workbook instance, populate cells, and save as .xlsx using Workbook.save()."
     },
     {
       "fact_ids": [
-        "example:002"
+        "example:002",
+        "format:input.xlsx",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "name": "Read existing workbook",
-      "text": "Load an existing .xlsx file and read cell values."
+      "name": "Read an existing workbook",
+      "text": "Load an existing .xlsx file using Workbook(path), access cells, and read values."
     },
     {
       "fact_ids": [
-        "example:003"
+        "example:003",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font"
       ],
       "name": "Apply cell styling",
-      "text": "Modify font properties, color, and size, then apply styles to cells."
+      "text": "Get a cell's Style, modify font properties, and apply it back using Cell.apply_style()."
     },
     {
       "fact_ids": [
-        "example:004"
+        "example:004",
+        "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.datavalidationcollection",
+        "public_symbol:aspose.cells_foss.datavalidationtype"
       ],
       "name": "Add data validation",
-      "text": "Define dropdown lists or other validation rules for cell ranges."
+      "text": "Add a DataValidation to a worksheet range using DataValidationCollection.add() and set its type and formula."
     },
     {
       "fact_ids": [
         "example:005",
-        "format:output.csv"
+        "format:input.xlsx",
+        "format:output.csv",
+        "public_symbol:aspose.cells_foss.workbook"
       ],
       "name": "Export to CSV",
-      "text": "Convert an Excel workbook to CSV format using save_as_csv()."
+      "text": "Load an .xlsx workbook and save it as CSV using Workbook.save_as_csv()."
     },
     {
       "fact_ids": [
         "example:006",
+        "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.encrypt_xlsx",
         "public_symbol:aspose.cells_foss.decrypt_xlsx"
       ],
-      "name": "Password-protect workbook",
-      "text": "Encrypt a workbook with a password and decrypt it on load."
+      "name": "Password-protect a workbook",
+      "text": "Save a workbook with a password using Workbook.save(path, password=...) and load encrypted workbooks with Workbook(path, password=...)."
     }
   ]
 }

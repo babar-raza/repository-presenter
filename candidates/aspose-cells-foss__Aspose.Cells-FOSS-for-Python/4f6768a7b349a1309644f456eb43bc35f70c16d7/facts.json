@@ -227,19 +227,7 @@
           "path": "output.xlsx"
         },
         {
-          "detail": "staged as styled.xlsx; example 3 read it: EXECUTED",
-          "path": "output.xlsx"
-        },
-        {
-          "detail": "staged as validation.xlsx; example 4 read it: EXECUTED",
-          "path": "output.xlsx"
-        },
-        {
           "detail": "staged as input.xlsx; example 5 read it: EXECUTED",
-          "path": "output.xlsx"
-        },
-        {
-          "detail": "staged as protected.xlsx; example 6 read it: EXECUTED",
           "path": "output.xlsx"
         }
       ],
