@@ -1,4 +1,18 @@
-# Reviewer wake procedure v3 (owner's steering session) — deadline mode until 2026-09-07 00:00 +05:00
+# Reviewer wake procedure v3 (owner's steering session)
+
+**2026-09-25 (supervisor, this entry): the "deadline mode until 2026-09-07" header and the PHASE1
+sprint machinery it assumed (`docs/DECISION_LOG.md` §27.9's queue, lanes b through f, the hardcoded
+Sept-15 deadline `reviewer_check.py` still prints) are stale — that sprint ended weeks ago and this
+project has not run that machinery since. Found the hard way: this file went unrun for 8 days
+(`tools/reviewer/.local/reviewer_state.json`'s last recorded wake was 2026-09-17), the repo path
+below still said `D:\` from before a drive-letter remap, and the transcript line below still pointed
+at a session from 2026-09-06 - so the one time it *was* run today, every §27.9/lane/deadline flag
+was noise, and only the checks that read live state (worktrees, concurrency floor, orphan modules)
+were trustworthy. Do not delete the §27.9/lane sections below - a future PHASE1-style sprint may
+reuse them - but treat any flag from queue order, lane spawn requests (lane-e/lane-f), or the
+deadline projection as **inapplicable** unless `project/state.yaml` actually shows that sprint
+machinery active (a `plans/sprint/ACTIVE` marker, non-empty `project/lanes/*.yaml`). Only ≥5, not 4,
+is current for the concurrency floor throughout this file (`docs/SUPERVISION.md`, 2026-09-25).
 
 **2026-09-06 ~10:30: the owner moved the primary loop and this session to a cheaper model (Sonnet,
 from Opus/Fable) and said usage no longer limits scope — "finish all candidates today at any cost,
@@ -14,12 +28,19 @@ correct it without waiting: governance edits, queue surgery, and short correctiv
 loop session. A deterministic check first; judgment only on its flags; an action for every flag.
 Cadence: cron hourly at :07 (job in CronList) plus the event monitor `stop_monitor.py` (Monitor task
 b91h48h7c: LOOP_STOPPED / LOOP_CAPPED / LOOP_SILENT / LOOP_RESUMED) — on an event, run step 2's
-liveness action at once.
+liveness action at once. **Verify the cron job and Monitor tasks named here actually exist before
+trusting this cadence claim — CronList/TaskList, not this file's own say-so** (added 2026-09-25,
+after this file's claims went unverified for 8 days).
 
-Repo: D:\Users\prora\OneDrive\Documents\GitHub\repository-presenter
+Repo: H:\Users\prora\OneDrive\Documents\GitHub\repository-presenter (drive letter remapped from D:\
+at some point before 2026-09-25; if this ever drifts again, `git rev-parse --show-toplevel` is the
+source of truth, not this line).
 Scratchpad (this directory): reviewer_check.py, stop_monitor.py, portfolio_census.py,
 reviewer_state.json (history + `watch`), commit_msg.txt.
-Loop transcript: C:\Users\prora\.claude\projects\d--Users-prora-OneDrive-Documents-GitHub-repository-presenter\4705e217-53a5-4974-aa24-559ae9abbd05.jsonl
+Loop transcript: resolved dynamically by `tools/reviewer/transcript_path.py` via
+`tools/reviewer/.local/executor_transcript.txt` (one line, the live executor's transcript path) -
+never hardcode a specific transcript filename here again; §0 step 1 sets that file fresh every
+session.
 Never touch src/, tests/, prompts/, schemas/, or a path the active item owns (README_CONTRACT.md is
 usually one). state.yaml only at a clean checkpoint, schema-validated. Stage own paths only; guard the
 index (`git diff --cached --name-only` equals the intended list).
@@ -100,7 +121,7 @@ stopped. Every message is also a one-line §31 reviewer entry.
 | An "ACCEPTED" gate/work-item evidence manifest with no visible evidence field | Read the full manifest before trusting the status line; if the acceptance is unearned, message the loop and record a §31 reviewer entry naming the exact unmet predicate. | — |
 | Growth (module with no importer; ≥3 new check definitions; deferral language in evidence) | §31 entry asking for the importer or removal; accept-in-part → owning item named in §27.9. | Second wake → message. |
 | Lane/spawn model violation (a spawn's `model` was Opus, Fable, or omitted, instead of Sonnet) | Don't spawn further with the wrong model; correct at the next spawn; never interrupts a run already in flight. | Persisting (second occurrence): §31 note + PushNotification the owner. |
-| Concurrency floor (< 4 active roles while ready lane work exists and no usage cap) | Spawn per §2b for a ready lane. | Persisting (spawn blocked — worktree conflict, no ready lanes, cap active): §31 note, no forced work. |
+| Concurrency floor (< 5 active roles while ready lane work exists and no usage cap) | Spawn per §2b for a ready lane. | Persisting (spawn blocked — worktree conflict, no ready lanes, cap active): §31 note, no forced work. |
 
 ## 2b. Lanes (parallel loops; owner decisions 2026-09-06 01:20 and 08:00, RESEARCH §28.12 "Lanes")
 
@@ -133,7 +154,7 @@ the lane rebases per its prompt §4) — `docs/RESEARCH_LANE_B.md` entries
 (same confirm/flag rules as §31), and that its commits touch only its owned paths (`git log lane-b
 --name-only`) — a lane commit outside them is reverted on `main` after merge and messaged. Each wake,
 also compare the live-role count (supervisor + primary + lanes with a live run) against the
-concurrency floor of 4 (`docs/SUPERVISION.md` "Concurrency floor") and spawn from the ready-lanes
+concurrency floor of 5 (`docs/SUPERVISION.md` "Concurrency floor") and spawn from the ready-lanes
 list — printed per lane above ("open items ... — a run must be live for the first one, else spawn")
 — until the floor is met or ready work is exhausted; best-effort only, never overriding the usage-cap
 pause order below. A lane

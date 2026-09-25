@@ -778,17 +778,23 @@ def behaviour_checks(t: dict, state: dict, metrics: dict, since_iso: str, now: d
     capped = bool(t["limit_hit"])
     cf_msg = concurrency_floor_flag(active_roles, ready_lanes, capped)
     out.append(flag(cf_msg) if cf_msg else ok(f"active roles {active_roles}/5 (primary live: {primary_live}; ready lanes: {ready_lanes or 'none'}; capped: {capped})"))
-    # --- deadline
-    hours_left = (DEADLINE - now).total_seconds() / 3600
-    q = [x["id"] for x in sy.get("next_ready_items") or []]
-    cand_items = [i for i in q if i in CANDIDATE_ITEMS]
-    non_cand = [i for i in q if i not in CANDIDATE_ITEMS]
-    metrics["hours_left"] = round(hours_left, 1)
-    out.append(info(f"deadline {DEADLINE.strftime('%a %d %b %H:%M')}: {hours_left:.1f} h left; queue {len(q)} = {len(cand_items)} candidate-producing {cand_items} + {len(non_cand)} other {non_cand}"))
-    rate_h = state.get("hours_per_item")
-    if rate_h:
-        need = rate_h * len(q)
-        out.append((flag if need > hours_left else ok)(f"at {rate_h:.1f} h/item the queue needs ~{need:.0f} h vs {hours_left:.0f} h left — " + ("BEHIND: defer non-candidate items, split cohorts, message the loop" if need > hours_left else "on pace")))
+    # --- deadline (PHASE1-sprint-specific; gated on plans/sprint/ACTIVE so a dormant sprint
+    # doesn't print a stale, wildly-negative "BEHIND" every run once its own deadline passes -
+    # found 2026-09-25 after this fired against a 2026-09-15 deadline ten days gone, on a session
+    # that was never running the sprint machinery at all)
+    if (REPO / "plans" / "sprint" / "ACTIVE").exists():
+        hours_left = (DEADLINE - now).total_seconds() / 3600
+        q = [x["id"] for x in sy.get("next_ready_items") or []]
+        cand_items = [i for i in q if i in CANDIDATE_ITEMS]
+        non_cand = [i for i in q if i not in CANDIDATE_ITEMS]
+        metrics["hours_left"] = round(hours_left, 1)
+        out.append(info(f"deadline {DEADLINE.strftime('%a %d %b %H:%M')}: {hours_left:.1f} h left; queue {len(q)} = {len(cand_items)} candidate-producing {cand_items} + {len(non_cand)} other {non_cand}"))
+        rate_h = state.get("hours_per_item")
+        if rate_h:
+            need = rate_h * len(q)
+            out.append((flag if need > hours_left else ok)(f"at {rate_h:.1f} h/item the queue needs ~{need:.0f} h vs {hours_left:.0f} h left — " + ("BEHIND: defer non-candidate items, split cohorts, message the loop" if need > hours_left else "on pace")))
+    else:
+        out.append(info("no plans/sprint/ACTIVE marker — sprint deadline/queue machinery is dormant, DEADLINE constant not evaluated"))
     return out
 
 
