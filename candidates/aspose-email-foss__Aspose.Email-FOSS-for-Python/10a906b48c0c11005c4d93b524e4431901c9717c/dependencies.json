@@ -1,7 +1,7 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "11",
+    "normalisation": "12",
     "renderer": "24",
     "reviewer_logic": "12",
     "shell": "6"
@@ -397,7 +397,7 @@
       "version": "9"
     }
   },
-  "protected_content_fingerprint": "d6fa7383460e83c43000662fe3559c3107c9feec550074ca33a9505dc285fb29",
+  "protected_content_fingerprint": "9ba97217ed5965e3ab17839fc6687a7b8ff57f3a5d1d0776fe848fe3b734d041",
   "schema_version": 1,
   "source": {
     "revision": "10a906b48c0c11005c4d93b524e4431901c9717c",

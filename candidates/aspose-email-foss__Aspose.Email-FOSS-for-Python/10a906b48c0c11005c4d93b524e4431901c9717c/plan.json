@@ -7,21 +7,10 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:email_foss",
-        "import_path:aspose.email_foss"
+        "import_path:aspose.email_foss",
+        "public_symbol:email_foss"
       ],
       "symbol_fact_id": "public_symbol:email_foss"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.msg",
-        "public_symbol:email_foss.msg.mapi_message",
-        "public_symbol:email_foss.msg.mapiattachment",
-        "public_symbol:email_foss.msg.mapinamedproperty",
-        "public_symbol:email_foss.msg.mapiproperty",
-        "public_symbol:email_foss.msg.mapirecipient"
-      ],
-      "symbol_fact_id": "public_symbol:email_foss.msg"
     },
     {
       "fact_ids": [
@@ -33,6 +22,70 @@
         "public_symbol:email_foss.cfb.cfbstream"
       ],
       "symbol_fact_id": "public_symbol:email_foss.cfb"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg",
+        "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.msg.msgreader",
+        "public_symbol:email_foss.msg.msgwriter",
+        "public_symbol:email_foss.msg.msgdocument"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.msg"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapiattachment"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.msg.mapiattachment"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgreader"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.msg.msgreader"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgwriter"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.msg.msgwriter"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfbreader"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.cfb.cfbreader"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfbwriter"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.cfb.cfbwriter"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgerror"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.msg.msgerror"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfberror"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.cfb.cfberror"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.propertyid"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.msg.propertyid"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapinamedproperty"
+      ],
+      "symbol_fact_id": "public_symbol:email_foss.msg.mapinamedproperty"
     }
   ],
   "at_a_glance": {
@@ -42,12 +95,11 @@
       "Convert MSG to EML",
       "Convert EML to MSG",
       "Low-level CFB access",
-      "MAPI property support",
-      "Attachment handling"
+      "MAPI property support"
     ],
     "input_format_ids": [
-      "format:input.msg",
-      "format:input.eml"
+      "format:input.eml",
+      "format:input.msg"
     ],
     "output_format_ids": [
       "format:output.msg"
@@ -143,25 +195,10 @@
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:008.code_block"
+        "inherited_unit:042.html_block"
       ],
-      "section_id": "at_a_glance",
-      "text": "The Mermaid diagram in the inherited README is omitted because no fact supports its structure or content; the section is rendered deterministically instead."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:035.code_block"
-      ],
-      "section_id": "additional_examples",
-      "text": "The example in inherited_unit:035.code_block is marked [CONTRADICTED example, not citable] and is omitted entirely."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:067.paragraph",
-        "link_target:product.enterprise"
-      ],
-      "section_id": "enterprise_relationship",
-      "text": "The Enterprise Edition paragraph from inherited_unit:067.paragraph is moved to this section because the product target link_target:product.enterprise is verified."
+      "section_id": "api_reference",
+      "text": "The API Reference section omits the HTML details wrapper and renders tables directly from public_symbol facts."
     }
   ],
   "flagship_example_id": "example:006",

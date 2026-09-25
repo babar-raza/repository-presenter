@@ -26,7 +26,7 @@ Aspose.Email FOSS for Python reads and writes Microsoft Outlook message formats 
 flowchart TD
   subgraph StartingPoints["Starting Points"]
     direction LR
-    i1["An existing MSG or EML file"]
+    i1["An existing EML or MSG file"]
   end
   PRODUCT["Aspose.Email FOSS for Python"]
   subgraph Capabilities["Core Capabilities"]
@@ -36,13 +36,12 @@ flowchart TD
       c1["Read MSG files"]
       c2["Write MSG files"]
       c3["Convert MSG to EML"]
-      c4["Convert EML to MSG"]
     end
     subgraph capr[" "]
       direction TB
+      c4["Convert EML to MSG"]
       c5["Low-level CFB access"]
       c6["MAPI property support"]
-      c7["Attachment handling"]
     end
   end
   subgraph Outputs["Outputs"]
@@ -174,11 +173,15 @@ message = msg.MapiMessage.from_email_message(email_message)
 message.save("message.msg")
 ```
 
+
+Full runnable examples are available under [`examples/`](examples/) (see
+[`examples/README.md`](examples/README.md) for a task-to-script index).
+
 </details>
 
 ## API Reference
 
-Aspose.Email FOSS for Python provides the `email_foss` module for working with email formats, with `email_foss.msg.mapi_message` as the primary entry point for handling MAPI messages and `email_foss.cfb` for low-level Compound File Binary structure operations.
+Aspose.Email FOSS for Python provides high-level and low-level APIs for working with email formats, with the high-level MSG API centered on `MapiMessage` for message creation and conversion, and the low-level MSG and CFB APIs offering direct access to property streams and Compound File Binary containers respectively.
 
 The verified public surface has 30 types.
 
@@ -212,7 +215,7 @@ The verified public surface has 30 types.
 | `PropertyStreamHeaderSubobject` | Property stream header used in recipient and attachment storages, containing only reserved bytes. |
 | `PropertyStreamHeaderTopLevel` | Top-level property stream header containing next-id counters and counts for recipients and attachments. |
 | `StorageLayout` | Naming and containment rules for recipient, attachment, embedded message, and nameid storages. |
-| `MapiPropertyCollection` | The MapiPropertyCollection class represents a collection of properties associated with a MAPI message, providing methods to add, retrieve, update, and remove individual properties using their identifiers. |
+| `MapiPropertyCollection` | The MapiPropertyCollection class represents a collection of MAPI properties associated with a MapiMessage, providing methods to add, get, set, and remove individual properties by their identifier. |
 
 #### Enumerations
 
@@ -229,15 +232,101 @@ The verified public surface has 30 types.
 
 ### email_foss
 
-The `email_foss` module exposes core functionality for handling email formats, including reading and writing MAPI messages and Compound File Binary structures through its public symbols.
-
-### msg
-
-The `email_foss.msg` module provides the `MapiMessage` class for representing and manipulating MAPI messages, along with supporting classes `MapiAttachment`, `MapiNamedProperty`, `MapiProperty`, and `MapiRecipient` for handling message components.
+The top-level `email_foss` module serves as the package entry point, exposing the high-level MSG API centered on `MapiMessage` and the low-level MSG and CFB modules for direct property-stream and container access.
 
 ### cfb
 
-The `email_foss.cfb` module provides the `CFBReader` and `CFBWriter` classes for reading and writing Compound File Binary structures, along with supporting classes `CFBDocument`, `CFBStorage`, and `CFBStream` for navigating and manipulating the file format.
+The `email_foss.cfb` module provides the low-level CFB API for reading and writing Compound File Binary containers, with `CFBReader` and `CFBWriter` handling parsing and serialization, and `CFBDocument`, `CFBStorage`, and `CFBStream` representing the container structure.
+
+### msg
+
+The `email_foss.msg` module provides both high-level and low-level MSG APIs, with `MapiMessage` supporting message creation and conversion, and `MsgReader`, `MsgWriter`, and `MsgDocument` enabling direct access to property streams and subobject structures.
+
+### MapiAttachment
+
+`MapiAttachment` represents an attachment in a `MapiMessage`, supporting embedded messages and storage attachments with methods to create, inspect, and modify attachment properties.
+
+- `embedded_storage_name`: Defined as `def embedded_storage_name(self) -> str / None`.
+- `from_bytes`: Defined as `def from_bytes(cls, filename: str, data: bytes, *, mime_type: str / None=None, content_id: str / None=None) -> 'MapiAttachment'`.
+- `from_embedded_message`: Defined as `def from_embedded_message(cls, message: 'MapiMessage', *, filename: str / None=None, mime_type: str / None=None) -> 'MapiAttachment'`.
+- `is_embedded_message`: Defined as `def is_embedded_message(self) -> bool`.
+- `is_storage_attachment`: Defined as `def is_storage_attachment(self) -> bool`.
+- `set_property`: Defined as `def set_property(self, property_id: int / CommonMessagePropertyId / PropertyId, property_type_or_value: int / PropertyTypeCode / Any, value: Any=_MISSING, *, flags: int=DEFAULT_PROPERTY_FLAGS) -> MapiProperty`.
+- `storage_name`: Defined as `def storage_name(self) -> str / None`.
+
+### MsgReader
+
+`MsgReader` parses MSG files and provides access to property streams, recipient storages, attachment storages, and the underlying CFB structure through its `cfb_reader` property.
+
+- `cfb_reader`: Defined as `def cfb_reader(self) -> CFBReader`.
+- `close`: Defined as `def close(self) -> None`.
+- `from_file`: Defined as `def from_file(cls, path: Path / str, *, strict: bool=False) -> 'MsgReader'`.
+- `iter_attachment_storages`: Defined as `def iter_attachment_storages(self) -> Iterator[DirectoryEntry]`.
+- `iter_recipient_storages`: Defined as `def iter_recipient_storages(self) -> Iterator[DirectoryEntry]`.
+- `iter_top_level_fixed_length_properties`: Defined as `def iter_top_level_fixed_length_properties(self) -> Iterator[PropertyEntryFixedLength]`.
+- `parse_message_property_stream`: Read the property stream in the top level or an embedded-message storage.
+- `parse_subobject_property_stream`: Read the property stream in recipient/attachment storage and decode fixed-length entries.
+- `parse_subobject_property_stream_data`: Decode recipient/attachment property stream header and fixed-length entries.
+- `parse_top_level_property_stream`: Decode top-level property stream header and fixed-length entries.
+- `storage_layout`: Defined as `def storage_layout(self) -> StorageLayout`.
+- `strict`: Defined as `def strict(self) -> bool`.
+- `validation_issues`: Defined as `def validation_issues(self) -> Tuple[str, ...]`.
+
+### MsgWriter
+
+`MsgWriter` serializes `MapiMessage` objects to MSG files, supporting output to bytes or file paths while preserving the MSG format structure.
+
+- `to_bytes`: Defined as `def to_bytes(cls, document: MsgDocument) -> bytes`.
+- `write_file`: Defined as `def write_file(cls, document: MsgDocument, path: Path / str) -> None`.
+
+### CFBReader
+
+`CFBReader` parses Compound File Binary files and exposes container metadata such as `sector_size`, `major_version`, and `directory_entry_count`, along with methods to navigate the internal structure.
+
+- `close`: Defined as `def close(self) -> None`.
+- `data_size`: Defined as `def data_size(self) -> int`.
+- `directory_entry_count`: Defined as `def directory_entry_count(self) -> int`.
+- `fat_sector_count`: Defined as `def fat_sector_count(self) -> int`.
+- `file_size`: Defined as `def file_size(self) -> int`.
+- `find_child_by_name`: Defined as `def find_child_by_name(self, storage_stream_id: StreamId, name: str) -> Optional[DirectoryEntry]`.
+- `from_file`: Defined as `def from_file(cls, path: Path / str) -> 'CFBReader'`.
+- `get_entry`: Defined as `def get_entry(self, stream_id: StreamId) -> DirectoryEntry`.
+- `get_stream_data`: Defined as `def get_stream_data(self, stream_id: StreamId) -> bytes`.
+- `iter_children`: Defined as `def iter_children(self, storage_stream_id: StreamId) -> Iterator[DirectoryEntry]`.
+- `iter_storages`: Defined as `def iter_storages(self) -> Iterator[DirectoryEntry]`.
+- `iter_streams`: Defined as `def iter_streams(self) -> Iterator[DirectoryEntry]`.
+- `iter_tree`: Yield a depth-first tree traversal as (depth, entry) tuples.
+- `major_version`: Defined as `def major_version(self) -> int`.
+- `materialized_stream_count`: Defined as `def materialized_stream_count(self) -> int`.
+- `mini_sector_size`: Defined as `def mini_sector_size(self) -> int`.
+- `resolve_path`: Resolve a storage/stream path by exact directory-entry names.
+- `sector_size`: Defined as `def sector_size(self) -> int`.
+
+### CFBWriter
+
+`CFBWriter` constructs Compound File Binary containers in memory and can serialize them to bytes or write them directly to a file path.
+
+- `to_bytes`: Defined as `def to_bytes(cls, document: CFBDocument) -> bytes`.
+- `write_file`: Defined as `def write_file(cls, document: CFBDocument, path: Path / str) -> None`.
+
+### MsgError
+
+`MsgError` is raised when parsing or processing MSG files encounters issues that prevent successful completion.
+
+### CFBError
+
+`CFBError` is raised when parsing or writing Compound File Binary files encounters structural or format issues.
+
+### PropertyId
+
+`PropertyId` defines the numeric identifiers used to reference properties in MSG property streams, such as SENDER_NAME and SENDER_EMAIL_ADDRESS.
+
+### MapiNamedProperty
+
+`MapiNamedProperty` represents a named property in MSG files, storing either a numeric identifier or a string name along with its value.
+
+- `numeric`: Defined as `def numeric(cls, lid: int, property_set: uuid.UUID / str) -> 'MapiNamedProperty'`.
+- `string`: Defined as `def string(cls, name: str, property_set: uuid.UUID / str=PS_PUBLIC_STRINGS) -> 'MapiNamedProperty'`.
 
 </details>
 

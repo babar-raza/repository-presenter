@@ -464,8 +464,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "d6fa7383460e83c43000662fe3559c3107c9feec550074ca33a9505dc285fb29",
-  "readme_sha256": "8ed4f4b549993522969f9d0005b9e2572632fdc3814dda8430bf1b43d7bfc9fa",
+  "protected_content_fingerprint": "9ba97217ed5965e3ab17839fc6687a7b8ff57f3a5d1d0776fe848fe3b734d041",
+  "readme_sha256": "015cae254865b7c316e455f217e53cfe24d2a8a42b2cda0e25a1969c0c2b5c1c",
   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "10a906b48c0c11005c4d93b524e4431901c9717c",

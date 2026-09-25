@@ -1,63 +1,63 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-24T10:47:11Z",
+    "adopted_at": "2026-09-25T07:45:14Z",
     "changed": [
       "README.md",
       "README.patch",
       "content_units.json",
       "dependencies.json",
       "dispositions.json",
-      "examples.json",
-      "facts.json",
-      "investigation.json",
       "plan.json",
+      "repairs.json",
       "review.json",
       "validation.json"
     ],
     "classification": "factual",
-    "earliest_affected_stage": "EXTRACTING",
+    "earliest_affected_stage": "COMPOSING",
     "previous_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-06T09:14:35Z",
+      "proven_at": "2026-09-24T10:47:11Z",
       "provider_calls": 0
     },
-    "recorded_at": "2026-09-24T10:45:46Z"
+    "recorded_at": "2026-09-25T07:43:58Z"
   },
   "call_variance": [
     {
-      "distinct_responses": 2,
+      "distinct_responses": 3,
       "job": "independent_review",
       "response_sha256s": [
-        "91cfe395dff03ae89b004c53a36f224cb46537b93e7cc71e6c0573b8947d9bcc",
-        "e90ba4389d19ed6379d857255fce8da4ab1a6cf4e224f3f917e06a33fe797b9e"
+        "4d32f710919c6b3cab8b68e9a01c8a6a64a8c081454ea58361076dc0dbf0e4a7",
+        "8368145ebb645363878bdc0ecd990494ba7aaeafec194914cd2d5f4d8288e8c5",
+        "d2f42f31f91d0b8a4eae4328a2efb213380d57cf50c4777e4e2888294feac1a9"
       ]
     },
     {
-      "distinct_responses": 12,
+      "distinct_responses": 3,
       "job": "section_authoring",
       "response_sha256s": [
-        "0b1e54b320004ccbe3e5e1c3ea8670dc0ddb6a73f03aeab9e64f2b1f5b8c0b69",
-        "3609207a847549853f6a5558b2c4d13d264e70886969a6db352f3db1bf6ee713",
-        "3a092ddf8383cb071af43236f5136546b8c6c26363301515aab98469c2e1bdaf",
-        "53c29a068096cabf83b4fb6980e2c9e5107c45ba32b8ec1ba1a5a97aba33fff3",
-        "5505113a29a3872ef00a2917d24fddbdac0134f2d151962c327b0ba1e450cddd",
-        "5787c25d097117272ce0ad13deef2cc0140f30da046eb53397a56f9b255752fc",
-        "62aff6b497062b0822168b4ac8e08c9f1c8802f1aa1f91cc1d971da2715eb7bb",
-        "6a11ac8723f063420f5f097cc71a21ac7868d51ce848c7bd971b3a1501f6f510",
-        "98c68c1f91025ac3bb72fefe03242f36cdb662079d99dc0c224c49f97eb319e0",
-        "c01734c7f4947ef63446231df45097a455b14016737c0e42151049f03662ec76",
-        "d9c9cc77b2c5fc7865bdc451409ed84ec5deb234d7a50c6a048774c3caa34004",
-        "f74e47808992c6169fb9a7a4e4675d812c62e95f3fc388d6935c41916a0c7671"
+        "34709028c5279dc46b5c0b1ff8b4f5735f03b708bb459eec04af51b9ba23279a",
+        "41855b10b98e4ab292f6d7d73f223e510444259b2f72fe0a8e51e758c9c19a07",
+        "54ee3d270eb438db3a1f5bd9f3958dead8ff53557b59039a3a1a3b1a414766e8"
       ]
     },
     {
       "distinct_responses": 3,
       "job": "source_reconciliation",
       "response_sha256s": [
-        "7a97567daf58a74f60b48301152b5e3865b71956262f54c58d9c909078933193",
-        "7f4a1c93112d0653667156ef7752635c58a21ff9aa997ac8d0d718847d5e2540",
-        "c4ea222316e70b179f01f33865c583fedbd7ddb684e8f2b5f9553869d2dc8f99"
+        "3644373737796ba8b4f78cc32dbe8509f9fe5eb55eae79ce1f3072c04f9bc838",
+        "671efd112460aaf83f1b397d06179a568d87c756f5d5a0056a62b64a84a49779",
+        "7bd99a1bac849a10045ffd79d2432be6f065486f0d6146b9d49dfebf9279eb7a"
+      ]
+    },
+    {
+      "distinct_responses": 4,
+      "job": "targeted_repair",
+      "response_sha256s": [
+        "0aea3f749a5ccdc2ea97c91022135709762b65763b4bccbdeebb8e317b2d343e",
+        "1ac6979525bdbc0333e775e579e5d47ec5d0eb408fae885937ceb3a6ee23b1f3",
+        "1d4cea6b2d7d4792c4f4fe7dbd4dacde6ff177dcaa3cdc80548b8549f7db30a3",
+        "d40609ead2d86d261365943a7638d54be3ca9033bac6e770d1cd776a7c4fd35c"
       ]
     }
   ],
@@ -70,28 +70,28 @@
   },
   "files": {
     "README.md": {
-      "bytes": 14086,
-      "sha256": "8ed4f4b549993522969f9d0005b9e2572632fdc3814dda8430bf1b43d7bfc9fa"
+      "bytes": 19953,
+      "sha256": "015cae254865b7c316e455f217e53cfe24d2a8a42b2cda0e25a1969c0c2b5c1c"
     },
     "README.patch": {
-      "bytes": 27892,
-      "sha256": "43f88066f37e40f8d78a3999656623ba99d25605907482636cf0f600b4a8c7f7"
+      "bytes": 33849,
+      "sha256": "92a510a9058f6153b98a8b2780f3347b8a1bdfc439058bf0dba187109d0e7318"
     },
     "calls.jsonl": {
-      "bytes": 37032,
-      "sha256": "c6bc3cbd524b5875c14c3685e9c71eae10bb2143bac7ce4ddaeba3c1eea58ce1"
+      "bytes": 49793,
+      "sha256": "36c1ddde65267c7c54fef21ea5f4015423da69547348228934549004ebdc8d66"
     },
     "content_units.json": {
-      "bytes": 14471,
-      "sha256": "c3f69a69bb52fb23305f7a8bcca84cbc18cbf4336fa000be73dd561bfd762706"
+      "bytes": 17376,
+      "sha256": "725d96a4a493fdf0b7492f3b80686c47a0c4fbbcd0b24a191098cb0f4883b63d"
     },
     "dependencies.json": {
       "bytes": 41306,
-      "sha256": "9eecc8548a8f8674c175573a59387fb0476d8797f0475de810868b0d8abd8fba"
+      "sha256": "fcc94c4bd864977e0beb980996683303b4d2b5e78ace1188535a7134c69d0080"
     },
     "dispositions.json": {
-      "bytes": 35521,
-      "sha256": "0bdf0a7d131f7bc62c42b2349fef3736c2208b796b784ac174d0666d80f5cf5b"
+      "bytes": 38492,
+      "sha256": "006962148d2a318fa75d23361bb10bdf888de2b850e77e6fd4f0773e5c05e7fc"
     },
     "examples.json": {
       "bytes": 2360,
@@ -106,32 +106,36 @@
       "sha256": "1a4f0f2e824954637e38d86ec6d2075f0ca2dc0ac111d681d87d9a1329019fca"
     },
     "plan.json": {
-      "bytes": 7357,
-      "sha256": "f078df11d3a706c5c76917b842e6698d5dbf12d710b77a31f17a929fb63433fa"
+      "bytes": 8038,
+      "sha256": "c8aa446c406335992ead948b5adaeef5d7605f9410c9b936c763298e881e8b91"
     },
     "probes.json": {
-      "bytes": 3448,
-      "sha256": "190b93926f951ae3840a264781dee2bf8c1bbec8630caee363416ba09faa1a81"
+      "bytes": 3447,
+      "sha256": "79ce567344115e7717a28860ed579998b79dcc185bc6c81cade5b2ed10b16ba6"
+    },
+    "repairs.json": {
+      "bytes": 1970,
+      "sha256": "fa3553e73076da0d6aff15fcb8536e52fcd37372bfa0f194276bf8835a845961"
     },
     "review.json": {
-      "bytes": 15336,
-      "sha256": "41957733f8ded050eb3dc41b9fc75c31967002725e3d1de7341291b192cc489e"
+      "bytes": 16144,
+      "sha256": "2f91c237bc5ebf890f0ff2fa2254249fc4c183661842a2fa9378bfe95e5ef8f7"
     },
     "validation.json": {
       "bytes": 12196,
-      "sha256": "9ecd5fa3a917a7b18ccbd96f330e71dfea6becb9031701fc36cf5f0afba8886e"
+      "sha256": "60f32eccf39c134daaf7699f0b97ea730c0ed066a8aaf3ab407b2b35ae46499e"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-24T10:47:11Z",
+    "proven_at": "2026-09-25T07:45:14Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
   "revision": "10a906b48c0c11005c4d93b524e4431901c9717c",
   "schema_version": 1,
-  "sealed_at": "2026-09-24T10:47:11Z",
+  "sealed_at": "2026-09-25T07:45:14Z",
   "state": "READY_FOR_PROPOSAL"
 }

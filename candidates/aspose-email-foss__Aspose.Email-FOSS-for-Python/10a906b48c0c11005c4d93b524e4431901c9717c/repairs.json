@@ -1,0 +1,40 @@
+{
+  "attempts": {
+    "bdd3c22c418b3594adf159dc": {
+      "changes": [],
+      "label": "F12+F13+F14+F15+F16",
+      "misrouted": false,
+      "outcome": "escalated",
+      "reason": "the revision would leave preview, workflow:example:003, workflow:example:004, workflow:example:006 where the plan assigned preview, workflow:example:003, workflow:example:004, workflow:example:006; escalated once to a plan-level repair at S5",
+      "request_sha256": null,
+      "section_id": "additional_examples",
+      "source": "review",
+      "stage": "S6"
+    },
+    "cfdb291d25a9ee1d33e2bede": {
+      "changes": [
+        {
+          "after": "[  {    section_id: api_reference,    text: The API Reference section omits the HTML details wrapper and renders tables directly from public_symbol facts.,    fact_ids: [inherited_unit:042.html_block]  }]",
+          "before": "[  {    section_id: api_reference,    text: The API Reference section omits the HTML details wrapper and renders tables directly from public_symbol facts.,    fact_ids: [inherited_unit:042.html_block]  },  {    section_id: additional_examples,    text: The Inspect Low-Level MSG and CFB Structure example is omitted because it has no citable fact support.,    fact_ids: [inherited_unit:033.heading, inherited_unit:034.paragraph, inherited_unit:035.code_block]  }]",
+          "fact_ids": [
+            "inherited_unit:033.heading",
+            "inherited_unit:034.paragraph",
+            "inherited_unit:035.code_block"
+          ],
+          "id": "R01",
+          "path": "deviations"
+        }
+      ],
+      "label": "F12+F13+F14+F15+F16",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "fac47aa85cd3cb7bf1616cf4c90c1298031c70a66e6c4d2ec581497621e2a7bf",
+      "section_id": null,
+      "source": "review",
+      "stage": "S5"
+    }
+  },
+  "composition": "21c2d7fec2e21b4aaaa286345f23752c01d623c45e215d31d5a05951116391e2",
+  "schema_version": 1
+}

@@ -200,23 +200,13 @@
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
         "import_path:aspose.email_foss",
-        "package:license",
-        "package:name",
-        "package:python_requires",
-        "package:version",
         "public_symbol:email_foss",
-        "public_symbol:email_foss.msg.mapi_message",
-        "public_symbol:email_foss.cfb"
+        "inherited_unit:041.paragraph"
       ],
       "section": "api_reference",
       "slot": "intro",
-      "text": "Aspose.Email FOSS for Python provides the email_foss module for working with email formats, with email_foss.msg.mapi_message as the primary entry point for handling MAPI messages and email_foss.cfb for low-level Compound File Binary structure operations."
+      "text": "Aspose.Email FOSS for Python provides high-level and low-level APIs for working with email formats, with the high-level MSG API centered on MapiMessage for message creation and conversion, and the low-level MSG and CFB APIs offering direct access to property streams and Compound File Binary containers respectively."
     },
     {
       "fact_ids": [
@@ -225,20 +215,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:email_foss",
-      "text": "The email_foss module exposes core functionality for handling email formats, including reading and writing MAPI messages and Compound File Binary structures through its public symbols."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:email_foss.msg",
-        "public_symbol:email_foss.msg.mapi_message",
-        "public_symbol:email_foss.msg.mapiattachment",
-        "public_symbol:email_foss.msg.mapinamedproperty",
-        "public_symbol:email_foss.msg.mapiproperty",
-        "public_symbol:email_foss.msg.mapirecipient"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:email_foss.msg",
-      "text": "The email_foss.msg module provides the MapiMessage class for representing and manipulating MAPI messages, along with supporting classes MapiAttachment, MapiNamedProperty, MapiProperty, and MapiRecipient for handling message components."
+      "text": "The top-level email_foss module serves as the package entry point, exposing the high-level MSG API centered on MapiMessage and the low-level MSG and CFB modules for direct property-stream and container access."
     },
     {
       "fact_ids": [
@@ -251,7 +228,91 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:email_foss.cfb",
-      "text": "The email_foss.cfb module provides the CFBReader and CFBWriter classes for reading and writing Compound File Binary structures, along with supporting classes CFBDocument, CFBStorage, and CFBStream for navigating and manipulating the file format."
+      "text": "The email_foss.cfb module provides the low-level CFB API for reading and writing Compound File Binary containers, with CFBReader and CFBWriter handling parsing and serialization, and CFBDocument, CFBStorage, and CFBStream representing the container structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg",
+        "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.msg.msgdocument",
+        "public_symbol:email_foss.msg.msgreader",
+        "public_symbol:email_foss.msg.msgwriter"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg",
+      "text": "The email_foss.msg module provides both high-level and low-level MSG APIs, with MapiMessage supporting message creation and conversion, and MsgReader, MsgWriter, and MsgDocument enabling direct access to property streams and subobject structures."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapiattachment"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.mapiattachment",
+      "text": "MapiAttachment represents an attachment in a MapiMessage, supporting embedded messages and storage attachments with methods to create, inspect, and modify attachment properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgreader"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.msgreader",
+      "text": "MsgReader parses MSG files and provides access to property streams, recipient storages, attachment storages, and the underlying CFB structure through its cfb_reader property."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgwriter"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.msgwriter",
+      "text": "MsgWriter serializes MapiMessage objects to MSG files, supporting output to bytes or file paths while preserving the MSG format structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfbreader"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.cfb.cfbreader",
+      "text": "CFBReader parses Compound File Binary files and exposes container metadata such as sector_size, major_version, and directory_entry_count, along with methods to navigate the internal structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfbwriter"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.cfb.cfbwriter",
+      "text": "CFBWriter constructs Compound File Binary containers in memory and can serialize them to bytes or write them directly to a file path."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgerror"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.msgerror",
+      "text": "MsgError is raised when parsing or processing MSG files encounters issues that prevent successful completion."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfberror"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.cfb.cfberror",
+      "text": "CFBError is raised when parsing or writing Compound File Binary files encounters structural or format issues."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.propertyid"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.propertyid",
+      "text": "PropertyId defines the numeric identifiers used to reference properties in MSG property streams, such as SENDER_NAME and SENDER_EMAIL_ADDRESS."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapinamedproperty"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.mapinamedproperty",
+      "text": "MapiNamedProperty represents a named property in MSG files, storing either a numeric identifier or a string name along with its value."
     },
     {
       "fact_ids": [
@@ -259,7 +320,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:email_foss.msg.mapi_message.mapipropertycollection",
-      "text": "The MapiPropertyCollection class represents a collection of properties associated with a MAPI message, providing methods to add, retrieve, update, and remove individual properties using their identifiers."
+      "text": "The MapiPropertyCollection class represents a collection of MAPI properties associated with a MapiMessage, providing methods to add, get, set, and remove individual properties by their identifier."
     },
     {
       "fact_ids": [
@@ -313,7 +374,8 @@
     },
     {
       "fact_ids": [
-        "inherited_unit:066.list"
+        "inherited_unit:066.list",
+        "install_command:pip"
       ],
       "section": "scope_limitations",
       "slot": "limitation:1",
