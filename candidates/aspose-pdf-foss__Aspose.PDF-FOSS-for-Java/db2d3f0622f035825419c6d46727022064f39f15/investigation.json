@@ -1,0 +1,205 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:java_release",
+      "dependency:none"
+    ],
+    "text": "Java developers building server-side or desktop applications that require PDF document generation, manipulation, and extraction without third-party runtime dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:005",
+        "example:002",
+        "example:007"
+      ],
+      "text": "Build pages from scratch using Document, Page, and Paragraphs to add text, tables, and form elements.",
+      "title": "Create and modify PDF documents"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "text": "Use TextAbsorber to extract plain text and iterate XImage resources to save images to files.",
+      "title": "Extract text and images"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007"
+      ],
+      "text": "Access and modify form fields including TextBoxField and RadioButtonOptionField through the Form facade.",
+      "title": "Work with AcroForm fields"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008",
+        "example:009"
+      ],
+      "text": "Set and read annotation properties such as border color, background color, and border style.",
+      "title": "Configure annotations and widget characteristics"
+    },
+    {
+      "fact_ids": [
+        "package:name",
+        "license:spdx",
+        "dependency:none"
+      ],
+      "text": "Apply resource optimization, encrypt with AES/RC4, and sign with PKCS#7 via dedicated APIs.",
+      "title": "Optimize and secure documents"
+    },
+    {
+      "fact_ids": [
+        "package:name",
+        "license:spdx"
+      ],
+      "text": "Convert documents to PDF/A and validate against PDF/A-1 through PDF/A-4 requirements.",
+      "title": "Convert and validate PDF standards"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "No OCR support for recognizing text in scanned images; a dedicated OCR library is required."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "Concurrency is not supported for a single Document instance; separate instances are required for parallel processing."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "Text replacement with non-Latin scripts may differ from reference renderers due to limited bidirectional reordering and shaping."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "Resource optimization has limited advanced strategies; image downsampling and font merging across resources are constrained."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "Tagged PDF structure trees are readable and constructible but not fully covered for well-formedness."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "text": "PDF/X validation and conversion lack dedicated test coverage despite API support."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "example:008",
+        "example:009"
+      ],
+      "text": "Enables programmatic creation and modification of PDF documents including text, tables, forms, annotations, and images using a consistent Java API."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "text": "Supports extraction of text and images from existing PDFs for indexing, analysis, or repurposing content."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007"
+      ],
+      "text": "Provides form field population and interaction capabilities for AcroForm and RadioButtonOptionField elements."
+    },
+    {
+      "fact_ids": [
+        "package:name",
+        "license:spdx",
+        "dependency:none"
+      ],
+      "text": "Offers document optimization, security (encryption/signing), and conversion to PDF/A or HTML without external libraries."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:java_release",
+      "license:spdx"
+    ],
+    "text": "Aspose.PDF FOSS for Java is a free, open-source, pure-Java library for creating, reading, and modifying PDF documents, targeting ISO 32000-1:2008 compliance."
+  },
+  "uncertainties": [
+    "The exact scope of 'partial' tagged PDF support beyond what is stated in the inherited README is unclear.",
+    "Whether 'basic stream recompression' in resource optimization covers all common compression algorithms is not specified.",
+    "The behavior of XFA form conversion to AcroForm when dynamic layout features are present is not detailed beyond flattening.",
+    "The thread-safety boundary for Document instances and related objects is not explicitly defined beyond the Document itself."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:005"
+      ],
+      "name": "Create PDF from scratch",
+      "text": "Instantiate a Document, add pages, insert text fragments, and save the output file."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "name": "Extract text from PDF",
+      "text": "Load a PDF, apply TextAbsorber to pages, and retrieve extracted text content."
+    },
+    {
+      "fact_ids": [
+        "example:004"
+      ],
+      "name": "Extract images from PDF",
+      "text": "Iterate over page resources' image collections and save each image to a file stream."
+    },
+    {
+      "fact_ids": [
+        "example:006"
+      ],
+      "name": "Populate form fields",
+      "text": "Load a PDF with forms, access fields via Form, set values, and save the filled document."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:007"
+      ],
+      "name": "Add interactive form elements",
+      "text": "Create RadioButtonOptionField instances, add them to cells or pages, and configure options."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008"
+      ],
+      "name": "Configure widget annotation properties",
+      "text": "Create WidgetAnnotation, set border or background color, and read back property values."
+    }
+  ]
+}

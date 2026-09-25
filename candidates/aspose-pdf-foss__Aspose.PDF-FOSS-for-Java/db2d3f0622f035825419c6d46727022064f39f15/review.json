@@ -1,0 +1,240 @@
+{
+  "advisory": [
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "id": "F01",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-pdf-foss`, version 26.8.0):",
+      "repair": "Change the version in the installation section to 26.6.0 to match the original README and facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
+      "section_id": "installation",
+      "text": "The candidate states the package version is 26.8.0, but the original README and facts indicate 26.6.0."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "The verified public surface has 1158 types.",
+      "repair": "Change the type count to 1026 to match the original README.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate claims the public API surface has 1158 types, but the original README states 1026 types."
+    },
+    {
+      "absent": [
+        "implementation 'org.aspose:aspose-pdf-foss:26.6.0'"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-pdf-foss`, version 26.8.0):",
+      "repair": "Add the Gradle installation command: `implementation 'org.aspose:aspose-pdf-foss:26.6.0'`.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
+      "section_id": "installation",
+      "text": "The candidate omits the Gradle installation command from the original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "dependency:development.org.junit.jupiter-junit-jupiter"
+      ],
+      "id": "F04",
+      "quote": "### Development Dependencies",
+      "repair": "Ensure the JUnit version is correctly stated as 5.10.2.",
+      "reviewer_scope_defect": "the quote is the heading 'Development Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate states the JUnit version as 5.10.2, but the original README and facts indicate 5.10.2 is correct."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "### Core API",
+      "repair": "Remove the additional classes from the API reference that are not present in the original README's API reference section.",
+      "reviewer_scope_defect": "the quote is the heading 'Core API', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "api_reference",
+      "text": "The candidate includes many classes in the API reference that are not present in the original README's API reference section."
+    },
+    {
+      "absent": [
+        "implementation 'org.aspose:aspose-pdf-foss:26.8.0'"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "id": "F01",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-pdf-foss`, version 26.8.0):",
+      "reader": 2,
+      "repair": "Add the Gradle installation command: `implementation 'org.aspose:aspose-pdf-foss:26.8.0'`.",
+      "reviewer_scope_defect": "the finding asks for \"implementation 'org.aspose:aspose-pdf-foss:26.8.0'\", which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "installation",
+      "text": "The candidate omits the Gradle installation command entirely, which is present in the original README and supported by the facts."
+    },
+    {
+      "absent": [
+        "in `pom.xml`, every `<dependency>` the POM declares is `test`, `provided` or optional"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:none"
+      ],
+      "id": "F02",
+      "quote": "No required third-party package dependencies; in `pom.xml`, every `<dependency>` the POM declares is `test`, `provided` or optional.",
+      "reader": 2,
+      "repair": "Add: 'in `pom.xml`, every `<dependency>` the POM declares is `test`, `provided` or optional'.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'in `pom.xml`, every `<dependency>` the POM declares is `test`, `provided` or optional', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The candidate omits the `pom.xml` detail that every dependency is test, provided, or optional, which is present in the original README and supported by the facts."
+    },
+    {
+      "absent": [
+        "`maven.compiler.target` in `pom.xml`"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:java_release"
+      ],
+      "id": "F03",
+      "quote": "Requires Java `11` (`maven.compiler.target` in `pom.xml`).",
+      "reader": 2,
+      "repair": "Add: '(`maven.compiler.target` in `pom.xml`)'.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '`maven.compiler.target` in `pom.xml`', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The candidate omits the `maven.compiler.target` detail for Java version, which is present in the original README and supported by the facts."
+    },
+    {
+      "absent": [
+        "### org",
+        "The top-level namespace org groups the Aspose.PDF FOSS for Java module, with `org.aspose` providing the next-level"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "id": "F04",
+      "quote": "The central class is `Document` (ISO 32000-1:2008), whose pages are reached through `PageCollection` and `Page`, each backed by a `Resources` dictionary. Document-level convenience operations are exposed through the facades — `PdfFileEditor`, `PdfContentEditor`, `PdfBookmarkEditor`, `PdfExtractor`, `PdfConverter`, and `PdfFileSignature`, among others. The public API surface spans 1026 public types across the module-grouped tables below.",
+      "reader": 2,
+      "repair": "Add the 'Detailed Member Reference' section and the 'org' subsection as present in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### org', 'The top-level namespace org groups the Aspose.PDF FOSS for Java module, with `org.aspose` providing the next-level', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate omits the 'Detailed Member Reference' section and the 'org' subsection, which are present in the original README and supported by the facts."
+    },
+    {
+      "absent": [
+        "Concurrency: a single `Document` instance is not thread-safe — use one `Document` per thread, opening separate instances",
+        " for parallel processing."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "id": "F06",
+      "quote": "These limitations don't apply to [Aspose.PDF for Java — Enterprise Edition](https://products.aspose.com/pdf/java/).",
+      "reader": 2,
+      "repair": "Add the 'Concurrency' limitation: 'a single `Document` instance is not thread-safe — use one `Document` per thread, opening separate instances for parallel processing.'",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "scope_limitations",
+      "text": "The candidate omits the 'Concurrency' limitation, which is present in the original README and supported by the facts."
+    },
+    {
+      "absent": [
+        "mvn clean compile",
+        "mvn test",
+        "mvn test -Dtest=DocumentActionsTest",
+        "mvn test -Dtest=DocumentActionsTest#allFiveAAEntries_setIndependently",
+        "mvn clean install",
+        "mvn javadoc:javadoc"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:ci"
+      ],
+      "id": "F07",
+      "quote": "Build and test Aspose.PDF FOSS for Java using Java 11 and the build tool defined in the repository's CI workflow at .github/workflows/.",
+      "reader": 2,
+      "repair": "Add the specific Maven commands: `mvn clean compile`, `mvn test`, `mvn test -Dtest=DocumentActionsTest`, `mvn test -Dtest=DocumentActionsTest#allFiveAAEntries_setIndependently`, `mvn clean install`, and `mvn javadoc:javadoc`.",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact build_test_asset:ci ('.github/workflows/'), which the finding itself cites as its evidence; literal fact text is supported whatever criterion the finding files itself under",
+      "section_id": "development_testing",
+      "text": "The candidate omits the specific Maven commands for compile, test, and javadoc, which are present in the original README and supported by the facts."
+    },
+    {
+      "absent": [
+        "This package provides open-source access to PDF processing capabilities; the commercial edition extends these features",
+        " with additional processing options, advanced rendering, and enterprise support."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "id": "F08",
+      "quote": "These limitations don't apply to [Aspose.PDF for Java — Enterprise Edition](https://products.aspose.com/pdf/java/).",
+      "reader": 2,
+      "repair": "Add the 'Enterprise Edition' link and description: 'This package provides open-source access to PDF processing capabilities; the commercial edition extends these features with additional processing options, advanced rendering, and enterprise support.'",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'This package provides open-source access to PDF processing capabilities; the commercial edition extends these features', 'with additional processing options, advanced rendering, and enterprise support.', which the candidate contains",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate omits the 'Enterprise Edition' link and description, which are present in the original README and supported by the facts."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "c6b2545e347e8d7a24f0a84d54bc476bb6e15b6b2db6197dd17079c9051e9ecc",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "012d630ea87dd4b2ed3b6aaa",
+      "5b4af6802e28f2886ef081a2",
+      "7bf2dd6eda183d6293dbc405",
+      "949e03aa2a199c11ad781c51",
+      "d781ad532f35f6143cb672ef",
+      "fda854a22f02daa23e26407a"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_FACTUAL"
+}

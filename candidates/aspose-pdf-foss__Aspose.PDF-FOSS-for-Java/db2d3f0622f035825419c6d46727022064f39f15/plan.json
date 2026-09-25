@@ -1,0 +1,457 @@
+{
+  "additional_example_ids": [
+    "example:002",
+    "example:003",
+    "example:004",
+    "example:005",
+    "example:006",
+    "example:007",
+    "example:008",
+    "example:009"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "symbol_fact_id": "public_symbol:org"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and modify PDF documents",
+      "Extract text and images",
+      "Work with AcroForm fields",
+      "Configure annotations and widget characteristics",
+      "Optimize and secure documents",
+      "Convert and validate PDF standards"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:005",
+        "example:002",
+        "example:007"
+      ],
+      "shared_fact_ids": [
+        "example:007"
+      ],
+      "title": "Create and modify PDF documents"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "shared_fact_ids": [],
+      "title": "Extract text and images"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007"
+      ],
+      "shared_fact_ids": [
+        "example:007"
+      ],
+      "title": "Work with AcroForm fields"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008",
+        "example:009"
+      ],
+      "shared_fact_ids": [],
+      "title": "Configure annotations and widget characteristics"
+    },
+    {
+      "fact_ids": [
+        "package:name",
+        "license:spdx",
+        "dependency:none"
+      ],
+      "shared_fact_ids": [
+        "license:spdx",
+        "package:name"
+      ],
+      "title": "Optimize and secure documents"
+    },
+    {
+      "fact_ids": [
+        "package:name",
+        "license:spdx"
+      ],
+      "shared_fact_ids": [
+        "license:spdx",
+        "package:name"
+      ],
+      "title": "Convert and validate PDF standards"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "install_command:maven",
+        "package:version"
+      ],
+      "section_id": "installation",
+      "text": "The version in the inherited Maven and Gradle code blocks (26.6.0) contradicts the package version fact (26.8.0); the version was updated to 26.8.0."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:032.html_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The HTML details block in the inherited README is promotional and unsupported; it was omitted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:050.html_block",
+        "inherited_unit:051.heading",
+        "inherited_unit:052.table",
+        "inherited_unit:053.heading",
+        "inherited_unit:054.table",
+        "inherited_unit:055.heading",
+        "inherited_unit:056.table",
+        "inherited_unit:057.heading",
+        "inherited_unit:058.table",
+        "inherited_unit:059.heading",
+        "inherited_unit:060.table",
+        "inherited_unit:061.heading",
+        "inherited_unit:062.table",
+        "inherited_unit:063.heading",
+        "inherited_unit:064.table",
+        "inherited_unit:065.heading",
+        "inherited_unit:066.table",
+        "inherited_unit:067.heading",
+        "inherited_unit:068.table",
+        "inherited_unit:069.heading",
+        "inherited_unit:070.table",
+        "inherited_unit:071.heading",
+        "inherited_unit:072.table",
+        "inherited_unit:073.heading",
+        "inherited_unit:074.table",
+        "inherited_unit:075.heading",
+        "inherited_unit:076.table",
+        "inherited_unit:077.heading",
+        "inherited_unit:078.table",
+        "inherited_unit:079.heading",
+        "inherited_unit:080.table",
+        "inherited_unit:081.heading",
+        "inherited_unit:082.table",
+        "inherited_unit:083.heading",
+        "inherited_unit:084.table",
+        "inherited_unit:085.heading",
+        "inherited_unit:086.table",
+        "inherited_unit:087.heading",
+        "inherited_unit:088.table",
+        "inherited_unit:089.heading",
+        "inherited_unit:090.table",
+        "inherited_unit:091.heading",
+        "inherited_unit:092.table",
+        "inherited_unit:093.heading",
+        "inherited_unit:094.table",
+        "inherited_unit:095.heading",
+        "inherited_unit:096.table",
+        "inherited_unit:097.heading",
+        "inherited_unit:098.table",
+        "inherited_unit:099.heading",
+        "inherited_unit:100.table",
+        "inherited_unit:101.heading",
+        "inherited_unit:102.table",
+        "inherited_unit:103.heading",
+        "inherited_unit:104.table",
+        "inherited_unit:105.heading",
+        "inherited_unit:106.table",
+        "inherited_unit:107.heading",
+        "inherited_unit:108.table",
+        "inherited_unit:109.heading",
+        "inherited_unit:110.table",
+        "inherited_unit:111.heading",
+        "inherited_unit:112.heading",
+        "inherited_unit:113.001.list",
+        "inherited_unit:113.002.list",
+        "inherited_unit:113.003.list",
+        "inherited_unit:113.004.list",
+        "inherited_unit:114.heading",
+        "inherited_unit:115.001.list",
+        "inherited_unit:115.002.list",
+        "inherited_unit:115.003.list",
+        "inherited_unit:116.heading",
+        "inherited_unit:117.001.list",
+        "inherited_unit:117.002.list",
+        "inherited_unit:117.003.list",
+        "inherited_unit:118.heading",
+        "inherited_unit:119.001.list",
+        "inherited_unit:119.002.list",
+        "inherited_unit:119.003.list",
+        "inherited_unit:119.004.list",
+        "inherited_unit:119.005.list",
+        "inherited_unit:120.heading",
+        "inherited_unit:121.001.list",
+        "inherited_unit:121.002.list",
+        "inherited_unit:121.003.list",
+        "inherited_unit:122.heading",
+        "inherited_unit:123.001.list",
+        "inherited_unit:123.002.list",
+        "inherited_unit:124.html_block"
+      ],
+      "section_id": "api_reference",
+      "text": "The inherited API reference tables are superseded by the API Reference section which renders the complete public surface from facts."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:136.code_block"
+      ],
+      "section_id": "development_testing",
+      "text": "The code block in the inherited README is not supported by any fact and was omitted."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:029",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:030",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:031",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:032",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:033",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:034",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:035",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:036",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:037",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:038",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:039",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:040",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:041",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:042",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:043",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:044",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:045",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:046",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:047",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:048",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "link_fact_id": "link_target:049",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:050",
+      "section_id": "development_testing"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "unit_ids": [
+        "inherited_unit:128.paragraph",
+        "inherited_unit:129.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "unit_ids": [
+        "inherited_unit:132.paragraph"
+      ]
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "unit_ids": [
+        "inherited_unit:130.paragraph",
+        "inherited_unit:131.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}
