@@ -33,6 +33,8 @@ from repository_presenter.components.readme.composition.authoring import (
     prose_nouns,
     reconstructed_task_output,
     recover_forbidden_command_units,
+    recover_title_verbatim_opening,
+    repair_title_verbatim_opening_errors,
     section_selections,
     section_spellings,
     slot_fact_sets,
@@ -2386,3 +2388,114 @@ def test_recover_forbidden_command_units_is_none_when_no_command_marker_is_prese
     }
     assert unit_checks(json.loads(json.dumps(raw)), task, FACTS, NAME) == []
     assert recover_forbidden_command_units(raw) is None
+
+
+def _key_capabilities_task(title: str) -> SectionTask:
+    return SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"identity:repository", "public_symbol:aspose.threed.scene.save"}),
+        ("capability:1",),
+        slot_titles={"capability:1": title},
+    )
+
+
+def _key_capabilities_unit(text: str) -> dict[str, object]:
+    return {
+        "section": "key_capabilities",
+        "slot": "capability:1",
+        "text": text,
+        "fact_ids": ["identity:repository", "public_symbol:aspose.threed.scene.save"],
+    }
+
+
+_TITLE = "Export scene data"
+# The exact real-world shape (docs/DECISION_LOG.md 2026-09-25 08:04 UTC, BarCode-Python F03): the
+# unit's own opening sentence is its slot's title restated verbatim, followed by a second sentence
+# carrying real member-level detail (a verified public symbol, two verified format extensions) -
+# unit_checks' own item-106 carve-out reads this as compliant.
+_TITLE_VERBATIM_TEXT = (
+    f"{_TITLE}. It supports aspose.threed.Scene.save with configurable output such as .glb and "
+    ".obj."
+)
+
+
+def test_repair_title_verbatim_opening_errors_flags_what_unit_checks_own_carve_out_exempts() -> (
+    None
+):
+    """G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC (aspose-barcode-foss/Aspose.BarCode-FOSS-
+    for-Python BC-10 F03): unit_checks' own item-106 carve-out exempts a unit that opens with its
+    title restated verbatim once real member-level detail follows - correct for a fresh
+    section_authoring draft (item 106, PDF-Cpp), but independent review's own separate semantic
+    judgment still flags the literal opening clause as generic regardless of what trails it.
+    repair_title_verbatim_opening_errors is the repair path's own stricter check for that gap;
+    unit_checks itself is confirmed here to stay exactly as permissive as before."""
+    task = _key_capabilities_task(_TITLE)
+    output = {"units": [_key_capabilities_unit(_TITLE_VERBATIM_TEXT)]}
+    # Confirms the fixture reproduces the exact gap this fix closes: unit_checks' own carve-out
+    # (real detail follows the verbatim opening) lets the unit through untouched.
+    assert unit_checks(json.loads(json.dumps(output)), task, FACTS, NAME) == []
+    assert repair_title_verbatim_opening_errors(output, task) == [
+        f"unit capability:1: opens with its own title {_TITLE!r} restated verbatim; independent "
+        "review treats this literal opening clause as generic regardless of what detail follows "
+        "it - remove or rewrite the opening clause itself, never just add detail after it"
+    ]
+
+
+def test_recover_title_verbatim_opening_strips_the_clause_and_clears_both_checks() -> None:
+    """The successful repair: recover_title_verbatim_opening strips exactly the literal opening
+    clause, keeps the real detail, and the corrected unit clears unit_checks AND the repair path's
+    own stricter check - run_job re-validates through both (functools.partial-composed via
+    _reject_title_verbatim_opening, repair/rounds.py) before ever accepting a recovery."""
+    task = _key_capabilities_task(_TITLE)
+    raw = {
+        "fingerprint": "f" * 24,
+        "causal_stage": "S6",
+        "revised_output": {"units": [_key_capabilities_unit(_TITLE_VERBATIM_TEXT)]},
+        "changes": [],
+    }
+    recovered = recover_title_verbatim_opening(raw, slot_titles=task.slot_titles)
+    assert recovered is not None
+    text = recovered["revised_output"]["units"][0]["text"]
+    assert not text.lower().startswith(_TITLE.lower())
+    assert "aspose.threed.Scene.save" in text
+    assert unit_checks(recovered["revised_output"], task, FACTS, NAME) == []
+    assert repair_title_verbatim_opening_errors(recovered["revised_output"], task) == []
+
+
+def test_recover_title_verbatim_opening_never_force_accepts_a_still_failing_unit() -> None:
+    """Mutation control, mirroring recover_forbidden_command_units' own never-force-accepts test:
+    a unit whose title-verbatim opening is stripped but which still fails unit_checks for a
+    second, unrelated defect (an unaccepted identifier) is not force-cleared."""
+    task = _key_capabilities_task(_TITLE)
+    text = f"{_TITLE}. It raises SceneCorruptionError under low memory."
+    raw = {
+        "fingerprint": "f" * 24,
+        "causal_stage": "S6",
+        "revised_output": {"units": [_key_capabilities_unit(text)]},
+        "changes": [],
+    }
+    recovered = recover_title_verbatim_opening(raw, slot_titles=task.slot_titles)
+    assert recovered is not None
+    assert "SceneCorruptionError" in recovered["revised_output"]["units"][0]["text"]
+    # The verbatim opening is gone, but an unrelated defect (an identifier not in the accepted
+    # facts) survives the correction untouched - never force-cleared.
+    assert unit_checks(recovered["revised_output"], task, FACTS, NAME) == [
+        "unit capability:1: identifiers that are not accepted fact values: SceneCorruptionError"
+    ]
+
+
+def test_recover_title_verbatim_opening_is_none_when_no_unit_opens_with_its_title() -> None:
+    """Mutation control: a unit already clean of the shape - recover has nothing to try, and
+    returns None, never a no-op copy of output (the same contract every other recover= function
+    in this module is held to)."""
+    task = _key_capabilities_task(_TITLE)
+    raw = {
+        "fingerprint": "f" * 24,
+        "causal_stage": "S6",
+        "revised_output": {
+            "units": [_key_capabilities_unit("It supports several scene export formats.")]
+        },
+        "changes": [],
+    }
+    assert recover_title_verbatim_opening(raw, slot_titles=task.slot_titles) is None

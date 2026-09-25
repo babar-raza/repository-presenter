@@ -165,7 +165,23 @@ _TYPE_OBJECTIVE = (
 # re-ask, previously always a JobError, may now be corrected and re-validated through the
 # unchanged unit_checks before acceptance). unit_checks itself is untouched - the check stays
 # exactly as strict; only the last-resort recovery path is new.
-NORMALISATION_VERSION = "13"
+# "13" -> "14" (G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC, aspose-barcode-foss/
+# Aspose.BarCode-FOSS-for-Python BC-10): item 106's own carve-out exempts a unit whose text opens
+# with its own title restated verbatim once real member-level detail follows it - correct for a
+# *fresh* section_authoring draft of a genuinely single-purpose capability with no compliant
+# paraphrase at all (item 106, PDF-Cpp), but independent review's own separate semantic judgment
+# still treats the literal opening clause itself as generic no matter what trails it, and a
+# targeted_repair reacting to that exact finding regressed BarCode-Python's key_capabilities
+# capability:1 back into the title-verbatim opening unit_checks itself had never rejected in the
+# first place (attempt 2 was "accepted", not corrected). Two new functions, both scoped to the
+# *repair* path only - unit_checks itself, and what a fresh section_authoring draft may accept,
+# are both byte-for-byte unchanged: repair_title_verbatim_opening_errors (repair/rounds.py's own
+# _reject_title_verbatim_opening layers it onto an S6 repair's stage_checks, so a repair reply
+# that still opens with the literal title is rejected there even though unit_checks would pass
+# it) and recover_title_verbatim_opening (repair/rounds.py's own S6 recover=, mirroring
+# recover_forbidden_command_units's shape: strips the literal opening clause only, re-validated
+# through the real unit_checks - plus this new stricter repair-only check - before acceptance).
+NORMALISATION_VERSION = "14"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -1620,6 +1636,118 @@ def recover_forbidden_command_units(output: dict[str, Any]) -> dict[str, Any] | 
         if stripped is not None:
             unit["text"] = stripped
             changed = True
+    return output if changed else None
+
+
+def _title_verbatim_opening_length(text: str, title: str) -> int | None:
+    """How many leading characters of ``text`` are ``title`` restated verbatim as its own opening
+    clause - the title itself, any leading whitespace before it, and any immediate sentence-
+    ending punctuation and whitespace right after it - or ``None`` when ``text`` does not open
+    this way.
+
+    G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC (aspose-barcode-foss/Aspose.BarCode-FOSS-
+    for-Python BC-10 F03): independent review's own stricter standard is about the opening clause
+    specifically, not mere containment (``unit_checks``'s own item-99/106 guard already tests
+    ``title.lower() in text.lower()`` anywhere in the text) - a title present later in a unit is
+    not this shape. A following word or apostrophe character right after the title-length prefix
+    means ``text`` merely starts with the same letters as a longer word or phrase (the title is
+    not the whole opening clause), and is not matched.
+    """
+    lead = len(text) - len(text.lstrip())
+    stripped = text[lead:]
+    trimmed_title = title.strip()
+    if not trimmed_title or not stripped.lower().startswith(trimmed_title.lower()):
+        return None
+    remainder = stripped[len(trimmed_title) :]
+    if remainder and (remainder[0].isalnum() or remainder[0] == "'"):
+        return None
+    consumed = 0
+    while consumed < len(remainder) and remainder[consumed] in ".:!?":
+        consumed += 1
+    while consumed < len(remainder) and remainder[consumed].isspace():
+        consumed += 1
+    return lead + len(trimmed_title) + consumed
+
+
+def repair_title_verbatim_opening_errors(output: Mapping[str, Any], task: SectionTask) -> list[str]:
+    """Independent review's own stricter title-restatement standard, layered onto an S6 repair's
+    own checks only (``_reject_title_verbatim_opening``, ``repair/rounds.py``) - never onto
+    ``unit_checks`` itself, which stays exactly as permissive as before for a fresh
+    ``section_authoring`` draft.
+
+    G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC (aspose-barcode-foss/Aspose.BarCode-FOSS-
+    for-Python BC-10 F03): ``unit_checks``'s own item-106 carve-out exempts a unit whose text
+    opens with its own title restated verbatim once real member-level detail follows it - correct
+    for a genuinely single-purpose capability with no compliant paraphrase at all (item 106,
+    PDF-Cpp) - but independent review's own separate semantic judgment still flags the literal
+    opening clause itself as generic, whatever detail trails it. Measured live: a
+    ``targeted_repair`` reply reintroduced exactly this shape, and ``unit_checks`` accepted it
+    (the carve-out applied), so the regression was never rejected at all - only a second,
+    independent review draw caught it, by when the one repair attempt per fingerprint was already
+    spent. A repair reacting to review's own finding has a narrower job than a fresh draft:
+    revise the flagged opening clause itself, not merely add detail after it - so this check
+    rejects the shape in the repair path, giving ``run_job``'s own ``recover=`` a rejection to act
+    on.
+    """
+    errors: list[str] = []
+    for unit in output.get("units", []):
+        title = task.slot_titles.get(str(unit.get("slot")))
+        text = str(unit.get("text", ""))
+        if title and _title_verbatim_opening_length(text, title) is not None:
+            errors.append(
+                f"unit {unit.get('slot')}: opens with its own title {title!r} restated "
+                "verbatim; independent review treats this literal opening clause as generic "
+                "regardless of what detail follows it - remove or rewrite the opening clause "
+                "itself, never just add detail after it"
+            )
+    return errors
+
+
+def recover_title_verbatim_opening(
+    output: dict[str, Any], *, slot_titles: Mapping[str, str]
+) -> dict[str, Any] | None:
+    """Last-resort correction for a ``targeted_repair`` job's own final rejected attempt only
+    (``recover=``, ``core/llm/jobs.py``) - never called on a first attempt, so the model's own one
+    universal re-ask is always tried first exactly as before; a revision
+    ``repair_title_verbatim_opening_errors`` (or any other repair check) would still reject for an
+    unrelated reason is unaffected, since ``run_job`` re-validates the corrected output through
+    the real checks - unit_checks included - before ever accepting it.
+
+    G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC (aspose-barcode-foss/Aspose.BarCode-FOSS-
+    for-Python BC-10 F03): mirrors ``recover_forbidden_command_units``'s own shape and discipline,
+    for the repair path's own stricter title-restatement check instead of section_authoring's
+    ``_FORBIDDEN`` markers. Operates on ``revised_output.units`` - a ``targeted_repair`` reply's
+    own shape - rather than ``output["units"]`` directly, since this recovers a repair job's
+    reply, not a fresh ``section_authoring`` one. Strips only the literal title-verbatim opening
+    clause; what remains is never rewritten or invented, and a unit whose title-opening clause is
+    all it says (stripping would leave nothing meaningful) is left untouched rather than forced
+    into an empty unit.
+
+    Returns ``None`` when nothing was stripped (nothing to try), never a no-op copy of ``output``.
+    """
+    revised = output.get("revised_output")
+    if not isinstance(revised, dict):
+        return None
+    units = revised.get("units")
+    if not isinstance(units, list):
+        return None
+    changed = False
+    for unit in units:
+        if not isinstance(unit, dict):
+            continue
+        title = slot_titles.get(str(unit.get("slot")))
+        text = unit.get("text")
+        if not title or not isinstance(text, str):
+            continue
+        end = _title_verbatim_opening_length(text, title)
+        if end is None:
+            continue
+        remainder = text[end:].strip()
+        if not remainder:
+            continue  # nothing meaningful would remain; do not force an empty unit
+        fixed = remainder[0].upper() + remainder[1:] if remainder[0].isalpha() else remainder
+        unit["text"] = fixed
+        changed = True
     return output if changed else None
 
 

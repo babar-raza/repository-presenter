@@ -25,6 +25,8 @@ from repository_presenter.components.readme.composition.authoring import (
     merge_units,
     reconstructed_task_output,
     recover_forbidden_command_units,
+    recover_title_verbatim_opening,
+    repair_title_verbatim_opening_errors,
     unit_checks,
     write_content_units,
 )
@@ -451,6 +453,31 @@ def _refuse_noop(
     return guarded
 
 
+def _reject_title_verbatim_opening(
+    checks: Callable[[dict[str, Any]], list[str]] | None, task: SectionTask
+) -> Callable[[dict[str, Any]], list[str]]:
+    """Layer independent review's own stricter title-restatement standard onto an S6 repair's own
+    stage_checks - never onto ``unit_checks`` itself, which stays exactly as permissive as before
+    for a fresh ``section_authoring`` draft (docs/DECISION_LOG.md 2026-09-25 08:04 UTC,
+    aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python BC-10 F03).
+
+    ``unit_checks``'s own item-106 carve-out exempts a unit whose text opens with its own title
+    restated verbatim once real member-level detail follows it - correct for a genuinely
+    single-purpose capability with no compliant paraphrase at all (item 106, PDF-Cpp), which a
+    fresh draft has no narrower context to fix. A *repair*, reacting to review's own finding that
+    the literal opening clause itself is generic regardless of what trails it, has a narrower job:
+    revise the flagged clause, not merely add detail after it. Scoped to the repair path only, so
+    a first-draft unit this exact shape (PDF-Cpp's own case) is still accepted exactly as before.
+    """
+
+    def guarded(revised: dict[str, Any]) -> list[str]:
+        errors = list(checks(revised)) if checks is not None else []
+        errors.extend(repair_title_verbatim_opening_errors(revised, task))
+        return errors
+
+    return guarded
+
+
 def _stage_target(
     current: Round, defect: Defect, facts: FactsDocument, name: str, ecosystem: str
 ) -> tuple[
@@ -556,6 +583,19 @@ def repair_defect(
     )
     contract = causal.manifest.output.schema_
     probe = _slot_set_probe(current, defect)
+    # G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC (BarCode-Python BC-10 F03): an S6 repair
+    # gets review's own stricter title-restatement standard layered onto its stage_checks (never
+    # onto unit_checks itself) and a matching recover= last resort, so a reply that still opens a
+    # unit with its own title restated verbatim is rejected here - even though unit_checks' item-
+    # 106 carve-out would pass it - and given one deterministic chance to be corrected before the
+    # job's retry budget is spent.
+    section_task = None
+    if defect.stage == "S6":
+        section_task = next(
+            (task for task in current.tasks if task.section_id == defect.section_id), None
+        )
+    if section_task is not None:
+        stage_checks = _reject_title_verbatim_opening(stage_checks, section_task)
     try:
         result = run_job(
             tx.prompts["targeted_repair"],
@@ -590,6 +630,13 @@ def repair_defect(
                 # bound (S4) reply may declare only the units it actually revised - the rest
                 # merges in from here instead of demanding a token-costly full re-declaration.
                 original=target.output,
+            ),
+            recover=(
+                functools.partial(
+                    recover_title_verbatim_opening, slot_titles=section_task.slot_titles
+                )
+                if section_task is not None
+                else None
             ),
         )
     except JobError as exc:
