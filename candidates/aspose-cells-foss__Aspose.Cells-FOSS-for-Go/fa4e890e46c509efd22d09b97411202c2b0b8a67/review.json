@@ -1,0 +1,264 @@
+{
+  "advisory": [
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "```mermaid",
+      "repair": "Restore the original At a Glance Mermaid flowchart, which is supported by the presentation plan's at_a_glance capability_titles and the original README's structure.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid flowchart in the At a Glance section is omitted because no verified input or output format facts are present in the formats field."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "#### Detailed Member Reference",
+      "repair": "Restore the 'Detailed Member Reference' subsection and its member tables for Workbook, Worksheet, Cells, Cell, Style, DataValidation, Table, Picture, StreamingReader, Border, and Alignment as they are supported by the public_symbol facts.",
+      "reviewer_scope_defect": "the quote is the heading 'Detailed Member Reference', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "api_reference",
+      "text": "The API Reference section's detailed member reference subsection is omitted, reducing the completeness of the public API surface description."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "<details>",
+      "repair": "Restore the '<details><summary>View Additional Examples</summary>' HTML block as it is preserved per the semantic shell and improves navigation of the example programs.",
+      "reviewer_scope_defect": "the quote is '<details>', the renderer's own collapsible-section chrome (its summary text or its <details>/</details> wrapper); no unit wrote it and none can change it",
+      "section_id": "additional_examples",
+      "text": "The 'View Additional Examples' HTML details block is omitted, collapsing the example content and reducing discoverability."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "<details>",
+      "repair": "Restore the '<details><summary>More Test and Example Commands</summary>' HTML block as it is preserved per the semantic shell and provides useful command examples.",
+      "reviewer_scope_defect": "the quote is '<details>', the renderer's own collapsible-section chrome (its summary text or its <details>/</details> wrapper); no unit wrote it and none can change it",
+      "section_id": "development_testing",
+      "text": "The 'More Test and Example Commands' HTML details block is omitted, reducing the discoverability of test and example commands."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "- **Read and write cell data.** `Cell` data is read and written through `Cells.Get` and `Cells.Set` using A1-style references, supporting string, float64, int, and bool values, with `Cell.Value` exposing the stored data.",
+      "repair": "Ensure the Key Capabilities section explicitly mentions 'A1-style' references and the supported formula functions (SUM, AVERAGE, MAX, MIN) as they are present in the original README and supported by the public_symbol facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:cell, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities section omits the 'A1-style' reference style and specific formula function names (SUM, AVERAGE, MAX, MIN) that are present in the original README and supported by facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "- `Cell` references must be A1-style strings such as A1 or B2, and tuple or array indices like [0, 0] are not supported.",
+      "repair": "Restore the explicit mention of tuple/array indices like [0, 0] not being supported as it is present in the original README and supported by the scope_limitations facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:cell, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section omits the explicit mention of tuple/array indices (e.g. [0, 0]) not being supported, which is present in the original README and supported by facts."
+    },
+    {
+      "absent": [
+        "flowchart TD",
+        "StartingPoints",
+        "PRODUCT",
+        "Capabilities",
+        "Outputs",
+        "i1",
+        "i2",
+        "c1"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "```mermaid",
+      "reader": 2,
+      "repair": "Restore the Mermaid flowchart from the original README, including the Starting Points, Capabilities, and Outputs subgraphs, to preserve the visual overview of the library's data flow.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The At a Glance Mermaid flowchart is omitted, but the candidate does not replace it with an equivalent visual summary or explanation, leaving a gap in the 'at a glance' narrative."
+    },
+    {
+      "absent": [
+        "A1-style",
+        "SUM",
+        "AVERAGE",
+        "MAX",
+        "MIN"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:cell.value",
+        "public_symbol:calculateformula"
+      ],
+      "id": "F02",
+      "quote": "- **Read and write cell data.** `Cell` data is read and written through `Cells.Get` and `Cells.Set` using A1-style references, supporting string, float64, int, and bool values, with `Cell.Value` exposing the stored data.",
+      "reader": 2,
+      "repair": "Add explicit mention of A1-style references and the specific formula functions (SUM, AVERAGE, MAX, MIN) supported by CalculateFormula to match the original README's specificity.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'A1-style', 'AVERAGE', 'MAX', which the candidate contains",
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities section omits the specific data types supported for cell values (string, float64, int, bool) and the specific formula functions (SUM, AVERAGE, MAX, MIN) that are explicitly supported by the library, reducing specificity."
+    },
+    {
+      "absent": [
+        "go list github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "Verify the install:",
+      "reader": 2,
+      "repair": "Remove the verification command line, as it is not present in the original README and is not supported by any fact.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'go list github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss', which the candidate contains",
+      "section_id": "installation",
+      "text": "The installation section adds a verification command (`go list ...`) that is not present in the original README and is not supported by any fact, introducing an unverified step."
+    },
+    {
+      "absent": [
+        "Workbook",
+        "FilePath",
+        "Modified",
+        "SourceXML",
+        "StylesXML",
+        "Worksheets",
+        "Worksheet",
+        "DataValidations"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "#### Detailed Member Reference",
+      "reader": 2,
+      "repair": "Remove the 'Detailed Member Reference' subsection and all member-level details, restoring the API Reference to the concise public surface table format of the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'DataValidations', 'FilePath', 'Modified', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section adds a 'Detailed Member Reference' subsection with member-level details that are not present in the original README and are not supported by the facts, inflating the section beyond the intended scope."
+    },
+    {
+      "absent": [
+        "lightweight",
+        "open-source wrapper",
+        "Aspose.Cells engine"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "Aspose.Cells FOSS for Go provides a lightweight, open-source wrapper around the Aspose.Cells engine for Go, enabling developers to read, write, and manipulate Excel workbooks using the ECMA-376 XML format.",
+      "reader": 2,
+      "repair": "Remove the introductory paragraph that mischaracterizes the library and restore the original README's direct limitations list.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Aspose.Cells engine', 'lightweight', 'open-source wrapper', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section introduces a new paragraph before the limitations list that is not present in the original README and mischaracterizes the library as a 'lightweight, open-source wrapper around the Aspose.Cells engine for Go', which is not supported by any fact."
+    },
+    {
+      "absent": [
+        "12 test files"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "The suite covers 12 test files under `tests/`.",
+      "reader": 2,
+      "repair": "Remove the claim about 12 test files, as it is not present in the original README and is not supported by any fact.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '12 test files', which the candidate contains",
+      "section_id": "development_testing",
+      "text": "The Development and Testing section adds a claim about '12 test files under tests/' that is not present in the original README and is not supported by any fact."
+    },
+    {
+      "absent": [
+        "The repository includes runnable examples for formulas, data validation, streaming, styling, tables, and CSV import."
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "The repository includes runnable examples for formulas, data validation, streaming, styling, tables, and CSV import.",
+      "reader": 2,
+      "repair": "Remove the redundant paragraph about runnable examples, as the original README already covers this in the 'Additional Examples' section.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'The repository includes runnable examples for formulas, data validation, streaming, styling, tables, and CSV import.', which the candidate contains",
+      "section_id": "additional_examples",
+      "text": "The Additional Examples section duplicates the heading 'Additional Examples' and the paragraph about runnable examples under `examples/` that were already covered in the original README, creating redundancy."
+    },
+    {
+      "absent": [
+        "docs/usage.md"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "- **[docs/usage.md](docs/usage.md)** — The usage documentation provides a complete walkthrough beyond the README for Aspose.Cells FOSS for Go.",
+      "reader": 2,
+      "repair": "Remove the docs/usage.md link, as it is not present in the original README's list of resources.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'docs/usage.md', which the candidate contains",
+      "section_id": "documentation_resources",
+      "text": "The Documentation & Resources section adds a link to docs/usage.md that is not present in the original README's list of resources, creating an unverified addition."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "5809e591b2110f4ce94d92db25e0b3f4ac0b55b0ee9980ceb2108edc59f69a4c",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
+      "26b9bd5d92e1edc2d1e162cb",
+      "2d3ea3878413689aba562346",
+      "2e3e72ea29414d0b61e310f7",
+      "3c3b7985b1f0977c7f120bba",
+      "a3b6ba4d451861363f1cdb3d",
+      "adde0a739f41df621d521032",
+      "ae6948684db4e2c953bd56e9"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

@@ -1,0 +1,778 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "inherited_unit:058.heading",
+      "reason": "The renderer prints the heading verbatim; prose must not repeat it.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:059.paragraph",
+      "reason": "The renderer prints the command block after this unit; prose must not describe what the command does.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:060.code_block",
+      "reason": "The renderer prints the command verbatim; prose must not repeat or describe it.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:061.html_block",
+      "reason": "The renderer prints the HTML block verbatim; prose must not repeat or describe it.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:062.paragraph",
+      "reason": "The renderer prints the command block after this unit; prose must not describe what the command does.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:063.code_block",
+      "reason": "The renderer prints the command verbatim; prose must not repeat or describe it.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:064.paragraph",
+      "reason": "The renderer prints the command block after this unit; prose must not describe what the command does.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:065.code_block",
+      "reason": "The renderer prints the command verbatim; prose must not repeat or describe it.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:066.paragraph",
+      "reason": "The renderer prints the command block after this unit; prose must not describe what the command does, and this paragraph describes example module behavior, not the toolchain or requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:067.paragraph",
+      "reason": "The renderer prints the command block after this unit; prose must not describe what the command does, and this paragraph describes output file behavior, not the toolchain or requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:069.html_block",
+      "reason": "The renderer prints the HTML block verbatim; prose must not repeat or describe it.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "The repository identity is not relevant to describing the toolchain and requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "The revision is not relevant to describing the toolchain and requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "The family identity is not relevant to describing the toolchain and requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "The platform identity is not relevant to describing the toolchain and requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "The ecosystem identity is not relevant to describing the toolchain and requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "The package name is not relevant to describing the toolchain and requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "build_test_asset:docs",
+      "reason": "The docs asset is not used in the test or example commands rendered after this unit.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:go_version",
+        "import_path:github.com-aspose-cells-foss-aspose.cells-foss-for-go-v26-aspose-cells_foss",
+        "license:spdx",
+        "dependency:none",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:007",
+        "example:008",
+        "example:009",
+        "example:010",
+        "public_symbol:streamingreader",
+        "public_symbol:streamingreader.processrows",
+        "public_symbol:newstreamingreader",
+        "public_symbol:calculateformula",
+        "public_symbol:workbook.setpassword",
+        "public_symbol:workbook.verifypassword",
+        "public_symbol:cell",
+        "public_symbol:cells",
+        "public_symbol:cells.get",
+        "public_symbol:cells.set",
+        "public_symbol:cell.value",
+        "public_symbol:style",
+        "public_symbol:style.font",
+        "public_symbol:style.fill",
+        "public_symbol:style.alignment",
+        "public_symbol:style.border",
+        "public_symbol:newstyle",
+        "public_symbol:cell.setstyle",
+        "public_symbol:cell.setformula",
+        "public_symbol:cell.getformula",
+        "public_symbol:datavalidation",
+        "public_symbol:worksheet.adddatavalidation",
+        "public_symbol:table",
+        "public_symbol:worksheet.addtable",
+        "public_symbol:picture",
+        "public_symbol:newpicture",
+        "public_symbol:worksheet.addpicture",
+        "public_symbol:workbook.importfromcsv",
+        "public_symbol:workbook.exporttocsv"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Cells FOSS for Go provides a Go library for creating, reading, and manipulating Excel workbooks without requiring Microsoft Excel. Developers use it to generate reports, process spreadsheets, and integrate spreadsheet functionality into Go applications. The library supports formula calculation, data validation, table creation, picture insertion, and streaming large datasets efficiently. It is distributed under the MIT license with no external dependencies."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:003",
+        "public_symbol:cell",
+        "public_symbol:cell.value",
+        "public_symbol:cells",
+        "public_symbol:cells.get",
+        "public_symbol:cells.set"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Cell data is read and written through Cells.Get and Cells.Set using A1-style references, supporting string, float64, int, and bool values, with Cell.Value exposing the stored data."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "public_symbol:cell.setstyle",
+        "public_symbol:newstyle",
+        "public_symbol:style",
+        "public_symbol:style.alignment",
+        "public_symbol:style.border",
+        "public_symbol:style.fill",
+        "public_symbol:style.font"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Cell styling combines font, fill, alignment, and border properties into a Style created with NewStyle and applied to any cell via Cell.SetStyle, with automatic deduplication during save."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:calculateformula",
+        "public_symbol:cell.getformula",
+        "public_symbol:cell.setformula"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Formulas are stored on cells with Cell.SetFormula, retrieved with Cell.GetFormula, and evaluated by the built-in CalculateFormula engine supporting SUM, AVERAGE, MAX, and MIN over single cells or A1-style ranges."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "public_symbol:datavalidation",
+        "public_symbol:worksheet.adddatavalidation"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Data validation rules restrict cell ranges to dropdown lists or numeric ranges with custom error messages and styles, attached to a worksheet via Worksheet.AddDataValidation."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "public_symbol:table",
+        "public_symbol:worksheet.addtable"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Structured tables with header rows and auto-filters are created on a worksheet using Worksheet.AddTable over a cell range, supporting built-in style names like TableStyleMedium6."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:newpicture",
+        "public_symbol:picture",
+        "public_symbol:worksheet.addpicture"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Pictures in PNG or JPEG format are embedded into a worksheet using Worksheet.AddPicture after constructing them with NewPicture."
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "public_symbol:workbook.exporttocsv",
+        "public_symbol:workbook.importfromcsv"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "CSV data is imported into a workbook with Workbook.ImportFromCSV using a caller-supplied delimiter, storing all fields as strings, and exported back to CSV with Workbook.ExportToCSV converting typed values to their string form."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbook.setpassword",
+        "public_symbol:workbook.verifypassword"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Workbooks are encrypted with passwords using Workbook.SetPassword, which applies ECMA-376 Agile Encryption with SHA-512 key derivation and AES-256-CBC, and verified with Workbook.VerifyPassword."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Create a new workbook, write values to two cells, and save the file as hello.xlsx."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "Load an existing workbook, read and update a cell's value, then save the modified file as output.xlsx."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "example:005",
+        "example:007",
+        "example:008",
+        "example:009",
+        "example:010",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "The repository includes runnable examples for formulas, data validation, streaming, styling, tables, and CSV import."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Create a workbook, populate sales data, add SUM and AVERAGE formulas, and evaluate them."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Add a list-type data validation to restrict input to a predefined set of fruits."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Stream a large Excel file row by row and compute the total score from column C."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:008",
+      "text": "Apply bold font and solid fill styling to header cells in a new workbook."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:009",
+      "text": "Create a structured table with headers and apply a built-in table style."
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:010",
+      "text": "Import data from a CSV file into a new workbook and save it as an Excel file."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "inherited_unit:048.paragraph"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Cells FOSS for Go provides the Workbook and Worksheet entry points, created with NewWorkbook or LoadWorkbook and exposing cell collections via Worksheet.Cells. Each Workbook holds a Worksheets collection, and each Worksheet provides access to Cells, styling, data validation, tables, and pictures."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:loadworkbook",
+        "public_symbol:newworkbook",
+        "public_symbol:workbook",
+        "public_symbol:workbook.exporttocsv",
+        "public_symbol:workbook.importfromcsv",
+        "public_symbol:workbook.save",
+        "public_symbol:workbook.setpassword",
+        "public_symbol:workbook.verifypassword",
+        "public_symbol:workbook.worksheets"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:workbook",
+      "text": "The Workbook type is created with NewWorkbook or LoadWorkbook, exposes its worksheets through Workbook.Worksheets, supports saving with Save, password protection with SetPassword and VerifyPassword, and can import or export data using ImportFromCSV and ExportToCSV."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:worksheet",
+        "public_symbol:worksheet.adddatavalidation",
+        "public_symbol:worksheet.addpicture",
+        "public_symbol:worksheet.addtable",
+        "public_symbol:worksheet.cells",
+        "public_symbol:worksheet.fromcsv",
+        "public_symbol:worksheet.index",
+        "public_symbol:worksheet.name",
+        "public_symbol:worksheet.removedatavalidation",
+        "public_symbol:worksheet.tocsv"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:worksheet",
+      "text": "A Worksheet is obtained from a Workbook's Worksheets collection and provides access to its Cells collection, name and index, and supports adding or removing data validation, tables, and pictures, as well as loading from or exporting to CSV with FromCSV and ToCSV."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:cells",
+        "public_symbol:cells.all",
+        "public_symbol:cells.get",
+        "public_symbol:cells.remove",
+        "public_symbol:cells.set"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:cells",
+      "text": "The Cells collection provides indexed access to individual Cell instances through Get and Set, supports bulk operations with All, and allows removing cells with Remove."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:cell",
+        "public_symbol:cell.formula",
+        "public_symbol:cell.getformula",
+        "public_symbol:cell.getstyle",
+        "public_symbol:cell.ref",
+        "public_symbol:cell.setformula",
+        "public_symbol:cell.setstyle",
+        "public_symbol:cell.styleid",
+        "public_symbol:cell.value",
+        "public_symbol:cell.xmlname"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:cell",
+      "text": "A Cell represents a single cell in a worksheet and exposes its Value and Formula, supports setting and retrieving formulas with SetFormula and GetFormula, provides its reference and XML name, and allows getting and setting its style with StyleID, GetStyle, and SetStyle."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:defaultstyle",
+        "public_symbol:newstyle",
+        "public_symbol:style",
+        "public_symbol:style.alignment",
+        "public_symbol:style.border",
+        "public_symbol:style.fill",
+        "public_symbol:style.font"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:style",
+      "text": "The Style type, created with NewStyle or obtained via DefaultStyle, provides access to font, fill, alignment, and border properties through its Font, Fill, Alignment, and Border members."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:datavalidation",
+        "public_symbol:datavalidation.allowblank",
+        "public_symbol:datavalidation.errormessage",
+        "public_symbol:datavalidation.errorstyle",
+        "public_symbol:datavalidation.errortitle",
+        "public_symbol:datavalidation.formula1",
+        "public_symbol:datavalidation.formula2",
+        "public_symbol:datavalidation.ref",
+        "public_symbol:datavalidation.showerrormessage",
+        "public_symbol:datavalidation.type"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:datavalidation",
+      "text": "DataValidation defines validation rules for cell ranges, supports setting the validation Type and target Ref, specifies criteria with Formula1 and Formula2, and controls error messaging with AllowBlank, ShowErrorMessage, ErrorTitle, ErrorMessage, and ErrorStyle."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:newtable",
+        "public_symbol:table",
+        "public_symbol:table.hasheaderrow",
+        "public_symbol:table.name",
+        "public_symbol:table.range",
+        "public_symbol:table.stylename",
+        "public_symbol:worksheet.gettable"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:table",
+      "text": "A Table is created with NewTable and represents a structured range with Name, Range, HasHeaderRow, and StyleName, and can be retrieved from a Worksheet using GetTable."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:newpicture",
+        "public_symbol:picture",
+        "public_symbol:picture.col",
+        "public_symbol:picture.coloff",
+        "public_symbol:picture.data",
+        "public_symbol:picture.format",
+        "public_symbol:picture.height",
+        "public_symbol:picture.name",
+        "public_symbol:picture.row",
+        "public_symbol:picture.rowoff",
+        "public_symbol:picture.setanchor",
+        "public_symbol:picture.width"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:picture",
+      "text": "A Picture is created with NewPicture, holds its binary Data and Format, and specifies its position with Row, Col, RowOff, and ColOff, while Width and Height control its size, and SetAnchor finalizes its placement."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:newstreamingreader",
+        "public_symbol:rowcallback",
+        "public_symbol:streamingreader",
+        "public_symbol:streamingreader.processrows"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:streamingreader",
+      "text": "StreamingReader, created with NewStreamingReader, processes worksheet rows efficiently using a RowCallback function via its ProcessRows method."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:calculateformula",
+        "public_symbol:celltostring"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:calculateformula",
+      "text": "CalculateFormula computes formula results, and CellToString converts a Cell's value to its string representation."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:border",
+        "public_symbol:border.bottom",
+        "public_symbol:border.color",
+        "public_symbol:border.left",
+        "public_symbol:border.right",
+        "public_symbol:border.top"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:border",
+      "text": "Border defines cell border styling with Top, Bottom, Left, Right, and Color properties."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:alignment",
+        "public_symbol:alignment.horizontal",
+        "public_symbol:alignment.vertical",
+        "public_symbol:alignment.wraptext"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:alignment",
+      "text": "Alignment controls text alignment within a cell with Horizontal, Vertical, and WrapText properties."
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "The getting started guide covers loading, editing, styling, and saving spreadsheets with Aspose.Cells FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:024"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:024",
+      "text": "The how-to guides and FAQ provide practical articles, answers to common questions, and troubleshooting steps for Aspose.Cells FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:025"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:025",
+      "text": "The full API reference offers a complete, browsable reference for all 14 public types in Aspose.Cells FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:026"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "AGENTS.md outlines the repository's contribution guidelines for AI-assisted development, including source-of-truth conventions and areas requiring review before changes."
+    },
+    {
+      "fact_ids": [
+        "link_target:027"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:027",
+      "text": "The issue tracker on GitHub allows users to report bugs and submit feature requests for Aspose.Cells FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:029"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:029",
+      "text": "The usage documentation provides a complete walkthrough beyond the README for Aspose.Cells FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:055.heading",
+        "inherited_unit:056.list",
+        "install_command:go",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Cells FOSS for Go provides a lightweight, open-source wrapper around the Aspose.Cells engine for Go, enabling developers to read, write, and manipulate Excel workbooks using the ECMA-376 XML format. It supports A1-style cell references, basic formula evaluation for SUM, AVERAGE, MAX, and MIN, and CSV import with string-typed fields, while preserving round-trip fidelity by reusing original XML content where possible."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:055.heading",
+        "inherited_unit:056.list",
+        "install_command:go"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Cell references must be A1-style strings such as A1 or B2, and tuple or array indices like [0, 0] are not supported."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:055.heading",
+        "inherited_unit:056.list",
+        "package:go_version",
+        "package:name",
+        "public_symbol:calculateformula"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "The CalculateFormula function supports only SUM, AVERAGE, MAX, and MIN formulas; any other formula causes an error instead of being evaluated."
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:055.heading",
+        "inherited_unit:056.list",
+        "package:go_version",
+        "package:name",
+        "public_symbol:workbook.importfromcsv"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "The Workbook.ImportFromCSV method stores every imported field as a Go string and does not infer numeric or boolean types, unlike direct calls to Cells().Set with typed values."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:055.heading",
+        "inherited_unit:056.list",
+        "package:go_version",
+        "package:name",
+        "public_symbol:workbook.sourcexml",
+        "public_symbol:workbook.stylesxml"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "The Workbook.SourceXML and Workbook.StylesXML properties expose the underlying XML content, and the library preserves round-trip fidelity by reusing original XML byte-for-byte for unmodified content while regenerating only what has changed since load."
+    },
+    {
+      "fact_ids": [
+        "package:go_version",
+        "build_test_asset:tests",
+        "build_test_asset:examples"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "The toolchain requires Go version 1.24.5 and uses the standard go test and go run commands to execute the full test suite, integration tests, and bundled examples from the repository root."
+    }
+  ]
+}

@@ -107,5 +107,6 @@
   "revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
   "schema_version": 1,
   "sealed_at": "2026-09-11T12:30:22Z",
-  "state": "READY_FOR_PROPOSAL"
+  "state": "SUPERSEDED",
+  "superseded_by": "fa4e890e46c509efd22d09b97411202c2b0b8a67"
 }
