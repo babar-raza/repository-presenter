@@ -222,27 +222,14 @@ KNOWN_BLOCKED_STALE = {
         ),
         "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
     },
-    # G4-W17 arrival item 113 (RESEARCH_AND_GUIDELINES.md section 29, lane D PROPOSAL P26) is the
-    # same renderer-affecting class item 44/69 above already are: identifier_tokens gained a
-    # slash-delimited module-path pattern, so a Go module path spelled bare in prose is one token,
-    # not a dotted host next to a path. Aspose.Cells for Go's sealed bundle carries exactly the
-    # measured shape in its documentation_resources line: "...available in the `github.com`/
-    # aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26 package." (README.md line 418) now renders as
-    # "...in the `github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26` package." - the split
-    # identifier loop-prompt.md section 6 rule 8 names a defect closes; diff checked directly, one
-    # code span moves, nothing else. A real, deliberate, correct rendering-behavior change, not a
-    # regression - the candidate needs a real re-seal (through `present`, not a bare re-render) to
-    # pick it up, since validation/review were judged against the old bytes; that re-seal is
-    # separate follow-up work, not this fix's own scope. `strict=True` for the same reason as above.
-    "aspose-cells-foss__Aspose.Cells-FOSS-for-Go": {
-        "reason": (
-            "item 113's identifier_tokens now wraps the whole Go module path "
-            "`github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26` as one code span "
-            "(documentation_resources, README.md line 418) instead of splitting `github.com` "
-            "from the rest of the path - see comment above"
-        ),
-        "ref": "G4-W17 arrival item 113; RESEARCH_AND_GUIDELINES.md section 29 lane D PROPOSAL P26",
-    },
+    # aspose-cells-foss__Aspose.Cells-FOSS-for-Go's entry here (item 113's Go module-path
+    # wrapping, RESEARCH_AND_GUIDELINES.md section 29 lane D PROPOSAL P26) is removed as of
+    # 2026-09-25: this candidate had a real re-seal (through `present`, not a bare re-render,
+    # exactly as the comment previously here required), drawing the current upstream revision
+    # (fa4e890e46c509efd22d09b97411202c2b0b8a67) and landing READY_FOR_PROPOSAL with a fresh
+    # no-op proof (byte-identical, zero provider calls) and review verdict ACCEPT. The stored
+    # bytes now include item 113's fix, so a fresh render matches them again; leaving the entry
+    # would XPASS(strict) forever, exactly the signal this file's own docstring says to act on.
 }
 
 
