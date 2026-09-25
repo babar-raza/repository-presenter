@@ -529,14 +529,15 @@ ITERATION_BUDGET_MIN = 90
 
 
 def concurrency_floor_flag(active: int, ready: list[str], capped: bool) -> str | None:
-    """PHASE1/F13 (docs/SUPERVISION.md 'Concurrency floor'): the supervisor keeps >=4 roles
+    """PHASE1/F13 (docs/SUPERVISION.md 'Concurrency floor'): the supervisor keeps >=5 roles
     concurrently live (itself + primary + lanes) whenever ready, unblocked lane work exists and no
-    usage cap is active. Best-effort — never forces speculative work (empty `ready` is fine) and
-    never overrides the standing usage-cap pause order (`capped` yields). Pure so it can be
-    exercised directly with synthetic inputs (mirrors the PR-age and spawn-model checks' acceptance
-    style, no permanent pytest file — see PHASE1-SPRINT-PLAN.md F13 / DECISION_LOG.md §31)."""
-    if active < 4 and ready and not capped:
-        return f"active roles {active}/4 with ready lane(s) {ready} and no usage cap — spawn per procedure §2b until the floor is met"
+    usage cap is active (raised from >=4 by direct owner instruction, 2026-09-25, §31). Best-effort
+    — never forces speculative work (empty `ready` is fine) and never overrides the standing
+    usage-cap pause order (`capped` yields). Pure so it can be exercised directly with synthetic
+    inputs (mirrors the PR-age and spawn-model checks' acceptance style, no permanent pytest file —
+    see PHASE1-SPRINT-PLAN.md F13 / DECISION_LOG.md §31)."""
+    if active < 5 and ready and not capped:
+        return f"active roles {active}/5 with ready lane(s) {ready} and no usage cap — spawn per procedure §2b until the floor is met"
     return None
 
 
@@ -754,7 +755,7 @@ def behaviour_checks(t: dict, state: dict, metrics: dict, since_iso: str, now: d
         out.append(flag(f"worktrees needing attention — prunable: {prunable_wt}; .claude leftovers: {leftover_wt} — a dead lane leaves its worktree behind; inspect for unlanded work, then `git worktree prune`"))
     else:
         out.append(ok("no stale worktrees"))
-    # --- concurrency floor (PHASE1/F13, docs/SUPERVISION.md "Concurrency floor"): >=4 roles
+    # --- concurrency floor (PHASE1/F13, docs/SUPERVISION.md "Concurrency floor"): >=5 roles
     # (supervisor + primary + lanes) concurrently live whenever ready, unblocked lane work exists
     # and no usage cap is active. Reuses metrics["lanes"] (built above) and reviewer_state.json's
     # own lanes.<lane>.live_run — the first reader of that field outside the supervisor's own
@@ -776,7 +777,7 @@ def behaviour_checks(t: dict, state: dict, metrics: dict, since_iso: str, now: d
     ready_lanes = [name for name, li in metrics["lanes"].items() if li["open"] and not lane_live_corroborated(name)]
     capped = bool(t["limit_hit"])
     cf_msg = concurrency_floor_flag(active_roles, ready_lanes, capped)
-    out.append(flag(cf_msg) if cf_msg else ok(f"active roles {active_roles}/4 (primary live: {primary_live}; ready lanes: {ready_lanes or 'none'}; capped: {capped})"))
+    out.append(flag(cf_msg) if cf_msg else ok(f"active roles {active_roles}/5 (primary live: {primary_live}; ready lanes: {ready_lanes or 'none'}; capped: {capped})"))
     # --- deadline
     hours_left = (DEADLINE - now).total_seconds() / 3600
     q = [x["id"] for x in sy.get("next_ready_items") or []]
