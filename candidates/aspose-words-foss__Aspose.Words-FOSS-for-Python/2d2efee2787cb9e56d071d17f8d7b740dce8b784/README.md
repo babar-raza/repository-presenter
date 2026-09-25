@@ -4,7 +4,7 @@
 
 [![Aspose.Words FOSS for Python](https://products.aspose.org/media/words/python/banner-readme.png)](https://products.aspose.org/words/python/)
 
-Aspose.Words FOSS for Python is a free and open-source library that enables Python developers to read, convert, and manipulate word processing documents without requiring Microsoft Office. It supports loading DOC, DOCX, RTF, TXT, and Markdown files, and can save to DOCX, PDF, Markdown, and plain text formats. Developers use it to automate tasks such as extracting text, converting legacy formats, and embedding images in Markdown output. The library runs on Python versions 3.10 through 3.12 and is distributed under the MIT license.
+Aspose.Words FOSS for Python provides a free, open-source interface for reading, converting, and saving documents in Python applications. It supports common word processing formats—including DOCX, DOC, RTF, TXT, and Markdown—without requiring a commercial license, enabling developers to build document automation workflows. The package supports Python versions 3.10 through 3.12, depends on fpdf2 and olefile, and is distributed under the MIT license. Users include developers building reporting tools, document converters, and content extraction pipelines who need a lightweight, permissively licensed library for document manipulation.
 
 ## Navigation
 
@@ -24,23 +24,31 @@ Aspose.Words FOSS for Python is a free and open-source library that enables Pyth
 flowchart TD
   PRODUCT["Aspose.Words FOSS for Python"]
   subgraph Capabilities["Core Capabilities"]
-    direction TB
-    c1["Read multiple input formats"]
-    c2["Export to multiple output formats"]
-    c3["Handle images in documents"]
-    c4["Configure output formatting"]
-    c5["Extract plain text"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Read multiple document formats"]
+      c2["Export to multiple output formats"]
+      c3["Image handling across formats"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Document model inspection"]
+      c5["Configurable export options"]
+      c6["Pure-Python implementation"]
+    end
   end
   PRODUCT --> Capabilities
 ```
 
 ## Key Capabilities
 
-- **Read multiple input formats.** Read DOCX, DOC, RTF, Markdown, and plain text files by passing a file path to the `Document` constructor, where the reader is selected automatically based on the file extension, with DOCX parsing implemented as a pure-Python parser built on the standard library zipfile module, DOC and RTF files delegated to the OLE2 path via olefile, and Markdown parsing supporting headings, lists, emphasis, tables, block quotes, code blocks, links, and embedded images as document-model nodes.
-- **Export to multiple output formats.** Export loaded documents to DOCX, Markdown, and PDF formats using the `docx_writer`, `md_writer`, and `pdf_writer` modules respectively, with `SaveFormat` providing named constants for each target format.
-- **Handle images in documents.** Process inline images, captioned images, images in tables, and images in headers or footers using the drawing module, where images embed as base64 data URIs in Markdown output, render via the built-in `ShapeRenderer` in PDF, and round-trip losslessly in DOCX, with the `WorkingWithImages` example class demonstrating conversion of image-containing documents to all formats.
-- **Configure output formatting.** Tune output formatting through `MarkdownLoadOptions`, `WorkingWithMarkdownSaveOptions`, `WorkingWithOoxmlSaveOptions`, and `WorkingWithPdfSaveOptions`, enabling control over underline formatting, encoding, paragraph breaks, compression level, pretty-printed XML, and PDF rendering behavior.
-- **Extract plain text.** Extract plain text from any loaded document using the `Document.get_text` method or save it directly to a text file by specifying `SaveFormat`.TEXT, supporting all input formats including DOCX, DOC, RTF, Markdown, and plain text.
+- **Read multiple document formats.** Read documents in DOC, DOCX, RTF, Markdown, and plain text formats using dedicated reader classes under the `aspose.words_foss` namespace.
+- **Export to multiple output formats.** Export documents to DOCX, Markdown, and PDF formats by specifying a `SaveFormat` value when calling the save method.
+- **Image handling across formats.** Handle images embedded in documents during export to Markdown and PDF, where shapes are rendered using the drawing module and embedded as base64 in Markdown output.
+- **Document model inspection.** Inspect document structure and content through the `light_document_model`, model, and models modules, which expose the underlying object hierarchy.
+- **Configurable export options.** Customize export behavior using `LoadOptions` for input parsing and `MarkdownLoadOptions` or `PdfSaveOptions` for output formatting.
+- **Pure-Python implementation.** `Run` entirely in pure Python without external native dependencies, relying only on the fpdf2 and olefile libraries for PDF generation and file format detection.
 
 ## Installation
 
@@ -71,7 +79,7 @@ The package declares `python_requires` as `>=3.10,<3.13`.
 
 ## API Reference
 
-The aspose-words-foss package provides the `Document` class as the primary entry point for loading, manipulating, and saving documents in various formats, supporting both full and light document models.
+Aspose.Words FOSS for Python provides the `aspose.words_foss.Document` class as the primary entry point for loading, inspecting, and saving documents in multiple formats including DOC, DOCX, RTF, Markdown, and plain text. The `Document` class populates a Light `Document` Model internally and exposes methods to convert the content to `SaveFormat` constants such as MARKDOWN, DOCX, and PDF.
 
 The verified public surface has 198 types.
 
@@ -88,9 +96,9 @@ The verified public surface has 198 types.
 | `LoadingMarkdown` | Demonstrates loading Markdown straight from a string/bytes, no file needed. |
 | `WorkingWithImages` | Convert image-containing documents to all output formats. |
 | `WorkingWithMarkdownSaveOptions` | ApiExamples.working_with_markdown_save_options.WorkingWithMarkdownSaveOptions demonstrates how to export documents to Markdown format with configurable options such as underline formatting, encoding, and paragraph break handling. |
-| `WorkingWithOoxmlSaveOptions` | ApiExamples.working_with_ooxml_save_options.WorkingWithOoxmlSaveOptions shows how to control the compression level and pretty formatting of DOCX output files. |
+| `WorkingWithOoxmlSaveOptions` | ApiExamples.working_with_ooxml_save_options.WorkingWithOoxmlSaveOptions shows how to control the compression level and pretty formatting of output DOCX files. |
 | `WorkingWithPdfSaveOptions` | ApiExamples.working_with_pdf_save_options.WorkingWithPdfSaveOptions illustrates saving documents to PDF format from various input formats using dedicated save options. |
-| `WorkingWithTxtSaveOptions` | ApiExamples.working_with_txt_save_options.WorkingWithTxtSaveOptions provides examples for exporting documents to plain text format and retrieving document text content. |
+| `WorkingWithTxtSaveOptions` | ApiExamples.working_with_txt_save_options.WorkingWithTxtSaveOptions provides examples for exporting documents to plain text and retrieving document content as a string. |
 | `Document` | Represents a Word document. |
 | `LoadOptions` | Options for loading a document. |
 | `MarkdownLoadOptions` | Load options specific to Markdown (.md) input. |
@@ -143,80 +151,80 @@ The verified public surface has 198 types.
 | `BookmarkState` | Hands out monotonically increasing bookmark ids and pairs |
 | `ImageEntry` | One image to add to word/media/ plus its relationship row. |
 | `ImageRenderState` | Accumulator threaded through paragraph rendering for inline shapes. |
-| `ImageData` | aspose.words_foss.drawing.ImageData represents image data with a content type and supports creation from MIME type strings. |
+| `ImageData` | aspose.words_foss.drawing.ImageData represents image data in a document, supporting content type detection and creation from MIME type strings. |
 | `ImageType` | Specifies the type (format) of an image in a document. |
-| `Shape` | aspose.words_foss.drawing.Shape models a visual drawing object in a document that can contain image data and other graphical content. |
+| `Shape` | aspose.words_foss.drawing.Shape models a visual drawing object such as an image or geometric figure within a document. |
 | `WrapType` | Specifies how text is wrapped around a shape or picture. |
 | `Body` | aspose.words_foss.light_document_model.Body holds the main content of a document section, including paragraphs and tables. |
 | `BookmarkEnd` | aspose.words_foss.light_document_model.BookmarkEnd marks the end position of a bookmark in a document. |
 | `BookmarkStart` | Marks the beginning of a Word bookmark (<w:bookmarkStart>). |
 | `Border` | aspose.words_foss.light_document_model.Border defines the visual properties of a border line, such as style and color. |
 | `Cell` | aspose.words_foss.light_document_model.Cell represents a single cell within a table row. |
-| `CellFormat` | aspose.words_foss.light_document_model.CellFormat provides access to formatting settings for a table cell. |
+| `CellFormat` | aspose.words_foss.light_document_model.CellFormat stores formatting settings that apply to a table cell. |
 | `ConditionalStyleMask` | Parsed <w:cnfStyle> 12-bit bitmask for banded-table regions. |
-| `DocList` | aspose.words_foss.light_document_model.DocList represents a list structure in a document. |
+| `DocList` | aspose.words_foss.light_document_model.DocList represents a list structure in a document, containing list levels and items. |
 | `FieldEnd` | aspose.words_foss.light_document_model.FieldEnd marks the end of a field in a document. |
 | `FieldSeparator` | aspose.words_foss.light_document_model.FieldSeparator separates the field code from the field result in a document. |
 | `FieldStart` | aspose.words_foss.light_document_model.FieldStart marks the beginning of a field in a document. |
-| `Font` | aspose.words_foss.light_document_model.Font encapsulates character formatting attributes such as typeface, size, and style. |
+| `Font` | aspose.words_foss.light_document_model.Font encapsulates character-level formatting attributes such as typeface and size. |
 | `FrameFormat` | Floating text-frame definition.  Numeric dimensions are in points. |
 | `HeaderFooter` | aspose.words_foss.light_document_model.HeaderFooter contains content that appears in the header or footer area of a section. |
-| `ListFormat` | aspose.words_foss.light_document_model.ListFormat stores list-related formatting information for a paragraph. |
+| `ListFormat` | aspose.words_foss.light_document_model.ListFormat holds list-related formatting for a paragraph. |
 | `ListLabel` | Snapshot of a list-item's rendered bullet/number label. |
-| `ListLevel` | aspose.words_foss.light_document_model.ListLevel defines the appearance and behavior of a specific level in a list. |
+| `ListLevel` | aspose.words_foss.light_document_model.ListLevel defines the appearance and numbering style for a specific level in a list. |
 | `ListLevelOverride` | One <w:lvlOverride> inside a concrete <w:num>. |
 | `NodeCastMixin` | as_*() casts mirroring aspose.words.Node; identity here. |
-| `PageSetup` | aspose.words_foss.light_document_model.PageSetup holds page layout settings such as margins, orientation, and paper size. |
+| `PageSetup` | aspose.words_foss.light_document_model.PageSetup stores page layout settings such as margins, orientation, and paper size. |
 | `Paragraph` | A paragraph whose children — Run, BookmarkStart / End, |
-| `ParagraphFormat` | aspose.words_foss.light_document_model.ParagraphFormat stores formatting properties that apply to an entire paragraph. |
+| `ParagraphFormat` | aspose.words_foss.light_document_model.ParagraphFormat holds formatting attributes that apply to a paragraph. |
 | `PreferredWidth` | Preferred width of a table / cell. |
 | `Row` | aspose.words_foss.light_document_model.Row represents a horizontal row of cells in a table. |
-| `RowFormat` | aspose.words_foss.light_document_model.RowFormat provides access to formatting settings for a table row. |
-| `Run` | aspose.words_foss.light_document_model.Run represents a sequence of characters with the same formatting within a paragraph. |
-| `Section` | aspose.words_foss.light_document_model.Section defines a section in a document, containing headers, footers, and body content. |
-| `Shading` | aspose.words_foss.light_document_model.Shading describes the background fill pattern and color for a document element. |
-| `Style` | aspose.words_foss.light_document_model.Style defines a reusable set of formatting properties for paragraphs and runs. |
-| `TabStop` | aspose.words_foss.light_document_model.TabStop represents a single tab stop position and its alignment. |
-| `TabStopCollection` | aspose.words_foss.light_document_model.TabStopCollection manages a collection of tab stops for a paragraph. |
-| `light_document_model.Table` | aspose.words_foss.light_document_model.Table represents a table structure composed of rows and cells. |
+| `RowFormat` | aspose.words_foss.light_document_model.RowFormat stores formatting settings that apply to a table row. |
+| `Run` | aspose.words_foss.light_document_model.Run represents a sequence of characters with the same formatting in a paragraph. |
+| `Section` | aspose.words_foss.light_document_model.Section groups content that shares the same page setup and section-level formatting. |
+| `Shading` | aspose.words_foss.light_document_model.Shading defines the background fill pattern and color for a document element. |
+| `Style` | aspose.words_foss.light_document_model.Style represents a named collection of formatting attributes that can be applied to paragraphs or runs. |
+| `TabStop` | aspose.words_foss.light_document_model.TabStop defines a single tab stop position and its alignment. |
+| `TabStopCollection` | aspose.words_foss.light_document_model.TabStopCollection manages a list of tab stops for a paragraph. |
+| `light_document_model.Table` | aspose.words_foss.light_document_model.Table represents a tabular structure composed of rows and cells. |
 | `TableStyleFormat` | Table-level properties stored on table styles (w:tblPr inside w:style). |
 | `TableStyleProperty` | Conditional formatting for a table region (w:tblStylePr). |
-| `TextColumn` | aspose.words_foss.light_document_model.TextColumn defines the properties of a single text column in a section. |
-| `TextColumns` | aspose.words_foss.light_document_model.TextColumns holds the collection of text columns for a section. |
+| `TextColumn` | aspose.words_foss.light_document_model.TextColumn describes the width and spacing of a single column in a multi-column section. |
+| `TextColumns` | aspose.words_foss.light_document_model.TextColumns holds the collection of columns that define multi-column layout for a section. |
 | `UnknownNode` | aspose.words_foss.light_document_model.UnknownNode represents an unrecognized node type in the document tree. |
 | `MarkdownReader` | Reads Markdown (.md) files, producing the same data structures as |
-| `AtxHeadingBlock` | aspose.words_foss.md_import.AtxHeadingBlock models an ATX-style Markdown heading consisting of one or more hash characters followed by text. |
-| `AutolinkBlock` | aspose.words_foss.md_import.AutolinkBlock represents an automatic link in Markdown that converts a URL into a clickable link. |
+| `AtxHeadingBlock` | aspose.words_foss.md_import.AtxHeadingBlock models an Atx-style Markdown heading, such as those beginning with one or more hash characters. |
+| `AutolinkBlock` | aspose.words_foss.md_import.AutolinkBlock represents an automatic link in Markdown, typically a URL or email address. |
 | `Block` | Base class for every node in the Markdown block tree. |
-| `BoldInlineBlock` | aspose.words_foss.md_import.BoldInlineBlock represents inline bold text in Markdown, typically enclosed by double asterisks or underscores. |
-| `BulletListItemBlock` | aspose.words_foss.md_import.BulletListItemBlock models a single item in a Markdown bullet list. |
-| `CellBlock` | aspose.words_foss.md_import.CellBlock represents a cell within a Markdown table row. |
-| `DocumentBlock` | aspose.words_foss.md_import.DocumentBlock serves as the root container for all blocks in a parsed Markdown document. |
-| `FencedCodeBlock` | The FencedCodeBlock class represents a fenced code block in a Markdown document. |
-| `FootnoteDefinitionBlock` | The FootnoteDefinitionBlock class represents a footnote definition in a Markdown document. |
-| `FootnoteReferenceBlock` | The FootnoteReferenceBlock class represents a footnote reference in a Markdown document. |
-| `HeadingBlock` | The HeadingBlock class represents a heading in a Markdown document. |
-| `HorizontalRuleBlock` | The HorizontalRuleBlock class represents a horizontal rule in a Markdown document. |
+| `BoldInlineBlock` | aspose.words_foss.md_import.BoldInlineBlock models inline text formatted as bold in Markdown. |
+| `BulletListItemBlock` | aspose.words_foss.md_import.BulletListItemBlock represents a single item in a Markdown bullet list. |
+| `CellBlock` | aspose.words_foss.md_import.CellBlock models a cell within a Markdown table row. |
+| `DocumentBlock` | aspose.words_foss.md_import.DocumentBlock serves as the root container for all parsed Markdown content. |
+| `FencedCodeBlock` | Represents a fenced code block in a Markdown document, containing code with language specification and optional title. |
+| `FootnoteDefinitionBlock` | Represents a footnote definition block in a Markdown document, associating a footnote reference with its content. |
+| `FootnoteReferenceBlock` | Represents a footnote reference block in a Markdown document, indicating an inline reference to a footnote definition. |
+| `HeadingBlock` | Represents a heading block in a Markdown document, containing text with a specified heading level. |
+| `HorizontalRuleBlock` | Represents a horizontal rule block in a Markdown document, rendering as a thematic break or separator line. |
 | `HtmlInsertOptions` | Flags for :meth:MarkdownDocumentBuilder.insert_html (mirrors |
 | `HtmlTagBlock` | A raw HTML tag, block-level or inline (Markdig's HtmlBlock / |
-| `IndentedCodeBlock` | The IndentedCodeBlock class represents an indented code block in a Markdown document. |
-| `InlineCodeBlock` | The InlineCodeBlock class represents inline code in a Markdown document. |
-| `ItalicInlineBlock` | The ItalicInlineBlock class represents italic text in a Markdown document. |
-| `LineBreakBlock` | The LineBreakBlock class represents a line break in a Markdown document. |
-| `LinkTextBlock` | The LinkTextBlock class represents the text portion of a link in a Markdown document. |
+| `IndentedCodeBlock` | Represents an indented code block in a Markdown document, containing code blocks defined by four-space indentation. |
+| `InlineCodeBlock` | Represents an inline code block in a Markdown document, containing short code snippets within a paragraph. |
+| `ItalicInlineBlock` | Represents an italic inline block in a Markdown document, rendering text in italics using asterisks or underscores. |
+| `LineBreakBlock` | Represents a line break block in a Markdown document, forcing a line break within a paragraph. |
+| `LinkTextBlock` | Represents a link text block in a Markdown document, containing the visible text of a hyperlink. |
 | `ListBlock` | Container grouping sibling ListItemBlocks (Markdig's ListBlock). |
-| `ListItemBlock` | The ListItemBlock class represents a list item in a Markdown document. |
+| `ListItemBlock` | Represents a list item block in a Markdown document, forming part of an unordered or ordered list. |
 | `MarkdownDocumentBuilder` | LDM cursor/writer used by :class:MarkdownReaderContext. |
 | `MarkdownReaderContext` | Drives Markdown block-tree events into a fresh LDM Document. |
-| `OrderedListItemBlock` | The OrderedListItemBlock class represents an ordered list item in a Markdown document. |
-| `ParagraphBlock` | The ParagraphBlock class represents a paragraph in a Markdown document. |
-| `QuoteBlock` | The QuoteBlock class represents a blockquote in a Markdown document. |
-| `RowBlock` | The RowBlock class represents a table row in a Markdown document. |
-| `SetextHeadingBlock` | The SetextHeadingBlock class represents a setext-style heading in a Markdown document. |
-| `StrikethroughBlock` | The StrikethroughBlock class represents strikethrough text in a Markdown document. |
-| `TableBlock` | The TableBlock class represents a table in a Markdown document. |
+| `OrderedListItemBlock` | Represents an ordered list item block in a Markdown document, forming part of a numbered list structure. |
+| `ParagraphBlock` | Represents a paragraph block in a Markdown document, containing a block of text separated by blank lines. |
+| `QuoteBlock` | Represents a quote block in a Markdown document, containing blockquote content introduced by the greater-than symbol. |
+| `RowBlock` | Represents a row block in a Markdown table, containing cells aligned with column separators. |
+| `SetextHeadingBlock` | Represents a Setext heading block in a Markdown document, using underlines to define heading levels. |
+| `StrikethroughBlock` | Represents a strikethrough block in a Markdown document, rendering text with a deletion line using tildes. |
+| `TableBlock` | Represents a table block in a Markdown document, containing rows of cells separated by pipe characters. |
 | `TextBlock` | A literal run of text (Markdig's LiteralInline). |
-| `UnderlineBlock` | The UnderlineBlock class represents underlined text in a Markdown document. |
+| `UnderlineBlock` | Represents an underline block in a Markdown document, rendering text with an underline using plus signs. |
 | `LdmMarkdownWriter` | Converts a light_document_model.Document to a Markdown string. |
 | `CellMerge` | Specifies how a cell in a table is merged with other cells. |
 | `CellVerticalAlignment` | Specifies vertical justification of text inside a table cell. |
@@ -264,7 +272,7 @@ The verified public surface has 198 types.
 | --- | --- |
 | `LoadFormat` | Document load format constants, valued as in aspose.words. |
 | `SaveFormat` | Document save format constants, valued as in aspose.words. |
-| `BlockType` | aspose.words_foss.md_import.BlockType enumerates the different types of blocks that can appear in a Markdown document. |
+| `BlockType` | aspose.words_foss.md_import.BlockType enumerates the different kinds of Markdown blocks that can be parsed. |
 | `md_import.ListMarker` | Bullet/ordered list marker, mirroring Aspose.Words' ListMarker. |
 | `MarkdownBlockLevel` | Where a block sits in the tree. |
 | `CodeBlockStyle` | Code block style preference. |
@@ -290,7 +298,7 @@ The verified public surface has 198 types.
 
 ### Document
 
-The `Document` class supports loading from multiple input formats via `LoadFormat` and saving to various output formats using `SaveFormat`, enabling programmatic document processing across common office and text formats.
+The `aspose.words_foss.Document` class loads files in DOC, DOCX, RTF, TEXT, or MARKDOWN formats via its constructor, supports loading from file paths, byte streams, or in-memory data, and provides access to sections, paragraphs, tables, styles, and lists through properties like sections, `first_section`, `last_section`, and `get_child_nodes`; it also exposes `get_text` for plain-text extraction and save to write output in formats specified by `SaveFormat` or save options.
 
 - `first_section`: The first section of the document.
 - `get_child_nodes`: Child nodes, optionally filtered by :class:NodeType.
@@ -303,66 +311,62 @@ The `Document` class supports loading from multiple input formats via `LoadForma
 - `sections`: All document sections.
 - `styles`: All document styles.
 
-### SaveFormat
+### docx_reader
 
-`SaveFormat` enumerates the supported output formats including DOCX, PDF, Markdown, and plain text, allowing users to specify the target format when saving a `Document`.
+The `aspose.words_foss.docx_reader` module exposes the `DocumentReader` class, which implements the `DocumentFormatReader` protocol and provides `load_file`, `load_stream`, and `load_bytes` methods to read DOCX content before converting it to a Light `Document` Model via `to_light_document`.
 
 ### doc_reader
 
-The package provides dedicated reader modules for DOC, RTF, Markdown, and plain text formats, enabling explicit parsing of these document types into a `Document` object.
+The `aspose.words_foss.doc_reader` module provides the `DocFileReader` class for reading legacy DOC files (Word 97-2003 binary format) and converting them to a Light `Document` Model using the `to_light_document` method.
 
-### docx_writer
+### rtf_reader
 
-Writer modules for DOCX, Markdown, and PDF formats allow exporting a `Document` to these common output formats with format-specific options.
+The `aspose.words_foss.rtf_reader` module exposes the `RtfFileReader` class, which reads RTF content via OLE2 delegation and offers `load_file`, `load_stream`, and `load_bytes` methods followed by `to_light_document` to produce a Light `Document` Model.
 
 ### MarkdownLoadOptions
 
-`MarkdownLoadOptions` and `WorkingWithMarkdownSaveOptions` provide control over Markdown export behavior including underline formatting, encoding, paragraph breaks, and support for importing from multiple input formats.
+The `aspose.words_foss.MarkdownLoadOptions` class configures how Markdown content is parsed during document loading and is passed to the `Document` constructor when loading Markdown from bytes or streams.
 
-### WorkingWithOoxmlSaveOptions
+### md_writer
 
-`WorkingWithOoxmlSaveOptions` demonstrates how to configure OOXML save options such as pretty formatting and compression level when exporting to DOCX.
+The `aspose.words_foss.md_writer` module provides the `LdmMarkdownWriter` class, which writes a Light `Document` Model to Markdown using the write method and respects formatting options defined in `MarkdownSaveOptions`.
 
-- `test_pretty_format_off`: Defined as `def test_pretty_format_off(self)`.
-- `test_pretty_format_round_trip`: Pretty-formatted DOCX should produce the same text after reload.
-- `test_set_compression_level`: Defined as `def test_set_compression_level(self)`.
-- `test_set_pretty_format`: Defined as `def test_set_pretty_format(self)`.
+### pdf_writer
 
-### WorkingWithPdfSaveOptions
+The `aspose.words_foss.pdf_writer` module exposes the `LdmPdfWriter` class, which renders a Light `Document` Model to PDF using internal renderers including `ParagraphRenderer`, `RunRenderer`, `TableRenderer`, and `ShapeRenderer`, and applies options defined in `PdfSaveOptions`.
 
-`WorkingWithPdfSaveOptions` shows how to convert documents from various input formats to PDF and customize PDF export behavior using `PdfSaveOptions`.
+### docx_writer
 
-- `test_pdf_from_all_input_formats`: Save DOCX, DOC, RTF, TXT as PDF.
-- `test_save_with_pdf_save_options`: PdfSaveOptions is accepted for API compatibility.
+The `aspose.words_foss.docx_writer` module provides the `LdmDocxWriter` class, which writes a Light `Document` Model to DOCX using write or `write_to_bytes` methods, and supports configuration via `OoxmlSaveOptions`; it also emits `DocxWriterLossyWarning` for round-trip fidelity loss.
 
 ### light_document_model
 
-The `light_document_model`, model, and models modules provide a memory-efficient alternative for read-only document inspection and text extraction.
+The `aspose.words_foss.light_document_model` module defines core DOM classes such as `Section`, `Paragraph`, `Table`, `Row`, `Cell`, `Style`, `Font`, `ParagraphFormat`, and `PageSetup`, which represent the parsed document structure and formatting attributes resolved during loading.
 
-### drawing
+### saving
 
-The drawing module and `WorkingWithImages` examples illustrate how to process image-containing documents and export them to multiple formats while preserving embedded graphics.
+The `aspose.words_foss.saving` module exposes save options classes `MarkdownSaveOptions`, `PdfSaveOptions`, and `OoxmlSaveOptions`, along with `CompressionLevel`, which control output formatting and compression when calling `Document.save` with a format or options instance.
 
-### ApiExamples
+### model
 
-The `ApiExamples` module contains working code samples that demonstrate common document processing tasks including format conversion, save options configuration, and image handling.
+The `aspose.words_foss.model` module provides the `Document` class and the enums submodule, which includes enumerations such as `LineStyle`, `LineSpacingRule`, `HeightRule`, `CellMerge`, `CellVerticalAlignment`, `Orientation`, `ParagraphAlignment`, `SectionStart`, `StyleType`, `StyleIdentifier`, `TabAlignment`, `TabLeader`, `Underline`, and `WrapType` used throughout the API.
 
 </details>
 
 ## Documentation & Resources
 
-- **[Getting started guide](https://docs.aspose.org/words/python/)** — The getting started guide introduces core concepts and basic workflows for loading, manipulating, and saving documents using Aspose.Words FOSS for Python.
-- **[How-to guides & FAQ](https://kb.aspose.org/words/python/)** — The how-to guides and FAQ provide practical examples and answers to common questions about document conversion, formatting options, and troubleshooting.
-- **[Full API reference](https://reference.aspose.org/words/python/)** — The full API reference documents every class, method, and constant available in the aspose-words-foss package for programmatic document processing. It covers all 198 verified public types; the [API Reference](#api-reference) section above covers the essentials.
+- **[Getting started guide](https://docs.aspose.org/words/python/)** — The getting started guide covers installation, walkthroughs, and feature guides for this library.
+- **[How-to guides & FAQ](https://kb.aspose.org/words/python/)** — The how-to guides and FAQ provide task-focused answers for common Word-processing questions.
+- **[Full API reference](https://reference.aspose.org/words/python/)** — The full API reference offers a complete, browsable reference for all 146 public types. It covers all 198 verified public types; the [API Reference](#api-reference) section above covers the essentials.
 - Found a bug or have a feature request? [Open an issue](https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python/issues).
 
 ## Scope and Limitations
 
-Aspose.Words FOSS for Python provides a free, open-source subset of the commercial Aspose.Words API for Python, supporting reading and writing DOCX, Markdown, PDF, and plain text documents with a focus on document conversion and basic formatting operations.
+Aspose.Words FOSS for Python provides a free, open-source subset of the commercial Aspose.Words API for Python, supporting reading and writing DOCX, Markdown, PDF, and plain text documents, with version 26.7.0 requiring Python 3.10 through 3.12 and distributed under the MIT license.
 
-- The library does not implement a writer for the legacy DOC format despite defining `SaveFormat.DOC` for API compatibility, and attempting to save to .doc raises `ValueError`, with only Markdown, Text, PDF, and DOCX supported as output formats.
-- Saving DOCX with `OoxmlSaveOptions.compliance` set to `OoxmlCompliance.ISO29500_2008_STRICT` raises `NotImplementedError`, and only ECMA376_2006 or ISO29500_2008_TRANSITIONAL compliance levels are supported.
-- Eight `PdfSaveOptions` fields — `text_compression`, `embed_full_fonts`, `use_core_fonts`, `font_embedding_mode`, `page_mode`, `color_mode`, `preserve_form_fields`, and `memory_optimization` — exist for API forward-compatibility but are not consumed by the PDF writer.
+- The `SaveFormat.DOC` constant exists for API compatibility but the library does not implement a DOC writer, so saving to the .doc format raises a `ValueError`, while only four save formats are actually implemented.
+- Saving DOCX files with `OoxmlCompliance.ISO29500_2008_STRICT` raises `NotImplementedError` because the writer does not implement strict compliance, and users must choose an alternative compliance level instead.
+- The `aspose.words_foss.saving` module exposes several options classes such as `PdfSaveOptions`, but some of their fields exist for API forward-compatibility with the commercial Aspose.Words API and are not yet consumed by the PDF writer.
 
 ## Development and Testing
 

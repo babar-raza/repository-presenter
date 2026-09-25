@@ -7,21 +7,6 @@
   },
   "omitted": [
     {
-      "fact_id": "dependency:olefile-0.46",
-      "reason": "olefile is used for OLE2 delegation but is not a direct public symbol or dependency listed in the evidence; omitted per absent_invented rules.",
-      "section": "key_capabilities"
-    },
-    {
-      "fact_id": "dependency:fpdf2-2.7.5",
-      "reason": "fpdf2 is not referenced in any evidence and does not appear in the repository's dependencies; omitted per absent_refuted rules.",
-      "section": "key_capabilities"
-    },
-    {
-      "fact_id": "public_symbol:aspose.words_foss.markdown_reader",
-      "reason": "MarkdownReader is already cited in capability:1 via public_symbol:aspose.words_foss.markdown_reader; this entry is redundant and omitted per absent_invented rules.",
-      "section": "key_capabilities"
-    },
-    {
       "fact_id": "identity:repository",
       "reason": "Not needed in this summary unit; repository identity is handled by the renderer's context.",
       "section": "development_testing"
@@ -81,42 +66,49 @@
         "identity:platform",
         "identity:repository",
         "identity:revision",
-        "license:spdx",
         "package:license",
         "package:name",
         "package:python_requires",
         "package:version",
+        "license:spdx",
+        "install_command:pip",
+        "import_path:aspose.words_foss",
         "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.doc_reader",
-        "public_symbol:aspose.words_foss.docx_writer",
-        "public_symbol:aspose.words_foss.drawing",
-        "public_symbol:aspose.words_foss.light_document_model",
         "public_symbol:aspose.words_foss.loadformat",
-        "public_symbol:aspose.words_foss.markdown_reader",
-        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.loadoptions",
+        "public_symbol:aspose.words_foss.docx_reader",
+        "public_symbol:aspose.words_foss.docx_writer",
+        "public_symbol:aspose.words_foss.light_document_model",
         "public_symbol:aspose.words_foss.pdf_writer",
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.drawing",
+        "public_symbol:aspose.words_foss.doc_reader",
         "public_symbol:aspose.words_foss.rtf_reader",
-        "public_symbol:aspose.words_foss.saveformat",
+        "public_symbol:aspose.words_foss.markdown_reader",
         "public_symbol:aspose.words_foss.text_reader",
-        "public_symbol:apiexamples.working_with_images.workingwithimages",
-        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions",
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+        "public_symbol:aspose.words_foss.saveformat",
+        "public_symbol:aspose.words_foss.model",
+        "public_symbol:aspose.words_foss.models",
+        "public_symbol:aspose.words_foss.markdownloadoptions",
+        "public_symbol:aspose.words_foss.saving",
+        "dependency:fpdf2-2.7.5",
+        "dependency:olefile-0.46"
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.Words FOSS for Python is a free and open-source library that enables Python developers to read, convert, and manipulate word processing documents without requiring Microsoft Office. It supports loading DOC, DOCX, RTF, TXT, and Markdown files, and can save to DOCX, PDF, Markdown, and plain text formats. Developers use it to automate tasks such as extracting text, converting legacy formats, and embedding images in Markdown output. The library runs on Python versions 3.10 through 3.12 and is distributed under the MIT license."
+      "text": "Aspose.Words FOSS for Python provides a free, open-source interface for reading, converting, and saving documents in Python applications. It supports common word processing formats—including DOCX, DOC, RTF, TXT, and Markdown—without requiring a commercial license, enabling developers to build document automation workflows. The package supports Python versions 3.10 through 3.12, depends on fpdf2 and olefile, and is distributed under the MIT license. Users include developers building reporting tools, document converters, and content extraction pipelines who need a lightweight, permissively licensed library for document manipulation."
     },
     {
       "fact_ids": [
         "public_symbol:aspose.words_foss.doc_reader",
+        "public_symbol:aspose.words_foss.docx_reader",
         "public_symbol:aspose.words_foss.markdown_reader",
         "public_symbol:aspose.words_foss.rtf_reader",
         "public_symbol:aspose.words_foss.text_reader"
       ],
       "section": "key_capabilities",
       "slot": "capability:1",
-      "text": "Read DOCX, DOC, RTF, Markdown, and plain text files by passing a file path to the Document constructor, where the reader is selected automatically based on the file extension, with DOCX parsing implemented as a pure-Python parser built on the standard library zipfile module, DOC and RTF files delegated to the OLE2 path via olefile, and Markdown parsing supporting headings, lists, emphasis, tables, block quotes, code blocks, links, and embedded images as document-model nodes."
+      "text": "Read documents in DOC, DOCX, RTF, Markdown, and plain text formats using dedicated reader classes under the aspose.words_foss namespace."
     },
     {
       "fact_ids": [
@@ -127,37 +119,47 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:2",
-      "text": "Export loaded documents to DOCX, Markdown, and PDF formats using the docx_writer, md_writer, and pdf_writer modules respectively, with SaveFormat providing named constants for each target format."
+      "text": "Export documents to DOCX, Markdown, and PDF formats by specifying a SaveFormat value when calling the save method."
     },
     {
       "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "public_symbol:apiexamples.working_with_images.workingwithimages",
-        "public_symbol:aspose.words_foss.drawing"
+        "public_symbol:aspose.words_foss.drawing",
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.pdf_writer"
       ],
       "section": "key_capabilities",
       "slot": "capability:3",
-      "text": "Process inline images, captioned images, images in tables, and images in headers or footers using the drawing module, where images embed as base64 data URIs in Markdown output, render via the built-in ShapeRenderer in PDF, and round-trip losslessly in DOCX, with the WorkingWithImages example class demonstrating conversion of image-containing documents to all formats."
+      "text": "Handle images embedded in documents during export to Markdown and PDF, where shapes are rendered using the drawing module and embedded as base64 in Markdown output."
     },
     {
       "fact_ids": [
-        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions",
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions",
-        "public_symbol:aspose.words_foss.markdownloadoptions"
+        "public_symbol:aspose.words_foss.light_document_model",
+        "public_symbol:aspose.words_foss.model",
+        "public_symbol:aspose.words_foss.models"
       ],
       "section": "key_capabilities",
       "slot": "capability:4",
-      "text": "Tune output formatting through MarkdownLoadOptions, WorkingWithMarkdownSaveOptions, WorkingWithOoxmlSaveOptions, and WorkingWithPdfSaveOptions, enabling control over underline formatting, encoding, paragraph breaks, compression level, pretty-printed XML, and PDF rendering behavior."
+      "text": "Inspect document structure and content through the light_document_model, model, and models modules, which expose the underlying object hierarchy."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.loadoptions",
+        "public_symbol:aspose.words_foss.markdownloadoptions",
+        "public_symbol:aspose.words_foss.saving"
       ],
       "section": "key_capabilities",
       "slot": "capability:5",
-      "text": "Extract plain text from any loaded document using the Document.get_text method or save it directly to a text file by specifying SaveFormat.TEXT, supporting all input formats including DOCX, DOC, RTF, Markdown, and plain text."
+      "text": "Customize export behavior using LoadOptions for input parsing and MarkdownLoadOptions or PdfSaveOptions for output formatting."
+    },
+    {
+      "fact_ids": [
+        "dependency:fpdf2-2.7.5",
+        "dependency:olefile-0.46",
+        "public_symbol:aspose.words_foss.docx_reader"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Run entirely in pure Python without external native dependencies, relying only on the fpdf2 and olefile libraries for PDF generation and file format detection."
     },
     {
       "fact_ids": [
@@ -172,11 +174,12 @@
         "package:version",
         "public_symbol:aspose.words_foss.document",
         "public_symbol:aspose.words_foss.loadformat",
+        "public_symbol:aspose.words_foss.loadoptions",
         "public_symbol:aspose.words_foss.saveformat"
       ],
       "section": "api_reference",
       "slot": "intro",
-      "text": "The aspose-words-foss package provides the Document class as the primary entry point for loading, manipulating, and saving documents in various formats, supporting both full and light document models."
+      "text": "Aspose.Words FOSS for Python provides the aspose.words_foss.Document class as the primary entry point for loading, inspecting, and saving documents in multiple formats including DOC, DOCX, RTF, Markdown, and plain text. The Document class populates a Light Document Model internally and exposes methods to convert the content to SaveFormat constants such as MARKDOWN, DOCX, and PDF."
     },
     {
       "fact_ids": [
@@ -191,11 +194,12 @@
         "package:version",
         "public_symbol:aspose.words_foss.document",
         "public_symbol:aspose.words_foss.loadformat",
+        "public_symbol:aspose.words_foss.loadoptions",
         "public_symbol:aspose.words_foss.saveformat"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.words_foss.document",
-      "text": "The Document class supports loading from multiple input formats via LoadFormat and saving to various output formats using SaveFormat, enabling programmatic document processing across common office and text formats."
+      "text": "The aspose.words_foss.Document class loads files in DOC, DOCX, RTF, TEXT, or MARKDOWN formats via its constructor, supports loading from file paths, byte streams, or in-memory data, and provides access to sections, paragraphs, tables, styles, and lists through properties like sections, first_section, last_section, and get_child_nodes; it also exposes get_text for plain-text extraction and save to write output in formats specified by SaveFormat or save options."
     },
     {
       "fact_ids": [
@@ -208,11 +212,12 @@
         "package:name",
         "package:python_requires",
         "package:version",
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.docx_reader",
+        "public_symbol:aspose.words_foss.docx_reader.documentreader"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.words_foss.saveformat",
-      "text": "SaveFormat enumerates the supported output formats including DOCX, PDF, Markdown, and plain text, allowing users to specify the target format when saving a Document."
+      "slot": "hub:public_symbol:aspose.words_foss.docx_reader",
+      "text": "The aspose.words_foss.docx_reader module exposes the DocumentReader class, which implements the DocumentFormatReader protocol and provides load_file, load_stream, and load_bytes methods to read DOCX content before converting it to a Light Document Model via to_light_document."
     },
     {
       "fact_ids": [
@@ -226,13 +231,88 @@
         "package:python_requires",
         "package:version",
         "public_symbol:aspose.words_foss.doc_reader",
-        "public_symbol:aspose.words_foss.markdown_reader",
-        "public_symbol:aspose.words_foss.rtf_reader",
-        "public_symbol:aspose.words_foss.text_reader"
+        "public_symbol:aspose.words_foss.doc_reader.docfilereader"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.words_foss.doc_reader",
-      "text": "The package provides dedicated reader modules for DOC, RTF, Markdown, and plain text formats, enabling explicit parsing of these document types into a Document object."
+      "text": "The aspose.words_foss.doc_reader module provides the DocFileReader class for reading legacy DOC files (Word 97-2003 binary format) and converting them to a Light Document Model using the to_light_document method."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose.words_foss.rtf_reader",
+        "public_symbol:aspose.words_foss.rtf_reader.rtffilereader"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words_foss.rtf_reader",
+      "text": "The aspose.words_foss.rtf_reader module exposes the RtfFileReader class, which reads RTF content via OLE2 delegation and offers load_file, load_stream, and load_bytes methods followed by to_light_document to produce a Light Document Model."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose.words_foss.markdown_reader",
+        "public_symbol:aspose.words_foss.markdownloadoptions",
+        "public_symbol:aspose.words_foss.md_import"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words_foss.markdownloadoptions",
+      "text": "The aspose.words_foss.MarkdownLoadOptions class configures how Markdown content is parsed during document loading and is passed to the Document constructor when loading Markdown from bytes or streams."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.md_writer.ldmmarkdownwriter"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words_foss.md_writer",
+      "text": "The aspose.words_foss.md_writer module provides the LdmMarkdownWriter class, which writes a Light Document Model to Markdown using the write method and respects formatting options defined in MarkdownSaveOptions."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose.words_foss.pdf_writer",
+        "public_symbol:aspose.words_foss.pdf_writer.ldmpdfwriter",
+        "public_symbol:aspose.words_foss.pdf_writer.paragraph_renderer.paragraphrenderer",
+        "public_symbol:aspose.words_foss.pdf_writer.run_renderer.runrenderer",
+        "public_symbol:aspose.words_foss.pdf_writer.shape_renderer.shaperenderer",
+        "public_symbol:aspose.words_foss.pdf_writer.table_renderer.tablerenderer"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words_foss.pdf_writer",
+      "text": "The aspose.words_foss.pdf_writer module exposes the LdmPdfWriter class, which renders a Light Document Model to PDF using internal renderers including ParagraphRenderer, RunRenderer, TableRenderer, and ShapeRenderer, and applies options defined in PdfSaveOptions."
     },
     {
       "fact_ids": [
@@ -246,64 +326,12 @@
         "package:python_requires",
         "package:version",
         "public_symbol:aspose.words_foss.docx_writer",
-        "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer"
+        "public_symbol:aspose.words_foss.docx_writer.docxwriterlossywarning",
+        "public_symbol:aspose.words_foss.docx_writer.ldmdocxwriter"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.words_foss.docx_writer",
-      "text": "Writer modules for DOCX, Markdown, and PDF formats allow exporting a Document to these common output formats with format-specific options."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:license",
-        "package:name",
-        "package:python_requires",
-        "package:version",
-        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions",
-        "public_symbol:aspose.words_foss.markdownloadoptions"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.words_foss.markdownloadoptions",
-      "text": "MarkdownLoadOptions and WorkingWithMarkdownSaveOptions provide control over Markdown export behavior including underline formatting, encoding, paragraph breaks, and support for importing from multiple input formats."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:license",
-        "package:name",
-        "package:python_requires",
-        "package:version",
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-      "text": "WorkingWithOoxmlSaveOptions demonstrates how to configure OOXML save options such as pretty formatting and compression level when exporting to DOCX."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:license",
-        "package:name",
-        "package:python_requires",
-        "package:version",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions",
-      "text": "WorkingWithPdfSaveOptions shows how to convert documents from various input formats to PDF and customize PDF export behavior using PdfSaveOptions."
+      "text": "The aspose.words_foss.docx_writer module provides the LdmDocxWriter class, which writes a Light Document Model to DOCX using write or write_to_bytes methods, and supports configuration via OoxmlSaveOptions; it also emits DocxWriterLossyWarning for round-trip fidelity loss."
     },
     {
       "fact_ids": [
@@ -317,12 +345,19 @@
         "package:python_requires",
         "package:version",
         "public_symbol:aspose.words_foss.light_document_model",
-        "public_symbol:aspose.words_foss.model",
-        "public_symbol:aspose.words_foss.models"
+        "public_symbol:aspose.words_foss.light_document_model.cell",
+        "public_symbol:aspose.words_foss.light_document_model.font",
+        "public_symbol:aspose.words_foss.light_document_model.pagesetup",
+        "public_symbol:aspose.words_foss.light_document_model.paragraph",
+        "public_symbol:aspose.words_foss.light_document_model.paragraphformat",
+        "public_symbol:aspose.words_foss.light_document_model.row",
+        "public_symbol:aspose.words_foss.light_document_model.section",
+        "public_symbol:aspose.words_foss.light_document_model.style",
+        "public_symbol:aspose.words_foss.light_document_model.table"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.words_foss.light_document_model",
-      "text": "The light_document_model, model, and models modules provide a memory-efficient alternative for read-only document inspection and text extraction."
+      "text": "The aspose.words_foss.light_document_model module defines core DOM classes such as Section, Paragraph, Table, Row, Cell, Style, Font, ParagraphFormat, and PageSetup, which represent the parsed document structure and formatting attributes resolved during loading."
     },
     {
       "fact_ids": [
@@ -335,12 +370,15 @@
         "package:name",
         "package:python_requires",
         "package:version",
-        "public_symbol:apiexamples.working_with_images.workingwithimages",
-        "public_symbol:aspose.words_foss.drawing"
+        "public_symbol:aspose.words_foss.saving",
+        "public_symbol:aspose.words_foss.saving.compressionlevel",
+        "public_symbol:aspose.words_foss.saving.markdownsaveoptions",
+        "public_symbol:aspose.words_foss.saving.ooxmlsaveoptions",
+        "public_symbol:aspose.words_foss.saving.pdfsaveoptions"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.words_foss.drawing",
-      "text": "The drawing module and WorkingWithImages examples illustrate how to process image-containing documents and export them to multiple formats while preserving embedded graphics."
+      "slot": "hub:public_symbol:aspose.words_foss.saving",
+      "text": "The aspose.words_foss.saving module exposes save options classes MarkdownSaveOptions, PdfSaveOptions, and OoxmlSaveOptions, along with CompressionLevel, which control output formatting and compression when calling Document.save with a format or options instance."
     },
     {
       "fact_ids": [
@@ -349,16 +387,16 @@
         "identity:platform",
         "identity:repository",
         "identity:revision",
-        "import_path:apiexamples",
         "package:license",
         "package:name",
         "package:python_requires",
         "package:version",
-        "public_symbol:apiexamples"
+        "public_symbol:aspose.words_foss.model",
+        "public_symbol:aspose.words_foss.model.enums"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:apiexamples",
-      "text": "The ApiExamples module contains working code samples that demonstrate common document processing tasks including format conversion, save options configuration, and image handling."
+      "slot": "hub:public_symbol:aspose.words_foss.model",
+      "text": "The aspose.words_foss.model module provides the Document class and the enums submodule, which includes enumerations such as LineStyle, LineSpacingRule, HeightRule, CellMerge, CellVerticalAlignment, Orientation, ParagraphAlignment, SectionStart, StyleType, StyleIdentifier, TabAlignment, TabLeader, Underline, and WrapType used throughout the API."
     },
     {
       "fact_ids": [
@@ -374,7 +412,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-      "text": "ApiExamples.working_with_ooxml_save_options.WorkingWithOoxmlSaveOptions shows how to control the compression level and pretty formatting of DOCX output files."
+      "text": "ApiExamples.working_with_ooxml_save_options.WorkingWithOoxmlSaveOptions shows how to control the compression level and pretty formatting of output DOCX files."
     },
     {
       "fact_ids": [
@@ -390,7 +428,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:apiexamples.working_with_txt_save_options.workingwithtxtsaveoptions",
-      "text": "ApiExamples.working_with_txt_save_options.WorkingWithTxtSaveOptions provides examples for exporting documents to plain text format and retrieving document text content."
+      "text": "ApiExamples.working_with_txt_save_options.WorkingWithTxtSaveOptions provides examples for exporting documents to plain text and retrieving document content as a string."
     },
     {
       "fact_ids": [
@@ -398,7 +436,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.drawing.imagedata",
-      "text": "aspose.words_foss.drawing.ImageData represents image data with a content type and supports creation from MIME type strings."
+      "text": "aspose.words_foss.drawing.ImageData represents image data in a document, supporting content type detection and creation from MIME type strings."
     },
     {
       "fact_ids": [
@@ -406,7 +444,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.drawing.shape",
-      "text": "aspose.words_foss.drawing.Shape models a visual drawing object in a document that can contain image data and other graphical content."
+      "text": "aspose.words_foss.drawing.Shape models a visual drawing object such as an image or geometric figure within a document."
     },
     {
       "fact_ids": [
@@ -446,7 +484,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.cellformat",
-      "text": "aspose.words_foss.light_document_model.CellFormat provides access to formatting settings for a table cell."
+      "text": "aspose.words_foss.light_document_model.CellFormat stores formatting settings that apply to a table cell."
     },
     {
       "fact_ids": [
@@ -454,7 +492,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.doclist",
-      "text": "aspose.words_foss.light_document_model.DocList represents a list structure in a document."
+      "text": "aspose.words_foss.light_document_model.DocList represents a list structure in a document, containing list levels and items."
     },
     {
       "fact_ids": [
@@ -486,7 +524,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.font",
-      "text": "aspose.words_foss.light_document_model.Font encapsulates character formatting attributes such as typeface, size, and style."
+      "text": "aspose.words_foss.light_document_model.Font encapsulates character-level formatting attributes such as typeface and size."
     },
     {
       "fact_ids": [
@@ -502,7 +540,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.listformat",
-      "text": "aspose.words_foss.light_document_model.ListFormat stores list-related formatting information for a paragraph."
+      "text": "aspose.words_foss.light_document_model.ListFormat holds list-related formatting for a paragraph."
     },
     {
       "fact_ids": [
@@ -510,7 +548,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.listlevel",
-      "text": "aspose.words_foss.light_document_model.ListLevel defines the appearance and behavior of a specific level in a list."
+      "text": "aspose.words_foss.light_document_model.ListLevel defines the appearance and numbering style for a specific level in a list."
     },
     {
       "fact_ids": [
@@ -518,7 +556,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.pagesetup",
-      "text": "aspose.words_foss.light_document_model.PageSetup holds page layout settings such as margins, orientation, and paper size."
+      "text": "aspose.words_foss.light_document_model.PageSetup stores page layout settings such as margins, orientation, and paper size."
     },
     {
       "fact_ids": [
@@ -526,7 +564,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.paragraphformat",
-      "text": "aspose.words_foss.light_document_model.ParagraphFormat stores formatting properties that apply to an entire paragraph."
+      "text": "aspose.words_foss.light_document_model.ParagraphFormat holds formatting attributes that apply to a paragraph."
     },
     {
       "fact_ids": [
@@ -542,7 +580,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.rowformat",
-      "text": "aspose.words_foss.light_document_model.RowFormat provides access to formatting settings for a table row."
+      "text": "aspose.words_foss.light_document_model.RowFormat stores formatting settings that apply to a table row."
     },
     {
       "fact_ids": [
@@ -550,7 +588,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.run",
-      "text": "aspose.words_foss.light_document_model.Run represents a sequence of characters with the same formatting within a paragraph."
+      "text": "aspose.words_foss.light_document_model.Run represents a sequence of characters with the same formatting in a paragraph."
     },
     {
       "fact_ids": [
@@ -558,7 +596,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.section",
-      "text": "aspose.words_foss.light_document_model.Section defines a section in a document, containing headers, footers, and body content."
+      "text": "aspose.words_foss.light_document_model.Section groups content that shares the same page setup and section-level formatting."
     },
     {
       "fact_ids": [
@@ -566,7 +604,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.shading",
-      "text": "aspose.words_foss.light_document_model.Shading describes the background fill pattern and color for a document element."
+      "text": "aspose.words_foss.light_document_model.Shading defines the background fill pattern and color for a document element."
     },
     {
       "fact_ids": [
@@ -574,7 +612,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.style",
-      "text": "aspose.words_foss.light_document_model.Style defines a reusable set of formatting properties for paragraphs and runs."
+      "text": "aspose.words_foss.light_document_model.Style represents a named collection of formatting attributes that can be applied to paragraphs or runs."
     },
     {
       "fact_ids": [
@@ -582,7 +620,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.tabstop",
-      "text": "aspose.words_foss.light_document_model.TabStop represents a single tab stop position and its alignment."
+      "text": "aspose.words_foss.light_document_model.TabStop defines a single tab stop position and its alignment."
     },
     {
       "fact_ids": [
@@ -590,7 +628,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.tabstopcollection",
-      "text": "aspose.words_foss.light_document_model.TabStopCollection manages a collection of tab stops for a paragraph."
+      "text": "aspose.words_foss.light_document_model.TabStopCollection manages a list of tab stops for a paragraph."
     },
     {
       "fact_ids": [
@@ -598,7 +636,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.table",
-      "text": "aspose.words_foss.light_document_model.Table represents a table structure composed of rows and cells."
+      "text": "aspose.words_foss.light_document_model.Table represents a tabular structure composed of rows and cells."
     },
     {
       "fact_ids": [
@@ -606,7 +644,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.textcolumn",
-      "text": "aspose.words_foss.light_document_model.TextColumn defines the properties of a single text column in a section."
+      "text": "aspose.words_foss.light_document_model.TextColumn describes the width and spacing of a single column in a multi-column section."
     },
     {
       "fact_ids": [
@@ -614,7 +652,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.light_document_model.textcolumns",
-      "text": "aspose.words_foss.light_document_model.TextColumns holds the collection of text columns for a section."
+      "text": "aspose.words_foss.light_document_model.TextColumns holds the collection of columns that define multi-column layout for a section."
     },
     {
       "fact_ids": [
@@ -630,7 +668,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.atxheadingblock",
-      "text": "aspose.words_foss.md_import.AtxHeadingBlock models an ATX-style Markdown heading consisting of one or more hash characters followed by text."
+      "text": "aspose.words_foss.md_import.AtxHeadingBlock models an Atx-style Markdown heading, such as those beginning with one or more hash characters."
     },
     {
       "fact_ids": [
@@ -638,7 +676,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.autolinkblock",
-      "text": "aspose.words_foss.md_import.AutolinkBlock represents an automatic link in Markdown that converts a URL into a clickable link."
+      "text": "aspose.words_foss.md_import.AutolinkBlock represents an automatic link in Markdown, typically a URL or email address."
     },
     {
       "fact_ids": [
@@ -646,7 +684,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.blocktype",
-      "text": "aspose.words_foss.md_import.BlockType enumerates the different types of blocks that can appear in a Markdown document."
+      "text": "aspose.words_foss.md_import.BlockType enumerates the different kinds of Markdown blocks that can be parsed."
     },
     {
       "fact_ids": [
@@ -654,7 +692,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.boldinlineblock",
-      "text": "aspose.words_foss.md_import.BoldInlineBlock represents inline bold text in Markdown, typically enclosed by double asterisks or underscores."
+      "text": "aspose.words_foss.md_import.BoldInlineBlock models inline text formatted as bold in Markdown."
     },
     {
       "fact_ids": [
@@ -662,7 +700,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.bulletlistitemblock",
-      "text": "aspose.words_foss.md_import.BulletListItemBlock models a single item in a Markdown bullet list."
+      "text": "aspose.words_foss.md_import.BulletListItemBlock represents a single item in a Markdown bullet list."
     },
     {
       "fact_ids": [
@@ -670,7 +708,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.cellblock",
-      "text": "aspose.words_foss.md_import.CellBlock represents a cell within a Markdown table row."
+      "text": "aspose.words_foss.md_import.CellBlock models a cell within a Markdown table row."
     },
     {
       "fact_ids": [
@@ -678,7 +716,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.documentblock",
-      "text": "aspose.words_foss.md_import.DocumentBlock serves as the root container for all blocks in a parsed Markdown document."
+      "text": "aspose.words_foss.md_import.DocumentBlock serves as the root container for all parsed Markdown content."
     },
     {
       "fact_ids": [
@@ -686,7 +724,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.fencedcodeblock",
-      "text": "The FencedCodeBlock class represents a fenced code block in a Markdown document."
+      "text": "Represents a fenced code block in a Markdown document, containing code with language specification and optional title."
     },
     {
       "fact_ids": [
@@ -694,7 +732,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.footnotedefinitionblock",
-      "text": "The FootnoteDefinitionBlock class represents a footnote definition in a Markdown document."
+      "text": "Represents a footnote definition block in a Markdown document, associating a footnote reference with its content."
     },
     {
       "fact_ids": [
@@ -702,7 +740,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.footnotereferenceblock",
-      "text": "The FootnoteReferenceBlock class represents a footnote reference in a Markdown document."
+      "text": "Represents a footnote reference block in a Markdown document, indicating an inline reference to a footnote definition."
     },
     {
       "fact_ids": [
@@ -710,7 +748,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.headingblock",
-      "text": "The HeadingBlock class represents a heading in a Markdown document."
+      "text": "Represents a heading block in a Markdown document, containing text with a specified heading level."
     },
     {
       "fact_ids": [
@@ -718,7 +756,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.horizontalruleblock",
-      "text": "The HorizontalRuleBlock class represents a horizontal rule in a Markdown document."
+      "text": "Represents a horizontal rule block in a Markdown document, rendering as a thematic break or separator line."
     },
     {
       "fact_ids": [
@@ -726,7 +764,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.indentedcodeblock",
-      "text": "The IndentedCodeBlock class represents an indented code block in a Markdown document."
+      "text": "Represents an indented code block in a Markdown document, containing code blocks defined by four-space indentation."
     },
     {
       "fact_ids": [
@@ -734,7 +772,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.inlinecodeblock",
-      "text": "The InlineCodeBlock class represents inline code in a Markdown document."
+      "text": "Represents an inline code block in a Markdown document, containing short code snippets within a paragraph."
     },
     {
       "fact_ids": [
@@ -742,7 +780,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.italicinlineblock",
-      "text": "The ItalicInlineBlock class represents italic text in a Markdown document."
+      "text": "Represents an italic inline block in a Markdown document, rendering text in italics using asterisks or underscores."
     },
     {
       "fact_ids": [
@@ -750,7 +788,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.linebreakblock",
-      "text": "The LineBreakBlock class represents a line break in a Markdown document."
+      "text": "Represents a line break block in a Markdown document, forcing a line break within a paragraph."
     },
     {
       "fact_ids": [
@@ -758,7 +796,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.linktextblock",
-      "text": "The LinkTextBlock class represents the text portion of a link in a Markdown document."
+      "text": "Represents a link text block in a Markdown document, containing the visible text of a hyperlink."
     },
     {
       "fact_ids": [
@@ -766,7 +804,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.listitemblock",
-      "text": "The ListItemBlock class represents a list item in a Markdown document."
+      "text": "Represents a list item block in a Markdown document, forming part of an unordered or ordered list."
     },
     {
       "fact_ids": [
@@ -774,7 +812,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.orderedlistitemblock",
-      "text": "The OrderedListItemBlock class represents an ordered list item in a Markdown document."
+      "text": "Represents an ordered list item block in a Markdown document, forming part of a numbered list structure."
     },
     {
       "fact_ids": [
@@ -782,7 +820,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.paragraphblock",
-      "text": "The ParagraphBlock class represents a paragraph in a Markdown document."
+      "text": "Represents a paragraph block in a Markdown document, containing a block of text separated by blank lines."
     },
     {
       "fact_ids": [
@@ -790,7 +828,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.quoteblock",
-      "text": "The QuoteBlock class represents a blockquote in a Markdown document."
+      "text": "Represents a quote block in a Markdown document, containing blockquote content introduced by the greater-than symbol."
     },
     {
       "fact_ids": [
@@ -798,7 +836,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.rowblock",
-      "text": "The RowBlock class represents a table row in a Markdown document."
+      "text": "Represents a row block in a Markdown table, containing cells aligned with column separators."
     },
     {
       "fact_ids": [
@@ -806,7 +844,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.setextheadingblock",
-      "text": "The SetextHeadingBlock class represents a setext-style heading in a Markdown document."
+      "text": "Represents a Setext heading block in a Markdown document, using underlines to define heading levels."
     },
     {
       "fact_ids": [
@@ -814,7 +852,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.strikethroughblock",
-      "text": "The StrikethroughBlock class represents strikethrough text in a Markdown document."
+      "text": "Represents a strikethrough block in a Markdown document, rendering text with a deletion line using tildes."
     },
     {
       "fact_ids": [
@@ -822,7 +860,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.tableblock",
-      "text": "The TableBlock class represents a table in a Markdown document."
+      "text": "Represents a table block in a Markdown document, containing rows of cells separated by pipe characters."
     },
     {
       "fact_ids": [
@@ -830,7 +868,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.words_foss.md_import.underlineblock",
-      "text": "The UnderlineBlock class represents underlined text in a Markdown document."
+      "text": "Represents an underline block in a Markdown document, rendering text with an underline using plus signs."
     },
     {
       "fact_ids": [
@@ -838,7 +876,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:022",
-      "text": "The getting started guide introduces core concepts and basic workflows for loading, manipulating, and saving documents using Aspose.Words FOSS for Python."
+      "text": "The getting started guide covers installation, walkthroughs, and feature guides for this library."
     },
     {
       "fact_ids": [
@@ -846,7 +884,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:023",
-      "text": "The how-to guides and FAQ provide practical examples and answers to common questions about document conversion, formatting options, and troubleshooting."
+      "text": "The how-to guides and FAQ provide task-focused answers for common Word-processing questions."
     },
     {
       "fact_ids": [
@@ -854,7 +892,15 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:024",
-      "text": "The full API reference documents every class, method, and constant available in the aspose-words-foss package for programmatic document processing."
+      "text": "The full API reference offers a complete, browsable reference for all 146 public types."
+    },
+    {
+      "fact_ids": [
+        "link_target:026"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "The issue tracker allows users to report bugs or submit feature requests for Aspose.Words FOSS for Python."
     },
     {
       "fact_ids": [
@@ -863,71 +909,41 @@
         "identity:platform",
         "identity:repository",
         "identity:revision",
-        "inherited_unit:100.heading",
-        "inherited_unit:101.list",
         "package:license",
         "package:name",
         "package:python_requires",
-        "package:version",
-        "public_symbol:aspose.words_foss.saveformat"
+        "package:version"
       ],
       "section": "scope_limitations",
       "slot": "scope",
-      "text": "Aspose.Words FOSS for Python provides a free, open-source subset of the commercial Aspose.Words API for Python, supporting reading and writing DOCX, Markdown, PDF, and plain text documents with a focus on document conversion and basic formatting operations."
+      "text": "Aspose.Words FOSS for Python provides a free, open-source subset of the commercial Aspose.Words API for Python, supporting reading and writing DOCX, Markdown, PDF, and plain text documents, with version 26.7.0 requiring Python 3.10 through 3.12 and distributed under the MIT license."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
         "inherited_unit:101.list",
-        "package:license",
-        "package:name",
-        "package:python_requires",
-        "package:version",
         "public_symbol:aspose.words_foss.saveformat"
       ],
       "section": "scope_limitations",
       "slot": "limitation:1",
-      "text": "The library does not implement a writer for the legacy DOC format despite defining SaveFormat.DOC for API compatibility, and attempting to save to .doc raises ValueError, with only Markdown, Text, PDF, and DOCX supported as output formats."
+      "text": "The SaveFormat.DOC constant exists for API compatibility but the library does not implement a DOC writer, so saving to the .doc format raises a ValueError, while only four save formats are actually implemented."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
         "inherited_unit:101.list",
-        "package:license",
-        "package:name",
-        "package:python_requires",
-        "package:version",
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions"
+        "public_symbol:aspose.words_foss.saving.ooxmlcompliance"
       ],
       "section": "scope_limitations",
       "slot": "limitation:2",
-      "text": "Saving DOCX with OoxmlSaveOptions.compliance set to OoxmlCompliance.ISO29500_2008_STRICT raises NotImplementedError, and only ECMA376_2006 or ISO29500_2008_TRANSITIONAL compliance levels are supported."
+      "text": "Saving DOCX files with OoxmlCompliance.ISO29500_2008_STRICT raises NotImplementedError because the writer does not implement strict compliance, and users must choose an alternative compliance level instead."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
         "inherited_unit:101.list",
-        "package:license",
-        "package:name",
-        "package:python_requires",
-        "package:version",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+        "public_symbol:aspose.words_foss.saving"
       ],
       "section": "scope_limitations",
       "slot": "limitation:3",
-      "text": "Eight PdfSaveOptions fields — text_compression, embed_full_fonts, use_core_fonts, font_embedding_mode, page_mode, color_mode, preserve_form_fields, and memory_optimization — exist for API forward-compatibility but are not consumed by the PDF writer."
+      "text": "The aspose.words_foss.saving module exposes several options classes such as PdfSaveOptions, but some of their fields exist for API forward-compatibility with the commercial Aspose.Words API and are not yet consumed by the PDF writer."
     },
     {
       "fact_ids": [

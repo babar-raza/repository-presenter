@@ -14,7 +14,7 @@
         "package:python_requires",
         "package:version"
       ],
-      "rationale": "The H1 heading matches the canonical product name supported by identity and package facts.",
+      "rationale": "The H1 product name is rendered deterministically from identity and package facts.",
       "unit_id": "inherited_unit:001.heading"
     },
     {
@@ -51,7 +51,7 @@
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "All badges in the row have verified link targets and are supported by the facts.",
+      "rationale": "The badge row is rendered deterministically from link_target facts.",
       "unit_id": "inherited_unit:002.badge_row"
     },
     {
@@ -61,7 +61,7 @@
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "The banner image link and homepage target are both verified and present.",
+      "rationale": "The banner image link is rendered deterministically from product banner and homepage link_target facts.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -76,124 +76,90 @@
         "package:version",
         "package:license",
         "license:spdx",
+        "import_path:aspose.words_foss",
         "public_symbol:aspose.words_foss.document",
         "public_symbol:aspose.words_foss.saveformat",
         "public_symbol:aspose.words_foss.doc_reader",
+        "public_symbol:aspose.words_foss.docx_reader",
         "public_symbol:aspose.words_foss.rtf_reader",
         "public_symbol:aspose.words_foss.markdown_reader",
         "public_symbol:aspose.words_foss.text_reader",
         "public_symbol:aspose.words_foss.docx_writer",
         "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer"
+        "public_symbol:aspose.words_foss.pdf_writer",
+        "public_symbol:aspose.words_foss.light_document_model",
+        "public_symbol:aspose.words_foss.saving",
+        "public_symbol:aspose.words_foss.loadoptions",
+        "public_symbol:aspose.words_foss.markdownloadoptions",
+        "public_symbol:aspose.words_foss.drawing",
+        "public_symbol:aspose.words_foss.pdf_writer.shape_renderer",
+        "public_symbol:aspose.words_foss.pdf_writer.paragraph_renderer",
+        "public_symbol:aspose.words_foss.pdf_writer.table_renderer",
+        "public_symbol:aspose.words_foss.md_writer.ldmmarkdownwriter",
+        "public_symbol:aspose.words_foss.docx_writer.ldmdocxwriter",
+        "public_symbol:aspose.words_foss.reader_factory",
+        "public_symbol:aspose.words_foss.reader_factory.create_reader",
+        "public_symbol:aspose.words_foss.reader_factory.documentformatreader",
+        "public_symbol:aspose.words_foss.utils.get_element_text",
+        "public_symbol:aspose.words_foss.utils.find_all_elements"
       ],
-      "rationale": "The paragraph's substance is covered by the product summary and capabilities; rewritten to fit the opening section's required two-to-four sentence format.",
+      "rationale": "The paragraph's substance is covered by the product summary and capabilities; it is rewritten from facts to avoid duplication.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
-      "destination_section": "navigation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision"
-      ],
-      "rationale": "The Navigation heading is rendered by the deterministic navigation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Navigation heading is not a placeable section; its content is rendered by the navigation section.",
       "unit_id": "inherited_unit:005.heading"
     },
     {
-      "destination_section": "navigation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision"
-      ],
-      "rationale": "The navigation list is rendered by the deterministic navigation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The navigation list is rendered by the navigation section; this inherited unit is redundant.",
       "unit_id": "inherited_unit:006.list"
     },
     {
-      "destination_section": "at_a_glance",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "public_symbol:aspose.words_foss.doc_reader",
-        "public_symbol:aspose.words_foss.rtf_reader",
-        "public_symbol:aspose.words_foss.markdown_reader",
-        "public_symbol:aspose.words_foss.text_reader",
-        "public_symbol:aspose.words_foss.saveformat",
-        "public_symbol:aspose.words_foss.docx_writer",
-        "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer"
-      ],
-      "rationale": "The 'At a Glance' heading and Mermaid diagram are supported by verified input/output formats and writers.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The At a Glance heading is not placeable; its content is rendered by the at_a_glance section.",
       "unit_id": "inherited_unit:007.heading"
     },
     {
       "destination_section": null,
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose.words_foss.doc_reader",
-        "public_symbol:aspose.words_foss.rtf_reader",
-        "public_symbol:aspose.words_foss.markdown_reader",
-        "public_symbol:aspose.words_foss.text_reader",
-        "public_symbol:aspose.words_foss.saveformat",
-        "public_symbol:aspose.words_foss.docx_writer",
-        "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer"
-      ],
-      "rationale": "The Mermaid diagram accurately reflects the supported input and output formats and is verified by public symbols.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Mermaid diagram is not placeable; its content is rendered by the at_a_glance section.",
       "unit_id": "inherited_unit:008.code_block"
     },
     {
-      "destination_section": "key_capabilities",
-      "disposition": "VERIFIED_PRESERVE",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Key Capabilities' heading is required by the section definition.",
+      "rationale": "The Key Capabilities heading is not placeable; its content is rendered by the key_capabilities section.",
       "unit_id": "inherited_unit:009.heading"
     },
     {
-      "destination_section": "key_capabilities",
-      "disposition": "VERIFIED_REWRITE",
-      "fact_ids": [
-        "public_symbol:aspose.words_foss.doc_reader",
-        "public_symbol:aspose.words_foss.rtf_reader",
-        "public_symbol:aspose.words_foss.markdown_reader",
-        "public_symbol:aspose.words_foss.text_reader",
-        "public_symbol:aspose.words_foss.saveformat",
-        "public_symbol:aspose.words_foss.docx_writer",
-        "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer",
-        "public_symbol:aspose.words_foss.drawing",
-        "public_symbol:apiexamples.working_with_images.workingwithimages",
-        "public_symbol:aspose.words_foss.markdownloadoptions",
-        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions",
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions",
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
-      ],
-      "rationale": "The list items are supported by capabilities and examples; rewritten to action-led items per the section definition.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Key Capabilities list is rendered by the key_capabilities section; this inherited unit is redundant.",
       "unit_id": "inherited_unit:010.list"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "rationale": "The Installation heading is rendered by the deterministic installation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Installation heading is not placeable; its content is rendered by the installation section.",
       "unit_id": "inherited_unit:011.heading"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "rationale": "The installation paragraph is superseded by the deterministic installation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Installation paragraph is redundant with the installation section.",
       "unit_id": "inherited_unit:012.paragraph"
     },
     {
@@ -202,14 +168,14 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The pip install command matches the verified install command fact.",
+      "rationale": "The pip install command is rendered deterministically from the install_command fact.",
       "unit_id": "inherited_unit:013.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The nightly build install command is not supported by any fact.",
+      "rationale": "The nightly build paragraph is not supported by facts; the install_command fact only covers PyPI.",
       "unit_id": "inherited_unit:014.paragraph"
     },
     {
@@ -218,28 +184,21 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The nightly build install command is not supported by any fact.",
+      "rationale": "The nightly build install command is not supported by facts.",
       "unit_id": "inherited_unit:015.code_block"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "dependency:development.dev.pytest-9.0.2",
-        "dependency:fpdf2-2.7.5",
-        "dependency:olefile-0.46",
-        "dependency:pydantic-2.0.0",
-        "package:python_requires"
-      ],
-      "rationale": "The Python version requirement is supported by the package:python_requires fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Python version requirement is not supported by facts; the package:python_requires fact is not cited.",
       "unit_id": "inherited_unit:016.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The verification command is not supported by any fact.",
+      "rationale": "The verify install paragraph is not supported by facts.",
       "unit_id": "inherited_unit:017.paragraph"
     },
     {
@@ -248,260 +207,168 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The verification command is not supported by any fact.",
+      "rationale": "The verify install command is not supported by facts.",
       "unit_id": "inherited_unit:018.code_block"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "dependency:development.dev.pytest-9.0.2",
-        "dependency:fpdf2-2.7.5",
-        "dependency:olefile-0.46",
-        "dependency:pydantic-2.0.0"
-      ],
-      "rationale": "The Dependencies heading is rendered by the deterministic dependencies section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Dependencies heading is not placeable; its content is rendered by the dependencies section.",
       "unit_id": "inherited_unit:019.heading"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "dependency:development.dev.pytest-9.0.2",
-        "dependency:fpdf2-2.7.5",
-        "dependency:olefile-0.46",
-        "dependency:pydantic-2.0.0"
-      ],
-      "rationale": "The 'Required Package Dependencies' heading is superseded by the deterministic dependencies section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Required Package Dependencies heading is not placeable; its content is rendered by the dependencies section.",
       "unit_id": "inherited_unit:020.heading"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "dependency:development.dev.pytest-9.0.2",
-        "dependency:fpdf2-2.7.5",
-        "dependency:olefile-0.46",
-        "dependency:pydantic-2.0.0"
-      ],
-      "rationale": "The required dependencies match the verified dependency facts.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The required dependencies list is rendered by the dependencies section; this inherited unit is redundant.",
       "unit_id": "inherited_unit:021.list"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "dependency:development.dev.pytest-9.0.2",
-        "dependency:fpdf2-2.7.5",
-        "dependency:olefile-0.46",
-        "dependency:pydantic-2.0.0"
-      ],
-      "rationale": "The 'Native and System Requirements' heading is superseded by the deterministic dependencies section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Native and System Requirements Heading is not placeable; its content is rendered by the dependencies section.",
       "unit_id": "inherited_unit:022.heading"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "dependency:development.dev.pytest-9.0.2",
-        "dependency:fpdf2-2.7.5",
-        "dependency:olefile-0.46",
-        "dependency:pydantic-2.0.0",
-        "package:python_requires"
-      ],
-      "rationale": "The Python version requirement is supported by the package:python_requires fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Python version requirement list is not supported by facts.",
       "unit_id": "inherited_unit:023.list"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "dependency:development.dev.pytest-9.0.2",
-        "dependency:fpdf2-2.7.5",
-        "dependency:olefile-0.46",
-        "dependency:pydantic-2.0.0"
-      ],
-      "rationale": "The 'Development Dependencies' heading is superseded by the deterministic dependencies section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Development Dependencies Heading is not placeable; its content is rendered by the dependencies section.",
       "unit_id": "inherited_unit:024.heading"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "dependency:development.dev.pytest-9.0.2",
-        "dependency:fpdf2-2.7.5",
-        "dependency:olefile-0.46",
-        "dependency:pydantic-2.0.0"
-      ],
-      "rationale": "The development dependencies match the verified dependency facts.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The development dependencies list is rendered by the dependencies section; this inherited unit is redundant.",
       "unit_id": "inherited_unit:025.list"
     },
     {
-      "destination_section": "dependencies",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "dependency:development.dev.pillow-10.0.0",
-        "dependency:development.dev.pytest-9.0.2",
-        "dependency:fpdf2-2.7.5",
-        "dependency:olefile-0.46",
-        "dependency:pydantic-2.0.0"
-      ],
-      "rationale": "The note about dev extras is supported by the dependency facts and adds context.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The dev extra paragraph is not supported by facts.",
       "unit_id": "inherited_unit:026.paragraph"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "VERIFIED_PRESERVE",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Quick Start' heading is required by the section definition.",
+      "rationale": "The Quick Start heading is not placeable; its content is rendered by the quick_start section.",
       "unit_id": "inherited_unit:027.heading"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat",
-        "public_symbol:apiexamples.convert_document.convertdocument"
-      ],
-      "rationale": "The example lead-in is supported by the Document and SaveFormat public symbols.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Quick Start paragraph is not supported by facts.",
       "unit_id": "inherited_unit:028.paragraph"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "example:001",
-        "public_symbol:apiexamples.convert_document.convertdocument",
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
-      ],
-      "rationale": "The example code is supported by the Document and SaveFormat public symbols.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Quick Start example is not supported by facts.",
       "unit_id": "inherited_unit:029.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat",
-        "public_symbol:apiexamples.convert_document.convertdocument"
-      ],
-      "rationale": "The lead-in to additional examples is supported by the Document and SaveFormat public symbols.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The PDF export paragraph is not supported by facts.",
       "unit_id": "inherited_unit:030.paragraph"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "example:002",
-        "public_symbol:apiexamples.convert_document.convertdocument",
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
-      ],
-      "rationale": "The PDF export example is supported by the Document and SaveFormat public symbols.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The PDF export example is not supported by facts.",
       "unit_id": "inherited_unit:031.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "import_path:apiexamples",
-        "public_symbol:apiexamples"
-      ],
-      "rationale": "The reference to ApiExamples is supported by the import_path and public_symbol facts.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The ApiExamples reference paragraph is not supported by facts.",
       "unit_id": "inherited_unit:032.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Additional Examples' heading is required by the section definition.",
+      "rationale": "The Additional Examples heading is not placeable; its content is rendered by the additional_examples section.",
       "unit_id": "inherited_unit:033.heading"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "import_path:apiexamples",
-        "public_symbol:apiexamples"
-      ],
-      "rationale": "The reference to ApiExamples is supported by the import_path and public_symbol facts.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Additional Examples paragraph is not supported by facts.",
       "unit_id": "inherited_unit:034.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Save With Markdown and PDF Options' heading is required by the section definition.",
+      "rationale": "The Save With Markdown and PDF Options heading is not placeable; its content is rendered by the additional_examples section.",
       "unit_id": "inherited_unit:035.heading"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "example:003",
-        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions",
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions",
-        "public_symbol:aspose.words_foss.markdownloadoptions"
-      ],
-      "rationale": "The example code is supported by the save options public symbols.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Save With Markdown and PDF Options example is not supported by facts.",
       "unit_id": "inherited_unit:036.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is not supported by any fact.",
+      "rationale": "The View Additional Examples HTML block is not supported by facts.",
       "unit_id": "inherited_unit:037.html_block"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "public_symbol:apiexamples.convert_document.convertdocument",
-        "public_symbol:apiexamples.loading_document.loadingdocument",
-        "public_symbol:apiexamples.loading_markdown.loadingmarkdown",
-        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions",
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions",
-        "public_symbol:apiexamples.working_with_txt_save_options.workingwithtxtsaveoptions",
-        "public_symbol:apiexamples.working_with_images.workingwithimages"
-      ],
-      "rationale": "The table entries are supported by the public symbols for ApiExamples modules.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Additional Examples table is not supported by facts.",
       "unit_id": "inherited_unit:038.table"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Extract Plain Text' heading is required by the section definition.",
+      "rationale": "The Extract Plain Text heading is not placeable; its content is rendered by the additional_examples section.",
       "unit_id": "inherited_unit:039.heading"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "example:004",
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
-      ],
-      "rationale": "The plain text extraction example is supported by the Document and SaveFormat public symbols.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Extract Plain Text example is not supported by facts.",
       "unit_id": "inherited_unit:040.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The heading '### Convert Every Input Format to PDF' is superseded by the Additional Examples section, which is rendered from facts and covers the same content.",
+      "rationale": "The heading '### Convert Every Input Format to PDF' is superseded by the Additional Examples section which renders from facts.",
       "unit_id": "inherited_unit:041.heading"
     },
     {
@@ -512,14 +379,14 @@
         "public_symbol:aspose.words_foss.document",
         "public_symbol:aspose.words_foss.saveformat"
       ],
-      "rationale": "The code block demonstrates converting documents to PDF, which is supported by the public symbols Document and SaveFormat.",
+      "rationale": "The code block demonstrates converting documents to PDF using Document and SaveFormat.PDF, which is supported by the facts.",
       "unit_id": "inherited_unit:042.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The heading '### Load From a Stream' is superseded by the Additional Examples section, which is rendered from facts and covers the same content.",
+      "rationale": "The heading '### Load From a Stream' is superseded by the Additional Examples section which renders from facts.",
       "unit_id": "inherited_unit:043.heading"
     },
     {
@@ -529,7 +396,7 @@
         "public_symbol:aspose.words_foss.loadformat",
         "public_symbol:aspose.words_foss.loadoptions"
       ],
-      "rationale": "The paragraph explains auto-detection and LoadOptions, which is supported by the public symbols LoadFormat and LoadOptions.",
+      "rationale": "The paragraph explains auto-detection of formats and the need for LoadOptions.load_format for Markdown, which is supported by the facts.",
       "unit_id": "inherited_unit:044.paragraph"
     },
     {
@@ -541,14 +408,14 @@
         "public_symbol:aspose.words_foss.loadformat",
         "public_symbol:aspose.words_foss.loadoptions"
       ],
-      "rationale": "The code block demonstrates loading from a stream with LoadOptions, which is supported by the public symbols Document, LoadFormat, and LoadOptions.",
+      "rationale": "The code block demonstrates loading from a stream with auto-detection and explicit LoadFormat.MARKDOWN, which is supported by the facts.",
       "unit_id": "inherited_unit:045.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The heading '### Preserve a UTF-8 BOM in Markdown Output' is superseded by the Additional Examples section, which is rendered from facts and covers the same内容.",
+      "rationale": "The heading '### Preserve a UTF-8 BOM in Markdown Output' is superseded by the Additional Examples section which renders from facts.",
       "unit_id": "inherited_unit:046.heading"
     },
     {
@@ -556,16 +423,17 @@
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
         "example:007",
-        "public_symbol:aspose.words_foss.markdownloadoptions"
+        "public_symbol:aspose.words_foss.markdownloadoptions",
+        "public_symbol:aspose.words_foss.saving.markdownsaveoptions"
       ],
-      "rationale": "The code block demonstrates preserving UTF-8 BOM with MarkdownSaveOptions, which is supported by the public symbol MarkdownLoadOptions.",
+      "rationale": "The code block demonstrates setting encoding to 'utf-8-sig' via MarkdownSaveOptions, which is supported by the facts.",
       "unit_id": "inherited_unit:047.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The heading '### Pretty-Print DOCX XML' is superseded by the Additional Examples section, which is rendered from facts and covers the same content.",
+      "rationale": "The heading '### Pretty-Print DOCX XML' is superseded by the Additional Examples section which renders from facts.",
       "unit_id": "inherited_unit:048.heading"
     },
     {
@@ -575,14 +443,14 @@
         "example:008",
         "public_symbol:aspose.words_foss.saving.ooxmlsaveoptions"
       ],
-      "rationale": "The code block demonstrates pretty-printing DOCX XML with OoxmlSaveOptions, which is supported by the public symbol OoxmlSaveOptions.",
+      "rationale": "The code block demonstrates setting pretty_format via OoxmlSaveOptions, which is supported by the facts.",
       "unit_id": "inherited_unit:049.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The heading '### Set DOCX Compression Level' is superseded by the Additional Examples section, which is rendered from facts and covers the same content.",
+      "rationale": "The heading '### Set DOCX Compression Level' is superseded by the Additional Examples section which renders from facts.",
       "unit_id": "inherited_unit:050.heading"
     },
     {
@@ -590,25 +458,28 @@
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
         "example:009",
-        "public_symbol:aspose.words_foss.saving.compressionlevel"
+        "public_symbol:aspose.words_foss.saving.compressionlevel",
+        "public_symbol:aspose.words_foss.saving.ooxmlsaveoptions"
       ],
-      "rationale": "The code block demonstrates setting DOCX compression level with CompressionLevel, which is supported by the public symbol CompressionLevel.",
+      "rationale": "The code block demonstrates setting compression_level via OoxmlSaveOptions, which is supported by the facts.",
       "unit_id": "inherited_unit:051.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The heading '### Convert Image-Containing Documents to Every Output Format' is superseded by the Additional Examples section, which is rendered from facts and覆盖",
+      "rationale": "The heading '### Convert Image-Containing Documents to Every Output Format' is superseded by the Additional Examples section which renders from facts.",
       "unit_id": "inherited_unit:052.heading"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "public_symbol:apiexamples.working_with_images.workingwithimages"
+        "public_symbol:aspose.words_foss.drawing",
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.pdf_writer"
       ],
-      "rationale": "The paragraph describes image handling across output formats, which is supported by the public symbol WorkingWithImages.",
+      "rationale": "The paragraph describes image handling across formats, which is supported by the facts.",
       "unit_id": "inherited_unit:053.paragraph"
     },
     {
@@ -616,17 +487,19 @@
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
         "example:010",
-        "public_symbol:apiexamples.working_with_images.workingwithimages",
+        "public_symbol:aspose.words_foss.drawing",
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.pdf_writer",
         "public_symbol:aspose.words_foss.saveformat"
       ],
-      "rationale": "The code block demonstrates converting image-containing documents to multiple formats, which is supported by the public symbols WorkingWithImages and SaveFormat",
+      "rationale": "The code block demonstrates converting image-containing documents to Markdown, PDF, and TEXT, which is supported by the facts.",
       "unit_id": "inherited_unit:054.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The heading '### Load Markdown From In-Memory Content' is superseded by the Additional Examples section, which is rendered from facts and covers the same内容.",
+      "rationale": "The heading '### Load Markdown From In-Memory Content' is superseded by the Additional Examples section which renders from facts.",
       "unit_id": "inherited_unit:055.heading"
     },
     {
@@ -635,7 +508,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.markdownloadoptions"
       ],
-      "rationale": "The paragraph describes MarkdownLoadOptions functionality, which is supported by the public symbol MarkdownLoadOptions.",
+      "rationale": "The paragraph describes MarkdownLoadOptions loading from bytes/streams and preserve_empty_lines, which is supported by the facts.",
       "unit_id": "inherited_unit:056.paragraph"
     },
     {
@@ -643,19 +516,20 @@
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
         "example:011",
-        "public_symbol:apiexamples.loading_markdown.loadingmarkdown",
         "public_symbol:aspose.words_foss.markdownloadoptions"
       ],
-      "rationale": "The code block demonstrates loading Markdown from in-memory content with MarkdownLoadOptions, which is supported by the public symbols MarkdownLoadOptions and",
+      "rationale": "The code block demonstrates loading Markdown from bytes with MarkdownLoadOptions, which is supported by the facts.",
       "unit_id": "inherited_unit:057.code_block"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "public_symbol:apiexamples.loading_markdown.loadingmarkdown"
+        "public_symbol:aspose.words_foss.md_import",
+        "public_symbol:aspose.words_foss.drawing",
+        "public_symbol:aspose.words_foss.pdf_writer"
       ],
-      "rationale": "The paragraph describes Markdown round-tripping behavior, which is supported by the public symbol LoadingMarkdown.",
+      "rationale": "The paragraph describes Markdown round-tripping with embedded images and links, which is supported by the facts.",
       "unit_id": "inherited_unit:058.paragraph"
     },
     {
@@ -663,16 +537,19 @@
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
         "example:012",
-        "public_symbol:apiexamples.loading_markdown.loadingmarkdown"
+        "public_symbol:aspose.words_foss.drawing",
+        "public_symbol:aspose.words_foss.md_import",
+        "public_symbol:aspose.words_foss.pdf_writer",
+        "public_symbol:aspose.words_foss.saveformat"
       ],
-      "rationale": "The code block demonstrates Markdown round-tripping with embedded images and links, which is supported by the public symbol LoadingMarkdown.",
+      "rationale": "The code block demonstrates loading Markdown with embedded images and links and saving to DOCX and PDF, which is supported by the facts.",
       "unit_id": "inherited_unit:059.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML block '</details>' is a non-content separator and does not convey information.",
+      "rationale": "The HTML comment '</details>' is not supported by any fact and serves no functional purpose in the new structure.",
       "unit_id": "inherited_unit:060.html_block"
     },
     {
@@ -682,7 +559,7 @@
         "public_symbol:aspose.words_foss.document",
         "public_symbol:aspose.words_foss.saveformat"
       ],
-      "rationale": "The heading '## API Reference' is supported by the public symbols Document and SaveFormat, and the section is placeable.",
+      "rationale": "The heading '## API Reference' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:061.heading"
     },
     {
@@ -690,16 +567,17 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.saveformat",
+        "public_symbol:aspose.words_foss.saving"
       ],
-      "rationale": "The paragraph describes the Document entry point and SaveFormat usage, which is supported by the public symbols Document and SaveFormat.",
+      "rationale": "The paragraph describes Document as the primary entry point and the 146 public types, which is supported by the facts.",
       "unit_id": "inherited_unit:062.paragraph"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML block '<details><summary>View the Supported Public API Surface</summary>' is a non-content separator and does not convey information.",
+      "rationale": "The HTML details summary '<details>...' is not supported by any fact and serves no functional purpose in the new structure.",
       "unit_id": "inherited_unit:063.html_block"
     },
     {
@@ -709,7 +587,7 @@
         "public_symbol:aspose.words_foss.document",
         "public_symbol:aspose.words_foss.saveformat"
       ],
-      "rationale": "The heading '### Core API' is supported by the public symbols Document and SaveFormat, and the section is placeable.",
+      "rationale": "The heading '### Core API' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:064.heading"
     },
     {
@@ -717,29 +595,28 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.saveformat",
+        "public_symbol:aspose.words_foss.saving"
       ],
-      "rationale": "The table lists core API classes supported by the public symbols Document and SaveFormat.",
+      "rationale": "The table lists core API classes with descriptions, which is supported by the facts.",
       "unit_id": "inherited_unit:065.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.model.enums"
       ],
-      "rationale": "The heading '#### Enumerations' is supported by the public symbols Document and SaveFormat, and the section is placeable.",
+      "rationale": "The heading '#### Enumerations' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:066.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.model.enums"
       ],
-      "rationale": "The table lists enumeration classes supported by the public symbols Document and SaveFormat.",
+      "rationale": "The table lists enumeration types, which is supported by the facts.",
       "unit_id": "inherited_unit:067.table"
     },
     {
@@ -748,7 +625,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.converters"
       ],
-      "rationale": "The heading '### Converters' is supported by the public symbol converters.",
+      "rationale": "The heading '### Converters' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:068.heading"
     },
     {
@@ -757,7 +634,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.converters"
       ],
-      "rationale": "The table lists converter classes supported by the public symbol converters.",
+      "rationale": "The table lists converter classes, which is supported by the facts.",
       "unit_id": "inherited_unit:069.table"
     },
     {
@@ -766,7 +643,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.doc_reader"
       ],
-      "rationale": "The heading '### DOC Reader' is supported by the public symbol doc_reader.",
+      "rationale": "The heading '### DOC Reader' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:070.heading"
     },
     {
@@ -775,7 +652,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.doc_reader"
       ],
-      "rationale": "The table lists DOC reader classes supported by the public symbol doc_reader.",
+      "rationale": "The table lists DOC reader classes, which is supported by the facts.",
       "unit_id": "inherited_unit:071.table"
     },
     {
@@ -784,7 +661,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.docx_reader"
       ],
-      "rationale": "The heading '### DOCX Reader' is supported by the public symbol docx_reader.",
+      "rationale": "The heading '### DOCX Reader' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:072.heading"
     },
     {
@@ -793,7 +670,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.docx_reader"
       ],
-      "rationale": "The table lists DOCX reader classes supported by the public symbol docx_reader.",
+      "rationale": "The table lists DOCX reader classes, which is supported by the facts.",
       "unit_id": "inherited_unit:073.table"
     },
     {
@@ -802,7 +679,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.docx_writer"
       ],
-      "rationale": "The heading '### DOCX Writer' is supported by the public symbol docx_writer.",
+      "rationale": "The heading '### DOCX Writer' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:074.heading"
     },
     {
@@ -811,7 +688,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.docx_writer"
       ],
-      "rationale": "The table lists DOCX writer classes supported by the public symbol docx_writer.",
+      "rationale": "The table lists DOCX writer classes, which is supported by the facts.",
       "unit_id": "inherited_unit:075.table"
     },
     {
@@ -820,16 +697,17 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.light_document_model"
       ],
-      "rationale": "The heading '### Model' is supported by the public symbol light_document_model.",
+      "rationale": "The heading '### Model' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:076.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose.words_foss.light_document_model"
+        "public_symbol:aspose.words_foss.light_document_model",
+        "public_symbol:aspose.words_foss.model"
       ],
-      "rationale": "The table lists model classes supported by the public symbol light_document_model.",
+      "rationale": "The table lists model classes, which is supported by the facts.",
       "unit_id": "inherited_unit:077.table"
     },
     {
@@ -838,7 +716,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.parsers"
       ],
-      "rationale": "The heading '### Parsers' is supported by the public symbol parsers.",
+      "rationale": "The heading '### Parsers' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:078.heading"
     },
     {
@@ -847,7 +725,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.parsers"
       ],
-      "rationale": "The table lists parser classes supported by the public symbol parsers.",
+      "rationale": "The table lists parser classes, which is supported by the facts.",
       "unit_id": "inherited_unit:079.table"
     },
     {
@@ -856,7 +734,7 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.pdf_writer"
       ],
-      "rationale": "The heading '### PDF Writer' is supported by the public symbol pdf_writer.",
+      "rationale": "The heading '### PDF Writer' is supported by the facts and correctly placed in the API Reference section.",
       "unit_id": "inherited_unit:080.heading"
     },
     {
@@ -869,271 +747,289 @@
         "public_symbol:aspose.words_foss.pdf_writer.shape_renderer.shaperenderer",
         "public_symbol:aspose.words_foss.pdf_writer.table_renderer.tablerenderer"
       ],
-      "rationale": "The table of PDF writer classes is superseded by the API reference section which lists these public symbols.",
+      "rationale": "The table of PDF writer classes is superseded by the API Reference section, which re-authors the same public symbols.",
       "unit_id": "inherited_unit:081.table"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The 'Detailed Member Reference' heading is superseded by the API reference section heading.",
+      "rationale": "The 'Detailed Member Reference' heading is superseded by the API Reference section heading.",
       "unit_id": "inherited_unit:082.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The 'Document Loading and Saving' heading is superseded by the API reference section heading.",
+      "rationale": "The 'Document Loading and Saving' heading is moved to the API Reference section as it introduces core API classes.",
       "unit_id": "inherited_unit:083.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.document",
         "public_symbol:aspose.words_foss.saveformat",
         "public_symbol:aspose.words_foss.loadformat"
       ],
-      "rationale": "The list of Document constructor, SaveFormat, and LoadFormat is superseded by the API reference section.",
+      "rationale": "The list of Document constructor, SaveFormat, and LoadFormat is moved to the API Reference section as core API.",
       "unit_id": "inherited_unit:084.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The 'Format Readers' heading is superseded by the API reference section heading.",
+      "rationale": "The 'Format Readers' heading is moved to the API Reference section as it introduces reader classes.",
       "unit_id": "inherited_unit:085.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.docx_reader.documentreader"
       ],
-      "rationale": "The DOCX reader entry is superseded by the API reference section.",
+      "rationale": "The DocumentReader (DOCX) entry is moved to the API Reference section as a core reader class.",
       "unit_id": "inherited_unit:086.001.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.doc_reader.docfilereader"
       ],
-      "rationale": "The DOC reader entry is superseded by the API reference section.",
+      "rationale": "The DocFileReader (DOC) entry is moved to the API Reference section as a core reader class.",
       "unit_id": "inherited_unit:086.002.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.rtf_reader.rtffilereader"
       ],
-      "rationale": "The RTF reader entry is superseded by the API reference section.",
+      "rationale": "The RtfFileReader entry is moved to the API Reference section as a core reader class.",
       "unit_id": "inherited_unit:086.003.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
-        "public_symbol:aspose.words_foss.text_reader.markdownfilereader",
-        "public_symbol:aspose.words_foss.text_reader.textfilereader"
+        "public_symbol:aspose.words_foss.text_reader.textfilereader",
+        "public_symbol:aspose.words_foss.markdown_reader.markdownreader"
       ],
-      "rationale": "The Markdown and Text file reader entries are superseded by the API reference section.",
+      "rationale": "The MarkdownFileReader and TextFileReader entries are moved to the API Reference section as core reader classes.",
       "unit_id": "inherited_unit:086.004.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.reader_factory.documentformatreader"
       ],
-      "rationale": "The DocumentFormatReader protocol entry is superseded by the API reference section.",
+      "rationale": "The DocumentFormatReader protocol entry is moved to the API Reference section as a core reader interface.",
       "unit_id": "inherited_unit:086.005.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The 'Markdown Export' heading is superseded by the API reference section heading.",
+      "rationale": "The 'Markdown Export' heading is moved to the API Reference section as it introduces export classes.",
       "unit_id": "inherited_unit:087.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.md_writer.ldmmarkdownwriter",
-        "public_symbol:aspose.words_foss.markdownloadoptions"
+        "public_symbol:aspose.words_foss.saving.markdownsaveoptions"
       ],
-      "rationale": "The Markdown writer and options entries are superseded by the API reference section.",
+      "rationale": "The LdmMarkdownWriter and MarkdownSaveOptions entries are moved to the API Reference section as core export classes.",
       "unit_id": "inherited_unit:088.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The 'PDF Export' heading is superseded by the API reference section heading.",
+      "rationale": "The 'PDF Export' heading is moved to the API Reference section as it introduces export classes.",
       "unit_id": "inherited_unit:089.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.pdf_writer.ldmpdfwriter",
+        "public_symbol:aspose.words_foss.saving.pdfsaveoptions",
         "public_symbol:aspose.words_foss.pdf_writer.paragraph_renderer.paragraphrenderer",
         "public_symbol:aspose.words_foss.pdf_writer.run_renderer.runrenderer",
         "public_symbol:aspose.words_foss.pdf_writer.table_renderer.tablerenderer",
-        "public_symbol:aspose.words_foss.pdf_writer.shape_renderer.shaperenderer",
-        "public_symbol:aspose.words_foss.pdf_writer"
+        "public_symbol:aspose.words_foss.pdf_writer.shape_renderer.shaperenderer"
       ],
-      "rationale": "The PDF writer and renderer entries are superseded by the API reference section.",
+      "rationale": "The LdmPdfWriter, PdfSaveOptions, and renderer classes are moved to the API Reference section as core export classes.",
       "unit_id": "inherited_unit:090.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The 'DOCX Round-Trip Writing' heading is superseded by the API reference section heading.",
+      "rationale": "The 'DOCX Round-Trip Writing' heading is moved to the API Reference section as it introduces export classes.",
       "unit_id": "inherited_unit:091.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.docx_writer.ldmdocxwriter",
-        "public_symbol:aspose.words_foss.docx_writer.docxwriterlossywarning",
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.saving.ooxmlsaveoptions",
+        "public_symbol:aspose.words_foss.docx_writer.docxwriterlossywarning"
       ],
-      "rationale": "The DOCX writer and warning entries are superseded by the API reference section.",
+      "rationale": "The LdmDocxWriter, OoxmlSaveOptions, and DocxWriterLossyWarning entries are moved to the API Reference section as core export classes.",
       "unit_id": "inherited_unit:092.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The 'Document Object Model' heading is superseded by the API reference section heading.",
+      "rationale": "The 'Document Object Model' heading is moved to the API Reference section as it introduces core model classes.",
       "unit_id": "inherited_unit:093.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.light_document_model"
       ],
-      "rationale": "The LDM Document entries are superseded by the API reference section.",
+      "rationale": "The Document (LDM) entry is moved to the API Reference section as a core model class.",
       "unit_id": "inherited_unit:094.001.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.light_document_model.section"
       ],
-      "rationale": "The Section entries are superseded by the API reference section.",
+      "rationale": "The Section entry is moved to the API Reference section as a core model class.",
       "unit_id": "inherited_unit:094.002.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.light_document_model.paragraph"
       ],
-      "rationale": "The Paragraph entries are superseded by the API reference section.",
+      "rationale": "The Paragraph entry is moved to the API Reference section as a core model class.",
       "unit_id": "inherited_unit:094.003.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.light_document_model.table",
         "public_symbol:aspose.words_foss.light_document_model.row",
         "public_symbol:aspose.words_foss.light_document_model.cell"
       ],
-      "rationale": "The Table/Row/Cell entries are superseded by the API reference section.",
+      "rationale": "The Table/Row/Cell entries are moved to the API Reference section as core model classes.",
       "unit_id": "inherited_unit:094.004.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.light_document_model.style"
       ],
-      "rationale": "The Style entries are superseded by the API reference section.",
+      "rationale": "The Style entry is moved to the API Reference section as a core model class.",
       "unit_id": "inherited_unit:094.005.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.light_document_model.font",
         "public_symbol:aspose.words_foss.light_document_model.paragraphformat",
         "public_symbol:aspose.words_foss.light_document_model.pagesetup"
       ],
-      "rationale": "The Font/ParagraphFormat/PageSetup entries are superseded by the API reference section.",
+      "rationale": "The Font/ParagraphFormat/PageSetup entries are moved to the API Reference section as core model classes.",
       "unit_id": "inherited_unit:094.006.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The 'Enums' heading is superseded by the API reference section heading.",
+      "rationale": "The 'Enums' heading is moved to the API Reference section as it introduces core enum classes.",
       "unit_id": "inherited_unit:095.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
-        "public_symbol:aspose.words_foss.model.enums"
+        "public_symbol:aspose.words_foss.model.enums.linestyle",
+        "public_symbol:aspose.words_foss.model.enums.linespacingrule",
+        "public_symbol:aspose.words_foss.model.enums.heightrule",
+        "public_symbol:aspose.words_foss.model.enums.cellmerge",
+        "public_symbol:aspose.words_foss.model.enums.cellverticalalignment",
+        "public_symbol:aspose.words_foss.model.enums.orientation",
+        "public_symbol:aspose.words_foss.model.enums.paragraphalignment",
+        "public_symbol:aspose.words_foss.model.enums.sectionstart",
+        "public_symbol:aspose.words_foss.model.enums.styletype",
+        "public_symbol:aspose.words_foss.model.enums.styleidentifier",
+        "public_symbol:aspose.words_foss.model.enums.tabalignment",
+        "public_symbol:aspose.words_foss.model.enums.tableader",
+        "public_symbol:aspose.words_foss.model.enums.underline",
+        "public_symbol:aspose.words_foss.model.enums.border",
+        "public_symbol:aspose.words_foss.model.enums.font",
+        "public_symbol:aspose.words_foss.model.enums.image",
+        "public_symbol:aspose.words_foss.model.enums.layout",
+        "public_symbol:aspose.words_foss.model.enums.paragraph",
+        "public_symbol:aspose.words_foss.model.enums.style",
+        "public_symbol:aspose.words_foss.model.enums.table",
+        "public_symbol:aspose.words_foss.model.enums.preferredwidthtype"
       ],
-      "rationale": "The enum entries are superseded by the API reference section.",
+      "rationale": "The enum list is moved to the API Reference section as core model classes.",
       "unit_id": "inherited_unit:096.list"
     },
     {
       "destination_section": null,
       "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "The closing </details> HTML block is non-content and will be handled by the deterministic renderer.",
+      "rationale": "The closing </details> HTML block is non-content and is omitted.",
       "unit_id": "inherited_unit:097.html_block"
     },
     {
       "destination_section": "documentation_resources",
       "disposition": "VERIFIED_MOVE",
-      "fact_ids": [
-        "link_target:022",
-        "link_target:023",
-        "link_target:024"
-      ],
-      "rationale": "The 'Documentation & Resources' heading is preserved and moved to the documentation_resources section where the links are verified.",
+      "fact_ids": [],
+      "rationale": "The 'Documentation & Resources' heading is moved to the Documentation & Resources section.",
       "unit_id": "inherited_unit:098.heading"
     },
     {
       "destination_section": "documentation_resources",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
+        "import_path:apiexamples",
+        "import_path:aspose.words_foss",
         "link_target:022",
         "link_target:023",
         "link_target:024",
-        "link_target:025",
-        "link_target:026"
+        "public_symbol:apiexamples",
+        "public_symbol:aspose.words_foss"
       ],
-      "rationale": "The documentation links are verified and moved to the documentation_resources section.",
+      "rationale": "The documentation links are moved to the Documentation & Resources section as they are verified.",
       "unit_id": "inherited_unit:099.list"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The 'Scope and Limitations' heading is preserved as it matches the scope_limitations section.",
+      "rationale": "The 'Scope and Limitations' heading is moved to the Scope and Limitations section.",
       "unit_id": "inherited_unit:100.heading"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.words_foss.saveformat",
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+        "public_symbol:aspose.words_foss.saving.ooxmlcompliance",
+        "public_symbol:aspose.words_foss.saving"
       ],
-      "rationale": "The limitations list items are verified and preserved in the scope_limitations section.",
+      "rationale": "The limitations list is moved to the Scope and Limitations section as it is supported by facts.",
       "unit_id": "inherited_unit:101.list"
     },
     {
@@ -1142,48 +1038,47 @@
       "fact_ids": [
         "link_target:027"
       ],
-      "rationale": "The paragraph about the Enterprise Edition is moved to the enterprise_relationship section where the product link is verified.",
+      "rationale": "The Enterprise Edition reference is moved to the Enterprise Relationship section as it is supported by a verified link.",
       "unit_id": "inherited_unit:102.paragraph"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The 'Development and Testing' heading is preserved as it matches the development_testing section.",
+      "rationale": "The 'Development and Testing' heading is moved to the Development and Testing section.",
       "unit_id": "inherited_unit:103.heading"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The development setup paragraph is preserved in the development_testing section.",
+      "rationale": "The development dependencies paragraph is moved to the Development and Testing section.",
       "unit_id": "inherited_unit:104.paragraph"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "install_command:pip",
         "build_test_asset:tests"
       ],
-      "rationale": "The pip install and pytest code block is preserved in the development_testing section.",
+      "rationale": "The pip install and pytest commands are moved to the Development and Testing section as they are verified.",
       "unit_id": "inherited_unit:105.code_block"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The individual example script paragraph is preserved in the development_testing section.",
+      "rationale": "The individual example script paragraph is moved to the Development and Testing section.",
       "unit_id": "inherited_unit:106.paragraph"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
-        "import_path:apiexamples",
-        "public_symbol:apiexamples.convert_document"
+        "import_path:apiexamples"
       ],
-      "rationale": "The example script execution code block is preserved in the development_testing section.",
+      "rationale": "The example script execution command is moved to the Development and Testing section as it is verified.",
       "unit_id": "inherited_unit:107.code_block"
     },
     {
@@ -1192,7 +1087,7 @@
       "fact_ids": [
         "build_test_asset:tests"
       ],
-      "rationale": "The test fixtures paragraph is preserved in the development_testing section.",
+      "rationale": "The test fixtures paragraph is moved to the Development and Testing section as it is verified.",
       "unit_id": "inherited_unit:108.paragraph"
     },
     {
@@ -1202,7 +1097,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The 'License' heading is preserved as it matches the license section.",
+      "rationale": "The 'License' heading is moved to the License section.",
       "unit_id": "inherited_unit:109.heading"
     },
     {
@@ -1212,7 +1107,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The MIT License paragraph is preserved in the license section.",
+      "rationale": "The MIT License paragraph is moved to the License section as it is supported by facts.",
       "unit_id": "inherited_unit:110.paragraph"
     }
   ]

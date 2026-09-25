@@ -2,331 +2,159 @@
   "advisory": [
     {
       "absent": [
-        "StartingPoints",
-        "Capabilities",
-        "Outputs",
-        "i1",
-        "i2",
-        "i3",
-        "i4",
-        "i5"
+        "enabling developers to build document automation workflows",
+        "Users include developers building reporting tools, document converters, and content extraction pipelines who need a"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:008.code_block"
-      ],
+      "fact_ids": [],
       "id": "F01",
-      "quote": "```mermaid flowchart TD   PRODUCT[...]",
-      "repair": "Restore the original Mermaid diagram structure with StartingPoints, Capabilities, and Outputs subgraphs to preserve the input-to-output flow and format-specific nodes.",
-      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "at_a_glance",
-      "text": "The 'At a Glance' Mermaid diagram was simplified to a flat list of capabilities without preserving the original's input/output flow structure, losing critical context about supported formats and processing direction."
-    },
-    {
-      "absent": [
-        "pure-Python parser built on the standard library `zipfile`/`xml.etree` modules",
-        "legacy Word 97-2003 `.doc` binary files via `olefile`",
-        "RTF documents through the same OLE2 delegation path"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:010.list"
-      ],
-      "id": "F02",
-      "quote": "- **Read multiple input formats.** Read DOCX, DOC, RTF, Markdown, and plain text files by passing a file path to the `Document` constructor...",
-      "repair": "Add explicit mention of the pure-Python DOCX parser using standard library modules and the olefile-based delegation for legacy formats to preserve technical accuracy.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose.words_foss.document, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "key_capabilities",
-      "text": "The Key Capabilities section omits the critical fact that DOCX parsing uses pure-Python standard library modules (zipfile/xml.etree) and that legacy .doc/RTF use olefile delegation, which are key technical differentiators."
-    },
-    {
-      "absent": [
-        "LdmDocxWriter",
-        "LdmMarkdownWriter",
-        "LdmPdfWriter"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose.words_foss.docx_writer",
-        "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer"
-      ],
-      "id": "F03",
-      "quote": "- **Export to multiple output formats.** Export loaded documents to DOCX, Markdown, and PDF formats using the `docx_writer`, `md_writer`, and `pdf_writer` modules respectively...",
-      "repair": "Replace `docx_writer`, `md_writer`, and `pdf_writer` with the actual writer classes `LdmDocxWriter`, `LdmMarkdownWriter`, and `LdmPdfWriter` to match the verified public API surface.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose.words_foss.docx_writer, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "key_capabilities",
-      "text": "The Key Capabilities section incorrectly states that DOCX, Markdown, and PDF exports use `docx_writer`, `md_writer`, and `pdf_writer` modules, which is not the actual API surface; the correct writers are `LdmDocxWriter`, `LdmMarkdownWriter`, and `LdmPdfWriter`."
-    },
-    {
-      "absent": [
-        "pip install git+https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python.git"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F04",
-      "quote": "Install the published package from PyPI (`aspose-words-foss`, version 26.7.0):",
-      "repair": "Add the nightly build installation command `pip install git+https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python.git` to preserve the full installation guidance.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "installation",
-      "text": "The installation section omits the verified nightly build installation command from the original README, which is a supported installation path for the package."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:061.heading"
-      ],
-      "id": "F05",
-      "quote": "The verified public surface has 198 types.",
-      "repair": "Correct the public API surface count from 198 to 146 to match the original README and factual verification.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "api_reference",
-      "text": "The API Reference section incorrectly states the verified public surface has 198 types, while the original README and facts confirm 146 public types, creating a factual inconsistency."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:apiexamples.convert_document.convertdocument",
-        "public_symbol:apiexamples.docs_examples_base.docsexamplesbase",
-        "public_symbol:apiexamples.loading_document.loadingdocument"
-      ],
-      "id": "F06",
-      "quote": "| `ConvertDocument` | Demonstrates every supported input -> output format pair. |",
-      "repair": "Remove example classes (`ConvertDocument`, `DocsExamplesBase`, `LoadingDocument`, etc.) from the API Reference table and retain only core API types to preserve the accurate public surface.",
-      "reviewer_scope_defect": "the quote names public_symbol:apiexamples.convert_document.convertdocument, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "api_reference",
-      "text": "The API Reference table includes non-API entries like `ConvertDocument`, `DocsExamplesBase`, and `LoadingDocument`, which are example classes, not core API types, misrepresenting the public surface."
-    },
-    {
-      "absent": [
-        "SaveFormat.DOC",
-        "ValueError"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:101.list"
-      ],
-      "id": "F07",
-      "quote": "Aspose.Words FOSS for Python provides a free, open-source subset of the commercial Aspose.Words API for Python...",
-      "repair": "Add explicit mention that `SaveFormat.DOC` is defined for API compatibility but raises `ValueError` when used, to preserve the documented limitation.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'SaveFormat.DOC', 'ValueError', which the candidate contains",
-      "section_id": "scope_limitations",
-      "text": "The Scope and Limitations section omits the critical fact that `SaveFormat.DOC` is defined for API compatibility but raises `ValueError` when used, which is a key limitation."
-    },
-    {
-      "absent": [
-        "16 test files"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "build_test_asset:tests"
-      ],
-      "id": "F08",
-      "quote": "Install the development dependencies and run the example test suite, or execute an individual example script directly. Test fixtures live under tests/data/input/ and generated output is written to `ApiExamples`/output/ (git-ignored).",
-      "repair": "Add the fact that the suite covers 16 test files under `tests/` to preserve the development and testing context.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain '16 test files', which the candidate contains",
-      "section_id": "development_testing",
-      "text": "The Development and Testing section omits the verified fact that the test suite covers 16 test files under `tests/`, which is important context for developers."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "package:python_requires"
-      ],
-      "id": "F01",
-      "quote": "Aspose.Words FOSS for Python is a free and open-source library that enables Python developers to read, convert, and manipulate word processing documents without requiring Microsoft Office. It supports loading DOC, DOCX, RTF, TXT, and Markdown files, and can save to DOCX, PDF, Markdown, and plain text formats. Developers use it to automate tasks such as extracting text, converting legacy formats, and embedding images in Markdown output. The library runs on Python versions 3.10 through 3.12 and is",
-      "reader": 2,
-      "repair": "Rewrite to match the verified facts: 'Aspose.Words FOSS for Python is a free, open-source, MIT-licensed Python library for working with Word documents. It reads DOCX, DOC (Word 97-2003), RTF, Markdown, and plain-text files into a shared Light Document Model, and exports that model to DOCX, Markdown, PDF, or plain text — all without Microsoft Word or any COM/Office automation. It requires Python >=",
+      "quote": "Aspose.Words FOSS for Python provides a free, open-source interface for reading, converting, and saving documents in Python applications. It supports common word processing formats—including DOCX, DOC, RTF, TXT, and Markdown—without requiring a commercial license, enabling developers to build document automation workflows. The package supports Python versions 3.10 through 3.12, depends on fpdf2 and olefile, and is distributed under the MIT license. Users include developers building reporting工具, ",
+      "repair": "Rewrite the opening paragraph to match the original README's factual, technical description: 'Aspose.Words FOSS for Python is a free, open-source, MIT-licensed Python library for working with Word documents. It reads DOCX, DOC (Word 97-2003), RTF, Markdown, and plain-text files into a shared Light Document Model, and exports that model to DOCX, Markdown, PDF, or plain text — all without Microsoft",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Users include developers building reporting tools, document converters, and content extraction pipelines who need a', 'enabling developers to build document automation workflows', which the candidate contains",
       "section_id": "opening",
-      "single_reader_advisory": true,
-      "text": "The opening paragraph overstates the library's capabilities by claiming it 'enables Python developers to read, convert, and manipulate word processing documents without requiring Microsoft Office' and 'runs on Python versions 3.10 through 3.12', while the facts only support '>=3.10,<3.13' and do not verify the 'manipulate' claim beyond read/convert."
+      "text": "The opening paragraph introduces the product with promotional language ('enabling developers to build document automation workflows') and user descriptions ('Users include developers building reporting tools...') that are not present in the original README and are not supported by facts."
     },
     {
       "absent": [
-        "StartingPoints[",
+        "Users include developers building reporting tools, document converters, and content extraction pipelines who need a",
+        "lightweight, permissively licensed library for document manipulation"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "Aspose.Words FOSS for Python provides a free, open-source interface for reading, converting, and saving documents in Python applications. It supports common word processing formats—including DOCX, DOC, RTF, TXT, and Markdown—without requiring a commercial license, enabling developers to build document automation workflows. The package supports Python versions 3.10 through 3.12, depends on fpdf2 and olefile, and is distributed under the MIT license. Users include developers building reporting工具, ",
+      "reader": 2,
+      "repair": "Rewrite the opening paragraph to match the original README's factual, technical description without adding user personas or promotional claims.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Users include developers building reporting tools, document converters, and content extraction pipelines who need a', 'lightweight, permissively licensed library for document manipulation', which the candidate contains",
+      "section_id": "opening",
+      "text": "The opening paragraph introduces the product with promotional language and user personas that are not present in the original README and are not supported by facts."
+    },
+    {
+      "absent": [
+        "subgraph StartingPoints[",
         "i1[",
         "i2[",
         "i3[",
         "i4[",
         "i5[",
-        "PRODUCT[",
-        "Capabilities["
+        "subgraph Capabilities[",
+        "c1[Load and parse DOC, DOCX, RTF, Markdown, and plain-text documents]c2[DOCX round-trip editing via the Light Document M"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose.words_foss.doc_reader",
-        "public_symbol:aspose.words_foss.rtf_reader",
-        "public_symbol:aspose.words_foss.markdown_reader",
-        "public_symbol:aspose.words_foss.text_reader",
-        "public_symbol:aspose.words_foss.saveformat",
-        "public_symbol:aspose.words_foss.docx_writer",
-        "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer"
-      ],
+      "fact_ids": [],
       "id": "F02",
-      "quote": "```mermaid",
+      "quote": "```mermaid flowchart TD   PRODUCT[...]",
       "reader": 2,
-      "repair": "Restore the original Mermaid diagram that includes StartingPoints (DOCX, DOC, RTF, Markdown, plain-text), PRODUCT, Capabilities (load/parse, DOCX round-trip, Markdown export, PDF export), and Outputs (DOCX, Markdown, PDF, plain text) as verified in the original README and supported by public symbols.",
+      "repair": "Restore the original Mermaid diagram structure with Starting Points, Capabilities, and Outputs subgraphs to preserve the specific input/output and capability relationships.",
       "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
       "section_id": "at_a_glance",
-      "text": "The Mermaid diagram in 'At a Glance' is significantly simplified and omits critical input/output format details and the Light Document Model that are verified in the original README and supported by facts."
+      "text": "The Mermaid diagram in At a Glance is omitted and replaced with a generic, low-specificity flowchart that loses the original's structure and input/output clarity."
     },
     {
       "absent": [
-        "DocumentReader",
-        "LdmDocxWriter",
-        "LdmMarkdownWriter",
-        "LdmPdfWriter",
-        "light_document_model.Document"
+        "Read DOCX with a pure-Python parser built on the standard library `zipfile`/`xml.etree` modules — no compiled",
+        "Read legacy Word 97-2003 `.doc` binary files via `olefile`, and RTF documents through the same OLE2 delegation",
+        "Parse Markdown on import with `MarkdownReader`, not just read it as literal text — headings, lists, emphasis, tables,",
+        "Round-trip DOCX editing: `DocumentReader` builds a shared Light Document Model from an existing `.docx`, and `LdmDocxWri"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose.words_foss.doc_reader",
-        "public_symbol:aspose.words_foss.rtf_reader",
-        "public_symbol:aspose.words_foss.markdown_reader",
-        "public_symbol:aspose.words_foss.text_reader",
-        "public_symbol:aspose.words_foss.docx_writer",
-        "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer",
-        "public_symbol:aspose.words_foss.light_document_model"
-      ],
+      "fact_ids": [],
       "id": "F03",
-      "quote": "- **Read multiple input formats.** Read DOCX, DOC, RTF, Markdown, and plain text files by passing a file path to the `Document` constructor, where the reader is selected automatically based on the file extension, with DOCX parsing implemented as a pure-Python parser built on the standard library zipfile module, DOC and RTF files delegated to the OLE2 path via olefile, and Markdown parsing supporting headings, lists, emphasis, tables, block quotes, code blocks, links, and embedded images as",
+      "quote": "- **Read multiple document formats.** Read documents in DOC, DOCX, RTF, Markdown, and plain text formats using dedicated reader classes under the `aspose.words_foss` namespace.",
       "reader": 2,
-      "repair": "Include the verified technical details: pure-Python DOCX parsing with zipfile/xml.etree, OLE2 delegation via olefile for DOC/RTF, specific writer names (LdmMarkdownWriter, LdmPdfWriter, LdmDocxWriter), and the Light Document Model.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose.words_foss.document, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "repair": "Restore the original Key Capabilities list with specific technical details about parsers, delegation paths, and round-trip editing behavior.",
+      "reviewer_scope_defect": "the omission it names is inherited_unit:010.list's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
       "section_id": "key_capabilities",
-      "text": "The Key Capabilities section omits critical technical details verified in the original README and supported by facts, such as pure-Python DOCX parsing using standard library modules, specific writer names (LdmMarkdownWriter, LdmPdfWriter, LdmDocxWriter), and the Light Document Model."
+      "text": "Key Capabilities section loses critical technical details present in the original, such as specific reader/writer classes and format-specific behaviors."
     },
     {
       "absent": [
+        "Or install the latest nightly build directly from GitHub:",
         "pip install git+https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python.git",
-        "python -c",
-        "import aspose_words_foss"
+        "Verify the install:",
+        "python -c 'import aspose_words_foss; print('aspose_words_foss OK')'"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
+      "fact_ids": [],
       "id": "F04",
       "quote": "Install the published package from PyPI (`aspose-words-foss`, version 26.7.0):",
       "reader": 2,
-      "repair": "Add the verified nightly build installation command and verification command from the original README.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "repair": "Add the nightly build installation command and verification command to match the original README's installation instructions.",
+      "reviewer_scope_defect": "the omission it names is inherited_unit:014.paragraph's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
       "section_id": "installation",
-      "text": "The installation section omits the verified nightly build installation command and verification command from the original README, which are supported by facts."
+      "text": "Installation section omits the nightly build installation command and verification command present in the original README."
     },
     {
-      "absent": [
-        "146"
-      ],
+      "absent": [],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
-      ],
+      "fact_ids": [],
       "id": "F05",
       "quote": "The verified public surface has 198 types.",
       "reader": 2,
-      "repair": "Correct the count to 146 public types as in the original README and remove ApiExamples classes from the public API surface list.",
+      "repair": "Correct the public API surface count to 146 types to match the original README and remove the unsupported claim of 198 types.",
       "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
       "section_id": "api_reference",
-      "text": "The API Reference section claims 'The verified public surface has 198 types' and lists many ApiExamples classes that are not public API types but example classes, contradicting the original README's focus on 146 public types."
+      "text": "API Reference section incorrectly states the verified public surface has 198 types, contradicting the original README's 146 types and unsupported by facts."
     },
     {
-      "absent": [
-        "NotImplementedError",
-        "ISO29500_2008_STRICT",
-        "text_compression",
-        "embed_full_fonts",
-        "use_core_fonts",
-        "font_embedding_mode",
-        "page_mode",
-        "color_mode"
-      ],
+      "absent": [],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
-      ],
+      "fact_ids": [],
       "id": "F06",
-      "quote": "Aspose.Words FOSS for Python provides a free, open-source subset of the commercial Aspose.Words API for Python, supporting reading and writing DOCX, Markdown, PDF, and plain text documents with a focus on document conversion and basic formatting operations.",
+      "quote": "| `ConvertDocument` | Demonstrates every supported input -> output format pair. |",
       "reader": 2,
-      "repair": "Restore the specific technical details from the original README: the NotImplementedError for ISO29500_2008_STRICT, the exact PdfSaveOptions fields not consumed, and the ValueError for SaveFormat.DOC.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'ISO29500_2008_STRICT', 'NotImplementedError', 'color_mode', which the candidate contains",
-      "section_id": "scope_limitations",
-      "text": "The Scope and Limitations section is rewritten in a generic way that omits the specific technical details verified in the original README and supported by facts, such as the exact PdfSaveOptions fields not consumed and the NotImplementedError for ISO29500_2008_STRICT."
+      "repair": "Remove example classes from the API Reference table and retain only core API types (Document, SaveFormat, etc.) to match the original README's API surface.",
+      "reviewer_scope_defect": "the quote names public_symbol:apiexamples.convert_document.convertdocument, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "api_reference",
+      "text": "API Reference table incorrectly lists example classes (e.g., ConvertDocument, DocsExamplesBase) as core API types instead of example classes."
     },
     {
       "absent": [
-        "16 test files"
+        "Of `PdfSaveOptions`'s 17 fields, 8 — `text_compression`, `embed_full_fonts`, `use_core_fonts`, `font_embedding_mode`, `",
+        "page_mode`, `color_mode`, `preserve_form_fields`, and `memory_optimization` — exist for API forward-compatibility with"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "build_test_asset:tests"
-      ],
+      "fact_ids": [],
       "id": "F07",
+      "quote": "The `aspose.words_foss.saving` module exposes several options classes such as `PdfSaveOptions`, but some of their fields exist for API forward-compatibility with the commercial Aspose.Words API and are not yet consumed by the PDF writer.",
+      "reader": 2,
+      "repair": "Restore the specific list of 8 PdfSaveOptions fields that are not yet consumed by the PDF writer to match the original README's scope and limitations.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "Scope and Limitations section omits the specific list of 8 PdfSaveOptions fields that are not yet consumed by the PDF writer, present in the original README."
+    },
+    {
+      "absent": [
+        "Test fixtures live under `tests/data/input/` (shared input files for `ApiExamples/`); generated",
+        "output is written to `ApiExamples/output/` (git-ignored)."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
       "quote": "Install the development dependencies and run the example test suite, or execute an individual example script directly. Test fixtures live under tests/data/input/ and generated output is written to `ApiExamples`/output/ (git-ignored).",
       "reader": 2,
-      "repair": "Add the verified detail about 16 test files under tests/ from the original README.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain '16 test files', which the candidate contains",
+      "repair": "Restore the specific test fixture paths and output directory information to match the original README's development and testing instructions.",
+      "reviewer_scope_defect": "the quote names public_symbol:apiexamples, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "development_testing",
-      "text": "The Development and Testing section omits the verified detail about 16 test files under tests/ that is present in the original README and supported by facts."
-    },
-    {
-      "absent": [
-        "- [Quick Start](#quick-start)",
-        "- [Additional Examples](#additional-examples)"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "link_target:014",
-        "link_target:015"
-      ],
-      "id": "F08",
-      "quote": "- [At a Glance](#at-a-glance)",
-      "reader": 2,
-      "repair": "Add the missing 'Quick Start' and 'Additional Examples' links to the navigation list as in the original README.",
-      "reviewer_scope_defect": "section navigation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "navigation",
-      "text": "The Navigation section omits the 'Quick Start' and 'Additional Examples' links that are present in the original README and supported by facts, making the navigation incomplete."
+      "text": "Development and Testing section omits the specific test fixture paths and output directory information present in the original README."
     }
   ],
   "authoring": {
@@ -337,7 +165,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "c1e38e6a959364adf1c34ce7470b7ebc023ebedef7d3fc63fb9274477afe2be9",
+  "readme_sha256": "377ebc48ab1610bdfc602e246f6059e4a3e0fa3e6a8c3b1d2d1fc80021fd3ce1",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -352,7 +180,6 @@
       "75ce3972a5bdabd7147b459d",
       "7bf2dd6eda183d6293dbc405",
       "8e354b15b1c1dbf784765257",
-      "ba651528f170e21a50a52311",
       "dcdff0a647163c5adef33c0b",
       "fda854a22f02daa23e26407a"
     ],

@@ -1,7 +1,5 @@
 {
-  "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names .doc, .docx, .md, .rtf, .txt, Document(filepath), Document.get_text(), Document.light_document_model, SaveFormat.TEXT, fpdf2, olefile, xml.etree, zipfile"
-  ],
+  "advisory": [],
   "checks": [
     {
       "causal_stage": null,
@@ -499,7 +497,7 @@
     }
   ],
   "protected_content_fingerprint": "8b115b0b2fae2c58973bfbb80640580c6f8490992340d41615e738d67bb3769f",
-  "readme_sha256": "c1e38e6a959364adf1c34ce7470b7ebc023ebedef7d3fc63fb9274477afe2be9",
+  "readme_sha256": "377ebc48ab1610bdfc602e246f6059e4a3e0fa3e6a8c3b1d2d1fc80021fd3ce1",
   "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",

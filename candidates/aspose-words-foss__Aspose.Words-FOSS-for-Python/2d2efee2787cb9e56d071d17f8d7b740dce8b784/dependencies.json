@@ -1,7 +1,7 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "11",
+    "normalisation": "12",
     "renderer": "24",
     "reviewer_logic": "12",
     "shell": "6"
@@ -11,7 +11,7 @@
     "extractor_version": "1",
     "inherited_units_version": "1",
     "os": "Windows",
-    "presenter_site_manifest": "d1cd9403b1719629e6577334ac384e0362a93b93f58eba88731931dd6dafacc7",
+    "presenter_site_manifest": "a1eb225bec1557637ef0c94dfb252a329d9237c51efcbc31c9f3794d3086c81d",
     "python_version": "3.13.2"
   },
   "facts": {

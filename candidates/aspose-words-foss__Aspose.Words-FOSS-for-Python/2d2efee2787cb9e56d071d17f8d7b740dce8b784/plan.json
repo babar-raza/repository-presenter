@@ -5,82 +5,107 @@
       "fact_ids": [
         "public_symbol:aspose.words_foss.document",
         "public_symbol:aspose.words_foss.saveformat",
-        "public_symbol:aspose.words_foss.loadformat"
+        "public_symbol:aspose.words_foss.loadformat",
+        "public_symbol:aspose.words_foss.loadoptions"
       ],
       "symbol_fact_id": "public_symbol:aspose.words_foss.document"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.docx_reader",
+        "public_symbol:aspose.words_foss.docx_reader.documentreader"
       ],
-      "symbol_fact_id": "public_symbol:aspose.words_foss.saveformat"
+      "symbol_fact_id": "public_symbol:aspose.words_foss.docx_reader"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.words_foss.doc_reader",
-        "public_symbol:aspose.words_foss.rtf_reader",
-        "public_symbol:aspose.words_foss.markdown_reader",
-        "public_symbol:aspose.words_foss.text_reader"
+        "public_symbol:aspose.words_foss.doc_reader.docfilereader"
       ],
       "symbol_fact_id": "public_symbol:aspose.words_foss.doc_reader"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.words_foss.docx_writer",
-        "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer"
+        "public_symbol:aspose.words_foss.rtf_reader",
+        "public_symbol:aspose.words_foss.rtf_reader.rtffilereader"
       ],
-      "symbol_fact_id": "public_symbol:aspose.words_foss.docx_writer"
+      "symbol_fact_id": "public_symbol:aspose.words_foss.rtf_reader"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.words_foss.markdownloadoptions",
-        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions"
+        "public_symbol:aspose.words_foss.markdown_reader",
+        "public_symbol:aspose.words_foss.md_import"
       ],
       "symbol_fact_id": "public_symbol:aspose.words_foss.markdownloadoptions"
     },
     {
       "fact_ids": [
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions"
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.md_writer.ldmmarkdownwriter"
       ],
-      "symbol_fact_id": "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions"
+      "symbol_fact_id": "public_symbol:aspose.words_foss.md_writer"
     },
     {
       "fact_ids": [
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+        "public_symbol:aspose.words_foss.pdf_writer",
+        "public_symbol:aspose.words_foss.pdf_writer.ldmpdfwriter",
+        "public_symbol:aspose.words_foss.pdf_writer.paragraph_renderer.paragraphrenderer",
+        "public_symbol:aspose.words_foss.pdf_writer.run_renderer.runrenderer",
+        "public_symbol:aspose.words_foss.pdf_writer.table_renderer.tablerenderer",
+        "public_symbol:aspose.words_foss.pdf_writer.shape_renderer.shaperenderer"
       ],
-      "symbol_fact_id": "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+      "symbol_fact_id": "public_symbol:aspose.words_foss.pdf_writer"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.docx_writer",
+        "public_symbol:aspose.words_foss.docx_writer.ldmdocxwriter",
+        "public_symbol:aspose.words_foss.docx_writer.docxwriterlossywarning"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words_foss.docx_writer"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.words_foss.light_document_model",
-        "public_symbol:aspose.words_foss.model",
-        "public_symbol:aspose.words_foss.models"
+        "public_symbol:aspose.words_foss.light_document_model.section",
+        "public_symbol:aspose.words_foss.light_document_model.paragraph",
+        "public_symbol:aspose.words_foss.light_document_model.table",
+        "public_symbol:aspose.words_foss.light_document_model.row",
+        "public_symbol:aspose.words_foss.light_document_model.cell",
+        "public_symbol:aspose.words_foss.light_document_model.style",
+        "public_symbol:aspose.words_foss.light_document_model.font",
+        "public_symbol:aspose.words_foss.light_document_model.paragraphformat",
+        "public_symbol:aspose.words_foss.light_document_model.pagesetup"
       ],
       "symbol_fact_id": "public_symbol:aspose.words_foss.light_document_model"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.words_foss.drawing",
-        "public_symbol:apiexamples.working_with_images.workingwithimages"
+        "public_symbol:aspose.words_foss.saving",
+        "public_symbol:aspose.words_foss.saving.markdownsaveoptions",
+        "public_symbol:aspose.words_foss.saving.pdfsaveoptions",
+        "public_symbol:aspose.words_foss.saving.ooxmlsaveoptions",
+        "public_symbol:aspose.words_foss.saving.compressionlevel"
       ],
-      "symbol_fact_id": "public_symbol:aspose.words_foss.drawing"
+      "symbol_fact_id": "public_symbol:aspose.words_foss.saving"
     },
     {
       "fact_ids": [
-        "import_path:apiexamples",
-        "public_symbol:apiexamples"
+        "public_symbol:aspose.words_foss.model",
+        "public_symbol:aspose.words_foss.model.enums"
       ],
-      "symbol_fact_id": "public_symbol:apiexamples"
+      "symbol_fact_id": "public_symbol:aspose.words_foss.model"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
-      "Read multiple input formats",
+      "Read multiple document formats",
       "Export to multiple output formats",
-      "Handle images in documents",
-      "Configure output formatting",
-      "Extract plain text"
+      "Image handling across formats",
+      "Document model inspection",
+      "Configurable export options",
+      "Pure-Python implementation"
     ],
     "input_format_ids": [],
     "output_format_ids": []
@@ -89,76 +114,131 @@
     {
       "fact_ids": [
         "public_symbol:aspose.words_foss.doc_reader",
+        "public_symbol:aspose.words_foss.docx_reader",
         "public_symbol:aspose.words_foss.rtf_reader",
         "public_symbol:aspose.words_foss.markdown_reader",
         "public_symbol:aspose.words_foss.text_reader"
       ],
-      "shared_fact_ids": [],
-      "title": "Read multiple input formats"
+      "shared_fact_ids": [
+        "public_symbol:aspose.words_foss.docx_reader"
+      ],
+      "title": "Read multiple document formats"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.words_foss.saveformat",
         "public_symbol:aspose.words_foss.docx_writer",
         "public_symbol:aspose.words_foss.md_writer",
-        "public_symbol:aspose.words_foss.pdf_writer"
+        "public_symbol:aspose.words_foss.pdf_writer",
+        "public_symbol:aspose.words_foss.saveformat"
       ],
       "shared_fact_ids": [
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.pdf_writer"
       ],
       "title": "Export to multiple output formats"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.words_foss.drawing",
-        "public_symbol:apiexamples.working_with_images.workingwithimages",
-        "dependency:development.dev.pillow-10.0.0"
+        "public_symbol:aspose.words_foss.pdf_writer",
+        "public_symbol:aspose.words_foss.md_writer"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.words_foss.md_writer",
+        "public_symbol:aspose.words_foss.pdf_writer"
+      ],
+      "title": "Image handling across formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words_foss.light_document_model",
+        "public_symbol:aspose.words_foss.model",
+        "public_symbol:aspose.words_foss.models"
       ],
       "shared_fact_ids": [],
-      "title": "Handle images in documents"
+      "title": "Document model inspection"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.words_foss.markdownloadoptions",
-        "public_symbol:apiexamples.working_with_markdown_save_options.workingwithmarkdownsaveoptions",
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions",
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+        "public_symbol:aspose.words_foss.saving",
+        "public_symbol:aspose.words_foss.loadoptions"
       ],
       "shared_fact_ids": [],
-      "title": "Configure output formatting"
+      "title": "Configurable export options"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.words_foss.document",
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.docx_reader",
+        "dependency:olefile-0.46",
+        "dependency:fpdf2-2.7.5"
       ],
       "shared_fact_ids": [
-        "public_symbol:aspose.words_foss.saveformat"
+        "public_symbol:aspose.words_foss.docx_reader"
       ],
-      "title": "Extract plain text"
+      "title": "Pure-Python implementation"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "identity:repository"
+        "inherited_unit:008.code_block"
+      ],
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram and Starting Points are omitted because no verified input or output format facts are present."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:027.heading",
+        "inherited_unit:028.paragraph",
+        "inherited_unit:029.code_block",
+        "inherited_unit:030.paragraph",
+        "inherited_unit:031.code_block"
       ],
       "section_id": "quick_start",
-      "text": "No verified example fact is available; the Quick Start section is omitted."
+      "text": "The Quick Start section is omitted because no verified example facts are present."
     },
     {
       "fact_ids": [
-        "identity:repository"
+        "inherited_unit:033.heading",
+        "inherited_unit:034.paragraph",
+        "inherited_unit:035.heading",
+        "inherited_unit:036.code_block",
+        "inherited_unit:037.html_block",
+        "inherited_unit:038.table",
+        "inherited_unit:039.heading",
+        "inherited_unit:040.code_block",
+        "inherited_unit:041.heading",
+        "inherited_unit:042.code_block",
+        "inherited_unit:043.heading",
+        "inherited_unit:044.paragraph",
+        "inherited_unit:045.code_block",
+        "inherited_unit:046.heading",
+        "inherited_unit:047.code_block",
+        "inherited_unit:048.heading",
+        "inherited_unit:049.code_block",
+        "inherited_unit:050.heading",
+        "inherited_unit:051.code_block",
+        "inherited_unit:052.heading",
+        "inherited_unit:053.paragraph",
+        "inherited_unit:054.code_block",
+        "inherited_unit:055.heading",
+        "inherited_unit:056.paragraph",
+        "inherited_unit:057.code_block",
+        "inherited_unit:058.paragraph",
+        "inherited_unit:059.code_block",
+        "inherited_unit:060.html_block"
       ],
       "section_id": "additional_examples",
-      "text": "No verified additional example facts are available; the Additional Examples section is omitted."
+      "text": "The Additional Examples section is omitted because no verified example facts are present."
     },
     {
       "fact_ids": [
-        "identity:repository"
+        "inherited_unit:102.paragraph",
+        "link_target:027"
       ],
       "section_id": "enterprise_relationship",
-      "text": "No verified aspose.com product target exists in policy; the Enterprise Relationship section is omitted."
+      "text": "The Enterprise Edition reference is omitted because no verified product target exists."
     }
   ],
   "flagship_example_id": null,
@@ -174,6 +254,10 @@
     {
       "link_fact_id": "link_target:024",
       "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
     }
   ],
   "material_limitations": [
@@ -187,7 +271,7 @@
     },
     {
       "fact_ids": [
-        "public_symbol:apiexamples.working_with_ooxml_save_options.workingwithooxmlsaveoptions"
+        "public_symbol:aspose.words_foss.saving.ooxmlcompliance"
       ],
       "unit_ids": [
         "inherited_unit:101.list"
@@ -195,7 +279,7 @@
     },
     {
       "fact_ids": [
-        "public_symbol:apiexamples.working_with_pdf_save_options.workingwithpdfsaveoptions"
+        "public_symbol:aspose.words_foss.saving"
       ],
       "unit_ids": [
         "inherited_unit:101.list"
