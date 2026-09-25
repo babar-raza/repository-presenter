@@ -13,6 +13,11 @@ neither of which needs a GitHub write scope:
   disk (investigation section 4 point 3).
 - `redetect.py` — the re-detection pass: re-evaluate a handoff's own `triggering_check` at the
   repository's current revision and report whether it still fires (investigation section 6).
+- `draft.py` — the authoring path: `cli.py::run_present` calls this the moment its own
+  validation/invalidation machinery proves a genuine upstream-content defect (currently: `BC-02`
+  at `causal_stage EXTRACTING`, backed by a real non-`SUPPORTED` `install_command` fact), so the
+  handoff artifact this package's lifecycle already governs gets created automatically instead of
+  only through the separate, manually-invoked `redetect-upstream-defects` CLI subcommand.
 
 Nothing here calls `gh issue create`/`close` or any other GitHub Issues write endpoint; that stays
 gated on the separate authorization `AGENTS.md`'s Security and Effects section requires.

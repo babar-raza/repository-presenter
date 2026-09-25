@@ -1679,8 +1679,100 @@ def test_a_factual_failure_invalidates_the_proven_candidate(
     assert "(state INVALIDATED; BC-02 failed at EXTRACTING)" in captured.out
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "INVALIDATED" and manifest["invalidated"]["check"] == "BC-02"
+    # The check id/stage match components/issues/draft.py's own eligible shape, but this run's
+    # real facts.json never actually contains a non-SUPPORTED install_command fact - the failure
+    # above is a synthetic mismatch injected for this test, not a genuine one this run's own
+    # extraction found - so the automatic hook must fail closed and draft nothing.
+    assert "upstream-defect handoff:" not in captured.out
+    assert not (project_with_registry / "evidence" / "upstream-defects").exists()
     assert main(["status", "--root", str(project_with_registry)]) == EXIT_OK
     assert "candidates: 0/34" in capsys.readouterr().out
+
+
+def test_a_genuine_upstream_content_defect_auto_drafts_a_handoff(
+    project_with_registry: Path,
+    sealed_canary: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The real `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp` shape (docs/DECISION_LOG.md
+    2026-09-23 10:31 UTC: BC-02 FAIL at EXTRACTING, install_command:cmake UNRESOLVED),
+    reproduced at the CLI level: unlike the synthetic-mismatch test above, this run's own
+    facts.json genuinely carries a non-SUPPORTED install_command fact, so
+    components/issues/draft.py (wired into cli.py::run_present right where invalidate_bundle
+    already fires) drafts and writes the evidence-backed handoff automatically - no separate
+    redetect-upstream-defects invocation needed."""
+    from dataclasses import replace
+
+    from repository_presenter.components.readme.repair import rounds
+    from repository_presenter.core.facts import Evidence
+
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
+    genuine_validate = rounds.validate_candidate
+    genuine_extract = cli.extract_facts
+
+    def broken_install(*args: Any, **kwargs: Any) -> Any:
+        document, probes = genuine_extract(*args, **kwargs)
+        facts = tuple(
+            replace(
+                fact,
+                polarity="UNRESOLVED",
+                evidence=(
+                    *fact.evidence,
+                    Evidence("no package registry", "package registry: none could not be read"),
+                ),
+            )
+            if fact.kind == "install_command"
+            else fact
+            for fact in document.facts
+        )
+        return replace(document, facts=facts), probes
+
+    def contradicted(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        document = genuine_validate(*args, **kwargs)
+        for check in document["checks"]:
+            if check["id"] == "BC-02":
+                check["verdict"] = "FAIL"
+                check["causal_stage"] = "EXTRACTING"
+                check["details"] = [
+                    "install_command:pip is UNRESOLVED: package registry: none could not be read"
+                ]
+        document["summary"] = {"pass": 9, "fail": 1, "pending": 1}
+        return document
+
+    monkeypatch.setattr(cli, "extract_facts", broken_install)
+    monkeypatch.setattr(rounds, "validate_candidate", contradicted)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert "(state INVALIDATED; BC-02 failed at EXTRACTING)" in captured.out
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "INVALIDATED" and manifest["invalidated"]["check"] == "BC-02"
+    handoff_line = next(
+        line for line in captured.out.splitlines() if line.startswith("upstream-defect handoff:")
+    )
+    assert "HANDOFF_PENDING" in handoff_line
+    handoff_relative = handoff_line.removeprefix("upstream-defect handoff: ").split(" (")[0]
+    handoff_file = project_with_registry / handoff_relative
+    assert handoff_file.is_file()
+    payload = json.loads(handoff_file.read_text("utf-8"))
+    assert payload["repository"] == CANARY
+    assert payload["triggering_check"]["id"] == "BC-02"
+    assert payload["triggering_check"]["causal_stage"] == "EXTRACTING"
+    assert payload["status"] == "HANDOFF_PENDING"
+    assert payload["issue_ref"] is None
+    assert "install_command:pip" in payload["claim"]
+    # A second, equivalent re-seal attempt must never duplicate the artifact (dedup by
+    # {repository, defect_fingerprint}).
+    code_again = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured_again = capsys.readouterr()
+    assert code_again == EXIT_INCONSISTENT
+    assert "upstream-defect handoff:" not in captured_again.out
+    defects_root = project_with_registry / "evidence" / "upstream-defects"
+    artifacts = list(defects_root.glob("*/*.json"))
+    assert len(artifacts) == 1
 
 
 def test_a_corrupt_bundle_artifact_fails_closed_before_any_call(
@@ -2196,6 +2288,11 @@ def test_a_protected_content_failure_invalidates_the_proven_candidate(
     assert manifest["state"] == "INVALIDATED"
     assert manifest["invalidated"]["check"] == "BC-08"
     assert manifest["invalidated"]["causal_stage"] == "COMPOSING"
+    # COMPOSING is a revisable stage (repair/targeted.py's own STATE_STAGES) - the mechanical
+    # signal this is about the candidate's own rendering, never the target repository's content
+    # - so the automatic upstream-defect hook must never fire here.
+    assert "upstream-defect handoff:" not in captured.out
+    assert not (project_with_registry / "evidence" / "upstream-defects").exists()
 
 
 # Injected defects (G2-W06): one factual and one preservation defect, each rejected at its

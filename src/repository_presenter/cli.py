@@ -13,6 +13,10 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter import __version__
+from repository_presenter.components.issues.draft import (
+    eligible_for_handoff,
+    record_handoff_if_new,
+)
 from repository_presenter.components.issues.ledger import (
     UPSTREAM_DEFECTS_DIRNAME,
     load_ledger,
@@ -770,6 +774,28 @@ def run_present(
                 f"bundle: {bundle.relative_to(root).as_posix()} (state INVALIDATED; "
                 f"{first['id']} failed at {first['causal_stage'] or 'the bundle'})"
             )
+            # G4-W17, docs/investigations/12-supervisor-and-production-reassessment.md section 6:
+            # a genuine upstream-content defect (BC-02 at EXTRACTING, backed by a real
+            # non-SUPPORTED install_command fact in this run's own facts.json) gets the
+            # evidence-backed handoff artifact components/issues already knows how to build and
+            # later re-check, automatically - not only via the separate, manually-invoked
+            # redetect-upstream-defects subcommand. eligible_for_handoff/draft_handoff fail closed
+            # on every other check shape (never guessed); dedup is by the ledger's own
+            # {repository, defect_fingerprint} key, so a redrawn identical defect never
+            # duplicates. Never a GitHub write.
+            if eligible_for_handoff(first):
+                handoff_path = record_handoff_if_new(
+                    root / "evidence" / UPSTREAM_DEFECTS_DIRNAME,
+                    repository=entry.repository,
+                    source_revision=clone.revision,
+                    check=first,
+                    facts=document,
+                )
+                if handoff_path is not None:
+                    print(
+                        "upstream-defect handoff: "
+                        f"{handoff_path.relative_to(root).as_posix()} (HANDOFF_PENDING)"
+                    )
         _fail(
             f"validation: {first['id']} failed at {first['causal_stage'] or 'the bundle'}: "
             f"{first['details'][0]}; {standing}"

@@ -151,9 +151,10 @@ def handoff_to_dict(handoff: Handoff) -> dict[str, Any]:
 
 
 def write_handoff(handoff: Handoff, path: Path) -> None:
-    """Write a handoff artifact back to disk — used only to advance `status`/`issue_ref`, never
-    to author a new finding (that stays a human/future-extraction concern, out of this task's
-    scope)."""
+    """Write a handoff artifact to disk — to advance `status`/`issue_ref` on an existing one, or,
+    since `components/issues/draft.py`, to author a genuinely new finding the main validation
+    pipeline itself just proved (never a GitHub write either way; `draft.py`'s own docstring names
+    exactly which check shapes are eligible)."""
     path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(handoff_to_dict(handoff), indent=2, sort_keys=False) + "\n"
     path.write_text(text, encoding="utf-8", newline="\n")
