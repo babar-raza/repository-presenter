@@ -179,10 +179,20 @@ change, and reversible by the same guard it extends.
 
 ## 7. Honest limits of this document
 
-This is a design direction, not a finished implementation — §5.1, 5.2, 5.3, and 5.6 are scoped but
-not yet built; only the concurrency-floor and no-idle-wakes rules (§5.5's precursor) are landed as
-of this writing. §5.4's hosted-execution slice is a real, non-trivial engineering effort (a durable
-CAS/lease backend and its recovery semantics) that this document deliberately does not claim to
-have solved — it names the first buildable slice, not a completed design. Whoever picks up §5.1-5.4
-should re-verify this document's own claims against the live repository state at that time, the
+This is a design direction, not a finished implementation. Updated same day, after the owner pointed
+out directly that adding prose to `docs/SUPERVISION.md` is not itself a fix (2026-09-25, later): §5.2
+(never-attempted count) and §5.3 (defect-index 3rd-sighting escalation) are now real, mechanical
+checks in `tools/reviewer/reviewer_check.py`, not just written down — run it and they print. §5.1
+(staleness age) and §5.6 (2-of-3 review agreement) remain scoped but not built. §5.5's mandatory
+sweep itself was also found to be unrun in practice — `tools/reviewer/procedure.md`, the concrete
+runbook this file's own §5.5 assumed existed and would be followed, had gone unrun for 8 days
+(`tools/reviewer/.local/reviewer_state.json`'s last wake: 2026-09-17) and named a pre-remap path and
+a stale floor; both fixed same day. The lesson generalizes: a mechanism that lives only as prose the
+supervisor is trusted to remember and re-derive is not durable, even when the prose is correct — it
+has to be something that runs and reports on its own. §5.4's hosted-execution slice is a real,
+non-trivial engineering effort (a durable CAS/lease backend and its recovery semantics) that this
+document deliberately does not claim to have solved — it names the first buildable slice, not a
+completed design. Whoever picks up §5.1, 5.4, or 5.6 should re-verify this document's own claims
+against the live repository state at that time, and should run `tools/reviewer/reviewer_check.py`
+before trusting any of §5's own claims about what's checked automatically, the
 same discipline this document itself required of the research that produced it.
