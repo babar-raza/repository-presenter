@@ -2923,6 +2923,29 @@ sibling trees; negative controls per verifier; the execution boundary; the extra
   `dotnet build`, `go doc -all`, `tsc --declaration`. Agreement with tree-sitter confirms; a
   disagreement is a parity finding routed to EXTRACTING. Admit per ecosystem only when the parity
   control (§28.7 item 2) fails — the engine returns "reachability unknown" for Java, C++, and Go.
+- **E7 Machine toolchain version drift, and when the registry should outrank PATH (G4-W17,
+  2026-09-25).** Every `extractors/platforms/*_examples.py` resolver (`cpp_compiler`,
+  `cmake_executable`, `cargo_executable`, `typescript_compiler`'s own prior shape) tries `PATH`
+  before the machine-local registry (`TOOLCHAIN_PATHS.txt`, OWNER-06) — correct exactly when a
+  `PATH` tool is at least as capable as whatever the registry separately provisioned (any
+  GCC/Clang on `PATH` compiles the same C++; a hosted runner's own CMake has a real certificate
+  bundle the winlibs one lacks). Recognize the *other* shape — a machine-toolchain-version-drift
+  defect — by its signature: a `BLOCKED_TOOLCHAIN` outcome whose detail names a compiler/tool
+  refusing a specific option or flag (not a source-level diagnostic), where a direct
+  `probe_compiler`-style check against the *registry's own* recorded tool clears cleanly. That
+  signature means `PATH` now offers a version newer than what the repository's own config was
+  written for, and the newer version dropped or changed a feature the config still declares — the
+  opposite of E5's assumption, so `PATH`-first silently regresses a repository's own declared
+  config instead of merely picking a less-provisioned tool. Measured case: `typescript_compiler()`
+  resolved a global npm `tsc@7.0.2` (which removed the `moduleResolution: "node"`/`node10` alias
+  entirely, `TS5108`) ahead of an already-provisioned, already-probe-proven-compatible registry
+  `tsc@5.9.3`, blocking `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` at BC-02 for its full
+  history (docs/DECISION_LOG.md 2026-09-24 13:53 UTC, 2026-09-25 entry). The fix is a narrow,
+  per-function precedence flip scoped to the one resolver with this shape: check the registry
+  first, fall back to `PATH` only when the registry has nothing for that tool, so a hosted runner
+  with no registry file resolves unchanged. Never a blanket "registry always wins" rule across the
+  file — that would regress `cpp_compiler`/`cmake_executable`, where `PATH`-first is the
+  documented, deliberate default for the opposite reason.
 
 ### 29.7 Validation and regression controls
 
