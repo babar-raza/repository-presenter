@@ -150,15 +150,27 @@ def recorded_tool(name: str) -> str | None:
 def typescript_compiler() -> str | None:
     """`tsc` as this machine offers it, or None when it offers none.
 
-    Resolved by `which`, then by the `.cmd` shim Windows installs instead of an executable, then
-    by the absolute path the lane's toolchain registry records - nothing is on `PATH` here
-    (`evidence/build/lanes/lane-b/LANE-B-00.json`).
+    Registry before `PATH` - the reverse of `cpp_examples.py`'s own `cpp_compiler`/
+    `cmake_executable` precedent, deliberately, not by oversight. Their PATH-first choice rests on
+    a PATH tool being at least as capable as the registry's own (a hosted runner's system CMake
+    has a real certificate bundle the winlibs one lacks; any GCC/Clang on PATH compiles the same
+    C++ the repository's own sources assume). `tsc` breaks that assumption: this repository's own
+    `tsconfig.json` may declare a `moduleResolution` this machine's PATH compiler no longer
+    accepts at all - measured 2026-09-24, `TS5108` on a global `tsc@7.0.2` refusing the
+    `"node"`/`node10` alias a registry-recorded, `probe_compiler`-proven-compatible `tsc@5.9.3`
+    still accepts - so here PATH is the one that can silently regress a repository's own declared
+    config, and a registry entry, once recorded, is trusted first. Falls back to `PATH`, then its
+    `.cmd` shim, only when the registry has nothing for `tsc`, so a hosted runner with no registry
+    file resolves exactly as before (`evidence/build/lanes/lane-b/LANE-B-00.json`).
     """
+    recorded = recorded_tool("tsc")
+    if recorded:
+        return recorded
     for candidate in ("tsc", "tsc.cmd"):
         found = shutil.which(candidate)
         if found:
             return found
-    return recorded_tool("tsc")
+    return None
 
 
 def _clip(text: str) -> str:

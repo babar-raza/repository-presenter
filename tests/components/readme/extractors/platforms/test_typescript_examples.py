@@ -529,3 +529,43 @@ def test_no_absolute_path_of_this_machine_reaches_a_receipt(tmp_path: Path) -> N
     )
     for text in (receipts[0].stdout, receipts[0].stderr, receipts[0].detail):
         assert str(tmp_path) not in text and tmp_path.as_posix() not in text
+
+
+def test_the_registry_tsc_wins_over_an_incompatible_path_tsc(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G4-W17: a global `PATH` `tsc` a repository's own `tsconfig.json` was never written for
+    (measured: TypeScript 7 dropping the `moduleResolution: "node"` alias, `TS5108`) must not mask
+    an already-provisioned, already-proven-compatible `tsc` the toolchain registry records - the
+    reverse of `cpp_compiler`'s own PATH-first precedent, deliberately (see `typescript_compiler`'s
+    own docstring for why the two functions differ)."""
+    registered = tmp_path / "registered-tsc.cmd"
+    registered.write_text("", encoding="utf-8", newline="\n")
+    registry = tmp_path / "TOOLCHAIN_PATHS.txt"
+    registry.write_text(f"tsc={registered}\n", encoding="utf-8", newline="\n")
+    monkeypatch.setenv(typescript_examples._REGISTRY_VARIABLE, str(registry))
+    # A `tsc`/`tsc.cmd` on PATH exists too - it must lose to the registry entry above.
+    monkeypatch.setattr(typescript_examples.shutil, "which", lambda name: f"C:/path/{name}")
+    assert typescript_examples.typescript_compiler() == str(registered)
+
+
+def test_a_path_tsc_is_still_used_when_the_registry_has_none(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """No regression for a hosted runner with no toolchain registry file at all: `PATH` is still
+    the fallback, exactly as before this item's own precedence change."""
+    monkeypatch.setenv(typescript_examples._REGISTRY_VARIABLE, str(tmp_path / "absent.txt"))
+    monkeypatch.setattr(
+        typescript_examples.shutil,
+        "which",
+        lambda name: "C:/path/tsc.cmd" if name == "tsc" else None,
+    )
+    assert typescript_examples.typescript_compiler() == "C:/path/tsc.cmd"
+
+
+def test_neither_registry_nor_path_offers_tsc(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(typescript_examples._REGISTRY_VARIABLE, str(tmp_path / "absent.txt"))
+    monkeypatch.setattr(typescript_examples.shutil, "which", lambda name: None)
+    assert typescript_examples.typescript_compiler() is None
