@@ -1,11 +1,18 @@
-"""The repository-name contract for registry eligibility."""
+"""The repository-name contract for registry eligibility.
+
+The separator before "FOSS" accepts both "-" (the portfolio norm, e.g.
+Aspose.Words-FOSS-for-Python) and "." (a genuine upstream variant confirmed live via
+GitHub's API, e.g. aspose-gis-foss/Aspose.GIS.FOSS-for-.Net, admitted 2026-09-25 by
+direct owner instruction - see docs/DECISION_LOG.md). Widened narrowly for this one
+observed shape, not loosened generally.
+"""
 
 from __future__ import annotations
 
 import re
 
 _MANAGED_REPOSITORY_PATTERN = re.compile(
-    r"^Aspose[.-]([A-Za-z0-9]+)-FOSS-for-([A-Za-z0-9.]+)$",
+    r"^Aspose[.-]([A-Za-z0-9]+)[.-]FOSS-for-([A-Za-z0-9.]+)$",
     flags=re.IGNORECASE,
 )
 

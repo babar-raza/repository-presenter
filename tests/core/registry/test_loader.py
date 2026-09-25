@@ -53,7 +53,7 @@ def test_real_registry_validates_against_its_schema() -> None:
 
 def test_real_registry_is_the_frozen_portfolio() -> None:
     registry = load_registry(REGISTRY)
-    assert len(registry.entries) == 35
+    assert len(registry.entries) == 36
     assert [e.repository for e in registry.entries] == sorted(
         (e.repository for e in registry.entries), key=str.casefold
     )
@@ -61,11 +61,16 @@ def test_real_registry_is_the_frozen_portfolio() -> None:
     assert {e.mode for e in registry.entries} == {"full", "dry_run", "disabled"}
     # G4-W17 arrival item 31: aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript's `disabled` mode
     # was a stale flag, not a content defect - no clone had ever been attempted
-    # (evidence/build/lanes/lane-b/G4-W14.json). Flipped to dry_run; the reachable ceiling moves
-    # 31 to 32, one below the frozen portfolio denominator of 34 (unaffected by later registry
-    # growth - OWNER-08's 2026-09-23 admission of aspose-imaging-foss's .NET repo at mode
-    # disabled adds a 35th entry but not a 33rd enabled one; docs/DECISION_LOG.md has the entry).
-    assert len(enabled_entries(registry)) == 32
+    # (evidence/build/lanes/lane-b/G4-W14.json). Flipped to dry_run; the reachable ceiling moved
+    # 31 to 32. 2026-09-25 (owner ruling, docs/DECISION_LOG.md): aspose-imaging-foss's .NET repo
+    # (OWNER-08, admitted 2026-09-23 at mode disabled) flipped to dry_run, and a new entry,
+    # aspose-gis-foss/Aspose.GIS.FOSS-for-.Net (the org's only repository, added 2026-09-22,
+    # confirmed via live `gh api orgs/aspose-gis-foss/repos`), admitted directly at mode dry_run
+    # - both by explicit owner instruction, not auto-admission. Ceiling moves 32 to 34 - the
+    # frozen portfolio `denominator: 34` in project/state.yaml is a historical baseline from the
+    # 2026-09-01 legacy freeze and is not meant to track this count; the two numbers coinciding
+    # at 34 right now is coincidental, not a sign the freeze was updated.
+    assert len(enabled_entries(registry)) == 34
 
 
 def test_real_registry_admits_the_canary_read_only() -> None:

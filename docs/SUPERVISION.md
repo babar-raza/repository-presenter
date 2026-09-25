@@ -149,6 +149,35 @@ worktree diff rather than accepting "still working" at face value; or recording/
 already in hand. A wake with truly nothing new to check and nothing ready to advance is rare enough
 that it should be named as such, not the default response.
 
+## Mandatory sweep
+
+"No idle wakes" fixes reactive attentiveness; it does not by itself surface facts nobody asked
+about. Measured the same session (2026-09-25): 8 of 32 enabled registry entries had never been
+sealed even once, invisible until a dedicated cross-reference pass; a new registry product
+(`aspose-gis-foss`) sat unadmitted for 3 days because nothing told the supervisor it existed; the
+same `section_authoring` defect class independently blocked three repositories across multiple
+sessions with no escalation. Waiting for a wake to prompt these checks is not enough — they do not
+generate their own notifications.
+
+Rule: at least once per hour of wall-clock supervision (piggybacked on the heartbeat wake,
+`tools/reviewer/reviewer_check.py --record`), and always at session startup (procedure §0), the
+supervisor runs three checks unconditionally, not only when a notification happens to prompt them:
+
+1. **Never-attempted delta.** Registry-enabled entries with no `candidates/` directory ever, vs.
+   `data/registry.json`. `repository-presenter status`'s own headline should print this count
+   directly (a code change, not just a supervisor habit — see `docs/investigations/12-supervisor-
+   and-production-reassessment.md` §5.2); until it does, `status --stale` plus a manual
+   registry-vs-`candidates/` diff stands in.
+2. **New portfolio input.** Any peer session name, recent commit, or registry file change
+   suggesting a product was added or a mode flipped that this supervisor has not yet reconciled
+   against `project/state.yaml`'s owner_items.
+3. **Defect-index escalation.** Whether any entry in `docs/DEFECT_INDEX.md` has just crossed its
+   third independent sighting — the point at which `AGENTS.md`'s Work Loop treats a
+   shared-code-item priority as settled, not optional (see that file's own escalation rule).
+
+A sweep with nothing new to report is recorded as such (one line, not a essay) and is not itself
+evidence the sweep was skippable next time.
+
 ## Enforcement placement
 
 A check that must survive the supervisor lives in `tests/` (CI runs it per push — the

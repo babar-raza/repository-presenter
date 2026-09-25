@@ -57,8 +57,10 @@ Never create a competing plan, roadmap, mission graph, task graph, or status aut
 9. Commit implementation, tests, evidence metadata, and cursor change coherently.
 10. Continue with the next ready item while safe, in-scope work remains.
 
-Only one shared-code item may be active. Parallel work is allowed only for disjoint paths after the
-execution plan permits it. No two agents edit the same file or durable state concurrently.
+Only one shared-code item may be active; parallel work is allowed only for disjoint paths, never
+the same file or durable state concurrently. A defect class independently sighted three times
+(`docs/DEFECT_INDEX.md`) is settled priority for that slot, not a judgment call — check the index
+before picking.
 
 ## Implementation Discipline
 
@@ -159,10 +161,9 @@ Every behavior change includes focused tests. Include negative controls where ap
 
 - hallucinated, unsupported, malformed, or contradictory model output;
 - illegal state transitions; stale or corrupt evidence; secret leakage;
-- duplicate triggers or effects; stale leases and fencing tokens;
-- source drift before publication;
-- invalid examples, public APIs, packages, links, or template facts; and
-- non-processable placeholder repositories.
+- duplicate triggers or effects; stale leases and fencing tokens; source drift before publication;
+- invalid examples, public APIs, packages, links, or template facts; and non-processable
+  placeholder repositories.
 
 Unit tests do not prove hosted workflows, live LLM behavior, real toolchains, durable recovery, or
 GitHub effects. Run the production-shaped proof required by the active gate.
@@ -191,9 +192,8 @@ Classify blockers:
 - `FAILED_INTERNAL`: code, wiring, schema, prompt, validation, or state defect. Diagnose, repair,
   verify, and resume. It is never acceptable completion.
 
-Ask the user only when progress genuinely requires unavailable authority, credentials, a manual UI
-action, or a material product-policy decision. Do not use the user as a substitute for repository
-investigation or ordinary engineering judgment.
+Ask the user only when progress needs unavailable authority, credentials, a manual UI action, or a
+material product-policy decision — never as a substitute for investigation or judgment.
 
 A work item closes only when implementation, tests, required production-shaped proof, evidence, and
 cursor state agree. A gate advances only when every exit predicate passes. The project closes only

@@ -226,6 +226,20 @@
       }
     },
     {
+      "repository": "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net",
+      "family": "gis",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "dry_run",
+      "policy_profile": "aspose-gis-foss-net",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1381084812,
+        "node_id": "R_kgDOUlGujA"
+      }
+    },
+    {
       "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
       "family": "html",
       "platform": "python",
@@ -244,7 +258,7 @@
       "family": "imaging",
       "platform": "net",
       "ecosystem": "net",
-      "mode": "disabled",
+      "mode": "dry_run",
       "policy_profile": "aspose-imaging-foss-net",
       "active": true,
       "provider_identity": {
