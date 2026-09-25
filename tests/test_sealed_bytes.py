@@ -175,14 +175,15 @@ KNOWN_BLOCKED_STALE = {
     # each candidate needs a real re-seal (through `present`, not a bare re-render) to pick it up,
     # since validation/review were judged against the old bytes; that re-seal is separate
     # follow-up work, not this fix's own scope. `strict=True` for the same reason as above.
-    "aspose-3d-foss__Aspose.3D-FOSS-for-Java": {
-        "reason": (
-            "item 69's cited_inherited_identifiers now wraps `UnsupportedOperationException` "
-            "(scope_limitations, citing an inherited limitations list that spells it) - see "
-            "comment above"
-        ),
-        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
-    },
+    # aspose-3d-foss__Aspose.3D-FOSS-for-Java's entry here (item 69's `UnsupportedOperationException`
+    # wrapping, the same class as the siblings above) is removed as of 2026-09-25: this candidate
+    # re-sealed READY_FOR_PROPOSAL through a real `present` run (not a bare re-render) against
+    # current component versions (normalisation, renderer, shell, and validators BC-02/03/04/06/
+    # 07/08/10 all moved), reaching a genuinely new upstream revision
+    # (3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3) with a fresh no-op proof (byte_identical true,
+    # fresh_process true, provider_calls 0) and review verdict ACCEPT, 0 findings. The stored bytes
+    # now come from current code, so a fresh render matches them again; leaving the entry would
+    # XPASS(strict) forever, the same signal this file's own docstring says to act on.
     "aspose-3d-foss__Aspose.3D-FOSS-for-Python": {
         "reason": (
             "item 69's cited_inherited_identifiers now wraps `NotImplementedError` (four "
