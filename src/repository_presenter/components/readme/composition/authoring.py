@@ -156,7 +156,16 @@ _TYPE_OBJECTIVE = (
 # substance with none of their literal text, so (1) alone let it through; repair could not
 # resolve it in one round (the re-ask returned byte-identical text), so a narrower, upfront
 # objective is the correct earlier-stage fix rather than a second repair attempt.
-NORMALISATION_VERSION = "12"
+# "12" -> "13" (G4-W17, docs/DECISION_LOG.md 2026-09-24 14:25 UTC and 2026-09-25 entries,
+# Page-Python's first-ever seal): recover_forbidden_command_units is a new last-resort
+# correction section_authoring's own repair/rounds.py call site now wires through run_job's
+# recover= parameter (symmetric to presentation_planning's recover_uncited_capability_titles,
+# item 111/PGPY-04) - a real meaning change to what a section_authoring job can end up accepting
+# (a unit whose text reproduces a _FORBIDDEN command marker unchanged through the one universal
+# re-ask, previously always a JobError, may now be corrected and re-validated through the
+# unchanged unit_checks before acceptance). unit_checks itself is untouched - the check stays
+# exactly as strict; only the last-resort recovery path is new.
+NORMALISATION_VERSION = "13"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -1547,6 +1556,71 @@ def unit_checks(
             f"unit {slot}: {mismatch}" for mismatch in unit_example_action_mismatches(unit, facts)
         )
     return errors
+
+
+# _FORBIDDEN's two markers meaning "a command" - the only ones whose surrounding text a fixed
+# substitution can rewrite without guessing at sentence structure. A code fence, a URL, or a
+# Markdown marker has no single literal fragment safe to splice out and replace with fixed
+# prose, so recover_forbidden_command_units below is scoped to these two only.
+_PIP_INSTALL_FRAGMENT = re.compile(r"pip install\s+[^\s,;:.!?)]+")
+_SHELL_PROMPT_FRAGMENT = re.compile(r"\$\s+[^\s,;:.!?)]+")
+_INSTALLATION_POINTER = "the package as documented in the Installation section above"
+_COMMAND_POINTER = "the command shown in the Installation section above"
+
+
+def _strip_forbidden_command(text: str) -> str | None:
+    """``text`` with a literal ``pip install <package>`` or ``$ <token>`` command fragment
+    replaced by a fixed generic clause pointing at the Installation section the renderer already
+    places the real command in, or ``None`` when neither command marker is present (nothing to
+    fix here)."""
+    replaced = text
+    if "pip install" in replaced:
+        replaced = _PIP_INSTALL_FRAGMENT.sub(_INSTALLATION_POINTER, replaced)
+    if "$ " in replaced:
+        replaced = _SHELL_PROMPT_FRAGMENT.sub(_COMMAND_POINTER, replaced)
+    return replaced if replaced != text else None
+
+
+def recover_forbidden_command_units(output: dict[str, Any]) -> dict[str, Any] | None:
+    """Last-resort correction for ``run_job``'s final rejected attempt only (``recover=``,
+    ``core/llm/jobs.py``) - never called on a first attempt, so the model's own one universal
+    re-ask is always tried first exactly as before; a unit ``unit_checks`` would still reject for
+    an unrelated reason is unaffected, since ``run_job`` re-validates the corrected output
+    through the real ``unit_checks`` before ever accepting it.
+
+    G4-W17, docs/DECISION_LOG.md 2026-09-24 14:25 UTC (Page-Python's first-ever seal attempt):
+    item 115's own marker-aware ``rejection_template`` hint already names the exact forbidden
+    phrase, but the model's one re-ask reproduced it byte-for-byte on both attempts (identical
+    ``response_sha256``) - a blind re-ask, the same "informed rejection the generic budget cannot
+    exploit" gap ``recover_uncited_capability_titles`` (``composition/planning.py``) already
+    closes for ``presentation_planning``'s own S5. Unlike that recovery, this one cannot cite a
+    fact to fix a title; the forbidden literal itself is what must go, and what replaces it must
+    not invent a new claim - so it points at wherever the real command is already documented,
+    never spells one out.
+
+    Scoped to the two _FORBIDDEN markers whose own meaning is "a command" (``_strip_forbidden_
+    command`` above) - a code fence, URL, or Markdown marker is left untouched, since no fixed
+    substitution can rewrite the sentence around one of those without guessing at structure this
+    function has no evidence for. A unit with neither command marker is left untouched.
+
+    Returns ``None`` when nothing was rewritten (nothing to try), never a no-op copy of
+    ``output``.
+    """
+    units = output.get("units")
+    if not isinstance(units, list):
+        return None
+    changed = False
+    for unit in units:
+        if not isinstance(unit, dict):
+            continue
+        text = unit.get("text")
+        if not isinstance(text, str):
+            continue
+        stripped = _strip_forbidden_command(text)
+        if stripped is not None:
+            unit["text"] = stripped
+            changed = True
+    return output if changed else None
 
 
 def _reconstruction_lineage_holds(

@@ -1,0 +1,453 @@
+{
+  "advisory": [],
+  "checks": [
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-01",
+      "judged_at": "S9",
+      "name": "Source revision pinned; original README bytes exact; every fact carries evidence",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-02",
+      "judged_at": "S9",
+      "name": "Install command verified against the manifest and the package-registry observation, against the source-build receipt naming exactly the steps it proved, or - when no build/install command ever succeeds - against a source-checkout receipt",
+      "sections": [
+        "installation"
+      ],
+      "verdict": "PASS",
+      "version": "3"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-03",
+      "judged_at": "S9",
+      "name": "Every rendered example was executed or compiled in isolation at this revision",
+      "sections": [
+        "quick_start",
+        "additional_examples"
+      ],
+      "verdict": "PASS",
+      "version": "2"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-04",
+      "judged_at": "S9",
+      "name": "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact value in a code span",
+      "sections": [
+        "opening",
+        "key_capabilities",
+        "scope_limitations",
+        "api_reference",
+        "documentation_resources",
+        "enterprise_relationship"
+      ],
+      "verdict": "PASS",
+      "version": "2"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-05",
+      "judged_at": "S9",
+      "name": "Every material inherited unit has exactly one disposition; placed units appear in their destination",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-06",
+      "judged_at": "S9",
+      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name",
+      "sections": [
+        "documentation_resources",
+        "enterprise_relationship",
+        "badges"
+      ],
+      "verdict": "PASS",
+      "version": "3"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-07",
+      "judged_at": "S9",
+      "name": "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the length budget",
+      "sections": [
+        "structure"
+      ],
+      "verdict": "PASS",
+      "version": "7"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-08",
+      "judged_at": "S9",
+      "name": "Protected content preserved",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "2"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-09",
+      "judged_at": "S9",
+      "name": "No configured secret in the bundle",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-10",
+      "judged_at": "S10",
+      "name": "Independent review returns ACCEPT corroborated by a second independent read, under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
+      "review_verdict": "ACCEPT",
+      "sections": [
+        "review"
+      ],
+      "verdict": "PASS",
+      "version": "4"
+    },
+    {
+      "causal_stage": null,
+      "details": [
+        "judged by the fresh-process replay: every artifact byte-identical, zero provider calls"
+      ],
+      "id": "BC-11",
+      "judged_at": "S12",
+      "name": "Fresh-process rerun is byte-identical with zero provider calls",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    }
+  ],
+  "coverage": [
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        }
+      ],
+      "required": true,
+      "section_id": "identity"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        },
+        {
+          "extracted": 2,
+          "kind": "package",
+          "supported": 2
+        },
+        {
+          "extracted": 33,
+          "kind": "link_target",
+          "supported": 33
+        }
+      ],
+      "required": true,
+      "section_id": "badges"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 33,
+          "kind": "link_target",
+          "supported": 33
+        }
+      ],
+      "required": false,
+      "section_id": "banner"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        },
+        {
+          "extracted": 2,
+          "kind": "package",
+          "supported": 2
+        },
+        {
+          "extracted": 5,
+          "kind": "format",
+          "supported": 5
+        },
+        {
+          "extracted": 572,
+          "kind": "public_symbol",
+          "supported": 572
+        }
+      ],
+      "required": true,
+      "section_id": "opening"
+    },
+    {
+      "included": true,
+      "kinds": [],
+      "required": true,
+      "section_id": "navigation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "format",
+          "supported": 5
+        },
+        {
+          "extracted": 572,
+          "kind": "public_symbol",
+          "supported": 572
+        }
+      ],
+      "required": false,
+      "section_id": "at_a_glance"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 572,
+          "kind": "public_symbol",
+          "supported": 572
+        },
+        {
+          "extracted": 8,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 8: FAILED; ImportError; ran against the repository source tree; the package would not build"
+          ],
+          "supported": 7
+        },
+        {
+          "extracted": 5,
+          "kind": "format",
+          "supported": 5
+        },
+        {
+          "extracted": 1,
+          "kind": "import_path",
+          "supported": 1
+        }
+      ],
+      "required": true,
+      "section_id": "key_capabilities"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1,
+          "kind": "install_command",
+          "supported": 1
+        },
+        {
+          "extracted": 2,
+          "kind": "package",
+          "supported": 2
+        }
+      ],
+      "required": true,
+      "section_id": "installation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 4,
+          "kind": "dependency",
+          "supported": 4
+        }
+      ],
+      "required": true,
+      "section_id": "dependencies"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 8,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 8: FAILED; ImportError; ran against the repository source tree; the package would not build"
+          ],
+          "supported": 7
+        }
+      ],
+      "required": false,
+      "section_id": "quick_start"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 8,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 8: FAILED; ImportError; ran against the repository source tree; the package would not build"
+          ],
+          "supported": 7
+        }
+      ],
+      "required": false,
+      "section_id": "additional_examples"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 572,
+          "kind": "public_symbol",
+          "supported": 572
+        }
+      ],
+      "required": true,
+      "section_id": "api_reference"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 33,
+          "kind": "link_target",
+          "supported": 33
+        }
+      ],
+      "required": false,
+      "section_id": "documentation_resources"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 107,
+          "kind": "inherited_unit",
+          "supported": 107
+        },
+        {
+          "extracted": 8,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 8: FAILED; ImportError; ran against the repository source tree; the package would not build"
+          ],
+          "supported": 7
+        },
+        {
+          "extracted": 572,
+          "kind": "public_symbol",
+          "supported": 572
+        }
+      ],
+      "required": true,
+      "section_id": "scope_limitations"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1,
+          "kind": "build_test_asset",
+          "supported": 1
+        }
+      ],
+      "required": false,
+      "section_id": "development_testing"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 33,
+          "kind": "link_target",
+          "supported": 33
+        }
+      ],
+      "required": false,
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "included": false,
+      "kinds": [
+        {
+          "extracted": 0,
+          "kind": "third_party_notices",
+          "supported": 0
+        }
+      ],
+      "required": false,
+      "section_id": "third_party_notices"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        }
+      ],
+      "required": true,
+      "section_id": "license"
+    }
+  ],
+  "protected_content_fingerprint": "9af7476e82f0757d005ba2eaa54a8e185b9e22802f96ccea1198539b12b52ec7",
+  "readme_sha256": "05fb7a4053d232a88b432ba1e5c48eb391a4d58e9f5b7a667eeabbef0153a401",
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "schema_version": 1,
+  "source_revision": "43cef367cd0b2cf00cc03064ca9d29d1ff507967",
+  "summary": {
+    "fail": 0,
+    "pass": 11,
+    "pending": 0
+  },
+  "validator_version": "3"
+}

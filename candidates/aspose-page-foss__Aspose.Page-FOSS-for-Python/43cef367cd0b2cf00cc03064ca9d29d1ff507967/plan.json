@@ -1,0 +1,326 @@
+{
+  "additional_example_ids": [
+    "example:002",
+    "example:003",
+    "example:004",
+    "example:005",
+    "example:006",
+    "example:007"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page",
+        "public_symbol:aspose.page.common.render_model.renderdocument",
+        "public_symbol:aspose.page.common.render_model.rendermodelbuilder"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.page"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.image",
+        "public_symbol:aspose.page.image.raster_renderer",
+        "public_symbol:aspose.page.image.raster_renderer.rasterrenderer",
+        "public_symbol:aspose.page.image.raster_writer.defaultrasterwriter",
+        "public_symbol:aspose.page.image.skia_raster_writer.skiarasterwriter"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.page.image"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.mcp",
+        "public_symbol:aspose.page.mcp.create_server",
+        "public_symbol:aspose.page.mcp.handlers",
+        "public_symbol:aspose.page.mcp.handlers.eps_metadata",
+        "public_symbol:aspose.page.mcp.handlers.ps_to_image",
+        "public_symbol:aspose.page.mcp.handlers.ps_to_pdf",
+        "public_symbol:aspose.page.mcp.handlers.xps_to_image",
+        "public_symbol:aspose.page.mcp.handlers.xps_to_pdf",
+        "public_symbol:aspose.page.mcp.run",
+        "public_symbol:aspose.page.mcp.server",
+        "public_symbol:aspose.page.mcp.types.mcpconversionoptions",
+        "public_symbol:aspose.page.mcp.types.mcpinput",
+        "public_symbol:aspose.page.mcp.types.mcpoutput",
+        "public_symbol:aspose.page.mcp.types.mcpresult"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.page.mcp"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.pdf",
+        "public_symbol:aspose.page.pdf.pdfmetadata",
+        "public_symbol:aspose.page.pdf.pdfwriter",
+        "public_symbol:aspose.page.pdf.writer"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.page.pdf"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.ps.clipper.clipper",
+        "public_symbol:aspose.page.ps.clipper.clipperbase",
+        "public_symbol:aspose.page.ps.font_cache.fontcache",
+        "public_symbol:aspose.page.ps.fonts.fontresolver",
+        "public_symbol:aspose.page.ps"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.page.ps"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.xps"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.page.xps"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Read and parse PS/EPS documents",
+      "Read XPS packages",
+      "Author PS/EPS and XPS documents",
+      "Convert to PDF",
+      "Rasterize to image formats",
+      "Expose conversions as MCP tools"
+    ],
+    "input_format_ids": [
+      "format:input.eps",
+      "format:input.ps",
+      "format:input.xps"
+    ],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.pdf",
+        "format:input.eps"
+      ],
+      "shared_fact_ids": [
+        "format:input.eps",
+        "public_symbol:aspose.page.pdf",
+        "public_symbol:aspose.page.ps"
+      ],
+      "title": "Read and parse PS/EPS documents"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.xps",
+        "format:input.xps"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.page.xps"
+      ],
+      "title": "Read XPS packages"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.xps",
+        "format:input.eps"
+      ],
+      "shared_fact_ids": [
+        "format:input.eps",
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.xps"
+      ],
+      "title": "Author PS/EPS and XPS documents"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.page.pdf"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.page.pdf"
+      ],
+      "title": "Convert to PDF"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:006",
+        "example:007",
+        "dependency:skia-python"
+      ],
+      "shared_fact_ids": [],
+      "title": "Rasterize to image formats"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "example:005",
+        "public_symbol:aspose.page.mcp"
+      ],
+      "shared_fact_ids": [],
+      "title": "Expose conversions as MCP tools"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:053.heading",
+        "inherited_unit:054.paragraph",
+        "inherited_unit:055.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The MCP server example (inherited_unit:053-heading and related content) was omitted because it references fastmcp which is not listed in the dependency facts."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:029",
+      "section_id": "enterprise_relationship"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "install_command:pip",
+        "package:name"
+      ],
+      "unit_ids": [
+        "inherited_unit:088.paragraph"
+      ]
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "dependency:skia-python"
+      ],
+      "unit_ids": [
+        "inherited_unit:051.paragraph"
+      ]
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:006"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.pdf"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.mcp"
+      ],
+      "unit_ids": []
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

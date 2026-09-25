@@ -1,0 +1,168 @@
+{
+  "advisory": [
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "format:input.pdf"
+      ],
+      "id": "F01",
+      "quote": "Aspose.Page FOSS for Python enables conversion and rendering of page description formats including PostScript (`.ps`), EPS, XPS (`.xps`), and PDF (`.pdf`) to raster images like PNG (`.png`) and back to PDF.",
+      "repair": "Rewrite to clarify that PDF is only an output format: 'Aspose.Page FOSS for Python enables conversion and rendering of page description formats including PostScript (`.ps`), EPS, and XPS (`.xps`) to raster images like PNG (`.png`) and to PDF (`.pdf`).'",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.page.pdf, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The opening paragraph incorrectly lists PDF as an input format ('PostScript (`.ps`), EPS, XPS (`.xps`), and PDF (`.pdf`) to raster images'), but the product facts confirm PDF is only an output format (no PDF import/parsing API exists)."
+    },
+    {
+      "absent": [
+        "Nothing — authored from scratch"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.xps"
+      ],
+      "id": "F02",
+      "quote": "  subgraph StartingPoints[...]",
+      "repair": "Restore the 'Nothing — authored from scratch' starting point in the Mermaid diagram to match the original README and reflect the library's document-authoring capability.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram omits 'Nothing — authored from scratch' as a starting point, contradicting the original README and facts that support programmatic document creation."
+    },
+    {
+      "absent": [
+        "python package.py build",
+        "python package.py verify",
+        "python package.py publish-test",
+        "python package.py publish"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F04",
+      "quote": "To work from a source checkout instead, install the clone with pip:",
+      "repair": "Restore the `uv`-based build and verification workflow: 'To build and verify a wheel from a clone of the repository instead, install `uv`, `setuptools`, and `wheel`, then run: `git clone ...`, `cd Aspose.Page-FOSS-for-Python`, `python package.py build`, `python package.py verify`.'",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The installation section omits the `uv`-based build and verification workflow (`python package.py build`, `python package.py verify`, `python package.py publish-test` / `publish`) that is present in the original README and supported by the `package.py` build script."
+    },
+    {
+      "absent": [
+        "fastmcp",
+        "optional",
+        "pure-Python fallback",
+        "DefaultRasterWriter"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:skia-python"
+      ],
+      "id": "F05",
+      "quote": "### Required Package Dependencies",
+      "repair": "Add a clear 'Optional Dependencies' subsection: '- `fastmcp` — required to host the MCP server (`create_server()` / `run()`); imported lazily, only when the server is started.' and clarify the rasterization backend behavior in the skia-python description.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The dependencies section omits the `fastmcp` optional dependency, which is required to host the MCP server (`create_server()` / `run()`), and incorrectly omits the pure-Python fallback for PS/EPS-to-image rendering."
+    },
+    {
+      "absent": [
+        "from aspose.page.ps.document import PsDocument",
+        "from aspose.page.ps.output import ImageSaveOptions",
+        "ps = PsDocument.from_file",
+        "ps.to_image"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001",
+        "example:002"
+      ],
+      "id": "F06",
+      "quote": "Convert a PostScript file to PDF by importing the `ps_to_pdf` handler and passing input and output objects to it, as shown in the example.",
+      "repair": "Add a second quick start example demonstrating PS/EPS-to-image conversion: 'Convert a PS or EPS file to a raster image directly through the document API: `from aspose.page.ps.document import PsDocument`, `from aspose.page.ps.output import ImageSaveOptions`, `ps = PsDocument.from_file`, `data = ps.to_image(...)`, `with open(...): f.write(data)`.'",
+      "reviewer_scope_defect": "the omission it names is inherited_unit:031.code_block's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
+      "section_id": "quick_start",
+      "text": "The Quick Start section omits the second quick start example (`ps.to_image(...)`) that demonstrates direct rasterization, which is a core conversion path and is present in the original README and supported by example:002."
+    },
+    {
+      "absent": [
+        "Run the MCP Server",
+        "from aspose.page.mcp import create_server",
+        "server = create_server()",
+        "server.run"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:008"
+      ],
+      "id": "F07",
+      "quote": "### Convert an XPS file to a PNG image",
+      "repair": "Restore the MCP server example under a 'Run the MCP Server' heading: 'Run the MCP Server: `from aspose.page.mcp import create_server`, `server = create_server()`, `server.run(host=..., port=...)`.'",
+      "reviewer_scope_defect": "the omission it names is backed by example:008, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "section_id": "additional_examples",
+      "text": "The Additional Examples section omits the MCP server example (`create_server()` / `server.run()`), which is present in the original README and supported by the MCP module facts, and incorrectly omits the 'Run the MCP Server' heading."
+    },
+    {
+      "absent": [
+        "create(is_eps, page_size)",
+        "from_bytes(data)",
+        "from_file(path)",
+        "add_page",
+        "insert_page",
+        "remove_page",
+        "get_page",
+        "save(path)/as_bytes()/_xmp/_to_pdf/_to_image/pages/dsc"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.xps",
+        "public_symbol:aspose.page.common.render_model.rendermodelbuilder",
+        "public_symbol:aspose.page.pdf.pdfwriter"
+      ],
+      "id": "F08",
+      "quote": "### page",
+      "repair": "Restore the detailed member reference with verified method signatures: `PsDocument` — `create(is_eps, page_size)` / `from_bytes(data)` / `from_file(path)`; `add_page(size)` / `insert_page(index, size)` / `remove_page(index)` / `get_page(index)`; `save(path)` / `as_bytes()`; `get_xmp()` / `set_xmp(xmp_xml)` / `remove_xmp()`; `to_pdf(options)` / `to_image(options)`; `pages: list[PsPage]`, `dsc: DscM",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'add_page', 'create(is_eps, page_size)', 'from_bytes(data)', which the candidate contains; the finding asks for 'save(path)/as_bytes()/_xmp/_to_pdf/_to_image/pages/dsc', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "api_reference",
+      "text": "The API Reference section duplicates the 'Document I/O' and 'Render Model and Output' subsections from the original README's detailed member reference, but the candidate's table entries are generic and omit critical method signatures (e.g., `PsDocument.create`, `XpsDocument.create`, `RenderModelBuilder.begin_page`, `PdfWriter.write`) that are present in the original README and supported by the public_symbol facts."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "05fb7a4053d232a88b432ba1e5c48eb391a4d58e9f5b7a667eeabbef0153a401",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

@@ -1,0 +1,178 @@
+[
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [
+      {
+        "literal": "input.ps",
+        "produced_by": null,
+        "source_path": "testdata/ps/integration/PAGENET-79-1.ps"
+      },
+      {
+        "literal": "output.pdf",
+        "produced_by": null,
+        "source_path": "testdata/ps/baseline/ps2pdf/functional/images09/PAGEJAVA-242~.pdf"
+      }
+    ],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [
+      {
+        "literal": "input.ps",
+        "produced_by": null,
+        "source_path": "testdata/ps/integration/PAGENET-79-1.ps"
+      },
+      {
+        "literal": "output.png",
+        "produced_by": null,
+        "source_path": "testdata/xps/integration/avatar.png"
+      }
+    ],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [
+      {
+        "literal": "input.eps",
+        "produced_by": null,
+        "source_path": "testdata/ps/integration/PAGEJAVA-73-2.eps"
+      }
+    ],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": "(0, 0, 109, 76) Untitled-0001.EPS\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [
+      {
+        "literal": "input.xps",
+        "produced_by": null,
+        "source_path": "testdata/xps/integration/transforms.xps"
+      },
+      {
+        "literal": "output.pdf",
+        "produced_by": null,
+        "source_path": "testdata/ps/baseline/ps2pdf/functional/images09/PAGEJAVA-242~.pdf"
+      }
+    ],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [
+      {
+        "literal": "blank.png",
+        "produced_by": null,
+        "source_path": "testdata/xps/integration/avatar.png"
+      }
+    ],
+    "ordinal": 6,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "fixtures": [
+      {
+        "literal": "input.xps",
+        "produced_by": null,
+        "source_path": "testdata/xps/integration/transforms.xps"
+      },
+      {
+        "literal": "output.png",
+        "produced_by": null,
+        "source_path": "testdata/xps/integration/avatar.png"
+      }
+    ],
+    "ordinal": 7,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": false,
+    "detail": "ImportError; ran against the repository source tree; the package would not build",
+    "fixtures": [],
+    "ordinal": 8,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "stderr": "Traceback (most recent call last):\r\n  File \"H:\\Users\\prora\\OneDrive\\Documents\\GitHub\\repository-presenter\\.claude\\worktrees\\agent-a43b8a598063ec103\\runs\\clones\\aspose-page-foss__Aspose.Page-FOSS-for-Python\\src\\aspose\\page\\mcp\\server.py\", line 16, in create_server\r\n    from fastmcp import FastMCP\r\nModuleNotFoundError: No module named 'fastmcp'\r\n\r\nThe above exception was the direct cause of the following exception:\r\n\r\nTraceback (most recent call last):\r\n  File \"<workspace>\\example_008\\example.py\", line 3, in <module>\r\n    server = create_server()\r\n  File \"H:\\Users\\prora\\OneDrive\\Documents\\GitHub\\repository-presenter\\.claude\\worktrees\\agent-a43b8a598063ec103\\runs\\clones\\aspose-page-foss__Aspose.Page-FOSS-for-Python\\src\\aspose\\page\\mcp\\server.py\", line 18, in create_server\r\n    raise ImportError(\"FastMCP is required to run the MCP server\") from exc\r\nImportError: FastMCP is required to run the MCP server\r\n",
+    "stdout": ""
+  }
+]

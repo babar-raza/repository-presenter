@@ -1,0 +1,1118 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "enterprise_relationship/context"
+    ]
+  },
+  "omitted": [
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision hash is not relevant to describing the toolchain and requirements for building and testing.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "Family identity is not needed in this summary sentence about toolchain and requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "Platform identity is already implied by Python version requirement and toolchain description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "Ecosystem identity is redundant with the explicit mention of Python version and uv toolchain.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "Package name is not needed in this summary sentence about toolchain and requirements.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:089.heading",
+      "reason": "Heading is rendered by the deterministic renderer and must not be repeated in prose.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:090.paragraph",
+      "reason": "Paragraph is rendered by the deterministic renderer and must not be repeated in prose.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision hash is provenance metadata, not a capability or feature relevant to describing the commercial relationship.",
+      "section": "enterprise_relationship"
+    },
+    {
+      "fact_id": "package:python_requires",
+      "reason": "Python version requirement is a technical constraint, not a feature or capability that defines the commercial relationship.",
+      "section": "enterprise_relationship"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:python_requires",
+        "license:spdx",
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "dependency:skia-python",
+        "public_symbol:aspose.page.mcp",
+        "public_symbol:aspose.page.pdf",
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.xps",
+        "format:input.eps",
+        "format:input.xps",
+        "format:input.pdf",
+        "format:input.png",
+        "format:input.ps"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Page FOSS for Python enables conversion and rendering of page description formats including PostScript (.ps), EPS, XPS (.xps), and PDF (.pdf) to raster images like PNG (.png) and back to PDF. It solves the problem of programmatically processing these formats without requiring proprietary dependencies, supporting tasks such as document conversion, preview generation, and metadata inspection. Developers working with document workflows, printing systems, or graphics processing use this library to integrate robust page handling into Python applications. The package requires Python >=3.10 and depends on skia-python for rendering operations."
+    },
+    {
+      "fact_ids": [
+        "format:input.eps",
+        "public_symbol:aspose.page.pdf",
+        "public_symbol:aspose.page.ps"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "The library reads and parses PostScript and Encapsulated PostScript documents through the aspose.page.ps module, supporting the .eps format and exposing the document structure for further processing."
+    },
+    {
+      "fact_ids": [
+        "format:input.xps",
+        "public_symbol:aspose.page.xps"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "XPS packages in the .xps format are read using the aspose.page.xps module, which parses the package structure and exposes the document for rendering or conversion operations."
+    },
+    {
+      "fact_ids": [
+        "format:input.eps",
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.xps"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Authors can create PS/EPS and XPS documents programmatically using the aspose.page.ps and aspose.page.xps modules, building documents page by page with rendering primitives."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.page.pdf"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Documents can be converted to PDF by writing the internal document model through the aspose.page.pdf module, producing a complete PDF document in memory."
+    },
+    {
+      "fact_ids": [
+        "dependency:skia-python",
+        "example:002",
+        "example:006",
+        "example:007"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Rasterization to image formats such as PNG uses the skia-python dependency and exposes methods like to_image and encode_png for outputting rendered pages."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "example:005",
+        "public_symbol:aspose.page.mcp"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Conversions are exposed as MCP tools through the aspose.page.mcp module, with handlers such as ps_to_pdf, eps_metadata, and xps_to_pdf accepting structured inputs and outputs."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Convert a PostScript file to PDF by importing the ps_to_pdf handler and passing input and output objects to it, as shown in the example."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "The aspose-page-foss package supports PostScript, EPS, XPS, and PDF workflows with Python >=3.10. Each example demonstrates a distinct conversion or rendering task."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:002",
+      "text": "Convert a PostScript file to a PNG image."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Build a document from scratch and export it as PDF."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Extract EPS metadata including bounding box and title."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Convert an XPS file to PDF using an MCP handler."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Render a programmatically created page to PNG."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Convert an XPS file to a PNG image."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires",
+        "public_symbol:aspose.page",
+        "public_symbol:aspose.page.common.render_model.renderdocument",
+        "public_symbol:aspose.page.common.render_model.rendermodelbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Page FOSS for Python provides modules for reading, authoring, and converting PostScript, EPS, and XPS documents. The core entry points are the aspose.page module's PsDocument and XpsDocument classes, which rely on the shared RenderModelBuilder and RenderDocument types to build an internal render model before output."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires",
+        "public_symbol:aspose.page",
+        "public_symbol:aspose.page.common.render_model.renderdocument",
+        "public_symbol:aspose.page.common.render_model.rendermodelbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.page",
+      "text": "The aspose.page module exposes PsDocument and XpsDocument for loading and manipulating PostScript and XPS content, with methods such as from_file, add_page, and to_pdf or to_image for conversion, and it provides PdfWriter and RasterRenderer for writing PDF and raster output respectively."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires",
+        "public_symbol:aspose.page.image",
+        "public_symbol:aspose.page.image.raster_renderer",
+        "public_symbol:aspose.page.image.raster_renderer.rasterrenderer",
+        "public_symbol:aspose.page.image.raster_writer.defaultrasterwriter",
+        "public_symbol:aspose.page.image.skia_raster_writer.skiarasterwriter"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.page.image",
+      "text": "The aspose.page.image module supports raster output through RasterRenderer, which renders a RenderDocument to images, and DefaultRasterWriter and SkiaRasterWriter, which provide platform-specific raster writing capabilities."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires",
+        "public_symbol:aspose.page.mcp",
+        "public_symbol:aspose.page.mcp.create_server",
+        "public_symbol:aspose.page.mcp.handlers",
+        "public_symbol:aspose.page.mcp.handlers.eps_metadata",
+        "public_symbol:aspose.page.mcp.handlers.ps_to_image",
+        "public_symbol:aspose.page.mcp.handlers.ps_to_pdf",
+        "public_symbol:aspose.page.mcp.handlers.xps_to_image",
+        "public_symbol:aspose.page.mcp.handlers.xps_to_pdf",
+        "public_symbol:aspose.page.mcp.run",
+        "public_symbol:aspose.page.mcp.server",
+        "public_symbol:aspose.page.mcp.types.mcpconversionoptions",
+        "public_symbol:aspose.page.mcp.types.mcpinput",
+        "public_symbol:aspose.page.mcp.types.mcpoutput",
+        "public_symbol:aspose.page.mcp.types.mcpresult"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.page.mcp",
+      "text": "The aspose.page.mcp module provides command-line tools for batch conversion, including ps_to_pdf, ps_to_image, xps_to_pdf, xps_to_image, and eps_metadata, along with McpInput, McpOutput, McpConversionOptions, and McpResult types, and a create_server function that registers these tools on a FastMCP server."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires",
+        "public_symbol:aspose.page.pdf",
+        "public_symbol:aspose.page.pdf.pdfmetadata",
+        "public_symbol:aspose.page.pdf.pdfwriter",
+        "public_symbol:aspose.page.pdf.writer"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.page.pdf",
+      "text": "The aspose.page.pdf module offers PdfWriter for writing PDF output from a RenderDocument, and PdfMetadata for inspecting PDF document properties."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires",
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.ps.clipper.clipper",
+        "public_symbol:aspose.page.ps.clipper.clipperbase",
+        "public_symbol:aspose.page.ps.font_cache.fontcache",
+        "public_symbol:aspose.page.ps.fonts.fontresolver"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.page.ps",
+      "text": "The aspose.page.ps module includes Clipper and ClipperBase for polygon clipping operations, FontCache for font management, and FontResolver for resolving fonts during rendering."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires",
+        "public_symbol:aspose.page.xps"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.page.xps",
+      "text": "The aspose.page.xps module supports XPS document handling, including loading from files or bytes, manipulating pages, and converting to PDF or raster formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.axialshading"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.axialshading",
+      "text": "AxialShading represents an axial shading pattern used in vector graphics rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.ciebasedcolorspace"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.ciebasedcolorspace",
+      "text": "CieBasedColorSpace defines a CIE-based color space for precise color representation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.colorspacepaint"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.colorspacepaint",
+      "text": "ColorSpacePaint provides a paint implementation using a specific color space."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.devicecolorspace"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.devicecolorspace",
+      "text": "DeviceColorSpace represents a device-dependent color space based on the output device characteristics."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.devicencolorspace"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.devicencolorspace",
+      "text": "DeviceNColorSpace defines a device color space supporting multiple color components."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.exponentialfunction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.exponentialfunction",
+      "text": "ExponentialFunction implements a mathematical function with exponential behavior for color calculations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.indexedcolorspace"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.indexedcolorspace",
+      "text": "IndexedColorSpace uses an index table to map color values to actual colors."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.patterncolorspace"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.patterncolorspace",
+      "text": "PatternColorSpace defines a color space based on repeating patterns."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.patternpaint"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.patternpaint",
+      "text": "PatternPaint renders content using a pattern as the fill or stroke style."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.radialshading"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.radialshading",
+      "text": "RadialShading represents a radial shading pattern that transitions colors along a radius."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.sampledfunction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.sampledfunction",
+      "text": "SampledFunction approximates a mathematical function using discrete sample points."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.separationcolorspace"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.separationcolorspace",
+      "text": "SeparationColorSpace defines a color space for individual color separation channels."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.shadingpattern"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.shadingpattern",
+      "text": "ShadingPattern creates a pattern using gradient shading effects."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.stitchingfunction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.stitchingfunction",
+      "text": "StitchingFunction combines multiple functions into a single continuous function."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.common.color_resources.tilingpattern"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.common.color_resources.tilingpattern",
+      "text": "TilingPattern defines a repeating tile-based pattern for filling areas."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.image.raster_writer.defaultrasterwriter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.image.raster_writer.defaultrasterwriter",
+      "text": "DefaultRasterWriter provides a default implementation for writing raster images."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.image.raster_writer.rasterwriter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.image.raster_writer.rasterwriter",
+      "text": "RasterWriter is a protocol defining the interface for raster image output operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.image.raster_writer.rendermodelrasterwriter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.image.raster_writer.rendermodelrasterwriter",
+      "text": "RenderModelRasterWriter handles raster output based on a rendering model."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.pdf.fonts.pdfembeddedfont"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.pdf.fonts.pdfembeddedfont",
+      "text": "PdfEmbeddedFont manages embedded font resources within PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.pdf.writer.rectwrapper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.pdf.writer.rectwrapper",
+      "text": "RectWrapper encapsulates rectangle coordinates for PDF writing operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.imagesaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.imagesaveoptions",
+      "text": "ImageSaveOptions specifies settings for saving documents as image files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.pdfsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.pdfsaveoptions",
+      "text": "PdfSaveOptions defines parameters for saving documents in PDF format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.cliptype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.cliptype",
+      "text": "ClipType enumerates the available clipping operations in the polygon clipping engine."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.clipper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.clipper",
+      "text": "Clipper performs polygon clipping operations using the Greiner-Hormann algorithm."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.clipperbase"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.clipperbase",
+      "text": "ClipperBase provides core functionality and state management for the clipping engine."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.clipperexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.clipperexception",
+      "text": "ClipperException signals errors that occur during polygon clipping operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.direction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.direction",
+      "text": "Direction specifies the orientation of edges in the clipping algorithm."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.doublepoint"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.doublepoint",
+      "text": "DoublePoint represents a point with double-precision floating-point coordinates."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.edgeside"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.edgeside",
+      "text": "EdgeSide indicates which side of an edge a point lies on during clipping."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.endtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.endtype",
+      "text": "EndType defines how polygon boundaries are terminated in the clipping process."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.intpoint"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.intpoint",
+      "text": "IntPoint represents a point with integer coordinates used in clipping operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.intrect"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.intrect",
+      "text": "IntRect defines a rectangle using integer coordinates for clipping calculations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.intersectnode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.intersectnode",
+      "text": "IntersectNode stores information about intersection points between polygon edges."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.join"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.join",
+      "text": "Join represents a connection between two polygon segments during clipping."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.jointype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.jointype",
+      "text": "JoinType specifies how polygon segments are joined together in the clipping engine."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.localminima"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.localminima",
+      "text": "LocalMinima identifies local minimum points in polygon scanlines during clipping."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.outpt"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.outpt",
+      "text": "OutPt represents an output point in the polygon clipping result."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.outrec"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.outrec",
+      "text": "OutRec stores information about an output polygon region generated by clipping."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.polyfilltype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.polyfilltype",
+      "text": "PolyFillType determines how polygon interiors are filled during clipping operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.polynode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.polynode",
+      "text": "PolyNode represents a node in the polygon hierarchy structure used by the clipping engine."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.polyoffsetbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.polyoffsetbuilder",
+      "text": "PolyOffsetBuilder constructs offset polygons from input points using configurable join styles such as miter, round, or square."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.polytree"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.polytree",
+      "text": "PolyTree holds a hierarchical collection of polygons representing the result of clipping operations, providing access to the first node and total count."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.polytype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.polytype",
+      "text": "PolyType defines the classification of polygons used in clipping operations, such as subject or clip."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.scanbeam"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.scanbeam",
+      "text": "Scanbeam manages a list of Y-coordinates used during the clipping algorithm's sweep-line processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.clipper.tedge"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.clipper.tedge",
+      "text": "TEdge represents an edge segment in the clipping algorithm, storing geometric and topological information."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.errors.psioerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.errors.psioerror",
+      "text": "PsIOError signals input or output failures encountered while processing PostScript content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.errors.psinvalidaccess"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.errors.psinvalidaccess",
+      "text": "PsInvalidAccess indicates an attempt to access a resource or operation not permitted in the current context."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.errors.pslimitcheck"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.errors.pslimitcheck",
+      "text": "PsLimitCheck is raised when a PostScript interpreter limit is exceeded during execution."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.errors.psrangeerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.errors.psrangeerror",
+      "text": "PsRangeError occurs when a numeric value falls outside the allowed range for a PostScript operation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.errors.pssyntaxerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.errors.pssyntaxerror",
+      "text": "PsSyntaxError signals a syntax violation found while parsing PostScript code."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.errors.pstypeerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.errors.pstypeerror",
+      "text": "PsTypeError is raised when an operand of an incorrect type is encountered in a PostScript operation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.errors.psundefinederror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.errors.psundefinederror",
+      "text": "PsUndefinedError indicates that a required name or operator is not defined in the current PostScript environment."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.font_cache.fontcache"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.font_cache.fontcache",
+      "text": "FontCache stores and retrieves font metrics and outlines to accelerate repeated font handling in PostScript processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.font_cache.fontmetrics"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.font_cache.fontmetrics",
+      "text": "FontMetrics holds typographic measurements for a font, such as ascender, descender, and line spacing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.font_cache.fontrecord"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.font_cache.fontrecord",
+      "text": "FontRecord associates a font identifier with its cached metrics and outline data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.fonts.embeddedtype42"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.fonts.embeddedtype42",
+      "text": "EmbeddedType42 represents a Type 42 font embedded in a PostScript document, containing TrueType outline data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psarray"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psarray",
+      "text": "PsArray holds an ordered collection of PostScript objects, supporting append and iteration."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psdict"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psdict",
+      "text": "PsDict stores key-value pairs of PostScript objects, enabling dictionary lookups and modifications."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psfile"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psfile",
+      "text": "PsFile represents a file object used for reading or writing PostScript content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psfontid"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psfontid",
+      "text": "PsFontId uniquely identifies a font within the PostScript interpreter's font system."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psgstate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psgstate",
+      "text": "PsGState captures the current graphics state parameters used during PostScript rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psmark"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psmark",
+      "text": "PsMark records a position in the PostScript stream for later reference or restoration."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psname"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psname",
+      "text": "PsName wraps a PostScript name object, used as identifiers in dictionaries and operators."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psoperator"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psoperator",
+      "text": "PsOperator represents a PostScript operator name and its associated execution logic."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.pspattern"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.pspattern",
+      "text": "PsPattern defines a reusable pattern used for filling or stroking in PostScript graphics."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psprocedure"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psprocedure",
+      "text": "PsProcedure encapsulates a sequence of PostScript operators as a callable object."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.pssave"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.pssave",
+      "text": "PsSave records the current graphics state so it can be restored later."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.objects.psstring"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.objects.psstring",
+      "text": "PsString holds a sequence of bytes representing a PostScript string literal."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.ttf_outline.glyphpoint"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.ttf_outline.glyphpoint",
+      "text": "GlyphPoint stores the coordinates and flag of a single point in a TrueType glyph outline."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.ttf_outline.truetypefont"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.ttf_outline.truetypefont",
+      "text": "TrueTypeFont provides access to metrics and outlines of a TrueType font used in PostScript processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.type1_parser.type1metrics"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.type1_parser.type1metrics",
+      "text": "Type1Metrics holds typographic measurements extracted from a Type 1 font program."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps.vm.pssavestate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.ps.vm.pssavestate",
+      "text": "PsSaveState preserves the current virtual machine state for later restoration during PostScript execution."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.xps.images.xpsimagestore"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.page.xps.images.xpsimagestore",
+      "text": "XpsImageStore manages registered XPS images, allowing retrieval by identifier."
+    },
+    {
+      "fact_ids": [
+        "link_target:025",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:025",
+      "text": "The getting started guide introduces the core concepts and walks through initial setup and basic usage patterns for Aspose.Page FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:026",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "The how-to guides and FAQ provide practical examples and answers to common questions about using Aspose.Page FOSS for Python to process documents."
+    },
+    {
+      "fact_ids": [
+        "link_target:027",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:027",
+      "text": "The full API reference documents every public class, method, and property available in the aspose-page-foss package for Python developers."
+    },
+    {
+      "fact_ids": [
+        "link_target:028",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:028",
+      "text": "The issue tracker allows users to report bugs, request features, and discuss improvements for the aspose-page-foss repository on GitHub."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Page FOSS for Python provides APIs to create and convert page-description documents, supporting PS/EPS and XPS formats for output to PDF and raster images, as well as a Model-View-Presenter server for remote conversion tasks."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:088.paragraph",
+        "install_command:pip",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "The package requires Python version 3.10 or later and is distributed under the name aspose-page-foss; these limitations do not apply to Aspose.Page for Python — Enterprise Edition, which adds broader format coverage, including PDF reading, and commercial support."
+    },
+    {
+      "fact_ids": [
+        "dependency:skia-python",
+        "example:007",
+        "inherited_unit:051.paragraph"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "XPS-to-image conversion has no pure-Python fallback and always uses the Skia backend (skia-python, installed with the package), or it raises a runtime error."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:006"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Importing aspose.page.pdf.writer or aspose.page.image.raster_renderer directly, or calling XpsDocument.to_pdf() or to_image() before importing aspose.page.ps, raises a circular-import ImportError in a fresh Python interpreter."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.pdf"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "The aspose.page.pdf module supports writing PDF documents from render models but does not provide any API to read or parse existing PDF files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.mcp"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "The aspose.page.mcp module exposes only five conversion/metadata tools (ps_to_pdf, ps_to_image, xps_to_pdf, xps_to_image, eps_metadata) and does not expose document creation or authoring functions such as PsDocument.create or XpsDocument.create."
+    },
+    {
+      "fact_ids": [
+        "identity:repository",
+        "package:python_requires",
+        "build_test_asset:tests"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "The aspose-page-foss package requires Python >=3.10 and is built and tested using the uv toolchain with the tests/ directory."
+    },
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose.Page FOSS for Python provides open-source access to document creation and conversion capabilities, while the commercial Aspose.Page for Python — commercial edition extends this with additional formats, advanced rendering options, and production-grade support."
+    }
+  ]
+}

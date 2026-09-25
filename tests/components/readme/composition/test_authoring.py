@@ -32,6 +32,7 @@ from repository_presenter.components.readme.composition.authoring import (
     proper_noun,
     prose_nouns,
     reconstructed_task_output,
+    recover_forbidden_command_units,
     section_selections,
     section_spellings,
     slot_fact_sets,
@@ -2292,3 +2293,96 @@ def test_the_forbidden_text_pattern_matches_what_unit_checks_judges() -> None:
     # paragraph; mid-sentence (a hyphenated compound) is ordinary prose unit_checks also allows.
     assert re.match(pattern, "Some settings are workbook- or sheet-scoped.")
     assert re.match(pattern, "- A bullet opens the paragraph.") is None
+
+
+def _scope_limitations_task() -> SectionTask:
+    return SectionTask(
+        "scope_limitations", {}, frozenset({"identity:repository"}), ("scope", "limitation:1")
+    )
+
+
+def _scope_limitations_unit(slot: str, text: str) -> dict[str, object]:
+    return {
+        "section": "scope_limitations",
+        "slot": slot,
+        "text": text,
+        "fact_ids": ["identity:repository"],
+    }
+
+
+def test_recover_forbidden_command_units_strips_a_reproduced_pip_install_literal() -> None:
+    """G4-W17, docs/DECISION_LOG.md 2026-09-24 14:25 UTC (Page-Python's first-ever seal attempt):
+    item 115's own marker-aware rejection_template hint already named the exact forbidden phrase,
+    but the model's one re-ask reproduced it byte-for-byte on both attempts (identical
+    response_sha256, calls.jsonl rows 14-17). recover_forbidden_command_units is the
+    deterministic last-resort core/llm/jobs.py's recover= calls only after that final rejection -
+    mirrors recover_uncited_capability_titles's own shape (composition/planning.py)."""
+    task = _scope_limitations_task()
+    raw = {
+        "units": [
+            _scope_limitations_unit("scope", "It reads and writes 3D files."),
+            _scope_limitations_unit(
+                "limitation:1",
+                "It is installed with pip install aspose-page-foss; advanced editing is not "
+                "available.",
+            ),
+        ],
+        "omitted": [],
+    }
+    # Confirms the fixture reproduces the exact rejection this recovery exists to correct - a
+    # mutation control against a fixture that never actually triggers it.
+    original_errors = unit_checks(json.loads(json.dumps(raw)), task, FACTS, NAME)
+    assert original_errors == ["unit limitation:1: text contains a command ('pip install')"]
+
+    recovered = recover_forbidden_command_units(raw)
+    assert recovered is not None
+    assert "pip install" not in recovered["units"][1]["text"]
+    # run_job re-validates through the real unit_checks before ever accepting a recovery -
+    # asserted directly here, the same standard the check itself is held to everywhere else.
+    assert unit_checks(recovered, task, FACTS, NAME) == []
+
+
+def test_recover_forbidden_command_units_never_force_accepts_a_still_failing_unit() -> None:
+    """Mutation control, mirroring recover_uncited_capability_titles's own never-invents-a-
+    citation test (test_planning.py): a unit whose forbidden literal is stripped but which still
+    fails unit_checks for a second, unrelated defect is not force-cleared. recover_forbidden_
+    command_units corrects only what it names; the survival of the unrelated error below is what
+    makes core/llm/jobs.py's own re-validation refuse this reply exactly as it would a first
+    attempt, never force-accepting it."""
+    task = _scope_limitations_task()
+    raw = {
+        "units": [
+            _scope_limitations_unit("scope", "It reads and writes 3D files."),
+            _scope_limitations_unit(
+                "limitation:1",
+                "It is installed with pip install aspose-page-foss and raises ValueError "
+                "sometimes.",
+            ),
+        ],
+        "omitted": [],
+    }
+    recovered = recover_forbidden_command_units(raw)
+    assert recovered is not None
+    assert "pip install" not in recovered["units"][1]["text"]
+    # The forbidden literal is gone, but an unrelated defect (an identifier not in the accepted
+    # facts) survives the correction untouched.
+    assert unit_checks(recovered, task, FACTS, NAME) == [
+        "unit limitation:1: identifiers that are not accepted fact values: ValueError"
+    ]
+
+
+def test_recover_forbidden_command_units_is_none_when_no_command_marker_is_present() -> None:
+    """Mutation control: a unit already clean of both command markers - recover has nothing to
+    try, and returns None, never a no-op copy of output (the same contract
+    recover_uncited_capability_titles's own control test already holds planning's own recovery
+    to)."""
+    task = _scope_limitations_task()
+    raw = {
+        "units": [
+            _scope_limitations_unit("scope", "It reads and writes 3D files."),
+            _scope_limitations_unit("limitation:1", "Advanced editing is not available."),
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(json.loads(json.dumps(raw)), task, FACTS, NAME) == []
+    assert recover_forbidden_command_units(raw) is None

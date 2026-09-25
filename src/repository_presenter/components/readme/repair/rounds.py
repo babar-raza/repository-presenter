@@ -24,6 +24,7 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_tasks,
     merge_units,
     reconstructed_task_output,
+    recover_forbidden_command_units,
     unit_checks,
     write_content_units,
 )
@@ -269,6 +270,13 @@ def run_round(tx: TransactionInputs) -> Round:
             task.packet,
             checks=functools.partial(unit_checks, task=task, facts=facts, name=name),
             call_schema=call_schema,
+            # G4-W17, docs/DECISION_LOG.md 2026-09-24 14:25 UTC (PROPOSAL, Page-Python's
+            # first-ever seal attempt): symmetric to presentation_planning's own recover=
+            # above (item 111/PGPY-04) - a final rejection whose re-ask reproduced a
+            # _FORBIDDEN command marker byte-for-byte gets one deterministic last-resort
+            # strip-and-point-elsewhere correction, re-validated through the real
+            # unit_checks before ever being accepted.
+            recover=recover_forbidden_command_units,
             **common,
         )
     units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])

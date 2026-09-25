@@ -1,0 +1,205 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name"
+    ],
+    "text": "Python developers building document processing workflows who need to convert or generate PS/EPS/XPS content without relying on Ghostscript or Adobe tooling."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.pdf"
+      ],
+      "text": "Read and parse PS/EPS documents using PsDocument.from_file() or from_bytes(), with full PostScript interpretation and DSC/EPS metadata extraction.",
+      "title": "Read and parse PS/EPS documents"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.xps",
+        "format:input.xps"
+      ],
+      "text": "Read XPS packages using XpsDocument.from_file() or from_bytes(), supporting fixed pages and print tickets.",
+      "title": "Read XPS packages"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.ps",
+        "public_symbol:aspose.page.xps"
+      ],
+      "text": "Create and edit PS/EPS and XPS documents from scratch using PsDocument.create() or XpsDocument.create() with drawing APIs.",
+      "title": "Author PS/EPS and XPS documents"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.page.pdf"
+      ],
+      "text": "Write PDF 1.4 output with PdfWriter, including TrueType/Type1 font embedding via FontResolver and FontCache.",
+      "title": "Convert to PDF"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:006",
+        "example:007",
+        "dependency:skia-python"
+      ],
+      "text": "Rasterize PS/EPS and XPS content to PNG, JPEG, BMP, or TIFF using RasterRenderer with Skia or pure-Python fallback for PS/EPS.",
+      "title": "Rasterize to image formats"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "example:005",
+        "public_symbol:aspose.page.mcp"
+      ],
+      "text": "Exposes ps_to_pdf, ps_to_image, xps_to_pdf, xps_to_image, and eps_metadata as MCP tools via create_server() for automation.",
+      "title": "Expose conversions as MCP tools"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:pip",
+        "package:name"
+      ],
+      "text": "No PDF import or parsing API is provided; the library only writes PDF, it does not read existing PDF files."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "dependency:skia-python"
+      ],
+      "text": "XPS-to-image conversion always requires the skia-python backend and has no pure-Python fallback."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:006"
+      ],
+      "text": "Importing aspose.page.pdf.writer or aspose.page.image.raster_renderer before aspose.page.ps raises a circular-import ImportError."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.pdf"
+      ],
+      "text": "Font embedding requires explicit additional_fonts_folder paths via FontResolver; automatic system-font discovery is not provided."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.page.mcp"
+      ],
+      "text": "The MCP server exposes only conversion/metadata tools; document creation APIs like PsDocument.create() are not available as MCP tools."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:005"
+      ],
+      "text": "Enables PS/EPS/XPS to PDF conversion without external dependencies like Ghostscript."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:006",
+        "example:007",
+        "dependency:skia-python"
+      ],
+      "text": "Supports rasterization of PS/EPS and XPS content to PNG, JPEG, BMP, and TIFF using the skia-python backend."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.page.pdf"
+      ],
+      "text": "Provides programmatic page construction via RenderModelBuilder for generating PDF content from scratch."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "example:005",
+        "public_symbol:aspose.page.mcp"
+      ],
+      "text": "Exposes document conversions as MCP tools for LLM-agent and automation workflows."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "license:spdx"
+    ],
+    "text": "Aspose.Page FOSS for Python is a free, open-source, MIT-licensed Python library for reading, authoring, and converting PostScript, EPS, and XPS documents to PDF or raster formats."
+  },
+  "uncertainties": [
+    "Whether the library supports JPEG, BMP, or TIFF output formats beyond PNG is not explicitly confirmed by the provided examples.",
+    "The exact behavior of the fallback pure-Python rasterizer for PS/EPS when skia-python is unavailable is not detailed beyond its existence."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001",
+        "format:input.ps",
+        "format:input.pdf"
+      ],
+      "name": "PS to PDF conversion",
+      "text": "Convert a PostScript file to PDF using the ps_to_pdf MCP handler or PsDocument.to_pdf()."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "format:input.eps"
+      ],
+      "name": "EPS metadata extraction",
+      "text": "Extract bounding box and title metadata from EPS files using eps_metadata."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "format:input.xps",
+        "format:input.pdf"
+      ],
+      "name": "XPS to PDF conversion",
+      "text": "Convert an XPS file to PDF using the xps_to_pdf MCP handler or XpsDocument.to_pdf()."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:006",
+        "format:input.ps",
+        "format:input.png"
+      ],
+      "name": "Rasterization of PS/EPS to PNG",
+      "text": "Render PS or EPS content to PNG using PsDocument.to_image() or RasterRenderer."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "format:input.xps",
+        "format:input.png",
+        "dependency:skia-python"
+      ],
+      "name": "Rasterization of XPS to PNG",
+      "text": "Render XPS content to PNG using XpsDocument.to_image() or RasterRenderer, requiring skia-python."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.page.pdf",
+        "public_symbol:aspose.page.mcp"
+      ],
+      "name": "PDF generation from render model",
+      "text": "Build a PDF directly from programmatically constructed page content using RenderModelBuilder and PdfWriter."
+    }
+  ]
+}
