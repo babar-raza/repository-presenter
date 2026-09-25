@@ -16,8 +16,17 @@
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.entities"
       ],
-      "text": "Construct and traverse 3D scene graphs using Scene, Node, and primitive entities like Box, Cylinder, and Sphere.",
-      "title": "Scene graph construction"
+      "text": "Construct and traverse 3D scene graphs using Scene and Node classes with primitive and profile geometry.",
+      "title": "Build 3D scene graphs"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "text": "Assign shading materials such as LambertMaterial, PhongMaterial, and PbrMaterial, and convert between material types.",
+      "title": "Assign and convert materials"
     },
     {
       "fact_ids": [
@@ -26,16 +35,8 @@
         "public_symbol:aspose.threed.fileformat",
         "public_symbol:aspose.threed.fileformattype"
       ],
-      "text": "Read and write 3D scenes in FBX, glTF, Wavefront OBJ, STL, COLLADA, U3D, 3MF, RVM, AMF, and HTML5/Aspose 3D Web viewer formats.",
-      "title": "Format conversion"
-    },
-    {
-      "fact_ids": [
-        "example:004",
-        "public_symbol:aspose.threed.shading"
-      ],
-      "text": "Assign shading materials such as LambertMaterial, PhongMaterial, and PbrMaterial, and convert between material types.",
-      "title": "Material assignment and conversion"
+      "text": "Read and write FBX, glTF, Wavefront OBJ, STL, COLLADA, U3D, 3MF, RVM, AMF, and HTML5/Aspose 3D Web viewer exports.",
+      "title": "Convert between 3D formats"
     },
     {
       "fact_ids": [
@@ -43,73 +44,63 @@
         "example:006",
         "public_symbol:aspose.threed.formats"
       ],
-      "text": "Configure per-format load/save behavior using dedicated options types like ObjLoadOptions and ColladaSaveOptions.",
-      "title": "Customizable import/export options"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.bonepose",
-        "public_symbol:aspose.threed.pose",
-        "public_symbol:aspose.threed.posetype"
-      ],
-      "text": "Animate scenes using AnimationClip, AnimationChannel, KeyFrame, Bone, Skeleton, SkinDeformer, and MorphTargetDeformer.",
-      "title": "Animation support"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.customobject"
-      ],
-      "text": "Define NURBS curves and surfaces using NurbsCurve and NurbsSurface with control points, weights, and knot vectors.",
-      "title": "NURBS geometry definition"
+      "text": "Control per-format load/save behavior using dedicated options types such as ObjLoadOptions and ColladaSaveOptions.",
+      "title": "Configure format-specific options"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.entities"
       ],
-      "text": "Read and write per-vertex mesh data including normals, UVs, vertex color, tangent/binormal, smoothing groups, and user data.",
-      "title": "Per-vertex mesh data handling"
+      "text": "Read and write per-vertex mesh data including normals, UVs, vertex color, tangent/binormal, and user data.",
+      "title": "Handle mesh vertex data"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.deformers"
+      ],
+      "text": "Animate scenes using AnimationClip, AnimationChannel, KeyFrame, Bone, Skeleton, and SkinDeformer constructs.",
+      "title": "Support animation and skinning"
     }
   ],
   "limitations": [
     {
       "fact_ids": [
         "install_command:dotnet",
-        "build_test_asset:docs"
+        "public_symbol:aspose.threed.render"
       ],
       "text": "Rendering is not implemented — Scene.Render and related rendering pipeline components throw NotImplementedException."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.customobject"
+        "public_symbol:aspose.threed.fileformat"
       ],
-      "text": "NURBS evaluation and surface-to-mesh conversion are not functional — NurbsCurve.Evaluate and NurbsSurface.ToMesh throw NotImplementedException."
+      "text": "PLY import and export work via Scene.Open/Save but the public FileFormat.PLY field and its Encode/Decode methods throw NotImplementedException."
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.utilities"
       ],
-      "text": "PolygonModifier and most TriMesh mesh post-processing utilities throw NotImplementedException."
+      "text": "PolygonModifier and most TriMesh raw-buffer conversion helpers throw NotImplementedException in this FOSS build."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.entities"
       ],
-      "text": "PDF and Google Draco import/export are not functional — PdfFormat and DracoFormat have no reader/writer implementation."
+      "text": "NURBS curve evaluation and surface-to-mesh conversion throw NotImplementedException despite NURBS data construction support."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats"
+      ],
+      "text": "3MF build-instruction metadata and RVM attribute loading are not implemented despite core geometry support."
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.license",
         "public_symbol:aspose.threed.metered"
       ],
-      "text": "License and trial-management APIs (License, Metered) exist for API compatibility but are not applicable to this open-source edition."
-    },
-    {
-      "fact_ids": [
-        "build_test_asset:docs"
-      ],
-      "text": "Text watermarking is not currently functional in this FOSS build."
+      "text": "License and Metered APIs exist for API compatibility but are not applicable to this open-source edition."
     }
   ],
   "problems_solved": [
@@ -133,18 +124,19 @@
     },
     {
       "fact_ids": [
+        "example:001",
         "example:004",
         "public_symbol:aspose.threed.shading"
       ],
-      "text": "Provides shading material support and conversion between material types such as Lambert and PBR."
+      "text": "Provides shading material assignment and conversion, including Lambert-to-PBR material transformation."
     },
     {
       "fact_ids": [
-        "dependency:none",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node"
+        "example:005",
+        "example:006",
+        "public_symbol:aspose.threed.formats"
       ],
-      "text": "Eliminates external 3D engine dependencies by offering a self-contained API surface for 3D operations."
+      "text": "Allows per-format load/save configuration through dedicated options types for OBJ, FBX, glTF, STL, and COLLADA."
     }
   ],
   "product_summary": {
@@ -159,53 +151,66 @@
     "text": "Aspose.3D FOSS for .NET is a free, open-source, MIT-licensed .NET library for building and converting 3D scenes without any external 3D engine."
   },
   "uncertainties": [
-    "The exact set of supported IFC profiles beyond those explicitly named in examples is not fully enumerated in facts.",
+    "The exact set of supported IFC profiles beyond those named in examples is not fully enumerated in facts.",
     "Whether all format-specific options types (e.g., RvmLoadOptions, A3dwSaveOptions) have working encoders/decoders behind them is not fully confirmed by examples.",
-    "The behavior of Scene.FromStream() and related stream-based APIs beyond the COLLADA example is not explicitly demonstrated.",
-    "The scope of vertex declaration and vertex element support beyond normals, UVs, and color is not fully detailed in examples."
+    "The behavior of Scene.FromStream and Save(Stream) for all supported formats beyond COLLADA is not explicitly demonstrated in examples."
   ],
   "workflows": [
     {
       "fact_ids": [
-        "example:001"
+        "example:001",
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.fileformat"
       ],
       "name": "Create and export a 3D scene",
-      "text": "Create a new scene, add a primitive with a material, and save it to FBX format."
+      "text": "Create a new Scene, add a Box primitive with a Lambert material, and save it as FBX."
     },
     {
       "fact_ids": [
-        "example:002"
+        "example:002",
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.fileformat"
       ],
-      "name": "Load and convert between formats",
+      "name": "Convert between 3D formats",
       "text": "Load an existing glTF scene and save it as Wavefront OBJ."
     },
     {
       "fact_ids": [
-        "example:004"
+        "example:005",
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.fileformat"
       ],
-      "name": "Convert materials to PBR",
-      "text": "Convert a Lambert material to a PBR material using the PbrMaterial.FromMaterial method."
+      "name": "Load OBJ with custom options and export to STL",
+      "text": "Load an OBJ file with coordinate system flipping and normal normalization, then save as STL."
     },
     {
       "fact_ids": [
-        "example:005"
+        "example:006",
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.formats"
       ],
-      "name": "Load OBJ with options and export to STL",
-      "text": "Load an OBJ file with coordinate system flipping and normal normalization, then export to STL."
+      "name": "Save a scene to COLLADA through a stream",
+      "text": "Create a scene with a Box node and save it to a memory stream in COLLADA format."
     },
     {
       "fact_ids": [
-        "example:006"
+        "example:007",
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.fileformat"
       ],
-      "name": "Save to COLLADA via stream",
-      "text": "Save a scene to COLLADA format through a MemoryStream using ColladaSaveOptions."
+      "name": "Handle unrecognized file formats",
+      "text": "Attempt to open an unknown file format and catch the ArgumentException thrown when no matching FileFormat is found."
     },
     {
       "fact_ids": [
-        "example:007"
+        "example:004",
+        "public_symbol:aspose.threed.shading"
       ],
-      "name": "Handle unrecognized formats",
-      "text": "Catch ArgumentException when attempting to open a file with an unsupported extension."
+      "name": "Convert Lambert material to PBR",
+      "text": "Create a LambertMaterial and convert it to a PbrMaterial using the FromMaterial method."
     }
   ]
 }

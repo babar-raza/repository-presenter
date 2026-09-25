@@ -439,8 +439,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "5cd94ba62ff1f5b09998243d3db3bce16b35138e19e0463ad1e2ea30c1dd14aa",
-  "readme_sha256": "b55c92dc02ceb40d697adf8c62839d9d081f6c32cdcc6d816430363cadb2dd8c",
+  "protected_content_fingerprint": "14678598a74b0a4f9e52be1a19fd61c767fa0390f1fc437f306e254c74c8db6d",
+  "readme_sha256": "f6e97a85997656e206cc0ee8afd3e7870ef0cb23b8213f27dcca81480a96ec17",
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
   "schema_version": 1,
   "source_revision": "52b0f00ebf28a0b4173921725ff170685ec2c502",

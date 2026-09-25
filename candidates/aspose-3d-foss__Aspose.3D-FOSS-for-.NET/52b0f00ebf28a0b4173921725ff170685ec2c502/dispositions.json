@@ -62,7 +62,7 @@
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "The banner image link is supported by facts and moved to the banner section.",
+      "rationale": "The banner image link is supported by facts and placed in the banner section.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -75,12 +75,14 @@
         "identity:ecosystem",
         "package:name",
         "license:spdx",
-        "dependency:none",
         "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.entities"
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.formats"
       ],
-      "rationale": "The paragraph's substance is supported but rephrased to match the deterministic opening content.",
+      "rationale": "The paragraph's substance is supported by facts and re-authored in the opening section.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -93,7 +95,7 @@
         "identity:repository",
         "identity:revision"
       ],
-      "rationale": "The 'Navigation' heading is rendered by the deterministic navigation section.",
+      "rationale": "The Navigation heading is rendered by the deterministic navigation section.",
       "unit_id": "inherited_unit:005.heading"
     },
     {
@@ -104,42 +106,41 @@
         "identity:family",
         "identity:platform",
         "identity:repository",
-        "identity:revision"
+        "identity:revision",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019"
       ],
-      "rationale": "The navigation list is rendered deterministically and supersedes the inherited list.",
+      "rationale": "The navigation list is rendered deterministically from in-page link targets.",
       "unit_id": "inherited_unit:006.list"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
+      "destination_section": "at_a_glance",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The 'At a Glance' heading is not supported by facts; the Mermaid diagram is not verified.",
+      "rationale": "The At a Glance heading is rendered by the deterministic at_a_glance section.",
       "unit_id": "inherited_unit:007.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The Mermaid diagram is not supported by facts and is omitted.",
+      "rationale": "The Mermaid flowchart is not supported by facts; no verified Starting Points or Outputs are confirmed.",
       "unit_id": "inherited_unit:008.code_block"
     },
     {
       "destination_section": "key_capabilities",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:001",
-        "example:002",
-        "example:004",
-        "example:005",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The 'Key Capabilities' heading is supported and preserved.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Key Capabilities heading is rendered by the deterministic key_capabilities section.",
       "unit_id": "inherited_unit:009.heading"
     },
     {
@@ -150,15 +151,16 @@
         "example:002",
         "example:004",
         "example:005",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
         "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.deformers"
       ],
-      "rationale": "The list is superseded by the deterministic key capabilities section.",
+      "rationale": "The list is superseded by the key capabilities section, which re-authors verified capabilities.",
       "unit_id": "inherited_unit:010.list"
     },
     {
@@ -167,7 +169,7 @@
       "fact_ids": [
         "install_command:dotnet"
       ],
-      "rationale": "The 'Installation' heading is rendered deterministically.",
+      "rationale": "The Installation heading is rendered by the deterministic installation section.",
       "unit_id": "inherited_unit:011.heading"
     },
     {
@@ -176,7 +178,7 @@
       "fact_ids": [
         "install_command:dotnet"
       ],
-      "rationale": "The installation paragraph is superseded by the deterministic install command.",
+      "rationale": "The installation paragraph is redundant with the deterministic install command.",
       "unit_id": "inherited_unit:012.paragraph"
     },
     {
@@ -184,9 +186,10 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "install_command:dotnet",
+        "package:name",
         "package:version"
       ],
-      "rationale": "The install command code block is verified and preserved.",
+      "rationale": "The install command code block is rendered deterministically from facts.",
       "unit_id": "inherited_unit:013.code_block"
     },
     {
@@ -202,7 +205,7 @@
       "fact_ids": [
         "dependency:none"
       ],
-      "rationale": "The 'Dependencies' heading is rendered deterministically.",
+      "rationale": "The Dependencies heading is rendered by the deterministic dependencies section.",
       "unit_id": "inherited_unit:015.heading"
     },
     {
@@ -211,7 +214,7 @@
       "fact_ids": [
         "dependency:none"
       ],
-      "rationale": "The 'Required Package Dependencies' heading is superseded by the deterministic dependencies section.",
+      "rationale": "The Required Package Dependencies heading is redundant with the dependencies section.",
       "unit_id": "inherited_unit:016.heading"
     },
     {
@@ -220,17 +223,16 @@
       "fact_ids": [
         "dependency:none"
       ],
-      "rationale": "The zero third-party dependencies claim is verified and preserved.",
+      "rationale": "The zero-dependency claim is supported and rendered deterministically.",
       "unit_id": "inherited_unit:017.paragraph"
     },
     {
       "destination_section": "dependencies",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "dependency:none",
-        "package:target_framework"
+        "dependency:none"
       ],
-      "rationale": "The 'Native and System Requirements' heading is superseded by the deterministic dependencies section.",
+      "rationale": "The Native and System Requirements heading is redundant with the dependencies section.",
       "unit_id": "inherited_unit:018.heading"
     },
     {
@@ -240,7 +242,7 @@
         "dependency:none",
         "package:target_framework"
       ],
-      "rationale": "The target framework list is superseded by the deterministic dependencies section.",
+      "rationale": "The target framework list is rendered deterministically from the package target framework fact.",
       "unit_id": "inherited_unit:019.list"
     },
     {
@@ -249,7 +251,7 @@
       "fact_ids": [
         "dependency:none"
       ],
-      "rationale": "The 'Development Dependencies' heading is superseded by the deterministic dependencies section.",
+      "rationale": "The Development Dependencies heading is redundant with the dependencies section.",
       "unit_id": "inherited_unit:020.heading"
     },
     {
@@ -261,20 +263,16 @@
     },
     {
       "destination_section": "quick_start",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:001"
-      ],
-      "rationale": "The 'Quick Start' heading is supported by the example fact.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Quick Start heading is rendered by the deterministic quick_start section.",
       "unit_id": "inherited_unit:022.heading"
     },
     {
       "destination_section": "quick_start",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:001"
-      ],
-      "rationale": "The quick start paragraph is supported by the example fact.",
+      "fact_ids": [],
+      "rationale": "The Quick Start paragraph is redundant with the deterministic quick_start content.",
       "unit_id": "inherited_unit:023.paragraph"
     },
     {
@@ -283,44 +281,28 @@
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The quick start code block is verified and preserved.",
+      "rationale": "The Quick Start example is supported by facts and rendered deterministically.",
       "unit_id": "inherited_unit:024.code_block"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:002",
-        "example:003",
-        "example:004",
-        "example:005",
-        "example:006",
-        "example:007"
-      ],
-      "rationale": "The 'Additional Examples' heading is supported by multiple example facts.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Additional Examples heading is rendered by the deterministic additional_examples section.",
       "unit_id": "inherited_unit:025.heading"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:002",
-        "example:003",
-        "example:004",
-        "example:005",
-        "example:006",
-        "example:007"
-      ],
-      "rationale": "The additional examples paragraph is supported by example facts.",
+      "fact_ids": [],
+      "rationale": "The Additional Examples paragraph is redundant with the deterministic additional_examples content.",
       "unit_id": "inherited_unit:026.paragraph"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:002"
-      ],
-      "rationale": "The glTF-to-OBJ conversion paragraph is supported by the example fact.",
+      "fact_ids": [],
+      "rationale": "The glTF-to-OBJ lead-in is redundant with the deterministic additional_examples content.",
       "unit_id": "inherited_unit:027.paragraph"
     },
     {
@@ -329,7 +311,7 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The glTF-to-OBJ code block is verified and preserved.",
+      "rationale": "The glTF-to-OBJ example is supported by facts and rendered deterministically.",
       "unit_id": "inherited_unit:028.code_block"
     },
     {
@@ -340,21 +322,17 @@
       "unit_id": "inherited_unit:029.html_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:003"
-      ],
-      "rationale": "The 'Enumerate a Scene's Node Hierarchy' heading is supported by the example fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Enumerate a Scene's Node Hierarchy heading is not supported by facts.",
       "unit_id": "inherited_unit:030.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:003"
-      ],
-      "rationale": "The enumeration paragraph is supported by the example fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Enumerate a Scene's Node Hierarchy paragraph is not supported by facts.",
       "unit_id": "inherited_unit:031.paragraph"
     },
     {
@@ -363,79 +341,67 @@
       "fact_ids": [
         "example:003"
       ],
-      "rationale": "The enumeration code block is CONTRADICTED by example:003; it is placed but marked for correction.",
+      "rationale": "The Enumerate a Scene's Node Hierarchy code block is CONTRADICTED by example:003.",
       "unit_id": "inherited_unit:032.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004"
-      ],
-      "rationale": "The 'Convert a Lambert Material to PBR' heading is supported by the example fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Convert a Lambert Material to PBR heading is not supported by facts.",
       "unit_id": "inherited_unit:033.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004"
-      ],
-      "rationale": "The Lambert-to-PBR paragraph is supported by the example fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Convert a Lambert Material to PBR paragraph is not supported by facts.",
       "unit_id": "inherited_unit:034.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [
         "example:004"
       ],
-      "rationale": "The Lambert-to-PBR code block is verified and preserved.",
+      "rationale": "The Convert a Lambert Material to PBR code block is supported but not placed because the heading is unsupported.",
       "unit_id": "inherited_unit:035.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:005"
-      ],
-      "rationale": "The 'Load OBJ With Custom Options and Export to STL' heading is supported by the example fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Load OBJ With Custom Options and Export to STL heading is not supported by facts.",
       "unit_id": "inherited_unit:036.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:005"
-      ],
-      "rationale": "The OBJ options paragraph is supported by the example fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Load OBJ With Custom Options and Export to STL paragraph is not supported by facts.",
       "unit_id": "inherited_unit:037.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The OBJ options code block is verified and preserved.",
+      "rationale": "The Load OBJ With Custom Options and Export to STL code block is supported but not placed because the heading is unsupported.",
       "unit_id": "inherited_unit:038.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:006"
-      ],
-      "rationale": "The 'Save a Scene to COLLADA Through a Stream' heading is supported by the example fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Save a Scene to COLLADA Through a Stream heading is not supported by facts.",
       "unit_id": "inherited_unit:039.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:006"
-      ],
-      "rationale": "The COLLADA stream paragraph is supported by the example fact.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Save a Scene to COLLADA Through a Stream paragraph is not supported by facts.",
       "unit_id": "inherited_unit:040.paragraph"
     },
     {
@@ -444,49 +410,58 @@
       "fact_ids": [
         "example:006"
       ],
-      "rationale": "The code block matches example:006 exactly and demonstrates saving a scene to COLLADA via stream, which is supported by facts.",
+      "rationale": "The code block matches example:006 exactly and demonstrates saving a scene to COLLADA through a stream, which is a verified example.",
       "unit_id": "inherited_unit:041.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "example:007"
+      ],
+      "rationale": "The heading 'Handle an Unrecognized 3D File Format' matches the task in example:007 and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:042.heading"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "example:006"
+        "example:007"
       ],
-      "rationale": "The heading 'Handle an Unrecognized 3D File Format' is redundant because the subsequent code block (inherited_unit:044.code_block) is the correct example for an",
-      "unit_id": "inherited_unit:042.heading"
-    },
-    {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "No fact supports the claim 'Handle an unrecognized file format' as a distinct capability; the example for this scenario is example:007.",
+      "rationale": "The paragraph 'Handle an unrecognized file format:' is the lead-in for the example in example:007 and belongs under Additional Examples.",
       "unit_id": "inherited_unit:043.paragraph"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "example:007"
       ],
-      "rationale": "The code block matches example:007 exactly and demonstrates handling an unrecognized file format by catching ArgumentException, which is supported by facts.",
+      "rationale": "The code block matches example:007 exactly and demonstrates handling an unrecognized file format, which is a verified example.",
       "unit_id": "inherited_unit:044.code_block"
     },
     {
       "destination_section": null,
       "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "HTML closing tag </details> is a non-content separator used for collapsible sections in the inherited README.",
+      "rationale": "The HTML closing tag </details> is a non-content separator used for collapsible sections.",
       "unit_id": "inherited_unit:045.html_block"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_MOVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.deformers",
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.profiles",
+        "public_symbol:aspose.threed.utilities"
       ],
-      "rationale": "The heading '## API Reference' is appropriate for the api_reference section, and the public symbols listed in the table are verified.",
+      "rationale": "The '## API Reference' heading is redundant because the API Reference section is freshly authored from public symbols and will include all necessary headings.",
       "unit_id": "inherited_unit:046.heading"
     },
     {
@@ -497,47 +472,47 @@
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.fileformat"
       ],
-      "rationale": "The paragraph accurately describes Scene as the primary entry point and its static/instance methods, which is supported by the public symbols.",
+      "rationale": "The paragraph describing Scene as the primary entry point is covered by the API Reference section's introduction and tables.",
       "unit_id": "inherited_unit:047.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "HTML opening tag <details> is a non-content separator used for collapsible sections in the inherited README.",
+      "rationale": "The HTML opening tag <details> is a non-content separator used for collapsible sections.",
       "unit_id": "inherited_unit:048.html_block"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.a3dobject"
-      ],
-      "rationale": "The heading '### Main' is appropriate for the main API table in the api_reference section, and the listed classes are verified public symbols.",
+      "fact_ids": [],
+      "rationale": "The '### Main' heading is redundant because the API Reference section will re-author headings based on public symbols.",
       "unit_id": "inherited_unit:049.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.formats.colladasaveoptions",
-        "public_symbol:aspose.threed.entities.box"
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.deformers",
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.profiles",
+        "public_symbol:aspose.threed.utilities",
+        "public_symbol:aspose.threed.render"
       ],
-      "rationale": "The table entries are verified public symbols with accurate descriptions; the table is a core part of the API reference.",
+      "rationale": "The table of classes is redundant because the API Reference section will re-author the public surface from verified public symbols.",
       "unit_id": "inherited_unit:050.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_MOVE",
-      "fact_ids": [
-        "public_symbol:aspose.threed.utilities.iarraylist",
-        "public_symbol:aspose.threed.entities.iindexedvertexelement"
-      ],
-      "rationale": "The heading '#### Interfaces' is appropriate for the interfaces table in the api_reference section, and the listed interfaces are verified public symbols.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The '#### Interfaces' heading is redundant because the API Reference section will re-author headings based on public symbols.",
       "unit_id": "inherited_unit:051.heading"
     },
     {
@@ -547,19 +522,34 @@
         "public_symbol:aspose.threed.utilities.iarraylist",
         "public_symbol:aspose.threed.entities.iindexedvertexelement",
         "public_symbol:aspose.threed.entities.imeshconvertible",
-        "public_symbol:aspose.threed.entities.iorientable"
+        "public_symbol:aspose.threed.entities.iorientable",
+        "public_symbol:aspose.threed.inamedobject",
+        "public_symbol:aspose.threed.render.ibuffer",
+        "public_symbol:aspose.threed.render.icommandlist",
+        "public_symbol:aspose.threed.render.idescriptorset",
+        "public_symbol:aspose.threed.render.iindexbuffer",
+        "public_symbol:aspose.threed.render.ipipeline",
+        "public_symbol:aspose.threed.render.irenderqueue",
+        "public_symbol:aspose.threed.render.irendertarget",
+        "public_symbol:aspose.threed.render.irendertexture",
+        "public_symbol:aspose.threed.render.irenderwindow",
+        "public_symbol:aspose.threed.render.itexture1d",
+        "public_symbol:aspose.threed.render.itexture2d",
+        "public_symbol:aspose.threed.render.itexturecodec",
+        "public_symbol:aspose.threed.render.itexturecubemap",
+        "public_symbol:aspose.threed.render.itexturedecoder",
+        "public_symbol:aspose.threed.render.itextureencoder",
+        "public_symbol:aspose.threed.render.itextureunit",
+        "public_symbol:aspose.threed.render.ivertexbuffer"
       ],
-      "rationale": "The table entries are verified public symbols with accurate descriptions; the table is a core part of the API reference.",
+      "rationale": "The table of interfaces is redundant because the API Reference section will re-author the public surface from verified public symbols.",
       "unit_id": "inherited_unit:052.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_MOVE",
-      "fact_ids": [
-        "public_symbol:aspose.threed.utilities.boundingbox",
-        "public_symbol:aspose.threed.utilities.matrix4"
-      ],
-      "rationale": "The heading '#### Structs' is appropriate for the structs table in the api_reference section, and the listed structs are verified public symbols.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The '#### Structs' heading is redundant because the API Reference section will re-author headings based on public symbols.",
       "unit_id": "inherited_unit:053.heading"
     },
     {
@@ -567,40 +557,436 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:aspose.threed.utilities.boundingbox",
+        "public_symbol:aspose.threed.utilities.boundingbox2d",
+        "public_symbol:aspose.threed.utilities.fmatrix4",
+        "public_symbol:aspose.threed.utilities.fvector2",
+        "public_symbol:aspose.threed.utilities.fvector3",
+        "public_symbol:aspose.threed.utilities.fvector4",
         "public_symbol:aspose.threed.utilities.matrix4",
+        "public_symbol:aspose.threed.utilities.quaternion",
+        "public_symbol:aspose.threed.utilities.rect",
+        "public_symbol:aspose.threed.utilities.relativerectangle",
+        "public_symbol:aspose.threed.utilities.vector2",
         "public_symbol:aspose.threed.utilities.vector3",
-        "public_symbol:aspose.threed.utilities.quaternion"
+        "public_symbol:aspose.threed.utilities.vector4",
+        "public_symbol:aspose.threed.render.cubefacedata",
+        "public_symbol:aspose.threed.utilities.vertex",
+        "public_symbol:aspose.threed.utilities.transformbuilder",
+        "public_symbol:aspose.threed.utilities.mathutils",
+        "public_symbol:aspose.threed.utilities.filesystem",
+        "public_symbol:aspose.threed.utilities.ioextension",
+        "public_symbol:aspose.threed.utilities.parseexception",
+        "public_symbol:aspose.threed.utilities.semanticattribute",
+        "public_symbol:aspose.threed.utilities.vertexdeclaration",
+        "public_symbol:aspose.threed.utilities.vertexfield",
+        "public_symbol:aspose.threed.utilities.watermark"
       ],
-      "rationale": "The table entries are verified public symbols with accurate descriptions; the table is a core part of the API reference.",
+      "rationale": "The table of structs is redundant because the API Reference section will re-author the public surface from verified public symbols.",
       "unit_id": "inherited_unit:054.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_MOVE",
-      "fact_ids": [
-        "public_symbol:aspose.threed.utilities.rotationorder",
-        "public_symbol:aspose.threed.entities.booleanoperation"
-      ],
-      "rationale": "The heading '#### Enumerations' is appropriate for the enumerations table in the api_reference section, and the listed enums are verified public symbols.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The '#### Enumerations' heading is redundant because the API Reference section will re-author headings based on public symbols.",
       "unit_id": "inherited_unit:055.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose.threed.utilities.rotationorder",
+        "public_symbol:aspose.threed.animation.extrapolationtype",
+        "public_symbol:aspose.threed.animation.interpolation",
+        "public_symbol:aspose.threed.animation.stepmode",
+        "public_symbol:aspose.threed.animation.weightedmode",
+        "public_symbol:aspose.threed.coordinatesystem",
+        "public_symbol:aspose.threed.axis",
+        "public_symbol:aspose.threed.axissystem",
+        "public_symbol:aspose.threed.entities.aperturemode",
         "public_symbol:aspose.threed.entities.booleanoperation",
+        "public_symbol:aspose.threed.entities.mappingmode",
+        "public_symbol:aspose.threed.entities.referencemode",
+        "public_symbol:aspose.threed.entities.texturemapping",
+        "public_symbol:aspose.threed.entities.vertexelementtype",
+        "public_symbol:aspose.threed.entities.nurbstype",
+        "public_symbol:aspose.threed.entities.patchdirectiontype",
+        "public_symbol:aspose.threed.entities.splitmeshpolicy",
+        "public_symbol:aspose.threed.entities.skeletontype",
+        "public_symbol:aspose.threed.entities.projectiontype",
+        "public_symbol:aspose.threed.entities.rotationmode",
+        "public_symbol:aspose.threed.entities.lighttype",
+        "public_symbol:aspose.threed.entities.curvedimension",
+        "public_symbol:aspose.threed.entities.endpoint",
+        "public_symbol:aspose.threed.entities.segment",
+        "public_symbol:aspose.threed.entities.compositecurve",
+        "public_symbol:aspose.threed.entities.curve",
         "public_symbol:aspose.threed.entities.primitive",
-        "public_symbol:aspose.threed.shading.material"
+        "public_symbol:aspose.threed.entities.geometry",
+        "public_symbol:aspose.threed.entities.mesh",
+        "public_symbol:aspose.threed.entities.box",
+        "public_symbol:aspose.threed.entities.cylinder",
+        "public_symbol:aspose.threed.entities.sphere",
+        "public_symbol:aspose.threed.entities.plane",
+        "public_symbol:aspose.threed.entities.pyramid",
+        "public_symbol:aspose.threed.entities.dish",
+        "public_symbol:aspose.threed.entities.frustum",
+        "public_symbol:aspose.threed.entities.halfspace",
+        "public_symbol:aspose.threed.entities.pointcloud",
+        "public_symbol:aspose.threed.entities.polygonbuilder",
+        "public_symbol:aspose.threed.entities.polygonmodifier",
+        "public_symbol:aspose.threed.entities.trimesh",
+        "public_symbol:aspose.threed.entities.shape",
+        "public_symbol:aspose.threed.entities.skeleton",
+        "public_symbol:aspose.threed.entities.camera",
+        "public_symbol:aspose.threed.entities.light",
+        "public_symbol:aspose.threed.entities.circle",
+        "public_symbol:aspose.threed.entities.ellipse",
+        "public_symbol:aspose.threed.entities.line",
+        "public_symbol:aspose.threed.entities.nurbscurve",
+        "public_symbol:aspose.threed.entities.nurbsdirection",
+        "public_symbol:aspose.threed.entities.nurbssurface",
+        "public_symbol:aspose.threed.entities.patch",
+        "public_symbol:aspose.threed.entities.torus",
+        "public_symbol:aspose.threed.entities.rectangulartorus",
+        "public_symbol:aspose.threed.entities.revolvedareasolid",
+        "public_symbol:aspose.threed.entities.sweptareasolid",
+        "public_symbol:aspose.threed.entities.linearextrusion",
+        "public_symbol:aspose.threed.entities.transformedcurve",
+        "public_symbol:aspose.threed.entities.trimmedcurve",
+        "public_symbol:aspose.threed.entities.vertexelement",
+        "public_symbol:aspose.threed.entities.vertexelementuv",
+        "public_symbol:aspose.threed.entities.vertexelementvertexcolor",
+        "public_symbol:aspose.threed.entities.vertexelementmaterial",
+        "public_symbol:aspose.threed.entities.vertexelementdoublestemplate",
+        "public_symbol:aspose.threed.entities.vertexelementedgecrease",
+        "public_symbol:aspose.threed.entities.vertexelementnormal",
+        "public_symbol:aspose.threed.entities.vertexelementtangent",
+        "public_symbol:aspose.threed.entities.vertexelementbinormal",
+        "public_symbol:aspose.threed.entities.vertexelementfvector",
+        "public_symbol:aspose.threed.entities.vertexelementhole",
+        "public_symbol:aspose.threed.entities.vertexelementintstemplate",
+        "public_symbol:aspose.threed.entities.vertexelementpolygongroup",
+        "public_symbol:aspose.threed.entities.vertexelementsmoothinggroup",
+        "public_symbol:aspose.threed.entities.vertexelementspecular",
+        "public_symbol:aspose.threed.entities.vertexelementtemplate",
+        "public_symbol:aspose.threed.entities.vertexelementuserdata",
+        "public_symbol:aspose.threed.entities.vertexelementvector4",
+        "public_symbol:aspose.threed.entities.vertexelementvertexcrease",
+        "public_symbol:aspose.threed.entities.vertexelementvisibility",
+        "public_symbol:aspose.threed.entities.vertexelementweight",
+        "public_symbol:aspose.threed.entities.booleanoperand",
+        "public_symbol:aspose.threed.entities.booleanoperator",
+        "public_symbol:aspose.threed.profiles.arbitraryprofile",
+        "public_symbol:aspose.threed.profiles.cshape",
+        "public_symbol:aspose.threed.profiles.centerlineprofile",
+        "public_symbol:aspose.threed.profiles.circleshape",
+        "public_symbol:aspose.threed.profiles.ellipseshape",
+        "public_symbol:aspose.threed.profiles.fontfile",
+        "public_symbol:aspose.threed.profiles.hshape",
+        "public_symbol:aspose.threed.profiles.hollowcircleshape",
+        "public_symbol:aspose.threed.profiles.hollowrectangleshape",
+        "public_symbol:aspose.threed.profiles.lshape",
+        "public_symbol:aspose.threed.profiles.mirroredprofile",
+        "public_symbol:aspose.threed.profiles.parameterizedprofile",
+        "public_symbol:aspose.threed.profiles.profile",
+        "public_symbol:aspose.threed.profiles.rectangleshape",
+        "public_symbol:aspose.threed.profiles.tshape",
+        "public_symbol:aspose.threed.profiles.text",
+        "public_symbol:aspose.threed.profiles.trapeziumshape",
+        "public_symbol:aspose.threed.profiles.ushape",
+        "public_symbol:aspose.threed.profiles.zshape",
+        "public_symbol:aspose.threed.shading.alphasource",
+        "public_symbol:aspose.threed.shading.wrapmode",
+        "public_symbol:aspose.threed.shading.texturefilter",
+        "public_symbol:aspose.threed.shading.textureslot",
+        "public_symbol:aspose.threed.shading.material",
+        "public_symbol:aspose.threed.shading.lambertmaterial",
+        "public_symbol:aspose.threed.shading.phongmaterial",
+        "public_symbol:aspose.threed.shading.pbrmaterial",
+        "public_symbol:aspose.threed.shading.pbrspecularmaterial",
+        "public_symbol:aspose.threed.shading.shadermaterial",
+        "public_symbol:aspose.threed.shading.shadertechnique",
+        "public_symbol:aspose.threed.shading.texture",
+        "public_symbol:aspose.threed.shading.texturebase",
+        "public_symbol:aspose.threed.render.blendfactor",
+        "public_symbol:aspose.threed.render.comparefunction",
+        "public_symbol:aspose.threed.render.cullfacemode",
+        "public_symbol:aspose.threed.render.drawoperation",
+        "public_symbol:aspose.threed.render.frontface",
+        "public_symbol:aspose.threed.render.indexdatatype",
+        "public_symbol:aspose.threed.render.pixelmapmode",
+        "public_symbol:aspose.threed.render.pixelmapping",
+        "public_symbol:aspose.threed.render.polygonmode",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.stencilaction",
+        "public_symbol:aspose.threed.render.stencilstate",
+        "public_symbol:aspose.threed.render.texturetype",
+        "public_symbol:aspose.threed.render.viewport",
+        "public_symbol:aspose.threed.render.cubeface",
+        "public_symbol:aspose.threed.render.shaderstage",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage",
+        "public_symbol:aspose.threed.render.renderqueuegroupid",
+        "public_symbol:aspose.threed.render.renderstage"
       ],
-      "rationale": "The table entries are verified public symbols with accurate descriptions; the table is a core part of the API reference.",
+      "rationale": "The table of enumerations is redundant because the API Reference section will re-author the public surface from verified public symbols.",
       "unit_id": "inherited_unit:056.table"
     },
     {
       "destination_section": null,
       "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "HTML closing tag </details> is a non-content separator used for collapsible sections in the inherited README.",
+      "rationale": "The HTML closing tag </details> is a non-content separator used for collapsible sections.",
       "unit_id": "inherited_unit:057.html_block"
     },
     {
@@ -609,9 +995,13 @@
       "fact_ids": [
         "link_target:020",
         "link_target:021",
-        "link_target:022"
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026"
       ],
-      "rationale": "The heading '## Documentation & Resources' is appropriate for the documentation_resources section, and the listed links are verified.",
+      "rationale": "The heading '## Documentation & Resources' is preserved because the section is placed under documentation_resources and the links are verified.",
       "unit_id": "inherited_unit:058.heading"
     },
     {
@@ -626,7 +1016,7 @@
         "link_target:025",
         "link_target:026"
       ],
-      "rationale": "The list items are verified links to documentation, release notes, AGENTS.md, and issues, which are supported by the link targets.",
+      "rationale": "The list of documentation and resources matches verified link targets and belongs under documentation_resources.",
       "unit_id": "inherited_unit:059.list"
     },
     {
@@ -634,9 +1024,14 @@
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.formats.pdfformat"
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.utilities",
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.license",
+        "public_symbol:aspose.threed.metered"
       ],
-      "rationale": "The heading '## Scope and Limitations' is appropriate for the scope_limitations section, and the listed limitations are supported by facts.",
+      "rationale": "The heading '## Scope and Limitations' is preserved because the section is placed under scope_limitations and the content is supported by facts.",
       "unit_id": "inherited_unit:060.heading"
     },
     {
@@ -644,12 +1039,14 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.formats.pdfformat",
-        "public_symbol:aspose.threed.formats.dracoformat",
+        "public_symbol:aspose.threed.fileformat",
         "public_symbol:aspose.threed.utilities",
-        "public_symbol:aspose.threed.license"
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.license",
+        "public_symbol:aspose.threed.metered"
       ],
-      "rationale": "The list items accurately describe limitations supported by facts, including rendering, PDF/Draco, mesh utilities, and license APIs.",
+      "rationale": "The list of limitations matches verified facts and belongs under scope_limitations.",
       "unit_id": "inherited_unit:061.list"
     },
     {
@@ -658,7 +1055,7 @@
       "fact_ids": [
         "link_target:product.enterprise"
       ],
-      "rationale": "The paragraph correctly directs users to the Enterprise Edition for rendering and advanced functionality, supported by the enterprise link target.",
+      "rationale": "The paragraph about the Enterprise Edition is preserved because the section is placed under enterprise_relationship and the link is verified.",
       "unit_id": "inherited_unit:062.paragraph"
     },
     {
@@ -667,28 +1064,8 @@
       "fact_ids": [
         "build_test_asset:docs"
       ],
-      "rationale": "The heading '## Development and Testing' is appropriate for the development_testing section, and the repository has build/test assets.",
+      "rationale": "The heading '## Development and Testing' is preserved because the section is placed under development_testing and build assets exist.",
       "unit_id": "inherited_unit:063.heading"
-    },
-    {
-      "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:dotnet",
-        "build_test_asset:docs"
-      ],
-      "rationale": "The paragraph accurately describes cloning and running tests with the .NET SDK, which is supported by the install command and build assets.",
-      "unit_id": "inherited_unit:064.paragraph"
-    },
-    {
-      "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:dotnet",
-        "build_test_asset:docs"
-      ],
-      "rationale": "The code block matches the verified test command and is supported by the install command and build assets.",
-      "unit_id": "inherited_unit:065.code_block"
     },
     {
       "destination_section": "development_testing",
@@ -696,8 +1073,8 @@
       "fact_ids": [
         "install_command:dotnet"
       ],
-      "rationale": "The paragraph accurately describes building the converter tool separately, which is supported by the install command.",
-      "unit_id": "inherited_unit:066.paragraph"
+      "rationale": "The paragraph about cloning and running tests matches the install command and belongs under development_testing.",
+      "unit_id": "inherited_unit:064.paragraph"
     },
     {
       "destination_section": "development_testing",
@@ -705,7 +1082,21 @@
       "fact_ids": [
         "install_command:dotnet"
       ],
-      "rationale": "The code block matches the verified build command for the converter tool, supported by the install command.",
+      "rationale": "The code block matches the install command and demonstrates building and testing, which belongs under development_testing.",
+      "unit_id": "inherited_unit:065.code_block"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The paragraph about the console converter tool is preserved because it provides relevant build information.",
+      "unit_id": "inherited_unit:066.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The code block for building the converter tool is preserved because it provides relevant build information.",
       "unit_id": "inherited_unit:067.code_block"
     },
     {
@@ -714,7 +1105,7 @@
       "fact_ids": [
         "link_target:025"
       ],
-      "rationale": "The paragraph correctly references AGENTS.md for implementation status, which is a verified link target.",
+      "rationale": "The paragraph about AGENTS.md is preserved because the link is verified and belongs under development_testing.",
       "unit_id": "inherited_unit:068.paragraph"
     },
     {
@@ -724,7 +1115,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The heading '## License' is appropriate for the license section, and the MIT license is verified by the license fact.",
+      "rationale": "The heading '## License' is preserved because the section is placed under license and the content is supported by facts.",
       "unit_id": "inherited_unit:069.heading"
     },
     {
@@ -734,7 +1125,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The paragraph accurately describes the MIT license terms and references the LICENSE file, which are verified by the license facts.",
+      "rationale": "The paragraph about the MIT License matches the license facts and belongs under license.",
       "unit_id": "inherited_unit:070.paragraph"
     }
   ]
