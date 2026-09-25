@@ -699,8 +699,37 @@ def behaviour_checks(t: dict, state: dict, metrics: dict, since_iso: str, now: d
             out.append((info if verdict == "ACCEPT" else flag)(f"latest sealed review: {verdict}, findings {len(findings)}, blocking {blocking} ({reviews[-1].parent.name[:12]}, {dt.datetime.fromtimestamp(reviews[-1].stat().st_mtime).strftime('%d %H:%M')})"))
         except Exception as exc:
             out.append(info(f"review.json unreadable: {exc.__class__.__name__}"))
-    sealed = len([p for p in (REPO / "candidates").rglob("manifest.json")])
-    out.append(info(f"sealed bundles on disk: {sealed}; progress.current_candidates {sy['progress']['current_candidates']}"))
+    # Distinct repositories with a CURRENT-pointed bundle - not every manifest.json under
+    # candidates/ (that counts every superseded/invalidated historical revision too, which
+    # produced a misleading "32 vs 23" false-drift reading on 2026-09-25; fixed same day).
+    candidate_dirs = [p for p in (REPO / "candidates").iterdir() if p.is_dir()] if (REPO / "candidates").is_dir() else []
+    sealed = sum(1 for d in candidate_dirs if (d / "CURRENT").exists())
+    out.append(info(f"repositories with a CURRENT bundle on disk: {sealed}; progress.current_candidates {sy['progress']['current_candidates']}"))
+    # --- never-attempted registry entries (docs/investigations/12-...md §5.2; the 8-of-32 gap
+    # found only by a dedicated cross-reference pass on 2026-09-25 - now printed every wake)
+    try:
+        registry = json.loads((REPO / "data/registry.json").read_text(encoding="utf-8"))
+        enabled = [e["repository"] for e in registry["entries"] if e.get("mode") != "disabled"]
+        attempted = {d.name.replace("__", "/", 1) for d in candidate_dirs}
+        # candidates/ dirnames are "<owner>__<name>"; registry repos are "<owner>/<name>" - the
+        # owner segment never itself contains "__", so a single split is exact here.
+        never = sorted(r for r in enabled if r not in attempted)
+        out.append(flag(f"{len(never)}/{len(enabled)} enabled registry entries never sealed even once: {never}") if never else ok(f"every enabled registry entry ({len(enabled)}) has been attempted at least once"))
+    except Exception as exc:  # pragma: no cover
+        out.append(info(f"never-attempted check skipped: {exc.__class__.__name__}"))
+    # --- defect-index escalation (docs/DEFECT_INDEX.md; AGENTS.md Work Loop's 3rd-sighting rule)
+    try:
+        idx = (REPO / "docs/DEFECT_INDEX.md").read_text(encoding="utf-8")
+        open_section = section(idx, r"^## Open", r"^## ")
+        for mech in re.findall(r"^### `([\w.]+)`", open_section, re.M):
+            mech_block = section(open_section, rf"^### `{re.escape(mech)}`", r"^### |\Z")
+            sightings = len(re.findall(r"^\|\s*\d+\s*\|", mech_block, re.M))
+            if sightings >= 3:
+                out.append(flag(f"docs/DEFECT_INDEX.md: `{mech}` has {sightings} sightings (>=3) and is Open — settled priority for the next shared-code slot per AGENTS.md's Work Loop, not a judgment call"))
+    except FileNotFoundError:
+        out.append(info("docs/DEFECT_INDEX.md not found - never-built check, not a live flag"))
+    except Exception as exc:  # pragma: no cover
+        out.append(info(f"defect-index check skipped: {exc.__class__.__name__}"))
     # --- lanes (project/lanes/*.yaml; branches <lane>/<ITEM>; PRs labelled <lane>)
     metrics["lanes"] = {}
     for lane_path in sorted((REPO / "project/lanes").glob("*.yaml")):
