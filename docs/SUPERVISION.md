@@ -127,6 +127,26 @@ The supervisor's own cadence is layered so no single source is load-bearing: eve
 (lane completions, monitor lines), an hourly heartbeat wake whose first act is
 `reviewer_check.py --record`, and the dead-man underneath both.
 
+## No idle wakes
+
+A background-task notification that repeats an agent's own prior status ("still waiting", "push in
+progress", "will report when done") carries no new information and is not itself a unit of
+supervision work. Answering it with a bare acknowledgment and nothing else is idling with extra
+steps — measured this session (2026-09-25): dozens of consecutive "routine, holding" replies to
+self-report notifications while genuinely idle capacity (unassigned ready work, unverified pushes,
+an unauthorized `--no-verify` push, a stalled-looking agent that was actually fine, one that
+genuinely needed a check-in) sat unexamined in the same window. The owner should never have to name
+this; every wake names it for the supervisor instead.
+
+Rule: on every wake, whether triggered by a real event or a routine self-report, the supervisor
+takes at least one substantive action before replying — not a status message alone. Substantive
+means one of: verifying a claimed state directly against disk/`origin/main` rather than trusting a
+self-report (`git log`, `git ls-remote`, `status --stale`); advancing other ready, disjoint work
+(the concurrency floor above); checking a long-running or repeatedly-idle-reporting agent's actual
+worktree diff rather than accepting "still working" at face value; or recording/acting on a finding
+already in hand. A wake with truly nothing new to check and nothing ready to advance is rare enough
+that it should be named as such, not the default response.
+
 ## Enforcement placement
 
 A check that must survive the supervisor lives in `tests/` (CI runs it per push — the
