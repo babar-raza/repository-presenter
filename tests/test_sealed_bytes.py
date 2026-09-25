@@ -175,8 +175,9 @@ KNOWN_BLOCKED_STALE = {
     # each candidate needs a real re-seal (through `present`, not a bare re-render) to pick it up,
     # since validation/review were judged against the old bytes; that re-seal is separate
     # follow-up work, not this fix's own scope. `strict=True` for the same reason as above.
-    # aspose-3d-foss__Aspose.3D-FOSS-for-Java's entry here (item 69's `UnsupportedOperationException`
-    # wrapping, the same class as the siblings above) is removed as of 2026-09-25: this candidate
+    # aspose-3d-foss__Aspose.3D-FOSS-for-Java's entry here (item 69's
+    # `UnsupportedOperationException` wrapping, the same class as the siblings above) is removed
+    # as of 2026-09-25: this candidate
     # re-sealed READY_FOR_PROPOSAL through a real `present` run (not a bare re-render) against
     # current component versions (normalisation, renderer, shell, and validators BC-02/03/04/06/
     # 07/08/10 all moved), reaching a genuinely new upstream revision
