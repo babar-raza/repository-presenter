@@ -1,0 +1,281 @@
+{
+  "additional_example_ids": [],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:com",
+        "public_symbol:com.aspose",
+        "public_symbol:com.aspose.threed"
+      ],
+      "symbol_fact_id": "public_symbol:com"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose",
+        "public_symbol:com.aspose.threed"
+      ],
+      "symbol_fact_id": "public_symbol:com.aspose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.scene",
+        "public_symbol:com.aspose.threed.node",
+        "public_symbol:com.aspose.threed.entity",
+        "public_symbol:com.aspose.threed.fileformat",
+        "public_symbol:com.aspose.threed.box",
+        "public_symbol:com.aspose.threed.cylinder",
+        "public_symbol:com.aspose.threed.sphere",
+        "public_symbol:com.aspose.threed.dish",
+        "public_symbol:com.aspose.threed.pbrmaterial",
+        "public_symbol:com.aspose.threed.nurbscurve",
+        "public_symbol:com.aspose.threed.vector2",
+        "public_symbol:com.aspose.threed.vector3",
+        "public_symbol:com.aspose.threed.vector4",
+        "public_symbol:com.aspose.threed.matrix4",
+        "public_symbol:com.aspose.threed.quaternion",
+        "public_symbol:com.aspose.threed.boundingbox",
+        "public_symbol:com.aspose.threed.stlloadoptions",
+        "public_symbol:com.aspose.threed.stlsaveoptions"
+      ],
+      "symbol_fact_id": "public_symbol:com.aspose.threed"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Build 3D scene graphs",
+      "Detect and resolve 3D file formats",
+      "Generate primitive geometry",
+      "Define and assign materials",
+      "Model NURBS curves",
+      "Perform math operations",
+      "Import and export STL geometry"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.scene",
+        "public_symbol:com.aspose.threed.node",
+        "public_symbol:com.aspose.threed.entity"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.node",
+        "public_symbol:com.aspose.threed.scene"
+      ],
+      "title": "Build 3D scene graphs"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.fileformat"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:com.aspose.threed"
+      ],
+      "title": "Detect and resolve 3D file formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.box",
+        "public_symbol:com.aspose.threed.cylinder",
+        "public_symbol:com.aspose.threed.sphere",
+        "public_symbol:com.aspose.threed.dish"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:com.aspose.threed"
+      ],
+      "title": "Generate primitive geometry"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.pbrmaterial",
+        "public_symbol:com.aspose.threed.node"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.node"
+      ],
+      "title": "Define and assign materials"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.nurbscurve"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:com.aspose.threed"
+      ],
+      "title": "Model NURBS curves"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.vector2",
+        "public_symbol:com.aspose.threed.vector3",
+        "public_symbol:com.aspose.threed.vector4",
+        "public_symbol:com.aspose.threed.matrix4",
+        "public_symbol:com.aspose.threed.quaternion",
+        "public_symbol:com.aspose.threed.boundingbox"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:com.aspose.threed"
+      ],
+      "title": "Perform math operations"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.stlloadoptions",
+        "public_symbol:com.aspose.threed.stlsaveoptions",
+        "public_symbol:com.aspose.threed.scene"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.scene"
+      ],
+      "title": "Import and export STL geometry"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "build_test_asset:docs"
+      ],
+      "section_id": "quick_start",
+      "text": "No verified example is available in isolation; the examples in the inherited README require external files or are not confirmed to run standalone."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:docs"
+      ],
+      "section_id": "additional_examples",
+      "text": "No further verified examples are available; the examples in the inherited README require external files or are not confirmed to run standalone."
+    }
+  ],
+  "flagship_example_id": null,
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "build_test_asset:docs"
+      ],
+      "unit_ids": [
+        "inherited_unit:072.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:docs"
+      ],
+      "unit_ids": [
+        "inherited_unit:073.paragraph"
+      ]
+    }
+  ],
+  "quick_start_example_id": null,
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "quick_start"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

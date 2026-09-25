@@ -1,0 +1,86 @@
+[
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: the product's own sources do not compile with javac 17.0.19, so no example can be checked against them (the compilation failed without naming a diagnostic)",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: the product's own sources do not compile with javac 17.0.19, so no example can be checked against them (the compilation failed without naming a diagnostic)",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: the product's own sources do not compile with javac 17.0.19, so no example can be checked against them (the compilation failed without naming a diagnostic)",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: the product's own sources do not compile with javac 17.0.19, so no example can be checked against them (the compilation failed without naming a diagnostic)",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: the product's own sources do not compile with javac 17.0.19, so no example can be checked against them (the compilation failed without naming a diagnostic)",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: the product's own sources do not compile with javac 17.0.19, so no example can be checked against them (the compilation failed without naming a diagnostic)",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: the product's own sources do not compile with javac 17.0.19, so no example can be checked against them (the compilation failed without naming a diagnostic)",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  }
+]

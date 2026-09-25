@@ -1,0 +1,891 @@
+{
+  "dispositions": [
+    {
+      "destination_section": "identity",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "rationale": "The H1 heading matches the canonical product name supported by identity facts.",
+      "unit_id": "inherited_unit:001.heading"
+    },
+    {
+      "destination_section": "badges",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "link_target:029",
+        "link_target:030",
+        "link_target:031",
+        "link_target:032",
+        "link_target:033",
+        "link_target:034",
+        "link_target:035",
+        "link_target:product.banner",
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
+      ],
+      "rationale": "All badge URLs are verified by link_target facts and match the badge row content.",
+      "unit_id": "inherited_unit:002.badge_row"
+    },
+    {
+      "destination_section": "banner",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:product.banner",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The banner image and its link target are verified; moved to the banner section.",
+      "unit_id": "inherited_unit:003.badge_row"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "license:spdx",
+        "public_symbol:com.aspose.threed",
+        "package:name",
+        "package:version"
+      ],
+      "rationale": "The paragraph's substance is covered by the product_summary and identity facts; rewritten in the opening section.",
+      "unit_id": "inherited_unit:004.paragraph"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The Navigation heading is rendered by the deterministic navigation section.",
+      "unit_id": "inherited_unit:005.heading"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The navigation list is rendered by the deterministic navigation section.",
+      "unit_id": "inherited_unit:006.list"
+    },
+    {
+      "destination_section": "at_a_glance",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The At a Glance heading is rendered by the deterministic at_a_glance section.",
+      "unit_id": "inherited_unit:007.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.scene",
+        "public_symbol:com.aspose.threed.node",
+        "public_symbol:com.aspose.threed.entity",
+        "public_symbol:com.aspose.threed.box",
+        "public_symbol:com.aspose.threed.cylinder",
+        "public_symbol:com.aspose.threed.sphere",
+        "public_symbol:com.aspose.threed.dish",
+        "public_symbol:com.aspose.threed.pbrmaterial",
+        "public_symbol:com.aspose.threed.nurbscurve",
+        "public_symbol:com.aspose.threed.vector2",
+        "public_symbol:com.aspose.threed.vector3",
+        "public_symbol:com.aspose.threed.vector4",
+        "public_symbol:com.aspose.threed.matrix4",
+        "public_symbol:com.aspose.threed.quaternion",
+        "public_symbol:com.aspose.threed.boundingbox",
+        "public_symbol:com.aspose.threed.stlloadoptions",
+        "public_symbol:com.aspose.threed.stlsaveoptions"
+      ],
+      "rationale": "The Mermaid diagram accurately reflects verified capabilities and is preserved in the at_a_glance section.",
+      "unit_id": "inherited_unit:008.code_block"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Key Capabilities heading is rendered by the deterministic key_capabilities section.",
+      "unit_id": "inherited_unit:009.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.scene",
+        "public_symbol:com.aspose.threed.node",
+        "public_symbol:com.aspose.threed.entity",
+        "public_symbol:com.aspose.threed.fileformat",
+        "public_symbol:com.aspose.threed.box",
+        "public_symbol:com.aspose.threed.cylinder",
+        "public_symbol:com.aspose.threed.sphere",
+        "public_symbol:com.aspose.threed.dish",
+        "public_symbol:com.aspose.threed.lambertmaterial",
+        "public_symbol:com.aspose.threed.phongmaterial",
+        "public_symbol:com.aspose.threed.pbrmaterial",
+        "public_symbol:com.aspose.threed.nurbscurve",
+        "public_symbol:com.aspose.threed.vector2",
+        "public_symbol:com.aspose.threed.vector3",
+        "public_symbol:com.aspose.threed.vector4",
+        "public_symbol:com.aspose.threed.matrix4",
+        "public_symbol:com.aspose.threed.quaternion",
+        "public_symbol:com.aspose.threed.boundingbox",
+        "public_symbol:com.aspose.threed.stlloadoptions",
+        "public_symbol:com.aspose.threed.stlsaveoptions"
+      ],
+      "rationale": "The list items are grounded in verified public symbols and capabilities; rewritten in the key_capabilities section.",
+      "unit_id": "inherited_unit:010.list"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "rationale": "The Installation heading is rendered by the deterministic installation section.",
+      "unit_id": "inherited_unit:011.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:maven",
+        "package:name",
+        "package:version"
+      ],
+      "rationale": "The paragraph correctly describes the Maven Central publication and is preserved.",
+      "unit_id": "inherited_unit:012.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Maven:' label is redundant with the installation command that follows; no supporting fact.",
+      "unit_id": "inherited_unit:013.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:maven",
+        "package:name",
+        "package:version"
+      ],
+      "rationale": "The Maven dependency snippet matches the verified install command and coordinates.",
+      "unit_id": "inherited_unit:014.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Gradle (Kotlin DSL):' label is redundant with the code block that follows; no supporting fact.",
+      "unit_id": "inherited_unit:015.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:maven",
+        "package:name",
+        "package:version"
+      ],
+      "rationale": "The Gradle Kotlin DSL snippet uses the correct coordinates and is preserved.",
+      "unit_id": "inherited_unit:016.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Gradle (Groovy DSL):' label is redundant with the code block that follows; no supporting fact.",
+      "unit_id": "inherited_unit:017.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:maven",
+        "package:name",
+        "package:version"
+      ],
+      "rationale": "The Gradle Groovy DSL snippet uses the correct coordinates and is preserved.",
+      "unit_id": "inherited_unit:018.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:maven",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "rationale": "The paragraph correctly describes other build tools and Java requirement.",
+      "unit_id": "inherited_unit:019.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.org.junit.jupiter-junit-jupiter",
+        "dependency:none"
+      ],
+      "rationale": "The Dependencies heading is rendered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:020.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.org.junit.jupiter-junit-jupiter",
+        "dependency:none"
+      ],
+      "rationale": "The 'Required Package Dependencies' heading is rendered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:021.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.org.junit.jupiter-junit-jupiter",
+        "dependency:none"
+      ],
+      "rationale": "The statement about no required third-party dependencies is supported by the dependency:none fact.",
+      "unit_id": "inherited_unit:022.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.org.junit.jupiter-junit-jupiter",
+        "dependency:none"
+      ],
+      "rationale": "The 'Native and System Requirements' heading is rendered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:023.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.org.junit.jupiter-junit-jupiter",
+        "dependency:none",
+        "package:java_release"
+      ],
+      "rationale": "The list correctly states the Java 21+ requirement and absence of native libraries.",
+      "unit_id": "inherited_unit:024.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.org.junit.jupiter-junit-jupiter",
+        "dependency:none"
+      ],
+      "rationale": "The 'Development Dependencies' heading is rendered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:025.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.org.junit.jupiter-junit-jupiter",
+        "dependency:none"
+      ],
+      "rationale": "The JUnit 5 dependency is correctly listed and supported by the fact.",
+      "unit_id": "inherited_unit:026.list"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Quick Start heading is rendered by the deterministic quick_start section.",
+      "unit_id": "inherited_unit:027.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.scene",
+        "public_symbol:com.aspose.threed.stlloadoptions",
+        "public_symbol:com.aspose.threed.stlsaveoptions"
+      ],
+      "rationale": "The paragraph describes a verified workflow and is preserved.",
+      "unit_id": "inherited_unit:028.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:001",
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.scene",
+        "public_symbol:com.aspose.threed.stlloadoptions",
+        "public_symbol:com.aspose.threed.stlsaveoptions"
+      ],
+      "rationale": "The example code is verified and preserved in the quick_start section.",
+      "unit_id": "inherited_unit:029.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.scene",
+        "public_symbol:com.aspose.threed.fileformat",
+        "public_symbol:com.aspose.threed.stlsaveoptions"
+      ],
+      "rationale": "The paragraph introduces additional examples and is preserved.",
+      "unit_id": "inherited_unit:030.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:002",
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.fileformat",
+        "public_symbol:com.aspose.threed.scene",
+        "public_symbol:com.aspose.threed.stlsaveoptions"
+      ],
+      "rationale": "The example code is verified and preserved in the additional_examples section.",
+      "unit_id": "inherited_unit:031.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The Additional Examples heading is rendered by the deterministic additional_examples section.",
+      "unit_id": "inherited_unit:032.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [],
+      "rationale": "The paragraph introduces further examples and is preserved.",
+      "unit_id": "inherited_unit:033.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.scene",
+        "public_symbol:com.aspose.threed.box"
+      ],
+      "rationale": "The 'Build a Scene From a Primitive' heading is moved to the additional_examples section.",
+      "unit_id": "inherited_unit:034.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:003",
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.box",
+        "public_symbol:com.aspose.threed.scene"
+      ],
+      "rationale": "The example code is verified and preserved in the additional_examples section.",
+      "unit_id": "inherited_unit:035.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The HTML details block is not supported by any fact and is promotional; omitted.",
+      "unit_id": "inherited_unit:036.html_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.node",
+        "public_symbol:com.aspose.threed.pbrmaterial"
+      ],
+      "rationale": "The 'Assign a PBR Material' heading is moved to the additional_examples section.",
+      "unit_id": "inherited_unit:037.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:004",
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.node",
+        "public_symbol:com.aspose.threed.pbrmaterial"
+      ],
+      "rationale": "The example code is verified and preserved in the additional_examples section.",
+      "unit_id": "inherited_unit:038.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.nurbscurve"
+      ],
+      "rationale": "The 'Define a NURBS Curve's Control Points' heading is moved to the additional_examples section.",
+      "unit_id": "inherited_unit:039.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:005",
+        "public_symbol:com.aspose.threed",
+        "public_symbol:com.aspose.threed.nurbscurve"
+      ],
+      "rationale": "The example code is verified and preserved in the additional_examples section.",
+      "unit_id": "inherited_unit:040.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The heading 'Detect a Format From a Stream and Load It' introduces an example already covered by the 'Detect and resolve 3D file formats' capability; its code块,",
+      "unit_id": "inherited_unit:041.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block demonstrates format detection from a stream, but no fact confirms this exact pattern works in the current FOSS release; the only verified format-",
+      "unit_id": "inherited_unit:042.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The heading 'Read and Set a Node's Transform' introduces an example already covered by the 'Inspect and manipulate transforms' workflow; its code block, while",
+      "unit_id": "inherited_unit:043.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block demonstrates reading and setting a node's transform, but no fact confirms this exact pattern works in the current FOSS release; the",
+      "unit_id": "inherited_unit:044.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The closing </details> tag is a non-content separator used to close an expandable section.",
+      "unit_id": "inherited_unit:045.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '## API Reference' matches the destination section ID and is supported by the public_symbol facts and the need to list the 266 public types.",
+      "unit_id": "inherited_unit:046.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The paragraph introduces Scene as the central entry point and mentions the full 266-type public surface, which is supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:047.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The opening <details><summary> tag is a non-content separator used to create an expandable section for the API surface.",
+      "unit_id": "inherited_unit:048.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Core API' is a valid subsection under API Reference and supported by the public_symbol facts listing core classes.",
+      "unit_id": "inherited_unit:049.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists core API classes with descriptions, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:050.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '#### Interfaces' is a valid subsection under API Reference and supported by the public_symbol facts listing interfaces.",
+      "unit_id": "inherited_unit:051.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists interfaces with descriptions, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:052.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '#### Enumerations' is a valid subsection under API Reference and supported by the public_symbol facts listing enumerations.",
+      "unit_id": "inherited_unit:053.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The table lists enumerations with descriptions, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:054.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '#### Detailed Member Reference' is a valid subsection under API Reference and supported by the public_symbol facts.",
+      "unit_id": "inherited_unit:055.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Scene Graph' is a valid subsection under API Reference and supported by the public_symbol facts listing Scene, Node, Entity, and Group.",
+      "unit_id": "inherited_unit:056.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes Scene usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:057.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes Node usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:057.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes the Entity base hierarchy, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:057.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes Group usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:057.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Geometry and Primitives' is a valid subsection under API Reference and supported by the public_symbol facts listing Mesh, NurbsCurve, and Boud",
+      "unit_id": "inherited_unit:058.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes Mesh usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:059.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes NurbsCurve usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:059.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes BoundingBox usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:059.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Materials and Textures' is a valid subsection under API Reference and supported by the public_symbol facts listing Material, PbrMaterial, and",
+      "unit_id": "inherited_unit:060.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes Material usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:061.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes PbrMaterial usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:061.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes TextureData usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:061.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Format I/O' is a valid subsection under API Reference and supported by the public_symbol facts listing ObjLoadOptions, StlLoadOptions, and",
+      "unit_id": "inherited_unit:062.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes ObjLoadOptions usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:063.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes StlLoadOptions/StlSaveOptions usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:063.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes FileFormat usage, which is supported by the public_symbol facts and the need to document the 266-type public surface.",
+      "unit_id": "inherited_unit:063.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Math' is a valid subsection under API Reference and supported by the public_symbol facts listing Vector2, Vector3, Matrix4, and Quatern",
+      "unit_id": "inherited_unit:064.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes Vector2/Vector3/Vector4/FVector3/FVector4 usage, which is supported by the public_symbol facts and the need to document the 266-type",
+      "unit_id": "inherited_unit:065.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes Matrix4, Quaternion, Transform, and GlobalTransform usage, which is supported by the public_symbol facts and the need to document the",
+      "unit_id": "inherited_unit:065.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '### Exceptions' is a valid subsection under API Reference and supported by the public_symbol facts listing ImportException, ExportException, and",
+      "unit_id": "inherited_unit:066.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list item describes ImportException, ExportException, and ParseException usage, which is supported by the public_symbol facts and the need to document the",
+      "unit_id": "inherited_unit:067.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The closing </details> tag is a non-content separator used to close an expandable section.",
+      "unit_id": "inherited_unit:068.html_block"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '## Documentation & Resources' matches the destination section ID and is supported by the link_target facts for documentation, reference, and",
+      "unit_id": "inherited_unit:069.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The list items are verified documentation and resource links supported by the link_target facts.",
+      "unit_id": "inherited_unit:070.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '## Scope and Limitations' is preserved as-is because it matches the section ID 'scope_limitations' which is placeable and required.",
+      "unit_id": "inherited_unit:071.heading"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:docs"
+      ],
+      "rationale": "The list items in the inherited unit are supported by the 'build_test_asset:docs' fact and match the limitations documented in the accepted investigation.",
+      "unit_id": "inherited_unit:072.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "rationale": "The paragraph about the Enterprise Edition is moved to the 'enterprise_relationship' section because a verified product link exists at 'link_target:product'.",
+      "unit_id": "inherited_unit:073.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading '## Development and Testing' is preserved as-is because it matches the section ID 'development_testing' which is placeable.",
+      "unit_id": "inherited_unit:074.heading"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "rationale": "The paragraph about Maven build and test commands is preserved because it aligns with the 'install_command:maven' fact and the 'development_testing' section is.",
+      "unit_id": "inherited_unit:075.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "rationale": "The Maven build/test code block is preserved as it directly reflects the 'install_command:maven' fact and fits the 'development_testing' section.",
+      "unit_id": "inherited_unit:076.code_block"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "link_target:032",
+        "link_target:033"
+      ],
+      "rationale": "The paragraph referencing TODO.md and AGENTS.md is preserved because link targets for both files are verified and the section is placeable.",
+      "unit_id": "inherited_unit:077.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:ci"
+      ],
+      "rationale": "The paragraph about the CI workflow is preserved because the 'build_test_asset:ci' fact confirms the existence of CI workflows.",
+      "unit_id": "inherited_unit:078.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The HTML block opening a details element is preserved as non-content that supports collapsible content in the 'development_testing' section.",
+      "unit_id": "inherited_unit:079.html_block"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "link_target:035"
+      ],
+      "rationale": "The paragraph about the test suite location is preserved because the link target 'link_target:035' for the test directory is verified.",
+      "unit_id": "inherited_unit:080.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The closing HTML details block is preserved as non-content supporting collapsible content in the 'development_testing' section.",
+      "unit_id": "inherited_unit:081.html_block"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The heading '## License' is preserved as-is because it matches the section ID 'license' which is placeable and required.",
+      "unit_id": "inherited_unit:082.heading"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The license paragraph is preserved because it aligns with the 'license:file' and 'license:spdx' facts confirming MIT licensing.",
+      "unit_id": "inherited_unit:083.paragraph"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The acknowledgments paragraph is preserved as it adds repository-specific context about the clean-room implementation.",
+      "unit_id": "inherited_unit:084.paragraph"
+    }
+  ]
+}

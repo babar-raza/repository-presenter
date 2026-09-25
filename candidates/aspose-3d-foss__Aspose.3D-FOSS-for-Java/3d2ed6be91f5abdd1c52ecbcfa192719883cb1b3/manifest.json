@@ -1,0 +1,114 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 3,
+      "job": "independent_review",
+      "response_sha256s": [
+        "4731b6ced394f0458bb7e3d0f4b049ffa81fdc1832fd11db372927dfe33f565e",
+        "7f5addbbbee7d899694431f4008d7ef4243acf2ef1254a2af60601d2cf534161",
+        "9c1c71275a484aeadddfee918f9ef98ac660dcce8f0e777be91494d0de31df83"
+      ]
+    },
+    {
+      "distinct_responses": 13,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "1f7b46fe4b5c95c91804f78d48388d921dfbfec9ebda1934ccd461ec564696fb",
+        "311fcb9a8b0ac4d30fe9053242b9d18f30fb1d1f48c814a2d9178ccfbe17e26e",
+        "3cab5b8e3924a7a90c68a5f7861001c526d0188ad45864c7cc5e1771d36323c4",
+        "40c6301f7081f064e300c812346cf8eb435b4b03c6784a9f05cb54e3fc6771d4",
+        "9b996523434ac8088b53dc2e74aea0be5f452786824dd7823c21c470aeb83898",
+        "a383aa416702528c2f61539dc05e79a1c8dd6d1a5a75565be8a8f150094b3e30",
+        "a4295433055c1bc15dd3d55af9e652f000ac79f8ef636945537a49ae92069615",
+        "a81e7a074478d00f66bd4eef1c94af776ab9ab94146c97bf7448d8648d2b19b7",
+        "b965fc4d3f8740e94d933afb5f09c9cefcb5268712971faa18d6130e4a22cb36",
+        "c3b479f053d3f290d29ad287cd250a46c2d2add615128412412dabaa0beeef90",
+        "c47eaeb408cc48470b22f9f23e53c2af7b8ab614abf95c99fa4d46fd85705c11",
+        "e6cdf199f0cf6ac50af009752308a89766cd221d78863f612ac1ba6ea91a248f",
+        "ede1b694e8bc459fb26df5c7726d4816f290c7df9740acdd9207faa04cc35d46"
+      ]
+    },
+    {
+      "distinct_responses": 3,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "1a91214e5b46a9515fbb9f64e14f181a8510521b1458b60344094006cebb1078",
+        "33d4a30d91fd7e815fe92b4841e39a20a91e5c37ba8d776bfb752660b4f13096",
+        "eb18a2cadc40ec27b2be930889380be390303bb40aba7616f032fe86f885ca78"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 10,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 37060,
+      "sha256": "69d7fc9a3a25234d161a0e2fde7b6b816c0a8f7f5607d0f29368ba1f983d0b68"
+    },
+    "README.patch": {
+      "bytes": 60486,
+      "sha256": "a21ff54c493e497cb0fdd53a8b36a06eb72ed191c0ae2b1b767188a602f019a8"
+    },
+    "calls.jsonl": {
+      "bytes": 55503,
+      "sha256": "9167df4d228e2208dff17d0af3b23812d28a1dce750a1cd13727cb3aa1025daa"
+    },
+    "content_units.json": {
+      "bytes": 51831,
+      "sha256": "7f4229f32845e63b9fa9e7df7f0d3559df4281ed25521830fefccf2419c5a1fb"
+    },
+    "dependencies.json": {
+      "bytes": 722191,
+      "sha256": "a48f4be3bbc6d76e9a7c759693d4b64f97e5f6da8c6adc9f0372eb1e49bcd10d"
+    },
+    "dispositions.json": {
+      "bytes": 36446,
+      "sha256": "40bd794012868964ff7b56e99f6d33816263ab8d02d5f0a84586d2f657703757"
+    },
+    "examples.json": {
+      "bytes": 2852,
+      "sha256": "7b77fe97b1653267f3bff36e2f6615343850ebd5b9a906e7d9a29bc27c303bd3"
+    },
+    "facts.json": {
+      "bytes": 3087240,
+      "sha256": "f7dc2b349c6b35246b481a7203bedc922e4a28aa804cb4a68271060f8aa28c33"
+    },
+    "investigation.json": {
+      "bytes": 7702,
+      "sha256": "9b66646e450aaa879c96b031ddbef4ba3879cc692f3601b7fc22158a4797b86a"
+    },
+    "plan.json": {
+      "bytes": 7729,
+      "sha256": "0fe4b47c08f474cb64caa0880a38376d22194bdb9b4ad761768caef44c951e07"
+    },
+    "probes.json": {
+      "bytes": 2881,
+      "sha256": "1f93768cc3b0ce63853c797abea5051dfbe7c4af7cfcc070134a55321b003cc4"
+    },
+    "review.json": {
+      "bytes": 18517,
+      "sha256": "5db178c4c4c51fe6f1103a26eeb260c85873a3ed23894412ce65485473b35de7"
+    },
+    "validation.json": {
+      "bytes": 12807,
+      "sha256": "72d501c9f6a4211b794dc50516de5281834b5ca3008cc0ef5c98fe0e91515539"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-25T07:48:40Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+  "revision": "3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3",
+  "schema_version": 1,
+  "sealed_at": "2026-09-25T07:48:40Z",
+  "state": "READY_FOR_PROPOSAL"
+}

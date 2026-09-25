@@ -1,0 +1,269 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "implementation('org.aspose:aspose-3d-foss:26.5.0')",
+        "implementation 'org.aspose:aspose-3d-foss:26.5.0'",
+        "SBT",
+        "Apache Ivy",
+        "Leiningen"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "id": "F01",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-3d-foss`, version 26.5.0):",
+      "repair": "Add Gradle (Kotlin DSL) and Gradle (Groovy DSL) dependency snippets, plus a note about other Maven Central-compatible build tools, mirroring the original README's installation examples.",
+      "reviewer_scope_defect": "the quote names public_symbol:com.aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "installation",
+      "text": "The installation section omits Gradle and other build tool examples that are present in the original README and supported by facts."
+    },
+    {
+      "absent": [
+        "### com",
+        "### aspose",
+        "### threed"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "### Core API",
+      "repair": "Remove the redundant subsections ('com', 'aspose', 'threed') and ensure the API reference section matches the structure and depth of the original README's API reference.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### aspose', '### com', '### threed', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API reference section duplicates the 'Core API' table header and introduces redundant subsections ('com', 'aspose', 'threed') that are not present in the original README and add no value."
+    },
+    {
+      "absent": [
+        "- **[How-to guides & FAQ](https://kb.aspose.org/3d/java/)** — task-focused answers for common 3D-processing questions.",
+        "- **[Full API reference](https://reference.aspose.org/3d/java/)** — the complete, browsable reference for all 266 public",
+        "- **[Publishing guide](PUBLISHING.md)** — how this package is released to Maven Central, in the repository.",
+        "- **[API diff for 26.1.0](docs/api-diff-26.1.0.md)** — API changes for that release, in the repository.",
+        "- **[Directory structures](docs/directory-structures.md)** — repository layout notes, in the repository.",
+        "- **[Implementation progress notes](docs/foss-java-progress.md)** — current FOSS-edition implementation status, in the",
+        "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+        "issues) on GitHub — this is also the place for community & support and further reading pointers."
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "link_target:029"
+      ],
+      "id": "F03",
+      "quote": "- **[Getting started guide](https://docs.aspose.org/3d/java/)** — The getting started guide covers installation, step-by-step walkthroughs, and feature guides for using the Aspose.3D FOSS for Java library.",
+      "repair": "Consolidate duplicate entries, remove the generic 'The getting started guide covers...' text, and restore all verified resource links from the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '- **[API diff for 26.1.0](docs/api-diff-26.1.0.md)** — API changes for that release, in the repository.', '- **[Directory structures](docs/directory-structures.md)** — repository layout notes, in the repository.', '- **[Full API reference](https://reference.aspose.org/3d/java/)** — the complete, browsable reference for all 266 public', which the candidate contains; the finding asks for '- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java', 'issues) on GitHub — this is also the place for community & support and further reading pointers.', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "documentation_resources",
+      "text": "The Documentation & Resources section duplicates the 'Getting started guide' link and omits several verified resource links present in the original README."
+    },
+    {
+      "absent": [
+        "- STL (import and export) is the only format that is fully functional in the published `26.5.0` package; a handful of",
+        "- OBJ import has a real, working parser in the upstream GitHub source, but the currently published Maven Central",
+        "- Several of the recognized-but-unfinished formats above fail silently rather than with an error: loading or saving",
+        "- Additional format coverage beyond STL (including proprietary and high-performance formats) is a commercial-edition",
+        "- A handful of primitive-shape classes have a mesh-conversion method that is present but not yet implemented; `Box`,",
+        "- `NurbsCurve` exposes its full control-point/knot/degree data model, but sampling points along the curve is not yet",
+        "- `PbrSpecularMaterial`'s accessors are unimplemented in this edition; the PBR material capability described above uses",
+        "- Licensing, trial, and DRM-related functionality (`License`, `Metered`) is intentionally excluded, as are cryptographic"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:docs"
+      ],
+      "id": "F04",
+      "quote": "Aspose.3D FOSS for Java provides a free and open-source subset of the Aspose.3D for Java API, targeting Java developers who need to work with 3D scenes, primitives, and the STL format using the package at version 26.5.0 on Java 21 or newer.",
+      "repair": "Restore the original ordering and phrasing of the limitations list, including the explicit reference to FILE_FORMATS.md and the precise wording of each limitation as supported by the inherited README.",
+      "reviewer_scope_defect": "the quote names public_symbol:com.aspose.threed.fileformattype.stl, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section reorders and rewords limitations in a way that obscures the original README's clear, fact-supported structure and omits the explicit reference to FILE_FORMATS.md."
+    },
+    {
+      "absent": [
+        "mvn clean package",
+        "mvn test",
+        "Releases run through the [maven-central-release workflow](.github/workflows/maven-central-release.yml).",
+        "This is a Maven project; build and test it from source:",
+        "The test suite ([`src/test/java/com/aspose/threed/`](src/test/java/com/aspose/threed/)) covers",
+        "scene construction, vector math, format detection, STL round-tripping, glTF option handling, and",
+        "NURBS curve data. See [FILE_FORMATS.md](FILE_FORMATS.md) for format-support notes."
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:maven",
+        "build_test_asset:ci"
+      ],
+      "id": "F05",
+      "quote": "Build and test Aspose.3D FOSS for Java using Maven with JDK 21, as defined by the project's Maven configuration and CI workflow at .github/workflows/.",
+      "repair": "Restore the original Maven build command examples, the explicit reference to the CI workflow file, and the test suite description as present in the original README.",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact build_test_asset:ci ('.github/workflows/'), which the finding itself cites as its evidence; literal fact text is supported whatever criterion the finding files itself under",
+      "section_id": "development_testing",
+      "text": "The Development and Testing section duplicates the Maven build command and reorders content in a way that obscures the original README's clear structure and omits the explicit reference to the CI workflow file."
+    },
+    {
+      "absent": [
+        "implementation('org.aspose:aspose-3d-foss:26.5.0')",
+        "implementation 'org.aspose:aspose-3d-foss:26.5.0'",
+        "SBT",
+        "Apache Ivy",
+        "Leiningen"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "id": "F01",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-3d-foss`, version 26.5.0):",
+      "reader": 2,
+      "repair": "Add Gradle (Kotlin DSL) and Gradle (Groovy DSL) snippets, plus a sentence listing other Maven Central-compatible build tools (SBT, Apache Ivy, Leiningen) with the same coordinates.",
+      "reviewer_scope_defect": "the quote names public_symbol:com.aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "installation",
+      "text": "The installation section omits Gradle and other build tool examples that are present in the original README and supported by facts."
+    },
+    {
+      "absent": [
+        "### com",
+        "### aspose",
+        "### threed"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "### Core API",
+      "reader": 2,
+      "repair": "Remove the redundant subsections 'com', 'aspose', and 'threed' and ensure the API reference section matches the structure and depth of the original README's API Reference section.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### aspose', '### com', '### threed', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API reference section duplicates the 'Core API' table header and introduces redundant subsections ('com', 'aspose', 'threed') that are not present in the original README."
+    },
+    {
+      "absent": [
+        "- **[How-to guides & FAQ](https://kb.aspose.org/3d/java/)** — task-focused answers for common 3D-processing questions.",
+        "- **[Full API reference](https://reference.aspose.org/3d/java/)** — the complete, browsable reference for all 266 public",
+        "- **[Publishing guide](PUBLISHING.md)** — how this package is released to Maven Central, in the repository.",
+        "- **[API diff for 26.1.0](docs/api-diff-26.1.0.md)** — API changes for that release, in the repository.",
+        "- **[Directory structures](docs/directory-structures.md)** — repository layout notes, in the repository.",
+        "- **[Implementation progress notes](docs/foss-java-progress.md)** — current FOSS-edition implementation status, in the",
+        "Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/issues)"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "link_target:029"
+      ],
+      "id": "F03",
+      "quote": "- **[Getting started guide](https://docs.aspose.org/3d/java/)** — The getting started guide covers installation, step-by-step walkthroughs, and feature guides for using the Aspose.3D FOSS for Java library.",
+      "reader": 2,
+      "repair": "Remove the duplicated Getting started guide line and add all missing verified links: How-to guides & FAQ, Full API reference, Publishing guide, API diff for 26.1.0, Directory structures, Implementation progress notes, and the GitHub issues link.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '- **[API diff for 26.1.0](docs/api-diff-26.1.0.md)** — API changes for that release, in the repository.', '- **[Directory structures](docs/directory-structures.md)** — repository layout notes, in the repository.', '- **[Full API reference](https://reference.aspose.org/3d/java/)** — the complete, browsable reference for all 266 public', which the candidate contains",
+      "section_id": "documentation_resources",
+      "text": "The Documentation & Resources section duplicates the first link and omits several verified resource links present in the original README."
+    },
+    {
+      "absent": [
+        "STL (import and export) is the only format that is fully functional in the published `26.5.0` package; a handful of",
+        "OBJ import has a real, working parser in the upstream GitHub source, but the currently published Maven Central artifact",
+        "Several of the recognized-but-unfinished formats above fail silently rather than with an error: loading or saving",
+        "Additional format coverage beyond STL (including proprietary and high-performance formats) is a commercial-edition",
+        "A handful of primitive-shape classes have a mesh-conversion method that is present but not yet implemented; `Box`,",
+        "`NurbsCurve` exposes its full control-point/knot/degree data model, but sampling points along the curve is not yet",
+        "`PbrSpecularMaterial`'s accessors are unimplemented in this edition; the PBR material capability described above uses",
+        "Licensing, trial, and DRM-related functionality (`License`, `Metered`) is intentionally excluded, as are cryptographic"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:docs"
+      ],
+      "id": "F04",
+      "quote": "Aspose.3D FOSS for Java provides a free and open-source subset of the Aspose.3D for Java API, targeting Java developers who need to work with 3D scenes, primitives, and the STL format using the package at version 26.5.0 on Java 21 or newer.",
+      "reader": 2,
+      "repair": "Restore the original, fact-supported limitation statements in their original order, including the explicit reference to FILE_FORMATS.md and the precise wording about silent failures, primitive-shape limitations, and excluded functionality.",
+      "reviewer_scope_defect": "the quote names public_symbol:com.aspose.threed.fileformattype.stl, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section reorders and rewords limitations in a way that obscures the original's clear, fact-supported structure and omits the explicit reference to FILE_FORMATS.md."
+    },
+    {
+      "absent": [
+        "mvn clean package",
+        "mvn test",
+        "This is a Maven project; build and test it from source:",
+        "Releases run through the [maven-central-release workflow](.github/workflows/maven-central-release.yml).",
+        "The test suite ([`src/test/java/com/aspose/threed/`](src/test/java/com/aspose/threed/)) covers",
+        "scene construction, vector math, format detection, STL round-tripping, glTF option handling, and",
+        "NURBS curve data. See [FILE_FORMATS.md](FILE_FORMATS.md) for format-support notes."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:maven",
+        "build_test_asset:ci"
+      ],
+      "id": "F05",
+      "quote": "Build and test Aspose.3D FOSS for Java using Maven with JDK 21, as defined by the project's Maven configuration and CI workflow at .github/workflows/.",
+      "reader": 2,
+      "repair": "Restore the original structure: first the build/test commands, then the project status note with TODO.md and AGENTS.md, then the CI workflow reference, and finally the test-suite details with the exact file path and format-support reference.",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact build_test_asset:ci ('.github/workflows/'), which the finding itself cites as its evidence; literal fact text is supported whatever criterion the finding files itself under",
+      "section_id": "development_testing",
+      "text": "The Development and Testing section duplicates the Maven build command and reorders content, losing the clear separation between build/test, project status, and test-suite details present in the original."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "69d7fc9a3a25234d161a0e2fde7b6b816c0a8f7f5607d0f29368ba1f983d0b68",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "012d630ea87dd4b2ed3b6aaa",
+      "5b4af6802e28f2886ef081a2",
+      "7bf2dd6eda183d6293dbc405",
+      "8c9c24fc57a77739116b50dc",
+      "fda854a22f02daa23e26407a"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}
