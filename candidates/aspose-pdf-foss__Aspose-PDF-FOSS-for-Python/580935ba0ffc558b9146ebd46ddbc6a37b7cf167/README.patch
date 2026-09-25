@@ -458,11 +458,11 @@
  
  ```python
  from aspose_pdf import Document, PdfLoadLimits, PdfResourceLimitException
-@@ -434,333 +224,521 @@
+@@ -434,333 +224,518 @@
  
  ## API Reference
  
-+The `aspose_pdf.Document` class serves as the primary entry point for working with PDF documents, providing access to pages, forms, outlines, and tagged content alongside encryption, merging, and optimization operations. Supporting modules include `aspose_pdf.Page` for per-page editing, `aspose_pdf.PdfExtractor` for extracting text, images, and attachments, `aspose_pdf.Form` for form field management, `aspose_pdf.AnnotationCollection` for annotation handling, `aspose_pdf.PdfSignature` for digital signature validation, `aspose_pdf.Merger` and `aspose_pdf.Splitter` for document assembly and disassembly, `aspose_pdf.Optimizer` for file size reduction, `aspose_pdf.TextExtractor` for text extraction workflows, `aspose_pdf.FontRepository` for font management, and `aspose_pdf.PdfLoadLimits` for controlling resource consumption.
++The `aspose_pdf.Document` class serves as the primary entry point for loading, creating, and manipulating PDF documents, while `aspose_pdf.PdfExtractor`, `aspose_pdf.Form`, `aspose_pdf.AnnotationCollection`, `aspose_pdf.Merger`, `aspose_pdf.Splitter`, `aspose_pdf.Optimizer`, and `aspose_pdf.TextExtractor` provide focused capabilities for extraction, forms, annotations, merging, splitting, optimization, and text handling.
 +
 +The verified public surface has 284 types.
 +
@@ -574,7 +574,7 @@
 +| `GeneratedAppearance` | A synthesised appearance: content bytes plus any required ExtGState entries. |
 +| `LayoutElement` | A positioned piece of page content (a text object or an image paint). |
 +| `TextObject` | A BT ... ET text object located in a content stream. |
-+| `ccitt.Decoder` | Decoder performs CCITT fax compression decoding on image data streams. |
++| `ccitt.Decoder` | Decoder provides functionality to decode CCITT-encoded image data. |
 +| `ChainResult` | Result of building and validating a certificate path. |
 +| `CffOutlines` | Decode glyph outlines from a CFF (Type 2 charstring) font program. |
 +| `SignedDataInfo` | Everything we need from a parsed CMS SignedData. |
@@ -582,23 +582,23 @@
 +| `AuthoredImage` | Prepared image data and PDF image XObject metadata. |
 +| `Isolation` | What to put around a page's content before appending to it. |
 +| `ContentStreamParser` | Parse a PDF content stream and extract plain text. |
-+| `PdfArray` | PdfArray holds an ordered collection of PDF objects and supports appending new elements. |
-+| `PdfBoolean` | PdfBoolean wraps a true or false value as a PDF boolean object. |
-+| `PdfDictionary` | PdfDictionary stores key-value pairs of PDF objects and provides methods to retrieve or remove entries. |
++| `PdfArray` | PdfArray is a container object that holds an ordered list of PDF objects. |
++| `PdfBoolean` | PdfBoolean represents a boolean value, either true or false, in a PDF document. |
++| `PdfDictionary` | PdfDictionary is a collection of key-value pairs used to store structured data in a PDF document. |
 +| `PdfDocument` | Container for a PDF's COS object graph. |
-+| `PdfIndirectReference` | PdfIndirectReference points to an object stored elsewhere in the PDF file by its object identifier. |
-+| `cos.PdfName` | PdfName represents a PDF name object, a short string used as a key or identifier. |
++| `PdfIndirectReference` | PdfIndirectReference is a reference to an object stored elsewhere in the PDF file. |
++| `cos.PdfName` | PdfName represents a named object in a PDF document, typically used as a key in dictionaries. |
 +| `cos.PdfNull` | Represent PDF null object. |
-+| `cos.PdfNumber` | PdfNumber wraps numeric values and provides conversion to integer or double. |
++| `cos.PdfNumber` | PdfNumber represents a numeric value, either integer or real, in a PDF document. |
 +| `PdfObject` | Base class for all PDF COS objects. |
 +| `PdfStream` | A stream object: a dictionary plus a byte payload. |
-+| `PdfString` | PdfString holds a sequence of bytes encoded as a PDF string object. |
++| `PdfString` | PdfString represents a sequence of bytes in a PDF document, often used for text or binary data. |
 +| `data.Color` | Represents a color in PDF documents. |
-+| `Encoding` | Encoding converts Unicode text into a specific byte representation using a defined character set. |
-+| `data.PdfNull` | PdfNull represents the null object in the PDF object model, indicating the absence of a value. |
-+| `PdfObjectID` | PdfObjectID uniquely identifies an indirect object within a PDF file using an object number and generation number. |
-+| `PdfObjectRegistry` | PdfObjectRegistry manages the registration and lookup of indirect objects during PDF construction. |
-+| `PdfTrailerable` | PdfTrailerable provides access to the trailer dictionary of a PDF file, which contains metadata about the document. |
++| `Encoding` | Encoding defines how characters are mapped to bytes in text streams within a PDF document. |
++| `data.PdfNull` | PdfNull represents the null object in a PDF document, used to indicate the absence of a value. |
++| `PdfObjectID` | PdfObjectID uniquely identifies an object within a PDF document’s object space. |
++| `PdfObjectRegistry` | PdfObjectRegistry manages the registration and lookup of PDF objects during document processing. |
++| `PdfTrailerable` | PdfTrailerable provides access to the trailer dictionary of a PDF document, which contains metadata about the file. |
 +| `number.PdfNumber` | Represents a PDF number primitive (integer or real). |
 +| `types.PdfName` | Represents a PDF name object. |
 +| `XmpNamespaceProvider` | Bidirectional XMP namespace prefix <-> URI resolver. |
@@ -640,11 +640,11 @@
 +| `CharacterCollection` | A CIDSystemInfo registry, ordering, and supplement triple. |
 +| `PredefinedCMap` | A resolved predefined CMap and its semantic Unicode mapping. |
 +| `PredefinedCMapEncoding` | Compact code-to-CID view of a predefined CMap. |
-+| `Matrix` | Matrix represents a 3x3 transformation matrix used for coordinate transformations in PDF rendering. |
++| `Matrix` | Matrix represents a 3x3 transformation matrix used for coordinate transformations in a PDF document. |
 +| `RecipientPayload` | What one opened envelope carries. |
-+| `RevocationResult` | RevocationResult indicates whether a digital signature's certificate chain has been revoked. |
++| `RevocationResult` | RevocationResult holds the outcome of a certificate revocation check during digital signature validation. |
 +| `DocumentFont` | The document's own font for a rich-text block, when there is one. |
-+| `RichRun` | RichRun holds a segment of text with consistent formatting attributes for rich text rendering. |
++| `RichRun` | RichRun represents a segment of rich text with consistent formatting in a tagged PDF document. |
 +| `RichStyle` | The resolved style of a text run. |
 +| `SfntFace` | Metadata recovered from a single SFNT face. |
 +| `Shading` | Base class for bounded RGB sampling in a shading's target space. |
@@ -707,19 +707,19 @@
 +| `OfdLoadOptions` | Options for loading OFD files. |
 +| `OutlineCollection` | Top-level collection of :class:OutlineItem bookmarks. |
 +| `OutlineItem` | A single bookmark entry in a PDF outline tree. |
-+| `PdfConsts` | PdfConsts provides utility methods for converting between decimal and octal representations of numbers. |
++| `PdfConsts` | PdfConsts provides utility methods for common PDF-related numeric conversions. |
 +| `PdfAConversionResult` | Result of a PDF/A conversion operation. |
 +| `FillMode` | Fill mode enumeration for path operations. |
 +| `IMatrix` | Interface for matrix operations. |
 +| `IPath` | Path placeholder: constructible, but it cannot collect a path. |
 +| `ColorPrimitive` | Very small color primitive with transparency support. |
-+| `PrinterSettings` | PrinterSettings holds configuration options for printing a PDF document, such as page range and duplex mode. |
-+| `CompromiseCheckResult` | CompromiseCheckResult reports whether a digital signature's certificate has been compromised. |
++| `PrinterSettings` | PrinterSettings holds configuration options for printing a PDF document. |
++| `CompromiseCheckResult` | CompromiseCheckResult indicates whether a digital certificate has been compromised during signature validation. |
 +| `SignaturesCompromiseDetector` | Detect possible compromise indicators around signed PDFs. |
-+| `Margin` | Margin defines the whitespace around an SVG element when rendering it to a PDF page. |
-+| `PageInfo` | PageInfo specifies the dimensions and layout of a page when converting SVG content to PDF. |
-+| `svg.SvgLoadOptions` | SvgLoadOptions controls how SVG files are loaded and converted into PDF content. |
-+| `TaggedContext` | TaggedContext provides access to the logical structure and metadata of a tagged PDF document. |
++| `Margin` | Margin defines the whitespace around an SVG content area during conversion. |
++| `PageInfo` | PageInfo specifies dimensions and layout properties for a page when converting SVG to PDF. |
++| `svg.SvgLoadOptions` | SvgLoadOptions controls how SVG content is interpreted and converted into PDF. |
++| `TaggedContext` | TaggedContext provides access to the logical structure and tagging information of a tagged PDF document. |
 +| `RegexResult` | Wraps a single regular-expression match found on a PDF page. |
 +| `TextAbsorber` | Absorbs text from PDF pages (legacy class, alias for TextFragmentAbsorber). |
 +| `TextExtractionOptions` | Options for text extraction from PDF pages. |
@@ -752,13 +752,13 @@
 +| `ValidationMethod` | Selects the signature format / validation algorithm. |
 +| `ValidationMode` | Controls whether certificate revocation is checked via network. |
 +| `ValidationStatus` | Outcome of a :class:ValidationResult. |
-+| `PDF3DLightingScheme` | PDF3DLightingScheme defines named lighting schemes used to render 3D annotations in a PDF document. |
-+| `PDF3DRenderMode` | PDF3DRenderMode specifies the rendering mode for 3D annotations, such as wireframe or solid shading. |
-+| `EncodingType` | EncodingType enumerates the supported text encoding schemes used within PDF content streams. |
-+| `FilterType` | FilterType enumerates the compression filters that can be applied to PDF streams. |
-+| `StructureTypeStandard` | StructureTypeStandard enumerates the standard structure types defined by the PDF specification for tagged PDF content. |
-+| `Duplex` | Duplex specifies the double-sided printing mode for a printer when outputting a PDF document. |
-+| `PrintRange` | PrintRange defines the range of pages to print when sending a PDF document to a printer. |
++| `PDF3DLightingScheme` | PDF3DLightingScheme is an enumeration that defines predefined lighting schemes for 3D annotations. |
++| `PDF3DRenderMode` | PDF3DRenderMode is an enumeration that specifies rendering modes for 3D content in a PDF document. |
++| `EncodingType` | EncodingType is an enumeration that specifies the type of encoding used for text in a PDF document. |
++| `FilterType` | FilterType is an enumeration that indicates the filter used to decode a stream in a PDF document. |
++| `StructureTypeStandard` | StructureTypeStandard is an enumeration that defines standard structure types for tagged PDF content. |
++| `Duplex` | Duplex is an enumeration that specifies the duplex printing mode for a printer. |
++| `PrintRange` | PrintRange is an enumeration that defines the range of pages to print in a document. |
 +| `SaveFormat` | Format for saving PDF documents. |
 +| `DocFormat` | Target format for a save operation. |
 +| `PadesLevel` | PAdES baseline conformance level reached by a signature. |
@@ -767,7 +767,7 @@
 +
 +### Document
 +
-+The `aspose_pdf.Document` class enables loading PDFs from files or streams, accessing page collections and metadata, and performing operations such as encryption, decryption, signing, validation against PDF/A and PDF/UA standards, auto-tagging, optimization, merging, text replacement, redaction, and conversion to HTML, Markdown, and SVG formats.
++The `aspose_pdf.Document` class loads PDFs via `load_from`, saves them with save, and exposes pages, form, outlines, and tagged content for structural editing alongside encryption, decryption, signing, validation, optimization, merging, flattening, and appearance generation operations.
 +
 +- `add_attachment`: Embed *content* as a document-level file attachment named *name*.
 +- `add_document_timestamp`: Add a document timestamp when the document is next saved.
@@ -844,7 +844,7 @@
 +
 +### Page
 +
-+The `aspose_pdf.Page` class provides access to individual page properties such as index, label, rotation, media box, crop box, and content stream, along with methods for adding text, rendering to images or SVG, replacing text, redacting content, and managing annotations.
++The `aspose_pdf.Page` class provides access to page content, annotations, and media/crop boxes, enabling text and image insertion, drawing primitives, text redaction and replacement, rendering to image or SVG, and conversion to HTML or Markdown.
 +
 +- `accept`: Dispatch this page to an object implementing visit(page).
 +- `add_image`: Place an image on this page and return its resource name.
@@ -873,7 +873,7 @@
 +
 +### PdfExtractor
 +
-+The `aspose_pdf.PdfExtractor` class enables binding to a PDF document and extracting text, images, and attachments using methods such as `extract_text`, `get_text`, `extract_image`, `get_next_image`, `extract_attachment`, `get_attachment`, and `get_attach_names`.
++The `aspose_pdf.PdfExtractor` class extracts text, images, and attachments from PDFs after binding a document, offering sequential access to pages and images along with password support and resource cleanup.
 +
 +- `bind_pdf`: Bind to a PDF source for extraction.
 +- `close`: Close the extractor and release resources.
@@ -893,7 +893,7 @@
 +
 +### Form
 +
-+The `aspose_pdf.Form` class supports adding text fields, checkboxes, combo boxes, list boxes, push buttons, radio groups, and signature fields to a PDF, as well as removing fields, flattening the form, generating appearances, and importing or exporting form data in FDF and XFDF formats.
++The `aspose_pdf.Form` class manages interactive form fields by adding text fields, checkboxes, combo boxes, list boxes, push buttons, radio groups, and signature fields, then flattening, generating appearances, or importing and exporting FDF and XFDF data.
 +
 +- `add_checkbox`: Add a check box with generated Off/on appearances.
 +- `add_combo_box`: Add a combo box, optionally allowing values outside its option list.
@@ -913,7 +913,7 @@
 +
 +### AnnotationCollection
 +
-+The `aspose_pdf.AnnotationCollection` class provides methods to add, insert, and delete annotations on a page, clear all annotations, and generate appearances for annotation visuals.
++The `aspose_pdf.AnnotationCollection` class manages page annotations through adding, inserting, and deleting items, clearing the collection, and generating appearances for interactive annotations.
 +
 +- `add`: Defined as `def add(self, subtype: str, rect: tuple[float, float, float, float], contents: str, *, title: str / None=None, appearance_normal: bytes / bytearray / None=None, properties: dict[str, Any] / None=None) -> Annotation`.
 +- `clear`: Defined as `def clear(self) -> None`.
@@ -921,40 +921,19 @@
 +- `generate_appearances`: Synthesise missing appearance streams for every annotation on the page.
 +- `insert`: Defined as `def insert(self, index: int, subtype: str, rect: tuple[float, float, float, float], contents: str, *, title: str / None=None, appearance_normal: bytes / bytearray / None=None, properties: dict[str, Any] / None=None) -> Annotation`.
 +
-+### PdfSignature
++### sign
 +
-+The `aspose_pdf.PdfSignature` class exposes properties and methods to validate digital signatures and check their validity status.
++The `aspose_pdf.Document.sign` method signs documents with certificates, supports LTV and document timestamps for PAdES compliance, and validates signatures through the `aspose_pdf.PdfSignature.valid` and `aspose_pdf.PdfSignature.validate` methods.
 +
-+- `valid`: Public accessor that safely verifies the signature.
-+- `validate`: Validate the signature with configurable options.
++### PdfLoadLimits
 +
-+### Merger
++The `aspose_pdf.PdfLoadLimits` class configures resource limits when loading PDFs, and `aspose_pdf.PdfResourceLimitException` is raised when input exceeds the specified thresholds.
 +
-+The `aspose_pdf.Merger` class provides a process method to concatenate multiple PDF documents into a single output file.
-+
-+- `process`: Defined as `def process(self, options: MergeOptions) -> ResultContainer`.
-+
-+### Splitter
-+
-+The `aspose_pdf.Splitter` class provides a process method to split a PDF document into separate files, either by page ranges or individual pages.
-+
-+- `process`: Defined as `def process(self, options: SplitOptions) -> ResultContainer`.
-+
-+### Optimizer
-+
-+The `aspose_pdf.Optimizer` class provides a process method to reduce PDF file size by optimizing images, fonts, and other resources within the document.
-+
-+- `process`: Defined as `def process(self, options: OptimizeOptions) -> ResultContainer`.
-+
-+### TextExtractor
-+
-+The `aspose_pdf.TextExtractor` class provides a process method to extract text content from a PDF document for further processing or analysis.
-+
-+- `process`: Defined as `def process(self, options: TextExtractorOptions) -> ResultContainer`.
++- `unlimited`: Return a configuration with every limit disabled.
 +
 +### FontRepository
 +
-+The `aspose_pdf.FontRepository` class allows managing font sources by adding or resetting sources, searching for fonts, finding specific fonts, opening fonts, and retrieving available fonts.
++The `aspose_pdf.FontRepository` class manages font sources, allowing custom font directories to be added or cleared, fonts to be searched or opened, and system fonts to be used via `FontSubstitutionOptions.system` for reproducible rendering.
 +
 +- `add_source`: Register *source*; sources are queried highest-priority first.
 +- `clear_sources`: Remove all registered sources (including the system source).
@@ -965,11 +944,29 @@
 +- `reset_sources`: Restore the default source list (system fonts only).
 +- `search`: Defined as `def search(cls, font_name: str) -> FontDescriptor / None`.
 +
-+### PdfLoadLimits
++### Merger
 +
-+The `aspose_pdf.PdfLoadLimits` class provides a setting to configure unlimited resource limits when loading PDF documents.
++The `aspose_pdf.Merger` class merges multiple PDFs using `MergeOptions`, while `aspose_pdf.PdfFileEditor` provides a boolean-returning interface for concatenating, appending, extracting, inserting, and deleting pages.
 +
-+- `unlimited`: Return a configuration with every limit disabled.
++- `process`: Defined as `def process(self, options: MergeOptions) -> ResultContainer`.
++
++### Splitter
++
++The `aspose_pdf.Splitter` class splits PDFs according to `SplitOptions`, enabling extraction of specific pages or ranges into separate files.
++
++- `process`: Defined as `def process(self, options: SplitOptions) -> ResultContainer`.
++
++### Optimizer
++
++The `aspose_pdf.Optimizer` class reduces file size by applying `OptimizeOptions` or `OptimizationOptions`, and `aspose_pdf.Document.optimize_resources` provides a convenience method on the `Document` class.
++
++- `process`: Defined as `def process(self, options: OptimizeOptions) -> ResultContainer`.
++
++### TextExtractor
++
++The `aspose_pdf.TextExtractor` class extracts text from PDFs using `TextExtractorOptions`, while `TextAbsorber` and `TextFragmentAbsorber` provide more granular control over text extraction and search via `TextSearchOptions` and `TextFormattingMode`.
++
++- `process`: Defined as `def process(self, options: TextExtractorOptions) -> ResultContainer`.
 +
 +
  The `Document` class is the central entry point — it exposes `pages`, `form`, `outlines`, and
@@ -1302,7 +1299,7 @@
  
  - `Document`
    - `load_from(source, password, limits) -> Document` / `open_streaming(path, password, limits) -> Document`
-@@ -791,193 +769,36 @@
+@@ -791,193 +766,39 @@
      `is_pdfua_compliant`, `font_substitution`, `page_mode`, `page_layout`, `open_action`,
      `viewer_preferences`
  
@@ -1475,10 +1472,14 @@
 +- `Page` rendering is a best-effort rasterizer, not a certification-grade visual engine: its overprint support is a composite RGB preview rather than a plate-accurate separation model, and complete PDF 2.0 imaging semantics are not implemented.
  
  ## Development and Testing
++
++Build and test the aspose-pdf-foss-for-python package by running tests from the tests/ directory using the CI workflow defined in .github/workflows/.
++
++The suite covers 287 test files under `tests/`. Releases run through the [publish-pypi workflow](.github/workflows/publish-pypi.yml).
  
--Activate the virtual environment and install the development extra, then run the same lint
--checks and tests CI runs:
--
+ Activate the virtual environment and install the development extra, then run the same lint
+ checks and tests CI runs:
+ 
 -```bash
 -source .venv/bin/activate
 -python -m pip install -e '.[dev]'
@@ -1504,10 +1505,7 @@
 -(`workflow_dispatch`), not run automatically on every push.
 -
 -</details>
-+Build and test the aspose-pdf-foss-for-python package by running tests from the tests/ directory using the CI workflow defined in .github/workflows/.
-+
-+The suite covers 287 test files under `tests/`. Releases run through the [publish-pypi workflow](.github/workflows/publish-pypi.yml).
- 
+-
  ## License
  
 -This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,

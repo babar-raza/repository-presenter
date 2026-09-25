@@ -1,7 +1,7 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "11",
+    "normalisation": "12",
     "renderer": "24",
     "reviewer_logic": "12",
     "shell": "6"
@@ -11,7 +11,7 @@
     "extractor_version": "1",
     "inherited_units_version": "1",
     "os": "Windows",
-    "presenter_site_manifest": "c245e62b14ae3148e4dfc7801998687aa3f649fa4dafed378b1eff764b5d7738",
+    "presenter_site_manifest": "75b3f0a88fc9863226b4e3c503bb92c7131d15419eefc8a4037fe4a7f017f8b7",
     "python_version": "3.13.2"
   },
   "facts": {
@@ -1744,7 +1744,7 @@
       "version": "9"
     }
   },
-  "protected_content_fingerprint": "df7d56c5cd88fe59ededc79c1efdc7977e5cf5c9386ea588d7405c53e445d532",
+  "protected_content_fingerprint": "75068be3d2f72d05f59a0e91db56853f1c722dbcefd9475368cb4f835da2381a",
   "schema_version": 1,
   "source": {
     "revision": "580935ba0ffc558b9146ebd46ddbc6a37b7cf167",

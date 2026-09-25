@@ -499,8 +499,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "df7d56c5cd88fe59ededc79c1efdc7977e5cf5c9386ea588d7405c53e445d532",
-  "readme_sha256": "164fa1a9db2fc17cebb123203a4ddb6dd05d2aadfb2f8ea6b91d713edc3527e5",
+  "protected_content_fingerprint": "75068be3d2f72d05f59a0e91db56853f1c722dbcefd9475368cb4f835da2381a",
+  "readme_sha256": "b29f107530c953c5ecdf1f85eba941dd6ec7e1bd1abf5e7694830c80e80d09ad",
   "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "580935ba0ffc558b9146ebd46ddbc6a37b7cf167",

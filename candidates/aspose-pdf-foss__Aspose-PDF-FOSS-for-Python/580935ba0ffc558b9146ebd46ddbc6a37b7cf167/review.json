@@ -2,85 +2,6 @@
   "advisory": [
     {
       "absent": [
-        "python3 -m venv .venv",
-        "source .venv/bin/activate",
-        "pip install -e '.[dev]'"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "factuality",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F01",
-      "quote": "aspose-pdf-foss-for-python is not yet published on PyPI; build it from a source checkout instead, verified against this revision: ```bash git clone https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python.git cd Aspose-PDF-FOSS-for-Python pip install . ```",
-      "repair": "Update the installation section to match the verified command: `git clone https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python.git`, `cd Aspose-PDF-FOSS-for-Python`, `python3 -m venv .venv`, `source .venv/bin/activate`, `python -m pip install -e '.[dev]'`.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose_pdf.clustering.cluster.clone, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
-      "section_id": "installation",
-      "text": "The candidate states that the package is not yet published on PyPI and provides an installation command that omits the virtual environment setup and the `-e` editable flag, which contradicts the original README's verified installation instructions."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "factuality",
-      "fact_ids": [
-        "public_symbol:aspose_pdf"
-      ],
-      "id": "F02",
-      "quote": "The verified public surface has 284 types.",
-      "repair": "Change the count to 265 to match the original README's verified statement.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "api_reference",
-      "text": "The candidate claims the verified public surface has 284 types, but the original README states 265 public types, and no fact supports the higher count."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "factuality",
-      "fact_ids": [
-        "public_symbol:aspose_pdf.document.encrypt_for_recipients"
-      ],
-      "id": "F03",
-      "quote": "Public-key encryption via `aspose_pdf.Document.encrypt_for_recipients` covers RSA recipients only; key-agreement, password, and KEK recipient types, and RC2-encrypted envelopes, are rejected explicitly, and no PDF 2.0 message authentication code (/`AuthCode`) is produced or checked.",
-      "repair": "Restore the omitted limitation about public-key encryption recipient types and the absence of `/AuthCode`.",
-      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact public_symbol:aspose_pdf.document.encrypt_for_recipients ('aspose_pdf.Document.encrypt_for_recipients'); literal fact text is supported",
-      "section_id": "scope_limitations",
-      "text": "The candidate omits the limitation that public-key encryption covers RSA recipients only, which is explicitly stated in the original README and supported by facts."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "factuality",
-      "fact_ids": [
-        "dependency:optional.images.pillow-12.3"
-      ],
-      "id": "F04",
-      "quote": "Rendering quality and speed depend on the optional Pillow>=12.3 dependency: the bundled JPEG 2000 decoder is pure Python and slow, roughly a second per 100k pixels, and complex-text shaping and WOFF2 decoding need the optional text-layout and woff2 extras.",
-      "repair": "Restore the omitted performance limitation about the bundled JPEG 2000 decoder and the need for optional extras.",
-      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact dependency:optional.images.pillow-12.3 ('Pillow>=12.3'); literal fact text is supported",
-      "section_id": "scope_limitations",
-      "text": "The candidate omits the limitation that rendering quality and speed depend on the optional Pillow>=12.3 dependency, including the bundled JPEG 2000 decoder's performance, which is explicitly stated in the original README."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "factuality",
-      "fact_ids": [
-        "public_symbol:aspose_pdf.page.render"
-      ],
-      "id": "F05",
-      "quote": "Page rendering is a best-effort rasterizer, not a certification-grade visual engine: its overprint support is a composite RGB preview rather than a plate-accurate separation model, and complete PDF 2.0 imaging semantics are not implemented.",
-      "repair": "Restore the omitted limitation about rendering quality and certification-grade expectations.",
-      "reviewer_scope_defect": "the quote substantially restates SUPPORTED fact inherited_unit:096.list (\"- Page rendering is a best-effort rasterizer, not a certification-grade visual engine: its\\n  overprint support is a composite RGB preview rather than a plate-accurate separation model, and\\n  complete PDF 2.0 imaging semantics are not implemented.\\n- `Document.validate_pdfa()` and `Document.validate_pdfua()` are heuristic checks against document\\n  structure, not certification-grade validation — use a dedicated validator such as veraPDF for\\n  formal compliance.\\n- OCR and layout reflow are not implemented; `Document.replace_text()` and `Document.redact_text()`\\n  rewrite matched runs in place but never reflow the surrounding layout.\\n- Several compatibility surfaces exist only to keep ported code importable and carry no\\n  implementation: `CdrLoadOptions`, `CgmLoadOptions`, `HtmlLoadOptions`, `OfdLoadOptions`, and\\n  `SvgLoadOptions` are rejected as a load source, and `SaveFormat.PPTX` is rejected by\\n  `Document.save()` — both raise `UnsupportedFeatureException` rather than silently doing\\n  nothing. (`DocFormat.SVG`/`HTML`/`MARKDOWN`, `HtmlSaveOptions`, and `MarkdownSaveOptions` are no\\n  longer among them — those exports are implemented; see Key Capabilities.)\\n- Public-key encryption covers RSA recipients only; key-agreement, password, and KEK recipient\\n  types, and RC2-encrypted envelopes, are rejected explicitly. No PDF 2.0 message authentication\\n  code (`/AuthCode`) is produced or checked for either security handler.\\n- Substituting a face for a non-embedded font is opt-in (`Document.font_substitution`) and affects\\n  **rendering only** — text extraction, editing, and PDF/A font embedding are unchanged, and no\\n  substituted program is written into the document. Without it the renderer uses only the bundled\\n  substitute faces (the Standard 14 plus Symbol/ZapfDingbats), so a non-embedded CJK or symbol font\\n  draws glyph boxes.\\n- HTML and Markdown export carry structure, not appearance: positioning, colour, and fonts are\\n  dropped, and the structure is `auto_tag`'s, so headings come from font size alone, list nesting\\n  is flat, and a table needs a regular grid.\\n- SVG export writes polylines rather than curves (the renderer flattens Béziers as it builds a\\n  path) and text as glyph outlines, which renders exactly but is not selectable. Blend modes and\\n  transparency groups are not expressed; mesh and function shadings are sampled into an embedded\\n  image.\\n- WOFF2 decoding and complex-text shaping each need an optional extra (`woff2` and\\n  `text-layout`); without them these paths fall back to file-name metadata or fail explicitly.\\n- The bundled JPEG 2000 decoder is pure Python and slow — roughly a second per 100k pixels, so a\\n  300 dpi page takes minutes. Install the `images` extra for anything larger than a thumbnail. It\\n  raises rather than guesses on the parts of ISO 15444-1 it does not implement (packed packet\\n  headers, progression order changes, regions of interest) and normalises output to 8 bits per\\n  component.\\n- The same `limits=` argument accepted by `Document()` is also accepted by\\n  `Document.load_from()` and `Document.open_streaming()`, and `PdfLoadLimits.unlimited()`\\n  disables every safeguard — reserve it for trusted input backed by external process, memory,\\n  and time controls. `PdfLoadLimits` reduces known parser and allocation risks but is not an\\n  exhaustive DoS sandbox — isolate highly hostile PDF input at the process level\\n  as well.\\n- Signature validation follows the ETSI PAdES baseline levels (B/T/LT/LTA), but this is not a\\n  formally certified eIDAS-grade implementation.\") in different words; a faithful paraphrase of cited evidence is supported exactly as a literal quote is (G4-W17 item 116)",
-      "section_id": "scope_limitations",
-      "text": "The candidate omits the limitation that `Page` rendering is a best-effort rasterizer, not a certification-grade visual engine, which is explicitly stated in the original README."
-    },
-    {
-      "absent": [
         "Aspose.PDF FOSS for Python"
       ],
       "causal_stage": "S7",
@@ -91,15 +12,39 @@
         "package:name"
       ],
       "id": "F01",
-      "quote": "# Aspose PDF FOSS for Python",
-      "reader": 2,
-      "repair": "Change the H1 heading and all subsequent references to the canonical product name 'Aspose.PDF FOSS for Python' to match the repository identity and package name.",
+      "quote": "Aspose PDF FOSS for Python is a Python library for processing PDF documents...",
+      "repair": "Replace all occurrences of 'Aspose PDF FOSS for Python' with the canonical product name 'Aspose.PDF FOSS for Python' to match the repository name and package identity.",
       "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
       "section_id": "identity",
-      "text": "The candidate uses a non-canonical product name 'Aspose PDF FOSS for Python' instead of the canonical 'Aspose.PDF FOSS for Python' in the H1 heading and throughout, which contradicts the repository identity and package name facts."
+      "text": "The candidate uses a non-canonical product name 'Aspose PDF FOSS for Python' instead of the canonical 'Aspose.PDF FOSS for Python' in the H1 heading and throughout the document."
     },
     {
       "absent": [
+        "The `Document` class is the central entry point: `Document(source, password=..., limits=...)` creates a new PDF or loads",
+        "Page.add_text() places Standard-14 or embedded Unicode text on a page. Feed it a `FontDescriptor`, raw font bytes, or a",
+        "PdfExtractor pulls all page text with `get_text()` or walks it page by page",
+        "Document.replace_text() and Document.redact_text() rewrite or remove matched text directly inside existing content"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.page.add_text",
+        "public_symbol:aspose_pdf.form.add_text_field",
+        "public_symbol:aspose_pdf.annotationcollection.add"
+      ],
+      "id": "F03",
+      "quote": "Create and edit PDF documents. Create and edit PDF documents by loading existing files with `load_from`, adding text to pages via `add_text`, and inserting interactive form fields such as text fields using `add_text_field`, all managed through the `Document` and `AnnotationCollection` APIs.",
+      "repair": "Rewrite the Key Capabilities section to match the detailed, fact-supported descriptions from the original README, preserving the specific class names, method signatures, and technical details.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_pdf.annotationcollection, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The candidate's 'Key Capabilities' section uses generic, low-specificity descriptions that do not match the detailed, fact-supported descriptions in the original README."
+    },
+    {
+      "absent": [
+        "git clone https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python.git",
+        "cd Aspose-PDF-FOSS-for-Python",
         "python3 -m venv .venv",
         "source .venv/bin/activate",
         "python -m pip install -e '.[dev]'"
@@ -110,13 +55,46 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "id": "F02",
+      "id": "F04",
       "quote": "pip install .",
-      "reader": 2,
-      "repair": "Restore the full installation sequence from the original README, including virtual environment creation, activation, and editable install with the dev extra, to match the verified install_command fact.",
+      "repair": "Restore the complete installation sequence from the original README, including git clone, venv creation, activation, and editable install with dev extras.",
       "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
       "section_id": "installation",
-      "text": "The installation section omits the virtual environment setup and the editable install command that are present in the original README and supported by the install_command fact, making it incomplete for a developer onboarding journey."
+      "text": "The installation instructions omit the virtual environment setup and the `-e '.[dev]'` editable install command that are present in the original README and supported by the facts."
+    },
+    {
+      "absent": [
+        "python -m pip install -e '.[dev]'",
+        "build",
+        "pytest",
+        "ruff",
+        "setuptools",
+        "twine",
+        "wheel"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:development.dev.build-1.2",
+        "dependency:development.dev.pytest-8",
+        "dependency:development.dev.ruff-0.6",
+        "dependency:development.dev.setuptools-83",
+        "dependency:development.dev.twine-5",
+        "dependency:development.dev.wheel",
+        "dependency:development.dev.brotli-1.2",
+        "dependency:development.dev.fonttools-4.60.2",
+        "dependency:development.dev.pillow-12.3",
+        "dependency:development.dev.uharfbuzz-0.37",
+        "dependency:development.dev.python-bidi-0.6",
+        "dependency:development.dev.reportlab-4.2"
+      ],
+      "id": "F05",
+      "quote": "### Development Dependencies",
+      "repair": "Reorganize the dependencies section to match the original README's structure, including the explicit mention of the `dev` extra and listing all development dependencies with their versions.",
+      "reviewer_scope_defect": "the quote is the heading 'Development Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate's dependencies section is missing the explicit mention of the `dev` extra and does not follow the same structure as the original README."
     },
     {
       "absent": [
@@ -127,21 +105,21 @@
         "Hello from Aspose.PDF FOSS!",
         "x=72",
         "y=720",
-        "font_size=18, )"
+        "font_size=18"
       ],
       "causal_stage": "S7",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "example:001"
+        "example:001",
+        "example:002"
       ],
-      "id": "F03",
+      "id": "F06",
       "quote": "The first example opens an existing PDF file and prints its page count, version, and metadata using the `Document` class from `aspose_pdf`.",
-      "reader": 2,
-      "repair": "Include the first example from the original README that creates a new PDF and adds text, even though the example fact is CONTRADICTED, to preserve the full onboarding journey and provide a placeholder for future implementation.",
+      "repair": "Include the first quick start example that creates a new PDF document with `Document().pages.add()` and `page.add_text()` as shown in the original README.",
       "reviewer_scope_defect": "the omission it names is backed by example:001, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
       "section_id": "quick_start",
-      "text": "The candidate's Quick Start section omits the first example that creates a new PDF and adds text, which is a core onboarding workflow and is supported by the example:001 fact, even though the fact is CONTRADICTED, the original example should be preserved as a placeholder for future implementation."
+      "text": "The candidate's quick start examples are missing the first example that creates a new PDF with `Document().pages.add()` and `page.add_text()` with positional arguments, which is supported by the original README but marked as CONTRADICTED."
     },
     {
       "absent": [
@@ -161,13 +139,12 @@
         "example:010",
         "example:011"
       ],
-      "id": "F04",
+      "id": "F07",
       "quote": "View Additional Examples",
-      "reader": 2,
-      "repair": "Restore the omitted examples from the original README, including their headings and code blocks, even though some example facts are CONTRADICTED, to preserve the full set of workflows and provide placeholders for future implementation.",
+      "repair": "Restore the omitted examples from the original README that are supported by the facts, including encrypting for certificate recipients, signing documents, and layer watermarking.",
       "reviewer_scope_defect": "the omission it names is backed by example:004, which is UNRESOLVED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
       "section_id": "additional_examples",
-      "text": "The candidate omits the examples for encrypting for certificate recipients, signing a document, layer watermarking, multi-script Unicode text, and complex-script text, which are present in the original README and supported by the example facts, even though some are CONTRADICTED, they should be preserved as placeholders for future implementation."
+      "text": "The candidate omits several verified examples from the original README that are supported by facts, including examples for encrypting for certificate recipients, signing documents, and layer watermarking."
     },
     {
       "absent": [
@@ -176,9 +153,9 @@
         "### PdfExtractor",
         "### Form",
         "### AnnotationCollection",
-        "### PdfSignature",
-        "### Merger",
-        "### Splitter"
+        "### sign",
+        "### PdfLoadLimits",
+        "### FontRepository"
       ],
       "causal_stage": "S7",
       "causal_state": null,
@@ -189,27 +166,26 @@
         "public_symbol:aspose_pdf.pdfextractor",
         "public_symbol:aspose_pdf.form",
         "public_symbol:aspose_pdf.annotationcollection",
-        "public_symbol:aspose_pdf.pdfsignature",
+        "public_symbol:aspose_pdf.document.sign",
+        "public_symbol:aspose_pdf.pdfloadlimits",
+        "public_symbol:aspose_pdf.fontrepository",
         "public_symbol:aspose_pdf.merger",
         "public_symbol:aspose_pdf.splitter",
         "public_symbol:aspose_pdf.optimizer",
-        "public_symbol:aspose_pdf.textextractor",
-        "public_symbol:aspose_pdf.fontrepository",
-        "public_symbol:aspose_pdf.pdfloadlimits"
+        "public_symbol:aspose_pdf.textextractor"
       ],
-      "id": "F05",
-      "quote": "The verified public surface has 284 types.",
-      "reader": 2,
-      "repair": "Restore the detailed member reference sections for Document, Page, PdfExtractor, Form, AnnotationCollection, PdfSignature, Merger, Splitter, Optimizer, TextExtractor, FontRepository, and PdfLoadLimits from the original README to provide a complete API reference for developers.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain '### AnnotationCollection', '### Document', '### Form', which the candidate contains",
+      "id": "F08",
+      "quote": "The `Document` class is the central entry point — it exposes `pages`, `form`, `outlines`, and `tagged_content` for structural editing alongside `encrypt`, `decrypt`, `merge`, `optimize`, and `flatten` operations.",
+      "repair": "Restore the detailed member reference sections for Document, Page, PdfExtractor, Form, AnnotationCollection, sign, PdfLoadLimits, FontRepository, Merger, Splitter, Optimizer, and TextExtractor from the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### AnnotationCollection', '### Document', '### FontRepository', which the candidate contains",
       "section_id": "api_reference",
-      "text": "The candidate's API Reference section omits the detailed member reference sections for Document, Page, PdfExtractor, Form, AnnotationCollection, PdfSignature, Merger, Splitter, Optimizer, TextExtractor, FontRepository, and PdfLoadLimits, which are present in the original README and supported by the public_symbol facts, making it incomplete for developers."
+      "text": "The candidate's API reference section is missing the detailed member reference sections for Document, Page, PdfExtractor, Form, AnnotationCollection, sign, PdfLoadLimits, FontRepository, Merger, Splitter, Optimizer, and TextExtractor that are present in the original README."
     },
     {
       "absent": [
-        "Rendering quality and speed depend on the optional Pillow>=12.3 dependency",
-        "Public-key encryption via `aspose_pdf.Document.encrypt_for_recipients` covers RSA recipients only",
-        "SVG export writes polylines rather than curves"
+        "Page rendering is a best-effort rasterizer, not a certification-grade visual engine",
+        "The bundled JPEG 2000 decoder is pure Python and slow — roughly a second per 100k pixels",
+        "Signature validation follows the ETSI PAdES baseline levels (B/T/LT/LTA), but this is not a formally certified eIDAS"
       ],
       "causal_stage": "S7",
       "causal_state": null,
@@ -224,13 +200,227 @@
         "public_symbol:aspose_pdf.document.encrypt_for_recipients",
         "dependency:optional.images.pillow-12.3"
       ],
-      "id": "F06",
+      "id": "F09",
       "quote": "Aspose PDF FOSS for Python provides a Pythonic API for reading, inspecting, and converting PDF documents, supporting PDF/A and PDF/UA validation, text replacement and redaction, and export to HTML and Markdown.",
-      "reader": 2,
-      "repair": "Restore the omitted limitations about rendering quality and speed, public-key encryption, and SVG export from the original README to provide a complete picture of the library's current capabilities and limitations for developers.",
+      "repair": "Restore the complete scope and limitations section from the original README, including all technical details about rendering quality, JPEG 2000 decoder performance, and signature validation certification level.",
       "reviewer_scope_defect": "the quote substantially restates SUPPORTED fact public_symbol:aspose_pdf.document.replace_text ('aspose_pdf.Document.replace_text'), which the finding itself cites as its evidence; a faithful paraphrase (G4-W17 item 116) is supported whatever criterion the finding files itself under",
       "section_id": "scope_limitations",
-      "text": "The candidate's Scope and Limitations section omits the limitations about rendering quality and speed, public-key encryption, and SVG export, which are present in the original README and supported by the material_limitations facts, making it incomplete for developers assessing suitability."
+      "text": "The candidate's scope and limitations section is missing several important limitations from the original README, including details about rendering quality, JPEG 2000 decoder performance, and signature validation certification level."
+    },
+    {
+      "absent": [
+        "Aspose.PDF FOSS for Python"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "package:name"
+      ],
+      "id": "F01",
+      "quote": "# Aspose PDF FOSS for Python",
+      "reader": 2,
+      "repair": "Change the H1 heading to '# Aspose.PDF FOSS for Python' to match the canonical product name.",
+      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "identity",
+      "text": "The candidate opens with 'Aspose PDF FOSS for Python' instead of the canonical product name 'Aspose.PDF FOSS for Python' supported by the repository identity and package facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:version"
+      ],
+      "id": "F02",
+      "quote": "The library is distributed under the MIT license and is version 0.1.0.",
+      "reader": 2,
+      "repair": "Remove the explicit version claim from the opening paragraph to avoid presenting unverified version information.",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact package:version ('0.1.0'), which the finding itself cites as its evidence; literal fact text is supported whatever criterion the finding files itself under",
+      "section_id": "opening",
+      "text": "The candidate states the library is 'version 0.1.0' but the facts do not support a specific version string in the opening; the version fact only confirms '0.1.0' as a package fact, not as a user-facing claim in the opening paragraph."
+    },
+    {
+      "absent": [
+        "Starting Points",
+        "An existing PDF file or stream",
+        "o1[PDF file]",
+        "o2[PNG file]",
+        "o3[TIFF file]"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "```mermaid",
+      "reader": 2,
+      "repair": "Restore the original Mermaid diagram structure with the 'Starting Points' and 'Outputs' subgraphs and their nodes as present in the original README.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the candidate omits the 'Starting Points' and 'Outputs' subgraphs and their nodes, which were present in the original and supported by the facts, and instead uses a simplified structure that does not reflect the verified inputs and outputs."
+    },
+    {
+      "absent": [
+        "Standard-14 or embedded Unicode text",
+        "FontDescriptor",
+        "text-layout",
+        "TextLayoutOptions",
+        "HarfBuzz-driven OpenType shaping",
+        "Unicode bidi runs",
+        "ordered font fallback",
+        "width-constrained line wrapping"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.page.add_text",
+        "public_symbol:aspose_pdf.form.add_text_field",
+        "example:002"
+      ],
+      "id": "F04",
+      "quote": "- **Create and edit PDF documents.** Create and edit PDF documents by loading existing files with `load_from`, adding text to pages via `add_text`, and inserting interactive form fields such as text fields using `add_text_field`, all managed through the `Document` and `AnnotationCollection` APIs.",
+      "reader": 2,
+      "repair": "Re-author the Key Capabilities section to match the original's specificity, including technical details such as Standard-14 fonts, font descriptors, and complex-text shaping options.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_pdf.annotationcollection, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The candidate's Key Capabilities section reorders and groups capabilities differently from the original, omitting specific technical details (e.g., Standard-14 fonts, CID-to-glyph mapping, HarfBuzz shaping) that are supported by facts and present in the original, making it less specific and less useful to developers."
+    },
+    {
+      "absent": [
+        "python3 -m venv .venv",
+        "source .venv/bin/activate",
+        "pip install -e '.[dev]'"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F05",
+      "quote": "```bash",
+      "reader": 2,
+      "repair": "Restore the virtual environment setup and editable install command to match the original installation instructions.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The candidate's installation instructions omit the virtual environment setup and the `-e '.[dev]'` editable install command that are present in the original and supported by the facts, making the instructions incomplete for developers."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:optional.images.pillow-12.3"
+      ],
+      "id": "F06",
+      "quote": "- `Pillow>=12.3` (extra `images`)",
+      "reader": 2,
+      "repair": "Reformat the dependencies list to match the original's grouping and clarity, using consistent formatting for extras.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_pdf.images, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "dependencies",
+      "text": "The candidate's dependencies section lists extras in parentheses (e.g., `(extra images)`) instead of using the original's clearer formatting and grouping, which reduces readability and deviates from the original structure."
+    },
+    {
+      "absent": [
+        "from aspose_pdf import Document",
+        "with Document() as document:",
+        "page = document.pages.add()",
+        "page.add_text(",
+        "Hello from Aspose.PDF FOSS!",
+        "x=72",
+        "y=720",
+        "font_size=18"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001"
+      ],
+      "id": "F07",
+      "quote": "The first example opens an existing PDF file and prints its page count, version, and metadata using the `Document` class from `aspose_pdf`.",
+      "reader": 2,
+      "repair": "Include the first example (creating a new PDF) in the Quick Start section to match the original's completeness.",
+      "reviewer_scope_defect": "the omission it names is backed by example:001, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "section_id": "quick_start",
+      "text": "The candidate's Quick Start section omits the first example (creating a new PDF with `Document().pages.add()`) that is supported by example:001 and present in the original, making the quick start less complete."
+    },
+    {
+      "absent": [
+        "### Document",
+        "### Page",
+        "### PdfExtractor",
+        "### Form",
+        "### AnnotationCollection",
+        "### sign",
+        "### PdfLoadLimits",
+        "### FontRepository"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_pdf.document",
+        "public_symbol:aspose_pdf.page",
+        "public_symbol:aspose_pdf.pdfextractor"
+      ],
+      "id": "F08",
+      "quote": "The `aspose_pdf.Document` class serves as the primary entry point for loading, creating, and manipulating PDF documents, while `aspose_pdf.PdfExtractor`, `aspose_pdf.Form`, `aspose_pdf.AnnotationCollection`, `aspose_pdf.Merger`, `aspose_pdf.Splitter`, `aspose_pdf.Optimizer`, and `aspose_pdf.TextExtractor` provide focused capabilities for extraction, forms, annotations, merging, splitting, optimization, and text handling.",
+      "reader": 2,
+      "repair": "Restore the '## Detailed Member Reference' heading and the subsections for core classes to match the original's navigability.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### AnnotationCollection', '### Document', '### FontRepository', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate's API Reference section omits the '## Detailed Member Reference' heading and the '### Document', '### Page', '### PdfExtractor', etc., subsections that are present in the original and supported by the facts, reducing navigability."
+    },
+    {
+      "absent": [
+        "JPEG 2000 decoder is pure Python and slow",
+        "roughly a second per 100k pixels",
+        "overprint support is a composite RGB preview",
+        "complete PDF 2.0 imaging semantics are not implemented"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:optional.images.pillow-12.3",
+        "public_symbol:aspose_pdf.document.validate_pdfa"
+      ],
+      "id": "F09",
+      "quote": "Aspose PDF FOSS for Python provides a Pythonic API for reading, inspecting, and converting PDF documents, supporting PDF/A and PDF/UA validation, text replacement and redaction, and export to HTML and Markdown.",
+      "reader": 2,
+      "repair": "Restore the specific performance and rendering limitations from the original to ensure developers have complete information.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'JPEG 2000 decoder is pure Python and slow', 'complete PDF 2.0 imaging semantics are not implemented', 'overprint support is a composite RGB preview', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The candidate's Scope and Limitations section omits the specific performance and rendering limitations present in the original (e.g., JPEG 2000 decoder speed, overprint preview, PDF 2.0 imaging semantics) that are supported by facts and important for developers to know."
+    },
+    {
+      "absent": [
+        "scripts/check.sh",
+        "scripts/build.sh",
+        "ci.yml",
+        "security-audit.yml",
+        "publish-pypi.yml",
+        "publish-testpypi.yml"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:ci"
+      ],
+      "id": "F10",
+      "quote": "Build and test the aspose-pdf-foss-for-python package by running tests from the tests/ directory using the CI workflow defined in .github/workflows/.",
+      "reader": 2,
+      "repair": "Restore the CI workflow and wrapper script descriptions to match the original's completeness for contributors.",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact build_test_asset:ci ('.github/workflows/'), which the finding itself cites as its evidence; literal fact text is supported whatever criterion the finding files itself under",
+      "section_id": "development_testing",
+      "text": "The candidate's Development and Testing section omits the CI workflow details and wrapper script descriptions that are present in the original and supported by the facts, making it less informative for contributors."
     }
   ],
   "authoring": {
@@ -241,7 +431,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "164fa1a9db2fc17cebb123203a4ddb6dd05d2aadfb2f8ea6b91d713edc3527e5",
+  "readme_sha256": "b29f107530c953c5ecdf1f85eba941dd6ec7e1bd1abf5e7694830c80e80d09ad",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -251,15 +441,19 @@
   "schema_version": 1,
   "second_reader": {
     "corroborated": [
-      "022197a2d4ecfc92d2341ccd",
-      "1314fc4e818458fa4c23cb8d",
-      "26b9bd5d92e1edc2d1e162cb",
-      "3c3b7985b1f0977c7f120bba",
-      "573348ddd0e6b2ea5b590f8a",
-      "a3b6ba4d451861363f1cdb3d"
+      "012d630ea87dd4b2ed3b6aaa",
+      "5b4af6802e28f2886ef081a2",
+      "75ce3972a5bdabd7147b459d",
+      "7b39d108aee98d84de885f46",
+      "7bf2dd6eda183d6293dbc405",
+      "8e354b15b1c1dbf784765257",
+      "949e03aa2a199c11ad781c51",
+      "a4038de197be7270ac16f2d7",
+      "dcdff0a647163c5adef33c0b",
+      "fda854a22f02daa23e26407a"
     ],
     "read": 2
   },
   "verdict": "ACCEPT",
-  "verdict_as_returned": "REJECT_FACTUAL"
+  "verdict_as_returned": "REJECT_PRESENTATION"
 }
