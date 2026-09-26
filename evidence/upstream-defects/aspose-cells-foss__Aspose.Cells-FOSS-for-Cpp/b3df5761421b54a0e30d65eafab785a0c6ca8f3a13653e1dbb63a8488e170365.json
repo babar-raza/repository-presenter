@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "source_revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+  "defect_fingerprint": "sha256:b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "3",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "no package registry",
+      "detail": "package registry: none could not be read; C++ has no package registry to install from (Aspose.Cells.Foss.Cpp/CMakeLists.txt)"
+    },
+    {
+      "path": "src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp",
+      "detail": "2026-09-23 13:07 UTC (docs/DECISION_LOG.md): rebuilding the same pinned revision with a portable Clang 19.1.7 against the same WinLibs libstdc++ sysroot reproduces the identical trigraph failure at the identical line, and - reaching further into the build than GCC's single-file-deep run ever did - surfaces a second, genuinely independent upstream defect: XlsxWorkbookSerializerCommon.cpp:965-968, \"error: no member named 'numeric_limits' in namespace 'std'\" (four instances), a real missing '#include <limits>' gap the repository's own build order never let GCC's run reach. Confirms compiler identity (GCC vs Clang) does not avoid the repository's own -Werror policy; the codebase is not Clang-clean either."
+    },
+    {
+      "path": "src/aspose/cells_foss/NumberFormat.cpp",
+      "detail": "cmake -S . -B build -G Ninja && cmake --build build with the registered WinLibs GCC 16.2.0/Ninja toolchain (C:\\tools\\rp-toolchains, OWNER-06) fails deterministically at NumberFormat.cpp:30:17: \"error: trigraph '??/' ignored, use '-trigraphs' to enable [-Werror=trigraphs]\" - the repository's own correct Excel number-format literal {13, \"# ??/??\"} (format code 13, a two-digit fraction pattern), turned fatal by the repository's own cmake/toolchain-detect.cmake, which sets -Wall -Wextra -Werror unconditionally for non-MSVC compilers. Independently reproduced twice against the pinned revision: 2026-09-10 15:47 UTC (Taskcard D, docs/DECISION_LOG.md) and 2026-09-23 10:31 UTC (this candidate's own re-seal attempt, docs/DECISION_LOG.md), identical file and line both times."
+    }
+  ],
+  "claim": "At revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2, aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp's own install_command:cmake is UNRESOLVED (cmake -S . -B build -G Ninja && cmake --build build with the registered WinLibs GCC 16.2.0/Ninja toolchain (C:\\tools\\rp-toolchains, OWNER-06) fails deterministically at NumberFormat.cpp:30:17: \"error: trigraph '??/' ignored, use '-trigraphs' to enable [-Werror=trigraphs]\" - the repository's own correct Excel number-format literal {13, \"# ??/??\"} (format code 13, a two-digit fraction pattern), turned fatal by the repository's own cmake/toolchain-detect.cmake, which sets -Wall -Wextra -Werror unconditionally for non-MSVC compilers. Independently reproduced twice against the pinned revision: 2026-09-10 15:47 UTC (Taskcard D, docs/DECISION_LOG.md) and 2026-09-23 10:31 UTC (this candidate's own re-seal attempt, docs/DECISION_LOG.md), identical file and line both times.).",
+  "suggested_issue_title": "install_command:cmake is UNRESOLVED at 9f852d0ff1cf",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-02) found `install_command:cmake` UNRESOLVED while re-verifying `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp` at revision `9f852d0ff1cfdad2d661556d6b87a8eff8c063a2`.\n\n## Evidence\n\n- `no package registry`: package registry: none could not be read; C++ has no package registry to install from (Aspose.Cells.Foss.Cpp/CMakeLists.txt)\n- `src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp`: 2026-09-23 13:07 UTC (docs/DECISION_LOG.md): rebuilding the same pinned revision with a portable Clang 19.1.7 against the same WinLibs libstdc++ sysroot reproduces the identical trigraph failure at the identical line, and - reaching further into the build than GCC's single-file-deep run ever did - surfaces a second, genuinely independent upstream defect: XlsxWorkbookSerializerCommon.cpp:965-968, \"error: no member named 'numeric_limits' in namespace 'std'\" (four instances), a real missing '#include <limits>' gap the repository's own build order never let GCC's run reach. Confirms compiler identity (GCC vs Clang) does not avoid the repository's own -Werror policy; the codebase is not Clang-clean either.\n- `src/aspose/cells_foss/NumberFormat.cpp`: cmake -S . -B build -G Ninja && cmake --build build with the registered WinLibs GCC 16.2.0/Ninja toolchain (C:\\tools\\rp-toolchains, OWNER-06) fails deterministically at NumberFormat.cpp:30:17: \"error: trigraph '??/' ignored, use '-trigraphs' to enable [-Werror=trigraphs]\" - the repository's own correct Excel number-format literal {13, \"# ??/??\"} (format code 13, a two-digit fraction pattern), turned fatal by the repository's own cmake/toolchain-detect.cmake, which sets -Wall -Wextra -Werror unconditionally for non-MSVC compilers. Independently reproduced twice against the pinned revision: 2026-09-10 15:47 UTC (Taskcard D, docs/DECISION_LOG.md) and 2026-09-23 10:31 UTC (this candidate's own re-seal attempt, docs/DECISION_LOG.md), identical file and line both times.\n\n<!-- repository-presenter-defect: sha256:b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null
+}
