@@ -89,12 +89,14 @@ from repository_presenter.components.readme.repair.targeted import (
 )
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
+    MAJORITY_VOTE_REPOSITORIES,
     REVIEW_FILENAME,
     prose_judgment,
     review_checks,
     review_document,
     review_packet,
     second_reader,
+    third_reader,
     write_review,
 )
 from repository_presenter.components.readme.validation.registry import (
@@ -182,6 +184,18 @@ def _second_opinion(
     which ``review_document`` reads as a completed reading that corroborated nothing (TB-04)."""
     try:
         return run_job(second_reader(loaded), packet, checks=checks, **common).output
+    except JobError:
+        return None
+
+
+def _third_opinion(
+    loaded: LoadedManifest, packet: Mapping[str, Any], checks: Any, common: Mapping[str, Any]
+) -> dict[str, Any] | None:
+    """The third reader's output for a 2-of-3 majority-vote escalation (section 5.6), or ``None``
+    when the job raised ``JobError`` - mirrors ``_second_opinion`` exactly, including the
+    ``None``-never-``{}`` rule its own docstring explains."""
+    try:
+        return run_job(third_reader(loaded), packet, checks=checks, **common).output
     except JobError:
         return None
 
@@ -395,13 +409,25 @@ def run_round(tx: TransactionInputs) -> Round:
     # reads it as a *completed* reading that raised no findings, silently demoting the first
     # reader's finding and flipping REJECT_PRESENTATION to ACCEPT while recording a reading that
     # never happened). Losing verification must never increase assurance - which on the accept
-    # path now means the uncorroborated ACCEPT fails check 10 rather than sealing.
+    # path now means the uncorroborated ACCEPT fails check 10 rather than sealing. A repository
+    # named in MAJORITY_VOTE_REPOSITORIES (section 5.6) escalates this to a 2-of-3 vote among
+    # three independent reads instead of one confirming read - see the branch just below.
     if review["verdict"] == ACCEPT or any(
         prose_judgment(finding) for finding in review["findings"]
     ):
         second = _second_opinion(loaded, packet, checks, common)
         if second is not None:
-            review = document(second=second)
+            if tx.entry.repository in MAJORITY_VOTE_REPOSITORIES:
+                # Section 5.6 escalation: this repository's own documented rerun history
+                # (docs/DECISION_LOG.md) already shows two or more distinct S10 findings across
+                # independent draws, so promoting to ACCEPT needs a 2-of-3 majority among three
+                # independent reads rather than one confirming read alone. A failed third read
+                # (JobError) falls back to the unescalated single-confirming-read rule below,
+                # never to a looser one - losing verification must never increase assurance.
+                third = _third_opinion(loaded, packet, checks, common)
+                review = document(second=second, third=third)
+            else:
+                review = document(second=second)
     digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)
     digests["validation"] = write_validation(validation, tx.directory / VALIDATION_FILENAME)

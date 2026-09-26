@@ -183,7 +183,7 @@ This is a design direction, not a finished implementation. Updated same day, aft
 out directly that adding prose to `docs/SUPERVISION.md` is not itself a fix (2026-09-25, later): §5.2
 (never-attempted count) and §5.3 (defect-index 3rd-sighting escalation) are now real, mechanical
 checks in `tools/reviewer/reviewer_check.py`, not just written down — run it and they print. §5.1
-(staleness age) and §5.6 (2-of-3 review agreement) remain scoped but not built. §5.5's mandatory
+(staleness age) remains scoped but not built. §5.5's mandatory
 sweep itself was also found to be unrun in practice — `tools/reviewer/procedure.md`, the concrete
 runbook this file's own §5.5 assumed existed and would be followed, had gone unrun for 8 days
 (`tools/reviewer/.local/reviewer_state.json`'s last wake: 2026-09-17) and named a pre-remap path and
@@ -192,7 +192,15 @@ supervisor is trusted to remember and re-derive is not durable, even when the pr
 has to be something that runs and reports on its own. §5.4's hosted-execution slice is a real,
 non-trivial engineering effort (a durable CAS/lease backend and its recovery semantics) that this
 document deliberately does not claim to have solved — it names the first buildable slice, not a
-completed design. Whoever picks up §5.1, 5.4, or 5.6 should re-verify this document's own claims
+completed design. §5.6 (2-of-3 review agreement) is now built (2026-09-26, `docs/DECISION_LOG.md`
+this date): `review/independent/review.py`'s `MAJORITY_VOTE_REPOSITORIES` and `review_document`'s
+`third=` fold, wired through `repair/rounds.py`'s `run_round`, scoped to the three repositories this
+project's own history already corroborates; proven correct by focused unit tests against the exact
+2-of-3/1-of-3-noise/majority-blocks scenarios, but its live, end-to-end effect on
+`aspose-words-foss/Aspose.Words-FOSS-for-.NET` itself remains unverified — a live draw of that
+repository from this session's own worktree hit an unrelated, pre-existing Windows long-path
+limitation (BC-02/example verification, well before S10/review) that a shorter-rooted checkout
+location should clear. Whoever picks up §5.1 or 5.4 should re-verify this document's own claims
 against the live repository state at that time, and should run `tools/reviewer/reviewer_check.py`
 before trusting any of §5's own claims about what's checked automatically, the
 same discipline this document itself required of the research that produced it.

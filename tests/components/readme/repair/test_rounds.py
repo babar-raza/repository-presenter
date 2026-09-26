@@ -15,8 +15,12 @@ from repository_presenter.components.readme.repair.rounds import (
     _refuse_noop,
     _second_opinion,
     _stage_target,
+    _third_opinion,
 )
 from repository_presenter.components.readme.repair.targeted import Defect
+from repository_presenter.components.readme.review.independent.review import (
+    MAJORITY_VOTE_REPOSITORIES,
+)
 from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm.jobs import JobResult
@@ -55,6 +59,45 @@ def test_a_successful_second_reader_job_returns_its_output() -> None:
     )
     with patch("repository_presenter.components.readme.repair.rounds.run_job", return_value=result):
         assert _second_opinion(LOADED, PACKET, None, COMMON) == result.output
+
+
+def test_a_failed_third_reader_job_returns_none_not_an_empty_dict() -> None:
+    """Section 5.6's 2-of-3 escalation mirrors `_second_opinion` exactly: a failed third read
+    (JobError) must return None, never `{}`, so `review_document` never mistakes it for a
+    completed reading that corroborated nothing (the same TB-04 rule the second reader has)."""
+    with patch(
+        "repository_presenter.components.readme.repair.rounds.run_job",
+        side_effect=JobError("gateway unavailable"),
+    ):
+        assert _third_opinion(LOADED, PACKET, None, COMMON) is None
+
+
+def test_a_successful_third_reader_job_returns_its_output() -> None:
+    result = JobResult(
+        job="independent_review",
+        output={"findings": [], "verdict": "ACCEPT", "preserve": []},
+        request_sha256="a" * 64,
+        attempts=1,
+        provider_calls=1,
+        cache_reused=False,
+        model_served="qwen3-next",
+        total_tokens=100,
+    )
+    with patch("repository_presenter.components.readme.repair.rounds.run_job", return_value=result):
+        assert _third_opinion(LOADED, PACKET, None, COMMON) == result.output
+
+
+def test_the_escalation_set_is_exactly_the_three_documented_repositories() -> None:
+    """`run_round` gates the 2-of-3 escalation on `tx.entry.repository in
+    MAJORITY_VOTE_REPOSITORIES` alone (section 5.6) - a repository not named here takes the
+    unchanged single-confirming-read path no matter how this test module's own fixtures are set
+    up, since nothing else in `run_round` can trigger the third read."""
+    assert {
+        "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+        "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+    } == MAJORITY_VOTE_REPOSITORIES
+    assert "aspose-3d-foss/Aspose.3D-FOSS-for-Python" not in MAJORITY_VOTE_REPOSITORIES
 
 
 def _stub_job_result(output: dict[str, Any]) -> JobResult:

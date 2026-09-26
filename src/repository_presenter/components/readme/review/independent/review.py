@@ -101,7 +101,13 @@ ACCEPT = "ACCEPT"
 # own (its own token count as the denominator), alongside the whole value as before - neither
 # _PARAPHRASE_MIN_TOKENS nor _PARAPHRASE_MIN_OVERLAP changed, and a quote that does not
 # substantially restate any single bullet (or the whole fact) still fails exactly as before.
-REVIEWER_LOGIC_VERSION = "12"
+# G4-W17 (docs/investigations/12-supervisor-and-production-reassessment.md section 5.6): the
+# accept path's fold logic now branches on whether a third independent read was supplied - a
+# genuine meaning change to what `review_document` can end up accepting for a repository named in
+# MAJORITY_VOTE_REPOSITORIES (a finding there now needs 2 of 3 reads to agree, not one confirming
+# read), even though every other repository's own fold stack is byte-for-byte unchanged. Bumped so
+# a sealed candidate re-checks against the new code rather than reading as still current.
+REVIEWER_LOGIC_VERSION = "13"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -258,6 +264,31 @@ def blocking(finding: dict[str, Any]) -> bool:
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
 PROSE_JUDGMENT = "presentation"
 SECOND_READER_SEED = 2
+THIRD_READER_SEED = 3
+
+# docs/investigations/12-supervisor-and-production-reassessment.md section 5.6: a repository whose
+# own draw history already shows two or more distinct S10/review findings across independent,
+# non-repeating draws needs its ACCEPT path to survive a 2-of-3 majority vote among three
+# independent reads, not just one confirming read - a single noisy extra reader on top of an
+# already-fragile repository can sink an otherwise-clean draw, the exact class-I provider sampling
+# nondeterminism docs/investigations/05-production-autonomy.md (class I) already documents as
+# provider-inherent and unfixable in this codebase. These three are the corroborated instances on
+# record (docs/DECISION_LOG.md, the 2026-09-24 "list-bundling hypothesis is REFUTED" correction
+# entry and the histories it cites): aspose-words-foss/Aspose.Words-FOSS-for-.NET (F05/F06, then
+# F03, then F04/F05 across three independent draws), aspose-slides-foss/Aspose.Slides-FOSS-for-Java
+# (docs/RESEARCH_LANE_C.md G4-W12-RERUN7 through RERUN13, a different finding nearly every rerun),
+# and aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript (docs/RESEARCH_LANE_B.md RERUN2 through RERUN11).
+# Every repository not named here keeps the single-confirming-read path exactly as it was (PHASE1/
+# F6, the 2026-09-06 guard) - this is a bounded, reversible escalation of that existing mechanism,
+# never a new one and never a change to what a review criterion itself judges: edit this set, never
+# the fold logic, to add or remove a repository once its own history warrants it.
+MAJORITY_VOTE_REPOSITORIES = frozenset(
+    {
+        "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+        "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+    }
+)
 
 
 def prose_judgment(finding: Mapping[str, Any]) -> bool:
@@ -288,6 +319,25 @@ def second_reader(manifest: LoadedManifest) -> LoadedManifest:
     """
     sampling = manifest.manifest.sampling
     seed = SECOND_READER_SEED if sampling.seed is None else sampling.seed + SECOND_READER_SEED
+    return replace(
+        manifest,
+        manifest=manifest.manifest.model_copy(
+            update={"sampling": sampling.model_copy(update={"seed": seed})}
+        ),
+    )
+
+
+def third_reader(manifest: LoadedManifest) -> LoadedManifest:
+    """The same reviewer prompt, read a third time under a third, distinct seed.
+
+    Used only for a repository in ``MAJORITY_VOTE_REPOSITORIES`` (section 5.6): the prompt file
+    and its hash are untouched here too, so this stays corroboration under the existing mechanism,
+    never a third retry with different criteria. Mirrors ``second_reader`` exactly, offset by
+    ``THIRD_READER_SEED`` instead of ``SECOND_READER_SEED`` so the three reads are three distinct
+    seeds, never the same request repeated.
+    """
+    sampling = manifest.manifest.sampling
+    seed = THIRD_READER_SEED if sampling.seed is None else sampling.seed + THIRD_READER_SEED
     return replace(
         manifest,
         manifest=manifest.manifest.model_copy(
@@ -1419,6 +1469,7 @@ def review_document(
     original_readme: str = "",
     rendered: Sequence[str] = (),
     second: Mapping[str, Any] | None = None,
+    third: Mapping[str, Any] | None = None,
     units: Mapping[str, Any] | None = None,
     dispositions: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -1461,6 +1512,18 @@ def review_document(
     finding to advisory (REJECT_PRESENTATION -> ACCEPT, external review D4, 2026-09-08). Losing
     verification must never increase assurance; the caller (``repair/rounds.py``) is the one place
     that enforces this today, by simply never constructing ``second={}``.
+
+    ``third`` is a third independent read, given only for a repository in
+    ``MAJORITY_VOTE_REPOSITORIES`` (section 5.6) - a bounded, reversible escalation of the same
+    mechanism above, never a replacement for it. When ``third`` is ``None`` (every other
+    repository), behavior is unchanged from the single-confirming-read rule above, byte for byte.
+    When both ``second`` and ``third`` are given and the first read left nothing blocking, a
+    finding needs to be raised by BOTH extra reads (2 of the 3 total reads, the first having
+    raised nothing) before it blocks - a single dissenting extra reader is recorded
+    ``single_reader_advisory``, tolerated as noise rather than left to sink an otherwise-clean
+    draw, exactly the class-I sampling variance this escalation exists to out-vote. ``third`` must
+    equally be ``None`` - never ``{}`` - for no usable third reading, for the identical reason
+    ``second={}`` is forbidden above; the caller enforces this the same way.
     """
     findings: list[dict[str, Any]] = []
     advisory: list[dict[str, Any]] = []
@@ -1469,6 +1532,11 @@ def review_document(
         if second is not None
         else set()
     )
+    if third is not None:
+        # Widens corroboration from "second alone" to "either extra read": for the first read's
+        # own prose-judgment demotion below, first + either one of the two extra reads already
+        # is 2 of 3 - the majority the escalation asks for (section 5.6).
+        corroborated |= {finding_class(f) for f in third.get("findings", []) if blocking(dict(f))}
     by_id = {fact.id: fact for fact in facts.facts} if facts is not None else {}
     evidence = claim_evidence(original_readme, facts) if original_readme else ""
     texts = unit_texts(units)
@@ -1502,11 +1570,61 @@ def review_document(
     # A rejection rests on its blocking findings; one whose findings are all advisory has
     # nothing the loop can act on and, by section 6 of the contract, does not block.
     verdict = returned if findings or returned == ACCEPT else ACCEPT
-    if second is not None and not findings:
+    if third is not None and second is not None and not findings:
+        # 2-of-3 majority vote (section 5.6): the first read left nothing blocking, so an extra
+        # read's finding needs the OTHER extra read to raise the same class too before it blocks
+        # - first-raised-nothing plus one extra reader is only 1 of 3, exactly the single noisy
+        # reader this escalation exists to tolerate rather than let sink an otherwise-clean draw.
+        # Never applied unless the caller (repair/rounds.py) actually asked for a third read, which
+        # it only does for a repository named in MAJORITY_VOTE_REPOSITORIES - every other
+        # repository takes the elif branch below, byte for byte as before this escalation existed.
+        second_raised = {finding_class(f) for f in second.get("findings", []) if blocking(dict(f))}
+        third_raised = {finding_class(f) for f in third.get("findings", []) if blocking(dict(f))}
+        majority = second_raised & third_raised
+        survivors: list[dict[str, Any]] = []
+        for reader_num, reader_output in ((2, second), (3, third)):
+            for finding in reader_output.get("findings", []):
+                record = {**dict(finding), "reader": reader_num}
+                reason = (
+                    scope_defect(
+                        finding,
+                        candidate_readme,
+                        by_id,
+                        evidence,
+                        rendered,
+                        texts,
+                        units,
+                        dispositions,
+                    )
+                    if facts is not None
+                    else None
+                )
+                if reason is not None:
+                    record["reviewer_scope_defect"] = reason
+                else:
+                    _record_absence_partition(record, finding, candidate_readme, evidence)
+                in_majority = reason is None and finding_class(finding) in majority
+                if in_majority and blocking(finding):
+                    record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
+                    survivors.append(record)
+                else:
+                    record["causal_state"] = None
+                    if reason is None and blocking(finding):
+                        record["single_reader_advisory"] = True
+                    advisory.append(record)
+        if survivors:
+            findings.extend(survivors)
+            # Mirrors the elif branch's own verdict rule below: whichever extra read's returned
+            # verdict is not ACCEPT stands - a majority here means at least one of the two extra
+            # reads independently disagreed with ACCEPT.
+            second_returned = str(second.get("verdict"))
+            third_returned = str(third.get("verdict"))
+            verdict = next((v for v in (second_returned, third_returned) if v != ACCEPT), verdict)
+    elif second is not None and not findings:
         # The accept path, symmetric (PHASE1/F6): no first-read finding blocks, so the second
         # read corroborates the accept - its findings go through the identical fold stack.
         first_raised = {finding_class(f) for f in output.get("findings", []) if blocking(f)}
-        survivors: list[dict[str, Any]] = []
+        survivors = []
         for finding in second.get("findings", []):
             record = {**dict(finding), "reader": 2}
             reason = (
@@ -1552,9 +1670,11 @@ def review_document(
         "advisory": advisory,
         "second_reader": {
             # The count of completed reads: check 10 accepts only at >= 2 (PHASE1/F6). A failed
-            # second read never reaches here - the caller passes None for it (TB-04), and losing
-            # verification must never increase assurance.
-            "read": 2 if second is not None else 1,
+            # second (or third) read never reaches here - the caller passes None for it (TB-04),
+            # and losing verification must never increase assurance. 3 only for the escalated
+            # 2-of-3 majority-vote path (section 5.6); >= 2 either way satisfies check 10 exactly
+            # as before this escalation existed.
+            "read": 3 if third is not None else (2 if second is not None else 1),
             "corroborated": sorted(corroborated),
         },
         "preserve": list(output.get("preserve", [])),
