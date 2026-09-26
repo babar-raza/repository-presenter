@@ -131,6 +131,8 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `GPT_OSS_API_KEY` | `present`, `preflight` | Read once, never printed or written to disk |
 | `GPT_OSS_MODEL` | optional | Overrides a prompt manifest's default model route; local experimentation only |
 | `GH_TOKEN` | optional | Repository-scoped, read-only; used for `present`'s clone step and `metadata`'s `GET /repos/{owner}/{repo}` call |
+| `GH_METADATA_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `metadata --apply` reads it, and only after `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` also authorizes a write |
+| `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `metadata --apply`'s write; a token's mere presence never implies this |
 
 `GPT_OSS_ENDPOINT` and `GPT_OSS_API_KEY` are required even for `present --facts-only`: the gateway
 configuration loads before that flag's short-circuit.
@@ -146,7 +148,7 @@ repository-presenter status [--root PATH] [--stale]
 repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
 repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply]
-repository-presenter metadata --repo OWNER/NAME [--root PATH]
+repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 ```
 
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
@@ -166,11 +168,15 @@ repository-presenter metadata --repo OWNER/NAME [--root PATH]
   fires. `--repo OWNER/NAME` limits the pass to one repository. `--apply` writes back the one
   schema-valid status change this can ever propose (`FILED` -> `RESOLVED_UPSTREAM`); a dry-run
   report otherwise.
-- **`metadata --repo OWNER/NAME`** — read-only workstream 2 capture and proposal (Gate C0
-  scope, never a write): reads GitHub's currently-observed `description`/`homepage`/`topics` for
-  the repository, and, when a sealed `CURRENT` candidate exists, proposes a candidate value for
-  each field derived only from already-verified facts, diffed against the observation. Makes one
-  `GET /repos/{owner}/{repo}` call; no `PATCH`/`PUT` call exists anywhere in this path.
+- **`metadata --repo OWNER/NAME`** — workstream 2 capture and proposal, dry-run by default: reads
+  GitHub's currently-observed `description`/`homepage`/`topics` for the repository, and, when a
+  sealed `CURRENT` candidate exists, proposes a candidate value for each field derived only from
+  already-verified facts, diffed against the observation. Makes one `GET /repos/{owner}/{repo}`
+  call and prints the diff; no `PATCH`/`PUT` call is made without `--apply`. `--apply` attempts to
+  write the diff, but only past two independent, explicit gates: the owner-controlled
+  `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED=1`, and a write-scoped `GH_METADATA_WRITE_TOKEN`
+  (never `GH_TOKEN`) - neither is set in this project's own environment, so `--apply` reports
+  exactly why it wrote nothing rather than guessing or silently proceeding.
 - `--root PATH` — project root holding `project/state.yaml`; discovered from the working directory
   when omitted.
 

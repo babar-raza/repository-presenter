@@ -1,15 +1,23 @@
-"""Read-only GitHub REST client: ``GET /repos/{owner}/{repo}`` only.
+"""GitHub REST client: read (``GET /repos/{owner}/{repo}``, always available) and a gated write
+half (``PATCH /repos/{owner}/{repo}`` and ``PUT /repos/{owner}/{repo}/topics``).
 
-This is the one GitHub-metadata read this project's production code makes outside cloning
+The read half is the one GitHub-metadata read this project's production code makes outside cloning
 (``core/git_safety/clone.py`` already reads with the same ``GH_TOKEN`` to pin and push-disable a
 clone). It exists to observe a repository's current ``description``, ``homepage``, and ``topics``
-(workstream 2 Phase 0, docs/investigations/02-repo-metadata-community-files.md section 5) - never to
-change them. There is no write function in this module and none should be added here without a
-separate, explicitly authorized work item: ``PATCH /repos/{owner}/{repo}`` and
-``PUT /repos/{owner}/{repo}/topics`` both need the ``Administration: write`` scope this project's
-credential does not have (``OWNER-04``, ``project/state.yaml``).
+(workstream 2 Phase 0, docs/investigations/02-repo-metadata-community-files.md section 5).
 
-``fetch`` is injected the same way ``tools/discovery/portfolio_discovery.py`` and
+The write half (``update_repository``, ``replace_topics``) exists so
+``components/metadata/apply.py`` (workstream 2 Phase 1, the gated write path) has a real function to
+call - but this module itself performs no authorization check and never decides whether a write
+*should* happen. ``apply.py`` is the only production caller, and it refuses to reach either function
+unless an explicit, owner-controlled authorization signal is present (never inferred from a
+credential's mere presence or scope, per ``AGENTS.md`` "Security and Effects"); no other code in
+this project calls either write function. Both still need a write-scoped token distinct from the
+read-only ``GH_TOKEN`` this module's read half uses (``GH_METADATA_WRITE_TOKEN`` -
+``core/secrets.py``) - the ``Administration: write`` scope this project's own ``GH_TOKEN`` does not
+have (``OWNER-04``, ``project/state.yaml``).
+
+``fetch``/``write`` are injected the same way ``tools/discovery/portfolio_discovery.py`` and
 ``components/readme/evidence/facts/links.py`` already inject their HTTP calls: a plain
 ``(status_code, body)`` callable, so every test here runs with a fake and makes no live network
 call.
@@ -32,6 +40,7 @@ REQUEST_TIMEOUT_SECONDS = 30.0
 SCHEMA_VERSION = 1
 
 FetchFn = Callable[[str, "str | None"], "tuple[int, Any]"]
+WriteFn = Callable[[str, str, "dict[str, Any]"], "tuple[int, Any]"]
 ClockFn = Callable[[], str]
 
 
@@ -113,3 +122,102 @@ def get_repository(
         topics=topics,
         observed_at=clock(),
     )
+
+
+def _write_headers(token: str) -> dict[str, str]:
+    return {
+        "User-Agent": USER_AGENT,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"Bearer {token}",
+    }
+
+
+def default_patch(url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
+    """``PATCH url`` with ``payload`` as JSON. Never called except by ``update_repository``, which
+    is itself never called except by ``components/metadata/apply.py`` after that module's own
+    authorization check passes - see this module's docstring."""
+    try:
+        response = httpx.patch(
+            url, headers=_write_headers(token), json=payload, timeout=REQUEST_TIMEOUT_SECONDS
+        )
+    except httpx.HTTPError as exc:
+        return -1, f"{type(exc).__name__}: {exc}"
+    try:
+        body: Any = response.json()
+    except ValueError:
+        body = None
+    return response.status_code, body
+
+
+def default_put(url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
+    """``PUT url`` with ``payload`` as JSON. Never called except by ``replace_topics``, which is
+    itself never called except by ``components/metadata/apply.py`` after that module's own
+    authorization check passes - see this module's docstring."""
+    try:
+        response = httpx.put(
+            url, headers=_write_headers(token), json=payload, timeout=REQUEST_TIMEOUT_SECONDS
+        )
+    except httpx.HTTPError as exc:
+        return -1, f"{type(exc).__name__}: {exc}"
+    try:
+        body: Any = response.json()
+    except ValueError:
+        body = None
+    return response.status_code, body
+
+
+def update_repository(
+    owner: str,
+    name: str,
+    *,
+    description: str | None = None,
+    homepage: str | None = None,
+    token: str,
+    write: WriteFn = default_patch,
+) -> None:
+    """``PATCH /repos/{owner}/{repo}`` with only the fields given - a field left ``None`` is never
+    included in the request body, so it is left untouched on GitHub, never cleared.
+
+    Raises :class:`ValueError` if both fields are ``None`` (nothing to change - the caller should
+    not have reached here) and :class:`RepositoryMetadataError` on anything but a well-formed
+    HTTP 200, mirroring :func:`get_repository`'s own fail-closed shape.
+    """
+    payload: dict[str, Any] = {}
+    if description is not None:
+        payload["description"] = description
+    if homepage is not None:
+        payload["homepage"] = homepage
+    if not payload:
+        raise ValueError("update_repository called with nothing to change")
+    if not token:
+        raise RepositoryMetadataError(f"{owner}/{name}: PATCH refused - no write-scoped token")
+    url = f"{API_ROOT}/repos/{owner}/{name}"
+    status_code, body = write(url, token, payload)
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200:
+        raise RepositoryMetadataError(f"{owner}/{name}: PATCH {url} returned HTTP {status_code}")
+
+
+def replace_topics(
+    owner: str,
+    name: str,
+    *,
+    topics: tuple[str, ...],
+    token: str,
+    write: WriteFn = default_put,
+) -> None:
+    """``PUT /repos/{owner}/{repo}/topics`` - replaces the full topic set (GitHub's own endpoint
+    shape has no partial-update mode; the caller passes the complete proposed set).
+
+    Raises :class:`RepositoryMetadataError` on anything but a well-formed HTTP 200.
+    """
+    if not token:
+        raise RepositoryMetadataError(f"{owner}/{name}: PUT refused - no write-scoped token")
+    url = f"{API_ROOT}/repos/{owner}/{name}/topics"
+    status_code, body = write(url, token, {"names": list(topics)})
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200:
+        raise RepositoryMetadataError(f"{owner}/{name}: PUT {url} returned HTTP {status_code}")
