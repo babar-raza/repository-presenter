@@ -76,9 +76,10 @@ src/repository_presenter/
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
         product_pages.py        live product-page facts: Enterprise target, homepage, banner (RESEARCH §20)
-  components/metadata/       workstream 2 read+proposal only (docs/investigations/02-repo-metadata-community-files.md §5); never README-specific, never a write
+  components/metadata/       workstream 2 (docs/investigations/02-repo-metadata-community-files.md §5); never README-specific
     capture.py                Phase 0: read GitHub's observed description/homepage/topics via core/github, write the typed evidence artifact
     proposal.py                Phase 1: derive description/topics/homepage from already-verified facts (identity/license/link_target), diff against Phase 0's observation
+    apply.py                  Phase 2: PATCH/PUT that diff to GitHub - gated behind an explicit owner-controlled authorization signal plus a write-scoped token distinct from the read-only GH_TOKEN; unset in this project's own environment today, so built and tested, never fired (docs/DECISION_LOG.md)
 
 prompts/                     one governed manifest per job (README_CONTRACT.md §3), flat, six files at G1
 schemas/                     JSON Schemas for the cursor, manifest, candidate bundle, prompt manifests
