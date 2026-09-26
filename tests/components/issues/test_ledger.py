@@ -54,11 +54,16 @@ def test_discover_handoff_paths_on_a_missing_directory_is_empty(tmp_path: Path) 
     assert discover_handoff_paths(tmp_path / "nope") == ()
 
 
-def test_discover_and_load_the_real_two_backfilled_artifacts() -> None:
+def test_discover_and_load_the_real_backfilled_artifacts() -> None:
+    # 2026-09-26: a third real artifact was backfilled for aspose-cells-foss/Aspose.Cells-FOSS-for-
+    # Cpp's own BC-02 trigraph finding (docs/DECISION_LOG.md, this date) - the automatic hook
+    # (components/issues/draft.py, commit 6fa11ad) postdated the finding, so it was never drafted
+    # live; constructed instead via the real Fact/FactsDocument/draft_handoff/write_handoff path,
+    # never a handwritten JSON shape.
     paths = discover_handoff_paths(REAL_UPSTREAM_DEFECTS)
-    assert len(paths) == 2
+    assert len(paths) == 3
     ledger = load_ledger(REAL_UPSTREAM_DEFECTS)
-    assert len(ledger) == 2
+    assert len(ledger) == 3
     html = lookup(
         ledger,
         "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
@@ -68,6 +73,16 @@ def test_discover_and_load_the_real_two_backfilled_artifacts() -> None:
     assert html.triggering_check_id == "BC-02"
     assert html.last_observed_state == "HANDOFF_PENDING"
     assert html.issue_ref is None
+
+    cells_cpp = lookup(
+        ledger,
+        "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+        "sha256:b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365",
+    )
+    assert cells_cpp is not None
+    assert cells_cpp.triggering_check_id == "BC-02"
+    assert cells_cpp.last_observed_state == "HANDOFF_PENDING"
+    assert cells_cpp.issue_ref is None
 
 
 def test_lookup_is_none_for_an_unrecorded_fingerprint(tmp_path: Path) -> None:

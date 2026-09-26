@@ -1,6 +1,75 @@
 # Investigation 03 — Issue-Tracking Component (Upstream Defect Reporting)
 
-Written 2026-09-17, research only, no implementation. Answers the investigation `docs/PRODUCTION_ROADMAP.md` assigns to workstream 3 ("Issue-tracking component — file confirmed upstream defects, dedupe, close stale ones", anchored to `plans/idea.md`'s "Upstream Defect Reporting" section). Nothing here authorizes a taskcard; per the roadmap's standing rule, that still needs its own reconciliation pass after this report is read.
+Written 2026-09-17, research only, no implementation at the time. **Status as of 2026-09-26: the
+read/handoff half this report designed is now built and wired into the main pipeline; only the
+GitHub-write half (`gh issue create`/`close`) remains deliberately unbuilt, pending `OWNER-04`.**
+See "Current status (2026-09-26)" below for what actually exists today and where to look. The
+rest of this document is left as written 2026-09-17 (research, not yet a record of what shipped)
+except where a status note says otherwise.
+
+Originally answered the investigation `docs/PRODUCTION_ROADMAP.md` assigns to workstream 3
+("Issue-tracking component — file confirmed upstream defects, dedupe, close stale ones", anchored
+to `plans/idea.md`'s "Upstream Defect Reporting" section). Nothing in the 2026-09-17 text below
+authorized a taskcard by itself; that reconciliation pass has since happened (`docs/DECISION_LOG.md`
+2026-09-17 15:40 UTC ruling) and the component was built.
+
+## Current status (2026-09-26) — where are upstream issues being logged?
+
+**Short answer: `evidence/upstream-defects/<owner>__<name>/<fingerprint>.json`, one artifact per
+distinct defect, committed to this repository (not gitignored `runs/`) so it survives even for a
+repository that never produces a `candidates/` bundle at all.**
+
+- **Dedup key**: `{repository, defect_fingerprint}` — `defect_fingerprint` is a stable sha256 of
+  `{repository, triggering_check.id, a primary-evidence signature}` (`components/issues/draft.py`),
+  independent of prose wording, so an unrelated edit to a fact's evidence text never mints a second
+  handoff for the same underlying defect. `components/issues/ledger.py::load_ledger`/`lookup` is
+  the read layer over these artifacts (no second on-disk format), and fails closed
+  (`LedgerError`) if two artifacts ever claimed the same key.
+- **Lifecycle** (`schemas/upstream-defect-handoff.schema.json`, `components/issues/model.py`):
+  `HANDOFF_PENDING` (drafted, nothing filed yet) → `HANDOFF_ACKNOWLEDGED` (owner has seen it) →
+  `FILED` (issue number known, once GitHub-write creation is authorized) → `RESOLVED_UPSTREAM`
+  (this system's own later re-check shows the same `triggering_check` no longer firing — only ever
+  for a handoff this system itself filed, never a pre-existing upstream issue it merely tracks).
+- **How an artifact gets created — two paths, both real code, never a hand-written JSON file:**
+  1. **Automatically**, as of commit `6fa11ad` (2026-09-25, this same work item): `cli.py::run_present`
+     calls `components/issues/draft.py::record_handoff_if_new` at the exact point it already calls
+     `invalidate_bundle` on a blocking validation failure. It drafts a `HANDOFF_PENDING` artifact
+     only when the failing check is genuinely (1) at `causal_stage EXTRACTING` — the one mechanical
+     signal this codebase already has for "about the target repository, not repository-presenter's
+     own composition" (`repair/targeted.py`'s `STATE_STAGES` maps only
+     `INVESTIGATING`/`RECONCILING`/`PLANNING`/`COMPOSING` to a revisable stage), **and** (2) `BC-02`
+     specifically — the one check shape `redetect.py` can already re-evaluate later — **and** (3)
+     backed by a real, non-`SUPPORTED` `install_command` fact in that exact run's own `facts.json`,
+     never a synthetic or unrelated failure. Every other check shape fails closed and drafts
+     nothing; widening this set is deliberately conservative (see the PROPOSAL in
+     `docs/DECISION_LOG.md`, 2026-09-26, for `BC-03`/example-compile failures as the next
+     candidate, not yet landed).
+  2. **Manually re-evaluated**, via the standalone CLI subcommand
+     `repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply]`
+     (`cli.py::run_redetect_upstream_defects`, landed 2026-09-17): replays the handoff's own
+     `triggering_check` against the repository's *current* state (`components/issues/redetect.py`,
+     registered per check id — `BC-02` re-probes the package registry and manifest,
+     `NOT_PROCESSABLE` re-runs `ast.parse` on the named source files) and proposes
+     `RESOLVED_UPSTREAM` only for a handoff this system itself filed. `--apply` is the only path
+     that ever calls `write_handoff`.
+- **What exists on disk today (2026-09-26)**: three artifacts —
+  `aspose-html-foss__Aspose.HTML-FOSS-for-Python` (`BC-02`, unpublished PyPI distribution + invalid
+  `build-backend`), `aspose-tex-foss__Aspose.TeX-FOSS-for-Python` (`NOT_PROCESSABLE`, unparseable
+  source), and `aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp` (`BC-02`, a GCC/Clang
+  `-Werror=trigraphs` build failure on the repository's own correct Excel format-code literal,
+  backfilled 2026-09-26 after an audit found the automatic hook postdated the finding — see
+  `docs/DECISION_LOG.md` 2026-09-26 for the full trace). All three are still `HANDOFF_PENDING`:
+  nothing has been filed to GitHub yet.
+- **What is still not built, deliberately**: no `gh issue create`/`close` call exists anywhere in
+  `src/`. `suggested_issue_title`/`suggested_issue_body` are literal text a human pastes by hand
+  today. This stays gated on `OWNER-04` (a GitHub App with an Issues:Write scope) per
+  `docs/EXECUTION_STATE_MACHINE.md` G7 and the original ruling below — filing itself was never
+  meant to ship ahead of that authorization.
+
+The remainder of this document is the original 2026-09-17 investigation. §1's opening claim ("No
+filing, tracking, or GitHub-issue-API mechanism exists today — not even read access to issues.")
+describes the state *before* the above was built and is now superseded by this status section;
+left in place below as the historical record the later sections' reasoning builds on.
 
 `plans/idea.md`'s own bar (§"Upstream Defect Reporting"): filing fires only after **independent confirmation**, not suspicion; it is **deduplicated** against issues the agent already filed or that already exist upstream; it never fabricates severity or claims an unverified fix. The seed example is Aspose.Email FOSS for .NET's `CS1929` build failure. A **bounded interim fallback** — "a precise, evidence-backed handoff describing the confirmed defect for a human to file" — is acceptable until direct issue creation is authorized and automated. The architecture already anticipates this: `docs/EXECUTION_STATE_MACHINE.md` G7 item 2 names "Upstream-defect handoff for a confirmed product defect (seed: Email .NET `CS1929`), evidence-backed and deduplicated, never a fabricated severity or unverified fix; later automated behind its own authorization and deduplication ledger" — placed *after* G1–G6 (portfolio sealing, rerun durability, proposal-effect proof), consistent with the roadmap treating this as investigation-only, parallel to sealing, not sequenced work.
 
@@ -101,7 +170,7 @@ Two distinct close reasons, matching `gh issue close --reason`'s own two values:
 
 ## 8. Open questions for the owner
 
-- **Is `CS1929` still reproducible today?** This sprint's own sealed `aspose-email-foss__Aspose.Email-FOSS-for-.Net` candidate shows all 4 compiled examples building cleanly (0 errors) at the current pinned revision (`candidates/aspose-email-foss__Aspose.Email-FOSS-for-.Net/59125b4732df0eedbc4d4c2ab978698ed4348eb7/examples.json`). Before this component is ever pointed at idea.md's own seed example, someone should independently re-check it (outside the pipeline, per this codebase's own established practice) rather than assume it.
+- **Is `CS1929` still reproducible today?** This sprint's own sealed `aspose-email-foss__Aspose.Email-FOSS-for-.Net` candidate shows all 4 compiled examples building cleanly (0 errors) at the current pinned revision (`candidates/aspose-email-foss__Aspose.Email-FOSS-for-.Net/59125b4732df0eedbc4d4c2ab978698ed4348eb7/examples.json`). Before this component is ever pointed at idea.md's own seed example, someone should independently re-check it (outside the pipeline, per this codebase's own established practice) rather than assume it. **Re-checked 2026-09-26 (`docs/DECISION_LOG.md`, this date): still not independently reproduced anywhere in this sprint's own record. Still open; no handoff drafted for it, correctly — see "Current status" above.**
 - **Does dedup ever authorize closing a pre-existing (not self-filed) upstream issue** once this system's own re-check shows the defect gone, or is that always a human-only act? idea.md's Upstream Defect Reporting section only discusses filing and dedup against existing issues, never closing one this system didn't create.
 - **Where should the handoff artifact live** — a new `evidence/upstream-defects/` subtree (this report's recommendation, needed because `NOT_PROCESSABLE` repositories like TeX-Python never produce a `candidates/` bundle at all), or folded into the existing per-candidate bundle for repositories that do seal?
 - **What credential/authorization boundary should issue-write use?** The existing `GH_TOKEN`/App path is explicitly read-only (clone-only, "push disabled" enforced at `cli.py:413-421`); this needs its own separately authorized write scope. Should it reuse Gate C's proposal-PR authorization machinery once built, or does it need an independent authorization path since a genuine product defect can surface (and matter) long before the Java proposal cohort (Gate C) is reached?
@@ -110,3 +179,5 @@ Two distinct close reasons, matching `gh issue close --reason`'s own two values:
 ## Reverse by
 
 `git revert` — this is a pure documentation addition (one new file under `docs/investigations/`), no code, schema, or check coupling. Removing it returns the project to the state `docs/PRODUCTION_ROADMAP.md` already recorded ("pending").
+
+**2026-09-26 update note**: the "Current status" section prepended above, and the `CS1929` re-check note in §8, are also pure documentation; reverting them by `git revert` of that commit alone restores this file to its 2026-09-17 text with no code, schema, or check coupling either. They do not change any conclusion this file originally drew — they record that the design was since built and that its open questions (`CS1929` reproducibility, the closing-a-pre-existing-issue question) remain genuinely open, not resolved by construction.
