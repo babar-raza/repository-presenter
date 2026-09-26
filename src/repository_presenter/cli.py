@@ -31,6 +31,10 @@ from repository_presenter.components.issues.redetect import (
     apply_redetection,
     redetect,
 )
+from repository_presenter.components.metadata.apply import (
+    AUTHORIZATION_VARIABLE,
+    apply_metadata_diff,
+)
 from repository_presenter.components.metadata.capture import (
     CAPTURE_FILENAME,
     capture_repo_metadata,
@@ -135,6 +139,7 @@ from repository_presenter.core.facts import (
     write_facts,
 )
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
+from repository_presenter.core.github.client import default_patch, default_put
 from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, JobResult
 from repository_presenter.core.llm.ledger import LEDGER_FILENAME, Ledger
 from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME, load_manifests, validate_routes
@@ -261,8 +266,9 @@ def build_parser() -> argparse.ArgumentParser:
         "metadata",
         help=(
             "capture GitHub's observed description/homepage/topics for one admitted repository "
-            "and diff them against a proposal derived from already-verified facts - read-only, "
-            "never a PATCH/PUT (workstream 2 Phase 0/1, OWNER-04/G5 still gates any write)"
+            "and diff them against a proposal derived from already-verified facts - dry-run by "
+            "default (workstream 2 Phase 0/1); --apply attempts the PATCH/PUT, but only when the "
+            "owner has explicitly authorized it (OWNER-04/G6-G7 still gate a real live run)"
         ),
     )
     metadata.add_argument(
@@ -272,6 +278,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="repository coordinates exactly as listed in the registry",
     )
     metadata.add_argument("--root", type=Path, default=None, help=root_help)
+    metadata.add_argument(
+        "--apply",
+        action="store_true",
+        help=(
+            f"attempt to write the computed diff to GitHub; refuses and explains why unless "
+            f"{AUTHORIZATION_VARIABLE}=1 and a write-scoped GH_METADATA_WRITE_TOKEN are both "
+            "present - prints the diff and makes no write call when omitted"
+        ),
+    )
     return parser
 
 
@@ -288,7 +303,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(args.root, repository=args.repo, apply=args.apply)
     if args.command == "metadata":
-        return run_metadata(args.repo, args.root)
+        return run_metadata(args.repo, args.root, apply=args.apply)
     parser.error(f"unknown command {args.command!r}")
 
 
@@ -381,20 +396,24 @@ def run_redetect_upstream_defects(
     return EXIT_OK
 
 
-def run_metadata(repository: str, root_argument: Path | None) -> int:
+def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = False) -> int:
     """Capture GitHub's observed description/homepage/topics for ``repository`` and diff them
     against a proposal derived only from already-verified facts (workstream 2 Phase 0/1,
     docs/investigations/02-repo-metadata-community-files.md section 5).
 
-    Read-only end to end: the one live call this makes is ``GET /repos/{owner}/{repo}``, at the
-    same repository-scoped ``GH_TOKEN`` read access ``present`` already uses to clone. No
-    ``PATCH``/``PUT`` call exists anywhere this reaches - that needs the ``Administration: write``
-    scope ``OWNER-04``/G5 has not granted (``project/state.yaml``); this command stops at a
-    printed and written proposal, never a repository write.
+    Dry-run by default: the one live call this makes without ``--apply`` is
+    ``GET /repos/{owner}/{repo}``, at the same repository-scoped ``GH_TOKEN`` read access
+    ``present`` already uses to clone. ``--apply`` attempts to write the computed diff through
+    ``components/metadata/apply.py``, which refuses (and explains exactly why, making no write
+    call) unless ``AUTHORIZATION_VARIABLE`` is set to a truthy value *and* a write-scoped
+    ``GH_METADATA_WRITE_TOKEN`` is present - neither is set in this project's own environment
+    today, so ``--apply`` prints the same refusal here that it would anywhere else this command
+    runs, never a live repository write.
 
     A repository with no sealed ``CURRENT`` candidate yet - or whose sealed bundle has no
     ``facts.json`` - still gets its observation captured and written; only the proposal (which
     needs verified facts to derive from) is skipped, reported plainly rather than guessed.
+    ``--apply`` has nothing to apply in that case either.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -443,14 +462,40 @@ def run_metadata(repository: str, root_argument: Path | None) -> int:
             f"proposed: topics={list(proposal.topics)} (sources: {list(proposal.topics_sources)})"
         )
         print(f"proposed: homepage={proposal.homepage!r} (source: {proposal.homepage_source})")
-        if diff.has_changes:
-            print(
-                f"diff: description_changed={diff.description_changed} "
-                f"homepage_changed={diff.homepage_changed} topics_changed={diff.topics_changed} "
-                "- no write made (PATCH/PUT stay gated on OWNER-04/G5)"
-            )
-        else:
+        if not diff.has_changes:
             print("diff: none - GitHub's observed metadata already matches the proposal")
+            if apply:
+                print("apply: nothing to change")
+            return EXIT_OK
+        print(
+            f"diff: description_changed={diff.description_changed} "
+            f"homepage_changed={diff.homepage_changed} topics_changed={diff.topics_changed}"
+        )
+        if not apply:
+            print(
+                "apply: dry run (pass --apply to attempt a write; still gated on "
+                f"{AUTHORIZATION_VARIABLE} and a write-scoped GH_METADATA_WRITE_TOKEN, and on "
+                "OWNER-04's write-capable credential - project/state.yaml)"
+            )
+            return EXIT_OK
+        write_token = os.environ.get("GH_METADATA_WRITE_TOKEN") or None
+        result = apply_metadata_diff(
+            diff,
+            entry.owner,
+            entry.name,
+            token=write_token,
+            environment=os.environ,
+            patch=default_patch,
+            put=default_put,
+            refetch=lambda: capture_repo_metadata(entry, token=write_token),
+        )
+        for outcome in (result.description, result.homepage, result.topics):
+            if not outcome.changed:
+                continue
+            verb = "written" if outcome.applied else "not written"
+            print(f"apply: {outcome.field} {verb} - {outcome.reason}")
+        if not result.wrote_anything:
+            print("apply: nothing written (see the per-field reasons above)")
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
