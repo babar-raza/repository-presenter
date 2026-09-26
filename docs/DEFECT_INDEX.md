@@ -36,9 +36,35 @@ repair budget exhausts), tracked as one mechanism because the fix pattern is ide
 | 3 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement | 2026-09-25 07:13 UTC (and `docs/RESEARCH_LANE_C.md` G4-W12-RERUN7 through RERUN13, earlier) | 7+ reruns, recurring |
 
 **Status 2026-09-25**: crossed 3 sightings; escalated same day per the owner's direct instruction.
-Forbidden-literal sub-shape fixed (`composition/authoring.py::recover_forbidden_command_units`,
-commit `1fff7d7`). Title-restatement sub-shape fix in progress (agent-launched, same session) —
-update this row once landed and verified against BarCode-Python and/or Slides-Java.
+Both sub-shapes now have a landed fix: forbidden-literal via
+`composition/authoring.py::recover_forbidden_command_units` (commit `1fff7d7`); title-restatement
+via a deterministic backstop for review's stricter standard (commit `fadb001`/`a313864`). Neither
+fix has yet been verified against a fresh redraw of BarCode-Python or Slides-Java specifically —
+not yet moved to Resolved until that verification lands.
+
+### `composition.planning.rc01_backstop_vs_link_ceiling_trim_ordering`
+
+`planning.py`'s `plan_checks` runs the RC-01 links backstop (which appends every disposition-
+required `link_target` fact a unit names, per `_missing_links`) *before* the Aspose-link-ceiling
+trim (`DEFAULT_POLICY.aspose_links_max`). The trim then keeps only the first N Aspose-domain links
+it encounters in the disposition's own `fact_ids` insertion order — which carries no priority
+signal at all — silently dropping whichever backstop-appended, deterministically-required link
+lands last. The trim's own reasoning (favor whichever links the model named first) is sound for the
+model's own free-choice links; it does not hold for backstop-injected ones, which the model never
+chose to prioritize in the first place.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` | 2026-09-17 10:53 UTC | `docs/DECISION_LOG.md` on branch `item92-slides-net-redraw` (commit `654d115`, never merged to `main` — stranded 9 days, found via a `liveness.yml` failure on 2026-09-25 and backfilled into this index only now) |
+
+**Status 2026-09-26**: one sighting, not yet escalated (below the 3-sighting threshold). Recorded
+here specifically so it is never lost again the way it was for 9 days on an unmerged branch —
+`docs/DEFECT_INDEX.md`'s whole purpose is to survive a branch going stranded. Repository not sealed;
+its `READY_FOR_PROPOSAL` bundle was deliberately never committed (would have turned
+`test_no_link_completeness_gap` red for everyone). Proposed fix, not implemented: reserve ceiling
+headroom for RC-01 backstop links before trimming the model's own free-choice links, or trim from
+the model's own links first and never touch backstop-injected ones — owner's choice, not
+prescribed.
 
 ## Resolved
 
