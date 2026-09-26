@@ -708,8 +708,20 @@ gathered here so it is not lost across documents:
 - `push_retry.py`'s mechanism (or a direct reuse of the module) wired as the state backend's own
   commit path (§20.2).
 - JWT-signing dependency added; GitHub-App auth ported into a `core/config`-equivalent boundary.
-- `act` installed and run clean against the three existing workflows first (§20.5).
-- `monitor.yml`/`present.yml` authored, then `act`-tested locally before any hosted run.
+- `act` installed and run clean against the three existing workflows first (§20.5). *(Partially
+  superseded 2026-09-26: `act` v0.2.89 is installed, at `C:\tools\rp-toolchains\act\act.exe`
+  (`TOOLCHAIN_PATHS.txt`) after a chocolatey permission failure — see `docs/DECISION_LOG.md`
+  2026-09-26 03:17 UTC. It was run clean against `monitor.yml` below, not yet against the three
+  pre-existing workflows named here; that remains open.)*
+- [x] `monitor.yml` authored, then `act`-tested locally before any hosted run. **Done 2026-09-26**:
+  `.github/workflows/monitor.yml` (workflow_dispatch-only, read-only gateway + canary reachability
+  check) authored and run clean with `act workflow_dispatch -W .github/workflows/monitor.yml -j
+  health-check`; full transcript, the real defect it caught (a worktree-checkout `git` artifact,
+  fixed in the workflow itself, not worked around), and its honest limits (`act`'s runner image
+  vs. real `ubuntu-latest`; `docker cp` checkout vs. a real clone; local `--secret-file` vs.
+  GitHub's own secret injection) are in `docs/DECISION_LOG.md`, this timestamp. `present.yml` is
+  not built — this checklist item covers only `monitor.yml`, and only this one narrow slice of
+  section 20's overall requirements; every other line on this list is still open.
 - The gateway's real rate-limit behavior measured under parallel composition (§20.3), before the
   Actions matrix's fan-out width is chosen.
 - G4 substantively closed — every registry entry carries a disposition — since G5 formally opens

@@ -1,0 +1,70 @@
+# First hosted-execution slice (docs/STATE_MACHINE.md section 20.6's own checklist item
+# "monitor.yml authored, then act-tested"). This is deliberately NOT the durable-state-backed
+# present.yml pipeline section 20 describes -- no CAS/lease/recovery backend exists yet
+# (docs/investigations/12-supervisor-and-production-reassessment.md section 5.4/7), and this
+# workflow proves nothing about that missing piece. It only confirms two low-risk, read-only
+# preconditions a future scheduled run would need:
+#   1. the configured LLM gateway is reachable (repository-presenter preflight);
+#   2. the canary repository (project/state.yaml's progress.canary) is still reachable read-only.
+# It makes no repository write, opens no PR, and uses no write-scoped credential -- `permissions:
+# contents: read` below is the whole grant.
+#
+# workflow_dispatch only, deliberately -- not a schedule trigger. A schedule needs the durable
+# state backend, GitHub App credential automation (OWNER-04), and the gateway's real rate-limit
+# behavior measured under parallel composition (docs/STATE_MACHINE.md section 20.3) before an
+# unattended cron run is safe. Adding `schedule:` is a named follow-up, not an oversight.
+name: Monitor
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health-check:
+    name: Gateway and canary reachability
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - name: Official entry point (read-only; also names the canary)
+        run: repository-presenter status
+
+      - name: LLM gateway reachable
+        env:
+          GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
+          GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
+        run: repository-presenter preflight
+
+      - name: Canary repository reachable, read-only
+        run: |
+          # The canary coordinates are project/state.yaml's own progress.canary field, read
+          # through the official entry point rather than re-parsed here, so this check never
+          # drifts from the one live cursor (AGENTS.md: project/state.yaml owns implementation
+          # status; never restate a cursor value another mechanism already computes).
+          canary=$(repository-presenter status | sed -n 's/^canary: //p')
+          if [ -z "$canary" ]; then
+            echo "::error::could not read canary coordinates from 'repository-presenter status'"
+            exit 1
+          fi
+          echo "canary: $canary"
+          # Run from a scratch directory with no ambient .git, not the checkout's own working
+          # tree: this probe only needs network reachability of the remote URL, never local
+          # repository discovery, and depending on it is actively wrong when the checkout itself
+          # is a git worktree (git's own worktree pointer file at .git holds an absolute path
+          # into the primary clone's `.git/worktrees/...`, which will not exist wherever the
+          # checkout runs, and breaks even a remote-only command's own repo-context lookup).
+          scratch=$(mktemp -d)
+          git -C "$scratch" ls-remote "https://github.com/${canary}.git" HEAD

@@ -4227,3 +4227,88 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   - **Evidence:** `candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp/9f852d0ff1cfdad2d661556d6b87a8eff8c063a2/manifest.json` (`invalidated` block, read this session); `gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/commits/main` (live, this session); `runs/clones/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp/Aspose.Cells.Foss.Cpp/{src/aspose/cells_foss/NumberFormat.cpp,cmake/toolchain-detect.cmake}` (read this session, gitignored, disposable); two fresh standalone-compile transcripts (GCC and Clang, this session, not retained as files - both quoted verbatim above); `evidence/upstream-defects/` directory listing (this session).
   - **Action taken:** this entry only, in `docs/DECISION_LOG.md`. No `src/`/`tests/`/`candidates/`/`project/state.yaml` change.
   - **Reverse by:** this is an investigation-only record; there is nothing to `git revert` that changes any candidate or runtime behavior.
+
+- **2026-09-26 03:17 UTC · G5 first slice (`docs/STATE_MACHINE.md` section 20.6 checklist item
+  "`monitor.yml` authored, then `act`-tested") · `.github/workflows/monitor.yml` added and verified
+  locally with `act`; narrowly scoped per the task's own explicit boundary - no CAS/lease/recovery
+  backend, no GitHub App automation wiring, no `present.yml`, nothing beyond this one workflow.**
+  - **What was built.** `monitor.yml`: `workflow_dispatch`-only (deliberately, comment in the file
+    says so - a `schedule:` trigger needs the durable state backend, `OWNER-04`'s GitHub App
+    automation, and the gateway's real parallel-composition rate-limit measured first, section
+    20.3/20.6), `permissions: contents: read` only, one job (`health-check`) with three steps: (1)
+    `repository-presenter status` (the official entry point, read-only, also the source of the
+    canary coordinates so the workflow never restates `project/state.yaml`'s own
+    `progress.canary` field independently); (2) `repository-presenter preflight` against
+    `secrets.GPT_OSS_ENDPOINT`/`secrets.GPT_OSS_API_KEY` (LLM gateway reachability); (3)
+    `git ls-remote https://github.com/<canary>.git HEAD` from a scratch directory (read-only
+    canary-repository reachability). No write, no PR, no write-scoped credential anywhere in it.
+  - **`act` install: chocolatey failed with a real permission error, not skipped for convenience.**
+    `choco install act-cli -y` failed - `Unable to obtain lock file access on
+    C:\ProgramData\chocolatey\lib\...` / `Access to the path 'C:\ProgramData\chocolatey\lib-bad' is
+    denied` - because this shell is not elevated (no non-interactive path to elevation existed;
+    forcing it was out of scope). Fell back to the direct-binary method the task itself named as
+    acceptable: downloaded `act_Windows_x86_64.zip` v0.2.89 from
+    `github.com/nektos/act/releases/latest`, extracted to `C:\tools\rp-toolchains\act\act.exe` -
+    the same workspace-local, no-PATH-edit, absolute-path-invocation directory `OWNER-06`'s C++
+    toolchain already uses. Recorded in `C:\tools\rp-toolchains\TOOLCHAIN_PATHS.txt` (machine-local,
+    not versioned in this repository, same as the C++/Rust/TypeScript entries already there).
+    Verified: `act --version` → `act version 0.2.89`.
+  - **First `act` run found a real defect, not an artifact of impatience - fixed, not glossed
+    over.** `env -u ... act.exe workflow_dispatch -W .github/workflows/monitor.yml -j health-check
+    --secret-file .secrets` (a local, gitignored file populated from this session's own real
+    `GPT_OSS_ENDPOINT`/`GPT_OSS_API_KEY` environment, deleted immediately after the second, passing
+    run below - never committed, `.gitignore` already covers `.secrets`). `status` and `preflight`
+    both passed; the third step failed: `fatal: not a git repository: (null)`. Root-caused, not
+    guessed: this checkout is a git *worktree* (`.claude/worktrees/agent-...`), whose own `.git` is
+    a pointer file naming an absolute host path into the primary clone's
+    `.git/worktrees/<name>/`; `act`'s `actions/checkout` simulation copies the working tree into
+    the container via `docker cp` (confirmed via the run's own log line, not assumed), carrying
+    that same now-unresolvable pointer with it - so even a pure remote operation
+    (`git ls-remote <url>`, which needs no local repository at all) fails when git's own repository
+    discovery, triggered by cwd, cannot resolve it. Confirmed independently, outside the
+    action, by running `git ls-remote` directly inside `catthehacker/ubuntu:act-latest` via
+    `docker run` (no checkout involved) - succeeded immediately, isolating the cause to the
+    worktree-checkout interaction specifically, not `act`, not the gateway, not the network.
+  - **Fix: the reachability probe no longer depends on ambient repository discovery at all** - not
+    a hack to make `act` pass, a genuine correctness fix independent of it: a read-only network
+    probe has no reason to depend on the caller's own working directory being a resolvable git
+    repository, worktree or not, and would have been equally fragile on a real hosted runner if
+    checkout ever produced a similar layout. Changed the last step to `scratch=$(mktemp -d); git -C
+    "$scratch" ls-remote ...`, decoupling the probe from `$GITHUB_WORKSPACE` entirely.
+  - **Second `act` run, same command, after the fix - real output, not a description of expected
+    output.** All three steps passed. `status`: `candidates: 24/34 current reviewable
+    no-op-proven`, `canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python`. `preflight`: `gateway:
+    llm.professionalize.com reachable (GPT_OSS_API_KEY read, never printed)`, `models:
+    Qwen2.5-VL-7B, experimental, gpt-oss, qwen3-embedding-8b, qwen3-next, recommended,
+    stable-diffusion-3.5-large (7)`, catalog written and digested. Canary reachability:
+    `git -C "$scratch" ls-remote` returned `65b1f577c0f16d0d9112bb6c1153d3024543ac02	HEAD` (the
+    exact commit `project/state.yaml`'s own sealed 3D-Python bundle path already names). Job
+    result: `🏁  Job succeeded`. Full logs kept as this session's own working evidence
+    (`C:\WINDOWS\TEMP\claude\act_run_1.log` the failing run, `act_run_2.log` the passing run;
+    machine-local scratch paths, not committed - the log text quoted above is the durable record).
+  - **What this proves, exactly.** The workflow's YAML syntax, its `workflow_dispatch` trigger, its
+    secret wiring (`secrets.GPT_OSS_ENDPOINT`/`secrets.GPT_OSS_API_KEY` reaching the job env
+    correctly), and both health-check behaviors (gateway preflight, canary `ls-remote`) all work
+    correctly end-to-end inside a containerized runner-image environment close to real GitHub
+    Actions.
+  - **What this does NOT prove - named, not glossed over.** `act`'s runner image
+    (`catthehacker/ubuntu:act-latest`) differs from GitHub's real `ubuntu-latest` in ways that are
+    usually minor but not guaranteed identical (package versions, preinstalled tooling, exact
+    kernel/cgroup behavior) - a clean run here is strong evidence, not a proof of identical hosted
+    behavior. `actions/checkout` under `act` uses `docker cp` from the local working tree rather
+    than a real `git fetch`/clone from GitHub, which is exactly why the worktree-pointer defect
+    above surfaced locally in a way a real hosted checkout (a genuine clone, not a worktree copy)
+    would likely never hit - the fix stands on its own correctness merits regardless. `secrets`
+    came from a local `--secret-file`, not GitHub's own encrypted-secret injection path, so secret
+    *scoping* on the real platform is unverified by this run, only the workflow's own reference to
+    `secrets.*` names. Section 20.6's other checklist items - the durable CAS/lease state backend,
+    `OWNER-04`'s GitHub App credential automation, `push_retry.py` wired as the backend's commit
+    path, JWT-signing dependency, the gateway's real parallel rate-limit measurement, G4's
+    substantive closure - are unbuilt and unmeasured by this entry; this is one checklist line, not
+    a hosted-execution proof.
+  - **Evidence:** `.github/workflows/monitor.yml` (this commit); `act` install and both run
+    transcripts quoted above; `C:\tools\rp-toolchains\TOOLCHAIN_PATHS.txt`'s new `act` block
+    (machine-local); `docs/STATE_MACHINE.md` section 20.6's checklist, this commit, marking only
+    this one line done.
+  - **Reverse by:** delete `.github/workflows/monitor.yml`; revert the section 20.6 checklist edit.
+    No other file's behavior depends on this workflow existing.
