@@ -19,28 +19,50 @@ against at least one of its own listed sightings, not merely proposed.
 ### `section_authoring.rejection_no_recover`
 
 `section_authoring`'s rejection-repair loop had no deterministic `recover=` backstop, unlike
-`presentation_planning`'s (`composition/planning.py::recover_uncited_capability_titles`). Two
+`presentation_planning`'s (`composition/planning.py::recover_uncited_capability_titles`). Three
 distinct sub-shapes share the same root gap (no last-resort deterministic correction before the
 repair budget exhausts), tracked as one mechanism because the fix pattern is identical:
 
 - **Forbidden-literal sub-shape**: a re-ask reproduces a `_FORBIDDEN`-marked literal (e.g. a
   `pip install` command) byte-for-byte despite the rejection template naming it forbidden.
-- **Title-restatement sub-shape**: `unit_checks`'s item-106 carve-out lets a repaired unit through
-  (real detail follows the title), but independent review's own separate semantic judgment still
-  flags the literal title-verbatim opening clause regardless of what follows it.
+- **Title-restatement sub-shape (repair path)**: `unit_checks`'s item-106 carve-out lets a repaired
+  unit through (real detail follows the title), but independent review's own separate semantic
+  judgment still flags the literal title-verbatim opening clause regardless of what follows it.
+- **Title-restatement sub-shape (initial-draft path)**: within `section_authoring`'s own first
+  `run_job` call (never reaching review), `unit_checks`' identifier-acceptance check and its own
+  item-106 title-restatement carve-out can pull one combined re-ask in opposite directions —
+  removing an unaccepted identifier to satisfy one check strips the exact member-level detail the
+  other check needs — and this call site's only `recover=` (`recover_forbidden_command_units`)
+  does not cover either check.
 
 | # | Repository | Sub-shape | Date | Evidence |
 |---|---|---|---|---|
 | 1 | `aspose-page-foss/Aspose.Page-FOSS-for-Python` | forbidden-literal | 2026-09-24 14:25 UTC | `docs/DECISION_LOG.md`, never sealed until fixed |
-| 2 | `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` | title-restatement | 2026-09-25 08:04 UTC | `docs/DECISION_LOG.md`, reseal regression |
-| 3 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement | 2026-09-25 07:13 UTC (and `docs/RESEARCH_LANE_C.md` G4-W12-RERUN7 through RERUN13, earlier) | 7+ reruns, recurring |
+| 2 | `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` | title-restatement (repair path) | 2026-09-25 08:04 UTC | `docs/DECISION_LOG.md`, reseal regression |
+| 3 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement (repair path) | 2026-09-25 07:13 UTC (and `docs/RESEARCH_LANE_C.md` G4-W12-RERUN7 through RERUN13, earlier) | 7+ reruns, recurring |
+| 4 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement (initial-draft path, new) | 2026-09-26 03:06-08:35 UTC | `docs/DECISION_LOG.md`, this timestamp — `section_authoring` itself exhausted its 2-attempt budget, never reached review |
 
 **Status 2026-09-25**: crossed 3 sightings; escalated same day per the owner's direct instruction.
-Both sub-shapes now have a landed fix: forbidden-literal via
+Forbidden-literal and title-restatement (repair path) both have a landed fix: forbidden-literal via
 `composition/authoring.py::recover_forbidden_command_units` (commit `1fff7d7`); title-restatement
-via a deterministic backstop for review's stricter standard (commit `fadb001`/`a313864`). Neither
-fix has yet been verified against a fresh redraw of BarCode-Python or Slides-Java specifically —
-not yet moved to Resolved until that verification lands.
+(repair path) via a deterministic backstop for review's stricter standard (commit
+`fadb001`/`a313864`).
+
+**Status 2026-09-26 (verification session, full detail in `docs/DECISION_LOG.md` this timestamp)**:
+both `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` and
+`aspose-slides-foss/Aspose.Slides-FOSS-for-Java` were drawn live (a transient gateway outage on
+`qwen3-next` was hit first, confirmed via a direct probe, and cleared on its own ~25 minutes later
+— not code-related). Neither sealed. **BarCode-Python**: the title-restatement finding surfaced
+only as an uncorroborated advisory this draw, never a blocker, so `fadb001`'s own repair-path
+mechanism was never exercised either way; the candidate blocked instead on a new, unrelated defect
+(`F08`, `development_testing`). **Slides-Java**: never reached independent review at all — a new,
+distinct sighting of this same mechanism family (sighting #4 above, the initial-draft path), which
+`fadb001` does not cover by design (it is scoped to the separate repair-path call site only). The
+repair-path fix (sightings 2-3) therefore remains landed but still not live-verified as a success
+against either of its own originating repositories; the initial-draft path (sighting 4) has no fix
+yet. Not moved to Resolved. Resume: re-draw either repository on a future independent sample for
+the repair-path fix; diagnose and land a fix for the initial-draft path (proposal in
+`docs/DECISION_LOG.md`) before its own verification is possible.
 
 ### `composition.planning.rc01_backstop_vs_link_ceiling_trim_ordering`
 
