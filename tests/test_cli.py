@@ -472,10 +472,22 @@ class _ChatGateway:
         elif job == "section_authoring":
             section = re.search(r"^Section: (\S+)$", user, re.M).group(1)  # type: ignore[union-attr]
             if section == "all":
-                # Coherence returns every unit as it stands, revising nothing.
+                # Coherence returns every unit as it stands, revising nothing. PDFPY-03: the
+                # coherence pass may now run as several batched calls, each one asking back only
+                # its own subset of units (the objective's own "Units to return" list) even though
+                # every current unit is still shown for context - so the reply here is filtered to
+                # exactly that subset, the same bound the real schema (coherence_schema) enforces,
+                # never the whole document regardless of which batch this call is.
                 existing = user.split("Existing LLM-owned units (coherence mode only):\n", 1)[1]
                 existing = existing.rsplit("\n\nReturn the units", 1)[0]
-                content = json.dumps({"units": json.loads(existing), "omitted": []})
+                units = json.loads(existing)
+                wanted = re.search(r"Units to return, each exactly once: (.*?)\. Identifiers", user)
+                if wanted:
+                    pairs = {
+                        tuple(item.split("/", 1)) for item in wanted.group(1).split(", ") if item
+                    }
+                    units = [u for u in units if (u.get("section"), u.get("slot")) in pairs]
+                content = json.dumps({"units": units, "omitted": []})
             else:
                 # The packet names each slot twice - in the objective and in the slots
                 # block that carries its subject and facts - so the scrape is deduped.
@@ -716,7 +728,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
     assert len(ledger) == 13 and all('"disposition":"provider_call"' in line for line in ledger)
-    assert "coherence: 0 of 10 units revised; provider calls 1, model qwen3-next" in captured.out
+    assert "coherence: 0 of 10 units revised; provider calls 1" in captured.out
     assert LIVE_KEY not in "".join(ledger)
     units_line = next(line for line in captured.out.splitlines() if line.startswith("units: "))
     assert units_line.startswith(
@@ -906,18 +918,18 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     second = capsys.readouterr().out
     assert digests(first) == digests(second)
     assert "evaluation: " in first and "no sealed bundle" in first and "NONE; 0 changes" in second
-    # PHASE0/G: the dispositions line no longer names a single model (reconciliation can be
-    # more than one batch's own call now) - 4 of the previous 5 per-model lines remain
-    # (investigation, plan, coherence, review); dispositions reports its own call count only,
-    # the same way the units line (authoring, also multi-call) already does.
-    assert first.count("provider calls 1, model qwen3-next") == 4
-    assert second.count("provider calls 0, model stored output reused") == 4
+    # PHASE0/G, then PDFPY-03: the dispositions line no longer names a single model
+    # (reconciliation can be more than one batch's own call now), and neither does the coherence
+    # line (it too can now be more than one batch's own call, docs/DECISION_LOG.md 2026-09-17
+    # 09:18 UTC) - 3 of the original 5 per-model lines remain (investigation, plan, review);
+    # dispositions and coherence each report their own call count only, the same way the units
+    # line (authoring, also multi-call) already does.
+    assert first.count("provider calls 1, model qwen3-next") == 3
+    assert second.count("provider calls 0, model stored output reused") == 3
     # 13, not 12: the accept's corroborating second read is one more first-run call (PHASE1/F6).
     assert len(gateway_ready.requests) == 13
     assert "provider calls 7; digest" in first and "provider calls 0; digest" in second
-    assert (
-        "coherence: 0 of 10 units revised; provider calls 0, model stored output reused" in second
-    )
+    assert "coherence: 0 of 10 units revised; provider calls 0" in second
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
     assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 13 + [

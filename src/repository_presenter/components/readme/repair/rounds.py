@@ -32,6 +32,8 @@ from repository_presenter.components.readme.composition.authoring import (
 )
 from repository_presenter.components.readme.composition.coherence import (
     apply_coherence,
+    coherence_batch_units,
+    coherence_batches,
     coherence_checks,
     coherence_packet,
     coherence_schema,
@@ -157,7 +159,10 @@ class Round:
     authored: dict[str, JobResult]
     tasks: list[SectionTask]
     units: dict[str, Any]
-    coherent: JobResult
+    # PDFPY-03: one JobResult per coherence batch now, keyed like `reconciled`/`authored` above
+    # (batch_id -> its own call) - the loop above may make several calls where there used to be
+    # exactly one.
+    coherent: dict[str, JobResult]
     revised: list[str]
     readme: str
     validation: dict[str, Any]
@@ -283,17 +288,34 @@ def run_round(tx: TransactionInputs) -> Round:
         )
     units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])
     readme = render_readme(entry, facts, planned.output, units, dispositions)
-    coherence_task_packet = coherence_packet(entry, readme, units, tasks, facts)
-    coherent = run_job(
-        loaded,
-        coherence_task_packet,
-        checks=functools.partial(coherence_checks, tasks=tasks, facts=facts, name=name),
-        call_schema=coherence_schema(loaded, coherence_task_packet["existing_units"], tasks),
-        **common,
-    )
-    units, revised = apply_coherence(units, coherent.output)
-    if revised:
-        readme = render_readme(entry, facts, planned.output, units, dispositions)
+    # PDFPY-03 (docs/DECISION_LOG.md 2026-09-17 09:18 UTC, corroborated 2026-09-24 14:20 UTC): one
+    # call asking for every LLM-owned unit back at once truncates at the shared
+    # max_output_tokens=8000 cap once the document grows large enough (measured on PDF-Python and
+    # Font-Python, both aborting the whole transaction with no README produced). One run_job() call
+    # per coherence batch now, the same shape source_reconciliation's own loop above and
+    # section_authoring's own _type_batches() already prove for the identical class of problem.
+    # Each batch's own call still receives the *current* full rendered document and every current
+    # unit for context (coherence_packet's own existing_units/rendered_document fields are
+    # unscoped) - only the reply itself is narrowed to the batch's own units. The document is
+    # re-rendered after any batch that actually revised something, so a later batch judges its own
+    # section against a document that already reflects every earlier batch's revisions - cross-
+    # batch consistency stays genuinely checked, not silently dropped.
+    coherent: dict[str, JobResult] = {}
+    revised: list[str] = []
+    for batch_id, batch_tasks in coherence_batches(tasks):
+        batch_packet = coherence_packet(entry, readme, units, batch_tasks, facts)
+        return_units = coherence_batch_units(batch_packet["existing_units"], batch_tasks)
+        coherent[batch_id] = run_job(
+            loaded,
+            batch_packet,
+            checks=functools.partial(coherence_checks, tasks=batch_tasks, facts=facts, name=name),
+            call_schema=coherence_schema(loaded, return_units, batch_tasks),
+            **common,
+        )
+        units, batch_revised = apply_coherence(units, coherent[batch_id].output)
+        if batch_revised:
+            readme = render_readme(entry, facts, planned.output, units, dispositions)
+        revised.extend(batch_revised)
     digests["units"] = write_content_units(units, tx.directory / CONTENT_UNITS_FILENAME)
     digests["readme"] = write_text(readme, tx.directory / README_FILENAME)
     digests["patch"] = write_text(render_patch(tx.original, readme), tx.directory / PATCH_FILENAME)

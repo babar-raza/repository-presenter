@@ -9,7 +9,10 @@ from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.composition.authoring import SectionTask
 from repository_presenter.components.readme.composition.coherence import (
+    _COHERENCE_BATCH_UNITS,
     apply_coherence,
+    coherence_batch_units,
+    coherence_batches,
     coherence_checks,
     coherence_citable_ids,
     coherence_packet,
@@ -261,3 +264,141 @@ def test_a_call_with_nothing_citable_pins_fact_ids_empty_rather_than_an_empty_en
     schema = coherence_schema(loaded, [], [])
     fact_ids = schema["properties"]["units"]["items"]["properties"]["fact_ids"]
     assert fact_ids == {"type": "array", "maxItems": 0}
+
+
+# PDFPY-03 (docs/DECISION_LOG.md 2026-09-17 09:18 UTC, corroborated 2026-09-24 14:20 UTC): a single
+# coherence call asking for every LLM-owned unit back at once has no bound on its own completion
+# size and truncates at the shared max_output_tokens=8000 cap once a document carries enough units
+# (measured live: 47 on PDF-Python, more on Font-Python) - the whole transaction aborts before any
+# README or validation is produced. The tests below cover coherence_batches/coherence_batch_units,
+# the fix: a document this small still gets exactly the old one-call shape (no regression), while a
+# document large enough to have truncated the old way now splits into several calls, each one's own
+# schema-forced reply bounded well under the cap regardless of the document's total size.
+
+
+def _big_task(number: int, slot_count: int) -> SectionTask:
+    slots = tuple(f"slot:{i}" for i in range(slot_count))
+    return SectionTask(f"section{number}", {}, frozenset({"identity:repository"}), slots)
+
+
+# Six sections, slot counts 3/4/2/4/3/4 = 20 units total - comfortably past _COHERENCE_BATCH_UNITS
+# (16), the same order of magnitude as the 47-unit document that actually truncated in production.
+BIG_TASKS = [_big_task(number, count) for number, count in enumerate([3, 4, 2, 4, 3, 4], start=1)]
+BIG_UNITS: dict[str, Any] = {
+    "schema_version": 1,
+    "units": [
+        {
+            "section": task.section_id,
+            "slot": slot,
+            # Plain prose only - no colon-shaped tokens that unit_checks' identifier guard would
+            # mistake for an unaccepted API name.
+            "text": "The package behaves as documented here.",
+            "fact_ids": ["identity:repository"],
+        }
+        for task in BIG_TASKS
+        for slot in task.slots
+    ],
+    "omitted": [],
+}
+BIG_FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (Fact("identity:repository", "identity", ENTRY.repository, (Evidence("x"),)),),
+)
+
+
+def test_a_small_document_still_gets_exactly_one_batch_no_regression() -> None:
+    """The existing small TASKS fixture (2 units) must keep the pre-PDFPY-03 shape exactly: one
+    batch, carrying every task, so a normal-sized candidate makes the same single coherence call
+    it always did."""
+    batches = coherence_batches(TASKS)
+    assert batches == [("coherence#1", TASKS)]
+
+
+def test_a_large_document_splits_into_several_batches_never_splitting_one_sections_own_slots() -> (
+    None
+):
+    batches = coherence_batches(BIG_TASKS)
+    # Greedy accumulation: 3+4+2+4+3 = 16 (exactly at the cap, still one batch), then +4 would be
+    # 20 > 16, so section6 starts a new batch.
+    assert [batch_id for batch_id, _ in batches] == ["coherence#1", "coherence#2"]
+    first_tasks, second_tasks = (group for _, group in batches)
+    assert first_tasks == BIG_TASKS[:5]
+    assert second_tasks == BIG_TASKS[5:]
+    # No batch's own total slot count ever exceeds the cap - the mechanism that keeps every
+    # single call's reply within budget regardless of how large the whole document grows.
+    for _, group in batches:
+        assert sum(len(task.slots) for task in group) <= _COHERENCE_BATCH_UNITS
+    # Every task appears in exactly one batch, document order preserved, nothing dropped.
+    assert [task for _, group in batches for task in group] == BIG_TASKS
+
+
+def test_a_batchs_own_call_still_sees_the_whole_document_for_cross_batch_context() -> None:
+    """Cross-batch consistency must not be silently dropped: a later batch's own packet still
+    carries every current unit and the full rendered document, even though its schema-forced
+    reply is narrowed to its own batch."""
+    _, second_batch_tasks = coherence_batches(BIG_TASKS)[1]
+    packet = coherence_packet(ENTRY, "# Doc\n", BIG_UNITS, second_batch_tasks, BIG_FACTS)
+    # Full-document context: every one of the 20 units, not just section6's own 4.
+    assert len(packet["existing_units"]) == len(BIG_UNITS["units"]) == 20
+    assert packet["rendered_document"] == "# Doc\n"
+    # But the schema-forced reply this call must return is narrowed to section6's own slots only.
+    assert (
+        "Units to return, each exactly once: section6/slot:0, section6/slot:1"
+        in (packet["objective"])
+    )
+    assert "section1/slot:0" not in packet["objective"]
+    return_units = coherence_batch_units(packet["existing_units"], second_batch_tasks)
+    assert {(u["section"], u["slot"]) for u in return_units} == {
+        ("section6", slot) for slot in second_batch_tasks[0].slots
+    }
+    # The schema this call actually gets bounds the reply to those 4 units, not all 20 - unlike
+    # the pre-fix single-call design, which would have demanded all 20 back in this one reply.
+    loaded = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
+    schema = coherence_schema(loaded, return_units, second_batch_tasks)
+    units_schema = schema["properties"]["units"]
+    assert units_schema["minItems"] == units_schema["maxItems"] == 4
+
+
+def test_a_document_too_large_for_one_call_completes_via_several_bounded_calls() -> None:
+    """End-to-end (offline, no provider call): drive coherence_batches/coherence_packet/
+    coherence_schema/coherence_checks/apply_coherence the same sequential way repair/rounds.py's
+    own loop does, over BIG_TASKS/BIG_UNITS - a document this size (20 units) would have been sent
+    as one 20-unit reply under the pre-PDFPY-03 design; here every call's own schema-validated
+    reply is confirmed small, and the final merged document still carries every unit, correctly
+    revised, with nothing lost or duplicated across batches."""
+    units = BIG_UNITS
+    readme = "# Doc\n"
+    revised: list[str] = []
+    calls = 0
+    loaded = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
+    for batch_id, batch_tasks in coherence_batches(BIG_TASKS):
+        calls += 1
+        packet = coherence_packet(ENTRY, readme, units, batch_tasks, BIG_FACTS)
+        return_units = coherence_batch_units(packet["existing_units"], batch_tasks)
+        schema = coherence_schema(loaded, return_units, batch_tasks)
+        # This call's own reply may never ask for more than the batch's own units - the exact
+        # property that keeps the reply's completion size bounded no matter how large the whole
+        # document is.
+        assert schema["properties"]["units"]["maxItems"] <= _COHERENCE_BATCH_UNITS
+        # A genuine revision, scoped to exactly this batch's own units - proving the model could
+        # legitimately revise its own section without ever seeing (or needing to return) another
+        # batch's units in this same reply.
+        output = {
+            "units": [{**unit, "text": unit["text"] + " REVISED"} for unit in return_units],
+            "omitted": [],
+        }
+        validator = Draft202012Validator(schema)
+        assert validator.is_valid(output), (
+            f"{batch_id} reply invalid: {list(validator.iter_errors(output))}"
+        )
+        errors = coherence_checks(output, batch_tasks, BIG_FACTS, NAME)
+        assert errors == []
+        units, batch_revised = apply_coherence(units, output)
+        revised.extend(batch_revised)
+    assert calls == 2  # confirms this document genuinely needed more than the old one call
+    assert len(revised) == 20
+    assert all(unit["text"].endswith(" REVISED") for unit in units["units"])
+    assert {(u["section"], u["slot"]) for u in units["units"]} == {
+        (task.section_id, slot) for task in BIG_TASKS for slot in task.slots
+    }

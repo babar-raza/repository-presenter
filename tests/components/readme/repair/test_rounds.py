@@ -79,7 +79,7 @@ def _minimal_round(planned_output: dict[str, Any]) -> Round:
         authored={},
         tasks=[],
         units={},
-        coherent=_stub_job_result({}),
+        coherent={"coherence#1": _stub_job_result({})},
         revised=[],
         readme="",
         validation={},

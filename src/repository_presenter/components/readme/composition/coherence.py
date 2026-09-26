@@ -1,11 +1,33 @@
-"""Stage S8: the single coherence pass - revise LLM-owned units only, once, then re-render.
+"""Stage S8: the coherence pass - revise LLM-owned units only, once, then re-render.
 
-The pass is one section_authoring call in coherence mode: the job sees the rendered document and
-every authored unit, and returns every unit with its section and slot unchanged and its text
-possibly revised. The guard holds each returned unit to its own section's rules (slots exactly
-once, citations inside the section's set, no Markdown, identifiers that are fact values), so the
-pass can only change prose the LLM already owned. Deterministic blocks are untouched by
-construction: the renderer is a pure function and only unit texts change.
+The pass is one or more section_authoring calls in coherence mode: each call sees the rendered
+document and every authored unit for context, and returns exactly one batch's own units with their
+section and slot unchanged and their text possibly revised. The guard holds each returned unit to
+its own section's rules (slots exactly once, citations inside the section's set, no Markdown,
+identifiers that are fact values), so the pass can only change prose the LLM already owned.
+Deterministic blocks are untouched by construction: the renderer is a pure function and only unit
+texts change.
+
+PDFPY-03 (docs/DECISION_LOG.md 2026-09-17 09:18 UTC, corroborated 2026-09-24 14:20 UTC on a second
+repository): a single call asking for every LLM-owned unit back at once has no bound on its own
+completion size - unlike authoring.py's own per-task ``section_authoring`` calls, which are always
+scoped to one section's (or one type-batch's) own slots. Once a document carries enough units (47
+on PDF-Python, more on Font-Python), the reply alone exceeds the shared ``max_output_tokens=8000``
+cap and the whole transaction aborts with ``finish_reason: length`` before any README or validation
+is produced - PDF-Python and Font-Python have both been blocked on exactly this.
+``coherence_batches`` splits the pass into fixed-size batches, mirroring the precedent
+``authoring.py::_type_batches`` and
+``reconciliation/dispositions.py::reconciliation_batches`` already set for the identical class of
+problem: several bounded calls instead of one unbounded one, never splitting one section's own
+slots across two calls (a section's own internal coherence is still judged in one call).
+
+Cross-batch consistency is not silently dropped: every batch call still receives the *entire*
+current rendered document and *every* current LLM-owned unit (``coherence_packet``'s own
+``existing_units``/``rendered_document`` fields are unscoped, independent of which tasks are
+passed) - only the schema-forced *reply* is narrowed to the batch's own units. The caller
+(``repair/rounds.py``) also re-renders the document after each batch and feeds the updated
+document into the next batch's packet, so a later batch judges its own section's coherence against
+a document that already reflects every earlier batch's revisions, not the stale pre-pass text.
 """
 
 from __future__ import annotations
@@ -26,6 +48,17 @@ from repository_presenter.core.registry.models import RegistryEntry
 
 COHERENCE_SECTION = "all"
 _SPELLING_CAP = 120
+# PDFPY-03: units per coherence-batch call. The manifest's own ``text`` field comment (item 75,
+# prompts/section_authoring.yaml) records the longest unit ever measured across every sealed
+# bundle at 972 characters (~250 tokens with its ``fact_ids``/JSON overhead) against a maxLength
+# ceiling of 2200 set well above it for headroom, not as a realistic average. Sizing the batch off
+# the real measured maximum rather than the abstract schema ceiling: 16 units x ~250 tokens worst
+# case =~ 4000, half the shared 8000-token completion cap, with room to spare even if every unit in
+# a batch happened to hit the longest length ever recorded at once. Large enough that the project's
+# own small/typical candidates (on the order of 10-20 LLM-owned units) still complete in one
+# coherence call exactly as before; small enough that a document the size of the ones that actually
+# truncated (47+ units, PDF-Python and Font-Python) still splits into several bounded calls.
+_COHERENCE_BATCH_UNITS = 16
 
 
 def coherence_packet(
@@ -100,6 +133,45 @@ def coherence_citable_ids(tasks: list[SectionTask]) -> list[str]:
     for task in tasks:
         ids.extend(fact_id for fact_id in sorted(task.accepted_ids))
     return list(dict.fromkeys(ids))
+
+
+def coherence_batches(tasks: list[SectionTask]) -> list[tuple[str, list[SectionTask]]]:
+    """Every LLM-owned section, grouped into fixed-size coherence batches in document (task) order
+    - one ``(batch_id, group)`` pair per coherence call this round makes (PDFPY-03).
+
+    Greedy accumulation, never splitting one task's own slots across two batches: a section's
+    coherence is judged as a whole in one call, exactly as ``coherence_checks``' per-task
+    ``unit_checks`` already expects. A single task whose own slot count alone exceeds
+    ``_COHERENCE_BATCH_UNITS`` still gets its own, larger batch rather than being split - no
+    section on record carries anywhere near that many slots (the portfolio's own largest,
+    ``key_capabilities``, is bounded well under it), so this is a safety fallback, not the normal
+    case. Batch/type tasks are excluded - they carry no coherence unit at all, same as
+    ``coherence_citable_ids``.
+    """
+    tasks = [task for task in tasks if not task.is_batch]
+    batches: list[list[SectionTask]] = []
+    current: list[SectionTask] = []
+    current_units = 0
+    for task in tasks:
+        if current and current_units + len(task.slots) > _COHERENCE_BATCH_UNITS:
+            batches.append(current)
+            current = []
+            current_units = 0
+        current.append(task)
+        current_units += len(task.slots)
+    if current:
+        batches.append(current)
+    return [(f"coherence#{index + 1}", group) for index, group in enumerate(batches)]
+
+
+def coherence_batch_units(
+    existing_units: list[dict[str, Any]], tasks: list[SectionTask]
+) -> list[dict[str, Any]]:
+    """The subset of ``existing_units`` one batch's own ``tasks`` own - exactly the units that
+    batch's own coherence call must return, once ``coherence_batches`` splits the pass into
+    several calls. Matched by (section, slot), the same key ``apply_coherence`` already uses."""
+    slots = {(task.section_id, slot) for task in tasks for slot in task.slots}
+    return [unit for unit in existing_units if (unit.get("section"), unit.get("slot")) in slots]
 
 
 def coherence_schema(
