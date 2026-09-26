@@ -4324,3 +4324,61 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   - **Resume predicate:** a direct `POST {endpoint}/chat/completions` with `model: qwen3-next` returns `HTTP 200` (the same one-line probe used above) - external, not this project's own code, to fix or verify further. Until then, resealing any candidate not already fully cache-seeded stays blocked by this identical cause; retrying does not narrow it further, per the two-equivalent-attempts/15-minute rule this entry itself follows.
   - **Evidence:** `runs/transactions/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/52b0f00ebf28a0b4173921725ff170685ec2c502/calls.jsonl` (both today's `http_error` attempts and yesterday's sealed-bundle `success` record for the identical `request_sha256`, quoted verbatim above); `runs/transactions/aspose-3d-foss__Aspose.3D-FOSS-for-Java/3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3/calls.jsonl`; the two direct gateway probes (`qwen3-next` 500, `gpt-oss` 200, same moment, same credentials - not persisted, redacted key, quoted verbatim above); `candidates/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/52b0f00e.../manifest.json` and `.../aspose-3d-foss__Aspose.3D-FOSS-for-Java/3d2ed6be.../manifest.json` (both untouched, still their pre-existing sealed state).
   - **Reverse by:** n/a - a diagnosis-only record; nothing in this entry changed durable state, a candidate bundle, or code for `git revert` to undo.
+
+- **2026-09-26 04:10 UTC (`date -u` checked) · G4-W17 (never-sealed-candidate work) ·
+  `aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp` NOT sealed on this attempt: the credential
+  blocker the 2026-09-24 10:18 UTC entry recorded is gone, but a genuinely new, different,
+  external blocker stopped the live draw before any composition call could complete -
+  `BLOCKED_EXTERNAL`, not a credential, code, or check issue.**
+  - **Credential, re-verified fresh per this task's own instruction rather than assumed.** This
+    worktree had no `.venv` (fresh worktree, never built); rebuilt it via the documented CI recipe
+    (`python -m venv .venv`, `pip install -r requirements-lock.txt`, `pip install --no-deps -e .`,
+    `pip install -e .[dev]`). `GPT_OSS_API_KEY` read fresh via
+    `[System.Environment]::GetEnvironmentVariable('GPT_OSS_API_KEY','User')` (not the inherited
+    shell copy) and exported for this session only, never printed or committed.
+    `repository-presenter preflight` succeeded cleanly: gateway `llm.professionalize.com`
+    reachable, 7-model catalog (`Qwen2.5-VL-7B, experimental, gpt-oss, qwen3-embedding-8b,
+    qwen3-next, recommended, stable-diffusion-3.5-large`), matching every sealed bundle's own
+    recorded set; 6 prompt manifests routed. `env -u GH_TOKEN -u GITHUB_TOKEN gh api user` returned
+    `babar-raza` via the keyring credential, the same workaround the 2026-09-24 entries recorded
+    (ambient `GH_TOKEN` still a dead classic PAT, not re-tested further - irrelevant to this
+    read-only draw).
+  - **Live draw.** `present --repo aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp` at revision
+    `c41f8dddc499fb0058fc9557cb364d70fbd3cef1` (unchanged since the 2026-09-24 facts-only
+    preflight). Snapshot, source, examples (9 candidates; 2 executed, 6 failed, 1 not_verified)
+    and facts (3044 records) all completed exactly as the 2026-09-24 facts-only run measured them.
+    `S3` (`repository_investigation`, `model_route: qwen3-next`) then failed all 3 of its bounded
+    retries, each `error_class: InternalServerError`, `http_status: 500`
+    (`runs/transactions/aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp/c41f8dddc499fb0058fc9557cb364d70fbd3cef1/calls.jsonl`).
+    CLI: `the gateway did not answer after the bounded retries: HTTP 500`.
+  - **Root-caused independently, outside the pipeline, before concluding anything - not assumed
+    from the error class alone (this task's own instruction).** Direct `curl` to
+    `https://llm.professionalize.com/chat/completions` with `model: qwen3-next` reproduced the
+    identical `HTTP 500` with body `litellm.InternalServerError: InternalServerError:
+    Hosted_vllmException - Cannot connect to host
+    text-model.vllm-qwen.svc.cluster.local:80 ... [Connect call failed ('10.96.52.170', 80)]` - the
+    gateway's own backing Kubernetes service for this one model is unreachable, a provider-side
+    infrastructure outage, not a credential or transport defect on this project's side. The
+    identical request substituting `model: gpt-oss` returned `HTTP 200` with a real completion,
+    confirming the gateway itself, the key, and the transport path are all healthy - the outage is
+    scoped to the `qwen3-next` backend specifically, which is the model every one of this project's
+    6 prompt manifests currently routes to (per preflight's own "6 prompt manifests routed to
+    qwen3-next"), so no repository can currently complete a live draw, not only this one.
+  - **Classification and stop.** `BLOCKED_EXTERNAL` (AGENTS.md's own definition: provider outage).
+    Not retried a third time past the pipeline's own 3 bounded retries plus one independent direct
+    reproduction - the mechanism is external infrastructure this project does not operate, and a
+    fourth identical attempt would not narrow the cause further. No code, prompt, check, or
+    registry entry touched; no candidate forced or weakened. `aspose-slides-foss/
+    Aspose.Slides-FOSS-for-Cpp` remains confirmed genuinely processable (facts-only preflight
+    clean, both 2026-09-24 and today) with zero contradicted facts and no required rows without
+    evidence - the only remaining question when the model backend recovers is whether composition
+    itself then seals clean or surfaces a further, later-stage finding, which today's attempt could
+    not reach.
+  - **Resume predicate:** a direct `chat/completions` call to `model: qwen3-next` on
+    `llm.professionalize.com` returns `HTTP 200` (owner or gateway operator restores the backend);
+    then re-run `present --repo aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp` fresh.
+  - **Evidence:** this entry;
+    `runs/transactions/aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp/c41f8dddc499fb0058fc9557cb364d70fbd3cef1/{facts.json,examples.json,probes.json,evaluation.json,calls.jsonl}`
+    (gitignored, local to this worktree, not committed); the direct-`curl` reproduction (not
+    committed, run against the live gateway from this session only, key never printed).
+  - **Reverse by:** n/a - a blocker record; no file this project tracks was changed.
