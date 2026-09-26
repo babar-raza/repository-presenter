@@ -181,7 +181,14 @@ _TYPE_OBJECTIVE = (
 # it) and recover_title_verbatim_opening (repair/rounds.py's own S6 recover=, mirroring
 # recover_forbidden_command_units's shape: strips the literal opening clause only, re-validated
 # through the real unit_checks - plus this new stricter repair-only check - before acceptance).
-NORMALISATION_VERSION = "14"
+# "14" -> "15" (G4-W17, docs/DECISION_LOG.md 2026-09-26, aspose-3d-foss/
+# Aspose.3D-FOSS-for-TypeScript): proper_noun's shape rule ("every dotted segment capitalised")
+# cannot admit "Node.js" - a real brand name whose own official spelling breaks that shape - so
+# it read as an unsupported identifier ("identifiers that are not accepted fact values: Node.js")
+# even though the source README's own SUPPORTED inherited_unit:004.paragraph and
+# inherited_unit:014.paragraph both name it in running prose (measured on a live draw at revision
+# 66cb26df3b031f0bf6976d4e88dc89721983afa4). _IRREGULAR_PROPER_NOUNS below.
+NORMALISATION_VERSION = "15"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -1031,9 +1038,33 @@ def source_prose(text: str) -> str:
     return text
 
 
+# A brand name whose own official spelling breaks the "every dotted segment capitalised" shape
+# below, the same shape a lowercase file extension has (CHANGELOG.md, config.js) - so the shape
+# rule alone cannot tell them apart. A short, curated exact-match set, mirroring ABBREVIATIONS
+# and WORD_EXTENSIONS above, not a broadened shape rule: widening the rule itself would also have
+# to admit a real file path of the identical shape (Program.cs, index.js) as a proper noun,
+# exactly the false-positive class those two existing sets, and
+# test_a_dotted_or_underscored_token_is_a_path_not_a_proper_noun's own CHANGELOG.md assertion,
+# were built to keep out. Measured live on aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript at
+# revision 66cb26df3b031f0bf6976d4e88dc89721983afa4: the source README's own opening paragraph
+# (inherited_unit:004.paragraph, SUPPORTED) names the runtime "Node.js" in running prose
+# ("a TypeScript/JavaScript library for building and converting 3D scenes in Node.js"), and again
+# in inherited_unit:014.paragraph ("development is verified on Node.js 18/20/22") - a real,
+# licensed proper noun this repository's own content needs to reference (not a path, not a
+# hallucination: no public_symbol or other fact spells "Node.js", only the class "Node" does, a
+# distinct token this set does not touch), yet section_authoring rejected a unit spelling it
+# twice ("identifiers that are not accepted fact values: Node.js") because proper_noun's shape
+# rule alone could not admit it.
+_IRREGULAR_PROPER_NOUNS = frozenset({"Node.js"})
+
+
 def proper_noun(token: str) -> bool:
-    """A name, not a path: every dotted segment capitalised, no underscore, no call parentheses."""
-    return (
+    """A name, not a path: every dotted segment capitalised, no underscore, no call parentheses.
+
+    ``_IRREGULAR_PROPER_NOUNS`` admits a short, curated set of real brand names whose own official
+    spelling does not follow that shape, without loosening the shape rule itself.
+    """
+    return token in _IRREGULAR_PROPER_NOUNS or (
         "_" not in token
         and "(" not in token
         and all(part[:1].isupper() for part in token.split("."))

@@ -613,6 +613,74 @@ def test_a_dotted_or_underscored_token_is_a_path_not_a_proper_noun() -> None:
     assert source_prose("a `b` c ```d``` e [f](g) <h> i").split() == ["a", "c", "e", "[f", "i"]
 
 
+def test_node_js_is_a_curated_exception_not_a_broadened_shape_rule() -> None:
+    """Measured live on aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript at revision
+    66cb26df3b031f0bf6976d4e88dc89721983afa4: the source README's own SUPPORTED
+    inherited_unit:004.paragraph ("a TypeScript/JavaScript library for building and converting 3D
+    scenes in Node.js") and inherited_unit:014.paragraph ("development is verified on Node.js
+    18/20/22") both name the runtime "Node.js" in running prose, but proper_noun's shape rule
+    ("every dotted segment capitalised") could not admit it - the lowercase "js" segment reads
+    exactly like a file extension (CHANGELOG.md) - so section_authoring rejected a unit spelling
+    it: "identifiers that are not accepted fact values: Node.js".
+
+    The fix is a curated exact-match exception, not a broadened shape rule: a real file path of
+    the identical shape (Program.cs, index.js, CHANGELOG.md) must stay excluded.
+    """
+    assert proper_noun("Node.js")
+    assert not proper_noun("CHANGELOG.md")
+    assert not proper_noun("Program.cs")
+    assert not proper_noun("index.js")
+    facts = FactsDocument(
+        "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+        "r",
+        (
+            _fact(
+                "identity:repository",
+                "identity",
+                "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+            ),
+            _fact("public_symbol:node", "public_symbol", "Node"),
+            _fact(
+                "inherited_unit:004.paragraph",
+                "inherited_unit",
+                "Aspose.3D FOSS for TypeScript is a free, open-source, MIT-licensed "
+                "TypeScript/JavaScript library for building and converting 3D scenes in "
+                "Node.js.",
+            ),
+            _fact(
+                "inherited_unit:014.paragraph",
+                "inherited_unit",
+                "`package.json` declares no minimum Node.js version, and development is "
+                "verified on Node.js 18/20/22.",
+            ),
+        ),
+    )
+    nouns = prose_nouns(facts, "Aspose.3D FOSS for TypeScript")
+    assert "Node.js" in nouns
+    # The class Node is already a citable fact value on its own terms; this fix never widens that.
+    assert "Node" not in nouns
+    task = SectionTask(
+        "opening",
+        {},
+        frozenset({"identity:repository"}),
+        ("opening",),
+        slot_facts={"opening": frozenset({"identity:repository"})},
+        slot_titles={},
+    )
+    output = {
+        "units": [
+            {
+                "section": "opening",
+                "slot": "opening",
+                "text": "A TypeScript scene-graph library for Node.js.",
+                "fact_ids": ["identity:repository"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(output, task, facts, "Aspose.3D FOSS for TypeScript") == []
+
+
 def test_units_merge_in_shell_order_and_write_deterministically(tmp_path: Path) -> None:
     outputs = {
         "quick_start": {
