@@ -86,12 +86,12 @@ next_ready_items:
   purpose: 'Issue independent one-shot jobs concurrently within one candidate''s transaction (27.1: 0 of 315 calls overlapped; a composition burst is latency-bound). This is not repository-level parallelism: one coordinator, one state owner, repository workers stay serial per plans/idea.md. Section authoring calls, type batches and review units run with bounded concurrency of four and backoff on 429; the ledger is written in logical-call order so calls.jsonl stays deterministic; the cache and the no-op proof are unchanged. Acceptance: the canary composes byte-identically to the serial run with the fake gateway; cold composition wall-clock falls by at least half, measured and recorded; the gateway''s rate-limit behaviour is discovered and recorded (section 18.4).'
 owner_items:
   - id: OWNER-01
-    status: OPEN
+    status: SATISFIED
     summary: Protect main on babar-raza/repository-presenter with the CI jobs Python 3.11, Python 3.12, and Python 3.13 as required status checks, and enable auto-merge for the repository.
-    resume_predicate: GET /repos/babar-raza/repository-presenter/branches/main/protection returns required_status_checks naming the three CI jobs; then publication.control_repository switches to BRANCH_AND_PR_WITH_AUTO_MERGE.
+    resume_predicate: "Met 2026-09-26: GET /repos/babar-raza/repository-presenter/branches/main/protection returns required_status_checks.contexts = [Python 3.11, Python 3.12, Python 3.13] (fresh gh api read, not assumed); enforce_admins true; allow_force_pushes/allow_deletions false; required_conversation_resolution true. GET /repos/babar-raza/repository-presenter returns allow_auto_merge true. publication.control_repository below updated in this same commit."
     consumed_by: [G5_RERUN_DURABILITY_AND_HOSTED_OPERATION]
     recorded_at: "2026-09-02T14:00:00+05:00"
-    note: Until then the agent pushes main directly after the full local CI-equivalent passes. Hosted CI still runs on every push.
+    note: "2026-09-26: landed by direct owner instruction, following this session's own discussion of why a locally-run check (the pre-push hook) is bypassable by the same agent it constrains (--no-verify, this session, 2026-09-25) while a GitHub-enforced required status check is not - the commit being pushed has no recorded passing check yet, so GitHub rejects the raw push regardless of local git behavior, including for the admin-level credential this session has used all along (enforce_admins: true is deliberate, not a default). required_pull_request_reviews left unset: this is a solo-owner repository with no second human reviewer, and the goal is enforcing checks, not manufacturing an unmeetable review requirement. Direct-push-after-local-CI is retired as of this commit; every future control-repository change goes by branch + PR, merging via auto-merge once the three required checks pass. Any currently-active session expecting a direct push to succeed will see it rejected by GitHub with a clear required-status-check error, not silently fail - recoverable by opening a PR instead."
   - id: OWNER-02
     status: OVERRIDDEN
     summary: Gateway credentials for the OpenAI-compatible gateway are provided as process environment variables GPT_OSS_ENDPOINT (base URL) and GPT_OSS_API_KEY (key), plus GPT_OSS_MODEL if the default is wrong; the owner declined a .env file, so none is read or required. GH_TOKEN is already present in the environment.
@@ -191,9 +191,9 @@ publication:
   direct_default_branch_push_allowed: false
   control_repository:
     remote: https://github.com/babar-raza/repository-presenter.git
-    push: ALLOWED_AFTER_LOCAL_CHECKS
-    main_protected: false
-    mode: DIRECT_MAIN_WHILE_UNPROTECTED
+    push: NEVER
+    main_protected: true
+    mode: BRANCH_AND_PR_WITH_AUTO_MERGE
 
 last_transition:
   from: G2_STABILITY_UNDER_CHANGE
