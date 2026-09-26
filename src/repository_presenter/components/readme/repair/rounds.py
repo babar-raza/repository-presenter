@@ -64,6 +64,7 @@ from repository_presenter.components.readme.investigation.dossier import (
 )
 from repository_presenter.components.readme.reconciliation.dispositions import (
     DISPOSITIONS_FILENAME,
+    coordinate_neighbor_promises,
     merge_dispositions,
     reconcile_checks,
     reconciliation_batch_facts,
@@ -239,6 +240,12 @@ def run_round(tx: TransactionInputs) -> Round:
             **{**common, "facts": batch_facts},
         )
     dispositions = merge_dispositions([result.output for result in reconciled.values()])
+    # BC-10 coherence-gap (docs/DECISION_LOG.md 2026-09-17 14:14 UTC / 2026-09-24 10:14 UTC): each
+    # batch above is checked independently of every other batch (reconcile_checks has no
+    # cross-entry logic, by design), so a unit's own dependency on a *different* unit - possibly
+    # reconciled in a different batch - was never re-examined once every batch's own output is
+    # known. Runs once here, after every batch is merged into one flat document.
+    coordinate_neighbor_promises(dispositions, facts)
     digests["dispositions"] = write_dispositions(dispositions, tx.directory / DISPOSITIONS_FILENAME)
     loaded = prompts["presentation_planning"]
     planned = run_job(

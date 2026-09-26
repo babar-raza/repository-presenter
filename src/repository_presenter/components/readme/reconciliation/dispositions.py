@@ -100,6 +100,12 @@ RENDERING_FACT_KINDS: dict[str, tuple[str, ...]] = {
     "license": ("license",),
 }
 _UNIT_REFERENCE = re.compile(r"unit (inherited_unit:[0-9]+\.[a-z_]+)")
+# G4-W17 (BC-10 coherence-gap, aspose-slides-foss/Aspose.Slides-FOSS-for-.NET): the leading
+# three-digit block ordinal of an inherited_unit ID - evidence/facts/inherited.py's own
+# block_ordinal numbering is dense and contiguous (one whole document, no gaps), so ordinal+1 is
+# always that unit's own immediate neighbor in the original document, split-list sub-ordinals
+# (the optional middle group) included.
+_UNIT_ORDINAL = re.compile(r"^inherited_unit:(\d{3})(?:\.\d{3})?\.[a-z_]+$")
 
 
 _RECONCILIATION_BATCH = 40
@@ -633,6 +639,83 @@ def normalize(
             continue
         entry["fact_ids"] = sorted(set(entry.get("fact_ids") or []) | named)
     return errors
+
+
+def _unit_ordinal(unit_id: str) -> int | None:
+    """``unit_id``'s own leading block ordinal, or ``None`` if it is not an ``inherited_unit`` ID
+    of that shape."""
+    match = _UNIT_ORDINAL.match(unit_id)
+    return int(match.group(1)) if match else None
+
+
+def coordinate_neighbor_promises(
+    dispositions: dict[str, Any], facts: FactsDocument
+) -> dict[str, Any]:
+    """Defer a placed unit whose own text promises the block immediately following it in the
+    original document when that neighbor's own disposition does not survive to render anywhere.
+
+    BC-10 coherence-gap, ``aspose-slides-foss/Aspose.Slides-FOSS-for-.NET``
+    (``docs/DECISION_LOG.md`` 2026-09-17 14:14 UTC, corroborated 2026-09-24 10:14 UTC):
+    ``inherited_unit:033.paragraph`` ("Three namespaces cover every sample on this page, and
+    each sample below assumes all three:") was disposed ``VERIFIED_PRESERVE`` while
+    ``inherited_unit:034.code_block`` (the sample the colon promises) fell to
+    ``OMIT_UNSUPPORTED`` (its own ``example`` fact CONTRADICTED) - each disposition independently
+    correct on its own narrow grounds, but the preserved sentence then stood alone in the
+    composed document, naming content the candidate never delivers (BC-10
+    ``REJECT_PRESENTATION``, "moving key factual content out of its original context").
+
+    Root cause: every ``source_reconciliation`` batch (``reconciliation_batches()``) is checked
+    by ``reconcile_checks``/``normalize()`` independently of every other batch, by design (PHASE0/G
+    - a per-entry check, deliberately no cross-entry logic, so a bounded batch call is exactly as
+    strict as the old whole-document one was). A unit disposed in one batch call has no way to
+    see whether a *different* unit - possibly reconciled in a different batch call - that its own
+    text depends on survived. This function runs once, after ``merge_dispositions()`` folds every
+    batch into one flat document, the one point a neighbor's own final disposition is visible
+    regardless of which batch produced it.
+
+    Detection is syntactic, not semantic (rule 13/14: a free-text semantic-similarity check is
+    unreachable for a deterministic one): a ``paragraph``/``list`` unit whose own text ends with a
+    colon is a forward reference to whatever block comes immediately next in
+    ``evidence/facts/inherited.py``'s own ordinal numbering - the same class of literal, syntactic
+    cue ``_INSTALL_COMMAND`` and the ``"> Installation"`` heading match already use elsewhere in
+    this file. Only an immediately-following *code block* is checked (the concrete, measured
+    shape); a promise that names a non-adjacent unit (docs/DECISION_LOG.md's own 2026-09-24
+    10:14 UTC entry names a second, harder, non-adjacent case on this same repository) needs its
+    own mechanism and is out of this fix's narrow scope. A neighbor that folds to
+    ``SUPERSEDE_REDUNDANT`` keeps its promise (the content it named still renders, just from a
+    deterministic section or an earlier placement) and is left alone; only ``OMIT_UNSUPPORTED``
+    and ``DEFER_UNRESOLVED`` - genuinely nothing rendered - break it.
+
+    No existing check is weakened: this only narrows what a colon-ending unit's own
+    ``VERIFIED_PRESERVE``/``VERIFIED_MOVE``/``VERIFIED_REWRITE``/``CORRECT_WITH_EVIDENCE`` may
+    still claim once its own promise is known to be broken, mirroring every other coordination
+    fold this file already applies (deferred for the owner, never silently dropped).
+    """
+    units_by_id = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
+    entries_by_id = {
+        str(entry.get("unit_id", "?")): entry for entry in dispositions.get("dispositions", [])
+    }
+    for entry in dispositions.get("dispositions", []):
+        if entry.get("disposition") not in PLACING:
+            continue
+        unit = str(entry.get("unit_id", "?"))
+        if unit.rsplit(".", 1)[-1] not in {"paragraph", "list"}:
+            continue
+        unit_fact = units_by_id.get(unit)
+        if unit_fact is None or not unit_fact.value.rstrip().endswith(":"):
+            continue
+        ordinal = _unit_ordinal(unit)
+        if ordinal is None:
+            continue
+        neighbor = entries_by_id.get(f"inherited_unit:{ordinal + 1:03d}.code_block")
+        if neighbor is None or neighbor.get("disposition") not in {
+            "OMIT_UNSUPPORTED",
+            "DEFER_UNRESOLVED",
+        }:
+            continue
+        entry["disposition"] = "DEFER_UNRESOLVED"
+        entry["destination_section"] = None
+    return dispositions
 
 
 def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:

@@ -10,6 +10,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     contradicted_code_units,
     contradicted_embedded_links,
     contradicted_link_hrefs,
+    coordinate_neighbor_promises,
     merge_dispositions,
     normalize,
     placement_errors,
@@ -741,6 +742,180 @@ def test_a_renderer_owned_contradicted_link_is_excluded_from_the_fold() -> None:
         "See ![banner](https://x/banner.png) here.",
         {"https://x/banner.png": BANNER_FACT_ID},
     ) == {BANNER_FACT_ID}
+
+
+def test_a_colon_ending_units_promise_is_deferred_when_its_neighbor_code_block_is_dropped() -> None:
+    """BC-10 coherence-gap, aspose-slides-foss/Aspose.Slides-FOSS-for-.NET (docs/DECISION_LOG.md
+    2026-09-17 14:14 UTC, corroborated 2026-09-24 10:14 UTC): inherited_unit:033.paragraph
+    ("Three namespaces cover every sample on this page, and each sample below assumes all
+    three:") was VERIFIED_PRESERVE'd while inherited_unit:034.code_block (the sample the colon
+    promises) fell to OMIT_UNSUPPORTED - each independently correct on its own narrow grounds,
+    but the preserved sentence then survived alone, promising content the candidate never
+    delivers. Reproduced here with the exact unit shape (a colon-ending paragraph immediately
+    followed, in document order, by the code block it introduces)."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:033.paragraph",
+                "inherited_unit",
+                "Three namespaces cover every sample on this page, and each sample below "
+                "assumes all three:",
+            ),
+            _fact("inherited_unit:034.code_block", "inherited_unit", "```csharp\nusing X;\n```"),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "additional_examples"),
+            _entry("inherited_unit:034.code_block", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    result = coordinate_neighbor_promises(dispositions, facts)
+    assert result is dispositions
+    folded = {entry["unit_id"]: entry for entry in dispositions["dispositions"]}
+    assert folded["inherited_unit:033.paragraph"]["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["inherited_unit:033.paragraph"]["destination_section"] is None
+    # The dropped neighbor itself is untouched - this fold only ever revisits the *promising*
+    # unit, never the one already correctly disposed on its own narrow grounds.
+    assert folded["inherited_unit:034.code_block"]["disposition"] == "OMIT_UNSUPPORTED"
+
+
+def test_the_defect_survives_per_batch_checks_until_the_merged_document_is_coordinated() -> None:
+    """The root cause, reproduced end to end: reconcile_checks (normalize()) judges each batch's
+    own dispositions independently, by design, so two separate batches - each individually
+    correct and each passing its own reconcile_checks - can still merge into an incoherent
+    document. coordinate_neighbor_promises is the one pass that sees the merged whole."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            # additional_examples' own condition needs 2+ SUPPORTED examples; FACTS carries
+            # exactly one (example:001) plus one CONTRADICTED - a second SUPPORTED example is
+            # added so unit 033's VERIFIED_PRESERVE genuinely survives normalize()'s own absent-
+            # section fold, isolating what this test measures to the neighbor-coordination gap.
+            _fact("example:003", "example", "print(3)"),
+            _fact(
+                "inherited_unit:033.paragraph",
+                "inherited_unit",
+                "Three namespaces cover every sample on this page, and each sample below "
+                "assumes all three:",
+            ),
+            _fact("inherited_unit:034.code_block", "inherited_unit", "```csharp\nusing X;\n```"),
+        ),
+    )
+    # Batch 1 reconciles unit 033 alone; batch 2 (a different source_reconciliation call)
+    # reconciles unit 034 alone - neither batch's own reconcile_checks call can see the other's
+    # output, exactly as reconciliation_batches()/run_round() split real repositories.
+    batch_1 = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "additional_examples"),
+        ]
+    }
+    batch_2 = {"dispositions": [_entry("inherited_unit:034.code_block", "OMIT_UNSUPPORTED", None)]}
+    assert normalize(batch_1, facts) == []
+    assert placement_errors(batch_1, facts) == []
+    assert normalize(batch_2, facts) == []
+    assert placement_errors(batch_2, facts) == []
+    # Each batch, checked alone, is accepted with the incoherent shape still standing.
+    assert batch_1["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
+    assert batch_2["dispositions"][0]["disposition"] == "OMIT_UNSUPPORTED"
+    merged = merge_dispositions([batch_1, batch_2])
+    coordinate_neighbor_promises(merged, facts)
+    folded = {entry["unit_id"]: entry for entry in merged["dispositions"]}
+    assert folded["inherited_unit:033.paragraph"]["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["inherited_unit:034.code_block"]["disposition"] == "OMIT_UNSUPPORTED"
+
+
+def test_a_colon_ending_units_promise_is_kept_when_its_neighbor_code_block_survives() -> None:
+    """Mutation control: the neighbor's own disposition still renders content (any PLACING
+    outcome, or SUPERSEDE_REDUNDANT - covered elsewhere, e.g. by a deterministic section), so the
+    colon's promise holds and the preserved sentence is left exactly as reconciled."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:033.paragraph",
+                "inherited_unit",
+                "Three namespaces cover every sample on this page, and each sample below "
+                "assumes all three:",
+            ),
+            _fact("inherited_unit:034.code_block", "inherited_unit", "```csharp\nusing X;\n```"),
+        ),
+    )
+    for surviving_disposition in ("VERIFIED_PRESERVE", "SUPERSEDE_REDUNDANT"):
+        dispositions = {
+            "dispositions": [
+                _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "additional_examples"),
+                _entry(
+                    "inherited_unit:034.code_block", surviving_disposition, "additional_examples"
+                ),
+            ]
+        }
+        coordinate_neighbor_promises(dispositions, facts)
+        assert dispositions["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_unit_with_no_trailing_colon_makes_no_promise_to_coordinate() -> None:
+    """Mutation control: the detection is the literal trailing colon, never the mere fact that a
+    paragraph precedes a dropped code block - a unit that makes no forward reference is left
+    alone even when its neighbor is dropped."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:033.paragraph",
+                "inherited_unit",
+                "Three namespaces cover every sample on this page.",
+            ),
+            _fact("inherited_unit:034.code_block", "inherited_unit", "```csharp\nusing X;\n```"),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "additional_examples"),
+            _entry("inherited_unit:034.code_block", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    assert dispositions["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_non_adjacent_dropped_unit_is_not_coordinated() -> None:
+    """Mutation control: only the immediately-following ordinal is a promise target - a dropped
+    unit two or more ordinals away is not this fix's scope (docs/DECISION_LOG.md's own 2026-09-24
+    10:14 UTC entry names this harder, non-adjacent case as a separate, unresolved gap)."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:033.paragraph",
+                "inherited_unit",
+                "Three namespaces cover every sample on this page, and each sample below "
+                "assumes all three:",
+            ),
+            _fact("inherited_unit:034.paragraph", "inherited_unit", "An unrelated aside."),
+            _fact("inherited_unit:035.code_block", "inherited_unit", "```csharp\nusing X;\n```"),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "additional_examples"),
+            _entry("inherited_unit:034.paragraph", "VERIFIED_PRESERVE", "additional_examples"),
+            _entry("inherited_unit:035.code_block", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    assert dispositions["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
 
 
 def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
