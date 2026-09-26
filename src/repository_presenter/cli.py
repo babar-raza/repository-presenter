@@ -870,9 +870,13 @@ def _print_round(root: Path, transaction: Path, final: Round) -> None:
         f"{len(sections)} sections: {', '.join(sections)}; "
         f"provider calls {authoring_calls}; digest {final.digests['units']})"
     )
+    # PDFPY-03: one run_job() call per coherence batch now, not one - reported the same multi-call
+    # way authoring's/reconciliation's own lines above already do (a per-call "model served" no
+    # longer names one thing once there can be more than one batch).
+    coherence_calls = sum(result.provider_calls for result in final.coherent.values())
     print(
         f"coherence: {len(final.revised)} of {len(final.units['units'])} units revised; "
-        f"{served(final.coherent)}"
+        f"provider calls {coherence_calls}"
     )
     visible, total = line_counts(final.readme)
     print(
