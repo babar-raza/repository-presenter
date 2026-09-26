@@ -15,6 +15,7 @@ from repository_presenter.components.readme.composition.renderer import (
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
+    MAJORITY_VOTE_REPOSITORIES,
     absence_defect,
     absence_partition,
     claim_evidence,
@@ -27,6 +28,7 @@ from repository_presenter.components.readme.review.independent.review import (
     scope_defect,
     second_reader,
     summarize_review,
+    third_reader,
     unit_texts,
     write_review,
 )
@@ -2229,3 +2231,107 @@ def test_the_sealed_canarys_advisories_are_each_adjudicated_against_the_bundle()
     # The paragraph the reconciler superseded into the opening is covered by the authored one,
     # never rendered beside it (README_CONTRACT.md row 4).
     assert dispositions["inherited_unit:004.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
+
+
+def test_the_third_read_changes_the_seed_and_nothing_else() -> None:
+    """Mirrors the second read's own seed-only change; used only for a 2-of-3 majority-vote
+    escalation (docs/investigations/12 section 5.6), never a third retry with new criteria."""
+    third = third_reader(REVIEWER)
+    assert third.sha256 == REVIEWER.sha256 and third.path == REVIEWER.path
+    assert third.manifest.sampling.seed != REVIEWER.manifest.sampling.seed
+    assert third.manifest.sampling.seed != second_reader(REVIEWER).manifest.sampling.seed
+    assert (
+        third.manifest.model_copy(update={"sampling": REVIEWER.manifest.sampling})
+        == REVIEWER.manifest
+    )
+
+
+def test_majority_vote_repositories_is_a_narrow_named_set() -> None:
+    """Section 5.6: only a repository with its own documented history of two or more distinct
+    S10 findings across independent draws (docs/DECISION_LOG.md) escalates to 2-of-3; every other
+    repository - including this module's own default ENTRY - keeps the single-confirming-read
+    path (PHASE1/F6, the 2026-09-06 guard) exactly as it always has."""
+    assert ENTRY.repository not in MAJORITY_VOTE_REPOSITORIES
+    assert {
+        "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+        "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+    } == MAJORITY_VOTE_REPOSITORIES
+
+
+def test_an_unescalated_repository_is_unaffected_by_third_none() -> None:
+    """The normal, single-confirming-read path (every repository not in
+    MAJORITY_VOTE_REPOSITORIES) must be byte-for-byte unchanged by this escalation: omitting
+    ``third`` and passing ``third=None`` explicitly must produce identical documents, and must
+    match the pre-escalation single-second-reader behavior exactly."""
+    accept = {"verdict": "ACCEPT", "findings": [], "preserve": []}
+    common: dict[str, Any] = {"candidate_readme": CANDIDATE, "facts": FACTS}
+    standing = _finding("F02", "key_capabilities", "S6", "It writes `.glb` files.")
+    disagreeing = {"verdict": "REJECT_FACTUAL", "findings": [standing], "preserve": []}
+    without_third_kw = review_document(
+        accept, REVIEWER, AUTHORING, "d" * 64, second=disagreeing, **common
+    )
+    with_third_none = review_document(
+        accept, REVIEWER, AUTHORING, "d" * 64, second=disagreeing, third=None, **common
+    )
+    assert with_third_none == without_third_kw
+    # The unescalated rule: one disagreeing second reader blocks outright (section 27.8's own
+    # asymmetry - only a prose judgment ever gets a corroboration filter on this path).
+    assert with_third_none["verdict"] == "REJECT_FACTUAL"
+    assert with_third_none["second_reader"]["read"] == 2
+
+
+def test_two_of_three_majority_vote_escalation() -> None:
+    """Section 5.6: for an escalated repository, a finding needs BOTH extra reads to agree on
+    the same class (2 of the 3 total reads - the first having found nothing blocking) before it
+    blocks sealing. A single dissenting extra reader is tolerated as noise (recorded
+    ``single_reader_advisory``, never forcing an accept when a real majority stands against it,
+    per the escalation's own bound)."""
+    accept = {"verdict": "ACCEPT", "findings": [], "preserve": []}
+    common: dict[str, Any] = {"candidate_readme": CANDIDATE, "facts": FACTS}
+    standing = _finding("F02", "key_capabilities", "S6", "It writes `.glb` files.")
+
+    # 1 of 3: only the second reader raises it, the third reads clean - noise, not a defect;
+    # the candidate still seals (never forced, this is what a real 2-of-3 vote decides).
+    only_second = {"verdict": "REJECT_FACTUAL", "findings": [standing], "preserve": []}
+    third_clean = {"verdict": "ACCEPT", "findings": [], "preserve": []}
+    one_of_three = review_document(
+        accept, REVIEWER, AUTHORING, "d" * 64, second=only_second, third=third_clean, **common
+    )
+    assert one_of_three["verdict"] == ACCEPT and one_of_three["findings"] == []
+    assert one_of_three["advisory"][0]["single_reader_advisory"] is True
+    assert one_of_three["second_reader"]["read"] == 3
+    assert record_review_verdict(VALIDATION, one_of_three)["checks"][1]["verdict"] == "PASS"
+
+    # 2 of 3: both extra readers independently raise the identical finding class - a genuine
+    # majority, and it blocks exactly as the unescalated rule already would with only one reader,
+    # never demoted or forced through to ACCEPT despite the escalation.
+    also_third = {"verdict": "REJECT_FACTUAL", "findings": [standing], "preserve": []}
+    two_of_three = review_document(
+        accept, REVIEWER, AUTHORING, "d" * 64, second=only_second, third=also_third, **common
+    )
+    assert two_of_three["verdict"] == "REJECT_FACTUAL"
+    assert [f["id"] for f in two_of_three["findings"]] == ["F02", "F02"]
+    assert {f["reader"] for f in two_of_three["findings"]} == {2, 3}
+    assert two_of_three["second_reader"]["read"] == 3
+    assert record_review_verdict(VALIDATION, two_of_three)["checks"][1]["verdict"] == "FAIL"
+
+    # A majority finding the deterministic stack itself refutes still folds to advisory, exactly
+    # like the unescalated rule - the escalation changes who must agree, never what a check judges.
+    refuted = {
+        **_finding("F03", "opening", "S6", "It writes `.glb` files."),
+        "fact_ids": ["format:output.glb"],
+    }
+    refuting_second = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
+    refuting_third = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
+    both_refuted = review_document(
+        accept,
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        second=refuting_second,
+        third=refuting_third,
+        **common,
+    )
+    assert both_refuted["verdict"] == ACCEPT and both_refuted["findings"] == []
+    assert both_refuted["advisory"][0]["reviewer_scope_defect"].startswith("the quote contains")
