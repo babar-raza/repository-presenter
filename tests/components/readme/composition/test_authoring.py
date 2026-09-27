@@ -14,6 +14,7 @@ from jsonschema import Draft202012Validator
 from repository_presenter.components.readme.composition.authoring import (
     AUTHORED_SECTIONS,
     SectionTask,
+    _fact_direction,
     allowed_identifiers,
     authoring_schema,
     authoring_tasks,
@@ -46,6 +47,7 @@ from repository_presenter.components.readme.composition.authoring import (
     title_terms,
     undocumented_types,
     unit_checks,
+    unit_example_action_mismatches,
     verified_members,
     write_content_units,
 )
@@ -212,6 +214,74 @@ def test_tasks_cover_the_included_authored_sections_with_closed_fact_sets() -> N
     assert by_section["scope_limitations"].slots == ("scope", "limitation:1")
     assert by_section["development_testing"].accepted_ids >= {"build_test_asset:tests"}
     assert "format:input.obj" not in by_section["opening"].accepted_ids
+
+
+def test_fact_direction_reads_the_format_id_convention() -> None:
+    """The one place a format's real read/write direction lives is its own fact ID
+    ("format:<direction>.<extension>") - `_fact_direction` is the single reading of it, shared
+    by `_example_format_claims` and `authoring_tasks`'s own packet builder (G4-W17,
+    docs/DECISION_LOG.md 2026-09-26/27 Font-Python "format_claims" diagnosis)."""
+    assert _fact_direction("format:output.glb") == "output"
+    assert _fact_direction("format:input.obj") == "input"
+    assert _fact_direction("public_symbol:aspose.threed.scene") is None
+    assert _fact_direction("format:sideways.glb") is None  # no such convention value
+
+
+def test_opening_packets_accepted_facts_carry_each_format_facts_own_direction() -> None:
+    """The packet the model actually sees, not just the fact ID it is separately told to treat
+    as citation provenance rather than prose content: a format fact's own `accepted_facts` entry
+    now names its direction explicitly, so the model never has to infer it from the ID text
+    alone (the mechanism that produced Font-Python's backwards-direction opening unit)."""
+    tasks = authoring_tasks(ENTRY, FACTS, INVESTIGATION, DISPOSITIONS, PLAN)
+    opening = next(task for task in tasks if task.section_id == "opening")
+    by_id = {entry["id"]: entry for entry in opening.packet["accepted_facts"]}
+    assert by_id["format:output.glb"]["direction"] == "output"
+    # A non-format fact carries no direction key at all - never a spurious None or "".
+    assert "direction" not in by_id["identity:repository"]
+    assert "direction" not in by_id["public_symbol:aspose.threed.scene"]
+
+
+def test_opening_objective_tells_the_model_to_state_a_formats_own_direction() -> None:
+    tasks = authoring_tasks(ENTRY, FACTS, INVESTIGATION, DISPOSITIONS, PLAN)
+    opening = next(task for task in tasks if task.section_id == "opening")
+    assert "direction" in opening.packet["objective"]
+    assert "never the opposite" in opening.packet["objective"]
+
+
+def test_unit_example_action_mismatches_catches_a_backwards_direction_claim() -> None:
+    """The exact live shape (docs/DECISION_LOG.md 2026-09-26 05:53 UTC): a unit names a format
+    with the direction word for the *opposite* of what the cited example's own recorded format
+    claims say, and the check flags it by name; a correctly-phrased unit, and a unit naming a
+    format the example makes no claim for at all, both pass."""
+    backwards = {"text": "Opens the .png preview it builds.", "fact_ids": ["example:001"]}
+    # The FACTS fixture's own example:001 fact ("example 1") - bind the format evidence to that
+    # same ordinal so the mismatch is self-contained to this test's own facts.
+    facts_ord1 = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(
+                "format:input.ttf",
+                "format",
+                ".ttf",
+                (Evidence("README.md", "example 1 read it: EXECUTED"),),
+            ),
+            Fact(
+                "format:output.png",
+                "format",
+                ".png",
+                (Evidence("README.md", "example 1: output .png"),),
+            ),
+        ),
+    )
+    assert unit_example_action_mismatches(backwards, facts_ord1) == [
+        "names .png as input, but example 1's own recorded format claims say output"
+    ]
+    correct = {"text": "Writes the .png preview it builds.", "fact_ids": ["example:001"]}
+    assert unit_example_action_mismatches(correct, facts_ord1) == []
+    silent = {"text": "Opens the .woff2 bundle it builds.", "fact_ids": ["example:001"]}
+    assert unit_example_action_mismatches(silent, facts_ord1) == []
 
 
 def test_identifier_tokens_and_the_allowed_set() -> None:
