@@ -120,6 +120,12 @@
       "sha256": "167029632d6632e058e68674ae44139965997ecd1971fd9aa04d33941502a34e"
     }
   },
+  "invalidated": {
+    "causal_stage": "COMPOSING",
+    "check": "BC-10",
+    "detail": "REJECT_FACTUAL; F07 quick_start (COMPOSING): The Quick Start example is correct and matches the verified example fact, but the candidate omits the `py.typed` marker for type-checker support, which is a key fact about the package.",
+    "recorded_at": "2026-09-27T04:44:20Z"
+  },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
@@ -131,5 +137,5 @@
   "revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
   "schema_version": 1,
   "sealed_at": "2026-09-23T11:30:14Z",
-  "state": "READY_FOR_PROPOSAL"
+  "state": "INVALIDATED"
 }
