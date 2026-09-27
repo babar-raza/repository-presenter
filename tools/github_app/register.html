@@ -42,6 +42,14 @@
         shown right after creation) and approve installation on each <code>aspose-*-foss</code>
         org you administer. This is a second manual, per-org click GitHub requires — there is no
         API path around it for a first installation.</li>
+    <li>The manifest below sets <code>"public": true</code> deliberately. A <b>private</b> GitHub
+        App can only ever be installed on the exact account that created it — if this form is
+        submitted while signed in as your personal account, no organization you own, however
+        administered, will ever appear as an install target, even with owner/admin rights there.
+        Public just means the app is listed and installable elsewhere; org owners still approve
+        each installation themselves. (Found the hard way 2026-09-27 — the app had to be flipped
+        public after the fact via its own Advanced settings page before any <code>aspose-*-foss</code>
+        org would show up.)</li>
   </ol>
 
   <script>
@@ -50,7 +58,7 @@
       "url": "https://github.com/babar-raza/repository-presenter",
       "hook_attributes": { "url": "https://github.com/babar-raza/repository-presenter", "active": false },
       "redirect_url": "https://github.com/babar-raza/repository-presenter",
-      "public": false,
+      "public": true,
       "default_permissions": {
         "metadata": "read",
         "contents": "write",

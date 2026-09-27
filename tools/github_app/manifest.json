@@ -6,7 +6,7 @@
     "active": false
   },
   "redirect_url": "https://github.com/babar-raza/repository-presenter",
-  "public": false,
+  "public": true,
   "default_permissions": {
     "metadata": "read",
     "contents": "write",
