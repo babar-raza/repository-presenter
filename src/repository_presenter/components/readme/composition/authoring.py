@@ -210,7 +210,23 @@ _TYPE_OBJECTIVE = (
 # before failing closed - a real meaning change to what this call site can end up accepting.
 # unit_checks itself, and recover_forbidden_command_units and recover_title_verbatim_opening
 # themselves, stay byte-for-byte unchanged.
-NORMALISATION_VERSION = "16"
+# "16" -> "17" (G4-W17, docs/DECISION_LOG.md 2026-09-26/27, aspose-font-foss/
+# Aspose.Font-FOSS-for-Python): section_authoring's own "opening" packet gave the model no
+# reliable signal for a format's read/write direction - only the fact ID's own
+# "format:<direction>.<extension>" convention, which the system prompt separately tells the
+# model to treat as citation provenance, never prose content - so a live draw stated three
+# formats' direction backwards against this revision's own recorded evidence (deterministic,
+# reproduced byte-for-byte twice). `_fact_direction` (new) is the one place that convention is
+# read; `authoring_tasks`'s own `accepted_facts` packet builder now surfaces it as each format
+# fact's own explicit `direction` key, and `_example_format_claims` reuses the same helper
+# instead of its own independent inline copy of the same parse. `unit_checks`'s own guard against
+# a mismatch (`unit_example_action_mismatches`) is unchanged and stays exactly as strict - this
+# bump is for the packet's own new content, not a narrower or wider acceptance. Landed
+# independently of, and concurrently with, the "15" -> "16" bump immediately above (a different
+# session, a different call site, the same shared constant) - renumbered to "17" on rebase rather
+# than reusing "16", since a version constant must move once per real meaning change, never share
+# a value across two independent ones.
+NORMALISATION_VERSION = "17"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -321,7 +337,10 @@ def _strip_echoed_fact_ids(text: str, fact_ids: Any) -> str | None:
 
 _OBJECTIVES: dict[str, tuple[str, str]] = {
     "opening": (
-        "Two to four sentences: what the product does, the problems it solves, who uses it.",
+        "Two to four sentences: what the product does, the problems it solves, who uses it. "
+        "A format fact's own `direction` field says whether the product reads that extension as "
+        "input or writes it as output; when the opening names a format, state exactly that "
+        "direction, never the opposite and never a direction the fact does not carry.",
         "one unit of two to four sentences",
     ),
     "key_capabilities": (
@@ -853,8 +872,22 @@ def authoring_tasks(
             continue
         ids, slots = section_selections(section, plan, investigation, dispositions, facts)
         objective, budget = _OBJECTIVES[section]
+        # A format fact's own "direction" surfaced as its own packet key, not left for the model
+        # to infer from the fact ID text alone - the ID is the one place the direction lives, but
+        # the system prompt also tells the model fact IDs are "provenance, never words in prose",
+        # so relying on it to notice "output" inside "format:output.png" gave no reliable signal
+        # (G4-W17, docs/DECISION_LOG.md 2026-09-26/27 Font-Python "format_claims" diagnosis).
         accepted = [
-            {"id": fact_id, "kind": by_id[fact_id].kind, "value": by_id[fact_id].value}
+            {
+                "id": fact_id,
+                "kind": by_id[fact_id].kind,
+                "value": by_id[fact_id].value,
+                **(
+                    {"direction": direction}
+                    if (direction := _fact_direction(fact_id)) is not None
+                    else {}
+                ),
+            }
             for fact_id in ids
         ]
         spellings = section_spellings(ids, facts)
@@ -1352,6 +1385,28 @@ def _prose_direction(text: str) -> str | None:
     return "input" if is_input else "output"
 
 
+def _fact_direction(fact_id: str) -> str | None:
+    """The "input"/"output" half of a ``format:<direction>.<extension>`` fact ID's own naming
+    convention - the one place a format's real read/write direction lives, since a format
+    fact's ``value`` is only the bare extension (".png") with no direction of its own. None for
+    any fact ID outside that convention (every kind but "format").
+
+    G4-W17, docs/DECISION_LOG.md 2026-09-26/27 (Font-Python "format_claims" diagnosis): the
+    packet already carries this fact ID, but ``section_authoring.yaml``'s own system prompt
+    tells the model fact IDs are "provenance, never words in prose" - true for citation, but it
+    left the model with no other signal for which formats it reads versus writes, and it
+    authored an ``opening`` unit that stated three formats' direction backwards against this
+    revision's own recorded evidence (``.png``/``.html``/``.svg``, examples 4/5/8 - all really
+    written by the library, not read). Promoted out of ``_example_format_claims``'s own inline
+    parse (below) so ``authoring_tasks``'s packet builder reads the identical convention rather
+    than a second, independently-drifting copy of it.
+    """
+    if not fact_id.startswith("format:"):
+        return None
+    direction = fact_id.split(":", 1)[-1].split(".", 1)[0]
+    return direction if direction in {"input", "output"} else None
+
+
 def _example_format_claims(facts: FactsDocument, ordinal: str) -> dict[str, frozenset[str]]:
     """The (direction -> extensions) one example already claims for itself, read straight from
     the evidence `evidence/facts/formats.py` already recorded for it (its own
@@ -1360,8 +1415,8 @@ def _example_format_claims(facts: FactsDocument, ordinal: str) -> dict[str, froz
     marker = f"example {ordinal}:"
     by_direction: dict[str, set[str]] = {"input": set(), "output": set()}
     for fact in facts.by_kind("format"):
-        direction = fact.id.split(":", 1)[-1].split(".", 1)[0]
-        if direction not in by_direction:
+        direction = _fact_direction(fact.id)
+        if direction is None:
             continue
         if any(marker in (item.detail or "") for item in fact.evidence):
             by_direction[direction].add(fact.value.lower())
