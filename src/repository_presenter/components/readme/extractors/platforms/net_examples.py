@@ -27,6 +27,7 @@ from pathlib import Path
 from repository_presenter.core.ecosystems import NET
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.long_paths import long_path
 
 _MAX_OUTPUT_CHARS = 4000
 # Top-level statements need no class or Main, so a README snippet drops straight in. The
@@ -185,7 +186,13 @@ def public_types(source_root: Path) -> dict[str, str]:
     """
     seen: dict[str, str] = {}
     ambiguous: set[str] = set()
-    for path in sorted(source_root.rglob("*.cs")):
+    # A real Aspose .NET source tree nests deeply enough (measured on Aspose.Words for .NET,
+    # docs/DECISION_LOG.md 2026-09-26) that a clone under this project's own runs/clones/ default
+    # location can push an individual file's absolute path past Windows' 260-character MAX_PATH -
+    # a fact about the repository's own directory names, not something to route around by cloning
+    # somewhere shorter. Walking from the extended-length form of source_root means every path
+    # this loop reads already carries the same safe prefix; no second call is needed at read_text.
+    for path in sorted(long_path(source_root).rglob("*.cs")):
         text = path.read_text(encoding="utf-8", errors="replace")
         found_namespace = _CS_NAMESPACE.search(text)
         if found_namespace is None:

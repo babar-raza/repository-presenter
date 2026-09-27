@@ -25,6 +25,7 @@ from repository_presenter.core.git_safety.hooks import install_pre_push_hook
 from repository_presenter.core.git_safety.neuter import neuter_push
 from repository_presenter.core.git_safety.process import TIMEOUT_EXIT_CODE
 from repository_presenter.core.git_safety.verify import PushBlockProof, verify_push_blocked
+from repository_presenter.core.long_paths import long_path
 from repository_presenter.core.retry import RETRY_POLICIES, RetryableOperationError, run_with_retry
 
 CLONE_TIMEOUT_SECONDS = 600.0
@@ -44,7 +45,6 @@ _TRANSIENT_CLONE_STDERR_MARKERS = (
 )
 
 _DIR_NOT_EMPTY_WINERROR = 145
-_LONG_PATH_PREFIX = "\\\\?\\"
 _DIR_NOT_EMPTY_RETRY_ATTEMPTS = 3
 _DIR_NOT_EMPTY_RETRY_BACKOFF_SECONDS = 0.5
 
@@ -162,16 +162,9 @@ def _is_windows_dir_not_empty_error(exc: BaseException) -> bool:
     )
 
 
-def _with_long_path_prefix(target_path: Path) -> str:
-    resolved = str(target_path.resolve())
-    if resolved.startswith(_LONG_PATH_PREFIX):
-        return resolved
-    return f"{_LONG_PATH_PREFIX}{resolved}"
-
-
 def _force_clear_directory_contents(directory: str) -> None:
     """Sweep whatever remains under ``directory`` through the long-path form, best effort."""
-    long_directory = _with_long_path_prefix(Path(directory))
+    long_directory = str(long_path(Path(directory)))
     try:
         with os.scandir(long_directory) as it:
             children = list(it)
@@ -195,7 +188,7 @@ def _retry_dir_not_empty(
     """Two remedies for the same ``WinError 145``: a long-path sweep, then a bounded retry."""
     _force_clear_directory_contents(target_path)
     try:
-        func(_with_long_path_prefix(Path(target_path)))
+        func(str(long_path(Path(target_path))))
         return
     except OSError:
         pass

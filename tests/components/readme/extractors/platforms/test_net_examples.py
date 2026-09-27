@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -10,6 +11,7 @@ import pytest
 from repository_presenter.components.readme.extractors.platforms import net_examples
 from repository_presenter.core.examples import ExampleCandidate
 from repository_presenter.core.execution import ExecutionResult
+from repository_presenter.core.long_paths import long_path
 
 
 def _candidate(ordinal: int, code: str) -> ExampleCandidate:
@@ -138,6 +140,30 @@ def test_public_types_drops_a_simple_name_two_files_disagree_on(tmp_path: Path) 
         "namespace Aspose.B;\n\npublic class Style\n{\n}\n", encoding="utf-8"
     )
     assert net_examples.public_types(tmp_path) == {}
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="MAX_PATH is a Windows-only limit")
+def test_public_types_reads_a_file_whose_clone_path_exceeds_max_path(tmp_path: Path) -> None:
+    """docs/DECISION_LOG.md 2026-09-26: a real Aspose.Words for .NET source file's own clone
+    path measured past Windows' 260-character MAX_PATH and crashed this exact function with a
+    plain read_text() FileNotFoundError. A deeply nested namespace directory is a fact about the
+    upstream repository, not something this project renames or relocates around; public_types()
+    must read it anyway."""
+    deep = tmp_path
+    for i in range(6):
+        deep = deep / (f"Namespace{i}_" + "Segment" * 5)
+        long_path(deep).mkdir(exist_ok=True)
+    target = deep / ("IVeryDeeplyNestedContentItemVisitor" * 2 + ".cs")
+    assert len(str(target)) > 260
+    long_path(target).write_text(
+        "namespace Aspose.Words.Deep;\n\npublic interface IVisitor\n{\n}\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(OSError):
+        target.read_text(encoding="utf-8")
+
+    assert net_examples.public_types(tmp_path) == {"IVisitor": "Aspose.Words.Deep.IVisitor"}
 
 
 def test_needed_usings_supplies_only_a_namespace_not_already_declared() -> None:
