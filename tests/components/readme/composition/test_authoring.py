@@ -33,6 +33,7 @@ from repository_presenter.components.readme.composition.authoring import (
     prose_nouns,
     reconstructed_task_output,
     recover_forbidden_command_units,
+    recover_section_authoring_output,
     recover_title_verbatim_opening,
     repair_title_verbatim_opening_errors,
     section_selections,
@@ -2567,3 +2568,96 @@ def test_recover_title_verbatim_opening_is_none_when_no_unit_opens_with_its_titl
         "changes": [],
     }
     assert recover_title_verbatim_opening(raw, slot_titles=task.slot_titles) is None
+
+
+def test_recover_section_authoring_output_strips_a_title_left_bare_by_an_identifier_strip() -> None:
+    """docs/DEFECT_INDEX.md section_authoring.rejection_no_recover, 4th sighting;
+    docs/DECISION_LOG.md 2026-09-27, aspose-slides-foss/Aspose.Slides-FOSS-for-Java. Measured
+    shape: attempt 1's own unit already carried real member-level detail (a cited identifier)
+    satisfying item 106's own carve-out (the fixture below, before the mutation) - but that
+    identifier was itself judged an unsupported fact value, so attempt 1 was still rejected, for
+    that unrelated reason. The one universal re-ask correctly deleted the identifier the
+    rejection named, but that deletion also deleted the unit's only compensating detail, leaving a
+    bare title restatement item 106 itself would now reject - a fresh rejection recover_
+    forbidden_command_units has no way to see (it only strips a _FORBIDDEN command marker).
+    recover_section_authoring_output is section_authoring's own initial-draft call site's new,
+    composed last resort: it also strips the now-bare title-verbatim opening, exactly the way
+    recover_title_verbatim_opening already does for a targeted_repair reply, but operating on
+    section_authoring's own output.units shape directly."""
+    task = _key_capabilities_task(_TITLE)
+    # Confirms the pre-mutation fixture is exactly what item 106's own carve-out lets through -
+    # attempt 1's own real-world shape.
+    assert (
+        unit_checks(
+            json.loads(json.dumps({"units": [_key_capabilities_unit(_TITLE_VERBATIM_TEXT)]})),
+            task,
+            FACTS,
+            NAME,
+        )
+        == []
+    )
+    # Attempt 2: the model deleted the cited identifier and its surrounding detail to answer an
+    # unsupported-identifier rejection, leaving a bare stutter - this is the regression, not the
+    # fix that's meant to happen.
+    bare = f"{_TITLE}. It supports our configurable export pipeline."
+    raw = {"units": [_key_capabilities_unit(bare)], "omitted": []}
+    assert unit_checks(json.loads(json.dumps(raw)), task, FACTS, NAME) == [
+        f"unit capability:1: restates its own title {_TITLE!r}; the title is printed "
+        "immediately before the unit, so its text adds what the title does not already say"
+    ]
+    recovered = recover_section_authoring_output(raw, slot_titles=task.slot_titles)
+    assert recovered is not None
+    text = recovered["units"][0]["text"]
+    assert not text.lower().startswith(_TITLE.lower())
+    assert "export pipeline" in text
+    # run_job re-validates through the real unit_checks before ever accepting a recovery.
+    assert unit_checks(recovered, task, FACTS, NAME) == []
+
+
+def test_recover_section_authoring_output_also_strips_a_forbidden_command_literal() -> None:
+    """The composed recovery still does what recover_forbidden_command_units alone already did
+    (item 115/Page-Python) - this call site's pre-existing correction is not lost by composing a
+    second one beside it."""
+    task = _scope_limitations_task()
+    raw = {
+        "units": [
+            _scope_limitations_unit("scope", "It reads and writes 3D files."),
+            _scope_limitations_unit(
+                "limitation:1",
+                "It is installed with pip install aspose-page-foss; advanced editing is not "
+                "available.",
+            ),
+        ],
+        "omitted": [],
+    }
+    recovered = recover_section_authoring_output(raw, slot_titles={})
+    assert recovered is not None
+    assert "pip install" not in recovered["units"][1]["text"]
+    assert unit_checks(recovered, task, FACTS, NAME) == []
+
+
+def test_recover_section_authoring_output_never_force_accepts_a_still_failing_unit() -> None:
+    """Mutation control, mirroring recover_title_verbatim_opening's own never-force-accepts test:
+    a unit whose bare title-verbatim opening is stripped but which still fails unit_checks for a
+    second, unrelated defect (an unaccepted identifier) is not force-cleared."""
+    task = _key_capabilities_task(_TITLE)
+    text = f"{_TITLE}. It raises SceneCorruptionError under low memory."
+    raw = {"units": [_key_capabilities_unit(text)], "omitted": []}
+    recovered = recover_section_authoring_output(raw, slot_titles=task.slot_titles)
+    assert recovered is not None
+    assert "SceneCorruptionError" in recovered["units"][0]["text"]
+    assert unit_checks(recovered, task, FACTS, NAME) == [
+        "unit capability:1: identifiers that are not accepted fact values: SceneCorruptionError"
+    ]
+
+
+def test_recover_section_authoring_output_is_none_when_nothing_to_fix() -> None:
+    """Mutation control: a unit already clean of both known shapes - recover has nothing to try,
+    and returns None, never a no-op copy of output."""
+    task = _key_capabilities_task(_TITLE)
+    raw = {
+        "units": [_key_capabilities_unit("It supports several scene export formats.")],
+        "omitted": [],
+    }
+    assert unit_checks(json.loads(json.dumps(raw)), task, FACTS, NAME) == []
+    assert recover_section_authoring_output(raw, slot_titles=task.slot_titles) is None

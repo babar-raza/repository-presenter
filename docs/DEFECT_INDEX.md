@@ -19,28 +19,47 @@ against at least one of its own listed sightings, not merely proposed.
 ### `section_authoring.rejection_no_recover`
 
 `section_authoring`'s rejection-repair loop had no deterministic `recover=` backstop, unlike
-`presentation_planning`'s (`composition/planning.py::recover_uncited_capability_titles`). Two
+`presentation_planning`'s (`composition/planning.py::recover_uncited_capability_titles`). Three
 distinct sub-shapes share the same root gap (no last-resort deterministic correction before the
 repair budget exhausts), tracked as one mechanism because the fix pattern is identical:
 
 - **Forbidden-literal sub-shape**: a re-ask reproduces a `_FORBIDDEN`-marked literal (e.g. a
   `pip install` command) byte-for-byte despite the rejection template naming it forbidden.
-- **Title-restatement sub-shape**: `unit_checks`'s item-106 carve-out lets a repaired unit through
-  (real detail follows the title), but independent review's own separate semantic judgment still
-  flags the literal title-verbatim opening clause regardless of what follows it.
+- **Title-restatement sub-shape (repair path)**: `unit_checks`'s item-106 carve-out lets a
+  repaired unit through (real detail follows the title), but independent review's own separate
+  semantic judgment still flags the literal title-verbatim opening clause regardless of what
+  follows it.
+- **Title-restatement sub-shape (initial-draft path)**: a DIFFERENT call site than the one above -
+  `section_authoring`'s own INITIAL-DRAFT job (the first `run_round` call, before any repair
+  round), not a `targeted_repair`. Attempt 1's own unit already carries real member-level detail
+  satisfying item 106's own carve-out, but is rejected anyway for an unrelated reason (the same
+  detail cited as an unsupported identifier); the one universal re-ask correctly deletes the
+  identifier the rejection named, but that deletion also deletes the only detail keeping the unit
+  inside item 106's own carve-out, trading one rejection for a fresh one
+  `recover_forbidden_command_units` (scoped to `_FORBIDDEN` command markers only) cannot see -
+  and, since a section is one call for every one of its slots, taking every unit of that call down
+  with it, not only the one the model touched.
 
 | # | Repository | Sub-shape | Date | Evidence |
 |---|---|---|---|---|
 | 1 | `aspose-page-foss/Aspose.Page-FOSS-for-Python` | forbidden-literal | 2026-09-24 14:25 UTC | `docs/DECISION_LOG.md`, never sealed until fixed |
-| 2 | `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` | title-restatement | 2026-09-25 08:04 UTC | `docs/DECISION_LOG.md`, reseal regression |
-| 3 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement | 2026-09-25 07:13 UTC (and `docs/RESEARCH_LANE_C.md` G4-W12-RERUN7 through RERUN13, earlier) | 7+ reruns, recurring |
+| 2 | `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` | title-restatement (repair path) | 2026-09-25 08:04 UTC | `docs/DECISION_LOG.md`, reseal regression |
+| 3 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement (repair path) | 2026-09-25 07:13 UTC (and `docs/RESEARCH_LANE_C.md` G4-W12-RERUN7 through RERUN13, earlier) | 7+ reruns, recurring |
+| 4 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement (initial-draft path) | 2026-09-27 | `docs/DECISION_LOG.md`, reseal blocked - all 6 `key_capabilities` units regressed on the attempt meant to fix an unrelated rejection |
 
-**Status 2026-09-25**: crossed 3 sightings; escalated same day per the owner's direct instruction.
-Both sub-shapes now have a landed fix: forbidden-literal via
+**Status 2026-09-27**: all three sub-shapes now have a landed fix. Forbidden-literal via
 `composition/authoring.py::recover_forbidden_command_units` (commit `1fff7d7`); title-restatement
-via a deterministic backstop for review's stricter standard (commit `fadb001`/`a313864`). Neither
-fix has yet been verified against a fresh redraw of BarCode-Python or Slides-Java specifically —
-not yet moved to Resolved until that verification lands.
+(repair path) via a deterministic backstop for review's stricter standard (commit
+`fadb001`/`a313864`); title-restatement (initial-draft path, this 4th sighting) via
+`composition/authoring.py::recover_section_authoring_output`, which composes
+`recover_forbidden_command_units` with the same opening-clause strip
+`recover_title_verbatim_opening` already uses for the repair path, wired as
+`section_authoring`'s own initial-draft `recover=` in `repair/rounds.py`
+(`NORMALISATION_VERSION` 15 -> 16). Verified by mutation test against this exact reported shape
+(`tests/components/readme/composition/test_authoring.py`); a fresh live redraw of Slides-Java at
+the same revision (`docs/DECISION_LOG.md`, 2026-09-27) did not sample the attempt-1-detail/
+attempt-2-deletion sequence this fix corrects, so it is not yet moved to Resolved - the mechanism
+is fixed and mutation-tested, but not yet measured firing live on this or any other repository.
 
 ### `composition.planning.rc01_backstop_vs_link_ceiling_trim_ordering`
 
