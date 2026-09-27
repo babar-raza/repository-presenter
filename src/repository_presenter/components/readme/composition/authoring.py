@@ -188,7 +188,29 @@ _TYPE_OBJECTIVE = (
 # even though the source README's own SUPPORTED inherited_unit:004.paragraph and
 # inherited_unit:014.paragraph both name it in running prose (measured on a live draw at revision
 # 66cb26df3b031f0bf6976d4e88dc89721983afa4). _IRREGULAR_PROPER_NOUNS below.
-NORMALISATION_VERSION = "15"
+# "15" -> "16" (docs/DEFECT_INDEX.md section_authoring.rejection_no_recover, 4th sighting;
+# docs/DECISION_LOG.md 2026-09-27, aspose-slides-foss/Aspose.Slides-FOSS-for-Java): a DIFFERENT
+# call site than the two already-landed sub-shapes (recover_forbidden_command_units, scoped to
+# section_authoring's own initial-draft job, and recover_title_verbatim_opening, scoped to an S6
+# targeted_repair) - this one is section_authoring's initial-draft job again, but a title-
+# restatement rejection rather than a forbidden-command one. Measured shape: attempt 1's own unit
+# already carried real member-level detail (a cited identifier) satisfying item 106's own carve-
+# out; attempt 1 was rejected anyway for a DIFFERENT reason (that same identifier judged an
+# unsupported fact value). The one universal re-ask quoted only that unsupported-identifier
+# rejection, so attempt 2's own correction deleted exactly the identifier the rejection named -
+# a locally correct fix for the error it was told about - but deleting it also deleted the only
+# detail keeping the unit out of item 106's own title-restatement rule, so attempt 2 traded one
+# rejection for a different one recover_forbidden_command_units has no way to see (it only strips
+# a _FORBIDDEN command marker). With no recovery for this second, freshly-introduced shape,
+# run_job's budget was already spent and the job failed closed, taking every unit of the same
+# batched call down with it (key_capabilities is one call for every capability slot). New:
+# recover_section_authoring_output composes recover_forbidden_command_units with a new
+# _strip_title_verbatim_opening_units (shared with recover_title_verbatim_opening's own logic) so
+# section_authoring's initial-draft job's own recover= tries both known last-resort corrections
+# before failing closed - a real meaning change to what this call site can end up accepting.
+# unit_checks itself, and recover_forbidden_command_units and recover_title_verbatim_opening
+# themselves, stay byte-for-byte unchanged.
+NORMALISATION_VERSION = "16"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -1734,6 +1756,39 @@ def repair_title_verbatim_opening_errors(output: Mapping[str, Any], task: Sectio
     return errors
 
 
+def _strip_title_verbatim_opening_units(units: list[Any], slot_titles: Mapping[str, str]) -> bool:
+    """``units`` (a job output's own ``units`` list, mutated in place): strip a unit's literal
+    title-verbatim opening clause, keeping whatever real detail follows it. Returns whether
+    anything was actually stripped - never a no-op mutation. Shared by
+    ``recover_title_verbatim_opening`` (a ``targeted_repair`` reply's own ``revised_output.units``)
+    and ``recover_section_authoring_output`` (a fresh ``section_authoring`` reply's own
+    ``output.units`` directly) - the two recover= call sites differ only in which dict this list
+    is nested under, never in the correction itself.
+
+    A unit whose title-opening clause is all it says (stripping would leave nothing meaningful) is
+    left untouched rather than forced into an empty unit - the same "never fabricate" discipline
+    every recover= function in this module holds to.
+    """
+    changed = False
+    for unit in units:
+        if not isinstance(unit, dict):
+            continue
+        title = slot_titles.get(str(unit.get("slot")))
+        text = unit.get("text")
+        if not title or not isinstance(text, str):
+            continue
+        end = _title_verbatim_opening_length(text, title)
+        if end is None:
+            continue
+        remainder = text[end:].strip()
+        if not remainder:
+            continue  # nothing meaningful would remain; do not force an empty unit
+        fixed = remainder[0].upper() + remainder[1:] if remainder[0].isalpha() else remainder
+        unit["text"] = fixed
+        changed = True
+    return changed
+
+
 def recover_title_verbatim_opening(
     output: dict[str, Any], *, slot_titles: Mapping[str, str]
 ) -> dict[str, Any] | None:
@@ -1762,22 +1817,46 @@ def recover_title_verbatim_opening(
     units = revised.get("units")
     if not isinstance(units, list):
         return None
-    changed = False
-    for unit in units:
-        if not isinstance(unit, dict):
-            continue
-        title = slot_titles.get(str(unit.get("slot")))
-        text = unit.get("text")
-        if not title or not isinstance(text, str):
-            continue
-        end = _title_verbatim_opening_length(text, title)
-        if end is None:
-            continue
-        remainder = text[end:].strip()
-        if not remainder:
-            continue  # nothing meaningful would remain; do not force an empty unit
-        fixed = remainder[0].upper() + remainder[1:] if remainder[0].isalpha() else remainder
-        unit["text"] = fixed
+    return output if _strip_title_verbatim_opening_units(units, slot_titles) else None
+
+
+def recover_section_authoring_output(
+    output: dict[str, Any], *, slot_titles: Mapping[str, str]
+) -> dict[str, Any] | None:
+    """Last-resort correction for ``section_authoring``'s own INITIAL-DRAFT job (``recover=``,
+    ``core/llm/jobs.py``, the first ``run_round``/``repair/rounds.py`` call - never a repair
+    round) - never called on a first attempt, so the model's own one universal re-ask is always
+    tried first exactly as before; a unit ``unit_checks`` would still reject for an unrelated
+    reason is unaffected, since ``run_job`` re-validates the corrected output through the real
+    ``unit_checks`` before ever accepting it.
+
+    ``docs/DEFECT_INDEX.md`` ``section_authoring.rejection_no_recover``, 4th sighting;
+    ``docs/DECISION_LOG.md`` 2026-09-27, aspose-slides-foss/Aspose.Slides-FOSS-for-Java: this call
+    site already had a ``recover=`` (``recover_forbidden_command_units``, item 115/Page-Python),
+    but that recovery is scoped to a literal ``_FORBIDDEN`` command marker and has nothing to try
+    against a DIFFERENT rejection shape measured live here - the model's own final attempt,
+    correcting an unrelated "identifiers that are not accepted fact values" rejection by deleting
+    the cited identifier the rejection named, incidentally deleted the only member-level detail
+    keeping the unit inside item 106's own title-restatement carve-out (``unit_checks``), trading
+    one rejection for a fresh one the job's spent retry budget could no longer absorb - and, since
+    ``key_capabilities`` is one call for every capability slot, taking every one of that call's
+    units down with the failure, not only the one the model touched.
+
+    Composes both known last-resort corrections for this call site, in order: first
+    ``recover_forbidden_command_units``'s own literal command-marker strip (unchanged, still
+    independently tested), then ``_strip_title_verbatim_opening_units`` (shared with
+    ``recover_title_verbatim_opening``'s own repair-path correction) against whatever
+    ``output["units"]`` holds afterward - a fresh ``section_authoring`` reply's own shape, never
+    wrapped in ``revised_output`` the way a ``targeted_repair`` reply is. Either, both, or neither
+    may apply to a given reply; nothing is invented in either case, and a unit still failing for
+    an unrelated reason is never force-accepted (``run_job`` re-validates the real ``unit_checks``
+    on whatever this returns).
+
+    Returns ``None`` when nothing was corrected (nothing to try), never a no-op copy of ``output``.
+    """
+    changed = recover_forbidden_command_units(output) is not None
+    units = output.get("units")
+    if isinstance(units, list) and _strip_title_verbatim_opening_units(units, slot_titles):
         changed = True
     return output if changed else None
 
