@@ -178,6 +178,27 @@ supervisor runs three checks unconditionally, not only when a notification happe
 A sweep with nothing new to report is recorded as such (one line, not a essay) and is not itself
 evidence the sweep was skippable next time.
 
+## No terminal wait below the floor
+
+"No idle wakes" says a wake must include substantive action; it does not, by itself, stop a
+supervisor from taking that action and then *ending* the turn in a scheduled wait anyway while the
+concurrency floor sits unmet — a gap named directly (2026-09-26, owner: "all you are doing is
+sitting idle"), found in practice as a run of `ScheduleWakeup` calls each carrying a legitimate
+`noop: false` reason, none of which checked `ListAgents` against the floor or `reconcile.py`'s own
+queue first. A correctly-justified wait is still idling if ready, unclaimed work existed and went
+undispatched to make room for it.
+
+Rule: before calling `ScheduleWakeup`, or before ending any wake without newly-dispatched work, the
+supervisor runs `ListAgents` and compares the live count against the concurrency floor. If the
+floor is unmet and `tools/reviewer/reconcile.py`'s priority queue names ready, unclaimed work (a
+never-attempted registry entry, a stale reseal, a defect-index-escalated item not already claimed
+by an in-flight PR), the supervisor dispatches against that queue — spawning a lane per the spawn
+recipe, or acting directly for cheap mechanical work (a rebase, a reseal check) — before any
+`ScheduleWakeup` call. Only once the floor is met, or the queue is genuinely exhausted (recorded as
+such, not assumed), may the wake end in a scheduled wait. A wait whose own `reason` field could be
+truthfully replaced with "queue had ready work I did not take" is the exact failure this rule
+closes.
+
 ## Enforcement placement
 
 A check that must survive the supervisor lives in `tests/` (CI runs it per push — the
