@@ -1,0 +1,68 @@
+# OWNER-04's own resume_predicate (project/state.yaml): "A hosted workflow run mints a
+# read-only installation token for the canary repository." This is that workflow -- the
+# first live proof the registered GitHub App (docs/DECISION_LOG.md, 2026-09-27) is actually
+# installed and usable, not just registered. It mints a real installation token scoped to
+# the canary repository alone and performs one read-only API call with it; it never writes
+# anything, opens no PR, and the token itself is never printed (GitHub Actions masks any
+# secret-typed step output automatically, but the workflow also never echoes it directly).
+#
+# actions/create-github-app-token is GitHub's own official action for this exchange --
+# preferred over hand-rolling JWT signing, per AGENTS.md's battle-tested-solutions rule.
+#
+# workflow_dispatch only, deliberately, matching monitor.yml's own precedent: this proves
+# the installation works today, it is not a scheduled/unattended credential-minting job.
+name: Verify GitHub App Installation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-installation:
+    name: Mint a scoped installation token, read the canary repository with it
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - name: Read the canary coordinates (project/state.yaml's own progress.canary)
+        id: canary
+        run: |
+          canary=$(repository-presenter status | sed -n 's/^canary: //p')
+          if [ -z "$canary" ]; then
+            echo "::error::could not read canary coordinates from 'repository-presenter status'"
+            exit 1
+          fi
+          owner="${canary%%/*}"
+          repo="${canary#*/}"
+          echo "canary: $canary"
+          echo "owner=$owner" >> "$GITHUB_OUTPUT"
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+
+      - name: Mint an installation token, scoped to the canary repository alone
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ steps.canary.outputs.owner }}
+          repositories: ${{ steps.canary.outputs.repo }}
+
+      - name: Read-only proof - fetch the canary's own repo metadata with the minted token
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh api "repos/${{ steps.canary.outputs.owner }}/${{ steps.canary.outputs.repo }}" \
+            --jq '"installation reaches " + .full_name + " (default branch: " + .default_branch + ")"'
