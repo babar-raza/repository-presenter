@@ -17,6 +17,7 @@ from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.errors import ConfigError, JobError
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.jobs import (
+    _PROMPT_ENUM_INLINE_LIMIT,
     CallStore,
     JobContext,
     render_messages,
@@ -123,6 +124,96 @@ def test_messages_render_the_packet_and_the_payload_follows_the_sampling_contrac
         render_messages(
             MANIFEST, {**{k: v for k, v in PACKET.items() if k != "inherited_units"}, "extra": 1}
         )
+
+
+def test_a_large_call_schema_enum_is_condensed_in_system_message_but_full_in_response_format() -> (
+    None
+):
+    """PDFTS diagnosis, docs/DECISION_LOG.md 2026-09-26 04:38 UTC: the call schema was embedded
+    twice in the wire payload - literal JSON text in the system message (render_messages) and
+    again structurally as ``response_format.json_schema.schema`` (request_payload) - and on
+    aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript a single large enum (``citable_fact_id``) alone
+    cost 115,553 of those chars, doubled. Only the system-message text copy is ever shortened:
+    ``response_format`` (what the gateway's own strict json_schema decoding actually binds to)
+    keeps every member, unchanged, byte for byte.
+    """
+    big_enum = [f"citable:{i:04d}" for i in range(_PROMPT_ENUM_INLINE_LIMIT + 1)]
+    call_schema = {
+        "type": "object",
+        "required": ["choice"],
+        "additionalProperties": False,
+        "properties": {"choice": {"type": "string", "enum": big_enum}},
+    }
+    messages = render_messages(MANIFEST, PACKET, call_schema)
+    system = messages[0]["content"]
+    assert big_enum[0] not in system and big_enum[-1] not in system
+    assert f"<{len(big_enum)} allowed values" in system
+    assert "enforced by the request's response_format" in system
+    payload = request_payload(MANIFEST, messages, call_schema)
+    # response_format's own schema is the original object, untouched - not even a deep-equal
+    # reconstruction of it: the doubling this fix removes was in the rendered *text*, never here.
+    assert payload["response_format"]["json_schema"]["schema"] is call_schema
+    assert big_enum[-1] in json.dumps(payload)  # the wire payload still carries every member once
+
+
+def test_the_condense_threshold_is_inclusive_of_the_limit_itself() -> None:
+    """Off-by-one lock-in for ``_PROMPT_ENUM_INLINE_LIMIT``: an enum exactly at the limit is a
+    short enum by this module's own definition and stays spelled out in full (naming every legal
+    choice by hand is what a short enum is for); one more member crosses into condensed text."""
+    at_limit = [f"id:{i}" for i in range(_PROMPT_ENUM_INLINE_LIMIT)]
+    over_limit = [*at_limit, "id:over"]
+    inline_schema = {
+        "type": "object",
+        "properties": {"choice": {"type": "string", "enum": at_limit}},
+    }
+    condensed_schema = {
+        "type": "object",
+        "properties": {"choice": {"type": "string", "enum": over_limit}},
+    }
+    inline_system = render_messages(MANIFEST, PACKET, inline_schema)[0]["content"]
+    condensed_system = render_messages(MANIFEST, PACKET, condensed_schema)[0]["content"]
+    assert at_limit[-1] in inline_system
+    assert "allowed values" not in inline_system
+    assert over_limit[-1] not in condensed_system
+    assert f"<{len(over_limit)} allowed values" in condensed_system
+
+
+def test_an_out_of_enum_reply_is_still_rejected_even_though_the_prompt_never_spelled_it_out(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The actual safety net - ``_parse``'s ``Draft202012Validator`` and, before it, the gateway's
+    own ``response_format`` decoding - both still see the full, untouched schema (``schema_for``),
+    so shortening only the system message's plain-text restatement never weakens citation or
+    schema conformance. Offline: the mock gateway is scripted to answer with an illegal choice,
+    proving the rejection still fires with no live call needed."""
+    big_enum = [f"citable:{i:04d}" for i in range(_PROMPT_ENUM_INLINE_LIMIT + 5)]
+    call_schema = {
+        "type": "object",
+        "required": ["choice"],
+        "additionalProperties": False,
+        "properties": {"choice": {"type": "string", "enum": big_enum}},
+    }
+    gateway = _Gateway(
+        monkeypatch,
+        _completion({"choice": "not-a-real-choice"}),
+        _completion({"choice": big_enum[3]}),
+    )
+    result = run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=CONTEXT,
+        call_schema=call_schema,
+    )
+    assert result.attempts == 2
+    assert result.output == {"choice": big_enum[3]}
+    first_system = gateway.requests[0]["messages"][0]["content"]
+    assert big_enum[-1] not in first_system  # the prompt itself never spelled the enum out...
+    rejection = gateway.requests[1]["messages"][-1]["content"]
+    assert "'not-a-real-choice' is not one of" in rejection  # ...yet the illegal choice was caught
 
 
 def test_an_accepted_output_is_stored_and_reused_without_a_second_call(

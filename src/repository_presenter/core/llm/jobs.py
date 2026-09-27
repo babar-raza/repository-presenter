@@ -46,6 +46,51 @@ from repository_presenter.core.retry import RetryableOperationError, run_with_re
 CALLS_DIRNAME = "calls"
 _TRANSIENT_STATUSES = frozenset({408, 409, 429, 500, 502, 503, 504})
 
+# 2026-09-26 04:38 UTC diagnosis (docs/DECISION_LOG.md, PDFTS): the wire payload embedded its
+# call schema twice - once as literal JSON text in the system message (render_messages, below),
+# again structurally as response_format.json_schema.schema (request_payload) - and on
+# aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript the citable_fact_id enum alone cost 115,553 of
+# those chars, doubled. That entry flagged, unmeasured, whether the gateway's own strict
+# response_format.json_schema decoding needs the schema restated as text at all. Measured live
+# here (2026-09-27, against llm.professionalize.com/qwen3-next): two otherwise-identical bounded
+# calls sharing one full 60-member-enum response_format schema, one with that same schema spelled
+# out in full as system-message text and one with the enum collapsed to its size the way this
+# constant does - both returned HTTP 200 and both replies validated against the real enum. The
+# system-message copy is not required by the gateway's own contract and enforces nothing; only
+# response_format and _parse's own Draft202012Validator (both left byte-for-byte untouched by this
+# constant) do. Below this count an enum stays inline in the system message: naming every legal
+# section/format/link/example ID by hand is what a *short* enum is for, and nothing this size
+# approaches the doubling cost that motivated the cut.
+_PROMPT_ENUM_INLINE_LIMIT = 50
+
+
+def _prompt_schema(node: Any, omitted: list[int]) -> Any:
+    """A copy of a schema (or any JSON-like value inside one) for system-message *text* only.
+
+    Every ``enum`` array longer than ``_PROMPT_ENUM_INLINE_LIMIT`` is replaced by its size, never
+    its members - ``omitted`` collects each count so ``render_messages`` can tell the model the
+    substitution happened, rather than silently understating how many choices actually exist.
+    ``response_format`` (``request_payload``) and re-validation (``_parse``) both call
+    ``schema_for`` directly and never pass through here, so what actually constrains a reply's
+    decoding and what actually judges it afterwards are always the untouched, full schema; this
+    function only shortens the redundant plain-text restatement of it.
+    """
+    if isinstance(node, dict):
+        rendered: dict[str, Any] = {}
+        for key, value in node.items():
+            if key == "enum" and isinstance(value, list) and len(value) > _PROMPT_ENUM_INLINE_LIMIT:
+                omitted.append(len(value))
+                rendered[key] = (
+                    f"<{len(value)} allowed values, enforced by the request's response_format "
+                    "and re-validated on reply; omitted here to keep this prompt copy short>"
+                )
+            else:
+                rendered[key] = _prompt_schema(value, omitted)
+        return rendered
+    if isinstance(node, list):
+        return [_prompt_schema(item, omitted) for item in node]
+    return node
+
 
 @dataclass(frozen=True)
 class JobContext:
@@ -158,8 +203,16 @@ def render_messages(
         else:
             raise ConfigError(f"packet field {field.name} must be a string")
     user = string.Template(manifest.manifest.user_template).substitute(rendered)
-    schema = json.dumps(schema_for(manifest, call_schema), indent=1, sort_keys=True)
+    omitted: list[int] = []
+    condensed = _prompt_schema(schema_for(manifest, call_schema), omitted)
+    schema = json.dumps(condensed, indent=1, sort_keys=True)
     preface = manifest.manifest.schema_preface.strip()
+    if omitted:
+        preface = (
+            f"{preface} (some `enum` fields below show a count of allowed values instead of "
+            "listing them - every one of them is still enforced exactly, at decode and again on "
+            "reply, from this same schema; only this text copy is shortened)"
+        )
     system = f"{manifest.manifest.system.rstrip()}\n\n{preface}\n{schema}\n"
     return [
         {"role": "system", "content": system},
