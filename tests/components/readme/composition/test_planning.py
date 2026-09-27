@@ -1486,6 +1486,38 @@ def test_the_symbol_enum_size_grows_sub_linearly_not_proportionally() -> None:
     assert len(tenx_enum) < 10 * len(base_enum)
 
 
+def test_the_packets_facts_and_symbol_enums_share_one_public_symbol_cap() -> None:
+    """2026-09-26 04:38 UTC docs/DECISION_LOG.md: the UNIT_CAP fix (items 120/122) genuinely
+    shrank aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript's packet (298,865 -> 283,065 input
+    tokens), but the repository still overflowed the 262,144-token ceiling - ``public_symbol`` is
+    large on a second, independent axis that fix never touched: 2,688 admitted facts (272,758
+    packet characters, the packet's second-largest contributor), never bound by
+    ``bounded_records()``'s own ``SYMBOL_CAP`` (6000) because this repository's own count sits
+    under it. ``PLANNING_SYMBOL_CAP`` gives ``public_symbol`` the same planning-specific second
+    cap ``inherited_unit`` already has (``PLANNING_SYMBOL_CAP < SYMBOL_CAP``, isolating this fix
+    from bounded_records()'s own cap: a synthetic 5000-symbol document, well past
+    ``PLANNING_SYMBOL_CAP`` and still under ``SYMBOL_CAP``). Proven offline, zero provider calls:
+    the packet's own ``facts`` field, the schema's ``api_hubs`` hub enum, and ``citable_fact_ids``
+    (the enum every ``fact_ids``/``shared_fact_ids``/``unit_ids`` array is pinned to) all agree on
+    exactly the same first-``PLANNING_SYMBOL_CAP`` set, in document order - one combined budget,
+    never three independently-sized views of the same packet."""
+    many = _shallow_symbols_facts(5000)
+    assert planning.PLANNING_SYMBOL_CAP < 5000 < 6000  # isolates this cap from SYMBOL_CAP's own
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    packet = planning_packet(ENTRY, many, {}, {}, MANIFEST)
+    schema = planning_schema(loaded, many, {}, {})
+    facts_symbols = [r["id"] for r in packet["facts"] if r["kind"] == "public_symbol"]
+    hub_enum = schema["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]["enum"]
+    expected = {f"public_symbol:pkg.sym{i}" for i in range(planning.PLANNING_SYMBOL_CAP)}
+    assert len(facts_symbols) == planning.PLANNING_SYMBOL_CAP
+    assert len(hub_enum) == planning.PLANNING_SYMBOL_CAP
+    assert set(facts_symbols) == expected  # document order, the first PLANNING_SYMBOL_CAP symbols
+    assert set(hub_enum) == expected
+
+    citable = citable_fact_ids(many, {}, {}, MANIFEST)
+    assert {i for i in citable if i.startswith("public_symbol:")} == expected
+
+
 def test_the_link_enum_size_grows_sub_linearly_not_proportionally() -> None:
     """PHASE0/J2: bounded_records()'s own LINK_CAP now bounds link_target the same way SYMBOL_CAP
     already bounds public_symbol - was xfail(strict=True) (J1) until this landed."""
