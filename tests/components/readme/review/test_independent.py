@@ -16,6 +16,7 @@ from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
     MAJORITY_VOTE_REPOSITORIES,
+    _value_segments,
     absence_defect,
     absence_partition,
     claim_evidence,
@@ -1761,6 +1762,181 @@ def test_a_paraphrase_of_one_bullet_of_a_multi_bullet_fact_is_not_diluted_by_its
         "text": "The library has some limitations around mail servers and calendars.",
     }
     assert scope_defect(weak, CANDIDATE, by_id, units={"units": [weak_unit]}) is None
+
+
+def test_value_segments_splits_a_bullet_free_multiline_value_by_line() -> None:
+    """G4-W17 arrival item F04 (Aspose.3D-FOSS-for-TypeScript, 2026-09-27). A source-kind
+    ``install_command`` fact's own value is a multi-line shell transcript, never a Markdown bullet
+    list - the bullet-marker rule above never segments it, so before this fix every grounding
+    check was forced to measure the whole four-line value (and its own clone URL and directory
+    name) at once. A value with no bullet markers but at least two non-blank lines is now
+    segmented by line instead.
+    """
+    transcript = (
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript.git\n"
+        "cd Aspose.3D-FOSS-for-TypeScript\n"
+        "npm install\n"
+        "npm run build"
+    )
+    assert _value_segments(transcript) == (
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript.git",
+        "cd Aspose.3D-FOSS-for-TypeScript",
+        "npm install",
+        "npm run build",
+    )
+    # Regression control: a bullet list still segments by bullet, not by line - unchanged from
+    # the F05/F08 fix above.
+    bulleted = "- first bullet\n  continued\n- second bullet"
+    assert _value_segments(bulleted) == ("- first bullet\n  continued", "- second bullet")
+    # A single-line or single-sentence value still segments to nothing, exactly as before.
+    assert _value_segments("npm install") == ()
+    assert _value_segments("one line\n") == ()
+
+
+def test_a_quoted_shell_step_is_literal_even_though_the_whole_transcript_never_is() -> None:
+    """G4-W17 arrival item F04 (Aspose.3D-FOSS-for-TypeScript, 2026-09-27). Measured live:
+    ``install_command:npm`` (source-kind, no npm-registry distribution) carries a four-line
+    transcript (``git clone <url>`` / ``cd <dir>`` / ``npm install`` / ``npm run build``) as its
+    own value - 12 distinct tokens, 7 of them spent on the clone URL and its own directory name
+    alone. A ``scope_limitations`` unit citing this fact to name the actual npm-packaging
+    limitation quotes one step verbatim in its own code span (``npm install``); the whole
+    four-line value is far too long and far too specific (a literal git URL) for any composed
+    sentence to ever contain, so the old whole-value-only ``_cited_literal`` never matched, and
+    the whole-value ``_cited_paraphrase`` ratio was diluted by the URL/directory tokens below
+    ``_PARAPHRASE_MIN_OVERLAP`` for a reason unrelated to whether the quote is supported - the
+    finding survived a full repair round with no lever to clear it. Segmenting by line closes it
+    through the literal path, the stronger of the two grounding claims.
+    """
+    transcript = (
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript.git\n"
+        "cd Aspose.3D-FOSS-for-TypeScript\n"
+        "npm install\n"
+        "npm run build"
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                "install_command:npm",
+                "install_command",
+                transcript,
+                (Evidence("package.json"),),
+                attributes={"install_kind": "source"},
+            ),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    quote = (
+        "This package is not published on the npm registry, so build it from source with "
+        "`npm install` and `npm run build`."
+    )
+    unit = {
+        "section": "scope_limitations",
+        "slot": "limitation:3",
+        "text": quote,
+        "fact_ids": ["install_command:npm"],
+    }
+    units = {"units": [unit]}
+    # The finding cites install_command:npm directly (docs/DECISION_LOG.md's own F04 record: "one
+    # finding (F04, causal_stage S6/COMPOSING, scope_limitations) ... fact_ids: ["install_command:
+    # npm"]") - the primary "cites at least one product fact" path (item 39), not the narrower
+    # unit-citation widening item 83 added for inherited_unit facts only.
+    f04 = {
+        **_finding("F04", "scope_limitations", "S6", quote),
+        "criterion": "factuality",
+        "fact_ids": ["install_command:npm"],
+    }
+    assert scope_defect(f04, CANDIDATE, by_id, units=units) == (
+        "the quote contains the literal value of SUPPORTED fact install_command:npm "
+        f"({transcript!r}); literal fact text is supported"
+    )
+    # Mutation control: a quote naming neither shell step, nor the URL, nor the directory - a
+    # genuine, unrelated claim - still stands; segmenting widens WHICH text can ground a quote,
+    # never how loosely the match is judged.
+    weak = {**f04, "quote": "This package has some limitations.", "text": "unrelated"}
+    weak_unit = {**unit, "text": "This package has some limitations."}
+    assert scope_defect(weak, CANDIDATE, by_id, units={"units": [weak_unit]}) is None
+
+
+def test_a_faithful_summary_of_one_bullet_is_not_penalized_for_omitting_its_own_detail() -> None:
+    """G4-W17 arrival item F04 (Aspose.3D-FOSS-for-TypeScript, 2026-09-27), live-measured on a
+    fresh redraw of the same repository under different sampling (a different, later F-number in
+    that draw's own review.json, same underlying mechanism). Segmenting a multi-bullet fact
+    (``_value_segments``, the F05/F08 fix) isolates the ONE bullet a quote restates, but the ratio
+    was still computed as the fact's own tokens found in the quote, over the fact's own token
+    count - the share of the BULLET the quote covers, not the share of the QUOTE the bullet backs.
+    Measured live: ``inherited_unit:074.list``'s own second bullet ("A real npm packaging defect
+    affects 3MF import/export in this FOSS build - a normal package install does not pull in a
+    dependency the 3MF code path needs at runtime, so using it throws immediately.", 21 distinct
+    tokens) is faithfully compressed by the composed quote below, keeping every one of the quote's
+    own 10 distinctive tokens while dropping the bullet's own explanatory "why" clause - a genuine
+    summary, not an invented claim - yet the old fact-side-only ratio (10/21 = 0.476) fell under
+    ``_PARAPHRASE_MIN_OVERLAP`` while the quote's own content was 10/10 = 1.0 grounded.
+    """
+    limitation = (
+        "- Rendering is not implemented in this FOSS build — `Scene.render()` throws an "
+        "error.\n"
+        "- A real npm packaging defect affects 3MF import/export in this FOSS build — a "
+        "normal package\n"
+        "  install does not pull in a dependency the 3MF code path needs at runtime, so using it "
+        "throws\n"
+        "  immediately.\n"
+        "- OBJ import does not currently assign per-face materials from the source file."
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("inherited_unit:074.list", "inherited_unit", limitation, (Evidence("x"),)),
+            Fact(
+                "dependency:development.adm-zip",
+                "dependency",
+                "adm-zip ^0.5.16",
+                (Evidence("package.json"),),
+            ),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    quote = (
+        "A real npm packaging defect affects 3MF import/export so that using it throws immediately."
+    )
+    unit = {
+        "section": "scope_limitations",
+        "slot": "limitation:1",
+        "text": quote,
+        "fact_ids": ["inherited_unit:074.list", "install_command:npm"],
+    }
+    units = {"units": [unit]}
+    # The finding's own self-report cites only a product fact the unit never actually needed for
+    # this claim (docs/DECISION_LOG.md's own live record of this class); grounding comes from the
+    # reviewed unit's own inherited_unit citation, through the same item-83 widening the earlier
+    # tests in this file already exercise.
+    f06 = {
+        **_finding("F06", "scope_limitations", "S6", quote),
+        "criterion": "factuality",
+        "fact_ids": ["dependency:development.adm-zip"],
+    }
+    assert scope_defect(f06, CANDIDATE, by_id, units=units) == (
+        "the quote substantially restates SUPPORTED fact inherited_unit:074.list "
+        f"({limitation!r}) in different words; a faithful paraphrase of cited evidence is "
+        "supported exactly as a literal quote is (G4-W17 item 116)"
+    )
+    # Mutation control: a quote inventing a claim the bullet never makes - not a summary of it -
+    # still stands; the new quote-side ratio grounds only a quote whose OWN content is actually in
+    # the fact, never an unrelated assertion that happens to share a couple of ordinary words.
+    invented = {
+        **f06,
+        "quote": "The library requires a commercial license to use the 3MF importer.",
+        "text": "unrelated",
+    }
+    invented_unit = {
+        **unit,
+        "text": "The library requires a commercial license to use the 3MF importer.",
+    }
+    assert scope_defect(invented, CANDIDATE, by_id, units={"units": [invented_unit]}) is None
 
 
 def test_a_chrome_prefixed_quote_still_finds_its_unit_via_a_closing_anchor() -> None:
