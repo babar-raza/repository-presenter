@@ -1,0 +1,74 @@
+# Portfolio-wide companion to verify-app-installation.yml. That workflow proves OWNER-04's own
+# resume_predicate against the canary alone; this one answers a broader, recurring question - which
+# of the registry's aspose-*-foss organizations actually have the GitHub App (slug
+# repository-presenter, id 5092474) installed - as the owner installs it org by org rather than all
+# at once. One matrix leg per organization, each independently attempting to mint a real installation
+# token scoped to one representative repository in that org via actions/create-github-app-token (the
+# same official action verify-app-installation.yml already uses). A leg fails cleanly, with GitHub's
+# own real error, when the App is not yet installed on that organization - this workflow never
+# guesses or infers installation state, it only reports what a live mint attempt actually returned.
+# fail-fast: false so one org's absence never hides the result for the rest. Never writes anything;
+# no token is ever printed (Actions masks secret-typed outputs automatically; this workflow also
+# never echoes one directly). workflow_dispatch only, matching verify-app-installation.yml's own
+# precedent - this is a point-in-time audit, not a scheduled job.
+name: Audit GitHub App Installations Across Registry Orgs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover-orgs:
+    name: Read one representative repository per registry organization
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.orgs.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Derive org -> representative-repo pairs from data/registry.json
+        id: orgs
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+
+          with open("data/registry.json", encoding="utf-8") as f:
+              data = json.load(f)
+          seen: dict[str, str] = {}
+          for entry in data["entries"]:
+              owner, name = entry["repository"].split("/", 1)
+              seen.setdefault(owner, name)
+          pairs = [{"owner": owner, "repo": repo} for owner, repo in sorted(seen.items())]
+          print("matrix=" + json.dumps({"include": pairs}))
+          PY
+
+  check-installation:
+    name: ${{ matrix.owner }}
+    needs: discover-orgs
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover-orgs.outputs.matrix) }}
+    steps:
+      - name: Attempt to mint an installation token scoped to ${{ matrix.owner }}/${{ matrix.repo }}
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ matrix.owner }}
+          repositories: ${{ matrix.repo }}
+
+      - name: Report this organization's real, observed outcome
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          if [ "${{ steps.app-token.outcome }}" != "success" ]; then
+            echo "INSTALLED=false" >> "$GITHUB_STEP_SUMMARY"
+            echo "${{ matrix.owner }}: NOT installed (token mint failed - App has no installation on this org yet)"
+            exit 0
+          fi
+          full_name=$(gh api "repos/${{ matrix.owner }}/${{ matrix.repo }}" --jq '.full_name')
+          echo "${{ matrix.owner }}: installed - reached $full_name"
