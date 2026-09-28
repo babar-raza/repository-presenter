@@ -156,6 +156,45 @@ def test_an_uninstallable_package_leaves_every_candidate_unverified(tmp_path: Pa
     assert receipts[0].detail.startswith("package install failed")
 
 
+def test_a_workspace_windows_will_not_release_does_not_end_the_stage(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measured 2026-09-27 on Aspose.BarCode for Python: the top-of-function `shutil.rmtree`
+    this replaced raised `PermissionError: [WinError 32] ... being used by another process` on
+    the workspace directory itself, reproducing byte-for-byte on a second, independent `--fresh`
+    draw immediately after - a real, transient Windows/OneDrive lock (java_examples.py and
+    net_examples.py already carry the identical fix for the same symptom under WinError 145),
+    never a permissions defect a caller could fix by chmod alone."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    tree = _package(root)
+    run = tmp_path / "verify"
+    run.mkdir()
+    (run / "stuck.txt").write_text("held open", encoding="utf-8")
+    monkeypatch.setattr(python_examples.shutil, "rmtree", lambda *a, **k: None)
+
+    receipts = verify_python_examples(root, tree, [_candidate(1, "print(1)\n")], run)
+
+    assert [r.outcome for r in receipts] == ["EXECUTED"]
+    # The undeletable directory is untouched; the venv and example ran beside it instead.
+    assert (run / "stuck.txt").exists()
+    assert (tmp_path / "verify-1" / "venv").exists()
+
+
+def test_a_workspace_that_can_never_be_cleaned_is_blocked_not_crashed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Section 29.6 E5: what we could not check is UNRESOLVED, never CONTRADICTED."""
+    monkeypatch.setattr(python_examples, "_fresh_workspace", lambda workspace: None)
+
+    receipts = verify_python_examples(
+        tmp_path, [], [_candidate(1, "print(1)\n")], tmp_path / "verify"
+    )
+
+    assert [r.outcome for r in receipts] == ["NOT_VERIFIED"]
+    assert "no clean workspace" in (receipts[0].detail or "")
+
+
 def test_bootstrap_and_install_are_redirected_into_the_workspace_like_the_example_run(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

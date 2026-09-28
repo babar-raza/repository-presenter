@@ -51,11 +51,43 @@ _REQUIREMENT_NAME = re.compile(r"^[A-Za-z0-9_.-]+")
 PYTHON_TOOLCHAINS_VARIABLE = "RP_PYTHON_TOOLCHAINS"
 # uv writes `version_info = 3.12` into every venv it creates; the stock `venv` writes `version`.
 _VERSION_INFO = re.compile(r"^version(?:_info)?\s*=\s*(\S+)", re.MULTILINE)
+# Same constant, same value, as java_examples.py/net_examples.py's own copies (§7.4 forbids one
+# platform's extractor importing another's, so the small helper below is duplicated, not shared).
+_WORKSPACE_ATTEMPTS = 5
 
 
 def _venv_python(venv: Path) -> Path:
     scripts = venv / ("Scripts" if sys.platform == "win32" else "bin")
     return scripts / ("python.exe" if sys.platform == "win32" else "python")
+
+
+def _fresh_workspace(workspace: Path) -> Path | None:
+    """An empty workspace, even when Windows will not let the last one go.
+
+    This checkout is on OneDrive, which holds handles: measured 2026-09-27 on
+    `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python`, the top-of-function
+    `shutil.rmtree(workspace)` this replaced raised `PermissionError: [WinError 32] ... being used
+    by another process` on the *workspace directory itself* (not a file inside it - all of
+    `venv`/`site`/`cache`/`home`/`example_NNN` had already been removed by the time the final
+    `os.rmdir` ran), reproducing byte-for-byte on a second, independent `--fresh` draw immediately
+    after. Confirmed transient, not a permissions defect: the identical directory removed cleanly
+    moments later with no code change, once whatever held it (OneDrive sync, antivirus scanning
+    the just-created venv's own `python.exe`/DLLs, or contention from this same machine's other
+    concurrent worktrees) let go. `java_examples.py`/`net_examples.py` already carry this exact
+    fix for the same OneDrive symptom under WinError 145 (a stale build's own locked file); this
+    is the identical class one Windows error code over, on Python's own top-level reset instead of
+    a nested build artifact. A run that cannot have the directory back can always have the next
+    one; failing to clean scratch space must never cost a repository its candidate. `None` means
+    every attempt was refused.
+    """
+    for suffix in range(_WORKSPACE_ATTEMPTS):
+        candidate = workspace if suffix == 0 else workspace.with_name(f"{workspace.name}-{suffix}")
+        shutil.rmtree(candidate, ignore_errors=True)
+        if candidate.exists():
+            continue
+        candidate.mkdir(parents=True)
+        return candidate
+    return None
 
 
 def _clip(text: str) -> str:
@@ -379,9 +411,12 @@ def verify_python_examples(
     """Install the clone into a fresh venv and run every candidate; one receipt each."""
     if not candidates:
         return []
-    if workspace.exists():
-        shutil.rmtree(workspace)
-    workspace.mkdir(parents=True)
+    fresh = _fresh_workspace(workspace)
+    if fresh is None:
+        return _all_not_verified(
+            candidates, "no clean workspace to verify examples in (every attempt was refused)"
+        )
+    workspace = fresh
     venv = workspace / "venv"
     site = workspace / "site"
     # Redirected into the workspace like the per-example run below: bootstrap and install are
