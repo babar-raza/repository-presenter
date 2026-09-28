@@ -1,0 +1,17 @@
+{
+  "attempts": {
+    "5be24f04a6deb53de671216f": {
+      "changes": [],
+      "label": "BC-02",
+      "misrouted": false,
+      "outcome": "unrepairable",
+      "reason": "EXTRACTING is not repairable by revision",
+      "request_sha256": null,
+      "section_id": null,
+      "source": "validation",
+      "stage": null
+    }
+  },
+  "composition": "948543a3e2ff8673410cb1eadba5235240614cb31dbee6ea5135ccdc9786f501",
+  "schema_version": 1
+}

@@ -1,0 +1,391 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "scope_limitations/limitation:3"
+    ]
+  },
+  "omitted": [],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:target_framework",
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.bookmark",
+        "public_symbol:aspose.words.comment",
+        "public_symbol:aspose.words.tablestyle",
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat",
+        "public_symbol:aspose.words.nodeimporter",
+        "public_symbol:aspose.words.replacing",
+        "public_symbol:aspose.words.drawing",
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.revisioncollection",
+        "public_symbol:aspose.words.digitalsignatures",
+        "public_symbol:aspose.words.protectiontype",
+        "public_symbol:aspose.words.vba"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Words FOSS for .NET is a .NET library that enables developers to create, read, convert, and manipulate Word documents programmatically without requiring Microsoft Word. It supports a wide range of document formats for input and output, including DOCX, RTF, HTML, and Markdown, allowing applications to process documents across platforms. Developers use this library to automate document generation, merge multiple documents, apply styles, manage revisions, and handle digital signatures, bookmarks, comments, and tables. Built on netstandard2.0, it provides a consistent API surface including Aspose.Words.Document, Aspose.Words.DocumentBuilder, Aspose.Words.Bookmark, Aspose.Words.Comment, Aspose.Words.TableStyle, Aspose.Words.SaveFormat, Aspose.Words.LoadFormat, Aspose.Words.NodeImporter, Aspose.Words.Replacing, Aspose.Words.Drawing, Aspose.Words.Revision, Aspose.Words.RevisionCollection, Aspose.Words.DigitalSignatures, Aspose.Words.ProtectionType, and Aspose.Words.Vba."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.bookmark",
+        "public_symbol:aspose.words.comment",
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.tablestyle"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create and edit Word documents using Aspose.Words.Document and Aspose.Words.DocumentBuilder to build content programmatically, add bookmarks with Aspose.Words.Bookmark, insert comments via Aspose.Words.Comment, and apply table styles through Aspose.Words.TableStyle."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.loadformat",
+        "public_symbol:aspose.words.saveformat"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Convert between formats by loading documents with Aspose.Words.LoadFormat and saving them using Aspose.Words.SaveFormat, supporting formats such as DOCX, RTF, HTML, and Markdown."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.nodeimporter"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Merge and reorganize documents by appending content with Aspose.Words.Document.AppendDocument and importing nodes between documents using Aspose.Words.NodeImporter."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.replacing"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Find and replace text using Aspose.Words.Replacing to perform search-and-replace operations across document content with support for regular expressions and case sensitivity."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Inspect and adjust embedded charts through Aspose.Words.Drawing to access chart objects, modify series, data labels, and formatting directly within the document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.revisioncollection"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Manage tracked changes by reviewing revisions with Aspose.Words.Revision and Aspose.Words.RevisionCollection to accept or reject changes individually or collectively."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Verify digital signatures using Aspose.Words.DigitalSignatures to validate the authenticity and integrity of signed documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.protectiontype",
+        "public_symbol:aspose.words.vba"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Protect documents by applying password or encryption-based protection using Aspose.Words.ProtectionType and managing VBA macros through Aspose.Words.Vba."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "The Aspose.Words.Document class serves as the primary entry point for creating, loading, and manipulating documents, while Aspose.Words.DocumentBuilder offers a convenient way to insert content programmatically."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words.document",
+      "text": "The Aspose.Words.Document class supports loading documents from files or streams using Aspose.Words.LoadFormat, saving them in various formats via Aspose.Words.SaveFormat, and performing operations such as appending documents, tracking revisions, and managing document protection."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.loadformat",
+        "public_symbol:aspose.words.saveformat"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words.saveformat",
+      "text": "Aspose.Words.SaveFormat is an enumeration that defines supported output formats including Docx, Docm, Dotx, Dotm, FlatOpc, FlatOpcMacroEnabled, FlatOpcTemplate, FlatOpcTemplateMacroEnabled, Text, and Markdown."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.nodeimporter"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words.nodeimporter",
+      "text": "Aspose.Words.NodeImporter enables importing nodes from one document to another, supporting operations like ImportNode to transfer content while preserving formatting or adapting it to the target document's styles."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.replacing"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words.replacing",
+      "text": "Aspose.Words.Replacing provides functionality for finding and replacing text within a document, supporting both simple string replacements and more complex pattern-based replacements using regular expressions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words.drawing",
+      "text": "Aspose.Words.Drawing supports working with shapes, pictures, and other drawing objects in a document, allowing developers to insert, modify, and format visual elements programmatically."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.revisioncollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words.revision",
+      "text": "Aspose.Words.Revision and Aspose.Words.RevisionCollection enable tracking and managing tracked changes in a document, including accepting or rejecting individual revisions or all revisions at once."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words.digitalsignatures",
+      "text": "Aspose.Words.DigitalSignatures provides access to digital signatures applied to a document, allowing verification of signature validity and inspection of signature metadata such as sign time and certificate information."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.protectiontype",
+        "public_symbol:aspose.words.vba"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.words.protectiontype",
+      "text": "Aspose.Words.ProtectionType defines the types of protection that can be applied to a document, while Aspose.Words.Vba supports working with Visual Basic for Applications macros embedded in the document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.buildingblocks.buildingblock"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.buildingblocks.buildingblock",
+      "text": "Aspose.Words.BuildingBlocks.BuildingBlock represents a reusable content block that can be inserted into documents, containing structured content such as text, tables, and images with associated metadata like name, category, and gallery."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.document",
+      "text": "Aspose.Words.Document represents a complete document object model that provides access to all content, structure, and properties of a Word document, including sections, paragraphs, and document metadata."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.documentpositionmovement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.documentpositionmovement",
+      "text": "Aspose.Words.DocumentPositionMovement specifies the direction and behavior for moving the document cursor or selection within a document during editing operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.imagedata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.drawing.imagedata",
+      "text": "Aspose.Words.Drawing.ImageData encapsulates image properties and content used in document shapes, enabling programmatic access and modification of embedded or linked images."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.shadowtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.drawing.shadowtype",
+      "text": "Aspose.Words.Drawing.ShadowType defines the style and appearance of shadows applied to shapes in a document, such as offset, blur, and color characteristics."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.shapemarkuplanguage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.drawing.shapemarkuplanguage",
+      "text": "Aspose.Words.Drawing.ShapeMarkupLanguage indicates the markup format used to represent vector shapes within a document, supporting interoperability and rendering consistency."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.inodecollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.inodecollection",
+      "text": "Aspose.Words.INodeCollection provides a read-only interface for iterating over and accessing child nodes within a composite document node."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.lists.list"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.lists.list",
+      "text": "Aspose.Words.Lists.List defines a reusable list template that specifies numbering, bullet, and formatting rules applied to paragraphs in a document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.nodeenumerator"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.nodeenumerator",
+      "text": "Aspose.Words.NodeEnumerator supports forward-only iteration over a collection of document nodes, enabling traversal of the document object model."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.revisiontype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.revisiontype",
+      "text": "Aspose.Words.RevisionType categorizes tracked changes in a document, such as insertions, deletions, and formatting modifications, allowing selective review and acceptance."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.tabstopcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.words.tabstopcollection",
+      "text": "Aspose.Words.TabStopCollection holds a collection of tab stop positions and their alignment and leader settings used for formatting paragraph text."
+    },
+    {
+      "fact_ids": [
+        "link_target:025"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:025",
+      "text": "provides installation instructions, step-by-step walkthroughs, and feature guides for Aspose.Words.FOSS on netstandard2.0"
+    },
+    {
+      "fact_ids": [
+        "link_target:026"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "offers task-focused answers for common Word-document-processing questions encountered when using Aspose.Words.FOSS"
+    },
+    {
+      "fact_ids": [
+        "link_target:027"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:027",
+      "text": "contains the complete, browsable reference for all public types in Aspose.Words.FOSS targeting netstandard2.0"
+    },
+    {
+      "fact_ids": [
+        "link_target:028"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:028",
+      "text": "lets users report bugs or request features for Aspose.Words.FOSS and submit pull requests after discussing non-trivial changes"
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "supplies official documentation and examples that largely apply to Aspose.Words.FOSS because its API matches the commercial edition"
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "details usage recipes for AI coding assistants and conventions for building, testing, and styling code in this repository"
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:065.heading",
+        "inherited_unit:066.paragraph",
+        "inherited_unit:067.list",
+        "inherited_unit:068.paragraph",
+        "install_command:dotnet",
+        "package:name",
+        "package:target_framework",
+        "public_symbol:aspose.words.document"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Words FOSS for .NET provides a minimal, free edition of the Aspose.Words.Document API for .NET developers, targeting netstandard2.0 and installable via dotnet add package Aspose.Words.FOSS."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list",
+        "install_command:dotnet"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "This edition does not support saving to PDF, XPS, or images, nor printing, and layout-dependent field values such as page numbers in a table of contents or NUMPAGES evaluate to zero instead of being computed."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list",
+        "public_symbol:aspose.words.document"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Reading and writing additional formats such as DOC, RTF, ODT, HTML, and EPUB is not supported in this edition."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Mail merge, LINQ Reporting, document comparison, document signing, and embedded-font subsetting are not included."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:068.paragraph"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "The Aspose.Words FOSS for .NET project is intentionally minimal, representing the commercial codebase reduced as far as possible, and the boundary of included functionality may evolve based on community demand."
+    },
+    {
+      "fact_ids": [
+        "identity:family",
+        "identity:platform",
+        "package:name"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose.Words.FOSS is the free and open source version of Aspose.Words for .NET, and the commercial Aspose.Words for .NET adds advanced features such as document protection, digital signatures, and enhanced rendering capabilities."
+    }
+  ]
+}

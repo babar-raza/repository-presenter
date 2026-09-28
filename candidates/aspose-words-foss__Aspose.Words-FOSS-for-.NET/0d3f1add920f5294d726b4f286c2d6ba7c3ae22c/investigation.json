@@ -1,0 +1,191 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "package:name",
+      "install_command:dotnet",
+      "package:target_framework"
+    ],
+    "text": "Developers building .NET applications who need to create, read, edit, and convert Word documents without requiring Microsoft Word or paying for commercial licensing."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.bookmark",
+        "public_symbol:aspose.words.comment",
+        "public_symbol:aspose.words.tablestyle"
+      ],
+      "text": "Create documents from scratch using the Document class and DocumentBuilder, then edit text, formatting, styles, tables, lists, sections, headers, footers, bookmarks, comments, and footnotes.",
+      "title": "Create and edit Word documents"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "text": "Convert documents between DOCX, Markdown, and plain text formats using the Save method with SaveFormat.Docx, SaveFormat.Markdown, and SaveFormat.Text.",
+      "title": "Convert between formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.nodeimporter"
+      ],
+      "text": "Append documents, clone nodes, and import content between documents using AppendDocument, ImportNode, and Clone methods.",
+      "title": "Merge and reorganize documents"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.replacing"
+      ],
+      "text": "Perform text replacement with regular expressions and formatting-aware options using the Replace methods on the Document class.",
+      "title": "Find and replace text"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing"
+      ],
+      "text": "Access chart data, series, axes, legend, and data labels through Chart, ChartSeries, ChartAxis, and ChartDataLabel classes.",
+      "title": "Inspect and adjust embedded charts"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.revisioncollection"
+      ],
+      "text": "Inspect, accept, or reject tracked changes using Revision, RevisionCollection, and AcceptAllRevisions APIs.",
+      "title": "Manage tracked changes"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures"
+      ],
+      "text": "Check whether DOCX files are signed and untampered, inspect certificates, and remove signatures using DigitalSignature APIs.",
+      "title": "Verify digital signatures"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.protectiontype",
+        "public_symbol:aspose.words.vba"
+      ],
+      "text": "Protect documents with passwords and round-trip macro-enabled files (DOCM/DOTM) with their VBA projects intact.",
+      "title": "Protect documents"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "text": "No saving to PDF, XPS, or image formats, and no printing capability."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document"
+      ],
+      "text": "Layout-dependent field values such as page numbers in a TOC evaluate to placeholders rather than computed values."
+    },
+    {
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "text": "Additional formats DOC, RTF, ODT, HTML, and EPUB are not read or written in this edition."
+    },
+    {
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "text": "Mail merge, LINQ Reporting, document comparison, document signing, and embedded-font subsetting are not included."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:platform",
+        "package:name"
+      ],
+      "text": "Enables programmatic Word document processing in .NET applications without Microsoft Office automation."
+    },
+    {
+      "fact_ids": [
+        "identity:repository",
+        "license:spdx",
+        "license:file"
+      ],
+      "text": "Provides a free, open-source alternative to commercial Word processing libraries using the same core engine."
+    },
+    {
+      "fact_ids": [
+        "package:target_framework",
+        "dependency:none"
+      ],
+      "text": "Supports cross-platform document processing on Windows, Linux, and macOS through .NET Standard 2.0 and .NET 8 targets."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "license:spdx"
+    ],
+    "text": "Aspose.Words FOSS for .NET is an open-source .NET library derived from the genuine Aspose.Words commercial codebase, providing document processing capabilities for DOCX, Markdown, and plain text formats."
+  },
+  "uncertainties": [
+    "The exact set of supported formats beyond DOCX, Markdown, and plain text is not fully specified in the facts.",
+    "Whether the library supports reading or writing RTF, HTML, or EPUB beyond what is stated in the inherited README is unclear from the fact set.",
+    "The specific behavior of layout-dependent fields when evaluated is not detailed beyond placeholder behavior."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder"
+      ],
+      "name": "Document creation and editing",
+      "text": "Developers create new documents using the Document class or DocumentBuilder, then edit content, formatting, tables, and styles programmatically."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "name": "Format conversion",
+      "text": "Documents are converted between DOCX, Markdown, and plain text formats using the Save method with appropriate SaveFormat values."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.nodeimporter"
+      ],
+      "name": "Document merging and reorganization",
+      "text": "Developers combine documents using AppendDocument, clone content with ImportNode, and reorganize sections and paragraphs."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.revisioncollection"
+      ],
+      "name": "Revision management",
+      "text": "Tracked changes are inspected, accepted, or rejected through the Revision and RevisionCollection APIs."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document"
+      ],
+      "name": "Field updating",
+      "text": "Document fields are updated using the UpdateFields method, though layout-dependent values evaluate to placeholders."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures"
+      ],
+      "name": "Digital signature verification",
+      "text": "Existing digital signatures in DOCX files are verified for authenticity and integrity using the DigitalSignature APIs."
+    }
+  ]
+}
