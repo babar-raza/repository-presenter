@@ -701,7 +701,12 @@ Not new gates — a consolidated reading of what G5's own work items and owner i
 gathered here so it is not lost across documents:
 
 - `OWNER-04` resolved (App created, installed, secrets stored) — automation ready
-  (`tools/github_app/`), one owner click away.
+  (`tools/github_app/`), one owner click away. **Partially done 2026-09-27**: app registered
+  (id `5092474`), five credentials stored as repo secrets, and installed on `aspose-3d-foss`
+  for testing (a real GitHub gotcha found and fixed along the way — a *private* app can never
+  be installed on any org, only its own owning account; the app is now public, per
+  `docs/DECISION_LOG.md` this date). Still open: installation on the remaining `aspose-*-foss`
+  orgs, pending the owner confirming the test org works first.
 - The durable state backend built (`state/git_backend.py`, `cas.py`, `trigger_v2.py`,
   `recovery.py`, `health.py`, `freshness_contract.py` per ESM G5 work item 2) — confirmed absent
   from `src/` today.
@@ -722,6 +727,14 @@ gathered here so it is not lost across documents:
   GitHub's own secret injection) are in `docs/DECISION_LOG.md`, this timestamp. `present.yml` is
   not built — this checklist item covers only `monitor.yml`, and only this one narrow slice of
   section 20's overall requirements; every other line on this list is still open.
+- `verify-app-installation.yml` authored 2026-09-27, `act`-tested for structural validity locally
+  (secrets/live App auth cannot be exercised outside GitHub's own runner by design). Mints a real
+  installation token via `actions/create-github-app-token`, scoped to the canary repository alone,
+  and performs one read-only API call with it — the first live proof, once run, that `OWNER-04`'s
+  own resume_predicate ("a hosted workflow run mints a read-only installation token for the canary
+  repository") is actually met, not just that credentials exist. Not yet run against a live
+  installation as of authoring; pending the owner's `aspose-3d-foss` test installation being
+  confirmed reachable.
 - The gateway's real rate-limit behavior measured under parallel composition (§20.3), before the
   Actions matrix's fan-out width is chosen.
 - G4 substantively closed — every registry entry carries a disposition — since G5 formally opens
