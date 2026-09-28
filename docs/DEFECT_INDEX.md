@@ -61,29 +61,32 @@ the same revision (`docs/DECISION_LOG.md`, 2026-09-27) did not sample the attemp
 attempt-2-deletion sequence this fix corrects, so it is not yet moved to Resolved - the mechanism
 is fixed and mutation-tested, but not yet measured firing live on this or any other repository.
 
-### `composition.planning.rc01_backstop_vs_link_ceiling_trim_ordering`
+### `composition.coherence.inherited_diagram_content_loss`
 
-`planning.py`'s `plan_checks` runs the RC-01 links backstop (which appends every disposition-
-required `link_target` fact a unit names, per `_missing_links`) *before* the Aspose-link-ceiling
-trim (`DEFAULT_POLICY.aspose_links_max`). The trim then keeps only the first N Aspose-domain links
-it encounters in the disposition's own `fact_ids` insertion order — which carries no priority
-signal at all — silently dropping whichever backstop-appended, deterministically-required link
-lands last. The trim's own reasoning (favor whichever links the model named first) is sound for the
-model's own free-choice links; it does not hold for backstop-injected ones, which the model never
-chose to prioritize in the first place.
+Independent review's presentation criterion can catch S7 authoring/coherence rewriting an
+inherited Mermaid diagram (an "At a glance"/"What it can do"-shaped original) into a simplified
+form that drops specific capability, structure, or input/output detail the original carried - but
+no deterministic check exists for this at all (unlike, say, `unit_checks`'s title-restatement
+carve-out), so whether the loss is caught depends entirely on whether that draw's own independent-
+review sample happens to notice it. A `targeted_repair` round on the finding does not reliably
+restore the missing content either (both listed sightings below survived one repair round with the
+rejection still standing). Distinct from `section_authoring.rejection_no_recover` above: that
+mechanism is about a deterministic `unit_checks` rule being satisfied and then broken by a
+recovery step with no fallback; this one has no deterministic check on either side; only an
+independent-review sample, present or absent, decides whether the loss is ever caught.
 
 | # | Repository | Date | Evidence |
 |---|---|---|---|
-| 1 | `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` | 2026-09-17 10:53 UTC | `docs/DECISION_LOG.md` on branch `item92-slides-net-redraw` (commit `654d115`, never merged to `main` — stranded 9 days, found via a `liveness.yml` failure on 2026-09-25 and backfilled into this index only now) |
+| 1 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | 2026-09-27 | `docs/DECISION_LOG.md` (the `recover_section_authoring_output`/item-4-sighting entry above): independent review's `F02` finding - "the candidate's `at_a_glance` Mermaid diagram omits specific capabilities and the input/output structure the original's diagram carried" - survived one `targeted_repair` round, `BC-10 REJECT_PRESENTATION` standing; recorded there as "a real, different, currently out-of-scope defect this work item was not asked to fix." |
+| 2 | `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` | 2026-09-27 05:33 UTC | `docs/DECISION_LOG.md` (this session's RC-01 verification entry): two independent fresh draws of the same revision (`86c441b5...`) each hit `BC-10 REJECT_PRESENTATION` after one repair round, both findings at `causal_stage S7`/`section_id key_capabilities` - draw 3's F07 ("rewrites the original README's 'At a glance' Mermaid diagram as a simplified flowchart..., losing the original's structure and XML output references") and draw 4's F03 (omits 3D-properties/document-properties capabilities the original's "What it can do" list names) - a different specific gap each time, same location and shape. |
 
-**Status 2026-09-26**: one sighting, not yet escalated (below the 3-sighting threshold). Recorded
-here specifically so it is never lost again the way it was for 9 days on an unmerged branch —
-`docs/DEFECT_INDEX.md`'s whole purpose is to survive a branch going stranded. Repository not sealed;
-its `READY_FOR_PROPOSAL` bundle was deliberately never committed (would have turned
-`test_no_link_completeness_gap` red for everyone). Proposed fix, not implemented: reserve ceiling
-headroom for RC-01 backstop links before trimming the model's own free-choice links, or trim from
-the model's own links first and never touch backstop-injected ones — owner's choice, not
-prescribed.
+**Status 2026-09-27**: two sightings, both today, on two different repositories in the same
+product family (`aspose-slides-foss`, Java and .NET) - below the 3-sighting escalation threshold
+but the pattern is now visible enough to name. No fix proposed yet; whoever picks this up next
+should start from `composition/authoring.py`'s and S7 coherence's own handling of an inherited
+Mermaid diagram/capability list (the same slot-rendering code path item 4 above already touched
+for a different sub-problem) and consider whether a deterministic check belongs somewhere in this
+path at all, given no reliable one currently exists.
 
 ## Resolved
 
@@ -100,3 +103,71 @@ any multi-bullet fact.
 
 **Fixed** 2026-09-24, commit `9596a92` (`_value_segments` scopes the check per-bullet;
 `REVIEWER_LOGIC_VERSION` 11→12). Verified against Email-Python's own reseal (F08 did not recur).
+
+### `composition.planning.rc01_backstop_vs_link_ceiling_trim_ordering`
+
+`planning.py`'s `plan_checks` ran the RC-01 links backstop (which appends every disposition-
+required `link_target` fact a unit names, per `_missing_links`) *before* the Aspose-link-ceiling
+trim (`DEFAULT_POLICY.aspose_links_max`). The trim then kept only the first N Aspose-domain links
+it encountered in the disposition's own `fact_ids` insertion order — which carries no priority
+signal at all — silently dropping whichever backstop-appended, deterministically-required link
+landed last. The trim's own reasoning (favor whichever links the model named first) is sound for
+the model's own free-choice links; it does not hold for backstop-injected ones, which the model
+never chose to prioritize in the first place.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` | 2026-09-17 10:53 UTC | `docs/DECISION_LOG.md` on branch `item92-slides-net-redraw` (commit `654d115`, never merged to `main`) |
+
+**Correction, 2026-09-27: this entry's own previous text (added 2026-09-26) was wrong about the
+fix's own status.** It read "Proposed fix, not implemented" from the stranded `item92-slides-net-
+redraw` branch (a docs-only sighting, commit `654d115`) alone, without checking whether `main` had
+already landed a fix independently. It had: commit `4b92ce3` (G4-W17 items 120/122/125), landed the
+*same day* as the sighting, roughly 6.5 hours later, names this exact repository and mechanism in
+its own commit message and inline comments. `4b92ce3` is confirmed an ancestor of `origin/main`
+(`git merge-base --is-ancestor`).
+
+**Fixed**, `4b92ce3` (`composition/planning.py::plan_checks`): `_required_link_sections` computes
+every `VERIFIED_REWRITE`-required `link_target` independent of the plan's own links; `required_aspose`
+counts how many of those are Aspose-domain; `trim_ceiling = max(policy.aspose_links_max -
+preserved_aspose - required_aspose, 0)` reserves that many slots before the trim ever runs; and the
+trim loop (`if is_aspose and target not in required_link_sections`) never removes a required link
+regardless of insertion order — only the model's own optional Aspose links are still trimmed.
+Offline test `test_five_disposition_required_aspose_links_survive_the_ceiling_trim_unconditionally`
+(`tests/components/readme/composition/test_planning.py`) mirrors this repository's own original
+five-links-against-a-ceiling-of-four shape byte for byte and passes.
+
+**Verified live, 2026-09-27**, four fresh `present --repo aspose-slides-foss/Aspose.Slides-FOSS-
+for-.NET --fresh` draws in an isolated worktree, current revision `86c441b5d81e707f2ea9e01b197dbb6ff7a3859b`:
+every draw that reached `plan.json` (three of four) produced it with no link-completeness-gap defect
+(`tests/test_bundle_audits.py::test_no_link_completeness_gap`'s own check class). This revision's
+own `dispositions.json` no longer names a `VERIFIED_REWRITE` with five `link_target` facts against
+the ceiling of four (content has drifted since the original 2026-09-17 sighting) — so this is
+corroborating evidence the mechanism no longer misbehaves in the real pipeline, not a byte-for-byte
+reproduction of the original failing shape followed by a live clear. Combined with the fix reading
+correct by construction and the offline test's exact mirror of the original shape, that is enough to
+close this entry.
+
+**Repository still not sealed, for a wholly separate, unrelated reason**, out of this mechanism's own
+scope. Draw 1: `HTTP 500` from the LLM gateway at S3 `repository_investigation` (3 retries exhausted;
+cleared on retry, did not recur — flaky-backend class already documented elsewhere in this file's
+history). Draw 2: got past S3-S8, then `HTTP 504` unreachable on the GitHub `.../issues` reachability
+check at BC-06 (cleared on retry, did not recur — flaky-network class, also already documented).
+Draws 3 and 4: both got past BC-06 and both were rejected `REJECT_PRESENTATION` at S9/BC-10 after one
+repair round each — the same causal stage and section both times (`causal_stage: S7`, `section_id:
+key_capabilities`), but a *different* specific finding each time (draw 3, F07: "the candidate
+rewrites the original README's 'At a glance' Mermaid diagram as a simplified flowchart in 'Key
+Capabilities', losing the original's structure and XML output references"; draw 4, F03: "the
+candidate's Key Capabilities section is a generic template that omits specific capabilities like 3D
+properties and document properties, which are verified by the original README's 'What it can do'
+list"). Two equivalent failures at the same stage/section (draws 3 and 4) is this session's own
+stopping point per `AGENTS.md`'s two-equivalent-attempts rule — a fifth draw was not attempted.
+Notably, a *prior* session's own `docs/DECISION_LOG.md` entry (the `coordinate_neighbor_promises`/
+BC-10 verification, PR #129) drew this exact same revision twice and got a clean `ACCEPT` both times
+— so this revision is capable of sealing under the current code; the two S7/`key_capabilities`
+rejections here look like this project's own already-documented class-I review-sampling
+nondeterminism landing unluckily twice in a row on the same section, rather than a newly-introduced,
+reliably-reproducible defect. Recorded honestly, not fixed, and not yet its own arrival-list
+admission: `composition`'s S7 authoring/coherence handling of `key_capabilities` for this repository
+does not reliably preserve every inherited capability/diagram element the original README carries,
+and independent review's presentation criterion can (not always) catch the gap.
