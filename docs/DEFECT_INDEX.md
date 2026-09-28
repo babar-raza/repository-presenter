@@ -45,12 +45,29 @@ repair budget exhausts), tracked as one mechanism because the fix pattern is ide
 | 1 | `aspose-page-foss/Aspose.Page-FOSS-for-Python` | forbidden-literal | 2026-09-24 14:25 UTC | `docs/DECISION_LOG.md`, never sealed until fixed |
 | 2 | `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` | title-restatement (repair path) | 2026-09-25 08:04 UTC | `docs/DECISION_LOG.md`, reseal regression |
 | 3 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement (repair path) | 2026-09-25 07:13 UTC (and `docs/RESEARCH_LANE_C.md` G4-W12-RERUN7 through RERUN13, earlier) | 7+ reruns, recurring |
-| 4 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement (initial-draft path) | 2026-09-27 | `docs/DECISION_LOG.md`, reseal blocked - all 6 `key_capabilities` units regressed on the attempt meant to fix an unrelated rejection |
+| 4 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | title-restatement (initial-draft path) | 2026-09-26 03:06-08:35 UTC, corroborated 2026-09-27 | `docs/DECISION_LOG.md` — first surfaced when `section_authoring` exhausted its 2-attempt budget without ever reaching review; root-caused and fixed 2026-09-27 |
+
+**Status 2026-09-25**: crossed 3 sightings; escalated same day per the owner's direct instruction.
+Forbidden-literal and title-restatement (repair path) both have a landed fix: forbidden-literal via
+`composition/authoring.py::recover_forbidden_command_units` (commit `1fff7d7`); title-restatement
+(repair path) via a deterministic backstop for review's stricter standard (commit
+`fadb001`/`a313864`).
+
+**Status 2026-09-26 (verification session, full detail in `docs/DECISION_LOG.md` this timestamp)**:
+both `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` and
+`aspose-slides-foss/Aspose.Slides-FOSS-for-Java` were drawn live (a transient gateway outage on
+`qwen3-next` was hit first, confirmed via a direct probe, and cleared on its own ~25 minutes later
+— not code-related). Neither sealed. **BarCode-Python**: the title-restatement finding surfaced
+only as an uncorroborated advisory this draw, never a blocker, so `fadb001`'s own repair-path
+mechanism was never exercised either way; the candidate blocked instead on a new, unrelated defect
+(`F08`, `development_testing`). **Slides-Java**: never reached independent review at all — the new
+sighting #4 above (the initial-draft path), which `fadb001` does not cover by design (scoped to the
+separate repair-path call site only).
 
 **Status 2026-09-27**: all three sub-shapes now have a landed fix. Forbidden-literal via
 `composition/authoring.py::recover_forbidden_command_units` (commit `1fff7d7`); title-restatement
 (repair path) via a deterministic backstop for review's stricter standard (commit
-`fadb001`/`a313864`); title-restatement (initial-draft path, this 4th sighting) via
+`fadb001`/`a313864`); title-restatement (initial-draft path, sighting #4) via
 `composition/authoring.py::recover_section_authoring_output`, which composes
 `recover_forbidden_command_units` with the same opening-clause strip
 `recover_title_verbatim_opening` already uses for the repair path, wired as
@@ -59,7 +76,10 @@ repair budget exhausts), tracked as one mechanism because the fix pattern is ide
 (`tests/components/readme/composition/test_authoring.py`); a fresh live redraw of Slides-Java at
 the same revision (`docs/DECISION_LOG.md`, 2026-09-27) did not sample the attempt-1-detail/
 attempt-2-deletion sequence this fix corrects, so it is not yet moved to Resolved - the mechanism
-is fixed and mutation-tested, but not yet measured firing live on this or any other repository.
+is fixed and mutation-tested, but not yet measured firing live on this or any other repository. The
+repair-path fix (sightings 2-3) also remains landed but not yet live-verified as a success against
+either of its own originating repositories - BarCode-Python's own reseal is still separately
+blocked on the unrelated `F08` finding above.
 
 ### `composition.coherence.inherited_diagram_content_loss`
 
