@@ -107,11 +107,21 @@ rulings above.
   `repository-presenter redetect-upstream-defects`, `core/github/read_client.py` for the
   read-only file/tree/default-branch-head reads it needs). The actual `gh issue create`/`close`
   calls, and auto-close-on-fix (which needs them), stay gated on `OWNER-04`/G5.
-- WS4: `Registry.validate_stable_identities`'s `node_id`-relaxation fix, and porting the
-  family/platform classifier from `Aspose/aspose.org` into `tools/discovery/` — **both ready for a
-  taskcard**.
+- WS4: `Registry.validate_stable_identities`'s `node_id`-relaxation fix — **landed** (`0927d86`).
+  The family/platform classifier port into `tools/discovery/portfolio_discovery.py` — **landed**
+  (`7b10ae1`, `classify_repo_name`, tested against the real 2026-09-11 mixed-case miss); a
+  follow-up auto-admission policy for future discovery finds also landed (`cd0eb02`, OWNER-08).
+  **Status corrected 2026-09-28** — this line previously read "both ready for a taskcard,"
+  which was stale; both pieces were already complete in `src/`/`tools/` by the time that line
+  was re-read. Whoever next updates this section, verify against `git log`/the actual file
+  before writing a status word here, not against this document's own prior text.
 - WS5: worktree-isolation-for-every-write-role — **already standing practice**, effective now, no
-  code change needed. Two hardening items (push-retry wrapper, PROPOSAL-sweep) queued, unscheduled.
+  code change needed. Both hardening items — the push-retry wrapper (`tools/git/push_retry.py`,
+  fetch→rebase→bounded-retry-push, auto-resolves only the narrow append-only
+  `DECISION_LOG.md`/`RESEARCH_AND_GUIDELINES.md` conflict shape) and the `RESEARCH_LANE_*.md`
+  PROPOSAL-sweep (`tools/research_sweep/proposal_sweep.py`, read-only, report-only) — are
+  **landed and tested**. **Status corrected 2026-09-28** — this line previously read "queued,
+  unscheduled"; both were already implemented.
 - WS6: design principles adopted; **no code ready** — this gate cannot execute live before Gates A
   and B are complete for the current registry, per `idea.md`'s own ordering rule, and the first
   live push needs separate owner authorization regardless.
