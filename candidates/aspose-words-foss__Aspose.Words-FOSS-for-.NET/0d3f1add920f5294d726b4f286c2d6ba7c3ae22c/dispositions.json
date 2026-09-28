@@ -1,0 +1,1042 @@
+{
+  "dispositions": [
+    {
+      "destination_section": "identity",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework"
+      ],
+      "rationale": "The H1 heading matches the canonical product name verified by identity:repository.",
+      "unit_id": "inherited_unit:001.heading"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "license:spdx",
+        "package:target_framework",
+        "dependency:none"
+      ],
+      "rationale": "The paragraph's substance is covered by the newly authored opening section, which synthesizes product summary, audience, and problems solved from facts.",
+      "unit_id": "inherited_unit:002.paragraph"
+    },
+    {
+      "destination_section": "badges",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:spdx",
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "link_target:product.banner",
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The MIT license badge is supported by license:spdx and the LICENSE link target.",
+      "unit_id": "inherited_unit:003.badge_row"
+    },
+    {
+      "destination_section": "at_a_glance",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "rationale": "The 'At a Glance' heading is superseded by the Mermaid flowchart under at_a_glance, which is rendered from verified capabilities and formats.",
+      "unit_id": "inherited_unit:004.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "rationale": "The Mermaid flowchart is supported by the verified capabilities and formats and matches the required structure for at_a_glance.",
+      "unit_id": "inherited_unit:005.code_block"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The 'Navigation' heading is rendered by the deterministic navigation section; the list content is superseded by the navigation list generated from link_target:0",
+      "unit_id": "inherited_unit:006.heading"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017"
+      ],
+      "rationale": "The navigation list is superseded by the navigation section, which is deterministically generated from the verified link targets.",
+      "unit_id": "inherited_unit:007.list"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat",
+        "public_symbol:aspose.words.nodeimporter",
+        "public_symbol:aspose.words.replacing",
+        "public_symbol:aspose.words.drawing",
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.digitalsignatures",
+        "public_symbol:aspose.words.protectiontype",
+        "public_symbol:aspose.words.vba"
+      ],
+      "rationale": "The 'What it can do' heading is superseded by the Key Capabilities section, whose items are derived from the accepted investigation's capabilities.",
+      "unit_id": "inherited_unit:008.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat",
+        "public_symbol:aspose.words.nodeimporter",
+        "public_symbol:aspose.words.replacing",
+        "public_symbol:aspose.words.drawing",
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.digitalsignatures",
+        "public_symbol:aspose.words.protectiontype",
+        "public_symbol:aspose.words.vba"
+      ],
+      "rationale": "The list of capabilities is superseded by the Key Capabilities section, which re-authors the same substance from the accepted investigation.",
+      "unit_id": "inherited_unit:009.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about target frameworks and SkiaSharp is not supported by any fact; the facts only specify netstandard2.0 and do not mention .NET Framework 4.6.2,",
+      "unit_id": "inherited_unit:010.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:dotnet",
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "rationale": "The 'Supported formats' heading is superseded by the Scope and Limitations section, which includes format support and absence of other formats.",
+      "unit_id": "inherited_unit:011.heading"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:dotnet",
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "rationale": "The format table is superseded by the Scope and Limitations section, which states the supported and unsupported formats from facts.",
+      "unit_id": "inherited_unit:012.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about requesting additional formats via issues is unsupported; link_target:020 is CONTRADICTED, and no other support exists.",
+      "unit_id": "inherited_unit:013.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "rationale": "The 'Getting started' heading is superseded by the Installation section, which is deterministically rendered from install_command:dotnet.",
+      "unit_id": "inherited_unit:014.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "rationale": "The install instruction is superseded by the Installation section, which is deterministically rendered from install_command:dotnet.",
+      "unit_id": "inherited_unit:015.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "rationale": "The install command code block is directly supported by install_command:dotnet and placed in the Installation section.",
+      "unit_id": "inherited_unit:016.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about the single assembly and namespaces is unsupported; no fact confirms the assembly name or namespace structure.",
+      "unit_id": "inherited_unit:017.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The build-from-source instructions are unsupported; no fact provides a build command or project structure.",
+      "unit_id": "inherited_unit:018.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [],
+      "rationale": "The build code block is unsupported; no fact provides a build command or project structure.",
+      "unit_id": "inherited_unit:019.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The project reference instruction is unsupported; no fact provides a build command or project structure.",
+      "unit_id": "inherited_unit:020.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.ilrepack",
+        "dependency:none",
+        "package:target_framework"
+      ],
+      "rationale": "The 'Dependencies' heading is placed in the deterministic Dependencies section.",
+      "unit_id": "inherited_unit:021.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.ilrepack",
+        "dependency:none",
+        "package:target_framework"
+      ],
+      "rationale": "The 'Required Package Dependencies' heading is placed in the deterministic Dependencies section.",
+      "unit_id": "inherited_unit:022.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The list of specific package versions is unsupported; the facts only confirm 'none' for dependencies and do not list SkiaSharp, BitMiracle, etc.",
+      "unit_id": "inherited_unit:023.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.ilrepack",
+        "dependency:none",
+        "package:target_framework"
+      ],
+      "rationale": "The 'Native and System Requirements' heading is placed in the deterministic Dependencies section.",
+      "unit_id": "inherited_unit:024.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The list of SDK and native requirements is unsupported; the facts only specify netstandard2.0 and do not mention Linux SkiaSharp requirements.",
+      "unit_id": "inherited_unit:025.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.ilrepack",
+        "dependency:none",
+        "package:target_framework"
+      ],
+      "rationale": "The 'Development Dependencies' heading is placed in the deterministic Dependencies section.",
+      "unit_id": "inherited_unit:026.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The list of test dependencies is unsupported; the facts do not mention test packages or Newtonsoft.Json.",
+      "unit_id": "inherited_unit:027.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about development dependencies not being shipped is unsupported; no fact confirms this.",
+      "unit_id": "inherited_unit:028.paragraph"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "rationale": "The 'A quick example' heading is superseded by the Quick Start section, which is rendered from the example fact_ids.",
+      "unit_id": "inherited_unit:029.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.loadformat",
+        "public_symbol:aspose.words.saveformat"
+      ],
+      "rationale": "The example code block is supported by the verified public symbols and placed in the Quick Start section.",
+      "unit_id": "inherited_unit:030.code_block"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:022",
+        "public_symbol:aspose.words"
+      ],
+      "rationale": "The paragraph about official documentation is supported by link_target:022 and moved to the Documentation & Resources section.",
+      "unit_id": "inherited_unit:031.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "rationale": "The 'Additional Examples' heading is supported by link_target:023 and placed in the Additional Examples section.",
+      "unit_id": "inherited_unit:032.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "rationale": "The paragraph about AGENTS.md is supported by link_target:023 and moved to the Additional Examples section.",
+      "unit_id": "inherited_unit:033.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.revisioncollection"
+      ],
+      "rationale": "The 'Accept All Tracked Changes' heading is supported by the revision public symbols and placed in Additional Examples.",
+      "unit_id": "inherited_unit:034.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.revisioncollection"
+      ],
+      "rationale": "The 'Accept All Tracked Changes' code block is supported by the revision public symbols and placed in Additional Examples.",
+      "unit_id": "inherited_unit:035.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The HTML details block is unsupported; no fact confirms its presence or structure.",
+      "unit_id": "inherited_unit:036.html_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.nodeimporter"
+      ],
+      "rationale": "The 'Merge Two Documents' heading is supported by the document and nodeimporter public symbols and placed in Additional Examples.",
+      "unit_id": "inherited_unit:037.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.nodeimporter"
+      ],
+      "rationale": "The 'Merge Two Documents' code block is supported by the document and nodeimporter public symbols and placed in Additional Examples.",
+      "unit_id": "inherited_unit:038.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "rationale": "The 'Convert Markdown to DOCX' heading is supported by the saveformat and loadformat public symbols and placed in Additional Examples.",
+      "unit_id": "inherited_unit:039.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.words.loadformat",
+        "public_symbol:aspose.words.saveformat"
+      ],
+      "rationale": "The 'Convert Markdown to DOCX' code block is supported by the saveformat and loadformat public symbols and placed in Additional Examples.",
+      "unit_id": "inherited_unit:040.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.charts.chartdatalabel"
+      ],
+      "rationale": "The heading 'Read and Adjust an Embedded Chart's Data Labels' describes a specific chart capability supported by ChartDataLabel and related types.",
+      "unit_id": "inherited_unit:041.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.charts.chartdatalabel"
+      ],
+      "rationale": "The paragraph introduces a chart data label example and matches the scope of the Additional Examples section.",
+      "unit_id": "inherited_unit:042.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:005",
+        "public_symbol:aspose.words.drawing.charts.chartdatalabel"
+      ],
+      "rationale": "The code block demonstrates chart data label manipulation and is supported by the public symbol evidence.",
+      "unit_id": "inherited_unit:043.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The closing </details> tag is a non-content separator.",
+      "unit_id": "inherited_unit:044.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The 'API Reference' heading matches the destination section ID and is supported by the repository identity.",
+      "unit_id": "inherited_unit:045.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The paragraph introduces the API reference but its substance is superseded by the deterministic content of the API Reference section.",
+      "unit_id": "inherited_unit:046.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The opening <details> tag is a non-content separator.",
+      "unit_id": "inherited_unit:047.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The 'Core API' heading is a valid subsection of the API Reference section.",
+      "unit_id": "inherited_unit:048.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.words",
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder"
+      ],
+      "rationale": "The table lists core API classes supported by the public symbols and matches the API Reference section scope.",
+      "unit_id": "inherited_unit:049.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The 'Interfaces' heading is a valid subsection of the API Reference section.",
+      "unit_id": "inherited_unit:050.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.idocumentreaderplugin",
+        "public_symbol:aspose.words.fields.ibibliographystylesprovider"
+      ],
+      "rationale": "The table lists interfaces supported by the public symbols and matches the API Reference section scope.",
+      "unit_id": "inherited_unit:051.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The 'Enumerations' heading is a valid subsection of the API Reference section.",
+      "unit_id": "inherited_unit:052.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.breaktype",
+        "public_symbol:aspose.words.saveformat"
+      ],
+      "rationale": "The table lists enumerations supported by the public symbols and matches the API Reference section scope.",
+      "unit_id": "inherited_unit:053.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The 'Detailed Member Reference' heading is a valid subsection of the API Reference section.",
+      "unit_id": "inherited_unit:054.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The 'Document and DocumentBuilder' heading is a valid subsection of the API Reference section.",
+      "unit_id": "inherited_unit:055.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder"
+      ],
+      "rationale": "The list item details Document and DocumentBuilder members supported by the public symbols.",
+      "unit_id": "inherited_unit:056.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.documentbuilder"
+      ],
+      "rationale": "The list item details DocumentBuilder members supported by the public symbols.",
+      "unit_id": "inherited_unit:056.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.saveformat"
+      ],
+      "rationale": "The list item details SaveFormat enum members supported by the public symbols.",
+      "unit_id": "inherited_unit:056.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "rationale": "The list item details LoadFormat enum members supported by the public symbols.",
+      "unit_id": "inherited_unit:056.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "rationale": "The list item details LoadOptions supported by the public symbols.",
+      "unit_id": "inherited_unit:056.005.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The 'Document Structure' heading is a valid subsection of the API Reference section.",
+      "unit_id": "inherited_unit:057.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.paragraph"
+      ],
+      "rationale": "The list item details core document structure nodes supported by the public symbols.",
+      "unit_id": "inherited_unit:058.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.tablestyle"
+      ],
+      "rationale": "The list item details table structure supported by the public symbols.",
+      "unit_id": "inherited_unit:058.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.bookmark"
+      ],
+      "rationale": "The list item details Bookmark members supported by the public symbols.",
+      "unit_id": "inherited_unit:058.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.headerfooter"
+      ],
+      "rationale": "The list item details HeaderFooter members supported by the public symbols.",
+      "unit_id": "inherited_unit:058.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.comment",
+        "public_symbol:aspose.words.notes.footnote"
+      ],
+      "rationale": "The list item details Comment and Footnote members supported by the public symbols.",
+      "unit_id": "inherited_unit:058.005.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.style",
+        "public_symbol:aspose.words.font"
+      ],
+      "rationale": "The list item details Style and Font members supported by the public symbols.",
+      "unit_id": "inherited_unit:058.006.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.paragraphformat"
+      ],
+      "rationale": "The list item details ParagraphFormat members supported by the public symbols.",
+      "unit_id": "inherited_unit:058.007.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The 'Fields, Tracked Changes, Protection, and Signatures' heading is a valid subsection of the API Reference section.",
+      "unit_id": "inherited_unit:059.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.fields.field"
+      ],
+      "rationale": "The list item details Field members supported by the public symbols.",
+      "unit_id": "inherited_unit:060.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.revision"
+      ],
+      "rationale": "The list item details Revision members supported by the public symbols.",
+      "unit_id": "inherited_unit:060.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures.digitalsignature"
+      ],
+      "rationale": "The list item details DigitalSignature members supported by the public symbols.",
+      "unit_id": "inherited_unit:060.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures.certificateholder"
+      ],
+      "rationale": "The list item details CertificateHolder members supported by the public symbols.",
+      "unit_id": "inherited_unit:060.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The 'Charts' heading is a valid subsection of the API Reference section.",
+      "unit_id": "inherited_unit:061.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.charts.chart"
+      ],
+      "rationale": "The list item details Chart members supported by the public symbols.",
+      "unit_id": "inherited_unit:062.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.charts.chartseries"
+      ],
+      "rationale": "The list item details ChartSeries members supported by the public symbols.",
+      "unit_id": "inherited_unit:062.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.charts.chartaxis"
+      ],
+      "rationale": "The list item details ChartAxis members supported by the public symbols.",
+      "unit_id": "inherited_unit:062.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.charts.chartlegend"
+      ],
+      "rationale": "The list item details ChartLegend members supported by the public symbols.",
+      "unit_id": "inherited_unit:062.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing.charts.chartdatalabel"
+      ],
+      "rationale": "The list item details ChartDataLabel members supported by the public symbols.",
+      "unit_id": "inherited_unit:062.005.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "rationale": "The paragraph summarizes the API surface count but its substance is superseded by the deterministic content of the API Reference section.",
+      "unit_id": "inherited_unit:063.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The closing </details> tag is non-content HTML used for collapsible sections.",
+      "unit_id": "inherited_unit:064.html_block"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "inherited_unit:065.heading"
+      ],
+      "rationale": "The heading '## What's not included (and where to get it)' is moved to the Scope and Limitations section as it introduces limitations content.",
+      "unit_id": "inherited_unit:065.heading"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "inherited_unit:066.paragraph"
+      ],
+      "rationale": "The paragraph introducing the exclusions is preserved as it directly supports the Scope and Limitations section.",
+      "unit_id": "inherited_unit:066.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "rationale": "The list of excluded features (PDF, XPS, images, additional formats, mail merge, etc.) is preserved as it directly supports the Scope and Limitations section.",
+      "unit_id": "inherited_unit:067.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "inherited_unit:068.paragraph"
+      ],
+      "rationale": "The paragraph clarifying the current minimum scope and inviting feedback is preserved as it supports the Scope and Limitations section.",
+      "unit_id": "inherited_unit:068.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "inherited_unit:069.paragraph",
+        "link_target:product.enterprise"
+      ],
+      "rationale": "The paragraph directing users to the commercial product is moved to the Enterprise Relationship section as it relates FOSS to the enterprise offering.",
+      "unit_id": "inherited_unit:069.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "inherited_unit:070.heading"
+      ],
+      "rationale": "The heading '## Development and Testing' is moved to the Development and Testing section as it introduces build/test content.",
+      "unit_id": "inherited_unit:070.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "inherited_unit:071.paragraph"
+      ],
+      "rationale": "The paragraph stating requirements (.NET SDK, NUnit 3) is preserved as it supports the Development and Testing section.",
+      "unit_id": "inherited_unit:071.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "inherited_unit:072.code_block"
+      ],
+      "rationale": "The build and test commands are preserved as they support the Development and Testing section.",
+      "unit_id": "inherited_unit:072.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "inherited_unit:073.paragraph",
+        "link_target:023"
+      ],
+      "rationale": "The paragraph describing test gold files and referencing AGENTS.md is preserved as it supports the Development and Testing section.",
+      "unit_id": "inherited_unit:073.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading '## The story behind this code' has no corresponding placeable section and no supporting facts for retention.",
+      "unit_id": "inherited_unit:074.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about the library's origin story has no corresponding placeable section and no supporting facts for retention.",
+      "unit_id": "inherited_unit:075.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about the library's history and format support has no corresponding placeable section and no supporting facts for retention.",
+      "unit_id": "inherited_unit:076.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about the Full2Foss agent and Claude has no corresponding placeable section and no supporting facts for retention.",
+      "unit_id": "inherited_unit:077.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about the source being production code has no corresponding placeable section and no supporting facts for retention.",
+      "unit_id": "inherited_unit:078.paragraph"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "inherited_unit:079.heading"
+      ],
+      "rationale": "The heading '## Documentation & Resources' is moved to the Documentation & Resources section as it introduces resource links.",
+      "unit_id": "inherited_unit:079.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "inherited_unit:080.list",
+        "link_target:022",
+        "link_target:023",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "public_symbol:aspose.words"
+      ],
+      "rationale": "The list of documentation and resource links is preserved as it directly supports the Documentation & Resources section.",
+      "unit_id": "inherited_unit:080.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading '## Enjoying it? Star it ⭐' has no corresponding placeable section and no supporting facts for retention.",
+      "unit_id": "inherited_unit:081.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about starring the repo has no corresponding placeable section and no supporting facts for retention.",
+      "unit_id": "inherited_unit:082.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The list of engagement actions (star, watch, tell someone) has no corresponding placeable section and no supporting facts for retention.",
+      "unit_id": "inherited_unit:083.list"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "inherited_unit:084.heading",
+        "link_target:028"
+      ],
+      "rationale": "The heading '## Contributing' is moved to the Documentation & Resources section as it introduces contribution guidance.",
+      "unit_id": "inherited_unit:084.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "inherited_unit:085.paragraph",
+        "link_target:028"
+      ],
+      "rationale": "The paragraph about opening issues and pull requests is preserved as it supports the Documentation & Resources section.",
+      "unit_id": "inherited_unit:085.paragraph"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "inherited_unit:086.heading",
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The heading '## License' is moved to the License section as it introduces the license declaration.",
+      "unit_id": "inherited_unit:086.heading"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "inherited_unit:087.paragraph",
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The license paragraph citing MIT and free usage is preserved as it directly supports the License section.",
+      "unit_id": "inherited_unit:087.paragraph"
+    }
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "additional_example_ids": [],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words.document"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words.saveformat"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.nodeimporter",
+        "public_symbol:aspose.words.document"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words.nodeimporter"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.replacing"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words.replacing"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words.drawing"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.revisioncollection"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words.revision"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words.digitalsignatures"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.protectiontype",
+        "public_symbol:aspose.words.vba"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.words.protectiontype"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and edit Word documents",
+      "Convert between formats",
+      "Merge and reorganize documents",
+      "Find and replace text",
+      "Inspect and adjust embedded charts",
+      "Manage tracked changes",
+      "Verify digital signatures",
+      "Protect documents"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.documentbuilder",
+        "public_symbol:aspose.words.bookmark",
+        "public_symbol:aspose.words.comment",
+        "public_symbol:aspose.words.tablestyle"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.words.document"
+      ],
+      "title": "Create and edit Word documents"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "shared_fact_ids": [],
+      "title": "Convert between formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document",
+        "public_symbol:aspose.words.nodeimporter"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.words.document"
+      ],
+      "title": "Merge and reorganize documents"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.replacing"
+      ],
+      "shared_fact_ids": [],
+      "title": "Find and replace text"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.drawing"
+      ],
+      "shared_fact_ids": [],
+      "title": "Inspect and adjust embedded charts"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.revision",
+        "public_symbol:aspose.words.revisioncollection"
+      ],
+      "shared_fact_ids": [],
+      "title": "Manage tracked changes"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures"
+      ],
+      "shared_fact_ids": [],
+      "title": "Verify digital signatures"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.protectiontype",
+        "public_symbol:aspose.words.vba"
+      ],
+      "shared_fact_ids": [],
+      "title": "Protect documents"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:030.code_block"
+      ],
+      "section_id": "quick_start",
+      "text": "No verified example fact is available; the example code block in the inherited README is deferred but not citable as a verified example."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:035.code_block",
+        "inherited_unit:038.code_block",
+        "inherited_unit:040.code_block",
+        "inherited_unit:043.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "No additional verified examples are available; the examples in the inherited README are deferred but not citable as verified examples."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:072.code_block",
+        "inherited_unit:073.paragraph"
+      ],
+      "section_id": "development_testing",
+      "text": "Build and test assets exist in the repository but are not verified by facts; the commands and test structure are deferred."
+    }
+  ],
+  "flagship_example_id": null,
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "unit_ids": [
+        "inherited_unit:067.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.words.document"
+      ],
+      "unit_ids": [
+        "inherited_unit:067.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": null,
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "quick_start"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

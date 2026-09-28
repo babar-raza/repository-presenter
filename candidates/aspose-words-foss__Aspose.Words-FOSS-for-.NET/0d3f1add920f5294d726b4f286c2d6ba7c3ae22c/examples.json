@@ -1,0 +1,62 @@
+[
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: no clean workspace to build in",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: no clean workspace to build in",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: no clean workspace to build in",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: no clean workspace to build in",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: no clean workspace to build in",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  }
+]

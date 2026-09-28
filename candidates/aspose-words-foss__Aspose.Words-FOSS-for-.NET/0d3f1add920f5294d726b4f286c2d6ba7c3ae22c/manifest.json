@@ -1,0 +1,184 @@
+{
+  "adopted": {
+    "adopted_at": "2026-09-28T09:47:08Z",
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "dispositions.json",
+      "examples.json",
+      "facts.json",
+      "plan.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
+    "previous_proof": {
+      "byte_identical": true,
+      "fresh_process": true,
+      "proven_at": "2026-09-28T09:14:56Z",
+      "provider_calls": 0
+    },
+    "recorded_at": "2026-09-28T09:43:19Z"
+  },
+  "call_variance": [
+    {
+      "distinct_responses": 7,
+      "job": "independent_review",
+      "response_sha256s": [
+        "271dc0793df09b695262617b2b92acdb892cdf73e28f61cc2ed5a690686be3f8",
+        "43eb7182a21add9ebb0559f026caaaad8355c33d2bfe362fe19ff2a4971e3bb3",
+        "5b069c45cd11ef5df45fe3729ed51c11bc81e6b064353b07f4604b0b1fe6841c",
+        "65908344ad14df23587d27e4b9192b7f733b0c9554dc401bb1947859fc58092c",
+        "7c36615b4da7a6c135c1e6c75879ff90e498be3403260a2b91853462d9080948",
+        "8f2458ad8c36b3a21b255d454443bbccdc8be7addd5638494476cc574bfdc844",
+        "8fa28ecdf531a125d9bfac06089fe0db3aeb81c0606c5072be9838605de3bd2f"
+      ]
+    },
+    {
+      "distinct_responses": 3,
+      "job": "presentation_planning",
+      "response_sha256s": [
+        "2f1721a60345e68bf52fa42760b6515cd9fc2bc1f4415b61a78ab74b571f549f",
+        "62506ff99692df04c0c941723632cfe5d26b7f6628e6987e26fea28d1603c226",
+        "f72ff494aaa28bacf0ac08a5f1a01cfaa86dd5ada30c787f8aff29105cb6a7cf"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "repository_investigation",
+      "response_sha256s": [
+        "29df2234a4b257eb841f2f97515ace9dab4b8b6c14833637aea002f4e42c9c99",
+        "39a4ba7e3d667cb9e12176ac2cd0354a7037a617d733678e506ad93c2962af3a"
+      ]
+    },
+    {
+      "distinct_responses": 28,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "095167b11e976e1cf6cff71b7577d0b8ec404bbbc17f2167bec4217e7dac92d4",
+        "174a101a0fe2a7e58341b6a491310b114d69ec75665f1f2d433adb7b4397961b",
+        "19e66299da1d0fa7254460a828dbd4b1b4d66015675f24229e8a96a8dd475f7b",
+        "2918cb3fd0149b2d4eb3b996a20a63381c49cfcc276ab0e9e005bb64d58613a8",
+        "38d4bd777679a5ec1114d302f688a808e015ae820457998457ecacfad3d7efc5",
+        "3de663db77426ba5b0e1e9ea85d718f58c6cd56dc74ea443705bb12d120b68f0",
+        "4ed90f6fb7594b235cb1a08fdb815274fe2a2ac7cb0b9d9989806556ad27a578",
+        "4f5915de951c85aeb9ea8263da3d397af942a1ec65c3e6a4bb10f08a4fab5971",
+        "51014cdecce91dae3de567d16f0a314030ace8e13d5dc57a7362fa9d341b33a2",
+        "6686b08e2aa37a29ddf06252a2d261dfb1f67becae6ab2c59e9480384784c219",
+        "695fc4d6d2643b34d1e25698122114c87ec20d4fd648981277bea15ab8004785",
+        "77e67e9299d3e0621d8954787ae28228e5e54ccef3b2503f3562d7eed9e13d4f",
+        "87412e666ea6a5160f67bffe6e221d91f98ec4c79d471916bf4fa159ce2c4384",
+        "88fda567300dca38d7c77d41fc507a2d27fbd918c769491cda027bc3a4820721",
+        "8b5418f83375e6baf7a4e790721f9596941c319ffbbe4234614c9716ea3eaec5",
+        "9354ad95f0f1a612d12f29f408e93606499aa88c0be488078c249216e2d79e99",
+        "991c7287eea0a564969ef65a97f689a0e139a7c6b9c2f647fcba760f39e60e31",
+        "9b21a68e6926b1da0cbb2f3d55634926ec7a264e44c3a0904bf5df1f369bc7bf",
+        "a2bc0ea149b52a617842a1edae252bcd81cd6d601882f1b1bb341464aa5d4f03",
+        "be21f60bc8cabc481b18e2422f7241f1fb6643981043a5dacd824f9e3e3d26e3",
+        "c31075980d88b7ee53548be1555c87895064a16b81e5f3a759efac833dae5f8a",
+        "c6ca16c4d3fc9f5f288e1fb93814d79ca8f1bab55995c50c4e805a6b37cda285",
+        "cf558faaf5bd365ae8a34c3d02ed50cd1682f9a3d840dad32573e4758a7e71b9",
+        "d8e55b841c4d7718b54b3f3774b435db267b1b64ef9ca747aaae6bb13574e737",
+        "ebed4d7249558022e308f7ab62fe7467ce8a4be6a8a3fd6c498835ab75b129bc",
+        "f2946b07aec3d9bd2b8144c47f7452a1f9328cf88046b01bce88121cb63b9106",
+        "f6b9d9f95ad73db18356ec7412a0ba5db6e45c84c69e6e3111ae901312e1e07d",
+        "fcf45f416db7af7aca29e36e381e2cf675e17381649c4c82048a9f86d5433507"
+      ]
+    },
+    {
+      "distinct_responses": 9,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "13679382ae1afee37cd891ef0c731853999be3422e863ad51c3d28728001e91f",
+        "4cf4fbdbf314a6724a4b00502845bffb38941b21370b8e94375a82691fc77b12",
+        "5e4052b45732dc5552ad96a46b09cdc3f533f764afc17aacb63ef131d5ebded0",
+        "6435e188a4cb3061c2452e395be9110555c07a0eff65eba4bbb7b849c508591f",
+        "84312a8976c8c2bf5bc0bd4abf53a7878e147e27364518b5752b3a8dc31d200e",
+        "989ce2cab90f09025290ee96a62acf1b7548c06d95c6ade928c4f69b4099a8b1",
+        "bb846380cccea7529f3e970c5a209ef02f49b5c89939276497b6c75e07ac26e1",
+        "c6fee301fc573af8244a01168d098781ed0b6e7a23555f218e7fc6744da4d15c",
+        "dbb592c7eae61dc302785d1689119372df94e8588c1b9196849a6d68b4e6442d"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 18,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_FACTUAL"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 73563,
+      "sha256": "cad550547b6002be12c978eabc6fd64484156180b030f08931b08eda4c46aeb3"
+    },
+    "README.patch": {
+      "bytes": 116026,
+      "sha256": "0077208896cc88a82a116fe77695a8ba826dd50f55b7ccf0d85653c3bfecbbeb"
+    },
+    "calls.jsonl": {
+      "bytes": 42624,
+      "sha256": "3e71f5cda00a2a9926d13e96c2008c858f1b55d7c7e3b89ef26c6104c2306727"
+    },
+    "content_units.json": {
+      "bytes": 17895,
+      "sha256": "0f7cc2b64184c2331cbf47d79394026f827f55b96456a77b2555d93b57fcc1b1"
+    },
+    "dependencies.json": {
+      "bytes": 896301,
+      "sha256": "0a2f9420a087977b3276dc025760589a67dea8b0748c07f20c248b83a691f03e"
+    },
+    "dispositions.json": {
+      "bytes": 40275,
+      "sha256": "7f3b4c1bf99a0a2ba50cb7848c4d5cdfa5b0c0792b0eb2c526ef3db7936a0799"
+    },
+    "examples.json": {
+      "bytes": 1413,
+      "sha256": "ac45504a2a2bfd6a756f71fa1afee065fb1550d29278809a3ab37f5cf7e7446f"
+    },
+    "facts.json": {
+      "bytes": 4049663,
+      "sha256": "02e27df74cc3d6ce35713effdbf02e8e492f04258b635b1c183e3178f30bcd05"
+    },
+    "investigation.json": {
+      "bytes": 7221,
+      "sha256": "312432d5fae1f47001972a16626dbd5f33f2f05f9ef1ea18ffd21ad8c65562ce"
+    },
+    "plan.json": {
+      "bytes": 7886,
+      "sha256": "21e0ce3994d9949b816f9bae464e83c6223ae39d09f09a46a00e17138b80ea8a"
+    },
+    "probes.json": {
+      "bytes": 2003,
+      "sha256": "402f661908b09611c9fc4fa2e6d197f88fdc8374a36868ea36c168f9446532ad"
+    },
+    "repairs.json": {
+      "bytes": 442,
+      "sha256": "703c2807d1bfbca9541228f7f4882f64e0f75dc4dc9ffcaa7b28d7d3d6253d0a"
+    },
+    "review.json": {
+      "bytes": 21199,
+      "sha256": "767f8c0ddc52d34dfc740770b1a3a33b127f745103ab392b6b062aa8b56d11d9"
+    },
+    "validation.json": {
+      "bytes": 11748,
+      "sha256": "78433675066d86ded312abe43d7eea3bdc07e4ae6836db8a217ee93d2be9443d"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-28T09:47:08Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+  "revision": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c",
+  "schema_version": 1,
+  "sealed_at": "2026-09-28T09:47:08Z",
+  "state": "READY_FOR_PROPOSAL"
+}

@@ -1,0 +1,342 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "SkiaSharp",
+        "BitMiracle.LibTiff.NET",
+        "System.Text.Encoding.CodePages",
+        "Microsoft.Win32.Registry"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "dependency:none"
+      ],
+      "id": "F01",
+      "quote": "### Required Package Dependencies No required third-party package dependencies; in `Aspose.Words/Aspose.Words.csproj`, no `PackageReference` a consumer would install is declared.",
+      "repair": "Replace the claim of 'No required third-party package dependencies' with the actual required dependencies: SkiaSharp 3.119.0, BitMiracle.LibTiff.NET 2.4.649, System.Text.Encoding.CodePages 7.0.0, and Microsoft.Win32.Registry 5.0.0, as specified in the original README and supported by the dependency facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
+      "section_id": "dependencies",
+      "text": "The candidate states 'No required third-party package dependencies' and lists only ILRepack as a development dependency, contradicting the facts that the original README specifies required dependencies (SkiaSharp, BitMiracle.LibTiff.NET, System.Text.Encoding.CodePages, Microsoft.Win32.Registry) and the candidate omits them entirely."
+    },
+    {
+      "absent": [
+        "RTF",
+        "HTML"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "id": "F03",
+      "quote": "- **Convert between formats.** Convert between formats by loading documents with `Aspose.Words.LoadFormat` and saving them using `Aspose.Words.SaveFormat`, supporting formats such as DOCX, RTF, HTML, and Markdown.",
+      "repair": "Correct the supported formats to DOCX, DOCM, DOTX, DOTM, Flat OPC, Markdown, and plain text only, as specified in the original README and supported by the format facts; remove RTF and HTML from the list.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'HTML', 'RTF', which the candidate contains",
+      "section_id": "key_capabilities",
+      "text": "The candidate claims the library supports 'Convert between formats' including 'RTF, HTML, and Markdown', but the facts and original README explicitly state that RTF and HTML are not supported in this FOSS edition."
+    },
+    {
+      "absent": [
+        "document signing"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures"
+      ],
+      "id": "F04",
+      "quote": "- This edition does not support saving to PDF, XPS, or images, nor printing, and layout-dependent field values such as page numbers in a table of contents or NUMPAGES evaluate to zero instead of being computed. - Reading and writing additional formats such as DOC, RTF, ODT, HTML, and EPUB is not supported in this edition. - Mail merge, LINQ Reporting, document comparison, document signing, and embedded-font subsetting are not included.",
+      "repair": "Clarify that digital signature verification is included, but creating new signatures is excluded; replace 'document signing' with 'creating new digital signatures' to match the original README and facts.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'document signing', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The candidate states 'This edition does not support saving to PDF, XPS, or images, nor printing', but then contradicts itself by listing 'document signing' as excluded while the original README and facts confirm that digital signature verification is included, only creating new signatures is excluded."
+    },
+    {
+      "absent": [
+        "618"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "id": "F05",
+      "quote": "The verified public surface has 618 types.",
+      "repair": "Change the count to 615 public types, matching the original README and supported by the repository identity fact.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '618', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate claims the verified public surface has 618 types, but the original README states 615 public types and no fact supports the higher count."
+    },
+    {
+      "absent": [
+        "FlatOpc",
+        "FlatOpcMacroEnabled",
+        "FlatOpcTemplate",
+        "FlatOpcTemplateMacroEnabled"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "public_symbol:aspose.words.saveformat"
+      ],
+      "id": "F07",
+      "quote": "### SaveFormat `Aspose.Words.SaveFormat` is an enumeration that defines supported output formats including Docx, Docm, Dotx, Dotm, FlatOpc, FlatOpcMacroEnabled, FlatOpcTemplate, FlatOpcTemplateMacroEnabled, Text, and Markdown.",
+      "repair": "Ensure the SaveFormat enumeration description includes all verified formats: Docx, Docm, Dotx, Dotm, FlatOpc, FlatOpcMacroEnabled, FlatOpcTemplate, FlatOpcTemplateMacroEnabled, Text, and Markdown.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'FlatOpc', 'FlatOpcMacroEnabled', 'FlatOpcTemplate', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate's detailed member reference for `SaveFormat` lists only a subset of the supported formats and omits `FlatOpc`, `FlatOpcMacroEnabled`, `FlatOpcTemplate`, and `FlatOpcTemplateMacroEnabled`, which are verified by the public symbol facts."
+    },
+    {
+      "absent": [
+        "NodeImporter"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "public_symbol:aspose.words.nodeimporter"
+      ],
+      "id": "F08",
+      "quote": "### NodeImporter `Aspose.Words.NodeImporter` enables importing nodes from one document to another, supporting operations like `ImportNode` to transfer content while preserving formatting or adapting it to the target document's styles. - `ImportNode`: Imports a node from one document into another. - `NodeImporter`: Initializes a new instance of the NodeImporter class.",
+      "repair": "Expand the NodeImporter detailed member reference to include all verified members and ensure the constructor and other key methods are accurately listed.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'NodeImporter', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate's detailed member reference for `NodeImporter` includes only two methods, but the original README and public symbol facts indicate a broader surface that should be accurately represented."
+    },
+    {
+      "absent": [
+        "SkiaSharp",
+        "BitMiracle.LibTiff.NET",
+        "System.Text.Encoding.CodePages",
+        "Microsoft.Win32.Registry"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "dependency:none"
+      ],
+      "id": "F01",
+      "quote": "No required third-party package dependencies; in `Aspose.Words/Aspose.Words.csproj`, no `PackageReference` a consumer would install is declared.",
+      "reader": 2,
+      "repair": "Update the Dependencies section to accurately reflect the required package dependencies: SkiaSharp 3.119.0, BitMiracle.LibTiff.NET 2.4.649, System.Text.Encoding.CodePages 7.0.0, and Microsoft.Win32.Registry 5.0.0, as verified by the original README and the product's target framework support.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
+      "section_id": "dependencies",
+      "text": "The candidate states 'No required third-party package dependencies' and lists only ILRepack as a development dependency, contradicting the facts that the commercial Aspose.Words library depends on SkiaSharp, BitMiracle.LibTiff.NET, System.Text.Encoding.CodePages, and Microsoft.Win32.Registry for cross-platform image and encoding support."
+    },
+    {
+      "absent": [
+        "RTF",
+        "HTML"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "id": "F03",
+      "quote": "Convert between formats. Convert between formats by loading documents with `Aspose.Words.LoadFormat` and saving them using `Aspose.Words.SaveFormat`, supporting formats such as DOCX, RTF, HTML, and Markdown.",
+      "reader": 2,
+      "repair": "Correct the supported formats list to match the verified scope: only DOCX, DOCM, DOTX, DOTM, Flat OPC, Markdown, and plain text are supported; RTF and HTML are not supported in this edition, as confirmed by the original README and format support facts.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'HTML', 'RTF', which the candidate contains",
+      "section_id": "key_capabilities",
+      "text": "The candidate claims the library supports 'Convert between formats' including 'RTF, HTML, and Markdown', but the facts and original README explicitly state that RTF and HTML are not supported in this FOSS edition."
+    },
+    {
+      "absent": [
+        "document signing"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "public_symbol:aspose.words.digitalsignatures"
+      ],
+      "id": "F04",
+      "quote": "This edition does not support saving to PDF, XPS, or images, nor printing, and layout-dependent field values such as page numbers in a table of contents or NUMPAGES evaluate to zero instead of being computed. Reading and writing additional formats such as DOC, RTF, ODT, HTML, and EPUB is not supported in this edition. Mail merge, LINQ Reporting, document comparison, document signing, and embedded-font subsetting are not included.",
+      "reader": 2,
+      "repair": "Remove 'document signing' from the list of excluded features, as the original README and facts confirm that verifying digital signatures is included in this FOSS edition, while creating new signatures is not.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'document signing', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The candidate states 'This edition does not support saving to PDF, XPS, or images, nor printing', but then contradicts itself by listing 'document signing' as excluded while the original README and facts confirm digital signature verification is included."
+    },
+    {
+      "absent": [
+        "618"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "id": "F05",
+      "quote": "The verified public surface has 618 types.",
+      "reader": 2,
+      "repair": "Correct the public type count to 615, matching the original README and verified facts, to avoid misleading developers about the API surface size.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '618', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate claims the verified public surface has 618 types, but the original README and facts consistently state 615 public types across the Core API, interfaces, and enumerations."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "dependency:none"
+      ],
+      "id": "F01",
+      "quote": "No required third-party package dependencies; in `Aspose.Words/Aspose.Words.csproj`, no `PackageReference` a consumer would install is declared.",
+      "reader": 3,
+      "repair": "Remove the claim 'No required third-party package dependencies' and instead state: 'The main library project declares no package dependencies for consumers; the only declared development dependency is ILRepack 2.0.46.'",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
+      "section_id": "dependencies",
+      "text": "The candidate states 'No required third-party package dependencies' and lists only ILRepack as a development dependency, contradicting the facts that confirm no package dependencies are declared in the main project."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "package:target_framework"
+      ],
+      "id": "F02",
+      "quote": "Requires .NET `netstandard2.0` (`TargetFramework` in `Aspose.Words/Aspose.Words.csproj`).",
+      "reader": 3,
+      "repair": "Add: 'The library targets .NET Standard 2.0, which is the only target framework declared in the project.'",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
+      "section_id": "dependencies",
+      "text": "The candidate omits the required native and system requirement that the library targets netstandard2.0, which is the only target framework verified by facts."
+    },
+    {
+      "absent": [
+        "RTF",
+        "HTML"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "install_command:dotnet",
+        "public_symbol:aspose.words.saveformat",
+        "public_symbol:aspose.words.loadformat"
+      ],
+      "id": "F03",
+      "quote": "Convert between formats by loading documents with `Aspose.Words.LoadFormat` and saving them using `Aspose.Words.SaveFormat`, supporting formats such as DOCX, RTF, HTML, and Markdown.",
+      "reader": 3,
+      "repair": "Replace 'RTF, HTML' with 'DOCX, DOCM, DOTX, DOTM, Flat OPC, Markdown, and plain text' to match the verified supported formats.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'HTML', 'RTF', which the candidate contains",
+      "section_id": "key_capabilities",
+      "text": "The candidate claims the library supports 'RTF' and 'HTML' as supported formats in the Key Capabilities section, but the facts only confirm DOCX, DOCM, DOTX, DOTM, Flat OPC, Markdown, and plain text as supported formats."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "Reading and writing additional formats such as DOC, RTF, ODT, HTML, and EPUB is not supported in this edition.",
+      "reader": 3,
+      "repair": "Remove the unsupported list of excluded formats and instead state: 'Additional formats beyond DOCX, DOCM, DOTX, DOTM, Flat OPC, Markdown, and plain text are not supported in this edition.'",
+      "reviewer_scope_defect": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it",
+      "section_id": "scope_limitations",
+      "text": "The candidate states 'Reading and writing additional formats such as DOC, RTF, ODT, HTML, and EPUB is not supported in this edition', but the facts do not confirm that DOC, RTF, ODT, HTML, or EPUB are supported in the commercial edition or excluded in this edition."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "The verified public surface has 618 types.",
+      "reader": 3,
+      "repair": "Remove the specific count '618' and instead state: 'The public API surface includes the core types listed below.'",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate claims the verified public surface has 618 types, but the facts do not specify the exact count of public types."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "The `Aspose.Words.Document` class supports loading documents from files or streams using `Aspose.Words.LoadFormat`, saving them in various formats via `Aspose.Words.SaveFormat`, and performing operations such as appending documents, tracking revisions, and managing document protection.",
+      "reader": 3,
+      "repair": "Remove the detailed member list and instead state: 'The Document class supports loading, saving, appending, and managing document structure and protection.'",
+      "reviewer_scope_defect": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it",
+      "section_id": "api_reference",
+      "text": "The candidate includes a detailed member reference for `Aspose.Words.Document` that lists many members not verified by any fact."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "This edition does not support saving to PDF, XPS, or images, nor printing, and layout-dependent field values such as page numbers in a table of contents or NUMPAGES evaluate to zero instead of being computed.",
+      "reader": 3,
+      "repair": "Remove the unsupported specific limitations and instead state: 'This edition does not include page layout, rendering, or printing capabilities.'",
+      "reviewer_scope_defect": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate states 'This edition does not support saving to PDF, XPS, or images, nor printing, and layout-dependent field values such as page numbers in a table of contents or NUMPAGES evaluate to zero instead of being computed', but the facts do not confirm these specific limitations."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "Mail merge, LINQ Reporting, document comparison, document signing, and embedded-font subsetting are not included.",
+      "reader": 3,
+      "repair": "Remove the unsupported list of exclusions and instead state: 'This edition excludes advanced features such as mail merge, document comparison, and rendering.'",
+      "reviewer_scope_defect": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate claims 'Mail merge, LINQ Reporting, document comparison, document signing, and embedded-font subsetting are not included', but the facts do not confirm these specific exclusions."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "a3b2066d504d61a8cb957068e38b2fd41af2ba26f7b8409e3f54e272b67403e6",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "cad550547b6002be12c978eabc6fd64484156180b030f08931b08eda4c46aeb3",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "0008bc720f002ad3454f7220",
+      "2ff79593f7408870b8bfb439",
+      "aaa6eeba41ad286e222d4fc0",
+      "aac3a3748135837a01d577d1",
+      "d6b338c08a90e6aacfe36bf1"
+    ],
+    "read": 3
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_FACTUAL"
+}
