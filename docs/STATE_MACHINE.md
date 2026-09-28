@@ -407,6 +407,18 @@ Analysis uses a repository-scoped read-only GitHub App token. Proposal execution
 separate job with a freshly minted repository-scoped contents/pull-request token. Ambient personal
 tokens are never fallback production credentials.
 
+### 12.1 First-live-exercise target selection (2026-09-28 owner-directed protocol)
+
+For each production workstream in `docs/PRODUCTION_ROADMAP.md` (and any future effect-capable
+component), the *first* live exercise against a real external target is owner-selected, never
+agent-selected: the owner names the exact repository/organization, and the agent executes exactly
+that named test and reports the real, observed result. This is a one-time gate per capability,
+exercised once at first-proof time — it does not reinstate routine human intervention for a
+capability's ongoing autonomous operation once first-proven, and it does not relax any check,
+authorization receipt, or effect boundary already required above. Full rationale:
+`docs/DECISION_LOG.md`, 2026-09-28 entry; `plans/idea.md`'s own authority-note correction table
+carries the same clarification against its "passive oversight" Operating Model language.
+
 ## 13. Durable state
 
 ### 13.1 Repository record
