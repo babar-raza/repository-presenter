@@ -17,9 +17,10 @@ Build and deploy Repository Presenter as an autonomous GitHub-native system whos
 component keeps the README files of authorized repositories accurate, credible, repository-specific,
 and current, using a configurable custom LLM inside deterministic controls.
 
-Progress has exactly one unit: **current, reviewable, no-op-proven README candidates, N/34**. The
-`status` command prints it. Code volume, tests, evidence, schemas, transitions, and closed work items
-are not progress. The observable repository transaction is:
+Progress has exactly one unit: **current, reviewable, no-op-proven README candidates** against the
+registry's own entry count, both printed live by `status`, never restated here. Code volume, tests,
+evidence, schemas, transitions, and closed work items are not progress. The observable repository
+transaction is:
 
 1. inspect an immutable real repository revision;
 2. interpret the product agentically from repository-grounded evidence;
@@ -357,8 +358,9 @@ dispositions through one shared surface extractor and six thin plugins, before h
 
 ### Exit predicates
 
-- `status` prints every enabled entry sealed (derived from `data/registry.json`) and 34 dispositions;
-  every verifier has a negative control; cohort reports and census in the gate manifest; parity recorded per repository.
+- `status` prints at least 20 current, reviewable, no-op-proven candidates sealed (2026-09-28 floor
+  ruling, `docs/DECISION_LOG.md`); every verifier has a negative control; cohort reports and census
+  in the gate manifest; parity recorded per repository.
 
 ## G5 — Rerun Durability and Hosted Operation
 
@@ -381,15 +383,16 @@ read-only transaction runs autonomously on GitHub-hosted runners (§27.5 D3, D4,
 
 ### Exit predicates
 
-- Every candidate passes the fresh-state proof (empty `runs/`, fresh process, zero calls); a new
-  revision with unchanged facts reuses every call; a hosted run reaches the same accepted result as
-  local execution; an unchanged hosted rerun makes zero provider calls; a synthetic upstream change
-  schedules only the affected repository; the aggregate report reconciles with repository receipts.
+- At least 20 candidates (G4's own floor) pass the fresh-state proof (empty `runs/`, fresh process,
+  zero calls); an unchanged revision reuses every call and an unchanged hosted rerun makes zero
+  provider calls, matching local execution; a synthetic upstream change schedules only the affected
+  repository; the aggregate report reconciles with repository receipts.
 
 ## G6 — Proposal Effect Proof
 
 Goal: prove automatic PR creation and maintenance against a disposable target with isolated
-credentials, then qualify the Java cohort that `plans/idea.md` designates.
+credentials, then qualify any sealed candidate from the Cells family, any platform (widened from
+Java-only, 2026-09-28 — `docs/DECISION_LOG.md`).
 
 ### Work
 
@@ -484,17 +487,14 @@ behavior are proven; and the system operates without routine human initiation or
 | Search-intent vocabulary as corroborating evidence with output lineage, never repeated across headings | G2 | The legacy tests for this are red at the frozen revision. |
 | Exactly one disposition per material source unit; LLM reasoning mandatory; every call attributable; zero-call no-op; small governed prompt registry | G1 | Blocking checks, six prompt manifests, ledger, fresh-process replay. |
 | System decides product and platform; ecosystem truth includes the public consumer surface | G1 (Python), G2, G4 (all) | Plugin registry and platform verifiers with negative controls. |
-| Aspose.org and sibling assets are oracles, never runtime dependencies | G1 rule, G4 pull, G5 benchmark | Fixture-only, plus file pulls with records and tests in G4; never a runtime import. |
-| Benchmark quality profile met or exceeded; `BENCHMARK_REFRESH_AVAILABLE` | G5 | Development-only comparison. |
+| Aspose.org and sibling assets are oracles, never runtime dependencies; benchmark quality profile met or exceeded (`BENCHMARK_REFRESH_AVAILABLE`) | G1 rule, G4 pull, G5 benchmark | Fixture-only, plus file pulls with records and tests in G4, never a runtime import; benchmark comparison is development-only. |
 | 30-point acceptance, zero hard disqualifiers, criterion-specific evidence | G3 | Frozen as contract v1 after the Python cohort. |
 | Independent non-authoring review; second reviewer only on typed trigger | G1 | Hard invariant. |
 | Complete authorized discovery; hard allow-list; frozen registry revision; new repositories disabled and read-only; explicit exclusions | G4 registry freeze, G5 intake | Registry modules pulled and refactored. |
 | README-only placeholders become non-processable with resume predicates | G1 fixture, G3 and G4 PSD | Zero LLM calls. |
-| Versions freeze, design does not; component invalidation scopes; `VALID_UPDATE_AVAILABLE`; drift detection and protected content as a durable control | G2, G5 | Per-candidate dependency manifests; broader-than-SHA freshness. |
-| Portfolio reporting with separated counts | G4 | Health report. |
+| Versions freeze, design does not; component invalidation scopes; `VALID_UPDATE_AVAILABLE`; drift detection and protected content as a durable control; portfolio reporting with separated counts | G2, G4, G5 | Per-candidate dependency manifests; broader-than-SHA freshness; health report. |
 | Autonomous hosted operation with schedules, triggers, and recovery; `act` local testing with `GH_TOKEN`; GitHub App only in production, fail closed | G5 | Two workflows, `act` proof, token boundary. |
-| Separate analysis and write credentials; PR-only publication; recheck before effect | G6 | Disposable target. |
-| Java repositories as the first verified-proposal cohort | G6, G7 | After disposable proof and fresh authorization. |
+| Separate analysis and write credentials; PR-only publication; recheck before effect; Cells-family repositories (any platform, widened from Java-only 2026-09-28) as the first verified-proposal cohort | G6, G7 | Disposable target; after disposable proof and fresh authorization. |
 | Other surfaces (description, topics, visuals, social preview, community files, release links); upstream defect reporting; Level 7 and 8 certification | G7 | Deferred by `plans/idea.md`; seed case `CS1929`; background tracks. |
 | Two-attempt rule; serial calibration with at most three disjoint workers; battle-tested libraries | `AGENTS.md`, `project/state.yaml`, principle 16 | Governance and execution limits. |
 | Baseline figures are dated observations | G4 | 34 entries at `a8a163f7`; frozen at G4. |

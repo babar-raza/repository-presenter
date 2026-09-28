@@ -31,7 +31,7 @@ started`; several have real ready-now pieces, none has landed `src/`/`tests/` co
 | 3 | Issue-tracking component — file confirmed upstream defects, dedupe, close stale ones | "Upstream Defect Reporting" | schema + evidence layout landed (`a024836`); dedup ledger (`components/readme/upstream_defects/ledger.py`) and re-detection pass (`redetect.py`, `repository-presenter redetect-upstream-defects`) landed and exercised live against both backfilled artifacts (HTML-Python BC-02, TeX-Python NOT_PROCESSABLE — both still `HANDOFF_PENDING`, both re-confirmed still firing 2026-09-23); **elevated 2026-09-17: ruled required to be complete within the pilot** (overrides `idea.md`'s own "not required for the initial pilot" allowance) — only the actual `gh issue create`/`close` calls stay blocked on `OWNER-04`/G5 | supervisor, 2026-09-17; ledger/redetect landed 2026-09-23 |
 | 4 | Portfolio discovery module — find new repos/products, reuse an existing aspose.org discovery mechanism if one exists | "Common Gate C0" | scanner built and run (`ea8ab8c`, `10-portfolio-discovery.md`); one admission decision pending (`OWNER-08`) | supervisor, 2026-09-17 |
 | 5 | Full production autonomy — the system runs without routine human intervention | "Operating Model", "Production-Readiness Standard" | investigated (`05-production-autonomy.md`); worktree-isolation-for-every-write-role ruled as standing practice; two concrete hardening items queued, unscheduled | supervisor, 2026-09-17 |
-| 6 | Deployer — open and merge the PR carrying a sealed candidate on its target repo (Gate C) | "Gate C", `propose.yml` | investigated live against `Aspose/aspose.org`'s own proven `readme_refresh_run.py` (owner-directed reuse target, 2026-09-17); design principles ruled adopted; **first live push stays owner-gated, same as a registry write** | supervisor, 2026-09-17 |
+| 6 | Deployer — open and merge the PR carrying a sealed candidate on its target repo (Gate C) | "Gate C", `propose.yml` | investigated live against `Aspose/aspose.org`'s own proven `readme_refresh_run.py` (owner-directed reuse target, 2026-09-17); design principles ruled adopted; **first live push stays owner-gated, same as a registry write**. **2026-09-28: the "not before every registry repository clears Gates A+B" ordering ruled unreachable in a reasonable timeframe (real, documented per-repository blockers, not code defects) and replaced with a fixed floor of 20 sealed candidates (met today: 23/36) — see `plans/idea.md`'s own authority-note correction table and `docs/DECISION_LOG.md` this date. Pilot scope also widened from Java-only to any sealed candidate from the Cells family.** | supervisor, 2026-09-17; threshold/scope ruling 2026-09-28 |
 
 ### Rulings landed 2026-09-17 (full ruling text: `docs/DECISION_LOG.md`, 2026-09-17 entries)
 
@@ -78,10 +78,13 @@ started`; several have real ready-now pieces, none has landed `src/`/`tests/` co
   `update_product_registry.py` and `readme_refresh_run.py` are the concrete reuse targets WS4 and
   WS6 are built against.
 - **Workstream 6** (added 2026-09-17, not part of the original five): Gate C's own scope per
-  `idea.md` — creating/merging the PR carrying a sealed candidate. `idea.md`'s ordering rule
-  applies directly: this cannot start live against a real repository before every current registry
-  repository has passed Gates A and B and the exact effect has fresh authorization, "not before."
-  Design principles are ruled adopted (see "Rulings landed" above); the first live push is not.
+  `idea.md` — creating/merging the PR carrying a sealed candidate. `idea.md`'s original ordering
+  rule ("not before every current registry repository has passed Gates A and B") is **amended
+  2026-09-28**: replaced with a fixed floor of 20 sealed candidates (met today, 23/36), owner-ruled
+  unreachable-in-full given documented per-repository blockers that are not code defects. Design
+  principles are ruled adopted (see "Rulings landed" above); pilot scope widened same date from
+  Java-only to any sealed, currently-reproducible candidate from the Cells family; the first live
+  push itself still needs its own separate, fresh owner authorization regardless of the threshold.
 - **Workstream 5**: `plans/idea.md`'s bar is specific, not vague — "a prototype, collection of
   disconnected capabilities, or system that works only through routine manual intervention does
   not meet this standard," but also "does not require every possible enhancement to be complete."
@@ -122,9 +125,11 @@ rulings above.
   PROPOSAL-sweep (`tools/research_sweep/proposal_sweep.py`, read-only, report-only) — are
   **landed and tested**. **Status corrected 2026-09-28** — this line previously read "queued,
   unscheduled"; both were already implemented.
-- WS6: design principles adopted; **no code ready** — this gate cannot execute live before Gates A
-  and B are complete for the current registry, per `idea.md`'s own ordering rule, and the first
-  live push needs separate owner authorization regardless.
+- WS6: design principles adopted; **no code ready.** Ordering rule amended 2026-09-28 — Gates A/B/C
+  are now complete at a fixed floor of 20 sealed candidates (met today, 23/36), not 100% of the
+  registry; pilot scope widened to any sealed candidate from the Cells family. Gate C could
+  therefore be started as an implementation taskcard now, but the first live push still needs its
+  own separate, fresh owner authorization regardless of the threshold being met.
 
 Everything above the "ready for a taskcard" line still needs the credential or gate its own ruling
 names (most commonly `OWNER-04`/G5) before it can actually *write* anywhere — a ruling clearing the
