@@ -18,6 +18,7 @@ from repository_presenter.components.readme.composition.renderer import (
     RenderContext,
     anchor,
     api_reference_names,
+    example_block_visible_lines,
     line_counts,
     render_patch,
     render_readme,
@@ -1560,6 +1561,32 @@ def test_the_flagship_example_stands_visible_before_the_collapsed_block() -> Non
         "```",
     ]
     assert "View Additional Examples" not in section
+
+
+def test_example_block_visible_lines_matches_a_real_render() -> None:
+    """G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): a BC-07
+    visible-line-budget repair (repair/targeted.py's ``_visible_line_budget_hint``) tells the
+    model exactly how many visible lines clearing an optional example field would save, computed
+    by this function. Checked here directly against a real render, not just the formula in
+    isolation - the same real six-line block ``test_the_flagship_example_stands_visible_before_
+    the_collapsed_block`` exercises.
+
+    PLAN's own ``additional_example_ids`` is exactly one item (the flagship itself) - the one
+    edge case where clearing the flagship also collapses the whole ``<details>`` wrapper away
+    (nothing else is left to hold it open), one visible line less than this function's own
+    general-case formula; ``_visible_line_budget_hint`` corrects for exactly this case by reading
+    the plan's own ``additional_example_ids`` length, proven in
+    tests/components/readme/repair/test_targeted.py against a multi-example plan instead."""
+    assert example_block_visible_lines("print(2)") == 6
+    assert example_block_visible_lines("a\nb\nc") == 8  # 5 fixed lines + 3 physical code lines
+    assert example_block_visible_lines("") == 6  # even an empty body still renders one blank line
+    with_flagship = render_readme(
+        ENTRY, FACTS, {**PLAN, "flagship_example_id": "example:002"}, UNITS, DISPOSITIONS
+    )
+    without_flagship = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    visible_with, _ = line_counts(with_flagship)
+    visible_without, _ = line_counts(without_flagship)
+    assert visible_with - visible_without == example_block_visible_lines("print(2)") - 1
 
 
 def test_two_verified_types_sharing_a_name_keep_distinct_table_rows() -> None:

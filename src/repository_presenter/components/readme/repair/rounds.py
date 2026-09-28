@@ -46,11 +46,14 @@ from repository_presenter.components.readme.composition.planning import (
     planning_packet,
     planning_schema,
     recover_uncited_capability_titles,
+    recover_visible_line_overage,
     write_plan,
 )
+from repository_presenter.components.readme.composition.policy import DEFAULT_POLICY
 from repository_presenter.components.readme.composition.renderer import (
     PATCH_FILENAME,
     README_FILENAME,
+    line_counts,
     render_patch,
     render_readme,
     renderer_sentences,
@@ -87,6 +90,7 @@ from repository_presenter.components.readme.repair.targeted import (
     repair_schema,
     review_defects,
     validation_defects,
+    visible_line_budget_hint,
 )
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
@@ -539,6 +543,41 @@ def _reject_title_verbatim_opening(
     return guarded
 
 
+def _reject_insufficient_visible_line_overage(
+    checks: Callable[[dict[str, Any]], list[str]] | None, hint: Mapping[str, Any]
+) -> Callable[[dict[str, Any]], list[str]]:
+    """Layer a deterministic visible-line-budget check onto a BC-07 repair's own S5
+    ``stage_checks`` - never onto ``plan_checks`` itself, which has no visible-line notion at all
+    (rendering the whole document only happens downstream, at S9).
+
+    G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): measured live on
+    aspose-font-foss/Aspose.Font-FOSS-for-Python, the repair packet's own ``visible_line_budget``
+    hint (naming the exact, measured cost of clearing an optional example-selection field) was not
+    enough on its own - the model's one repair attempt still made an unrelated, self-reported
+    no-op prose edit instead, twice, across two independent live draws. Without a check that can
+    actually see whether a lever was used, the job's one universal re-ask has nothing informed to
+    react to (the same class item 111/PGPY-04 already fixed for an uncited capability title).
+    Rejects only when every named lever field is still set exactly as the causal stage's own
+    output had it - a reply that clears even one has done everything this check asks and is never
+    rejected for guessing which lever, or how many, to use.
+    """
+    levers = hint.get("optional_plan_fields_and_their_visible_line_cost_if_cleared") or {}
+
+    def guarded(revised: dict[str, Any]) -> list[str]:
+        errors = list(checks(revised)) if checks is not None else []
+        if levers and all(revised.get(field) is not None for field in levers):
+            named = ", ".join(sorted(levers))
+            errors.append(
+                f"revised_output: the plan is {hint['visible_lines_over_budget']} visible lines "
+                f"over budget and none of the named optional fields ({named}) was cleared; set "
+                "at least one to null - the same verified example stays fully present in its "
+                "section's own collapsed block, this only stops duplicating it visibly"
+            )
+        return errors
+
+    return guarded
+
+
 def _stage_target(
     current: Round, defect: Defect, facts: FactsDocument, name: str, ecosystem: str
 ) -> tuple[
@@ -657,6 +696,37 @@ def repair_defect(
         )
     if section_task is not None:
         stage_checks = _reject_title_verbatim_opening(stage_checks, section_task)
+    # G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): a BC-07
+    # visible-line-budget defect always names causal stage S5 (the only Failure `_check_structure`
+    # ever raises with `stage="PLANNING"` - validation/registry.py), so this is a structured,
+    # non-prose signal, not a guess. The exact current overage is measured directly from this
+    # round's own rendered README and the same policy the check itself judged against - never
+    # parsed from the check's own `detail` text (this module is also routing-held). A packet hint
+    # alone was measured live to not be enough (two independent draws, aspose-font-foss/Aspose.
+    # Font-FOSS-for-Python, each made an unrelated self-reported no-op edit instead), so a reply
+    # that still leaves every named lever untouched is rejected here and given one deterministic
+    # last-resort correction (recover=) before the job's retry budget is spent - mirroring the S6
+    # title-verbatim-opening pair immediately above.
+    visible_line_hint: dict[str, Any] | None = None
+    if defect.stage == "S5" and defect.label == "BC-07":
+        visible, _total = line_counts(current.readme)
+        visible_line_hint = visible_line_budget_hint(
+            target.output, tx.facts, visible, DEFAULT_POLICY.visible_lines_budget
+        )
+        if visible_line_hint is not None:
+            stage_checks = _reject_insufficient_visible_line_overage(
+                stage_checks, visible_line_hint
+            )
+    recover_fn: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None
+    if section_task is not None:
+        recover_fn = functools.partial(
+            recover_title_verbatim_opening, slot_titles=section_task.slot_titles
+        )
+    elif visible_line_hint is not None:
+        recover_fn = functools.partial(
+            recover_visible_line_overage,
+            levers=visible_line_hint["optional_plan_fields_and_their_visible_line_cost_if_cleared"],
+        )
     try:
         result = run_job(
             tx.prompts["targeted_repair"],
@@ -669,6 +739,7 @@ def repair_defect(
                 contract,
                 allowed,
                 slot_facts,
+                visible_line_hint,
             ),
             config=tx.config,
             facts=tx.facts,
@@ -692,13 +763,7 @@ def repair_defect(
                 # merges in from here instead of demanding a token-costly full re-declaration.
                 original=target.output,
             ),
-            recover=(
-                functools.partial(
-                    recover_title_verbatim_opening, slot_titles=section_task.slot_titles
-                )
-                if section_task is not None
-                else None
-            ),
+            recover=recover_fn,
         )
     except JobError as exc:
         if probe is not None and probe.conflicts:

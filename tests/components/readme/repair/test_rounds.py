@@ -13,6 +13,7 @@ from unittest.mock import patch
 from repository_presenter.components.readme.repair.rounds import (
     Round,
     _refuse_noop,
+    _reject_insufficient_visible_line_overage,
     _second_opinion,
     _stage_target,
     _third_opinion,
@@ -187,3 +188,56 @@ def test__stage_target_s5_refuses_a_revision_identical_to_the_plan_it_would_repa
 
     errors = stage_checks(current.planned.output)
     assert any("no-op" in error and "unchanged" in error for error in errors)
+
+
+def test_reject_insufficient_visible_line_overage_rejects_only_when_every_lever_is_untouched() -> (
+    None
+):
+    """G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): measured live on
+    aspose-font-foss/Aspose.Font-FOSS-for-Python, a repair packet naming the exact lever cost was
+    not, on its own, enough - two independent live draws each made an unrelated, self-reported
+    no-op edit instead. This check gives the job's one universal re-ask something concrete to
+    react to: a reply that leaves every named lever field exactly as the causal stage's own output
+    had it is rejected; clearing even one is accepted (the model's own choice of which, or how
+    many, is never second-guessed)."""
+    hint = {
+        "visible_lines_over_budget": 12,
+        "optional_plan_fields_and_their_visible_line_cost_if_cleared": {
+            "flagship_example_id": 125,
+            "second_quick_start_example_id": 7,
+        },
+    }
+    guarded = _reject_insufficient_visible_line_overage(None, hint)
+    untouched = {
+        "flagship_example_id": "example:008",
+        "second_quick_start_example_id": "example:001",
+    }
+    errors = guarded(untouched)
+    assert (
+        len(errors) == 1 and "12 visible lines" in errors[0] and "flagship_example_id" in errors[0]
+    )
+    # Clearing even one of the two named levers is accepted - never rejected for using "only one".
+    assert guarded({**untouched, "flagship_example_id": None}) == []
+    assert guarded({**untouched, "second_quick_start_example_id": None}) == []
+    # A field the hint never named is irrelevant to this check either way.
+    assert guarded({**untouched, "quick_start_example_id": "example:003"}) != []
+
+
+def test_reject_insufficient_visible_line_overage_composes_with_the_stages_own_checks() -> None:
+    """This wrapper layers onto whatever stage_checks the causal stage already carries - an
+    unrelated plan_checks failure still surfaces even when a lever was correctly cleared, and both
+    errors appear together when neither is satisfied."""
+    hint = {
+        "visible_lines_over_budget": 5,
+        "optional_plan_fields_and_their_visible_line_cost_if_cleared": {"flagship_example_id": 60},
+    }
+
+    def inner(revised: dict[str, Any]) -> list[str]:
+        return ["an unrelated plan_checks failure"]
+
+    guarded = _reject_insufficient_visible_line_overage(inner, hint)
+    cleared = guarded({"flagship_example_id": None})
+    assert cleared == ["an unrelated plan_checks failure"]
+    both = guarded({"flagship_example_id": "example:008"})
+    assert "an unrelated plan_checks failure" in both
+    assert any("visible lines" in error for error in both)

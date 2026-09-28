@@ -1062,6 +1062,55 @@ def recover_uncited_capability_titles(
     return output if changed else None
 
 
+def recover_visible_line_overage(
+    output: dict[str, Any], *, levers: Mapping[str, int]
+) -> dict[str, Any] | None:
+    """Last-resort correction for a ``targeted_repair`` job's own final rejected attempt only
+    (``recover=``, ``core/llm/jobs.py``) - never called on a first attempt, so the model's own one
+    universal re-ask is always tried first exactly as before; a revision ``plan_checks`` or
+    ``repair/rounds.py``'s own visible-line-budget rejection would still reject for an unrelated
+    reason is unaffected, since ``run_job`` re-validates the corrected output through the real
+    checks before ever accepting it.
+
+    G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): mirrors
+    ``recover_title_verbatim_opening``'s own shape and discipline, for a BC-07 visible-line-budget
+    repair whose final reply still leaves every named lever field set (``repair/rounds.py``'s own
+    ``_reject_insufficient_visible_line_overage`` only ever rejects for exactly this reason).
+    ``levers`` is ``visible_line_budget_hint``'s own
+    ``optional_plan_fields_and_their_visible_line_cost_if_cleared`` - the fields this repair's own
+    packet already told the model it could clear. Clearing one never deletes or invents anything:
+    the same verified example stays fully present in its section's own collapsed block (or is
+    simply not duplicated a second time in Quick Start) - README_CONTRACT.md rows 10 and 12 make
+    both fields optional by contract. A truthful ``changes[]`` entry is recorded for each field
+    actually cleared, so the ledger never again shows a self-reported no-op while the real overage
+    sits uncorrected.
+
+    Returns ``None`` when nothing was cleared (nothing to try), never a no-op copy of ``output``.
+    """
+    revised = output.get("revised_output")
+    if not isinstance(revised, dict):
+        return None
+    cleared: list[tuple[str, Any]] = []
+    for field_name in levers:
+        if revised.get(field_name) is not None:
+            cleared.append((field_name, revised[field_name]))
+            revised[field_name] = None
+    if not cleared:
+        return None
+    corrected = {**output, "revised_output": revised}
+    corrected["changes"] = [
+        {
+            "id": f"R{index:02d}",
+            "path": field_name,
+            "before": str(before),
+            "after": "null",
+            "fact_ids": [],
+        }
+        for index, (field_name, before) in enumerate(cleared, start=1)
+    ]
+    return corrected
+
+
 def summarize_plan(output: dict[str, Any]) -> str:
     included = [entry["section_id"] for entry in output.get("sections", []) if entry.get("include")]
     return (

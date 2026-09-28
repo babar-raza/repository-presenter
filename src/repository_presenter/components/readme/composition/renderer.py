@@ -64,7 +64,7 @@ from repository_presenter.core.registry.models import RegistryEntry
 # succeeds) gets its own honest, non-pip Installation prose and never the ordinary "To work from
 # a source checkout instead" suggestion or the registry version badge beside it
 # (RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation).
-RENDERER_VERSION = "24"
+RENDERER_VERSION = "25"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -700,6 +700,26 @@ def _installation(context: RenderContext) -> list[str]:
 
 def _code_block(language: str, code: str) -> list[str]:
     return [f"```{language}", code.rstrip("\n"), "```"]
+
+
+# G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC / 2026-09-27 05:14 UTC, BC-07 visible-line-
+# budget on aspose-font-foss/Aspose.Font-FOSS-for-Python): a repair asked to close a visible-line
+# overage had no measured signal for which plan field's own content is actually large - it could
+# only guess from the rendered README's total shape. The additional_examples flagship
+# (_example_entry, three fixed lines plus a fenced code block) and quick_start's own second
+# example (identical shape, just above) are the two optional slots whose own value is a full
+# verified code fact, not a short authored sentence - by far the largest single visible-line
+# contributors this shell ever renders, and both are explicitly optional under
+# docs/README_CONTRACT.md rows 10 and 12 ("when the plan selects one"). This is the one formula
+# both call sites below actually produce - three text lines (a blank, the heading or lead-in, a
+# blank) plus `_code_block`'s own two fence lines plus the code's own physical line count - kept
+# here once so a repair's own estimate of "how many visible lines would dropping this field save"
+# can never drift from what the renderer actually emits.
+def example_block_visible_lines(code: str) -> int:
+    """The visible-line cost of one optional example block (a flagship additional example, or
+    quick_start's second example) exactly as this file renders it - three fixed lines, two fence
+    lines, and the code's own physical line count."""
+    return 5 + len(code.rstrip("\n").split("\n"))
 
 
 # Display names for format extensions whose canonical form is not the bare upper case.
