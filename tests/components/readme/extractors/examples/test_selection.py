@@ -87,3 +87,68 @@ def test_an_ecosystem_with_no_spec_fails_closed() -> None:
     """
     with pytest.raises(ConfigError, match="javascript"):
         select_examples("README.md", README, "javascript")
+
+
+# Reproduces the real shape measured on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript at
+# revision bb3c67d17884ce130870e7a510c611ee66c6c8ae: two fenced blocks demonstrate the identical
+# thing, differing only by one blank line after the `import`. Both were admitted as separate
+# `SUPPORTED` `example` facts (example:001, example:093); presentation planning's own
+# completeness backstop placed both into `additional_example_ids`, and authoring wrote the
+# identical task heading for both - BC-07 rejected the reused heading with no `section_id`, so
+# no repair could act on it (`repairs.json` recorded `"outcome": "unrepairable"`).
+_DUPLICATE_README = b"""# Title
+
+```python
+from aspose.threed import Scene
+scene = Scene()
+```
+
+Some unrelated prose in between, matching the real transaction's own two occurrences being far
+apart in the document rather than adjacent.
+
+```python
+from aspose.threed import Scene
+
+scene = Scene()
+```
+
+```python
+from aspose.threed import Scene
+scene = Scene()
+scene.save("out.obj")
+```
+"""
+
+
+def test_a_repeated_demonstration_is_selected_only_once() -> None:
+    """The second fenced block repeats the first's code exactly, apart from one blank line after
+    the `import` - the identical shape measured live. It is not selected again: BC-07's "example
+    heading is reused" failure cannot occur if the extractor never mints a second `example` fact
+    for the same demonstration in the first place. The third block is genuinely different (an
+    added `.save()` call) and is still selected.
+    """
+    candidates = select_examples("README.md", _DUPLICATE_README, "python")
+    assert len(candidates) == 2
+    assert candidates[0].code == "from aspose.threed import Scene\nscene = Scene()\n"
+    assert candidates[1].code == (
+        'from aspose.threed import Scene\nscene = Scene()\nscene.save("out.obj")\n'
+    )
+    # The kept candidate is the first occurrence; its own inherited unit is unaffected.
+    assert candidates[0].unit_id == "inherited_unit:002.code_block"
+
+
+def test_trailing_whitespace_alone_does_not_create_a_second_example() -> None:
+    """Trailing whitespace on an otherwise identical line is exactly the same kind of incidental
+    reformatting as the blank-line case above, and is folded the same way."""
+    readme = b"""# Title
+
+```python
+scene = Scene()
+```
+
+```python
+scene = Scene()
+```
+"""
+    candidates = select_examples("README.md", readme, "python")
+    assert len(candidates) == 1
