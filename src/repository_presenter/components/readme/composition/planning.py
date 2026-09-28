@@ -189,15 +189,51 @@ def _admitted_inherited_unit_ids(facts: FactsDocument) -> frozenset[str]:
     return frozenset(record["id"] for record in ordered[:UNIT_CAP])
 
 
+# 2026-09-26 04:38 UTC, docs/DECISION_LOG.md: the UNIT_CAP fix above (items 120/122) genuinely
+# shrank PDF-TypeScript's packet (298,865 -> 283,065 input tokens), but the repository still
+# overflows the 262,144-token ceiling because ``public_symbol`` is large on a second, independent
+# axis that fix never touched. ``bounded_records()``'s own ``SYMBOL_CAP`` (core/facts.py, 6000) is
+# a real, working per-kind cap - proven live by
+# test_the_symbol_enum_size_grows_sub_linearly_not_proportionally - but it is calibrated for
+# *every* job's own packet (S3 investigation, S4 reconciliation, S6 authoring, S10 review), most
+# of which carry no sibling ``inherited_unit``/``dispositions`` payload anywhere near S5's own.
+# 6000 has never bound on this repository's own count (2,688, all admitted at SYMBOL_MAX_DEPTH):
+# it is simply not the right number for *this* packet's own, much tighter combined budget, the
+# same gap ``inherited_unit`` had before ``UNIT_CAP`` existed. ``PLANNING_SYMBOL_CAP`` is the
+# analogous second, planning-specific admission - mirroring ``_admitted_inherited_unit_ids``'s own
+# shape exactly - scoped to this module alone, so S3/S4/S6/S10's own use of the shared
+# ``SYMBOL_CAP`` is untouched. Measured directly against this repository's own live facts
+# (2,688 admitted ``public_symbol`` facts, 272,758 packet characters - the packet's second-largest
+# contributor after ``inherited_unit``, and the schema's own ``citable_fact_id``/``symbol_fact_id``
+# enums shrink by the same proportion): 1200, with headroom, both clears the measured overflow and
+# leaves comfortable room for a modestly larger repository, without cutting so far that a
+# hub-selection call is starved of real candidates the way a single-digit depth-filtered count
+# would be.
+PLANNING_SYMBOL_CAP = 1200
+
+
+def _admitted_public_symbol_ids(facts: FactsDocument) -> frozenset[str]:
+    """The SUPPORTED ``public_symbol`` fact IDs presentation_planning's packet, ``symbol_fact_id``
+    enum, and ``citable_fact_id`` enum may show at all, in document order, capped at
+    ``PLANNING_SYMBOL_CAP`` - the planning-specific budget above and beyond ``bounded_records()``'s
+    own ``SYMBOL_CAP``, exactly the shape ``_admitted_inherited_unit_ids`` already gives
+    ``inherited_unit``."""
+    ordered = bounded_records(facts, {"public_symbol"})
+    return frozenset(record["id"] for record in ordered[:PLANNING_SYMBOL_CAP])
+
+
 def _capped_facts(facts: FactsDocument, kinds: Iterable[str]) -> list[dict[str, str]]:
-    """``bounded_records(facts, kinds)``, with any ``inherited_unit`` entries further trimmed to
-    ``_admitted_inherited_unit_ids`` - the one kind ``bounded_records`` itself leaves uncapped
-    (G4-W17 arrival item 120)."""
-    admitted = _admitted_inherited_unit_ids(facts)
+    """``bounded_records(facts, kinds)``, with any ``inherited_unit``/``public_symbol`` entries
+    further trimmed to ``_admitted_inherited_unit_ids``/``_admitted_public_symbol_ids`` - the two
+    kinds whose own per-job cap (``UNIT_CAP``/``SYMBOL_CAP``) is not, by itself, tight enough for
+    this specific packet's own combined budget (G4-W17 arrival item 120; 2026-09-26 04:38 UTC)."""
+    admitted_units = _admitted_inherited_unit_ids(facts)
+    admitted_symbols = _admitted_public_symbol_ids(facts)
     return [
         record
         for record in bounded_records(facts, kinds)
-        if record["kind"] != "inherited_unit" or record["id"] in admitted
+        if (record["kind"] != "inherited_unit" or record["id"] in admitted_units)
+        and (record["kind"] != "public_symbol" or record["id"] in admitted_symbols)
     ]
 
 
@@ -466,7 +502,9 @@ def planning_schema(
     hub_properties = properties.get("api_hubs", {}).get("items", {}).get("properties", {})
     if "symbol_fact_id" in hub_properties:
         mis_hubbed = _mis_hubbed_symbol_ids(facts)
-        visible_symbol_ids = {record["id"] for record in bounded_records(facts, {"public_symbol"})}
+        # Never wider than _capped_facts's own "facts" field (H's own rule, above): a symbol this
+        # packet's PLANNING_SYMBOL_CAP already excluded must never appear as a choosable hub either.
+        visible_symbol_ids = _admitted_public_symbol_ids(facts)
         hubbable = sorted(visible_symbol_ids - mis_hubbed)
         hub_properties["symbol_fact_id"] = {"type": "string", "enum": hubbable}
     formats = _verified_formats(facts)
