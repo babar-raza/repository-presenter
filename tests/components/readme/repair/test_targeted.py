@@ -21,6 +21,7 @@ from repository_presenter.components.readme.repair.targeted import (
     repair_schema,
     review_defects,
     validation_defects,
+    visible_line_budget_hint,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.prompts import load_manifests
@@ -1003,3 +1004,125 @@ def test_a_slot_conflict_latches_across_a_repair_calls_own_attempts() -> None:
     assert probe.conflicts
     # The last reply's own slot set remains available for the escalation message.
     assert probe.returned == frozenset({"lead_in", "lead_in:2", "lead_in:3"})
+
+
+def _bc07_visible_budget_validation() -> dict[str, Any]:
+    return {
+        "checks": [
+            {
+                "id": "BC-07",
+                "verdict": "FAIL",
+                "causal_stage": "PLANNING",
+                "details": ["312 visible lines of 739 exceed the visible budget 300"],
+                "failures": [
+                    {
+                        "section_id": None,
+                        "causal_stage": "PLANNING",
+                        "detail": "312 visible lines of 739 exceed the visible budget 300",
+                    }
+                ],
+            }
+        ]
+    }
+
+
+def _font_python_visible_budget_facts() -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("example:001", "example", "print(1)\nprint(2)", (Evidence("x"),)),
+            Fact(
+                "example:008",
+                "example",
+                "\n".join(f"line {i}" for i in range(120)),
+                (Evidence("x"),),
+            ),
+        ),
+    )
+
+
+def test_visible_line_budget_hint_carries_the_measured_lever_costs() -> None:
+    """G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC). Measured live on
+    aspose-font-foss/Aspose.Font-FOSS-for-Python (5 additional examples, `flagship_example_id`
+    one of them): a BC-07 visible-line-budget repair had no signal for which plan field is
+    actually large, and one round's own prose-only trim closed only part of a real overage. This
+    must carry the exact, measured visible-line cost of clearing each optional example-selection
+    field the plan currently has selected - never a guess. With more than one additional example,
+    the `<details>` wrapper exists either way, so the formula is exact (no ``-1`` correction; that
+    edge case is covered separately below). ``visible``/``budget`` here are exactly what
+    ``repair/rounds.py::repair_defect`` measures directly from the round's own rendered README and
+    ``composition.policy.DEFAULT_POLICY`` - never parsed from any check's own prose (this module
+    is a routing-held file, tests/test_routing_fields.py)."""
+    facts = _font_python_visible_budget_facts()
+    plan = {
+        "flagship_example_id": "example:008",
+        "second_quick_start_example_id": "example:001",
+        "additional_example_ids": ["example:004", "example:008"],
+    }
+    hint = visible_line_budget_hint(plan, facts, 312, 300)
+    assert hint is not None
+    assert hint["visible_lines_over_budget"] == 12
+    levers = hint["optional_plan_fields_and_their_visible_line_cost_if_cleared"]
+    # example:008 is 120 physical lines -> 5 fixed lines + 120 = 125.
+    assert levers["flagship_example_id"] == 125
+    # example:001 is 2 physical lines -> 5 fixed lines + 2 = 7.
+    assert levers["second_quick_start_example_id"] == 7
+
+
+def test_the_flagship_lever_is_one_line_less_when_it_is_the_plans_only_additional_example() -> None:
+    """composition/renderer.py's own additional_examples branch: when the flagship is the plan's
+    ONLY additional example, clearing it collapses the whole ``<details>`` wrapper away too
+    (nothing else is left to hold it open) - one visible line less than the general formula,
+    proven directly against a real render in
+    tests/components/readme/composition/test_renderer.py::
+    test_example_block_visible_lines_matches_a_real_render."""
+    facts = _font_python_visible_budget_facts()
+    plan = {"flagship_example_id": "example:008", "additional_example_ids": ["example:008"]}
+    hint = visible_line_budget_hint(plan, facts, 312, 300)
+    assert hint is not None
+    levers = hint["optional_plan_fields_and_their_visible_line_cost_if_cleared"]
+    assert levers["flagship_example_id"] == 124
+
+
+def test_visible_line_budget_hint_is_none_when_the_plan_has_neither_lever_field_set() -> None:
+    """The plan may already have both optional fields unset (or point at an example the facts no
+    longer carry) - the hint must never fabricate a lever that is not actually there, even though
+    a real overage was measured."""
+    plan = {"flagship_example_id": None, "second_quick_start_example_id": None}
+    assert visible_line_budget_hint(plan, FACTS, 312, 300) is None
+
+
+def test_a_repair_packet_carries_no_visible_line_budget_hint_when_the_caller_passes_none() -> None:
+    """``repair_packet`` never computes this hint on its own initiative - only
+    ``repair/rounds.py::repair_defect`` decides when a defect is the BC-07 visible-line-budget one
+    (a structured stage+label check, not a prose one), measures the real numbers, and passes the
+    already-built hint in. With no ``visible_line_budget`` argument (the default, and every
+    non-BC-07 defect's own real call site), the packet's own field stays null even when the plan
+    carries a real, resolvable lever field."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, Fact("example:001", "example", "print(1)", (Evidence("x"),))),
+    )
+    defect = validation_defects(_bc07_visible_budget_validation(), LLM_SECTIONS)[0]
+    plan = {"flagship_example_id": "example:001"}
+    packet = repair_packet(ENTRY, defect, plan, facts, [], {"type": "object"})
+    assert packet["visible_line_budget"] is None
+
+
+def test_a_repair_packet_forwards_a_given_visible_line_budget_hint_verbatim() -> None:
+    """When the caller (``repair/rounds.py::repair_defect``) does pass an already-built hint, the
+    packet carries it exactly - repair_packet is a pure pass-through for this field, never a
+    second place that recomputes or reinterprets it."""
+    defect = validation_defects(_bc07_visible_budget_validation(), LLM_SECTIONS)[0]
+    plan = {"flagship_example_id": "example:001"}
+    given_hint = {
+        "visible_lines_over_budget": 12,
+        "optional_plan_fields_and_their_visible_line_cost_if_cleared": {"flagship_example_id": 125},
+    }
+    packet = repair_packet(
+        ENTRY, defect, plan, FACTS, [], {"type": "object"}, visible_line_budget=given_hint
+    )
+    assert packet["visible_line_budget"] == given_hint

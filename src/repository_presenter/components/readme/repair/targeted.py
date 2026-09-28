@@ -29,6 +29,9 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from repository_presenter.components.readme.composition.renderer import (
+    example_block_visible_lines,
+)
 from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
 from repository_presenter.core.llm.binding import binding_errors, merge_partial_units
 from repository_presenter.core.llm.ledger import canonical_hash
@@ -399,6 +402,64 @@ class RepairLedger:
         return ", ".join(parts)
 
 
+# G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): a BC-07 visible-line-
+# budget repair at S5 (presentation_planning) had no signal for which of the plan's own fields are
+# actually large, and the packet's `facts` carry every SUPPORTED record with no size hint. Measured
+# live on aspose-font-foss/Aspose.Font-FOSS-for-Python: the plan's own `flagship_example_id` alone
+# rendered 127 visible lines (a 122-line verified example plus its own heading and fences) against
+# a 12-line overage - by far the largest visible content this shell ever renders outside a
+# `<details>` block, and README_CONTRACT.md rows 10/12 make both this field and
+# `second_quick_start_example_id` explicitly optional ("when the plan selects one"). Neither
+# field's own example is lost by clearing it - the same verified content still renders inside the
+# section's existing collapsed block (`additional_example_ids`) or is simply not duplicated a
+# second time in Quick Start - so this never asks for content to be deleted or invented, only for
+# an already-optional slot to go unselected. The one repair attempt a fingerprint gets is otherwise
+# spent guessing between many small prose trims that rarely add up to the deficit
+# (RESEARCH_AND_GUIDELINES.md's own repeated observation of this class); naming the exact, measured
+# cost of the two real levers lets a single attempt succeed instead.
+#
+# The overage and budget are read as plain integers the caller (``rounds.py``) computes straight
+# from the rendered README and the policy's own constant (``composition/renderer.py::line_counts``,
+# never string-parsed from the check's own ``detail`` prose) - this module is a routing-held file
+# (tests/test_routing_fields.py) and a decision may never be read back out of a `details`/`detail`
+# string.
+VISIBLE_LINE_LEVER_FIELDS = ("flagship_example_id", "second_quick_start_example_id")
+
+
+def visible_line_budget_hint(
+    plan: Mapping[str, Any], facts: FactsDocument, visible: int, budget: int
+) -> dict[str, Any] | None:
+    """The exact visible-line cost of each optional plan field that can close a BC-07
+    visible-line-budget overage without deleting or fabricating anything, or ``None`` when the
+    plan carries neither lever field. ``visible``/``budget`` are the caller's own already-measured
+    integers - never derived here from any check's prose."""
+    by_id = {fact.id: fact for fact in facts.facts}
+    additional = list(plan.get("additional_example_ids") or [])
+    levers: dict[str, int] = {}
+    for field_name in VISIBLE_LINE_LEVER_FIELDS:
+        value = plan.get(field_name)
+        fact = by_id.get(value) if isinstance(value, str) and value else None
+        if fact is None:
+            continue
+        cost = example_block_visible_lines(fact.value)
+        if field_name == "flagship_example_id" and additional == [value]:
+            # composition/renderer.py's own additional_examples branch: when the flagship is the
+            # plan's ONLY additional example, clearing it also collapses the <details> wrapper
+            # away entirely (nothing is left to hold it open) rather than moving the same content
+            # into an already-open one - one visible line less than the general formula (measured
+            # directly, tests/components/readme/composition/test_renderer.py). Every other field,
+            # and this field whenever more than one additional example exists, matches the
+            # formula exactly.
+            cost -= 1
+        levers[field_name] = cost
+    if not levers:
+        return None
+    return {
+        "visible_lines_over_budget": max(visible - budget, 0),
+        "optional_plan_fields_and_their_visible_line_cost_if_cleared": levers,
+    }
+
+
 def repair_packet(
     entry: RegistryEntry,
     defect: Defect,
@@ -408,6 +469,7 @@ def repair_packet(
     output_contract: dict[str, Any],
     allowed: Collection[str] | None = None,
     slot_facts: Mapping[str, Collection[str]] | None = None,
+    visible_line_budget: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """The packet for one repair call: the defect, the one artifact it may revise, its contract.
 
@@ -417,6 +479,13 @@ def repair_packet(
     guessing wrong: RESEARCH_AND_GUIDELINES.md section 27.2 RC1 measured 69 of 76 repair
     rejections as citations outside the section's set, and the canary's own rejected replies
     name that family and the UNRESOLVED-fact one it shares a cause with.
+
+    ``visible_line_budget`` is always present - required by the manifest's own packet field set
+    (``render_messages`` matches a packet against it exactly) - but is ``null`` unless the caller
+    passes one in: ``repair/rounds.py::repair_defect`` builds it with ``visible_line_budget_hint``
+    from the round's own rendered README and policy for a BC-07 visible-line-budget defect at S5 -
+    never derived here, or from any check's own ``detail`` prose (this module is a routing-held
+    file, tests/test_routing_fields.py).
     """
     kinds = [kind for kind in FACT_KINDS if kind != "inherited_unit"]
     records = bounded_records(facts, kinds, ("SUPPORTED",))
@@ -424,7 +493,7 @@ def repair_packet(
         permitted = set(allowed)
         records = [record for record in records if record["id"] in permitted]
     records = [*records, *_named_inherited_units(defect, facts)]
-    return {
+    packet: dict[str, Any] = {
         "repository": entry.repository,
         "defect": {**defect.record, "fingerprint": defect.fingerprint, "source": defect.source},
         "causal_stage": defect.stage,
@@ -433,7 +502,11 @@ def repair_packet(
         "slot_facts": {slot: sorted(ids) for slot, ids in sorted((slot_facts or {}).items())},
         "preserve": list(preserve),
         "output_contract": output_contract,
+        "visible_line_budget": dict(visible_line_budget)
+        if visible_line_budget is not None
+        else None,
     }
+    return packet
 
 
 def _named_inherited_units(defect: Defect, facts: FactsDocument) -> list[dict[str, str]]:

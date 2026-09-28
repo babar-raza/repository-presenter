@@ -18,6 +18,7 @@ from repository_presenter.components.readme.composition.planning import (
     planning_packet,
     planning_schema,
     recover_uncited_capability_titles,
+    recover_visible_line_overage,
     section_conditions,
     summarize_plan,
     write_plan,
@@ -1154,6 +1155,77 @@ def test_recover_uncited_capability_titles_never_invents_a_citation_with_no_real
     assert recover_uncited_capability_titles(plan, FACTS) is None
     # A plan with nothing unsupported at all: also None, never a copy of a plan needing no fix.
     assert recover_uncited_capability_titles(_plan(), FACTS) is None
+
+
+def test_recover_visible_line_overage_clears_every_named_lever_and_records_the_truth() -> None:
+    """G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): the deterministic
+    last-resort correction ``core/llm/jobs.py``'s ``recover=`` parameter calls only after a final
+    rejection (``repair/rounds.py``'s own ``_reject_insufficient_visible_line_overage``, which
+    only ever rejects when every named lever field is still set). Mirrors
+    ``recover_title_verbatim_opening``'s own wrapper shape - operates on
+    ``revised_output``, a ``targeted_repair`` reply's own shape - and, unlike the two live-measured
+    repair attempts that shipped a self-reported no-op, records a truthful ``changes[]`` entry for
+    each field it actually clears."""
+    raw = {
+        "fingerprint": "f" * 24,
+        "causal_stage": "S5",
+        "revised_output": {
+            "flagship_example_id": "example:008",
+            "second_quick_start_example_id": "example:001",
+            "additional_example_ids": ["example:004", "example:008"],
+        },
+        "changes": [{"id": "R01", "path": "core_capabilities", "before": "x", "after": "x"}],
+    }
+    recovered = recover_visible_line_overage(
+        raw, levers={"flagship_example_id": 125, "second_quick_start_example_id": 7}
+    )
+    assert recovered is not None
+    revised = recovered["revised_output"]
+    assert revised["flagship_example_id"] is None
+    assert revised["second_quick_start_example_id"] is None
+    # additional_example_ids is untouched - the example stays fully present, just no longer
+    # duplicated visibly outside its section's own collapsed block.
+    assert revised["additional_example_ids"] == ["example:004", "example:008"]
+    changes = {c["path"]: c for c in recovered["changes"]}
+    assert changes["flagship_example_id"]["before"] == "example:008"
+    assert changes["flagship_example_id"]["after"] == "null"
+    assert changes["second_quick_start_example_id"]["before"] == "example:001"
+    # The prior (untruthful, self-reported no-op) changes entry is replaced, not appended to -
+    # the corrected ledger names only what this correction actually did.
+    assert len(recovered["changes"]) == 2
+
+
+def test_recover_visible_line_overage_is_none_when_every_lever_is_already_cleared() -> None:
+    """Mutation control: a reply that already cleared every named lever (recover has nothing left
+    to try) returns None, never a no-op copy - mirrors recover_title_verbatim_opening's own
+    never-a-no-op-copy discipline."""
+    raw = {
+        "fingerprint": "f" * 24,
+        "causal_stage": "S5",
+        "revised_output": {"flagship_example_id": None, "second_quick_start_example_id": None},
+        "changes": [],
+    }
+    assert recover_visible_line_overage(raw, levers={"flagship_example_id": 125}) is None
+
+
+def test_recover_visible_line_overage_only_clears_the_fields_the_hint_actually_named() -> None:
+    """A field the hint never named (no resolvable fact, or not one of the two known levers) is
+    left untouched even if it happens to be set - recover only acts on what the packet's own
+    hint told the model was available."""
+    raw = {
+        "fingerprint": "f" * 24,
+        "causal_stage": "S5",
+        "revised_output": {
+            "flagship_example_id": "example:008",
+            "second_quick_start_example_id": "example:002",
+        },
+        "changes": [],
+    }
+    recovered = recover_visible_line_overage(raw, levers={"flagship_example_id": 125})
+    assert recovered is not None
+    assert recovered["revised_output"]["flagship_example_id"] is None
+    # Not named by the hint (perhaps unresolvable against facts) - left exactly as the model set.
+    assert recovered["revised_output"]["second_quick_start_example_id"] == "example:002"
 
 
 def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
