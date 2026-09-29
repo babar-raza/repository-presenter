@@ -46,16 +46,18 @@ authorized repository, it:
 | Capability | Status |
 |---|---|
 | Facts → investigation → reconciliation → planning → composition → validation → independent review → seal pipeline | **Built** (gates G0–G2 accepted) |
-| Local CLI (`status`, `present`, `preflight`, `metadata`) | **Built** |
+| Local CLI (`status`, `present`, `preflight`, `redetect-upstream-defects`, `metadata`) | **Built** |
 | Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript) | **Partially built** — extractor plugins exist for all seven; sealed candidates so far cover fewer |
 | Deterministic Markdown renderer; the LLM never writes the final document, only fact-ID-bound content units | **Built** |
 | Safety: pinned, read-only, push-neutered git clones; secret-canary scan before any bundle is sealed | **Built** |
+| Upstream-defect detection and re-detection (`redetect-upstream-defects`); local, evidence-backed handoff records | **Built** — read-only re-checks and a status-only write; never a `gh issue create`/`close` call |
+| Production GitHub App credentials, installed across every registry organization | **Built** — a write-capable credential existing; it is not itself write authorization (see [Security](#security-and-effects)) |
+| Repo description/topics/homepage: read GitHub's observed values, propose a candidate from verified facts, diff | **Built** — read-only; no write call without explicit dual authorization |
 | Hosted, autonomous, scheduled portfolio monitoring | **Planned** (Gate G5) |
 | Automatic pull-request proposals via a GitHub App, with independent effect authorization | **Planned** (Gate G6) |
 | Production deployment and continuous unattended operation | **Planned** (Gate G7) |
-| Upstream defect reporting (filing genuine product defects found during reconciliation) | **Planned** — marked not required for the initial pilot in `plans/idea.md` |
+| Upstream defect *reporting* (filing genuine product defects as GitHub issues) | **Planned** — marked not required for the initial pilot in `plans/idea.md` |
 | Visual-asset / social-preview image preparation | **Planned** — same pilot carve-out |
-| Repo description/topics/homepage: read GitHub's observed values, propose a candidate from verified facts, diff | **Built** — read-only; no write call (needs `Administration: write`, not yet granted) |
 | Repo description/topics/homepage: apply the proposal to GitHub; community/security file generation; release-link auditing | **Planned** |
 
 For the exact current candidate count against the full target set, run `repository-presenter
@@ -74,8 +76,8 @@ investigate and reconcile them against any existing README content, plan and com
 validate it against a fixed set of blocking checks, pass it through an independent review, then
 seal it into a content-addressed bundle. Sealing also proves the no-op guarantee described above.
 
-A sealed candidate itself follows a fixed shape — a 20-section semantic template with a default
-320-visible-line budget and its own set of blocking checks — documented in full in
+A sealed candidate itself follows a fixed shape — a semantic template with a default visible-line
+budget and its own set of blocking checks — documented in full in
 [`docs/README_CONTRACT.md`](docs/README_CONTRACT.md). Full runtime design (portfolio-wide
 scheduling, proposal creation, effect authorization) is in
 [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md); most of it is still G5+ future scope, not what
@@ -84,7 +86,11 @@ runs today.
 ## Repository structure
 
 ```
-src/repository_presenter/   cli.py (entry point), core/ (shared capabilities), components/readme/ (pipeline)
+src/repository_presenter/   cli.py (entry point), core/ (shared capabilities), components/ (pipeline)
+  components/readme/          the README transaction: evidence, investigation, reconciliation,
+                               composition, validation, independent review, repair, bundle sealing
+  components/metadata/        repo description/topics/homepage capture, proposal, gated apply
+  components/issues/          upstream-defect ledger, handoff drafting, redetection
 prompts/                    one governed YAML manifest per LLM job
 schemas/                    JSON Schemas for state, manifest, and bundle validation
 data/                       registry.json — the admitted-repository allow-list
@@ -98,8 +104,9 @@ tools/                      owner/reviewer tooling — not part of the shipped p
 ## Requirements
 
 - Python 3.11 or later (CI tests 3.11, 3.12, and 3.13).
-- Core dependencies: `httpx`, `jsonschema`, `markdown-it-py`, `openai`, `pydantic`, `tenacity`,
-  `pyyaml`, plus pinned `tree-sitter` packages used by the multi-language source extractor.
+- Core dependencies: `httpx`, `jsonschema`, `markdown-it-py`, `openai`, `packaging`, `pydantic`,
+  `tenacity`, `pyyaml`, plus pinned `tree-sitter` packages used by the multi-language source
+  extractor.
 
 ## Installation
 
@@ -175,8 +182,10 @@ repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
   call and prints the diff; no `PATCH`/`PUT` call is made without `--apply`. `--apply` attempts to
   write the diff, but only past two independent, explicit gates: the owner-controlled
   `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED=1`, and a write-scoped `GH_METADATA_WRITE_TOKEN`
-  (never `GH_TOKEN`) - neither is set in this project's own environment, so `--apply` reports
-  exactly why it wrote nothing rather than guessing or silently proceeding.
+  (never `GH_TOKEN`) — a production-scoped write credential now exists (see
+  [Scope](#scope-built-vs-planned)), but the owner-controlled authorization variable is not set in
+  this project's own environment, so `--apply` reports exactly why it wrote nothing rather than
+  guessing or silently proceeding.
 - `--root PATH` — project root holding `project/state.yaml`; discovered from the working directory
   when omitted.
 
@@ -198,6 +207,21 @@ if every blocking check and the independent review pass, seals a candidate under
 `candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/<revision>/`. Running `present` again against
 the same sealed revision reproduces the identical bundle with zero new provider calls — the no-op
 proof. `status` then reports the updated candidate count.
+
+## Security and effects
+
+- Analysis clones are pinned to one revision, read-only, and push-disabled; a hard allow-list
+  gates which repositories can be reached at all (`data/registry.json`).
+- Write credentials are separate from analysis credentials, short-lived, and target-scoped; a
+  write credential's mere presence never implies authorization to use it — a distinct,
+  owner-controlled variable must also be set, checked independently by the code that would write.
+- Initial publication is pull-request-only; this project never pushes directly to a target
+  repository's default branch, and does not open pull requests against any target repository yet
+  (Gate G6).
+- Secrets are never logged, committed, cached, or persisted; every CLI command scans for
+  configured-secret leakage before reporting success.
+
+Full rules are in [`AGENTS.md`](AGENTS.md)'s "Security and Effects" section.
 
 ## Development and testing
 
@@ -225,6 +249,7 @@ automatically before every push to this repository's own `origin`.
 | Production runtime behavior | [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md) |
 | Candidate README shape, assembly, agentic decisions, blocking checks | [`docs/README_CONTRACT.md`](docs/README_CONTRACT.md) |
 | Where a file lives | [`docs/REPOSITORY_LAYOUT.md`](docs/REPOSITORY_LAYOUT.md) |
+| Session supervision: supervisor, lane agents, monitors, liveness | [`docs/SUPERVISION.md`](docs/SUPERVISION.md) |
 | Research record and design reasoning | [`docs/RESEARCH_AND_GUIDELINES.md`](docs/RESEARCH_AND_GUIDELINES.md) |
 | Live implementation cursor | [`project/state.yaml`](project/state.yaml) |
 | Legacy-code disposition | [`migration/reuse-manifest.yaml`](migration/reuse-manifest.yaml) |
