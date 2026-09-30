@@ -66,10 +66,11 @@ def test_real_registry_is_the_frozen_portfolio() -> None:
     # (OWNER-08, admitted 2026-09-23 at mode disabled) flipped to dry_run, and a new entry,
     # aspose-gis-foss/Aspose.GIS.FOSS-for-.Net (the org's only repository, added 2026-09-22,
     # confirmed via live `gh api orgs/aspose-gis-foss/repos`), admitted directly at mode dry_run
-    # - both by explicit owner instruction, not auto-admission. Ceiling moves 32 to 34 - the
-    # frozen portfolio `denominator: 34` in project/state.yaml is a historical baseline from the
-    # 2026-09-01 legacy freeze and is not meant to track this count; the two numbers coinciding
-    # at 34 right now is coincidental, not a sign the freeze was updated.
+    # - both by explicit owner instruction, not auto-admission. Ceiling moves 32 to 34.
+    # 2026-09-30 (owner ruling, docs/DECISION_LOG.md, this date): project/state.yaml's
+    # `progress.denominator` no longer freezes at the 2026-09-01 legacy baseline - it now tracks
+    # `len(registry.entries)` live (36, not this function's own `enabled_entries` count of 34;
+    # see test_governance_consistency.py::test_the_cursor_denominator_matches_the_live_registry).
     assert len(enabled_entries(registry)) == 34
 
 

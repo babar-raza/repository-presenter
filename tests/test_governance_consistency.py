@@ -395,6 +395,17 @@ def test_no_governance_prose_restates_the_portfolio_ceiling(chunk: str) -> None:
     assert ceiling_restatements(chunk, ceiling, denominator) == []
 
 
+def test_the_cursor_denominator_matches_the_live_registry() -> None:
+    """Owner ruling, 2026-09-30 (docs/DECISION_LOG.md, this date): ``progress.denominator``
+    tracks ``data/registry.json``'s live entry count, reversing the prior freeze-at-G4 policy -
+    the exact silent-drift gap that let the cursor sit at a stale 34 while the registry grew to
+    36 unnoticed. Live, not the ``ceiling``/``enabled_entries`` count ``portfolio_ceiling()``
+    derives above: a disabled entry is still a real registry entry the owner counts toward the
+    portfolio's own size (the owner's own framing, "sealed 24/36")."""
+    _, denominator = portfolio_ceiling()
+    assert state()["progress"]["denominator"] == denominator
+
+
 # --- lane spawn recipes name the model the owner ruled (PHASE1/F11, F12) ------------------------
 
 # The six literal substrings docs/DECISION_LOG.md section 31's PHASE1/F11 entry (2026-09-16 10:55

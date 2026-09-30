@@ -25,6 +25,7 @@ from repository_presenter.core.errors import GitSafetyError
 from repository_presenter.core.git_safety.clone import ReadOnlyClone, pinned_read_only_clone
 from repository_presenter.core.git_safety.verify import PushBlockProof
 from repository_presenter.core.llm.prompts import load_manifests
+from repository_presenter.core.registry.loader import load_registry
 from repository_presenter.core.retry import RetryableOperationError
 from support import (
     REPO_ROOT,
@@ -55,7 +56,8 @@ def test_status_reports_this_repository_cursor(
     assert out[0] == f"repository-presenter {__version__}"
     assert re.fullmatch(rf"gate: G\d_[A-Z_]+ {STATUS}", out[1])
     assert re.fullmatch(rf"work item: G\d-W\d\d {STATUS}", out[2])
-    assert re.fullmatch(r"candidates: \d+/34 current reviewable no-op-proven", out[3])
+    denominator = len(load_registry(REPO_ROOT / "data" / "registry.json").entries)
+    assert re.fullmatch(rf"candidates: \d+/{denominator} current reviewable no-op-proven", out[3])
     assert re.fullmatch(
         r"progress: \d+ ever sealed, \d+ integrity-valid, \d+ current-code reproducible, "
         r"\d+ independently accepted \(stale-excluded\)",
