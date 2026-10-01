@@ -27,6 +27,7 @@ from repository_presenter.core.git_safety.verify import PushBlockProof
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.loader import load_registry
 from repository_presenter.core.retry import RetryableOperationError
+from repository_presenter.core.state.git_backend import GitStateBackend
 from support import (
     REPO_ROOT,
     commit_all,
@@ -937,6 +938,82 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 13 + [
         "cache_reuse"
     ] * 13
+
+
+def test_present_durable_state_requires_a_workflow_run_identity(
+    project_with_registry: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Fail closed rather than silently minting a trigger with no stable dedup identity."""
+    code = main(
+        ["present", "--repo", CANARY, "--root", str(project_with_registry), "--durable-state"]
+    )
+    assert code == EXIT_USAGE
+    assert "--workflow-run-id" in capsys.readouterr().err
+
+
+def test_present_durable_state_commits_a_real_transition_across_two_hosted_runs(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """G5-W05's own wiring (core/state/present_transaction.py), against the real local pipeline:
+    the first hosted run performs genuine new composition work (ACCEPTED, not yet proven - the
+    sealed bundle's own first-seal contract), and the second, identical run is the real no-op
+    proof (zero provider calls), landing the durable record at READY_FOR_PROPOSAL by walking every
+    registered hop the existing pipeline already performed."""
+    state_remote = init_git_repository(tmp_path / "state-remote")
+    monkeypatch.setenv("GITHUB_RUN_ID", "1000")
+
+    first_code = main(
+        [
+            "present",
+            "--repo",
+            CANARY,
+            "--root",
+            str(project_with_registry),
+            "--durable-state",
+            "--state-remote",
+            str(state_remote),
+        ]
+    )
+    capsys.readouterr()
+    assert first_code == EXIT_OK
+
+    with GitStateBackend(remote=str(state_remote)) as backend:
+        record = backend.load(CANARY)
+        assert record is not None
+        assert record.state == "ACCEPTED"
+        assert record.lease is None
+        assert record.active_transaction_id is not None
+
+    requests_after_first_run = len(gateway_ready.requests)
+    monkeypatch.setenv("GITHUB_RUN_ID", "1001")
+    second_code = main(
+        [
+            "present",
+            "--repo",
+            CANARY,
+            "--root",
+            str(project_with_registry),
+            "--durable-state",
+            "--state-remote",
+            str(state_remote),
+        ]
+    )
+    assert second_code == EXIT_OK
+    # The real no-op proof: zero new provider calls on this second, identical run.
+    assert len(gateway_ready.requests) == requests_after_first_run
+
+    with GitStateBackend(remote=str(state_remote)) as backend:
+        record = backend.load(CANARY)
+        assert record is not None
+        assert record.state == "READY_FOR_PROPOSAL"
+        assert record.lease is None
+        assert record.last_transition is not None
+        assert record.last_transition.to_state == "READY_FOR_PROPOSAL"
 
 
 def test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle(

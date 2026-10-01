@@ -1,0 +1,124 @@
+# The real, durable-state-backed hosted README transaction (G5-W05; docs/EXECUTION_STATE_MACHINE.md
+# G5 Work item 3) - distinct from monitor.yml's own deliberately-minimal read-only reachability stub
+# (that file's own header names present.yml as the thing it is explicitly NOT). This is one
+# isolated job per repository: it clones and analyzes exactly one target repository, named by the
+# trigger, never a portfolio sweep.
+#
+# Fail-closed GitHub App authentication (plans/idea.md's own binding principle: "Production must
+# fail closed if GitHub App authentication is unavailable; it must not silently fall back to a
+# personal access token"): the one and only way this job can read the target repository is a fresh
+# installation token minted here, scoped to that repository alone, via actions/create-github-app-
+# token - the same official action verify-app-installation.yml and audit-app-installations.yml
+# already use (AGENTS.md's battle-tested-solutions rule). That mint step carries no
+# `continue-on-error`, unlike audit-app-installations.yml's own per-org leg: here a failed mint must
+# fail the whole job, never fall through to some other credential. No step anywhere in this workflow
+# reads `secrets.GITHUB_TOKEN` (or `github.token`) as `GH_TOKEN`/`GITHUB_TOKEN` for the analysis
+# clone - the only place the default job token is used at all is `REPOSITORY_PRESENTER_STATE_TOKEN`
+# below, a distinctly-named credential for a distinctly-scoped purpose (see that step's own comment).
+#
+# Durable state (G5-W04: src/repository_presenter/core/state/): `present --durable-state` wires
+# recovery_sweep, trigger admission/deduplication, and a committed transition receipt around the
+# existing, unmodified local pipeline (core/state/present_transaction.py has the full design and
+# why a killed/retried run recovers cleanly via recovery_sweep on its own next invocation, even
+# though this workflow cannot itself exercise a mid-run kill - that failure-mode exercise is
+# G7-W05's own explicit scope).
+#
+# workflow_dispatch and repository_dispatch only (docs/STATE_MACHINE.md section 3.2's own trigger
+# vocabulary) - deliberately no `schedule:` trigger. Turning on unattended scheduling is G7-W06's
+# own explicit scope, gated behind this item's own hosted proof actually landing first.
+name: Present
+
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: "owner/name, exactly as listed in the registry (e.g. aspose-3d-foss/Aspose.3D-FOSS-for-Python)"
+        required: true
+        type: string
+  repository_dispatch:
+    types: [present]
+
+permissions:
+  # contents: write is for this control repository's own internal state-ref namespace only
+  # (refs/repository-presenter-state/records/...) - a GitHub Actions job token can only ever act on
+  # the repository the workflow runs in, never any other, so this grant cannot reach the target
+  # repository named by the trigger; that repository is read with the separately-minted, read-only
+  # App installation token below.
+  contents: write
+
+jobs:
+  present:
+    name: Present one repository (durable-state-backed)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Resolve the target repository from this trigger
+        id: target
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            repository="${{ inputs.repository }}"
+          else
+            repository="${{ github.event.client_payload.repository }}"
+          fi
+          if [ -z "$repository" ]; then
+            echo "::error::no target repository named by this trigger"
+            exit 1
+          fi
+          owner="${repository%%/*}"
+          name="${repository#*/}"
+          if [ "$owner" = "$repository" ] || [ -z "$name" ]; then
+            echo "::error::'$repository' is not an owner/name repository coordinate"
+            exit 1
+          fi
+          echo "repository: $repository"
+          echo "repository=$repository" >> "$GITHUB_OUTPUT"
+          echo "owner=$owner" >> "$GITHUB_OUTPUT"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Mint a read-only installation token, scoped to the target repository alone
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ steps.target.outputs.owner }}
+          repositories: ${{ steps.target.outputs.name }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - name: LLM gateway reachable; record the model catalog present needs
+        env:
+          GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
+          GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
+        run: repository-presenter preflight
+
+      - name: Present the target repository, durable-state-backed
+        env:
+          # The target repository's own read-only analysis credential - the installation token
+          # minted above, scoped to that repository alone. Ambient GH_TOKEN/GITHUB_TOKEN in this
+          # runner's environment is never read for this: this explicit assignment is the only value
+          # core/git_safety's clone path or this job ever supplies for it.
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          # This control repository's own write token for its internal state-ref namespace only
+          # (core/state/present_transaction.py::STATE_TOKEN_VARIABLE) - the job's own default token,
+          # which GitHub Actions scopes to this repository alone and nothing else. Distinct in name
+          # and purpose from GH_TOKEN above; never used for the target repository.
+          REPOSITORY_PRESENTER_STATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
+          GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
+        run: |
+          repository-presenter present \
+            --repo "${{ steps.target.outputs.repository }}" \
+            --durable-state \
+            --trigger-event-type "${{ github.event_name == 'workflow_dispatch' && 'workflow_dispatch' || 'repository_dispatch' }}" \
+            --workflow-run-id "${{ github.run_id }}"
