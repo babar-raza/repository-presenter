@@ -108,6 +108,22 @@ Mermaid diagram/capability list (the same slot-rendering code path item 4 above 
 for a different sub-problem) and consider whether a deterministic check belongs somewhere in this
 path at all, given no reliable one currently exists.
 
+**Status 2026-10-01 (G3-W05, `docs/DECISION_LOG.md` this date)**: fix landed, not yet moved to
+Resolved. `composition/coherence.py::coherence_content_loss_errors` compares each S8 coherence
+unit's pre- and post-revision `fact_ids`/text and rejects a revision that silently drops a
+previously-cited fact with none of its own content left in the text; `recover_coherence_content_
+loss` is S8's first `recover=`, reverting exactly the affected unit(s) to their own pre-coherence
+version. A mutation test reproduces each sighting's exact shape. Live-verified firing and
+correctly recovering on a real draw of sighting #1's own repository (`aspose-slides-foss/Aspose.
+Slides-FOSS-for-Java`, same revision): the draw's own `key_capabilities` review finding (F05, the
+same inherited-content-loss shape) was then repaired by `targeted_repair` and did not re-raise -
+the candidate still does not seal, blocked only by a separate, unrelated `scope_limitations`
+defect (F06). That same live draw surfaced and fixed a real false-positive (identity/package
+provenance citations, never a named capability) in a second commit, covered by its own mutation
+test; three further live draws after the fix each failed before reaching S8 on different,
+unrelated, already-documented defects, so the refined check has not yet been re-exercised live -
+honestly left here rather than moved to Resolved until a future draw confirms it end to end.
+
 ## Resolved
 
 ### `review.cited_paraphrase_whole_fact_dilution`
