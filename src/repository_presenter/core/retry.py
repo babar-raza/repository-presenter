@@ -15,7 +15,9 @@ from typing import Literal, TypeVar
 from tenacity import RetryCallState, Retrying, retry_if_exception_type, stop_after_attempt
 from tenacity.wait import wait_random_exponential
 
-OperationClass = Literal["clone", "package_registry", "link_check", "llm_call", "github_api"]
+OperationClass = Literal[
+    "clone", "package_registry", "link_check", "llm_call", "github_api", "state_cas"
+]
 T = TypeVar("T")
 
 
@@ -43,6 +45,10 @@ RETRY_POLICIES: dict[OperationClass, RetryPolicy] = {
     "link_check": RetryPolicy("link_check", max_attempts=2, initial_seconds=1, maximum_seconds=10),
     "llm_call": RetryPolicy("llm_call", max_attempts=3, initial_seconds=2, maximum_seconds=30),
     "github_api": RetryPolicy("github_api", max_attempts=3, initial_seconds=1, maximum_seconds=20),
+    # A durable-state compare-and-swap retry is a local/remote git ref race (core/state/cas.py),
+    # not a slow external call - bounded tightly so a genuinely stuck CAS fails fast rather than
+    # masking a real problem behind a long backoff.
+    "state_cas": RetryPolicy("state_cas", max_attempts=5, initial_seconds=0.1, maximum_seconds=2),
 }
 
 

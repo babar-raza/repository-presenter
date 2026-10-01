@@ -610,13 +610,133 @@ expected_area_dispositions:
     retained_behavior:
       - Separation of author and independent reviewer.
 
-  - source_glob: src/readme_agent/state/{git_backend,cas,trigger_v2,change_detection,freshness_contract,recovery,health}.py
+  - source_glob: src/readme_agent/state/git_backend.py
     expected_disposition: EXTRACT_AND_REFACTOR
-    destination_area: src/repository_presenter/core/state/
+    destination_area: src/repository_presenter/core/state/git_backend.py
     retained_behavior:
-      - Repository-scoped CAS, trigger deduplication, freshness, recovery, and health concepts.
+      - One git ref per repository as the CAS boundary, written through disposable bare-repo
+        plumbing commands only (never a working-tree checkout).
+      - Non-fast-forward push detection with a structural re-fetch fallback for stderr wording
+        _is_non_fast_forward does not recognize (GitHub's "cannot lock ref ... is at ... but
+        expected ..." phrasing).
+      - A per-attempt nonce in the commit message, defeating git's silent "Everything up-to-date"
+        no-op when two racing writers propose byte-identical target state.
     removed_behavior:
-      - Overlapping legacy lifecycle and mission schemas.
+      - The three separate lock-ref families (per-repo write lock, coarser run lock, global
+        governance lock) plus a fourth, separate state ref - replaced by one CAS ref per repository
+        holding the whole RepositoryRecord (core/state/schema.py), including its embedded lease.
+      - "Legacy's stdin-fed hash-object -w --stdin / mktree plumbing: this project's own run_git
+        (core/git_safety/git.py) deliberately closes the child's stdin (no interactive prompt or
+        credential helper can ever reach it), so that mechanism cannot be reused unchanged. Rebuilt
+        on update-index --cacheinfo + write-tree (no stdin, no working tree, no GIT_INDEX_FILE -
+        which run_git's own REPOSITORY_REDIRECTING_ENV scrub also forbids), verified live against a
+        disposable bare repository before relying on it."
+      - filelock-based cross-process workspace locking - each backend instance owns its own
+        disposable, process-local temporary bare repository (never shared across processes), so a
+        plain threading.Lock already serializes the only contention that can occur (concurrent
+        calls on one instance), without adding a dependency this project does not otherwise need.
+    note: Pulled 2026-10-01, G5-W04; full tests/acceptance evidence is this file's own file_records entry below.
+
+  - source_glob: src/readme_agent/state/cas.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/state/cas.py
+    retained_behavior:
+      - The bounded compare-and-swap retry pattern (load current, apply a pure patch, save under
+        the observed version, retry only on a reported stale version) - load_required_state/
+        save_state_patch's own shape, generalized from RunStateV2 to RepositoryRecord.
+    removed_behavior:
+      - Nothing else carried over; legacy's module was already this one small generic pattern.
+      - "Added fresh, with no legacy equivalent: acquire_lease/renew_lease/release_lease/
+        lease_is_current (explicit integer fencing tokens, docs/STATE_MACHINE.md section 14 - the
+        legacy lock family tracked holder_id/leased_until only, no fencing token) and
+        record_transition (the one generic, deterministic 'advance durable state' primitive,
+        enforcing every docs/STATE_MACHINE.md section 17 rejection rule before writing a
+        TransitionReceipt)."
+    note: Pulled 2026-10-01, G5-W04; full tests/acceptance evidence is this file's own file_records entry below.
+
+  - source_glob: src/readme_agent/state/trigger_v2.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/state/trigger.py
+    retained_behavior:
+      - normalize_trigger_envelope's own dedup_key construction rules - one stable identity per
+        event type (schedule window, delivery/provider id, workflow run id), never a hash of the
+        whole payload - carried over as normalize_trigger, retyped against this project's own
+        trigger vocabulary (docs/STATE_MACHINE.md section 3.2) rather than legacy's event-type list.
+    removed_behavior:
+      - The GitHub-Actions-environment-reading normalize_github_trigger wrapper (env.py coupling);
+        this project's own hosted workflow wiring (G5-W05) will build its own equivalent when it
+        exists, reading this project's own core/config, not ported speculatively ahead of it.
+      - admit_trigger (folding a trigger into a CAS write against the repository record, dedup
+        ledger, and lease together) has no legacy equivalent - legacy tracked trigger lifecycles in
+        a separate TriggerLifecycleV2 map keyed into RunStateV2, which this project's single-record
+        RepositoryRecord schema does not carry over - written fresh against docs/STATE_MACHINE.md
+        section 3.2's "duplicate trigger identities are acknowledged without creating duplicate
+        repository transactions" requirement.
+    note: Pulled 2026-10-01, G5-W04; full tests/acceptance evidence is this file's own file_records entry below.
+
+  - source_glob: src/readme_agent/state/recovery.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/state/recovery.py
+    retained_behavior:
+      - The core idea - sweep durable records, find nonterminal work whose lease/heartbeat is
+        stale, mark it visibly retryable rather than silently abandoned - carried over as
+        recovery_sweep, restructured around this project's own RepositoryRecord/FailureRecord
+        shape rather than legacy's TriggerLifecycleV2 map.
+    removed_behavior:
+      - The separate "updated_at age >= stale_after_seconds" staleness signal alongside lease
+        expiry - docs/STATE_MACHINE.md section 15 point 1 only requires "without a valid lease",
+        and this project's lease already carries its own expiry - a second, independent staleness
+        floor would be new scope section 15 does not ask for, not a faithful port.
+      - resume_recoverable (re-acquire a lease with a strictly higher fencing token and re-enter
+        exactly the recorded resume state) has no legacy equivalent at this layer; written fresh
+        for docs/STATE_MACHINE.md section 4.1's RETRYABLE row ("previous active state through
+        recovery").
+    note: Pulled 2026-10-01, G5-W04; full tests/acceptance evidence is this file's own file_records entry below.
+
+  - source_glob: src/readme_agent/state/health.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/state/health.py
+    retained_behavior: []
+    note: >
+      Deferred out of G5-W04's own scope, not retired: health.py's aggregate portfolio health
+      report (missed schedule windows, actionable backlog, stale leases, repeated failures, open
+      proposals) is EXECUTION_STATE_MACHINE.md G7 Work item 1/4's own dead-man-monitoring scope
+      (G7-W03, project/state.yaml), which needs a real hosted run history to alert on - building it
+      now would be an unimported module (AGENTS.md: "a module with no production importer is a
+      defect"). G7-W03 pulls this file with its own file record when it opens.
+
+  - source_glob: src/readme_agent/state/freshness_contract.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/state/freshness_contract.py
+    retained_behavior: []
+    prohibited_coupling:
+      - Any capabilities/domains module (CPL-02's own prohibition already named at the
+        capabilities/schema.py row above applies here too - freshness_contract.py's legacy source
+        imports GITHUB_GENERATED_SURFACE_AUDIT/PACKAGE_RELEASE_AUDIT/etc. from
+        readme_agent.capabilities.domains, a capability-registry module this project does not
+        carry over).
+    note: >
+      Deferred out of G5-W04's own scope, not retired: TTL-governed non-git-tracked surface
+      freshness (package/release, GitHub-generated audits, metadata, visual preparation) is
+      docs/STATE_MACHINE.md section 5 point 3's own concern ("every TTL-governed external surface
+      remains fresh"), naturally owned by whichever item builds the OBSERVED -> UNCHANGED no-change
+      decision (section 5) and G5-W06's community-file/surface discovery - RepositoryRecord.surfaces
+      (schema.py) already reserves the field shape this will populate. Pulling it now, before any
+      caller populates SurfaceObservation, would be dead code under AGENTS.md's same rule as
+      health.py above.
+
+  - source_glob: src/readme_agent/state/change_detection.py
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+    note: >
+      Not named in EXECUTION_STATE_MACHINE.md G5 Work item 2's own file list (which names
+      git_backend, cas, trigger_v2, recovery, health, freshness_contract only) or G5-W04's purpose
+      text; classify_surface's generic three/five-way change classification is a specialist-level
+      concern (docs/STATE_MACHINE.md section 5's no-change decision, point 5/6) with no caller in
+      this project yet. Left RETIRE by the manifest's own stated default ("everything never pulled
+      is RETIRE") rather than pulled speculatively; reconsider if and when a specialist-level
+      classify-first check is actually built.
 
   - source_glob: src/readme_agent/vendored_asposeorg/**
     expected_disposition: FIXTURE_OR_ORACLE_ONLY
@@ -687,13 +807,75 @@ expected_area_dispositions:
       - Capability registry, dispatcher, or any capability module.
     known_coupling: CPL-02
 
-  - source_glob: src/readme_agent/state/{schema,proposal_schema,backend,migrations,git_workspace}.py
+  - source_glob: src/readme_agent/state/schema.py
     expected_disposition: EXTRACT_AND_REFACTOR
-    destination_area: src/repository_presenter/core/state/
+    destination_area: src/repository_presenter/core/state/schema.py
     retained_behavior:
-      - Repository record, proposal record, backend protocol, explicit schema migration, Git workspace handling.
+      - The idea of one versioned, pydantic repository record as the durable-state unit.
     removed_behavior:
-      - Legacy lifecycle and mission fields.
+      - "Every legacy field - RunStateV1/V2's own lifecycle/mission/capability-coupled shape
+        (ReadmePocStatusV2, trigger_lifecycles, open_proposals, model-route registry, ...) is
+        specific to the retired mission/capability architecture (AGENTS.md's own warning that 'a
+        legacy module is not exempt for having run in production'). RepositoryRecord is written
+        fresh against docs/STATE_MACHINE.md section 13.1's own illustrative record shape plus two
+        implementation-necessary additions (state_version for CAS, recent_trigger_dedup_keys for
+        section 3.2's dedup requirement - the doc's own YAML has no field for either), and against
+        section 4.1's full 23-state vocabulary and section 17's TransitionReceipt, neither of which
+        legacy's schema expresses at all."
+    note: >
+      Only the "repository record is the one CAS unit" idea survives from readme_agent.state.schema;
+      every field is new. proposal_schema.py is deferred (see its own row below) - no proposal
+      record is built yet (G6's own scope); RepositoryRecord.proposal (schema.py) reserves the
+      field shape. Pulled 2026-10-01, G5-W04; full tests/acceptance evidence is this file's own
+      file_records entry below.
+
+  - source_glob: src/readme_agent/state/backend.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/state/cas.py
+    retained_behavior:
+      - The StateBackend Protocol/SaveResult shape ("interface + at least one real backend" bar).
+    removed_behavior:
+      - Lock/safe_release_lock as separate types/functions - folded into LeaseRecord (schema.py)
+        and cas.py's acquire_lease/release_lease, which operate on the embedded lease field of the
+        one RepositoryRecord rather than a separate Lock value object.
+      - acquire_run_lock/acquire_governance_lock and their own Protocol methods (the second and
+        third of legacy's three lock-ref families) - not carried over; see git_backend.py's own
+        row above for why one lease per repository replaces all three.
+      - load_model_route_status/save_model_route_status (the one global, non-per-repository ref) -
+        no model-route registry exists in this project; not ported speculatively.
+
+  - source_glob: src/readme_agent/state/git_workspace.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/state/git_backend.py
+    retained_behavior:
+      - One disposable, process-local bare git object/ref database per backend instance
+        (StateGitWorkspace -> git_backend.py's _StateGitWorkspace), and resolve_state_remote's own
+        local-path-vs-URL resolution.
+    removed_behavior:
+      - The filelock.FileLock cross-process workspace lock - see git_backend.py's own row above
+        (a plain threading.Lock already covers the only contention that can occur).
+
+  - source_glob: src/readme_agent/state/migrations.py
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+    note: >
+      Deferred, not retired outright: explicit schema-version migration has nothing to migrate
+      yet (RepositoryRecord.schema_version is 1 and only 1 exists). git_backend.py's own load()
+      already fails closed on a schema it cannot parse (StateBackendError), which is this item's
+      own required "migration by explicit schema version" floor (docs/STATE_MACHINE.md section
+      13.2) until a second version actually exists to migrate from - at that point this file's own
+      _migrate_v1-shaped pattern is the right one to revisit.
+
+  - source_glob: src/readme_agent/state/proposal_schema.py
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+    note: >
+      Deferred, not retired outright: no proposal record is built yet (G6-W02/W03's own scope).
+      RepositoryRecord.proposal (schema.py) already reserves the field shape this will populate;
+      pulling TrustedTransformationProposalV1/OpenProposalV2 now, before any caller constructs one,
+      would be dead code under AGENTS.md's "a module with no production importer is a defect".
 
   - source_glob: src/readme_agent/readme/facts.py
     expected_disposition: EXTRACT_AND_REFACTOR
@@ -1875,6 +2057,90 @@ file_records:
       - readme_agent.llm.prompt_registry and readme_agent.env -> src/repository_presenter/core/llm/prompts.py (routes come from the catalog, not a routing table).
     pulled_at: "2026-09-02"
     work_item: G1-W03
+
+  - source_path: src/readme_agent/state/git_backend.py
+    sha256: 9beeddb9051c6e756a7e2eda834ba9773e0b70bebf1561a114703576df769a7a
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/state/git_backend.py
+    retained_behavior:
+      - One git ref per repository as the CAS boundary, written through disposable bare-repo plumbing commands only, never a working-tree checkout.
+      - Non-fast-forward push detection with a structural re-fetch fallback for stderr wording _is_non_fast_forward does not recognize.
+      - A per-attempt nonce in the commit message, defeating git's silent "Everything up-to-date" no-op when two racing writers propose byte-identical target state.
+    removed_behavior:
+      - The three separate lock-ref families plus a fourth, separate state ref - replaced by one CAS ref per repository holding the whole RepositoryRecord, including its embedded lease.
+      - Legacy's stdin-fed hash-object -w --stdin / mktree plumbing - this project's own run_git (core/git_safety/git.py) deliberately closes the child's stdin, so that mechanism cannot be reused unchanged; rebuilt on update-index --cacheinfo + write-tree, verified live against a disposable bare repository before relying on it.
+      - filelock-based cross-process workspace locking - each backend instance owns its own disposable, process-local temporary bare repository, so a plain threading.Lock already covers the only contention that can occur.
+    tests_ported:
+      - No direct legacy test ported (the mechanism changed too much to port tests mechanically); tests/core/state/test_git_backend.py is written fresh against the real mechanism.
+    acceptance: Save/load round trip, stale-expected-version rejection, two independent GitStateBackend instances racing the same local "remote" (a real git non-fast-forward push, not a mock), fail-closed loading of a deliberately corrupted stored blob, and the backend-agnostic lease/CAS helpers composed against this real backend - all passing against a disposable local bare repository, no network.
+    import_closure: []
+    pulled_at: "2026-10-01"
+    work_item: G5-W04
+    note: Merges legacy git_workspace.py's StateGitWorkspace and backend.py's StateBackend contract into this one file; see their own expected_area_dispositions rows above for what each contributed.
+
+  - source_path: src/readme_agent/state/cas.py
+    sha256: 0f9375549e36d8e07529c19e4bd071105c6bc76d5038882d49addb6f5274c0bb
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/state/cas.py
+    retained_behavior:
+      - The bounded compare-and-swap retry pattern (load current, apply a pure patch, save under the observed version, retry only on a reported stale version).
+    removed_behavior:
+      - Nothing else carried over from legacy; the module was already this one small generic pattern.
+    tests_ported:
+      - No direct legacy test ported; tests/core/state/test_cas.py is written fresh, including the new lease/fencing/record_transition surface legacy's cas.py did not have.
+    acceptance: CAS retry convergence against a real interleaved concurrent writer, lease acquire/refuse/reclaim-with-higher-fencing-token, renew/release only ever affecting the caller's own holder+fencing token, and record_transition's own rejection rules (illegal transition, stale fencing token, no active transaction) each proven by a dedicated negative control.
+    import_closure: []
+    pulled_at: "2026-10-01"
+    work_item: G5-W04
+    note: acquire_lease/renew_lease/release_lease/lease_is_current (explicit integer fencing tokens) and record_transition (docs/STATE_MACHINE.md section 17's rejection rules) have no legacy equivalent - the legacy lock family tracked holder_id/leased_until only, no fencing token.
+
+  - source_path: src/readme_agent/state/trigger_v2.py
+    sha256: 7088ff748f3ed5ed0488218d98d64e93092d4553131ec032d8a3652da49e913b
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/state/trigger.py
+    retained_behavior:
+      - normalize_trigger_envelope's own dedup_key construction rules - one stable identity per event type, never a hash of the whole payload - carried over as normalize_trigger, retyped against this project's own trigger vocabulary.
+    removed_behavior:
+      - The GitHub-Actions-environment-reading normalize_github_trigger wrapper (env.py coupling); this project's own hosted workflow wiring (G5-W05) builds its own equivalent when it exists.
+    tests_ported:
+      - No direct legacy test ported; tests/core/state/test_trigger.py is written fresh, including admit_trigger which has no legacy equivalent.
+    acceptance: Two concurrent triggers for the same repository/revision deduplicate to one transaction_id (the literal acceptance-bar sentence), a genuinely different trigger arriving mid-transaction still folds in, a late replay after the owning lease was released is still recognized against the same transaction, and the dedup ledger is bounded.
+    import_closure: []
+    pulled_at: "2026-10-01"
+    work_item: G5-W04
+    note: admit_trigger (folding a trigger into a CAS write against the repository record, dedup ledger, and lease together) has no legacy equivalent - legacy tracked trigger lifecycles in a separate TriggerLifecycleV2 map this project's single-record RepositoryRecord schema does not carry over.
+
+  - source_path: src/readme_agent/state/recovery.py
+    sha256: 2f2b6e5fe7b7a80cb01bcb403c58611e5aed5186ca10a78ec6f438a746798a44
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/state/recovery.py
+    retained_behavior:
+      - The core idea - sweep durable records, find nonterminal work whose lease is stale, mark it visibly retryable rather than silently abandoned.
+    removed_behavior:
+      - The separate "updated_at age >= stale_after_seconds" staleness signal alongside lease expiry - docs/STATE_MACHINE.md section 15 point 1 only requires "without a valid lease", and this project's lease already carries its own expiry.
+    tests_ported:
+      - No direct legacy test ported; tests/core/state/test_recovery.py is written fresh against this project's own RepositoryRecord/FailureRecord shape.
+    acceptance: Both acceptance-bar sentences proven end to end against one simulated killed-mid-transaction worker - recovers without losing its accepted dependency hashes or double-processing (a second sweep is a no-op; the dead worker's own fencing token can never commit again after recovery), and a stale lease is reclaimed only strictly after its own recorded timeout, never before.
+    import_closure: []
+    pulled_at: "2026-10-01"
+    work_item: G5-W04
+    note: resume_recoverable (re-acquire a lease with a strictly higher fencing token and re-enter exactly the recorded resume state) has no legacy equivalent at this layer; written fresh for docs/STATE_MACHINE.md section 4.1's RETRYABLE row.
+
+  - source_path: src/readme_agent/state/schema.py
+    sha256: 6cc1844add478b04b82403d4925e856ebf7f4f9056407bf2ed779ec8446553de
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/state/schema.py
+    retained_behavior:
+      - The idea of one versioned, pydantic repository record as the durable-state unit.
+    removed_behavior:
+      - Every legacy field (RunStateV1/V2's own lifecycle/mission/capability-coupled shape) - specific to the retired mission/capability architecture; RepositoryRecord is written fresh against docs/STATE_MACHINE.md section 13.1/4.1/17 instead.
+    tests_ported:
+      - No direct legacy test ported; tests/core/state/test_schema.py is written fresh.
+    acceptance: Every documented happy-path transition and three representative illegal-skip negative controls pass against the transition registry; RepositoryRecord and TransitionReceipt round-trip through JSON including the from/to wire-shape aliasing.
+    import_closure: []
+    pulled_at: "2026-10-01"
+    work_item: G5-W04
+    note: Only the "repository record is the one CAS unit" idea survives; every field is new. Merges legacy backend.py's StateBackend/SaveResult shape into core/state/cas.py; see that file's own expected_area_dispositions row above.
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward

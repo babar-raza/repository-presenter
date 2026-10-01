@@ -46,3 +46,16 @@ class RepositorySnapshotError(GitSafetyError):
 
 class RepositoryMetadataError(PresenterError):
     """A read-only GitHub repository-metadata call failed, was denied, or answered unusably."""
+
+
+class StateBackendError(PresenterError):
+    """The durable-state backend (``core/state/``) could not load, save, or lease a repository
+    record: corrupt or unparseable stored state, an unsupported schema version, or a CAS write
+    that failed for a reason other than a plain stale-version rejection (``core/state/cas.py``
+    retries those; this is for what is left after retries are exhausted or cannot apply)."""
+
+
+class IllegalTransitionError(StateBackendError):
+    """A durable-state transition was rejected by ``core/state/cas.py``'s own checks: not in the
+    transition registry, the record's current state does not match the transition's ``from``, or
+    the caller's lease/fencing token is stale (docs/STATE_MACHINE.md section 17)."""
