@@ -28,11 +28,21 @@ passed) - only the schema-forced *reply* is narrowed to the batch's own units. T
 (``repair/rounds.py``) also re-renders the document after each batch and feeds the updated
 document into the next batch's packet, so a later batch judges its own section's coherence against
 a document that already reflects every earlier batch's revisions, not the stale pre-pass text.
+
+G3-W05 (``docs/DEFECT_INDEX.md`` ``composition.coherence.inherited_diagram_content_loss``): this
+call site had no ``recover=`` at all until this item, and no deterministic check for the specific
+shape two independently sealed candidates' own review caught - a capability or diagram-adjacent
+unit losing a specific, named, fact-backed detail during exactly this pass. ``coherence_checks``'
+own new ``existing_units`` parameter lets it see each unit's pre-coherence text/fact_ids alongside
+the reply's post-coherence ones (``coherence_content_loss_errors``); ``recover_coherence_content_
+loss`` reverts only the specific unit(s) found to have silently dropped a cited fact's own
+content, never the whole batch and never a rewrite - see both functions' own docstrings.
 """
 
 from __future__ import annotations
 
 import copy
+import re
 from typing import Any
 
 from repository_presenter.components.readme.composition.authoring import (
@@ -213,9 +223,16 @@ def coherence_schema(
 
 
 def coherence_checks(
-    output: dict[str, Any], tasks: list[SectionTask], facts: FactsDocument, name: str
+    output: dict[str, Any],
+    tasks: list[SectionTask],
+    facts: FactsDocument,
+    name: str,
+    existing_units: list[dict[str, Any]] | None = None,
 ) -> list[str]:
-    """Every section's rules, applied to the units the pass returned for that section."""
+    """Every section's rules, applied to the units the pass returned for that section, plus
+    (when ``existing_units`` - this batch's own pre-coherence units, G3-W05) a check that the
+    revision did not silently drop named content the pre-coherence unit carried
+    (``coherence_content_loss_errors`` below)."""
     errors: list[str] = []
     by_section: dict[str, list[dict[str, Any]]] = {}
     for unit in output.get("units", []):
@@ -227,7 +244,161 @@ def coherence_checks(
     for task in tasks:
         owned = [u for u in by_section.get(task.section_id, []) if u.get("slot") in task.slots]
         errors.extend(unit_checks({"units": owned, "omitted": []}, task, facts, name))
+    if existing_units is not None:
+        errors.extend(coherence_content_loss_errors(output.get("units", []), existing_units, facts))
     return errors
+
+
+# docs/DEFECT_INDEX.md `composition.coherence.inherited_diagram_content_loss` (project/state.yaml
+# G3-W05): two independent, corroborated sightings (both 2026-09-27) - aspose-slides-foss's Java
+# and .NET candidates - each had independent review catch an inherited Mermaid diagram or
+# capability list losing specific, named capability/structure/input-output detail the prior
+# version carried, with no deterministic check standing in the gap at all: whether the loss was
+# ever caught depended entirely on whether that draw's own review sample happened to notice it,
+# and a `targeted_repair` round on the finding did not reliably restore what was lost either (both
+# sightings survived one repair round with the rejection still standing).
+#
+# Scoped to what the coherence pass can actually change - a unit's own text and fact_ids, matched
+# by its unchanged section/slot (the pass's own contract already requires both back exactly as
+# given, revised or not) - never a comparison against the ORIGINAL upstream README itself, which
+# would need a much weaker, free-text comparison with no fact-level precision this late in
+# composition and no access to the source document at all at this stage. A citation a unit itself
+# carried immediately before this pass and no longer carries immediately after it, whose own
+# SUPPORTED value's distinctive content is nowhere in the revised text either, is exactly "named or
+# structural content present before is missing after" - a fact-grounded signal, not a guess at
+# paraphrase quality. A dropped citation whose value's own content still appears in the revised
+# text (re-cited under different wording, or folded into a still-cited sibling claim with the same
+# content) is not flagged - only silent, untraceable loss is.
+_CONTENT_TOKEN = re.compile(r"[a-z0-9][a-z0-9+./_-]{2,}")
+
+# docs/DECISION_LOG.md (this item's own live verification, aspose-slides-foss/Aspose.Slides-FOSS-
+# for-Java, 2026-09-30/10-01): a first version of this check with no kind exclusion fired live
+# against every `documentation_resources` link unit and `scope_limitations/scope` - the model had
+# correctly shortened several link sentences that each repeated the full "org.aspose:aspose-
+# slides-foss version 26.8.0 for Java 21" boilerplate (exactly the "no repetition across sections"
+# improvement coherence's own objective asks for), dropping the `identity:*`/`package:*`
+# provenance citations that boilerplate existed only to justify - never a named capability, format,
+# or diagram element a reader would notice missing. ``planning.py``'s own
+# ``recover_uncited_capability_titles`` already treats ``identity``/``package`` facts as "neutral"
+# background the prose does not need to spell out explicitly (`_product_name`'s own `neutral` set,
+# items 1010/1038) - the same exemption applies here, for the same reason: these two kinds back
+# ambient context (what repository, what revision, what package coordinate), not a distinguishable
+# claim a human would read as "missing" the way a dropped capability or format is.
+_NEUTRAL_FACT_KINDS = frozenset({"identity", "package"})
+
+
+def _content_tokens(text: str) -> frozenset[str]:
+    """The lower-cased, three-or-more-character tokens ``text`` spells - a coarse but cheap
+    proxy for "this text still mentions this content", good enough to tell a genuine restatement
+    (in different words, same distinctive tokens) from silent removal (none of them left)."""
+    return frozenset(_CONTENT_TOKEN.findall(text.lower()))
+
+
+def _dropped_untraced_fact_ids(
+    unit: dict[str, Any], existing: dict[str, Any], facts: FactsDocument
+) -> list[str]:
+    """The pre-coherence fact IDs ``unit`` no longer cites whose own SUPPORTED value has left no
+    trace (none of its distinctive tokens) in ``unit``'s revised text - shared by
+    ``coherence_content_loss_errors`` (what to reject) and ``recover_coherence_content_loss``
+    (what to restore), so the two can never drift apart on what counts as "lost". A dropped
+    ``identity``/``package`` fact (``_NEUTRAL_FACT_KINDS``) is never counted - ambient provenance,
+    not named content a reader would notice missing."""
+    by_id = {fact.id: fact for fact in facts.facts}
+    existing_ids = {str(i) for i in existing.get("fact_ids", [])}
+    revised_ids = {str(i) for i in unit.get("fact_ids", [])}
+    dropped = sorted(existing_ids - revised_ids)
+    if not dropped:
+        return []
+    revised_tokens = _content_tokens(str(unit.get("text", "")))
+    untraced: list[str] = []
+    for fact_id in dropped:
+        fact = by_id.get(fact_id)
+        if fact is None or fact.polarity != "SUPPORTED" or fact.kind in _NEUTRAL_FACT_KINDS:
+            continue
+        value_tokens = _content_tokens(fact.value)
+        if value_tokens and value_tokens & revised_tokens:
+            continue  # the dropped citation's own content still reads somewhere in the text
+        untraced.append(fact_id)
+    return untraced
+
+
+def coherence_content_loss_errors(
+    output_units: list[dict[str, Any]],
+    existing_units: list[dict[str, Any]],
+    facts: FactsDocument,
+) -> list[str]:
+    """A coherence revision that drops a previously-cited fact with none of its own content left
+    in the revised text, per unit (matched by its unchanged section/slot) - see the module-level
+    note above for the exact mechanism and its scope."""
+    existing_by_key = {
+        (str(unit.get("section")), str(unit.get("slot"))): unit for unit in existing_units
+    }
+    by_id = {fact.id: fact for fact in facts.facts}
+    errors: list[str] = []
+    for unit in output_units:
+        key = (str(unit.get("section")), str(unit.get("slot")))
+        existing = existing_by_key.get(key)
+        if existing is None:
+            continue
+        for fact_id in _dropped_untraced_fact_ids(unit, existing, facts):
+            fact = by_id.get(fact_id)
+            value = fact.value if fact is not None else fact_id
+            kind = fact.kind if fact is not None else "fact"
+            errors.append(
+                f"{key[0]}/{key[1]}: coherence revision drops the previously-cited {kind} "
+                f"{fact_id!r} and none of its own content ({value!r}) remains in the revised "
+                "text - a named capability, format, or structural detail the prior version "
+                "carried must not be silently dropped during coherence"
+            )
+    return errors
+
+
+def recover_coherence_content_loss(
+    output: dict[str, Any], *, existing_units: list[dict[str, Any]], facts: FactsDocument
+) -> dict[str, Any] | None:
+    """Last-resort correction for S8 coherence's own ``run_job`` call (``recover=``,
+    ``core/llm/jobs.py``) - never called on a first attempt, so the model's own one universal
+    re-ask is always tried first exactly as before; a unit ``coherence_checks`` would still reject
+    for an unrelated reason is unaffected, since ``run_job`` re-validates the corrected output
+    through the real ``coherence_checks`` - this content-loss check included - before ever
+    accepting it.
+
+    ``docs/DEFECT_INDEX.md`` ``composition.coherence.inherited_diagram_content_loss``;
+    ``project/state.yaml`` G3-W05: S8 coherence had no ``recover=`` at all before this (confirmed
+    by direct code read) - a final rejection here always raised ``JobError`` outright. The one
+    safe, "never invent" correction available for THIS shape: a unit whose own revision dropped a
+    previously-cited fact with no trace of its value left in the text is reverted, in full, to its
+    own pre-coherence text and fact_ids - restoring exactly what the pass already had and knew to
+    be correct, never rewriting it into something new - while every other unit's own genuine
+    revision (one that did not drop untraced content) is left exactly as the model returned it.
+
+    Returns ``None`` when nothing needed reverting (nothing to try), never a no-op copy of
+    ``output``.
+    """
+    units = output.get("units")
+    if not isinstance(units, list):
+        return None
+    existing_by_key = {
+        (str(unit.get("section")), str(unit.get("slot"))): unit for unit in existing_units
+    }
+    changed = False
+    for unit in units:
+        if not isinstance(unit, dict):
+            continue
+        key = (str(unit.get("section")), str(unit.get("slot")))
+        existing = existing_by_key.get(key)
+        if existing is None:
+            continue
+        if _dropped_untraced_fact_ids(unit, existing, facts):
+            unit["text"] = existing.get("text", unit.get("text"))
+            existing_fact_ids = existing.get("fact_ids")
+            unit["fact_ids"] = (
+                list(existing_fact_ids)
+                if isinstance(existing_fact_ids, list)
+                else unit.get("fact_ids", [])
+            )
+            changed = True
+    return output if changed else None
 
 
 def apply_coherence(

@@ -15,8 +15,10 @@ from repository_presenter.components.readme.composition.coherence import (
     coherence_batches,
     coherence_checks,
     coherence_citable_ids,
+    coherence_content_loss_errors,
     coherence_packet,
     coherence_schema,
+    recover_coherence_content_loss,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.prompts import load_manifests
@@ -402,3 +404,285 @@ def test_a_document_too_large_for_one_call_completes_via_several_bounded_calls()
     assert {(u["section"], u["slot"]) for u in units["units"]} == {
         (task.section_id, slot) for task in BIG_TASKS for slot in task.slots
     }
+
+
+# G3-W05 (docs/DEFECT_INDEX.md composition.coherence.inherited_diagram_content_loss): S8 coherence
+# had no recover= at all, and no deterministic check existed for a coherence revision silently
+# dropping a named capability/structure/input-output detail the pre-coherence unit carried - only
+# whichever draw's independent-review sample happened to notice it. The two tests below reproduce
+# the exact shape each of the two corroborated 2026-09-27 sightings hit, at the one level S8
+# coherence can actually touch (a unit's own text/fact_ids, pre- vs post-revision) - never a
+# comparison against the original upstream README itself, which this stage has no access to.
+
+SLIDES_JAVA_FACTS = FactsDocument(
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+    "a" * 40,
+    (
+        Fact(
+            "identity:repository",
+            "identity",
+            "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+            (Evidence("x"),),
+        ),
+        Fact("format:output.xml", "format", ".xml", (Evidence("x"),)),
+        Fact("format:output.pptx", "format", ".pptx", (Evidence("x"),)),
+    ),
+)
+SLIDES_JAVA_EXISTING: list[dict[str, Any]] = [
+    {
+        "section": "key_capabilities",
+        "slot": "capability:1",
+        "text": "Convert slides to PPTX or export the whole structure to XML for round-tripping.",
+        "fact_ids": ["format:output.pptx", "format:output.xml"],
+    }
+]
+
+
+def test_sighting_slides_java_f02_diagram_shaped_loss_of_an_xml_output_reference() -> None:
+    """docs/DECISION_LOG.md 2026-09-27 05:14 UTC entry / docs/DEFECT_INDEX.md row 1
+    (aspose-slides-foss/Aspose.Slides-FOSS-for-Java): independent review's F02 found the
+    candidate's own at_a_glance-adjacent capability content "omits specific capabilities and the
+    input/output structure the original's diagram carried." Reproduced at the unit level coherence
+    can actually touch: the pre-coherence unit names both the PPTX and XML output structure; the
+    post-coherence "simplification" keeps PPTX but drops XML and its own citation entirely, with
+    no trace of it anywhere in the revised text."""
+    revised = [
+        {
+            "section": "key_capabilities",
+            "slot": "capability:1",
+            "text": "Convert slides to PPTX for sharing with other presentation tools.",
+            "fact_ids": ["format:output.pptx"],
+        }
+    ]
+    errors = coherence_content_loss_errors(revised, SLIDES_JAVA_EXISTING, SLIDES_JAVA_FACTS)
+    assert errors == [
+        "key_capabilities/capability:1: coherence revision drops the previously-cited format "
+        "'format:output.xml' and none of its own content ('.xml') remains in the revised text - "
+        "a named capability, format, or structural detail the prior version carried must not be "
+        "silently dropped during coherence"
+    ]
+    corrected = recover_coherence_content_loss(
+        {"units": [dict(unit) for unit in revised]},
+        existing_units=SLIDES_JAVA_EXISTING,
+        facts=SLIDES_JAVA_FACTS,
+    )
+    assert corrected is not None
+    assert corrected["units"][0]["text"] == SLIDES_JAVA_EXISTING[0]["text"]
+    assert corrected["units"][0]["fact_ids"] == SLIDES_JAVA_EXISTING[0]["fact_ids"]
+    # The recovered output is clean of this exact check - run_job's own re-validation would accept
+    # it (never accepted on recover='s own say-so, per core/llm/jobs.py's own contract).
+    assert (
+        coherence_content_loss_errors(corrected["units"], SLIDES_JAVA_EXISTING, SLIDES_JAVA_FACTS)
+        == []
+    )
+
+
+SLIDES_NET_FACTS = FactsDocument(
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+    "b" * 40,
+    (
+        Fact(
+            "identity:repository",
+            "identity",
+            "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+            (Evidence("x"),),
+        ),
+        Fact(
+            "public_symbol:aspose.slides.ithreedformat",
+            "public_symbol",
+            "ThreeDFormat",
+            (Evidence("x", "line 1; class; public by name"),),
+        ),
+        Fact(
+            "public_symbol:aspose.slides.idocumentproperties",
+            "public_symbol",
+            "DocumentProperties",
+            (Evidence("x", "line 2; class; public by name"),),
+        ),
+    ),
+)
+SLIDES_NET_EXISTING: list[dict[str, Any]] = [
+    {
+        "section": "key_capabilities",
+        "slot": "capability:2",
+        "text": (
+            "Adjust 3D properties with ThreeDFormat and edit document properties through "
+            "DocumentProperties."
+        ),
+        "fact_ids": [
+            "public_symbol:aspose.slides.ithreedformat",
+            "public_symbol:aspose.slides.idocumentproperties",
+        ],
+    }
+]
+
+
+def test_sighting_slides_net_f03_capability_list_drops_document_properties() -> None:
+    """docs/DECISION_LOG.md 2026-09-27 05:33 UTC entry, draw 4 / docs/DEFECT_INDEX.md row 2
+    (aspose-slides-foss/Aspose.Slides-FOSS-for-.NET): independent review's F03 found the candidate
+    "omits 3D-properties and document-properties capabilities the original README's 'What it can
+    do' list names." Reproduced at the unit level: the pre-coherence unit names both; the
+    post-coherence revision keeps 3D properties but silently drops document properties and its own
+    citation, with no trace of "document" or "DocumentProperties" left anywhere in the text."""
+    revised = [
+        {
+            "section": "key_capabilities",
+            "slot": "capability:2",
+            "text": "Adjust 3D properties on any shape with ThreeDFormat.",
+            "fact_ids": ["public_symbol:aspose.slides.ithreedformat"],
+        }
+    ]
+    errors = coherence_content_loss_errors(revised, SLIDES_NET_EXISTING, SLIDES_NET_FACTS)
+    assert errors == [
+        "key_capabilities/capability:2: coherence revision drops the previously-cited "
+        "public_symbol 'public_symbol:aspose.slides.idocumentproperties' and none of its own "
+        "content ('DocumentProperties') remains in the revised text - a named capability, format, "
+        "or structural detail the prior version carried must not be silently dropped during "
+        "coherence"
+    ]
+    corrected = recover_coherence_content_loss(
+        {"units": [dict(unit) for unit in revised]},
+        existing_units=SLIDES_NET_EXISTING,
+        facts=SLIDES_NET_FACTS,
+    )
+    assert corrected is not None
+    assert corrected["units"][0]["text"] == SLIDES_NET_EXISTING[0]["text"]
+    assert corrected["units"][0]["fact_ids"] == SLIDES_NET_EXISTING[0]["fact_ids"]
+    assert (
+        coherence_content_loss_errors(corrected["units"], SLIDES_NET_EXISTING, SLIDES_NET_FACTS)
+        == []
+    )
+
+
+def test_a_dropped_citation_whose_value_still_reads_in_the_text_is_not_flagged() -> None:
+    """Content that survives - re-cited differently in the same unit, or restated in different
+    words that still carry the fact's own distinctive tokens - must never be flagged; only silent,
+    untraceable loss is this check's target (never a blanket "fact_ids must never shrink" rule)."""
+    existing = [
+        {
+            "section": "opening",
+            "slot": "opening",
+            "text": "Aspose.3D for Python writes GLB files for interchange.",
+            "fact_ids": ["format:output.glb"],
+        }
+    ]
+    revised = [
+        {
+            "section": "opening",
+            "slot": "opening",
+            "text": "Aspose.3D for Python supports glb output for interchange.",
+            "fact_ids": [],
+        }
+    ]
+    assert coherence_content_loss_errors(revised, existing, FACTS) == []
+    assert (
+        recover_coherence_content_loss(
+            {"units": [dict(unit) for unit in revised]}, existing_units=existing, facts=FACTS
+        )
+        is None
+    )
+
+
+def test_a_dropped_identity_or_package_citation_is_never_flagged() -> None:
+    """Live verification, aspose-slides-foss/Aspose.Slides-FOSS-for-Java (docs/DECISION_LOG.md,
+    this item): a first version of this check with no kind exclusion fired on every
+    documentation_resources link unit - the model had correctly shortened several repeated
+    "org.aspose:aspose-slides-foss version 26.8.0 for Java 21" sentences (coherence's own "no
+    repetition" objective), dropping only the identity/package provenance citations that
+    boilerplate existed to justify, never a named capability or format. Reproduced here with the
+    exact live shape (five link units each dropping the same five identity/package facts down to
+    one shared sentence): none of it is flagged, and recover has nothing to do."""
+    existing = [
+        {
+            "section": "documentation_resources",
+            "slot": "link:link_target:029",
+            "text": (
+                "The getting started guide walks through installing the library and creating "
+                "your first presentation using Aspose.Slides FOSS for Java, a Java library for "
+                "slides presentations distributed as org.aspose:aspose-slides-foss version "
+                "26.8.0 for Java 21."
+            ),
+            "fact_ids": [
+                "link_target:029",
+                "identity:ecosystem",
+                "identity:family",
+                "identity:platform",
+                "identity:repository",
+                "identity:revision",
+                "package:java_release",
+                "package:name",
+                "package:version",
+            ],
+        }
+    ]
+    revised = [
+        {
+            "section": "documentation_resources",
+            "slot": "link:link_target:029",
+            "text": (
+                "The getting started guide walks through installing the library and creating "
+                "your first presentation."
+            ),
+            "fact_ids": ["link_target:029"],
+        }
+    ]
+    facts = FactsDocument(
+        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+        "a" * 40,
+        (
+            Fact("identity:ecosystem", "identity", "java", (Evidence("x"),)),
+            Fact("identity:family", "identity", "slides", (Evidence("x"),)),
+            Fact("identity:platform", "identity", "java", (Evidence("x"),)),
+            Fact(
+                "identity:repository",
+                "identity",
+                "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+                (Evidence("x"),),
+            ),
+            Fact("identity:revision", "identity", "a" * 40, (Evidence("x"),)),
+            Fact("package:java_release", "package", "21", (Evidence("x"),)),
+            Fact("package:name", "package", "org.aspose:aspose-slides-foss", (Evidence("x"),)),
+            Fact("package:version", "package", "26.8.0", (Evidence("x"),)),
+            Fact("link_target:029", "link_target", "https://example.test/start", (Evidence("x"),)),
+        ),
+    )
+    assert coherence_content_loss_errors(revised, existing, facts) == []
+    assert (
+        recover_coherence_content_loss(
+            {"units": [dict(unit) for unit in revised]}, existing_units=existing, facts=facts
+        )
+        is None
+    )
+
+
+def test_coherence_checks_includes_content_loss_errors_only_when_existing_units_is_given() -> None:
+    """Backward compatible by default (every call site/test above omits ``existing_units`` and
+    sees exactly its old behaviour) - the new check only runs when a caller actually has a
+    pre-coherence version to compare against."""
+    existing = [
+        {
+            "section": "key_capabilities",
+            "slot": "capability:1",
+            "text": "Scene builds scenes from aspose.threed.Scene and writes GLB files.",
+            "fact_ids": ["public_symbol:aspose.threed.scene", "format:output.glb"],
+        }
+    ]
+    bad = {
+        "units": [
+            UNITS["units"][0],
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "Scene builds scenes.",
+                "fact_ids": ["public_symbol:aspose.threed.scene"],
+            },
+        ],
+        "omitted": [],
+    }
+    # Pre-G3-W05 shape: no existing_units given, so the silently-dropped format:output.glb
+    # citation is invisible - exactly the gap docs/DEFECT_INDEX.md recorded.
+    assert coherence_checks(bad, TASKS, FACTS, NAME) == []
+    # G3-W05: given the pre-coherence units, the same drop is caught.
+    errors = coherence_checks(bad, TASKS, FACTS, NAME, existing_units=existing)
+    assert len(errors) == 1
+    assert "format:output.glb" in errors[0]

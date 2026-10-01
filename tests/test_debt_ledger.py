@@ -31,10 +31,17 @@ REFERENCE = re.compile(
 )
 
 # One row per bundle whose manifest state is VALID_UPDATE_AVAILABLE: bundle directory name -> the
-# reference owning the update's resolution or adoption. Empty today: no sealed bundle is at that
-# state (the sweep below verifies this against the manifests on disk, so the emptiness is
-# re-checked every run, never assumed).
-VALID_UPDATE_AVAILABLE_REFS: dict[str, str] = {}
+# reference owning the update's resolution or adoption.
+VALID_UPDATE_AVAILABLE_REFS: dict[str, str] = {
+    # G3-W05 (docs/DECISION_LOG.md 2026-10-01): this item's own --fresh live-verification run of
+    # S8 coherence's new recover=/content-loss check was the first `present` invocation against
+    # this already-stale bundle since the 2026-09-23 seal (its evaluation.json names unrelated
+    # shared-code landings since then as the real cause - components.normalisation,
+    # components.reviewer_logic, prompts.section_authoring, prompts.targeted_repair - none of them
+    # this item's own change), materializing the latent staleness into its manifest.json. The
+    # candidate's own re-seal (clearing F06, scope_limitations) is a separate, unrelated item.
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Java": "G3-W05",
+}
 
 
 def unreferenced(states: Mapping[str, str], refs: Mapping[str, str]) -> list[str]:
