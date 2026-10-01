@@ -14,6 +14,7 @@ from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from functools import partial
 from pathlib import Path
+from typing import cast
 
 from repository_presenter import __version__
 from repository_presenter.components.issues import file as issues_file
@@ -210,6 +211,13 @@ from repository_presenter.core.snapshot.capture import (
     verify_snapshot,
     write_source_artifacts,
 )
+from repository_presenter.core.state.git_backend import GitStateBackend
+from repository_presenter.core.state.present_transaction import (
+    STATE_TOKEN_VARIABLE,
+    classify_present_outcome,
+    run_present_transaction,
+)
+from repository_presenter.core.state.trigger import TriggerEventType
 from repository_presenter.cursor import (
     CURSOR_RELATIVE_PATH,
     CursorError,
@@ -277,6 +285,52 @@ def build_parser() -> argparse.ArgumentParser:
             "makes a genuinely live call even where a prior seal already answered it. For "
             "periodically refreshing a call-volume-sensitive record (e.g. the canary's own "
             "first-attempt-rate floor) against a matured cache, not routine re-seals"
+        ),
+    )
+    present.add_argument(
+        "--durable-state",
+        action="store_true",
+        help=(
+            "wire G5-W04's durable-state backend around this run (G5-W05): a recovery sweep, "
+            "trigger admission/deduplication, and a committed transition receipt, each against "
+            "this control repository's own git-ref state store - never the target repository. "
+            "The local pipeline itself is unchanged; this only records that it ran. Used by "
+            ".github/workflows/present.yml; a plain local run never needs it"
+        ),
+    )
+    present.add_argument(
+        "--trigger-event-type",
+        choices=[
+            "workflow_dispatch",
+            "repository_dispatch",
+            "workflow_call",
+            "schedule",
+            "manual_dispatch",
+        ],
+        default="workflow_dispatch",
+        help="with --durable-state: the trigger vocabulary this invocation counts as (section 3.2)",
+    )
+    present.add_argument(
+        "--workflow-run-id",
+        default=None,
+        help=(
+            "with --durable-state: the triggering workflow run's own identity, used as the "
+            "trigger's dedup key; defaults to the GITHUB_RUN_ID environment variable"
+        ),
+    )
+    present.add_argument(
+        "--holder-id",
+        default=None,
+        help=(
+            "with --durable-state: the lease holder identity; defaults to a "
+            "workflow-run-id-derived value"
+        ),
+    )
+    present.add_argument(
+        "--state-remote",
+        default="origin",
+        help=(
+            "with --durable-state: the git remote this control repository's own state ref lives on"
         ),
     )
     preflight = subcommands.add_parser(
@@ -423,6 +477,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "status":
         return run_status(args.root, stale=args.stale)
     if args.command == "present":
+        if args.durable_state:
+            return run_present_hosted(
+                args.repo,
+                args.root,
+                facts_only=args.facts_only,
+                fresh=args.fresh,
+                trigger_event_type=args.trigger_event_type,
+                workflow_run_id=args.workflow_run_id,
+                holder_id=args.holder_id,
+                state_remote=args.state_remote,
+            )
         return run_present(args.repo, args.root, facts_only=args.facts_only, fresh=args.fresh)
     if args.command == "preflight":
         return run_preflight(args.root)
@@ -1302,6 +1367,68 @@ def run_present(
         f"{len(sealed.files)} files, provider calls {ledger.provider_calls_made}; {sealed.note})"
     )
     return EXIT_OK
+
+
+def run_present_hosted(
+    repository: str,
+    root_argument: Path | None,
+    *,
+    facts_only: bool,
+    fresh: bool,
+    trigger_event_type: str,
+    workflow_run_id: str | None,
+    holder_id: str | None,
+    state_remote: str,
+) -> int:
+    """``present --durable-state`` (G5-W05): wire G5-W04's durable-state backend around one
+    unmodified :func:`run_present` invocation - see
+    ``core/state/present_transaction.py``'s module docstring for the full design and what this
+    deliberately does not attempt.
+
+    The durable-state ref lives on this control repository's own remote (``--state-remote``,
+    default ``origin``), authenticated by ``REPOSITORY_PRESENTER_STATE_TOKEN`` when set (a hosted
+    run's own job token, scoped only to this repository) - never the read-only ``GH_TOKEN`` the
+    wrapped :func:`run_present` call uses to clone the *target* repository. The two credentials
+    are intentionally distinct: one is this project's own operational state, the other is a
+    read-only analysis grant on a repository this project does not own.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        entry = require_listed(registry, repository)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    run_id = workflow_run_id or os.environ.get("GITHUB_RUN_ID")
+    if not run_id:
+        _fail(
+            "present --durable-state requires --workflow-run-id (or GITHUB_RUN_ID in the "
+            "environment) as the trigger's own dedup identity"
+        )
+        return EXIT_USAGE
+    holder = holder_id or f"present.yml:{run_id}"
+    backend = GitStateBackend(
+        remote=state_remote, token=os.environ.get(STATE_TOKEN_VARIABLE) or None
+    )
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    try:
+        return run_present_transaction(
+            backend=backend,
+            repository=entry.repository,
+            provider_repository_id=entry.provider_identity.repository_id,
+            holder_id=holder,
+            trigger_event_type=cast(TriggerEventType, trigger_event_type),
+            workflow_run_id=run_id,
+            run=lambda: run_present(repository, root_argument, facts_only=facts_only, fresh=fresh),
+            classify=lambda exit_code: classify_present_outcome(root, entry, exit_code),
+        )
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    finally:
+        backend.close()
 
 
 def _print_round(root: Path, transaction: Path, final: Round) -> None:
