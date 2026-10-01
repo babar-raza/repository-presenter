@@ -5,6 +5,7 @@ push race, not a mock.
 
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -126,6 +127,48 @@ def test_load_fails_closed_on_corrupt_stored_state(remote: Path, tmp_path: Path)
 
     with GitStateBackend(remote=str(remote)) as backend, pytest.raises(StateBackendError):
         backend.load(REPO)
+
+
+def test_a_leaky_transport_never_surfaces_the_live_token_in_a_raised_error(
+    remote: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G7-W01 (docs/THREAT_MODEL.md area 1). ``github_https_auth_env`` keeps the token out of
+    every git argv and URL (the extraheader env var), and a well-behaved git/libcurl never echoes
+    a request header back in its own output - but this class embeds raw ``git`` stderr verbatim in
+    every ``StateBackendError`` it raises, and had no caller applying ``cli.py``'s own
+    ``redact()`` boundary to catch a transport that misbehaves (a corporate proxy, a future git
+    version, a verbose-mode regression) and puts the token in its stderr anyway. Simulates exactly
+    that: a push whose stderr leaks the live token text, proving ``_run_remote_git`` redacts it
+    before any caller - today, nothing - ever sees the raised message."""
+    token = "ghp_live_token_should_never_appear_in_any_error_1234567890"
+    real_run_git = run_git
+
+    def leaky_run_git(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args and args[0] == "push":
+            return subprocess.CompletedProcess(
+                args=args,
+                returncode=128,
+                stdout="",
+                stderr=(
+                    f"fatal: unable to access remote: Authorization: basic {token} rejected (401)"
+                ),
+            )
+        return real_run_git(args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr("repository_presenter.core.state.git_backend.run_git", leaky_run_git)
+    with (
+        GitStateBackend(remote=str(remote), token=token) as backend,
+        pytest.raises(StateBackendError) as excinfo,
+    ):
+        backend.save(
+            REPO,
+            RepositoryRecord(
+                repository=REPO, provider_repository_id=PROVIDER_ID, state="SNAPSHOTTING"
+            ),
+            expected_version=None,
+        )
+    assert token not in str(excinfo.value)
+    assert "[REDACTED]" in str(excinfo.value)
 
 
 def test_lease_and_transition_helpers_compose_with_the_real_backend(remote: Path) -> None:
