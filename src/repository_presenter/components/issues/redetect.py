@@ -24,6 +24,19 @@ re-check (`_REDETECTORS`); an id with no redetector fails closed
 (`RedetectorNotRegisteredError`) rather than guessing - the same "add through a registry, never
 an if/elif chain" discipline `docs/REPOSITORY_LAYOUT.md` section 2.1 already requires of
 ecosystem extractors.
+
+`docs/investigations/03-issue-tracking.md` section 6 names two distinct close reasons, matching
+`gh issue close --reason`'s own two values, and requires they never be inferred silently:
+`completed` - the defect was genuinely fixed upstream - only when the *same* `triggering_check`
+the handoff already points to is re-evaluated at a revision that has actually moved since filing;
+`not planned` - a check-version change or a false positive - whenever the check's own definition
+has changed since filing (`triggering_check.version` no longer matches `validation/registry.py::
+BLOCKING_CHECKS`' current version for that id, the one place this codebase already records a
+check's own version history) **or** the check no longer fires at the identical revision that was
+filed against (nothing about the target repository changed, so the original finding itself must
+have been wrong). `_current_check_version`/`_propose_close_reason` below are the deterministic
+rule; this module never asks the LLM to adjudicate which reason applies (AGENTS.md's
+Agentic/Deterministic Boundary).
 """
 
 from __future__ import annotations
@@ -35,6 +48,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 
 from repository_presenter.components.issues.model import (
+    CloseReason,
     EvidenceEntry,
     Handoff,
     Status,
@@ -43,6 +57,7 @@ from repository_presenter.components.readme.extractors.platforms.python_registry
     RegistryObservation,
     observe_pypi,
 )
+from repository_presenter.components.readme.validation.registry import BLOCKING_CHECKS
 from repository_presenter.core.github.read_client import (
     DefaultBranchRead,
     FileRead,
@@ -52,6 +67,12 @@ from repository_presenter.core.github.read_client import (
 
 _PYPI_EVIDENCE_URL = re.compile(r"^https://pypi\.org/pypi/(?P<name>[^/]+)/json$")
 _STATUS_THAT_CAN_RESOLVE: frozenset[Status] = frozenset({"FILED"})
+
+# The repository-level disposition shape (`NOT_PROCESSABLE`) carries no independent versioning of
+# its own (schemas/upstream-defect-handoff.schema.json: "\"1\" for a repository-level disposition
+# with no independent versioning of its own") - its current version is always "1", so a
+# check-version-change close reason can never apply to it, only to a real `BLOCKING_CHECKS` entry.
+_NOT_PROCESSABLE_VERSION = "1"
 
 
 class RedetectorNotRegisteredError(ValueError):
@@ -89,6 +110,7 @@ class RedetectionResult:
     note: str
     fresh_evidence: tuple[EvidenceEntry, ...]
     proposed_status: Status | None
+    proposed_close_reason: CloseReason | None = None
 
 
 Redetector = Callable[[Handoff, RedetectionReads], RedetectionResult]
@@ -142,8 +164,45 @@ def _propose_status(handoff: Handoff, *, still_fires: bool | None) -> Status | N
     return "RESOLVED_UPSTREAM"
 
 
+def _current_check_version(check_id: str) -> str | None:
+    """The live, currently-registered version for ``check_id`` - `None` only if the id itself is
+    unknown (never happens for a redetector-registered id, since every registered id is either a
+    real `BLOCKING_CHECKS` entry or `NOT_PROCESSABLE`)."""
+    if check_id == "NOT_PROCESSABLE":
+        return _NOT_PROCESSABLE_VERSION
+    check = next((c for c in BLOCKING_CHECKS if c.id == check_id), None)
+    return check.version if check is not None else None
+
+
+def _propose_close_reason(handoff: Handoff, *, revision_drifted: bool) -> CloseReason | None:
+    """The reason a `RESOLVED_UPSTREAM` transition carries, per `docs/investigations/
+    03-issue-tracking.md` section 6 - only ever called once `_propose_status` has already decided
+    `still_fires is False` and the handoff is `FILED`, so this never runs for any other outcome.
+
+    Three-way, deterministic, never defaulted (AGENTS.md: "distinguish these two cases for real"):
+
+    1. The check's own version has changed since this handoff was filed
+       (`triggering_check.version` no longer matches its current, live `BLOCKING_CHECKS` entry, or
+       `NOT_PROCESSABLE`'s fixed "1") - `not planned`: what counts as passing moved, not the target
+       repository.
+    2. Otherwise, if the repository's own revision has genuinely drifted since filing - `completed`:
+       the identical check, at the identical version, no longer fires at a revision that has moved,
+       the literal shape of "the maintainers fixed it."
+    3. Otherwise (same check version, same revision) - `not planned`: nothing about the target
+       repository or the check changed, so a check that no longer fires at the exact revision it
+       was filed against means the original finding was a false positive, not a fix.
+    """
+    current_version = _current_check_version(handoff.triggering_check.id)
+    if current_version is not None and current_version != handoff.triggering_check.version:
+        return "not planned"
+    if revision_drifted:
+        return "completed"
+    return "not planned"
+
+
 def apply_redetection(handoff: Handoff, result: RedetectionResult) -> Handoff:
-    """Return the handoff with `result.proposed_status` applied, or ``handoff`` unchanged.
+    """Return the handoff with `result.proposed_status`/`result.proposed_close_reason` applied, or
+    ``handoff`` unchanged.
 
     Never mutates in place; the caller decides whether/when to `write_handoff` the result. Never
     touches `issue_ref` - a `FILED` handoff's `issue_ref` is exactly what `RESOLVED_UPSTREAM` still
@@ -151,7 +210,9 @@ def apply_redetection(handoff: Handoff, result: RedetectionResult) -> Handoff:
     """
     if result.proposed_status is None:
         return handoff
-    return replace(handoff, status=result.proposed_status)
+    return replace(
+        handoff, status=result.proposed_status, close_reason=result.proposed_close_reason
+    )
 
 
 def _pypi_package_names(handoff: Handoff) -> frozenset[str]:
@@ -234,6 +295,7 @@ def _redetect_install_command_defect(
         if still_fires
         else f"no longer fires: package registry now lists a distribution named {name!r}"
     )
+    proposed_status = _propose_status(handoff, still_fires=still_fires)
     return RedetectionResult(
         repository=handoff.repository,
         defect_fingerprint=handoff.defect_fingerprint,
@@ -244,7 +306,12 @@ def _redetect_install_command_defect(
         still_fires=still_fires,
         note=note,
         fresh_evidence=fresh,
-        proposed_status=_propose_status(handoff, still_fires=still_fires),
+        proposed_status=proposed_status,
+        proposed_close_reason=(
+            _propose_close_reason(handoff, revision_drifted=drifted)
+            if proposed_status == "RESOLVED_UPSTREAM"
+            else None
+        ),
     )
 
 
@@ -332,6 +399,7 @@ def _redetect_not_processable_defect(
         if still_fires
         else f"no longer fires: all {len(named_paths)} named source path(s) now parse cleanly"
     )
+    proposed_status = _propose_status(handoff, still_fires=still_fires)
     return RedetectionResult(
         repository=handoff.repository,
         defect_fingerprint=handoff.defect_fingerprint,
@@ -342,5 +410,10 @@ def _redetect_not_processable_defect(
         still_fires=still_fires,
         note=note,
         fresh_evidence=tuple(fresh),
-        proposed_status=_propose_status(handoff, still_fires=still_fires),
+        proposed_status=proposed_status,
+        proposed_close_reason=(
+            _propose_close_reason(handoff, revision_drifted=drifted)
+            if proposed_status == "RESOLVED_UPSTREAM"
+            else None
+        ),
     )

@@ -330,6 +330,29 @@ def test_upstream_defect_handoff_schema_rejects_drift() -> None:
     extra_field["filed_by"] = "someone"
     assert errors(validator, extra_field)
 
+    resolved_without_reason = copy.deepcopy(filed_with_ref)
+    resolved_without_reason["status"] = "RESOLVED_UPSTREAM"
+    assert errors(validator, resolved_without_reason)
+
+    resolved_with_completed = copy.deepcopy(filed_with_ref)
+    resolved_with_completed["status"] = "RESOLVED_UPSTREAM"
+    resolved_with_completed["close_reason"] = "completed"
+    assert errors(validator, resolved_with_completed) == []
+
+    resolved_with_not_planned = copy.deepcopy(filed_with_ref)
+    resolved_with_not_planned["status"] = "RESOLVED_UPSTREAM"
+    resolved_with_not_planned["close_reason"] = "not planned"
+    assert errors(validator, resolved_with_not_planned) == []
+
+    pending_with_close_reason = copy.deepcopy(handoff)
+    pending_with_close_reason["close_reason"] = "completed"
+    assert errors(validator, pending_with_close_reason)
+
+    unknown_close_reason = copy.deepcopy(filed_with_ref)
+    unknown_close_reason["status"] = "RESOLVED_UPSTREAM"
+    unknown_close_reason["close_reason"] = "fixed"
+    assert errors(validator, unknown_close_reason)
+
 
 def test_manifest_schema_names_every_source_a_record_may_cite() -> None:
     """A second reuse source enters through `sources`, and a file record says which it came from.

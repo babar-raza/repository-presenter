@@ -486,11 +486,17 @@ def run_redetect_upstream_defects(
                 f"current default-branch head is {result.checked_at_revision}"
             )
         if result.proposed_status is not None:
-            print(f"  proposed status: {handoff.status} -> {result.proposed_status}")
+            print(
+                f"  proposed status: {handoff.status} -> {result.proposed_status} "
+                f"(reason: {result.proposed_close_reason})"
+            )
             if apply:
                 updated = apply_redetection(handoff, result)
                 write_handoff(updated, entry.path)
-                print(f"  applied: {entry.path.relative_to(root).as_posix()} now {updated.status}")
+                print(
+                    f"  applied: {entry.path.relative_to(root).as_posix()} now {updated.status} "
+                    f"({updated.close_reason})"
+                )
     return EXIT_OK
 
 
