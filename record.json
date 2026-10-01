@@ -4,7 +4,7 @@
   "provider_repository_id": 1138357893,
   "registry_revision": null,
   "active_transaction_id": "25b7a7da2459460f840d3080ec2bfbd2",
-  "state": "INVALIDATED",
+  "state": "RETRYABLE",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -17,12 +17,12 @@
   "accepted_artifact": null,
   "proposal": null,
   "failure": {
-    "classification": "validation_failed",
-    "detail": "present exited 1 (a written disposition or a blocking validation failure - see this transaction's own runs/ output for which)",
-    "resume_state": "SNAPSHOTTING",
-    "occurred_at": "2026-10-01T12:07:05.075094+00:00",
+    "classification": "transient",
+    "detail": "recovery_sweep: nonterminal transaction had no valid lease",
+    "resume_state": "INVALIDATED",
+    "occurred_at": "2026-10-01T12:09:27.914043+00:00",
     "resume_predicate": null,
-    "recovery_count": 0
+    "recovery_count": 2
   },
   "lease": null,
   "last_transition": {
@@ -39,12 +39,12 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 23,
+  "state_version": 24,
   "recent_trigger_dedup_keys": {
     "run:36846316608:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "c10d0e8f3981420db933efcf16457339",
     "run:36846738278:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "7483865b14ff4539a5bf0e709a64d326",
     "run:36849829170:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "d974c0355ca541348285a31c667f7952",
     "run:36850716408:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "25b7a7da2459460f840d3080ec2bfbd2"
   },
-  "recovery_count": 1
+  "recovery_count": 2
 }
