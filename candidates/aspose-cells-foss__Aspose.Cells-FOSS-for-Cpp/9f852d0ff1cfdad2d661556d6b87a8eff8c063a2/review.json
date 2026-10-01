@@ -2,151 +2,233 @@
   "advisory": [
     {
       "absent": [
-        "Aspose.Cells.Cpp.FOSS",
-        "Windows only",
-        "prebuilt static libraries",
-        "lib/win_x86",
-        "lib/win_x86_64",
-        "v14x",
-        "aspose.cells.cpp.foss.targets"
+        "[![NuGet version](https://img.shields.io/nuget/v/Aspose.Cells.Cpp.FOSS.svg)](https://www.nuget.org/packages/Aspose.Cells",
+        "Cpp.FOSS/)"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "inherited_unit:012.paragraph"
+        "link_target:001",
+        "link_target:002",
+        "link_target:005",
+        "link_target:006"
       ],
       "id": "F01",
-      "quote": "`aspose_cells_foss_cpp` is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
-      "repair": "Replace the paragraph with: 'Aspose.Cells FOSS for C++ is published on NuGet as `Aspose.Cells.Cpp.FOSS`, but the package ships prebuilt static libraries for Windows only (`lib/win_x86`, `lib/win_x86_64`) built with the MSVC `v14x` toolset — its own bundled `aspose.cells.cpp.foss.targets` file errors the build for any other toolset or platform. There are no Linux/macOS binaries in the package.'",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.xmldocument.build, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "installation",
-      "text": "The installation section incorrectly states that the package is not published on any registry and omits the verified NuGet package name and Windows-only prebuilt binaries."
+      "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](License/LICENSE.txt) [![Contributors](https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/graphs/contributors)",
+      "repair": "Restore the NuGet version badge and the contributors badge to the top of the README, as they are present in the original and supported by the facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The candidate omits the NuGet badge and the contributors badge, which are present in the original README and supported by the facts."
     },
     {
       "absent": [
-        "nuget install Aspose.Cells.Cpp.FOSS",
-        "<PackageReference Include=Aspose.Cells.Cpp.FOSS Version=26.4.1 />",
-        "set(aspose.cells.cpp.foss_DIR",
-        "find_package(aspose.cells.cpp.foss CONFIG REQUIRED)",
-        "target_link_libraries(your_target PRIVATE Aspose.Cells.Cpp.FOSS)"
+        "Aspose.Cells.Cpp.FOSS"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "inherited_unit:013.code_block",
-        "inherited_unit:015.code_block",
-        "inherited_unit:017.code_block"
+        "link_target:001",
+        "link_target:002"
       ],
       "id": "F02",
-      "quote": "```bash git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp.git cd Aspose.Cells-FOSS-for-Cpp cmake -S . -B build ```",
-      "repair": "Add the NuGet install command and MSBuild/CMake integration examples as verified in the original README, or explicitly state that only source build is supported for this edition.",
+      "quote": "aspose_cells_foss_cpp is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+      "repair": "Correct the installation section to state that the package is published on NuGet as 'Aspose.Cells.Cpp.FOSS' and provide the correct NuGet install command.",
       "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
       "section_id": "installation",
-      "text": "The installation section omits the verified NuGet install command and MSBuild/CMake integration examples that were present in the original README."
+      "text": "The candidate incorrectly states 'aspose_cells_foss_cpp is not yet published on any package registry' while the original README explicitly states it is published on NuGet as 'Aspose.Cells.Cpp.FOSS'."
     },
     {
       "absent": [
-        "prebuilt static libraries",
-        "Windows only",
-        "lib/win_x86",
-        "lib/win_x86_64",
-        "v14x",
-        "aspose.cells.cpp.foss.targets"
+        "## Dependencies"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:012.paragraph"
-      ],
+      "fact_ids": [],
       "id": "F03",
-      "quote": "No required third-party package dependencies; in `Aspose.Cells.Foss.Cpp/CMakeLists.txt`, no dependency is on the library target's public link interface, so a consumer links nothing beyond the library itself.",
-      "repair": "Replace the paragraph with: 'The package ships prebuilt static libraries for Windows only (`lib/win_x86`, `lib/win_x86_64`) built with the MSVC `v14x` toolset. On Linux, macOS, or with a non-MSVC toolchain, build from source instead — the library itself is a plain, dependency-free CMake target and targets C++17 on MSVC, GCC, and Clang alike.'",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "quote": "## Dependencies",
+      "repair": "Restore the 'Dependencies' section heading and content as required by the deterministic shell structure.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '## Dependencies', which the candidate contains",
       "section_id": "dependencies",
-      "text": "The Dependencies section incorrectly states that no dependency is on the library target's public link interface, contradicting the verified fact that the package ships prebuilt static libraries for Windows."
+      "text": "The candidate omits the 'Dependencies' section heading from the original README, which is a required deterministic section."
     },
     {
       "absent": [],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:041.paragraph"
-      ],
+      "fact_ids": [],
       "id": "F04",
       "quote": "The verified public surface has 195 types.",
-      "repair": "Change '195 types' to '197 public types' to match the verified count in the original README.",
+      "repair": "Update the count to 197 public types to match the original README and facts.",
       "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
       "section_id": "api_reference",
-      "text": "The API Reference section incorrectly states the verified public surface has 195 types, while the original README and facts confirm 197 public types."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:056.list"
-      ],
-      "id": "F05",
-      "quote": "The package ships prebuilt static libraries for Windows only, built with the MSVC v14x toolset, and errors the build for any other toolset or platform, with no Linux or macOS binaries included.",
-      "repair": "Move the Windows-only prebuilt binaries statement to the Installation section and rephrase the Scope and Limitations paragraph to clarify that this is a limitation of the FOSS edition, not the source build.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.xmldocument.build, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "scope_limitations",
-      "text": "The Scope and Limitations section incorrectly states the package ships prebuilt static libraries for Windows only, but omits the fact that this is a limitation of the FOSS edition and conflates it with the source build instructions."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "link_target:product.enterprise"
-      ],
-      "id": "F06",
-      "quote": "The commercial edition of Aspose.Cells FOSS for Cpp extends this package with additional file format support, advanced rendering capabilities, and enterprise-grade features.",
-      "repair": "Change 'Aspose.Cells for Cpp — Enterprise Edition' to 'Aspose.Cells for C++ — Enterprise Edition' and rephrase to clarify that the commercial product is a separate offering, not an extension of the FOSS edition.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "enterprise_relationship",
-      "text": "The Enterprise Edition relationship incorrectly describes the commercial product as 'Aspose.Cells for Cpp — Enterprise Edition', while the verified link target uses 'Aspose.Cells for C++ — Enterprise Edition'."
+      "text": "The candidate states the verified public surface has 195 types, while the original README and facts indicate 197 public types."
     },
     {
       "absent": [
-        "Cells.Merge()",
-        "Style.SetNumberFormat()",
-        "Workbook.GetDefinedNames()",
-        "Workbook.GetDocumentProperties()",
-        "Workbook.GetProperties()",
-        "Workbook.Save()",
-        "Worksheet.GetConditionalFormattings()",
-        "Worksheet.GetHyperlinks()"
+        "IPackageReader",
+        "IPackageWriter",
+        "IWarningCallback"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "inherited_unit:010.list"
+        "public_symbol:aspose.cells_foss.packaging.ipackagereader",
+        "public_symbol:aspose.cells_foss.packaging.ipackagewriter",
+        "public_symbol:aspose.cells_foss.iwarningcallback"
       ],
-      "id": "F07",
-      "quote": "Apply cell and range styling. Apply comprehensive styling to cells and ranges by setting font properties, foreground and background colors, fill patterns, and borders through the `Style` object.",
-      "repair": "Add specific, verified capabilities such as `Cells.Merge()`, `Style.SetNumberFormat()`, `Workbook.GetDefinedNames()`, `Workbook.GetDocumentProperties()`, `Workbook.GetProperties()`, `Workbook.Save()`, `Worksheet.GetConditionalFormattings()`, `Worksheet.GetHyperlinks()`, and `mailto:` hyperlinks to the Key Capabilities list.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.borders, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "key_capabilities",
-      "text": "The Key Capabilities section omits specific, verified capabilities such as `Cells.Merge()`, `Style.SetNumberFormat()`, `Workbook.GetDefinedNames()`, `Workbook.GetDocumentProperties()`, `Workbook.GetProperties()`, `Workbook.Save()`, `Worksheet.GetConditionalFormattings()`, `Worksheet.GetHyperlinks()`, `Worksheet.GetPageSetup()`, `Worksheet.GetValidations()`, and `mailto:` hyperlinks."
+      "id": "F05",
+      "quote": "| Class | Description |",
+      "repair": "Restore all public types listed in the original README's API reference section to ensure completeness.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'IPackageReader', 'IPackageWriter', 'IWarningCallback', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate's API reference table is missing several public types that are listed in the original README and supported by the facts, such as 'IPackageReader', 'IPackageWriter', and 'IWarningCallback'."
+    },
+    {
+      "absent": [
+        "[![NuGet version](https://img.shields.io/nuget/v/Aspose.Cells.Cpp.FOSS.svg)](https://www.nuget.org/packages/Aspose.Cells",
+        "Cpp.FOSS/)"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008"
+      ],
+      "id": "F01",
+      "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](License/LICENSE.txt) [![Contributors](https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/graphs/contributors)",
+      "reader": 2,
+      "repair": "Restore the NuGet badge, the contributors badge, and the issues badge from the original README, and ensure the license badge links to the correct LICENSE.txt path.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate omits the NuGet badge and the contributors badge present in the original README, and incorrectly omits the license badge's link to the LICENSE.txt file."
+    },
+    {
+      "absent": [
+        "free, open-source, MIT-licensed",
+        "dependency-free",
+        "header-and-source C++17 library",
+        "editing",
+        "saving",
+        "Excel .xlsx workbooks"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "license:spdx",
+        "dependency:none",
+        "package:cxx_standard"
+      ],
+      "id": "F02",
+      "quote": "Aspose.Cells FOSS for Cpp is a C++ library that enables developers to create, read, and convert spreadsheet files without requiring Microsoft Excel.",
+      "reader": 2,
+      "repair": "Rewrite the opening paragraph to include 'free, open-source, MIT-licensed', 'dependency-free', 'header-and-source C++17 library', and specify 'creating, loading, editing, and saving Excel .xlsx workbooks' instead of 'convert spreadsheet files'.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The candidate's opening paragraph drops critical facts: it omits the 'free, open-source, MIT-licensed' description, the 'dependency-free' claim, and the 'header-and-source C++17 library' detail, and incorrectly states 'convert spreadsheet files' instead of 'creating, loading, editing, and saving Excel .xlsx workbooks'."
+    },
+    {
+      "absent": [
+        "Aspose.Cells.Cpp.FOSS",
+        "26.4.1"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:name"
+      ],
+      "id": "F03",
+      "quote": "`aspose_cells_foss_cpp` is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+      "reader": 2,
+      "repair": "Correct the installation section to state that the package is published on NuGet as 'Aspose.Cells.Cpp.FOSS' and provide the correct version, while keeping the CMake build-from-source instructions for non-Windows platforms.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The candidate's installation section incorrectly states 'aspose_cells_foss_cpp is not yet published on any package registry' and omits the NuGet package name and version, contradicting the facts that the package is published on NuGet as 'Aspose.Cells.Cpp.FOSS'."
+    },
+    {
+      "absent": [
+        "CMake 3.16 or later",
+        "3.16"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:none",
+        "package:cmake_minimum"
+      ],
+      "id": "F04",
+      "quote": "### Required Package Dependencies",
+      "reader": 2,
+      "repair": "Rewrite the Dependencies section to clarify that the library has no external runtime dependencies and specify CMake 3.16 as the minimum required version.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate's Dependencies section incorrectly claims 'No required third-party package dependencies' without clarifying that the library itself is dependency-free, and omits the fact that the CMake minimum version is 3.16."
+    },
+    {
+      "absent": [
+        "197"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss"
+      ],
+      "id": "F05",
+      "quote": "The verified public surface has 195 types.",
+      "reader": 2,
+      "repair": "Correct the public type count to 197 and ensure the API reference table matches the original README's structure and completeness.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate's API Reference section incorrectly states 'The verified public surface has 195 types' while the original README and facts indicate 197 public types, and the table listing is incomplete and inconsistent with the original."
+    },
+    {
+      "absent": [
+        "Only `.xlsx` (OOXML) is supported for load and save",
+        "Legacy SpreadsheetML (the pre-OOXML Excel 2003 XML dialect) is not implemented",
+        "Cell-level comments/notes are not modeled as a distinct object"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.loadformat",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.unsupportedfeatureexception"
+      ],
+      "id": "F06",
+      "quote": "Aspose.Cells FOSS for Cpp provides C++ developers with a free, open-source library to read, write, and convert spreadsheet files using the aspose_cells_foss_cpp package, requiring C++17 and CMake 3.16 or later.",
+      "reader": 2,
+      "repair": "Rewrite the Scope and Limitations section to match the original's specific XLSX-only support description and list the exact limitations from the original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate's Scope and Limitations section incorrectly states 'Aspose.Cells FOSS for Cpp provides C++ developers with a free, open-source library to read, write, and convert spreadsheet files using the aspose_cells_foss_cpp package, requiring C++17 and CMake 3.16 or later' instead of the original's focused description of XLSX-only support and specific limitations."
     }
   ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+    "prompt_sha256": "a3b2066d504d61a8cb957068e38b2fd41af2ba26f7b8409e3f54e272b67403e6",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "46ebad06f77ccbf43a847cb3c52531c3923cfc7a2f304bf43779ab6a4cab05f9",
+  "readme_sha256": "a42d2115573a1ca6efd3d0c136d6800de6cb9c95d9797a4fb47771e41ed0bd71",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -155,8 +237,15 @@
   },
   "schema_version": 1,
   "second_reader": {
-    "corroborated": [],
-    "read": false
+    "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
+      "3c3b7985b1f0977c7f120bba",
+      "573348ddd0e6b2ea5b590f8a",
+      "5a7b3d4f0db5c30bca2069e8",
+      "a3b6ba4d451861363f1cdb3d",
+      "f30c64caa7ffb9e995f70222"
+    ],
+    "read": 2
   },
   "verdict": "ACCEPT",
   "verdict_as_returned": "REJECT_PRESENTATION"

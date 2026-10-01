@@ -22,12 +22,12 @@
       "failures": [],
       "id": "BC-02",
       "judged_at": "S9",
-      "name": "Install command verified against the manifest and the package-registry observation",
+      "name": "Install command verified against the manifest and the package-registry observation, against the source-build receipt naming exactly the steps it proved, or - when no build/install command ever succeeds - against a source-checkout receipt",
       "sections": [
         "installation"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -41,7 +41,7 @@
         "additional_examples"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -59,7 +59,7 @@
         "enterprise_relationship"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -87,7 +87,7 @@
         "badges"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -100,7 +100,7 @@
         "structure"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "7"
     },
     {
       "causal_stage": null,
@@ -113,7 +113,7 @@
         "all"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -134,13 +134,13 @@
       "failures": [],
       "id": "BC-10",
       "judged_at": "S10",
-      "name": "Independent review returns ACCEPT under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
+      "name": "Independent review returns ACCEPT corroborated by a second independent read, under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
       "review_verdict": "ACCEPT",
       "sections": [
         "review"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "4"
     },
     {
       "causal_stage": null,
@@ -267,8 +267,8 @@
           "kind": "example",
           "reasons": [
             "CONTRADICTED: example 2: FAILED; example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
-            "CONTRADICTED: example 3: FAILED; example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
-            "CONTRADICTED: example 4: FAILED; example_004.cpp:3:25: error: 'sheet' was not declared in this scope"
+            "UNRESOLVED: example 3: NOT_VERIFIED; the fence uses `sheet`, `CellArea`, `FormatConditionType`, `OperatorType`, `Style`, `style`, `FillPattern`, `Color` without binding it; the README establishes it in an earlier section",
+            "UNRESOLVED: example 4: NOT_VERIFIED; the fence uses `sheet`, `CellArea`, `ValidationType`, `OperatorType` without binding it; the README establishes it in an earlier section"
           ],
           "supported": 1
         },
@@ -323,13 +323,13 @@
           "kind": "example",
           "reasons": [
             "CONTRADICTED: example 2: FAILED; example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
-            "CONTRADICTED: example 3: FAILED; example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
-            "CONTRADICTED: example 4: FAILED; example_004.cpp:3:25: error: 'sheet' was not declared in this scope"
+            "UNRESOLVED: example 3: NOT_VERIFIED; the fence uses `sheet`, `CellArea`, `FormatConditionType`, `OperatorType`, `Style`, `style`, `FillPattern`, `Color` without binding it; the README establishes it in an earlier section",
+            "UNRESOLVED: example 4: NOT_VERIFIED; the fence uses `sheet`, `CellArea`, `ValidationType`, `OperatorType` without binding it; the README establishes it in an earlier section"
           ],
           "supported": 1
         }
       ],
-      "required": true,
+      "required": false,
       "section_id": "quick_start"
     },
     {
@@ -340,8 +340,8 @@
           "kind": "example",
           "reasons": [
             "CONTRADICTED: example 2: FAILED; example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
-            "CONTRADICTED: example 3: FAILED; example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
-            "CONTRADICTED: example 4: FAILED; example_004.cpp:3:25: error: 'sheet' was not declared in this scope"
+            "UNRESOLVED: example 3: NOT_VERIFIED; the fence uses `sheet`, `CellArea`, `FormatConditionType`, `OperatorType`, `Style`, `style`, `FillPattern`, `Color` without binding it; the README establishes it in an earlier section",
+            "UNRESOLVED: example 4: NOT_VERIFIED; the fence uses `sheet`, `CellArea`, `ValidationType`, `OperatorType` without binding it; the README establishes it in an earlier section"
           ],
           "supported": 1
         }
@@ -386,8 +386,8 @@
           "kind": "example",
           "reasons": [
             "CONTRADICTED: example 2: FAILED; example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
-            "CONTRADICTED: example 3: FAILED; example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
-            "CONTRADICTED: example 4: FAILED; example_004.cpp:3:25: error: 'sheet' was not declared in this scope"
+            "UNRESOLVED: example 3: NOT_VERIFIED; the fence uses `sheet`, `CellArea`, `FormatConditionType`, `OperatorType`, `Style`, `style`, `FillPattern`, `Color` without binding it; the README establishes it in an earlier section",
+            "UNRESOLVED: example 4: NOT_VERIFIED; the fence uses `sheet`, `CellArea`, `ValidationType`, `OperatorType` without binding it; the README establishes it in an earlier section"
           ],
           "supported": 1
         },
@@ -450,7 +450,7 @@
     }
   ],
   "protected_content_fingerprint": "2ee856226d1d2e273b6a0e0929b3e420aaa3be0ac460dad4a7b61847c308d7f4",
-  "readme_sha256": "46ebad06f77ccbf43a847cb3c52531c3923cfc7a2f304bf43779ab6a4cab05f9",
+  "readme_sha256": "a42d2115573a1ca6efd3d0c136d6800de6cb9c95d9797a4fb47771e41ed0bd71",
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
   "schema_version": 1,
   "source_revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",

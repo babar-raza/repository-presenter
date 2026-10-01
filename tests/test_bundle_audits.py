@@ -100,10 +100,11 @@ PRESERVED_API_LISTS_KNOWN = {
         "pre-existing module-level-only preserved list (5 units), predates RC-06's "
         "extraction-time fix - see audit_preserved_api_lists.py's own docstring"
     ),
-    "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp/9f852d0ff1cf": (
-        "pre-existing module-level-only preserved list (1 unit), predates RC-06's "
-        "extraction-time fix - see audit_preserved_api_lists.py's own docstring"
-    ),
+    # aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp's entry here is removed as of the 2026-10-01
+    # real re-seal (docs/DECISION_LOG.md section 31, the trigraph blocker closed via MSVC): the
+    # fresh composition draw this re-seal produced does not reproduce the pre-existing duplication
+    # suspect - a real property of this specific draw's own sampled content, not a code fix to the
+    # audit itself. Leaving the entry would XPASS(strict) forever.
     "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java/099e70a8b309": (
         "pre-existing module-level-only preserved list (6 units), predates RC-06's "
         "extraction-time fix - see audit_preserved_api_lists.py's own docstring"
