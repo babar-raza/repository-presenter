@@ -1,6 +1,7 @@
-"""GitHub REST client: read (``GET /repos/{owner}/{repo}``, always available) and two gated write
-halves (``PATCH /repos/{owner}/{repo}`` + ``PUT /repos/{owner}/{repo}/topics``, and
-``POST /repos/{owner}/{repo}/issues``).
+"""GitHub REST client: read (``GET /repos/{owner}/{repo}``, always available) and three gated write
+halves (``PATCH /repos/{owner}/{repo}`` + ``PUT /repos/{owner}/{repo}/topics``,
+``POST /repos/{owner}/{repo}/issues``, and the branch/contents/pull-request primitives
+``components/propose/effect.py`` composes into one proposal effect).
 
 The read half is the one GitHub-metadata read this project's production code makes outside cloning
 (``core/git_safety/clone.py`` already reads with the same ``GH_TOKEN`` to pin and push-disable a
@@ -24,6 +25,16 @@ performs no authorization check of its own, and no other code calls it. It needs
 write-scoped token, also distinct from ``GH_TOKEN`` (``GH_ISSUES_WRITE_TOKEN`` -
 ``core/secrets.py``) - the ``Issues: write`` scope this project's own ``GH_TOKEN`` does not have.
 
+The proposal-effect write half (``get_ref``/``create_ref``/``get_contents``/``put_contents``/
+``find_open_pull_request``/``create_pull_request``/``update_pull_request``) exists so
+``components/propose/effect.py`` (G6-W02, the gated README-proposal PR effect) has real functions to
+compose one idempotent "create or update a presenter branch and its PR" effect from. Same split
+again: no authorization check here, no other caller. Its own write-scoped token is
+``GH_PROPOSAL_WRITE_TOKEN`` (``core/secrets.py``) - a fresh, repository-scoped App installation
+token minted only inside ``propose.yml``'s effect job, never ``GH_TOKEN`` and never reused from the
+``GH_METADATA_WRITE_TOKEN``/``GH_ISSUES_WRITE_TOKEN`` halves above, even though all three are
+GitHub App installation tokens in principle - each effect mints and uses its own.
+
 ``fetch``/``write`` are injected the same way ``tools/discovery/portfolio_discovery.py`` and
 ``components/readme/evidence/facts/links.py`` already inject their HTTP calls: a plain
 ``(status_code, body)`` callable, so every test here runs with a fake and makes no live network
@@ -32,6 +43,7 @@ call.
 
 from __future__ import annotations
 
+import base64
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -288,3 +300,244 @@ def create_issue(
             f"{owner}/{name}: POST {url} returned HTTP 201 with no usable issue body"
         )
     return CreatedIssue(number=int(response_body["number"]), url=str(response_body["html_url"]))
+
+
+# ---------------------------------------------------------------------------
+# Proposal effect: branch, contents, and pull-request primitives
+# (components/propose/effect.py's own gated caller, not this module).
+# ---------------------------------------------------------------------------
+
+
+def get_ref(
+    owner: str,
+    name: str,
+    branch: str,
+    *,
+    token: str,
+    fetch: FetchFn = default_fetch,
+) -> str | None:
+    """``GET /repos/{owner}/{repo}/git/ref/heads/{branch}`` - the branch's current tip commit SHA,
+    or ``None`` if the branch does not exist yet (HTTP 404, the only case this treats as a normal
+    outcome rather than a failure - the presenter branch legitimately does not exist on a target's
+    first-ever proposal)."""
+    url = f"{API_ROOT}/repos/{owner}/{name}/git/ref/heads/{branch}"
+    status_code, body = fetch(url, token)
+    if status_code == 404:
+        return None
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200 or not isinstance(body, dict):
+        raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+    sha = body.get("object", {}).get("sha")
+    if not isinstance(sha, str) or not sha:
+        raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned no usable commit sha")
+    return sha
+
+
+def create_ref(
+    owner: str,
+    name: str,
+    branch: str,
+    sha: str,
+    *,
+    token: str,
+    write: WriteFn = default_post,
+) -> None:
+    """``POST /repos/{owner}/{repo}/git/refs`` - creates ``branch`` pointing at ``sha``. Only ever
+    called when :func:`get_ref` has already confirmed the branch does not exist - this project's
+    one stable presenter branch per target is created once and reused, never recreated."""
+    if not token:
+        raise RepositoryMetadataError(f"{owner}/{name}: POST refused - no write-scoped token")
+    url = f"{API_ROOT}/repos/{owner}/{name}/git/refs"
+    status_code, body = write(url, token, {"ref": f"refs/heads/{branch}", "sha": sha})
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 201:
+        raise RepositoryMetadataError(f"{owner}/{name}: POST {url} returned HTTP {status_code}")
+
+
+@dataclass(frozen=True)
+class FileContents:
+    """One file's current content on one branch, as GitHub's Contents API reports it."""
+
+    path: str
+    sha: str
+    text: str
+
+
+def get_contents(
+    owner: str,
+    name: str,
+    path: str,
+    *,
+    ref: str,
+    token: str,
+    fetch: FetchFn = default_fetch,
+) -> FileContents | None:
+    """``GET /repos/{owner}/{repo}/contents/{path}?ref={ref}`` - the file's current text and blob
+    ``sha`` on ``ref``, or ``None`` if the file does not exist on that branch yet (HTTP 404)."""
+    url = f"{API_ROOT}/repos/{owner}/{name}/contents/{path}?ref={ref}"
+    status_code, body = fetch(url, token)
+    if status_code == 404:
+        return None
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200 or not isinstance(body, dict):
+        raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+    sha = body.get("sha")
+    encoded = body.get("content")
+    if not isinstance(sha, str) or not isinstance(encoded, str):
+        raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned no usable content")
+    text = base64.b64decode(encoded.encode("ascii").replace(b"\n", b"")).decode("utf-8")
+    return FileContents(path=path, sha=sha, text=text)
+
+
+@dataclass(frozen=True)
+class CommitOutcome:
+    """The result of one ``put_contents`` call - the new blob/commit SHAs GitHub assigned."""
+
+    content_sha: str
+    commit_sha: str
+
+
+def put_contents(
+    owner: str,
+    name: str,
+    path: str,
+    *,
+    branch: str,
+    message: str,
+    text: str,
+    sha: str | None,
+    token: str,
+    write: WriteFn = default_put,
+) -> CommitOutcome:
+    """``PUT /repos/{owner}/{repo}/contents/{path}`` - creates or updates ``path`` on ``branch``
+    with one commit. ``sha`` is the file's current blob sha (from :func:`get_contents`) when
+    updating an existing file, or ``None`` when creating it for the first time on this branch -
+    GitHub's own endpoint distinguishes create/update by this field's presence, not a different
+    verb. Raises :class:`RepositoryMetadataError` with the word "unreachable" in its message for a
+    transport-level failure specifically (status ``-1``) - ``components/propose/effect.py`` pattern-
+    matches that wording to tell a genuinely lost response (eligible for reconciliation) apart from
+    a hard rejection (422 validation error, 409 conflicting sha, etc.), which is never retried
+    blindly."""
+    if not token:
+        raise RepositoryMetadataError(f"{owner}/{name}: PUT refused - no write-scoped token")
+    url = f"{API_ROOT}/repos/{owner}/{name}/contents/{path}"
+    payload: dict[str, Any] = {
+        "message": message,
+        "content": base64.b64encode(text.encode("utf-8")).decode("ascii"),
+        "branch": branch,
+    }
+    if sha is not None:
+        payload["sha"] = sha
+    status_code, body = write(url, token, payload)
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code not in (200, 201) or not isinstance(body, dict):
+        raise RepositoryMetadataError(f"{owner}/{name}: PUT {url} returned HTTP {status_code}")
+    content_sha = body.get("content", {}).get("sha")
+    commit_sha = body.get("commit", {}).get("sha")
+    if not isinstance(content_sha, str) or not isinstance(commit_sha, str):
+        raise RepositoryMetadataError(f"{owner}/{name}: PUT {url} returned no usable commit")
+    return CommitOutcome(content_sha=content_sha, commit_sha=commit_sha)
+
+
+@dataclass(frozen=True)
+class PullRequestRef:
+    """One pull request's identity and current title/body, as GitHub reports it."""
+
+    number: int
+    url: str
+    title: str
+    body: str
+
+
+def find_open_pull_request(
+    owner: str,
+    name: str,
+    *,
+    head_branch: str,
+    token: str,
+    fetch: FetchFn = default_fetch,
+) -> PullRequestRef | None:
+    """``GET /repos/{owner}/{repo}/pulls?head={owner}:{head_branch}&state=open`` - the one open
+    presenter PR for this target, if any. This project keeps exactly one open PR per target, so the
+    first match is authoritative; an empty result means none exists yet."""
+    url = f"{API_ROOT}/repos/{owner}/{name}/pulls?head={owner}:{head_branch}&state=open"
+    status_code, body = fetch(url, token)
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200 or not isinstance(body, list):
+        raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+    if not body:
+        return None
+    first = body[0]
+    return PullRequestRef(
+        number=int(first["number"]),
+        url=str(first["html_url"]),
+        title=str(first.get("title", "")),
+        body=str(first.get("body") or ""),
+    )
+
+
+def create_pull_request(
+    owner: str,
+    name: str,
+    *,
+    title: str,
+    body: str,
+    head: str,
+    base: str,
+    token: str,
+    write: WriteFn = default_post,
+) -> PullRequestRef:
+    """``POST /repos/{owner}/{repo}/pulls`` - opens the one presenter PR from ``head`` into
+    ``base``. Only ever called after :func:`find_open_pull_request` has confirmed none is open."""
+    if not token:
+        raise RepositoryMetadataError(f"{owner}/{name}: POST refused - no write-scoped token")
+    url = f"{API_ROOT}/repos/{owner}/{name}/pulls"
+    status_code, response_body = write(
+        url, token, {"title": title, "body": body, "head": head, "base": base}
+    )
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({response_body})")
+    if status_code != 201 or not isinstance(response_body, dict):
+        raise RepositoryMetadataError(f"{owner}/{name}: POST {url} returned HTTP {status_code}")
+    return PullRequestRef(
+        number=int(response_body["number"]),
+        url=str(response_body["html_url"]),
+        title=str(response_body.get("title", title)),
+        body=str(response_body.get("body") or body),
+    )
+
+
+def update_pull_request(
+    owner: str,
+    name: str,
+    number: int,
+    *,
+    title: str,
+    body: str,
+    token: str,
+    write: WriteFn = default_patch,
+) -> PullRequestRef:
+    """``PATCH /repos/{owner}/{repo}/pulls/{number}`` - refreshes an existing presenter PR's title
+    and body in place. Only ever called when the live title/body already differ from what this
+    proposal would write - a no-op invocation makes no call at all (``components/propose/effect.py``
+    checks before calling this), so a repeated, unchanged proposal never produces a spurious PR
+    edit."""
+    if not token:
+        raise RepositoryMetadataError(f"{owner}/{name}: PATCH refused - no write-scoped token")
+    url = f"{API_ROOT}/repos/{owner}/{name}/pulls/{number}"
+    status_code, response_body = write(url, token, {"title": title, "body": body})
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({response_body})")
+    if status_code != 200 or not isinstance(response_body, dict):
+        raise RepositoryMetadataError(f"{owner}/{name}: PATCH {url} returned HTTP {status_code}")
+    return PullRequestRef(
+        number=number,
+        url=str(response_body.get("html_url", f"{API_ROOT}/{owner}/{name}/pull/{number}")),
+        title=str(response_body.get("title", title)),
+        body=str(response_body.get("body") or body),
+    )

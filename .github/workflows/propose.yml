@@ -1,0 +1,129 @@
+# G6-W02 (project/state.yaml; docs/EXECUTION_STATE_MACHINE.md G6; docs/STATE_MACHINE.md sections
+# 11-12): the one write-capable workflow that opens or updates repository-presenter's README-
+# proposal pull request on a target repository. Separately authorized from `present.yml`/
+# `monitor.yml` in every way that matters:
+#
+#   - trigger: workflow_dispatch only, with required inputs naming the exact target - never a
+#     schedule, never implicit from another workflow's success (G7-W06 wires unattended proposing
+#     only after this mechanism is observed stable, per EXECUTION_STATE_MACHINE.md G7).
+#   - permissions: `contents: read` at the job level is the checkout's own grant only; the actual
+#     write capability is a repository-scoped GitHub App installation token minted fresh inside
+#     this job (`actions/create-github-app-token@v2`, GitHub's own official action - preferred over
+#     hand-rolled JWT signing per AGENTS.md's battle-tested-solutions rule), scoped to exactly the
+#     one target repository named in `inputs.repo` - never the whole App installation, never a
+#     personal access token.
+#   - credential: that minted token is exposed to `repository-presenter propose` as
+#     `GH_PROPOSAL_WRITE_TOKEN` only - this job never sets `GH_TOKEN` (the read-only analysis
+#     credential `present.yml`/`monitor.yml` use) at all, so there is no ambient read-only token
+#     for the CLI to fall back to even by accident; the write path has exactly one credential
+#     available to it, and it is write-scoped.
+#
+# `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED=1` is set in the one "Propose for real" step below
+# only - never at the job or workflow level - so a reviewer of this file can see directly that the
+# owner's explicit go-ahead (AGENTS.md "Security and Effects": never inferred from credential
+# presence alone) and the actual GitHub-mutating step are the same step, not two that could drift
+# apart. The dry-run step above it always runs first and makes no GitHub call at all - every
+# dispatch prints the exact authorization payload (candidate hash, source revision, branch, policy
+# version, expiry) before any write is even possible.
+#
+# docs/STATE_MACHINE.md section 12.1: the *first* live exercise of this workflow against a real
+# external target must be owner-selected (the exact `repo` input), never agent-selected, and must
+# never name a real `aspose-*-foss` product repository - that is G6-W03's own separately authorized
+# scope. `inputs.readme_file`/`inputs.source_revision` exist only for that first disposable-target
+# proof, where the target has no registry entry and no sealed `candidates/` bundle to propose from
+# (`repository-presenter propose --help` documents the same split).
+name: Propose
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "Target repository (OWNER/NAME) - never a real aspose-*-foss product repository until G6-W03 explicitly authorizes it"
+        required: true
+        type: string
+      readme_file:
+        description: "Disposable-target proof only: path (within this checkout) to the README content to propose, bypassing the registry/sealed-candidate lookup"
+        required: false
+        type: string
+      source_revision:
+        description: "Required together with readme_file: the exact revision that content came from"
+        required: false
+        type: string
+      base_branch:
+        description: "Override the target's default branch; read live from GitHub when left blank"
+        required: false
+        type: string
+      expires_in_minutes:
+        description: "How long the assembled authorization stays valid before it must be re-minted"
+        required: false
+        type: string
+        default: "15"
+      do_propose:
+        description: "Leave unchecked for a dry run (print the authorization only, no GitHub call). Check to attempt the real write."
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  propose:
+    name: Propose README to ${{ inputs.repo }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - name: Split the target into owner/repo
+        id: target
+        run: |
+          set -eu
+          repo="${{ inputs.repo }}"
+          echo "owner=${repo%%/*}" >> "$GITHUB_OUTPUT"
+          echo "name=${repo#*/}" >> "$GITHUB_OUTPUT"
+
+      - name: Compose the shared CLI arguments once
+        id: args
+        run: |
+          set -eu
+          args="--repo ${{ inputs.repo }} --expires-in-minutes ${{ inputs.expires_in_minutes }}"
+          if [ -n "${{ inputs.readme_file }}" ]; then
+            args="$args --readme-file ${{ inputs.readme_file }} --source-revision ${{ inputs.source_revision }}"
+          fi
+          if [ -n "${{ inputs.base_branch }}" ]; then
+            args="$args --base-branch ${{ inputs.base_branch }}"
+          fi
+          echo "cli_args=$args" >> "$GITHUB_OUTPUT"
+
+      # Minted even for a dry run - inputs.repo is never assumed to already have an App
+      # installation, and a failed mint here is itself a useful, early, read-only-safe signal.
+      # Scoped to exactly the one target repository; never the whole App installation.
+      - name: Mint a fresh installation token, scoped to this target repository alone
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ steps.target.outputs.owner }}
+          repositories: ${{ steps.target.outputs.name }}
+
+      - name: Dry run - assemble and print the authorization payload, no GitHub call
+        run: repository-presenter propose ${{ steps.args.outputs.cli_args }}
+
+      - name: "Propose for real (gated: REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED set only here)"
+        if: ${{ inputs.do_propose }}
+        env:
+          REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED: "1"
+          GH_PROPOSAL_WRITE_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: repository-presenter propose ${{ steps.args.outputs.cli_args }} --propose
