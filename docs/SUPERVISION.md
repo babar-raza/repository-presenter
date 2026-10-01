@@ -219,6 +219,20 @@ such, not assumed), may the wake end in a scheduled wait. A wait whose own `reas
 truthfully replaced with "queue had ready work I did not take" is the exact failure this rule
 closes.
 
+**The rule as first written covered only the `ScheduleWakeup` boundary — an interactive supervisor
+session doing sustained manual work (merge-conflict resolution across a run of PRs, for example)
+never calls `ScheduleWakeup` at all, so the gap recurred undetected through that boundary a second
+time, 2026-10-01: the floor dropped to a single already-`completed` agent (0 genuinely live) while
+this session spent an extended stretch personally resolving `docs/DECISION_LOG.md` merge conflicts
+across PRs #163–171 one at a time instead of spawning replacement lanes between them, caught only
+by the owner naming it directly, not by this section's own stated mechanism. The boundary is
+widened to close that: the same `ListAgents`-against-the-floor check runs after every PR
+resolved/merged, every lane completion notification processed, and at minimum every few tool calls
+during any stretch of hands-on work — not only at a `ScheduleWakeup`/wake boundary — with
+replacement lanes dispatched immediately, before continuing the manual work in front of the
+supervisor. A session that notices it has gone several actions without checking has already
+missed the point where it should have.**
+
 ## Enforcement placement
 
 A check that must survive the supervisor lives in `tests/` (CI runs it per push — the
