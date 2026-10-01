@@ -156,6 +156,8 @@ repository-presenter --version
 repository-presenter status [--root PATH] [--stale]
 repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
+  [--durable-state [--trigger-event-type TYPE] [--workflow-run-id ID] [--holder-id ID]
+                    [--state-remote REMOTE]]
 repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply]
 repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
@@ -171,7 +173,13 @@ repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
   registry: snapshot, facts, investigation, reconciliation, planning, composition, validation,
   independent review, and seal. `--facts-only` stops after the facts stage with a processability
   and coverage record, making no provider call. `--fresh` skips seeding this run's call cache from
-  the sealed bundle's own history, forcing every job to make a genuinely live call.
+  the sealed bundle's own history, forcing every job to make a genuinely live call. `--durable-state`
+  (G5-W05) wires G5-W04's durable-state backend around the same, otherwise-unmodified run — a
+  recovery sweep, trigger admission/deduplication, and a committed transition receipt against this
+  control repository's own git-ref state store, never the target repository; it is what
+  `.github/workflows/present.yml` uses, and a plain local run never needs it. `--trigger-event-type`,
+  `--workflow-run-id` (defaults to `GITHUB_RUN_ID`), `--holder-id`, and `--state-remote` (defaults to
+  `origin`) configure that wiring; see `core/state/present_transaction.py` for the full design.
 - **`redetect-upstream-defects`** — re-evaluates each `evidence/upstream-defects/` handoff's own
   `triggering_check` against the target repository's current state (read-only: package-registry
   and GitHub Contents/tree reads, no `gh issue create`/`close` call) and reports whether it still
