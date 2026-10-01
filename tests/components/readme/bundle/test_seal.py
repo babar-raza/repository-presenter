@@ -455,20 +455,19 @@ def test_seed_additional_calls_reuses_whatever_raw_calls_json_names_by_its_own_h
     composition/authoring.py::write_raw_calls's own raw_calls.json instead - keyed directly by
     each call's own request_sha256, so a match needs no separate lineage check (write_raw_calls's
     own docstring explains why: the key itself only matches a later run's freshly computed
-    request hash when the request that produced it is byte-identical)."""
+    request hash when the request that produced it is byte-identical). raw_calls.json never
+    carries model_served (write_raw_calls's own docstring explains why: run_job hardcodes it to
+    None on its own cache-reuse path, so sealing the originally-served model name here would make
+    a seeded rerun's own raw_calls.json differ from the one the original, live call wrote - the
+    exact defect a hosted CI run of this item's own canary caught live, before this fix)."""
     bundle = tmp_path / "bundle"
     bundle.mkdir()
     (bundle / "raw_calls.json").write_text(
         json.dumps(
             {
-                "f" * 64: {
-                    "job": "section_authoring",
-                    "model_served": "qwen3-next-2026",
-                    "output": {"units": []},
-                },
+                "f" * 64: {"job": "section_authoring", "output": {"units": []}},
                 "g" * 64: {
                     "job": "independent_review",
-                    "model_served": "qwen3-next-2026",
                     "output": {"verdict": "ACCEPT", "findings": []},
                 },
                 # A malformed entry (not an object) is skipped, never raises - the same
@@ -485,6 +484,7 @@ def test_seed_additional_calls_reuses_whatever_raw_calls_json_names_by_its_own_h
     assert store.get("f" * 64) == {"units": []}
     assert store.get("g" * 64) == {"verdict": "ACCEPT", "findings": []}
     assert store.get("h" * 64) is None
+    assert store.record("f" * 64)["model_served"] is None
 
     # An entry already present in the store (from seed_call_store, or an earlier call here) is
     # left alone, never overwritten - "seeded" only ever reports what this call actually wrote.

@@ -779,10 +779,13 @@ def test_write_raw_calls_is_deterministic_json_keyed_by_request_hash(tmp_path: P
     independent_review read, and a batch section_authoring task - each call's own JobResult
     under its own request_sha256, so bundle/seal.py::seed_additional_calls can seed a later run's
     identical request directly, with no separate lineage check needed (this function's own
-    docstring explains why the key alone is enough)."""
+    docstring explains why the key alone is enough). Never model_served: core/llm/jobs.py::
+    run_job hardcodes it to None on its own cache-reuse path, so sealing it here would make a
+    seeded reuse's own written raw_calls.json differ from the original live call's - the exact
+    defect a hosted CI run of this item's own canary caught live, before this fix."""
     calls = {
-        "b" * 64: {"job": "section_authoring", "model_served": "qwen3-next-2026", "output": {}},
-        "a" * 64: {"job": "independent_review", "model_served": None, "output": {"verdict": "x"}},
+        "b" * 64: {"job": "section_authoring", "output": {}},
+        "a" * 64: {"job": "independent_review", "output": {"verdict": "x"}},
     }
     path = tmp_path / "t" / "raw_calls.json"
     digest = write_raw_calls(calls, path)

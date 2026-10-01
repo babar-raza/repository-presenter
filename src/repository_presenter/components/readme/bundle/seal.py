@@ -552,7 +552,10 @@ def seed_additional_calls(bundle: Path, store: CallStore) -> list[str]:
             continue
         if store.get(request_sha256) is not None:
             continue
-        store.put(request_sha256, job, record.get("model_served"), output)
+        # raw_calls.json never carries model_served (write_raw_calls's own docstring explains
+        # why: run_job hardcodes it to None on its own cache-reuse path, so sealing it here would
+        # make a seeded reuse's own written raw_calls.json differ from the original live call's).
+        store.put(request_sha256, job, None, output)
         seeded.add(job)
     return sorted(seeded)
 

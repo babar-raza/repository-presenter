@@ -2043,7 +2043,14 @@ def write_raw_calls(calls: Mapping[str, Mapping[str, Any]], path: Path) -> str:
     the three 1:1 jobs it covers.
 
     A caller builds ``calls`` from each call's own ``JobResult``: ``{result.request_sha256:
-    {"job": result.job, "model_served": result.model_served, "output": result.output}}``.
+    {"job": result.job, "output": result.output}}`` - deliberately never ``result.model_served``,
+    which ``core/llm/jobs.py::run_job`` hardcodes to ``None`` on its own cache-reuse path (never
+    the model that originally served it), so a round that reuses a prior call would otherwise
+    write a different ``raw_calls.json`` than the one the original, live call wrote, falsely
+    tripping the byte-identical no-op comparison this file otherwise correctly participates in.
+    Neither ``investigation.json``/``dispositions.json``/``plan.json`` carry ``model_served`` in
+    their own sealed content for the identical reason - only ``calls.jsonl`` does, and that file
+    is ``bundle/seal.py::REPLAY_EXEMPT`` precisely because it carries per-run-only metadata.
     """
     data = (json.dumps(dict(calls), indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode(
         "utf-8"

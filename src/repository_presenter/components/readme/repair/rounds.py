@@ -215,8 +215,19 @@ def _third_opinion(
 def _raw_call_entry(result: JobResult) -> dict[str, Any]:
     """One ``raw_calls.json`` entry for ``result`` (G5-W02): the shape
     ``composition/authoring.py::write_raw_calls`` and ``bundle/seal.py::seed_additional_calls``
-    both already document and agree on."""
-    return {"job": result.job, "model_served": result.model_served, "output": result.output}
+    both already document and agree on.
+
+    Deliberately excludes ``result.model_served``: ``core/llm/jobs.py::run_job`` hardcodes it to
+    ``None`` on its own cache-reuse path (never the originally-served model name), so a round that
+    reuses a prior call - exactly the no-op-proof rerun this item's own acceptance bar names -
+    would otherwise write a ``raw_calls.json`` that differs from the one the original, live call
+    wrote, falsely tripping the byte-identical no-op comparison (measured live: hosted CI's own
+    canary no-op proof, `AssertionError: assert 'ACCEPTED' == 'READY_FOR_PROPOSAL'`, `raw_calls.
+    json changed since the last seal`). Neither `investigation.json`/`dispositions.json`/`plan.
+    json` ever carry `model_served` in their own sealed content for the identical reason - only
+    `calls.jsonl` does, and that file is `bundle/seal.py::REPLAY_EXEMPT` precisely because it
+    carries exactly this kind of per-run-only metadata."""
+    return {"job": result.job, "output": result.output}
 
 
 def run_round(tx: TransactionInputs) -> Round:
