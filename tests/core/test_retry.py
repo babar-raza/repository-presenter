@@ -19,6 +19,7 @@ def test_every_declared_operation_class_has_a_bounded_policy() -> None:
         "link_check",
         "llm_call",
         "github_api",
+        "state_cas",
     }
     assert all(policy.max_attempts <= 5 for policy in RETRY_POLICIES.values())
 
