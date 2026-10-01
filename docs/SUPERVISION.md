@@ -161,7 +161,7 @@ generate their own notifications.
 
 Rule: at least once per hour of wall-clock supervision (piggybacked on the heartbeat wake,
 `tools/reviewer/reviewer_check.py --record`), and always at session startup (procedure §0), the
-supervisor runs three checks unconditionally, not only when a notification happens to prompt them:
+supervisor runs five checks unconditionally, not only when a notification happens to prompt them:
 
 1. **Never-attempted delta.** Registry-enabled entries with no `candidates/` directory ever, vs.
    `data/registry.json`. `repository-presenter status`'s own headline should print this count
@@ -174,6 +174,26 @@ supervisor runs three checks unconditionally, not only when a notification happe
 3. **Defect-index escalation.** Whether any entry in `docs/DEFECT_INDEX.md` has just crossed its
    third independent sighting — the point at which `AGENTS.md`'s Work Loop treats a
    shared-code-item priority as settled, not optional (see that file's own escalation rule).
+4. **Local-only stranded work.** `git worktree list` across every worktree this machine holds, not
+   just the ones a current session happens to be using, checked for commits that exist nowhere on
+   `origin` (`git log origin/<branch>..HEAD` non-empty, or no matching remote branch at all).
+   `liveness.yml` is hosted — it can only ever see what has been pushed, so purely local work is
+   structurally invisible to the one mechanism designed to survive supervisor death. Measured
+   2026-10-01: a complete, already-tested, already-live-verified fix (the Cells-Cpp MSVC fallback,
+   closing a blocker repeatedly re-reported as "needs upstream fix or a second toolchain" across
+   multiple QA passes) sat in a local-only, never-pushed worktree for 4 days, found only by an
+   incidental worktree cleanup during an unrelated startup sweep, not by any standing check. Push
+   discipline (committing with evidence, not leaving a finished fix sitting locally) closes this at
+   the source; this check catches it if that discipline lapses anyway.
+5. **Owner-item claim staleness.** For any `owner_items` entry already `SATISFIED`, re-derive at
+   least one of its own cited pieces of evidence directly (re-run the workflow it cites, re-read the
+   log it quotes) rather than trusting the stored claim indefinitely — prioritize an item a current
+   or upcoming gate's work depends on. Measured 2026-10-01: `OWNER-04`'s `SATISFIED` claim ("all 15
+   registry organizations installed") was false the moment it was written — the run it cited as
+   evidence, read directly rather than re-summarized, showed `aspose-html-foss` failing with a 404 —
+   and sat uncorrected on `main` for 3 days because nothing re-opened a closed claim to check it
+   against its own evidence. An independent QA review caught it; a fresh re-audit confirmed the gap
+   was still live at the moment of checking, not assumed closed by then.
 
 A sweep with nothing new to report is recorded as such (one line, not a essay) and is not itself
 evidence the sweep was skippable next time.

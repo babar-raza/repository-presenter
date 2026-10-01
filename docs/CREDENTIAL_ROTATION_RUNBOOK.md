@@ -191,7 +191,9 @@ text is persisted, and every one is scanned for verbatim leakage into a sealed c
   this project holds. Paired with `GH_APP_ID`, it mints short-lived (1-hour), installation-scoped
   tokens carrying the App's full registered permission set (`metadata:read`, `contents:write`,
   `issues:write`, `pull_requests:write`, `administration:write` - `tools/github_app/manifest.json`)
-  against any organization the App is installed on (15 orgs today, per OWNER-04's note).
+  against any organization the App is installed on (14 of 15 current registry organizations as of
+  this writing - `aspose-html-foss` remains pending; `project/state.yaml`'s `OWNER-04` note and
+  `docs/DECISION_LOG.md`'s 2026-10-01 07:29 UTC correction).
 - **Where generated/obtained:** GitHub's App settings UI -
   `https://github.com/settings/apps/repository-presenter/keys` (or
   `https://github.com/organizations/<org>/settings/apps/repository-presenter/keys` if the App
