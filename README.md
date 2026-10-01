@@ -46,7 +46,7 @@ authorized repository, it:
 | Capability | Status |
 |---|---|
 | Facts → investigation → reconciliation → planning → composition → validation → independent review → seal pipeline | **Built** (gates G0–G2 accepted) |
-| Local CLI (`status`, `present`, `preflight`, `redetect-upstream-defects`, `file-upstream-defects`, `metadata`) | **Built** |
+| Local CLI (`status`, `present`, `preflight`, `redetect-upstream-defects`, `file-upstream-defects`, `metadata`, `propose`) | **Built** |
 | Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript) | **Partially built** — extractor plugins exist for all seven; sealed candidates so far cover fewer |
 | Deterministic Markdown renderer; the LLM never writes the final document, only fact-ID-bound content units | **Built** |
 | Safety: pinned, read-only, push-neutered git clones; secret-canary scan before any bundle is sealed | **Built** |
@@ -55,7 +55,7 @@ authorized repository, it:
 | Production GitHub App credentials, installed across every registry organization | **Built** — a write-capable credential existing; it is not itself write authorization (see [Security](#security-and-effects)) |
 | Repo description/topics/homepage: read GitHub's observed values, propose a candidate from verified facts, diff | **Built** — read-only; no write call without explicit dual authorization |
 | Hosted, autonomous, scheduled portfolio monitoring | **Planned** (Gate G5) |
-| Automatic pull-request proposals via a GitHub App, with independent effect authorization | **Planned** (Gate G6) |
+| Automatic pull-request proposals via a GitHub App, with independent effect authorization (`propose`) | **Built**, disposable-target live proof still open — gated: refuses without an owner-controlled authorization variable and a write-scoped token, both unset in this project's own environment; no disposable test repository is yet named to exercise it live (see [Security](#security-and-effects)) |
 | Production deployment and continuous unattended operation | **Planned** (Gate G7) |
 | Visual-asset / social-preview image preparation | **Planned** — same pilot carve-out |
 | Repo description/topics/homepage: apply the proposal to GitHub; community/security file generation; release-link auditing | **Planned** |
@@ -91,6 +91,7 @@ src/repository_presenter/   cli.py (entry point), core/ (shared capabilities), c
                                composition, validation, independent review, repair, bundle sealing
   components/metadata/        repo description/topics/homepage capture, proposal, gated apply
   components/issues/          upstream-defect ledger, handoff drafting, redetection, gated issue filing
+  components/propose/         README-proposal PR effect: idempotent branch/commit/PR, gated write
 prompts/                    one governed YAML manifest per LLM job
 schemas/                    JSON Schemas for state, manifest, and bundle validation
 data/                       registry.json — the admitted-repository allow-list
@@ -142,6 +143,8 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `metadata --apply`'s write; a token's mere presence never implies this |
 | `GH_ISSUES_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `file-upstream-defects --file` reads it, and only after `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `file-upstream-defects --file`'s write; a token's mere presence never implies this |
+| `GH_PROPOSAL_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`/`GH_METADATA_WRITE_TOKEN`/`GH_ISSUES_WRITE_TOKEN`; only `propose --propose` reads it, and only after `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` also authorizes a write |
+| `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `propose --propose`'s write; a token's mere presence never implies this |
 
 `GPT_OSS_ENDPOINT` and `GPT_OSS_API_KEY` are required even for `present --facts-only`: the gateway
 configuration loads before that flag's short-circuit.
@@ -159,6 +162,7 @@ repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--f
 repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply]
 repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
+repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH --source-revision SHA] [--base-branch NAME] [--expires-in-minutes N] [--propose]
 ```
 
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
@@ -198,6 +202,23 @@ repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
   [Scope](#scope-built-vs-planned)), but the owner-controlled authorization variable is not set in
   this project's own environment, so `--apply` reports exactly why it wrote nothing rather than
   guessing or silently proceeding.
+- **`propose --repo OWNER/NAME`** — creates or updates the one stable presenter branch and pull
+  request proposing a README candidate to the target repository (G6-W02). By default reads the
+  repository's registry-admitted sealed `CURRENT` candidate; `--readme-file PATH
+  --source-revision SHA` bypasses the registry and sealed bundle entirely, for proving the
+  mechanism against a disposable test repository that is never registry-admitted and never a real
+  `aspose-*-foss` product repository. Dry-run by default: assembles and prints the typed
+  authorization payload (candidate hash, source revision, branch, PR intent, policy version,
+  expiry — `--expires-in-minutes` sets how long it stays valid) and makes no GitHub call at all.
+  `--propose` attempts the write, but only past two independent, explicit gates — the
+  owner-controlled `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED=1`, and a write-scoped
+  `GH_PROPOSAL_WRITE_TOKEN` (never `GH_TOKEN`, never `GH_METADATA_WRITE_TOKEN`/
+  `GH_ISSUES_WRITE_TOKEN`) — plus a fresh recheck of the target's live current revision
+  immediately before the write (a stale source blocks the effect) and an idempotent branch/PR
+  mechanism (a second, unchanged invocation writes nothing and opens nothing new). Neither gate is
+  set in this project's own environment, so `--propose` reports exactly why it wrote nothing
+  rather than guessing. `--base-branch` overrides the target's default branch, read live from
+  GitHub when omitted.
 - `--root PATH` — project root holding `project/state.yaml`; discovered from the working directory
   when omitted.
 
