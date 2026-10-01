@@ -112,7 +112,10 @@ def _parse_iso(value: str) -> datetime:
     return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=UTC)
 
 
-def _lease_is_active(lease: LeaseRecord | None, now: datetime) -> bool:
+def lease_is_active(lease: LeaseRecord | None, now: datetime) -> bool:
+    """Whether ``lease`` is held and unexpired as of ``now`` - shared with ``trigger.py``, which
+    needs the same check to decide whether a repository's current transaction is still in
+    flight."""
     return lease is not None and _parse_iso(lease.expires_at) > now
 
 
@@ -144,7 +147,7 @@ def acquire_lease(
     won: dict[str, LeaseRecord | None] = {"lease": None}
 
     def patch(record: RepositoryRecord) -> RepositoryRecord:
-        if _lease_is_active(record.lease, now):
+        if lease_is_active(record.lease, now):
             won["lease"] = None
             return record
         new_token = record.lease.fencing_token + 1 if record.lease is not None else 1
