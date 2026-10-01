@@ -41,6 +41,10 @@ from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
 CONTENT_UNITS_FILENAME = "content_units.json"
+# G5-W02 (27.2 RC4's own remaining gap): see write_raw_calls below. bundle/seal.py already
+# imports this module (NORMALISATION_VERSION) and stages a file under this exact name as an
+# optional artifact, so it imports this constant rather than repeating the literal.
+RAW_CALLS_FILENAME = "raw_calls.json"
 AUTHORED_SECTIONS: tuple[str, ...] = tuple(
     section.id for section in SEMANTIC_SHELL if section.owner != "D" and section.id != "at_a_glance"
 )
@@ -2011,6 +2015,37 @@ def merge_units(
 
 def write_content_units(document: dict[str, Any], path: Path) -> str:
     data = (json.dumps(document, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode(
+        "utf-8"
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    return hashlib.sha256(data).hexdigest()
+
+
+def write_raw_calls(calls: Mapping[str, Mapping[str, Any]], path: Path) -> str:
+    """raw_calls.json: every accepted call this round made that no other sealed artifact already
+    answers for verbatim (G5-W02, 27.2 RC4's own remaining gap, named explicitly in
+    ``tests/test_cli.py::test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle``'s own
+    docstring) - a ``coherence`` batch, an ``independent_review`` read (first, second, or third),
+    and a batch ``section_authoring`` task. A non-batch ``section_authoring`` task is already
+    reconstructed from ``content_units.json`` alone by ``reconstructed_task_output`` above and is
+    not duplicated here.
+
+    Keyed by the call's own ``request_sha256`` - exactly the ``CallStore`` key ``run_job`` computes
+    fresh on a later run (``core/llm/jobs.py::run_job``: ``canonical_hash({"prompt_sha256": ...,
+    "payload": ...})``), so a seeded entry is reused only when the request that would produce it
+    now is byte-identical to the one that produced it before; nothing else needs to be checked.
+    This is simpler than ``reconstructed_task_output``'s own lineage check (``_reconstruction_
+    lineage_holds``): that mechanism is keyed by section+slot, not by the request hash itself, so
+    it has to separately verify the facts and prompt behind a match still hold today. Keying by
+    the hash directly makes a match itself the proof - a stale entry simply never matches a fresh
+    hash, the same way :func:`seed_call_store`'s own ``logical_call_id`` keying already works for
+    the three 1:1 jobs it covers.
+
+    A caller builds ``calls`` from each call's own ``JobResult``: ``{result.request_sha256:
+    {"job": result.job, "model_served": result.model_served, "output": result.output}}``.
+    """
+    data = (json.dumps(dict(calls), indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode(
         "utf-8"
     )
     path.parent.mkdir(parents=True, exist_ok=True)

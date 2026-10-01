@@ -47,6 +47,7 @@ from typing import Any
 
 from repository_presenter.components.readme.composition.authoring import (
     NORMALISATION_VERSION,
+    RAW_CALLS_FILENAME,
 )
 from repository_presenter.components.readme.composition.components.shell import SHELL_VERSION
 from repository_presenter.components.readme.composition.policy import (
@@ -94,6 +95,7 @@ REQUIRED_ARTIFACTS = (
 OPTIONAL_ARTIFACTS = (
     "investigation.json",
     "content_units.json",
+    RAW_CALLS_FILENAME,
     "examples.json",
     "probes.json",
     "repairs.json",
@@ -507,6 +509,47 @@ def seed_call_store(bundle: Path, store: CallStore) -> list[str]:
         store.put(logical_call_id, job, record.get("model_served"), output)
         seeded.append(job)
     return seeded
+
+
+def seed_additional_calls(bundle: Path, store: CallStore) -> list[str]:
+    """Pre-populate ``store`` from a sealed bundle's own ``raw_calls.json`` (when it has one) -
+    the counterpart to :func:`seed_call_store` above for the calls that function's own
+    ``_SEEDABLE_JOBS`` (and ``composition/authoring.py::reconstructed_task_output``, which
+    ``repair/rounds.py`` already applies per non-batch ``section_authoring`` task) cannot reach:
+    a ``coherence`` batch, an ``independent_review`` read, and a batch ``section_authoring`` task
+    (G5-W02's own remaining gap, named explicitly in ``tests/test_cli.py::test_present_from_an_
+    empty_runs_directory_reuses_a_sealed_bundle``'s docstring before this function existed).
+
+    Unlike ``seed_call_store``, no per-job "exactly one success" constraint applies here:
+    ``raw_calls.json`` is already keyed by each call's own ``request_sha256``
+    (``composition/authoring.py::write_raw_calls``'s own docstring explains why that key alone is
+    enough - a later run's freshly computed request hash only ever matches the entry it actually
+    came from), so every entry seeds unconditionally, the same way a repeated job name is already
+    disambiguated for free by the hash itself.
+
+    Returns the distinct job names actually seeded (a job already present in ``store`` - from an
+    earlier call in this same function, or from :func:`seed_call_store` - is left alone, not
+    re-seeded), for the same CLI reporting :func:`seed_call_store` already gives.
+    """
+    path = bundle / RAW_CALLS_FILENAME
+    if not path.is_file():
+        return []
+    calls = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(calls, dict):
+        return []
+    seeded: set[str] = set()
+    for request_sha256, record in calls.items():
+        if not isinstance(record, dict) or not isinstance(request_sha256, str):
+            continue
+        job = record.get("job")
+        output = record.get("output")
+        if not isinstance(job, str) or not isinstance(output, dict):
+            continue
+        if store.get(request_sha256) is not None:
+            continue
+        store.put(request_sha256, job, record.get("model_served"), output)
+        seeded.add(job)
+    return sorted(seeded)
 
 
 FACTUAL_ARTIFACTS = frozenset({"facts.json", "dispositions.json"})
