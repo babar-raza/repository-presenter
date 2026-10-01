@@ -43,17 +43,20 @@ def test_every_secret_in_env_example_is_a_configured_secret() -> None:
         "GPT_OSS_API_KEY",
         "GH_METADATA_WRITE_TOKEN",
         "GH_ISSUES_WRITE_TOKEN",
+        "GH_PROPOSAL_WRITE_TOKEN",
     } <= set(names)
     environment = {name: "value-that-is-long-enough" for name in names}
     detected = {s.variable for s in configured_secrets(environment)}
-    # REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED/REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED
-    # are plain "1"/"true" authorization flags, not credentials - they deliberately do not end in a
-    # secret suffix and are never in SECRET_VARIABLES, same as GPT_OSS_ENDPOINT/GPT_OSS_MODEL above.
+    # REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED/REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED/
+    # REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED are plain "1"/"true" authorization flags, not
+    # credentials - they deliberately do not end in a secret suffix and are never in
+    # SECRET_VARIABLES, same as GPT_OSS_ENDPOINT/GPT_OSS_MODEL above.
     assert detected == {
         "GH_TOKEN",
         "GPT_OSS_API_KEY",
         "GH_METADATA_WRITE_TOKEN",
         "GH_ISSUES_WRITE_TOKEN",
+        "GH_PROPOSAL_WRITE_TOKEN",
     }
 
 
