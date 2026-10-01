@@ -1,7 +1,7 @@
-"""The GitHub client: read (``GET``) and write (``PATCH``/``PUT``) - a fake fetch/write only, no
-test here makes a live call. The write functions have no authorization check of their own (that
-lives in ``components/metadata/apply.py``); these tests exercise only their own request/response
-handling in isolation."""
+"""The GitHub client: read (``GET``) and write (``PATCH``/``PUT``/``POST``) - a fake fetch/write
+only, no test here makes a live call. The write functions have no authorization check of their own
+(that lives in ``components/metadata/apply.py`` and ``components/issues/file.py``); these tests
+exercise only their own request/response handling in isolation."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ import pytest
 from repository_presenter.core.errors import RepositoryMetadataError
 from repository_presenter.core.github.client import (
     API_ROOT,
+    create_issue,
     get_repository,
     replace_topics,
     update_repository,
@@ -249,6 +250,89 @@ def test_replace_topics_raises_on_a_non_200_status() -> None:
             "aspose-3d-foss",
             "Aspose.3D-FOSS-for-Python",
             topics=("python",),
+            token="ghp_w",
+            write=write,
+        )
+
+
+# ---------------------------------------------------------------------------
+# create_issue (POST) - never called in production except by components/issues/file.py, and only
+# past that module's own authorization gate.
+# ---------------------------------------------------------------------------
+
+
+def test_create_issue_posts_title_and_body_and_returns_number_and_url() -> None:
+    write = _RecordingWrite(
+        status_code=201,
+        body={"number": 42, "html_url": "https://github.com/o/n/issues/42", "id": 999},
+    )
+    created = create_issue(
+        "aspose-cells-foss",
+        "Aspose.Cells-FOSS-for-Cpp",
+        title="install_command:cmake is UNRESOLVED",
+        body="See evidence.",
+        token="ghp_w",
+        write=write,
+    )
+    assert len(write.calls) == 1
+    url, token, payload = write.calls[0]
+    assert url == f"{API_ROOT}/repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/issues"
+    assert token == "ghp_w"
+    assert payload == {"title": "install_command:cmake is UNRESOLVED", "body": "See evidence."}
+    assert created.number == 42
+    assert created.url == "https://github.com/o/n/issues/42"
+
+
+def test_create_issue_refuses_without_a_token_no_call_made() -> None:
+    write = _RecordingWrite()
+    with pytest.raises(RepositoryMetadataError):
+        create_issue(
+            "aspose-cells-foss",
+            "Aspose.Cells-FOSS-for-Cpp",
+            title="t",
+            body="b",
+            token="",
+            write=write,
+        )
+    assert write.calls == []
+
+
+def test_create_issue_raises_on_a_non_201_status() -> None:
+    write = _RecordingWrite(status_code=422, body={"message": "Validation failed"})
+    with pytest.raises(RepositoryMetadataError):
+        create_issue(
+            "aspose-cells-foss",
+            "Aspose.Cells-FOSS-for-Cpp",
+            title="t",
+            body="b",
+            token="ghp_w",
+            write=write,
+        )
+
+
+def test_create_issue_raises_on_unreachable() -> None:
+    def write(url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
+        return -1, "ConnectError: name resolution failed"
+
+    with pytest.raises(RepositoryMetadataError):
+        create_issue(
+            "aspose-cells-foss",
+            "Aspose.Cells-FOSS-for-Cpp",
+            title="t",
+            body="b",
+            token="ghp_w",
+            write=write,
+        )
+
+
+def test_create_issue_raises_on_a_malformed_success_body() -> None:
+    write = _RecordingWrite(status_code=201, body={"message": "created but no number field"})
+    with pytest.raises(RepositoryMetadataError):
+        create_issue(
+            "aspose-cells-foss",
+            "Aspose.Cells-FOSS-for-Cpp",
+            title="t",
+            body="b",
             token="ghp_w",
             write=write,
         )

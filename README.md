@@ -46,17 +46,17 @@ authorized repository, it:
 | Capability | Status |
 |---|---|
 | Facts → investigation → reconciliation → planning → composition → validation → independent review → seal pipeline | **Built** (gates G0–G2 accepted) |
-| Local CLI (`status`, `present`, `preflight`, `redetect-upstream-defects`, `metadata`) | **Built** |
+| Local CLI (`status`, `present`, `preflight`, `redetect-upstream-defects`, `file-upstream-defects`, `metadata`) | **Built** |
 | Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript) | **Partially built** — extractor plugins exist for all seven; sealed candidates so far cover fewer |
 | Deterministic Markdown renderer; the LLM never writes the final document, only fact-ID-bound content units | **Built** |
 | Safety: pinned, read-only, push-neutered git clones; secret-canary scan before any bundle is sealed | **Built** |
 | Upstream-defect detection and re-detection (`redetect-upstream-defects`); local, evidence-backed handoff records | **Built** — read-only re-checks and a status-only write; never a `gh issue create`/`close` call |
+| Upstream defect *reporting* (`file-upstream-defects`; filing genuine product defects as GitHub issues) | **Built** — gated: refuses without an owner-controlled authorization variable and a write-scoped token, both unset in this project's own environment (see [Security](#security-and-effects)) |
 | Production GitHub App credentials, installed across every registry organization | **Built** — a write-capable credential existing; it is not itself write authorization (see [Security](#security-and-effects)) |
 | Repo description/topics/homepage: read GitHub's observed values, propose a candidate from verified facts, diff | **Built** — read-only; no write call without explicit dual authorization |
 | Hosted, autonomous, scheduled portfolio monitoring | **Planned** (Gate G5) |
 | Automatic pull-request proposals via a GitHub App, with independent effect authorization | **Planned** (Gate G6) |
 | Production deployment and continuous unattended operation | **Planned** (Gate G7) |
-| Upstream defect *reporting* (filing genuine product defects as GitHub issues) | **Planned** — marked not required for the initial pilot in `plans/idea.md` |
 | Visual-asset / social-preview image preparation | **Planned** — same pilot carve-out |
 | Repo description/topics/homepage: apply the proposal to GitHub; community/security file generation; release-link auditing | **Planned** |
 
@@ -90,7 +90,7 @@ src/repository_presenter/   cli.py (entry point), core/ (shared capabilities), c
   components/readme/          the README transaction: evidence, investigation, reconciliation,
                                composition, validation, independent review, repair, bundle sealing
   components/metadata/        repo description/topics/homepage capture, proposal, gated apply
-  components/issues/          upstream-defect ledger, handoff drafting, redetection
+  components/issues/          upstream-defect ledger, handoff drafting, redetection, gated issue filing
 prompts/                    one governed YAML manifest per LLM job
 schemas/                    JSON Schemas for state, manifest, and bundle validation
 data/                       registry.json — the admitted-repository allow-list
@@ -140,6 +140,8 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `GH_TOKEN` | optional | Repository-scoped, read-only; used for `present`'s clone step and `metadata`'s `GET /repos/{owner}/{repo}` call |
 | `GH_METADATA_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `metadata --apply` reads it, and only after `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `metadata --apply`'s write; a token's mere presence never implies this |
+| `GH_ISSUES_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `file-upstream-defects --file` reads it, and only after `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` also authorizes a write |
+| `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `file-upstream-defects --file`'s write; a token's mere presence never implies this |
 
 `GPT_OSS_ENDPOINT` and `GPT_OSS_API_KEY` are required even for `present --facts-only`: the gateway
 configuration loads before that flag's short-circuit.
@@ -155,6 +157,7 @@ repository-presenter status [--root PATH] [--stale]
 repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
 repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply]
+repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 ```
 
@@ -175,6 +178,15 @@ repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
   fires. `--repo OWNER/NAME` limits the pass to one repository. `--apply` writes back the one
   schema-valid status change this can ever propose (`FILED` -> `RESOLVED_UPSTREAM`); a dry-run
   report otherwise.
+- **`file-upstream-defects`** — files each eligible (`HANDOFF_PENDING`) `evidence/upstream-defects/`
+  handoff as a real GitHub issue; dry-run by default (lists what would be filed, no network call at
+  all). `--repo OWNER/NAME` limits the pass to one repository. `--file` attempts the write, but only
+  past two independent, explicit gates — the owner-controlled
+  `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED=1`, and a write-scoped `GH_ISSUES_WRITE_TOKEN`
+  (never `GH_TOKEN`) — plus a fresh recheck (via `redetect-upstream-defects`'s own mechanism) that
+  the defect still fires immediately before the call; a handoff whose status is not
+  `HANDOFF_PENDING` is skipped outright (the duplicate-filing guard). Neither gate is set in this
+  project's own environment, so `--file` reports exactly why it wrote nothing rather than guessing.
 - **`metadata --repo OWNER/NAME`** — workstream 2 capture and proposal, dry-run by default: reads
   GitHub's currently-observed `description`/`homepage`/`topics` for the repository, and, when a
   sealed `CURRENT` candidate exists, proposes a candidate value for each field derived only from

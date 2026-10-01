@@ -46,10 +46,12 @@ src/repository_presenter/
     authorization/           effect-authorization contracts
     candidates.py            sealed-bundle counting (already built)
     secrets.py               secret-canary scanning (already built)
-  components/issues/         workstream 3 read+local-JSON only (docs/investigations/03-issue-tracking.md); tracks confirmed upstream defects and, per PRODUCTION_ROADMAP.md's WS2 ruling, missing community/contribution/licensing/security files as findings; never a GitHub write, never README-specific
+  components/issues/         workstream 3 (docs/investigations/03-issue-tracking.md); tracks confirmed upstream defects and, per PRODUCTION_ROADMAP.md's WS2 ruling, missing community/contribution/licensing/security files as findings; never README-specific; read+local-JSON only except file.py's own gated write
     model.py                  the typed shape of one handoff artifact
-    ledger.py                 the dedup ledger: a read layer over the handoff artifacts committed under evidence/upstream-defects/
+    ledger.py                  the dedup ledger: a read layer over the handoff artifacts committed under evidence/upstream-defects/
     redetect.py                re-detection pass: re-evaluate a handoff's triggering_check at the repository's current revision
+    draft.py                    auto-drafts a HANDOFF_PENDING artifact the moment cli.py::run_present proves a genuine EXTRACTING-stage defect
+    file.py                     Phase 3 gated write: files a HANDOFF_PENDING handoff as a real GitHub issue, only past two independent owner-controlled gates plus a fresh recheck
   components/readme/         README-specific behavior only
     extractors/
       platforms/              one plugin per ecosystem (python.py first)

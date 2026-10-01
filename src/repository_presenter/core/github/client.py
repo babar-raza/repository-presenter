@@ -1,12 +1,13 @@
-"""GitHub REST client: read (``GET /repos/{owner}/{repo}``, always available) and a gated write
-half (``PATCH /repos/{owner}/{repo}`` and ``PUT /repos/{owner}/{repo}/topics``).
+"""GitHub REST client: read (``GET /repos/{owner}/{repo}``, always available) and two gated write
+halves (``PATCH /repos/{owner}/{repo}`` + ``PUT /repos/{owner}/{repo}/topics``, and
+``POST /repos/{owner}/{repo}/issues``).
 
 The read half is the one GitHub-metadata read this project's production code makes outside cloning
 (``core/git_safety/clone.py`` already reads with the same ``GH_TOKEN`` to pin and push-disable a
 clone). It exists to observe a repository's current ``description``, ``homepage``, and ``topics``
 (workstream 2 Phase 0, docs/investigations/02-repo-metadata-community-files.md section 5).
 
-The write half (``update_repository``, ``replace_topics``) exists so
+The metadata write half (``update_repository``, ``replace_topics``) exists so
 ``components/metadata/apply.py`` (workstream 2 Phase 1, the gated write path) has a real function to
 call - but this module itself performs no authorization check and never decides whether a write
 *should* happen. ``apply.py`` is the only production caller, and it refuses to reach either function
@@ -16,6 +17,12 @@ this project calls either write function. Both still need a write-scoped token d
 read-only ``GH_TOKEN`` this module's read half uses (``GH_METADATA_WRITE_TOKEN`` -
 ``core/secrets.py``) - the ``Administration: write`` scope this project's own ``GH_TOKEN`` does not
 have (``OWNER-04``, ``project/state.yaml``).
+
+The issue-filing write half (``create_issue``) exists so ``components/issues/file.py`` (workstream 3
+Phase 3, the gated issue-filing path) has a real function to call - the same split: this module
+performs no authorization check of its own, and no other code calls it. It needs its own
+write-scoped token, also distinct from ``GH_TOKEN`` (``GH_ISSUES_WRITE_TOKEN`` -
+``core/secrets.py``) - the ``Issues: write`` scope this project's own ``GH_TOKEN`` does not have.
 
 ``fetch``/``write`` are injected the same way ``tools/discovery/portfolio_discovery.py`` and
 ``components/readme/evidence/facts/links.py`` already inject their HTTP calls: a plain
@@ -221,3 +228,63 @@ def replace_topics(
         raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
     if status_code != 200:
         raise RepositoryMetadataError(f"{owner}/{name}: PUT {url} returned HTTP {status_code}")
+
+
+@dataclass(frozen=True)
+class CreatedIssue:
+    """What GitHub returns for a successfully created issue - only what a caller needs to record
+    it as a handoff's own ``issue_ref`` (``components/issues/model.py::IssueRef``)."""
+
+    number: int
+    url: str
+
+
+def default_post(url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
+    """``POST url`` with ``payload`` as JSON. Never called except by ``create_issue``, which is
+    itself never called except by ``components/issues/file.py`` after that module's own
+    authorization check passes - see this module's docstring."""
+    try:
+        response = httpx.post(
+            url, headers=_write_headers(token), json=payload, timeout=REQUEST_TIMEOUT_SECONDS
+        )
+    except httpx.HTTPError as exc:
+        return -1, f"{type(exc).__name__}: {exc}"
+    try:
+        body: Any = response.json()
+    except ValueError:
+        body = None
+    return response.status_code, body
+
+
+def create_issue(
+    owner: str,
+    name: str,
+    *,
+    title: str,
+    body: str,
+    token: str,
+    write: WriteFn = default_post,
+) -> CreatedIssue:
+    """``POST /repos/{owner}/{repo}/issues``.
+
+    Raises :class:`RepositoryMetadataError` on anything but a well-formed HTTP 201 (GitHub's own
+    success status for issue creation), or a response missing the ``number``/``html_url`` fields a
+    caller needs to record what was filed - never a guessed or partial result.
+    """
+    if not token:
+        raise RepositoryMetadataError(f"{owner}/{name}: POST refused - no write-scoped token")
+    url = f"{API_ROOT}/repos/{owner}/{name}/issues"
+    status_code, response_body = write(url, token, {"title": title, "body": body})
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({response_body})")
+    if status_code != 201:
+        raise RepositoryMetadataError(f"{owner}/{name}: POST {url} returned HTTP {status_code}")
+    if (
+        not isinstance(response_body, dict)
+        or "number" not in response_body
+        or "html_url" not in response_body
+    ):
+        raise RepositoryMetadataError(
+            f"{owner}/{name}: POST {url} returned HTTP 201 with no usable issue body"
+        )
+    return CreatedIssue(number=int(response_body["number"]), url=str(response_body["html_url"]))
