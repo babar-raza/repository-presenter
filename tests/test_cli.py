@@ -941,9 +941,21 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
 
 
 def test_present_durable_state_requires_a_workflow_run_identity(
-    project_with_registry: Path, capsys: pytest.CaptureFixture[str]
+    project_with_registry: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
-    """Fail closed rather than silently minting a trigger with no stable dedup identity."""
+    """Fail closed rather than silently minting a trigger with no stable dedup identity.
+
+    GITHUB_RUN_ID is ambiently present in every real GitHub Actions job - including the one
+    running this very test suite in hosted CI - so this test must not rely on the surrounding
+    environment lacking it; without this, hosted CI's own ambient GITHUB_RUN_ID would carry this
+    invocation straight past the fail-closed check this test exists to prove, into a real
+    GitStateBackend construction and a real network write attempt against this control
+    repository's own remote (confirmed live: hosted CI failed with a real `git push`
+    authentication error, not this test's own assertion).
+    """
+    monkeypatch.delenv("GITHUB_RUN_ID", raising=False)
     code = main(
         ["present", "--repo", CANARY, "--root", str(project_with_registry), "--durable-state"]
     )
