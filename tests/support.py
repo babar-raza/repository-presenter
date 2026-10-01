@@ -16,8 +16,34 @@ from openai import OpenAI
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.git_safety.git import run_git
 from repository_presenter.core.llm import transport
+from repository_presenter.core.state.cas import SaveResult
+from repository_presenter.core.state.schema import RepositoryRecord
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+class InMemoryStateBackend:
+    """A :class:`~repository_presenter.core.state.cas.StateBackend` test double with the real
+    compare-and-swap contract (stale-version rejection, no silent lost update) but no git
+    subprocess - fast enough for the bulk of ``tests/core/state/`` while ``test_git_backend.py``
+    separately proves the real ref-based mechanism against a disposable local repository."""
+
+    def __init__(self) -> None:
+        self._records: dict[str, RepositoryRecord] = {}
+
+    def load(self, repository: str) -> RepositoryRecord | None:
+        return self._records.get(repository)
+
+    def save(
+        self, repository: str, record: RepositoryRecord, expected_version: int | None
+    ) -> SaveResult:
+        current = self._records.get(repository)
+        current_version = current.state_version if current is not None else None
+        if current_version != expected_version:
+            return SaveResult(outcome="stale", record=current)
+        saved = record.model_copy(update={"state_version": (current_version or 0) + 1})
+        self._records[repository] = saved
+        return SaveResult(outcome="saved", record=saved)
 
 
 def model_listing(*models: tuple[str, str]) -> httpx.Response:

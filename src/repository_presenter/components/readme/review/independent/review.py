@@ -107,7 +107,39 @@ ACCEPT = "ACCEPT"
 # MAJORITY_VOTE_REPOSITORIES (a finding there now needs 2 of 3 reads to agree, not one confirming
 # read), even though every other repository's own fold stack is byte-for-byte unchanged. Bumped so
 # a sealed candidate re-checks against the new code rather than reading as still current.
-REVIEWER_LOGIC_VERSION = "13"
+# "14" (G4-W17 arrival item F04, Aspose.3D-FOSS-for-TypeScript, 2026-09-27): the "12" fix
+# (_value_segments) only ever segmented a Markdown bullet list, so a source-kind install_command
+# fact's own multi-line shell transcript (git clone <url> / cd <dir> / npm install / npm run
+# build) stayed one whole, clone-URL-and-directory-name-heavy value - the exact dilution shape "12"
+# closed for a bullet list, recurring here for a shell transcript no bullet marker ever opens.
+# Measured on install_command:npm: 12 distinct tokens, 7 spent on the clone URL and its own
+# directory name, so no phrasing of the actual claim ("not on the npm registry; build from source
+# with npm install and npm run build") could ever clear _PARAPHRASE_MIN_OVERLAP against that
+# denominator - the same "no repair lever" symptom, on a value shape "12" did not cover. Two
+# changes, same mechanism: (a) _value_segments now also splits a bullet-free, multi-line value by
+# its own non-blank lines (a shell transcript's own steps, each a distinct sub-claim exactly as a
+# bullet's own item is); (b) _cited_literal now also tries each of those segments, not only the
+# whole value, closing a second, older gap the "12" fix never touched (_cited_paraphrase already
+# tried per-segment text; _cited_literal never did) - a unit quoting one exact step verbatim (a
+# code span reading `npm install`) is grounded by the substring match this always claimed to make,
+# rather than falling through to a paraphrase ratio a short single-line segment can never clear
+# (_PARAPHRASE_MIN_TOKENS). Neither threshold changed; a quote that restates neither the whole
+# value nor any one line still fails exactly as before.
+# A second, independent gap landed in the same version, found live-reproducing the F04 class on a
+# fresh redraw of the same repository under different sampling: _cited_paraphrase's ratio was
+# always "the fact's own tokens found in the quote, over the fact's own token count" - the share
+# of the FACT the quote covers. That direction fails a faithful SUMMARY exactly as it should fail
+# a mismatch: measured on inherited_unit:074.list's own bullet naming the identical real npm
+# packaging defect (21 distinct tokens, an explanatory "why" clause included), a composed quote
+# keeping all 10 of its own distinctive tokens while dropping that clause scored 10/21 = 0.476
+# (fails) even though the quote's own content is 10/10 = 1.0 grounded in the bullet. A second,
+# symmetric ratio - the QUOTE's own tokens found in the fact, over the quote's own token count,
+# gated by the identical _PARAPHRASE_MIN_TOKENS floor on that side - now also counts; either
+# direction clearing _PARAPHRASE_MIN_OVERLAP grounds the quote. This asks whether the quote
+# asserts anything the fact does not support, never whether the quote restates everything the
+# fact says - a faithful compression is not a factual defect, and a quote that invents content
+# absent from the fact still fails both directions, since its own tokens are simply not there.
+REVIEWER_LOGIC_VERSION = "14"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -447,17 +479,28 @@ def _cited_literal(product: Sequence[Fact], quote: str) -> Fact | None:
     link, not its label - the one shape ``_normalized`` alone can never match, since it exists
     expressly to discard that destination. A quote that embeds the raw Markdown (as a reviewer's
     own copy of the candidate's rendered line can) still carries it either way.
+
+    G4-W17 arrival item F04 (Aspose.3D-FOSS-for-TypeScript), 2026-09-27: also tried against each
+    of ``_value_segments``' own top-level segments, not only the whole value - a fact whose value
+    is several distinct lines (a multi-step shell transcript, the same shape a multi-bullet list
+    already gets from ``_cited_paraphrase``) is quoted a step at a time in practice (a unit citing
+    ``install_command:npm`` naming just the ``npm install`` step in its own code span), and the
+    whole multi-line value is too long and too specific (its own clone URL and directory name) for
+    any composed sentence to ever contain verbatim. Scoped identically to the whole-value check
+    above: still only a contiguous substring, never a token-overlap judgment - that stays
+    ``_cited_paraphrase``'s alone.
     """
     wanted = _normalized(quote)
     wanted_with_targets = _normalized_with_targets(quote)
     for fact in product:
         if fact.polarity != "SUPPORTED":
             continue
-        value = _normalized(fact.value)
-        if len(value) < _LITERAL_VALUE_LENGTH:
-            continue
-        if value in wanted or value in wanted_with_targets:
-            return fact
+        for candidate_text in (fact.value, *_value_segments(fact.value)):
+            value = _normalized(candidate_text)
+            if len(value) < _LITERAL_VALUE_LENGTH:
+                continue
+            if value in wanted or value in wanted_with_targets:
+                return fact
     return None
 
 
@@ -555,7 +598,8 @@ _BULLET_MARKER = re.compile(r"^(?:[-*+]|\d+[.)])\s+\S")
 
 
 def _value_segments(value: str) -> tuple[str, ...]:
-    """``value``'s own top-level Markdown bullets, when it has at least two; ``()`` otherwise.
+    """``value``'s own top-level bullets or command lines, when it has at least two; ``()``
+    otherwise.
 
     G4-W17 arrival items F05 (Words-.NET) and F08 (Email-Python), 2026-09-17/2026-09-23: a
     multi-bullet ``inherited_unit:*.list`` fact bundles several distinct upstream sentences into
@@ -573,6 +617,23 @@ def _value_segments(value: str) -> tuple[str, ...]:
     A continuation line (wrapped prose, or a nested sub-bullet) is folded into the bullet above it
     rather than starting its own segment, since it is part of that bullet's own content, not a
     sibling claim.
+
+    G4-W17 arrival item F04 (Aspose.3D-FOSS-for-TypeScript), 2026-09-27: the identical dilution
+    mechanism, one step earlier - a source-kind ``install_command`` fact's own value is a
+    multi-line shell transcript (``git clone <url>``, ``cd <dir>``, ``npm install``,
+    ``npm run build``), never a Markdown bullet list, so the rule above never segmented it and
+    every grounding check was forced to measure the WHOLE value at once. Measured on
+    ``install_command:npm``: 12 distinct tokens, 7 of them (``git``, ``https``, ``github``, ``com``,
+    ``aspose``, ``foss``, ``typescript``) spent on the clone URL and its own directory name alone -
+    incidental to which repository this is, never the substance a scope-limitations sentence
+    citing this fact would restate. No phrasing of the actual claim ("not published on the npm
+    registry; build from source with `npm install` and `npm run build`") can ever reach
+    ``_PARAPHRASE_MIN_OVERLAP`` against that denominator, so the finding survived one full repair
+    round unchanged - the same "no repair lever" symptom F05/F08 already named, on a value shaped
+    like a shell transcript rather than a bulleted list. A value with no bullet markers but at
+    least two non-blank lines is now segmented by line on exactly the same reasoning: each line is
+    its own distinct sub-claim (one shell step), never a sibling's continuation, so a blank line
+    aside, there is no wrapped-prose case to fold here the way a bullet's continuation line needs.
     """
     lines = value.splitlines()
     segments: list[str] = []
@@ -586,7 +647,10 @@ def _value_segments(value: str) -> tuple[str, ...]:
             current.append(line)
     if current:
         segments.append("\n".join(current))
-    return tuple(segments) if len(segments) >= 2 else ()
+    if len(segments) >= 2:
+        return tuple(segments)
+    plain_lines = tuple(line for line in lines if line.strip())
+    return plain_lines if len(plain_lines) >= 2 else ()
 
 
 def _cited_paraphrase(product: Sequence[Fact], quote: str) -> Fact | None:
@@ -622,6 +686,31 @@ def _cited_paraphrase(product: Sequence[Fact], quote: str) -> Fact | None:
     ordinary words from several without substantially restating any one of them, still fails every
     candidate exactly as before - this widens which TEXT the ratio is measured against, never the
     ratio or token-count thresholds themselves.
+
+    G4-W17 arrival item F04 (Aspose.3D-FOSS-for-TypeScript, 2026-09-27, live-measured): the ratio
+    was ALWAYS the fact's own distinctive tokens found in the quote, divided by the fact's OWN
+    token count - "what share of the fact did the quote cover". That direction punishes a
+    faithful SUMMARY exactly as much as it punishes a genuine mismatch: a composed unit is
+    expected to condense a longer upstream sentence, not reproduce it in full, so dropping a
+    bullet's own explanatory clause while keeping every substantive claim word is dilution's own
+    mechanism turned on the bullet's OWN remaining text once segmentation has already isolated it
+    to one bullet. Measured live on ``inherited_unit:074.list``'s own second bullet ("A real npm
+    packaging defect affects 3MF import/export in this FOSS build - a normal package install does
+    not pull in a dependency the 3MF code path needs at runtime, so using it throws immediately.",
+    21 distinct tokens) against a composed quote that keeps every one of its own 10 distinctive
+    tokens ("A real npm packaging defect affects 3MF import/export so that using it throws
+    immediately.") while dropping the bullet's own explanatory "why" clause: overlap 10, fact-side
+    ratio 10/21 = 0.476 (fails), even though the quote's own content is 10/10 = 1.0 grounded in
+    that one bullet - a complete, faithful compression, not an invented claim. A second ratio,
+    symmetric to the first - the quote's OWN distinctive tokens found in the fact, divided by the
+    quote's OWN token count, gated by the identical ``_PARAPHRASE_MIN_TOKENS`` floor on that side
+    too so a too-short or too-generic quote still cannot ground by coincidence - now also counts:
+    either direction clearing ``_PARAPHRASE_MIN_OVERLAP`` grounds the quote. This asks the
+    question a factuality check actually needs answered (does the quote assert anything the fact
+    does not support), never the inverse (does the quote restate everything the fact says) - a
+    faithful quote that omits detail is not a factual defect, and neither ratio changed for a
+    quote that invents content absent from the fact: such a quote's own tokens are simply not
+    THERE to be found, on either side.
     """
     wanted = _content_tokens(_normalized(quote))
     wanted_with_targets = _content_tokens(_normalized_with_targets(quote))
@@ -632,9 +721,24 @@ def _cited_paraphrase(product: Sequence[Fact], quote: str) -> Fact | None:
             value_tokens = _content_tokens(_normalized(candidate_text))
             if len(value_tokens) < _PARAPHRASE_MIN_TOKENS:
                 continue
-            overlap = max(len(value_tokens & wanted), len(value_tokens & wanted_with_targets))
-            if overlap / len(value_tokens) >= _PARAPHRASE_MIN_OVERLAP:
-                return fact
+            for quote_tokens in (wanted, wanted_with_targets):
+                if len(quote_tokens) < _PARAPHRASE_MIN_TOKENS:
+                    continue
+                overlap = len(value_tokens & quote_tokens)
+                # The overlap itself, not only its ratio, must clear the same floor either
+                # denominator uses: a short quote sharing a HANDFUL of ordinary words with a much
+                # longer fact can reach a high quote-side ratio by coincidence (measured: "The
+                # default export uses the JSON form." shares only "default"/"json"/"form" - 3
+                # words - with a whole unrelated glTF paragraph, 3/5 = 0.6, the exact threshold)
+                # even though it restates nothing distinctive. Requiring the shared count itself
+                # to reach _PARAPHRASE_MIN_TOKENS keeps that collision closed on the new
+                # direction the same way it already closes it on the old one.
+                if overlap < _PARAPHRASE_MIN_TOKENS:
+                    continue
+                fact_side = overlap / len(value_tokens)
+                quote_side = overlap / len(quote_tokens)
+                if max(fact_side, quote_side) >= _PARAPHRASE_MIN_OVERLAP:
+                    return fact
     return None
 
 

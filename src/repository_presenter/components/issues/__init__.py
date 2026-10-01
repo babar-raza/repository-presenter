@@ -18,9 +18,16 @@ neither of which needs a GitHub write scope:
   at `causal_stage EXTRACTING`, backed by a real non-`SUPPORTED` `install_command` fact), so the
   handoff artifact this package's lifecycle already governs gets created automatically instead of
   only through the separate, manually-invoked `redetect-upstream-defects` CLI subcommand.
+- `file.py` — the gated write half: files a `HANDOFF_PENDING` handoff as a real
+  `POST /repos/{owner}/{repo}/issues` call, but only past two independent, explicit gates (an
+  owner-controlled authorization signal, and a write-scoped token distinct from the read-only
+  `GH_TOKEN` every other module here uses) and a fresh recheck that the defect still fires; none
+  of that is set anywhere in this project's own environment today, so it is built and tested,
+  never fired.
 
-Nothing here calls `gh issue create`/`close` or any other GitHub Issues write endpoint; that stays
-gated on the separate authorization `AGENTS.md`'s Security and Effects section requires.
+Every other module here (`model.py`, `ledger.py`, `redetect.py`, `draft.py`) stays read + local-
+JSON only and calls no GitHub Issues write endpoint; only `file.py` ever does, and only past its
+own gates.
 """
 
 from __future__ import annotations

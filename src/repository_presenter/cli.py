@@ -10,9 +10,13 @@ import shutil
 import sys
 from collections import Counter
 from collections.abc import Sequence
+from dataclasses import replace
+from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 
 from repository_presenter import __version__
+from repository_presenter.components.issues import file as issues_file
 from repository_presenter.components.issues.draft import (
     eligible_for_handoff,
     record_handoff_if_new,
@@ -22,11 +26,13 @@ from repository_presenter.components.issues.ledger import (
     load_ledger,
 )
 from repository_presenter.components.issues.model import (
+    Handoff,
     HandoffError,
     load_handoff,
     write_handoff,
 )
 from repository_presenter.components.issues.redetect import (
+    RedetectionResult,
     RedetectorNotRegisteredError,
     apply_redetection,
     redetect,
@@ -139,7 +145,7 @@ from repository_presenter.core.facts import (
     write_facts,
 )
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
-from repository_presenter.core.github.client import default_patch, default_put
+from repository_presenter.core.github.client import default_patch, default_post, default_put
 from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, JobResult
 from repository_presenter.core.llm.ledger import LEDGER_FILENAME, Ledger
 from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME, load_manifests, validate_routes
@@ -262,6 +268,31 @@ def build_parser() -> argparse.ArgumentParser:
             "GitHub effect); a dry-run report only when omitted"
         ),
     )
+    file_cmd = subcommands.add_parser(
+        "file-upstream-defects",
+        help=(
+            "file each HANDOFF_PENDING evidence/upstream-defects/ handoff as a real GitHub "
+            "issue - dry-run by default; --file attempts the gh issue create call, but only when "
+            "the owner has explicitly authorized it"
+        ),
+    )
+    file_cmd.add_argument("--root", type=Path, default=None, help=root_help)
+    file_cmd.add_argument(
+        "--repo",
+        default=None,
+        metavar="OWNER/NAME",
+        help="only file handoffs for this repository; every HANDOFF_PENDING handoff when omitted",
+    )
+    file_cmd.add_argument(
+        "--file",
+        action="store_true",
+        help=(
+            f"attempt to file each eligible handoff as a GitHub issue; refuses and explains why "
+            f"unless {issues_file.AUTHORIZATION_VARIABLE}=1 and a write-scoped "
+            "GH_ISSUES_WRITE_TOKEN are both present - lists what would be filed and makes no "
+            "write call when omitted"
+        ),
+    )
     metadata = subcommands.add_parser(
         "metadata",
         help=(
@@ -302,6 +333,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_preflight(args.root)
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(args.root, repository=args.repo, apply=args.apply)
+    if args.command == "file-upstream-defects":
+        return run_file_upstream_defects(args.root, repository=args.repo, file=args.file)
     if args.command == "metadata":
         return run_metadata(args.repo, args.root, apply=args.apply)
     parser.error(f"unknown command {args.command!r}")
@@ -393,6 +426,109 @@ def run_redetect_upstream_defects(
                 updated = apply_redetection(handoff, result)
                 write_handoff(updated, entry.path)
                 print(f"  applied: {entry.path.relative_to(root).as_posix()} now {updated.status}")
+    return EXIT_OK
+
+
+def _redetect_or_inconclusive(handoff: Handoff) -> RedetectionResult:
+    """``redetect.redetect``, but never raises: a handoff whose ``triggering_check.id`` has no
+    registered redetector (``RedetectorNotRegisteredError``) is reported as an inconclusive
+    recheck rather than crashing the filer - ``file_handoff`` already fails closed on
+    ``still_fires is None`` (this module's own docstring; ``AGENTS.md`` "Recheck upstream
+    revision immediately before an effect")."""
+    try:
+        return redetect(handoff)
+    except RedetectorNotRegisteredError as exc:
+        return RedetectionResult(
+            repository=handoff.repository,
+            defect_fingerprint=handoff.defect_fingerprint,
+            triggering_check_id=handoff.triggering_check.id,
+            checked_at=datetime.now(UTC).isoformat(timespec="seconds"),
+            checked_at_revision=None,
+            revision_drifted=False,
+            still_fires=None,
+            note=str(exc),
+            fresh_evidence=(),
+            proposed_status=None,
+        )
+
+
+def run_file_upstream_defects(
+    root_argument: Path | None, *, repository: str | None = None, file: bool = False
+) -> int:
+    """File each eligible (``HANDOFF_PENDING``) ``evidence/upstream-defects/`` handoff as a real
+    GitHub issue.
+
+    Dry-run by default: lists what would be filed and makes no network call at all. ``--file``
+    attempts the write through ``components/issues/file.py``, which refuses (and explains exactly
+    why, making no write call) unless ``issues_file.AUTHORIZATION_VARIABLE`` is set to a truthy
+    value *and* a write-scoped ``GH_ISSUES_WRITE_TOKEN`` is present - neither is set in this
+    project's own environment today, so ``--file`` prints the same refusal here that it would
+    anywhere else this command runs, never a live issue creation.
+
+    Before ever writing, this also re-runs the handoff's own ``triggering_check``
+    (``components/issues/redetect.py``) against the target repository's *current* state and
+    refuses to file anything the recheck cannot freshly confirm still fires (``AGENTS.md``
+    "Recheck upstream revision immediately before an effect"). A handoff whose status is not
+    ``HANDOFF_PENDING`` is skipped without even reaching the recheck - already-``FILED`` handoffs
+    are never re-filed (the dedup guard).
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
+    except HandoffError as exc:
+        _fail(str(exc))
+        return EXIT_INCONSISTENT
+    entries = [
+        entry
+        for entry in sorted(ledger.values(), key=lambda e: (e.repository, e.defect_fingerprint))
+        if repository is None or entry.repository == repository
+    ]
+    if not entries:
+        print(
+            f"file: no handoff found for {repository!r}"
+            if repository
+            else "file: no handoffs on record"
+        )
+        return EXIT_OK
+    write_token = os.environ.get("GH_ISSUES_WRITE_TOKEN") or None
+    for entry in entries:
+        try:
+            handoff = load_handoff(entry.path)
+        except HandoffError as exc:
+            _fail(str(exc))
+            return EXIT_INCONSISTENT
+        if handoff.status != "HANDOFF_PENDING":
+            print(
+                f"file: {handoff.repository} {handoff.defect_fingerprint[:19]}...: skip - "
+                f"status is {handoff.status!r}, not HANDOFF_PENDING"
+            )
+            continue
+        if not file:
+            print(
+                f"file: {handoff.repository} would file {handoff.suggested_issue_title!r} "
+                "(dry run; pass --file to attempt)"
+            )
+            continue
+        result = issues_file.file_handoff(
+            handoff,
+            token=write_token,
+            environment=os.environ,
+            create=default_post,
+            recheck=partial(_redetect_or_inconclusive, handoff),
+        )
+        print(
+            f"file: {handoff.repository} authorized={result.authorized} "
+            f"filed={result.filed} - {result.reason}"
+        )
+        if result.filed and result.issue_ref is not None:
+            updated = replace(handoff, status="FILED", issue_ref=result.issue_ref)
+            write_handoff(updated, entry.path)
+            print(
+                f"  applied: {entry.path.relative_to(root).as_posix()} now FILED "
+                f"({result.issue_ref.url})"
+            )
     return EXIT_OK
 
 
