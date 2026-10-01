@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T18:19:32+05:00"
+updated_at: "2026-10-01T00:00:00+05:00"
 
 authority:
   governance: AGENTS.md
@@ -230,6 +230,35 @@ sources:
         never the working tree, so a dirty file cannot enter through a file record. The checkout's
         HEAD has since moved to 0a4d627c; the pinned revision is an ancestor of it, verified.
       decided_at: "2026-09-06"
+    clean_inventory_captured: false
+    runtime_dependency_allowed: false
+  - id: aspose-org-private
+    repository: Aspose/aspose.org
+    url: https://github.com/Aspose/aspose.org
+    frozen_revision: d8a54f63599d065d43656be2c56ab1de9e29f03d
+    revision_verified: true
+    revision_metadata:
+      verified_at: "2026-10-01"
+      author: Babar Raza <babar.raza@aspose.com>
+      authored_at: "2026-09-11T15:26:00Z"
+      subject: "fix(pipeline): registry classifier case-sensitivity bug + register imaging/net"
+    working_tree_at_freeze:
+      observed_at: "2026-10-01"
+      status: CLEAN
+      reconciliation: EXCLUDED_BY_DEFAULT
+      reconciliation_rule: >
+        No local checkout of this repository exists on this machine (confirmed,
+        docs/investigations/04-portfolio-discovery.md §3.5/§3.6): it is `Aspose/aspose.org`,
+        org-owned and private, a different address from the non-resolving
+        `babar-raza/aspose.org` the `aspose-org` source entry above records. Read-only via
+        that repository's Contents API (`gh api repos/Aspose/aspose.org/contents/<path>`)
+        and per-path commit history (`gh api 'repos/Aspose/aspose.org/commits?path=<path>'`),
+        never cloned or pulled from directly - study-then-reimplement, the same precedent
+        `tools/discovery/portfolio_discovery.py` already documents for this exact source file.
+        `frozen_revision` above is the most recent commit that touched the one file this
+        source entry's file record cites as of 2026-10-01; its file-content SHA-256 is
+        recorded on that file record, not here, since no working tree was ever materialized
+        to measure dirtiness against.
     clean_inventory_captured: false
     runtime_dependency_allowed: false
 
@@ -2141,6 +2170,55 @@ file_records:
     pulled_at: "2026-10-01"
     work_item: G5-W04
     note: Only the "repository record is the one CAS unit" idea survives; every field is new. Merges legacy backend.py's StateBackend/SaveResult shape into core/state/cas.py; see that file's own expected_area_dispositions row above.
+
+  - source_id: aspose-org-private
+    source_path: scripts/pipeline/commands/ops/update_product_registry.py
+    sha256: 5defb57efab4c43e30932cf164c87c9ea0e44d407c13203178982ab6179639f0
+    disposition: PORT_NEARLY_INTACT
+    destination: "tools/discovery/portfolio_discovery.py (classify_repo_name, RepoClassification, lines 243-322)"
+    retained_behavior:
+      - "_classify_repo's three-pattern precedence order and public contract (repo name -> (family, platform) or None/unmatched), ported as classify_repo_name -> RepoClassification: canonical dotted Aspose.<Family>-FOSS-for-<Platform>, lowercase aspose-<family>-foss-for-<platform>, and legacy aspose-<family>-<platform>, tried in that order so the loosest pattern never shadows a more specific one."
+      - "re.IGNORECASE on every pattern from the first line, not a later patch - the real historical defect this source file's own frozen revision fixed (d8a54f63, 2026-09-11: a case-sensitive canonical pattern silently failed to classify the real repository Aspose.Imaging-Foss-for-.NET, mixed-case Foss, with no error) is never reintroduced here."
+      - "The platform-token normalization map (python, java, .net/net, cpp, typescript, javascript, nodejs, go), carried over so a freshly classified platform string lines up with data/registry.json's own existing convention (e.g. .NET -> net)."
+    removed_behavior:
+      - "matched is now its own explicit RepoClassification field, never inferred from family/platform being None - classify_repo_name never returns a bare None the way _classify_repo does, matching this module's existing never-silent-exclusion discipline for unmatched/noise repositories."
+      - "Every I/O and orchestration responsibility the source function's containing module carries - _discover_from_github's GitHub org scanning, _discover_from_knowledge's local knowledge/ directory walk, _load_exclusions/_is_excluded/_enforce_exclusions' registry_exclusions.json handling - none of it is pulled; only the pure, stateless name-classification function and its regex/normalization constants cross into this project."
+      - "rust and c++ added to the platform-normalization map (absent upstream): this project's own registry already carries rust/cpp platform entries the upstream map had no occasion to cover; documented here rather than silently diverging from the source behavior."
+    tests_ported:
+      - "No direct legacy test ported (the upstream test_update_product_registry.py never left Aspose/aspose.org, consistent with this source never being cloned). tools/discovery/test_portfolio_discovery.py's existing test_classify_repo_name_* tests (canonical/lowercase/legacy forms, the real 2026-09-11 mixed-case-Foss case-insensitivity regression, and the explicit-unmatched-not-silent case) are written fresh against this project's own RepoClassification shape."
+      - "tools/discovery/test_portfolio_discovery.py::test_classify_repo_name_matches_every_current_registry_entry - new, added with this file record: a fresh classify_repo_name run against every repository name in the real data/registry.json (36 entries as of 2026-10-01) reproduces that entry's own manually-populated family and platform fields, with one named, evidence-backed exception (below)."
+    acceptance: >
+      A fresh portfolio_discovery.py run classifies family/platform for every data/registry.json
+      entry automatically, matching the current manually-populated values, proven by test, for 35
+      of 36 current entries; the sole exception, aspose-gis-foss/Aspose.GIS.FOSS-for-.Net
+      (family gis, platform net), carries a dot rather than the convention's hyphen between family
+      and FOSS on GitHub itself (verified live via `gh api orgs/aspose-gis-foss/repos` on
+      2026-10-01) - the real upstream classifier's own canonical pattern (requiring
+      `Aspose\.<Family>-FOSS-for-<Platform>`) would not match this name either, so this is a
+      genuine, named convention deviation in the live repository, not a porting defect; preserved
+      as an explicit unmatched outcome rather than papered over with a pattern the authoritative
+      source does not itself have. The three-regex precedence and case-insensitivity otherwise
+      match the real upstream classifier's documented behavior at its frozen revision, including
+      the specific 2026-09-11 mixed-case-Foss regression that revision fixed.
+    import_closure: []
+    pulled_at: "2026-10-01"
+    work_item: G5-W07
+    provenance: >
+      Studied read-only via Aspose/aspose.org's Contents API
+      (gh api repos/Aspose/aspose.org/contents/scripts/pipeline/commands/ops/update_product_registry.py,
+      blob sha 7d194a9ee26bbb8302c20c4e2f971645d755a19d, 29296 bytes, sha256 recorded above) and its
+      per-path commit history (gh api 'repos/Aspose/aspose.org/commits?path=...', most recent touching
+      commit d8a54f63599d065d43656be2c56ab1de9e29f03d, 2026-09-11T15:26:00Z) - never cloned or pulled
+      from directly, since no local checkout of this private, org-owned repository exists on this
+      machine. This is a study-then-reimplement pull, not a byte-identical port; the sha256 above hashes
+      the real upstream source file's bytes at the cited blob, read for comparison, not copied in.
+    note: >
+      Closes docs/PRODUCTION_ROADMAP.md WS4's second gap and project/state.yaml G5-W07 part 2: the
+      classifier itself (classify_repo_name, RepoClassification) and its wiring into
+      RepoObservation/the markdown report already landed at 7b10ae1 (2026-09-23) without this file
+      record; this entry formalizes the provenance, source revision, and acceptance proof that
+      AGENTS.md's reuse-manifest discipline requires for every reuse-source pull, and adds the
+      missing registry-wide match test the work item's acceptance bar names.
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward
