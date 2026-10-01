@@ -6,6 +6,11 @@ token counts, and outcome; a reuse of a stored output is recorded as ``cache_reu
 provider calls, which is how a no-op rerun proves it called nothing. Content is never stored here,
 only hashes and counts.
 
+Every record also carries the manifest's own sampling contract - ``temperature``, ``max_tokens``
+(the manifest's ``max_output_tokens``), and ``response_format`` - and whether this logical call's
+accepted output needed more than the first ask (``derived_via_reask``), so a sealed ledger answers
+exactly what each call was asked for and how, not only what it returned (G5-W02, 27.2).
+
 Extracted from the legacy ``call_schema.py`` and ``call_ledger.py``: the record shape, canonical
 request hashing, append-only JSON lines, and the provider-versus-reuse summary are retained; the
 context-variable session, run and campaign IDs, fixture calls, and pricing fields are removed.
@@ -63,6 +68,20 @@ class CallRecord:
     # rejected reply, but that directory is gitignored, so without this the sealed ledger says how
     # often a job re-asked and never why (RESEARCH_AND_GUIDELINES.md section 27.6 control 1).
     rejection: tuple[str, ...] = ()
+    # G5-W02 (27.2): the manifest's own sampling contract for this logical call, carried on every
+    # record the same way model_route already is - a provider_call's own live request payload and
+    # a cache_reuse's recomputed one are always built from the same manifest, so both read these
+    # off it rather than one having them and the other not. ``None`` only for a ledger sealed
+    # before this field existed (``load_records`` below reads it as its default, never a defect).
+    temperature: float | None = None
+    max_tokens: int | None = None
+    response_format: str | None = None
+    # Whether this record's own accepted output came from the logical call's second physical
+    # attempt (the one automatic model re-ask every job allows) rather than its first - for
+    # ``cache_reuse``/``cache_stale``, where ``attempt`` is always 0 because no physical attempt
+    # happened this run, this is always ``False``: whether a re-ask happened belongs to the
+    # original provider_call record this one reuses, not to the reuse event itself.
+    derived_via_reask: bool | None = None
     schema_version: int = 1
 
     def to_line(self) -> str:

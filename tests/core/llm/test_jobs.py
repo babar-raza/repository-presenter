@@ -340,6 +340,78 @@ def test_a_rejected_output_earns_one_re_ask_that_quotes_the_rejection(
     ]
 
 
+def test_every_ledger_record_carries_the_sampling_contract_and_whether_it_took_a_reask(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G5-W02: temperature, max_tokens and response_format travel from the manifest's own sampling
+    contract onto every record - provider_call, response_invalid and cache_reuse alike, the same
+    way model_route already does - and derived_via_reask is false for a first-attempt success or
+    any reuse, true only for the record the automatic re-ask actually produced."""
+    _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:002", "nope:1")),  # rejected
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+    )
+    sampling = MANIFEST.manifest.sampling
+    ledger = Ledger(tmp_path / "calls.jsonl")
+    store = CallStore(tmp_path / "calls")
+    result = run_job(
+        MANIFEST, PACKET, config=CONFIG, facts=FACTS, ledger=ledger, store=store, context=CONTEXT
+    )
+    assert (result.attempts, result.provider_calls) == (2, 2)
+    records = ledger.records()
+    assert [(r.outcome, r.attempt, r.derived_via_reask) for r in records] == [
+        ("success", 1, False),
+        ("response_invalid", 1, False),
+        ("success", 2, True),
+    ]
+    for record in records:
+        assert record.temperature == sampling.temperature
+        assert record.max_tokens == sampling.max_output_tokens
+        assert record.response_format == sampling.response_format
+
+    # A reuse of that same accepted output carries the identical sampling contract and is never
+    # itself marked as having needed a re-ask, even though the call it reuses did.
+    again = run_job(
+        MANIFEST, PACKET, config=CONFIG, facts=FACTS, ledger=ledger, store=store, context=CONTEXT
+    )
+    assert again.cache_reused is True
+    reused = ledger.records()[-1]
+    assert reused.disposition == "cache_reuse" and reused.derived_via_reask is False
+    assert reused.temperature == sampling.temperature
+    assert reused.max_tokens == sampling.max_output_tokens
+    assert reused.response_format == sampling.response_format
+
+
+def test_a_ledger_sealed_before_the_sampling_fields_existed_still_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The same backward-compatibility guarantee as ``rejection``/``schema_version`` before it
+    (test_ledger.py::test_a_ledger_sealed_before_the_rejection_field_still_reads): a field added
+    after a bundle sealed must read as its default, never make that bundle's own ledger a defect."""
+    from repository_presenter.core.llm.ledger import load_records
+
+    _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+    )
+    ledger = Ledger(tmp_path / "calls.jsonl")
+    store = CallStore(tmp_path / "calls")
+    run_job(
+        MANIFEST, PACKET, config=CONFIG, facts=FACTS, ledger=ledger, store=store, context=CONTEXT
+    )
+    older = json.loads(ledger.path.read_text(encoding="utf-8").splitlines()[0])
+    del older["temperature"], older["max_tokens"], older["response_format"]
+    del older["derived_via_reask"]
+    path = tmp_path / "older-calls.jsonl"
+    path.write_text(json.dumps(older) + "\n", encoding="utf-8")
+    (record,) = load_records(path)
+    assert record.temperature is None
+    assert record.max_tokens is None
+    assert record.response_format is None
+    assert record.derived_via_reask is None
+
+
 def test_a_jobs_own_checks_are_quoted_in_the_re_ask(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
