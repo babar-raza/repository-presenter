@@ -37,6 +37,7 @@ from repository_presenter.components.readme.composition.coherence import (
     coherence_checks,
     coherence_packet,
     coherence_schema,
+    recover_coherence_content_loss,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.placement import placed_texts, placements
@@ -339,8 +340,25 @@ def run_round(tx: TransactionInputs) -> Round:
         coherent[batch_id] = run_job(
             loaded,
             batch_packet,
-            checks=functools.partial(coherence_checks, tasks=batch_tasks, facts=facts, name=name),
+            checks=functools.partial(
+                coherence_checks,
+                tasks=batch_tasks,
+                facts=facts,
+                name=name,
+                # G3-W05 (docs/DEFECT_INDEX.md composition.coherence.inherited_diagram_content_
+                # loss): this batch's own pre-coherence units, so a revision that silently drops a
+                # previously-cited fact's content is rejected here rather than left to whichever
+                # draw's independent-review sample happens to notice it.
+                existing_units=return_units,
+            ),
             call_schema=coherence_schema(loaded, return_units, batch_tasks),
+            # G3-W05: this call site had no recover= at all before this item - a final rejection
+            # always raised JobError outright. The one deterministic last resort available for the
+            # content-loss shape above: revert exactly the unit(s) that dropped untraced content
+            # to their own pre-coherence text/fact_ids, never the whole batch.
+            recover=functools.partial(
+                recover_coherence_content_loss, existing_units=return_units, facts=facts
+            ),
             **common,
         )
         units, batch_revised = apply_coherence(units, coherent[batch_id].output)
