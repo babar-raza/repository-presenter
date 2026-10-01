@@ -44,6 +44,7 @@ src/repository_presenter/
     evidence/                evidence writer and manifest schema
     registry/                registry loader, revision store
     authorization/           effect-authorization contracts
+      proposal.py              the typed README-proposal authorization payload (G6-W02): candidate hash, source revision, branch, PR intent, policy version, expiry; assembled and re-validated, never agent-produced
     candidates.py            sealed-bundle counting (already built)
     secrets.py               secret-canary scanning (already built)
   components/issues/         workstream 3 (docs/investigations/03-issue-tracking.md); tracks confirmed upstream defects and, per PRODUCTION_ROADMAP.md's WS2 ruling, missing community/contribution/licensing/security files as findings; never README-specific; read+local-JSON only except file.py's own gated write
@@ -82,6 +83,8 @@ src/repository_presenter/
     capture.py                Phase 0: read GitHub's observed description/homepage/topics via core/github, write the typed evidence artifact
     proposal.py                Phase 1: derive description/topics/homepage from already-verified facts (identity/license/link_target), diff against Phase 0's observation
     apply.py                  Phase 2: PATCH/PUT that diff to GitHub - gated behind an explicit owner-controlled authorization signal plus a write-scoped token distinct from the read-only GH_TOKEN; unset in this project's own environment today, so built and tested, never fired (docs/DECISION_LOG.md)
+  components/propose/        G6-W02 (docs/EXECUTION_STATE_MACHINE.md G6; docs/STATE_MACHINE.md §§11-12); the README-proposal PR effect, never README-content-specific itself (the candidate text is only an input)
+    effect.py                  the gated write: create/update the one stable presenter branch and its one open PR - gated behind an owner-controlled authorization signal, a write-scoped GH_PROPOSAL_WRITE_TOKEN distinct from GH_TOKEN/GH_METADATA_WRITE_TOKEN/GH_ISSUES_WRITE_TOKEN, core/authorization/proposal.py's own payload re-validation, and a source-revision recheck immediately before the write; unset in this project's own environment today, so built and tested, never fired (docs/DECISION_LOG.md)
 
 prompts/                     one governed manifest per job (README_CONTRACT.md §3), flat, six files at G1
 schemas/                     JSON Schemas for the cursor, manifest, candidate bundle, prompt manifests
