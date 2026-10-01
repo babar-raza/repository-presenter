@@ -28,11 +28,37 @@ from repository_presenter.core.github.read_client import DefaultBranchRead
 REPOSITORY = "babar-raza/disposable-target"
 SOURCE_REVISION = "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2"
 
+#: A real, currently-sealed, currently-reproducible Cells-family candidate (G6-W03's own "best real
+#: candidate to propose" search) - used by
+#: ``test_propose_authorized_handles_a_real_sealed_candidates_full_readme_content`` below to close
+#: the gap between "the mechanism works against a 40-byte synthetic fixture" (every other test in
+#: this file) and "the mechanism works against this specific real candidate's real ~27KB content",
+#: still entirely against injected fakes - no live GitHub call, no real target repository named.
+_REAL_CANDIDATE_REPOSITORY_DIR = "aspose-cells-foss__Aspose.Cells-FOSS-for-Java"
+_REAL_CANDIDATE_REVISION = "c65329e7257b1311abb9686d7e4957a8cc002955"
+
 
 @pytest.fixture
 def readme_file(tmp_path: Path) -> Path:
     path = tmp_path / "candidate-readme.md"
     path.write_text("# Disposable Target\n\nProposed content.\n", encoding="utf-8")
+    return path
+
+
+@pytest.fixture
+def real_candidate_readme_file() -> Path:
+    """The sealed ``README.md`` bytes of a real, currently READY_FOR_PROPOSAL Cells-family
+    candidate, read directly from this checkout's own ``candidates/`` tree - never copied or
+    paraphrased, so a change to the real bundle's bytes would change what this test proposes too."""
+    repo_root = Path(__file__).resolve().parents[3]
+    path = (
+        repo_root
+        / "candidates"
+        / _REAL_CANDIDATE_REPOSITORY_DIR
+        / _REAL_CANDIDATE_REVISION
+        / "README.md"
+    )
+    assert path.is_file(), f"expected sealed bundle README at {path}"
     return path
 
 
@@ -212,3 +238,136 @@ def test_propose_blocks_on_a_stale_source_revision(
     assert exit_code == EXIT_OK
     out = capsys.readouterr().out
     assert "stale source" in out
+
+
+def test_propose_authorized_handles_a_real_sealed_candidates_full_readme_content(
+    project: Path,
+    real_candidate_readme_file: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """G6-W03's own gap-closing proof: every other test in this file proposes a 40-byte synthetic
+    fixture. This one runs the identical authorized CLI path against a real, currently sealed
+    Cells-family candidate's full ~27KB README - exercising hashing, authorization, branch/commit/PR
+    creation, and idempotency against real content shape and size, still entirely against injected
+    fakes (no live GitHub call, no real target repository named - ``REPOSITORY`` here is the same
+    disposable placeholder every other test in this file uses).
+
+    Two invocations: the first creates the branch, writes the commit, and opens the PR; the second
+    (identical authorization inputs, fakes now reporting the branch/PR as already holding that exact
+    content) must write and PATCH nothing - ``docs/STATE_MACHINE.md``'s "proven first against a
+    disposable target" idempotency bar, for this exact candidate's exact bytes, not a toy string.
+    """
+    real_readme_text = real_candidate_readme_file.read_text(encoding="utf-8")
+    monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
+    monkeypatch.setenv("GH_PROPOSAL_WRITE_TOKEN", "fake-write-token-for-this-test-only")
+    monkeypatch.setattr(
+        cli,
+        "fetch_default_branch_sha",
+        lambda repo, *, token: DefaultBranchRead(repo, sha=_REAL_CANDIDATE_REVISION, branch="main"),
+    )
+
+    # Mutable fake remote state, carried across both invocations below.
+    remote_branch_sha: dict[str, str] = {}
+    remote_readme: dict[str, FileContents | None] = {"content": None}
+    remote_pr: dict[str, PullRequestRef | None] = {"ref": None}
+    put_calls: list[dict[str, Any]] = []
+    create_pr_calls: list[dict[str, Any]] = []
+    update_pr_calls: list[dict[str, Any]] = []
+
+    def fake_get_ref(owner: str, name: str, branch: str, *, token: str) -> str | None:
+        if branch == "main":
+            return "base-sha-1"
+        return remote_branch_sha.get(branch)
+
+    def fake_create_ref(owner: str, name: str, branch: str, sha: str, *, token: str) -> None:
+        remote_branch_sha[branch] = sha
+
+    def fake_get_contents(
+        owner: str, name: str, path: str, *, ref: str, token: str
+    ) -> FileContents | None:
+        return remote_readme["content"]
+
+    def fake_put_contents(
+        owner: str,
+        name: str,
+        path: str,
+        *,
+        branch: str,
+        message: str,
+        text: str,
+        sha: str | None,
+        token: str,
+    ) -> CommitOutcome:
+        put_calls.append({"branch": branch, "text": text, "sha": sha})
+        remote_readme["content"] = FileContents(path=path, sha="readme-sha-after-write", text=text)
+        return CommitOutcome(content_sha="readme-sha-after-write", commit_sha="newcommitsha")
+
+    def fake_find_open_pull_request(
+        owner: str, name: str, *, head_branch: str, token: str
+    ) -> PullRequestRef | None:
+        return remote_pr["ref"]
+
+    def fake_create_pull_request(
+        owner: str, name: str, *, title: str, body: str, head: str, base: str, token: str
+    ) -> PullRequestRef:
+        create_pr_calls.append({"title": title, "body": body, "head": head, "base": base})
+        ref = PullRequestRef(
+            number=1,
+            url=f"https://github.com/{owner}/{name}/pull/1",
+            title=title,
+            body=body,
+        )
+        remote_pr["ref"] = ref
+        return ref
+
+    def fake_update_pull_request(
+        owner: str, name: str, number: int, *, title: str, body: str, token: str
+    ) -> PullRequestRef:
+        update_pr_calls.append({"number": number, "title": title, "body": body})
+        assert remote_pr["ref"] is not None
+        ref = PullRequestRef(number=number, url=remote_pr["ref"].url, title=title, body=body)
+        remote_pr["ref"] = ref
+        return ref
+
+    monkeypatch.setattr(cli, "default_get_ref", fake_get_ref)
+    monkeypatch.setattr(cli, "default_create_ref", fake_create_ref)
+    monkeypatch.setattr(cli, "default_get_contents", fake_get_contents)
+    monkeypatch.setattr(cli, "default_put_contents", fake_put_contents)
+    monkeypatch.setattr(cli, "default_find_open_pull_request", fake_find_open_pull_request)
+    monkeypatch.setattr(cli, "default_create_pull_request", fake_create_pull_request)
+    monkeypatch.setattr(cli, "default_update_pull_request", fake_update_pull_request)
+
+    args = [
+        "propose",
+        "--repo",
+        REPOSITORY,
+        "--root",
+        str(project),
+        "--readme-file",
+        str(real_candidate_readme_file),
+        "--source-revision",
+        _REAL_CANDIDATE_REVISION,
+        "--propose",
+    ]
+
+    first_exit = main(args)
+    assert first_exit == EXIT_OK
+    first_out = capsys.readouterr().out
+    assert "effected=True" in first_out
+    assert f"https://github.com/{REPOSITORY}/pull/1" in first_out
+    assert len(put_calls) == 1
+    assert put_calls[0]["text"] == real_readme_text
+    assert len(create_pr_calls) == 1
+    assert len(update_pr_calls) == 0
+
+    # Second, identical invocation: the fakes now report the branch/PR as already holding this
+    # exact candidate's content - the idempotency bar, proven against real bytes, not a toy string.
+    second_exit = main(args)
+    assert second_exit == EXIT_OK
+    second_out = capsys.readouterr().out
+    assert "effected=True" in second_out
+    assert "no change needed" in second_out
+    assert len(put_calls) == 1  # unchanged - no second commit
+    assert len(create_pr_calls) == 1  # unchanged - no second PR
+    assert len(update_pr_calls) == 0  # title/body identical - no PATCH
