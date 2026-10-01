@@ -234,6 +234,14 @@ def _commit_outcome(
     input_manifest = f"registry:{repository}"
     if outcome.kind == "failed":
         target = _failure_target(current_state)
+        if current_state == target:
+            # The registry has no self-loop (same reasoning as _success_hops's own early return):
+            # a repeat failure that lands on the same already-committed terminal state - e.g. two
+            # consecutive hosted runs both failing at FAILED_INTERNAL - has no registered hop to
+            # commit. The record already correctly reflects "failed, not yet resolved"; a later
+            # trigger re-enters through admit_trigger regardless, so nothing is lost by not
+            # re-writing the same state a second time.
+            return
 
         def mark_failed(record: RepositoryRecord) -> RepositoryRecord:
             return record.model_copy(
