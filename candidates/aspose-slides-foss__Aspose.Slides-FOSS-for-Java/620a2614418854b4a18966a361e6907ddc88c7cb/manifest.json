@@ -108,5 +108,40 @@
   "revision": "620a2614418854b4a18966a361e6907ddc88c7cb",
   "schema_version": 1,
   "sealed_at": "2026-09-23T15:27:37Z",
-  "state": "READY_FOR_PROPOSAL"
+  "state": "VALID_UPDATE_AVAILABLE",
+  "update": {
+    "available": true,
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "dispositions.json",
+      "examples.json",
+      "facts.json",
+      "investigation.json",
+      "plan.json",
+      "repairs.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
+    "files": {
+      "README.md": "d29ff2461f7ce0d3759d33866fe9c820b7fb1204d3e650676576fad84bab2e0a",
+      "README.patch": "939c6b8f37ffb570a5b020bbdc1beee76d6d0c264dcb9521f277e3b40117271b",
+      "content_units.json": "d6bcdf5b1cc1fce15b3712765cd0cccb9965c86f13339a3e52f2fb833ba27d6c",
+      "dependencies.json": "db971b640eba18c617e011657d86591b162af83e3c9731f420acce556779be3b",
+      "dispositions.json": "d6605275edb8388446292354cc633da04f045a10ae65b0bbae4745e4ebe0af7d",
+      "examples.json": "f8a93764e2c1ae05f83cf3c6543e3efbf8804b0fe7db49819590319baea3e6e5",
+      "facts.json": "7e39e75e7efdb1cc4c9318ddc02a5cc6637ac4ae09b0e8f69c4ace826a7fcaa1",
+      "investigation.json": "3ca1df0271125bf5a1cd6cbb39364576c7fac9d421052ef51221e770cb1ca417",
+      "plan.json": "8226fe7007253ee1655299600965c68009a3aab08dc8dfa17dbd407576093eb6",
+      "repairs.json": "92f035138749161ca742910d4bfe9d9bd0d2f60c26a2aa51fc6713bec1fb8e04",
+      "review.json": "f3fb10ff488c63fd53dab4c006232fb26784d79d8e0e407b69fe4bdc16472daf",
+      "validation.json": "504147336def5bb594481097372b57a8712a77e1dae25ffaf05159dc4ff1f02a"
+    },
+    "recorded_at": "2026-10-01T05:41:13Z",
+    "transaction": "620a2614418854b4a18966a361e6907ddc88c7cb"
+  }
 }

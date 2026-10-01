@@ -583,6 +583,78 @@ def test_a_dropped_citation_whose_value_still_reads_in_the_text_is_not_flagged()
     )
 
 
+def test_a_dropped_identity_or_package_citation_is_never_flagged() -> None:
+    """Live verification, aspose-slides-foss/Aspose.Slides-FOSS-for-Java (docs/DECISION_LOG.md,
+    this item): a first version of this check with no kind exclusion fired on every
+    documentation_resources link unit - the model had correctly shortened several repeated
+    "org.aspose:aspose-slides-foss version 26.8.0 for Java 21" sentences (coherence's own "no
+    repetition" objective), dropping only the identity/package provenance citations that
+    boilerplate existed to justify, never a named capability or format. Reproduced here with the
+    exact live shape (five link units each dropping the same five identity/package facts down to
+    one shared sentence): none of it is flagged, and recover has nothing to do."""
+    existing = [
+        {
+            "section": "documentation_resources",
+            "slot": "link:link_target:029",
+            "text": (
+                "The getting started guide walks through installing the library and creating "
+                "your first presentation using Aspose.Slides FOSS for Java, a Java library for "
+                "slides presentations distributed as org.aspose:aspose-slides-foss version "
+                "26.8.0 for Java 21."
+            ),
+            "fact_ids": [
+                "link_target:029",
+                "identity:ecosystem",
+                "identity:family",
+                "identity:platform",
+                "identity:repository",
+                "identity:revision",
+                "package:java_release",
+                "package:name",
+                "package:version",
+            ],
+        }
+    ]
+    revised = [
+        {
+            "section": "documentation_resources",
+            "slot": "link:link_target:029",
+            "text": (
+                "The getting started guide walks through installing the library and creating "
+                "your first presentation."
+            ),
+            "fact_ids": ["link_target:029"],
+        }
+    ]
+    facts = FactsDocument(
+        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+        "a" * 40,
+        (
+            Fact("identity:ecosystem", "identity", "java", (Evidence("x"),)),
+            Fact("identity:family", "identity", "slides", (Evidence("x"),)),
+            Fact("identity:platform", "identity", "java", (Evidence("x"),)),
+            Fact(
+                "identity:repository",
+                "identity",
+                "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+                (Evidence("x"),),
+            ),
+            Fact("identity:revision", "identity", "a" * 40, (Evidence("x"),)),
+            Fact("package:java_release", "package", "21", (Evidence("x"),)),
+            Fact("package:name", "package", "org.aspose:aspose-slides-foss", (Evidence("x"),)),
+            Fact("package:version", "package", "26.8.0", (Evidence("x"),)),
+            Fact("link_target:029", "link_target", "https://example.test/start", (Evidence("x"),)),
+        ),
+    )
+    assert coherence_content_loss_errors(revised, existing, facts) == []
+    assert (
+        recover_coherence_content_loss(
+            {"units": [dict(unit) for unit in revised]}, existing_units=existing, facts=facts
+        )
+        is None
+    )
+
+
 def test_coherence_checks_includes_content_loss_errors_only_when_existing_units_is_given() -> None:
     """Backward compatible by default (every call site/test above omits ``existing_units`` and
     sees exactly its old behaviour) - the new check only runs when a caller actually has a

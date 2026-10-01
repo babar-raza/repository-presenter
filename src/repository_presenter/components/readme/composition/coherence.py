@@ -271,6 +271,21 @@ def coherence_checks(
 # content) is not flagged - only silent, untraceable loss is.
 _CONTENT_TOKEN = re.compile(r"[a-z0-9][a-z0-9+./_-]{2,}")
 
+# docs/DECISION_LOG.md (this item's own live verification, aspose-slides-foss/Aspose.Slides-FOSS-
+# for-Java, 2026-09-30/10-01): a first version of this check with no kind exclusion fired live
+# against every `documentation_resources` link unit and `scope_limitations/scope` - the model had
+# correctly shortened several link sentences that each repeated the full "org.aspose:aspose-
+# slides-foss version 26.8.0 for Java 21" boilerplate (exactly the "no repetition across sections"
+# improvement coherence's own objective asks for), dropping the `identity:*`/`package:*`
+# provenance citations that boilerplate existed only to justify - never a named capability, format,
+# or diagram element a reader would notice missing. ``planning.py``'s own
+# ``recover_uncited_capability_titles`` already treats ``identity``/``package`` facts as "neutral"
+# background the prose does not need to spell out explicitly (`_product_name`'s own `neutral` set,
+# items 1010/1038) - the same exemption applies here, for the same reason: these two kinds back
+# ambient context (what repository, what revision, what package coordinate), not a distinguishable
+# claim a human would read as "missing" the way a dropped capability or format is.
+_NEUTRAL_FACT_KINDS = frozenset({"identity", "package"})
+
 
 def _content_tokens(text: str) -> frozenset[str]:
     """The lower-cased, three-or-more-character tokens ``text`` spells - a coarse but cheap
@@ -285,7 +300,9 @@ def _dropped_untraced_fact_ids(
     """The pre-coherence fact IDs ``unit`` no longer cites whose own SUPPORTED value has left no
     trace (none of its distinctive tokens) in ``unit``'s revised text - shared by
     ``coherence_content_loss_errors`` (what to reject) and ``recover_coherence_content_loss``
-    (what to restore), so the two can never drift apart on what counts as "lost"."""
+    (what to restore), so the two can never drift apart on what counts as "lost". A dropped
+    ``identity``/``package`` fact (``_NEUTRAL_FACT_KINDS``) is never counted - ambient provenance,
+    not named content a reader would notice missing."""
     by_id = {fact.id: fact for fact in facts.facts}
     existing_ids = {str(i) for i in existing.get("fact_ids", [])}
     revised_ids = {str(i) for i in unit.get("fact_ids", [])}
@@ -296,7 +313,7 @@ def _dropped_untraced_fact_ids(
     untraced: list[str] = []
     for fact_id in dropped:
         fact = by_id.get(fact_id)
-        if fact is None or fact.polarity != "SUPPORTED":
+        if fact is None or fact.polarity != "SUPPORTED" or fact.kind in _NEUTRAL_FACT_KINDS:
             continue
         value_tokens = _content_tokens(fact.value)
         if value_tokens and value_tokens & revised_tokens:

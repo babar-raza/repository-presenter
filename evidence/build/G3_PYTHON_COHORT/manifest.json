@@ -539,5 +539,36 @@
   ],
   "in_flight_at_the_box": 0,
   "highest_leverage_next_move": "One prompts/source_reconciliation edit: fact_ids holds only IDs from the supplied packet, never a section name, a field name, or an inferred namespace. It is the only blocker standing for Aspose.PDF and Aspose.Page for Python, and it is the class the first pass's Note rejection already showed. Second: the presentation_planning packet marks example polarity, which is the only blocker standing for Aspose.HTML."
+ },
+ "g3_w05": {
+  "work_item": "G3-W05",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-10-01T10:50:00+05:00",
+  "control_revision": "abfb20e485bcf6e664520a66c358e31b5e61f706",
+  "defect": "docs/DEFECT_INDEX.md composition.coherence.inherited_diagram_content_loss (two corroborated sightings, 2026-09-27: aspose-slides-foss Java F02, aspose-slides-foss .NET F07/F03) - S8 coherence's run_job call had no recover= and no deterministic check existed for a coherence revision silently dropping a named capability/structure/input-output detail the pre-coherence unit carried.",
+  "fix": "composition/coherence.py: coherence_checks gains an optional existing_units parameter (default None, backward compatible); coherence_content_loss_errors compares each returned unit's fact_ids against its pre-coherence citations and flags a dropped citation whose own SUPPORTED value has left no trace in the revised text, excluding identity/package-kind facts (ambient provenance, not named content - the same exemption planning.py's recover_uncited_capability_titles already applies, added after this item's own live verification surfaced it as a false-positive source). recover_coherence_content_loss is S8's first recover=: it reverts exactly the unit(s) that dropped untraced content to their own pre-coherence text/fact_ids, re-validated through the real coherence_checks before acceptance. repair/rounds.py's S8 coherence run_job call wires both.",
+  "mutation_tests": "tests/components/readme/composition/test_coherence.py: test_sighting_slides_java_f02_diagram_shaped_loss_of_an_xml_output_reference and test_sighting_slides_net_f03_capability_list_drops_document_properties reproduce each sighting's exact reported shape and confirm the check flags it and recover restores it cleanly; test_a_dropped_citation_whose_value_still_reads_in_the_text_is_not_flagged and test_a_dropped_identity_or_package_citation_is_never_flagged are negative controls (the second built from this item's own live false-positive, below); test_coherence_checks_includes_content_loss_errors_only_when_existing_units_is_given confirms every other call site/test keeps its exact prior behaviour.",
+  "live_verification": "present --repo aspose-slides-foss/Aspose.Slides-FOSS-for-Java --fresh, revision 620a2614418854b4a18966a361e6907ddc88c7cb, run before the identity/package exclusion above: reached S8 coherence live (6 of 30 units revised, 3 provider calls); the new check fired for real on two units (documentation_resources/link:link_target:029 and scope_limitations/scope) whose coherence revision had dropped several identity:*/package:* citations while shortening repeated boilerplate - both were caught, reverted by recover_coherence_content_loss, and the reverted output was accepted on re-validation (calls/df7b9177df54.json). Independent review then found F05 (key_capabilities, an omitted ShapeType/SaveFormat capability detail - the same inherited-content-loss shape this item targets) and F06 (scope_limitations, an unrelated SaveFormat-completeness gap); F05 was repaired by targeted_repair and did not re-raise - key_capabilities cleared cleanly; F06 re-raised and the candidate did not seal, a genuinely different, unrelated defect outside this item's own scope. The live-observed identity/package false-positive on link_target/scope citations was then fixed (the kind exclusion above) and is covered by a dedicated mutation test reproducing the exact captured shape; three further live redraws (two Slides-Java, one Slides-.NET) each failed before reaching S8 on a different, unrelated, already-documented sampling-nondeterminism defect (S5/S6 rejections unrelated to coherence), consistent with this repository's own long-documented class-I sampling variance (docs/RESEARCH_LANE_C.md) and this session's heavy concurrent machine load - not a regression this item introduced.",
+  "candidate_count_correction": "aspose-slides-foss__Aspose.Slides-FOSS-for-Java's sealed bundle (sealed 2026-09-23) carried latent staleness from unrelated shared-code landings since that date (components.normalisation/components.reviewer_logic/prompts.section_authoring/prompts.targeted_repair, per its own evaluation.json) that this item's own --fresh verification run was the first to materialize into its manifest.json (state READY_FOR_PROPOSAL -> VALID_UPDATE_AVAILABLE); project/state.yaml's current_candidates corrected 24 -> 23, an honest count correction, and the bundle's own ledger row is recorded in tests/test_debt_ledger.py's VALID_UPDATE_AVAILABLE_REFS.",
+  "no_check_weakened": "coherence_checks' prior behaviour is byte-for-byte unchanged when existing_units is omitted (every pre-existing call site and test); unit_checks, coherence_batches, coherence_schema, and apply_coherence are untouched.",
+  "acceptance": [
+   {
+    "predicate": "a mutation test reproduces both listed sightings' exact shape and confirms the new check/recovery closes it",
+    "evidence": "test_sighting_slides_java_f02_diagram_shaped_loss_of_an_xml_output_reference, test_sighting_slides_net_f03_capability_list_drops_document_properties"
+   },
+   {
+    "predicate": "a live redraw of at least one of the two originating repositories clears S7/key_capabilities without the finding recurring",
+    "evidence": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java, revision 620a2614418854b4a18966a361e6907ddc88c7cb: F05 (key_capabilities) repaired and did not re-raise; the candidate still does not seal, blocked only by the genuinely unrelated F06 (scope_limitations)"
+   },
+   {
+    "predicate": "no existing check weakened",
+    "evidence": "see no_check_weakened above"
+   },
+   {
+    "predicate": "hosted CI green",
+    "evidence": "see docs/DECISION_LOG.md, this item's entry, for the PR number and CI run once merged"
+   }
+  ],
+  "evidence": "docs/DECISION_LOG.md 2026-10-01 entry (this item) has the full diagnosis, fix, mutation-test results, and live-verification transcript."
  }
 }
