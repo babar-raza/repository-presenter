@@ -27,6 +27,7 @@ from repository_presenter.core.git_safety.process import TIMEOUT_EXIT_CODE
 from repository_presenter.core.git_safety.verify import PushBlockProof, verify_push_blocked
 from repository_presenter.core.long_paths import long_path
 from repository_presenter.core.retry import RETRY_POLICIES, RetryableOperationError, run_with_retry
+from repository_presenter.core.secrets import redact
 
 CLONE_TIMEOUT_SECONDS = 600.0
 MAX_CLONE_ATTEMPTS = RETRY_POLICIES["clone"].max_attempts
@@ -66,15 +67,31 @@ def _github_read_auth_env(clone_url: str, token: str | None) -> dict[str, str]:
 
 
 def remote_head_revision(
-    clone_url: str, *, token: str | None = None, timeout: float = 15
+    clone_url: str,
+    *,
+    token: str | None = None,
+    timeout: float = 15,
+    failure_detail: list[str] | None = None,
 ) -> str | None:
-    """The remote default branch's HEAD revision via ``ls-remote``; ``None`` on any failure."""
+    """The remote default branch's HEAD revision via ``ls-remote``; ``None`` on any failure.
+
+    ``failure_detail``, when given, receives the real git failure reason (redacted of ``token``,
+    the same discipline ``core/state/git_backend.py``'s own ``_run_remote_git`` already applies to
+    its own stderr) - optional and additive so every existing caller/test keeps its exact
+    "returns ``None`` on failure" contract unchanged; only ``pinned_read_only_clone`` reads it, to
+    turn a bare "cannot resolve" message into one naming the actual cause (auth, 404, timeout,
+    transient network) instead of discarding it (found live, G5-W05's first hosted run: an opaque
+    failure with no way to tell an auth problem from a network blip from the log alone).
+    """
     result = run_git(
         ["ls-remote", clone_url, "HEAD"],
         timeout=timeout,
         env=_github_read_auth_env(clone_url, token),
     )
     if result.returncode != 0 or not result.stdout.strip():
+        if failure_detail is not None:
+            reason = result.stderr.strip() or f"exit {result.returncode}, no output"
+            failure_detail.append(redact(reason, [token] if token else []))
         return None
     first_line = result.stdout.strip().splitlines()[0]
     parts = first_line.split()
@@ -148,9 +165,11 @@ def pinned_read_only_clone(
     sleep: Callable[[float], None] = time.sleep,
 ) -> ReadOnlyClone:
     """Observe the remote default-branch revision, then clone pinned to it."""
-    revision = remote_head_revision(clone_url, token=token)
+    failure_detail: list[str] = []
+    revision = remote_head_revision(clone_url, token=token, failure_detail=failure_detail)
     if revision is None:
-        raise GitSafetyError(f"cannot resolve the default-branch revision of {clone_url}")
+        reason = f": {failure_detail[0]}" if failure_detail else ""
+        raise GitSafetyError(f"cannot resolve the default-branch revision of {clone_url}{reason}")
     return clone_pinned(clone_url, revision, destination, token=token, timeout=timeout, sleep=sleep)
 
 

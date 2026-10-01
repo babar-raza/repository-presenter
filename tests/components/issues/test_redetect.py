@@ -10,7 +10,7 @@ from dataclasses import replace
 
 import pytest
 
-from repository_presenter.components.issues.model import IssueRef, load_handoff
+from repository_presenter.components.issues.model import Handoff, IssueRef, load_handoff
 from repository_presenter.components.issues.redetect import (
     RedetectionReads,
     RedetectorNotRegisteredError,
@@ -232,6 +232,224 @@ def test_not_processable_cannot_resolve_current_revision_is_inconclusive() -> No
     assert result.still_fires is None
     assert result.checked_at_revision is None
     assert "inconclusive" in result.note
+
+
+# --- close_reason (G6-W04, docs/investigations/03-issue-tracking.md section 6): "completed" vs
+# "not planned" must be a real, evidence-grounded distinction, never a default - exercised against
+# both real backfilled artifacts, each driven to FILED first (the only status a RESOLVED_UPSTREAM
+# transition may ever be proposed from), matching this task's own acceptance text: a synthetic
+# re-run where the check now passes transitions FILED -> RESOLVED_UPSTREAM with the correct reason;
+# one where it still fails stays FILED. ------------------------------------------------------
+
+
+def _as_filed(handoff: Handoff, *, number: int = 1) -> Handoff:
+    return replace(
+        handoff,
+        status="FILED",
+        issue_ref=IssueRef(
+            number=number, url=f"https://github.com/{handoff.repository}/issues/{number}"
+        ),
+    )
+
+
+def _current_live_bc02_version() -> str:
+    from repository_presenter.components.readme.validation.registry import BLOCKING_CHECKS
+
+    return next(c.version for c in BLOCKING_CHECKS if c.id == "BC-02")
+
+
+def test_html_python_filed_handoff_stays_filed_when_the_distribution_is_still_missing() -> None:
+    """Proof case 1 (still fails): the real HTML-Python artifact, driven to FILED, re-checked
+    against reads that reproduce today's actual state (PyPI still 404) - stays FILED, no status or
+    reason proposed."""
+    filed = _as_filed(load_handoff(HTML_PYTHON_HANDOFF))
+    reads = RedetectionReads(
+        fetch_default_branch_sha=lambda repository, **_: DefaultBranchRead(
+            repository, sha=filed.source_revision, branch="main"
+        ),
+        fetch_file=lambda repository, revision, path, **_: FileRead(
+            repository,
+            revision,
+            path,
+            found=True,
+            content='build-backend = "setuptools.backends.legacy:build"\n',
+        ),
+        observe_pypi=lambda name, version, **_: RegistryObservation(
+            name, f"https://pypi.org/pypi/{name}/json", found=False, status=404
+        ),
+    )
+    result = redetect(filed, reads=reads)
+    assert result.still_fires is True
+    assert result.proposed_status is None
+    assert result.proposed_close_reason is None
+    updated = apply_redetection(filed, result)
+    assert updated is filed
+    assert updated.status == "FILED"
+
+
+def test_html_python_resolves_not_planned_when_the_checks_own_version_has_moved_on() -> None:
+    """Proof case 2 (now passes): the real HTML-Python artifact's own `triggering_check.version`
+    is "2" (read directly off the committed artifact below), but `validation/registry.py`'s live
+    `BLOCKING_CHECKS` now has BC-02 at version "3" - a real, present check-version drift, not a
+    constructed one. Even though the synthetic read shows the registry now listing the
+    distribution (the defect's own evidence gone), the correct reason is "not planned": what BC-02
+    itself judges moved since this handoff was filed, so "the maintainers fixed it" cannot be
+    asserted - this is exactly the "check-version change" half of section 6's two reasons, not
+    defaulted to "completed" just because the fact flipped."""
+    original = load_handoff(HTML_PYTHON_HANDOFF)
+    assert original.triggering_check.version == "2"
+    assert original.triggering_check.id == "BC-02"
+    assert _current_live_bc02_version() != "2", (
+        "this proof needs a real version drift between the handoff's filed-at version and "
+        'BLOCKING_CHECKS\' current one; if BC-02 is ever bumped back to "2" this assertion (and '
+        "the real artifact's own triggering_check.version) must be revisited, never silently kept"
+    )
+    filed = _as_filed(original)
+    reads = RedetectionReads(
+        fetch_default_branch_sha=lambda repository, **_: DefaultBranchRead(
+            repository, sha=filed.source_revision, branch="main"
+        ),
+        fetch_file=lambda repository, revision, path, **_: FileRead(
+            repository,
+            revision,
+            path,
+            found=True,
+            content='build-backend = "setuptools.build_meta"\n',
+        ),
+        observe_pypi=lambda name, version, **_: RegistryObservation(
+            name,
+            f"https://pypi.org/pypi/{name}/json",
+            found=True,
+            latest_version="26.1.0",
+            manifest_version_published=None,
+            status=200,
+        ),
+    )
+    result = redetect(filed, reads=reads)
+    assert result.still_fires is False
+    assert result.proposed_status == "RESOLVED_UPSTREAM"
+    assert result.proposed_close_reason == "not planned"
+    updated = apply_redetection(filed, result)
+    assert updated.status == "RESOLVED_UPSTREAM"
+    assert updated.close_reason == "not planned"
+
+
+def test_html_python_resolves_completed_when_filed_at_current_version_and_revision_moved() -> None:
+    """The "completed" counterpart to the test above, isolating the one variable that actually
+    distinguishes the two reasons: a handoff filed at the *current* BC-02 version (so no
+    check-version drift muddies the read), re-checked at a revision that has genuinely moved since
+    filing, where the defect's own evidence is gone - the literal "the maintainers fixed it"
+    shape. Built from the same real HTML-Python evidence/claim/fingerprint, only
+    `triggering_check.version` bumped to match today's live registry (never a fabricated finding -
+    same repository, same fingerprint, same evidence, only the one input this decision is
+    sensitive to isolated)."""
+    current_version = _current_live_bc02_version()
+    loaded = load_handoff(HTML_PYTHON_HANDOFF)
+    original = replace(
+        loaded, triggering_check=replace(loaded.triggering_check, version=current_version)
+    )
+    filed = _as_filed(original)
+    new_revision = "f" * 40
+    reads = RedetectionReads(
+        fetch_default_branch_sha=lambda repository, **_: DefaultBranchRead(
+            repository, sha=new_revision, branch="main"
+        ),
+        fetch_file=lambda repository, revision, path, **_: FileRead(
+            repository,
+            revision,
+            path,
+            found=True,
+            content='build-backend = "setuptools.build_meta"\n',
+        ),
+        observe_pypi=lambda name, version, **_: RegistryObservation(
+            name,
+            f"https://pypi.org/pypi/{name}/json",
+            found=True,
+            latest_version="26.1.0",
+            manifest_version_published=None,
+            status=200,
+        ),
+    )
+    result = redetect(filed, reads=reads)
+    assert result.still_fires is False
+    assert result.revision_drifted is True
+    assert result.proposed_status == "RESOLVED_UPSTREAM"
+    assert result.proposed_close_reason == "completed"
+    updated = apply_redetection(filed, result)
+    assert updated.status == "RESOLVED_UPSTREAM"
+    assert updated.close_reason == "completed"
+
+
+def test_tex_python_filed_handoff_stays_filed_when_the_entry_point_still_fails_to_parse() -> None:
+    """Proof case 1 (still fails) for the second real artifact: NOT_PROCESSABLE has no independent
+    versioning (always "1"), so this exercises the revision-drift/false-positive half of the logic
+    in isolation from any check-version concern."""
+    filed = _as_filed(load_handoff(TEX_PYTHON_HANDOFF))
+    reads = RedetectionReads(
+        fetch_default_branch_sha=lambda repository, **_: DefaultBranchRead(
+            repository, sha=filed.source_revision, branch="main"
+        ),
+        fetch_file=lambda repository, revision, path, **_: FileRead(
+            repository,
+            revision,
+            path,
+            found=True,
+            content="def f():\n return 1\n\ndef g():\n if True:\nreturn 2\n",  # bad indent
+        ),
+    )
+    result = redetect(filed, reads=reads)
+    assert result.still_fires is True
+    assert result.proposed_status is None
+    assert result.proposed_close_reason is None
+    assert apply_redetection(filed, result) is filed
+
+
+def test_tex_python_resolves_not_planned_when_parsing_cleanly_at_the_same_revision() -> None:
+    """Proof case 2a (now passes, same revision): nothing about the target repository has
+    changed - the revision this re-run observes is identical to the one filed against - so a check
+    that no longer fires here cannot be "the maintainers fixed it"; the only honest reading is that
+    the original finding was a false positive. `not planned`, never defaulted to `completed`."""
+    filed = _as_filed(load_handoff(TEX_PYTHON_HANDOFF))
+    reads = RedetectionReads(
+        fetch_default_branch_sha=lambda repository, **_: DefaultBranchRead(
+            repository, sha=filed.source_revision, branch="main"
+        ),
+        fetch_file=lambda repository, revision, path, **_: FileRead(
+            repository, revision, path, found=True, content="def f():\n    return 1\n"
+        ),
+    )
+    result = redetect(filed, reads=reads)
+    assert result.still_fires is False
+    assert result.revision_drifted is False
+    assert result.proposed_status == "RESOLVED_UPSTREAM"
+    assert result.proposed_close_reason == "not planned"
+    updated = apply_redetection(filed, result)
+    assert updated.status == "RESOLVED_UPSTREAM"
+    assert updated.close_reason == "not planned"
+
+
+def test_tex_python_resolves_completed_when_parsing_cleanly_at_a_drifted_revision() -> None:
+    """Proof case 2b (now passes, revision moved): the repository's own default branch has moved
+    past the filed-at revision, and the named entry point now parses cleanly there - the genuine
+    "fixed upstream" shape. `completed`, the one case this module may ever assert a product fix."""
+    filed = _as_filed(load_handoff(TEX_PYTHON_HANDOFF))
+    new_revision = "e" * 40
+    reads = RedetectionReads(
+        fetch_default_branch_sha=lambda repository, **_: DefaultBranchRead(
+            repository, sha=new_revision, branch="main"
+        ),
+        fetch_file=lambda repository, revision, path, **_: FileRead(
+            repository, revision, path, found=True, content="def f():\n    return 1\n"
+        ),
+    )
+    result = redetect(filed, reads=reads)
+    assert result.still_fires is False
+    assert result.revision_drifted is True
+    assert result.proposed_status == "RESOLVED_UPSTREAM"
+    assert result.proposed_close_reason == "completed"
+    updated = apply_redetection(filed, result)
+    assert updated.status == "RESOLVED_UPSTREAM"
+    assert updated.close_reason == "completed"
 
 
 def test_apply_redetection_is_a_no_op_when_nothing_is_proposed() -> None:
