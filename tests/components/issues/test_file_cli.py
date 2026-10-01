@@ -33,6 +33,7 @@ HANDOFF_PAYLOAD = {
     "suggested_issue_body": "repository-presenter's validation pipeline found this.\n",
     "status": "HANDOFF_PENDING",
     "issue_ref": None,
+    "close_reason": None,
 }
 
 
