@@ -29,10 +29,63 @@ jobs:
           cache: 'pip'
           cache-dependency-path: requirements-lock.txt
 
+      - name: Install uv (lock regeneration only - never a runtime or dev dependency itself)
+        run: python -m pip install --disable-pip-version-check uv
+
+      - name: Verify requirements-lock.txt has no drift (G7-W02)
+        id: lockdrift
+        continue-on-error: true
+        run: bash scripts/check_lock_drift.sh
+
       - name: Install from the lock
         run: |
           python -m pip install --disable-pip-version-check -r requirements-lock.txt
           python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - name: Install pip-audit (SBOM/audit tool, never a runtime or dev dependency of the project itself)
+        run: python -m pip install --disable-pip-version-check "pip-audit==2.10.1"
+
+      - name: SBOM and vulnerability audit (G7-W02)
+        id: sbom
+        continue-on-error: true
+        run: |
+          mkdir -p evidence/sbom
+          python -m pip_audit -r requirements-lock.txt -f cyclonedx-json -o evidence/sbom/requirements-lock.cdx.json --timeout 60
+          python -m pip_audit -r requirements-lock.txt -s osv -f json --timeout 60 | tee /tmp/pip-audit-osv.json
+          python -m pip_audit -r requirements-lock.txt -s osv -f markdown --timeout 60 > /tmp/pip-audit-osv.md
+          python - <<'PY'
+          import json, sys
+
+          with open("/tmp/pip-audit-osv.json") as f:
+              report = json.load(f)
+
+          # pip-audit's own JSON has no severity field (OSV's severity data is inconsistent across
+          # advisories); every finding it reports is therefore treated as high-severity for this
+          # gate's own purpose - "fails on a new high-severity finding" - rather than silently
+          # under-reacting to a finding this tool chose not to score. A future, better-scored
+          # source should replace this blanket rule, not be assumed to exist today.
+          vulnerable = [dep for dep in report["dependencies"] if dep["vulns"]]
+          if vulnerable:
+              print("VULNERABILITIES FOUND - failing the gate (G7-W02 acceptance: fail on a new "
+                    "high-severity finding; pip-audit's own JSON carries no severity field, so "
+                    "every genuine finding is treated as high-severity rather than assumed benign):")
+              for dep in vulnerable:
+                  for vuln in dep["vulns"]:
+                      print(f"  {dep['name']}=={dep['version']}: {vuln['id']} - {vuln.get('fix_versions')}")
+              sys.exit(1)
+          print(f"No known vulnerabilities across {len(report['dependencies'])} resolved packages (OSV).")
+          PY
+
+      - name: Upload SBOM and audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-and-vulnerability-audit-py${{ matrix.python-version }}
+          path: |
+            evidence/sbom/requirements-lock.cdx.json
+            /tmp/pip-audit-osv.json
+            /tmp/pip-audit-osv.md
+          if-no-files-found: warn
 
       - name: Lint
         id: lint
@@ -70,12 +123,16 @@ jobs:
       - name: Summary
         if: always()
         run: |
+          echo "lockdrift: ${{ steps.lockdrift.outcome }}"
+          echo "sbom: ${{ steps.sbom.outcome }}"
           echo "lint: ${{ steps.lint.outcome }}"
           echo "format: ${{ steps.format.outcome }}"
           echo "typecheck: ${{ steps.typecheck.outcome }}"
           echo "pytest: ${{ steps.pytest.outcome }}"
           echo "entrypoint: ${{ steps.entrypoint.outcome }}"
-          if [ "${{ steps.lint.outcome }}" != "success" ] ||
+          if [ "${{ steps.lockdrift.outcome }}" != "success" ] ||
+             [ "${{ steps.sbom.outcome }}" != "success" ] ||
+             [ "${{ steps.lint.outcome }}" != "success" ] ||
              [ "${{ steps.format.outcome }}" != "success" ] ||
              [ "${{ steps.typecheck.outcome }}" != "success" ] ||
              [ "${{ steps.pytest.outcome }}" != "success" ] ||
