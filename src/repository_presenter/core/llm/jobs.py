@@ -390,6 +390,14 @@ class _Attempts:
             completion_tokens=reply.completion_tokens if reply else None,
             total_tokens=reply.total_tokens if reply else None,
             error_class=error_class,
+            temperature=self.manifest.manifest.sampling.temperature,
+            max_tokens=self.manifest.manifest.sampling.max_output_tokens,
+            response_format=self.manifest.manifest.sampling.response_format,
+            # G5-W02: this attempt's own count, not the logical call's eventual total - the first
+            # physical attempt is never a re-ask, and a second (the one re-ask every job allows)
+            # always is, whether it is accepted as the model returned it or by ``recover``'s own
+            # deterministic last resort (both still needed the re-ask to be reached at all).
+            derived_via_reask=self.count > 1,
         )
 
 
@@ -524,6 +532,13 @@ def run_job(
             completion_tokens=None,
             total_tokens=None,
             error_class=None,
+            temperature=manifest.manifest.sampling.temperature,
+            max_tokens=manifest.manifest.sampling.max_output_tokens,
+            response_format=manifest.manifest.sampling.response_format,
+            # A reuse made no physical attempt of its own (attempt is always 0, above); whether
+            # the call it reuses needed a re-ask is that original provider_call record's own
+            # derived_via_reask, not this event's.
+            derived_via_reask=False,
         )
         if output is None:
             ledger.append(
