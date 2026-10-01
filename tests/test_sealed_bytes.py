@@ -150,18 +150,15 @@ KNOWN_BLOCKED_STALE = {
     # candidate re-sealed READY_FOR_PROPOSAL with a fresh no-op proof, `review.json` verdict
     # ACCEPT, findings 0 - F08 does not recur. Leaving the entry would XPASS(strict) forever,
     # the same reasoning the PDF-.NET/PDF-Java removals below already establish.
-    "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp": {
-        "reason": (
-            "G4-W17 item 44's command_block_tokens landing correctly wraps Aspose.Cells.Cpp.FOSS "
-            "in backticks in one authored sentence (real identifier, spelled in a SUPPORTED "
-            "command block); needs a real re-seal, not a code fix - see comment above"
-        ),
-        "ref": (
-            "G4-W17 arrival item 44 (the rendering change); re-seal policy "
-            "docs/DECISION_LOG.md section 31 2026-09-11 11:19 +05:00 - CURRENT keeps counting, "
-            "one honest re-seal attempt Sunday only if it passes BC-02"
-        ),
-    },
+    # aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp's entry here (G4-W17 item 44's
+    # command_block_tokens rendering change) is removed as of the 2026-10-01 real re-seal
+    # (docs/DECISION_LOG.md): the trigraph blocker that had kept this candidate from a real
+    # re-seal since 2026-09-23 (BC-02/install_command:cmake UNRESOLVED under GCC/Clang) is closed
+    # via a second, real toolchain (MSVC, cpp_examples.py::build_product/msvc_toolchain) built
+    # without touching the target's own CMakeLists.txt/toolchain-detect.cmake; this candidate
+    # re-sealed READY_FOR_PROPOSAL with a fresh, genuine no-op proof (zero provider calls,
+    # byte-identical across two independent draws). Leaving the entry would XPASS(strict) forever,
+    # the same reasoning the PDF-.NET/PDF-Java/Email-Python removals already establish.
     # G4-W17 arrival item 69 (docs/DECISION_LOG.md 2026-09-16 20:26 UTC) is a renderer-affecting
     # fix, the same class item 44 above already is: cited_inherited_identifiers lets a
     # scope_limitations unit spell an identifier its own cited SUPPORTED inherited_unit fact

@@ -13,7 +13,7 @@
         "package:cxx_standard",
         "package:name"
       ],
-      "rationale": "The H1 product name is rendered deterministically from identity facts.",
+      "rationale": "The H1 product name matches the verified repository identity.",
       "unit_id": "inherited_unit:001.heading"
     },
     {
@@ -51,17 +51,19 @@
         "link_target:product.enterprise",
         "link_target:product.homepage"
       ],
-      "rationale": "The badge row is rendered deterministically from verified link targets.",
+      "rationale": "All badge links are verified and supported by the facts.",
       "unit_id": "inherited_unit:002.badge_row"
     },
     {
       "destination_section": "banner",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
+        "link_target:009",
+        "link_target:010",
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "The linked product illustration is rendered deterministically from banner and homepage facts.",
+      "rationale": "The banner image and product homepage link are verified and belong in the banner section.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -69,15 +71,18 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "identity:repository",
-        "license:spdx",
-        "inherited_unit:004.paragraph",
-        "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
         "package:cxx_standard",
-        "package:cmake_minimum",
-        "inherited_unit:018.paragraph"
+        "license:spdx",
+        "example:001",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "rationale": "The opening paragraph is re-authored from facts to cover what it does, problems it solves, and who uses it.",
+      "rationale": "The paragraph's substance is covered by the product_summary, audience, and problems_solved facts and belongs in the opening section.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -90,7 +95,7 @@
         "identity:repository",
         "identity:revision"
       ],
-      "rationale": "The Navigation heading is rendered by the deterministic navigation section.",
+      "rationale": "The Navigation heading is rendered by the deterministic navigation section and is not needed as a heading.",
       "unit_id": "inherited_unit:005.heading"
     },
     {
@@ -101,26 +106,16 @@
         "identity:family",
         "identity:platform",
         "identity:repository",
-        "identity:revision",
-        "link_target:011",
-        "link_target:012",
-        "link_target:013",
-        "link_target:014",
-        "link_target:015",
-        "link_target:016",
-        "link_target:017",
-        "link_target:018",
-        "link_target:019",
-        "link_target:020"
+        "identity:revision"
       ],
-      "rationale": "The navigation list is rendered deterministically from in-page link targets.",
+      "rationale": "The navigation list is rendered by the deterministic navigation section and is not needed as a list.",
       "unit_id": "inherited_unit:006.list"
     },
     {
       "destination_section": "at_a_glance",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The At a Glance heading is preserved as the section is placeable and supported by capabilities.",
+      "rationale": "The At a Glance heading is rendered by the deterministic at_a_glance section and is not needed as a heading.",
       "unit_id": "inherited_unit:007.heading"
     },
     {
@@ -131,14 +126,14 @@
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.saveformat"
       ],
-      "rationale": "The Mermaid flowchart is preserved as it accurately reflects the supported capabilities.",
+      "rationale": "The Mermaid diagram is supported by the example and capability facts and belongs in the at_a_glance section.",
       "unit_id": "inherited_unit:008.code_block"
     },
     {
       "destination_section": "key_capabilities",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The Key Capabilities heading is preserved as the section is placeable and supported by capabilities.",
+      "rationale": "The Key Capabilities heading is rendered by the deterministic key_capabilities section and is not needed as a heading.",
       "unit_id": "inherited_unit:009.heading"
     },
     {
@@ -147,31 +142,21 @@
       "fact_ids": [
         "example:001",
         "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.worksheet",
         "public_symbol:aspose.cells_foss.cell",
-        "public_symbol:aspose.cells_foss.cellvalue",
         "public_symbol:aspose.cells_foss.style",
         "public_symbol:aspose.cells_foss.font",
         "public_symbol:aspose.cells_foss.color",
         "public_symbol:aspose.cells_foss.fillpattern",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.worksheetprotection",
-        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.validationcollection",
         "public_symbol:aspose.cells_foss.hyperlinkcollection",
-        "public_symbol:aspose.cells_foss.validationcollection",
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.definednamecollection",
+        "public_symbol:aspose.cells_foss.pagesetup",
         "public_symbol:aspose.cells_foss.workbookproperties",
-        "public_symbol:aspose.cells_foss.documentproperties",
-        "public_symbol:aspose.cells_foss.extendeddocumentproperties",
-        "public_symbol:aspose.cells_foss.formatcondition",
-        "public_symbol:aspose.cells_foss.validation",
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
-        "public_symbol:aspose.cells_foss.validationcollection",
-        "public_symbol:aspose.cells_foss.autofilter",
-        "public_symbol:aspose.cells_foss.autofiltercustomfilter",
-        "public_symbol:aspose.cells_foss.autofiltersortcondition"
+        "public_symbol:aspose.cells_foss.documentproperties"
       ],
-      "rationale": "The key capabilities list is re-authored from facts to ensure action-led, verified items.",
+      "rationale": "The list items are supported by the capabilities facts and belong in the key_capabilities section, but will be re-written from facts.",
       "unit_id": "inherited_unit:010.list"
     },
     {
@@ -180,86 +165,84 @@
       "fact_ids": [
         "install_command:cmake"
       ],
-      "rationale": "The Installation heading is rendered by the deterministic installation section.",
+      "rationale": "The Installation heading is rendered by the deterministic installation section and is not needed as a heading.",
       "unit_id": "inherited_unit:011.heading"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "inherited_unit:012.paragraph",
-        "install_command:cmake",
-        "package:name"
+        "install_command:cmake"
       ],
-      "rationale": "The paragraph correctly states the NuGet package name and Windows-only prebuilt binaries, but the installation section will include the verified CMake install.",
+      "rationale": "The paragraph incorrectly states NuGet is the primary distribution method; the facts show CMake is the verified install command.",
       "unit_id": "inherited_unit:012.paragraph"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "install_command:cmake",
-        "package:name"
+        "install_command:cmake"
       ],
-      "rationale": "The NuGet install command is superseded by the deterministic CMake install command.",
+      "rationale": "The NuGet install command is not the verified install command; the CMake command is supported instead.",
       "unit_id": "inherited_unit:013.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The MSBuild-specific paragraph is unsupported by facts and omitted.",
+      "rationale": "The MSBuild-specific instructions are not supported by the facts; only CMake is verified.",
       "unit_id": "inherited_unit:014.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The MSBuild PackageReference is unsupported by facts and omitted.",
+      "rationale": "The MSBuild PackageReference is not supported by the facts; only CMake is verified.",
       "unit_id": "inherited_unit:015.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The CMake bundled config paragraph is unsupported by facts and omitted.",
+      "rationale": "The CMake bundled config instructions are not supported by the facts; only the git clone + CMake flow is verified.",
       "unit_id": "inherited_unit:016.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The CMake bundled config example is unsupported by facts and omitted.",
+      "rationale": "The CMake find_package example is not supported by the facts; only the git clone + CMake flow is verified.",
       "unit_id": "inherited_unit:017.code_block"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "inherited_unit:018.paragraph",
+        "dependency:none",
         "install_command:cmake",
         "package:cmake_minimum",
         "package:cxx_standard"
       ],
-      "rationale": "The CMake source build paragraph is preserved as it matches the verified cross-platform build.",
+      "rationale": "The instruction to build from source on Linux/macOS is supported by the facts and belongs in the installation section.",
       "unit_id": "inherited_unit:018.paragraph"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
+        "dependency:none",
         "install_command:cmake",
         "package:cmake_minimum",
         "package:cxx_standard"
       ],
-      "rationale": "The CMake add_subdirectory example is preserved as it matches the verified install command.",
+      "rationale": "The CMake add_subdirectory example is supported by the facts and belongs in the installation section.",
       "unit_id": "inherited_unit:019.code_block"
     },
     {
       "destination_section": "quick_start",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The Quick Start heading is preserved as the section is placeable and supported by examples.",
+      "rationale": "The Quick Start heading is rendered by the deterministic quick_start section and is not needed as a heading.",
       "unit_id": "inherited_unit:020.heading"
     },
     {
@@ -268,37 +251,41 @@
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The Quick Start lead-in paragraph is preserved as it matches the verified example.",
+      "rationale": "The lead-in sentence is supported by the example fact and belongs in the quick_start section.",
       "unit_id": "inherited_unit:021.paragraph"
     },
     {
       "destination_section": "quick_start",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The Quick Start code block is preserved as it matches the verified example.",
+      "rationale": "The example code block is supported by the example fact and belongs in the quick_start section.",
       "unit_id": "inherited_unit:022.code_block"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The Additional Examples heading is preserved as the section is placeable and supported by further examples.",
+      "rationale": "The Additional Examples heading is rendered by the deterministic additional_examples section and is not needed as a heading.",
       "unit_id": "inherited_unit:023.heading"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [],
-      "rationale": "The Additional Examples lead-in paragraph is preserved as it introduces the examples.",
+      "fact_ids": [
+        "example:002"
+      ],
+      "rationale": "The lead-in sentence is supported by the example fact and belongs in the additional_examples section.",
       "unit_id": "inherited_unit:024.paragraph"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The 'Load an Existing Workbook' heading is unsupported by facts and omitted.",
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:002"
+      ],
+      "rationale": "The Load an Existing Workbook heading is supported by the example fact and belongs in the additional_examples section.",
       "unit_id": "inherited_unit:025.heading"
     },
     {
@@ -307,268 +294,315 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The 'Load an Existing Workbook' code block is contradicted by example:002 and omitted.",
+      "rationale": "The example code block is marked CONTRADICTED in the facts and is never placed.",
       "unit_id": "inherited_unit:026.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The in-memory stream paragraph is unsupported by facts and omitted.",
+      "rationale": "The paragraph about in-memory stream loading is not supported by the facts beyond the quick_start example.",
       "unit_id": "inherited_unit:027.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'View Additional Examples' HTML block is unsupported by facts and omitted.",
+      "rationale": "The HTML details block is not supported by the facts and is not needed.",
       "unit_id": "inherited_unit:028.html_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Highlight Cells With Conditional Formatting' heading is unsupported by facts and omitted.",
+      "rationale": "The Highlight Cells With Conditional Formatting heading is not supported by the facts.",
       "unit_id": "inherited_unit:029.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:003"
-      ],
-      "rationale": "The conditional formatting code block is contradicted by example:003 and omitted.",
+      "fact_ids": [],
+      "rationale": "The conditional formatting example is not supported by the facts.",
       "unit_id": "inherited_unit:030.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Constrain Input With Data Validation' heading is unsupported by facts and omitted.",
+      "rationale": "The Constrain Input With Data Validation heading is not supported by the facts.",
       "unit_id": "inherited_unit:031.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:004"
-      ],
-      "rationale": "The data validation code block is contradicted by example:004 and omitted.",
+      "fact_ids": [],
+      "rationale": "The data validation example is not supported by the facts.",
       "unit_id": "inherited_unit:032.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Add a Hyperlink' heading is unsupported by facts and omitted.",
+      "rationale": "The Add a Hyperlink heading is not supported by the facts.",
       "unit_id": "inherited_unit:033.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:005"
-      ],
-      "rationale": "The hyperlink code block is contradicted by example:005 and omitted.",
+      "fact_ids": [],
+      "rationale": "The hyperlink example is not supported by the facts.",
       "unit_id": "inherited_unit:034.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Configure Page Setup for Printing' heading is unsupported by facts and omitted.",
+      "rationale": "The Configure Page Setup for Printing heading is not supported by the facts.",
       "unit_id": "inherited_unit:035.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:006"
-      ],
-      "rationale": "The page setup code block is contradicted by example:006 and omitted.",
+      "fact_ids": [],
+      "rationale": "The page setup example is not supported by the facts.",
       "unit_id": "inherited_unit:036.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Define a Named Range' heading is unsupported by facts and omitted.",
+      "rationale": "The Define a Named Range heading is not supported by the facts.",
       "unit_id": "inherited_unit:037.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:007"
-      ],
-      "rationale": "The named range code block is contradicted by example:007 and omitted.",
+      "fact_ids": [],
+      "rationale": "The named range example is not supported by the facts.",
       "unit_id": "inherited_unit:038.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The closing HTML block is unsupported by facts and omitted.",
+      "rationale": "The closing HTML details tag is not supported by the facts and is not needed.",
       "unit_id": "inherited_unit:039.html_block"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [],
-      "rationale": "The API Reference heading is preserved as the section is placeable and supported by public symbols.",
+      "rationale": "The API Reference heading is rendered by the deterministic api_reference section and is not needed as a heading.",
       "unit_id": "inherited_unit:040.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss"
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "rationale": "The API Reference intro paragraph is preserved as it matches the verified public symbols.",
+      "rationale": "The paragraph describing the public namespace and object graph is superseded by the API Reference section, which lists all public symbols.",
       "unit_id": "inherited_unit:041.paragraph"
     },
     {
       "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
+      "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "The 'View the Supported Public API Surface' HTML block is unsupported by facts and omitted.",
+      "rationale": "The HTML details summary opener is a structural separator, not content, and is replaced by deterministic heading and table rendering.",
       "unit_id": "inherited_unit:042.html_block"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The Core API heading is preserved as the section is placeable and supported by public symbols.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell"
+      ],
+      "rationale": "The 'Core API' heading is superseded by the API Reference section, which re-authors the public surface list.",
       "unit_id": "inherited_unit:043.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss"
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "rationale": "The Core API table is preserved as it matches the verified public symbols.",
+      "rationale": "The table listing public types is superseded by the API Reference section, which re-authors the complete public surface.",
       "unit_id": "inherited_unit:044.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The Structs heading is preserved as the section is placeable and supported by public symbols.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell"
+      ],
+      "rationale": "The 'Structs' heading is superseded by the API Reference section, which re-authors the public surface list.",
       "unit_id": "inherited_unit:045.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss"
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "rationale": "The Structs table is preserved as it matches the verified public symbols.",
+      "rationale": "The table listing public structs is superseded by the API Reference section, which re-authors the complete public surface.",
       "unit_id": "inherited_unit:046.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading is preserved as the section is placeable and supported by public symbols.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell"
+      ],
+      "rationale": "The 'Enumerations' heading is superseded by the API Reference section, which re-authors the public surface list.",
       "unit_id": "inherited_unit:047.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss"
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "rationale": "The Enumerations table is preserved as it matches the verified public symbols.",
+      "rationale": "The table listing public enumerations is superseded by the API Reference section, which re-authors the complete public surface.",
       "unit_id": "inherited_unit:048.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The Detailed Member Reference heading is preserved as the section is placeable and supported by public symbols.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell"
+      ],
+      "rationale": "The 'Detailed Member Reference' heading is superseded by the API Reference section, which re-authors the public surface list.",
       "unit_id": "inherited_unit:049.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss"
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cell"
       ],
-      "rationale": "The Detailed Member Reference list is preserved as it matches the verified public symbols.",
+      "rationale": "The member reference list is superseded by the API Reference section, which re-authors the complete public surface.",
       "unit_id": "inherited_unit:050.list"
     },
     {
       "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
+      "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "The closing HTML block is unsupported by facts and omitted.",
+      "rationale": "The HTML details closer is a structural separator, not content, and is replaced by deterministic heading and table rendering.",
       "unit_id": "inherited_unit:051.html_block"
     },
     {
       "destination_section": "documentation_resources",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The Documentation & Resources heading is preserved as the section is placeable and supported by link targets.",
-      "unit_id": "inherited_unit:052.heading"
-    },
-    {
-      "destination_section": "documentation_resources",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [
         "link_target:021",
         "link_target:022",
         "link_target:023",
         "link_target:024"
       ],
-      "rationale": "The documentation links list is preserved as it matches the verified link targets.",
+      "rationale": "The 'Documentation & Resources' heading is preserved and moved to the documentation_resources section, which lists verified documentation links.",
+      "unit_id": "inherited_unit:052.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024"
+      ],
+      "rationale": "The list of documentation links is supported by the link_target facts and belongs in the documentation_resources section.",
       "unit_id": "inherited_unit:053.list"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The Scope and Limitations heading is preserved as the section is placeable and supported by limitations.",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.loadformat",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.unsupportedfeatureexception"
+      ],
+      "rationale": "The 'Scope and Limitations' heading is preserved and moved to the scope_limitations section, which lists verified limitations.",
       "unit_id": "inherited_unit:054.heading"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "inherited_unit:056.list"
+        "public_symbol:aspose.cells_foss.loadformat",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.unsupportedfeatureexception"
       ],
-      "rationale": "The Scope and Limitations lead-in paragraph is preserved as it introduces the limitations.",
+      "rationale": "The paragraph introducing the limitations list is supported by the facts and belongs in the scope_limitations section.",
       "unit_id": "inherited_unit:055.paragraph"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "inherited_unit:056.list"
+        "public_symbol:aspose.cells_foss.loadformat",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.unsupportedfeatureexception",
+        "public_symbol:aspose.cells_foss.definedname",
+        "public_symbol:aspose.cells_foss.warninginfo",
+        "public_symbol:aspose.cells_foss.autofilter"
       ],
-      "rationale": "The limitations list is preserved as it matches the verified limitations.",
+      "rationale": "The list of limitations is supported by the facts and belongs in the scope_limitations section.",
       "unit_id": "inherited_unit:056.list"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "link_target:025",
-        "link_target:product.enterprise"
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
       ],
-      "rationale": "The Enterprise Edition paragraph is moved to the enterprise relationship section as it relates FOSS to the commercial product.",
+      "rationale": "The paragraph linking to the Enterprise Edition is supported by the link_target facts and belongs in the enterprise_relationship section.",
       "unit_id": "inherited_unit:057.paragraph"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The Development and Testing heading is preserved as the section is placeable and supported by build assets.",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The 'Development and Testing' heading is preserved and moved to the development_testing section, which lists verified build and test commands.",
       "unit_id": "inherited_unit:058.heading"
     },
     {
@@ -577,7 +611,7 @@
       "fact_ids": [
         "install_command:cmake"
       ],
-      "rationale": "The Development and Testing lead-in paragraph is preserved as it matches the verified build process.",
+      "rationale": "The paragraph describing the test suite setup is supported by the install_command fact and belongs in the development_testing section.",
       "unit_id": "inherited_unit:059.paragraph"
     },
     {
@@ -586,30 +620,34 @@
       "fact_ids": [
         "install_command:cmake"
       ],
-      "rationale": "The Development and Testing code block is preserved as it matches the verified build process.",
+      "rationale": "The test suite build and run commands are supported by the install_command fact and belong in the development_testing section.",
       "unit_id": "inherited_unit:060.code_block"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "link_target:026"
+        "install_command:cmake"
       ],
-      "rationale": "The GTest configuration paragraph is preserved as it matches the verified test setup.",
+      "rationale": "The paragraph describing the GTest dependency and CMake option is supported by the install_command fact and belongs in the development_testing section.",
       "unit_id": "inherited_unit:061.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [],
-      "rationale": "The samples directory paragraph is preserved as it introduces the samples.",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The paragraph describing the samples build is supported by the install_command fact and belongs in the development_testing section.",
       "unit_id": "inherited_unit:062.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [],
-      "rationale": "The samples build code block is preserved as it matches the verified build process.",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The samples build commands are supported by the install_command fact and belong in the development_testing section.",
       "unit_id": "inherited_unit:063.code_block"
     },
     {
@@ -619,7 +657,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The License heading is rendered by the deterministic license section.",
+      "rationale": "The 'License' heading is preserved and moved to the license section, which declares the verified license.",
       "unit_id": "inherited_unit:064.heading"
     },
     {
@@ -629,7 +667,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The license paragraph is preserved as it matches the verified license facts.",
+      "rationale": "The license paragraph is supported by the license facts and belongs in the license section.",
       "unit_id": "inherited_unit:065.paragraph"
     }
   ]

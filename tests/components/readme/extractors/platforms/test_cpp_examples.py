@@ -421,3 +421,226 @@ def test_the_configure_ceiling_clears_the_measured_download_spread() -> None:
     assert cpp_examples._TIMEOUT_CONFIGURE >= cpp_examples._TIMEOUT_BUILD
     assert cpp_examples._TIMEOUT_CONFIGURE > 2 * 141.7
     assert cpp_examples._TIMEOUT_CONFIGURE == MAX_TIMEOUT_SECONDS
+
+
+# ---------------------------------------------------------------------------
+# The MSVC fallback (docs/DECISION_LOG.md, 2026-09-27: the Cells-Cpp trigraph finding). Every test
+# here injects a fake `execute`/`msvc_toolchain` - none makes a live vcvarsall/cl.exe call.
+# ---------------------------------------------------------------------------
+
+
+def _fake_execute_by_phase(*, msvc_configure_ok: bool, msvc_build_ok: bool):  # type: ignore[no-untyped-def]
+    """A fake `execute` whose primary `cmake --build` always fails - the exact shape this
+    fallback exists for - and whose MSVC configure/build outcomes are set by the caller."""
+
+    def fake(argv, workspace, timeout_seconds, extra_environment):  # type: ignore[no-untyped-def]
+        is_build_step = "--build" in argv
+        is_msvc = any("cmake-build-msvc" in str(a) for a in argv)
+        if is_build_step:
+            ok = msvc_build_ok if is_msvc else False
+        else:
+            ok = msvc_configure_ok if is_msvc else True
+        return ExecutionResult(
+            argv=tuple(argv), return_code=0 if ok else 1, stdout="", stderr="", timed_out=False
+        )
+
+    return fake
+
+
+def test_msvc_fallback_rescues_a_build_the_primary_toolchain_cannot(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """The target's own CMakeLists.txt/toolchain-detect.cmake is never patched - `build_product`
+    just tries a second, real compiler once the primary one's own `cmake --build` genuinely fails,
+    the exact trigraph shape."""
+    monkeypatch.setattr(
+        cpp_examples,
+        "execute",
+        _fake_execute_by_phase(msvc_configure_ok=True, msvc_build_ok=True),
+    )
+    monkeypatch.setattr(
+        cpp_examples,
+        "msvc_toolchain",
+        lambda workspace: cpp_examples.MsvcToolchain(
+            cl="C:/fake/cl.exe",
+            environment={"INCLUDE": "x", "LIB": "y", "LIBPATH": "z", "PATH": "C:/fake"},
+            version="19.44 for x64",
+        ),
+    )
+
+    product, _fetched = cpp_examples.build_product(
+        tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
+    )
+
+    assert product.startswith("succeeded (MSVC")
+    assert "19.44 for x64" in product
+    assert "after the primary toolchain's own build failed" in product
+
+
+def test_no_msvc_recorded_on_this_machine_still_reports_failed_cleanly(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """A machine with no second toolchain recorded (`msvc_toolchain` returns ``None``) behaves
+    exactly as before this fallback existed - never an exception, never a guessed success."""
+    monkeypatch.setattr(
+        cpp_examples, "execute", _fake_execute_by_phase(msvc_configure_ok=True, msvc_build_ok=True)
+    )
+    monkeypatch.setattr(cpp_examples, "msvc_toolchain", lambda workspace: None)
+
+    product, _fetched = cpp_examples.build_product(
+        tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
+    )
+
+    assert product == "failed"
+
+
+def test_msvc_configure_failure_also_reports_failed_not_a_guessed_success(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """The fallback's own configure step can fail too (a genuinely broken source, not just a
+    GCC/Clang-specific diagnostic) - that must still report plain ``"failed"``, never a partial or
+    guessed success."""
+    monkeypatch.setattr(
+        cpp_examples,
+        "execute",
+        _fake_execute_by_phase(msvc_configure_ok=False, msvc_build_ok=True),
+    )
+    monkeypatch.setattr(
+        cpp_examples,
+        "msvc_toolchain",
+        lambda workspace: cpp_examples.MsvcToolchain(cl="C:/fake/cl.exe", environment={}),
+    )
+
+    product, _fetched = cpp_examples.build_product(
+        tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
+    )
+
+    assert product == "failed"
+
+
+def test_msvc_build_failure_also_reports_failed(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    """MSVC configuring cleanly but also failing to build (a genuine, non-GCC-specific defect)
+    must still report plain ``"failed"``."""
+    monkeypatch.setattr(
+        cpp_examples,
+        "execute",
+        _fake_execute_by_phase(msvc_configure_ok=True, msvc_build_ok=False),
+    )
+    monkeypatch.setattr(
+        cpp_examples,
+        "msvc_toolchain",
+        lambda workspace: cpp_examples.MsvcToolchain(cl="C:/fake/cl.exe", environment={}),
+    )
+
+    product, _fetched = cpp_examples.build_product(
+        tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
+    )
+
+    assert product == "failed"
+
+
+def test_a_primary_build_that_already_succeeds_never_consults_msvc_at_all(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """A repository whose primary (GCC/Clang) build already succeeds is completely unaffected -
+    `msvc_toolchain` must never even be called."""
+    calls = {"count": 0}
+
+    def exploding_msvc_toolchain(workspace: Path) -> cpp_examples.MsvcToolchain | None:
+        calls["count"] += 1
+        raise AssertionError("msvc_toolchain must not be consulted when the primary build succeeds")
+
+    def fake_execute(argv, workspace, timeout_seconds, extra_environment):  # type: ignore[no-untyped-def]
+        return ExecutionResult(
+            argv=tuple(argv), return_code=0, stdout="", stderr="", timed_out=False
+        )
+
+    monkeypatch.setattr(cpp_examples, "execute", fake_execute)
+    monkeypatch.setattr(cpp_examples, "msvc_toolchain", exploding_msvc_toolchain)
+
+    product, _fetched = cpp_examples.build_product(
+        tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
+    )
+
+    assert product == "succeeded"
+    assert calls["count"] == 0
+
+
+def test_msvc_toolchain_is_none_without_a_recorded_vcvarsall(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    """No `vcvarsall` key in the toolchain registry (the common case on any machine other than
+    this one, and on every hosted CI runner, which is Linux) - `None`, never an exception, never a
+    subprocess spawned."""
+    registry = tmp_path / "empty_registry.txt"
+    registry.write_text("", encoding="utf-8", newline="\n")
+    monkeypatch.setenv(cpp_examples._REGISTRY_VARIABLE, str(registry))
+    assert cpp_examples.msvc_toolchain(tmp_path / "ws") is None
+
+
+needs_msvc = pytest.mark.skipif(
+    cpp_examples.recorded_tool("vcvarsall") is None,
+    reason="no MSVC toolchain recorded on this machine (TOOLCHAIN_PATHS.txt vcvarsall key)",
+)
+
+
+@needs_msvc
+def test_msvc_toolchain_activates_for_real_on_this_machine(tmp_path: Path) -> None:
+    """The one production-shaped proof this fallback needs: a real `vcvarsall.bat` activation,
+    on the machine that just had MSVC installed for the trigraph finding (docs/DECISION_LOG.md,
+    2026-09-27)."""
+    toolchain = cpp_examples.msvc_toolchain(tmp_path / "ws")
+    assert toolchain is not None
+    assert Path(toolchain.cl).name.lower() == "cl.exe"
+    assert Path(toolchain.cl).is_file()
+    assert set(toolchain.environment) == {"INCLUDE", "LIB", "LIBPATH", "PATH"}
+    assert all(toolchain.environment[name] for name in toolchain.environment)
+
+
+@needs_compiler
+@needs_msvc
+def test_msvc_fallback_builds_the_real_trigraph_shape_that_defeats_gcc_and_clang(
+    tmp_path: Path,
+) -> None:
+    """Reproduces the exact `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp` shape end to end through
+    the real `build_product`: a target-owned `toolchain-detect.cmake` that turns
+    `-Wall -Wextra -Werror` on for every non-MSVC compiler, and a source file whose real Excel
+    number-format literal contains a C++ trigraph (`# ??/??`) - GCC/Clang's own `-Werror=trigraphs`
+    rejects it outright (docs/DECISION_LOG.md, 2026-09-10/09-23), while MSVC raises no such
+    diagnostic (trigraphs are grammar-removed under the C++17 this project declares, and MSVC's own
+    `/W4` has no equivalent check). Never patches this synthetic target's own toolchain-detect.cmake
+    - `build_product` is called exactly as `verify_cpp_examples` calls it."""
+    (tmp_path / "cmake").mkdir()
+    (tmp_path / "cmake" / "toolchain-detect.cmake").write_text(
+        "if(MSVC)\n"
+        "    add_compile_options(/W4 /WX)\n"
+        "else()\n"
+        "    add_compile_options(-Wall -Wextra -Werror)\n"
+        "endif()\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    (tmp_path / "CMakeLists.txt").write_text(
+        "cmake_minimum_required(VERSION 3.16)\n"
+        "project(trigraph_probe LANGUAGES CXX)\n"
+        "set(CMAKE_CXX_STANDARD 17)\n"
+        "set(CMAKE_CXX_STANDARD_REQUIRED ON)\n"
+        "include(cmake/toolchain-detect.cmake)\n"
+        "add_library(trigraph_probe STATIC src/probe.cpp)\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "probe.cpp").write_text(
+        '#include <utility>\nstd::pair<int, const char*> fraction_format{13, "# ??/??"};\n',
+        encoding="utf-8",
+        newline="\n",
+    )
+
+    product, _fetched = cpp_examples.build_product(
+        tmp_path,
+        tmp_path / "ws",
+        cpp_examples.toolchain_path(compiler, cpp_examples.ninja_executable()),
+        cpp_examples.cmake_executable(),
+        cpp_examples.ninja_executable(),
+    )
+
+    assert product.startswith("succeeded (MSVC")

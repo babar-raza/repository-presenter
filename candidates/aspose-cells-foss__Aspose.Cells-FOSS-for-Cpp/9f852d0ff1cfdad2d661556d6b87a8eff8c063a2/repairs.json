@@ -1,0 +1,25 @@
+{
+  "attempts": {
+    "1bd477a908b36c18f4f0d481": {
+      "changes": [
+        {
+          "after": "This example creates a workbook, populates a worksheet with product data and a SUM formula, applies header styling, and saves the file as products.xlsx. The library is dependency-free and uses a header-and-source distribution model.",
+          "before": "This example creates a workbook, populates a worksheet with product data and a SUM formula, applies header styling, and saves the file as products.xlsx.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        }
+      ],
+      "label": "F07",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "844c3fdd207568a695e69de4b64de7f2ff0f06886c7d1d3eddc24666d1cc89d2",
+      "section_id": "quick_start",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "75a45aafa38982f4887646354d50cb54c01145a629934fbefbe619a857a9fe93",
+  "schema_version": 1
+}
