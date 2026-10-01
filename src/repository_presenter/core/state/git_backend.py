@@ -37,6 +37,7 @@ from pydantic import ValidationError
 from repository_presenter.core.errors import StateBackendError
 from repository_presenter.core.git_safety.git import github_https_auth_env, run_git
 from repository_presenter.core.retry import RetryableOperationError, run_with_retry
+from repository_presenter.core.secrets import redact
 from repository_presenter.core.state.cas import SaveResult
 from repository_presenter.core.state.schema import RepositoryRecord
 
@@ -150,7 +151,26 @@ class GitStateBackend:
 
     def _run_remote_git(self, args: list[str]) -> subprocess.CompletedProcess[str]:
         auth_env = github_https_auth_env(self._token)
-        return run_git(args, cwd=self._git_cwd, env=auth_env or None)
+        result = run_git(args, cwd=self._git_cwd, env=auth_env or None)
+        # G7-W01 (docs/THREAT_MODEL.md area 1): the token reaches git only via the process-local
+        # `http.extraheader` env var (`github_https_auth_env`, never a URL or a file), and a
+        # well-behaved git/libcurl never echoes a request header's value back in its own stdout or
+        # stderr - but every StateBackendError this class raises embeds that stderr verbatim
+        # (`fetch of ... failed: {result.stderr}`, `push of ... failed: {push.stderr}`), and this
+        # class is read-only/write-only plumbing with no caller wired in yet to apply `cli.py`'s
+        # own `redact()` boundary first. Redacting the live token here, at its one shared read
+        # point for every network call this class makes, means a future caller inherits the
+        # containment by construction instead of having to remember it - defense in depth against
+        # a transport, proxy, or future git behavior change that puts the token in its own output,
+        # never a claim that it does today.
+        if self._token:
+            return subprocess.CompletedProcess(
+                args=result.args,
+                returncode=result.returncode,
+                stdout=redact(result.stdout, [self._token]),
+                stderr=redact(result.stderr, [self._token]),
+            )
+        return result
 
     def _fetch_remote_sha(self, remote_ref: str) -> str | None:
         """The remote ref's current commit SHA, or ``None`` if it does not exist yet (first write

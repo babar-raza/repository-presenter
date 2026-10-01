@@ -64,7 +64,7 @@ from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
 
 VALIDATION_FILENAME = "validation.json"
-VALIDATOR_VERSION = "3"
+VALIDATOR_VERSION = "4"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -180,9 +180,20 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # registry's click-through target generically off EcosystemSpec.badge instead of only
         # special-casing pypi.org and github.com, so a NuGet (and latently Go/Rust/TypeScript)
         # version badge's href can be verified without needing a coincidental scraped fact.
-        "3",
+        # "4" (G7-W01, docs/THREAT_MODEL.md area 3): a cloned repository's own README is
+        # untrusted content that reaches a candidate verbatim when reconciliation preserves an
+        # inherited `html_block` unit (evidence/facts/inherited.py already captures a raw HTML
+        # block byte for byte, same as any other unit) - `extract_links` only ever walked an
+        # `<a>`/`<img>` raw-HTML *tag* (TB-09's own docstring already named the `html_block` shape
+        # as unreached), so a standalone `<script>`, an `onerror=` handler, or a `javascript:`
+        # scheme surviving outside a fenced code block rendered with no check ever looking at it.
+        # Closed at the same check that already judges "is what renders safe to follow": no such
+        # construct may appear outside a fenced code block (code fences render as inert text, so
+        # a documentation example quoting one is not this hazard).
+        "4",
         "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the "
-        "only edition name",
+        "only edition name; no unsafe raw HTML (script/event-handler/dangerous-scheme) renders "
+        "outside a fenced code block",
         ("documentation_resources", "enterprise_relationship", "badges"),
         "S9",
     ),
@@ -290,6 +301,15 @@ _SPAN = re.compile(r"`([^`]+)`")
 _BADGE_TOKEN = r"(?:\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*\))"
 _BADGE_ROW = re.compile(rf"{_BADGE_TOKEN}(?: {_BADGE_TOKEN})*")
 _EDITION = re.compile(r"\b([A-Z][A-Za-z]+) Edition\b")
+# G7-W01 (docs/THREAT_MODEL.md area 3): the raw-HTML hazards no existing check reached - a
+# standalone or block-level tag that executes or navigates on its own, an inline event-handler
+# attribute (onerror=, onload=, ...), and a javascript:/vbscript: scheme wherever it appears, not
+# only inside an href `extract_links` would already have classified as "other" and failed on.
+# Scanned outside fenced code blocks only: a fence renders as inert text on GitHub, so a
+# documentation example quoting one of these verbatim is not this hazard.
+_UNSAFE_HTML_TAG = re.compile(r"(?is)<\s*/?\s*(script|iframe|object|embed|meta|base)\b")
+_EVENT_HANDLER_ATTR = re.compile(r"(?is)\bon[a-z]+\s*=\s*[\"']")
+_DANGEROUS_SCHEME = re.compile(r"(?i)\b(?:javascript|vbscript):")
 # A word after a dot is an extension spelling (.dae), not an abbreviation. G4-W17 arrival item
 # 103 (E21): a word immediately after a hyphen is a hyphen-continued name (aspose-html-foss),
 # not a bare abbreviation use either - the identical shape _COMMAND below is already hardened
@@ -819,8 +839,33 @@ def _renderer_owned(candidate: Candidate, href: str) -> bool:
     return href.rstrip("/") == target.rstrip("/")
 
 
+def _unsafe_html_failures(readme: str) -> list[Failure]:
+    """G7-W01: every executing/navigating raw-HTML hazard outside a fenced code block.
+
+    A cloned repository's README is untrusted content; `evidence/facts/inherited.py` captures a
+    raw `html_block` unit byte for byte like any other unit, and a reconciliation disposition may
+    preserve it verbatim. `extract_links` (`evidence/facts/links.py`) only ever walks an `<a>`/
+    `<img>` tag's own `href`/`src` - a standalone `<script>`, an `onerror=` handler on an
+    otherwise-ordinary tag, or a `javascript:`/`vbscript:` scheme anywhere else in the markup
+    never reached a check at all before this one. Each distinct offending span is named once, in
+    document order, so a repair has something concrete to remove.
+    """
+    failures: list[Failure] = []
+    prose = "\n".join(_outside_fences(readme))
+    seen: set[str] = set()
+    for pattern in (_UNSAFE_HTML_TAG, _EVENT_HANDLER_ATTR, _DANGEROUS_SCHEME):
+        for match in pattern.finditer(prose):
+            span = match.group(0)
+            if span in seen:
+                continue
+            seen.add(span)
+            failures.append(Failure("COMPOSING", f"unsafe raw HTML in the candidate: {span!r}"))
+    return failures
+
+
 def _check_links(candidate: Candidate) -> list[Failure]:
     failures: list[Failure] = []
+    failures.extend(_unsafe_html_failures(candidate.readme))
     slugs = heading_slugs(candidate.readme)
     by_value = {fact.value: fact for fact in candidate.facts.by_kind("link_target")}
     # The ceiling (README_CONTRACT.md row 15) bounds the contextual Aspose links the plan

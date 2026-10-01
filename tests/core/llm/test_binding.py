@@ -51,6 +51,33 @@ def test_ids_are_collected_from_every_id_key_in_document_order() -> None:
     assert cited.unit_ids == ("inherited_unit:001.heading", "inherited_unit:002.paragraph")
 
 
+def test_binding_cannot_catch_a_fabricated_claim_pinned_to_an_unrelated_real_fact() -> None:
+    """G7-W01 (docs/THREAT_MODEL.md area 2): a cloned repository's own README/source reaches a
+    job as untrusted packet content (``inherited_units``/``fact_dossier`` in
+    ``prompts/repository_investigation.yaml``). An adversarial README could instruct the model, in
+    its own text, to assert a capability no fact supports - and ``binding_errors`` is structural
+    (this module's own docstring): it only confirms a cited ID exists and is SUPPORTED, never that
+    the prose actually describes what that fact says. A reply that fabricates "FIPS 140-2
+    certified encryption" while citing the real, unrelated, SUPPORTED ``identity:repository`` fact
+    passes binding with zero errors - exactly as cleanly as an honest statement citing the same
+    ID. This is not a defect in ``binding_errors`` to fix here: it is the documented
+    agentic/deterministic boundary (``AGENTS.md``) working as designed, and it is why
+    ``independent_review`` (S10, BC-10) - a separate LLM pass instructed to judge whether the
+    cited fact actually supports the quoted text - is load-bearing containment here, not optional
+    defense in depth. This test pins that boundary down so a future change narrowing it is a
+    deliberate, measured decision, not a silent regression."""
+    fabricated = {
+        "capabilities": [
+            {
+                "title": "FIPS 140-2 certified encryption",
+                "text": "Every operation is FIPS 140-2 certified out of the box.",
+                "fact_ids": ["identity:repository"],
+            }
+        ]
+    }
+    assert binding_errors(fabricated, FACTS, "fact_ids") == []
+
+
 def test_fact_bindings_require_known_supported_facts() -> None:
     good = {"units": [{"text": "x", "fact_ids": ["identity:repository", "example:001"]}]}
     assert binding_errors(good, FACTS, "fact_ids") == []
