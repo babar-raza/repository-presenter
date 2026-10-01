@@ -45,6 +45,7 @@ def _write_handoff(
         "suggested_issue_body": "b",
         "status": status,
         "issue_ref": issue_ref,
+        "close_reason": None,
     }
     path.write_text(json.dumps(payload), encoding="utf-8")
     return path

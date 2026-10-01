@@ -147,6 +147,7 @@ def draft_handoff(
         suggested_issue_body="\n".join(body_lines) + "\n",
         status="HANDOFF_PENDING",
         issue_ref=None,
+        close_reason=None,
     )
 
 
