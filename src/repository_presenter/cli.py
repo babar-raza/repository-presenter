@@ -11,7 +11,7 @@ import sys
 from collections import Counter
 from collections.abc import Sequence
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from functools import partial
 from pathlib import Path
 from typing import cast
@@ -50,6 +50,16 @@ from repository_presenter.components.metadata.capture import (
 from repository_presenter.components.metadata.proposal import (
     build_proposal,
     diff_against_observed,
+)
+from repository_presenter.components.propose.effect import (
+    AUTHORIZATION_VARIABLE as PROPOSE_AUTHORIZATION_VARIABLE,
+)
+from repository_presenter.components.propose.effect import (
+    presenter_branch_name,
+    propose_candidate,
+)
+from repository_presenter.components.propose.effect import (
+    write_authorized as propose_write_authorized,
 )
 from repository_presenter.components.readme.bundle.evaluation import (
     EVALUATION_FILENAME,
@@ -120,6 +130,7 @@ from repository_presenter.components.readme.validation.registry import (
     coverage_rows,
     summarize_validation,
 )
+from repository_presenter.core.authorization.proposal import authorize_proposal
 from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
     CURRENT_FILENAME,
@@ -147,7 +158,35 @@ from repository_presenter.core.facts import (
     write_facts,
 )
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
-from repository_presenter.core.github.client import default_patch, default_post, default_put
+from repository_presenter.core.github.client import (
+    FileContents,
+    default_patch,
+    default_post,
+    default_put,
+)
+from repository_presenter.core.github.client import (
+    create_pull_request as default_create_pull_request,
+)
+from repository_presenter.core.github.client import (
+    create_ref as default_create_ref,
+)
+from repository_presenter.core.github.client import (
+    find_open_pull_request as default_find_open_pull_request,
+)
+from repository_presenter.core.github.client import (
+    get_contents as default_get_contents,
+)
+from repository_presenter.core.github.client import (
+    get_ref as default_get_ref,
+)
+from repository_presenter.core.github.client import (
+    put_contents as default_put_contents,
+)
+from repository_presenter.core.github.client import (
+    update_pull_request as default_update_pull_request,
+)
+from repository_presenter.core.github.read_client import fetch_default_branch_sha
+from repository_presenter.core.hashing import sha256_text
 from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, JobResult
 from repository_presenter.core.llm.ledger import LEDGER_FILENAME, Ledger
 from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME, load_manifests, validate_routes
@@ -373,6 +412,62 @@ def build_parser() -> argparse.ArgumentParser:
             "present - prints the diff and makes no write call when omitted"
         ),
     )
+    propose = subcommands.add_parser(
+        "propose",
+        help=(
+            "create or update the one stable presenter branch/PR proposing a sealed README "
+            "candidate to its target repository (G6-W02) - dry-run by default; --propose attempts "
+            "the branch/contents/pull-request calls, but only when the owner has explicitly "
+            "authorized it"
+        ),
+    )
+    propose.add_argument(
+        "--repo",
+        required=True,
+        metavar="OWNER/NAME",
+        help="the target repository to propose against",
+    )
+    propose.add_argument("--root", type=Path, default=None, help=root_help)
+    propose.add_argument(
+        "--readme-file",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "propose this file's content instead of --repo's registry-admitted sealed CURRENT "
+            "candidate - for the G6-W02 disposable-target proof only (a disposable test "
+            "repository is never registry-admitted and has no sealed bundle); requires "
+            "--source-revision; never used for a real, registry-admitted repository"
+        ),
+    )
+    propose.add_argument(
+        "--source-revision",
+        default=None,
+        metavar="SHA",
+        help="required with --readme-file: the exact revision --readme-file's content came from",
+    )
+    propose.add_argument(
+        "--base-branch",
+        default=None,
+        help="override the target's default branch; read live from GitHub when omitted",
+    )
+    propose.add_argument(
+        "--expires-in-minutes",
+        type=int,
+        default=15,
+        help="how long the assembled authorization stays valid before it must be re-minted",
+    )
+    propose.add_argument(
+        "--propose",
+        dest="do_propose",
+        action="store_true",
+        help=(
+            f"attempt to create/update the presenter branch and PR; refuses and explains why "
+            f"unless {PROPOSE_AUTHORIZATION_VARIABLE}=1 and a write-scoped GH_PROPOSAL_WRITE_TOKEN "
+            "are both present - prints the assembled authorization and makes no GitHub call when "
+            "omitted"
+        ),
+    )
     return parser
 
 
@@ -403,6 +498,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_file_upstream_defects(args.root, repository=args.repo, file=args.file)
     if args.command == "metadata":
         return run_metadata(args.repo, args.root, apply=args.apply)
+    if args.command == "propose":
+        return run_propose(
+            args.repo,
+            args.root,
+            readme_file=args.readme_file,
+            source_revision=args.source_revision,
+            base_branch=args.base_branch,
+            expires_in_minutes=args.expires_in_minutes,
+            propose=args.do_propose,
+        )
     parser.error(f"unknown command {args.command!r}")
 
 
@@ -704,6 +809,193 @@ def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = F
             print(f"apply: {outcome.field} {verb} - {outcome.reason}")
         if not result.wrote_anything:
             print("apply: nothing written (see the per-field reasons above)")
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    return EXIT_OK
+
+
+def _cli_utc_now() -> str:
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def run_propose(
+    repository: str,
+    root_argument: Path | None,
+    *,
+    readme_file: Path | None = None,
+    source_revision: str | None = None,
+    base_branch: str | None = None,
+    expires_in_minutes: int = 15,
+    propose: bool = False,
+) -> int:
+    """Create or update the one stable presenter branch/PR proposing ``repository``'s README
+    candidate (G6-W02; ``components/propose/effect.py``).
+
+    Two content sources, never mixed:
+
+    - By default, ``repository`` must be registry-admitted with a sealed ``CURRENT`` candidate
+      (``candidates/<owner>__<name>/CURRENT``) - the real, production shape this command exists
+      for. Nothing here re-validates the bundle's own acceptance; ``status``/``present`` already
+      own that.
+    - ``--readme-file`` (with required ``--source-revision``) bypasses the registry and sealed
+      bundle entirely, for the G6-W02 disposable-target proof only: a disposable test repository
+      created purely to exercise this write path is never registry-admitted (the registry names
+      only the authorized ``aspose-*-foss`` portfolio - ``AGENTS.md`` "Security and Effects"'s
+      allow-list governs *analysis* of that portfolio, which this command never performs; it only
+      opens or updates a pull request on whatever ``--repo`` names, using content supplied
+      directly). Never pass this for a real, registry-admitted repository.
+
+    Dry-run by default: assembles and prints the authorization payload, making no GitHub call at
+    all. ``--propose`` attempts the write through ``components/propose/effect.py``, which refuses
+    (and explains exactly why, making no write call beyond whatever read it needed to decide the
+    refusal) unless ``PROPOSE_AUTHORIZATION_VARIABLE`` is set to a truthy value *and* a write-scoped
+    ``GH_PROPOSAL_WRITE_TOKEN`` is present - neither is set in this project's own environment today,
+    so ``--propose`` prints the same refusal here that it would anywhere else this command runs,
+    never a live repository write.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    try:
+        if readme_file is not None:
+            if not source_revision:
+                _fail("propose: --readme-file requires --source-revision")
+                return EXIT_USAGE
+            if not readme_file.is_file():
+                _fail(f"propose: {readme_file} does not exist")
+                return EXIT_USAGE
+            readme_text = readme_file.read_text(encoding="utf-8")
+            revision = source_revision
+            print(
+                f"propose: {repository} using --readme-file (disposable-target proof only, "
+                "never a registered repository's own sealed candidate)"
+            )
+        else:
+            registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+            entry = require_listed(registry, repository)
+            repository = entry.repository
+            print(f"admitted: {entry.repository} (mode {entry.mode})")
+            current_path = (
+                root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}" / CURRENT_FILENAME
+            )
+            if not current_path.is_file():
+                print(f"propose: no sealed CURRENT candidate for {repository} - nothing to propose")
+                return EXIT_OK
+            revision = current_path.read_text(encoding="utf-8").strip()
+            bundle = root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}" / revision
+            readme_path = bundle / README_FILENAME
+            if not readme_path.is_file():
+                print(
+                    f"propose: sealed bundle at {revision} has no {README_FILENAME} - nothing to "
+                    "propose"
+                )
+                return EXIT_OK
+            readme_text = readme_path.read_text(encoding="utf-8")
+
+        candidate_hash = sha256_text(readme_text)
+        branch = presenter_branch_name()
+        issued_at = _cli_utc_now()
+        expires_at = (datetime.now(UTC) + timedelta(minutes=expires_in_minutes)).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        authorization = authorize_proposal(
+            repository=repository,
+            candidate_hash=candidate_hash,
+            source_revision=revision,
+            branch=branch,
+            issued_at=issued_at,
+            expires_at=expires_at,
+        )
+        print(
+            f"propose: {repository} candidate_hash={candidate_hash} source_revision={revision} "
+            f"branch={branch} policy_version={authorization.policy_version} "
+            f"expires_at={expires_at}"
+        )
+        if not propose:
+            print(
+                "propose: dry run (pass --propose to attempt a write; still gated on "
+                f"{PROPOSE_AUTHORIZATION_VARIABLE} and a write-scoped GH_PROPOSAL_WRITE_TOKEN)"
+            )
+            return EXIT_OK
+
+        # Past this point every GitHub call targets `repository` with the one freshly minted,
+        # repository-scoped write token for this effect job - never GH_TOKEN, which this project's
+        # own read-only analysis uses and which has no write scope at all (AGENTS.md "Analysis uses
+        # repository-scoped read-only credentials"). That write token is also the one this command
+        # reads the target's live state with (default branch, current revision, current presenter-
+        # branch content): a disposable proof target is never registry-admitted, so GH_TOKEN would
+        # not even have read access to it, and a GitHub App's Contents:Write permission already
+        # implies read - exactly the one-token-per-effect-job shape docs/STATE_MACHINE.md section
+        # 12 describes, never a second credential smuggled in for convenience.
+        write_token = os.environ.get("GH_PROPOSAL_WRITE_TOKEN") or None
+
+        def _recheck_source() -> str:
+            fresh = fetch_default_branch_sha(repository, token=write_token)
+            return fresh.sha or f"<unreadable: {fresh.error}>"
+
+        def _reconcile_write() -> FileContents | None:
+            # Only ever invoked from inside propose_candidate's own lost-response handling, which
+            # is itself only reached past that function's own token gate - write_token is always a
+            # real string by the time this runs, never None.
+            assert write_token is not None
+            owner, name = repository.split("/", 1)
+            return default_get_contents(owner, name, README_FILENAME, ref=branch, token=write_token)
+
+        # Mirror propose_candidate's own gate here too, before the one read this command makes
+        # ahead of the effect itself (resolving the default branch when --base-branch is omitted):
+        # an unauthorized or under-credentialed --propose makes no GitHub call at all, not even a
+        # read, exactly like every other early refusal in this module's own docstring.
+        base = base_branch
+        if base is None and propose_write_authorized(os.environ) and write_token:
+            default_branch_read = fetch_default_branch_sha(repository, token=write_token)
+            if default_branch_read.error is not None or default_branch_read.branch is None:
+                _fail(
+                    f"propose: could not read {repository}'s default branch: "
+                    f"{default_branch_read.error}"
+                )
+                return EXIT_INCONSISTENT
+            base = default_branch_read.branch
+        base = base or ""  # unused by propose_candidate before its own authorization gate
+
+        pr_title = "Update README via repository-presenter"
+        pr_body = (
+            "Automated README proposal from repository-presenter.\n\n"
+            f"- candidate_hash: {candidate_hash}\n"
+            f"- source_revision: {revision}\n"
+            f"- policy_version: {authorization.policy_version}\n"
+        )
+        result = propose_candidate(
+            repository=repository,
+            readme_text=readme_text,
+            source_revision=revision,
+            authorization=authorization,
+            base_branch=base,
+            pr_title=pr_title,
+            pr_body=pr_body,
+            token=write_token,
+            environment=os.environ,
+            branch=branch,
+            recheck_source=_recheck_source,
+            reconcile_write=_reconcile_write,
+            get_ref=default_get_ref,
+            create_ref=default_create_ref,
+            get_contents=default_get_contents,
+            put_contents=default_put_contents,
+            find_open_pull_request=default_find_open_pull_request,
+            create_pull_request=default_create_pull_request,
+            update_pull_request=default_update_pull_request,
+        )
+        print(
+            f"propose: {repository} authorized={result.authorized} effected={result.effected} - "
+            f"{result.reason}"
+        )
+        if result.pr_url is not None:
+            print(
+                f"  pr: {result.pr_url} (commit_written={result.commit_written} "
+                f"pr_created={result.pr_created} pr_updated={result.pr_updated})"
+            )
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code

@@ -1,9 +1,10 @@
 # Candidate README Contract
 
-Status: normative for every candidate. Version 1 is a draft that freezes at G2 exit as
-`readme-contract-v1`; afterwards it changes only at a declared version boundary with regression
-evaluation across every current candidate. Every bundle's `dependencies.json` names the version it
-was built against.  
+Status: normative for every candidate. Version 1 froze as `readme-contract-v1` at G3 exit
+(G3-W02, 2026-10-01 — deferred past the originally-planned G2 exit while G3/G4's own multi-cohort
+work was still in flight, per the flip-timing paragraph below); it now changes only at a declared
+version boundary with regression evaluation across every current candidate. Every bundle's
+`dependencies.json` names the version it was built against.  
 **Revision discipline (2026-09-03, hold met 2026-09-04):** this draft was revised three times in two
 days ahead of any candidate sealing against it — the legacy pattern of the target moving faster than
 output — and was held until one did (G2-W02 sealed at `65b1f577`). The discipline stays: a change
@@ -32,18 +33,15 @@ each traced to a measured defect in §27 and carried by a named work item — a 
 when a sealed candidate exhibits a required-row coverage gap (none does at `65b1f577`; expected
 from the G3 cohort, per loop-prompt §6 rule 14) — are specified in `RESEARCH_AND_GUIDELINES.md`
 §27.8 and enter this document only in that item's commit, together with its code and tests.  
-**Flip timing and the increment rule going forward (PHASE0/PA-05, prep recorded 2026-09-10, flip
-itself owner-gated):** `bundle/seal.py`'s `CONTRACT_VERSION` constant still reads
-`"readme-contract-v1-draft"` even though G2 accepted — the flip to `"readme-contract-v1"` is
-withheld deliberately, not an oversight: `evaluation.py`'s own exact-value comparison means the
-moment it lands, every currently-sealed candidate's `VALIDATING`/`REVIEWING` stage reopens
-(`plans/healing/PHASE0-MASTER-PLAN.md`'s own PA-05 section), and G3/G4's own multi-cohort work is
-still in flight. The flip is the owner's call on timing, not a design question — the code change
-itself is a two-line, ready-to-apply diff (`CONTRACT_VERSION` and `ACCEPTANCE_PROFILE_VERSION` in
-`seal.py`, plus their two matching assertions in `tests/components/readme/bundle/test_seal.py`),
-recorded in `DECISION_LOG.md` §31 rather than pre-applied, so the working tree carries no
-unused/unflipped code. Once flipped, later contract revisions follow the same convention every
-other component version already uses (`RENDERER_VERSION`, `SHELL_VERSION`, etc.) — a plain
+**Flip landed (G3-W02, 2026-10-01; prep recorded 2026-09-10 as PHASE0/PA-05):** `bundle/seal.py`'s
+`CONTRACT_VERSION` is now `"readme-contract-v1"` and `ACCEPTANCE_PROFILE_VERSION` is `"1"` — the
+two-line diff PA-05 specified, applied exactly as recorded, with the same two matching assertions
+in `tests/components/readme/bundle/test_seal.py` updated alongside. `evaluation.py`'s own
+exact-value comparison reopened every currently-sealed candidate's `VALIDATING`/`REVIEWING` stage
+the moment it landed, as PA-05 always said it would; G3-W02 re-sealed each one in the same work
+item rather than leaving the reopen to trickle in — see `DECISION_LOG.md`, this date, for the
+per-candidate record. Contract revisions from here follow the same convention every other
+component version already uses (`RENDERER_VERSION`, `SHELL_VERSION`, etc.) — a plain
 incrementing value, bumped only when a blocking check's own *meaning* changes (a `BC-*` predicate
 now judges something new or different), never for a same-meaning bug fix or prose clarification;
 the existing "check 10 now judges... its version moves to 2" precedent above is the pattern to
