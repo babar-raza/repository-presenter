@@ -4,7 +4,7 @@
   "provider_repository_id": 1138357893,
   "registry_revision": null,
   "active_transaction_id": "25b7a7da2459460f840d3080ec2bfbd2",
-  "state": "ACCEPTED",
+  "state": "INVALIDATED",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -16,7 +16,14 @@
   },
   "accepted_artifact": null,
   "proposal": null,
-  "failure": null,
+  "failure": {
+    "classification": "validation_failed",
+    "detail": "present exited 1 (a written disposition or a blocking validation failure - see this transaction's own runs/ output for which)",
+    "resume_state": "SNAPSHOTTING",
+    "occurred_at": "2026-10-01T12:07:05.075094+00:00",
+    "resume_predicate": null,
+    "recovery_count": 0
+  },
   "lease": {
     "holder_id": "present.yml:36856946798",
     "acquired_at": "2026-10-01T11:41:57.396785+00:00",
@@ -25,20 +32,20 @@
     "fencing_token": 1
   },
   "last_transition": {
-    "transition_id": "72a3edf4d7d1486b9245407fe6fd02a5",
+    "transition_id": "e89a2c9e3c6343329d41fbe30583d104",
     "transaction_id": "25b7a7da2459460f840d3080ec2bfbd2",
     "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
-    "from_state": "REVIEWING",
-    "to_state": "ACCEPTED",
-    "event": "present.yml hosted transaction completed (one coarse receipt spanning the local pipeline's own stages - see core/state/present_transaction.py's module docstring)",
-    "occurred_at": "2026-10-01T10:56:22.531984+00:00",
+    "from_state": "ACCEPTED",
+    "to_state": "INVALIDATED",
+    "event": "present.yml hosted transaction failed",
+    "occurred_at": "2026-10-01T12:07:04.844191+00:00",
     "actor": "runtime",
     "input_manifest": "registry:aspose-3d-foss/Aspose.3D-FOSS-for-Python",
     "output_manifest": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/CURRENT",
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 21,
+  "state_version": 22,
   "recent_trigger_dedup_keys": {
     "run:36846316608:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "c10d0e8f3981420db933efcf16457339",
     "run:36846738278:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "7483865b14ff4539a5bf0e709a64d326",
