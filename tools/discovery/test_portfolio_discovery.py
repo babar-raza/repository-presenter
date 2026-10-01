@@ -22,6 +22,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from portfolio_discovery import (  # noqa: E402
+    DEFAULT_REGISTRY_PATH,
     KNOWN_FAMILY_SLUGS,
     BuildProbeResult,
     DiscoveryReport,
@@ -167,6 +168,42 @@ def test_classify_repo_name_reports_an_unmatched_name_explicitly_not_silently() 
     assert result.family is None
     assert result.platform is None
     assert isinstance(result, RepoClassification)
+
+
+def test_classify_repo_name_matches_every_current_registry_entry() -> None:
+    """A fresh classify_repo_name run auto-classifies every real data/registry.json entry.
+
+    G5-W07 part 2 acceptance bar: "a fresh portfolio_discovery.py run against the real registry
+    classifies family/platform for every entry automatically, matching the current
+    manually-populated values." This loads the real registry (not a fixture) and compares.
+
+    One real, named exception: aspose-gis-foss/Aspose.GIS.FOSS-for-.Net carries a dot rather
+    than the convention's hyphen between the family token and "FOSS" on GitHub itself (confirmed
+    live via `gh api orgs/aspose-gis-foss/repos`, 2026-10-01) - the real upstream classifier's own
+    canonical pattern (`Aspose\\.<Family>-FOSS-for-<Platform>`, hyphen required) would not match
+    this name either, so this is a genuine convention deviation in the live repository, not a
+    porting defect. It is asserted explicitly, by name, as the sole unmatched entry - never
+    silently excluded from the comparison (migration/reuse-manifest.yaml's file record for this
+    classifier documents the same finding).
+    """
+    registry = json.loads(DEFAULT_REGISTRY_PATH.read_text(encoding="utf-8"))
+    entries = registry["entries"]
+    assert len(entries) >= 30  # sanity: this is the real, populated registry, not an empty stub
+
+    known_unmatched = {"aspose-gis-foss/Aspose.GIS.FOSS-for-.Net"}
+    mismatches = []
+    unmatched = []
+    for entry in entries:
+        repo_name = entry["repository"].split("/", 1)[1]
+        result = classify_repo_name(repo_name)
+        if not result.matched:
+            unmatched.append(entry["repository"])
+            continue
+        if result.family != entry["family"] or result.platform != entry["platform"]:
+            mismatches.append((entry["repository"], entry["family"], entry["platform"], result))
+
+    assert mismatches == []
+    assert set(unmatched) == known_unmatched
 
 
 def test_repo_observation_from_api_carries_the_classification_through() -> None:
