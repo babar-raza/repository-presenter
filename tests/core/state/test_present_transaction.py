@@ -350,6 +350,48 @@ def test_a_failing_run_commits_failed_internal_and_still_releases_the_lease() ->
     assert record.lease is None
 
 
+def test_two_consecutive_failing_runs_never_attempt_an_illegal_self_transition() -> None:
+    """Reproduces a real defect caught live in G5-W05's first hosted run (present.yml run
+    36846738278): a second trigger whose own run also fails, resuming from a record this same
+    module already left at FAILED_INTERNAL, tried FAILED_INTERNAL -> FAILED_INTERNAL -
+    unregistered (no self-loop exists) - raising IllegalTransitionError instead of this test's own
+    exit code. The second run must commit no new transition (the record already correctly reads
+    "failed, not yet resolved"), exactly like a repeat no-op success commits nothing new."""
+    backend = InMemoryStateBackend()
+
+    first = run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 1,
+        classify=_classify_always(_FAILED),
+        workflow_run_id="run-E1",
+    )
+    assert first == 1
+    after_first = backend.load(REPO)
+    assert after_first is not None and after_first.state == "FAILED_INTERNAL"
+    first_transition_id = after_first.last_transition.transition_id  # type: ignore[union-attr]
+
+    second = run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-b",
+        run=lambda: 1,
+        classify=_classify_always(_FAILED),
+        workflow_run_id="run-E2",
+    )
+    assert second == 1
+    after_second = backend.load(REPO)
+    assert after_second is not None
+    assert after_second.state == "FAILED_INTERNAL"
+    assert after_second.lease is None
+    # No new transition receipt was minted - record_transition was never even called the second
+    # time, since there was no registered hop to commit.
+    assert after_second.last_transition.transition_id == first_transition_id  # type: ignore[union-attr]
+
+
 def test_a_failing_run_from_an_already_accepted_resume_invalidates_instead() -> None:
     """ACCEPTED has no registered edge to FAILED_INTERNAL (only PROVING_NO_OP and INVALIDATED) -
     a failure discovered while resuming an ACCEPTED transaction must land on INVALIDATED, never

@@ -49,6 +49,39 @@ class TestRemoteHeadRevision:
         second_commit = commit_all(source, "second")
         assert remote_head_revision(str(source)) == second_commit != first
 
+    def test_failure_detail_captures_the_real_reason_when_given(self, tmp_path: Path) -> None:
+        """G5-W05's first hosted run surfaced only "cannot resolve the default-branch revision"
+        with no way to tell an auth failure from a network blip from the log alone - this is the
+        fix: the real git failure reason, captured when a caller asks for it, never silently
+        discarded as it was before."""
+        detail: list[str] = []
+        assert remote_head_revision(str(tmp_path / "does-not-exist"), failure_detail=detail) is None
+        assert detail and detail[0].strip()
+
+    def test_failure_detail_never_contains_the_live_token(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """core/state/git_backend.py's own ``_run_remote_git`` already redacts the live token at
+        its one shared error source (G7-W01); this mirrors that discipline here, defensively,
+        even though a well-behaved git/libcurl never echoes an ``http.extraheader`` value back."""
+        token = "ghs_live_installation_token_value_1234567890"
+
+        def fake_run_git(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+            return subprocess.CompletedProcess(
+                args=["git"],
+                returncode=128,
+                stdout="",
+                stderr=f"fatal: Authorization: basic {token}",
+            )
+
+        monkeypatch.setattr(clone_module, "run_git", fake_run_git)
+        detail: list[str] = []
+        result = remote_head_revision(
+            "https://github.com/example/repo.git", token=token, failure_detail=detail
+        )
+        assert result is None
+        assert detail and token not in detail[0]
+
 
 class TestPinnedReadOnlyClone:
     def test_clone_is_pinned_neutered_hooked_and_verified(self, tmp_path: Path) -> None:
@@ -91,6 +124,16 @@ class TestPinnedReadOnlyClone:
         with pytest.raises(GitSafetyError, match="cannot resolve the default-branch revision"):
             pinned_read_only_clone(str(tmp_path / "missing"), tmp_path / "clone")
         assert not (tmp_path / "clone").exists()
+
+    def test_an_unresolvable_remote_names_the_real_reason(self, tmp_path: Path) -> None:
+        """The bare prefix alone was the opaque message G5-W05's first hosted run actually hit -
+        this proves the real git failure reason now rides along with it."""
+        with pytest.raises(GitSafetyError) as excinfo:
+            pinned_read_only_clone(str(tmp_path / "missing"), tmp_path / "clone")
+        message = str(excinfo.value)
+        prefix = f"cannot resolve the default-branch revision of {tmp_path / 'missing'}"
+        assert message.startswith(prefix)
+        assert message != prefix  # real detail was appended, not just the bare prefix
 
 
 def _fake_git(

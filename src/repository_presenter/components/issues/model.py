@@ -24,6 +24,14 @@ STATUSES: tuple[Status, ...] = (
 )
 _STATUSES_REQUIRING_ISSUE_REF = frozenset({"FILED", "RESOLVED_UPSTREAM"})
 
+# Mirrors `gh issue close --reason`'s own two values (docs/investigations/03-issue-tracking.md
+# section 6) - the only two reasons a RESOLVED_UPSTREAM transition may ever carry: "completed" for
+# a genuine upstream fix, "not planned" for a check-version change or a false positive. Never set
+# for any other status.
+CloseReason = Literal["completed", "not planned"]
+CLOSE_REASONS: tuple[CloseReason, ...] = ("completed", "not planned")
+_STATUSES_REQUIRING_CLOSE_REASON = frozenset({"RESOLVED_UPSTREAM"})
+
 
 class HandoffError(ValueError):
     """A handoff artifact on disk does not have the shape the ledger/redetector depend on."""
@@ -70,6 +78,7 @@ class Handoff:
     suggested_issue_body: str
     status: Status
     issue_ref: IssueRef | None
+    close_reason: CloseReason | None = None
 
     @property
     def key(self) -> tuple[str, str]:
@@ -118,6 +127,18 @@ def handoff_from_dict(payload: dict[str, Any], *, path: Path) -> Handoff:
         raise HandoffError(f"{path}: status {status!r} requires issue_ref to be set")
     if status not in _STATUSES_REQUIRING_ISSUE_REF and issue_ref is not None:
         raise HandoffError(f"{path}: status {status!r} must not carry an issue_ref")
+    raw_close_reason = _require(payload, "close_reason", path)
+    close_reason: CloseReason | None
+    if raw_close_reason is None:
+        close_reason = None
+    elif raw_close_reason in CLOSE_REASONS:
+        close_reason = raw_close_reason
+    else:
+        raise HandoffError(f"{path}: unknown close_reason {raw_close_reason!r}")
+    if status in _STATUSES_REQUIRING_CLOSE_REASON and close_reason is None:
+        raise HandoffError(f"{path}: status {status!r} requires close_reason to be set")
+    if status not in _STATUSES_REQUIRING_CLOSE_REASON and close_reason is not None:
+        raise HandoffError(f"{path}: status {status!r} must not carry a close_reason")
     return Handoff(
         schema_version=_require(payload, "schema_version", path),
         repository=_require(payload, "repository", path),
@@ -130,6 +151,7 @@ def handoff_from_dict(payload: dict[str, Any], *, path: Path) -> Handoff:
         suggested_issue_body=_require(payload, "suggested_issue_body", path),
         status=status,
         issue_ref=issue_ref,
+        close_reason=close_reason,
     )
 
 
