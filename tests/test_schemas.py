@@ -343,12 +343,19 @@ def test_manifest_schema_names_every_source_a_record_may_cite() -> None:
     manifest = load_yaml(MANIFEST)
     assert errors(validator, manifest) == []
     by_id = {source["id"]: source for source in manifest["sources"]}
-    assert set(by_id) == {"legacy", "aspose-org"}
+    assert set(by_id) == {"legacy", "aspose-org", "aspose-org-private"}
     # The pin is the item's, and the dirty working tree is recorded rather than hidden.
     aspose = by_id["aspose-org"]
     assert aspose["frozen_revision"] == "16d75e95d4e8205d8106896bf11c8167d00e7e1f"
     assert aspose["working_tree_at_freeze"]["status"] == "DIRTY"
     assert aspose["runtime_dependency_allowed"] is False
+
+    # A third source (G5-W07): the real, private Aspose/aspose.org org repo, distinct from the
+    # non-resolving babar-raza/aspose.org address the "aspose-org" entry above was pinned to.
+    aspose_private = by_id["aspose-org-private"]
+    assert aspose_private["repository"] == "Aspose/aspose.org"
+    assert aspose_private["frozen_revision"] == "d8a54f63599d065d43656be2c56ab1de9e29f03d"
+    assert aspose_private["runtime_dependency_allowed"] is False
 
     # An entry of `sources` must name itself; `source` needs no id.
     nameless = copy.deepcopy(manifest)
