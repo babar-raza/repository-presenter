@@ -20,12 +20,14 @@ from repository_presenter.core.llm.jobs import (
     _PROMPT_ENUM_INLINE_LIMIT,
     CallStore,
     JobContext,
+    _Attempts,
     render_messages,
     request_payload,
     run_job,
 )
 from repository_presenter.core.llm.ledger import Ledger, canonical_hash
 from repository_presenter.core.llm.prompts import load_manifests
+from repository_presenter.core.retry import RETRY_POLICIES, RetryableOperationError
 from support import REPO_ROOT, mock_gateway
 
 CONFIG = GatewayConfig("https://gw.example/v1", "sk-test-key-0123456789")
@@ -805,6 +807,119 @@ def test_transient_failures_are_retried_and_accounted_and_refusals_are_not(
             store=CallStore(tmp_path / "other"),
             context=CONTEXT,
         )
+
+
+def test_a_real_documented_gateway_outage_retries_then_fails_closed_at_the_policy_bound(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G7-W05 controlled exercise: replays docs/DECISION_LOG.md's own repeatedly-observed live
+    qwen3-next outage shape verbatim (2026-09-26/2026-09-28 entries - "Hosted_vllmException -
+    Cannot connect to host text-model.vllm-qwen.svc.cluster.local:80 ... Received Model
+    Group=qwen3-next", HTTP 500) as a real test, not a re-description of the incident. The
+    backend pod never recovers within the ``llm_call`` policy's bounded attempts
+    (``core/retry.py``, ``max_attempts=3``) - proving the *code* itself, not session discipline
+    (AGENTS.md's two-equivalent-attempts rule), is what stops retrying at the policy's own bound
+    and fails closed with a typed, attributable error rather than retrying forever or leaking a
+    raw/opaque exception.
+    """
+
+    # `run_with_retry`'s own `sleep` parameter defaults to the real `time.sleep` function
+    # object, bound once at `core/retry.py`'s import time - a same-named monkeypatch of the
+    # `time` module's attribute (the pattern
+    # `test_transient_failures_are_retried_and_accounted_and_refusals_are_not`, above, uses)
+    # cannot retroactively change an already-bound default, so it silently leaves real (small,
+    # jittered) sleeps in place rather than genuinely suppressing them. This test wraps the
+    # module-level `run_with_retry` name `jobs.py` actually calls instead, which Python resolves
+    # fresh on every call, so the override is real.
+    def _fast_run_with_retry(
+        operation_class: str, operation: Any, *, sleep: Any = None, max_attempts: int | None = None
+    ) -> Any:
+        from repository_presenter.core.retry import run_with_retry as real_run_with_retry
+
+        return real_run_with_retry(
+            operation_class, operation, sleep=lambda _seconds: None, max_attempts=max_attempts
+        )
+
+    monkeypatch.setattr("repository_presenter.core.llm.jobs.run_with_retry", _fast_run_with_retry)
+    # Quoted byte-for-byte from docs/DECISION_LOG.md's own 2026-09-26 04:12 UTC entry (the
+    # fullest capture recorded there, including its own "..." elision) - never paraphrased.
+    outage_body = {
+        "error": {
+            "message": (
+                "litellm.InternalServerError: InternalServerError: Hosted_vllmException - "
+                "Cannot connect to host text-model.vllm-qwen.svc.cluster.local:80 ... Connect "
+                "call failed ('10.96.52.170', 80). Received Model Group=qwen3-next"
+            ),
+            "type": "InternalServerError",
+        }
+    }
+    gateway = _Gateway(
+        monkeypatch,
+        httpx.Response(500, json=outage_body),
+        httpx.Response(500, json=outage_body),
+        httpx.Response(500, json=outage_body),
+    )
+    ledger = Ledger(tmp_path / "calls.jsonl")
+    with pytest.raises(RetryableOperationError, match="HTTP 500"):
+        run_job(
+            MANIFEST,
+            PACKET,
+            config=CONFIG,
+            facts=FACTS,
+            ledger=ledger,
+            store=CallStore(tmp_path / "calls"),
+            context=CONTEXT,
+        )
+    # The gateway was asked exactly the policy's own bound - never fewer (a real outage must be
+    # genuinely retried, not given up on at the first failure) and never more (a bound that is not
+    # honoured by the code is not a bound).
+    assert len(gateway.requests) == RETRY_POLICIES["llm_call"].max_attempts == 3
+    records = ledger.records()
+    assert [(r.outcome, r.http_status, r.error_class) for r in records] == [
+        ("http_error", 500, "InternalServerError"),
+        ("http_error", 500, "InternalServerError"),
+        ("http_error", 500, "InternalServerError"),
+    ]
+    # cli.py::_typed is the boundary that converts this exact exception into the clean,
+    # user-facing JobError an operator sees (proven generically by
+    # tests/test_cli.py's own exhausted-bounded-retry test) - this test's own job is proving the
+    # gateway boundary genuinely honours its bound rather than retrying forever, which that
+    # CLI-level conversion depends on.
+
+
+def test_a_rate_limited_gateway_honours_its_own_retry_after_hint(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G7-W05 rate-limit exercise. A 429 was already retried before this session (it sits in
+    ``_TRANSIENT_STATUSES``), but the gateway's own ``Retry-After`` hint was silently discarded
+    in favour of generic exponential backoff - inconsistent with
+    ``core/github/read_client.py::_get_with_retry``, which already honours the identical header
+    on its own retry boundary. Proves the fix directly at the gateway call boundary
+    (``_Attempts.call``) rather than through the full retry loop: ``core/retry.py``'s own
+    server-suggested-delay honouring is already proven generically by
+    ``tests/core/test_retry.py::test_server_suggested_delay_wins_within_the_policy_maximum``
+    (which injects ``sleep=`` directly, the only reliable way to observe it - ``run_with_retry``'s
+    ``sleep`` parameter defaults to the real ``time.sleep`` function object bound at import time,
+    which a same-named monkeypatch of the ``time`` module's attribute cannot retroactively
+    change); this test's own job is proving the *gateway* boundary this session touched now
+    extracts the header into ``retry_after_seconds`` at all, not re-proving the generic
+    wait-policy math a second time.
+    """
+    _Gateway(
+        monkeypatch,
+        httpx.Response(429, headers={"Retry-After": "5"}, json={"error": "rate limited"}),
+    )
+    ledger = Ledger(tmp_path / "calls.jsonl")
+    attempts = _Attempts(MANIFEST, CONTEXT, ledger, "logical-test-id")
+    payload = request_payload(MANIFEST, render_messages(MANIFEST, PACKET))
+
+    with pytest.raises(RetryableOperationError) as excinfo:
+        attempts.call(CONFIG, payload)
+
+    assert excinfo.value.retry_after_seconds == 5.0
+    assert [(r.outcome, r.http_status, r.error_class) for r in ledger.records()] == [
+        ("http_error", 429, "RateLimitError"),
+    ]
 
 
 def test_the_seed_travels_with_every_request_and_two_identical_requests_agree() -> None:

@@ -306,7 +306,17 @@ class _Attempts:
                 payload, started_at, started, "http_error", exc.status_code, type(exc).__name__
             )
             if exc.status_code in _TRANSIENT_STATUSES:
-                raise RetryableOperationError(f"HTTP {exc.status_code}") from None
+                # G7-W05 rate-limit exercise: a 429 is already retried (it is in
+                # _TRANSIENT_STATUSES), but until this fix the gateway's own Retry-After hint was
+                # silently discarded in favour of the generic exponential-backoff fallback -
+                # core/github/read_client.py's identical boundary (_get_with_retry) already
+                # extracts it the same way; this brings the gateway boundary to the same standard
+                # rather than leaving the two retry boundaries inconsistent.
+                retry_after = exc.response.headers.get("Retry-After")
+                raise RetryableOperationError(
+                    f"HTTP {exc.status_code}",
+                    retry_after_seconds=float(retry_after) if retry_after else None,
+                ) from None
             raise JobError(
                 f"{self.manifest.manifest.prompt_id}: gateway answered HTTP {exc.status_code}"
             ) from None
