@@ -22,6 +22,20 @@ SECRET_VARIABLES = frozenset(
         "GH_METADATA_WRITE_TOKEN",
         "GH_ISSUES_WRITE_TOKEN",
         "GH_PROPOSAL_WRITE_TOKEN",
+        # The GitHub App's own credentials (tools/github_app/register_exchange.py's SECRET_MAP;
+        # docs/CREDENTIAL_ROTATION_RUNBOOK.md). GH_APP_CLIENT_SECRET and GH_APP_WEBHOOK_SECRET
+        # already match SECRET_SUFFIXES' "_SECRET" ending, but GH_APP_PRIVATE_KEY (ends in "_KEY",
+        # not the narrower "_API_KEY") and GH_APP_ID/GH_APP_CLIENT_ID (no secret-shaped suffix at
+        # all) did not - found 2026-10-01 during G7-W04's audit of this exact list: the App's own
+        # administration:write-scoped private key, the single highest-privilege credential this
+        # project holds, was silently exempt from the candidate-bundle leak canary below. Listed
+        # explicitly rather than widening SECRET_SUFFIXES, so a future suffix change can never
+        # accidentally drop one of this project's own named credentials again.
+        "GH_APP_ID",
+        "GH_APP_PRIVATE_KEY",
+        "GH_APP_CLIENT_ID",
+        "GH_APP_CLIENT_SECRET",
+        "GH_APP_WEBHOOK_SECRET",
     }
 )
 SECRET_SUFFIXES = ("_API_KEY", "_TOKEN", "_SECRET", "_PASSWORD")

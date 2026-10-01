@@ -60,6 +60,24 @@ def test_every_secret_in_env_example_is_a_configured_secret() -> None:
     }
 
 
+def test_every_github_app_credential_is_a_configured_secret() -> None:
+    """tools/github_app/register_exchange.py's SECRET_MAP names five GitHub Actions secrets for
+    the App's own credentials; every one must be caught by SECRET_VARIABLES (explicitly or by
+    suffix) so the leak canary below can never miss one. Regression for the 2026-10-01 G7-W04
+    finding: GH_APP_PRIVATE_KEY (ends in "_KEY", not the narrower "_API_KEY") and GH_APP_ID /
+    GH_APP_CLIENT_ID (no secret-shaped suffix at all) were previously silently uncovered."""
+    names = [
+        "GH_APP_ID",
+        "GH_APP_PRIVATE_KEY",
+        "GH_APP_CLIENT_ID",
+        "GH_APP_CLIENT_SECRET",
+        "GH_APP_WEBHOOK_SECRET",
+    ]
+    environment = {name: "value-that-is-long-enough" for name in names}
+    detected = {s.variable for s in configured_secrets(environment)}
+    assert detected == set(names)
+
+
 def test_secret_values_never_appear_in_reprs() -> None:
     secret = ConfiguredSecret("GH_TOKEN", CANARY_TOKEN.encode())
     assert CANARY_TOKEN not in repr(secret)
