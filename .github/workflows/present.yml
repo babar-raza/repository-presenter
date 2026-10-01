@@ -51,7 +51,24 @@ jobs:
     name: Present one repository (durable-state-backed)
     runs-on: ubuntu-latest
     steps:
+      # persist-credentials: false - actions/checkout's own default persists a
+      # github.com-scoped `http.https://github.com/.extraheader` credential in .git/config for
+      # every later step to inherit. This job never needs that credential (its own git operations
+      # against both the target repository and this control repository's own state ref carry their
+      # own explicit, distinctly-scoped tokens via GitStateBackend/pinned_read_only_clone's
+      # github_https_auth_env, never the checkout's ambient one) - and a hosted run, not locally
+      # reproducible under act's own checkout mechanism, proved live why leaving it on is actively
+      # harmful: git's own http.extraheader config is a per-host, not per-repository, setting, so
+      # the checkout's own persisted header for https://github.com/ and this job's own explicit
+      # header for the *target* repository's clone (a different repository, same host) both apply
+      # to the same request - GitHub's own server then rejects it outright ("remote: Duplicate
+      # header: \"Authorization\"", HTTP 400), the real cause behind present.yml's first two hosted
+      # runs' own opaque "cannot resolve the default-branch revision" failures (36846316608,
+      # 36846738278; core/git_safety/clone.py's own failure_detail fix is what made this visible at
+      # all - see docs/DECISION_LOG.md, this date).
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Resolve the target repository from this trigger
         id: target
