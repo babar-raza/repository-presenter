@@ -21,7 +21,9 @@
 # the lock-drift check (scripts/check_lock_drift.sh) and the SBOM/vulnerability audit (G7-W02,
 # `pip-audit` against requirements-lock.txt) - deliberately left out of this offline script for the
 # same reason "Install from the lock" already is; run `scripts/check_lock_drift.sh` directly (it
-# needs `uv`, installed the same way ci.yml installs it: `pip install uv`) to check lock drift
+# needs `uv`, installed the same pinned version ci.yml installs: `pip install "uv==0.12.21"`
+# (unpinned, a newer uv's own marker-simplification can legitimately disagree with the committed
+# lock - confirmed live, PR #170) to check lock drift
 # locally before pushing.
 set -u
 

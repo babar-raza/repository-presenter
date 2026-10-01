@@ -30,7 +30,11 @@ jobs:
           cache-dependency-path: requirements-lock.txt
 
       - name: Install uv (lock regeneration only - never a runtime or dev dependency itself)
-        run: python -m pip install --disable-pip-version-check uv
+        # Pinned, not left to float: a live PR #170 failure proved uv's own marker-simplification
+        # (confirmed, not assumed - scripts/check_lock_drift.sh's own header comment has the detail)
+        # can legitimately differ by version/host-interpreter combination even under --universal,
+        # so an unpinned "latest uv" would make this gate itself non-reproducible across reruns.
+        run: python -m pip install --disable-pip-version-check "uv==0.12.21"
 
       - name: Verify requirements-lock.txt has no drift (G7-W02)
         id: lockdrift
