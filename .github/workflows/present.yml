@@ -113,6 +113,68 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements-lock.txt
           python -m pip install --disable-pip-version-check --no-deps -e .
 
+      # Toolchains for the example verifiers (src/repository_presenter/components/readme/extractors/
+      # platforms/*_examples.py). Each verifier resolves its executable from this job's PATH alone on
+      # a hosted runner - the machine-local registry (C:/tools/rp-toolchains) does not exist here - so
+      # every executable a verifier invokes is provisioned by a step below. Java runs javac only; no
+      # verifier invokes Maven, so none is installed. Python 3.11 is the presenter's own interpreter
+      # (set up above); 3.12 and 3.13 are pinned uv venvs for requires-python declarations it does not admit.
+      - name: Install uv (provisions the pinned Python venvs for the Python verifier)
+        uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.12.21"
+
+      - name: Provision the 3.12 and 3.13 venvs under RUNNER_TEMP
+        run: |
+          set -eu
+          for minor in 12 13; do
+            uv python install "3.$minor"
+            uv venv --python "3.$minor" "$RUNNER_TEMP/rp-python/py3$minor"
+          done
+
+      - name: .NET SDKs for the .NET verifier (dotnet)
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: JDK 21 for the Java verifier (javac)
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Node 24 for the TypeScript verifier (node, npm)
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      # tsc 5.9.3 is the version typescript_examples.py's own registry records as probe-compatible;
+      # the newest tsc on a hosted image can refuse a repository's declared moduleResolution.
+      - name: tsc 5.9.3 for the TypeScript verifier, on PATH
+        run: |
+          set -eu
+          prefix="$RUNNER_TEMP/tsc"
+          npm install --prefix "$prefix" typescript@5.9.3
+          echo "$prefix/node_modules/.bin" >> "$GITHUB_PATH"
+
+      - name: Go for the Go verifier (go)
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.26"
+
+      - name: Rust toolchain for the Rust verifier (cargo)
+        uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d  # branch: stable
+        with:
+          toolchain: stable
+
+      - name: GCC, CMake and Ninja for the C++ verifier (g++, cmake, ninja)
+        run: |
+          set -eu
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends g++ cmake ninja-build
+
       - name: LLM gateway reachable; record the model catalog present needs
         env:
           GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
@@ -131,6 +193,9 @@ jobs:
           # which GitHub Actions scopes to this repository alone and nothing else. Distinct in name
           # and purpose from GH_TOKEN above; never used for the target repository.
           REPOSITORY_PRESENTER_STATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Where the Python verifier finds the pinned py3NN venvs provisioned above
+          # (python_examples.py's RP_PYTHON_TOOLCHAINS; without it a requires-python >=3.12 target is NOT_VERIFIED).
+          RP_PYTHON_TOOLCHAINS: ${{ runner.temp }}/rp-python
           GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
           GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
         run: |
