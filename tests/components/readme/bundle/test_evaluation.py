@@ -235,3 +235,65 @@ def test_each_dependency_class_of_a_real_record_reopens_its_own_state(
     assert evaluation.earliest == state, label
     assert len(evaluation.changes) == 1, (label, evaluation.changes)
     assert evaluation.changes[0].dependency.startswith(path[0]), label
+
+
+# G5-W02 / RC7 follow-up (2026-10-04): the environment class carries each machine toolchain's
+# resolved version, so a toolchain that appears, disappears or changes version between two
+# fingerprint computations reopens EXTRACTING - the stage whose receipts it could have changed.
+# Only the resolution and the version probe are faked; the record is built by the real function.
+def _record_with_toolchains(
+    monkeypatch: pytest.MonkeyPatch, versions: dict[str, str]
+) -> dict[str, Any]:
+    from repository_presenter.core import toolchains
+
+    monkeypatch.setattr(
+        toolchains,
+        "resolve_tool",
+        lambda name: f"/machine/{name}" if name in versions else None,
+    )
+    monkeypatch.setattr(toolchains, "probe_version", lambda name, path: versions[name])
+    facts = FactsDocument(
+        "owner/repo",
+        "r" * 40,
+        (Fact("identity:repository", "identity", "owner/repo", (Evidence("x"),)),),
+    )
+    prompts = load_manifests(REPO_ROOT / "prompts")
+    return upstream_dependencies("r" * 40, "t" * 64, facts, prompts)
+
+
+def test_a_toolchain_that_disappears_between_two_fingerprints_reopens_extracting(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    before = _record_with_toolchains(monkeypatch, {"javac": "21.0.11", "cmake": "4.4.1"})
+    after = _record_with_toolchains(monkeypatch, {"cmake": "4.4.1"})
+    evaluation = evaluate(before, after)
+    assert evaluation.earliest == "EXTRACTING"
+    assert [(change.dependency, change.detail) for change in evaluation.changes] == [
+        ("environment.toolchains.javac", "21.0.11 -> absent")
+    ]
+
+
+def test_a_toolchain_version_change_reopens_extracting(monkeypatch: pytest.MonkeyPatch) -> None:
+    before = _record_with_toolchains(monkeypatch, {"javac": "21.0.11"})
+    after = _record_with_toolchains(monkeypatch, {"javac": "17.0.19"})
+    evaluation = evaluate(before, after)
+    assert evaluation.earliest == "EXTRACTING"
+    assert evaluation.changes[0].dependency == "environment.toolchains.javac"
+
+
+def test_identical_toolchain_availability_reopens_nothing(monkeypatch: pytest.MonkeyPatch) -> None:
+    versions = {"javac": "21.0.11", "cmake": "4.4.1", "tsc": "5.9.3"}
+    before = _record_with_toolchains(monkeypatch, versions)
+    after = _record_with_toolchains(monkeypatch, dict(versions))
+    assert evaluate(before, after).earliest == "NONE"
+
+
+def test_a_record_sealed_before_toolchains_were_fingerprinted_reopens_extracting(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A sealed record without the toolchain class cannot prove what the verifiers saw."""
+    sealed = _record_with_toolchains(monkeypatch, {"javac": "21.0.11"})
+    legacy = copy.deepcopy(sealed)
+    del legacy["environment"]["toolchains"]
+    evaluation = evaluate(legacy, sealed)
+    assert evaluation.earliest == "EXTRACTING"

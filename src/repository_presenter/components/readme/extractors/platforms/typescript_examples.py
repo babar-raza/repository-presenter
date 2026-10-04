@@ -37,6 +37,9 @@ from repository_presenter.core.examples import (
     MeasuredBuild,
 )
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.toolchains import REGISTRY_VARIABLE, resolve_tool
+
+_REGISTRY_VARIABLE = REGISTRY_VARIABLE  # the name the registry tests set (core/toolchains.py)
 
 _MAX_OUTPUT_CHARS = 4000
 _WORKSPACE_ATTEMPTS = 5
@@ -48,10 +51,7 @@ _NOT_COPIED = (".git", "node_modules")
 # `<file>(<line>,<column>): error TSxxxx: <message>` is the only diagnostic shape tsc prints
 # without `--pretty`, which is off by default when stdout is not a terminal.
 _DIAGNOSTIC = re.compile(r"^(?P<file>[^(]+)\((?P<line>\d+),(?P<column>\d+)\): error (?P<rest>.+)$")
-# The lane's toolchains are never on PATH (loop-prompt §1.3): a name is resolved by `which`, then
-# by its `.cmd` shim, then by the machine-local registry the lane's receipt records.
-_REGISTRY_VARIABLE = "RP_TOOLCHAIN_REGISTRY"
-_REGISTRY_DEFAULT = Path("C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt")
+# Toolchains are resolved by `core/toolchains.py` (the machine's registry, then PATH, per tool).
 # What a snippet is checked under. Not the package's own `strict` settings: the contract's claim
 # is that the example's types and calls exist at this revision, and a README snippet is not
 # required to satisfy the library's own lint policy to prove that.
@@ -131,25 +131,6 @@ _HOST_SOURCE = "\n".join(
 )
 
 
-def _registry_path() -> Path:
-    recorded = os.environ.get(_REGISTRY_VARIABLE, "").strip()
-    return Path(recorded) if recorded else _REGISTRY_DEFAULT
-
-
-def recorded_tool(name: str) -> str | None:
-    """The absolute path the machine-local toolchain registry records for ``name``, if any."""
-    registry = _registry_path()
-    try:
-        text = registry.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return None
-    for line in text.splitlines():
-        key, separator, value = line.partition("=")
-        if separator and key.strip() == name and Path(value.strip()).is_file():
-            return value.strip()
-    return None
-
-
 def typescript_compiler() -> str | None:
     """`tsc` as this machine offers it, or None when it offers none.
 
@@ -166,14 +147,7 @@ def typescript_compiler() -> str | None:
     `.cmd` shim, only when the registry has nothing for `tsc`, so a hosted runner with no registry
     file resolves exactly as before (`evidence/build/lanes/lane-b/LANE-B-00.json`).
     """
-    recorded = recorded_tool("tsc")
-    if recorded:
-        return recorded
-    for candidate in ("tsc", "tsc.cmd"):
-        found = shutil.which(candidate)
-        if found:
-            return found
-    return None
+    return resolve_tool("tsc")
 
 
 def _clip(text: str) -> str:
@@ -422,14 +396,10 @@ def npm_executable() -> str | None:
     toolchain registry, then beside whichever `node` is found - nothing is added to `PATH`.
     """
     names = ("npm.cmd", "npm") if os.name == "nt" else ("npm",)
-    for candidate in names:
-        found = shutil.which(candidate)
-        if found:
-            return found
-    recorded = recorded_tool("npm")
-    if recorded:
-        return recorded
-    node = shutil.which("node")
+    found = resolve_tool("npm")
+    if found:
+        return found
+    node = resolve_tool("node")
     if node:
         for candidate in names:
             sibling = Path(node).with_name(candidate)
