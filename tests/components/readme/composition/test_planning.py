@@ -2157,3 +2157,100 @@ def test_bound_visible_line_overage_is_none_without_an_overage_or_a_lever_to_cle
     assert bound_visible_line_overage(_OPTIONAL_LEVER_PLAN, overage=5, levers={}) is None
     cleared = {**_OPTIONAL_LEVER_PLAN, "flagship_example_id": None}
     assert bound_visible_line_overage(cleared, overage=5, levers=flagship) is None
+
+
+def test_the_schema_refuses_an_empty_api_hubs_list_while_api_reference_is_required() -> None:
+    """aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-04: with 1,151 hubbable symbols
+    and every README example UNRESOLVED, qwen3-next wrote ``api_hubs: []`` on both attempts
+    (byte-identical at temperature zero) and S5 died on "api_hubs are given exactly when
+    api_reference is included". api_reference is Required, so the schema must not admit the
+    empty list that plan_checks can never accept."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS, {}, {})
+    assert schema["properties"]["api_hubs"]["minItems"] == 1
+    validator = Draft202012Validator(schema)
+
+    def hub_errors(plan: dict[str, Any]) -> list[tuple[str, str]]:
+        return sorted(
+            (error.json_path, str(error.validator))
+            for error in validator.iter_errors(plan)
+            if error.json_path.startswith("$.api_hubs")
+        )
+
+    assert hub_errors(_plan(api_hubs=[])) == [("$.api_hubs", "minItems")]
+    assert hub_errors(_plan()) == []
+    # The downstream check is untouched: an empty list is still rejected after decoding.
+    assert "api_hubs are given exactly when api_reference is included" in plan_checks(
+        _plan(api_hubs=[]), FACTS
+    )
+    # Negative control: with nothing hubbable the list stays pinned empty, never forced non-empty
+    # (no value could satisfy both an empty enum and minItems 1).
+    bare = planning_schema(loaded, FactsDocument(ENTRY.repository, "a" * 40, ()), {}, {})
+    assert bare["properties"]["api_hubs"] == {"type": "array", "maxItems": 0}
+    # The manifest's own schema is not mutated: the specialisation is per call.
+    assert "minItems" not in loaded.manifest.output.schema_["properties"]["api_hubs"]
+
+
+def test_a_source_only_in_page_anchor_is_never_an_assignable_link() -> None:
+    """aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-04: the source README's
+    `[Redaction](#redaction)` is a SUPPORTED link_target (the heading exists in the SOURCE), the
+    plan assigned it to documentation_resources, and BC-06 failed "no heading #redaction" because
+    the re-composed candidate has no such heading. A fragment is assignable only when it names a
+    heading the shell itself renders."""
+    with_anchors = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("link_target:010", "link_target", "#installation"),  # a shell heading
+            _fact("link_target:011", "link_target", "#redaction"),  # source-only
+            _fact("link_target:012", "link_target", "#forms"),  # source-only
+        ),
+    )
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, with_anchors, {}, {})
+    enum = schema["properties"]["links"]["items"]["properties"]["link_fact_id"]["enum"]
+    assert "link_target:010" in enum  # the shell's own heading stays assignable
+    assert "link_target:011" not in enum and "link_target:012" not in enum
+    assert "link_target:002" in enum  # an ordinary external link is untouched
+
+    # The downstream check refuses it too, with its own message rather than "not verified".
+    plan = _plan(
+        links=[
+            {"link_fact_id": "link_target:002", "section_id": "documentation_resources"},
+            {"link_fact_id": "link_target:011", "section_id": "documentation_resources"},
+        ]
+    )
+    errors = plan_checks(plan, with_anchors)
+    assert any(
+        "'link_target:011' is an in-page anchor to a source README heading" in e for e in errors
+    ), errors
+    # Negative controls: the shell heading and the external link raise nothing of the kind.
+    ok = _plan(
+        links=[
+            {"link_fact_id": "link_target:002", "section_id": "documentation_resources"},
+            {"link_fact_id": "link_target:010", "section_id": "documentation_resources"},
+        ]
+    )
+    assert [e for e in plan_checks(ok, with_anchors) if "in-page anchor" in e] == []
+    # A disposition-required link is the plan's completeness obligation, not the model's choice:
+    # it is never refused here (BC-06 judges whether it resolves), so it cannot deadlock S5.
+    required = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:001.paragraph",
+                "disposition": "VERIFIED_REWRITE",
+                "destination_section": "documentation_resources",
+                "fact_ids": ["link_target:011"],
+            }
+        ]
+    }
+    assert [e for e in plan_checks(plan, with_anchors, dispositions=required) if "in-page anchor" in e] == []
+    # Nothing assignable but source-only anchors pins the list empty, never an empty enum.
+    only_anchors = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (_fact("link_target:011", "link_target", "#redaction"),),
+    )
+    pinned = planning_schema(loaded, only_anchors, {}, {})["properties"]["links"]
+    assert pinned == {"type": "array", "maxItems": 0}
