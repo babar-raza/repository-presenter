@@ -8,6 +8,7 @@ from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import httpx
 import pytest
@@ -20,6 +21,26 @@ from repository_presenter.core.state.cas import SaveResult
 from repository_presenter.core.state.schema import RepositoryRecord
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def empty_enum_paths(node: Any, path: str = "$") -> list[str]:
+    """Every JSON-schema path whose ``enum`` is an empty list. No value satisfies such a keyword,
+    so a strict json_schema request carrying one cannot be decoded (the S5 HTTP 500/502 on
+    Aspose.GIS, 2026-10-04, whose three link targets were all shell-owned)."""
+    found: list[str] = []
+    if isinstance(node, dict):
+        if node.get("enum") == []:
+            found.append(path)
+        for key, value in node.items():
+            found.extend(empty_enum_paths(value, f"{path}.{key}"))
+    elif isinstance(node, list):
+        for index, value in enumerate(node):
+            found.extend(empty_enum_paths(value, f"{path}[{index}]"))
+    return found
+
+
+def assert_no_empty_enums(schema: dict[str, Any]) -> None:
+    assert empty_enum_paths(schema) == [], "a strict json_schema request cannot carry an empty enum"
 
 
 class InMemoryStateBackend:
