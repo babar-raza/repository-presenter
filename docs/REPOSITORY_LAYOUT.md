@@ -46,7 +46,8 @@ src/repository_presenter/
     registry/                registry loader, revision store
     authorization/           effect-authorization contracts
       proposal.py              the typed README-proposal authorization payload (G6-W02): candidate hash, source revision, branch, PR intent, policy version, expiry; assembled and re-validated, never agent-produced
-    candidates.py            sealed-bundle counting (already built)
+    candidates.py            sealed-bundle counting (already built); ready_revision() is the one proposal-time question: is CURRENT a verified READY_FOR_PROPOSAL bundle
+    sealing_plan.py          the unattended sealing run's plan (G7-W06 work item 3): DRIFTED-only, enabled, registry-listed selection, cap 3, sorted; qwen3-next-only guard; reads the drift monitor's output through its file contract alone
     secrets.py               secret-canary scanning (already built)
   components/issues/         workstream 3 (docs/investigations/03-issue-tracking.md); tracks confirmed upstream defects and, per PRODUCTION_ROADMAP.md's WS2 ruling, missing community/contribution/licensing/security files as findings; never README-specific; read+local-JSON only except file.py's own gated write
     model.py                  the typed shape of one handoff artifact

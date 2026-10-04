@@ -1,0 +1,114 @@
+# Unattended sealing and README refresh (G7-W06 work item 3; plans/idea.md Operating Model;
+# docs/EXECUTION_STATE_MACHINE.md G7). One scheduled run:
+#
+#   plan   read-only. Reads the drift monitor's output file (drift/drift.json, the contract in
+#          core/sealing_plan.py), keeps only DRIFTED, enabled, registry-listed repositories, sorts
+#          them, and takes at most three (MAX_REPOSITORIES_PER_RUN). Refuses any run whose prompt
+#          manifests or GPT_OSS_MODEL name a model other than qwen3-next.
+#   seal   one matrix leg per planned repository, strictly one at a time (max-parallel 1), each
+#          calling present.yml via workflow_call - the one reusable pipeline, never a copy. Analysis
+#          there uses a read-only, repository-scoped App token. fail-fast is off: one repository's
+#          failed seal never stops the others.
+#   propose  one matrix leg per planned repository whose registry mode is "full" (mode governs
+#          publication readiness; a dry_run repository is sealed but never proposed), calling
+#          propose.yml via workflow_call with
+#          candidate_artifact set, so it proposes only the bundle this run just sealed and exported,
+#          and only when that bundle is READY_FOR_PROPOSAL. The write token is minted inside
+#          propose.yml's own job, never in plan or seal. The whole job runs only when the owner
+#          variable REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED is exactly "1" (set by the owner in
+#          the repository's Actions variables; never inferred from credential presence). Unset, this
+#          workflow is read-only observation: it plans and seals and writes nothing to any target.
+#
+# No model is configured anywhere in this file: sealing runs on qwen3-next alone, the route each
+# prompt manifest declares (owner rule; core/sealing_plan.py refuses any other). GPT_OSS_MODEL is
+# never set here.
+#
+# Dependency, stated plainly: the drift monitor (branch g7-w06-drift-monitor) is NOT on main. This
+# workflow depends on it only through its output file contract. Until that producer lands and writes
+# drift/drift.json, the plan job fails closed with an explicit "drift monitor output not found" error
+# and makes no work - a missing input is never treated as zero drift or as all drift.
+#
+# Least privilege, per job: plan and propose hold contents: read at the job level; seal holds
+# contents: write only because present.yml's own durable-state refs live in this control repository
+# (its analysis token is minted there, read-only). No job in this file mints an App token itself.
+
+name: Sealing (scheduled)
+
+on:
+  schedule:
+    # Daily, off the top of the hour, clear of monitor.yml's 17 */6 slots.
+    - cron: "37 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Plan this run (drifted, enabled, capped, qwen3-next only)
+    runs-on: ubuntu-latest
+    outputs:
+      repositories: ${{ steps.plan.outputs.repositories }}
+      has_work: ${{ steps.plan.outputs.has_work }}
+      publishable: ${{ steps.plan.outputs.publishable }}
+      has_publishable: ${{ steps.plan.outputs.has_publishable }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      # The drift monitor's output must exist at drift/drift.json before this step (see the header's
+      # dependency note). It is read through its contract alone; the cap and ordering live in code.
+      - name: Select this run's repositories from the drift monitor's output
+        id: plan
+        run: repository-presenter sealing-plan --drift-file drift/drift.json --github-output "$GITHUB_OUTPUT"
+
+  seal:
+    name: Seal ${{ matrix.target.repository }} (qwen3-next)
+    needs: plan
+    if: ${{ needs.plan.outputs.has_work == 'true' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        target: ${{ fromJSON(needs.plan.outputs.repositories) }}
+    permissions:
+      # present.yml's own grant, for its durable-state refs in this control repository only.
+      contents: write
+    uses: ./.github/workflows/present.yml
+    with:
+      repository: ${{ matrix.target.repository }}
+    secrets: inherit
+
+  propose:
+    name: Propose ${{ matrix.target.repository }} (write-gated)
+    needs: [plan, seal]
+    # !cancelled(): one repository's failed seal must not skip the others. Each leg proposes only if
+    # its own seal exported a READY_FOR_PROPOSAL bundle (propose.yml's gate). The matrix holds only
+    # registry mode "full" repositories (mode governs publication readiness). The owner variable is
+    # the write gate: unset or any value but "1", this job does not run at all.
+    if: ${{ !cancelled() && needs.plan.outputs.has_publishable == 'true' && vars.REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED == '1' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        target: ${{ fromJSON(needs.plan.outputs.publishable) }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/propose.yml
+    with:
+      repo: ${{ matrix.target.repository }}
+      do_propose: true
+      candidate_artifact: sealed-${{ matrix.target.slug }}
+    secrets: inherit

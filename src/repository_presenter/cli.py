@@ -150,10 +150,11 @@ from repository_presenter.core.candidates import (
     independently_accepted_candidates,
     integrity_valid_candidates,
     iter_sealed_bundles,
+    ready_revision,
     stale_candidates,
     verify_bundle,
 )
-from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
+from repository_presenter.core.config import API_KEY_VARIABLE, MODEL_VARIABLE, load_gateway_config
 from repository_presenter.core.errors import JobError, PresenterError
 from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
@@ -219,6 +220,14 @@ from repository_presenter.core.registry.loader import (
 )
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.retry import RetryableOperationError
+from repository_presenter.core.sealing_plan import (
+    MAX_REPOSITORIES_PER_RUN,
+    SEALING_MODEL,
+    github_output_lines,
+    plan_sealing_run,
+    read_drift_contract,
+    require_sealing_model,
+)
 from repository_presenter.core.secrets import configured_secrets, find_secret_leaks, redact
 from repository_presenter.core.snapshot.capture import (
     capture_snapshot,
@@ -350,6 +359,35 @@ def build_parser() -> argparse.ArgumentParser:
             "with --durable-state: the git remote this control repository's own state ref lives on"
         ),
     )
+    sealing = subcommands.add_parser(
+        "sealing-plan",
+        help=(
+            "select the drifted, enabled repositories one scheduled sealing run may seal, in "
+            f"sorted order, capped at {MAX_REPOSITORIES_PER_RUN}; qwen3-next only; read-only"
+        ),
+    )
+    sealing.add_argument("--root", type=Path, default=None, help=root_help)
+    sealing.add_argument(
+        "--drift-file",
+        type=Path,
+        default=Path("drift/drift.json"),
+        help="the drift monitor's output file (core/sealing_plan.py's contract), root-relative",
+    )
+    sealing.add_argument(
+        "--github-output",
+        type=Path,
+        default=None,
+        help="append the repositories= and has_work= step outputs to this file ($GITHUB_OUTPUT)",
+    )
+    ready = subcommands.add_parser(
+        "sealed-ready",
+        help=(
+            "exit 0 only when the repository's CURRENT bundle verifies and is READY_FOR_PROPOSAL; "
+            "exit 1 otherwise, naming why"
+        ),
+    )
+    ready.add_argument("--repo", required=True, metavar="OWNER/NAME")
+    ready.add_argument("--root", type=Path, default=None, help=root_help)
     preflight = subcommands.add_parser(
         "preflight",
         help="reach the LLM gateway from the process environment and record its model catalog",
@@ -564,6 +602,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_issue_targets(args.root)
     if args.command == "metadata":
         return run_metadata(args.repo, args.root, apply=args.apply)
+    if args.command == "sealing-plan":
+        return run_sealing_plan(args.root, args.drift_file, args.github_output)
+    if args.command == "sealed-ready":
+        return run_sealed_ready(args.repo, args.root)
     if args.command == "propose":
         return run_propose(
             args.repo,
@@ -575,6 +617,64 @@ def main(argv: Sequence[str] | None = None) -> int:
             propose=args.do_propose,
         )
     parser.error(f"unknown command {args.command!r}")
+
+
+def run_sealing_plan(
+    root_argument: Path | None, drift_file: Path, github_output: Path | None
+) -> int:
+    """Plan one unattended sealing run from the drift monitor's contract file (core/sealing_plan).
+
+    Refuses before selecting anything when a prompt manifest routes away from the sealing model or
+    ``GPT_OSS_MODEL`` names another one. Makes no provider and no GitHub call.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    contract = drift_file if drift_file.is_absolute() else root / drift_file
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        prompts = load_manifests(root / PROMPTS_DIRNAME)
+        require_sealing_model(prompts.routes(), os.environ)
+        records = read_drift_contract(contract)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    plan = plan_sealing_run(records, registry)
+    print(
+        f"sealing: model {SEALING_MODEL} (prompt routes and {MODEL_VARIABLE} checked); "
+        f"{len(records)} drift record(s), cap {MAX_REPOSITORIES_PER_RUN}"
+    )
+    for repository in plan.selected:
+        print(f"selected: {repository}")
+    for repository in plan.deferred:
+        print(f"deferred to a later run (cap): {repository}")
+    for repository in plan.not_admitted:
+        print(f"skipped (not in the registry allow-list): {repository}")
+    for repository in plan.disabled:
+        print(f"skipped (registry mode disabled): {repository}")
+    if not plan.selected:
+        print("sealing: no drifted, enabled repository to seal in this run")
+    if github_output is not None:
+        with github_output.open("a", encoding="utf-8") as handle:
+            handle.write("\n".join(github_output_lines(plan)) + "\n")
+    return EXIT_OK
+
+
+def run_sealed_ready(repository: str, root_argument: Path | None) -> int:
+    """Exit 0 only when ``repository``'s CURRENT bundle is READY_FOR_PROPOSAL and verifies."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        revision = ready_revision(root, repository)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    if revision is None:
+        print(f"sealed-ready: {repository} has no CURRENT bundle in READY_FOR_PROPOSAL")
+        return EXIT_INCONSISTENT
+    print(f"sealed-ready: {repository} CURRENT {revision} is READY_FOR_PROPOSAL")
+    return EXIT_OK
 
 
 def run_preflight(root_argument: Path | None) -> int:

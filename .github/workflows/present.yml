@@ -23,9 +23,13 @@
 # though this workflow cannot itself exercise a mid-run kill - that failure-mode exercise is
 # G7-W05's own explicit scope).
 #
-# workflow_dispatch and repository_dispatch only (docs/STATE_MACHINE.md section 3.2's own trigger
-# vocabulary) - deliberately no `schedule:` trigger. Turning on unattended scheduling is G7-W06's
-# own explicit scope, gated behind this item's own hosted proof actually landing first.
+# workflow_dispatch, repository_dispatch and workflow_call (docs/STATE_MACHINE.md section 3.2's own
+# trigger vocabulary). No `schedule:` trigger here: unattended scheduling is sealing-scheduled.yml's
+# own job, which calls this workflow once per drifted repository via workflow_call (G7-W06 work item
+# 3). That call is the only reuse - this file's pipeline is never copied.
+#
+# A successful run whose bundle is READY_FOR_PROPOSAL exports that bundle as a workflow artifact
+# (`sealed-<owner>__<name>`) for the gated propose job; a runner's candidates/ never outlives the job.
 name: Present
 
 on:
@@ -37,6 +41,12 @@ on:
         type: string
   repository_dispatch:
     types: [present]
+  workflow_call:
+    inputs:
+      repository:
+        description: "owner/name, exactly as listed in the registry; the scheduled sealing run's per-repository target"
+        required: true
+        type: string
 
 permissions:
   # contents: write is for this control repository's own internal state-ref namespace only
@@ -73,10 +83,10 @@ jobs:
       - name: Resolve the target repository from this trigger
         id: target
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            repository="${{ inputs.repository }}"
-          else
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
             repository="${{ github.event.client_payload.repository }}"
+          else
+            repository="${{ inputs.repository }}"
           fi
           if [ -z "$repository" ]; then
             echo "::error::no target repository named by this trigger"
@@ -218,7 +228,7 @@ jobs:
           if repository-presenter present \
             --repo "${{ steps.target.outputs.repository }}" \
             --durable-state \
-            --trigger-event-type "${{ github.event_name == 'workflow_dispatch' && 'workflow_dispatch' || 'repository_dispatch' }}" \
+            --trigger-event-type "${{ github.event_name == 'repository_dispatch' && 'repository_dispatch' || 'workflow_dispatch' }}" \
             --workflow-run-id "${{ github.run_id }}"; then
             first_exit=0
           else
@@ -232,6 +242,37 @@ jobs:
           repository-presenter present \
             --repo "${{ steps.target.outputs.repository }}" \
             --durable-state \
-            --trigger-event-type "${{ github.event_name == 'workflow_dispatch' && 'workflow_dispatch' || 'repository_dispatch' }}" \
+            --trigger-event-type "${{ github.event_name == 'repository_dispatch' && 'repository_dispatch' || 'workflow_dispatch' }}" \
             --workflow-run-id "${{ github.run_id }}-noop-proof"
           echo "::endgroup::"
+
+      # Hands the bundle this run just sealed to the gated propose job, and only when it is
+      # READY_FOR_PROPOSAL (`sealed-ready` names the CURRENT revision and verifies its manifest). A
+      # bundle left in any other state is never exported, so it can never be proposed.
+      - name: Export a READY_FOR_PROPOSAL bundle for the propose job
+        id: export
+        env:
+          REPOSITORY: ${{ steps.target.outputs.repository }}
+        run: |
+          set -eu
+          slug="${REPOSITORY%%/*}__${REPOSITORY#*/}"
+          if repository-presenter sealed-ready --repo "$REPOSITORY"; then
+            dest="$RUNNER_TEMP/sealed-export"
+            rm -rf "$dest"
+            mkdir -p "$dest"
+            revision=$(cat "candidates/$slug/CURRENT")
+            cp "candidates/$slug/CURRENT" "$dest/CURRENT"
+            cp -r "candidates/$slug/$revision" "$dest/$revision"
+            echo "exported=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exported=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload the sealed bundle
+        if: ${{ steps.export.outputs.exported == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-${{ steps.target.outputs.owner }}__${{ steps.target.outputs.name }}
+          path: ${{ runner.temp }}/sealed-export
+          if-no-files-found: error
+          retention-days: 7

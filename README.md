@@ -167,6 +167,8 @@ repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--
 repository-presenter issue-targets [--root PATH]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH --source-revision SHA] [--base-branch NAME] [--expires-in-minutes N] [--propose]
+repository-presenter sealing-plan [--root PATH] [--drift-file PATH] [--github-output PATH]
+repository-presenter sealed-ready --repo OWNER/NAME [--root PATH]
 ```
 
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
@@ -241,6 +243,16 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH
   set in this project's own environment, so `--propose` reports exactly why it wrote nothing
   rather than guessing. `--base-branch` overrides the target's default branch, read live from
   GitHub when omitted.
+- **`sealing-plan`** — the unattended sealing run's planner (G7-W06). Reads the drift monitor's
+  output file (`--drift-file`, default `drift/drift.json`, root-relative) and selects only `DRIFTED`
+  repositories that the registry lists and does not mark `disabled`, in sorted order, at most three
+  per run; the rest are deferred. Refuses to plan at all when a prompt manifest routes to any model
+  other than `qwen3-next` or `GPT_OSS_MODEL` names one. Makes no provider and no GitHub call.
+  `--github-output` appends the `repositories`, `has_work`, `publishable`, and `has_publishable` step
+  outputs that `.github/workflows/sealing-scheduled.yml` reads.
+- **`sealed-ready --repo OWNER/NAME`** — exits 0 only when the repository's `CURRENT` sealed bundle
+  verifies and is `READY_FOR_PROPOSAL`; exits 1 otherwise, naming why. The scheduled workflow uses
+  it to export a bundle for the gated proposal job and to refuse to propose anything else.
 - `--root PATH` — project root holding `project/state.yaml`; discovered from the working directory
   when omitted.
 

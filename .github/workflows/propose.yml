@@ -3,9 +3,11 @@
 # proposal pull request on a target repository. Separately authorized from `present.yml`/
 # `monitor.yml` in every way that matters:
 #
-#   - trigger: workflow_dispatch only, with required inputs naming the exact target - never a
-#     schedule, never implicit from another workflow's success (G7-W06 wires unattended proposing
-#     only after this mechanism is observed stable, per EXECUTION_STATE_MACHINE.md G7).
+#   - trigger: workflow_dispatch, or workflow_call from sealing-scheduled.yml (G7-W06 work item 3).
+#     The scheduled call is the one unattended path, and it is gated twice: its caller job runs only
+#     when the owner variable REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED is exactly "1", and it
+#     proposes only a bundle the same run just sealed and exported (`candidate_artifact`), never the
+#     committed CURRENT on this checkout, which may be stale against the upstream head.
 #   - permissions: `contents: read` at the job level is the checkout's own grant only; the actual
 #     write capability is a repository-scoped GitHub App installation token minted fresh inside
 #     this job (`actions/create-github-app-token@v2`, GitHub's own official action - preferred over
@@ -35,6 +37,43 @@
 name: Propose
 
 on:
+  # Keep these inputs in step with workflow_dispatch's below: GitHub cannot share one input block.
+  workflow_call:
+    inputs:
+      repo:
+        description: "Target repository (OWNER/NAME), as listed in the registry"
+        required: true
+        type: string
+      readme_file:
+        description: "Disposable-target proof only; a scheduled call never passes it"
+        required: false
+        type: string
+        default: ""
+      source_revision:
+        description: "Required together with readme_file"
+        required: false
+        type: string
+        default: ""
+      base_branch:
+        description: "Override the target's default branch; read live from GitHub when left blank"
+        required: false
+        type: string
+        default: ""
+      expires_in_minutes:
+        description: "How long the assembled authorization stays valid"
+        required: false
+        type: string
+        default: "15"
+      do_propose:
+        description: "Attempt the real write; a scheduled call passes true only behind its own owner-variable gate"
+        required: false
+        type: boolean
+        default: false
+      candidate_artifact:
+        description: "Artifact holding the bundle the same run sealed and exported (sealing-scheduled.yml); empty for a manual dispatch"
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       repo:
@@ -106,6 +145,45 @@ jobs:
           fi
           echo "cli_args=$args" >> "$GITHUB_OUTPUT"
 
+      # Scheduled proposals only (candidate_artifact set): the bundle this run sealed replaces this
+      # repository's candidates/ directory on the checkout, wholesale - never merged with the
+      # committed copy on main, which may be stale against the upstream head this run sealed. A
+      # manual dispatch (no artifact) runs none of the gate steps below and changes nothing.
+      - name: Import the bundle this run sealed (scheduled proposals only)
+        id: import
+        if: ${{ inputs.candidate_artifact != '' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.candidate_artifact }}
+          path: ${{ runner.temp }}/sealed-import
+
+      # Fail closed: a repository with no bundle exported by this run, or whose bundle is not
+      # READY_FOR_PROPOSAL, is not proposed. That is an ordinary outcome (nothing to propose), not a
+      # failed job, so the remaining repositories of a scheduled run are unaffected.
+      - name: Require a READY_FOR_PROPOSAL bundle from this run
+        id: ready
+        if: ${{ inputs.candidate_artifact != '' }}
+        env:
+          REPOSITORY: ${{ inputs.repo }}
+        run: |
+          set -eu
+          slug="${REPOSITORY%%/*}__${REPOSITORY#*/}"
+          if [ "${{ steps.import.outcome }}" != "success" ]; then
+            echo "no bundle was sealed and exported for $REPOSITORY in this run; nothing to propose"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          rm -rf "candidates/$slug"
+          mkdir -p "candidates/$slug"
+          cp -r "$RUNNER_TEMP/sealed-import/." "candidates/$slug/"
+          if repository-presenter sealed-ready --repo "$REPOSITORY"; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "$REPOSITORY is not READY_FOR_PROPOSAL in this run; nothing to propose"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # Minted even for a dry run - inputs.repo is never assumed to already have an App
       # installation, and a failed mint here is itself a useful, early, read-only-safe signal.
       # Scoped to exactly the one target repository; never the whole App installation. The
@@ -114,6 +192,7 @@ jobs:
       # administration, and no other write scope.
       - name: Mint a fresh installation token, scoped to this target repository alone
         id: app-token
+        if: ${{ inputs.candidate_artifact == '' || steps.ready.outputs.ready == 'true' }}
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.GH_APP_ID }}
@@ -125,10 +204,11 @@ jobs:
           permission-pull-requests: write
 
       - name: Dry run - assemble and print the authorization payload, no GitHub call
+        if: ${{ inputs.candidate_artifact == '' || steps.ready.outputs.ready == 'true' }}
         run: repository-presenter propose ${{ steps.args.outputs.cli_args }}
 
       - name: "Propose for real (gated: REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED set only here)"
-        if: ${{ inputs.do_propose }}
+        if: ${{ inputs.do_propose && (inputs.candidate_artifact == '' || steps.ready.outputs.ready == 'true') }}
         env:
           REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED: "1"
           GH_PROPOSAL_WRITE_TOKEN: ${{ steps.app-token.outputs.token }}
