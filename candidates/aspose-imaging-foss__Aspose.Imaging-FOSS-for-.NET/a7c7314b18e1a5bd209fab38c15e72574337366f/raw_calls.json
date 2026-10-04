@@ -1,0 +1,440 @@
+{
+  "35224646707fc5ff5c8b74310ee323fd8b75b395ee66013458d321c65dbf2a8d": {
+    "job": "independent_review",
+    "output": {
+      "findings": [
+        {
+          "absent": [
+            "[![CI](https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss/actions/workflows/ci.yml/badge.svg)](https://github.as",
+            "[![NuGet](https://img.shields.io/nuget/v/Aspose.Imaging.Foss.svg)](https://www.nuget.org/packages/Aspose.Imaging.Foss)"
+          ],
+          "causal_stage": "S7",
+          "criterion": "presentation",
+          "fact_ids": [
+            "link_target:001",
+            "link_target:002",
+            "link_target:003",
+            "link_target:005",
+            "link_target:006"
+          ],
+          "id": "F01",
+          "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET)](https://github.com/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET/graphs/contributors)",
+          "repair": "Restore the CI and license badges from the original README, and remove the unsupported contributor badge and promotional banner.",
+          "section_id": "identity",
+          "text": "The candidate omits the CI badge and NuGet badge from the original README's badge row, and instead includes a promotional banner and contributor badge that are not supported by facts."
+        },
+        {
+          "absent": [
+            "identifies an image's format and reads its basic properties",
+            "without decoding a single pixel",
+            "It's built for cases where you need to know what a file is and how big it is, fast"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "identity:repository",
+            "package:name",
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "id": "F02",
+          "quote": "Aspose.Imaging FOSS for .NET is a .NET library that enables developers to read, write, and convert raster images, vector graphics, and metafiles without requiring a commercial license.",
+          "repair": "Rewrite the opening to match the original README's scope: focus on format detection and header probing, not read/write/convert capabilities.",
+          "section_id": "opening",
+          "text": "The candidate's opening paragraph overstates capabilities by claiming the library enables 'read, write, and convert' operations, while the original README and facts confirm it only does detection and header probing without decoding."
+        },
+        {
+          "absent": [
+            "It has no NuGet dependencies and targets netstandard2.0 and net8.0.",
+            "Planned: CDR."
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "id": "F03",
+          "quote": "- **Multi-page format support.** Processes image files containing multiple frames or pages, such as TIFF and GIF, by exposing each page as a distinct image layer for individual manipulation.",
+          "repair": "Remove 'Multi-page format support' and 'Extensible format support' from key capabilities; retain only those capabilities explicitly supported by the original README and facts.",
+          "section_id": "key_capabilities",
+          "text": "The candidate's 'Key Capabilities' section includes 'Multi-page format support' and 'Extensible format support' as core capabilities, but the original README does not present these as primary capabilities and the facts do not support them as such."
+        },
+        {
+          "absent": [
+            "dotnet add package Aspose.Imaging.Foss"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "install_command:dotnet",
+            "link_target:003",
+            "link_target:004"
+          ],
+          "id": "F04",
+          "quote": "Aspose.Imaging.Foss is not yet published on NuGet; build it from a source checkout instead, verified against this revision:",
+          "repair": "Replace the build-from-source instruction with the official `dotnet add package Aspose.Imaging.Foss` command from the original README.",
+          "section_id": "installation",
+          "text": "The candidate states 'Aspose.Imaging.Foss is not yet published on NuGet' and provides a build-from-source command, but the original README shows a NuGet package exists and provides a direct `dotnet add package` command."
+        },
+        {
+          "absent": [
+            "ImageProbe",
+            "ImageInfo"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss",
+            "public_symbol:aspose.imaging.foss.imageprobe"
+          ],
+          "id": "F05",
+          "quote": "Aspose.Imaging FOSS for .NET exposes the `Aspose.Imaging.Foss` class as its primary entry point for imaging operations...",
+          "repair": "Correct the primary entry point to `ImageProbe` and describe `ImageInfo` as the return type for probe operations.",
+          "section_id": "api_reference",
+          "text": "The candidate incorrectly names `Aspose.Imaging.Foss` as the primary entry point class, while the original README and facts confirm `ImageProbe` is the main public API class."
+        },
+        {
+          "absent": [
+            "If you need to actually decode, edit, or convert any of these formats, that's a different job"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "id": "F06",
+          "quote": "- The library does not support decoding, editing, or converting image formats; for those capabilities users should refer to Aspose.Imaging Enterprise Edition.",
+          "repair": "Reframe this limitation as a design feature: the library intentionally avoids full decoding to remain lightweight and zero-dependency.",
+          "section_id": "scope_limitations",
+          "text": "The candidate's 'Scope and Limitations' section incorrectly states the library does not support 'decoding, editing, or converting image formats' as a limitation, while the original README clearly states this is by design and the library is not intended for those purposes."
+        },
+        {
+          "absent": [],
+          "causal_stage": "S7",
+          "criterion": "presentation",
+          "fact_ids": [
+            "link_target:product.banner",
+            "link_target:product.homepage"
+          ],
+          "id": "F07",
+          "quote": "[![Aspose.Imaging FOSS for .NET](https://products.aspose.org/media/imaging/net/banner-readme.png)](https://products.aspose.org/imaging/net/)",
+          "repair": "Remove the banner image and its link, as the original README contains no such promotional element.",
+          "section_id": "banner",
+          "text": "The candidate includes a promotional banner image linking to the commercial product page, which is not present in the original README and introduces marketing content where product facts belong."
+        }
+      ],
+      "preserve": [],
+      "verdict": "REJECT_PRESENTATION"
+    }
+  },
+  "c16fdd4f802a197d52300a4bca63f7dcbe830a5579b19f48c3592f04b92f93ee": {
+    "job": "independent_review",
+    "output": {
+      "findings": [
+        {
+          "absent": [
+            "[![CI](https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss/actions/workflows/ci.yml/badge.svg)](https://github.as",
+            "[![NuGet](https://img.shields.io/nuget/v/Aspose.Imaging.Foss.svg)](https://www.nuget.org/packages/Aspose.Imaging.Foss)"
+          ],
+          "causal_stage": "S7",
+          "criterion": "presentation",
+          "fact_ids": [
+            "link_target:001",
+            "link_target:002",
+            "link_target:003",
+            "link_target:005",
+            "link_target:006"
+          ],
+          "id": "F01",
+          "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET)](https://github.com/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET/graphs/contributors)",
+          "repair": "Restore the CI badge and NuGet badge from the original README, and remove the unsupported 'Contributors' badge and promotional banner image.",
+          "section_id": "identity",
+          "text": "The candidate omits the CI badge and NuGet badge from the original README's badge row, and instead includes a generic 'Contributors' badge and a promotional banner image that are not supported by the facts."
+        },
+        {
+          "absent": [
+            "Zero-dependency image format detection and header probing for .NET.",
+            "identifies an image's format and reads its basic properties (dimensions, bit depth, frame count) directly from the file"
+          ],
+          "causal_stage": "S7",
+          "criterion": "presentation",
+          "fact_ids": [
+            "identity:repository",
+            "package:name",
+            "package:target_framework",
+            "dependency:none"
+          ],
+          "id": "F02",
+          "quote": "Aspose.Imaging FOSS for .NET is a .NET library that enables developers to read, write, and convert raster images, vector graphics, and metafiles without requiring a commercial license.",
+          "repair": "Rewrite the opening to match the original README's description: 'Zero-dependency image format detection and header probing for .NET. It identifies an image's format and reads its basic properties directly from the file header — without decoding a single pixel.'",
+          "section_id": "opening",
+          "text": "The candidate's opening paragraph introduces incorrect functionality (read, write, and convert) and misrepresents the library's purpose, contradicting the original README which clearly states it is for 'zero-dependency image format detection and header probing' without decoding pixels."
+        },
+        {
+          "absent": [
+            "The original README does not list 'Multi-page format support' or 'Extensible format support' as key capabilities.",
+            "The original README mentions frame count detection for some formats but does not present multi-page processing as a core"
+          ],
+          "causal_stage": "S7",
+          "criterion": "presentation",
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss",
+            "public_symbol:aspose.imaging.foss.imageprobe"
+          ],
+          "id": "F03",
+          "quote": "- **Multi-page format support.** Processes image files containing multiple frames or pages, such as TIFF and GIF, by exposing each page as a distinct image layer for individual manipulation.",
+          "repair": "Remove 'Multi-page format support' and 'Extensible format support' from the Key Capabilities section, as they are not supported by the original README or facts.",
+          "section_id": "key_capabilities",
+          "text": "The candidate's 'Key Capabilities' section includes 'Multi-page format support' and 'Extensible format support' as core capabilities, but the original README does not describe these as primary features and the facts do not support them as such."
+        },
+        {
+          "absent": [
+            "dotnet add package Aspose.Imaging.Foss"
+          ],
+          "causal_stage": "S7",
+          "criterion": "presentation",
+          "fact_ids": [
+            "install_command:dotnet",
+            "link_target:003",
+            "link_target:004"
+          ],
+          "id": "F04",
+          "quote": "Aspose.Imaging.Foss is not yet published on NuGet; build it from a source checkout instead, verified against this revision:",
+          "repair": "Replace the installation instructions with the NuGet install command 'dotnet add package Aspose.Imaging.Foss' as shown in the original README.",
+          "section_id": "installation",
+          "text": "The candidate states 'Aspose.Imaging.Foss is not yet published on NuGet' and provides a build-from-source command, but the original README shows a NuGet badge and install command using 'dotnet add package Aspose.Imaging.Foss'."
+        },
+        {
+          "absent": [
+            "ImageProbe",
+            "ImageInfo"
+          ],
+          "causal_stage": "S7",
+          "criterion": "presentation",
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss",
+            "public_symbol:aspose.imaging.foss.imageprobe"
+          ],
+          "id": "F05",
+          "quote": "Aspose.Imaging FOSS for .NET exposes the `Aspose.Imaging.Foss` class as its primary entry point for imaging operations...",
+          "repair": "Correct the API reference to describe `ImageProbe` and `ImageInfo` as the primary public types, not a non-existent `Aspose.Imaging.Foss` class.",
+          "section_id": "api_reference",
+          "text": "The candidate incorrectly describes 'Aspose.Imaging.Foss' as the primary entry point class, when the facts and original README show the public API surface consists of 'ImageProbe' and 'ImageInfo' types, not a class named 'Aspose.Imaging.Foss'."
+        },
+        {
+          "absent": [
+            "If you need to actually **decode, edit, or convert** any of these formats, that's a different job — see [Aspose.Imaging]"
+          ],
+          "causal_stage": "S7",
+          "criterion": "presentation",
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss",
+            "link_target:product.enterprise"
+          ],
+          "id": "F06",
+          "quote": "- The library does not support decoding, editing, or converting image formats; for those capabilities users should refer to Aspose.Imaging Enterprise Edition.",
+          "repair": "Rewrite the scope and limitations section to clarify that the library is intentionally limited to format detection and header probing, not that it lacks these features as a limitation.",
+          "section_id": "scope_limitations",
+          "text": "The candidate's 'Scope and Limitations' section incorrectly states the library 'does not support decoding, editing, or converting image formats' as a limitation, while the original README clearly states this is by design and the library is not intended for those purposes."
+        }
+      ],
+      "preserve": [],
+      "verdict": "REJECT_PRESENTATION"
+    }
+  },
+  "d433af5aff28e18a07b52f8cc2a85e2f68a6a09bad22a0c4e20105f410d14edf": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "identity:repository",
+            "identity:revision",
+            "identity:family",
+            "identity:platform",
+            "identity:ecosystem",
+            "package:name",
+            "package:target_framework",
+            "dependency:none",
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "opening",
+          "slot": "opening",
+          "text": "Aspose.Imaging FOSS for .NET is a .NET library that enables developers to read, write, and convert raster images, vector graphics, and metafiles without requiring a commercial license. It supports common image formats such as JPEG, PNG, BMP, TIFF, GIF, and SVG, allowing applications to process images programmatically across platforms that target netstandard2.0. The library solves problems related to image manipulation in enterprise and open-source .NET applications, including format conversion, metadata inspection, and batch processing. Developers building cross-platform tools, web services, or desktop applications use Aspose.Imaging.Foss to integrate robust imaging capabilities."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:1",
+          "text": "Identifies image formats from file paths, streams, or byte arrays using the ImageProbe class, returning structured metadata without requiring prior format knowledge."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:2",
+          "text": "Retrieves essential image attributes such as width, height, bit depth, and pixel format directly from the file header, enabling quick inspection before full decoding."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:3",
+          "text": "Parses images using Implicit VR Little Endian and Explicit VR Little/Big Endian transfer syntaxes, including common compressed variants, while safely halting on undefined-length sequences or encapsulated pixel data."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:4",
+          "text": "Processes image files containing multiple frames or pages, such as TIFF and GIF, by exposing each page as a distinct image layer for individual manipulation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:5",
+          "text": "Ensures that malformed or incomplete image data triggers predictable exceptions rather than crashes, preserving application stability during processing."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:6",
+          "text": "Allows new image formats to be integrated through custom loaders and savers, enabling the library to adapt to emerging standards without core modifications."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:name",
+            "package:target_framework",
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "api_reference",
+          "slot": "intro",
+          "text": "Aspose.Imaging FOSS for .NET exposes the Aspose.Imaging.Foss class as its primary entry point for imaging operations, providing a unified interface for loading, processing, and saving images across common formats. This class operates against the netstandard2.0 target framework and is the sole public symbol exposed by the Aspose.Imaging.Foss package."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.imaging.foss",
+          "text": "The Aspose.Imaging.Foss class serves as the central type for image inspection and manipulation, supporting operations such as format detection, metadata extraction, and image transformation through a single cohesive API surface."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "inherited_unit:008.paragraph",
+            "inherited_unit:011.paragraph",
+            "inherited_unit:014.paragraph",
+            "package:name",
+            "package:target_framework",
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "scope_limitations",
+          "slot": "scope",
+          "text": "Aspose.Imaging FOSS for .NET provides a lightweight, open-source imaging library for .NET that focuses on format detection and basic metadata inspection, targeting netstandard2.0 and exposing the Aspose.Imaging.Foss namespace."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:008.paragraph",
+            "inherited_unit:011.paragraph",
+            "inherited_unit:014.paragraph",
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:1",
+          "text": "The library does not support decoding, editing, or converting image formats; for those capabilities users should refer to Aspose.Imaging Enterprise Edition."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:011.paragraph",
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:2",
+          "text": "DICOM parsing supports only Implicit VR Little Endian and Explicit VR Little/Big Endian transfer syntaxes, and halts without further processing when encountering sequences or encapsulated pixel data with undefined length before locating Rows, Columns, or BitsAllocated."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:014.paragraph",
+            "public_symbol:aspose.imaging.foss"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:3",
+          "text": "Support for CDR is planned but not yet implemented."
+        },
+        {
+          "fact_ids": [
+            "package:target_framework",
+            "build_test_asset:tests",
+            "build_test_asset:ci"
+          ],
+          "section": "development_testing",
+          "slot": "summary",
+          "text": "Build and test Aspose.Imaging FOSS for .NET using the .NET CLI with the netstandard2.0 target framework, relying on the tests directory and CI workflows defined in the repository."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "package:name",
+            "package:target_framework"
+          ],
+          "section": "enterprise_relationship",
+          "slot": "context",
+          "text": "Aspose.Imaging FOSS for .NET provides open-source imaging capabilities for .NET developers targeting netstandard2.0, while the commercial Aspose.Imaging for .NET adds advanced features, enterprise support, and additional format handling beyond this package."
+        }
+      ]
+    }
+  },
+  "fefecb4fea56651493b37d8955deb49c47e69716c6a11598b457290fff9bd5d5": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss.imageformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.imaging.foss.imageformat",
+          "text": "Represents the format of an image, such as JPEG, PNG, or BMP, and is used to identify or specify the encoding standard of an image file."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss.imageinfo"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.imaging.foss.imageinfo",
+          "text": "Encapsulates core metadata of an image, including its width, height, format, bit depth, and frame count."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.imaging.foss.imageprobe"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.imaging.foss.imageprobe",
+          "text": "Provides methods to inspect image data from various sources—such as files, streams, or byte arrays—to detect the format and retrieve image metadata."
+        }
+      ]
+    }
+  }
+}
