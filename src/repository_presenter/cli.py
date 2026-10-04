@@ -18,6 +18,12 @@ from typing import cast
 
 from repository_presenter import __version__
 from repository_presenter.components.issues import file as issues_file
+from repository_presenter.components.issues.approval import (
+    ApprovalProvenanceError,
+    GitApprovalStore,
+    approval_relative_path,
+    verify_approval,
+)
 from repository_presenter.components.issues.draft import (
     eligible_for_handoff,
     record_handoff_if_new,
@@ -441,10 +447,31 @@ def build_parser() -> argparse.ArgumentParser:
         "--file",
         action="store_true",
         help=(
-            f"attempt to file each eligible handoff as a GitHub issue; refuses and explains why "
-            f"unless {issues_file.AUTHORIZATION_VARIABLE}=1 and a write-scoped "
-            "GH_ISSUES_WRITE_TOKEN are both present - lists what would be filed and makes no "
-            "write call when omitted"
+            f"attempt to file each eligible handoff as a GitHub issue (requires --repo); refuses "
+            f"and explains why unless {issues_file.AUTHORIZATION_VARIABLE}=1 (the kill switch), a "
+            "write-scoped GH_ISSUES_WRITE_TOKEN, and a committed, unexpired owner approval "
+            "record for that exact handoff (ops/issue_approvals/<handoff-id>.json) are all "
+            "present - reports WOULD-FILE / WOULD-NOT-FILE per handoff and makes no write call "
+            "when omitted"
+        ),
+    )
+    file_cmd.add_argument(
+        "--approvals-ref",
+        default="HEAD",
+        metavar="GIT_REF",
+        help=(
+            "git ref the owner approval records are read from (never the working tree); the "
+            "scheduled workflow passes the commit it was triggered on"
+        ),
+    )
+    file_cmd.add_argument(
+        "--count-writable",
+        action="store_true",
+        help=(
+            "print only the number of handoffs the write job could act on: HANDOFF_PENDING "
+            "ones that currently hold a valid owner approval, plus FILED ones (a possible "
+            "close). Committed files only, no network; the workflow mints its write token only "
+            "when this is nonzero"
         ),
     )
     metadata = subcommands.add_parser(
@@ -559,7 +586,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.root, repository=args.repo, apply=args.apply, close=args.close
         )
     if args.command == "file-upstream-defects":
-        return run_file_upstream_defects(args.root, repository=args.repo, file=args.file)
+        return run_file_upstream_defects(
+            args.root,
+            repository=args.repo,
+            file=args.file,
+            approvals_ref=args.approvals_ref,
+            count_writable=args.count_writable,
+        )
     if args.command == "issue-targets":
         return run_issue_targets(args.root)
     if args.command == "metadata":
@@ -821,17 +854,25 @@ def _redetect_or_inconclusive(handoff: Handoff) -> RedetectionResult:
 
 
 def run_file_upstream_defects(
-    root_argument: Path | None, *, repository: str | None = None, file: bool = False
+    root_argument: Path | None,
+    *,
+    repository: str | None = None,
+    file: bool = False,
+    approvals_ref: str = "HEAD",
+    count_writable: bool = False,
 ) -> int:
     """File each eligible (``HANDOFF_PENDING``) ``evidence/upstream-defects/`` handoff as a real
     GitHub issue.
 
-    Dry-run by default: each handoff is checked with read-only calls only (is an issue for its
-    fingerprint already upstream; does its own check still fire) and reported as would-file,
-    already-filed, or would-not-file. ``--file`` attempts the write through
-    ``components/issues/file.py``, which refuses (and says so, making no write call) unless
-    ``issues_file.AUTHORIZATION_VARIABLE`` is truthy *and* a write-scoped ``GH_ISSUES_WRITE_TOKEN``
-    is present. The scheduled workflow sets both only in its gated write job.
+    Dry-run by default: each handoff is checked with read-only calls only (is there a committed,
+    unexpired owner approval for exactly this handoff; is an issue for its fingerprint already
+    upstream; does its own check still fire) and reported ``WOULD-FILE`` or ``WOULD-NOT-FILE`` with
+    the reason. ``--file`` attempts the write through ``components/issues/file.py``, which refuses
+    (and says so, making no write call) unless the kill switch
+    ``issues_file.AUTHORIZATION_VARIABLE`` is truthy, a write-scoped ``GH_ISSUES_WRITE_TOKEN`` is
+    present, *and* the handoff has its own approval record, read from ``approvals_ref`` in git.
+    ``--file`` requires ``repository`` and never files a handoff for any other. The scheduled
+    workflow sets the kill switch and the token only in its gated write job.
 
     Dedup is two-fold: a handoff not ``HANDOFF_PENDING`` is skipped, and an upstream issue whose
     body carries the handoff's fingerprint marker is recorded as ``FILED`` rather than re-filed -
@@ -842,9 +883,13 @@ def run_file_upstream_defects(
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
+    if file and repository is None:
+        _fail("file-upstream-defects --file requires --repo: a write is bound to one target")
+        return EXIT_USAGE
     try:
+        approvals = GitApprovalStore(root, approvals_ref)
         ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
-    except HandoffError as exc:
+    except (HandoffError, ApprovalProvenanceError) as exc:
         _fail(str(exc))
         return EXIT_INCONSISTENT
     entries = [
@@ -853,12 +898,35 @@ def run_file_upstream_defects(
         if repository is None or entry.repository == repository
     ]
     if not entries:
+        if count_writable:
+            print(0)
+            return EXIT_OK
         print(
             f"file: no handoff found for {repository!r}"
             if repository
             else "file: no handoffs on record"
         )
         return EXIT_OK
+    if count_writable:
+        writable = 0
+        for entry in entries:
+            try:
+                handoff = load_handoff(entry.path)
+            except HandoffError as exc:
+                _fail(str(exc))
+                return EXIT_INCONSISTENT
+            if handoff.status == "FILED" or (
+                handoff.status == "HANDOFF_PENDING" and verify_approval(handoff, approvals).approved
+            ):
+                writable += 1
+        print(writable)
+        return EXIT_OK
+    if not file:
+        print(
+            f"file: kill switch {issues_file.AUTHORIZATION_VARIABLE} = "
+            f"{'ON' if issues_file.write_authorized(os.environ) else 'OFF'} "
+            "(necessary, never sufficient: each handoff also needs its own approval record)"
+        )
     read_token = os.environ.get("GH_TOKEN") or None
     write_token = os.environ.get("GH_ISSUES_WRITE_TOKEN") or None
     failures = 0
@@ -878,8 +946,15 @@ def run_file_upstream_defects(
         recheck = partial(_redetect_or_inconclusive, handoff)
         try:
             if not file:
-                plan = issues_file.plan_filing(handoff, existing=existing, recheck=recheck)
-                print(_describe_plan(handoff, plan))
+                plan = issues_file.plan_filing(
+                    handoff,
+                    existing=existing,
+                    recheck=recheck,
+                    approvals=approvals,
+                    expected_repository=repository,
+                )
+                kill_switch_on = issues_file.write_authorized(os.environ)
+                print(_describe_plan(handoff, plan, kill_switch_on=kill_switch_on))
                 continue
             result = issues_file.file_handoff(
                 handoff,
@@ -888,6 +963,8 @@ def run_file_upstream_defects(
                 create=default_post,
                 existing=existing,
                 recheck=recheck,
+                approvals=approvals,
+                expected_repository=repository,
             )
         except Exception as exc:  # one handoff's failure never stops the others; reported below
             print(f"file: {handoff.repository} ERROR: {exc}")
@@ -903,8 +980,8 @@ def run_file_upstream_defects(
             failures += 1
         else:
             print(
-                f"file: {handoff.repository} would file {handoff.suggested_issue_title!r} - not "
-                f"performed (authorized={result.authorized} filed=False): {result.reason}"
+                f"file: {handoff.repository} WOULD-NOT-FILE {handoff.suggested_issue_title!r} - "
+                f"not performed (authorized={result.authorized} filed=False): {result.reason}"
             )
         if result.issue_ref is not None:
             updated = replace(handoff, status="FILED", issue_ref=result.issue_ref)
@@ -926,16 +1003,34 @@ def _existing_lookup(handoff: Handoff, token: str | None) -> IssueRef | None:
     return None if found is None else IssueRef(number=found.number, url=found.url)
 
 
-def _describe_plan(handoff: Handoff, plan: issues_file.FilingPlan) -> str:
+def _describe_plan(
+    handoff: Handoff, plan: issues_file.FilingPlan, *, kill_switch_on: bool = True
+) -> str:
     head = f"file: {handoff.repository} {handoff.suggested_issue_title!r}"
     if plan.already_filed is not None:
         return (
-            f"{head}: already filed upstream as #{plan.already_filed.number} "
-            f"({plan.already_filed.url}) - would only record it (dry run; pass --file to attempt)"
+            f"{head}: WOULD-NOT-FILE - already filed upstream as #{plan.already_filed.number} "
+            f"({plan.already_filed.url}); would only record it (dry run; pass --file to attempt)"
         )
     if plan.refusal is not None:
-        return f"{head}: would NOT file - {plan.refusal} (dry run; pass --file to attempt)"
-    return f"{head}: would file (dry run; pass --file to attempt)"
+        line = f"{head}: WOULD-NOT-FILE - {plan.refusal} (dry run; pass --file to attempt)"
+        if plan.approval_refused and plan.handoff_id:
+            line += (
+                f"\n  owner approval: commit {approval_relative_path(plan.handoff_id)} with "
+                f"handoff_id {plan.handoff_id}, repository {plan.repository}, "
+                f"evidence_digest {plan.evidence_digest}, approver, approved_at, expires_at "
+                "(see ops/issue_approvals/README.md)"
+            )
+        return line
+    if not kill_switch_on:
+        return (
+            f"{head}: WOULD-NOT-FILE - approved and eligible, but the kill switch "
+            f"{issues_file.AUTHORIZATION_VARIABLE} is not 1 (dry run; pass --file to attempt)"
+        )
+    return (
+        f"{head}: WOULD-FILE - owner-approved, no upstream duplicate, defect still fires "
+        "(dry run; pass --file to attempt)"
+    )
 
 
 def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = False) -> int:

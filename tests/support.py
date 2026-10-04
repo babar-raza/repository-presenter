@@ -7,6 +7,7 @@ import json
 from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,12 @@ import httpx
 import pytest
 from openai import OpenAI
 
+from repository_presenter.components.issues.approval import (
+    approval_relative_path,
+    evidence_digest,
+    handoff_id,
+)
+from repository_presenter.components.issues.model import Handoff
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.git_safety.git import run_git
 from repository_presenter.core.github.read_client import DefaultBranchRead
@@ -303,3 +310,48 @@ class FakeDefaultBranchReader:
         if isinstance(outcome, DefaultBranchRead):
             return outcome
         return DefaultBranchRead(repository, sha=outcome, branch="main")
+
+
+def approval_text(
+    handoff: Handoff,
+    *,
+    digest: str | None = None,
+    repository: str | None = None,
+    approver: str = "owner-login",
+    approved_at: datetime | None = None,
+    expires_at: datetime | None = None,
+) -> str:
+    """An owner approval record (``ops/issue_approvals/<handoff-id>.json``) for ``handoff``,
+    valid now unless an argument overrides one field."""
+    approved = approved_at or datetime.now(UTC) - timedelta(hours=1)
+    expires = expires_at or approved + timedelta(days=7)
+    record = {
+        "handoff_id": handoff_id(handoff),
+        "repository": repository or handoff.repository,
+        "evidence_digest": digest or evidence_digest(handoff),
+        "approver": approver,
+        "approved_at": approved.isoformat(),
+        "expires_at": expires.isoformat(),
+    }
+    return json.dumps(record, indent=2) + chr(10)
+
+
+class MemoryApprovalStore:
+    """An in-memory approval store: ``records`` maps a handoff id to the record text."""
+
+    def __init__(self, records: dict[str, str] | None = None) -> None:
+        self.records = records or {}
+        self.reads: list[str] = []
+
+    def read(self, identifier: str) -> str | None:
+        self.reads.append(identifier)
+        return self.records.get(identifier)
+
+
+def approving_store(handoff: Handoff, **overrides: Any) -> MemoryApprovalStore:
+    """A store holding a valid owner approval for exactly ``handoff``."""
+    return MemoryApprovalStore({handoff_id(handoff): approval_text(handoff, **overrides)})
+
+
+def committed_approval_path(handoff: Handoff) -> str:
+    return approval_relative_path(handoff_id(handoff))
