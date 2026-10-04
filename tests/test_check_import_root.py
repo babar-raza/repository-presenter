@@ -10,9 +10,12 @@ failure, and ``scripts/ci_check.sh`` runs it as a preflight before any check.
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 from support import REPO_ROOT
 
@@ -91,3 +94,42 @@ def test_ci_check_runs_the_preflight_before_any_check_step() -> None:
 def test_ci_check_exports_pythonpath_before_the_preflight() -> None:
     text = CI_CHECK.read_text(encoding="utf-8")
     assert text.find("export PYTHONPATH") < text.find(PREFLIGHT_CALL)
+
+
+def _venv_bin_function() -> str:
+    text = CI_CHECK.read_text(encoding="utf-8")
+    start = text.index("venv_bin() {")
+    return text[start : text.index("\n}\n", start) + 3]
+
+
+def test_venv_bin_stays_on_path_under_an_inherited_windows_pwd(tmp_path: Path) -> None:
+    # Negative control for the 2026-10-04 pre-push failure. git runs a hook with PWD in Windows form
+    # (E:/...). The old venv_bin echoed that form, and the drive colon split the PATH entry, so the
+    # venv's python was never found and the system Python ran the checks.
+    scripts = tmp_path / ".venv" / "Scripts"
+    scripts.mkdir(parents=True)
+    tool = scripts / "venv-marker-tool"
+    tool.write_text("#!/usr/bin/env bash\necho hit\n", encoding="utf-8")
+    tool.chmod(0o755)
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("bash is not available to run ci_check.sh's venv_bin")
+    script = _venv_bin_function() + (
+        'PATH="$(venv_bin .venv):$PATH"\n'
+        'printf "%s\n" "$(venv_bin .venv)"\n'
+        "command -v venv-marker-tool\n"
+    )
+    env = {**os.environ, "PWD": tmp_path.as_posix()}
+    result = subprocess.run(
+        [bash, "-c", script],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    dir_line, found = result.stdout.strip().splitlines()[-2:]
+    assert ":" not in dir_line, f"venv_bin returned a PATH-splitting drive form: {dir_line}"
+    assert found.endswith("venv-marker-tool")

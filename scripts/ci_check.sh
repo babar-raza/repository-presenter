@@ -55,11 +55,19 @@ PINNED_PIP_AUDIT="2.10.1"
 
 # Scripts/ on Windows, bin/ elsewhere; prints nothing when the venv is absent (CI).
 venv_bin() {
+  local dir=""
   if [ -d "$1/Scripts" ]; then
-    (cd "$1/Scripts" && pwd)
+    dir="$1/Scripts"
   elif [ -d "$1/bin" ]; then
-    (cd "$1/bin" && pwd)
+    dir="$1/bin"
+  else
+    return 0
   fi
+  # pwd echoes an inherited PWD, and git sets PWD in Windows form (E:/...) when it runs a hook. A
+  # drive colon in PATH splits the entry, so the venv silently dropped out and the system Python ran
+  # the checks (2026-10-04: the pre-push hook refused a push that passes by hand). Rewrite the drive
+  # letter to the POSIX form bash expects.
+  (cd "$dir" && pwd) | sed -E 's#^([A-Za-z]):#/\1#'
 }
 
 REPO_BIN="$(venv_bin "$RP_VENV")"
