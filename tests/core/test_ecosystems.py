@@ -204,3 +204,82 @@ def test_the_reference_command_adds_source_roots_to_the_path_never_a_build_step(
     # .NET declares no source_reference template - a build/install failure means something
     # different for a compiled language - so it renders nothing even with roots in hand.
     assert NET.clone_and_reference("org/Widget-NET", "Widget-NET", ("src",)) == ""
+
+
+# --- the runtime badge: plans/idea.md "platform/runtime" slot, one per ecosystem from its spec ---
+
+
+def _spec(floor_fact_id: str, label: str, minimum: bool) -> EcosystemSpec:
+    return EcosystemSpec(
+        ecosystem="x",
+        language="X",
+        fence="x",
+        registry="Reg",
+        install_fact_id="install_command:x",
+        floor_fact_id=floor_fact_id,
+        floor_label=label,
+        floor_is_minimum=minimum,
+    )
+
+
+@pytest.mark.parametrize(
+    ("spec", "floor", "expected"),
+    [
+        (PYTHON, ">=3.10", "![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)"),
+        # A range is its lower bound, never the whole range glued to a plus sign.
+        (PYTHON, ">=3.10,<3.13", "![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)"),
+        (NET, "net8.0", "![.NET](https://img.shields.io/badge/.net-net8.0-blue.svg)"),
+        (
+            NET,
+            "netstandard2.0",
+            "![.NET](https://img.shields.io/badge/.net-netstandard2.0-blue.svg)",
+        ),
+        (
+            _spec("package:java_release", "Java", True),
+            "21",
+            "![Java](https://img.shields.io/badge/java-21%2B-blue.svg)",
+        ),
+        (
+            _spec("package:cxx_standard", "C++", False),
+            "17",
+            "![C++](https://img.shields.io/badge/c%2B%2B-17-blue.svg)",
+        ),
+        (
+            _spec("package:rust_edition", "Rust edition", False),
+            "2021",
+            "![Rust edition](https://img.shields.io/badge/rust_edition-2021-blue.svg)",
+        ),
+        (
+            _spec("package:node_engine", "Node.js", True),
+            ">=18.0.0",
+            "![Node.js](https://img.shields.io/badge/node.js-18.0.0%2B-blue.svg)",
+        ),
+        (
+            _spec("package:go_version", "Go", True),
+            "1.24.5",
+            "![Go](https://img.shields.io/badge/go-1.24.5%2B-blue.svg)",
+        ),
+    ],
+)
+def test_each_ecosystem_states_its_own_floor(
+    spec: EcosystemSpec, floor: str, expected: str
+) -> None:
+    assert spec.runtime_badge(floor) == expected
+
+
+@pytest.mark.parametrize("floor", ["", "^18 || ^20", "net6.0;net8.0", "latest (see docs)", "  "])
+def test_a_floor_with_no_single_printable_value_yields_no_badge(floor: str) -> None:
+    assert _spec("package:node_engine", "Node.js", True).runtime_badge(floor) == ""
+
+
+def test_an_ecosystem_declaring_no_floor_has_no_runtime_badge() -> None:
+    assert _spec("", "", False).runtime_badge("3.10") == ""
+    assert _spec("package:x", "", False).runtime_badge("3.10") == ""
+
+
+def test_shields_separators_in_a_floor_are_escaped() -> None:
+    badge = _spec("package:x", "My_Runtime-Name", False).runtime_badge("1-rc_2")
+    assert (
+        badge
+        == "![My_Runtime-Name](https://img.shields.io/badge/my__runtime--name-1--rc__2-blue.svg)"
+    )

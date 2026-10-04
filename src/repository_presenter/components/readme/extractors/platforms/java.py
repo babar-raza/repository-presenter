@@ -67,6 +67,7 @@ JAVA: Final = EcosystemSpec(
     # (Slides declares `release`, 3D and Cells `target`, PDF `target`). The fact's own evidence
     # names the exact property that was read.
     floor_declaration="maven.compiler",
+    floor_is_minimum=True,
     manifest_globs=("pom.xml",),
     source_suffixes=frozenset({".java"}),
 )

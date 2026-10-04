@@ -81,6 +81,7 @@ GO = EcosystemSpec(
     floor_fact_id="package:go_version",
     floor_label="Go",
     floor_declaration="go",
+    floor_is_minimum=True,
     manifest_globs=("go.mod",),
     source_suffixes=frozenset({".go"}),
 )

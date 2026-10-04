@@ -16,7 +16,8 @@ pipeline (which additionally requires a write-disabled clone, a toolchain, and a
 gateway) - it only needs the same *outside-the-pipeline* reproduction
 `docs/investigations/03-issue-tracking.md` section 3 already holds the original finding to: a
 literal read against the target repository's current state, via `core/github/read_client.py`
-(files, tree) and `extractors/platforms/python_registry.py::observe_pypi` (registry), replaying
+(files, tree) and `core/package_registry.py::observe_distribution` (registry; the ecosystem's
+own platform module registers its observer, this module never imports it), replaying
 the exact evidence shape the handoff itself already carries rather than inventing a new oracle.
 
 Each redetector is registered by the `triggering_check.id`/disposition value it knows how to
@@ -47,6 +48,7 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from functools import partial
 from typing import Any
 
 from repository_presenter.components.issues.model import (
@@ -55,10 +57,6 @@ from repository_presenter.components.issues.model import (
     Handoff,
     Status,
 )
-from repository_presenter.components.readme.extractors.platforms.python_registry import (
-    RegistryObservation,
-    observe_pypi,
-)
 from repository_presenter.components.readme.validation.registry import BLOCKING_CHECKS
 from repository_presenter.core.github.read_client import (
     DefaultBranchRead,
@@ -66,7 +64,16 @@ from repository_presenter.core.github.read_client import (
     fetch_default_branch_sha,
     fetch_file,
 )
+from repository_presenter.core.package_registry import (
+    RegistryObservation,
+    observe_distribution,
+)
 
+# The one registry shape a BC-02 handoff's evidence records today is a PyPI JSON URL, so the
+# replay asks the "python" observer for it; core/package_registry.py resolves that name
+# without this module importing any ecosystem's extractor.
+_REGISTRY_ECOSYSTEM = "python"
+_observe_registry = partial(observe_distribution, _REGISTRY_ECOSYSTEM)
 _PYPI_EVIDENCE_URL = re.compile(r"^https://pypi\.org/pypi/(?P<name>[^/]+)/json$")
 _STATUS_THAT_CAN_RESOLVE: frozenset[Status] = frozenset({"FILED"})
 
@@ -96,17 +103,17 @@ def _with_env_token(read: Callable[..., Any]) -> Callable[..., Any]:
 @dataclass(frozen=True)
 class RedetectionReads:
     """The read-only capabilities a redetector needs, each independently overridable for a test -
-    mirrors `observe_pypi`'s own `fetch=` injection point rather than mocking a transport."""
+    mirrors the registry observer's own injection point rather than mocking a transport."""
 
     fetch_default_branch_sha: Callable[..., DefaultBranchRead] = fetch_default_branch_sha
     fetch_file: Callable[..., FileRead] = fetch_file
-    observe_pypi: Callable[..., RegistryObservation] = observe_pypi
+    observe_pypi: Callable[..., RegistryObservation] = _observe_registry
 
 
 DEFAULT_READS = RedetectionReads(
     fetch_default_branch_sha=_with_env_token(fetch_default_branch_sha),
     fetch_file=_with_env_token(fetch_file),
-    observe_pypi=observe_pypi,
+    observe_pypi=_observe_registry,
 )
 
 

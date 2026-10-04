@@ -14,70 +14,20 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
 from typing import Any
 
 import httpx
 
 from repository_presenter.components.readme.extractors.surface.registry import TRANSIENT_STATUSES
-from repository_presenter.core.probes import ProbeRecord
+from repository_presenter.core.package_registry import (
+    RegistryObservation,
+    register_observer,
+)
 from repository_presenter.core.retry import RetryableOperationError, run_with_retry
 
 PYPI_PROJECT_URL = "https://pypi.org/pypi/{name}/json"
 REQUEST_TIMEOUT_SECONDS = 15.0
 USER_AGENT = "repository-presenter (+https://github.com/babar-raza/repository-presenter)"
-
-
-@dataclass(frozen=True)
-class RegistryObservation:
-    """What the registry said about one distribution name."""
-
-    name: str
-    url: str
-    found: bool
-    latest_version: str | None = None
-    manifest_version_published: bool | None = None
-    error: str | None = None
-    status: int | None = None
-    elapsed_ms: int | None = None
-
-    @property
-    def summary(self) -> str:
-        """What the fact's evidence records: stable while the repository is unchanged.
-
-        The latest version is deliberately absent - it is the registry's state, not the
-        repository's, and it is hashed into dependencies.json (section 27.2 RC7). ``probe``
-        carries it.
-        """
-        if self.error is not None:
-            return f"package registry unreachable: {self.error}"
-        if not self.found:
-            return "package registry: distribution not found"
-        published = (
-            "manifest version published"
-            if self.manifest_version_published
-            else "manifest version not published"
-            if self.manifest_version_published is False
-            else "manifest version unknown"
-        )
-        return f"package registry: found; {published}"
-
-    @property
-    def probe(self) -> ProbeRecord:
-        """The same read, with what the evidence does not carry: status, timing, and the
-        volatile latest version."""
-        outcome = (
-            "UNREACHABLE" if self.error is not None else "FOUND" if self.found else "NOT_FOUND"
-        )
-        observation = f"latest {self.latest_version}" if self.latest_version else self.error or None
-        return ProbeRecord(
-            "package_registry",
-            self.url,
-            outcome,
-            status=self.status,
-            elapsed_ms=self.elapsed_ms,
-            observation=observation,
-        )
 
 
 def fetch_project_json(url: str, transport: httpx.BaseTransport | None = None) -> httpx.Response:
@@ -158,3 +108,8 @@ def observe_pypi(
         status=200,
         elapsed_ms=elapsed,
     )
+
+
+# `components/issues/redetect.py` asks for this read by ecosystem name through `core/`,
+# never by importing this module (RESEARCH_AND_GUIDELINES.md section 7.4).
+register_observer("python", observe_pypi)
