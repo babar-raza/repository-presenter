@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript",
+  "source_revision": "a8661f8bc55716ccee0431d650f95f59beb361f3",
+  "defect_fingerprint": "sha256:ef667e7d94656f902b0f73fa8f9338d5bfc886e11d2a9cb00ff6f6f6e41cb1f2",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "4",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "https://registry.npmjs.org/@asposefoss%2fpdf",
+      "detail": "curl -s -o /dev/null -w '%{http_code}' https://registry.npmjs.org/@asposefoss%2fpdf -> 404 on 2026-10-04 (no packument for the package name the manifest declares). The same 404 for @aspose%2fpdf and aspose-pdf-foss on the same date."
+    },
+    {
+      "path": "package.json",
+      "detail": "\"name\": \"@asposefoss/pdf\" at revision a8661f8bc55716ccee0431d650f95f59beb361f3 (read via `gh api repos/aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript/contents/package.json` on 2026-10-04). This is the name install_command:npm is derived from: `npm install @asposefoss/pdf`."
+    },
+    {
+      "path": "README.md",
+      "detail": "The README's own Installation section at the same revision documents a source install from a clone (`git clone`, `npm install`, `npm run build`) and imports `@asposefoss/pdf` by name; it does not claim a registry install."
+    },
+    {
+      "path": "live run",
+      "detail": "Owner-reported live run on qwen3-next, `present --repo aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript --fresh`, before the source-install fallback existed: BC-02 failed at EXTRACTING with install_command:npm CONTRADICTED (\"npm distribution not found\")."
+    }
+  ],
+  "claim": "At revision a8661f8bc55716ccee0431d650f95f59beb361f3, aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript is not published on npm under the name its package.json declares (@asposefoss/pdf; npm registry HTTP 404), so an `npm install @asposefoss/pdf` claim is CONTRADICTED. The package is an unpublished distribution fact; the repository's own source install is the honest path at this revision.",
+  "suggested_issue_title": "install_command:npm is CONTRADICTED at a8661f8bc55a",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-02) found `install_command:npm` CONTRADICTED while re-verifying `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` at revision `a8661f8bc55716ccee0431d650f95f59beb361f3`.\n\n## Evidence\n\n- `https://registry.npmjs.org/@asposefoss%2fpdf`: HTTP 404 on 2026-10-04\n- `package.json`: name `@asposefoss/pdf`\n\n<!-- repository-presenter-defect: sha256:ef667e7d94656f902b0f73fa8f9338d5bfc886e11d2a9cb00ff6f6f6e41cb1f2 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

@@ -51,7 +51,7 @@ from repository_presenter.components.readme.composition.planning import (
     plan_checks,
     planning_packet,
     planning_schema,
-    recover_uncited_capability_titles,
+    recover_planning_output,
     recover_visible_line_overage,
     write_plan,
 )
@@ -235,6 +235,36 @@ def _raw_call_entry(result: JobResult) -> dict[str, Any]:
     return {"job": result.job, "output": result.output}
 
 
+def _round_raw_calls(
+    reconciled: Mapping[str, JobResult],
+    coherent: Mapping[str, JobResult],
+    authored: Mapping[str, JobResult],
+    tasks: Sequence[SectionTask],
+) -> dict[str, dict[str, Any]]:
+    """Every accepted call of a round that no other sealed artifact answers for verbatim, keyed by
+    its own request hash. Each source_reconciliation batch belongs here: dispositions.json holds
+    only the merged document, and bundle/seal.py::seed_call_store deliberately never seeds a job
+    with more than one successful attempt, so a multi-batch reconciliation (a repository above one
+    batch's unit bound, e.g. Aspose.Slides-FOSS-for-.NET at 95 units) was otherwise re-called on
+    every fresh runner - measured on the first hosted present.yml run of that revision, which made
+    3 dispositions calls the sealed bundle's own content could have answered (docs/DECISION_LOG.md,
+    2026-10-04)."""
+    raw_calls: dict[str, dict[str, Any]] = {
+        result.request_sha256: _raw_call_entry(result) for result in reconciled.values()
+    }
+    raw_calls.update(
+        {result.request_sha256: _raw_call_entry(result) for result in coherent.values()}
+    )
+    raw_calls.update(
+        {
+            authored[task.label].request_sha256: _raw_call_entry(authored[task.label])
+            for task in tasks
+            if task.is_batch
+        }
+    )
+    return raw_calls
+
+
 def run_round(tx: TransactionInputs) -> Round:
     """Stages S3 to S10 once, every artifact written; unchanged requests reuse the store."""
     prompts, facts, entry = tx.prompts, tx.facts, tx.entry
@@ -308,7 +338,7 @@ def run_round(tx: TransactionInputs) -> Round:
             ecosystem=entry.ecosystem,
         ),
         call_schema=planning_schema(loaded, facts, investigation.output, dispositions),
-        recover=functools.partial(recover_uncited_capability_titles, facts=facts),
+        recover=functools.partial(recover_planning_output, facts=facts),
         **common,
     )
     digests["plan"] = write_plan(planned.output, tx.directory / PLAN_FILENAME)
@@ -413,16 +443,7 @@ def run_round(tx: TransactionInputs) -> Round:
     # now so a round that stops at blocking_failures below (never reaching review) still seals
     # whatever it made; the review block further down adds its own reads and rewrites this same
     # file, exactly like digests["validation"] is written once here and again after review.
-    raw_calls: dict[str, dict[str, Any]] = {
-        result.request_sha256: _raw_call_entry(result) for result in coherent.values()
-    }
-    raw_calls.update(
-        {
-            authored[task.label].request_sha256: _raw_call_entry(authored[task.label])
-            for task in tasks
-            if task.is_batch
-        }
-    )
+    raw_calls = _round_raw_calls(reconciled, coherent, authored, tasks)
     digests["raw_calls"] = write_raw_calls(raw_calls, tx.directory / RAW_CALLS_FILENAME)
     # Stage S9 runs exactly the contract's blocking checks over the written artifacts; a
     # failure names its causal stage so repair reopens the cause, never the validation.
@@ -808,7 +829,7 @@ def repair_defect(
         tx.prompts,
     )
     contract = causal.manifest.output.schema_
-    probe = _slot_set_probe(current, defect)
+    probe = _slot_set_probe(current, defect, tx.facts)
     # G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC (BarCode-Python BC-10 F03): an S6 repair
     # gets review's own stricter title-restatement standard layered onto its stage_checks (never
     # onto unit_checks itself) and a matching recover= last resort, so a reply that still opens a
@@ -926,15 +947,26 @@ def repair_defect(
     repairs.record(defect, "repaired", result.request_sha256, result.output.get("changes", []))
 
 
-def _slot_set_probe(current: Round, defect: Defect) -> SlotSetProbe | None:
-    """The plan's own slot set for an authored section's repair; None for every other stage."""
+def _slot_set_probe(current: Round, defect: Defect, facts: FactsDocument) -> SlotSetProbe | None:
+    """The plan's own slot set and per-slot fact binding for an authored section's repair; None
+    for every other stage. The fact binding is what lets a reply citing a SUPPORTED fact outside
+    its slot's plan be routed to planning (SlotSetProbe.observe_facts) instead of re-asked."""
     if defect.stage != "S6":
         return None
     task = next(
         (task for task in current.tasks if task.section_id == defect.section_id),
         None,
     )
-    return None if task is None else SlotSetProbe(frozenset(task.slots))
+    if task is None:
+        return None
+    return SlotSetProbe(
+        frozenset(task.slots),
+        fact_sets=dict(task.slot_facts),
+        fact_universe=frozenset(fact.id for fact in facts.facts),
+        neutral_facts=frozenset(
+            fact.id for fact in facts.facts if fact.kind in {"identity", "package"}
+        ),
+    )
 
 
 def escalate_to_plan(
@@ -950,11 +982,19 @@ def escalate_to_plan(
     the attempt that proved the need, so run_transaction's one-attempt-per-fingerprint rule allows
     exactly one escalation and no more.
     """
-    returned = ", ".join(sorted(probe.returned or ())) or "no slot"
-    reason = (
-        f"the revision would leave {returned} where the plan assigned "
-        f"{', '.join(sorted(probe.required))}; escalated once to a plan-level repair at S5"
-    )
+    parts: list[str] = []
+    if probe.returned is not None and probe.returned != probe.required:
+        returned = ", ".join(sorted(probe.returned)) or "no slot"
+        parts.append(
+            f"the revision would leave {returned} where the plan assigned "
+            f"{', '.join(sorted(probe.required))}"
+        )
+    if probe.fact_conflicts:
+        parts.append(
+            "the revision cites "
+            f"{', '.join(sorted(probe.fact_conflicts))} outside the slot's planned facts"
+        )
+    reason = "; ".join(parts) + "; escalated once to a plan-level repair at S5"
     repairs.record(replace(defect, reason=reason), "escalated")
     escalated = replace(
         defect,
