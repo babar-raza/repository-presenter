@@ -18,6 +18,7 @@ from typing import Any
 from xml.etree import ElementTree
 
 from repository_presenter.components.readme.extractors.platforms.net_examples import (
+    verify_net_build,
     verify_net_examples,
 )
 from repository_presenter.components.readme.extractors.surface.extractor import surface_symbols
@@ -32,6 +33,7 @@ from repository_presenter.core.examples import (
     ExampleReceipt,
     FormatClaim,
     FormatDeclaration,
+    MeasuredBuild,
 )
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
 from repository_presenter.core.probes import ProbeRecord
@@ -115,6 +117,35 @@ def _framework_order(target: str) -> tuple[int, int, int, str]:
     if family == "net" and match.group(3) is None:
         return (2, major, minor, target)
     return (1, major, minor, target)
+
+
+_NAME_EVIDENCE = {
+    True: "package id declared by the project file",
+    False: (
+        "package id defaults to the project file name (MSBuild: PackageId and AssemblyName "
+        "default to it; none declared)"
+    ),
+}
+
+
+def _package_id(declared_name: str | None, manifest: Path) -> tuple[str, bool]:
+    """The NuGet package id a project produces, and whether the project itself declares it.
+
+    A declared PackageId (or AssemblyName, which the vendored reader also reads) wins. Otherwise
+    MSBuild's own default applies: the project file's name. GIS measured 2026-10-04 declares
+    neither, so before this the plugin emitted no install claim at all and BC-02 failed "no
+    install command fact" for a package the registry simply does not have. Only a project file
+    defaults so - a shared property file names no package - and a project that declares
+    `IsPackable` false produces none, so it has no name to claim.
+    """
+    if declared_name:
+        return declared_name, True
+    if manifest.suffix.lower() not in _PROJECT_SUFFIXES:
+        return "", False
+    properties, _ = _read_project(manifest)
+    if properties.get("ispackable") == "false":
+        return "", False
+    return manifest.stem, False
 
 
 def _floor(identity: PackageIdentity) -> str:
@@ -229,23 +260,28 @@ class NetPlugin:
         identity = read_identity(root, self.ecosystem, manifest)
         where = manifest.relative_to(root).as_posix()
         facts: list[Fact] = []
-        if identity.name:
+        name, declared = _package_id(identity.name, manifest)
+        if name:
             facts.append(
                 Fact(
                     fact_id("package", "name"),
                     "package",
-                    identity.name,
-                    (Evidence(where, "package id declared by the project file"),),
+                    name,
+                    (Evidence(where, _NAME_EVIDENCE[declared]),),
                 )
             )
             facts.append(
                 Fact(
                     fact_id("install_command", "dotnet"),
                     "install_command",
-                    f"dotnet add package {identity.name}",
+                    f"dotnet add package {name}",
                     (
                         Evidence(
-                            where, "install command for the package id declared by the manifest"
+                            where,
+                            "install command for the package id declared by the manifest"
+                            if declared
+                            else "install command for the package id the manifest yields "
+                            "(no PackageId declared; MSBuild's default is the project file name)",
                         ),
                     ),
                     polarity="UNRESOLVED",
@@ -356,6 +392,11 @@ class NetPlugin:
         """
         project = self.detect_manifest(root)
         return verify_net_examples(root, project, candidates, workspace)
+
+    def verify_build(self, root: Path, manifest: Path, workspace: Path) -> MeasuredBuild:
+        """The governing project's own `dotnet build`, measured whether or not any example
+        exists (the rule and its evidence are in net_examples.build_product)."""
+        return verify_net_build(root, manifest, workspace)
 
     def format_claims(self, code: str) -> Sequence[FormatClaim]:
         """Not yet built; a claim this plugin cannot read is no claim at all."""

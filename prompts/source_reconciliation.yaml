@@ -1,15 +1,14 @@
 prompt_id: source_reconciliation
-version: "6"
+version: "7"
 stage: S4
 purpose: Decide exactly one disposition for every material inherited unit of the existing README, with evidence and a destination section, so that nothing valuable is dropped silently and nothing unsupported is carried forward.
 model_route: qwen3-next
 route_rationale: Of the two general-purpose chat models the recorded catalog lists (qwen3-next, gpt-oss), qwen3-next is the one the legacy gateway characterization found reliable for strict structured JSON output; this job returns one JSON record per unit with exact IDs, so it routes to qwen3-next. Revisited whenever preflight records a changed catalog.
 sampling:
   temperature: 0.0
-  # One disposition record per inherited unit, and the contract requires every unit exactly
-  # once, so the budget follows the largest inventory rather than the average: Aspose.PDF for
-  # .NET carries 231 units and truncated at 16000 with the records alone unfinished
-  # (measured 2026-09-06, about 69 tokens per record).
+  # The budget is a ceiling the batch size is derived from, not a target: reconciliation_batches()
+  # sizes each batch so the longest reply the schema admits fits it (dispositions.output_chars_bound),
+  # and the schema caps each disposition's fact_ids. A healthy 40-unit reply measured 4,666 tokens.
   max_output_tokens: 32000
   seed: 1
   response_format: json_schema
@@ -127,6 +126,8 @@ system: |
   DEFER_UNRESOLVED. An unknown ID rejects the whole output. A material unit with no safe
   destination fails the transaction closed; do not invent a section for it. Code blocks whose
   example fact is CONTRADICTED are never placed.
+  A disposition cites at most 16 fact IDs and never repeats one. The public symbols a placed unit
+  names are added by code, so cite the facts that carry its decision, not every symbol it mentions.
   Each rationale is one short sentence of at most 160 characters; the output is long because the
   README is, so spend words on decisions, never on restating the unit.
 

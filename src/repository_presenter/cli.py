@@ -110,7 +110,10 @@ from repository_presenter.components.readme.evidence.processability import (
     write_disposition,
 )
 from repository_presenter.components.readme.extractors.examples.selection import select_examples
-from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
+from repository_presenter.components.readme.extractors.platforms.registry import (
+    plugin_for,
+    verify_build,
+)
 from repository_presenter.components.readme.investigation.dossier import (
     INVESTIGATION_FILENAME,
 )
@@ -155,6 +158,7 @@ from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
     ExampleCandidate,
     ExampleReceipt,
+    MeasuredBuild,
     write_receipts,
 )
 from repository_presenter.core.facts import (
@@ -1314,11 +1318,33 @@ def run_present(
             for outcome, count in sorted(Counter(r.outcome for r in receipts).items())
         )
         print(f"examples: {len(candidates)} candidates; {outcomes or 'none'}")
+        # The manifest's own build, measured whether or not a README example exists (GIS has
+        # none): the one proof a source install may stand on when the registry does not confirm
+        # the package (`evidence/facts/extract.py`). Its own workspace, so it never clears the
+        # examples' run directories.
+        build = MeasuredBuild(False, "", "not attempted (no manifest)")
+        if manifest is not None:
+            build_key = hashlib.sha256(
+                f"{entry.repository}@{clone.revision}:build".encode()
+            ).hexdigest()[:12]
+            verify_snapshot(snapshot, clone.path)
+            build = verify_build(
+                plugin, clone.path, manifest, root / RUNS_DIRNAME / "verify" / build_key
+            )
+            print(f"build: {build.summary}")
         # Example verification (above) is the stage most likely to have just run build/install
         # tooling against clone.path; re-verify once more before fact extraction reads it too.
         verify_snapshot(snapshot, clone.path)
         document, probes = extract_facts(
-            entry, snapshot, clone.path, tree_paths, plugin, manifest, candidates, receipts
+            entry,
+            snapshot,
+            clone.path,
+            tree_paths,
+            plugin,
+            manifest,
+            candidates,
+            receipts,
+            build=build,
         )
         write_probes(probes, transaction / PROBES_FILENAME)
         facts_digest = write_facts(document, transaction / FACTS_FILENAME)

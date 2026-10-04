@@ -21,6 +21,7 @@ from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
     ExampleCandidate,
     ExampleReceipt,
+    MeasuredBuild,
 )
 from repository_presenter.core.facts import (
     Evidence,
@@ -50,7 +51,10 @@ def identity_facts(entry: RegistryEntry, snapshot: RepositorySnapshot) -> list[F
 
 
 def _source_build_fact(
-    fact: Fact, entry: RegistryEntry, receipts: Sequence[ExampleReceipt]
+    fact: Fact,
+    entry: RegistryEntry,
+    receipts: Sequence[ExampleReceipt],
+    build: MeasuredBuild | None = None,
 ) -> Fact:
     """Admit a verified source build as an alternate SUPPORTED path for an unpublished package.
 
@@ -99,11 +103,34 @@ def _source_build_fact(
     # -fsyntax-only check never links the library, and a Python example that ran against the
     # repository's own source tree after a failed install proves the code, never the command
     # this fact is about to advertise as "verified against this revision".
+    spec = spec_for(entry.ecosystem)
+    name = entry.repository.split("/")[-1]
+    # The one rule for a .NET install claim the registry does not confirm (Imaging-FOSS for .NET
+    # and GIS, 2026-10-04): a package the registry lists as absent, or whose claim no manifest
+    # field produced, is advertised only as the source install the package's own build proved -
+    # never as the registry command. A build that did not exit 0 admits nothing here. The
+    # measured steps are the one command the proof ran; no example is needed for this proof, and
+    # a failed README snippet is that snippet's defect, not the package's.
+    if build is not None and build.verified and build.command:
+        detail = (
+            f"verified source build: the package's own build ran `{build.command}` against this "
+            "revision and exited 0; the advertised command is exactly the one it ran"
+        )
+        return replace(
+            fact,
+            value=spec.clone_and_run(entry.repository, name, build.command),
+            polarity="SUPPORTED",
+            confidence=1.0,
+            attributes={
+                **(fact.attributes or {}),
+                "install_kind": "source",
+                "build_command": build.command,
+            },
+            evidence=(*fact.evidence, Evidence(fact.evidence[0].path, detail)),
+        )
     proven = [r for r in receipts if r.outcome == "EXECUTED" and r.build_verified]
     if not proven:
         return _source_checkout_fact(fact, entry, receipts)
-    spec = spec_for(entry.ecosystem)
-    name = entry.repository.split("/")[-1]
     # G4-W17 arrival item 50 (lane B, RESEARCH_LANE_B 617-645): a verifier that drove the
     # manifest's own build names the exact steps it proved on the receipt, per repository, and
     # those outrank the ecosystem-wide template. TypeScript declares no template because no one
@@ -190,6 +217,7 @@ def extract_facts(
     examples: Sequence[ExampleCandidate] = (),
     receipts: Sequence[ExampleReceipt] = (),
     receipts_path: str = RECEIPTS_FILENAME,
+    build: MeasuredBuild | None = None,
 ) -> tuple[FactsDocument, list[ProbeRecord]]:
     """Every deterministic fact the snapshot supports, and every live read that informed one.
 
@@ -214,7 +242,7 @@ def extract_facts(
         registry_facts, registry_probes = plugin.registry_facts(manifest_facts)
         observed = {fact.id: fact for fact in registry_facts}
         resolved = (observed.get(fact.id, fact) for fact in manifest_facts)
-        facts.extend(_source_build_fact(fact, entry, receipts) for fact in resolved)
+        facts.extend(_source_build_fact(fact, entry, receipts, build) for fact in resolved)
         probes.extend(registry_probes)
     facts.extend(plugin.surface_facts(clone_path, tree_paths))
     # G4-W17 arrival item 51: the manifest's own license declaration, through the ManifestReader

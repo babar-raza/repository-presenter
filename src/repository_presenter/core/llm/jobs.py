@@ -613,10 +613,11 @@ def run_job(
         reply = run_with_retry("llm_call", functools.partial(attempts.call, config, current))
         if reply.finish_reason == "length":
             # A re-ask under the same budget cannot help; the manifest's budget must change.
-            attempts.record_invalid(
-                "TruncatedOutput",
-                ("output truncated at the manifest's max_output_tokens",),
-            )
+            # The truncated reply is kept beside the store as any rejected reply is: it is the
+            # only record of which field ran away, and it is never accepted (it may even parse).
+            truncated = ("output truncated at the manifest's max_output_tokens",)
+            store.reject(request_sha256, ask, job, reply.content, list(truncated))
+            attempts.record_invalid("TruncatedOutput", truncated)
             raise JobError(
                 f"{job}: output truncated at the manifest's max_output_tokens "
                 f"({manifest.manifest.sampling.max_output_tokens}); raise the budget or bound "
