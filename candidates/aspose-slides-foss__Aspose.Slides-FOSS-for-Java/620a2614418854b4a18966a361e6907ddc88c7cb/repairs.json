@@ -1,0 +1,25 @@
+{
+  "attempts": {
+    "9a08fbebb2e9a4afcc408cc1": {
+      "changes": [
+        {
+          "after": "Build and test the repository using Java 21 and Maven; clone the repository and run the Maven verify command to execute tests and package the artifact. The build also produces a CycloneDX SBOM into `target/`.",
+          "before": "Build and test the repository using Java 21 and Maven; clone the repository and run the Maven verify command to execute tests and package the artifact.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        }
+      ],
+      "label": "F06+F06",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "241e8be0f37dc5a341f0518dba5b6843e15061ce5916826680e998d37f6bd3ad",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "4e4fdee8ea8c68f98cc5cfa4e1bab18993723fa1cbf78300b3367103201ba833",
+  "schema_version": 1
+}

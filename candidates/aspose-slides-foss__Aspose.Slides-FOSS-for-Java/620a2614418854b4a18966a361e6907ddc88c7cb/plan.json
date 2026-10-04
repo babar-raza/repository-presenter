@@ -1,24 +1,11 @@
 {
-  "additional_example_ids": [
-    "example:002",
-    "example:003",
-    "example:004",
-    "example:005",
-    "example:006",
-    "example:008",
-    "example:009",
-    "example:010",
-    "example:011",
-    "example:012",
-    "example:013"
-  ],
+  "additional_example_ids": [],
   "api_hubs": [
     {
       "fact_ids": [
         "public_symbol:org",
         "public_symbol:org.aspose",
-        "public_symbol:org.aspose.slides",
-        "public_symbol:org.aspose.slides.foss"
+        "public_symbol:org.aspose.slides"
       ],
       "symbol_fact_id": "public_symbol:org"
     },
@@ -26,16 +13,24 @@
       "fact_ids": [
         "public_symbol:org.aspose",
         "public_symbol:org.aspose.slides",
-        "public_symbol:org.aspose.slides.foss"
+        "public_symbol:org.aspose.slides.foss.presentation"
       ],
       "symbol_fact_id": "public_symbol:org.aspose"
     },
     {
       "fact_ids": [
         "public_symbol:org.aspose.slides",
-        "public_symbol:org.aspose.slides.foss"
+        "public_symbol:org.aspose.slides.foss.slidecollection",
+        "public_symbol:org.aspose.slides.foss.shapecollection"
       ],
       "symbol_fact_id": "public_symbol:org.aspose.slides"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:getfontname",
+        "public_symbol:org.aspose.slides.foss.portionformat"
+      ],
+      "symbol_fact_id": "public_symbol:getfontname"
     },
     {
       "fact_ids": [
@@ -47,13 +42,13 @@
   "at_a_glance": {
     "capability_titles": [
       "Create and edit presentations",
-      "Add and format shapes",
-      "Apply visual effects and 3D formatting",
-      "Manage threaded comments and speaker notes",
-      "Format text and document properties",
-      "Clone and manipulate slides",
-      "Embed images and create tables",
-      "Save to multiple output formats"
+      "Shape and formatting",
+      "Text formatting",
+      "Visual effects and 3D",
+      "Comments and notes",
+      "Document properties",
+      "Image embedding",
+      "XML preservation"
     ],
     "input_format_ids": [],
     "output_format_ids": []
@@ -61,126 +56,145 @@
   "core_capabilities": [
     {
       "fact_ids": [
-        "example:001",
-        "example:009"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.presentation",
+        "public_symbol:org.aspose.slides.foss.slidecollection",
+        "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
       "shared_fact_ids": [
-        "example:001"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
       ],
       "title": "Create and edit presentations"
     },
     {
       "fact_ids": [
-        "example:001",
-        "example:002",
-        "example:012"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.autoshape",
+        "public_symbol:org.aspose.slides.foss.shapecollection",
+        "public_symbol:org.aspose.slides.foss.fillformat"
       ],
       "shared_fact_ids": [
-        "example:001",
-        "example:012"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
       ],
-      "title": "Add and format shapes"
+      "title": "Shape and formatting"
     },
     {
       "fact_ids": [
-        "example:005",
-        "public_symbol:relationship"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:getfontname",
+        "public_symbol:org.aspose.slides.foss.portionformat",
+        "public_symbol:org.aspose.slides.foss.paragraphformat",
+        "public_symbol:org.aspose.slides.foss.textframeformat"
       ],
       "shared_fact_ids": [
-        "public_symbol:relationship"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
       ],
-      "title": "Apply visual effects and 3D formatting"
+      "title": "Text formatting"
     },
     {
       "fact_ids": [
-        "example:003",
-        "example:006"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.effectformat",
+        "public_symbol:org.aspose.slides.foss.threedformat"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
+      ],
+      "title": "Visual effects and 3D"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.commentcollection",
+        "public_symbol:org.aspose.slides.foss.notesslidemanager"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
+      ],
+      "title": "Comments and notes"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.documentproperties"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
+      ],
+      "title": "Document properties"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.imagecollection",
+        "public_symbol:org.aspose.slides.foss.ippimage"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
+      ],
+      "title": "Image embedding"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:relationship"
       ],
       "shared_fact_ids": [],
-      "title": "Manage threaded comments and speaker notes"
-    },
-    {
-      "fact_ids": [
-        "example:004",
-        "example:011"
-      ],
-      "shared_fact_ids": [],
-      "title": "Format text and document properties"
-    },
-    {
-      "fact_ids": [
-        "example:008",
-        "example:013"
-      ],
-      "shared_fact_ids": [
-        "example:013"
-      ],
-      "title": "Clone and manipulate slides"
-    },
-    {
-      "fact_ids": [
-        "example:012",
-        "public_symbol:relationship"
-      ],
-      "shared_fact_ids": [
-        "example:012",
-        "public_symbol:relationship"
-      ],
-      "title": "Embed images and create tables"
-    },
-    {
-      "fact_ids": [
-        "example:001",
-        "example:010",
-        "example:013"
-      ],
-      "shared_fact_ids": [
-        "example:001",
-        "example:013"
-      ],
-      "title": "Save to multiple output formats"
+      "title": "XML preservation"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:040.html_block",
-        "inherited_unit:064.html_block"
+        "identity:repository"
+      ],
+      "section_id": "quick_start",
+      "text": "No verified examples were executable in isolation at this revision; the examples field lists no SUPPORTED IDs."
+    },
+    {
+      "fact_ids": [
+        "identity:repository"
       ],
       "section_id": "additional_examples",
-      "text": "HTML details block omitted; examples moved to Additional Examples with task-named headings."
+      "text": "No further verified examples were executable in isolation; the examples field lists no additional SUPPORTED IDs."
     },
     {
       "fact_ids": [
-        "inherited_unit:067.html_block",
-        "inherited_unit:076.html_block"
-      ],
-      "section_id": "api_reference",
-      "text": "HTML details block omitted; public symbol tables preserved."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:082.table"
+        "link_target:038",
+        "link_target:product.enterprise"
       ],
       "section_id": "enterprise_relationship",
-      "text": "Edition comparison table deferred due to UNRESOLVED status."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:084.list"
-      ],
-      "section_id": "enterprise_relationship",
-      "text": "Edition repository list moved to enterprise_relationship section."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:050.code_block"
-      ],
-      "section_id": "additional_examples",
-      "text": "Image embedding example deferred due to UNRESOLVED status."
+      "text": "The commercial Aspose.Slides for Java Enterprise Edition adds rendering, charts, animations, and other capabilities outside this FOSS build's scope."
     }
   ],
-  "flagship_example_id": "example:002",
+  "flagship_example_id": null,
   "links": [
     {
       "link_fact_id": "link_target:029",
@@ -207,103 +221,29 @@
       "section_id": "documentation_resources"
     },
     {
-      "link_fact_id": "link_target:035",
-      "section_id": "enterprise_relationship"
-    },
-    {
-      "link_fact_id": "link_target:036",
-      "section_id": "enterprise_relationship"
-    },
-    {
-      "link_fact_id": "link_target:037",
-      "section_id": "enterprise_relationship"
-    },
-    {
       "link_fact_id": "link_target:038",
       "section_id": "scope_limitations"
-    },
-    {
-      "link_fact_id": "link_target:039",
-      "section_id": "development_testing"
-    },
-    {
-      "link_fact_id": "link_target:040",
-      "section_id": "development_testing"
-    },
-    {
-      "link_fact_id": "link_target:041",
-      "section_id": "development_testing"
-    },
-    {
-      "link_fact_id": "link_target:042",
-      "section_id": "development_testing"
-    },
-    {
-      "link_fact_id": "link_target:043",
-      "section_id": "development_testing"
-    },
-    {
-      "link_fact_id": "link_target:044",
-      "section_id": "license"
     },
     {
       "link_fact_id": "link_target:024",
       "section_id": "development_testing"
     },
     {
-      "link_fact_id": "link_target:003",
-      "section_id": "badges"
+      "link_fact_id": "link_target:039",
+      "section_id": "development_testing"
     },
     {
-      "link_fact_id": "link_target:004",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:005",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:006",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:007",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:008",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:009",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:010",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:001",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:002",
-      "section_id": "badges"
+      "link_fact_id": "link_target:044",
+      "section_id": "license"
     }
   ],
   "material_limitations": [
     {
       "fact_ids": [
-        "install_command:maven"
-      ],
-      "unit_ids": [
-        "inherited_unit:088.list"
-      ]
-    },
-    {
-      "fact_ids": [
-        "example:001",
-        "example:013"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
       "unit_ids": [
         "inherited_unit:088.list"
@@ -321,7 +261,9 @@
     },
     {
       "fact_ids": [
-        "example:012"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
       ],
       "unit_ids": [
         "inherited_unit:088.list"
@@ -329,7 +271,19 @@
     },
     {
       "fact_ids": [
-        "public_symbol:getfontname"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
+      ],
+      "unit_ids": [
+        "inherited_unit:088.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
       ],
       "unit_ids": [
         "inherited_unit:088.list"
@@ -338,14 +292,14 @@
     {
       "fact_ids": [
         "package:java_release",
-        "dependency:none"
+        "install_command:maven"
       ],
       "unit_ids": [
         "inherited_unit:088.list"
       ]
     }
   ],
-  "quick_start_example_id": "example:001",
+  "quick_start_example_id": null,
   "second_quick_start_example_id": null,
   "sections": [
     {
@@ -394,13 +348,13 @@
       "section_id": "dependencies"
     },
     {
-      "include": true,
-      "reason": "its condition holds",
+      "include": false,
+      "reason": "its condition does not hold",
       "section_id": "quick_start"
     },
     {
-      "include": true,
-      "reason": "its condition holds",
+      "include": false,
+      "reason": "its condition does not hold",
       "section_id": "additional_examples"
     },
     {

@@ -142,110 +142,110 @@
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 157-176; java fence; unit inherited_unit:033.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 1: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*",
+          "detail": "example 1: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:001",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.Presentation;\nimport org.aspose.slides.foss.ShapeType;\nimport org.aspose.slides.foss.FillType;\nimport org.aspose.slides.foss.IAutoShape;\nimport org.aspose.slides.foss.ISlide;\nimport org.aspose.slides.foss.drawing.Color;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    ISlide slide = pres.getSlides().get(0);\n    slide.getShapes().clear();\n\n    IAutoShape shape = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 200, 100);\n    shape.getFillFormat().setFillType(FillType.SOLID);\n    shape.getFillFormat().getSolidFillColor().setColor(Color.fromArgb(255, 0, 128, 255));\n\n    pres.save(\"hello.pptx\", SaveFormat.PPTX);\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 197-216; java fence; unit inherited_unit:039.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 2: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.IAutoShape, org.aspose.slides.foss.IConnector, org.aspose.slides.foss.ISlide, org.aspose.slides.foss.Presentation, org.aspose.slides.foss.ShapeType",
+          "detail": "example 2: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:002",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    ISlide slide = pres.getSlides().get(0);\n    slide.getShapes().clear();\n\n    IAutoShape s1 = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 100, 60);\n    IAutoShape s2 = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 350, 200, 100, 60);\n    IConnector conn = slide.getShapes().addConnector(ShapeType.BENT_CONNECTOR3, 0, 0, 1, 1);\n\n    conn.setStartShapeConnectedTo(s1);\n    conn.setStartShapeConnectionSiteIndex(3);\n    conn.setEndShapeConnectedTo(s2);\n    conn.setEndShapeConnectionSiteIndex(1);\n\n    pres.save(\"connector.pptx\", SaveFormat.PPTX);\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 223-239; java fence; unit inherited_unit:042.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 3: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.IComment, org.aspose.slides.foss.ICommentAuthor, org.aspose.slides.foss.ISlide, org.aspose.slides.foss.Presentation",
+          "detail": "example 3: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:003",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.drawing.PointF;\nimport org.aspose.slides.foss.export.SaveFormat;\n\nimport java.time.LocalDateTime;\n\ntry (Presentation pres = new Presentation()) {\n    ICommentAuthor author = pres.getCommentAuthors().addAuthor(\"Alice\", \"A\");\n    ISlide slide = pres.getSlides().get(0);\n    LocalDateTime now = LocalDateTime.of(2026, 1, 15, 12, 0, 0);\n    IComment comment = author.getComments().addComment(\"Review note\", slide,\n            new PointF(2.0f, 3.0f), now);\n\n    pres.save(\"comments.pptx\", SaveFormat.PPTX);\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 243-257; java fence; unit inherited_unit:044.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 4: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.IDocumentProperties, org.aspose.slides.foss.Presentation",
+          "detail": "example 4: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:004",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    IDocumentProperties props = pres.getDocumentProperties();\n    props.setTitle(\"My Presentation\");\n    props.setSubject(\"Demo Subject\");\n    props.setAuthor(\"John Doe\");\n    props.setKeywords(\"demo, test\");\n    props.setCategory(\"Examples\");\n\n    pres.save(\"properties.pptx\", SaveFormat.PPTX);\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 261-281; java fence; unit inherited_unit:046.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 5: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.IAutoShape, org.aspose.slides.foss.IEffectFormat, org.aspose.slides.foss.ISlide, org.aspose.slides.foss.Presentation, org.aspose.slides.foss.ShapeType, and 1 more",
+          "detail": "example 5: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:005",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.drawing.Color;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    ISlide slide = pres.getSlides().get(0);\n    slide.getShapes().clear();\n    IAutoShape shape = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 100, 100, 200, 100);\n\n    IEffectFormat ef = shape.getEffectFormat();\n    ef.enableOuterShadowEffect();\n    IOuterShadow shadow = ef.getOuterShadowEffect();\n    shadow.setBlurRadius(10);\n    shadow.setDirection(315);\n    shadow.setDistance(8);\n    shadow.getShadowColor().setColor(Color.fromArgb(128, 0, 0, 0));\n\n    pres.save(\"shadow.pptx\", SaveFormat.PPTX);\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 285-296; java fence; unit inherited_unit:048.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 6: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.INotesSlide, org.aspose.slides.foss.ISlide, org.aspose.slides.foss.Presentation",
+          "detail": "example 6: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:006",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    ISlide slide = pres.getSlides().get(0);\n    INotesSlide notes = slide.getNotesSlideManager().addNotesSlide();\n    notes.getNotesTextFrame().setText(\"Speaker notes\");\n\n    pres.save(\"notes.pptx\", SaveFormat.PPTX);\n}\n"
     },
     {
@@ -257,7 +257,7 @@
           "path": "README.md"
         },
         {
-          "detail": "example 7: NOT_VERIFIED; the fence uses `imageBytes` without binding it; the README establishes it in an earlier section",
+          "detail": "example 7: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
@@ -268,110 +268,110 @@
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 315-324; java fence; unit inherited_unit:052.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 8: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.ISlide, org.aspose.slides.foss.Presentation, org.aspose.slides.foss.ShapeType",
+          "detail": "example 8: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:008",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.*;\n\ntry (Presentation pres = new Presentation()) {\n    ISlide slide = pres.getSlides().get(0);\n    slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 200, 100);\n    pres.getSlides().addClone(slide);\n    // pres.getSlides().size() is now 2\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 328-335; java fence; unit inherited_unit:054.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 9: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*",
+          "detail": "example 9: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:009",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.Presentation;\nimport java.nio.file.Path;\n\ntry (Presentation pres = new Presentation(Path.of(\"Presentation.pptx\").toString())) {\n    // pres.getSlides().size() reflects the real slide count in the file\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 339-348; java fence; unit inherited_unit:056.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 10: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*",
+          "detail": "example 10: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:010",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.Presentation;\nimport org.aspose.slides.foss.export.SaveFormat;\nimport java.io.ByteArrayOutputStream;\n\ntry (Presentation pres = new Presentation()) {\n    ByteArrayOutputStream buf = new ByteArrayOutputStream();\n    pres.save(buf, SaveFormat.PPTX);\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 352-370; java fence; unit inherited_unit:058.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 11: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.FillType, org.aspose.slides.foss.IAutoShape, org.aspose.slides.foss.IPortionFormat, org.aspose.slides.foss.NullableBool, org.aspose.slides.foss.Presentation, and 1 more",
+          "detail": "example 11: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:011",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.drawing.Color;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    IAutoShape shape = pres.getSlides().get(0).getShapes()\n            .addAutoShape(ShapeType.RECTANGLE, 50, 50, 400, 150);\n    shape.addTextFrame(\"Formatted text\");\n    IPortionFormat fmt = shape.getTextFrame().getParagraphs().get(0)\n            .getPortions().get(0).getPortionFormat();\n    fmt.setFontHeight(24);\n    fmt.setFontBold(NullableBool.TRUE);\n    fmt.getFillFormat().setFillType(FillType.SOLID);\n    fmt.getFillFormat().getSolidFillColor().setColor(Color.fromArgb(255, 0, 70, 127));\n\n    pres.save(\"text.pptx\", SaveFormat.PPTX);\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 374-386; java fence; unit inherited_unit:060.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 12: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.ITable, org.aspose.slides.foss.Presentation",
+          "detail": "example 12: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:012",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    ITable table = pres.getSlides().get(0).getShapes()\n            .addTable(50, 50, new double[]{120, 120, 120}, new double[]{40, 40});\n    table.getRows().get(0).get(0).getTextFrame().setText(\"Name\");\n    table.getRows().get(0).get(1).getTextFrame().setText(\"Value\");\n\n    pres.save(\"table.pptx\", SaveFormat.PPTX);\n}\n"
     },
     {
       "attributes": null,
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
           "detail": "lines 393-400; java fence; unit inherited_unit:063.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 13: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*",
+          "detail": "example 13: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
           "path": "examples.json"
         }
       ],
       "id": "example:013",
       "kind": "example",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "import org.aspose.slides.foss.Presentation;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation(\"deck.pptx\")) {\n    pres.save(\"first-and-third.pptx\", new int[]{0, 2}, SaveFormat.PPTX);\n}\n"
     },
     {

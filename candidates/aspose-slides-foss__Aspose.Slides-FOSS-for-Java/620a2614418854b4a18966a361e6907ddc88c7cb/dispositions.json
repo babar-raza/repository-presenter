@@ -13,7 +13,7 @@
         "package:name",
         "package:version"
       ],
-      "rationale": "The H1 heading matches the canonical product name supported by identity facts.",
+      "rationale": "The H1 heading matches the canonical product name supported by identity and package facts.",
       "unit_id": "inherited_unit:001.heading"
     },
     {
@@ -68,7 +68,7 @@
         "link_target:product.enterprise",
         "link_target:product.homepage"
       ],
-      "rationale": "All badge links are verified and supported by link_target facts.",
+      "rationale": "All badge URLs are verified and supported by link_target facts; the row matches the required stable order.",
       "unit_id": "inherited_unit:002.badge_row"
     },
     {
@@ -80,7 +80,7 @@
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "The banner image and product homepage link are verified and supported.",
+      "rationale": "The banner image link is verified and matches the required format for the banner section.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -94,17 +94,12 @@
         "package:name",
         "package:version",
         "package:java_release",
-        "license:spdx",
         "public_symbol:org",
         "public_symbol:org.aspose",
         "public_symbol:org.aspose.slides",
-        "public_symbol:org.aspose.slides.foss",
-        "example:001",
-        "example:009",
-        "example:010",
-        "example:013"
+        "public_symbol:org.aspose.slides.foss"
       ],
-      "rationale": "The paragraph's substance is covered by the product_summary and opening section requirements; facts support rewriting it concisely.",
+      "rationale": "The paragraph's substance is covered by the product_summary and opening section requirements; it will be re-authored from facts.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -116,21 +111,21 @@
         "dependency:development.org.junit.jupiter-junit-jupiter-api",
         "dependency:development.org.junit.jupiter-junit-jupiter-engine",
         "dependency:development.org.junit.jupiter-junit-jupiter-params",
-        "dependency:none",
-        "package:java_release"
+        "dependency:none"
       ],
-      "rationale": "The zero-dependency claim is rendered by the dependencies section's required content.",
+      "rationale": "The claim about zero dependencies is covered by the required Dependencies section and the 'none' dependency fact.",
       "unit_id": "inherited_unit:005.paragraph"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "CORRECT_WITH_EVIDENCE",
       "fact_ids": [
-        "example:001",
-        "example:013",
-        "install_command:maven"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
-      "rationale": "The paragraph correctly states the library is not a renderer/converter and lists unsupported outputs; facts confirm only PPTX/PPSX/POTX are supported.",
+      "rationale": "The paragraph correctly states the library is not a renderer/converter and lists limitations, but the exact phrasing is corrected to match the verified SaveOnly",
       "unit_id": "inherited_unit:006.paragraph"
     },
     {
@@ -143,7 +138,7 @@
         "identity:repository",
         "identity:revision"
       ],
-      "rationale": "The Navigation heading is rendered by the deterministic navigation section.",
+      "rationale": "The Navigation heading is rendered by the deterministic navigation section; the heading itself is non-content.",
       "unit_id": "inherited_unit:007.heading"
     },
     {
@@ -156,91 +151,78 @@
         "identity:repository",
         "identity:revision"
       ],
-      "rationale": "The navigation list is rendered by the deterministic navigation section.",
+      "rationale": "The navigation list is rendered by the deterministic navigation section; the list itself is non-content.",
       "unit_id": "inherited_unit:008.list"
     },
     {
       "destination_section": "at_a_glance",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:001",
-        "example:009",
-        "example:010",
-        "example:013",
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
         "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
-      "rationale": "The heading matches the at_a_glance section and Mermaid diagram is supported by examples and SaveFormat.",
+      "rationale": "The heading matches the required heading for the At a Glance section and is supported by capability facts.",
       "unit_id": "inherited_unit:009.heading"
     },
     {
       "destination_section": null,
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "example:001",
-        "example:009",
-        "example:010",
-        "example:013",
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
         "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
-      "rationale": "The Mermaid diagram is supported by examples and SaveFormat facts and matches the at_a_glance section.",
+      "rationale": "The Mermaid diagram matches the required structure for At a Glance and is supported by capability facts.",
       "unit_id": "inherited_unit:010.code_block"
     },
     {
       "destination_section": "key_capabilities",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:001",
-        "example:002",
-        "example:003",
-        "example:004",
-        "example:005",
-        "example:006",
-        "example:008",
-        "example:010",
-        "example:011",
-        "example:012",
-        "example:013"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
-      "rationale": "The heading matches the key_capabilities section and is supported by multiple examples.",
+      "rationale": "The heading matches the required heading for the Key Capabilities section.",
       "unit_id": "inherited_unit:011.heading"
     },
     {
-      "destination_section": "key_capabilities",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:001",
-        "example:002",
-        "example:003",
-        "example:004",
-        "example:005",
-        "example:006",
-        "example:008",
-        "example:010",
-        "example:011",
-        "example:012",
-        "example:013"
-      ],
-      "rationale": "The paragraph's substance is covered by the key capabilities list and examples.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph describes verification methodology not required in the Key Capabilities section.",
       "unit_id": "inherited_unit:012.paragraph"
     },
     {
       "destination_section": "key_capabilities",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "example:001",
-        "example:002",
-        "example:003",
-        "example:004",
-        "example:005",
-        "example:006",
-        "example:008",
-        "example:010",
-        "example:011",
-        "example:012",
-        "example:013",
-        "public_symbol:org.aspose.slides.foss.export.saveformat"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "public_symbol:org.aspose.slides.foss.presentation",
+        "public_symbol:org.aspose.slides.foss.islide",
+        "public_symbol:org.aspose.slides.foss.ishape",
+        "public_symbol:org.aspose.slides.foss.iautoshape",
+        "public_symbol:org.aspose.slides.foss.tableformat",
+        "public_symbol:org.aspose.slides.foss.portionformat",
+        "public_symbol:org.aspose.slides.foss.paragraphformat",
+        "public_symbol:org.aspose.slides.foss.textframeformat",
+        "public_symbol:org.aspose.slides.foss.fillformat",
+        "public_symbol:org.aspose.slides.foss.effectformat",
+        "public_symbol:org.aspose.slides.foss.threedformat",
+        "public_symbol:org.aspose.slides.foss.commentcollection",
+        "public_symbol:org.aspose.slides.foss.notesslidemanager",
+        "public_symbol:org.aspose.slides.foss.documentproperties",
+        "public_symbol:org.aspose.slides.foss.imagecollection",
+        "public_symbol:relationship"
       ],
-      "rationale": "The list's substance is covered by the key capabilities section; facts support rewriting it concisely.",
+      "rationale": "The list items are supported by public_symbol and relationship facts; the wording is re-authored to match the required action-led format.",
       "unit_id": "inherited_unit:013.list"
     },
     {
@@ -251,7 +233,7 @@
         "package:name",
         "package:version"
       ],
-      "rationale": "The heading matches the installation section and is supported by install_command and package facts.",
+      "rationale": "The heading matches the required heading for the Installation section.",
       "unit_id": "inherited_unit:014.heading"
     },
     {
@@ -262,51 +244,39 @@
         "package:name",
         "package:version"
       ],
-      "rationale": "The paragraph's substance is covered by the installation section and is supported by facts.",
+      "rationale": "The paragraph correctly states the Maven Central artifact and version.",
       "unit_id": "inherited_unit:015.paragraph"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:maven",
-        "package:name",
-        "package:version"
-      ],
-      "rationale": "The paragraph's substance is covered by the installation section and is supported by facts.",
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The bolded label is non-content; the installation command follows in the next unit.",
       "unit_id": "inherited_unit:016.paragraph"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "install_command:maven",
-        "package:name",
-        "package:version"
+        "install_command:maven"
       ],
-      "rationale": "The Maven dependency snippet is supported by install_command and package facts.",
+      "rationale": "The Maven dependency snippet matches the required install command format.",
       "unit_id": "inherited_unit:017.code_block"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:maven",
-        "package:name",
-        "package:version"
-      ],
-      "rationale": "The paragraph's substance is covered by the installation section and is supported by facts.",
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The bolded label is non-content; the Gradle command follows in the next unit.",
       "unit_id": "inherited_unit:018.paragraph"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "install_command:maven",
-        "package:name",
-        "package:version"
+        "install_command:maven"
       ],
-      "rationale": "The Gradle dependency snippet is supported by install_command and package facts.",
+      "rationale": "The Gradle dependency snippet matches the required install command format.",
       "unit_id": "inherited_unit:019.code_block"
     },
     {
@@ -317,7 +287,7 @@
         "link_target:024",
         "package:version"
       ],
-      "rationale": "The security fix warning is supported by package version and SECURITY.md link; version 26.7.0 lacks the fix.",
+      "rationale": "The security warning about 26.7.0 is supported by SECURITY.md link and version facts; the version number is corrected to 26.8.0.",
       "unit_id": "inherited_unit:020.paragraph"
     },
     {
@@ -327,7 +297,7 @@
         "install_command:maven",
         "package:version"
       ],
-      "rationale": "The version 26.8.0 status and new save-format refusal are supported by package version and install_command facts.",
+      "rationale": "The version and save-format fix are supported by version facts; the wording is corrected to match.",
       "unit_id": "inherited_unit:021.paragraph"
     },
     {
@@ -335,22 +305,19 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "install_command:maven",
-        "package:java_release",
-        "package:name",
-        "package:version"
+        "package:name"
       ],
-      "rationale": "The Automatic-Module-Name declaration is supported by package facts.",
+      "rationale": "The Automatic-Module-Name declaration is supported by the package fact.",
       "unit_id": "inherited_unit:022.paragraph"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "dependency:none",
         "install_command:maven",
         "package:java_release"
       ],
-      "rationale": "The JDK 21+ requirement and zero runtime dependencies are supported by package and dependency facts.",
+      "rationale": "The JDK 21+ requirement is supported by the java_release fact.",
       "unit_id": "inherited_unit:023.paragraph"
     },
     {
@@ -362,10 +329,9 @@
         "dependency:development.org.junit.jupiter-junit-jupiter-api",
         "dependency:development.org.junit.jupiter-junit-jupiter-engine",
         "dependency:development.org.junit.jupiter-junit-jupiter-params",
-        "dependency:none",
-        "package:java_release"
+        "dependency:none"
       ],
-      "rationale": "The heading matches the dependencies section and is supported by dependency facts.",
+      "rationale": "The heading matches the required heading for the Dependencies section.",
       "unit_id": "inherited_unit:024.heading"
     },
     {
@@ -379,7 +345,7 @@
         "dependency:development.org.junit.jupiter-junit-jupiter-params",
         "dependency:none"
       ],
-      "rationale": "The heading matches the required dependencies subsection and is supported by zero-dependency fact.",
+      "rationale": "The heading matches the required subsection heading for required dependencies.",
       "unit_id": "inherited_unit:025.heading"
     },
     {
@@ -408,15 +374,13 @@
         "dependency:none",
         "package:java_release"
       ],
-      "rationale": "The heading matches the required dependencies subsection and is supported by package facts.",
+      "rationale": "The heading matches the required subsection heading for native/system requirements.",
       "unit_id": "inherited_unit:027.heading"
     },
     {
       "destination_section": "dependencies",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "build_test_asset:ci",
-        "build_test_asset:tests",
         "dependency:development.org.apache.poi-poi-ooxml",
         "dependency:development.org.assertj-assertj-core",
         "dependency:development.org.junit.jupiter-junit-jupiter-api",
@@ -425,7 +389,7 @@
         "dependency:none",
         "package:java_release"
       ],
-      "rationale": "The JDK 21+ requirement and platform testing are supported by package and build_test_asset facts.",
+      "rationale": "The JDK 21+ requirement and testing platforms are supported by the java_release fact.",
       "unit_id": "inherited_unit:028.list"
     },
     {
@@ -439,7 +403,7 @@
         "dependency:development.org.junit.jupiter-junit-jupiter-params",
         "dependency:none"
       ],
-      "rationale": "The heading matches the required dependencies subsection and is supported by development dependency facts.",
+      "rationale": "The heading matches the required subsection heading for development dependencies.",
       "unit_id": "inherited_unit:029.heading"
     },
     {
@@ -453,187 +417,222 @@
         "dependency:development.org.junit.jupiter-junit-jupiter-params",
         "dependency:none"
       ],
-      "rationale": "The development dependency list matches the facts exactly.",
+      "rationale": "The development dependencies and versions are supported by the corresponding dependency facts.",
       "unit_id": "inherited_unit:030.list"
     },
     {
       "destination_section": "quick_start",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:001"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.presentation"
       ],
-      "rationale": "The heading matches the quick_start section and is supported by the first example.",
+      "rationale": "The heading matches the required heading for the Quick Start section.",
       "unit_id": "inherited_unit:031.heading"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:001"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.presentation",
+        "public_symbol:org.aspose.slides.foss.iautoshape",
+        "public_symbol:org.aspose.slides.foss.fillformat",
+        "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
-      "rationale": "The paragraph's substance is covered by the quick_start section and is supported by the example.",
+      "rationale": "The paragraph describes the example; the wording is re-authored to match the required lead-in format.",
       "unit_id": "inherited_unit:032.paragraph"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:001"
+        "example:001",
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "public_symbol:org.aspose.slides.foss.fillformat",
+        "public_symbol:org.aspose.slides.foss.iautoshape",
+        "public_symbol:org.aspose.slides.foss.presentation"
       ],
-      "rationale": "The code block matches the example:001 fact exactly.",
+      "rationale": "The example code is supported by public_symbol facts and matches the required minimal example format.",
       "unit_id": "inherited_unit:033.code_block"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:001"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.islidecollection",
+        "public_symbol:org.aspose.slides.foss.ishapecollection"
       ],
-      "rationale": "The paragraph's substance is covered by the quick_start section and is supported by the example.",
+      "rationale": "The three key points are supported by public_symbol facts; the wording is re-authored to match the required format.",
       "unit_id": "inherited_unit:034.paragraph"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:001",
-        "example:009",
-        "example:010",
-        "example:013"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.islidecollection",
+        "public_symbol:org.aspose.slides.foss.ishapecollection"
       ],
-      "rationale": "The list items are supported by the example facts and quick_start section requirements.",
+      "rationale": "The three key points are supported by public_symbol facts; the wording is re-authored to match the required format.",
       "unit_id": "inherited_unit:035.list"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:002",
-        "example:003",
-        "example:004",
-        "example:005",
-        "example:006",
-        "example:008",
-        "example:010",
-        "example:011",
-        "example:012",
-        "example:013"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.iconnector"
       ],
-      "rationale": "The heading matches the additional_examples section and is supported by multiple examples.",
+      "rationale": "The heading matches the required heading for the Additional Examples section.",
       "unit_id": "inherited_unit:036.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:002",
-        "example:003",
-        "example:004",
-        "example:005",
-        "example:006",
-        "example:008",
-        "example:010",
-        "example:011",
-        "example:012",
-        "example:013"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.iconnector"
       ],
-      "rationale": "The paragraph's substance is covered by the additional_examples section and is supported by examples.",
+      "rationale": "The paragraph describes the example; the wording is re-authored to match the required lead-in format.",
       "unit_id": "inherited_unit:037.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:002"
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.iconnector"
       ],
-      "rationale": "The paragraph's substance is covered by the additional_examples section and is supported by the connector example.",
+      "rationale": "The paragraph describes the connector example; the wording is re-authored to match the required format.",
       "unit_id": "inherited_unit:038.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:002"
+        "example:002",
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides",
+        "public_symbol:org.aspose.slides.foss.iconnector"
       ],
-      "rationale": "The code block matches the example:002 fact exactly.",
+      "rationale": "The connector example code is supported by public_symbol facts and matches the required example format.",
       "unit_id": "inherited_unit:039.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is not supported by any fact and is promotional content.",
+      "rationale": "The HTML details block is not supported by any fact and is promotional/non-content.",
       "unit_id": "inherited_unit:040.html_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:003; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:041.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:003"
+        "example:003",
+        "public_symbol:org.aspose.slides.foss",
+        "public_symbol:org.aspose.slides.foss.comment",
+        "public_symbol:org.aspose.slides.foss.commentauthor",
+        "public_symbol:org.aspose.slides.foss.drawing.pointf",
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "public_symbol:org.aspose.slides.foss.slide"
       ],
-      "rationale": "The code block for threaded comments is verified by example:003 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates threaded comments with a comment author, timestamp, and position; it is supported by the public symbols and the comments capability.",
       "unit_id": "inherited_unit:042.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:004; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:043.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:004"
+        "example:004",
+        "public_symbol:org.aspose.slides.foss",
+        "public_symbol:org.aspose.slides.foss.documentproperties",
+        "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
-      "rationale": "The code block for document properties is verified by example:004 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates setting document properties; it is supported by the public symbols and the document properties capability.",
       "unit_id": "inherited_unit:044.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:005; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:045.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:005"
+        "example:005",
+        "public_symbol:org.aspose.slides.foss",
+        "public_symbol:org.aspose.slides.foss.autoshape",
+        "public_symbol:org.aspose.slides.foss.drawing.color",
+        "public_symbol:org.aspose.slides.foss.effectformat",
+        "public_symbol:org.aspose.slides.foss.effects.outershadow",
+        "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
-      "rationale": "The code block for outer shadow is verified by example:005 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates an outer shadow effect on a shape; it is supported by the public symbols and the visual effects capability.",
       "unit_id": "inherited_unit:046.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:006; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:047.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:006"
+        "example:006",
+        "public_symbol:org.aspose.slides.foss",
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "public_symbol:org.aspose.slides.foss.inotesslide",
+        "public_symbol:org.aspose.slides.foss.inotesslidemanager"
       ],
-      "rationale": "The code block for speaker notes is verified by example:006 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates adding speaker notes via NotesSlideManager; it is supported by the public symbols and the comments and notes capability.",
       "unit_id": "inherited_unit:048.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:012; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:049.heading"
     },
     {
@@ -641,233 +640,531 @@
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
         "example:007",
-        "example:012"
+        "public_symbol:org.aspose.slides.foss",
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "public_symbol:org.aspose.slides.foss.imagecollection",
+        "public_symbol:org.aspose.slides.foss.ippimage",
+        "public_symbol:org.aspose.slides.foss.ishapecollection"
       ],
-      "rationale": "The code block for embedding an image is verified by example:012 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates embedding an image as a picture frame; it is supported by the public symbols and the image embedding capability.",
       "unit_id": "inherited_unit:050.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:008; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:051.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:008"
+        "example:008",
+        "public_symbol:org.aspose.slides.foss",
+        "public_symbol:org.aspose.slides.foss.autoshape",
+        "public_symbol:org.aspose.slides.foss.slidecollection"
       ],
-      "rationale": "The code block for cloning a slide is verified by example:008 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates cloning a slide; it is supported by the public symbols and the create and edit presentations capability.",
       "unit_id": "inherited_unit:052.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:009; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:053.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:009"
+        "example:009",
+        "public_symbol:org.aspose.slides.foss.presentation"
       ],
-      "rationale": "The code block for opening an existing presentation is verified by example:009 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates loading an existing presentation; it is supported by the public symbols and the create and edit presentations capability.",
       "unit_id": "inherited_unit:054.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:010; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:055.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:010"
+        "example:010",
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "public_symbol:org.aspose.slides.foss.presentation"
       ],
-      "rationale": "The code block for saving to an in-memory stream is verified by example:010 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates saving to an in-memory stream; it is supported by the public symbols and the create and edit presentations capability.",
       "unit_id": "inherited_unit:056.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:011; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:057.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:011"
+        "example:011",
+        "public_symbol:org.aspose.slides.foss",
+        "public_symbol:org.aspose.slides.foss.autoshape",
+        "public_symbol:org.aspose.slides.foss.drawing.color",
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "public_symbol:org.aspose.slides.foss.fillformat",
+        "public_symbol:org.aspose.slides.foss.portionformat"
       ],
-      "rationale": "The code block for text formatting is verified by example:011 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates text formatting with font height, bold, and color; it is supported by the public symbols and the text formatting capability.",
       "unit_id": "inherited_unit:058.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:012; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:059.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:012"
+        "example:012",
+        "public_symbol:org.aspose.slides.foss",
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "public_symbol:org.aspose.slides.foss.table"
       ],
-      "rationale": "The code block for creating a table is verified by example:012 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates creating a table and setting cell text; it is supported by the public symbols and the shape and formatting capability.",
       "unit_id": "inherited_unit:060.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The heading introduces an example already covered by example:013; moving it to Additional Examples preserves its purpose under a new task heading.",
+      "rationale": "The heading introduces an example task; it is moved to Additional Examples where task-named headings belong.",
       "unit_id": "inherited_unit:061.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_MOVE",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:013"
+        "public_symbol:org.aspose.slides.foss.presentation",
+        "public_symbol:org.aspose.slides.foss.export.saveformat"
       ],
-      "rationale": "The paragraph explaining save subset behavior is verified by example:013 and belongs under Additional Examples with a task heading.",
+      "rationale": "The paragraph describes the slide-index array behavior of save(path, slides, format); it is supported by the public symbols and the create and edit presentation",
       "unit_id": "inherited_unit:062.paragraph"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:013"
+        "example:013",
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "public_symbol:org.aspose.slides.foss.presentation"
       ],
-      "rationale": "The code block for saving a subset of slides is verified by example:013 and belongs under Additional Examples with a task heading.",
+      "rationale": "The code block demonstrates saving a subset of slides; it is supported by the public symbols and the create and edit presentations capability.",
       "unit_id": "inherited_unit:063.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The closing </details> HTML block is redundant with the Additional Examples section's collapsible structure.",
+      "rationale": "The HTML comment </details> has no supporting fact and serves no purpose in the new structure.",
       "unit_id": "inherited_unit:064.html_block"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The API Reference heading is required by the api_reference section and matches the section's purpose.",
+      "rationale": "The heading matches the API Reference section and is moved there.",
       "unit_id": "inherited_unit:065.heading"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The paragraph introduces the core Presentation API and shape types, aligning with the API Reference section's intro.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.presentation",
+        "public_symbol:org.aspose.slides.foss.slidecollection",
+        "public_symbol:org.aspose.slides.foss.slide",
+        "public_symbol:org.aspose.slides.foss.autoshape",
+        "public_symbol:org.aspose.slides.foss.connector",
+        "public_symbol:org.aspose.slides.foss.table",
+        "public_symbol:org.aspose.slides.foss.pictureframe"
+      ],
+      "rationale": "The paragraph's substance is re-authored in the API Reference section's Core API surface.",
       "unit_id": "inherited_unit:066.paragraph"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The opening <details> HTML block is redundant with the API Reference section's collapsible structure.",
+      "rationale": "The HTML comment <details><summary>View the Core API Surface</summary> has no supporting fact and serves no purpose in the new structure.",
       "unit_id": "inherited_unit:067.html_block"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The Foss heading introduces the class table in the API Reference section.",
+      "rationale": "The heading introduces the Core API table; it is moved to API Reference where the table belongs.",
       "unit_id": "inherited_unit:068.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The class table lists public symbols verified by the public_symbol facts and belongs in the API Reference section.",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.adjustvalue",
+        "public_symbol:org.aspose.slides.foss.adjustvaluecollection",
+        "public_symbol:org.aspose.slides.foss.autoshape",
+        "public_symbol:org.aspose.slides.foss.basehandoutnotesslideheaderfootermanager",
+        "public_symbol:org.aspose.slides.foss.baseshapelock",
+        "public_symbol:org.aspose.slides.foss.baseslide",
+        "public_symbol:org.aspose.slides.foss.bevelpresettype",
+        "public_symbol:org.aspose.slides.foss.bullettype",
+        "public_symbol:org.aspose.slides.foss.camera",
+        "public_symbol:org.aspose.slides.foss.camerapresettype",
+        "public_symbol:org.aspose.slides.foss.cell",
+        "public_symbol:org.aspose.slides.foss.cellcollection",
+        "public_symbol:org.aspose.slides.foss.colortype",
+        "public_symbol:org.aspose.slides.foss.column",
+        "public_symbol:org.aspose.slides.foss.columncollection",
+        "public_symbol:org.aspose.slides.foss.comment",
+        "public_symbol:org.aspose.slides.foss.commentauthor",
+        "public_symbol:org.aspose.slides.foss.commentauthorcollection",
+        "public_symbol:org.aspose.slides.foss.commentcollection",
+        "public_symbol:org.aspose.slides.foss.connector",
+        "public_symbol:org.aspose.slides.foss.connectorlock",
+        "public_symbol:org.aspose.slides.foss.documentproperties",
+        "public_symbol:org.aspose.slides.foss.fillblendmode",
+        "public_symbol:org.aspose.slides.foss.filltype",
+        "public_symbol:org.aspose.slides.foss.fontalignment",
+        "public_symbol:org.aspose.slides.foss.geometryshape",
+        "public_symbol:org.aspose.slides.foss.globallayoutslidecollection",
+        "public_symbol:org.aspose.slides.foss.gradientdirection",
+        "public_symbol:org.aspose.slides.foss.gradientshape",
+        "public_symbol:org.aspose.slides.foss.gradientstop",
+        "public_symbol:org.aspose.slides.foss.gradientstopcollection",
+        "public_symbol:org.aspose.slides.foss.graphicalobject",
+        "public_symbol:org.aspose.slides.foss.graphicalobjectlock",
+        "public_symbol:org.aspose.slides.foss.groupshape",
+        "public_symbol:org.aspose.slides.foss.headingpair",
+        "public_symbol:org.aspose.slides.foss.image",
+        "public_symbol:org.aspose.slides.foss.imagecollection",
+        "public_symbol:org.aspose.slides.foss.images",
+        "public_symbol:org.aspose.slides.foss.layoutslide",
+        "public_symbol:org.aspose.slides.foss.layoutslidecollection",
+        "public_symbol:org.aspose.slides.foss.lightrig",
+        "public_symbol:org.aspose.slides.foss.lightrigpresettype",
+        "public_symbol:org.aspose.slides.foss.lightingdirection",
+        "public_symbol:org.aspose.slides.foss.linealignment",
+        "public_symbol:org.aspose.slides.foss.linearrowheadlength",
+        "public_symbol:org.aspose.slides.foss.linearrowheadstyle",
+        "public_symbol:org.aspose.slides.foss.linearrowheadwidth",
+        "public_symbol:org.aspose.slides.foss.linecapstyle",
+        "public_symbol:org.aspose.slides.foss.linedashstyle",
+        "public_symbol:org.aspose.slides.foss.linejoinstyle",
+        "public_symbol:org.aspose.slides.foss.linestyle",
+        "public_symbol:org.aspose.slides.foss.masterlayoutslidecollection",
+        "public_symbol:org.aspose.slides.foss.masterslide",
+        "public_symbol:org.aspose.slides.foss.masterslidecollection",
+        "public_symbol:org.aspose.slides.foss.materialpresettype",
+        "public_symbol:org.aspose.slides.foss.notessize",
+        "public_symbol:org.aspose.slides.foss.notesslide",
+        "public_symbol:org.aspose.slides.foss.notesslideheaderfootermanager",
+        "public_symbol:org.aspose.slides.foss.notesslidemanager",
+        "public_symbol:org.aspose.slides.foss.nullablebool",
+        "public_symbol:org.aspose.slides.foss.numberedbulletstyle",
+        "public_symbol:org.aspose.slides.foss.ppimage",
+        "public_symbol:org.aspose.slides.foss.pviobject",
+        "public_symbol:org.aspose.slides.foss.paragraph",
+        "public_symbol:org.aspose.slides.foss.paragraphcollection",
+        "public_symbol:org.aspose.slides.foss.patternstyle",
+        "public_symbol:org.aspose.slides.foss.picture",
+        "public_symbol:org.aspose.slides.foss.picturefillmode",
+        "public_symbol:org.aspose.slides.foss.pictureframe",
+        "public_symbol:org.aspose.slides.foss.pictureframelock",
+        "public_symbol:org.aspose.slides.foss.portion",
+        "public_symbol:org.aspose.slides.foss.portioncollection",
+        "public_symbol:org.aspose.slides.foss.pptcorruptfileexception",
+        "public_symbol:org.aspose.slides.foss.pptexception",
+        "public_symbol:org.aspose.slides.foss.pptreadexception",
+        "public_symbol:org.aspose.slides.foss.presentation",
+        "public_symbol:org.aspose.slides.foss.presetcolor",
+        "public_symbol:org.aspose.slides.foss.presetshadowtype",
+        "public_symbol:org.aspose.slides.foss.rectanglealignment",
+        "public_symbol:org.aspose.slides.foss.row",
+        "public_symbol:org.aspose.slides.foss.rowcollection",
+        "public_symbol:org.aspose.slides.foss.schemecolor",
+        "public_symbol:org.aspose.slides.foss.shape",
+        "public_symbol:org.aspose.slides.foss.shapebevel",
+        "public_symbol:org.aspose.slides.foss.shapecollection",
+        "public_symbol:org.aspose.slides.foss.shapeframe",
+        "public_symbol:org.aspose.slides.foss.shapestyle",
+        "public_symbol:org.aspose.slides.foss.shapetype",
+        "public_symbol:org.aspose.slides.foss.slide",
+        "public_symbol:org.aspose.slides.foss.slidecollection",
+        "public_symbol:org.aspose.slides.foss.slidelayouttype",
+        "public_symbol:org.aspose.slides.foss.table",
+        "public_symbol:org.aspose.slides.foss.tablestylepreset",
+        "public_symbol:org.aspose.slides.foss.textalignment",
+        "public_symbol:org.aspose.slides.foss.textanchortype",
+        "public_symbol:org.aspose.slides.foss.textautofittype",
+        "public_symbol:org.aspose.slides.foss.textcaptype",
+        "public_symbol:org.aspose.slides.foss.textframe",
+        "public_symbol:org.aspose.slides.foss.textshapetype",
+        "public_symbol:org.aspose.slides.foss.textstrikethroughtype",
+        "public_symbol:org.aspose.slides.foss.textunderlinetype",
+        "public_symbol:org.aspose.slides.foss.textverticaltype",
+        "public_symbol:org.aspose.slides.foss.tileflip",
+        "public_symbol:org.aspose.slides.foss.drawing.color",
+        "public_symbol:org.aspose.slides.foss.drawing.pointf",
+        "public_symbol:org.aspose.slides.foss.drawing.rectanglef",
+        "public_symbol:org.aspose.slides.foss.drawing.size",
+        "public_symbol:org.aspose.slides.foss.drawing.sizef",
+        "public_symbol:org.aspose.slides.foss.effects.blur",
+        "public_symbol:org.aspose.slides.foss.effects.filloverlay",
+        "public_symbol:org.aspose.slides.foss.effects.glow",
+        "public_symbol:org.aspose.slides.foss.effects.imagetransformoperation",
+        "public_symbol:org.aspose.slides.foss.effects.innershadow",
+        "public_symbol:org.aspose.slides.foss.effects.outershadow",
+        "public_symbol:org.aspose.slides.foss.effects.presetshadow",
+        "public_symbol:org.aspose.slides.foss.effects.reflection",
+        "public_symbol:org.aspose.slides.foss.effects.softedge",
+        "public_symbol:org.aspose.slides.foss.export.isaveoptions",
+        "public_symbol:relationship"
+      ],
+      "rationale": "The table lists core classes; every entry is supported by a public_symbol fact.",
       "unit_id": "inherited_unit:069.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The Interfaces heading introduces the interface table in the API Reference section.",
+      "rationale": "The heading introduces the Interfaces table; it is moved to API Reference where the table belongs.",
       "unit_id": "inherited_unit:070.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The interface table lists public symbols verified by the public_symbol facts and belongs in the API Reference section.",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.iadjustvalue",
+        "public_symbol:org.aspose.slides.foss.iadjustvaluecollection",
+        "public_symbol:org.aspose.slides.foss.iautoshape",
+        "public_symbol:org.aspose.slides.foss.ibasehandoutnotesslideheaderfootermanager",
+        "public_symbol:org.aspose.slides.foss.ibaseheaderfootermanager",
+        "public_symbol:org.aspose.slides.foss.ibaseslide",
+        "public_symbol:org.aspose.slides.foss.ibaseslideheaderfootermanager",
+        "public_symbol:org.aspose.slides.foss.icamera",
+        "public_symbol:org.aspose.slides.foss.icell",
+        "public_symbol:org.aspose.slides.foss.icellcollection",
+        "public_symbol:org.aspose.slides.foss.icolumn",
+        "public_symbol:org.aspose.slides.foss.icolumncollection",
+        "public_symbol:org.aspose.slides.foss.icomment",
+        "public_symbol:org.aspose.slides.foss.icommentauthor",
+        "public_symbol:org.aspose.slides.foss.icommentauthorcollection",
+        "public_symbol:org.aspose.slides.foss.icommentcollection",
+        "public_symbol:org.aspose.slides.foss.iconnector",
+        "public_symbol:org.aspose.slides.foss.iconnectorlock",
+        "public_symbol:org.aspose.slides.foss.icustomdata",
+        "public_symbol:org.aspose.slides.foss.idocumentproperties",
+        "public_symbol:org.aspose.slides.foss.ieffectparamsource",
+        "public_symbol:org.aspose.slides.foss.ifillparamsource",
+        "public_symbol:org.aspose.slides.foss.ifontdata",
+        "public_symbol:org.aspose.slides.foss.igeometryshape",
+        "public_symbol:org.aspose.slides.foss.igloballayoutslidecollection",
+        "public_symbol:org.aspose.slides.foss.igradientstop",
+        "public_symbol:org.aspose.slides.foss.igradientstopcollection",
+        "public_symbol:org.aspose.slides.foss.igraphicalobject",
+        "public_symbol:org.aspose.slides.foss.igraphicalobjectlock",
+        "public_symbol:org.aspose.slides.foss.igroupshape",
+        "public_symbol:org.aspose.slides.foss.iheadingpair",
+        "public_symbol:org.aspose.slides.foss.ihyperlinkcontainer",
+        "public_symbol:org.aspose.slides.foss.iimage",
+        "public_symbol:org.aspose.slides.foss.iimagecollection",
+        "public_symbol:org.aspose.slides.foss.ilayoutslide",
+        "public_symbol:org.aspose.slides.foss.ilayoutslidecollection",
+        "public_symbol:org.aspose.slides.foss.ilightrig",
+        "public_symbol:org.aspose.slides.foss.ilineparamsource",
+        "public_symbol:org.aspose.slides.foss.iloadoptions",
+        "public_symbol:org.aspose.slides.foss.imasterlayoutslidecollection",
+        "public_symbol:org.aspose.slides.foss.imasterslide",
+        "public_symbol:org.aspose.slides.foss.imasterslidecollection",
+        "public_symbol:org.aspose.slides.foss.inotessize",
+        "public_symbol:org.aspose.slides.foss.inotesslide",
+        "public_symbol:org.aspose.slides.foss.inotesslideheaderfootermanager",
+        "public_symbol:org.aspose.slides.foss.inotesslidemanager",
+        "public_symbol:org.aspose.slides.foss.ippimage",
+        "public_symbol:org.aspose.slides.foss.iparagraph",
+        "public_symbol:org.aspose.slides.foss.iparagraphcollection",
+        "public_symbol:org.aspose.slides.foss.ipictureframe",
+        "public_symbol:org.aspose.slides.foss.ipictureframelock",
+        "public_symbol:org.aspose.slides.foss.iplaceholder",
+        "public_symbol:org.aspose.slides.foss.iportion",
+        "public_symbol:org.aspose.slides.foss.iportioncollection",
+        "public_symbol:org.aspose.slides.foss.ipresentation",
+        "public_symbol:org.aspose.slides.foss.ipresentationcomponent",
+        "public_symbol:org.aspose.slides.foss.irow",
+        "public_symbol:org.aspose.slides.foss.irowcollection",
+        "public_symbol:org.aspose.slides.foss.isection",
+        "public_symbol:org.aspose.slides.foss.ishape",
+        "public_symbol:org.aspose.slides.foss.ishapebevel",
+        "public_symbol:org.aspose.slides.foss.ishapecollection",
+        "public_symbol:org.aspose.slides.foss.ishapeframe",
+        "public_symbol:org.aspose.slides.foss.ishapestyle",
+        "public_symbol:org.aspose.slides.foss.islide",
+        "public_symbol:org.aspose.slides.foss.islidecollection",
+        "public_symbol:org.aspose.slides.foss.islidecomponent",
+        "public_symbol:org.aspose.slides.foss.islidespicture",
+        "public_symbol:org.aspose.slides.foss.itable",
+        "public_symbol:org.aspose.slides.foss.itextframe",
+        "public_symbol:org.aspose.slides.foss.ithreedparamsource",
+        "public_symbol:org.aspose.slides.foss.theme.ithemeable"
+      ],
+      "rationale": "The table lists core interfaces; every entry is supported by a public_symbol fact.",
       "unit_id": "inherited_unit:071.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The Enumerations heading introduces the enum table in the API Reference section.",
+      "rationale": "The heading introduces the Enumerations table; it is moved to API Reference where the table belongs.",
       "unit_id": "inherited_unit:072.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The enum table lists public symbols verified by the public_symbol facts and belongs in the API Reference section.",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.bevelpresettype",
+        "public_symbol:org.aspose.slides.foss.bullettype",
+        "public_symbol:org.aspose.slides.foss.camerapresettype",
+        "public_symbol:org.aspose.slides.foss.colortype",
+        "public_symbol:org.aspose.slides.foss.fillblendmode",
+        "public_symbol:org.aspose.slides.foss.filltype",
+        "public_symbol:org.aspose.slides.foss.fontalignment",
+        "public_symbol:org.aspose.slides.foss.gradientdirection",
+        "public_symbol:org.aspose.slides.foss.gradientshape",
+        "public_symbol:org.aspose.slides.foss.lightrigpresettype",
+        "public_symbol:org.aspose.slides.foss.lightingdirection",
+        "public_symbol:org.aspose.slides.foss.linealignment",
+        "public_symbol:org.aspose.slides.foss.linearrowheadlength",
+        "public_symbol:org.aspose.slides.foss.linearrowheadstyle",
+        "public_symbol:org.aspose.slides.foss.linearrowheadwidth",
+        "public_symbol:org.aspose.slides.foss.linecapstyle",
+        "public_symbol:org.aspose.slides.foss.linedashstyle",
+        "public_symbol:org.aspose.slides.foss.linejoinstyle",
+        "public_symbol:org.aspose.slides.foss.linestyle",
+        "public_symbol:org.aspose.slides.foss.materialpresettype",
+        "public_symbol:org.aspose.slides.foss.nullablebool",
+        "public_symbol:org.aspose.slides.foss.numberedbulletstyle",
+        "public_symbol:org.aspose.slides.foss.patternstyle",
+        "public_symbol:org.aspose.slides.foss.picturefillmode",
+        "public_symbol:org.aspose.slides.foss.presetcolor",
+        "public_symbol:org.aspose.slides.foss.presetshadowtype",
+        "public_symbol:org.aspose.slides.foss.rectanglealignment",
+        "public_symbol:org.aspose.slides.foss.schemecolor",
+        "public_symbol:org.aspose.slides.foss.shapetype",
+        "public_symbol:org.aspose.slides.foss.slidelayouttype",
+        "public_symbol:org.aspose.slides.foss.sourceformat",
+        "public_symbol:org.aspose.slides.foss.tablestylepreset",
+        "public_symbol:org.aspose.slides.foss.textalignment",
+        "public_symbol:org.aspose.slides.foss.textanchortype",
+        "public_symbol:org.aspose.slides.foss.textautofittype",
+        "public_symbol:org.aspose.slides.foss.textcaptype",
+        "public_symbol:org.aspose.slides.foss.textshapetype",
+        "public_symbol:org.aspose.slides.foss.textstrikethroughtype",
+        "public_symbol:org.aspose.slides.foss.textunderlinetype",
+        "public_symbol:org.aspose.slides.foss.textverticaltype",
+        "public_symbol:org.aspose.slides.foss.tileflip"
+      ],
+      "rationale": "The table lists enumerations; every entry is supported by a public_symbol fact.",
       "unit_id": "inherited_unit:073.table"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_MOVE",
       "fact_ids": [],
-      "rationale": "The Detailed Member Reference heading introduces the member reference list in the API Reference section.",
+      "rationale": "The heading introduces the Detailed Member Reference; it is moved to API Reference where the member reference belongs.",
       "unit_id": "inherited_unit:074.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The member reference for Presentation is verified by public_symbol facts and belongs in the API Reference section.",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.presentation",
+        "public_symbol:org.aspose.slides.foss.slidecollection",
+        "public_symbol:org.aspose.slides.foss.imagecollection",
+        "public_symbol:org.aspose.slides.foss.commentauthorcollection",
+        "public_symbol:org.aspose.slides.foss.documentproperties",
+        "public_symbol:org.aspose.slides.foss.globallayoutslidecollection",
+        "public_symbol:org.aspose.slides.foss.masterslidecollection"
+      ],
+      "rationale": "The list item describes Presentation members; every method and property is supported by public_symbol facts.",
       "unit_id": "inherited_unit:075.001.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The member reference for SlideCollection is verified by public_symbol facts and belongs in the API Reference section.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.slidecollection",
+        "public_symbol:org.aspose.slides.foss.slide"
+      ],
+      "rationale": "The list item describes SlideCollection members; every method and property is supported by public_symbol facts.",
       "unit_id": "inherited_unit:075.002.list"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The member reference for ShapeCollection is verified by public_symbol facts and belongs in the API Reference section.",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.shapecollection",
+        "public_symbol:org.aspose.slides.foss.autoshape",
+        "public_symbol:org.aspose.slides.foss.connector",
+        "public_symbol:org.aspose.slides.foss.table",
+        "public_symbol:org.aspose.slides.foss.pictureframe"
+      ],
+      "rationale": "The list item describes ShapeCollection members; every method and property is supported by public_symbol facts.",
       "unit_id": "inherited_unit:075.003.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The member reference for AutoShape is verified by public_symbol facts and belongs in the API Reference section.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.autoshape",
+        "public_symbol:org.aspose.slides.foss.shapetype",
+        "public_symbol:org.aspose.slides.foss.textframe",
+        "public_symbol:org.aspose.slides.foss.fillformat",
+        "public_symbol:org.aspose.slides.foss.lineformat",
+        "public_symbol:org.aspose.slides.foss.effectformat",
+        "public_symbol:org.aspose.slides.foss.threedformat"
+      ],
+      "rationale": "The list item describes AutoShape members; every method and property is supported by public_symbol facts.",
       "unit_id": "inherited_unit:075.004.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The member reference for Connector is verified by public_symbol facts and belongs in the API Reference section.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.connector",
+        "public_symbol:org.aspose.slides.foss.ishape"
+      ],
+      "rationale": "The list item describes Connector members; every method and property is supported by public_symbol facts.",
       "unit_id": "inherited_unit:075.005.list"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The member reference for Table is verified by public_symbol facts and belongs in the API Reference section.",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org.aspose.slides.foss.table",
+        "public_symbol:org.aspose.slides.foss.rowcollection",
+        "public_symbol:org.aspose.slides.foss.columncollection",
+        "public_symbol:org.aspose.slides.foss.tableformat"
+      ],
+      "rationale": "The list item describes Table members; every method and property is supported by public_symbol facts.",
       "unit_id": "inherited_unit:075.006.list"
     },
     {
@@ -875,10 +1172,10 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:org.aspose.slides.foss.textframe",
-        "public_symbol:org.aspose.slides.foss.paragraphcollection",
-        "public_symbol:org.aspose.slides.foss.textframeformat"
+        "public_symbol:org.aspose.slides.foss.iparagraphcollection",
+        "public_symbol:org.aspose.slides.foss.itextframeformat"
       ],
-      "rationale": "The TextFrame API surface is already covered in the API Reference section.",
+      "rationale": "The TextFrame API surface is covered by the API Reference section's public symbol inventory.",
       "unit_id": "inherited_unit:075.007.list"
     },
     {
@@ -886,10 +1183,12 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:org.aspose.slides.foss.threedformat",
-        "public_symbol:org.aspose.slides.foss.camera",
-        "public_symbol:org.aspose.slides.foss.lightrig"
+        "public_symbol:org.aspose.slides.foss.ishapebevel",
+        "public_symbol:org.aspose.slides.foss.icamera",
+        "public_symbol:org.aspose.slides.foss.ilightrig",
+        "public_symbol:org.aspose.slides.foss.materialpresettype"
       ],
-      "rationale": "The ThreeDFormat API surface is already covered in the API Reference section.",
+      "rationale": "The ThreeDFormat API surface is covered by the API Reference section's public symbol inventory.",
       "unit_id": "inherited_unit:075.008.list"
     },
     {
@@ -897,10 +1196,12 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:org.aspose.slides.foss.effectformat",
-        "public_symbol:org.aspose.slides.foss.effects.outershadow",
-        "public_symbol:org.aspose.slides.foss.effects.glow"
+        "public_symbol:org.aspose.slides.foss.effects.iglow",
+        "public_symbol:org.aspose.slides.foss.effects.iblur",
+        "public_symbol:org.aspose.slides.foss.effects.isoftedge",
+        "public_symbol:org.aspose.slides.foss.effects.ireflection"
       ],
-      "rationale": "The EffectFormat API surface is already covered in the API Reference section.",
+      "rationale": "The EffectFormat API surface is covered by the API Reference section's public symbol inventory.",
       "unit_id": "inherited_unit:075.009.list"
     },
     {
@@ -908,10 +1209,12 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:org.aspose.slides.foss.fillformat",
-        "public_symbol:org.aspose.slides.foss.filltype",
-        "public_symbol:org.aspose.slides.foss.gradientformat"
+        "public_symbol:org.aspose.slides.foss.ifillformat",
+        "public_symbol:org.aspose.slides.foss.igradientformat",
+        "public_symbol:org.aspose.slides.foss.ipatternformat",
+        "public_symbol:org.aspose.slides.foss.ipicturefillformat"
       ],
-      "rationale": "The FillFormat API surface is already covered in the API Reference section.",
+      "rationale": "The FillFormat API surface is covered by the API Reference section's public symbol inventory.",
       "unit_id": "inherited_unit:075.010.list"
     },
     {
@@ -919,18 +1222,20 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:org.aspose.slides.foss.commentauthor",
-        "public_symbol:org.aspose.slides.foss.commentcollection"
+        "public_symbol:org.aspose.slides.foss.icommentauthor",
+        "public_symbol:org.aspose.slides.foss.icommentcollection"
       ],
-      "rationale": "The CommentAuthor API surface is already covered in the API Reference section.",
+      "rationale": "The CommentAuthor API surface is covered by the API Reference section's public symbol inventory.",
       "unit_id": "inherited_unit:075.011.list"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:org.aspose.slides.foss.documentproperties"
+        "public_symbol:org.aspose.slides.foss.documentproperties",
+        "public_symbol:org.aspose.slides.foss.idocumentproperties"
       ],
-      "rationale": "The DocumentProperties API surface is already covered in the API Reference section.",
+      "rationale": "The DocumentProperties API surface is covered by the API Reference section's public symbol inventory.",
       "unit_id": "inherited_unit:075.012.list"
     },
     {
@@ -938,9 +1243,9 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:org.aspose.slides.foss.notesslidemanager",
-        "public_symbol:org.aspose.slides.foss.inotesslide"
+        "public_symbol:org.aspose.slides.foss.inotesslidemanager"
       ],
-      "rationale": "The NotesSlideManager API surface is already covered in the API Reference section.",
+      "rationale": "The NotesSlideManager API surface is covered by the API Reference section's public symbol inventory.",
       "unit_id": "inherited_unit:075.013.list"
     },
     {
@@ -948,9 +1253,10 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:org.aspose.slides.foss.imagecollection",
+        "public_symbol:org.aspose.slides.foss.iimagecollection",
         "public_symbol:org.aspose.slides.foss.ippimage"
       ],
-      "rationale": "The ImageCollection API surface is already covered in the API Reference section.",
+      "rationale": "The ImageCollection API surface is covered by the API Reference section's public symbol inventory.",
       "unit_id": "inherited_unit:075.014.list"
     },
     {
@@ -958,39 +1264,40 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "public_symbol:org.aspose.slides.foss.lineformat",
+        "public_symbol:org.aspose.slides.foss.ilineformat",
+        "public_symbol:org.aspose.slides.foss.linearrowheadstyle",
         "public_symbol:org.aspose.slides.foss.linedashstyle"
       ],
-      "rationale": "The LineFormat API surface is already covered in the API Reference section.",
+      "rationale": "The LineFormat API surface is covered by the API Reference section's public symbol inventory.",
       "unit_id": "inherited_unit:075.015.list"
     },
     {
       "destination_section": null,
       "disposition": "NON_CONTENT",
       "fact_ids": [],
-      "rationale": "HTML closing tag is non-content.",
+      "rationale": "HTML closing tag is a non-content separator.",
       "unit_id": "inherited_unit:076.html_block"
     },
     {
       "destination_section": "documentation_resources",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [],
-      "rationale": "The 'Documentation & Resources' heading is rendered by the deterministic documentation_resources section.",
+      "rationale": "The heading 'Documentation & Resources' matches the section ID and is placeable.",
       "unit_id": "inherited_unit:077.heading"
     },
     {
       "destination_section": "documentation_resources",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "link_target:029",
-        "link_target:030",
-        "link_target:031"
+        "link_target:021",
+        "link_target:013"
       ],
-      "rationale": "The paragraph correctly notes that commercial Aspose.Slides documentation is often the fastest way to understand shared type names and is supported by the link.",
+      "rationale": "The paragraph introduces the Documentation & Resources section and references the Scope and Limitations section.",
       "unit_id": "inherited_unit:078.paragraph"
     },
     {
       "destination_section": "documentation_resources",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
         "link_target:029",
         "link_target:030",
@@ -999,36 +1306,39 @@
         "link_target:033",
         "link_target:034"
       ],
-      "rationale": "The list items are verified by the link targets and provide valuable repository-specific documentation links.",
+      "rationale": "The list items are verified documentation and resource links with working targets.",
       "unit_id": "inherited_unit:079.list"
     },
     {
-      "destination_section": "enterprise_relationship",
+      "destination_section": "scope_limitations",
       "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The 'Choosing an Edition' heading is rendered by the deterministic enterprise_relationship section.",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "rationale": "The heading 'Choosing an Edition' matches the enterprise relationship section's purpose.",
       "unit_id": "inherited_unit:080.heading"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "link_target:product.enterprise",
-        "link_target:product.homepage"
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "link_target:product.enterprise"
       ],
-      "rationale": "The paragraph correctly describes the four editions and their language differences, supported by the enterprise product link.",
+      "rationale": "The paragraph correctly states there are four editions and they are not interchangeable.",
       "unit_id": "inherited_unit:081.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "link_target:product.enterprise",
         "link_target:035",
         "link_target:036",
         "link_target:037"
       ],
-      "rationale": "The table provides verified comparison of editions and is supported by the enterprise product and edition repository links.",
+      "rationale": "The table compares editions and is supported by the verified product links.",
       "unit_id": "inherited_unit:082.table"
     },
     {
@@ -1038,7 +1348,7 @@
         "link_target:037",
         "link_target:product.enterprise"
       ],
-      "rationale": "The paragraph correctly clarifies that charts, animations, etc. are not in this edition and points to the Python edition.",
+      "rationale": "The paragraph correctly describes the Python edition's broader scope and incompatibility.",
       "unit_id": "inherited_unit:083.paragraph"
     },
     {
@@ -1049,79 +1359,79 @@
         "link_target:036",
         "link_target:037"
       ],
-      "rationale": "The list of edition repositories is moved to the enterprise_relationship section where it belongs.",
+      "rationale": "The list provides verified links to other FOSS editions.",
       "unit_id": "inherited_unit:084.list"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
+        "link_target:038",
         "link_target:product.enterprise"
       ],
-      "rationale": "The paragraph correctly describes the commercial product's capabilities and clarifies this FOSS library's scope.",
+      "rationale": "The paragraph correctly describes the commercial product's capabilities and the FOSS scope.",
       "unit_id": "inherited_unit:085.paragraph"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [],
-      "rationale": "The 'Scope and Limitations' heading is rendered by the deterministic scope_limitations section.",
+      "rationale": "The heading 'Scope and Limitations' matches the section ID and is placeable.",
       "unit_id": "inherited_unit:086.heading"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [],
-      "rationale": "The paragraph correctly introduces the scope and limitations section.",
+      "rationale": "The paragraph introduces the scope and limitations section correctly.",
       "unit_id": "inherited_unit:087.paragraph"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:001",
-        "example:009",
-        "example:013"
+        "public_symbol:org.aspose.slides.foss.export.saveformat",
+        "package:java_release"
       ],
-      "rationale": "The list items are verified by the examples and facts about unsupported features like charts, animations, etc.",
+      "rationale": "The list items are supported by the public symbol and package facts about limitations.",
       "unit_id": "inherited_unit:088.list"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
+        "link_target:038",
         "link_target:product.enterprise"
       ],
-      "rationale": "The paragraph correctly references the Enterprise Edition for capabilities outside this FOSS build's scope.",
+      "rationale": "The paragraph correctly references the Enterprise Edition and its broader capabilities.",
       "unit_id": "inherited_unit:089.paragraph"
     },
     {
       "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [],
-      "rationale": "The 'Development and Testing' heading is rendered by the deterministic development_testing section.",
+      "rationale": "The heading 'Development and Testing' matches the section ID and is placeable.",
       "unit_id": "inherited_unit:090.heading"
     },
     {
       "destination_section": "development_testing",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "build_test_asset:ci",
+        "install_command:maven",
         "build_test_asset:tests",
-        "install_command:maven"
+        "build_test_asset:ci"
       ],
-      "rationale": "The code block is verified by the build and test assets and provides the correct build command.",
+      "rationale": "The build command is verified and matches the Maven install command fact.",
       "unit_id": "inherited_unit:091.code_block"
     },
     {
       "destination_section": "development_testing",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "build_test_asset:ci",
         "build_test_asset:tests",
         "package:java_release"
       ],
-      "rationale": "The paragraph correctly describes the test suite and JDK requirement.",
+      "rationale": "The paragraph correctly describes the test suite structure and JDK requirement.",
       "unit_id": "inherited_unit:092.paragraph"
     },
     {
@@ -1130,7 +1440,7 @@
       "fact_ids": [
         "build_test_asset:ci"
       ],
-      "rationale": "The paragraph correctly describes compiler warning and reproducible build requirements.",
+      "rationale": "The paragraph correctly describes the build determinism and CI practices.",
       "unit_id": "inherited_unit:093.paragraph"
     },
     {
@@ -1139,7 +1449,7 @@
       "fact_ids": [
         "build_test_asset:ci"
       ],
-      "rationale": "The paragraph correctly describes CI runs on Linux, Windows, and macOS.",
+      "rationale": "The paragraph correctly describes the CI platform matrix and artifact availability.",
       "unit_id": "inherited_unit:094.paragraph"
     },
     {
@@ -1148,18 +1458,16 @@
       "fact_ids": [
         "build_test_asset:ci"
       ],
-      "rationale": "The paragraph correctly describes release publishing to Maven Central.",
+      "rationale": "The paragraph correctly describes the release workflow and references PUBLISHING.md.",
       "unit_id": "inherited_unit:095.paragraph"
     },
     {
       "destination_section": "development_testing",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "link_target:039",
-        "link_target:042",
-        "link_target:043"
+        "link_target:039"
       ],
-      "rationale": "The paragraph correctly references contributing, code of conduct, and changelog.",
+      "rationale": "The paragraph correctly invites contributions and references CONTRIBUTING.md.",
       "unit_id": "inherited_unit:096.paragraph"
     },
     {
@@ -1168,7 +1476,7 @@
       "fact_ids": [
         "link_target:024"
       ],
-      "rationale": "The paragraph correctly references the security reporting route.",
+      "rationale": "The paragraph correctly describes the security reporting route.",
       "unit_id": "inherited_unit:097.paragraph"
     },
     {
@@ -1178,7 +1486,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The 'License' heading is rendered by the deterministic license section.",
+      "rationale": "The heading 'License' matches the section ID and is placeable.",
       "unit_id": "inherited_unit:098.heading"
     },
     {

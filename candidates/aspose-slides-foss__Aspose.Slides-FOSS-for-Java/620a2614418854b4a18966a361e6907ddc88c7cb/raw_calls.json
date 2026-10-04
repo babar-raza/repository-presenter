@@ -1,0 +1,1236 @@
+{
+  "1333e2853cc0f4ef21aaedbdeb8d5ac7d3ea93e097fd561abbf8b427acc8b5b3": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [
+        {
+          "fact_id": "identity:repository",
+          "reason": "Not needed in this summary unit; repository identity is implied by the clone URL in the rendered code block."
+        },
+        {
+          "fact_id": "identity:revision",
+          "reason": "Revision is not relevant to toolchain or runtime requirements."
+        },
+        {
+          "fact_id": "identity:family",
+          "reason": "Family identity does not affect build or test toolchain requirements."
+        },
+        {
+          "fact_id": "identity:platform",
+          "reason": "Platform identity is already evident from the Java runtime requirement and Maven usage."
+        },
+        {
+          "fact_id": "identity:ecosystem",
+          "reason": "Ecosystem identity is redundant with the Java and Maven toolchain."
+        },
+        {
+          "fact_id": "package:name",
+          "reason": "Package name is not required to describe the build and test toolchain."
+        },
+        {
+          "fact_id": "package:version",
+          "reason": "Version is not required to describe the build and test toolchain."
+        },
+        {
+          "fact_id": "inherited_unit:090.heading",
+          "reason": "Heading is rendered by the system and not part of prose content."
+        },
+        {
+          "fact_id": "inherited_unit:091.code_block",
+          "reason": "Code block is rendered by the system and must not be repeated or described in prose."
+        },
+        {
+          "fact_id": "inherited_unit:096.paragraph",
+          "reason": "This inherited unit belongs to a different section and is not part of the summary slot."
+        },
+        {
+          "fact_id": "inherited_unit:097.paragraph",
+          "reason": "This inherited unit belongs to a different section and is not part of the summary slot."
+        }
+      ],
+      "units": [
+        {
+          "fact_ids": [
+            "package:java_release",
+            "build_test_asset:ci",
+            "build_test_asset:tests"
+          ],
+          "section": "development_testing",
+          "slot": "summary",
+          "text": "Build and test the repository using Java 21 and Maven; clone the repository and run the Maven verify command to execute tests and package the artifact. The build also produces a CycloneDX SBOM into target/."
+        }
+      ]
+    }
+  },
+  "266fc4775774b18aa326ef9859db705306fee4320e20112b736275e000dc67d3": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "identity:repository",
+            "identity:revision",
+            "identity:family",
+            "identity:platform",
+            "identity:ecosystem",
+            "package:name",
+            "package:version",
+            "package:java_release",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.presentation",
+            "public_symbol:org.aspose.slides.foss.slidecollection",
+            "public_symbol:org.aspose.slides.foss.export.saveformat",
+            "public_symbol:org.aspose.slides.foss.autoshape",
+            "public_symbol:org.aspose.slides.foss.shapecollection",
+            "public_symbol:org.aspose.slides.foss.fillformat",
+            "public_symbol:getfontname",
+            "public_symbol:org.aspose.slides.foss.portionformat",
+            "public_symbol:org.aspose.slides.foss.paragraphformat",
+            "public_symbol:org.aspose.slides.foss.textframeformat",
+            "public_symbol:org.aspose.slides.foss.effectformat",
+            "public_symbol:org.aspose.slides.foss.threedformat",
+            "public_symbol:org.aspose.slides.foss.commentcollection",
+            "public_symbol:org.aspose.slides.foss.notesslidemanager",
+            "public_symbol:org.aspose.slides.foss.documentproperties",
+            "public_symbol:org.aspose.slides.foss.imagecollection",
+            "public_symbol:org.aspose.slides.foss.ippimage",
+            "public_symbol:relationship"
+          ],
+          "section": "opening",
+          "slot": "opening",
+          "text": "Aspose.Slides FOSS for Java is a Java library that enables developers to create, read, modify, and convert PowerPoint presentations without requiring Microsoft PowerPoint. It supports reading and writing common presentation formats such as PPTX and allows manipulation of slides, shapes, text, images, comments, and slide properties through the org.aspose.slides.foss.Presentation class and its related APIs. The library is intended for Java developers building applications that need programmatic presentation processing, including report generation, document automation, and content publishing workflows. It runs on Java 21 and is distributed as the org.aspose:aspose-slides-foss package at version 26.8.0."
+        }
+      ]
+    }
+  },
+  "2e2babe62fc1e07619db0e68a69c5ae9c0552717591de8139980f3894cf32327": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "link_target:029",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:029",
+          "text": "The getting started guide covers setup, core concepts, and step-by-step instructions for using Aspose.Slides FOSS for Java."
+        },
+        {
+          "fact_ids": [
+            "link_target:030",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:030",
+          "text": "The how-to guides and FAQ provide task-focused articles for common presentation operations."
+        },
+        {
+          "fact_ids": [
+            "link_target:031",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:031",
+          "text": "The full API reference offers a complete, browsable reference for the library's types and capabilities."
+        },
+        {
+          "fact_ids": [
+            "link_target:032",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:032",
+          "text": "The contributor guide explains build commands, core concepts, and import patterns for working on the source."
+        },
+        {
+          "fact_ids": [
+            "link_target:033",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:033",
+          "text": "The publishing guide describes how releases are built and published to Maven Central."
+        },
+        {
+          "fact_ids": [
+            "link_target:034",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:034",
+          "text": "The issue tracker allows users to report bugs or request features for Aspose.Slides FOSS for Java."
+        }
+      ]
+    }
+  },
+  "4ea036309c495401b7c8b7ee724dc92de86a748c784d0c92052578045b715bcb": {
+    "job": "independent_review",
+    "output": {
+      "findings": [
+        {
+          "absent": [
+            "Before you depend on `26.7.0`, read this. It predates a hardening fix: every parser and serializer in the current source",
+            "SECURITY.md",
+            "26.8.0"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "install_command:maven",
+            "link_target:024",
+            "package:version"
+          ],
+          "id": "F01",
+          "quote": "Install the published package from Maven Central (`org.aspose:aspose-slides-foss`, version 26.8.0):",
+          "repair": "Add a security warning paragraph before the install command: 'Before you depend on `26.7.0`, read this. It predates a hardening fix: every parser and serializer in the current source is created by a secure XML factory that refuses a `<!DOCTYPE>` declaration outright and disables external entities, external DTD loading, and XInclude. `26.7.0` does not have that fix, and [SECURITY.md](SECURITY.md) (",
+          "section_id": "installation",
+          "text": "The candidate omits the critical security warning about version 26.7.0 and the recommendation to build from source for version 26.8.0, which is present in the original README and supported by SECURITY.md and version facts."
+        }
+      ],
+      "preserve": [],
+      "verdict": "REJECT_PRESENTATION"
+    }
+  },
+  "799fcc778e96266f01ba43aaf6bd430fcdae47b3d410fdb48f406eb787ad91bf": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "scope_limitations",
+          "slot": "scope",
+          "text": "Aspose.Slides FOSS for Java provides a free, open-source API to create, read, and modify PowerPoint decks in the Office Open XML formats, targeting Java 21 and later."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.export.saveformat"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:1",
+          "text": "The public API does not expose charts, SmartArt, OLE objects, video, audio, animations, slide transitions, group shapes, hyperlinks, sections, slide backgrounds, themes, slide size, rendering or conversion, VBA macros, digital signatures, or encryption."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:2",
+          "text": "Cloning a master slide using getMasters().addClone(...) returns a clone object and reports a collection size of 2, but the saved package contains only one master part and nothing reports an error."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:3",
+          "text": "The save() method supports only PPTX, PPSX, and POTX output formats; calling it with any other SaveFormat value raises UnsupportedOperationException and writes nothing to disk."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:4",
+          "text": "The save() method requires an explicit output path or stream and does not infer a destination from ISaveOptions alone."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:5",
+          "text": "Table.mergeCells() works only on tables backed by XML and cannot merge cells on tables built without an underlying OOXML element."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "inherited_unit:088.list",
+            "install_command:maven",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:6",
+          "text": "The library requires Java 21 or later and is installed by retrieving the artifact org.aspose:aspose-slides-foss version 26.8.0."
+        }
+      ]
+    }
+  },
+  "8f0920f507bc2038da6b4d75235d4fb217ae4f11012396396d065b782f910987": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "enterprise_relationship",
+          "slot": "context",
+          "text": "The commercial product adds advanced features such as rendering to PDF with high fidelity, support for more presentation formats, and additional export options beyond the open-source package's capabilities."
+        }
+      ]
+    }
+  },
+  "99620e78f34e9d72f8c7160158e92b501a6472dc83a93ea970797e6578beed3b": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "identity:repository",
+            "identity:revision",
+            "identity:family",
+            "identity:platform",
+            "identity:ecosystem",
+            "package:name",
+            "package:version",
+            "package:java_release",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.presentation",
+            "public_symbol:org.aspose.slides.foss.slidecollection",
+            "public_symbol:org.aspose.slides.foss.export.saveformat",
+            "public_symbol:org.aspose.slides.foss.autoshape",
+            "public_symbol:org.aspose.slides.foss.shapecollection",
+            "public_symbol:org.aspose.slides.foss.fillformat",
+            "public_symbol:getfontname",
+            "public_symbol:org.aspose.slides.foss.portionformat",
+            "public_symbol:org.aspose.slides.foss.paragraphformat",
+            "public_symbol:org.aspose.slides.foss.textframeformat",
+            "public_symbol:org.aspose.slides.foss.effectformat",
+            "public_symbol:org.aspose.slides.foss.threedformat",
+            "public_symbol:org.aspose.slides.foss.commentcollection",
+            "public_symbol:org.aspose.slides.foss.notesslidemanager",
+            "public_symbol:org.aspose.slides.foss.documentproperties",
+            "public_symbol:org.aspose.slides.foss.imagecollection",
+            "public_symbol:org.aspose.slides.foss.ippimage",
+            "public_symbol:relationship"
+          ],
+          "section": "opening",
+          "slot": "opening",
+          "text": "Aspose.Slides FOSS for Java is a Java library that enables developers to create, read, modify, and convert PowerPoint presentations without requiring Microsoft PowerPoint. It supports reading and writing common presentation formats such as PPTX and allows manipulation of slides, shapes, text, images, comments, and slide properties through the org.aspose.slides.foss.Presentation class and its related APIs. The library is intended for Java developers building applications that need programmatic presentation processing, including report generation, document automation, and content publishing workflows. It runs on Java 21 and is distributed as the org.aspose:aspose-slides-foss package at version 26.8.0."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.export.saveformat",
+            "public_symbol:org.aspose.slides.foss.presentation",
+            "public_symbol:org.aspose.slides.foss.slidecollection"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:1",
+          "text": "Create and edit presentations by loading existing files or instantiating new ones, adding slides with addClone or addEmptySlide, and saving to formats like PPTX using the SaveFormat class."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.autoshape",
+            "public_symbol:org.aspose.slides.foss.fillformat",
+            "public_symbol:org.aspose.slides.foss.shapecollection"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:2",
+          "text": "Add and manipulate shapes such as AutoShape instances on slides, adjust their geometry and fill properties via FillFormat, and manage collections of shapes using ShapeCollection methods."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:getfontname",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.paragraphformat",
+            "public_symbol:org.aspose.slides.foss.portionformat",
+            "public_symbol:org.aspose.slides.foss.textframeformat"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:3",
+          "text": "Format text content by setting font height, bold, and color on PortionFormat, adjust paragraph spacing and alignment via ParagraphFormat, and control text frame layout with TextFrameFormat."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.effectformat",
+            "public_symbol:org.aspose.slides.foss.threedformat"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:4",
+          "text": "Apply visual effects like outer shadows and three-dimensional extrusion to shapes using EffectFormat and ThreeDFormat to enhance slide appearance."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.commentcollection",
+            "public_symbol:org.aspose.slides.foss.notesslidemanager"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:5",
+          "text": "Manage speaker notes and comments by adding authors and comments through CommentCollection and creating notes slides with NotesSlideManager."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.documentproperties"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:6",
+          "text": "Set and inspect document metadata such as title, subject, author, and keywords using the DocumentProperties interface."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.imagecollection",
+            "public_symbol:org.aspose.slides.foss.ippimage"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:7",
+          "text": "Embed images into presentations by adding raw image bytes to the ImageCollection and inserting them as picture frames on slides."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:relationship"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:8",
+          "text": "Preserve XML relationships during save operations by maintaining internal structure integrity through the Relationship mechanism."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.presentation"
+          ],
+          "section": "api_reference",
+          "slot": "intro",
+          "text": "Aspose.Slides FOSS for Java exposes the org.aspose.slides.foss.Presentation class as the root object for working with presentations, which owns collections of slides, shapes, images, and other components through its methods such as getSlides and getImages."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:org",
+          "text": "The org package serves as the top-level namespace for the Aspose.Slides FOSS for Java library, under which all public classes and interfaces are organized."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.presentation"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:org.aspose",
+          "text": "The org.aspose namespace contains the core Aspose classes, including org.aspose.slides, which provides the main API surface for working with presentations."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.shapecollection",
+            "public_symbol:org.aspose.slides.foss.slidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:org.aspose.slides",
+          "text": "The org.aspose.slides.foss.Presentation class provides access to slide and shape collections through getSlides and getImages, while SlideCollection and ShapeCollection expose methods such as addClone, addAutoShape, and get to manipulate presentation content."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:getfontname",
+            "public_symbol:org.aspose.slides.foss.portionformat"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:getfontname",
+          "text": "The getFontName method on org.aspose.slides.foss.PortionFormat allows retrieving the font name applied to a text portion in a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:relationship"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:relationship",
+          "text": "The Relationship class represents a relationship between parts in a presentation package, supporting structured document relationships."
+        }
+      ]
+    }
+  },
+  "b643f603a0a0f7ac2b3450f101d8fb84a253fa09aaed9a4a21d6ad7886878480": {
+    "job": "independent_review",
+    "output": {
+      "findings": [
+        {
+          "absent": [
+            "implementation 'org.aspose:aspose-slides-foss:26.8.0'",
+            "Gradle"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "install_command:maven"
+          ],
+          "id": "F01",
+          "quote": "Install the published package from Maven Central (`org.aspose:aspose-slides-foss`, version 26.8.0):",
+          "repair": "Add the Gradle installation command after the Maven snippet: `implementation 'org.aspose:aspose-slides-foss:26.8.0'`.",
+          "section_id": "installation",
+          "text": "The candidate omits the Gradle installation command, which is present in the original README and supported by the install_command:maven fact."
+        },
+        {
+          "absent": [
+            "org.apache.poi:poi-ooxml 5.4.1"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "dependency:none"
+          ],
+          "id": "F02",
+          "quote": "### Development Dependencies",
+          "repair": "Remove the Apache POI dependency from the Development Dependencies list, as the library has no required third-party package dependencies.",
+          "section_id": "dependencies",
+          "text": "The candidate incorrectly lists `org.apache.poi:poi-ooxml 5.4.1` as a development dependency, but the facts confirm no third-party dependencies are required and the original README explicitly states zero dependencies."
+        },
+        {
+          "absent": [
+            "public_symbol:relationship"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F03",
+          "quote": "### Relationship",
+          "repair": "Remove the `Relationship` class and its associated member reference, as it is not part of the verified public API surface.",
+          "section_id": "api_reference",
+          "text": "The candidate includes a non-existent `Relationship` class in the API surface, which is not supported by any public_symbol fact and does not appear in the original README."
+        },
+        {
+          "absent": [
+            "public_symbol:getfontname"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F04",
+          "quote": "### getFontName",
+          "repair": "Remove the `getFontName` method and its associated member reference, as it is not part of the verified public API surface.",
+          "section_id": "api_reference",
+          "text": "The candidate includes a non-existent `getFontName` method in the API surface, which is not supported by any public_symbol fact and does not appear in the original README."
+        },
+        {
+          "absent": [
+            "public_symbol:org"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F05",
+          "quote": "### org",
+          "repair": "Remove the `org` package section and its associated namespace descriptions, as they are not part of the verified public API surface.",
+          "section_id": "api_reference",
+          "text": "The candidate includes a non-existent `org` package section in the API reference, which is not supported by any public_symbol fact and does not appear in the original README."
+        },
+        {
+          "absent": [
+            "public_symbol:org.aspose"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F06",
+          "quote": "### aspose",
+          "repair": "Remove the `aspose` package section and its associated namespace descriptions, as they are not part of the verified public API surface.",
+          "section_id": "api_reference",
+          "text": "The candidate includes a non-existent `aspose` package section in the API reference, which is not supported by any public_symbol fact and does not appear in the original README."
+        },
+        {
+          "absent": [
+            "public_symbol:org.aspose.slides"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F07",
+          "quote": "### slides",
+          "repair": "Remove the `slides` package section and its associated namespace descriptions, as they are not part of the verified public API surface.",
+          "section_id": "api_reference",
+          "text": "The candidate includes a non-existent `slides` package section in the API reference, which is not supported by any public_symbol fact and does not appear in the original README."
+        },
+        {
+          "absent": [],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F08",
+          "quote": "The verified public surface has 238 types.",
+          "repair": "Remove the specific count of 238 types, as it is not supported by any fact and does not appear in the original README.",
+          "section_id": "api_reference",
+          "text": "The candidate incorrectly claims the verified public API surface has 238 types, but the original README and facts do not support this specific count."
+        }
+      ],
+      "preserve": [],
+      "verdict": "REJECT_PRESENTATION"
+    }
+  },
+  "d2a03d7229df38485f7088b7131a03c657049066d2fc464189bcd72263203a8b": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.export.saveformat",
+            "public_symbol:org.aspose.slides.foss.presentation",
+            "public_symbol:org.aspose.slides.foss.slidecollection"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:1",
+          "text": "Create and edit presentations by loading existing files or instantiating new ones, adding slides with addClone or addEmptySlide, and saving to formats like PPTX using the SaveFormat class."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.autoshape",
+            "public_symbol:org.aspose.slides.foss.fillformat",
+            "public_symbol:org.aspose.slides.foss.shapecollection"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:2",
+          "text": "Add and manipulate shapes such as AutoShape instances on slides, adjust their geometry and fill properties via FillFormat, and manage collections of shapes using ShapeCollection methods."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.paragraphformat",
+            "public_symbol:org.aspose.slides.foss.portionformat",
+            "public_symbol:org.aspose.slides.foss.textframeformat"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:3",
+          "text": "Format text content by setting font height, bold, and color on PortionFormat, adjust paragraph spacing and alignment via ParagraphFormat, and control text frame layout with TextFrameFormat."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.effectformat",
+            "public_symbol:org.aspose.slides.foss.threedformat"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:4",
+          "text": "Apply visual effects like outer shadows and three-dimensional extrusion to shapes using EffectFormat and ThreeDFormat to enhance slide appearance."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.commentcollection",
+            "public_symbol:org.aspose.slides.foss.notesslidemanager"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:5",
+          "text": "Manage speaker notes and comments by adding authors and comments through CommentCollection and creating notes slides with NotesSlideManager."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.documentproperties"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:6",
+          "text": "Set and inspect document metadata such as title, subject, author, and keywords using the DocumentProperties interface."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.imagecollection",
+            "public_symbol:org.aspose.slides.foss.ippimage"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:7",
+          "text": "Embed images into presentations by adding raw image bytes to the ImageCollection and inserting them as picture frames on slides."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:relationship"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:8",
+          "text": "Preserve XML relationships during save operations by maintaining internal structure integrity through the Relationship mechanism."
+        }
+      ]
+    }
+  },
+  "dcdaacc8b4b213a1bee703a02426f073e0e780d8592aadb8340adb061fc70d7a": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "link_target:029"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:029",
+          "text": "The getting started guide covers setup, core concepts, and step-by-step instructions for using Aspose.Slides FOSS for Java."
+        },
+        {
+          "fact_ids": [
+            "link_target:030"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:030",
+          "text": "The how-to guides and FAQ provide task-focused articles for common presentation operations."
+        },
+        {
+          "fact_ids": [
+            "link_target:031"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:031",
+          "text": "The full API reference offers a complete, browsable reference for the library's types and capabilities."
+        },
+        {
+          "fact_ids": [
+            "link_target:032"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:032",
+          "text": "The contributor guide explains build commands, core concepts, and import patterns for working on the source."
+        },
+        {
+          "fact_ids": [
+            "link_target:033"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:033",
+          "text": "The publishing guide describes how releases are built and published to Maven Central."
+        },
+        {
+          "fact_ids": [
+            "link_target:034"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:034",
+          "text": "The issue tracker allows users to report bugs or request features for Aspose.Slides FOSS for Java."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "scope_limitations",
+          "slot": "scope",
+          "text": "Aspose.Slides FOSS for Java provides a free, open-source API to create, read, and modify PowerPoint decks in the Office Open XML formats, targeting Java 21 and later."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.export.saveformat"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:1",
+          "text": "The public API does not expose charts, SmartArt, OLE objects, video, audio, animations, slide transitions, group shapes, hyperlinks, sections, slide backgrounds, themes, slide size, rendering or conversion, VBA macros, digital signatures, or encryption."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:2",
+          "text": "Cloning a master slide using getMasters().addClone(...) returns a clone object and reports a collection size of 2, but the saved package contains only one master part and nothing reports an error."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:3",
+          "text": "The save() method supports only PPTX, PPSX, and POTX output formats; calling it with any other SaveFormat value raises UnsupportedOperationException and writes nothing to disk."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:4",
+          "text": "The save() method requires an explicit output path or stream and does not infer a destination from ISaveOptions alone."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "public_symbol:org",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:5",
+          "text": "Table.mergeCells() works only on tables backed by XML and cannot merge cells on tables built without an underlying OOXML element."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:088.list",
+            "install_command:maven",
+            "package:java_release"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:6",
+          "text": "The library requires Java 21 or later and is installed by retrieving the artifact org.aspose:aspose-slides-foss version 26.8.0."
+        },
+        {
+          "fact_ids": [
+            "package:java_release",
+            "build_test_asset:ci",
+            "build_test_asset:tests"
+          ],
+          "section": "development_testing",
+          "slot": "summary",
+          "text": "Build and test the repository using Java 21 and Maven; clone the repository and run the Maven verify command to execute tests and package the artifact. The build also produces a CycloneDX SBOM into target/."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version"
+          ],
+          "section": "enterprise_relationship",
+          "slot": "context",
+          "text": "The commercial product adds advanced features such as rendering to PDF with high fidelity, support for more presentation formats, and additional export options beyond the open-source package's capabilities."
+        }
+      ]
+    }
+  },
+  "f2995591e54a8e940beba4badb7ed0203497bf42ccb5acbd4ba5a707f563d7a9": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org.aspose.slides.foss.presentation"
+          ],
+          "section": "api_reference",
+          "slot": "intro",
+          "text": "Aspose.Slides FOSS for Java exposes the org.aspose.slides.foss.Presentation class as the root object for working with presentations, which owns collections of slides, shapes, images, and other components through its methods such as getSlides and getImages."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:org",
+          "text": "The org package serves as the top-level namespace for the Aspose.Slides FOSS for Java library, under which all public classes and interfaces are organized."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org.aspose",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.presentation"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:org.aspose",
+          "text": "The org.aspose namespace contains the core Aspose classes, including org.aspose.slides, which provides the main API surface for working with presentations."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:org.aspose.slides",
+            "public_symbol:org.aspose.slides.foss.shapecollection",
+            "public_symbol:org.aspose.slides.foss.slidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:org.aspose.slides",
+          "text": "The org.aspose.slides.foss.Presentation class provides access to slide and shape collections through getSlides and getImages, while SlideCollection and ShapeCollection expose methods such as addClone, addAutoShape, and get to manipulate presentation content."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:getfontname",
+            "public_symbol:org.aspose.slides.foss.portionformat"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:getfontname",
+          "text": "The getFontName method on org.aspose.slides.foss.PortionFormat allows retrieving the font name applied to a text portion in a presentation."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:java_release",
+            "package:name",
+            "package:version",
+            "public_symbol:relationship"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:relationship",
+          "text": "The Relationship class represents a relationship between parts in a presentation package, supporting structured document relationships."
+        }
+      ]
+    }
+  },
+  "f9e32dd918ccfbed918255d6af827a16985eee5be6c53b68a564a613969bc7e2": {
+    "job": "independent_review",
+    "output": {
+      "findings": [
+        {
+          "absent": [
+            "implementation 'org.aspose:aspose-slides-foss:26.8.0'",
+            "Gradle"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F01",
+          "quote": "Install the published package from Maven Central (`org.aspose:aspose-slides-foss`, version 26.8.0):",
+          "repair": "Restore the Gradle dependency snippet to match the original README's installation instructions for Java developers.",
+          "section_id": "installation",
+          "text": "The installation section omits the Gradle dependency snippet present in the original README, which is a standard expectation for Java projects."
+        },
+        {
+          "absent": [
+            "No required third-party package dependencies."
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "dependency:none"
+          ],
+          "id": "F02",
+          "quote": "### Development Dependencies",
+          "repair": "Remove the Apache POI dependency claim and align with the 'none' dependency fact; development dependencies should only list JUnit and AssertJ as per the original.",
+          "section_id": "dependencies",
+          "text": "The dependencies section incorrectly lists `org.apache.poi:poi-ooxml 5.4.1` as a development dependency, but the original README and facts confirm no third-party dependencies are required."
+        },
+        {
+          "absent": [
+            "The org package serves as the top-level namespace...",
+            "The `org.aspose` namespace contains...",
+            "The `org.aspose.slides.foss.Presentation` class provides..."
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F03",
+          "quote": "#### org",
+          "repair": "Remove the misleading 'org', 'aspose', 'slides' subsections and restore the original API Reference structure.",
+          "section_id": "api_reference",
+          "text": "The API Reference section introduces a non-standard 'org', 'aspose', 'slides' hierarchy that does not exist in the original README and misrepresents the package structure."
+        },
+        {
+          "absent": [
+            "The getFontName method on `org.aspose.slides.foss.PortionFormat` allows retrieving..."
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F04",
+          "quote": "### getFontName",
+          "repair": "Remove the 'getFontName' and 'Relationship' subsections as they are not part of the original API Reference structure and introduce unsupported detail.",
+          "section_id": "api_reference",
+          "text": "The API Reference section includes a non-standard 'getFontName' and 'Relationship' subsection that are not present in the original README and misrepresent the API surface."
+        },
+        {
+          "absent": [
+            "| | .NET | Java | C++ | Python |",
+            "|---|---|---|---|---|",
+            "| Create, open, round-trip, save | yes | yes | yes | yes |",
+            "| Threaded comment part | no | **yes** | no | yes |",
+            "| Clone a master | yes | **no** | no | yes |",
+            "| Sections | yes | **no** | no | no |",
+            "| Formats `save` writes | 3 | **3** | 6 | 7 |",
+            "| Default slide size of a new deck | 4:3 | **4:3** | 4:3 | 16:9 |"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F05",
+          "quote": "Aspose.Slides FOSS for Java provides a free, open-source API to create, read, and modify PowerPoint decks in the Office Open XML formats, targeting Java 21 and later.",
+          "repair": "Restore the edition comparison table and related text to preserve the critical edition differentiation present in the original README.",
+          "section_id": "scope_limitations",
+          "text": "The Scope and Limitations section duplicates the 'Choosing an Edition' table and content from the original README, but the candidate omits the table entirely, losing critical edition comparison data."
+        },
+        {
+          "absent": [
+            "a CycloneDX SBOM"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F06",
+          "quote": "Build and test the repository using Java 21 and Maven; clone the repository and run the Maven verify command to execute tests and package the artifact. The build also produces a CycloneDX SBOM into target/.",
+          "repair": "Restore the mention of the CycloneDX SBOM production to match the original README and support the build_test_asset fact.",
+          "section_id": "development_testing",
+          "text": "The Development and Testing section omits the mention of the CycloneDX SBOM being produced, which is explicitly stated in the original README and supported by facts."
+        },
+        {
+          "absent": [
+            "Everything below was exercised through the public API and then confirmed by reading the XML inside the file that cameout"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F07",
+          "quote": "- **XML preservation.** Preserve XML relationships during save operations by maintaining internal structure integrity through the `Relationship` mechanism.",
+          "repair": "Restore the verification methodology note to clarify that capabilities are confirmed by inspecting the produced XML, not just library introspection.",
+          "section_id": "key_capabilities",
+          "text": "The Key Capabilities section drops the verification methodology note present in the original README, which is important for understanding how capabilities are confirmed."
+        },
+        {
+          "absent": [
+            "- [Quick Start](#quick-start)",
+            "- [Additional Examples](#additional-examples)"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F08",
+          "quote": "## Navigation",
+          "repair": "Restore the 'Quick Start' and 'Additional Examples' links to the navigation list to match the original README's structure.",
+          "section_id": "navigation",
+          "text": "The Navigation section omits the 'Quick Start' and 'Additional Examples' links present in the original README, breaking the expected navigation flow."
+        }
+      ],
+      "preserve": [],
+      "verdict": "REJECT_PRESENTATION"
+    }
+  }
+}

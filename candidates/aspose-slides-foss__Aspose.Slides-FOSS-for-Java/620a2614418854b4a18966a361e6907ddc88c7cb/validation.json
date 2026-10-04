@@ -78,14 +78,14 @@
       "failures": [],
       "id": "BC-06",
       "judged_at": "S9",
-      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name",
+      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name; no unsafe raw HTML (script/event-handler/dangerous-scheme) renders outside a fenced code block",
       "sections": [
         "documentation_resources",
         "enterprise_relationship",
         "badges"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "4"
     },
     {
       "causal_stage": null,
@@ -264,9 +264,11 @@
           "extracted": 13,
           "kind": "example",
           "reasons": [
-            "UNRESOLVED: example 7: NOT_VERIFIED; the fence uses `imageBytes` without binding it; the README establishes it in an earlier section"
+            "UNRESOLVED: example 1: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
+            "UNRESOLVED: example 2: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
+            "UNRESOLVED: example 3: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine"
           ],
-          "supported": 12
+          "supported": 0
         },
         {
           "extracted": 0,
@@ -312,30 +314,34 @@
       "section_id": "dependencies"
     },
     {
-      "included": true,
+      "included": false,
       "kinds": [
         {
           "extracted": 13,
           "kind": "example",
           "reasons": [
-            "UNRESOLVED: example 7: NOT_VERIFIED; the fence uses `imageBytes` without binding it; the README establishes it in an earlier section"
+            "UNRESOLVED: example 1: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
+            "UNRESOLVED: example 2: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
+            "UNRESOLVED: example 3: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine"
           ],
-          "supported": 12
+          "supported": 0
         }
       ],
       "required": false,
       "section_id": "quick_start"
     },
     {
-      "included": true,
+      "included": false,
       "kinds": [
         {
           "extracted": 13,
           "kind": "example",
           "reasons": [
-            "UNRESOLVED: example 7: NOT_VERIFIED; the fence uses `imageBytes` without binding it; the README establishes it in an earlier section"
+            "UNRESOLVED: example 1: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
+            "UNRESOLVED: example 2: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
+            "UNRESOLVED: example 3: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine"
           ],
-          "supported": 12
+          "supported": 0
         }
       ],
       "required": false,
@@ -377,9 +383,11 @@
           "extracted": 13,
           "kind": "example",
           "reasons": [
-            "UNRESOLVED: example 7: NOT_VERIFIED; the fence uses `imageBytes` without binding it; the README establishes it in an earlier section"
+            "UNRESOLVED: example 1: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
+            "UNRESOLVED: example 2: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine",
+            "UNRESOLVED: example 3: NOT_VERIFIED; BLOCKED_TOOLCHAIN: no Java compiler on this machine"
           ],
-          "supported": 12
+          "supported": 0
         },
         {
           "extracted": 5097,
@@ -439,8 +447,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "c4943f4606af62b67931d7797ebb80d0af34aaad47f74d6a51da0bbe0b5bc33a",
-  "readme_sha256": "143ada6291cd9a0ab4d217d2b7e4fafacb45bca29560a11d6253c27d91d26042",
+  "protected_content_fingerprint": "1c2d54d0414d321442dfee70e89b05028494313c6a761ce3de0d966d183676da",
+  "readme_sha256": "a8dceaf0bc03ee8b834ec6d7ae58c708e087433c578190fd3839b0c9921dfb6c",
   "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
   "schema_version": 1,
   "source_revision": "620a2614418854b4a18966a361e6907ddc88c7cb",
@@ -449,5 +457,5 @@
     "pass": 11,
     "pending": 0
   },
-  "validator_version": "3"
+  "validator_version": "4"
 }

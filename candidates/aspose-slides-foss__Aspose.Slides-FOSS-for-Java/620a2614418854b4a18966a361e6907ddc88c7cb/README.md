@@ -4,7 +4,7 @@
 
 [![Aspose.Slides FOSS for Java](https://products.aspose.org/media/slides/java/banner-readme.png)](https://products.aspose.org/slides/java/)
 
-Aspose.Slides FOSS for Java is a free, open-source library that enables Java developers to create, read, modify, and convert PowerPoint presentations without requiring Microsoft PowerPoint. It supports common tasks such as adding shapes, tables, connectors, text formatting, comments, speaker notes, and document properties, as well as saving presentations in PPTX, PPSX, and POTX formats. Developers use it to automate slide generation, batch processing, and report creation in enterprise and educational applications. The library is published as `org.aspose:aspose-slides-foss` version 26.8.0, targets Java 21, and is licensed under the MIT license.
+Aspose.Slides FOSS for Java is a Java library that enables developers to create, read, modify, and convert PowerPoint presentations without requiring Microsoft PowerPoint. It supports reading and writing common presentation formats such as PPTX and allows manipulation of slides, shapes, text, images, comments, and slide properties through the `org.aspose.slides.foss.Presentation` class and its related APIs. The library is intended for Java developers building applications that need programmatic presentation processing, including report generation, document automation, and content publishing workflows. It runs on Java 21 and is distributed as the `org.aspose:aspose-slides-foss` package at version 26.8.0.
 
 ## Navigation
 
@@ -12,8 +12,6 @@ Aspose.Slides FOSS for Java is a free, open-source library that enables Java dev
 - [Key Capabilities](#key-capabilities)
 - [Installation](#installation)
 - [Dependencies](#dependencies)
-- [Quick Start](#quick-start)
-- [Additional Examples](#additional-examples)
 - [API Reference](#api-reference)
 - [Documentation & Resources](#documentation--resources)
 - [Scope and Limitations](#scope-and-limitations)
@@ -30,16 +28,16 @@ flowchart TD
     subgraph capl[" "]
       direction TB
       c1["Create and edit presentations"]
-      c2["Add and format shapes"]
-      c3["Apply visual effects and 3D formatting"]
-      c4["Manage threaded comments and speaker notes"]
+      c2["Shape and formatting"]
+      c3["Text formatting"]
+      c4["Visual effects and 3D"]
     end
     subgraph capr[" "]
       direction TB
-      c5["Format text and document properties"]
-      c6["Clone and manipulate slides"]
-      c7["Embed images and create tables"]
-      c8["Save to multiple output formats"]
+      c5["Comments and notes"]
+      c6["Document properties"]
+      c7["Image embedding"]
+      c8["XML preservation"]
     end
   end
   PRODUCT --> Capabilities
@@ -47,14 +45,14 @@ flowchart TD
 
 ## Key Capabilities
 
-- **Create and edit presentations.** Create new presentations from scratch or open existing files, then modify slides, shapes, and content programmatically using the `org.aspose:aspose-slides-foss` library version 26.8.0 for Java 21, as demonstrated by loading a file and inspecting its slide count.
-- **Add and format shapes.** Add various shape types including rectangles and connectors, connect shapes using connection sites, and apply solid fill colors to define visual appearance.
-- **Apply visual effects and 3D formatting.** Apply visual effects such as outer shadows to shapes, configure blur radius, direction, distance, and shadow color, enabling professional-grade visual enhancements.
-- **Manage threaded comments and speaker notes.** Add threaded comments with authors, timestamps, and positions on slides, and attach speaker notes to slides via the notes slide manager.
-- **Format text and document properties.** Format text with font height, bold styling, and fill color at the portion level, while setting document properties such as title, subject, author, keywords, and category.
-- **Clone and manipulate slides.** Clone existing slides to duplicate content and layout, and save specific slides by index to create custom slide decks.
-- **Embed images and create tables.** Create tables with custom column widths and row heights, populate table cells with text, and leverage the `Relationship` class for structured slide content.
-- **Save to multiple output formats.** Save presentations to multiple output formats including PPTX, PPSX, and POTX, and write output to streams such as `ByteArrayOutputStream` for in-memory operations.
+- **Create and edit presentations.** Create and edit presentations by loading existing files or instantiating new ones, adding slides with addClone or addEmptySlide, and saving to formats like PPTX using the `SaveFormat` class.
+- **Shape and formatting.** Add and manipulate shapes such as `AutoShape` instances on slides, adjust their geometry and fill properties via `FillFormat`, and manage collections of shapes using `ShapeCollection` methods.
+- **Text formatting.** Format text content by setting font height, bold, and color on `PortionFormat`, adjust paragraph spacing and alignment via `ParagraphFormat`, and control text frame layout with `TextFrameFormat`.
+- **Visual effects and 3D.** Apply visual effects like outer shadows and three-dimensional extrusion to shapes using `EffectFormat` and `ThreeDFormat` to enhance slide appearance.
+- **Comments and notes.** Manage speaker notes and comments by adding authors and comments through `CommentCollection` and creating notes slides with `NotesSlideManager`.
+- **Document properties.** Set and inspect document metadata such as title, subject, author, and keywords using the `DocumentProperties` interface.
+- **Image embedding.** Embed images into presentations by adding raw image bytes to the `ImageCollection` and inserting them as picture frames on slides.
+- **XML preservation.** Preserve XML relationships during save operations by maintaining internal structure integrity through the `Relationship` mechanism.
 
 ## Installation
 
@@ -82,229 +80,9 @@ No required third-party package dependencies; in `pom.xml`, every `<dependency>`
 - `org.junit.jupiter:junit-jupiter-engine 5.11.4`
 - `org.junit.jupiter:junit-jupiter-params 5.11.4`
 
-## Quick Start
-
-Create a new presentation, add a blue rectangle shape to the first slide, and save it as a PPTX file using the Aspose.Slides FOSS for Java library (package `org.aspose:aspose-slides-foss` version 26.8.0) for Java 21.
-
-```java
-import org.aspose.slides.foss.Presentation;
-import org.aspose.slides.foss.ShapeType;
-import org.aspose.slides.foss.FillType;
-import org.aspose.slides.foss.IAutoShape;
-import org.aspose.slides.foss.ISlide;
-import org.aspose.slides.foss.drawing.Color;
-import org.aspose.slides.foss.export.SaveFormat;
-
-try (Presentation pres = new Presentation()) {
-    ISlide slide = pres.getSlides().get(0);
-    slide.getShapes().clear();
-
-    IAutoShape shape = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 200, 100);
-    shape.getFillFormat().setFillType(FillType.SOLID);
-    shape.getFillFormat().getSolidFillColor().setColor(Color.fromArgb(255, 0, 128, 255));
-
-    pres.save("hello.pptx", SaveFormat.PPTX);
-}
-```
-
-## Additional Examples
-
-The following examples demonstrate common tasks with Aspose.Slides FOSS for Java, including adding connectors, comments, document properties, effects, notes, cloning slides, opening existing files, streaming output, formatting text, creating tables, and saving slide subsets.
-
-### Add a connector between two shapes
-
-```java
-import org.aspose.slides.foss.*;
-import org.aspose.slides.foss.export.SaveFormat;
-
-try (Presentation pres = new Presentation()) {
-    ISlide slide = pres.getSlides().get(0);
-    slide.getShapes().clear();
-
-    IAutoShape s1 = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 100, 60);
-    IAutoShape s2 = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 350, 200, 100, 60);
-    IConnector conn = slide.getShapes().addConnector(ShapeType.BENT_CONNECTOR3, 0, 0, 1, 1);
-
-    conn.setStartShapeConnectedTo(s1);
-    conn.setStartShapeConnectionSiteIndex(3);
-    conn.setEndShapeConnectedTo(s2);
-    conn.setEndShapeConnectionSiteIndex(1);
-
-    pres.save("connector.pptx", SaveFormat.PPTX);
-}
-```
-
-<details>
-<summary>View Additional Examples</summary>
-
-### Add a threaded comment to a slide
-
-```java
-import org.aspose.slides.foss.*;
-import org.aspose.slides.foss.drawing.PointF;
-import org.aspose.slides.foss.export.SaveFormat;
-
-import java.time.LocalDateTime;
-
-try (Presentation pres = new Presentation()) {
-    ICommentAuthor author = pres.getCommentAuthors().addAuthor("Alice", "A");
-    ISlide slide = pres.getSlides().get(0);
-    LocalDateTime now = LocalDateTime.of(2026, 1, 15, 12, 0, 0);
-    IComment comment = author.getComments().addComment("Review note", slide,
-            new PointF(2.0f, 3.0f), now);
-
-    pres.save("comments.pptx", SaveFormat.PPTX);
-}
-```
-
-### Set document properties on a presentation
-
-```java
-import org.aspose.slides.foss.*;
-import org.aspose.slides.foss.export.SaveFormat;
-
-try (Presentation pres = new Presentation()) {
-    IDocumentProperties props = pres.getDocumentProperties();
-    props.setTitle("My Presentation");
-    props.setSubject("Demo Subject");
-    props.setAuthor("John Doe");
-    props.setKeywords("demo, test");
-    props.setCategory("Examples");
-
-    pres.save("properties.pptx", SaveFormat.PPTX);
-}
-```
-
-### Apply an outer shadow effect to a shape
-
-```java
-import org.aspose.slides.foss.*;
-import org.aspose.slides.foss.drawing.Color;
-import org.aspose.slides.foss.export.SaveFormat;
-
-try (Presentation pres = new Presentation()) {
-    ISlide slide = pres.getSlides().get(0);
-    slide.getShapes().clear();
-    IAutoShape shape = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 100, 100, 200, 100);
-
-    IEffectFormat ef = shape.getEffectFormat();
-    ef.enableOuterShadowEffect();
-    IOuterShadow shadow = ef.getOuterShadowEffect();
-    shadow.setBlurRadius(10);
-    shadow.setDirection(315);
-    shadow.setDistance(8);
-    shadow.getShadowColor().setColor(Color.fromArgb(128, 0, 0, 0));
-
-    pres.save("shadow.pptx", SaveFormat.PPTX);
-}
-```
-
-### Add speaker notes to a slide
-
-```java
-import org.aspose.slides.foss.*;
-import org.aspose.slides.foss.export.SaveFormat;
-
-try (Presentation pres = new Presentation()) {
-    ISlide slide = pres.getSlides().get(0);
-    INotesSlide notes = slide.getNotesSlideManager().addNotesSlide();
-    notes.getNotesTextFrame().setText("Speaker notes");
-
-    pres.save("notes.pptx", SaveFormat.PPTX);
-}
-```
-
-### Clone a slide within a presentation
-
-```java
-import org.aspose.slides.foss.*;
-
-try (Presentation pres = new Presentation()) {
-    ISlide slide = pres.getSlides().get(0);
-    slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 200, 100);
-    pres.getSlides().addClone(slide);
-    // pres.getSlides().size() is now 2
-}
-```
-
-### Open an existing presentation file
-
-```java
-import org.aspose.slides.foss.Presentation;
-import java.nio.file.Path;
-
-try (Presentation pres = new Presentation(Path.of("Presentation.pptx").toString())) {
-    // pres.getSlides().size() reflects the real slide count in the file
-}
-```
-
-### Save a presentation to an in-memory stream
-
-```java
-import org.aspose.slides.foss.Presentation;
-import org.aspose.slides.foss.export.SaveFormat;
-import java.io.ByteArrayOutputStream;
-
-try (Presentation pres = new Presentation()) {
-    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-    pres.save(buf, SaveFormat.PPTX);
-}
-```
-
-### Format a text portion's font size, weight, and color
-
-```java
-import org.aspose.slides.foss.*;
-import org.aspose.slides.foss.drawing.Color;
-import org.aspose.slides.foss.export.SaveFormat;
-
-try (Presentation pres = new Presentation()) {
-    IAutoShape shape = pres.getSlides().get(0).getShapes()
-            .addAutoShape(ShapeType.RECTANGLE, 50, 50, 400, 150);
-    shape.addTextFrame("Formatted text");
-    IPortionFormat fmt = shape.getTextFrame().getParagraphs().get(0)
-            .getPortions().get(0).getPortionFormat();
-    fmt.setFontHeight(24);
-    fmt.setFontBold(NullableBool.TRUE);
-    fmt.getFillFormat().setFillType(FillType.SOLID);
-    fmt.getFillFormat().getSolidFillColor().setColor(Color.fromArgb(255, 0, 70, 127));
-
-    pres.save("text.pptx", SaveFormat.PPTX);
-}
-```
-
-### Create a table and set cell text
-
-```java
-import org.aspose.slides.foss.*;
-import org.aspose.slides.foss.export.SaveFormat;
-
-try (Presentation pres = new Presentation()) {
-    ITable table = pres.getSlides().get(0).getShapes()
-            .addTable(50, 50, new double[]{120, 120, 120}, new double[]{40, 40});
-    table.getRows().get(0).get(0).getTextFrame().setText("Name");
-    table.getRows().get(0).get(1).getTextFrame().setText("Value");
-
-    pres.save("table.pptx", SaveFormat.PPTX);
-}
-```
-
-### Save a subset of slides to a new file
-
-```java
-import org.aspose.slides.foss.Presentation;
-import org.aspose.slides.foss.export.SaveFormat;
-
-try (Presentation pres = new Presentation("deck.pptx")) {
-    pres.save("first-and-third.pptx", new int[]{0, 2}, SaveFormat.PPTX);
-}
-```
-
-</details>
-
 ## API Reference
 
-The entry point for working with presentations is the `Presentation` class, which provides access to slides, shapes, and document properties. The `org.aspose.slides.foss` package contains the concrete implementations of the interfaces defined in `org.aspose.slides`, and `org.aspose.slides.foss` provides the FOSS-specific functionality.
+Aspose.Slides FOSS for Java exposes the `org.aspose.slides.foss.Presentation` class as the root object for working with presentations, which owns collections of slides, shapes, images, and other components through its methods such as getSlides and getImages.
 
 The verified public surface has 238 types.
 
@@ -563,78 +341,59 @@ The verified public surface has 238 types.
 
 ### org
 
-The root package org serves as the top-level namespace for the Aspose.Slides FOSS for Java library, under which all public symbols are organized.
+The org package serves as the top-level namespace for the Aspose.Slides FOSS for Java library, under which all public classes and interfaces are organized.
 
 ### aspose
 
-The `org.aspose` package provides the core Aspose APIs, including the base interfaces and classes that define the presentation object model.
+The `org.aspose` namespace contains the core Aspose classes, including `org.aspose.slides`, which provides the main API surface for working with presentations.
 
 ### slides
 
-The `org.aspose.slides` package defines the main interfaces such as `ISlideCollection`, `IShapeCollection`, and `IPresentation` that form the foundation of the presentation API.
+The `org.aspose.slides.foss.Presentation` class provides access to slide and shape collections through getSlides and getImages, while `SlideCollection` and `ShapeCollection` expose methods such as addClone, addAutoShape, and get to manipulate presentation content.
+
+### getFontName
+
+The getFontName method on `org.aspose.slides.foss.PortionFormat` allows retrieving the font name applied to a text portion in a presentation.
 
 ### Relationship
 
-The `Relationship` class represents a relationship between parts in the underlying Open XML package structure.
-
-
-The primary entry point is `Presentation`, which owns an `ISlideCollection` of `Slide` objects; each slide exposes an `IShapeCollection` of `Shape`-derived objects (`AutoShape`, `Connector`, `Table`, `PictureFrame`) built through `ShapeCollection`'s `addAutoShape()`, `addConnector()`, `addTable()`, and `addPictureFrame()` methods.
-
-- `Presentation` — the root object; owns slides, images, comment authors, and document properties.
-  - `Presentation()`, `Presentation(path)`, `Presentation(in) -> Presentation`
-  - `getSlides() -> ISlideCollection`, `getImages() -> IImageCollection`, `getCommentAuthors() -> ICommentAuthorCollection`
-  - `getDocumentProperties() -> IDocumentProperties`, `getLayoutSlides() -> IGlobalLayoutSlideCollection`, `getMasters() -> IMasterSlideCollection`
-  - `save(path, format) -> void`, `save(stream, format) -> void`, `dispose() -> void`
-
-- `SlideCollection` — the real `ISlideCollection` implementation returned by `Presentation.getSlides()`.
-  - `get(index) -> ISlide`, `size() -> int`, `addClone(sourceSlide) -> ISlide`, `addEmptySlide(layout) -> ISlide`, `insertEmptySlide(index, layout) -> ISlide`, `removeAt(index) -> void`, `indexOf(slide) -> int`
-
-- `ShapeCollection` — the real `IShapeCollection` implementation returned by `Slide.getShapes()`.
-  - `addAutoShape(shapeType, x, y, width, height) -> IAutoShape`, `addConnector(shapeType, x, y, width, height) -> IConnector`
-  - `addTable(x, y, colWidths, rowHeights) -> ITable`, `addPictureFrame(shapeType, x, y, width, height, image) -> IPictureFrame`
-  - `get(index) -> IShape`, `size() -> int`, `remove(shape) -> void`, `removeAt(index) -> void`, `clear() -> void`, `reorder(index, shape) -> void`
-
-- `AutoShape` — a preset-geometry shape (rectangle, ellipse, and every other `ShapeType`).
-  - `getShapeType() -> ShapeType`, `addTextFrame(text) -> ITextFrame`, `getTextFrame() -> ITextFrame`, `getFillFormat() -> IFillFormat`, `getLineFormat() -> ILineFormat`, `getEffectFormat() -> IEffectFormat`, `getThreeDFormat() -> IThreeDFormat`
-
-- `Connector` — a shape-to-shape connector line.
-  - `getStartShapeConnectedTo() -> IShape`, `setStartShapeConnectedTo(value) -> void`, `getEndShapeConnectedTo() -> IShape`, `setEndShapeConnectedTo(value) -> void`
-  - `getStartShapeConnectionSiteIndex() -> int`, `setStartShapeConnectionSiteIndex(value) -> void`, `reroute() -> void`
-
-- `Table` — a table shape on a slide, written with the `<a:graphicFrameLocks>` the schema requires
-  on its frame.
-  - `getRows() -> IRowCollection`, `getColumns() -> IColumnCollection`, `getTableFormat() -> ITableFormat`, `mergeCells(cell1, cell2, allowSplitting) -> ICell`
+The `Relationship` class represents a relationship between parts in a presentation package, supporting structured document relationships.
 
 </details>
 
 ## Documentation & Resources
 
-- **[Getting started guide](https://docs.aspose.org/slides/java/)** — The getting started guide walks through installing the library and creating a basic presentation using Aspose.Slides FOSS for Java.
-- **[How-to guides & FAQ](https://kb.aspose.org/slides/java/)** — The how-to guides and FAQ provide practical examples and answers to common questions about using Aspose.Slides FOSS for Java.
-- **[Full API reference](https://reference.aspose.org/slides/java/)** — The full API reference documents every class and method available in the `org.aspose:aspose-slides-foss` package for version 26.8.0. It covers all 238 verified public types; the [API Reference](#api-reference) section above covers the essentials.
-- **[Contributor guide](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/blob/main/AGENTS.md)** — The contributor guide explains how to set up the development environment and contribute changes to the Aspose.Slides-FOSS-for-Java repository.
-- **[Publishing guide](PUBLISHING.md)** — The publishing guide describes the steps required to build and release a new version of Aspose.Slides FOSS for Java.
+- **[Getting started guide](https://docs.aspose.org/slides/java/)** — The getting started guide covers setup, core concepts, and step-by-step instructions for using Aspose.Slides FOSS for Java.
+- **[How-to guides & FAQ](https://kb.aspose.org/slides/java/)** — The how-to guides and FAQ provide task-focused articles for common presentation operations.
+- **[Full API reference](https://reference.aspose.org/slides/java/)** — The full API reference offers a complete, browsable reference for the library's types and capabilities. It covers all 238 verified public types; the [API Reference](#api-reference) section above covers the essentials.
+- **[Contributor guide](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/blob/main/AGENTS.md)** — The contributor guide explains build commands, core concepts, and import patterns for working on the source.
+- **[Publishing guide](PUBLISHING.md)** — The publishing guide describes how releases are built and published to Maven Central.
 - Found a bug or have a feature request? [Open an issue](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/issues).
+
+This library mirrors the naming of the commercial Aspose.Slides for Java product, so that
+product's own documentation is often the fastest way to understand what a shared type name means —
+it describes a much larger API, so check [Scope and Limitations](#scope-and-limitations) before
+relying on anything read there.
 
 ## Scope and Limitations
 
-Aspose.Slides FOSS for Java provides a free, open-source subset of the Aspose.Slides API for Java, enabling creation and modification of PPTX, PPSX, and POTX presentations using the `org.aspose.slides` namespace. It targets Java 21 and is distributed as the `org.aspose:aspose-slides-foss` artifact at version 26.8.0.
+Aspose.Slides FOSS for Java provides a free, open-source API to create, read, and modify PowerPoint decks in the Office Open XML formats, targeting Java 21 and later.
 
-- Installation requires Maven and the explicit artifact coordinate `org.aspose:aspose-slides-foss`:26.8.0; no other build tools or installation methods are provided.
-- The API omits support for charts, `SmartArt`, OLE objects, video, audio, animations, slide transitions, group shapes, hyperlinks, sections, slide backgrounds, themes, slide size configuration, rendering, conversion, VBA macros, digital signatures, and encryption.
-- The public API surface is limited to the `org.aspose.slides` package under the `org.aspose` namespace, and no other packages or classes are exposed.
-- The `Presentation.save` method only supports saving in PPTX, PPSX, and POTX formats, and raises `UnsupportedOperationException` for all other `SaveFormat` values including PDF, XPS, TIFF, ODP, and image formats.
-- The getFontName method is the only font-related API exposed, and no other font management or text language attributes are available.
-- The library has no external dependencies and runs on Java 21 without requiring additional runtime components.
+- The public API does not expose charts, `SmartArt`, OLE objects, video, audio, animations, slide transitions, group shapes, hyperlinks, sections, slide backgrounds, themes, slide size, rendering or conversion, VBA macros, digital signatures, or encryption.
+- Cloning a master slide using `getMasters()`.addClone(...) returns a clone object and reports a collection size of 2, but the saved package contains only one master part and nothing reports an error.
+- The `save()` method supports only PPTX, PPSX, and POTX output formats; calling it with any other `SaveFormat` value raises `UnsupportedOperationException` and writes nothing to disk.
+- The `save()` method requires an explicit output path or stream and does not infer a destination from `ISaveOptions` alone.
+- `Table.mergeCells()` works only on tables backed by XML and cannot merge cells on tables built without an underlying OOXML element.
+- The library requires Java 21 or later and is installed by retrieving the artifact `org.aspose:aspose-slides-foss` version 26.8.0.
 
 This section is the point of this file. Nothing here is a "coming soon"; it is what the API does
 not contain today.
 
-These limitations don't apply to [Aspose.Slides for Java — Enterprise Edition](https://products.aspose.com/slides/java/). Aspose.Slides FOSS for Java provides core presentation processing capabilities, while the commercial offering extends functionality with advanced rendering, additional export formats, and enterprise support.
+These limitations don't apply to [Aspose.Slides for Java — Enterprise Edition](https://products.aspose.com/slides/java/). The commercial product adds advanced features such as rendering to PDF with high fidelity, support for more presentation formats, and additional export options beyond the open-source package's capabilities.
 
 ## Development and Testing
 
-Clone the repository and run the Maven verify goal to build and execute tests, skipping GPG signing with the -`Dgpg.skip`=true flag.
+Build and test the repository using Java 21 and Maven; clone the repository and run the Maven verify command to execute tests and package the artifact. The build also produces a CycloneDX SBOM into target/.
 
 The suite covers 45 test files under `tests/`. Releases run through the [maven-central-release workflow](.github/workflows/maven-central-release.yml).
 
