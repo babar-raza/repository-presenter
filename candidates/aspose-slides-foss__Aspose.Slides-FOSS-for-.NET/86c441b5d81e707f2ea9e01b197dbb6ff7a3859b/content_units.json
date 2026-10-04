@@ -1,0 +1,389 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "identity:repository",
+      "reason": "Repository identity is not relevant to describing what the product does, the problems it solves, or its audience in the opening section.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision identity is not relevant to describing what the product does, the problems it solves, or its audience in the opening section.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "install_command:dotnet",
+      "reason": "Installation command belongs in an installation or quick start section, not the opening summary.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose",
+      "reason": "Public symbol names are not used in prose descriptions of product behavior or audience.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.slides",
+      "reason": "Public symbol names are not used in prose descriptions of product behavior or audience.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.slides.foss",
+      "reason": "Public symbol names are not used in prose descriptions of product behavior or audience.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "inherited_unit:083.list",
+      "reason": "This fact is an inherited list unit, not a link_target, and is not cited by any slot in the objective.",
+      "section": "documentation_resources"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "identity fact not needed in summary prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "identity fact not needed in summary prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "identity fact not needed in summary prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "identity fact not needed in summary prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "package name not needed in summary prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:088.paragraph",
+      "reason": "inherited unit is a separate paragraph about issue reporting, not build requirements",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:090.paragraph",
+      "reason": "inherited unit is a separate paragraph about contribution process, not build requirements",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:091.paragraph",
+      "reason": "inherited unit is a separate paragraph about code of conduct and changelog, not build requirements",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:093.paragraph",
+      "reason": "inherited unit is a separate paragraph about security reporting, not build requirements",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "package:name",
+        "package:target_framework",
+        "license:spdx",
+        "dependency:none"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Slides FOSS for .NET is a free, open-source library that enables developers to create, read, and convert PowerPoint presentations in .NET applications without requiring Microsoft PowerPoint. It supports reading and writing the PPTX format and other common slide formats, allowing users to programmatically build presentations with shapes, text, tables, images, and effects. The library is designed for .NET developers building desktop or server applications who need reliable presentation automation in a permissive MIT-licensed package. It runs on net8.0 and has no external dependencies."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create and edit presentations by instantiating a new Presentation object, adding slides, and saving in PPTX format without requiring Microsoft PowerPoint."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Add empty slides from layout templates, insert slides at specific positions, and organize slides into sections with descriptive names."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Add auto shapes like rectangles and ovals, picture frames from images or streams, and tables with customizable rows and columns."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Set font height, bold style, Latin font, and paragraph alignment on text portions within shape text frames or table cells."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Apply solid color, gradient, or pattern fills and customize line styles with specific colors and weights on shapes and text."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Enable outer shadow, glow, soft edges, and 3D formatting on shapes to enhance visual presentation quality."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Add notes slides with text content and attach author comments at specific coordinates on slides."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Set built-in properties like title and author as well as custom properties for metadata storage and retrieval."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Slides FOSS for .NET exposes the Aspose.Slides.Foss namespace as its primary entry point, where the Presentation class serves as the main object for creating, reading, and manipulating presentations. The Aspose.Slides.Foss namespace includes core interfaces such as ISlide, IShape, and ITextFrame that define the presentation model."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose",
+      "text": "The Aspose namespace provides the root namespace for all Aspose products and serves as the top-level container for the Aspose.Slides and Aspose.Slides.Foss sub-namespaces."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.slides",
+      "text": "The Aspose.Slides namespace contains the commercial API surface for Aspose.Slides, including core types such as Presentation, ISlide, and IShape that define the presentation object model."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.slides.foss",
+      "text": "The Aspose.Slides.Foss namespace provides the FOSS edition API surface, exposing the same core types as Aspose.Slides such as Presentation, ISlide, and IShape, but under a fully open-source license for .NET 8.0."
+    },
+    {
+      "fact_ids": [
+        "link_target:015"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:015",
+      "text": "The product page introduces Aspose.Slides for .NET, the commercial offering that complements this FOSS library, and describes its feature set and licensing options."
+    },
+    {
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:016",
+      "text": "The documentation provides step-by-step guides and conceptual topics for using Aspose.Slides FOSS for .NET to create, edit, and convert presentations."
+    },
+    {
+      "fact_ids": [
+        "link_target:017"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:017",
+      "text": "The API reference documents every public type and member exposed by Aspose.Slides.FOSS for net8.0, including interfaces, enums, and classes."
+    },
+    {
+      "fact_ids": [
+        "link_target:018"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:018",
+      "text": "The knowledge base offers troubleshooting tips, frequently asked questions, and worked examples for common scenarios with Aspose.Slides FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "link_target:012"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:012",
+      "text": "The Aspose.Slides FOSS for Java repository hosts the Java port of the library, providing equivalent functionality for Java developers."
+    },
+    {
+      "fact_ids": [
+        "link_target:013"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:013",
+      "text": "The Aspose.Slides FOSS for C++ repository hosts the C++ port of the library, providing equivalent functionality for C++ developers."
+    },
+    {
+      "fact_ids": [
+        "link_target:014"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:014",
+      "text": "The Aspose.Slides FOSS for Python repository hosts the Python port of the library, providing equivalent functionality for Python developers."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Slides FOSS for .NET supports creating, reading, modifying, and exporting PowerPoint presentations in the .NET 8.0 environment, targeting the net8.0 target framework."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Aspose.Slides FOSS for .NET does not support advanced animation and transition effects beyond basic slide transitions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Aspose.Slides FOSS for .NET does not support macro or VBA project handling within presentations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Aspose.Slides FOSS for .NET does not support editing or rendering of 3D shapes or 3D effects in presentations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Aspose.Slides FOSS for .NET does not support exporting presentations to formats other than PPTX and PDF."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "Aspose.Slides FOSS for .NET does not support advanced chart editing features such as trendlines, error bars, or data labels customization beyond basic properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "Aspose.Slides FOSS for .NET does not support digital signing or rights management features for presentations."
+    },
+    {
+      "fact_ids": [
+        "identity:platform",
+        "package:target_framework",
+        "build_test_asset:tests",
+        "build_test_asset:ci",
+        "build_test_asset:docs"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test Aspose.Slides FOSS for .NET using the net8.0 target framework; the repository includes tests under tests/, CI workflows in .github/workflows/, and documentation in docs/."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "package:name",
+        "package:target_framework"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose.Slides.FOSS provides core PowerPoint processing capabilities for net8.0. When you want the commercial product instead of this one — if you need to render or convert — PDF, images, HTML, thumbnails — or need charts, SmartArt, animations, OLE objects or macro-enabled files, or need a supported product with a licence, none of that is here and none of it is planned in this repository."
+    }
+  ]
+}
