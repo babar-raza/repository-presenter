@@ -9,7 +9,7 @@ import os
 import shutil
 import sys
 from collections import Counter
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from functools import partial
@@ -74,6 +74,16 @@ from repository_presenter.components.readme.bundle.evaluation import (
     evaluation_document,
     summarize_evaluation,
     write_evaluation,
+)
+from repository_presenter.components.readme.bundle.portfolio import (
+    DriftObservation,
+    PortfolioReport,
+    assess_portfolio,
+    load_authorizations,
+    load_drift,
+)
+from repository_presenter.components.readme.bundle.portfolio import (
+    render_lines as render_portfolio_lines,
 )
 from repository_presenter.components.readme.bundle.reproducibility import (
     reproducible_candidates,
@@ -142,11 +152,15 @@ from repository_presenter.components.readme.validation.registry import (
     coverage_rows,
     summarize_validation,
 )
-from repository_presenter.core.authorization.proposal import authorize_proposal
+from repository_presenter.core.authorization.proposal import (
+    ProposalAuthorization,
+    authorize_proposal,
+)
 from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
     CURRENT_FILENAME,
     BundleError,
+    StaleCandidate,
     count_current_candidates,
     examples_verification_summary,
     independently_accepted_candidates,
@@ -156,7 +170,7 @@ from repository_presenter.core.candidates import (
     verify_bundle,
 )
 from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
-from repository_presenter.core.errors import JobError, PresenterError
+from repository_presenter.core.errors import ConfigError, JobError, PresenterError
 from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
     ExampleCandidate,
@@ -281,6 +295,32 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "also report every current candidate whose dependencies.json is behind the running "
             "code's component/check versions - a pure read, makes no provider call"
+        ),
+    )
+    status.add_argument(
+        "--json",
+        dest="as_json",
+        action="store_true",
+        help="print one machine-readable JSON document instead of the text report",
+    )
+    status.add_argument(
+        "--drift",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "a monitor drift evidence document (or a directory of them); without it the "
+            "source-fresh count is reported as unobserved, never guessed"
+        ),
+    )
+    status.add_argument(
+        "--authorizations",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "proposal authorization records (a JSON object, a list, or a directory of such "
+            "files) to count as effect-authorized when valid for the exact sealed candidate"
         ),
     )
     present = subcommands.add_parser(
@@ -602,7 +642,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "status":
-        return run_status(args.root, stale=args.stale)
+        return run_status(
+            args.root,
+            stale=args.stale,
+            as_json=args.as_json,
+            drift_path=args.drift,
+            authorizations_path=args.authorizations,
+        )
     if args.command == "present":
         if args.durable_state:
             return run_present_hosted(
@@ -1323,7 +1369,14 @@ def run_propose(
     return EXIT_OK
 
 
-def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
+def run_status(
+    root_argument: Path | None,
+    *,
+    stale: bool = False,
+    as_json: bool = False,
+    drift_path: Path | None = None,
+    authorizations_path: Path | None = None,
+) -> int:
     """Print version, gate, work item, and N/34 progress from sealed bundles on disk.
 
     ``--stale`` additionally reports every current candidate whose sealed ``dependencies.json``
@@ -1340,6 +1393,13 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
     check below are both left pointed at ``count_current_candidates`` exactly as before - that is
     the number ``cursor.recorded_candidates`` has always meant, and this new line reports
     alongside it rather than replacing it.
+
+    The ``portfolio:`` block (``components/readme/bundle/portfolio.py``, which defines each
+    predicate) reports ``plans/idea.md``'s seven separated counts - fact-valid, presentation-valid,
+    independently accepted, no-op-proven, source-fresh, publication-eligible, effect-authorized -
+    plus a partition that puts every live registry entry in exactly one bucket. ``--json`` prints
+    the whole report as one document instead; ``--drift`` and ``--authorizations`` supply the two
+    inputs this offline command cannot observe itself (upstream freshness, an authorization).
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -1356,39 +1416,87 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
         }
         current_validators = {check.id: check.version for check in BLOCKING_CHECKS}
         found = stale_candidates(root, current_components, current_validators, VALIDATOR_VERSION)
+        drift = load_drift(drift_path) if drift_path is not None else None
+        authorizations = (
+            load_authorizations(authorizations_path) if authorizations_path is not None else None
+        )
     except (CursorError, BundleError, OSError) as exc:
         _fail(str(exc))
         return EXIT_INCONSISTENT
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
     if leaks:
         for leak in leaks:
             relative = leak.path.relative_to(root).as_posix()
             _fail(f"secret canary: value of {leak.variable} found in {relative}")
         return EXIT_UNSAFE
-    print(f"{PROGRAM} {__version__}")
-    print(f"gate: {cursor.current_gate_id} ({cursor.current_gate_status})")
-    print(f"work item: {cursor.active_work_item_id} ({cursor.active_work_item_status})")
-    print(f"candidates: {on_disk}/{cursor.denominator} current reviewable no-op-proven")
     historical = len({bundle.repository_dir for bundle in iter_sealed_bundles(root)})
     integrity_valid = integrity_valid_candidates(root)
     reproducible = reproducible_candidates(root)
     accepted = independently_accepted_candidates(root, found)
-    print(
-        f"progress: {historical} ever sealed, {integrity_valid} integrity-valid, "
-        f"{reproducible} current-code reproducible, {accepted} independently accepted "
-        "(stale-excluded)"
-    )
     executed, example_total = examples_verification_summary(root)
-    print(f"examples: {executed}/{example_total} verified across counted candidates")
-    print(f"canary: {cursor.canary}")
-    if stale:
-        if found:
-            print(f"stale: {len(found)} current candidate(s) behind the running code -")
-            for candidate in found:
-                print(f"  {candidate.repository_dir} @ {candidate.revision}:")
-                for reason in candidate.reasons:
-                    print(f"    {reason}")
-        else:
-            print("stale: none")
+    portfolio = _portfolio_report(root, found, drift, authorizations)
+    if as_json:
+        print(
+            json.dumps(
+                {
+                    "program": PROGRAM,
+                    "version": __version__,
+                    "gate": {
+                        "id": cursor.current_gate_id,
+                        "status": cursor.current_gate_status,
+                    },
+                    "work_item": {
+                        "id": cursor.active_work_item_id,
+                        "status": cursor.active_work_item_status,
+                    },
+                    "candidates": {"current": on_disk, "denominator": cursor.denominator},
+                    "progress": {
+                        "ever_sealed": historical,
+                        "integrity_valid": integrity_valid,
+                        "current_code_reproducible": reproducible,
+                        "independently_accepted_stale_excluded": accepted,
+                    },
+                    "examples": {"executed": executed, "total": example_total},
+                    "canary": cursor.canary,
+                    "stale": [
+                        {
+                            "repository_dir": candidate.repository_dir,
+                            "revision": candidate.revision,
+                            "reasons": list(candidate.reasons),
+                        }
+                        for candidate in found
+                    ],
+                    "portfolio": None if portfolio is None else portfolio.to_json(),
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(f"{PROGRAM} {__version__}")
+        print(f"gate: {cursor.current_gate_id} ({cursor.current_gate_status})")
+        print(f"work item: {cursor.active_work_item_id} ({cursor.active_work_item_status})")
+        print(f"candidates: {on_disk}/{cursor.denominator} current reviewable no-op-proven")
+        print(
+            f"progress: {historical} ever sealed, {integrity_valid} integrity-valid, "
+            f"{reproducible} current-code reproducible, {accepted} independently accepted "
+            "(stale-excluded)"
+        )
+        print(f"examples: {executed}/{example_total} verified across counted candidates")
+        print(f"canary: {cursor.canary}")
+        if portfolio is not None:
+            for line in render_portfolio_lines(portfolio):
+                print(line)
+        if stale:
+            if found:
+                print(f"stale: {len(found)} current candidate(s) behind the running code -")
+                for candidate in found:
+                    print(f"  {candidate.repository_dir} @ {candidate.revision}:")
+                    for reason in candidate.reasons:
+                        print(f"    {reason}")
+            else:
+                print("stale: none")
     if on_disk != cursor.recorded_candidates:
         _fail(
             f"cursor records {cursor.recorded_candidates} current candidates "
@@ -1396,6 +1504,34 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def _portfolio_report(
+    root: Path,
+    found: Sequence[StaleCandidate],
+    drift: Mapping[str, DriftObservation] | None,
+    authorizations: Mapping[str, Sequence[ProposalAuthorization]] | None,
+) -> PortfolioReport | None:
+    """The seven separated counts over the live registry, or None when there is no registry.
+
+    A project without a loadable registry (a minimal fixture, a checkout that never configured
+    one) has no denominator to partition, so it prints no portfolio block rather than failing the
+    whole command over an informational signal - the same degradation ``reproducible_candidates``
+    already documents.
+    """
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+    except ConfigError:
+        return None
+    return assess_portfolio(
+        root,
+        registry.entries,
+        stale_directories={candidate.repository_dir for candidate in found},
+        expected_branch=presenter_branch_name(),
+        now=_cli_utc_now(),
+        drift=drift,
+        authorizations=authorizations,
+    )
 
 
 PREFLIGHT_FILENAME = "preflight.json"
