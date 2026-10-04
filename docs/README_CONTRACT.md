@@ -235,7 +235,7 @@ Exactly these eleven block acceptance at G1. Everything else is advisory until c
 | 3 | Every rendered example was executed or compiled in isolation at this revision | `quick_start`, `additional_examples` |
 | 4 | Every content unit's fact IDs exist, are `SUPPORTED`, and lie within the fact set the plan assigned to that unit's slot — a capability description cites its own title's facts, never another slot's, and the capability's title is supported by the facts its unit cites; every identifier in prose is a fact value in a code span | `opening`, `key_capabilities`, `scope_limitations`, `api_reference`, `documentation_resources`, `enterprise_relationship` |
 | 5 | Every material inherited unit has exactly one disposition; placed units appear in their destination | all |
-| 6 | Every link resolves; Aspose links are contextual and within ceilings; "Enterprise Edition" is the only edition name; no unsafe raw HTML (`<script>`/`<iframe>`/an event-handler attribute/a `javascript:` or `vbscript:` scheme) renders outside a fenced code block | `documentation_resources`, `enterprise_relationship`, `badges` |
+| 6 | Every link resolves; Aspose links are contextual and within ceilings; "Enterprise Edition" is the only edition name; no unsafe raw HTML (`<script>`/`<iframe>`/an event-handler attribute, or a `javascript:` or `vbscript:` scheme at a URL position - a link or image destination, a reference definition, an autolink, or a URL-bearing attribute value; prose that merely contains the words is not a URL) renders outside a fenced code block | `documentation_resources`, `enterprise_relationship`, `badges` |
 | 7 | Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the visible-length budget (content inside `<details>` is unbounded but verified) | structure |
 | 8 | Protected content preserved | all |
 | 9 | No configured secret in the bundle | bundle |
@@ -284,8 +284,8 @@ seal. `probes.json` records every live read that informed a fact — its status,
 and any reading that changes without the repository changing, such as a registry's latest
 version — because a fact's evidence is hashed and must not move when only the world does.
 `raw_calls.json` (G5-W02, 27.2 RC4) seals, verbatim and keyed by each call's own request hash,
-every accepted call no other artifact already answers for byte for byte - a coherence batch, an
-independent_review read, and a batch section_authoring task - so a fresh clone with an empty
+every accepted call no other artifact already answers for byte for byte - each source_reconciliation
+batch, a coherence batch, an independent_review read, and a batch section_authoring task - so a fresh clone with an empty
 `runs/` directory can replay an unchanged revision with zero provider calls; a non-batch
 section_authoring task is reconstructed from `content_units.json` alone instead, and is not
 duplicated here. A transaction that composed without one seals without it; `probes.json` and
