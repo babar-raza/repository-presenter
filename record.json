@@ -4,7 +4,7 @@
   "provider_repository_id": 1359836523,
   "registry_revision": null,
   "active_transaction_id": "f52de9906ea445bfa89c2f54c99c9a25",
-  "state": "PLANNING",
+  "state": "COMPOSING",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -25,20 +25,20 @@
     "fencing_token": 1
   },
   "last_transition": {
-    "transition_id": "9fe1fccb2432413589108ff3f8c92fa1",
+    "transition_id": "ea1a4f448a5f469da2026bb3ff4dbf32",
     "transaction_id": "f52de9906ea445bfa89c2f54c99c9a25",
     "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
-    "from_state": "RECONCILING",
-    "to_state": "PLANNING",
+    "from_state": "PLANNING",
+    "to_state": "COMPOSING",
     "event": "present.yml hosted transaction completed (one coarse receipt spanning the local pipeline's own stages - see core/state/present_transaction.py's module docstring)",
-    "occurred_at": "2026-10-04T20:15:44.642406+00:00",
+    "occurred_at": "2026-10-04T20:15:45.894420+00:00",
     "actor": "runtime",
     "input_manifest": "registry:aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
     "output_manifest": "candidates/aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET/CURRENT",
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 6,
+  "state_version": 7,
   "recent_trigger_dedup_keys": {
     "run:37231183326:aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET": "f52de9906ea445bfa89c2f54c99c9a25"
   },
