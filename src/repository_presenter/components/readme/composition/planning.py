@@ -1129,6 +1129,59 @@ def recover_uncited_capability_titles(
     return output if changed else None
 
 
+def recover_duplicate_link_assignments(output: dict[str, Any]) -> dict[str, Any] | None:
+    """Last-resort correction for ``run_job``'s final rejected attempt only (``recover=``,
+    ``core/llm/jobs.py``) - never called on a first attempt, so the model's own one universal
+    re-ask is always tried first exactly as before. Symmetric to
+    ``recover_uncited_capability_titles`` above: ``plan_checks``' rule that a link target is never
+    placed twice is never weakened, and ``run_job`` re-validates the corrected output through the
+    real schema, binding and ``plan_checks`` before ever accepting it.
+
+    The only deterministic correction that keeps the plan's own meaning is to keep the FIRST
+    assignment the model wrote for each target and drop every later repeat: the first placement is
+    the model's first choice, and nothing is invented, re-sectioned or added. A repeat the first
+    assignment cannot make valid (an excluded section, an unverified target) still fails closed.
+
+    Measured on aspose-font-foss/Aspose.Font-FOSS-for-Python (presentation_planning, S5): the model
+    assigned ``link_target:001`` to many sections; the one re-ask repeated the same output, so the
+    job failed with no deterministic last resort (docs/RESEARCH_AND_GUIDELINES.md section 27.2).
+
+    Returns ``None`` when no target repeats, never a no-op copy of ``output``.
+    """
+    links = output.get("links")
+    if not isinstance(links, list):
+        return None
+    seen: set[str] = set()
+    kept: list[Any] = []
+    for link in links:
+        target = link.get("link_fact_id") if isinstance(link, dict) else None
+        if isinstance(target, str):
+            if target in seen:
+                continue
+            seen.add(target)
+        kept.append(link)
+    if len(kept) == len(links):
+        return None
+    return {**output, "links": kept}
+
+
+def recover_planning_output(output: dict[str, Any], facts: FactsDocument) -> dict[str, Any] | None:
+    """The single ``recover=`` ``repair/rounds.py`` passes to presentation_planning's ``run_job``:
+    both deterministic last resorts, in order, each applied only when it changes something -
+    duplicate link assignments first, then uncited capability titles. ``run_job`` re-validates
+    whatever this returns through the real checks, so a correction that clears only one defect
+    changes nothing it did not earn.
+
+    Returns ``None`` when neither applies.
+    """
+    deduplicated = recover_duplicate_link_assignments(output)
+    base = output if deduplicated is None else deduplicated
+    retitled = recover_uncited_capability_titles(base, facts)
+    if retitled is not None:
+        return retitled
+    return deduplicated
+
+
 def recover_visible_line_overage(
     output: dict[str, Any], *, levers: Mapping[str, int]
 ) -> dict[str, Any] | None:

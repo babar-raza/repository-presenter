@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import copy
+import functools
 import json
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import httpx
 import pytest
 from jsonschema import Draft202012Validator
 
@@ -26,6 +30,8 @@ from repository_presenter.components.readme.composition.planning import (
 )
 from repository_presenter.components.readme.composition.policy import PlanningPolicy
 from repository_presenter.components.readme.investigation.dossier import UNIT_CAP
+from repository_presenter.core.config import GatewayConfig
+from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import (
     FACT_KINDS,
     Evidence,
@@ -33,9 +39,11 @@ from repository_presenter.core.facts import (
     FactsDocument,
     bounded_records,
 )
+from repository_presenter.core.llm.jobs import CallStore, JobContext, JobResult, run_job
+from repository_presenter.core.llm.ledger import Ledger
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
-from support import REPO_ROOT, assert_no_empty_enums, empty_enum_paths
+from support import REPO_ROOT, assert_no_empty_enums, empty_enum_paths, mock_gateway
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -1162,6 +1170,216 @@ def test_recover_uncited_capability_titles_never_invents_a_citation_with_no_real
     assert recover_uncited_capability_titles(plan, FACTS) is None
     # A plan with nothing unsupported at all: also None, never a copy of a plan needing no fix.
     assert recover_uncited_capability_titles(_plan(), FACTS) is None
+
+
+def _link(target: str, section: str) -> dict[str, str]:
+    return {"link_fact_id": target, "section_id": section}
+
+
+def test_recover_duplicate_link_assignments_keeps_the_first_placement_and_drops_each_repeat() -> (
+    None
+):
+    """Last-resort correction for a plan that assigns one link target to several sections (a
+    degenerate reply measured on aspose-font-foss/Aspose.Font-FOSS-for-Python, presentation_planning
+    S5: the one re-ask repeated it, so the job failed with no deterministic last resort). The
+    duplicate check itself is never weakened: the repeat is the defect, and the correction removes
+    it. The first placement the model chose is kept; nothing is invented, re-sectioned or added."""
+    repeated = _plan(
+        links=[
+            _link("link_target:001", "license"),
+            _link("link_target:002", "documentation_resources"),
+            _link("link_target:002", "api_reference"),
+            _link("link_target:001", "scope_limitations"),
+            _link("link_target:002", "scope_limitations"),
+        ]
+    )
+    before = copy.deepcopy(repeated)
+    # Confirms the fixture reproduces the rejection, judged on a copy (plan_checks normalises).
+    rejected = plan_checks(copy.deepcopy(repeated), FACTS)
+    assert "link 'link_target:002' is assigned more than once; never the same target twice" in (
+        rejected
+    )
+    recovered = planning.recover_duplicate_link_assignments(repeated)
+    assert recovered is not None
+    assert recovered["links"] == [
+        _link("link_target:001", "license"),
+        _link("link_target:002", "documentation_resources"),
+    ]
+    # Never invents: every kept entry is one the model actually wrote, the rest of the plan is
+    # untouched, and the input is never mutated.
+    assert all(link in before["links"] for link in recovered["links"])
+    assert {k: v for k, v in recovered.items() if k != "links"} == {
+        k: v for k, v in before.items() if k != "links"
+    }
+    assert repeated == before
+    # Re-verified against the real rules, exactly as run_job does before ever accepting it.
+    assert plan_checks(copy.deepcopy(recovered), FACTS) == []
+
+
+def test_recover_duplicate_link_assignments_is_none_when_no_target_repeats() -> None:
+    """Mutation control: nothing to correct returns None, never a no-op copy of the plan."""
+    assert planning.recover_duplicate_link_assignments(_plan()) is None
+
+
+def test_recover_planning_output_applies_both_last_resorts_and_only_what_changed() -> None:
+    """The one ``recover=`` presentation_planning's run_job receives: both deterministic last
+    resorts in order (duplicate links, then uncited capability titles), each only when it changes
+    something. A plan with only one defect is corrected by that one alone."""
+    both = _plan(
+        core_capabilities=[
+            {"title": "Export STL files", "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
+            {"title": "Run examples", "fact_ids": ["example:002"]},
+        ],
+        links=[
+            _link("link_target:002", "documentation_resources"),
+            _link("link_target:002", "api_reference"),
+        ],
+    )
+    both["at_a_glance"] = {
+        "input_format_ids": [],
+        "output_format_ids": ["format:output.stl"],
+        "capability_titles": [item["title"] for item in both["core_capabilities"]],
+    }
+    assert plan_checks(copy.deepcopy(both), FACTS) != []
+    recovered = planning.recover_planning_output(copy.deepcopy(both), FACTS)
+    assert recovered is not None
+    assert recovered["links"] == [_link("link_target:002", "documentation_resources")]
+    assert recovered["core_capabilities"][0]["fact_ids"] == [
+        "format:output.stl",
+        "public_symbol:widget.scene",
+    ]
+    assert plan_checks(copy.deepcopy(recovered), FACTS) == []
+    only_links = _plan(links=[_link("link_target:002", "api_reference")] * 2)
+    assert planning.recover_planning_output(only_links, FACTS) == _plan(
+        links=[_link("link_target:002", "api_reference")]
+    )
+    assert planning.recover_planning_output(_plan(), FACTS) is None
+
+
+def _completion(content: dict[str, Any]) -> httpx.Response:
+    body = {
+        "id": "chatcmpl-1",
+        "object": "chat.completion",
+        "created": 1,
+        "model": "qwen3-next",
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": json.dumps(content)},
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 120},
+    }
+    return httpx.Response(200, json=body)
+
+
+def _run_planning(
+    directory: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    replies: list[dict[str, Any]],
+    recover: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None,
+) -> JobResult:
+    """The real presentation_planning job: the real manifest, the real schema and plan_checks,
+    and a scripted gateway serving ``replies`` in order - nothing else is faked."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    served = [_completion(reply) for reply in replies]
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url.path.endswith("/chat/completions")
+        return served.pop(0)
+
+    mock_gateway(monkeypatch, handler)
+    return run_job(
+        loaded,
+        planning_packet(ENTRY, FACTS, {}, {}, loaded.manifest),
+        config=GatewayConfig("https://gw.example/v1", "sk-test-key-0123456789"),
+        facts=FACTS,
+        ledger=Ledger(directory / "calls.jsonl"),
+        store=CallStore(directory / "calls"),
+        context=JobContext(ENTRY.repository, "a" * 40),
+        checks=functools.partial(plan_checks, facts=FACTS),
+        call_schema=planning_schema(loaded, FACTS, {}, {}),
+        recover=recover,
+    )
+
+
+def _duplicated_link_plan() -> dict[str, Any]:
+    """A schema-valid plan (the schema requires every key, nullable ones included) that assigns
+    one link target to three sections - the S5 shape measured on aspose-font-foss."""
+    return _plan(
+        second_quick_start_example_id=None,
+        flagship_example_id=None,
+        links=[
+            _link("link_target:002", "documentation_resources"),
+            _link("link_target:002", "api_reference"),
+            _link("link_target:002", "scope_limitations"),
+        ],
+    )
+
+
+def test_a_repeated_link_target_is_recovered_only_after_the_final_rejection(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Both live-shaped attempts repeat the same degenerate plan. Without a recovery the job fails
+    closed on the real duplicate check; with ``recover_planning_output`` the corrected plan is
+    re-validated through the real schema, binding and plan_checks, and accepted with no third
+    provider call."""
+    degenerate = _duplicated_link_plan()
+    with pytest.raises(JobError, match="assigned more than once"):
+        _run_planning(tmp_path / "bare", monkeypatch, [degenerate, degenerate])
+    result = _run_planning(
+        tmp_path / "fixed",
+        monkeypatch,
+        [degenerate, degenerate],
+        recover=functools.partial(planning.recover_planning_output, facts=FACTS),
+    )
+    assert (result.attempts, result.provider_calls) == (2, 2)
+    assert result.output["links"] == [_link("link_target:002", "documentation_resources")]
+    assert plan_checks(copy.deepcopy(result.output), FACTS) == []
+
+
+def test_a_correction_that_does_not_clear_every_repeat_changes_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mutation control: a recovery that clears only one of the repeats, or one that invents a
+    link fact the facts never verified, is re-validated from scratch and refused - the job fails
+    closed exactly as it would with no recovery at all. The duplicate check is never relaxed."""
+    degenerate = _duplicated_link_plan()
+
+    def half_fix(output: dict[str, Any]) -> dict[str, Any]:
+        return {**output, "links": output["links"][:2]}
+
+    def invented(output: dict[str, Any]) -> dict[str, Any]:
+        return {**output, "links": [*output["links"][:1], _link("link_target:999", "license")]}
+
+    for recover in (half_fix, invented):
+        with pytest.raises(JobError, match="output rejected twice"):
+            _run_planning(
+                tmp_path / recover.__name__,
+                monkeypatch,
+                [degenerate, degenerate],
+                recover=recover,
+            )
+
+
+def test_the_repeated_link_correction_is_byte_identical_on_every_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The same input always yields the same corrected plan, byte for byte, in a fresh store."""
+    degenerate = _duplicated_link_plan()
+    digests = []
+    for name in ("first", "second"):
+        result = _run_planning(
+            tmp_path / name,
+            monkeypatch,
+            [degenerate, degenerate],
+            recover=functools.partial(planning.recover_planning_output, facts=FACTS),
+        )
+        digests.append(write_plan(result.output, tmp_path / f"{name}.json"))
+    assert digests[0] == digests[1]
+    assert (tmp_path / "first.json").read_bytes() == (tmp_path / "second.json").read_bytes()
 
 
 def test_recover_visible_line_overage_clears_every_named_lever_and_records_the_truth() -> None:
