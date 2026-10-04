@@ -57,6 +57,7 @@ from repository_presenter.components.metadata.capture import (
 from repository_presenter.components.metadata.proposal import (
     build_proposal,
     diff_against_observed,
+    write_diff_record,
 )
 from repository_presenter.components.monitor.drift import (
     drift_document,
@@ -1111,6 +1112,9 @@ def _describe_plan(
     )
 
 
+PROPOSAL_RECORD_FILENAME = "repo_metadata_proposal.json"
+
+
 def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = False) -> int:
     """Capture GitHub's observed description/homepage/topics for ``repository`` and diff them
     against a proposal derived only from already-verified facts (workstream 2 Phase 0/1,
@@ -1177,8 +1181,18 @@ def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = F
             f"proposed: topics={list(proposal.topics)} (sources: {list(proposal.topics_sources)})"
         )
         print(f"proposed: homepage={proposal.homepage!r} (source: {proposal.homepage_source})")
+        record_path = metadata_dir / PROPOSAL_RECORD_FILENAME
+        record_digest = write_diff_record(diff, record_path)
+        print(
+            f"decision: description {diff.description_decision.summary}; "
+            f"homepage {diff.homepage_decision.summary}; topics {diff.topics_decision.summary}"
+        )
+        print(
+            f"record: {record_path.relative_to(root).as_posix()} (digest {record_digest}; "
+            f"existing topics {list(diff.observed_topics)} -> final {list(diff.final_topics)})"
+        )
         if not diff.has_changes:
-            print("diff: none - GitHub's observed metadata already matches the proposal")
+            print("diff: none - nothing to change (GitHub's metadata matches, or was preserved)")
             if apply:
                 print("apply: nothing to change")
             return EXIT_OK
