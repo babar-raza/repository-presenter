@@ -829,7 +829,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert code == EXIT_OK and captured.err == ""
     bundle_dir = f"candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/{revision}"
     assert (
-        f"bundle: {bundle_dir} (state ACCEPTED, 13 files, provider calls 13; sealed; "
+        f"bundle: {bundle_dir} (state ACCEPTED, 14 files, provider calls 13; sealed; "
         "the no-op proof needs a rerun in a fresh process)"
     ) in captured.out
     bundle = project_with_registry / bundle_dir
@@ -849,6 +849,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
             "investigation.json",
             "plan.json",
             "probes.json",
+            "raw_calls.json",
             "review.json",
             "validation.json",
         ]
@@ -1744,14 +1745,15 @@ def test_a_changed_prompt_reopens_only_its_stage_and_records_an_update(
         assert (transaction / name).read_bytes() == (bundle / name).read_bytes()
     # review.json names the authoring prompt's hash, so it changes with the prompt too.
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    assert "(state READY_FOR_PROPOSAL, 13 files, provider calls 8; " in bundle_line
+    assert "(state READY_FOR_PROPOSAL, 14 files, provider calls 8; " in bundle_line
     assert (
-        "valid update available (presentation): dependencies.json, review.json changed at "
-        "COMPOSING; the proven candidate stays valid and the update waits in the transaction)"
+        "valid update available (presentation): dependencies.json, raw_calls.json, "
+        "review.json changed at COMPOSING; the proven candidate stays valid and the update waits "
+        "in the transaction)"
     ) in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
-    assert manifest["update"]["changed"] == ["dependencies.json", "review.json"]
+    assert manifest["update"]["changed"] == ["dependencies.json", "raw_calls.json", "review.json"]
     assert {name: (bundle / name).read_bytes() for name in before} == before
 
 
@@ -2197,7 +2199,11 @@ def test_a_reviewer_rubric_change_reopens_reviewing_only(
         "independent_review",
     ]
     _assert_presentation_update(
-        out, bundle, "REVIEWING", ["dependencies.json", "review.json"], ("plan: ", "units: ")
+        out,
+        bundle,
+        "REVIEWING",
+        ["dependencies.json", "raw_calls.json", "review.json"],
+        ("plan: ", "units: "),
     )
 
 
