@@ -769,6 +769,104 @@ def test_a_last_resort_recover_saves_a_final_rejection_it_can_actually_fix(
     assert fixed_ids == sorted(["package:name", "example:001", "identity:repository"])
 
 
+def test_a_failed_recover_correction_is_kept_beside_the_models_reply_and_reported_after_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The model's own rejected replies are always kept (``CallStore.reject``). When the last-
+    resort ``recover`` correction is re-judged and rejected too, that derived copy used to replace
+    the model's rejection in the ``JobError`` and was never written down, so the failure read as a
+    defect the model never wrote. Now the copy is kept as ``rejected-2-fix`` and its rejection is
+    reported after the model's own."""
+    _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:002", "nope:1")),
+        _completion(_investigation("package:name", "example:002", "nope:1")),
+    )
+
+    def half_fix(output: dict[str, Any]) -> dict[str, Any]:
+        for item in output["capabilities"]:
+            if item["fact_ids"] == ["example:002"]:
+                item["fact_ids"] = ["example:001"]
+        return output
+
+    store = CallStore(tmp_path / "calls")
+    with pytest.raises(JobError) as raised:
+        run_job(
+            MANIFEST,
+            PACKET,
+            config=CONFIG,
+            facts=FACTS,
+            ledger=Ledger(tmp_path / "calls.jsonl"),
+            store=store,
+            context=CONTEXT,
+            recover=half_fix,
+        )
+    message = str(raised.value)
+    own, _, derived = message.partition("; recover's correction was rejected too: ")
+    assert "example:002 is CONTRADICTED" in own  # the model's own rejection comes first
+    assert "example:002" not in derived and "unknown fact ID nope:1" in derived
+    kept = sorted(path.name.split(".", 1)[1] for path in store.directory.iterdir())
+    assert kept == ["rejected-1.json", "rejected-2-fix.json", "rejected-2.json"]
+    record = json.loads(next(store.directory.glob("*.rejected-2-fix.json")).read_text("utf-8"))
+    assert record["attempt"] == 2 and "unknown fact ID nope:1" in record["rejection"]
+    assert json.loads(record["content"])["capabilities"][1]["fact_ids"] == ["example:001"]
+
+
+def test_an_accepted_output_writes_no_rejected_record(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Negative control for the retention above: an accepted first reply writes no rejected
+    record of any kind - only the accepted output itself."""
+    _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+    )
+    store = CallStore(tmp_path / "calls")
+    run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=store,
+        context=CONTEXT,
+    )
+    assert [p.name for p in store.directory.iterdir() if "rejected" in p.name] == []
+    assert len(list(store.directory.iterdir())) == 1
+
+
+def test_a_recover_that_worked_writes_the_models_replies_but_no_fix_record(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Negative control for the ``-fix`` record: when ``recover`` fixes the final rejection, the
+    corrected copy was accepted, not rejected, so only the model's own two replies are kept."""
+    _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:001", "nope:1")),
+        _completion(_investigation("package:name", "example:001", "nope:1")),
+    )
+
+    def recover(output: dict[str, Any]) -> dict[str, Any]:
+        output["capabilities"][2]["fact_ids"] = ["identity:repository"]
+        return output
+
+    store = CallStore(tmp_path / "calls")
+    run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=store,
+        context=CONTEXT,
+        recover=recover,
+    )
+    names = sorted(
+        p.name.split(".", 1)[1] for p in store.directory.iterdir() if "rejected" in p.name
+    )
+    assert names == ["rejected-1.json", "rejected-2.json"]
+
+
 def test_recover_that_cannot_fully_fix_the_output_changes_nothing(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
