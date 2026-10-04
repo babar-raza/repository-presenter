@@ -2245,7 +2245,9 @@ def test_a_source_only_in_page_anchor_is_never_an_assignable_link() -> None:
             }
         ]
     }
-    assert [e for e in plan_checks(plan, with_anchors, dispositions=required) if "in-page anchor" in e] == []
+    assert [
+        e for e in plan_checks(plan, with_anchors, dispositions=required) if "in-page anchor" in e
+    ] == []
     # Nothing assignable but source-only anchors pins the list empty, never an empty enum.
     only_anchors = FactsDocument(
         ENTRY.repository,
