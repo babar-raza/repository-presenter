@@ -10,6 +10,7 @@ from typing import Any
 
 from repository_presenter.components.metadata.apply import (
     AUTHORIZATION_VARIABLE,
+    SHARED_GATE_NOT_WIRED_REASON,
     ApplyResult,
     FieldOutcome,
     apply_metadata_diff,
@@ -21,6 +22,11 @@ from repository_presenter.components.metadata.proposal import (
     diff_against_observed,
 )
 from repository_presenter.core.github.client import ObservedRepository
+
+
+def _allow(repository: str) -> None:
+    return None
+
 
 REPO = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
 
@@ -207,6 +213,7 @@ def test_authorized_write_patches_description_and_homepage_together_and_puts_top
         patch=patch,
         put=put,
         refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert len(patch.calls) == 1
     url, token, payload = patch.calls[0]
@@ -238,6 +245,7 @@ def test_only_the_changed_fields_are_written_one_field_changed() -> None:
         patch=patch,
         put=put,
         refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert len(patch.calls) == 1
     assert patch.calls[0][2] == {"description": "New description."}
@@ -260,6 +268,7 @@ def test_a_patch_failure_does_not_block_the_independent_topics_put() -> None:
         patch=patch,
         put=put,
         refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert result.description.applied is False
     assert "422" in result.description.reason
@@ -281,6 +290,7 @@ def test_apply_never_raises_on_a_write_failure() -> None:
         patch=patch,
         put=put,
         refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert result.wrote_anything is False
 
@@ -304,6 +314,7 @@ def test_live_drift_since_capture_aborts_the_whole_write_no_partial_apply() -> N
         patch=patch,
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert patch.calls == []
     assert put.calls == []
@@ -325,6 +336,7 @@ def test_no_drift_since_capture_proceeds_to_write() -> None:
         patch=patch,
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert result.wrote_anything is True
     assert len(patch.calls) == 1
@@ -349,6 +361,7 @@ def test_drift_check_ignores_a_field_the_diff_never_proposed_changing() -> None:
         patch=patch,
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert result.wrote_anything is True
     assert len(patch.calls) == 1
@@ -371,6 +384,7 @@ def test_apply_result_never_echoes_the_token() -> None:
         patch=patch,
         put=put,
         refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert isinstance(result, ApplyResult)
     dump = repr(result)
@@ -405,6 +419,7 @@ def test_stale_capture_is_refused_for_every_written_field() -> None:
             patch=patch,
             put=put,
             refetch=lambda live=live: live,
+            write_gate=_allow,
         )
         assert patch.calls == [] and put.calls == []
         assert result.wrote_anything is False
@@ -423,6 +438,7 @@ def test_missing_live_reread_refuses_the_write() -> None:
         environment=_ENV,
         patch=patch,
         put=put,
+        write_gate=_allow,
     )
     assert patch.calls == [] and put.calls == []
     assert "no live re-read" in result.description.reason
@@ -444,7 +460,15 @@ def test_refetch_runs_once_immediately_before_the_writes() -> None:
         return 200, {}
 
     apply_metadata_diff(
-        _diff(), _OWNER, _NAME, token="t", environment=_ENV, patch=patch, put=put, refetch=refetch
+        _diff(),
+        _OWNER,
+        _NAME,
+        token="t",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=refetch,
+        write_gate=_allow,
     )
     assert order == ["refetch", "patch", "put"]
 
@@ -463,6 +487,7 @@ def test_a_hand_built_diff_cannot_overwrite_a_strong_live_description() -> None:
         patch=patch,
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert patch.calls == [] and put.calls == []
     assert "maintainer-authored" in result.description.reason
@@ -485,6 +510,7 @@ def test_a_hand_built_diff_cannot_overwrite_a_strong_live_homepage() -> None:
         patch=patch,
         put=_RecordingWrite(),
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert patch.calls == []
     assert "homepage is maintainer-authored" in result.homepage.reason
@@ -507,6 +533,7 @@ def test_a_strong_description_in_a_real_diff_is_never_written() -> None:
         patch=patch,
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert patch.calls == []  # description and homepage both kept
     assert len(put.calls) == 1  # only the topic merge is written
@@ -528,6 +555,7 @@ def test_topics_put_carries_the_merge_not_just_the_proposal() -> None:
         patch=patch,
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert result.topics.applied is True
     names = put.calls[0][2]["names"]
@@ -552,6 +580,7 @@ def test_justified_removal_is_written_and_other_maintainer_topics_survive() -> N
         patch=_RecordingWrite(),
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     names = put.calls[0][2]["names"]
     assert "java" not in names
@@ -581,3 +610,29 @@ def test_shared_write_gate_refusal_blocks_everything_before_any_live_call() -> N
     assert patch.calls == [] and put.calls == [] and fetched == []
     assert "shared write gate" in result.description.reason
     assert "dry_run" in result.description.reason
+
+
+def test_default_shared_write_gate_fails_closed_and_makes_no_http_call() -> None:
+    """The stub shipped until the registry write gate is installed refuses every write."""
+    patch = _RecordingWrite()
+    put = _RecordingWrite()
+    fetched: list[int] = []
+
+    def refetch() -> ObservedRepository:
+        fetched.append(1)
+        return _observed()
+
+    result = apply_metadata_diff(
+        _diff(),
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=refetch,
+    )
+    assert patch.calls == [] and put.calls == [] and fetched == []
+    assert result.wrote_anything is False
+    assert SHARED_GATE_NOT_WIRED_REASON in result.description.reason
+    assert "shared write gate not wired" in result.topics.reason

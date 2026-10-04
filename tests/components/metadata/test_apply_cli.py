@@ -12,6 +12,7 @@ import pytest
 
 from repository_presenter import cli
 from repository_presenter.cli import EXIT_OK, main
+from repository_presenter.components.metadata import apply as apply_module
 from repository_presenter.components.metadata.apply import AUTHORIZATION_VARIABLE
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument, fact_id, write_facts
 from repository_presenter.core.github.client import ObservedRepository
@@ -24,6 +25,12 @@ README_TEXT = (
     "Aspose.3D FOSS for Python is a Python library for 3D file processing.\n\n"
     "## Navigation\n\n- [At a Glance](#at-a-glance)\n"
 )
+
+
+@pytest.fixture(autouse=True)
+def _allowing_shared_write_gate(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The shipped default gate fails closed; these tests exercise the paths behind it."""
+    monkeypatch.setattr(apply_module, "shared_write_gate", lambda repository: None)
 
 
 @pytest.fixture

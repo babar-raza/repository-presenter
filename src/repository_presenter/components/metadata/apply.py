@@ -86,6 +86,11 @@ _NO_REFETCH_REASON = (
 
 WriteGate = Callable[[str], str | None]
 
+SHARED_GATE_NOT_WIRED_REASON = (
+    "shared write gate not wired: metadata writes are refused until the registry write gate "
+    "is installed"
+)
+
 
 def shared_write_gate(repository: str) -> str | None:
     """INTEGRATION POINT - shared registry write gate (not yet landed).
@@ -93,10 +98,13 @@ def shared_write_gate(repository: str) -> str | None:
     Contract for the replacement: given ``owner/name``, return ``None`` to allow a metadata write
     or a human-readable refusal reason to forbid it (for example registry ``mode`` not ``full``).
     It is called after this module's own authorization and token checks and before any live
-    re-read or write. Until the shared gate lands this allows everything; that is safe only because
-    the two gates above are unset in this project's environment, so no write can fire today.
+    re-read or write.
+
+    FAIL CLOSED until the real policy replaces this body: with no registry write gate installed,
+    every metadata write is refused, so a missed or delayed wiring can never send a write out
+    without a registry-mode check. ``apply_metadata_diff`` resolves this function at call time.
     """
-    return None
+    return SHARED_GATE_NOT_WIRED_REASON
 
 
 def write_authorized(environment: Mapping[str, str]) -> bool:
@@ -173,7 +181,7 @@ def apply_metadata_diff(
     patch: WriteFn = default_patch,
     put: WriteFn = default_put,
     refetch: Callable[[], ObservedRepository] | None = None,
-    write_gate: WriteGate = shared_write_gate,
+    write_gate: WriteGate | None = None,
 ) -> ApplyResult:
     """Apply ``diff`` to the real repository - but only past both gates in this module's own
     docstring. Every early return below makes no network call at all; a field the diff did not
@@ -203,7 +211,7 @@ def apply_metadata_diff(
     if not diff.has_changes:
         return _skip_all(True, _NO_CHANGE_REASON)
 
-    refusal = write_gate(diff.repository)
+    refusal = (write_gate or shared_write_gate)(diff.repository)
     if refusal is not None:
         return _skip_all(True, f"refused by the shared write gate: {refusal}")
 
