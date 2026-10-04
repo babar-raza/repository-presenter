@@ -88,16 +88,29 @@ jobs:
             echo "::error::no target repository named by this trigger"
             exit 1
           fi
-          owner="${repository%%/*}"
-          name="${repository#*/}"
-          if [ "$owner" = "$repository" ] || [ -z "$name" ]; then
-            echo "::error::'$repository' is not an owner/name repository coordinate"
+          # Validate before anything is written to $GITHUB_OUTPUT: a value with a newline, a CR,
+          # '=' or '::' must never become an extra output or a workflow command. The error names
+          # the rule, never the raw value. Same patterns as propose.yml's validation step.
+          owner_re='^[A-Za-z0-9](-?[A-Za-z0-9]){0,38}$'
+          name_re='^[A-Za-z0-9._][A-Za-z0-9._-]{0,99}$'
+          if [[ "$repository" != */* ]]; then
+            echo "::error::the target repository is not an owner/name repository coordinate"
             exit 1
           fi
-          echo "repository: $repository"
-          echo "repository=$repository" >> "$GITHUB_OUTPUT"
-          echo "owner=$owner" >> "$GITHUB_OUTPUT"
-          echo "name=$name" >> "$GITHUB_OUTPUT"
+          owner="${repository%%/*}"
+          name="${repository#*/}"
+          if ! [[ "$owner" =~ $owner_re ]] || ! [[ "$name" =~ $name_re ]] ||
+             [ "$name" = "." ] || [ "$name" = ".." ]; then
+            echo "::error::the target repository is not a valid GitHub owner/name coordinate"
+            exit 1
+          fi
+          # Outputs are written from the validated variables only.
+          echo "repository: $owner/$name"
+          {
+            echo "repository=$owner/$name"
+            echo "owner=$owner"
+            echo "name=$name"
+          } >> "$GITHUB_OUTPUT"
 
       # Read-only, by explicit permission-* inputs: without them this token would inherit every
       # permission the App holds, including contents and pull_requests write. This job's steps only

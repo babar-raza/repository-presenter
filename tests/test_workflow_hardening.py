@@ -477,3 +477,98 @@ def test_a_real_write_without_an_authorization_record_fails_closed(tmp_path: Pat
     result = _validate(tmp_path, do_propose="true")
     assert result.returncode != 0
     assert "authorization_record" in result.stdout
+
+
+# --- present.yml: the resolved target is validated before anything reaches $GITHUB_OUTPUT --------
+
+RESOLVE_STEP = "Resolve the target repository from this trigger"
+
+# The pre-hardening script (interpolated expressions), kept only as a negative control: it must be
+# shown to emit an extra output line for a hostile value, so the new test proves a real difference.
+OLD_RESOLVE_SCRIPT = """
+repository="${{ inputs.repository }}"
+owner="${repository%%/*}"
+name="${repository#*/}"
+echo "repository=$repository" >> "$GITHUB_OUTPUT"
+echo "owner=$owner" >> "$GITHUB_OUTPUT"
+echo "name=$name" >> "$GITHUB_OUTPUT"
+"""
+
+HOSTILE_TARGETS = [
+    "acme/x\ninjected=1",
+    "acme/x\r\ninjected=1",
+    "acme/x\rinjected=1",
+    "acme/x\n::set-output name=injected::1",
+    "acme/x::error::boom",
+    "acme/x=y",
+    "acme=evil/x",
+    "acme/x\n",
+    "acme/x\nowner=evil\nname=evil",
+    "acme/x;touch pwned",
+    "acme/$(touch pwned)",
+    "no-slash",
+    "/x",
+    "acme/",
+    "acme/..",
+]
+
+
+def _resolve(tmp_path: Path, event: str, value: str) -> subprocess.CompletedProcess[str]:
+    steps = _load("present.yml")["jobs"]["present"]["steps"]
+    script = str(next(s for s in steps if RESOLVE_STEP in str(s.get("name")))["run"])
+    assert not EXPRESSION.search(script)
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("DISPATCH_", "PAYLOAD_"))}
+    env["EVENT_NAME"] = event
+    env["DISPATCH_REPOSITORY"] = value if event == "workflow_dispatch" else ""
+    env["PAYLOAD_REPOSITORY"] = value if event == "repository_dispatch" else ""
+    env["GITHUB_OUTPUT"] = (tmp_path / "output").as_posix()
+    return subprocess.run(
+        [_bash(), "-c", script],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+
+
+@pytest.mark.parametrize("event", ["workflow_dispatch", "repository_dispatch"])
+def test_a_valid_target_yields_exactly_three_outputs(tmp_path: Path, event: str) -> None:
+    result = _resolve(tmp_path, event, "aspose-slides-foss/Aspose.Slides-FOSS-for-Java")
+    assert result.returncode == 0, result.stdout + result.stderr
+    lines = (tmp_path / "output").read_text(encoding="utf-8").splitlines()
+    assert lines == [
+        "repository=aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+        "owner=aspose-slides-foss",
+        "name=Aspose.Slides-FOSS-for-Java",
+    ]
+
+
+@pytest.mark.parametrize("event", ["workflow_dispatch", "repository_dispatch"])
+@pytest.mark.parametrize("value", HOSTILE_TARGETS)
+def test_a_hostile_target_fails_closed_before_any_output(
+    tmp_path: Path, event: str, value: str
+) -> None:
+    result = _resolve(tmp_path, event, value)
+    assert result.returncode != 0, f"{value!r} was accepted"
+    assert "::error::" in result.stdout
+    assert not (tmp_path / "output").exists() or (tmp_path / "output").read_text() == ""
+    assert not (tmp_path / "pwned").exists()
+    # The raw value is never echoed, so it cannot smuggle a workflow command into the log.
+    assert "injected" not in result.stdout + result.stderr
+    assert "boom" not in result.stdout + result.stderr
+
+
+def test_negative_control_the_old_script_emitted_an_injected_output(tmp_path: Path) -> None:
+    script = _render_old(OLD_RESOLVE_SCRIPT, "acme/x\ninjected=1")
+    env = {**os.environ, "GITHUB_OUTPUT": (tmp_path / "output").as_posix()}
+    subprocess.run(
+        [_bash(), "-c", script], cwd=tmp_path, env=env, capture_output=True, text=True, check=True
+    )
+    lines = (tmp_path / "output").read_text(encoding="utf-8").splitlines()
+    assert "injected=1" in lines, lines
+
+
+def _render_old(script: str, value: str) -> str:
+    return EXPRESSION.sub(lambda _match: value, script)
