@@ -242,7 +242,13 @@ _TYPE_OBJECTIVE = (
 # the unit as input, so its three written formats were named as read. A unit that names both
 # directions is still not judged (the TB-09 rule), and a single-direction contradiction is still
 # refused. Zero of the 3017 units in candidates/ change verdict.
-NORMALISATION_VERSION = "19"
+# "20": a superseded inherited unit that reconciliation routed into development_testing is now
+# part of that section's own packet and citable set, must be carried or explicitly omitted by a
+# unit (carried_unit_errors), and is handed to the S6 targeted repair as well. Measured on
+# aspose-slides-foss/Aspose.Slides-FOSS-for-Java (BC-10 F08, 2026-10-04): the test-suite and
+# conformance-rule paragraphs were SUPERSEDE_REDUNDANT into this section, yet section_selections
+# gave the authoring call only the build_test_asset facts, so no unit could state them.
+NORMALISATION_VERSION = "20"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -390,14 +396,16 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one scope unit, then one unit per limitation, one sentence each",
     ),
     "development_testing": (
-        "One or two sentences on the toolchain and requirements to build and test from the "
-        "repository's own assets (for example, the runtime/JDK version and the build tool); "
-        "never describe what a placed command accomplishes - compiling, testing, packaging, "
-        "generating docs - since the renderer prints that command verbatim right after this "
-        "unit, and a sentence that says what it does duplicates it in substance even when no "
-        "word of the command itself is repeated; never a file count or a release statement, "
-        "which the renderer states from the facts.",
-        "one unit of one or two sentences",
+        "Two to four sentences on the toolchain and requirements to build and test from the "
+        "repository's own assets (for example, the runtime/JDK version and the build tool). "
+        "Where the objective names inherited units this section must carry, state their "
+        "substance in your own words - where the test suites live and what they assert, the "
+        "rules a contributor must follow, and never describe what a placed command accomplishes - "
+        "compiling, testing, packaging, generating docs - since the renderer prints that command "
+        "verbatim right after this unit, and a sentence that says what it does duplicates it in "
+        "substance even when no word of the command itself is repeated; never a file count or a "
+        "release statement, which the renderer states from the facts.",
+        "one unit of two to four sentences",
     ),
     "enterprise_relationship": (
         "At most one sentence on what the commercial edition adds beyond this package, only "
@@ -431,6 +439,10 @@ class SectionTask:
     # exact text the renderer will place beside it (G4-W17, Cells-Java authoring-hint duplication
     # fix, docs/DECISION_LOG.md 2026-09-24).
     slot_render_lines: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    # Inherited prose units reconciliation superseded into this section (carried_units): each must
+    # be cited by a unit that states its substance, or listed in omitted with a reason
+    # (carried_unit_errors). Empty for every section but development_testing.
+    must_carry: frozenset[str] = frozenset()
 
     @property
     def label(self) -> str:
@@ -461,6 +473,36 @@ def _placed_units(dispositions: dict[str, Any], section: str) -> list[str]:
         for entry in dispositions.get("dispositions", [])
         if entry.get("destination_section") == section
         and entry.get("disposition") in {"VERIFIED_PRESERVE", "VERIFIED_REWRITE", "VERIFIED_MOVE"}
+    ]
+
+
+# Prose-only inherited units: a command block is placed verbatim by the renderer, and a heading is
+# owned by the shell, so neither is a unit an authored section must carry.
+_CARRIABLE_SUFFIXES = (".paragraph", ".list")
+
+
+def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocument) -> list[str]:
+    """Inherited prose units reconciliation superseded INTO ``section`` - SUPERSEDE_REDUNDANT with
+    that section as destination - which the section's own authored units must carry.
+
+    Reconciliation's contract (prompts/source_reconciliation.yaml) makes a placeable section the
+    place a superseded unit's substance is re-authored from facts, so the section owes that unit
+    an explicit disposition. Measured on aspose-slides-foss/Aspose.Slides-FOSS-for-Java (BC-10
+    F08, 2026-10-04): the README's test-suite and conformance-rule paragraphs were superseded into
+    development_testing, but the authoring call never received them, so the section could not
+    carry them. Scoped to development_testing, the diagnosed section; every other section returns
+    nothing, so no other section's packet changes.
+    """
+    if section != "development_testing":
+        return []
+    known = {fact.id for fact in facts.facts if fact.kind == "inherited_unit"}
+    return [
+        entry["unit_id"]
+        for entry in dispositions.get("dispositions", [])
+        if entry.get("disposition") == "SUPERSEDE_REDUNDANT"
+        and entry.get("destination_section") == section
+        and entry.get("unit_id") in known
+        and str(entry.get("unit_id")).endswith(_CARRIABLE_SUFFIXES)
     ]
 
 
@@ -719,6 +761,7 @@ def section_selections(
         ids.extend(_cited(investigation.get("limitations")))
     elif section == "development_testing":
         ids.extend(fact.id for fact in facts.by_kind("build_test_asset"))
+        ids.extend(carried_units(dispositions, section, facts))
         slots = ["summary"]
     elif section == "enterprise_relationship":
         slots = ["context"]
@@ -898,6 +941,7 @@ def authoring_tasks(
             continue
         ids, slots = section_selections(section, plan, investigation, dispositions, facts)
         objective, budget = _OBJECTIVES[section]
+        must_carry = frozenset(carried_units(dispositions, section, facts))
         # A format fact's own "direction" surfaced as its own packet key, not left for the model
         # to infer from the fact ID text alone - the ID is the one place the direction lives, but
         # the system prompt also tells the model fact IDs are "provenance, never words in prose",
@@ -961,6 +1005,14 @@ def authoring_tasks(
             if any(record.get("title") for record in records)
             else ""
         )
+        # The must-carry list is named in the objective itself, so the model sees exactly which
+        # inherited units its units must carry or omit - the same facts the check then holds it to.
+        carry_rule = (
+            "Inherited units this section must carry (state their substance in your units, or "
+            f"list each in omitted with a reason): {', '.join(sorted(must_carry))}. "
+            if must_carry
+            else ""
+        )
         packet = {
             "repository": entry.repository,
             "product_name": name,
@@ -968,7 +1020,7 @@ def authoring_tasks(
             "section_id": section,
             "objective": (
                 f"{objective} Slots to fill, each exactly once: {', '.join(slots)}. "
-                f"{bound_rule}{title_rule}{renders_rule}"
+                f"{bound_rule}{title_rule}{renders_rule}{carry_rule}"
                 f"Identifiers the prose may spell, exactly as written: {', '.join(spellings)}; "
                 "any other API name, member, attribute, or parameter is rejected."
             ),
@@ -988,6 +1040,7 @@ def authoring_tasks(
                 slot_facts=slot_facts,
                 slot_titles=titles,
                 slot_render_lines=render_lines,
+                must_carry=must_carry,
             )
         )
         if section == "api_reference":
@@ -1732,7 +1785,71 @@ def unit_checks(
         errors.extend(
             f"unit {slot}: {mismatch}" for mismatch in unit_example_action_mismatches(unit, facts)
         )
+    errors.extend(carried_unit_errors(output, task))
     return errors
+
+
+_CARRY_REASON_MISSING = (
+    "superseded into this section by reconciliation, so a unit must cite it and state its "
+    "substance, or omitted must list it with a reason"
+)
+# Recorded, never presented as content: the omission says the authoring call did not carry the
+# unit, and leaves whether the section still states it to independent review.
+CARRY_RECOVERY_REASON = (
+    "Not carried into a unit by the authoring call; independent review judges whether this "
+    "section still states it."
+)
+
+
+def _carry_dispositions(output: Mapping[str, Any]) -> tuple[set[str], dict[str, str]]:
+    cited = {
+        fact_id
+        for unit in output.get("units", [])
+        if isinstance(unit, dict)
+        for fact_id in unit.get("fact_ids", [])
+    }
+    omitted = {
+        str(item.get("fact_id")): str(item.get("reason") or "").strip()
+        for item in output.get("omitted", [])
+        if isinstance(item, dict)
+    }
+    return cited, omitted
+
+
+def carried_unit_errors(output: Mapping[str, Any], task: SectionTask) -> list[str]:
+    """Each inherited unit the section must carry is cited by a unit or explicitly omitted with a
+    reason - never silently absent (docs/RESEARCH_AND_GUIDELINES.md section 27; AGENTS.md "every
+    material source README unit receives exactly one explicit disposition"). Whether a cited or
+    omitted unit's substance really reaches the page is the independent review's judgment, never
+    this check's; this only forbids the silent drop the authoring call was never shown to avoid."""
+    if not task.must_carry:
+        return []
+    cited, omitted = _carry_dispositions(output)
+    return [
+        f"{fact_id}: {_CARRY_REASON_MISSING}"
+        for fact_id in sorted(task.must_carry)
+        if fact_id not in cited and not omitted.get(fact_id)
+    ]
+
+
+def recover_carried_units(output: dict[str, Any], must_carry: frozenset[str]) -> bool:
+    """Records each still-uncarried must-carry unit as an explicit omission (in place); True when
+    anything was recorded. Used only as a last resort, and only ever through run_job's real
+    unit_checks re-validation, so a recorded omission never bypasses review."""
+    if not must_carry:
+        return False
+    cited, omitted = _carry_dispositions(output)
+    missing = [
+        fact_id
+        for fact_id in sorted(must_carry)
+        if fact_id not in cited and not omitted.get(fact_id)
+    ]
+    if not missing:
+        return False
+    output.setdefault("omitted", []).extend(
+        {"fact_id": fact_id, "reason": CARRY_RECOVERY_REASON} for fact_id in missing
+    )
+    return True
 
 
 # _FORBIDDEN's two markers meaning "a command" - the only ones whose surrounding text a fixed
@@ -1929,7 +2046,10 @@ def recover_title_verbatim_opening(
 
 
 def recover_section_authoring_output(
-    output: dict[str, Any], *, slot_titles: Mapping[str, str]
+    output: dict[str, Any],
+    *,
+    slot_titles: Mapping[str, str],
+    must_carry: frozenset[str] = frozenset(),
 ) -> dict[str, Any] | None:
     """Last-resort correction for ``section_authoring``'s own INITIAL-DRAFT job (``recover=``,
     ``core/llm/jobs.py``, the first ``run_round``/``repair/rounds.py`` call - never a repair
@@ -1965,6 +2085,10 @@ def recover_section_authoring_output(
     changed = recover_forbidden_command_units(output) is not None
     units = output.get("units")
     if isinstance(units, list) and _strip_title_verbatim_opening_units(units, slot_titles):
+        changed = True
+    # A superseded inherited unit the reply silently dropped is recorded as an explicit omission
+    # (recover_carried_units), never invented as content.
+    if recover_carried_units(output, must_carry):
         changed = True
     return output if changed else None
 
@@ -2075,10 +2199,11 @@ def write_raw_calls(calls: Mapping[str, Mapping[str, Any]], path: Path) -> str:
     """raw_calls.json: every accepted call this round made that no other sealed artifact already
     answers for verbatim (G5-W02, 27.2 RC4's own remaining gap, named explicitly in
     ``tests/test_cli.py::test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle``'s own
-    docstring) - a ``coherence`` batch, an ``independent_review`` read (first, second, or third),
-    and a batch ``section_authoring`` task. A non-batch ``section_authoring`` task is already
-    reconstructed from ``content_units.json`` alone by ``reconstructed_task_output`` above and is
-    not duplicated here.
+    docstring) - each ``source_reconciliation`` batch, a ``coherence`` batch, an
+    ``independent_review`` read (first, second, or third), and a batch ``section_authoring`` task
+    (``repair/rounds.py::_round_raw_calls`` assembles them). A non-batch ``section_authoring``
+    task is already reconstructed from ``content_units.json`` alone by
+    ``reconstructed_task_output`` above and is not duplicated here.
 
     Keyed by the call's own ``request_sha256`` - exactly the ``CallStore`` key ``run_job`` computes
     fresh on a later run (``core/llm/jobs.py::run_job``: ``canonical_hash({"prompt_sha256": ...,

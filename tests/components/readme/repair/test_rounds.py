@@ -8,17 +8,25 @@ checks a genuine revision would have to pass.
 from __future__ import annotations
 
 from dataclasses import replace
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 from unittest.mock import Mock, patch
 
+from repository_presenter.components.readme.bundle.seal import seed_additional_calls
+from repository_presenter.components.readme.composition.authoring import (
+    RAW_CALLS_FILENAME,
+    write_raw_calls,
+)
 from repository_presenter.components.readme.repair.rounds import (
     Round,
     _refuse_noop,
     _reject_insufficient_visible_line_overage,
+    _round_raw_calls,
     _second_opinion,
     _stage_target,
     _third_opinion,
+    _with_carried_units,
     repair_defect,
 )
 from repository_presenter.components.readme.repair.targeted import Defect
@@ -27,7 +35,7 @@ from repository_presenter.components.readme.review.independent.review import (
 )
 from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import FactsDocument
-from repository_presenter.core.llm.jobs import JobResult
+from repository_presenter.core.llm.jobs import CallStore, JobResult
 from repository_presenter.core.llm.prompts import load_manifests
 from support import REPO_ROOT
 
@@ -253,6 +261,84 @@ def test_reject_insufficient_visible_line_overage_composes_with_the_stages_own_c
     both = guarded({"flagship_example_id": "example:008"})
     assert "an unrelated plan_checks failure" in both
     assert any("visible lines" in error for error in both)
+
+
+def _batch_result(request_sha256: str, dispositions: list[dict[str, Any]]) -> JobResult:
+    return JobResult(
+        job="source_reconciliation",
+        output={"dispositions": dispositions},
+        request_sha256=request_sha256,
+        attempts=1,
+        provider_calls=1,
+        cache_reused=False,
+        model_served="qwen3-next",
+        total_tokens=100,
+    )
+
+
+def test_every_reconciliation_batch_is_sealed_so_a_fresh_clone_replays_it_with_zero_calls(
+    tmp_path: Path,
+) -> None:
+    """A multi-batch source_reconciliation round (Aspose.Slides-FOSS-for-.NET, 95 units) made 3
+    dispositions calls on a fresh hosted runner: dispositions.json holds only the merged document,
+    and seed_call_store never seeds a job with more than one successful attempt, so no sealed
+    artifact answered those batches. Each batch's own accepted output must seal in raw_calls.json
+    under its own request hash, so seed_additional_calls answers the same request a fresh process
+    would compute, byte for byte."""
+    first = _batch_result("b" * 64, [{"unit": "u1"}])
+    second = _batch_result("c" * 64, [{"unit": "u2"}, {"unit": "u3"}])
+    raw_calls = _round_raw_calls(
+        {"reconciliation#1": first, "reconciliation#2": second}, {}, {}, []
+    )
+    assert raw_calls == {
+        "b" * 64: {"job": "source_reconciliation", "output": first.output},
+        "c" * 64: {"job": "source_reconciliation", "output": second.output},
+    }
+    write_raw_calls(raw_calls, tmp_path / RAW_CALLS_FILENAME)
+    store = CallStore(tmp_path / "calls")
+    assert seed_additional_calls(tmp_path, store) == ["source_reconciliation"]
+    assert store.get("b" * 64) == first.output
+    assert store.get("c" * 64) == second.output
+
+
+def test_a_repair_recovery_records_an_uncarried_superseded_unit_inside_revised_output() -> None:
+    """Aspose.Slides for Java, development_testing (BC-10 F08): the S6 repair's last-resort
+    recovery must also cover the must-carry units, and only on the revised_output shape a
+    targeted_repair reply uses. With nothing to carry the recovery is returned unchanged, so no
+    other section's repair behaves differently."""
+    must_carry = frozenset({"inherited_unit:092.paragraph"})
+
+    def no_title_fix(output: dict[str, Any]) -> dict[str, Any] | None:
+        return None
+
+    assert _with_carried_units(no_title_fix, frozenset()) is no_title_fix
+    recover = _with_carried_units(no_title_fix, must_carry)
+    reply: dict[str, Any] = {
+        "revised_output": {
+            "units": [{"section": "development_testing", "slot": "summary", "text": "x"}],
+            "omitted": [],
+        }
+    }
+    recovered = recover(reply)
+    assert recovered is reply
+    assert [item["fact_id"] for item in reply["revised_output"]["omitted"]] == [
+        "inherited_unit:092.paragraph"
+    ]
+    # Mutation control: a reply already carrying the unit is left alone.
+    settled: dict[str, Any] = {
+        "revised_output": {
+            "units": [
+                {
+                    "section": "development_testing",
+                    "slot": "summary",
+                    "text": "x",
+                    "fact_ids": ["inherited_unit:092.paragraph"],
+                }
+            ],
+            "omitted": [],
+        }
+    }
+    assert recover(settled) is None
 
 
 class _RecordingStore:
