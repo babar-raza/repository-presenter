@@ -162,6 +162,8 @@ repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--f
   [--durable-state [--trigger-event-type TYPE] [--workflow-run-id ID] [--holder-id ID]
                     [--state-remote REMOTE]]
 repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
+repository-presenter monitor-install-record --owner OWNER --outcome {success,failure} --repositories NAMES --out PATH
+repository-presenter monitor-install-summary DIR [--summary PATH]
 repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remote REMOTE]
   [--wall-clock-seconds N] [--provider-calls N] [--max-wall-clock-seconds N]
   [--max-provider-calls N] [--stale-after-hours N]
@@ -169,7 +171,9 @@ repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME]
 repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file] [--approvals-ref GIT_REF] [--count-writable]
 repository-presenter issue-targets [--root PATH]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
-repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH --source-revision SHA] [--base-branch NAME] [--expires-in-minutes N] [--propose]
+repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
+repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
+repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N]
 ```
 
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
@@ -201,6 +205,18 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH
   under `runs/monitor/drift.json` (`--out` overrides the path; `--owner` limits the run to one
   owner's enabled entries). It makes no provider call and no write to any repository; it exits 1
   when any repository is `UNREACHABLE`, and the scheduled `monitor.yml` workflow runs it read-only.
+- **`monitor-install-record`** / **`monitor-install-summary`** — `monitor.yml`'s own per-owner
+  GitHub App installation bookkeeping (G7-W06). `monitor-install-record` turns one owner's token
+  mint outcome (`--outcome success|failure`) into a state file under `--out`. A failed mint is never
+  judged from the outcome alone, because the mint action hides the HTTP status: the command asks
+  GitHub directly (`GET /repos/OWNER/NAME/installation`, authenticated as the App from
+  `GH_APP_ID` / `GH_APP_PRIVATE_KEY`). Only a confirmed 404 is recorded as `NOT_INSTALLED` (a
+  notice naming the owner, the App and `--repositories`, exit 0); any other answer (401, 403, 5xx,
+  an unrecognized status, a network error, an unexplained failure, missing credentials) is
+  `MINT_ERROR` and exits 1, failing that owner's leg. `monitor-install-summary DIR` reads every
+  owner's state file under `DIR`, prints a `::notice::` per missing installation plus a markdown
+  table (appended to `--summary` when given), and exits 1 only when no owner at all was
+  `INSTALLED`. No token or key is ever written to disk.
 - **`health-check`** — dead-man monitoring for one repository's durable-state record (G7-W03), run by
   `present.yml` after each transaction. It reads the record (and the sealed bundle's `calls.jsonl`
   unless `--provider-calls` is given) and applies the deterministic rules in
@@ -245,22 +261,31 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH
   this project's own environment, so `--apply` reports exactly why it wrote nothing rather than
   guessing or silently proceeding.
 - **`propose --repo OWNER/NAME`** — creates or updates the one stable presenter branch and pull
-  request proposing a README candidate to the target repository (G6-W02). By default reads the
-  repository's registry-admitted sealed `CURRENT` candidate; `--readme-file PATH
-  --source-revision SHA` bypasses the registry and sealed bundle entirely, for proving the
-  mechanism against a disposable test repository that is never registry-admitted and never a real
-  `aspose-*-foss` product repository. Dry-run by default: assembles and prints the typed
-  authorization payload (candidate hash, source revision, branch, PR intent, policy version,
-  expiry — `--expires-in-minutes` sets how long it stays valid) and makes no GitHub call at all.
-  `--propose` attempts the write, but only past two independent, explicit gates — the
-  owner-controlled `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED=1`, and a write-scoped
-  `GH_PROPOSAL_WRITE_TOKEN` (never `GH_TOKEN`, never `GH_METADATA_WRITE_TOKEN`/
-  `GH_ISSUES_WRITE_TOKEN`) — plus a fresh recheck of the target's live current revision
-  immediately before the write (a stale source blocks the effect) and an idempotent branch/PR
-  mechanism (a second, unchanged invocation writes nothing and opens nothing new). Neither gate is
-  set in this project's own environment, so `--propose` reports exactly why it wrote nothing
-  rather than guessing. `--base-branch` overrides the target's default branch, read live from
-  GitHub when omitted.
+  request proposing a README candidate to the target repository (G6-W02). It proposes exactly one
+  thing: the repository's registry-admitted sealed `CURRENT` candidate, and only while that bundle
+  is `READY_FOR_PROPOSAL` at the revision the target still has. Dry-run by default: prints the
+  candidate hash, source revision and branch, checks source freshness with a read, and (with
+  `--authorization-record`) reports whether that record would be accepted; it writes nothing. A
+  `dry_run` registry entry can never get past this. `--propose` attempts the write, but only past
+  independent, explicit gates, each refusing with a typed reason (exit `3`): a registry entry in
+  mode `full`; an authorization record under `ops/proposal-authorizations/` — written by
+  `draft-proposal-authorization`, reviewed and merged by a person, and merged to `origin/main`
+  before the commit the run was triggered at (`--trigger-sha`, default `$GITHUB_SHA`), so the run
+  that consumes it can never have created it; the owner-controlled
+  `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED=1`; a `GH_PROPOSAL_WRITE_TOKEN` that is a GitHub App
+  installation token scoped to exactly the target (never `GH_TOKEN`, never a personal access
+  token); a fresh recheck of the target's live revision immediately before the write; and a
+  pull-request history check, so a merged or closed presenter PR for the same candidate is not
+  recreated unless the record names it. The mechanism is idempotent (a second, unchanged invocation
+  writes nothing and opens nothing new). `--base-branch` overrides the target's default branch,
+  read live from GitHub when omitted. `--local-test-readme-file PATH --source-revision SHA` assembles
+  a dry-run plan for arbitrary content and skips the registry and bundle checks precisely because it
+  can never write; combining it with `--propose` is refused.
+- **`draft-proposal-authorization --repo OWNER/NAME --approver NAME`** — writes the authorization
+  record for the repository's current `READY_FOR_PROPOSAL` candidate under
+  `ops/proposal-authorizations/` (`--expires-in-hours` sets its window, at most 168;
+  `--supersedes-pr N` explicitly permits a re-proposal after that merged or closed PR). Drafting
+  authorizes nothing: the record counts only once a person has merged it.
 - `--root PATH` — project root holding `project/state.yaml`; discovered from the working directory
   when omitted.
 

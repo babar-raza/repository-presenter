@@ -30,6 +30,7 @@ from repository_presenter.components.readme.composition.authoring import (
     identifier_allowed,
     identifier_tokens,
     inherited_unit_named_symbols,
+    mask_allowed_values,
     merge_repeated_slots,
     merge_units,
     proper_noun,
@@ -3071,3 +3072,68 @@ def test_authoring_tasks_hands_development_testing_the_units_it_must_carry() -> 
     assert "inherited_unit:092.paragraph" in objective
     assert "inherited_unit:093.paragraph" in objective
     assert tasks["opening"].must_carry == frozenset()
+
+
+def test_a_sentence_naming_an_allowed_path_verbatim_is_not_refused_for_its_fragment() -> None:
+    """aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-04: "The docs/epub-calibre-
+    verification.md file outlines ..." spells the SUPPORTED link_target value exactly, and was
+    refused twice (identical at temperature zero) for the hyphen-split fragment
+    "verification.md", which no fact records. The verbatim value is not a stray; everything
+    that is not that exact value still is."""
+    path = "docs/epub-calibre-verification.md"
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", ENTRY.repository),
+            _fact("link_target:028", "link_target", path),
+            _fact("inherited_unit:001.paragraph", "inherited_unit", "Original prose."),
+        ),
+    )
+    task = SectionTask(
+        "documentation_resources",
+        {},
+        frozenset({"link_target:028"}),
+        ("link:link_target:028",),
+        slot_facts={"link:link_target:028": frozenset({"link_target:028"})},
+        slot_titles={},
+    )
+
+    def strays(sentence: str) -> list[str]:
+        output = {
+            "units": [
+                {
+                    "section": "documentation_resources",
+                    "slot": "link:link_target:028",
+                    "text": sentence,
+                    "fact_ids": ["link_target:028"],
+                }
+            ],
+            "omitted": [],
+        }
+        return unit_checks(output, task, facts, NAME)
+
+    # The real shape: passes.
+    assert strays(f"The {path} file outlines the EPUB verification process.") == []
+    assert strays(f"See {path}.") == []  # sentence-final period is not an extension
+    # A genuinely unknown identifier still fails.
+    assert strays("The docs/other-notes.md file outlines it.") == [
+        "unit link:link_target:028: identifiers that are not accepted fact values: notes.md"
+    ]
+    # Near misses that are not the verbatim value still fail.
+    for near in (
+        "docs/epub-calibre-verification.mdx",
+        "docs/epub-calibre-verification2.md",
+        "docs/epub-calibre-verification.md.bak",
+        "mydocs/epub-calibre-verification.md",
+    ):
+        assert strays(f"The {near} file outlines it.") != [], near
+    # The fragment standing alone, outside the verbatim value, still fails even when the
+    # verbatim value is also present in the same unit.
+    assert strays(f"The {path} file, also called verification.md, outlines it.") == [
+        "unit link:link_target:028: identifiers that are not accepted fact values: verification.md"
+    ]
+    # The helper alone: only a whitespace-free composite allowed value is blanked.
+    assert mask_allowed_values(f"a {path} b", {path}) == "a   b"
+    assert mask_allowed_values("a verification.md b", {path}) == "a verification.md b"
+    assert mask_allowed_values("plain word here", {"plain", "word here"}) == "plain word here"

@@ -48,6 +48,9 @@ RAW_CALLS_FILENAME = "raw_calls.json"
 AUTHORED_SECTIONS: tuple[str, ...] = tuple(
     section.id for section in SEMANTIC_SHELL if section.owner != "D" and section.id != "at_a_glance"
 )
+# One whitespace-free token that is composite (a path, filename or coordinate), the only shape
+# mask_allowed_values blanks out of a unit before it is tokenized.
+_COMPOSITE_VALUE = re.compile(r"(?=\S+\Z)\S*[-/.]\S*")
 _DOTTED = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+\b")
 _SNAKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
 _CAMEL = re.compile(r"\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b")
@@ -248,13 +251,18 @@ _TYPE_OBJECTIVE = (
 # aspose-slides-foss/Aspose.Slides-FOSS-for-Java (BC-10 F08, 2026-10-04): the test-suite and
 # conformance-rule paragraphs were SUPERSEDE_REDUNDANT into this section, yet section_selections
 # gave the authoring call only the build_test_asset facts, so no unit could state them.
-# 21: the enterprise_relationship rewrite of "Enterprise Edition" into "commercial edition" is
+# "21": the strays check no longer reads a fragment of an allowed fact value the text spells
+# verbatim (mask_allowed_values). Measured on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript
+# (2026-10-04): "The docs/epub-calibre-verification.md file outlines ..." names the SUPPORTED
+# link_target value exactly, and was refused twice, identically, for the hyphen-split fragment
+# "verification.md". A near miss and the fragment standing alone are still refused.
+# 22: the enterprise_relationship rewrite of "Enterprise Edition" into "commercial edition" is
 # gone, and an authored unit that names any edition substitute is rejected instead. plans/idea.md
 # L51-53 allows exactly one edition name (Enterprise Edition) and forbids "commercial edition" and
 # every other substitute; the old rewrite generated the forbidden phrase into 19 sealed READMEs
 # while BC-06 only matched capitalised forms. The model now writes the context sentence with no
 # edition phrase at all (the renderer's shell sentence names the Enterprise Edition once).
-NORMALISATION_VERSION = "21"
+NORMALISATION_VERSION = "22"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -1159,6 +1167,31 @@ def identifier_tokens(text: str) -> set[str]:
     return {token for token in found if not (token.isupper() and token.isalnum())}
 
 
+def mask_allowed_values(text: str, allowed: Iterable[str]) -> str:
+    """``text`` with each allowed single-token composite value it spells verbatim blanked out.
+
+    A path, filename or coordinate (``docs/epub-calibre-verification.md``) is one accepted fact
+    value, but ``identifier_tokens`` reads pieces of it: ``_DOTTED`` takes ``verification.md``
+    from behind a hyphen, a fragment no fact records. A sentence naming the value exactly was
+    refused twice on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript (2026-10-04, identical at
+    temperature zero) for the fragment of a value it spelled correctly. Only the verbatim
+    occurrence is blanked, and only when it is delimited as a whole token on both sides, so a
+    near miss (``...verification.mdx``, ``...verification2.md``), an extension continuing past it
+    (``....md.bak``) and the same fragment standing alone elsewhere in the text are all still
+    judged. Values are limited to one whitespace-free token containing ``-``, ``/`` or ``.``,
+    and never a URL (a literal URL has its own rule): prose, multi-line values and bare words
+    are untouched.
+    """
+    for value in sorted(
+        {v for v in allowed if len(v) >= 3 and "://" not in v and _COMPOSITE_VALUE.fullmatch(v)},
+        key=len,
+        reverse=True,
+    ):
+        if value in text:
+            text = re.sub(rf"(?<![\w/.-]){re.escape(value)}(?![\w/-]|\.\w)", " ", text)
+    return text
+
+
 def command_block_tokens(text: str) -> set[str]:
     """Identifiers spelled inside ``text``'s shell-command fences.
 
@@ -1791,7 +1824,7 @@ def unit_checks(
         )
         strays = sorted(
             token
-            for token in identifier_tokens(text)
+            for token in identifier_tokens(mask_allowed_values(text, allowed))
             if not identifier_allowed(token, allowed, members, methods)
             and token not in nouns
             and token not in cited_inherited

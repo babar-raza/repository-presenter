@@ -32,8 +32,9 @@ at a stage only when it counted at every stage before it, so the counts are a fu
    ``PASS``, and the sealed README exists so the proposal payload's candidate hash is derivable.
 7. ``effect_authorized``: publication-eligible, and a supplied authorization record for this
    repository passes ``validate_authorization`` against this exact bundle (candidate hash, source
-   revision, presenter branch, unexpired). No authorization is persisted anywhere today, so on a
-   plain checkout this is 0.
+   revision, presenter branch, unexpired). Records live under ``ops/proposal-authorizations/``;
+   none is committed today, so on a plain checkout this is 0. The count is advisory: whether a
+   record was merged before the run that uses it is checked by ``propose`` itself, not here.
 
 THE PARTITION. Because the counts are nested, mutual exclusivity lives in the ``bucket`` of each
 entry: the first of ``disabled``, ``no_bundle``, ``bundle_corrupt``, ``state_not_accepted``,
@@ -299,6 +300,9 @@ def _assess(
             expected_repository=entry.repository,
             expected_candidate_hash=candidate_hash,
             expected_source_revision=revision,
+            # The report is offline and cannot observe the target's live default branch; the
+            # effect (components/propose/effect.py) binds the record's base branch to the live one.
+            expected_base_branch=authorization.base_branch,
             expected_branch=expected_branch,
         ).granted
         for authorization in (authorizations or {}).get(entry.repository, ())
