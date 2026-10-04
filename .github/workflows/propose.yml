@@ -108,7 +108,10 @@ jobs:
 
       # Minted even for a dry run - inputs.repo is never assumed to already have an App
       # installation, and a failed mint here is itself a useful, early, read-only-safe signal.
-      # Scoped to exactly the one target repository; never the whole App installation.
+      # Scoped to exactly the one target repository; never the whole App installation. The
+      # permission-* inputs are the minimum the effect job uses: contents write (branch refs and the
+      # README PUT) and pull-requests write (open or refresh the presenter PR). No issues, no
+      # administration, and no other write scope.
       - name: Mint a fresh installation token, scoped to this target repository alone
         id: app-token
         uses: actions/create-github-app-token@v2
@@ -117,6 +120,9 @@ jobs:
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           owner: ${{ steps.target.outputs.owner }}
           repositories: ${{ steps.target.outputs.name }}
+          permission-contents: write
+          permission-metadata: read
+          permission-pull-requests: write
 
       - name: Dry run - assemble and print the authorization payload, no GitHub call
         run: repository-presenter propose ${{ steps.args.outputs.cli_args }}
