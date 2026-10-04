@@ -38,6 +38,33 @@ characters-per-token floor (`output_chars_bound`). A truncated reply is kept bes
 evidence next time. Status: fixed on the branch; closes when the live proof on sighting 3 reaches
 past S4.
 
+### `readme.bc07_visible_budget_repaired_by_model_only`
+
+Check 7's visible-line budget (`validation/registry.py`, `_check_structure`) measures the composed
+README, never a plan, and stamps `causal_stage: PLANNING` on every overage (`composition/planning.py`
+and `plan_checks` carry no visible-line notion; a plan has no line count). The only plan-owned
+visible levers are the two optional example fields (`repair/targeted.py::VISIBLE_LINE_LEVER_FIELDS`).
+The repair asked the model to clear one first; the deterministic clear sat behind the model's own
+attempts as a last resort, and the model cleared no lever on any recorded draw, so the same overage
+re-raised.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-font-foss/Aspose.Font-FOSS-for-Python` | 2026-09-16 | 307 of 792 visible; `docs/RESEARCH_LANE_E.md` (LANE-E-04) |
+| 2 | (same) | 2026-09-16 18:06 UTC | 377 of 799; `docs/RESEARCH_LANE_E.md` (run 2) |
+| 3 | (same) | 2026-09-17 10:24 UTC | 327 of 764; `docs/DECISION_LOG.md` |
+| 4 | (same) | 2026-09-28 10:06 UTC | 305 of 713 after one repair, re-raised; `docs/DECISION_LOG.md` |
+| 5 | `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` | 2026-10-04 | 328 of 1262 (fresh present, qwen3-next) |
+
+**Status 2026-10-04**: the deterministic-first bound (`composition/planning.py::bound_visible_line_overage`,
+called by `repair/rounds.py::repair_defect` before the targeted repair) clears the levers in code
+when their exact saving clears the overage with `VISIBLE_LINE_RENDER_MARGIN` to spare; the model
+is asked only when it does not. Not moved to Resolved: it is confirmed only by a live draw that
+clears BC-07 on a repository in this index (resume predicate: a fresh Font-Python draw).
+Open question for the owner: `README_CONTRACT.md` section 1 states a default budget of 320 visible
+lines, while `composition/policy.py` enforces 300. The enforced value has been 300 in every
+sighting above.
+
 ### `present_transaction.wrapper_outcome_no_registered_path`
 
 `core/state/present_transaction.py`'s durable-state wrapper (landed G5-W05, PR #172/#181) crashes
