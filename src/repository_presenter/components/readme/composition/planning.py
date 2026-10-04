@@ -1188,6 +1188,51 @@ def recover_visible_line_overage(
 VISIBLE_LINE_RENDER_MARGIN = 4
 
 
+def recover_duplicate_link_targets(output: dict[str, Any]) -> dict[str, Any] | None:
+    """Last-resort correction for a plan that assigns one ``link_target`` to two sections.
+
+    The planner's own rule is that each link target is placed once ("never the same target
+    twice", ``plan_checks``). Measured on aspose-font-foss/Aspose.Font-FOSS-for-Python's live
+    presentation_planning (2026-10-04, third seal draw): the model placed ``link_target:001`` in
+    two sections, the check rejected both replies, and the transaction failed at S5. A plan can
+    only name a target in one place, so the first placement in plan order is kept and later
+    repeats are dropped - the same plan-order rule the ceiling trim above already applies. This
+    is run only after a final rejection (``recover=``), and ``run_job`` re-validates the result
+    through the real ``plan_checks`` before accepting it; the check itself is unchanged.
+
+    Returns ``None`` when no target repeats, never a no-op copy of ``output``.
+    """
+    links = output.get("links")
+    if not isinstance(links, list):
+        return None
+    seen: set[Any] = set()
+    kept: list[Any] = []
+    for link in links:
+        target = link.get("link_fact_id") if isinstance(link, dict) else None
+        if target is not None and target in seen:
+            continue
+        seen.add(target)
+        kept.append(link)
+    if len(kept) == len(links):
+        return None
+    corrected = copy.deepcopy(output)
+    corrected["links"] = [copy.deepcopy(link) for link in kept]
+    return corrected
+
+
+def recover_planning_output(output: dict[str, Any], facts: FactsDocument) -> dict[str, Any] | None:
+    """The presentation_planning job's whole last-resort correction (``recover=``): the duplicate
+    link-target fix, then the uncited-capability-title splice, each applied only where it changes
+    something. ``None`` when neither applies, so ``run_job`` rejects the final reply as before."""
+    deduplicated = recover_duplicate_link_targets(output)
+    titled = recover_uncited_capability_titles(
+        copy.deepcopy(deduplicated if deduplicated is not None else output), facts
+    )
+    if titled is not None:
+        return titled
+    return deduplicated
+
+
 def bound_visible_line_overage(
     output: Mapping[str, Any], *, overage: int, levers: Mapping[str, int]
 ) -> dict[str, Any] | None:

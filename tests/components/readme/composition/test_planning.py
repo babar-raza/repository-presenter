@@ -18,6 +18,8 @@ from repository_presenter.components.readme.composition.planning import (
     plan_checks,
     planning_packet,
     planning_schema,
+    recover_duplicate_link_targets,
+    recover_planning_output,
     recover_uncited_capability_titles,
     recover_visible_line_overage,
     section_conditions,
@@ -25,6 +27,7 @@ from repository_presenter.components.readme.composition.planning import (
     write_plan,
 )
 from repository_presenter.components.readme.composition.policy import PlanningPolicy
+from repository_presenter.components.readme.evidence.facts.product_pages import BANNER_FACT_ID
 from repository_presenter.components.readme.investigation.dossier import UNIT_CAP
 from repository_presenter.core.facts import (
     FACT_KINDS,
@@ -1939,3 +1942,47 @@ def test_bound_visible_line_overage_is_none_without_an_overage_or_a_lever_to_cle
     assert bound_visible_line_overage(_OPTIONAL_LEVER_PLAN, overage=5, levers={}) is None
     cleared = {**_OPTIONAL_LEVER_PLAN, "flagship_example_id": None}
     assert bound_visible_line_overage(cleared, overage=5, levers=flagship) is None
+
+
+def test_recover_duplicate_link_targets_keeps_the_first_placement() -> None:
+    """2026-10-04, aspose-font-foss/Aspose.Font-FOSS-for-Python, third seal draw: the planner placed
+    ``link_target:001`` in two sections; ``plan_checks`` rejected both replies and S5 failed. The
+    deterministic last resort keeps the first placement in plan order and drops the repeat, and
+    the corrected plan no longer trips the rule. The check itself is untouched."""
+    repeated = [
+        {"link_fact_id": "link_target:001", "section_id": "quick_start"},
+        {"link_fact_id": "link_target:002", "section_id": "api_reference"},
+        {"link_fact_id": "link_target:001", "section_id": "enterprise_relationship"},
+    ]
+    plan = _plan(links=repeated)
+    assert any("assigned more than once" in e for e in plan_checks(plan, FACTS))
+    recovered = recover_planning_output(plan, FACTS)
+    assert recovered is not None
+    assert recovered["links"] == [repeated[0], repeated[1]]
+    assert not any("assigned more than once" in e for e in plan_checks(recovered, FACTS))
+    # The input plan is never mutated by the correction.
+    assert plan["links"] == repeated
+
+
+def test_recover_duplicate_link_targets_negative_controls() -> None:
+    """Negative controls: a plan with no repeated target is not touched (None, never a no-op
+    copy), and a repeat that the correction removes does not hide an unrelated rule - a
+    shell-owned link is still rejected by ``plan_checks`` after recovery."""
+    distinct = _plan(
+        links=[
+            {"link_fact_id": "link_target:001", "section_id": "quick_start"},
+            {"link_fact_id": "link_target:002", "section_id": "api_reference"},
+        ]
+    )
+    assert recover_duplicate_link_targets(distinct) is None
+    assert recover_planning_output(distinct, FACTS) is None
+    shell = BANNER_FACT_ID
+    mixed = _plan(
+        links=[
+            {"link_fact_id": shell, "section_id": "quick_start"},
+            {"link_fact_id": shell, "section_id": "api_reference"},
+        ]
+    )
+    recovered = recover_planning_output(mixed, FACTS)
+    assert recovered is not None
+    assert plan_checks(recovered, FACTS) != []
