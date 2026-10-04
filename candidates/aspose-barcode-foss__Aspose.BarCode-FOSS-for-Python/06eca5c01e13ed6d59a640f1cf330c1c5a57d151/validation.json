@@ -78,14 +78,14 @@
       "failures": [],
       "id": "BC-06",
       "judged_at": "S9",
-      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name",
+      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name; no unsafe raw HTML (script/event-handler/dangerous-scheme) renders outside a fenced code block",
       "sections": [
         "documentation_resources",
         "enterprise_relationship",
         "badges"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "4"
     },
     {
       "causal_stage": null,
@@ -439,8 +439,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "ad75d0dbf187c1afe17998efdd7277e435003285566248c991781bd913d3d802",
-  "readme_sha256": "087a77b8c0924c6564be0f8a8e6dfeac7fb5267fc76f947fec7fb1a7489413b3",
+  "protected_content_fingerprint": "786262abb12c177308e17389a8a30defddbf2fe675c5d16049a3b228ee10fb07",
+  "readme_sha256": "19a239c551f38b18461d4aaf155c371d44b4c31ad98853ba16136c66c050aed5",
   "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
@@ -449,5 +449,5 @@
     "pass": 11,
     "pending": 0
   },
-  "validator_version": "3"
+  "validator_version": "4"
 }

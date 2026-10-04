@@ -1,17 +1,17 @@
 {
-  "acceptance_profile_version": null,
+  "acceptance_profile_version": "1",
   "components": {
-    "normalisation": "11",
-    "renderer": "24",
-    "reviewer_logic": "11",
+    "normalisation": "18",
+    "renderer": "25",
+    "reviewer_logic": "14",
     "shell": "6"
   },
-  "contract_version": "readme-contract-v1-draft",
+  "contract_version": "readme-contract-v1",
   "environment": {
     "extractor_version": "1",
     "inherited_units_version": "1",
     "os": "Windows",
-    "presenter_site_manifest": "75b3f0a88fc9863226b4e3c503bb92c7131d15419eefc8a4037fe4a7f017f8b7",
+    "presenter_site_manifest": "23d2a43bbb97c58c6f82c65b0c78a86aa06710793ea79c453a863e80e3089bf2",
     "python_version": "3.13.2"
   },
   "facts": {
@@ -216,8 +216,8 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
-      "version": "16"
+      "sha256": "a3b2066d504d61a8cb957068e38b2fd41af2ba26f7b8409e3f54e272b67403e6",
+      "version": "18"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
@@ -226,24 +226,24 @@
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "554832bbb64e95b9cce6c26926d875fc4100d99ffec3975cbbb236c56e4a49d3",
-      "version": "9"
+      "sha256": "7bdddd8cdbc2c03dd9310d6dbba9efafc2f369559b9bfc4a84a020896f55209a",
+      "version": "10"
     }
   },
-  "protected_content_fingerprint": "ad75d0dbf187c1afe17998efdd7277e435003285566248c991781bd913d3d802",
+  "protected_content_fingerprint": "786262abb12c177308e17389a8a30defddbf2fe675c5d16049a3b228ee10fb07",
   "schema_version": 1,
   "source": {
     "revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
     "tree_sha256": "6bb9b0cbe309b6a1bc04cbaf32bc00093d5bf779ae296801d17afe69e9b3468e"
   },
-  "validator_version": "3",
+  "validator_version": "4",
   "validators": {
     "BC-01": "1",
     "BC-02": "3",
     "BC-03": "2",
     "BC-04": "2",
     "BC-05": "1",
-    "BC-06": "3",
+    "BC-06": "4",
     "BC-07": "7",
     "BC-08": "2",
     "BC-09": "1",

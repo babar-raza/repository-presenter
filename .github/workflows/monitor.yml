@@ -1,8 +1,9 @@
 # First hosted-execution slice (docs/STATE_MACHINE.md section 20.6's own checklist item
 # "monitor.yml authored, then act-tested"). This is deliberately NOT the durable-state-backed
-# present.yml pipeline section 20 describes -- no CAS/lease/recovery backend exists yet
+# present.yml pipeline section 20 describes. [2026-10-04 correction: the CAS/lease/recovery backend
+# now exists (core/state/, G5-W04) and present.yml wires it (G5-W05); this workflow does not use it.]
 # (docs/investigations/12-supervisor-and-production-reassessment.md section 5.4/7), and this
-# workflow proves nothing about that missing piece. It only confirms two low-risk, read-only
+# workflow proves nothing about the durable-state path. It only confirms two low-risk, read-only
 # preconditions a future scheduled run would need:
 #   1. the configured LLM gateway is reachable (repository-presenter preflight);
 #   2. the canary repository (project/state.yaml's progress.canary) is still reachable read-only.

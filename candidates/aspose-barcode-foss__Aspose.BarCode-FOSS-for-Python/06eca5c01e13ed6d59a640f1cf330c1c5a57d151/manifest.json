@@ -1,61 +1,86 @@
 {
-  "adopted": {
-    "adopted_at": "2026-09-23T11:30:14Z",
-    "changed": [
-      "README.md",
-      "README.patch",
-      "content_units.json",
-      "dependencies.json",
-      "dispositions.json",
-      "examples.json",
-      "facts.json",
-      "investigation.json",
-      "plan.json",
-      "review.json",
-      "validation.json"
-    ],
-    "classification": "factual",
-    "earliest_affected_stage": "EXTRACTING",
-    "previous_proof": {
-      "byte_identical": true,
-      "fresh_process": true,
-      "proven_at": "2026-09-17T00:44:47Z",
-      "provider_calls": 0
-    },
-    "recorded_at": "2026-09-23T11:28:55Z"
-  },
   "call_variance": [
     {
-      "distinct_responses": 2,
+      "distinct_responses": 3,
       "job": "independent_review",
       "response_sha256s": [
-        "73c8702dbbd84792b47c99f899d2eaae86cd29b8e25d50cf2a493f054ccbb493",
-        "a987327f611064a9c88a1ea58c53e4e1d778dd5dbaaa9a72746139c543919fcc"
+        "b2bd9fb08ba5a2cd11206c8f378ac4fa5efab09dc353a2d69ae3325465010102",
+        "b76322fa50f5d415bcf02e0c7236e120ec1c028c2e6ae45578699f01d2464730",
+        "c8b29c57f264fd94fa9e0586766979b25f8190613c7b773cad11af30a4e34b7c"
       ]
     },
     {
-      "distinct_responses": 11,
-      "job": "section_authoring",
+      "distinct_responses": 3,
+      "job": "presentation_planning",
       "response_sha256s": [
-        "0b632b867131571a11adff8198ab6c89aedbd63c57d46cbfe42a18b72cbe3f02",
-        "115435e69aec1f6371319cba6ccd46f923bfccf040b80457231617613b37374c",
-        "154af042b1978b135e91a0820ef81c7fdab0f2886eb1304c6976b0fa438b8ba1",
-        "1ce8a14fb98151415b8e1661ac60ff41eb54d0fa3860efd583798f67edad03a7",
-        "1d815900b4ba7964f94b455c6a56c34c075ac9fdbd79ad9ae7df1e483acf0e3f",
-        "26591f8cee75401426f477d91aee641b415b149c6f148619a9dd065e9c9c5b96",
-        "656b50c3dc658e9d1eb98e4981a5104a12774a63c67bfb20d5d47b5773154266",
-        "8a59e5639865aca6a912d0d9c9af790c1c564b36e9cc7ed73a1f150c18530c8a",
-        "ad5380834e32ebd0d51b2e7a4139678e97d0514088c7aa7e30ce797234a7c45d",
-        "b0c9adf669ff4e2adb63b5829632c3fc2981e75e621e025c2cf11e5686a1222a",
-        "fab75df841b3ec9918e4a912e53875ce532646ed00c707f4d7f64d4286455570"
+        "37cbaeab663b988365a905188bef6ebc77fb3f40f24135372654e3f168b93bd6",
+        "bb8d5eb5b186b4febbea4ccd60a5ca5dcd71dd45aa387a5710b06e75f749efd5",
+        "cd4b3a1237555a6cda457ff8b1108cc571f9c9dc290e157615170c1e4033a0e9"
       ]
     },
     {
       "distinct_responses": 2,
+      "job": "repository_investigation",
+      "response_sha256s": [
+        "8073bb3e6a55b71f2b3c9db96ec2d2d1ef5343a07ec08418e79044b1b8c9b2fd",
+        "ef49f40e322658f0f784118991803b03a4d11a6f1393e78e0a0f2e94c4b41e06"
+      ]
+    },
+    {
+      "distinct_responses": 31,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "06385182b70b8df6c5672067556b00fd56e9c9cafa94cd53e8cf498a9638046f",
+        "0b223a53fc7e84d184634227922f9b895d84de2f7c02cb3a0b6d99bc03c5df3f",
+        "0df62ef6809314af802a903c17a93878e9021213476091c959238233c46594eb",
+        "16dcc7b578c78575c65cf2088aa510c018d25e9c7e56fdb875c80c55674f9bb0",
+        "1ae5bec57c32b8999e361304a2bcbbff829f21ca8d2caf5f07ca43e0720fc461",
+        "360eb3eae044ae1f3959933507479a90d0624480c4858d3ccf3403d6bfeaba9d",
+        "4432426ef4a176811c87b78dcdcbccc8bc994cbb3a756369b57d57b7dad77f3c",
+        "45736b6cda62d9670ca525eb2bc53f60b45143ea8561e9e14a7319dc76c90224",
+        "52b6d554ac5e8a749f10371c264642c661262c70146b7ebc09f3537929d61021",
+        "5af3a070833956a2bf43aeeebe779e4e8631f499637d5f37e126806df3a57a10",
+        "705fccf4ed730c619ec14a7c022dffa6925de0b7b4433507451041436e20f4fb",
+        "7413b9fdf4b4beb18100b2269c8605e9d6f7278c2a059d8bed8798e67cb4e7cf",
+        "8358281927517c6ee60972a69765a356aeaa7e0fdec4c0bc850a7860d04a8a37",
+        "8bf76209c61420cd76ff5a0e9d1d2d939a2b0c52760166824105e9e0b82ad3cb",
+        "9fa33a0bdd0dc82ebc00706313a5fe21b541b4634cca5515cc2f0c566148ee0d",
+        "a1841a016a828b583400e567d39c5cb38cd4cd828d0d04b94cc2cec0e263856e",
+        "a753b5facee1d460d7aa34f650f9c36a2308b9f55efbc201779aaeecde24a392",
+        "abdba708cf76925e0af21a5d7d9dfcacf196b678b81bca4cadf64ab3e1617181",
+        "ae4ea8983330a9e438d368e7f2626a808b272e599df0cf99360a092573700cc1",
+        "be7eb89494a54b64b133c88fbaff90dc151d79764ffa9f243e0b3966747ce103",
+        "cd1f9143e414e9e8c2e3cb9f0fa1c436ef97bc1b7316b1cee63430b71a1affa8",
+        "d95e2753d131360eaecfdb4dda50ceff213b74b83c096e4afe6e3b0e7e8bd546",
+        "df792e84c5ca4f7abcd9038b4d6b8edfa6ab5abbacffaa0ed163b70bcbd030f0",
+        "e1fc4d496acbb765578837d14daa0f6443c572a071326ac85c1b6ee4bb840ae8",
+        "e3520ee758845120b8930fb2e263e6756cff261af46cf654fdcc295f6a8321d6",
+        "e36ce2ff0e442a9e72897ab550b408db3021e9bbcd4fd589f6c74f92e0139173",
+        "e5949d5f5f5f463dd6c1a4892e1d26135180d71523fb16ba746574d66b33ae29",
+        "f5c45903bd2ef2c13bcf8667a537df54e30cbaf83078b895703ba91c1a4f7d2a",
+        "f872a3c561122278f2aff7a0258ef2f68d86f583012a5c437cd9a50a3e1a91c7",
+        "fb92903fb495a487e5ba0cae22752351a35510cdabeb6aef318a680dd0d89425",
+        "fe235e1af6bdd307dc8ce5f1173e4f7725f207cc181e741cb51f9d66716fb73e"
+      ]
+    },
+    {
+      "distinct_responses": 4,
       "job": "source_reconciliation",
       "response_sha256s": [
-        "74ee6a91bcd22d4cf3cc114503e1451fbc06907eed5525bac3d58065384c93c0",
-        "e3757b7ce695743680c38b4ddb1502258093bf889be02390a6109e13ad7a3341"
+        "005d6504056832aab8d28927fd2a7da26d4fe19514a4d3b96ce4663802f8c1f2",
+        "1fdfccb8ef4e666718d95f84a98864ba78b20e998dfb63e32da99a6f3de02bf7",
+        "76e3f660bfd9c6db6f0a1958f86e031c823627f778201621abac557d690acb1b",
+        "e2f21f71ee5c319f690642a50ac4081e2391e5ffea4bf3e00eeca4a865ccc91c"
+      ]
+    },
+    {
+      "distinct_responses": 4,
+      "job": "targeted_repair",
+      "response_sha256s": [
+        "49a45c1a869bfd9311c8c7ffa0acad90d526716f4206145d60fbf51e27402df4",
+        "5b79de992ffb3b7897529fa1222b49c2b57947498ce2354ea389b6f58b6bc247",
+        "66835ed6a9841fe95cd8dff348a68f6803adac887be1afa2dd156019f816d395",
+        "d0baab742dfda8a8295a93399ef4afbb8b4e8bfcf06a8033516b7e2d5c2c4444"
       ]
     }
   ],
@@ -68,28 +93,28 @@
   },
   "files": {
     "README.md": {
-      "bytes": 17905,
-      "sha256": "087a77b8c0924c6564be0f8a8e6dfeac7fb5267fc76f947fec7fb1a7489413b3"
+      "bytes": 18294,
+      "sha256": "19a239c551f38b18461d4aaf155c371d44b4c31ad98853ba16136c66c050aed5"
     },
     "README.patch": {
-      "bytes": 25923,
-      "sha256": "eecf98fe533de8387e209b235929c6dcfbc5107967d63dfa6cdac754a5ca2860"
+      "bytes": 26157,
+      "sha256": "c6e357b5da22994f077e9095d9fa85ea115205362c45f8cb6a5cddd87a598f85"
     },
     "calls.jsonl": {
-      "bytes": 32997,
-      "sha256": "4d1c2b2acf784849ca2a5f35cf17159ca742339a041944103ff1f8e412f08655"
+      "bytes": 54908,
+      "sha256": "c2183fb12b9b91c18d7734105d0a1fdc24f0374beefa65123b80fcb3e19b72ce"
     },
     "content_units.json": {
-      "bytes": 38234,
-      "sha256": "ec948aad8075f3fb8101fadf263addffb5b3065a35d157ec54d406510d10687a"
+      "bytes": 38453,
+      "sha256": "add093d365e7c017762a67af18b1d97062bbaf0a5e232d6fa13973e064a2a97e"
     },
     "dependencies.json": {
-      "bytes": 21604,
-      "sha256": "6cd6e657a53bb118c727c05bdc5b785cd1c4290a4eddc41fbb0b42e8b0d0db3c"
+      "bytes": 21598,
+      "sha256": "818288c64110a43bf2d707ed5b45e1c4c91c2d0e989b6ec5c6669cde4b9f5111"
     },
     "dispositions.json": {
-      "bytes": 29163,
-      "sha256": "b6211db31f1a0011f30620b8a598b4ed6db4eafc658c1df711e776f322749e7e"
+      "bytes": 23956,
+      "sha256": "d3103734a33be6df3dbeeaf149a6da68ac464643ba5384c0f3c7d198dc86ee8f"
     },
     "examples.json": {
       "bytes": 1983,
@@ -100,42 +125,47 @@
       "sha256": "db691e96c812fc2510850fc0c6abfd930a72246a299be8ca7e200977212fac00"
     },
     "investigation.json": {
-      "bytes": 7309,
-      "sha256": "51058b4a81a0b99799e91bbd5196338ee97ee5a44a29f019567a9ee5cf3aa6c4"
+      "bytes": 7884,
+      "sha256": "5873c98de4d0c69771c7d059229796a962c9e2c9d052e25d9e9b523ab7371a31"
     },
     "plan.json": {
-      "bytes": 10262,
-      "sha256": "b4d9836bcedb5204860356bb2693700a33ba43573d898318a983c6179eff5a89"
+      "bytes": 8095,
+      "sha256": "eeec8ea58aa257ad7a713ed57b2ba8d62172f7229c3f3762b098690f838205c8"
     },
     "probes.json": {
-      "bytes": 2194,
-      "sha256": "e25b27baecc02e158411ce3cb2ad8f60fb6671564a8781f576311c43434ed558"
+      "bytes": 2199,
+      "sha256": "db256304c6919697815d4d4732014fd92af4297ddeb5e3db5b7bd3ee3f5f2cfa"
+    },
+    "raw_calls.json": {
+      "bytes": 69076,
+      "sha256": "fe1c21ab5b524f6d0370ba1159b8f1082297069fadcdfd0a2faa3b3e9ca083bd"
+    },
+    "repairs.json": {
+      "bytes": 3198,
+      "sha256": "232428771e8dc453259d0f98d9381eabe11e5b28c1719ad358832788c719bdd7"
     },
     "review.json": {
-      "bytes": 22336,
-      "sha256": "33a7ba1db50e317c6dac94d48ed959adb424e2b77b600b56e3cbff8c9404ba42"
+      "bytes": 24355,
+      "sha256": "f40984d5d5177dc56e8748cf5cb6972ec80d05b3c42fbd84e9d956726b494ff8"
     },
     "validation.json": {
-      "bytes": 10498,
-      "sha256": "167029632d6632e058e68674ae44139965997ecd1971fd9aa04d33941502a34e"
+      "bytes": 10594,
+      "sha256": "10e83d22afc402e95e8ad3e1eaa92983eb494728eda70ab89edfa05edf787273"
     }
   },
-  "invalidated": {
-    "causal_stage": "COMPOSING",
-    "check": "BC-10",
-    "detail": "REJECT_FACTUAL; F07 quick_start (COMPOSING): The Quick Start example is correct and matches the verified example fact, but the candidate omits the `py.typed` marker for type-checker support, which is a key fact about the package.",
-    "recorded_at": "2026-09-27T04:44:20Z"
+  "models_used": {
+    "qwen3-next": "qwen3-next"
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-23T11:30:14Z",
+    "proven_at": "2026-10-04T13:05:16Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
   "revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
   "schema_version": 1,
-  "sealed_at": "2026-09-23T11:30:14Z",
-  "state": "INVALIDATED"
+  "sealed_at": "2026-10-04T13:05:16Z",
+  "state": "READY_FOR_PROPOSAL"
 }
