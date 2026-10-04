@@ -559,8 +559,9 @@ def seed_additional_calls(bundle: Path, store: CallStore) -> list[str]:
     the counterpart to :func:`seed_call_store` above for the calls that function's own
     ``_SEEDABLE_JOBS`` (and ``composition/authoring.py::reconstructed_task_output``, which
     ``repair/rounds.py`` already applies per non-batch ``section_authoring`` task) cannot reach:
-    a ``coherence`` batch, an ``independent_review`` read, and a batch ``section_authoring`` task
-    (G5-W02's own remaining gap, named explicitly in ``tests/test_cli.py::test_present_from_an_
+    each ``source_reconciliation`` batch, a ``coherence`` batch, an ``independent_review`` read,
+    and a batch ``section_authoring`` task (G5-W02's own remaining gap, named explicitly in
+    ``tests/test_cli.py::test_present_from_an_
     empty_runs_directory_reuses_a_sealed_bundle``'s docstring before this function existed).
 
     Unlike ``seed_call_store``, no per-job "exactly one success" constraint applies here:
