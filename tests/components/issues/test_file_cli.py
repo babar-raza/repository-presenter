@@ -12,9 +12,11 @@ from typing import Any
 import pytest
 
 from repository_presenter import cli
-from repository_presenter.cli import EXIT_OK, main
+from repository_presenter.cli import EXIT_OK, EXIT_USAGE, main
+from repository_presenter.components.issues.approval import handoff_id
 from repository_presenter.components.issues.file import AUTHORIZATION_VARIABLE
 from repository_presenter.components.issues.model import load_handoff
+from support import approval_text
 
 REPO_DIR = "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp"
 REPOSITORY = "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
@@ -46,6 +48,40 @@ def _no_live_github(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cli, "redetect", _fires_true)
     monkeypatch.setattr(cli, "default_patch", _RecordingCreate(status_code=200, body={}))
     monkeypatch.setattr(cli, "default_post", _RecordingCreate())
+
+
+class _CommittedApprovals:
+    """Stands in for ``GitApprovalStore`` (which reads committed files from a git ref): approves
+    exactly the handoffs whose repository is in ``approved``, with the record text overridden per
+    handoff id in ``overrides``. The git store itself is tested against real repositories in
+    test_approval.py."""
+
+    def __init__(self, root: Path) -> None:
+        self.root = root
+        self.approved = {REPOSITORY}
+        self.overrides: dict[str, dict[str, Any]] = {}
+
+    def read(self, identifier: str) -> str | None:
+        for path in sorted((self.root / "evidence" / "upstream-defects").glob("*/*.json")):
+            handoff = load_handoff(path)
+            if handoff_id(handoff) == identifier and handoff.repository in self.approved:
+                return approval_text(handoff, **self.overrides.get(identifier, {}))
+        return None
+
+
+@pytest.fixture(autouse=True)
+def approvals(monkeypatch: pytest.MonkeyPatch) -> list[_CommittedApprovals]:
+    """The approval store the CLI builds; the single entry is the one it created."""
+    created: list[_CommittedApprovals] = []
+
+    def factory(root: Path, ref: str = "HEAD") -> _CommittedApprovals:
+        store = _CommittedApprovals(root)
+        created.append(store)
+        return store
+
+    monkeypatch.setattr(cli, "GitApprovalStore", factory)
+    monkeypatch.delenv(AUTHORIZATION_VARIABLE, raising=False)
+    return created
 
 
 @pytest.fixture
@@ -92,12 +128,15 @@ def test_dry_run_without_file_flag_writes_nothing_and_says_so(
     create = _RecordingCreate()
     monkeypatch.setattr(cli, "default_post", create)
 
+    monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
+
     exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff)])
 
     assert exit_code == EXIT_OK
     assert create.calls == []
     out = capsys.readouterr().out
-    assert "would file" in out
+    assert "WOULD-FILE" in out
+    assert "WOULD-NOT-FILE" not in out
     assert "dry run" in out
 
 
@@ -108,12 +147,21 @@ def test_file_without_authorization_writes_nothing(
     monkeypatch.setattr(cli, "default_post", create)
     monkeypatch.delenv(AUTHORIZATION_VARIABLE, raising=False)
 
-    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+    exit_code = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
 
     assert exit_code == EXIT_OK
     assert create.calls == []
     out = capsys.readouterr().out
-    assert "not authorized" in out
+    assert "kill switch engaged" in out
     assert AUTHORIZATION_VARIABLE in out
 
 
@@ -126,7 +174,16 @@ def test_file_authorized_with_token_and_confirmed_recheck_writes_and_updates_the
     monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
     monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
 
-    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+    exit_code = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
 
     assert exit_code == EXIT_OK
     assert len(create.calls) == 1
@@ -173,7 +230,16 @@ def test_file_aborts_when_recheck_says_the_defect_no_longer_fires(
     monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
     monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
 
-    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+    exit_code = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
 
     assert exit_code == EXIT_OK
     assert create.calls == []
@@ -194,9 +260,27 @@ def test_a_second_file_run_never_double_files_the_same_handoff(
     monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
     monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
 
-    first = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+    first = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
     capsys.readouterr()
-    second = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+    second = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
 
     assert first == EXIT_OK
     assert second == EXIT_OK
@@ -297,7 +381,16 @@ def test_a_second_run_from_a_fresh_checkout_files_nothing_when_the_upstream_issu
     monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
     monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
 
-    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+    exit_code = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
 
     assert exit_code == EXIT_OK
     assert create.calls == []
@@ -307,31 +400,151 @@ def test_a_second_run_from_a_fresh_checkout_files_nothing_when_the_upstream_issu
     assert updated.issue_ref == IssueRef(number=7, url="https://x/issues/7")
 
 
-def test_a_failed_filing_for_one_handoff_does_not_stop_the_others(
-    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+def _approve(
+    monkeypatch: pytest.MonkeyPatch, *repositories: str, **overrides: dict[str, Any]
 ) -> None:
-    _write_second_handoff(project_with_handoff)
-    failing = _RecordingCreate(status_code=500, body={"message": "boom"})
-    succeeding = _RecordingCreate()
+    """Make the CLI's approval store approve exactly ``repositories``."""
+    original_factory = cli.GitApprovalStore
 
-    def route(url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
-        if f"/repos/{REPOSITORY}/" in url:
-            return failing(url, token, payload)
-        return succeeding(url, token, payload)
+    def factory(root: Path, ref: str = "HEAD") -> _CommittedApprovals:
+        store = original_factory(root, ref)
+        store.approved = set(repositories)
+        store.overrides = dict(overrides)
+        return store
 
-    monkeypatch.setattr(cli, "default_post", route)
+    monkeypatch.setattr(cli, "GitApprovalStore", factory)
+
+
+def _open_gates(monkeypatch: pytest.MonkeyPatch, create: _RecordingCreate) -> None:
+    monkeypatch.setattr(cli, "default_post", create)
     monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
     monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
 
-    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+
+def test_a_run_files_only_for_the_repository_it_is_bound_to(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Both handoffs are approved, but a run bound to one target (a matrix leg) never touches the
+    other one's issue tracker, whatever the artifacts on disk say."""
+    _write_second_handoff(project_with_handoff)
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+    _approve(monkeypatch, REPOSITORY, OTHER_REPO)
+
+    exit_code = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
+
+    assert exit_code == EXIT_OK
+    assert [url for url, _, _ in create.calls] == [
+        f"https://api.github.com/repos/{REPOSITORY}/issues"
+    ]
+    other = project_with_handoff / "evidence" / "upstream-defects" / "acme-org__second-repo"
+    assert load_handoff(other / f"{OTHER_FINGERPRINT}.json").status == "HANDOFF_PENDING"
+    assert "filed=True" in capsys.readouterr().out
+
+
+def test_a_failed_filing_is_reported_and_leaves_the_artifact_pending(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    failing = _RecordingCreate(status_code=500, body={"message": "boom"})
+    _open_gates(monkeypatch, failing)
+
+    exit_code = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
 
     assert len(failing.calls) == 1
-    assert len(succeeding.calls) == 1
     assert exit_code != EXIT_OK
     assert load_handoff(_handoff_path(project_with_handoff)).status == "HANDOFF_PENDING"
-    other = project_with_handoff / "evidence" / "upstream-defects" / "acme-org__second-repo"
-    assert load_handoff(other / f"{OTHER_FINGERPRINT}.json").status == "FILED"
-    assert "filed=True" in capsys.readouterr().out
+
+
+def test_file_requires_a_repo_binding_and_writes_nothing_without_one(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+
+    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+
+    assert exit_code == EXIT_USAGE
+    assert create.calls == []
+
+
+def test_the_kill_switch_and_token_without_an_approval_file_nothing(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The incident this guards: the repository variable set, a token minted, nothing approved."""
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+    _approve(monkeypatch)
+
+    exit_code = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
+
+    assert exit_code == EXIT_OK
+    assert create.calls == []
+    assert "no approval record" in capsys.readouterr().out
+    assert load_handoff(_handoff_path(project_with_handoff)).status == "HANDOFF_PENDING"
+
+
+def test_a_handoff_edited_after_its_approval_is_not_filed(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+    identifier = f"aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__{FINGERPRINT}"
+    _approve(monkeypatch, REPOSITORY, **{identifier: {"digest": "sha256:" + "0" * 64}})
+
+    exit_code = main(
+        [
+            "file-upstream-defects",
+            "--root",
+            str(project_with_handoff),
+            "--file",
+            "--repo",
+            REPOSITORY,
+        ]
+    )
+
+    assert exit_code == EXIT_OK
+    assert create.calls == []
+    assert "approval digest mismatch" in capsys.readouterr().out
+
+
+def test_count_writable_counts_only_approved_pending_handoffs(
+    project_with_handoff: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _write_second_handoff(project_with_handoff)
+    base = ["file-upstream-defects", "--root", str(project_with_handoff), "--count-writable"]
+    assert main([*base, "--repo", REPOSITORY]) == EXIT_OK
+    assert capsys.readouterr().out.strip() == "1"
+    assert main([*base, "--repo", OTHER_REPO]) == EXIT_OK
+    assert capsys.readouterr().out.strip() == "0"
+    assert main([*base, "--repo", "nobody/nothing"]) == EXIT_OK
+    assert capsys.readouterr().out.strip() == "0"
 
 
 def test_a_resolved_filed_handoff_is_closed_with_its_close_reason(
@@ -377,23 +590,39 @@ def test_close_without_the_gate_makes_no_call_and_says_what_it_would_close(
     assert load_handoff(_handoff_path(project_with_handoff)).status == "FILED"
 
 
-def test_the_dry_run_names_each_handoff_it_would_file_with_the_gate_unset(
+def test_the_dry_run_reports_each_handoff_with_its_verdict_and_reason(
     project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     _write_second_handoff(project_with_handoff)
     create = _RecordingCreate()
     monkeypatch.setattr(cli, "default_post", create)
-    monkeypatch.delenv(AUTHORIZATION_VARIABLE, raising=False)
+    monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
 
-    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff)])
 
     assert exit_code == EXIT_OK
     assert create.calls == []
     out = capsys.readouterr().out
-    assert "would file" in out
-    assert HANDOFF_PAYLOAD["suggested_issue_title"] in out
+    approved_line = next(line for line in out.splitlines() if REPOSITORY in line)
+    unapproved_line = next(line for line in out.splitlines() if OTHER_REPO in line)
+    assert "WOULD-FILE" in approved_line
+    assert "WOULD-NOT-FILE" in unapproved_line
+    assert "no approval record" in unapproved_line
     assert "second, independent defect" in out
-    assert AUTHORIZATION_VARIABLE in out
+    assert f"ops/issue_approvals/acme-org__second-repo__{OTHER_FINGERPRINT}.json" in out
+    assert "evidence_digest sha256:" in out
+
+
+def test_the_dry_run_says_the_kill_switch_is_off_instead_of_promising_a_filing(
+    project_with_handoff: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff)])
+
+    assert exit_code == EXIT_OK
+    out = capsys.readouterr().out
+    assert f"kill switch {AUTHORIZATION_VARIABLE} = OFF" in out
+    assert "WOULD-NOT-FILE" in out
+    assert "WOULD-FILE" not in out.replace("WOULD-NOT-FILE", "")
 
 
 def test_issue_targets_lists_each_repository_with_pending_or_filed_handoffs_as_json(
