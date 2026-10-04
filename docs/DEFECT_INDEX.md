@@ -332,6 +332,121 @@ PARTIAL: the claim that the code accepts any `GH_TOKEN` is wrong. The write path
 
 **Id** REV-V1-08 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 8 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a test shows that when a closed or merged PR exists for the presenter head branch, `propose_candidate` does not create a new PR and reports the prior outcome; `grep -n 'state=' src/repository_presenter/core/github/client.py` shows the lookup covers `state=all` (or a separate closed lookup) for the head branch.
 
+### `snapshot.community_paths_dead_code` (REV-V4-01)
+
+`core/snapshot/inventory.py` declares and populates `FileInventory.community_paths` in `scan()`, but no module in `src/` outside `inventory.py` reads it; the only other consumer is `tests/core/snapshot/test_inventory.py` (assertions only). `AGENTS.md` states 'a module with no production importer is a defect'. The project already acknowledges this (`docs/DECISION_LOG.md:3671`; the WS2 ruling, 2026-09-17, `docs/DECISION_LOG.md:3681`), so this entry tracks it as an open defect rather than a known note.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/snapshot/inventory.py:52,75-83` (declaration and population) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `tests/core/snapshot/test_inventory.py:49-75` (the only other reader) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `docs/DECISION_LOG.md:3671` (self-acknowledged dead code) |
+
+**Id** REV-V4-01 · **Severity** Low · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 1 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -rn community_paths src/` shows a production reader outside `inventory.py` (for example the metadata or community-file component), or the field is removed with its test; either way a reviewer finds no write-only field.
+
+### `github.no_releases_audit_no_product_agent_ingest` (REV-V4-02)
+
+`core/github/client.py` and `read_client.py` enumerate every REST call the project makes (repos, topics, issues, git refs, contents, pulls, commits, trees); there is no `/releases` call and no stargazers, forks or watchers read anywhere in `src/`. `schemas/facts.schema.json` has no `release` field. `plans/idea.md` ('Product Agents', lines 466-478) says product agents supply release changes to the central agent and names `ProductFactsV2` as the mechanism, but `ProductFactsV2` has no implementation in `src/` or `schemas/`. The WS2 ruling (2026-09-17, `docs/DECISION_LOG.md:3681`) records the Releases and package-links audit as a priority 'not yet built' and GitHub-generated-metadata auditing as plan-only.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/github/client.py:1-3`, `src/repository_presenter/core/github/read_client.py:183-199` (no `/releases`; only `default_branch` read from repo metadata) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `schemas/facts.schema.json` (no `release` field); `grep -rn ProductFactsV2 src schemas` returns nothing |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:466-478`; `docs/investigations/02-repo-metadata-community-files.md:261-263` (open question: needs owner input); `docs/DECISION_LOG.md:3681` |
+
+**Id** REV-V4-02 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 2 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -rn '/releases' src/repository_presenter/core/github/` shows a read-only releases audit with a test, a `release` fact kind exists in `schemas/facts.schema.json` with an extractor, and `ProductFactsV2` has a schema and an ingest path or an owner decision withdrawing it is recorded in section 31.
+
+### `assets.visual_assets_social_preview_deferred` (REV-V4-03)
+
+No `social_preview` or `visual_asset` code exists in `src/`. `plans/idea.md:513-522` ('Visual Assets and Social Preview') makes this part of the central agent's intended responsibility but not required for the initial pilot, treats the social preview as a manual-UI surface until GitHub documents a supported automation, and `plans/idea.md:535-536` places full delivery outside the README POC's required scope. The absence matches the authority's own deferral, so this is informational, logged so the intended-but-unbuilt capability stays visible.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `grep -rn 'social_preview\|visual_asset' src/` returns no files |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:513-522,535-536` (deferral) |
+
+**Id** REV-V4-03 · **Severity** Low · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 3 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a reviewer confirms `plans/idea.md:513-536` still defers the capability (then this entry stays informational), or a component exists under `components/` registered in `docs/REPOSITORY_LAYOUT.md` with a test and a manual-UI step recorded for the social preview.
+
+### `prompts.registry_lacks_owner_dependency_hash_and_inline_scan` (REV-V4-04)
+
+`schemas/prompt-manifest.schema.json` sets `additionalProperties: false` and defines no `owner` or `dependency_hash` field, so either would be rejected; `core/llm/prompts.py::PromptManifest` (`extra="forbid"`) mirrors it. The only hash is `LoadedManifest.sha256`, the whole file's own content hash, not a reference to an upstream dependency. The module docstring says prompt content 'never' appears as a string literal in code, but no scan of `src/` enforces it; `tests/test_schemas.py:270-272` only checks that an extra `few_shot` field is schema-rejected.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `schemas/prompt-manifest.schema.json:7-22` (closed field set, no `owner`, no `dependency_hash`) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/llm/prompts.py:98-116,141-145,200` (`PromptManifest`, `LoadedManifest.sha256`); docstring at `prompts.py:1-4` |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `tests/test_schemas.py:270-272` (not an inline-prompt scan) |
+
+**Id** REV-V4-04 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 4 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `schemas/prompt-manifest.schema.json` and `PromptManifest` both define `owner` and a dependency hash, every manifest under `prompts/` carries them, and a test fails when `src/` contains a prompt-like literal outside a manifest (a negative control that plants one).
+
+### `tests.stale_known_blocked_entries_and_registry_contradiction_control_gap` (REV-V4-05)
+
+PARTIAL, recorded as the verifier narrowed it. EXACT: `tests/test_sealed_bytes.py:129-232` holds exactly three live `KNOWN_BLOCKED_STALE` entries, `aspose-cells-foss__Aspose.Cells-FOSS-for-.NET` (item 65, since 2026-09-11) and `aspose-3d-foss__Aspose.3D-FOSS-for-Python` and `aspose-slides-foss__Aspose.Slides-FOSS-for-Python` (item 69, since 2026-09-16); five sibling item-69 entries were removed on real re-seals between 2026-09-23 and 2026-10-01 and these three have not had that re-seal. OVERSTATED: the claim that Go, .NET and Rust lack negative controls is wrong for Rust, which has a contradiction control at `tests/components/readme/extractors/platforms/test_rust.py:308-342` (`test_a_crate_the_registry_does_not_carry_contradicts_the_install_claim`, asserting `polarity == "CONTRADICTED"`). The real gap is one specific case, a registry 'not found' observation that contradicts the install claim: `test_go.py` and `test_net.py` only assert the weaker 'unreadable registry is UNRESOLVED, never CONTRADICTED' shape (`test_go.py:240-305`, `test_net.py:256-292`), and the same gap exists for Java and TypeScript, so it is not unique to Go and .NET. Go and .NET still carry other negative controls (unreadable registry, missing manifest or toolchain, unparseable manifest).
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `tests/test_sealed_bytes.py:129-232` (three stale entries; comments at 175-231 record the five removed siblings) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `tests/components/readme/extractors/platforms/test_rust.py:308-342` (the Rust control that exists) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `tests/components/readme/extractors/platforms/test_go.py:240-305`, `test_net.py:256-292` (UNRESOLVED shape only; no CONTRADICTED case) |
+
+**Id** REV-V4-05 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 5 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `KNOWN_BLOCKED_STALE` in `tests/test_sealed_bytes.py` is empty or each remaining entry names a dated owner decision, and the Go, .NET, Java and TypeScript platform tests each contain a registry-'not found' case asserting `CONTRADICTED` (grep `CONTRADICTED` in each `test_<ecosystem>.py`).
+
+### `issues.redetect_imports_python_ecosystem_extractor` (REV-V4-06)
+
+`components/issues/redetect.py` imports `RegistryObservation` and `observe_pypi` from `components/readme/extractors/platforms/python_registry.py` (its docstring names the dependency). That is a cross-component, single-ecosystem import: `AGENTS.md` requires ecosystems to be added through registries and forbids one ecosystem's extractor being imported across stages (`RESEARCH_AND_GUIDELINES.md` section 7.4), and a BC-02 upstream-defect handoff from Go, .NET, Rust, Java and others has no re-detection path; only PyPI-backed findings can be re-checked.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/issues/redetect.py:58-61` (the import); self-documented at `redetect.py:17-20` |
+
+**Id** REV-V4-06 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 6 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -n 'extractors.platforms' src/repository_presenter/components/issues/redetect.py` returns nothing, registry observation goes through a registered per-ecosystem interface, and a test re-detects a non-Python handoff.
+
+### `docs.stale_paths_roadmap_and_idea_products_json` (REV-V4-07)
+
+`docs/PRODUCTION_ROADMAP.md:30` cites `components/repo_metadata/{capture,proposal}.py` and `:31` cites `components/readme/upstream_defects/ledger.py` as landed; neither path exists. The real files are `components/metadata/{capture,proposal}.py` and `components/issues/ledger.py` (`docs/REPOSITORY_LAYOUT.md:83` and `:51`). `plans/idea.md:151` and `:396` name `data/products.json`, which does not exist; the allow-list is `data/registry.json`, and the authority note at the top of `idea.md` does not map one to the other, so it is an unresolved stale reference.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `docs/PRODUCTION_ROADMAP.md:30,31` versus `docs/REPOSITORY_LAYOUT.md:51,83` |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:151,396` versus `data/registry.json` (the only file in `data/`) |
+
+**Id** REV-V4-07 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 7 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -n 'repo_metadata\|upstream_defects/ledger' docs/PRODUCTION_ROADMAP.md` returns nothing, each cited path exists on disk, and `plans/idea.md` either maps `data/products.json` to `data/registry.json` in its authority note or no longer names it (owner decision, since `plans/idea.md` is the human authority).
+
+### `seal.ready_for_proposal_acceptance_profile_advisory` (REV-V4-08)
+
+`components/readme/bundle/seal.py` states in its own comment that the acceptance profile (`review/acceptance/profile.py`) is UNRATIFIED and its scorer ADVISORY, so no blocking check reads it. `docs/STATE_MACHINE.md`'s transition table for `READY_FOR_PROPOSAL` to `AWAITING_AUTHORIZATION` to `PROPOSING` names no acceptance-profile score as an input, so a candidate becomes sealed, counted and proposal-eligible on BC-01..11 and the no-op proof alone. Severity is bounded by `AGENTS.md`'s rule that candidate acceptance never implies publication authorization and by the credential gate in front of any write, so the gap is an overclaim of quality, not an unauthorized effect.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/readme/bundle/seal.py:86-90` (UNRATIFIED, ADVISORY) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `docs/STATE_MACHINE.md:140-142` (transition table with no acceptance-profile input) |
+
+**Id** REV-V4-08 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 8 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: either the owner ratifies the profile and a blocking check reads its score before `READY_FOR_PROPOSAL` (a test shows a below-threshold candidate is not sealed READY), or `docs/STATE_MACHINE.md` and the progress counter state that READY means 'blocking checks and no-op proof only'; the `seal.py` comment no longer says UNRATIFIED/ADVISORY without a matching doc statement.
+
+### `status.docs_disagree_with_code` (REV-V4-09)
+
+Three concrete cases. (1) `project/state.yaml` G7-W05 (line 131): the 2026-10-01 claim that 'all six failure modes were exercised for real' was admitted overclaimed on 2026-10-04; the six exercises are unit-level only (`tests/core/state/test_recovery.py`, `tests/core/llm/test_jobs.py` via `httpx.MockTransport`) and no hosted run or live gateway exercise is recorded. (2) `project/state.yaml` G5-W04 (line 83): the purpose text says the durable-state backend is 'deliberately NOT wired' into `present`, and a 2026-10-04 correction (wiring audit, `origin/main` `ecdff0dc`) says that is stale because `present --durable-state` wraps one run and `.github/workflows/present.yml` sets the flag. (3) the stale paths in `docs/PRODUCTION_ROADMAP.md` (REV-V4-07). Items 1 and 2 are the project's own dated self-corrections, recorded here as evidence of the defect class; `project/state.yaml` is not edited by this entry.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `project/state.yaml:131` (G7-W05, 2026-10-04 self-correction: unit-level only) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `project/state.yaml:83` (G5-W04, 2026-10-04 correction: 'deliberately NOT wired into present' is stale); `src/repository_presenter/cli.py:308` (`--durable-state`) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `docs/PRODUCTION_ROADMAP.md:30,31` (see REV-V4-07) |
+
+**Id** REV-V4-09 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 9 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `project/state.yaml` G5-W04's purpose text no longer says 'deliberately NOT wired', G7-W05's acceptance cites a hosted or live exercise for each of the six failure modes (or its status is lowered), and `docs/PRODUCTION_ROADMAP.md` cites only existing paths; a docs-vs-code audit (a test that every path named in the roadmap exists) passes.
+
+### `wiring.discovery_unreached_and_three_states_never_assigned` (REV-V4-10)
+
+PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `tools/discovery/portfolio_discovery.py` has no importer under `src/repository_presenter/`, no CLI subcommand wires it, and it appears only in its own test, `tools/research_sweep/test_proposal_sweep.py` and prose; `AGENTS.md` calls a module with no production importer a defect. CONFIRMED: `AWAITING_AUTHORIZATION`, `PROPOSING` and `MONITORING` exist in `core/state/schema.py` and the path-finding helper in `core/state/present_transaction.py`, but are never assigned to a real candidate's manifest; sealed bundles only reach `ACCEPTED`, `READY_FOR_PROPOSAL`, `INVALIDATED` or `VALID_UPDATE_AVAILABLE`. NOT a defect as first claimed: `metadata apply` and the GitHub write functions (`update_repository`, `replace_topics`, `create_issue`, `close_issue`, `create_pull_request`, `update_pull_request`, `put_contents`, `create_ref`) ARE wired through the CLI (`run_metadata` with `--apply`, `components/issues/file.py`, `components/propose/effect.py`); they are credential-gated and never live-exercised, which is a different, narrower problem.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `tools/discovery/portfolio_discovery.py` (importers: its test and `tools/research_sweep/test_proposal_sweep.py` only); `grep -n discovery src/repository_presenter/cli.py` returns nothing |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/state/schema.py:44-46,73-88,132-136`; `src/repository_presenter/core/state/present_transaction.py:202-242` (states only in transition tables and path-finding) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:42-44,566,941,1024,1078-1084` (write functions wired, credential-gated, never live) |
+
+**Id** REV-V4-10 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 10 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `portfolio_discovery` has a production importer (a CLI subcommand or workflow) with a test, or is removed per the reuse manifest; a real candidate manifest reaches `AWAITING_AUTHORIZATION`/`PROPOSING`/`MONITORING` through the effect path (a production-shaped proof against the disposable target), or the states are documented as reserved; the credential-gated write functions get their live proof under the active gate.
+
 ## Resolved
 
 ### `review.cited_paraphrase_whole_fact_dilution`
