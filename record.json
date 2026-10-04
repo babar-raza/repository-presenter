@@ -4,7 +4,7 @@
   "provider_repository_id": 1359836523,
   "registry_revision": null,
   "active_transaction_id": "f52de9906ea445bfa89c2f54c99c9a25",
-  "state": "RETRYABLE",
+  "state": "ACCEPTED",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -16,14 +16,7 @@
   },
   "accepted_artifact": null,
   "proposal": null,
-  "failure": {
-    "classification": "transient",
-    "detail": "recovery_sweep: nonterminal transaction had no valid lease",
-    "resume_state": "ACCEPTED",
-    "occurred_at": "2026-10-04T20:15:53.515423+00:00",
-    "resume_predicate": null,
-    "recovery_count": 1
-  },
+  "failure": null,
   "lease": {
     "holder_id": "present.yml:37231183326-noop-proof",
     "acquired_at": "2026-10-04T20:15:54.959099+00:00",
@@ -45,7 +38,7 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 13,
+  "state_version": 14,
   "recent_trigger_dedup_keys": {
     "run:37231183326:aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET": "f52de9906ea445bfa89c2f54c99c9a25"
   },
