@@ -43,6 +43,7 @@ only adds the durable-state *receipt* that a transaction ran, not a replacement 
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -108,17 +109,29 @@ _WILDCARD_RESUME_SOURCES: frozenset[TransactionState] = frozenset(
     {"BLOCKED_EXTERNAL", "FAILED_INTERNAL"}
 )
 
+# docs/STATE_MACHINE.md section 6: a README-only placeholder is NON_PROCESSABLE, terminal for its
+# revision. Its only registered exit is OBSERVED (schema.py), so every path in is spelled out here
+# rather than searched for. A current state absent from both this table and NON_PROCESSABLE itself
+# has no registered path, and the transition fails closed (see _non_processable_hops).
+_NON_PROCESSABLE_HOPS: dict[TransactionState, tuple[TransactionState, ...]] = {
+    "OBSERVED": ("NON_PROCESSABLE",),
+    # A repository proven READY_FOR_PROPOSAL whose source is now empty: close the cycle first.
+    "READY_FOR_PROPOSAL": ("MONITORING", "OBSERVED", "NON_PROCESSABLE"),
+}
+
 
 @dataclass(frozen=True)
 class PresentOutcome:
     """What one local-pipeline invocation actually did, typed so
     :func:`run_present_transaction` never has to re-derive it."""
 
-    kind: Literal["success", "failed"]
+    kind: Literal["success", "failed", "non_processable"]
     # "success": the success-spine position this run reached (ACCEPTED or READY_FOR_PROPOSAL,
     # or SNAPSHOTTING for an EXIT_OK run that sealed no bundle at all, e.g. --facts-only).
+    # "non_processable": always NON_PROCESSABLE.
     target_state: TransactionState | None = None
     # "failed": attached to the committed failure state as FailureRecord.
+    # "non_processable": the disposition's reason code and resume predicate, for the run output.
     detail: str | None = None
 
 
@@ -126,21 +139,57 @@ def _now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
-def classify_present_outcome(root: Path, entry: RegistryEntry, exit_code: int) -> PresentOutcome:
+def _classify_disposition(entry: RegistryEntry, path: Path) -> PresentOutcome:
+    """Map a written processability disposition onto NON_PROCESSABLE, reading it back rather than
+    trusting the success exit code alone.
+
+    The artifact (``components/readme/evidence/processability.py``'s ``disposition.json``) must
+    parse, name this repository, and carry its reason code; anything else fails closed as a
+    failure, never as a quiet non-processable record. Only the reason is read here - this module
+    stays free of ``components/`` imports (``core/`` may not depend on them).
+    """
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return PresentOutcome(
+            kind="failed", detail=f"processability disposition {path.name} is unreadable"
+        )
+    if not isinstance(document, dict):
+        return PresentOutcome(
+            kind="failed", detail=f"processability disposition {path.name} is not an object"
+        )
+    reason = document.get("reason_code")
+    if document.get("repository") != entry.repository or not isinstance(reason, str) or not reason:
+        return PresentOutcome(
+            kind="failed",
+            detail=f"processability disposition {path.name} does not name {entry.repository}",
+        )
+    predicate = document.get("resume_predicate")
+    resume = predicate if isinstance(predicate, str) and predicate else "unspecified"
+    return PresentOutcome(
+        kind="non_processable",
+        target_state="NON_PROCESSABLE",
+        detail=f"NON_PROCESSABLE: insufficient_evidence ({reason}); resume when {resume}",
+    )
+
+
+def classify_present_outcome(
+    root: Path, entry: RegistryEntry, exit_code: int, *, disposition_path: Path | None = None
+) -> PresentOutcome:
     """Map one local-pipeline invocation's outcome onto this module's typed result.
 
-    ``exit_code != 0`` (a written disposition, a blocking validation failure, or any other typed
-    failure ``cli.py::run_present`` already converts into an exit code) always classifies
-    ``"failed"``. Telling a genuinely non-processable repository apart from a real validation/code
-    defect from outside ``run_present``'s own int return value needs either a second, independent
-    read of the transaction's own disposition file (whose path this function cannot derive without
-    also duplicating ``run_present``'s own clone/revision resolution) or a refactor of its return
-    type - both materially larger than this item's own bar. Collapsing to one outcome is the
-    honest, conservative choice, named here rather than silently assumed.
+    ``exit_code != 0`` (a blocking validation failure or any other typed failure
+    ``cli.py::run_present`` already converts into an exit code) always classifies ``"failed"``,
+    even when a disposition was also written.
 
-    ``exit_code == 0`` reads the sealed bundle this run just left on disk (``CURRENT`` plus its
-    manifest - the exact mechanism ``core/candidates.py``'s own stale/count helpers already use) to
-    report which success-spine state it actually reached: ``READY_FOR_PROPOSAL`` for a
+    ``exit_code == 0`` with ``disposition_path`` set means ``run_present`` decided the repository is
+    a README-only placeholder and wrote that disposition instead of candidate work: the outcome is
+    ``"non_processable"`` (see :func:`_classify_disposition`). The caller passes the path only from
+    the run it just performed, so this never guesses which transaction's artifact to read.
+
+    Otherwise ``exit_code == 0`` reads the sealed bundle this run just left on disk (``CURRENT``
+    plus its manifest - the exact mechanism ``core/candidates.py``'s own stale/count helpers already
+    use) to report which success-spine state it actually reached: ``READY_FOR_PROPOSAL`` for a
     byte-identical, zero-provider-call reproduction of an already-sealed candidate (the hosted
     no-op-proof scenario G5-W05 exists to prove, or an equally real fresh no-op proof this very
     run), ``ACCEPTED`` for real new or changed composition work not yet proven in this run.
@@ -149,10 +198,12 @@ def classify_present_outcome(root: Path, entry: RegistryEntry, exit_code: int) -
         return PresentOutcome(
             kind="failed",
             detail=(
-                f"present exited {exit_code} (a written disposition or a blocking validation "
+                f"present exited {exit_code} (a blocking validation failure or another typed "
                 "failure - see this transaction's own runs/ output for which)"
             ),
         )
+    if disposition_path is not None:
+        return _classify_disposition(entry, disposition_path)
 
     candidates_dir = root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}"
     current = candidates_dir / CURRENT_FILENAME
@@ -193,6 +244,10 @@ def _success_hops(
     """
     if current_state == target_state:
         return []  # nothing changed; the registry has no self-loop and none is needed
+    if current_state == "NON_PROCESSABLE":
+        # The placeholder gained implementation evidence: its only registered exit is OBSERVED.
+        end = SUCCESS_SPINE.index(target_state)
+        return ["OBSERVED", *SUCCESS_SPINE[1 : end + 1]]
     if current_state in _WILDCARD_RESUME_SOURCES:
         # FAILED_INTERNAL/BLOCKED_EXTERNAL -> any ACTIVE_STATE is registered (schema.py's own
         # wildcard); SNAPSHOTTING is this module's one re-entry point onto the spine.
@@ -222,6 +277,49 @@ def _success_hops(
     )
 
 
+def _non_processable_hops(current_state: TransactionState) -> list[TransactionState]:
+    """The registered hops from ``current_state`` into NON_PROCESSABLE, or fail closed.
+
+    Recording a placeholder from a state with no registered path would either skip the registry or
+    misstate the repository's history, so an unreachable state raises instead (the lease is still
+    released by the caller's ``finally``, and the durable record is left exactly as it was).
+    """
+    if current_state == "NON_PROCESSABLE":
+        return []  # already recorded for this revision; the registry has no self-loop
+    hops = _NON_PROCESSABLE_HOPS.get(current_state)
+    if hops is None:
+        raise StateBackendError(
+            f"present_transaction: {current_state!r} has no registered path to NON_PROCESSABLE "
+            "(only OBSERVED and READY_FOR_PROPOSAL do); the placeholder disposition is left on "
+            "disk and the durable record is unchanged"
+        )
+    return list(hops)
+
+
+def _record_hops(
+    backend: StateBackend,
+    repository: str,
+    lease: LeaseRecord,
+    provider_repository_id: int,
+    hops: list[TransactionState],
+    event: str,
+    input_manifest: str,
+    output_manifest: str,
+) -> None:
+    for to_state in hops:
+        record_transition(
+            backend,
+            repository,
+            lease,
+            to_state=to_state,
+            event=event,
+            input_manifest=input_manifest,
+            output_manifest=output_manifest,
+            policy_version=POLICY_VERSION,
+            provider_repository_id=provider_repository_id,
+        )
+
+
 def _commit_outcome(
     backend: StateBackend,
     repository: str,
@@ -232,7 +330,36 @@ def _commit_outcome(
 ) -> None:
     output_manifest = f"candidates/{repository.replace('/', '__', 1)}/CURRENT"
     input_manifest = f"registry:{repository}"
+    if outcome.kind == "non_processable":
+        _record_hops(
+            backend,
+            repository,
+            lease,
+            provider_repository_id,
+            _non_processable_hops(current_state),
+            event=(
+                "present.yml hosted transaction classified NON_PROCESSABLE (processability "
+                "disposition written; no candidate sealed)"
+            ),
+            input_manifest=input_manifest,
+            output_manifest=output_manifest,
+        )
+        return
     if outcome.kind == "failed":
+        if current_state == "NON_PROCESSABLE":
+            # The one registered exit from the terminal placeholder state: re-observe the revision,
+            # then record the failure from OBSERVED like any other observed run.
+            _record_hops(
+                backend,
+                repository,
+                lease,
+                provider_repository_id,
+                ["OBSERVED"],
+                event="present.yml hosted transaction re-observed a non-processable repository",
+                input_manifest=input_manifest,
+                output_manifest=output_manifest,
+            )
+            current_state = "OBSERVED"
         target = _failure_target(current_state)
         if current_state == target:
             # The registry has no self-loop (same reasoning as _success_hops's own early return):
@@ -273,23 +400,20 @@ def _commit_outcome(
         return
 
     assert outcome.target_state is not None
-    hops = _success_hops(current_state, outcome.target_state)
     event = (
         "present.yml hosted transaction completed (one coarse receipt spanning the local "
         "pipeline's own stages - see core/state/present_transaction.py's module docstring)"
     )
-    for to_state in hops:
-        record_transition(
-            backend,
-            repository,
-            lease,
-            to_state=to_state,
-            event=event,
-            input_manifest=input_manifest,
-            output_manifest=output_manifest,
-            policy_version=POLICY_VERSION,
-            provider_repository_id=provider_repository_id,
-        )
+    _record_hops(
+        backend,
+        repository,
+        lease,
+        provider_repository_id,
+        _success_hops(current_state, outcome.target_state),
+        event=event,
+        input_manifest=input_manifest,
+        output_manifest=output_manifest,
+    )
 
 
 def run_present_transaction(
