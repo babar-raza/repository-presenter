@@ -127,8 +127,25 @@ def _render(script: str, values: dict[str, str]) -> str:
     return EXPRESSION.sub(substitute, script)
 
 
+def _posix_bash() -> str | None:
+    """A POSIX shell for the audit's report step.
+
+    On Windows a bare ``bash`` on PATH is usually the WSL launcher (``system32\\bash.EXE``), which
+    runs its script inside a Linux distribution that may not exist, so it is not a POSIX shell for
+    this host. Git for Windows ships the shell this project's own tooling uses; it is located from
+    the ``git`` executable on PATH.
+    """
+    if os.name != "nt":
+        return shutil.which("bash")
+    git = shutil.which("git")
+    if git is None:
+        return None
+    candidate = Path(git).resolve().parents[1] / "bin" / "bash.exe"
+    return str(candidate) if candidate.is_file() else None
+
+
 def _run_audit_report(tmp_path: Path, outcome: str) -> subprocess.CompletedProcess[str]:
-    bash = shutil.which("bash")
+    bash = _posix_bash()
     if bash is None:
         pytest.skip("bash is not available to execute the audit's report step")
     script = _render(

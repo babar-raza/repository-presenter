@@ -192,8 +192,8 @@ def test_reconciliation_batches_bounds_each_batchs_own_size_not_the_batch_count(
     since those two now require an explicit, already-bounded batch and can no longer even be
     called in a way that would grow unboundedly - the growth question has moved to the
     function that decides how many batches there are, which this test now covers instead."""
-    base = reconciliation_batches(_inherited_units_facts(200))
-    tenx = reconciliation_batches(_inherited_units_facts(2000))
+    base = reconciliation_batches(_inherited_units_facts(200), MANIFEST.sampling.max_output_tokens)
+    tenx = reconciliation_batches(_inherited_units_facts(2000), MANIFEST.sampling.max_output_tokens)
     assert all(len(units) <= 40 for _, units in base)
     assert all(len(units) <= 40 for _, units in tenx)
     # Total coverage is preserved exactly - batching never drops a unit.
@@ -207,7 +207,7 @@ def test_reconciliation_batches_bounds_each_batchs_own_size_not_the_batch_count(
 
 def test_reconciliation_batches_covers_every_unit_exactly_once_in_document_order() -> None:
     facts = _inherited_units_facts(85)
-    batches = reconciliation_batches(facts)
+    batches = reconciliation_batches(facts, MANIFEST.sampling.max_output_tokens)
     assert [batch_id for batch_id, _ in batches] == [
         "reconciliation#1",
         "reconciliation#2",
@@ -220,7 +220,7 @@ def test_reconciliation_batches_covers_every_unit_exactly_once_in_document_order
 
 def test_reconciliation_batch_facts_narrows_inherited_units_only() -> None:
     facts = _inherited_units_facts(85)
-    batches = reconciliation_batches(facts)
+    batches = reconciliation_batches(facts, MANIFEST.sampling.max_output_tokens)
     _, batch_units = batches[1]  # the middle batch: units 40-79 (0-indexed 40:80)
     batch_facts = reconciliation_batch_facts(facts, batch_units)
     assert [fact.id for fact in batch_facts.by_kind("inherited_unit")] == [
@@ -244,7 +244,7 @@ def test_a_batchs_own_dispositions_satisfy_binding_errors_against_its_own_batch_
     dispositions (covering only its own units) must satisfy binding_errors when judged against
     that SAME batch's own scoped facts - not the whole document."""
     facts = _inherited_units_facts(85)
-    batches = reconciliation_batches(facts)
+    batches = reconciliation_batches(facts, MANIFEST.sampling.max_output_tokens)
     for _, batch_units in batches:
         batch_facts = reconciliation_batch_facts(facts, batch_units)
         payload = {
@@ -260,7 +260,7 @@ def test_a_batchs_own_dispositions_do_not_satisfy_binding_errors_against_the_who
     reconciliation_batch_facts() were ever accidentally skipped at a real call site - a batch's
     own dispositions alone can never satisfy the unscoped, whole-document expectation."""
     facts = _inherited_units_facts(85)
-    _, first_batch_units = reconciliation_batches(facts)[0]
+    _, first_batch_units = reconciliation_batches(facts, MANIFEST.sampling.max_output_tokens)[0]
     payload = {
         "dispositions": [_entry(fact.id, "OMIT_UNSUPPORTED", None) for fact in first_batch_units]
     }

@@ -17,7 +17,7 @@ from repository_presenter.components.readme.evidence.facts.extract import (
 )
 from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
-from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
+from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, MeasuredBuild
 from repository_presenter.core.facts import Evidence, Fact
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.registry.models import RegistryEntry
@@ -286,6 +286,188 @@ def test_an_executed_receipt_that_did_not_verify_the_build_admits_nothing() -> N
     verified = _receipt("EXECUTED", build_verified=True)
     admitted = _source_build_fact(_install(), NET_ENTRY, [unverified, verified])
     assert admitted.polarity == "SUPPORTED"
+
+
+def _measured(verified: bool = True) -> MeasuredBuild:
+    if not verified:
+        return MeasuredBuild(False, "", "failed (`dotnet build src/Widget/Widget.csproj` exited 1)")
+    return MeasuredBuild(
+        True,
+        "dotnet build src/Widget/Widget.csproj",
+        "succeeded (`dotnet build src/Widget/Widget.csproj` exited 0)",
+    )
+
+
+def test_a_measured_build_admits_a_404_contradicted_install_with_no_example_at_all() -> None:
+    """Rule for a .NET install claim (Imaging-FOSS for .NET, measured 2026-10-04; GIS, same
+    day): the package is not on NuGet (404, CONTRADICTED), and the product's own `dotnet build`
+    of its project exits 0. No README example is needed for that proof - the snippet defect in
+    Imaging and the absent README in GIS both leave no example to compile. The source install is
+    admitted from exactly the measured steps; the registry command the 404 contradicts never is."""
+    admitted = _source_build_fact(_install(), NET_ENTRY, [], _measured())
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.value == (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-.NET.git\n"
+        "cd Aspose.Widget-FOSS-for-.NET\ndotnet build src/Widget/Widget.csproj"
+    )
+    assert admitted.attributes == {
+        "install_kind": "source",
+        "build_command": "dotnet build src/Widget/Widget.csproj",
+    }
+    assert "verified source build" in admitted.evidence[-1].detail
+    assert "dotnet add package" not in admitted.value
+
+
+def test_an_unreadable_registry_stays_unresolved_even_beside_a_verified_build() -> None:
+    """The boundary of the rule: UNRESOLVED on a registry-having ecosystem means the probe could
+    not read this time - transient, never a "not published" answer - so it fails closed as it
+    always has (item 24's own rule). Only a conclusive 404 takes the measured build."""
+    unreadable = _install("UNRESOLVED")
+    assert _source_build_fact(unreadable, NET_ENTRY, [], _measured()).polarity == "UNRESOLVED"
+
+
+def test_a_project_with_no_package_id_reaches_the_measured_build_end_to_end(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """GIS path, end to end through the real .NET plugin (2026-10-04): the claim is derived from
+    the project file's default name, the NuGet reading is a conclusive 404, and the one rule then
+    admits the measured `dotnet build` - never the `dotnet add package` the 404 contradicts."""
+    from repository_presenter.components.readme.extractors.platforms import net
+    from repository_presenter.components.readme.extractors.surface.registry import (
+        RegistryObservation,
+    )
+
+    project = tmp_path / "src" / "Aspose.Gis.Foss" / "Aspose.Gis.Foss.csproj"
+    project.parent.mkdir(parents=True)
+    project.write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n'
+        "    <TargetFramework>net10.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    url = "https://api.nuget.org/v3-flatcontainer/aspose.gis.foss/index.json"
+    not_there = RegistryObservation("nuget", "Aspose.Gis.Foss", False, False, url, "flat", "live")
+    monkeypatch.setattr(net, "observe", lambda *args, **kwargs: not_there)
+    plugin = plugin_for("net")
+    resolved, _ = plugin.registry_facts(plugin.manifest_facts(tmp_path, project, []))
+    install = next(fact for fact in resolved if fact.id == "install_command:dotnet")
+    assert install.polarity == "CONTRADICTED"
+    measured = MeasuredBuild(
+        True,
+        "dotnet build src/Aspose.Gis.Foss/Aspose.Gis.Foss.csproj",
+        "succeeded (`dotnet build src/Aspose.Gis.Foss/Aspose.Gis.Foss.csproj` exited 0)",
+    )
+    admitted = _source_build_fact(install, NET_ENTRY, [], measured)
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.value.endswith("\ndotnet build src/Aspose.Gis.Foss/Aspose.Gis.Foss.csproj")
+    assert "dotnet add package" not in admitted.value
+
+
+def test_an_unverified_measured_build_admits_nothing() -> None:
+    """Mutation control: a build that did not exit 0 leaves the 404 answer standing, so the
+    unverified `dotnet add package` claim is what BC-02 then refuses (validation/test_registry)."""
+    refused = _source_build_fact(_install(), NET_ENTRY, [], _measured(verified=False))
+    assert refused.polarity == "CONTRADICTED"
+    assert refused.value == "dotnet add package Aspose.Widget"
+
+
+def test_an_unproven_product_build_admits_nothing_even_beside_a_failed_example() -> None:
+    """The same shape with the product build NOT proven (no SDK, or `dotnet build` exited
+    non-zero): nothing carries a measured command, nothing EXECUTED, so the fact stays CONTRADICTED
+    and the registry's own answer is what a reader is told."""
+    not_built = ExampleReceipt(
+        1,
+        "NOT_VERIFIED",
+        None,
+        "",
+        "",
+        "d",
+        build_verified=False,
+        build_command="",  # type: ignore[arg-type]
+    )
+    failed = ExampleReceipt(
+        2,
+        "FAILED",
+        1,
+        "",
+        "",
+        "d",
+        build_verified=False,
+        build_command="",  # type: ignore[arg-type]
+    )
+    assert _source_build_fact(_install(), NET_ENTRY, [not_built, failed]).polarity == "CONTRADICTED"
+
+
+def test_a_nuget_404_falls_back_to_the_measured_source_build_never_the_add_package_command(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Imaging-FOSS for .NET, measured live 2026-10-04 (AGENTS.md rule 16): NuGet answers 404 for
+    the package id the project declares, so the `dotnet add package` claim is CONTRADICTED. That
+    one claim must not block the candidate, and must not render: it falls back to the source
+    install the product's own `dotnet build` proved, while the README example beside it fails.
+    The 404 is read through the plugin's real `registry_facts`; only the network read is replaced
+    by its 404 answer (the upstream evidence is in evidence/upstream-defects/)."""
+    from repository_presenter.components.readme.extractors.platforms import net
+    from repository_presenter.components.readme.extractors.surface.registry import (
+        RegistryObservation,
+    )
+
+    not_published = RegistryObservation(
+        "nuget",
+        "Aspose.Widget",
+        False,
+        False,
+        "https://api.nuget.org/v3-flatcontainer/aspose.widget/index.json",
+        "flat-container",
+        "test",
+    )
+    monkeypatch.setattr(net, "observe", lambda *args, **kwargs: not_published)
+    declared = [
+        Fact(
+            "package:name",
+            "package",
+            "Aspose.Widget",
+            (Evidence("Widget.csproj", "package id declared by the project file"),),
+        ),
+        _install(polarity="UNRESOLVED"),
+    ]
+    resolved, _ = net.PLUGIN.registry_facts(declared)
+    (install,) = resolved
+    assert install.polarity == "CONTRADICTED"
+    assert "distribution not found" in install.evidence[-1].detail
+    product = "dotnet build src/Aspose.Widget/Aspose.Widget.csproj"
+    snippet_failed = ExampleReceipt(
+        1,
+        "FAILED",
+        1,
+        "",
+        "",
+        "d",
+        build_verified=True,
+        build_command=product,  # type: ignore[arg-type]
+    )
+    # The admission now takes the measured build the facts stage supplies (one rule for every
+    # path); the failed snippet beside it proves nothing and changes nothing.
+    built = MeasuredBuild(True, product, f"succeeded (`{product}` exited 0)")
+    admitted = _source_build_fact(install, NET_ENTRY, [snippet_failed], built)
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.attributes == {"install_kind": "source", "build_command": product}
+    assert admitted.value.endswith(product)
+    assert "dotnet add package" not in admitted.value
+    # No measured build: the 404 stands and nothing is admitted in its place.
+    unbuilt = ExampleReceipt(
+        1,
+        "FAILED",
+        1,
+        "",
+        "",
+        "d",
+        build_verified=False,
+        build_command="",  # type: ignore[arg-type]
+    )
+    not_built = MeasuredBuild(False, "", f"failed (`{product}` exited 1)")
+    refused = _source_build_fact(install, NET_ENTRY, [unbuilt], not_built)
+    assert refused.polarity == "CONTRADICTED"
+    assert refused.value == "dotnet add package Aspose.Widget"
 
 
 TS_ENTRY = RegistryEntry.model_validate(
