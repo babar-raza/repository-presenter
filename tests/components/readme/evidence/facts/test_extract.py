@@ -17,12 +17,13 @@ from repository_presenter.components.readme.evidence.facts.extract import (
 )
 from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
+from repository_presenter.components.readme.extractors.surface.registry import RegistryObservation
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, MeasuredBuild
 from repository_presenter.core.facts import Evidence, Fact
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.snapshot.capture import capture_snapshot, list_tree_paths
-from support import REPO_ROOT, commit_all, init_git_repository
+from support import REPO_ROOT, commit_all, fake_npm, init_git_repository
 
 
 @pytest.fixture(autouse=True)
@@ -682,3 +683,109 @@ def test_the_fallbacks_own_receipts_wire_into_the_source_checkout_fact_end_to_en
         "cd Aspose.Example-FOSS-for-Python\n"
         'export PYTHONPATH="src:.:$PYTHONPATH"'
     )
+
+
+def _npm_widget_repository(root: Path) -> Path:
+    """A TypeScript package the registry does not list, declaring a build script: the shape of
+    Aspose.PDF for TypeScript, whose `build` runs `tsc -p tsconfig.build.json`."""
+    manifest = root / "package.json"
+    manifest.write_text(
+        json.dumps({"name": "@aspose/widget", "version": "1.0.0", "scripts": {"build": "tsc"}}),
+        encoding="utf-8",
+    )
+    return manifest
+
+
+def _npm_registry_reading(published: bool) -> RegistryObservation:
+    return RegistryObservation(
+        "npm",
+        "@aspose/widget",
+        published,
+        False,
+        "https://registry.npmjs.org/@aspose%2Fwidget",
+        "packument",
+        "test",
+    )
+
+
+def test_an_npm_404_falls_back_to_the_measured_npm_build_never_the_npm_install_claim(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Aspose.PDF and Aspose.3D for TypeScript (measured 2026-10-04): npm answers 404 for the
+    package the manifest declares, so `npm install <name>` is CONTRADICTED ("distribution not
+    found"). That claim must neither block the candidate nor render. The one source-install rule
+    admits exactly the steps the package's own build exited 0 on - here with no README example in
+    the repository at all, end to end through the real TypeScript plugin. Only the registry read
+    is replaced by its 404 answer."""
+    from repository_presenter.components.readme.extractors.platforms import (
+        typescript,
+        typescript_examples,
+    )
+    from repository_presenter.components.readme.extractors.platforms.registry import verify_build
+
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    manifest = _npm_widget_repository(repository)
+    npm = fake_npm(tmp_path / "tools")
+    monkeypatch.setattr(typescript_examples, "npm_executable", lambda: npm)
+    monkeypatch.setattr(typescript, "observe", lambda *args, **kwargs: _npm_registry_reading(False))
+    plugin = plugin_for("typescript")
+    resolved, _ = plugin.registry_facts(plugin.manifest_facts(repository, manifest, []))
+    (install,) = [fact for fact in resolved if fact.id == "install_command:npm"]
+    assert install.polarity == "CONTRADICTED"
+    assert "distribution not found" in install.evidence[-1].detail
+
+    measured = verify_build(plugin, repository, manifest, tmp_path / "ws")
+    admitted = _source_build_fact(install, TS_ENTRY, [], measured)
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.value == (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-TypeScript.git\n"
+        "cd Aspose.Widget-FOSS-for-TypeScript\nnpm install\nnpm run build"
+    )
+    assert admitted.attributes == {
+        "install_kind": "source",
+        "build_command": "npm install\nnpm run build",
+    }
+    assert "npm install @" not in admitted.value
+    assert "verified source build" in admitted.evidence[-1].detail
+
+
+def test_a_published_npm_package_keeps_its_registry_claim_beside_a_measured_build(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Negative control: a registry hit is the claim the registry confirms. A measured build
+    exists but is never substituted for a published package's own install command."""
+    from repository_presenter.components.readme.extractors.platforms import typescript
+
+    manifest = _npm_widget_repository(tmp_path)
+    monkeypatch.setattr(typescript, "observe", lambda *args, **kwargs: _npm_registry_reading(True))
+    plugin = plugin_for("typescript")
+    resolved, _ = plugin.registry_facts(plugin.manifest_facts(tmp_path, manifest, []))
+    (install,) = [fact for fact in resolved if fact.id == "install_command:npm"]
+    assert install.polarity == "SUPPORTED" and install.value == "npm install @aspose/widget"
+    built = MeasuredBuild(True, "npm install\nnpm run build", "succeeded (exited 0)")
+    assert _source_build_fact(install, TS_ENTRY, [], built) is install
+
+
+def test_an_unverified_npm_build_admits_nothing_and_the_404_stands(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mutation control: a build that did not exit 0 proves nothing, so the 404 stands and the
+    unverified `npm install` claim is what BC-02 then refuses (validation/test_registry)."""
+    from repository_presenter.components.readme.extractors.platforms import typescript
+
+    manifest = _npm_widget_repository(tmp_path)
+    monkeypatch.setattr(typescript, "observe", lambda *args, **kwargs: _npm_registry_reading(False))
+    plugin = plugin_for("typescript")
+    resolved, _ = plugin.registry_facts(plugin.manifest_facts(tmp_path, manifest, []))
+    (install,) = [fact for fact in resolved if fact.id == "install_command:npm"]
+    # The command is named here on purpose: the `verified` flag alone must refuse it, not the
+    # empty command every real failed build carries.
+    not_built = MeasuredBuild(
+        False,
+        "npm install\nnpm run build",
+        "failed (`npm run build` exited 3 after `npm install` exited 0)",
+    )
+    refused = _source_build_fact(install, TS_ENTRY, [], not_built)
+    assert refused.polarity == "CONTRADICTED"
+    assert refused.value == "npm install @aspose/widget"
