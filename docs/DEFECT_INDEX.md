@@ -16,6 +16,28 @@ against at least one of its own listed sightings, not merely proposed.
 
 ## Open
 
+### `s4_reconciliation.output_runaway_past_budget`
+
+S4 `source_reconciliation` replies run to the manifest's `max_output_tokens` (`finish_reason
+length`) and the job stops before any blocking check. The schema let a disposition's `fact_ids`
+array reach the batch's whole citable set (739 IDs on PDF-TypeScript, more elsewhere), and nothing
+bounded the reply's total, so a repeating citation list could fill the budget. Three independent
+sightings, all of the same mechanism:
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` | 2026-09-11 | 1,047 repeated `public_symbol:` entries in one array, `finish_reason length` on both runs (`docs/DECISION_LOG.md` S4-REGRESSION; `tests/components/readme/reconciliation/test_normalization.py`) |
+| 2 | `aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET` | G4-W17 item 121 (F27) | 32,000-token `TruncatedOutput` on one attempt, 3,016 tokens on an identical retry of the same request hash |
+| 3 | `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` | 2026-10-04 (revision `a8661f8b`) | batch 1 (40 units) `finish_reason length` at 32,000 tokens; the identical request then answered `stop` at 4,666 tokens (qwen3-next, temperature 0, seed 1) |
+
+Fix (branch `fix/s4-output-budget`): `fact_ids` capped per disposition at 16
+(`RECONCILIATION_FACT_IDS_PER_DISPOSITION`), `destination_section` an enum of the shell's section
+IDs, and batch size derived from the longest reply the schema admits at the budget's
+characters-per-token floor (`output_chars_bound`). A truncated reply is kept beside the call store
+(`*.rejected-N.json`) before the typed `TruncatedOutput` failure, so the runaway field is read from
+evidence next time. Status: fixed on the branch; closes when the live proof on sighting 3 reaches
+past S4.
+
 ### `present_transaction.wrapper_outcome_no_registered_path`
 
 `core/state/present_transaction.py`'s durable-state wrapper (landed G5-W05, PR #172/#181) crashes

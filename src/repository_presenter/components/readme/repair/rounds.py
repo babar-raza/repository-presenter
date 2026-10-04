@@ -264,7 +264,9 @@ def run_round(tx: TransactionInputs) -> Round:
     # entry, no cross-entry logic - checked directly, not assumed), so a per-batch check is exactly
     # as strict as the old whole-document check was.
     reconciled: dict[str, JobResult] = {}
-    for batch_id, batch_units in reconciliation_batches(facts):
+    for batch_id, batch_units in reconciliation_batches(
+        facts, loaded.manifest.sampling.max_output_tokens
+    ):
         # Real bug, found live against Cells-Rust (docs/DECISION_LOG.md): core/llm/binding.py's
         # binding_errors recomputes "every inherited unit expected" from whatever FactsDocument
         # is passed as the job's own facts= - the whole repository's, unless narrowed here - so
@@ -658,7 +660,12 @@ def _reject_insufficient_visible_line_overage(
 
 
 def _stage_target(
-    current: Round, defect: Defect, facts: FactsDocument, name: str, ecosystem: str
+    current: Round,
+    defect: Defect,
+    facts: FactsDocument,
+    name: str,
+    ecosystem: str,
+    reconciliation_budget: int,
 ) -> tuple[
     JobResult, Any, frozenset[str] | None, Mapping[str, frozenset[str]] | None, FactsDocument
 ]:
@@ -693,7 +700,7 @@ def _stage_target(
         # dict insertion order, not sorted(keys) - "reconciliation#10" would sort before
         # "reconciliation#2" lexicographically; current.reconciled is built in batch order.
         first_batch_id = next(iter(current.reconciled))
-        batch_units = dict(reconciliation_batches(facts))[first_batch_id]
+        batch_units = dict(reconciliation_batches(facts, reconciliation_budget))[first_batch_id]
         batch_facts = reconciliation_batch_facts(facts, batch_units)
         # Real bug, found live against Cells-Rust: repair_checks's own binding_errors call
         # (repair/targeted.py) needs the SAME batch-scoped facts reconciliation_batch_facts()
@@ -758,7 +765,12 @@ def repair_defect(
     job = STAGE_JOBS[defect.stage]
     causal = tx.prompts[job]
     target, stage_checks, allowed, slot_facts, stage_facts = _stage_target(
-        current, defect, tx.facts, product_name(tx.entry), tx.entry.ecosystem
+        current,
+        defect,
+        tx.facts,
+        product_name(tx.entry),
+        tx.entry.ecosystem,
+        tx.prompts["source_reconciliation"].manifest.sampling.max_output_tokens,
     )
     contract = causal.manifest.output.schema_
     probe = _slot_set_probe(current, defect)
