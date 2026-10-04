@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict
 from itertools import pairwise
 from pathlib import Path
 from typing import Any
@@ -116,7 +115,9 @@ def _authorization(entry: RegistryEntry, *, expires_at: str = LATER, readme: str
         repository=entry.repository,
         candidate_hash=sha256_text(readme),
         source_revision=_revision(entry),
+        base_branch="main",
         branch=BRANCH,
+        approver="a-person",
         issued_at=EARLIER,
         expires_at=expires_at,
     )
@@ -549,7 +550,7 @@ def test_load_drift_and_authorizations_fail_closed_on_malformed_input(tmp_path: 
 
 def test_load_authorizations_accepts_an_object_a_list_and_a_directory(tmp_path: Path) -> None:
     entry = _entry("Python")
-    record = asdict(_authorization(entry))
+    record = _authorization(entry).model_dump(mode="json")
     (tmp_path / "a.json").write_text(json.dumps(record), encoding="utf-8")
     (tmp_path / "b.json").write_text(json.dumps([record, record]), encoding="utf-8")
     assert len(load_authorizations(tmp_path)[entry.repository]) == 3

@@ -44,9 +44,10 @@ depth - ``proposal.diff_against_observed`` is the first line, this is the second
   ``diff.final_topics`` (existing topics plus verified additions, minus only cited removals), and
   the compare-and-swap above guarantees the live set equals the captured set it was built from.
 
-Integration point: ``shared_write_gate`` below. The shared registry write gate (admission by
-registry ``mode``) is owned by another work item; when it lands it replaces that function's body (or
-is passed as ``write_gate``) - this module deliberately does not build a second gate.
+Registry gate: ``shared_write_gate`` below applies the shared registry write gate
+(``core/registry/write_gate.py``: listed, active, mode ``full``) through the ``WritePermit`` it
+issues. This module deliberately does not build a second policy; it only refuses to write without
+the permit, and the permit is only obtainable for a ``full``-mode entry.
 """
 
 from __future__ import annotations
@@ -68,6 +69,7 @@ from repository_presenter.core.github.client import (
     replace_topics,
     update_repository,
 )
+from repository_presenter.core.registry.write_gate import WritePermit
 
 AUTHORIZATION_VARIABLE = "REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED"
 _AUTHORIZED_VALUES = frozenset({"1", "true", "yes"})
@@ -87,24 +89,30 @@ _NO_REFETCH_REASON = (
 WriteGate = Callable[[str], str | None]
 
 SHARED_GATE_NOT_WIRED_REASON = (
-    "shared write gate not wired: metadata writes are refused until the registry write gate "
-    "is installed"
+    "shared write gate not wired: metadata writes are refused until a registry write permit "
+    "(core/registry/write_gate.py, mode full) is supplied"
 )
 
 
-def shared_write_gate(repository: str) -> str | None:
-    """INTEGRATION POINT - shared registry write gate (not yet landed).
+def shared_write_gate(repository: str, *, permit: WritePermit | None = None) -> str | None:
+    """The registry write gate as this module sees it: given ``owner/name`` (and the permit
+    ``require_write_permitted`` issued for it), return ``None`` to allow a metadata write or a
+    human-readable refusal reason to forbid it. It is called after this module's own authorization
+    and token checks and before any live re-read or write.
 
-    Contract for the replacement: given ``owner/name``, return ``None`` to allow a metadata write
-    or a human-readable refusal reason to forbid it (for example registry ``mode`` not ``full``).
-    It is called after this module's own authorization and token checks and before any live
-    re-read or write.
-
-    FAIL CLOSED until the real policy replaces this body: with no registry write gate installed,
-    every metadata write is refused, so a missed or delayed wiring can never send a write out
-    without a registry-mode check. ``apply_metadata_diff`` resolves this function at call time.
+    FAIL CLOSED: with no permit - the caller never went through the registry gate, or the entry is
+    not ``full`` and none could be issued - every metadata write is refused. A permit for another
+    repository or another effect is refused too. ``apply_metadata_diff`` resolves this function at
+    call time.
     """
-    return SHARED_GATE_NOT_WIRED_REASON
+    if permit is None:
+        return SHARED_GATE_NOT_WIRED_REASON
+    if permit.effect != "metadata_write" or permit.entry.repository != repository:
+        return (
+            f"the registry write permit clears {permit.effect} for {permit.entry.repository}, not "
+            f"metadata_write for {repository}"
+        )
+    return None
 
 
 def write_authorized(environment: Mapping[str, str]) -> bool:
@@ -182,12 +190,15 @@ def apply_metadata_diff(
     put: WriteFn = default_put,
     refetch: Callable[[], ObservedRepository] | None = None,
     write_gate: WriteGate | None = None,
+    permit: WritePermit | None = None,
 ) -> ApplyResult:
     """Apply ``diff`` to the real repository - but only past both gates in this module's own
     docstring. Every early return below makes no network call at all; a field the diff did not
     propose changing is reported ``changed=False`` and is never touched either way.
 
-    ``refetch`` must return GitHub's live metadata; without it nothing is written.
+    ``refetch`` must return GitHub's live metadata; without it nothing is written. ``permit`` is the
+    registry write gate's proof for this repository (see :func:`shared_write_gate`); without one
+    nothing is written, unless a test injects its own ``write_gate``.
     """
 
     def _skip(field: str, changed: bool, reason: str) -> FieldOutcome:
@@ -211,7 +222,11 @@ def apply_metadata_diff(
     if not diff.has_changes:
         return _skip_all(True, _NO_CHANGE_REASON)
 
-    refusal = (write_gate or shared_write_gate)(diff.repository)
+    refusal = (
+        write_gate(diff.repository)
+        if write_gate is not None
+        else shared_write_gate(diff.repository, permit=permit)
+    )
     if refusal is not None:
         return _skip_all(True, f"refused by the shared write gate: {refusal}")
 

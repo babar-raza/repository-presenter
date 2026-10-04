@@ -636,3 +636,69 @@ def test_default_shared_write_gate_fails_closed_and_makes_no_http_call() -> None
     assert result.wrote_anything is False
     assert SHARED_GATE_NOT_WIRED_REASON in result.description.reason
     assert "shared write gate not wired" in result.topics.reason
+
+
+# ---------------------------------------------------------------------------
+# the real registry write gate behind ``shared_write_gate`` (core/registry/write_gate.py)
+# ---------------------------------------------------------------------------
+
+
+def _apply_with(permit: Any, patch: _RecordingWrite, put: _RecordingWrite) -> ApplyResult:
+    return apply_metadata_diff(
+        _diff(),
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=lambda: _observed(),
+        permit=permit,
+    )
+
+
+def test_the_real_gate_allows_a_full_mode_entry_with_its_permit() -> None:
+    from support import make_permit
+
+    patch, put = _RecordingWrite(), _RecordingWrite()
+    result = _apply_with(make_permit(REPO, effect="metadata_write"), patch, put)
+    assert result.wrote_anything is True
+    assert len(patch.calls) == 1 and len(put.calls) == 1
+
+
+def test_the_real_gate_refuses_a_dry_run_entry_because_no_permit_can_be_issued(
+    tmp_path: Any,
+) -> None:
+    """A ``dry_run`` entry never gets a permit from the registry gate, so the default gate - which
+    needs one - refuses and nothing reaches GitHub."""
+    import pytest
+
+    from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
+    from repository_presenter.core.registry.loader import load_registry
+    from repository_presenter.core.registry.write_gate import require_write_permitted
+    from support import monitor_registry_entry, write_registry_file
+
+    registry = load_registry(
+        write_registry_file(tmp_path, [monitor_registry_entry(REPO, mode="dry_run")])
+    )
+    with pytest.raises(WriteRefusedError) as info:
+        require_write_permitted(registry, REPO, "metadata_write")
+    assert info.value.code is Refusal.REGISTRY_DRY_RUN
+
+    patch, put = _RecordingWrite(), _RecordingWrite()
+    result = _apply_with(None, patch, put)
+    assert patch.calls == [] and put.calls == []
+    assert SHARED_GATE_NOT_WIRED_REASON in result.description.reason
+
+
+def test_the_real_gate_refuses_a_permit_for_another_repository_or_effect() -> None:
+    from support import make_permit
+
+    for permit in (
+        make_permit("aspose-words-foss/Aspose.Words-FOSS-for-Python", effect="metadata_write"),
+        make_permit(REPO, effect="issue_filing"),
+    ):
+        patch, put = _RecordingWrite(), _RecordingWrite()
+        result = _apply_with(permit, patch, put)
+        assert patch.calls == [] and put.calls == []
+        assert "registry write permit clears" in result.description.reason
