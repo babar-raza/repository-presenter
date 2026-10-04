@@ -1,0 +1,31 @@
+{
+  "attempts": {
+    "f9228d4d37f51f61813daad3": {
+      "changes": [
+        {
+          "after": "Aspose.Slides.FOSS provides core PowerPoint processing capabilities for net8.0. When you want the commercial product instead of this one — if you need to render or convert — PDF, images, HTML, thumbnails — or need charts, SmartArt, animations, OLE objects or macro-enabled files, or need a supported product with a licence, none of that is here and none of it is planned in this repository.",
+          "before": "Aspose.Slides.FOSS provides core PowerPoint processing capabilities for net8.0, while the commercial edition extends functionality with advanced features such as presentation conversion to PDF, HTML, and other formats, as well as support for additional file formats and enterprise-grade features.",
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "package:name",
+            "package:target_framework"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        }
+      ],
+      "label": "F08",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "03fc4abde88e9662cd793329b6004af7708eda58db3c6884b6d38631c18bdabf",
+      "section_id": "enterprise_relationship",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "a29807dd6a21771df48bc40c088b84981ff7b84132bfba2a1de4861656bc6b53",
+  "schema_version": 1
+}
