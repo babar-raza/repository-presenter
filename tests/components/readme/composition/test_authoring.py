@@ -50,6 +50,7 @@ from repository_presenter.components.readme.composition.authoring import (
     unit_example_action_mismatches,
     verified_members,
     write_content_units,
+    write_raw_calls,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.ledger import canonical_hash
@@ -771,6 +772,30 @@ def test_units_merge_in_shell_order_and_write_deterministically(tmp_path: Path) 
     raw = path.read_bytes()
     assert raw.endswith(b"}\n") and b"\r\n" not in raw and json.loads(raw) == document
     assert write_content_units(document, path) == digest
+
+
+def test_write_raw_calls_is_deterministic_json_keyed_by_request_hash(tmp_path: Path) -> None:
+    """G5-W02's own remaining gap (27.2 RC4): raw_calls.json seals a coherence batch, an
+    independent_review read, and a batch section_authoring task - each call's own JobResult
+    under its own request_sha256, so bundle/seal.py::seed_additional_calls can seed a later run's
+    identical request directly, with no separate lineage check needed (this function's own
+    docstring explains why the key alone is enough). Never model_served: core/llm/jobs.py::
+    run_job hardcodes it to None on its own cache-reuse path, so sealing it here would make a
+    seeded reuse's own written raw_calls.json differ from the original live call's - the exact
+    defect a hosted CI run of this item's own canary caught live, before this fix."""
+    calls = {
+        "b" * 64: {"job": "section_authoring", "output": {}},
+        "a" * 64: {"job": "independent_review", "output": {"verdict": "x"}},
+    }
+    path = tmp_path / "t" / "raw_calls.json"
+    digest = write_raw_calls(calls, path)
+    raw = path.read_bytes()
+    assert raw.endswith(b"}\n") and b"\r\n" not in raw
+    loaded = json.loads(raw)
+    assert loaded == calls
+    # Sorted keys: the "a"-prefixed entry's own key sorts first regardless of insertion order.
+    assert raw.index(b'"' + b"a" * 64 + b'"') < raw.index(b'"' + b"b" * 64 + b'"')
+    assert write_raw_calls(calls, path) == digest
 
 
 _RECON_FACTS = FactsDocument(

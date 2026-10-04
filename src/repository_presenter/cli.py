@@ -78,6 +78,7 @@ from repository_presenter.components.readme.bundle.seal import (
     invalidate_bundle,
     invalidates,
     seal_candidate,
+    seed_additional_calls,
     seed_call_store,
     upstream_dependencies,
 )
@@ -1273,7 +1274,14 @@ def run_present(
             # artifacts can answer for before making any call. Skipped under --fresh: every job
             # makes a genuinely live call instead (CS-03 follow-up, see this function's own
             # docstring).
-            seeded = seed_call_store(bundle, store)
+            seeded = set(seed_call_store(bundle, store))
+            # G5-W02's own remaining gap: seed_call_store only ever reaches the three 1:1 jobs
+            # its own _SEEDABLE_JOBS names; coherence, independent_review, and a batch
+            # section_authoring task each need raw_calls.json's own, differently-keyed seeding
+            # instead (bundle/seal.py::seed_additional_calls's own docstring explains why no
+            # lineage check is needed there). Both run before anything in this transaction makes
+            # a call, so a job either mechanism can answer for never reaches the gateway.
+            seeded |= set(seed_additional_calls(bundle, store))
             if seeded:
                 print(f"seeded from sealed bundle: {', '.join(sorted(seeded))}")
         elif fresh:
