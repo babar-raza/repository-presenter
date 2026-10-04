@@ -20,6 +20,7 @@ from repository_presenter.components.readme.composition.authoring import (
 )
 from repository_presenter.components.readme.repair.rounds import (
     Round,
+    SecondReadFailure,
     _refuse_noop,
     _reject_insufficient_visible_line_overage,
     _round_raw_calls,
@@ -45,17 +46,36 @@ PACKET: dict[str, Any] = {}
 COMMON: dict[str, Any] = {}
 
 
-def test_a_failed_second_reader_job_returns_none_not_an_empty_dict() -> None:
-    """TB-04, external review D4: review_document reads `second={}` as a *completed* reading
-    that corroborated nothing, silently demoting a real blocking finding to advisory and
-    flipping REJECT_PRESENTATION to ACCEPT. `_second_opinion` must return None on JobError -
-    the caller (rounds.py's run_round) then leaves the first reader's review untouched, exactly
-    as if no second reading had ever been attempted."""
+def test_a_failed_second_reader_job_is_a_recorded_failure_never_an_empty_dict() -> None:
+    """TB-04, external review D4: review_document reads `second={}` as a *completed* reading that
+    corroborated nothing, silently demoting a real blocking finding to advisory and flipping
+    REJECT_PRESENTATION to ACCEPT. `_second_opinion` must not return a completed-looking value on
+    JobError; it returns a SecondReadFailure carrying the error, which the caller records on
+    review.json while leaving the first reader's review otherwise untouched."""
     with patch(
         "repository_presenter.components.readme.repair.rounds.run_job",
         side_effect=JobError("gateway unavailable"),
     ):
-        assert _second_opinion(LOADED, PACKET, None, COMMON) is None
+        attempt = _second_opinion(LOADED, PACKET, None, COMMON)
+    assert isinstance(attempt, SecondReadFailure)
+    assert attempt.record() == {"kind": "JobError", "reason": "gateway unavailable"}
+
+
+def test_a_truncated_second_read_keeps_its_truncation_as_the_recorded_cause() -> None:
+    """The live failure this guards (2026-10-04 canary, native run): the second read reached
+    max_output_tokens and was rejected as TruncatedOutput. The cause must reach review.json, not
+    vanish into a bare single read."""
+    truncated = JobError(
+        "independent_review: output truncated at the manifest's max_output_tokens (6000); "
+        "raise the budget or bound the output, never retry"
+    )
+    with patch(
+        "repository_presenter.components.readme.repair.rounds.run_job",
+        side_effect=truncated,
+    ):
+        attempt = _second_opinion(LOADED, PACKET, None, COMMON)
+    assert isinstance(attempt, SecondReadFailure)
+    assert "truncated at the manifest's max_output_tokens (6000)" in attempt.reason
 
 
 def test_a_successful_second_reader_job_returns_its_own_job_result() -> None:

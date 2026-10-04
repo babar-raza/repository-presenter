@@ -139,7 +139,7 @@ ACCEPT = "ACCEPT"
 # asserts anything the fact does not support, never whether the quote restates everything the
 # fact says - a faithful compression is not a factual defect, and a quote that invents content
 # absent from the fact still fails both directions, since its own tokens are simply not there.
-REVIEWER_LOGIC_VERSION = "14"
+REVIEWER_LOGIC_VERSION = "15"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -1576,6 +1576,7 @@ def review_document(
     third: Mapping[str, Any] | None = None,
     units: Mapping[str, Any] | None = None,
     dispositions: Mapping[str, Any] | None = None,
+    second_failure: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """review.json: the verdict, blocking findings with their causal state, advisory findings,
     what a repair must preserve, and the two prompt identities.
@@ -1780,6 +1781,10 @@ def review_document(
             # as before this escalation existed.
             "read": 3 if third is not None else (2 if second is not None else 1),
             "corroborated": sorted(corroborated),
+            # Why the corroborating read did not complete (its JobError kind and reason, for
+            # example a truncated reply at max_output_tokens). Present only when a second read was
+            # attempted and failed, so a successful review's record is byte-identical to before.
+            **({"failed": dict(second_failure)} if second_failure is not None else {}),
         },
         "preserve": list(output.get("preserve", [])),
         "reviewer": {

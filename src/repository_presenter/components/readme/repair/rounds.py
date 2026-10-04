@@ -190,19 +190,34 @@ class Round:
         return {task.section_id for task in self.tasks}
 
 
+@dataclass(frozen=True)
+class SecondReadFailure:
+    """Why the corroborating second read did not complete. It is recorded on review.json as
+    ``second_reader.failed``, so check 10 names the cause instead of reporting a bare single read
+    (a truncated reply at max_output_tokens is the case this exists for)."""
+
+    kind: str
+    reason: str
+
+    def record(self) -> dict[str, Any]:
+        return {"kind": self.kind, "reason": self.reason}
+
+
 def _second_opinion(
     loaded: LoadedManifest, packet: Mapping[str, Any], checks: Any, common: Mapping[str, Any]
-) -> JobResult | None:
-    """The second reader's own ``JobResult``, or ``None`` when the job raised ``JobError`` - never
-    an empty output, which ``review_document`` reads as a completed reading that corroborated
-    nothing (TB-04). Returns the whole ``JobResult``, not just ``.output`` (G5-W02): the caller
-    needs ``.request_sha256`` too, to seal this read's own raw output under its own call's own key
-    in ``raw_calls.json`` - ``review.json`` alone cannot always answer for it on a later replay
-    (a rejected first read never carries the second reader's own non-blocking findings forward)."""
+) -> JobResult | SecondReadFailure:
+    """The second reader's own ``JobResult``, or a ``SecondReadFailure`` naming why the job raised
+    ``JobError`` - never an empty output, which ``review_document`` reads as a completed reading
+    that corroborated nothing (TB-04). The failure is returned, not dropped, so review.json carries
+    its cause (a single read with no recorded cause is indistinguishable from an unrequested second
+    read). Returns the whole ``JobResult``, not just ``.output`` (G5-W02): the caller needs
+    ``.request_sha256`` too, to seal this read's own raw output under its own call's own key in
+    ``raw_calls.json`` - ``review.json`` alone cannot always answer for it on a later replay (a
+    rejected first read never carries the second reader's own non-blocking findings forward)."""
     try:
         return run_job(second_reader(loaded), packet, checks=checks, **common)
-    except JobError:
-        return None
+    except JobError as error:
+        return SecondReadFailure(kind="JobError", reason=str(error))
 
 
 def _third_opinion(
@@ -529,7 +544,12 @@ def run_round(tx: TransactionInputs) -> Round:
     if review["verdict"] == ACCEPT or any(
         prose_judgment(finding) for finding in review["findings"]
     ):
-        second_result = _second_opinion(loaded, packet, checks, common)
+        attempt = _second_opinion(loaded, packet, checks, common)
+        if isinstance(attempt, SecondReadFailure):
+            # The failed read leaves the first reader's review as it was, plus its recorded cause.
+            review = document(second_failure=attempt.record())
+        else:
+            second_result = attempt
         if second_result is not None:
             if tx.entry.repository in MAJORITY_VOTE_REPOSITORIES:
                 # Section 5.6 escalation: this repository's own documented rerun history

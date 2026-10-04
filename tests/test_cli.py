@@ -907,7 +907,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "shell": "6",
         "renderer": "26",
         "normalisation": "20",
-        "reviewer_logic": "14",
+        "reviewer_logic": "15",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [

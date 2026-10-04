@@ -292,7 +292,7 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # VALIDATOR_VERSION 6 (BC-07 on main took 5; BC-02 v4 refuses a SUPPORTED registry install the
     # registry did not confirm, and lands on the same constant). The checks above pass under the
     # current validator, so only the pin needed to move.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "6"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "7"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:

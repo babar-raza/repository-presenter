@@ -70,7 +70,8 @@ VALIDATION_FILENAME = "validation.json"
 # 6: BC-02 v4 refuses a SUPPORTED registry-kind install whose own reading found no distribution
 # (Imaging-FOSS for .NET and GIS, 2026-10-04). Both branches had taken "5" independently; the
 # merged validator means both changes, so it moves once more.
-VALIDATOR_VERSION = "6"
+# 7: a refused ACCEPT names the corroborating second read that failed (second_reader.failed).
+VALIDATOR_VERSION = "7"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -1635,6 +1636,12 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
                 "ACCEPT with a single read: an accept verdict requires a corroborating "
                 "second read (second_reader.read >= 2)"
             ]
+            failed = (review.get("second_reader") or {}).get("failed")
+            if isinstance(failed, Mapping):
+                details.append(
+                    f"the corroborating second read did not complete: {failed.get('kind')}: "
+                    f"{failed.get('reason')}"
+                )
         else:
             details = [f"{review.get('verdict')}"] + [
                 f"{f.get('id')} {f.get('section_id')} ({f.get('causal_state')}): {f.get('text')}"

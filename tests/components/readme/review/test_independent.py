@@ -692,6 +692,54 @@ def test_a_folded_accept_from_a_single_read_no_longer_passes_check_ten() -> None
     assert record_review_verdict(VALIDATION, both)["checks"][1]["verdict"] == "PASS"
 
 
+def test_a_truncated_second_read_is_recorded_with_its_cause_and_never_passes_check_ten() -> None:
+    """A second read that ran out of output budget (JobError, TruncatedOutput) must leave the
+    first reader's ACCEPT unchanged on one read, but record WHY the corroboration is missing.
+    Before this, review.json said only ``read: 1`` and check 10 reported a bare "single read",
+    so the owner could not tell a runaway reply from a reader that never ran."""
+    refuted = {
+        **_finding("F01", "opening", "S6", "It writes `.glb` files."),
+        "fact_ids": ["format:output.glb"],
+    }
+    folded = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
+    failure = {
+        "kind": "JobError",
+        "reason": "independent_review: output truncated at the manifest's max_output_tokens "
+        "(6000); raise the budget or bound the output, never retry",
+    }
+    common: dict[str, Any] = {"candidate_readme": CANDIDATE, "facts": FACTS}
+    review = review_document(
+        folded, REVIEWER, AUTHORING, "d" * 64, second_failure=failure, **common
+    )
+    assert review["verdict"] == ACCEPT and review["second_reader"]["read"] == 1
+    assert review["second_reader"]["failed"] == failure
+    judged = record_review_verdict(VALIDATION, review)
+    assert judged["checks"][1]["verdict"] == "FAIL"
+    assert judged["checks"][1]["details"][0].startswith("ACCEPT with a single read")
+    assert judged["checks"][1]["details"][1] == (
+        "the corroborating second read did not complete: JobError: " + failure["reason"]
+    )
+    assert judged["checks"][1]["causal_stage"] is None
+
+
+def test_a_completed_second_read_records_no_failure() -> None:
+    """Negative control for the cause record: a second read that completes carries no ``failed``
+    key at all (a successful review's record is unchanged), and check 10 passes on the two
+    independent ACCEPTs with no failure detail."""
+    refuted = {
+        **_finding("F01", "opening", "S6", "It writes `.glb` files."),
+        "fact_ids": ["format:output.glb"],
+    }
+    folded = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
+    common: dict[str, Any] = {"candidate_readme": CANDIDATE, "facts": FACTS}
+    second = {"verdict": "ACCEPT", "findings": [], "preserve": []}
+    both = review_document(folded, REVIEWER, AUTHORING, "d" * 64, second=second, **common)
+    assert "failed" not in both["second_reader"]
+    judged = record_review_verdict(VALIDATION, both)
+    assert judged["checks"][1]["verdict"] == "PASS"
+    assert judged["checks"][1]["details"] == []
+
+
 def test_a_disagreeing_second_read_routes_its_findings_through_the_fold_stack() -> None:
     """PHASE1/F6: on the accept path the second read is corroboration, not a formality - its
     findings go through the same deterministic fold stack as the first read's. A survivor
