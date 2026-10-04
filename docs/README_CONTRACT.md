@@ -284,8 +284,8 @@ seal. `probes.json` records every live read that informed a fact — its status,
 and any reading that changes without the repository changing, such as a registry's latest
 version — because a fact's evidence is hashed and must not move when only the world does.
 `raw_calls.json` (G5-W02, 27.2 RC4) seals, verbatim and keyed by each call's own request hash,
-every accepted call no other artifact already answers for byte for byte - a coherence batch, an
-independent_review read, and a batch section_authoring task - so a fresh clone with an empty
+every accepted call no other artifact already answers for byte for byte - each source_reconciliation
+batch, a coherence batch, an independent_review read, and a batch section_authoring task - so a fresh clone with an empty
 `runs/` directory can replay an unchanged revision with zero provider calls; a non-batch
 section_authoring task is reconstructed from `content_units.json` alone instead, and is not
 duplicated here. A transaction that composed without one seals without it; `probes.json` and
