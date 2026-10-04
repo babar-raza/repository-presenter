@@ -898,7 +898,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "6",
         "renderer": "25",
-        "normalisation": "18",
+        "normalisation": "19",
         "reviewer_logic": "14",
     }
     assert "install_command:pip" in dependencies["facts"]

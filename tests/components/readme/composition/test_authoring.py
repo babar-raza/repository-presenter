@@ -2756,3 +2756,232 @@ def test_recover_section_authoring_output_is_none_when_nothing_to_fix() -> None:
     }
     assert unit_checks(json.loads(json.dumps(raw)), task, FACTS, NAME) == []
     assert recover_section_authoring_output(raw, slot_titles=task.slot_titles) is None
+
+
+# Aspose.Slides for Java, development_testing (BC-10 F08, 2026-10-04): reconciliation superseded
+# the README's own test-suite paragraphs into this section, so the authored summary was the only
+# place they could survive. The text below is the facts' own record (facts.json
+# inherited_unit:092.paragraph and :093.paragraph), not a paraphrase.
+SLIDES_JAVA = "aspose-slides-foss/Aspose.Slides-FOSS-for-Java"
+SLIDES_JAVA_NAME = "Aspose.Slides FOSS for Java"
+SLIDES_STRUCTURE = (
+    "JDK 21 or later and Maven are required; the build refuses to start otherwise. That one "
+    "command runs the whole test suite - unit tests under `src/test/java` plus the integration "
+    "tests under `tests/integration` and the conformance tests under `tests/conformance`. The "
+    "conformance tests unzip the produced `.pptx` and assert on the package itself, never on what "
+    "this library reads back."
+)
+SLIDES_REPRODUCIBLE = (
+    "Two builds of the same source produce byte-identical jars, and CI proves it by building twice "
+    "and comparing the hashes."
+)
+SLIDES_FACTS = FactsDocument(
+    SLIDES_JAVA,
+    "d" * 40,
+    (
+        _fact("identity:repository", "identity", SLIDES_JAVA),
+        _fact("package:java_release", "package", "21"),
+        _fact("build_test_asset:tests", "build_test_asset", "tests/"),
+        _fact("build_test_asset:ci", "build_test_asset", ".github/workflows/"),
+        _fact(
+            "inherited_unit:091.code_block",
+            "inherited_unit",
+            "```bash\nmvn verify -Dgpg.skip=true\n```",
+        ),
+        _fact("inherited_unit:092.paragraph", "inherited_unit", SLIDES_STRUCTURE),
+        _fact("inherited_unit:093.paragraph", "inherited_unit", SLIDES_REPRODUCIBLE),
+        _fact("inherited_unit:099.paragraph", "inherited_unit", "This project is MIT licensed."),
+    ),
+)
+SLIDES_DISPOSITIONS = {
+    "dispositions": [
+        {
+            "unit_id": "inherited_unit:091.code_block",
+            "disposition": "VERIFIED_PRESERVE",
+            "destination_section": "development_testing",
+            "fact_ids": ["build_test_asset:tests"],
+            "rationale": "r",
+        },
+        {
+            "unit_id": "inherited_unit:092.paragraph",
+            "disposition": "SUPERSEDE_REDUNDANT",
+            "destination_section": "development_testing",
+            "fact_ids": ["build_test_asset:tests"],
+            "rationale": "r",
+        },
+        {
+            "unit_id": "inherited_unit:093.paragraph",
+            "disposition": "SUPERSEDE_REDUNDANT",
+            "destination_section": "development_testing",
+            "fact_ids": ["build_test_asset:ci"],
+            "rationale": "r",
+        },
+        {
+            "unit_id": "inherited_unit:099.paragraph",
+            "disposition": "SUPERSEDE_REDUNDANT",
+            "destination_section": "license",
+            "fact_ids": [],
+            "rationale": "r",
+        },
+    ]
+}
+SLIDES_MUST_CARRY = frozenset({"inherited_unit:092.paragraph", "inherited_unit:093.paragraph"})
+SLIDES_TOOLCHAIN_ONLY = "The project requires Java 21 and uses Maven for building and testing."
+SLIDES_CITES = ["package:java_release", "build_test_asset:tests", "build_test_asset:ci"]
+
+
+def _slides_task() -> SectionTask:
+    ids, slots = section_selections(
+        "development_testing", {}, {}, SLIDES_DISPOSITIONS, SLIDES_FACTS
+    )
+    return SectionTask(
+        "development_testing",
+        {},
+        frozenset(ids),
+        slots,
+        slot_facts={"summary": frozenset(ids)},
+        must_carry=SLIDES_MUST_CARRY,
+    )
+
+
+def _slides_output(units: list[dict[str, Any]], omitted: list[dict[str, str]]) -> dict[str, Any]:
+    return {"units": units, "omitted": omitted}
+
+
+def test_development_testing_is_handed_the_inherited_units_superseded_into_it() -> None:
+    """The root cause, reproduced from the real Slides-Java shape. Reconciliation superseded the
+    README's test-suite and reproducible-build paragraphs into development_testing, a placeable
+    section the authored summary is expected to cover - but section_selections gave the authoring
+    call only the build_test_asset facts and the placed units, so the test-suite layout and the
+    conformance rule were never in its packet and no unit could cite or state them. A unit
+    superseded into this section must be in its citable set; one superseded elsewhere must not."""
+    ids, slots = section_selections(
+        "development_testing", {}, {}, SLIDES_DISPOSITIONS, SLIDES_FACTS
+    )
+    assert slots == ("summary",)
+    assert "inherited_unit:092.paragraph" in ids
+    assert "inherited_unit:093.paragraph" in ids
+    assert "inherited_unit:099.paragraph" not in ids
+
+
+def test_a_unit_set_that_drops_a_superseded_inherited_unit_is_rejected_before_review() -> None:
+    """Negative control: the toolchain-only sentence F08 reviewed (the candidate's own unit,
+    citing only the build_test_asset facts) silently drops the test-suite paragraph and the
+    reproducible-build paragraph. unit_checks must now name each dropped unit before review sees
+    the section, and an explicit disposition for each - cite it, or omit it with a reason - must
+    clear the check."""
+    task = _slides_task()
+    dropped = unit_checks(
+        _slides_output(
+            [
+                {
+                    "section": "development_testing",
+                    "slot": "summary",
+                    "text": SLIDES_TOOLCHAIN_ONLY,
+                    "fact_ids": SLIDES_CITES,
+                }
+            ],
+            [],
+        ),
+        task,
+        SLIDES_FACTS,
+        SLIDES_JAVA_NAME,
+    )
+    assert dropped == [
+        "inherited_unit:092.paragraph: superseded into this section by reconciliation, so a unit "
+        "must cite it and state its substance, or omitted must list it with a reason",
+        "inherited_unit:093.paragraph: superseded into this section by reconciliation, so a unit "
+        "must cite it and state its substance, or omitted must list it with a reason",
+    ]
+    explicit = unit_checks(
+        _slides_output(
+            [
+                {
+                    "section": "development_testing",
+                    "slot": "summary",
+                    "text": SLIDES_TOOLCHAIN_ONLY,
+                    "fact_ids": [*SLIDES_CITES, "inherited_unit:092.paragraph"],
+                }
+            ],
+            [{"fact_id": "inherited_unit:093.paragraph", "reason": "Stated by the renderer."}],
+        ),
+        task,
+        SLIDES_FACTS,
+        SLIDES_JAVA_NAME,
+    )
+    assert explicit == []
+
+
+def test_recover_section_authoring_output_records_an_uncarried_superseded_unit() -> None:
+    """Last-resort recovery for the same shape: when the model's own re-ask still drops a
+    superseded unit, the recovery records each dropped unit as an explicit omission with a reason,
+    never invents content, and run_job's real unit_checks then accepts the output (the review
+    still judges whether the section states what it omitted). Mutation control: a section with
+    nothing to carry is untouched."""
+    task = _slides_task()
+    raw = _slides_output(
+        [
+            {
+                "section": "development_testing",
+                "slot": "summary",
+                "text": SLIDES_TOOLCHAIN_ONLY,
+                "fact_ids": SLIDES_CITES,
+            }
+        ],
+        [],
+    )
+    recovered = recover_section_authoring_output(
+        json.loads(json.dumps(raw)), slot_titles={}, must_carry=SLIDES_MUST_CARRY
+    )
+    assert recovered is not None
+    assert unit_checks(recovered, task, SLIDES_FACTS, SLIDES_JAVA_NAME) == []
+    assert {item["fact_id"] for item in recovered["omitted"]} == SLIDES_MUST_CARRY
+    assert all(item["reason"].strip() for item in recovered["omitted"])
+    assert recovered["units"] == raw["units"]
+    assert (
+        recover_section_authoring_output(
+            json.loads(json.dumps(raw)), slot_titles={}, must_carry=frozenset()
+        )
+        is None
+    )
+
+
+def test_authoring_tasks_hands_development_testing_the_units_it_must_carry() -> None:
+    """End to end through the real wiring: authoring_tasks() names each superseded unit as a
+    must-carry in the development_testing packet's own objective, and no other section does."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:092.paragraph", "inherited_unit", SLIDES_STRUCTURE),
+            _fact("inherited_unit:093.paragraph", "inherited_unit", SLIDES_REPRODUCIBLE),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:092.paragraph",
+                "disposition": "SUPERSEDE_REDUNDANT",
+                "destination_section": "development_testing",
+                "fact_ids": [],
+                "rationale": "r",
+            },
+            {
+                "unit_id": "inherited_unit:093.paragraph",
+                "disposition": "SUPERSEDE_REDUNDANT",
+                "destination_section": "development_testing",
+                "fact_ids": [],
+                "rationale": "r",
+            },
+        ]
+    }
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, dispositions, PLAN)
+    }
+    assert tasks["development_testing"].must_carry == SLIDES_MUST_CARRY
+    objective = tasks["development_testing"].packet["objective"]
+    assert "inherited_unit:092.paragraph" in objective
+    assert "inherited_unit:093.paragraph" in objective
+    assert tasks["opening"].must_carry == frozenset()
