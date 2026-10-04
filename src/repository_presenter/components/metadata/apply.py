@@ -29,6 +29,24 @@ never fired. Even when both hold, this module re-observes GitHub's live state im
 writing (mirroring ``AGENTS.md`` "Recheck upstream revision immediately before an effect") and
 refuses the entire write, naming which field, if the live state has drifted from what the diff was
 computed against - never a blind overwrite of a race it cannot see.
+
+That re-read is a compare-and-swap on the captured values and is **mandatory**: a caller that does
+not supply ``refetch`` is refused, never written (fail closed). GitHub's REST API has no conditional
+(``If-Match``) write for repository settings, so a window of one HTTP round trip remains between the
+re-read and the PATCH/PUT; the re-read immediately precedes the write to keep it that small.
+
+Maintainer content is also re-protected here, independent of how the diff was built (defense in
+depth - ``proposal.diff_against_observed`` is the first line, this is the second):
+
+- the live description/homepage is re-assessed with ``preservation``, and a non-weak live value is
+  never overwritten, even by a hand-built or stale diff;
+- the topics PUT replaces GitHub's whole set by API design, so its payload is always
+  ``diff.final_topics`` (existing topics plus verified additions, minus only cited removals), and
+  the compare-and-swap above guarantees the live set equals the captured set it was built from.
+
+Integration point: ``shared_write_gate`` below. The shared registry write gate (admission by
+registry ``mode``) is owned by another work item; when it lands it replaces that function's body (or
+is passed as ``write_gate``) - this module deliberately does not build a second gate.
 """
 
 from __future__ import annotations
@@ -36,6 +54,10 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 
+from repository_presenter.components.metadata.preservation import (
+    assess_description,
+    assess_homepage,
+)
 from repository_presenter.components.metadata.proposal import RepoMetadataDiff
 from repository_presenter.core.errors import RepositoryMetadataError
 from repository_presenter.core.github.client import (
@@ -56,6 +78,25 @@ _NOT_AUTHORIZED_REASON = (
 )
 _NO_TOKEN_REASON = "no write-scoped token available (GH_METADATA_WRITE_TOKEN, never GH_TOKEN)"
 _NO_CHANGE_REASON = "no change needed"
+_NO_REFETCH_REASON = (
+    "no live re-read supplied - cannot compare-and-swap against the captured values; "
+    "nothing written"
+)
+
+
+WriteGate = Callable[[str], str | None]
+
+
+def shared_write_gate(repository: str) -> str | None:
+    """INTEGRATION POINT - shared registry write gate (not yet landed).
+
+    Contract for the replacement: given ``owner/name``, return ``None`` to allow a metadata write
+    or a human-readable refusal reason to forbid it (for example registry ``mode`` not ``full``).
+    It is called after this module's own authorization and token checks and before any live
+    re-read or write. Until the shared gate lands this allows everything; that is safe only because
+    the two gates above are unset in this project's environment, so no write can fire today.
+    """
+    return None
 
 
 def write_authorized(environment: Mapping[str, str]) -> bool:
@@ -107,6 +148,21 @@ def _drifted_fields(diff: RepoMetadataDiff, live: ObservedRepository) -> tuple[s
     return tuple(drifted)
 
 
+def _strong_live_fields(diff: RepoMetadataDiff, live: ObservedRepository) -> tuple[str, ...]:
+    """Fields the diff would overwrite whose *live* value is not weak - a non-empty,
+    maintainer-authored value is never replaced, even by a hand-built or stale diff."""
+    strong = []
+    platform = diff.proposed.verified_platform
+    if (
+        diff.description_changed
+        and not assess_description(live.description, diff.repository, platform).weak
+    ):
+        strong.append("description")
+    if diff.homepage_changed and not assess_homepage(live.homepage, diff.repository).weak:
+        strong.append("homepage")
+    return tuple(strong)
+
+
 def apply_metadata_diff(
     diff: RepoMetadataDiff,
     owner: str,
@@ -117,10 +173,13 @@ def apply_metadata_diff(
     patch: WriteFn = default_patch,
     put: WriteFn = default_put,
     refetch: Callable[[], ObservedRepository] | None = None,
+    write_gate: WriteGate = shared_write_gate,
 ) -> ApplyResult:
     """Apply ``diff`` to the real repository - but only past both gates in this module's own
     docstring. Every early return below makes no network call at all; a field the diff did not
     propose changing is reported ``changed=False`` and is never touched either way.
+
+    ``refetch`` must return GitHub's live metadata; without it nothing is written.
     """
 
     def _skip(field: str, changed: bool, reason: str) -> FieldOutcome:
@@ -144,15 +203,27 @@ def apply_metadata_diff(
     if not diff.has_changes:
         return _skip_all(True, _NO_CHANGE_REASON)
 
-    if refetch is not None:
-        live = refetch()
-        drifted = _drifted_fields(diff, live)
-        if drifted:
-            reason = (
-                "GitHub's live metadata changed since this diff was captured "
-                f"({', '.join(drifted)}) - re-run metadata capture before applying; nothing written"
-            )
-            return _skip_all(True, reason)
+    refusal = write_gate(diff.repository)
+    if refusal is not None:
+        return _skip_all(True, f"refused by the shared write gate: {refusal}")
+
+    if refetch is None:
+        return _skip_all(True, _NO_REFETCH_REASON)
+
+    live = refetch()
+    drifted = _drifted_fields(diff, live)
+    if drifted:
+        reason = (
+            "GitHub's live metadata changed since this diff was captured "
+            f"({', '.join(drifted)}) - re-run metadata capture before applying; nothing written"
+        )
+        return _skip_all(True, reason)
+    strong = _strong_live_fields(diff, live)
+    if strong:
+        return _skip_all(
+            True,
+            f"live {', '.join(strong)} is maintainer-authored (not weak) - nothing written",
+        )
 
     description = _skip("description", diff.description_changed, _NO_CHANGE_REASON)
     homepage = _skip("homepage", diff.homepage_changed, _NO_CHANGE_REASON)
@@ -182,7 +253,7 @@ def apply_metadata_diff(
 
     if diff.topics_changed:
         try:
-            replace_topics(owner, name, topics=diff.proposed.topics, token=token, write=put)
+            replace_topics(owner, name, topics=diff.final_topics, token=token, write=put)
         except RepositoryMetadataError as exc:
             topics = FieldOutcome("topics", True, False, str(exc))
         else:
