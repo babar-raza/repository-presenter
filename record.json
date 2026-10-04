@@ -24,7 +24,13 @@
     "resume_predicate": null,
     "recovery_count": 1
   },
-  "lease": null,
+  "lease": {
+    "holder_id": "present.yml:37231183326-noop-proof",
+    "acquired_at": "2026-10-04T20:15:54.959099+00:00",
+    "heartbeat_at": "2026-10-04T20:15:54.959099+00:00",
+    "expires_at": "2026-10-04T20:30:54.959099+00:00",
+    "fencing_token": 1
+  },
   "last_transition": {
     "transition_id": "8b060c7737d34897b3cf6e5b03a07309",
     "transaction_id": "f52de9906ea445bfa89c2f54c99c9a25",
@@ -39,7 +45,7 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 12,
+  "state_version": 13,
   "recent_trigger_dedup_keys": {
     "run:37231183326:aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET": "f52de9906ea445bfa89c2f54c99c9a25"
   },
