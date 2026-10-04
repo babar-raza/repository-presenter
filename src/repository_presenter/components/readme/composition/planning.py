@@ -1183,6 +1183,39 @@ def recover_visible_line_overage(
     return corrected
 
 
+# The lever formula (repair/targeted.py::visible_line_budget_hint) prices a cleared example at its
+# own block's visible lines, but two rendering edges sit outside it: a cleared example re-homed into
+# an Additional Examples section that does not exist yet opens that section (heading, lead-in,
+# blank lines), and one moved into an existing details block can leave the blank line before the
+# block behind. A deterministic clear is taken only when its exact saving clears the overage with
+# this margin to spare; anything closer is left to the targeted repair, which re-measures the
+# rendered document.
+VISIBLE_LINE_RENDER_MARGIN = 4
+
+
+def bound_visible_line_overage(
+    output: Mapping[str, Any], *, overage: int, levers: Mapping[str, int]
+) -> dict[str, Any] | None:
+    """The deterministic bound on a BC-07 visible-line overage: a targeted_repair-shaped correction
+    (``revised_output`` plus truthful ``changes``) that clears every named optional example lever,
+    when the exact saving of those levers clears ``overage`` with ``VISIBLE_LINE_RENDER_MARGIN``
+    to spare; ``None`` otherwise, so the causal stage's own repair runs as before.
+
+    ``repair/rounds.py`` tries this before the targeted repair call. Measured on the recorded
+    aspose-font-foss/Aspose.Font-FOSS-for-Python draws (docs/DECISION_LOG.md, 2026-09-17 to
+    2026-09-28): overages of 5 to 77 visible lines, a flagship alone worth 127, and the model's own
+    repair attempt cleared neither lever on any recorded draw, so the same overage re-raised. Code
+    clears what the arithmetic proves is enough; the model is asked only when it is not.
+    """
+    if overage <= 0 or not levers:
+        return None
+    if sum(levers.values()) - VISIBLE_LINE_RENDER_MARGIN < overage:
+        return None
+    return recover_visible_line_overage(
+        {"revised_output": copy.deepcopy(dict(output)), "changes": []}, levers=levers
+    )
+
+
 def summarize_plan(output: dict[str, Any]) -> str:
     included = [entry["section_id"] for entry in output.get("sections", []) if entry.get("include")]
     return (

@@ -17,6 +17,7 @@ from jsonschema import Draft202012Validator
 from repository_presenter.components.readme.composition import planning
 from repository_presenter.components.readme.composition.components.shell import section_ids
 from repository_presenter.components.readme.composition.planning import (
+    bound_visible_line_overage,
     citable_fact_ids,
     plan_checks,
     planning_packet,
@@ -1980,3 +1981,60 @@ def test_the_packets_facts_and_dispositions_share_one_inherited_unit_cap() -> No
     # packet's facts field actually shows (RESEARCH_AND_GUIDELINES.md section 27.2 RC1).
     citable = citable_fact_ids(many, {}, dispositions, MANIFEST)
     assert {i for i in citable if i.startswith("inherited_unit:")} == expected
+
+
+_OPTIONAL_LEVER_PLAN: dict[str, Any] = {
+    "flagship_example_id": "example:008",
+    "second_quick_start_example_id": "example:001",
+    "additional_example_ids": ["example:004", "example:008"],
+}
+
+
+def test_bound_visible_line_overage_clears_both_levers_when_their_saving_clears_the_overage() -> (
+    None
+):
+    """The deterministic bound on a BC-07 visible-line overage (``repair/rounds.py`` tries it
+    before the targeted repair call). When the exact saving of the plan's own optional example
+    levers clears the overage with the render margin to spare, the correction is made here, with
+    no model call. Measured shape, aspose-font-foss/Aspose.Font-FOSS-for-Python
+    (docs/DECISION_LOG.md 2026-09-27 and 2026-09-28): a flagship worth 127 visible lines clears a
+    5-line overage, yet the model's own repair attempts never cleared it."""
+    bounded = bound_visible_line_overage(
+        _OPTIONAL_LEVER_PLAN,
+        overage=5,
+        levers={"flagship_example_id": 127, "second_quick_start_example_id": 7},
+    )
+    assert bounded is not None
+    revised = bounded["revised_output"]
+    assert revised["flagship_example_id"] is None
+    assert revised["second_quick_start_example_id"] is None
+    # The example stays in its section's own collapsed block: additional_example_ids is untouched.
+    assert revised["additional_example_ids"] == ["example:004", "example:008"]
+    assert {change["path"] for change in bounded["changes"]} == {
+        "flagship_example_id",
+        "second_quick_start_example_id",
+    }
+    # The caller's own plan is never mutated; a rejected bound must leave it exactly as it was.
+    assert _OPTIONAL_LEVER_PLAN["flagship_example_id"] == "example:008"
+
+
+def test_bound_visible_line_overage_is_none_when_the_saving_misses_the_render_margin() -> None:
+    """Mutation control for the render margin: a saving equal to the overage (8 lines against 8)
+    is not taken, because a cleared example re-homed into a section or details block can add a
+    few visible lines the lever formula does not count. A saving that clears the overage with
+    that margin to spare is taken - the boundary, not a blanket refusal."""
+    plan = {**_OPTIONAL_LEVER_PLAN, "flagship_example_id": None}
+    lever = {"second_quick_start_example_id": 8}
+    assert bound_visible_line_overage(plan, overage=8, levers=lever) is None
+    wide = {"second_quick_start_example_id": 12}
+    assert bound_visible_line_overage(plan, overage=8, levers=wide) is not None
+
+
+def test_bound_visible_line_overage_is_none_without_an_overage_or_a_lever_to_clear() -> None:
+    """No overage, no named lever, or a named lever the plan already cleared: nothing to bound,
+    so the targeted repair runs exactly as it did before this bound existed."""
+    flagship = {"flagship_example_id": 127}
+    assert bound_visible_line_overage(_OPTIONAL_LEVER_PLAN, overage=0, levers=flagship) is None
+    assert bound_visible_line_overage(_OPTIONAL_LEVER_PLAN, overage=5, levers={}) is None
+    cleared = {**_OPTIONAL_LEVER_PLAN, "flagship_example_id": None}
+    assert bound_visible_line_overage(cleared, overage=5, levers=flagship) is None
