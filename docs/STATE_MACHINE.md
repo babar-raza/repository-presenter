@@ -337,6 +337,20 @@ The proof runs in a fresh process and must demonstrate:
 - the result terminates as `READY_FOR_PROPOSAL` or `UNCHANGED`;
 - the call ledger explicitly records zero provider calls and the relevant cache reuses.
 
+The proof is measured, never asserted (`core/noop_proof.py`, validator check BC-11 v2):
+
+- the provider-call count is read from the run's own call ledger on disk, counting the
+  `provider_call` records stamped with that invocation's id - not an exit code, a log line, or an
+  in-memory counter - and a missing ledger, or an invocation with no ledger record at all, fails
+  with a typed reason (`LEDGER_MISSING`, `LEDGER_NO_RECORDS`, `NONZERO_PROVIDER_CALLS`);
+- `fresh_process` is derived: each invocation records its process id, process start time, a
+  boot-unique marker and an in-memory nonce, and two invocations that share the nonce or the
+  (boot, pid, start time) triple are one process (`SAME_PROCESS`);
+- the sealed `calls.jsonl` keeps every attempt of the transaction - those the composition did not
+  consume carry a `retained_reason` and are ignored by replay seeding - and the manifest's
+  `ledger_totals`, `provider_calls` and proof are reconciled against it whenever the bundle is
+  verified (`LEDGER_TOTALS_MISMATCH`, blocking).
+
 Failure routes through `INVALIDATED` to the earliest mismatched dependency.
 
 ## 11. Proposal machine

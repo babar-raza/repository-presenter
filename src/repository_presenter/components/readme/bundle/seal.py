@@ -48,7 +48,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from importlib.metadata import distributions
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from repository_presenter.components.readme.composition.authoring import (
     NORMALISATION_VERSION,
@@ -75,8 +75,22 @@ from repository_presenter.core.candidates import BUNDLE_MANIFEST_NAME, verify_bu
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm.jobs import CallStore
-from repository_presenter.core.llm.ledger import LEDGER_FILENAME, canonical_hash
+from repository_presenter.core.llm.ledger import (
+    LEDGER_FILENAME,
+    canonical_hash,
+    parse_records,
+)
 from repository_presenter.core.llm.prompts import PromptRegistry
+from repository_presenter.core.noop_proof import (
+    Invocation,
+    LedgerReconciliationError,
+    Measurement,
+    identity_of_run_ref,
+    ledger_totals,
+    measure_invocation,
+    reconcile_ledger,
+    same_process,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
 
@@ -149,6 +163,11 @@ class SealInputs:
     candidates: Path
     provider_calls: int
     secrets: Sequence[ConfiguredSecret]
+    # The invocation sealing this transaction: its process identity and the id its ledger records
+    # carry. The seal measures the provider-call count from the ledger on disk by this id and
+    # derives the no-op proof's freshness from this identity against the one the bundle was last
+    # sealed by - neither is taken on the caller's word (core/noop_proof.py).
+    invocation: Invocation
     consumed_calls: frozenset[str] = frozenset()
     earliest_affected_stage: str | None = None
     # route -> the model this run answered it with. ``None`` means no fallback decision was made
@@ -354,25 +373,35 @@ def _staged_artifacts(inputs: SealInputs) -> dict[str, bytes]:
 
 
 def composition_ledger(raw: bytes, consumed: frozenset[str]) -> bytes:
-    """The ledger records of the calls this composition consumed, in the order written.
+    """The transaction ledger as sealed: consumed calls as written, every other attempt retained
+    as an audit-only line carrying the reason it is not part of this composition.
 
     A transaction outlives its compositions. A prompt version change, a repair round, a review
     whose successor supersedes it - each leaves records of calls nothing in the current candidate
-    came from, and sealing them makes the bundle claim work it does not hold. It also measures
-    first-attempt acceptance over a job mix that never composed this candidate: the transaction
-    that produced the 2026-09-05 canary carried 65 provider calls across four prompt versions
-    where its composition consumed 28 (docs/RESEARCH_AND_GUIDELINES.md section 27.6 control 1).
-    Every attempt of a consumed call is kept, its rejections included - that is what the control
-    measures. A run that consumed nothing has nothing to filter by and seals the ledger whole.
+    came from. Dropping them made the sealed ledger lie by omission: a rejected or abandoned
+    attempt vanished, and per-README totals could not reconcile with the calls actually made
+    (the 2026-09-05 canary's transaction carried 65 provider calls where its composition consumed
+    28, docs/RESEARCH_AND_GUIDELINES.md section 27.6 control 1). Those lines stay, marked with
+    ``retained_reason``, so a reader measuring first-attempt acceptance over what the composition
+    consumed filters on that field, an audit reads the rest with its reason, and replay seeding
+    ignores them (``seed_call_store``) - they never answer for a candidate. Every attempt of a
+    consumed call is kept as before, rejections included. A run that consumed nothing has nothing
+    to mark and seals the ledger whole.
     """
     if not consumed:
         return raw
-    kept = [
-        line
-        for line in raw.decode("utf-8").splitlines()
-        if line.strip() and json.loads(line).get("logical_call_id") in consumed
-    ]
-    return "".join(f"{line}\n" for line in kept).encode("utf-8")
+    lines: list[str] = []
+    for line in raw.decode("utf-8").splitlines():
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        if record.get("logical_call_id") not in consumed:
+            record["retained_reason"] = (
+                f"unconsumed by the sealed composition (outcome {record.get('outcome')})"
+            )
+            line = json.dumps(record, sort_keys=True, separators=(",", ":"))
+        lines.append(line)
+    return "".join(f"{line}\n" for line in lines).encode("utf-8")
 
 
 def _identical(name: str, staged: bytes, existing: bytes) -> bool:
@@ -448,6 +477,13 @@ def _write_bundle(
         "files": files,
         "provider_calls": provider_calls,
         "no_op_proof": proof,
+        # Which invocation wrote this bundle, and the sums over the ledger sealed beside it: the
+        # next fresh process proves its freshness against the first, and the manifest reconciles
+        # against the second whenever the bundle is verified (core/noop_proof.py).
+        "sealed_by": inputs.invocation.run_ref(),
+        "ledger_totals": ledger_totals(
+            parse_records(staged[LEDGER_FILENAME].decode("utf-8"), LEDGER_FILENAME)
+        ),
         "composition": _composition(staged),
         "models_used": _current_models(inputs),
         **({"call_variance": variance} if variance else {}),
@@ -465,6 +501,8 @@ def _write_bundle(
         for name, data in staged.items():
             (staging / name).write_bytes(data)
         (staging / BUNDLE_MANIFEST_NAME).write_bytes(_canonical_json(manifest))
+        # A bundle whose own totals do not reconcile with its ledger is never published.
+        reconcile_ledger(manifest, staging / LEDGER_FILENAME)
         leaks = scan_for_secrets(staging, inputs.secrets)
         if leaks:
             names = ", ".join(sorted({f"{leak.variable} in {leak.path.name}" for leak in leaks}))
@@ -537,6 +575,8 @@ def seed_call_store(bundle: Path, store: CallStore) -> list[str]:
         if not line.strip():
             continue
         record = json.loads(line)
+        if record.get("retained_reason"):
+            continue  # an audit-only line (composition_ledger): never answers for a candidate
         if record.get("outcome") == "success":
             successes.setdefault(str(record.get("job")), []).append(record)
     seeded: list[str] = []
@@ -645,12 +685,25 @@ def _record_update(
         "files": _update_digests(staged),
         "models_used": _current_models(inputs),
     }
-    existing = {k: v for k, v in dict(manifest.get("update") or {}).items() if k != "recorded_at"}
-    changed = existing != update or manifest.get("state") != state
+    waiting = dict(manifest.get("update") or {})
+    existing = {k: v for k, v in waiting.items() if k not in ("recorded_at", "recorded_by")}
+    # The process that first recorded this update is the one a later run must differ from to adopt
+    # it, so an unchanged update keeps its original recorder. An update recorded before processes
+    # were identified has none and is recorded again, so the next fresh process can adopt it.
+    recorded = identity_of_run_ref(waiting.get("recorded_by")) is not None
+    new_update = existing != update
+    recorder = (
+        waiting["recorded_by"] if recorded and not new_update else inputs.invocation.run_ref()
+    )
+    changed = new_update or manifest.get("state") != state or not recorded
     if changed:
         (bundle / BUNDLE_MANIFEST_NAME).write_bytes(
             _canonical_json(
-                {**manifest, "state": state, "update": {**update, "recorded_at": _now()}}
+                {
+                    **manifest,
+                    "state": state,
+                    "update": {**update, "recorded_at": _now(), "recorded_by": recorder},
+                }
             )
         )
     return SealResult(
@@ -669,19 +722,50 @@ def _record_update(
     )
 
 
+def _fresh_after(prior_ref: object, inputs: SealInputs) -> bool:
+    """Whether this invocation is a different process from the one ``prior_ref`` names. A
+    reference that names no process (a bundle sealed before processes were identified) cannot
+    establish freshness, so it is not fresh."""
+    prior = identity_of_run_ref(prior_ref)
+    return prior is not None and not same_process(prior, inputs.invocation.identity)
+
+
+def _proof(
+    prior_ref: Mapping[str, Any],
+    inputs: SealInputs,
+    measured: Measurement,
+    *,
+    byte_identical: bool,
+) -> dict[str, Any]:
+    """The no-op proof record: every field is something this seal measured or compared.
+
+    ``fresh_process`` is the comparison of the sealing process the bundle recorded against this
+    one, ``provider_calls`` the count read from the ledger on disk, ``byte_identical`` the replay
+    comparison. A caller reaches here only with all three holding (the seal withholds the proof
+    otherwise), and the record names both runs so an audit can repeat the comparison.
+    """
+    fresh = _fresh_after(prior_ref, inputs)
+    if not (fresh and byte_identical and measured.provider_calls == 0):
+        raise SealError("seal: a no-op proof was requested for a rerun that does not hold one")
+    return {
+        "proven_at": _now(),
+        "fresh_process": fresh,
+        "byte_identical": byte_identical,
+        "provider_calls": measured.provider_calls,
+        "first_run": dict(prior_ref),
+        "rerun": {**inputs.invocation.run_ref(), **measured.to_dict()},
+    }
+
+
 def _adopt_update(
     bundle: Path,
     manifest: dict[str, Any],
     waiting: dict[str, Any],
     staged: Mapping[str, bytes],
     inputs: SealInputs,
+    measured: Measurement,
 ) -> SealResult:
-    proof = {
-        "proven_at": _now(),
-        "fresh_process": True,
-        "byte_identical": True,
-        "provider_calls": 0,
-    }
+    proof = _proof(waiting["recorded_by"], inputs, measured, byte_identical=True)
     proven = {
         **staged,
         "validation.json": _canonical_json(record_replay_verdict(inputs.validation)),
@@ -701,7 +785,7 @@ def _adopt_update(
         proven,
         state=STATE_READY,
         proof=proof,
-        provider_calls=0,
+        provider_calls=measured.provider_calls,
         inputs=inputs,
         extra={"adopted": adopted},
     )
@@ -774,6 +858,17 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
     with zero provider calls, or leave a proven bundle untouched."""
     bundle = bundle_directory(inputs.candidates, inputs.entry, inputs.source_revision)
     staged = _staged_artifacts(inputs)
+    # The provider-call count every decision below rests on is read from the ledger on disk, by
+    # this invocation's id; the caller's in-memory count must agree with it or the seal stops.
+    measured = measure_invocation(
+        inputs.transaction / LEDGER_FILENAME, inputs.invocation.invocation_id
+    )
+    if measured.provider_calls != inputs.provider_calls:
+        raise LedgerReconciliationError(
+            f"this process counted {inputs.provider_calls} provider calls, its ledger holds "
+            f"{measured.provider_calls}"
+        )
+    calls = measured.provider_calls
     manifest = _read_manifest(bundle / BUNDLE_MANIFEST_NAME)
     if manifest is None:
         files = _write_bundle(
@@ -781,7 +876,7 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             staged,
             state=STATE_ACCEPTED,
             proof=None,
-            provider_calls=inputs.provider_calls,
+            provider_calls=calls,
             inputs=inputs,
         )
         return SealResult(
@@ -821,15 +916,16 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
         # calls, is the same update: adopt it. Anything else replaces it as a new recorded update.
         waiting_models = waiting.get("models_used", recorded_models)
         if (
-            inputs.provider_calls == 0
+            calls == 0
             and waiting.get("files") == _update_digests(staged)
             and waiting_models == current_models
+            and _fresh_after(waiting.get("recorded_by"), inputs)
         ):
             # The waiting update is proven the way a first seal is: a fresh process reproduced
             # it byte for byte with zero provider calls, so the bundle adopts it as its proven
             # content and keeps the previous proof for the record. Scheduling that rerun is
             # the policy decision docs/STATE_MACHINE.md section 5 leaves to the operator.
-            return _adopt_update(bundle, manifest, waiting, staged, inputs)
+            return _adopt_update(bundle, manifest, waiting, staged, inputs, measured)
         # The proven candidate stays valid; the run produced a valid update, recorded on the
         # manifest and left in the transaction (docs/STATE_MACHINE.md section 9).
         return _record_update(bundle, manifest, differing, staged, inputs, model_changes)
@@ -839,7 +935,7 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             staged,
             state=STATE_ACCEPTED,
             proof=None,
-            provider_calls=inputs.provider_calls,
+            provider_calls=calls,
             inputs=inputs,
         )
         changed = [*differing, *model_changes]
@@ -851,15 +947,14 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             True,
             f"re-sealed: {', '.join(changed)} changed since the last seal; proof withdrawn",
         )
-    if inputs.provider_calls > 0:
+    if calls > 0:
         return SealResult(
             bundle,
             str(manifest.get("state")),
             dict(manifest.get("files", {})),
             manifest.get("no_op_proof"),
             False,
-            f"byte-identical, but this process made {inputs.provider_calls} provider calls; "
-            "proof withheld",
+            f"byte-identical, but this process made {calls} provider calls; proof withheld",
         )
     if manifest.get("state") == STATE_READY and manifest.get("no_op_proof"):
         return SealResult(
@@ -870,16 +965,40 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             False,
             "no-op: the proven bundle was reproduced byte for byte with zero provider calls",
         )
-    proof = {
-        "proven_at": _now(),
-        "fresh_process": True,
-        "byte_identical": True,
-        "provider_calls": 0,
-    }
+    sealed_by = manifest.get("sealed_by")
+    if identity_of_run_ref(sealed_by) is None:
+        # Sealed before processes were identified: nothing records which process produced these
+        # bytes, so this one cannot be shown to be a different one. The bundle is sealed again
+        # recording this process, and the next fresh process proves it.
+        files = _write_bundle(
+            bundle, staged, state=STATE_ACCEPTED, proof=None, provider_calls=calls, inputs=inputs
+        )
+        return SealResult(
+            bundle,
+            STATE_ACCEPTED,
+            files,
+            None,
+            True,
+            "sealed again: the bundle recorded no sealing process, so the no-op proof is "
+            "withheld until a fresh process reruns it",
+        )
+    if not _fresh_after(sealed_by, inputs):
+        return SealResult(
+            bundle,
+            str(manifest.get("state")),
+            dict(manifest.get("files", {})),
+            manifest.get("no_op_proof"),
+            False,
+            "byte-identical, but this is the process that sealed the bundle, not a fresh one; "
+            "proof withheld",
+        )
+    proof = _proof(
+        cast(Mapping[str, Any], sealed_by), inputs, measured, byte_identical=not differing
+    )
     judged = record_replay_verdict(inputs.validation)
     proven = {**staged, "validation.json": _canonical_json(judged)}
     files = _write_bundle(
-        bundle, proven, state=STATE_READY, proof=proof, provider_calls=0, inputs=inputs
+        bundle, proven, state=STATE_READY, proof=proof, provider_calls=calls, inputs=inputs
     )
     _supersede_siblings(bundle)
     return SealResult(

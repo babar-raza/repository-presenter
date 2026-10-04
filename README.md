@@ -159,8 +159,10 @@ repository-presenter --version
 repository-presenter status [--root PATH] [--stale]
 repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
+  [--invocation-record PATH]
   [--durable-state [--trigger-event-type TYPE] [--workflow-run-id ID] [--holder-id ID]
                     [--state-remote REMOTE]]
+repository-presenter verify-noop-proof --first PATH --second PATH [--root PATH]
 repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
 repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remote REMOTE]
   [--wall-clock-seconds N] [--provider-calls N] [--max-wall-clock-seconds N]
@@ -189,6 +191,12 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH
   `.github/workflows/present.yml` uses, and a plain local run never needs it. `--trigger-event-type`,
   `--workflow-run-id` (defaults to `GITHUB_RUN_ID`), `--holder-id`, and `--state-remote` (defaults to
   `origin`) configure that wiring; see `core/state/present_transaction.py` for the full design.
+- **`verify-noop-proof`** — the hosted gate on a no-op rerun. Given the two `present
+  --invocation-record` files of a run and its rerun, it requires the two to have been different
+  processes (process id, start time, boot marker and an in-memory nonce all recorded, none assumed)
+  and counts the rerun's provider calls from the call ledger it wrote, never from an exit code; a
+  nonzero count, a missing ledger, an invocation that recorded nothing, or one process claiming
+  both runs each fails with a typed reason. `present.yml` runs it after its second invocation.
 - **`monitor`** — observes each enabled registry repository's upstream default-branch head with the
   read-only `GH_TOKEN` and compares it with its `CURRENT` sealed bundle's revision, recording one
   status per repository (`CURRENT`, `DRIFTED`, `NO_BUNDLE`, `UNREACHABLE`) in a JSON evidence file

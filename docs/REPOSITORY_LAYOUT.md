@@ -32,6 +32,7 @@ src/repository_presenter/
     examples.py             shared example-verification types and the receipts writer
     package_registry.py     the registry-reading type and per-ecosystem observer lookup that stages after facts use without importing an extractor
     probes.py               what a live read observed - status, timing, volatile reading - kept out of the hashed facts
+    noop_proof.py           the no-op proof, measured: process identity, the rerun's provider calls counted from its own ledger, and bundle-totals-versus-ledger reconciliation (the `verify-noop-proof` gate)
     execution.py            bounded secret-free execution of repository examples
     config.py               gateway configuration from the process environment (a subpackage once G4 adds GitHub App configuration)
     git_safety/              push-neutered clone, safety checks

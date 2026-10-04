@@ -26,6 +26,11 @@ from typing import Any
 
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.examples import RECEIPTS_FILENAME
+from repository_presenter.core.noop_proof import (
+    LEDGER_TOTALS_MISMATCH,
+    LedgerReconciliationError,
+    reconcile_ledger,
+)
 
 CANDIDATES_DIRNAME = "candidates"
 BUNDLE_MANIFEST_NAME = "manifest.json"
@@ -51,6 +56,17 @@ class BundleError(PresenterError, ValueError):
     became real the moment ``count_current_candidates`` started calling ``verify_bundle``, which
     a corrupt or adversarial manifest can now reach from either call site).
     """
+
+
+class BundleLedgerError(BundleError):
+    """A bundle's recorded totals do not equal the sums over the ledger it seals.
+
+    Typed by ``reason`` (``LEDGER_TOTALS_MISMATCH``) so a caller routes on the field and never on
+    the prose. It is a ``BundleError``, so every path that fails closed on a corrupt bundle - the
+    seal, the status count, the present run's evaluation - fails closed on this too.
+    """
+
+    reason = LEDGER_TOTALS_MISMATCH
 
 
 @dataclass(frozen=True)
@@ -98,7 +114,8 @@ def verify_bundle(bundle: Path) -> dict[str, Any] | None:
     ``schema_version`` this code knows how to read; its ``files`` inventory is non-empty (an
     empty inventory is not "nothing to verify", it is a bundle that was never really sealed);
     every listed file is present on disk; every listed file's digest matches what is actually
-    there.
+    there; and, when the manifest records ``ledger_totals``, they equal the sums over its
+    ``calls.jsonl`` (``BundleLedgerError``, reason ``LEDGER_TOTALS_MISMATCH``).
     """
     manifest_path = bundle / BUNDLE_MANIFEST_NAME
     if not manifest_path.is_file():
@@ -129,6 +146,14 @@ def verify_bundle(bundle: Path) -> dict[str, Any] | None:
             _sha256(data) != digest.get("sha256") or len(data) != digest.get("bytes")
         ):
             raise BundleError(f"bundle artifact {name} is corrupt in {bundle.name}")
+    # The totals a manifest records about its own ledger are checked against the ledger itself,
+    # after the digests above have established that the ledger is the one that was sealed. A
+    # manifest sealed before totals were recorded carries none and is not judged by them.
+    if "calls.jsonl" in files:
+        try:
+            reconcile_ledger(manifest, bundle / "calls.jsonl")
+        except LedgerReconciliationError as exc:
+            raise BundleLedgerError(f"{bundle.name}: {exc}") from exc
     return manifest
 
 

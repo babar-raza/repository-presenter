@@ -11,7 +11,7 @@ import pytest
 from repository_presenter.components.readme.evidence.facts import links
 from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.core.llm import transport
-from support import REPO_ROOT, write_cursor
+from support import REPO_ROOT, distinct_process_identities, write_cursor
 
 AMBIENT_CREDENTIALS = (
     "GH_TOKEN",
@@ -88,6 +88,12 @@ def no_package_registry_network(monkeypatch: pytest.MonkeyPatch) -> None:
         raise RuntimeError("the LLM gateway is unreachable in tests; use support.mock_gateway")
 
     monkeypatch.setattr(transport, "build_client", refuse_client)
+
+
+@pytest.fixture(autouse=True)
+def each_invocation_is_its_own_process(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A test that calls ``main`` twice stands in for two fresh processes (tests/support.py)."""
+    distinct_process_identities(monkeypatch)
 
 
 @pytest.fixture

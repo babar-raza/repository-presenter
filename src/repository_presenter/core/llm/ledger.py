@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import MISSING, asdict, dataclass, fields
+from dataclasses import MISSING, asdict, dataclass, fields, replace
 from pathlib import Path
 from typing import Any, Literal
 
@@ -88,6 +88,16 @@ class CallRecord:
     # fallback chains existed.
     effective_model: str | None = None
     schema_version: int = 1
+    # The invocation (one ``present`` process, ``core/noop_proof.py``) that appended this record,
+    # so a no-op proof counts the provider calls of exactly one invocation out of a ledger that
+    # several invocations share, rather than trusting a count held in memory or a process exit
+    # code. Not part of any request hash; ``None`` only for a record written before it existed.
+    invocation_id: str | None = None
+    # Set only on a line sealed into a bundle's ``calls.jsonl`` for audit: a record of an attempt
+    # the sealed composition did not consume (a superseded repair round, a prompt version since
+    # replaced), kept with the reason so a rejected or abandoned call never vanishes from the
+    # ledger. Replay seeding ignores any line carrying it; it is never written by a live run.
+    retained_reason: str | None = None
 
     def to_line(self) -> str:
         return json.dumps(asdict(self), sort_keys=True, separators=(",", ":"))
@@ -110,13 +120,17 @@ def canonical_hash(value: Any) -> str:
 class Ledger:
     """Append-only accounting for one transaction's provider calls."""
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, invocation_id: str | None = None) -> None:
         self.path = path
+        # Stamped onto every record this ledger appends (see ``CallRecord.invocation_id``).
+        self.invocation_id = invocation_id
         # The records this process appended, so a run can account for its own calls without
         # re-reading a ledger that older runs may have written.
         self.appended: list[CallRecord] = []
 
     def append(self, record: CallRecord) -> None:
+        if self.invocation_id is not None and record.invocation_id is None:
+            record = replace(record, invocation_id=self.invocation_id)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("a", encoding="utf-8", newline="\n") as stream:
             stream.write(record.to_line() + "\n")
@@ -149,23 +163,28 @@ def load_records(path: Path) -> list[CallRecord]:
     """Every record in the ledger, in order; a malformed or duplicated line is a defect."""
     if not path.is_file():
         return []
+    return parse_records(path.read_text(encoding="utf-8"), str(path))
+
+
+def parse_records(text: str, label: str) -> list[CallRecord]:
+    """The records in ledger ``text``; ``label`` names the source in a defect message."""
     required = {field.name for field in fields(CallRecord) if field.default is MISSING}
     optional = {field.name for field in fields(CallRecord)} - required
     records: list[CallRecord] = []
     seen: set[str] = set()
-    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+    for number, line in enumerate(text.splitlines(), start=1):
         if not line.strip():
             continue
         payload = json.loads(line)
         # A field added since a ledger was sealed reads as its default; an unknown field is a
         # defect, so a record never carries something this reader would silently drop.
         if not required <= set(payload) or not set(payload) <= required | optional:
-            raise ValueError(f"{path}:{number}: ledger record fields do not match CallRecord")
+            raise ValueError(f"{label}:{number}: ledger record fields do not match CallRecord")
         if isinstance(payload.get("rejection"), list):
             payload["rejection"] = tuple(payload["rejection"])
         record = CallRecord(**payload)
         if record.call_id in seen:
-            raise ValueError(f"{path}:{number}: duplicate call ID {record.call_id}")
+            raise ValueError(f"{label}:{number}: duplicate call ID {record.call_id}")
         seen.add(record.call_id)
         records.append(record)
     return records

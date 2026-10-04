@@ -46,7 +46,25 @@
       "propertyNames": { "pattern": "^[A-Za-z0-9._-]+$" },
       "additionalProperties": { "$ref": "#/$defs/file_digest" }
     },
-    "provider_calls": { "type": "integer", "minimum": 0 },
+    "provider_calls": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Provider calls the sealing invocation made, counted from the call ledger by that invocation's id (core/noop_proof.py); equal to the provider_call records in calls.jsonl stamped with sealed_by.invocation_id."
+    },
+    "sealed_by": { "$ref": "#/$defs/run_ref" },
+    "ledger_totals": {
+      "type": "object",
+      "description": "The sums over every record sealed in calls.jsonl; verification recomputes them and a mismatch is a blocking LEDGER_TOTALS_MISMATCH. Absent on a bundle sealed before totals were recorded.",
+      "additionalProperties": false,
+      "required": ["records", "provider_calls", "cache_reuses", "audit_only", "total_tokens"],
+      "properties": {
+        "records": { "type": "integer", "minimum": 0 },
+        "provider_calls": { "type": "integer", "minimum": 0 },
+        "cache_reuses": { "type": "integer", "minimum": 0 },
+        "audit_only": { "type": "integer", "minimum": 0 },
+        "total_tokens": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
     "models_used": {
       "type": "object",
       "description": "route -> the model this run answered it with (core/llm/fallback.py); a consumed input, so a change is a recorded factual update.",
@@ -63,6 +81,7 @@
         "changed": { "type": "array", "items": { "type": "string" } },
         "transaction": { "type": "string" },
         "recorded_at": { "$ref": "#/$defs/timestamp" },
+        "recorded_by": { "$ref": "#/$defs/run_ref" },
         "files": {
           "type": "object",
           "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
@@ -140,9 +159,30 @@
           "required": ["proven_at", "fresh_process", "byte_identical", "provider_calls"],
           "properties": {
             "proven_at": { "$ref": "#/$defs/timestamp" },
-            "fresh_process": { "const": true },
+            "fresh_process": {
+              "const": true,
+              "description": "Derived: the rerun's recorded process identity differs from first_run's. Never asserted by a literal."
+            },
             "byte_identical": { "const": true },
-            "provider_calls": { "const": 0 }
+            "provider_calls": {
+              "const": 0,
+              "description": "Counted from the call ledger for the rerun invocation, not taken from an exit code."
+            },
+            "first_run": { "$ref": "#/$defs/run_ref" },
+            "rerun": {
+              "allOf": [
+                { "$ref": "#/$defs/run_ref" },
+                {
+                  "type": "object",
+                  "required": ["records", "provider_calls", "cache_reuses"],
+                  "properties": {
+                    "records": { "type": "integer", "minimum": 1 },
+                    "provider_calls": { "const": 0 },
+                    "cache_reuses": { "type": "integer", "minimum": 0 }
+                  }
+                }
+              ]
+            }
           }
         }
       ]
@@ -162,6 +202,26 @@
     }
   ],
   "$defs": {
+    "run_ref": {
+      "type": "object",
+      "description": "One invocation: its id, the process it ran in (id, start time, boot marker, in-memory nonce) and when it started. Two invocations are one process when they share the nonce or the (boot_id, pid, started) triple.",
+      "required": ["invocation_id", "identity", "started_at"],
+      "properties": {
+        "invocation_id": { "type": "string", "minLength": 1 },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pid", "started", "boot_id", "nonce"],
+          "properties": {
+            "pid": { "type": "integer", "minimum": 0 },
+            "started": { "type": "string", "minLength": 1 },
+            "boot_id": { "type": "string", "minLength": 1 },
+            "nonce": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
     "timestamp": {
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"

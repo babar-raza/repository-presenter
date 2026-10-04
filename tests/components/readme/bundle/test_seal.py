@@ -24,10 +24,21 @@ from repository_presenter.components.readme.bundle.seal import (
     seed_call_store,
     verify_bundle,
 )
-from repository_presenter.core.candidates import BundleError, count_current_candidates
+from repository_presenter.core.candidates import (
+    BundleError,
+    BundleLedgerError,
+    count_current_candidates,
+)
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.jobs import CallStore
+from repository_presenter.core.llm.ledger import CallRecord
 from repository_presenter.core.llm.prompts import load_manifests
+from repository_presenter.core.noop_proof import (
+    Invocation,
+    LedgerReconciliationError,
+    NoOpProofError,
+    ProcessIdentity,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
 from support import REPO_ROOT
@@ -74,6 +85,67 @@ def _validation(pending: bool = True) -> dict[str, Any]:
     }
 
 
+_SEQUENCE = iter(range(1, 10**9))
+
+
+def _ledger_line(
+    call_id: str,
+    invocation_id: str | None,
+    disposition: str,
+    *,
+    logical: str = "logical-a",
+    outcome: str = "success",
+    job: str = "repository_investigation",
+    retained_reason: str | None = None,
+    response: str = "s" * 64,
+) -> str:
+    return CallRecord(
+        call_id=call_id,
+        logical_call_id=logical,
+        repository=ENTRY.repository,
+        source_revision=REVISION,
+        stage="INVESTIGATING",
+        job=job,
+        prompt_sha256="p" * 64,
+        model_route="qwen3-next",
+        model_served="qwen3-next",
+        attempt=1 if disposition == "provider_call" else 0,
+        disposition=disposition,  # type: ignore[arg-type]
+        started_at="2026-10-05T00:00:00.000+00:00",
+        finished_at="2026-10-05T00:00:01.000+00:00",
+        latency_ms=1000,
+        outcome=outcome,  # type: ignore[arg-type]
+        http_status=200,
+        request_sha256="r" * 64,
+        response_sha256=response,
+        provider_request_id=None,
+        prompt_tokens=10,
+        completion_tokens=5,
+        total_tokens=15,
+        error_class=None,
+        invocation_id=invocation_id,
+        retained_reason=retained_reason,
+    ).to_line()
+
+
+def _invocation() -> Invocation:
+    """A distinct synthetic process: what a fresh `present` run would have recorded."""
+    n = next(_SEQUENCE)
+    identity = ProcessIdentity(1000 + n, f"start-{n}", "boot-1", f"nonce-{n}")
+    return Invocation(f"invocation-{n}", identity, "2026-10-05T00:00:00Z")
+
+
+def _record_calls(transaction: Path, invocation: Invocation, provider_calls: int) -> None:
+    """Append what the invocation's ledger would hold: its provider calls, or - when it made
+    none - the cache reuse a real rerun records for each job it answers from stored output."""
+    name = invocation.invocation_id
+    lines = [
+        _ledger_line(f"{name}-{index}", name, "provider_call") for index in range(provider_calls)
+    ] or [_ledger_line(f"{name}-reuse", name, "cache_reuse")]
+    with (transaction / "calls.jsonl").open("a", encoding="utf-8", newline="\n") as stream:
+        stream.writelines(f"{line}\n" for line in lines)
+
+
 def _transaction(tmp_path: Path, readme: str = "# Doc\n", revision: str = REVISION) -> Path:
     transaction = tmp_path / "runs" / "transactions" / "owner__name" / revision
     transaction.mkdir(parents=True, exist_ok=True)
@@ -88,7 +160,7 @@ def _transaction(tmp_path: Path, readme: str = "# Doc\n", revision: str = REVISI
         "validation.json": json.dumps(_validation(), indent=2, sort_keys=True) + "\n",
         "review.json": '{"verdict": "ACCEPT"}\n',
         "repairs.json": '{"attempts": {}}\n',
-        "calls.jsonl": '{"call_id": "one"}\n',
+        "calls.jsonl": _ledger_line("base", None, "cache_reuse") + "\n",
     }
     for name, text in artifacts.items():
         (transaction / name).write_text(text, encoding="utf-8", newline="\n")
@@ -101,7 +173,11 @@ def _inputs(
     secrets: tuple[ConfiguredSecret, ...] = (),
     stage: str | None = None,
     revision: str = REVISION,
+    invocation: Invocation | None = None,
 ) -> SealInputs:
+    invocation = invocation or _invocation()
+    transaction = tmp_path / "runs" / "transactions" / "owner__name" / revision
+    _record_calls(transaction, invocation, provider_calls)
     return SealInputs(
         entry=ENTRY,
         source_revision=revision,
@@ -109,10 +185,11 @@ def _inputs(
         facts=FACTS,
         prompts=PROMPTS,
         validation=_validation(),
-        transaction=tmp_path / "runs" / "transactions" / "owner__name" / revision,
+        transaction=transaction,
         candidates=tmp_path / "candidates",
         provider_calls=provider_calls,
         secrets=secrets,
+        invocation=invocation,
         earliest_affected_stage=stage,
     )
 
@@ -160,27 +237,38 @@ def test_the_sealed_canary_carries_the_receipt_its_example_facts_cite() -> None:
         assert fact["polarity"] == expected, fact["id"]
 
 
-def test_the_sealed_ledger_holds_the_calls_this_composition_consumed() -> None:
-    """A transaction outlives its compositions, and the bundle accounts for one of them.
+def test_the_sealed_ledger_keeps_every_attempt_and_marks_the_unconsumed_ones() -> None:
+    """A transaction outlives its compositions, and the sealed ledger still shows all of it.
 
     Measured on the canary on 2026-09-05: the transaction carried 65 provider calls across four
-    prompt versions where the composition it sealed consumed 28, so the sealed ledger measured
-    first-attempt acceptance over a job mix that never composed the candidate
-    (docs/RESEARCH_AND_GUIDELINES.md section 27.6 control 1).
+    prompt versions where the composition it sealed consumed 28. Dropping the other 37 made a
+    rejected or abandoned call vanish and left per-README totals unable to reconcile with the
+    calls actually made; they are kept now, each marked with why it is not part of this
+    composition, so the first-attempt measure (docs/RESEARCH_AND_GUIDELINES.md section 27.6
+    control 1) filters on the mark instead of the bundle hiding the work.
     """
     lines = [
         '{"logical_call_id": "a", "attempt": 1, "outcome": "response_invalid"}',
         '{"logical_call_id": "a", "attempt": 2, "outcome": "success"}',
-        '{"logical_call_id": "superseded", "attempt": 1, "outcome": "success"}',
+        '{"logical_call_id": "superseded", "attempt": 1, "outcome": "response_invalid"}',
         '{"logical_call_id": "b", "attempt": 1, "outcome": "success"}',
     ]
     raw = "".join(f"{line}\n" for line in lines).encode("utf-8")
-    kept = composition_ledger(raw, frozenset({"a", "b"})).decode("utf-8").splitlines()
-    # Every attempt of a consumed call survives, rejections included: that is what the control
-    # measures. The call no artifact came from does not.
-    assert [json.loads(line)["logical_call_id"] for line in kept] == ["a", "a", "b"]
+    sealed = composition_ledger(raw, frozenset({"a", "b"})).decode("utf-8").splitlines()
+    records = [json.loads(line) for line in sealed]
+    # Nothing is dropped, in the order written; every attempt of a consumed call is as written.
+    assert [record["logical_call_id"] for record in records] == ["a", "a", "superseded", "b"]
+    assert sealed[0] == lines[0] and sealed[1] == lines[1] and sealed[3] == lines[3]
+    # Only the call no artifact came from carries the audit-only mark, with its reason.
+    assert [bool(record.get("retained_reason")) for record in records] == [
+        False,
+        False,
+        True,
+        False,
+    ]
+    assert "response_invalid" in records[2]["retained_reason"]
     assert composition_ledger(raw, frozenset({"a", "b"})).endswith(b"\n")
-    # A run that consumed nothing has nothing to filter by.
+    # A run that consumed nothing has nothing to mark.
     assert composition_ledger(raw, frozenset()) == raw
 
 
@@ -219,34 +307,24 @@ def test_call_variance_surfaces_non_determinism_and_is_absent_without_it(tmp_pat
     shown no variance for it at all.
     """
     transaction = _transaction(tmp_path)
+
+    def line(call_id: str, logical: str, job: str, response: str, outcome: str = "success") -> str:
+        return _ledger_line(
+            call_id, None, "provider_call", logical=logical, job=job, outcome=outcome,
+            response=response,
+        )  # fmt: skip
+
     lines = [
-        {  # a repair round (different logical_call_id) still counts toward the same job.
-            "job": "source_reconciliation",
-            "logical_call_id": "a",
-            "outcome": "success",
-            "response_sha256": "1" * 64,
-        },
-        {
-            "job": "source_reconciliation",
-            "logical_call_id": "b",
-            "outcome": "success",
-            "response_sha256": "2" * 64,
-        },
-        {  # a different job: on its own, one successful attempt is not variance.
-            "job": "presentation_planning",
-            "logical_call_id": "c",
-            "outcome": "success",
-            "response_sha256": "3" * 64,
-        },
-        {  # rejected, so it never counts as a second successful response.
-            "job": "presentation_planning",
-            "logical_call_id": "c",
-            "outcome": "response_invalid",
-            "response_sha256": "4" * 64,
-        },
+        # a repair round (different logical_call_id) still counts toward the same job.
+        line("v1", "a", "source_reconciliation", "1" * 64),
+        line("v2", "b", "source_reconciliation", "2" * 64),
+        # a different job: on its own, one successful attempt is not variance.
+        line("v3", "c", "presentation_planning", "3" * 64),
+        # rejected, so it never counts as a second successful response.
+        line("v4", "c", "presentation_planning", "4" * 64, outcome="response_invalid"),
     ]
     (transaction / "calls.jsonl").write_text(
-        "".join(f"{json.dumps(line)}\n" for line in lines), encoding="utf-8", newline="\n"
+        "".join(f"{entry}\n" for entry in lines), encoding="utf-8", newline="\n"
     )
     sealed = seal_candidate(_inputs(tmp_path, provider_calls=0))
     manifest = json.loads((sealed.bundle / "manifest.json").read_text("utf-8"))
@@ -263,17 +341,7 @@ def test_call_variance_surfaces_non_determinism_and_is_absent_without_it(tmp_pat
     other_revision = "d" * 40
     other_transaction = _transaction(tmp_path, revision=other_revision)
     (other_transaction / "calls.jsonl").write_text(
-        json.dumps(
-            {
-                "job": "presentation_planning",
-                "logical_call_id": "b",
-                "outcome": "success",
-                "response_sha256": "5" * 64,
-            }
-        )
-        + "\n",
-        encoding="utf-8",
-        newline="\n",
+        line("q1", "b", "presentation_planning", "5" * 64) + "\n", encoding="utf-8", newline="\n"
     )
     quiet = seal_candidate(_inputs(tmp_path, provider_calls=0, revision=other_revision))
     quiet_manifest = json.loads((quiet.bundle / "manifest.json").read_text("utf-8"))
@@ -311,9 +379,6 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     restored = seal_candidate(_inputs(tmp_path, provider_calls=0))
     assert restored.state == "ACCEPTED" and restored.note.startswith("re-sealed")
 
-    (tmp_path / "runs" / "transactions" / "owner__name" / REVISION / "calls.jsonl").write_text(
-        '{"call_id": "one"}\n{"call_id": "two"}\n', encoding="utf-8", newline="\n"
-    )
     proven = seal_candidate(_inputs(tmp_path, provider_calls=0))
     assert proven.state == "READY_FOR_PROPOSAL" and proven.changed
     assert proven.proof is not None and proven.proof["provider_calls"] == 0
@@ -323,7 +388,19 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     judged = json.loads((bundle / "validation.json").read_text("utf-8"))
     assert judged["checks"][1]["verdict"] == "PASS"
     assert judged["summary"] == {"pass": 2, "fail": 0, "pending": 0}
-    assert (bundle / "calls.jsonl").read_text("utf-8").count("\n") == 2
+    # The proof is measured, not asserted: both runs are named, the rerun's ledger counts are
+    # recorded, and freshness is the comparison of the two recorded processes.
+    proof = manifest["no_op_proof"]
+    assert proof["fresh_process"] is True and proof["provider_calls"] == 0
+    assert proof["first_run"]["identity"]["pid"] != proof["rerun"]["identity"]["pid"]
+    assert proof["first_run"]["invocation_id"] != proof["rerun"]["invocation_id"]
+    assert proof["rerun"]["provider_calls"] == 0 and proof["rerun"]["cache_reuses"] == 1
+    assert manifest["sealed_by"]["invocation_id"] == proof["rerun"]["invocation_id"]
+    sealed_lines = (bundle / "calls.jsonl").read_text("utf-8").splitlines()
+    assert manifest["ledger_totals"]["records"] == len(sealed_lines)
+    # The ledger was reset before the last two invocations: the base line and one reuse each.
+    assert manifest["ledger_totals"]["provider_calls"] == 0
+    assert manifest["ledger_totals"]["cache_reuses"] == 3
 
     before = (bundle / "manifest.json").read_bytes()
     again = seal_candidate(_inputs(tmp_path, provider_calls=0))
@@ -722,3 +799,218 @@ def test_a_bundle_sealed_before_models_were_recorded_reads_its_routes_as_their_o
     assert _sealed_manifest(tmp_path)["update"]["changed"] == [
         "models[qwen3-next]: qwen3-next -> gpt-oss"
     ]
+
+
+# --- the no-op proof is measured (core/noop_proof.py) -------------------------------------------
+
+
+def _bundle_of(tmp_path: Path) -> Path:
+    return tmp_path / "candidates" / "aspose-3d-foss__Aspose.3D-FOSS-for-Python" / REVISION
+
+
+def _manifest(tmp_path: Path) -> dict[str, Any]:
+    return json.loads((_bundle_of(tmp_path) / "manifest.json").read_text("utf-8"))
+
+
+def test_a_rerun_in_the_sealing_process_cannot_prove_the_no_op(tmp_path: Path) -> None:
+    """fresh_process used to be a literal; it is the comparison of two recorded processes."""
+    _transaction(tmp_path)
+    first = _invocation()
+    seal_candidate(_inputs(tmp_path, provider_calls=2, invocation=first))
+    # A different invocation id (a second call to present) in the same operating-system process.
+    again = Invocation("a-second-call", first.identity, "2026-10-05T00:00:00Z")
+    withheld = seal_candidate(_inputs(tmp_path, provider_calls=0, invocation=again))
+    assert withheld.state == "ACCEPTED" and withheld.proof is None and not withheld.changed
+    assert "not a fresh one" in withheld.note
+    assert _manifest(tmp_path)["no_op_proof"] is None
+    # The same interpreter under a new pid still shares its in-memory nonce.
+    cloned = Invocation(
+        "a-third-call",
+        ProcessIdentity(9999, "later", first.identity.boot_id, first.identity.nonce),
+        "2026-10-05T00:00:00Z",
+    )
+    assert not seal_candidate(_inputs(tmp_path, provider_calls=0, invocation=cloned)).proof
+    # A genuinely different process proves it.
+    assert seal_candidate(_inputs(tmp_path, provider_calls=0)).state == "READY_FOR_PROPOSAL"
+
+
+def test_a_bundle_sealed_before_processes_were_identified_is_sealed_again_not_proven(
+    tmp_path: Path,
+) -> None:
+    _transaction(tmp_path)
+    seal_candidate(_inputs(tmp_path, provider_calls=2))
+    manifest = _manifest(tmp_path)
+    del manifest["sealed_by"], manifest["ledger_totals"]  # as a bundle sealed before them reads
+    (_bundle_of(tmp_path) / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    sealed_again = seal_candidate(_inputs(tmp_path, provider_calls=0))
+    assert sealed_again.state == "ACCEPTED" and sealed_again.proof is None and sealed_again.changed
+    assert "recorded no sealing process" in sealed_again.note
+    assert "sealed_by" in _manifest(tmp_path)
+    # Now there is a process to differ from.
+    assert seal_candidate(_inputs(tmp_path, provider_calls=0)).state == "READY_FOR_PROPOSAL"
+
+
+def test_the_seal_counts_provider_calls_from_the_ledger_not_from_the_caller(
+    tmp_path: Path,
+) -> None:
+    _transaction(tmp_path)
+    inputs = _inputs(tmp_path, provider_calls=3)
+    # The caller says zero; the ledger on disk holds three for this invocation.
+    with pytest.raises(LedgerReconciliationError, match="holds 3"):
+        seal_candidate(replace(inputs, provider_calls=0))
+    assert not _bundle_of(tmp_path).exists()
+
+
+def test_a_seal_with_no_record_of_its_invocation_in_the_ledger_stops(tmp_path: Path) -> None:
+    _transaction(tmp_path)
+    inputs = _inputs(tmp_path, provider_calls=0)
+    with pytest.raises(NoOpProofError) as caught:
+        seal_candidate(replace(inputs, invocation=_invocation()))
+    assert caught.value.reason == "LEDGER_NO_RECORDS"
+    (inputs.transaction / "calls.jsonl").write_text("not a ledger\n", encoding="utf-8")
+    with pytest.raises(NoOpProofError) as unreadable:
+        seal_candidate(inputs)
+    assert unreadable.value.reason == "LEDGER_UNREADABLE"
+
+
+def test_the_sealed_ledger_retains_unconsumed_attempts_with_their_reason(tmp_path: Path) -> None:
+    transaction = _transaction(tmp_path)
+    inputs = _inputs(tmp_path, provider_calls=0)
+    name = inputs.invocation.invocation_id
+    with (transaction / "calls.jsonl").open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write(
+            _ledger_line(
+                "abandoned", name, "provider_call", logical="old", outcome="response_invalid"
+            )
+            + "\n"
+        )
+    # The caller's own count must follow the ledger, so account for the abandoned attempt too.
+    inputs = replace(inputs, provider_calls=1, consumed_calls=frozenset({"logical-a"}))
+    seal_candidate(inputs)
+    bundle = _bundle_of(tmp_path)
+    sealed = [json.loads(line) for line in (bundle / "calls.jsonl").read_text("utf-8").splitlines()]
+    kept = {record["call_id"]: record.get("retained_reason") for record in sealed}
+    assert "abandoned" in kept and "response_invalid" in str(kept["abandoned"])
+    assert kept["base"] is None  # a consumed call is written as it was
+    manifest = _manifest(tmp_path)
+    assert manifest["ledger_totals"]["audit_only"] == 1
+    assert manifest["ledger_totals"]["provider_calls"] == 1 and manifest["provider_calls"] == 1
+    jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
+    verify_bundle(bundle)  # the retained line reconciles
+
+
+def test_replay_seeding_ignores_audit_only_lines(tmp_path: Path) -> None:
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "investigation.json").write_text('{"capabilities": []}\n', encoding="utf-8")
+    consumed = _ledger_line("c1", None, "provider_call", logical="a" * 64)
+    abandoned = _ledger_line(
+        "c2",
+        None,
+        "provider_call",
+        logical="b" * 64,
+        retained_reason="unconsumed by the sealed composition (outcome success)",
+    )
+    (bundle / "calls.jsonl").write_text(f"{consumed}\n{abandoned}\n", encoding="utf-8")
+    store = CallStore(tmp_path / "runs" / "calls")
+    # Without the mark the job would have two successes and seed nothing; with it, one.
+    assert seed_call_store(bundle, store) == ["repository_investigation"]
+    assert store.get("a" * 64) == {"capabilities": []} and store.get("b" * 64) is None
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    [
+        lambda m: m["ledger_totals"].__setitem__("provider_calls", 99),
+        lambda m: m["ledger_totals"].__setitem__("records", 0),
+        lambda m: m["ledger_totals"].__setitem__("total_tokens", 1),
+        lambda m: m.__setitem__("provider_calls", 41),
+    ],
+    ids=["provider_calls", "records", "total_tokens", "manifest_provider_calls"],
+)
+def test_a_bundle_whose_totals_disagree_with_its_ledger_is_a_blocking_failure(
+    tmp_path: Path, tamper: Any
+) -> None:
+    _transaction(tmp_path)
+    seal_candidate(_inputs(tmp_path, provider_calls=2))
+    bundle = _bundle_of(tmp_path)
+    assert verify_bundle(bundle) is not None  # sound as sealed
+    manifest = _manifest(tmp_path)
+    tamper(manifest)
+    (bundle / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(BundleLedgerError) as caught:
+        verify_bundle(bundle)
+    assert caught.value.reason == "LEDGER_TOTALS_MISMATCH"
+    # Every path that fails closed on a corrupt bundle fails closed on this: the seal itself.
+    with pytest.raises(BundleLedgerError):
+        seal_candidate(_inputs(tmp_path, provider_calls=0))
+
+
+def test_a_proof_whose_rerun_made_calls_fails_verification(tmp_path: Path) -> None:
+    _transaction(tmp_path)
+    seal_candidate(_inputs(tmp_path, provider_calls=2))
+    seal_candidate(_inputs(tmp_path, provider_calls=0))
+    bundle = _bundle_of(tmp_path)
+    manifest = _manifest(tmp_path)
+    assert manifest["state"] == "READY_FOR_PROPOSAL" and verify_bundle(bundle) is not None
+    # Re-point the proof at the invocation that made the calls: the ledger contradicts it.
+    manifest["no_op_proof"]["rerun"]["invocation_id"] = manifest["no_op_proof"]["first_run"][
+        "invocation_id"
+    ]
+    (bundle / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(BundleLedgerError, match="claims zero provider calls"):
+        verify_bundle(bundle)
+
+
+def test_a_bundle_sealed_before_totals_were_recorded_still_verifies(tmp_path: Path) -> None:
+    _transaction(tmp_path)
+    seal_candidate(_inputs(tmp_path, provider_calls=2))
+    bundle = _bundle_of(tmp_path)
+    manifest = _manifest(tmp_path)
+    del manifest["ledger_totals"], manifest["sealed_by"]
+    (bundle / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    assert verify_bundle(bundle) is not None  # it waits for its pending update; it is not judged
+
+
+def test_an_existing_proven_bundle_records_a_pending_update_and_keeps_its_proof(
+    tmp_path: Path,
+) -> None:
+    """The validator moved (BC-11 version 2): a proven bundle sealed under 1 stays READY with its
+    proof and records a presentation update, which the next fresh process adopts."""
+    _transaction(tmp_path)
+    seal_candidate(_inputs(tmp_path, provider_calls=2))
+    seal_candidate(_inputs(tmp_path, provider_calls=0))
+    bundle = _bundle_of(tmp_path)
+    manifest = _manifest(tmp_path)
+    proof = manifest["no_op_proof"]
+    # Make it read as sealed by the old code: no identities, no totals, old validator record.
+    del manifest["sealed_by"], manifest["ledger_totals"]
+    manifest["no_op_proof"] = {
+        key: proof[key]
+        for key in ("proven_at", "fresh_process", "byte_identical", "provider_calls")
+    }
+    (bundle / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    old_validation = json.loads((bundle / "validation.json").read_text("utf-8"))
+    for check in old_validation["checks"]:
+        if check["id"] == "BC-11":
+            check["version"] = "1"
+    (bundle / "validation.json").write_text(json.dumps(old_validation), encoding="utf-8")
+    manifest = _manifest(tmp_path)
+    manifest["files"]["validation.json"] = {
+        "sha256": hashlib.sha256((bundle / "validation.json").read_bytes()).hexdigest(),
+        "bytes": len((bundle / "validation.json").read_bytes()),
+    }
+    (bundle / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    updated = seal_candidate(_inputs(tmp_path, provider_calls=0))
+    assert updated.state == "READY_FOR_PROPOSAL" and updated.changed
+    assert updated.note.startswith("valid update available (presentation)")
+    after = _manifest(tmp_path)
+    assert after["no_op_proof"] == manifest["no_op_proof"]  # the proof is retained as it was
+    assert after["update"]["recorded_by"]["invocation_id"]
+    adopted = seal_candidate(_inputs(tmp_path, provider_calls=0))
+    assert adopted.note.startswith("update adopted")
+    final = _manifest(tmp_path)
+    assert final["adopted"]["previous_proof"] == manifest["no_op_proof"]
+    assert final["no_op_proof"]["first_run"] and final["ledger_totals"]
