@@ -120,7 +120,7 @@ jobs:
       # verifier invokes Maven, so none is installed. Python 3.11 is the presenter's own interpreter
       # (set up above); 3.12 and 3.13 are pinned uv venvs for requires-python declarations it does not admit.
       - name: Install uv (provisions the pinned Python venvs for the Python verifier)
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.21"
 
