@@ -124,8 +124,8 @@ def test_cmake_keeps_path_ahead_of_the_registry(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, no_install_roots: None
 ) -> None:
     """The documented PATH-first default: a hosted runner's CMake carries a certificate bundle."""
-    # PATH-first is the contract (cmake_executable, RESEARCH 29.6 E7); the PATH command is `cmake`,
-    # so its fixture is named as that platform's executable: `cmake.exe` on Windows, `cmake` on POSIX.
+    # PATH-first is the contract (cmake_executable, RESEARCH 29.6 E7); the PATH fixture is named
+    # as the platform's executable (`cmake.exe` on Windows, `cmake` on POSIX).
     exe = "cmake.exe" if os.name == "nt" else "cmake"
     recorded = _tool(tmp_path / "winlibs" / "cmake.exe")
     on_path = _tool(tmp_path / "system" / exe)
