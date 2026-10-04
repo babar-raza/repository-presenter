@@ -285,6 +285,73 @@ def test_unit_example_action_mismatches_catches_a_backwards_direction_claim() ->
     assert unit_example_action_mismatches(silent, facts_ord1) == []
 
 
+# The live shape (2026-10-04, aspose-font-foss/Aspose.Font-FOSS-for-Python, qwen3-next, present
+# --fresh; section_authoring rejected twice on byte-identical text): the opening reads one format
+# and writes three. The direction check judged the whole unit by one bag of words, so the "reads"
+# and the identifier's ".open" (aspose_font.FontLoader.open) made every extension "input", and the
+# writing verbs create/produce/generate were not in its vocabulary at all.
+_FONT_OPENING = (
+    "Aspose.Font FOSS for Python reads TrueType fonts with the .ttf extension using "
+    "aspose_font.FontLoader.open and supports variable fonts. Designers and developers use it to "
+    "generate web-ready font bundles, create visual previews in .png and .svg formats, and "
+    "produce QA reports in .html."
+)
+
+
+def _font_claims_facts() -> FactsDocument:
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(
+                "format:input.ttf", "format", ".ttf", (Evidence("README.md", "example 1 read it"),)
+            ),
+            Fact(
+                "format:output.png",
+                "format",
+                ".png",
+                (Evidence("README.md", "example 1: output .png"),),
+            ),
+            Fact(
+                "format:output.svg",
+                "format",
+                ".svg",
+                (Evidence("README.md", "example 1: output .svg"),),
+            ),
+            Fact(
+                "format:output.html",
+                "format",
+                ".html",
+                (Evidence("README.md", "example 1: output .html"),),
+            ),
+        ),
+    )
+
+
+def test_a_mixed_direction_opening_is_not_refused_for_its_correct_claims() -> None:
+    facts = _font_claims_facts()
+    # The live shape: one format read and three written. It names both directions, so it is not an
+    # unambiguous read and is not refused; the identifier's ".open" is not a reading verb, and the
+    # writing verbs create/produce/generate count as the output they name.
+    assert (
+        unit_example_action_mismatches({"text": _FONT_OPENING, "fact_ids": ["example:001"]}, facts)
+        == []
+    )
+    # Negative control: a genuine contradiction with no writing verb is still refused.
+    reads_png = {"text": "Reads the .png previews it builds.", "fact_ids": ["example:001"]}
+    assert unit_example_action_mismatches(reads_png, facts) == [
+        "names .png as input, but example 1's own recorded format claims say output"
+    ]
+
+
+def test_an_identifier_dot_open_is_not_a_reading_verb() -> None:
+    facts = _font_claims_facts()
+    # Old classifier: "open" (inside aspose_font.FontLoader.open) read the whole unit as input.
+    text = "Creates the .png preview through aspose_font.FontLoader.open."
+    assert unit_example_action_mismatches({"text": text, "fact_ids": ["example:001"]}, facts) == []
+
+
 def test_identifier_tokens_and_the_allowed_set() -> None:
     text = "Use aspose.threed.Scene, control_points, PbrMaterial and save() with Scene."
     assert identifier_tokens(text) == {
