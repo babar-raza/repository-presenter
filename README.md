@@ -156,7 +156,7 @@ repository_presenter`).
 
 ```
 repository-presenter --version
-repository-presenter status [--root PATH] [--stale]
+repository-presenter status [--root PATH] [--stale] [--json] [--drift PATH] [--authorizations PATH]
 repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
   [--durable-state [--trigger-event-type TYPE] [--workflow-run-id ID] [--holder-id ID]
@@ -177,7 +177,13 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
   from sealed bundles on disk. `--stale` additionally reports any current candidate whose recorded
   dependencies are behind the running code's component/check versions; it is a pure read and makes
-  no provider call.
+  no provider call. It also prints the portfolio block: `plans/idea.md`'s seven separated counts
+  (fact-valid, presentation-valid, independently accepted, no-op-proven, source-fresh,
+  publication-eligible, effect-authorized) and a partition placing every live registry entry in
+  exactly one bucket; the predicates are defined in `components/readme/bundle/portfolio.py`.
+  `--json` prints one machine-readable document instead. `--drift PATH` supplies a monitor drift
+  document so source-fresh can be observed (otherwise it is reported unobserved), and
+  `--authorizations PATH` supplies authorization records for the effect-authorized count.
 - **`preflight`** — reaches the LLM gateway using the process environment, lists its live models,
   and records the catalog under `runs/preflight/catalog.json`.
 - **`present --repo OWNER/NAME`** — runs the full transaction for one repository listed in the

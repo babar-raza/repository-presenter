@@ -237,6 +237,28 @@ honestly left here rather than moved to Resolved until a future draw confirms it
 
 **Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: still Open. `G3-W05` is COMPLETE, with its gate-manifest record (`evidence/build/G3_PYTHON_COHORT/manifest.json`, `g3_w05`). Two mutation tests reproduce both sightings' shapes (`tests/components/readme/composition/test_coherence.py`). The only live draw that reached S8 ran before the identity/package exclusion; the three draws after the refinement failed at earlier, unrelated stages. This entry's own bar, a live draw that re-exercises the refined check end to end, is not yet met. Moves to Resolved on that draw.
 
+### `composition.planning.unit_ids_decode_admits_fact_ids`
+
+S5 `presentation_planning` rejects a plan whose `material_limitations[].unit_ids` holds a real fact
+ID of another kind (`identity:*`, `package:*`, `dependency:*`) and burns both of the job's attempts
+on it. The array was pinned (item 77) to the same `citable_fact_id` enum as the `fact_ids` arrays,
+which contains every fact the planner can see, but the binding admits only `inherited_unit` facts
+in a unit array, so the ID decoded and was refused only after the call was spent. The one re-ask
+saw a bare "unknown inherited unit X" and repeated the reply.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-email-foss/Aspose.Email-FOSS-for-.Net` | 2026-09-16 | `docs/RESEARCH_LANE_F.md` F22: `package:target_framework` written into `unit_ids`, S5 attempt 1 rejected (attempt 2 succeeded) |
+| 2 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | 2026-10-01 | `docs/DECISION_LOG.md` (the refined-check verification entry): a `--fresh` draw failed S5 on "unknown inherited unit identity:ecosystem" |
+| 3 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | 2026-10-05 | both S5 attempts of one `--fresh` draw (`calls/*.rejected-{1,2}.json`, retained under `runs/`) filled every `material_limitations[].unit_ids` with the same `identity:*`/`package:java_release`/`dependency:none` IDs as `fact_ids`; `presentation_planning: output rejected twice` |
+
+**Status 2026-10-05**: fix landed on its branch, not yet moved to Resolved. `unit_ids` now has its
+own `citable_unit_id` enum (the citable IDs that are inherited units, `planning.citable_unit_ids`);
+the binding's message for a real fact of the wrong kind names the field mistake; and
+`core/llm/jobs.py` keeps a failed `recover` correction as `rejected-N-fix.json` and reports it after
+the model's own rejection. Replayed offline over the 27 sealed bundles: all 81 `unit_ids` citations
+lie inside the new enum. Not yet confirmed on a live draw of sighting #3's repository.
+
 ## Resolved
 
 ### `review.cited_paraphrase_whole_fact_dilution`
