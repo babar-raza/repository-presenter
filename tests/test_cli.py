@@ -907,7 +907,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "shell": "6",
         "renderer": "26",
         "normalisation": "20",
-        "reviewer_logic": "14",
+        "reviewer_logic": "15",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
@@ -1283,6 +1283,7 @@ def _rejection(label: str, quote: str = OPENING_QUOTE) -> dict[str, Any]:
                 "quote": quote,
                 "fact_ids": ["identity:repository"],
                 "absent": [],
+                "omission": None,
                 "repair": "Name the developers concretely.",
             }
         ],
@@ -1554,6 +1555,7 @@ def _scope_rejection(label: str = "F01") -> dict[str, Any]:
                 "quote": SCOPE_QUOTE,
                 "fact_ids": ["identity:repository"],
                 "absent": [],
+                "omission": None,
                 "repair": "Add a bullet for the GLB-only export limitation.",
             }
         ],
@@ -1621,6 +1623,7 @@ def _presentation_rejection(label: str = "F01") -> dict[str, Any]:
                 "quote": SCOPE_QUOTE,
                 "fact_ids": [],
                 "absent": [],
+                "omission": None,
                 "repair": "Restore the original level of detail.",
             }
         ],
@@ -2664,6 +2667,7 @@ def test_an_injected_preservation_defect_is_repaired_at_reconciling(
         "quote": OPENING_QUOTE,
         "fact_ids": ["inherited_unit:002.paragraph"],
         "absent": [],
+        "omission": None,
         "repair": "Preserve the inherited paragraph where a visitor finds it.",
     }
     restored = copy.deepcopy(LOCAL_DISPOSITIONS)
@@ -2753,6 +2757,7 @@ def test_an_s4_repair_may_declare_only_the_unit_its_own_change_touched(
         "quote": OPENING_QUOTE,
         "fact_ids": ["inherited_unit:002.paragraph"],
         "absent": [],
+        "omission": None,
         "repair": "Preserve the inherited paragraph where a visitor finds it.",
     }
     # Only the one changed disposition - the other three units of LOCAL_DISPOSITIONS are never
