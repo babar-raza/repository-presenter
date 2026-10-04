@@ -289,7 +289,10 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     assert document["readme_sha256"] == hashlib.sha256(candidate.readme.encode()).hexdigest()
     assert len(document["protected_content_fingerprint"]) == 64
     assert document["advisory"] == []
-    assert document["source_revision"] == REVISION and document["validator_version"] == "5"
+    # VALIDATOR_VERSION 6 (BC-07 on main took 5; BC-02 v4 refuses a SUPPORTED registry install the
+    # registry did not confirm, and lands on the same constant). The checks above pass under the
+    # current validator, so only the pin needed to move.
+    assert document["source_revision"] == REVISION and document["validator_version"] == "6"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
@@ -1604,6 +1607,33 @@ def test_a_verified_source_build_satisfies_bc_02_without_a_registry_reading() ->
         "install_command:dotnet lacks manifest, package-registry, or source-build evidence: "
         "install command for the package id declared by the manifest"
     )
+
+
+def test_bc_02_refuses_a_registry_command_the_registry_says_is_not_there() -> None:
+    """Mutation control for the unverified `dotnet add package` claim (Imaging-FOSS for .NET,
+    2026-10-04): if the admission step ever flipped a 404-contradicted registry install to
+    SUPPORTED, its evidence would still carry "package registry" - the old check's only test -
+    and the unverified command would ship. A SUPPORTED registry-kind install whose own reading
+    found no distribution is refused, whatever the wording around it."""
+    command = "dotnet add package Widget"
+    mutant = Fact(
+        "install_command:dotnet",
+        "install_command",
+        command,
+        (
+            Evidence(
+                "Widget.csproj", "install command for the package id declared by the manifest"
+            ),
+            Evidence(
+                "https://api.nuget.org/v3-flatcontainer/widget/index.json",
+                "package registry: distribution not found on nuget",
+            ),
+        ),
+        polarity="SUPPORTED",
+    )
+    failures = _check_install(_install_candidate(mutant, f"```bash\n{command}\n```"))
+    assert [failure.stage for failure in failures] == ["EXTRACTING"]
+    assert "found no distribution" in failures[0].detail
 
 
 def test_bc_02_refuses_a_source_build_advertising_a_step_its_receipt_did_not_prove() -> None:

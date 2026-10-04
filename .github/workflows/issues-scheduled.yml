@@ -1,0 +1,205 @@
+# Unattended upstream-issue management (components/issues/; docs/investigations/03-issue-tracking.md).
+#
+# Each scheduled run fans out over every repository that has a HANDOFF_PENDING or FILED handoff
+# under evidence/upstream-defects/ (`repository-presenter issue-targets`, the matrix below). Per
+# target repository:
+#
+#   analyse (always; read-only). A read token scoped to that one repository (contents, issues and
+#     metadata: read) runs the dry runs - `file-upstream-defects` (what would be filed, or is already
+#     filed upstream) and `redetect-upstream-defects` (what would be closed) - and publishes the
+#     report as a step summary and a run artifact. No write credential exists in this job.
+#
+#   file-and-close (gated). Runs only when the owner has set the repository variable
+#     REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED to 1 (Settings > Secrets and variables >
+#     Actions > Variables). It mints two tokens scoped to that one repository: a read token, and an
+#     issues-write token that is handed only to the two gated steps below as GH_ISSUES_WRITE_TOKEN.
+#     The literal gate value "1" is set on those same two steps and nowhere else, so the file
+#     reviewer sees the owner's go-ahead and the GitHub-mutating step as one.
+#
+# Least privilege (AGENTS.md "Security and Effects"): the top-level grant is contents: read; every
+# mint names exactly the permissions its job uses and exactly one repository (tests/
+# test_workflow_app_tokens.py pins this); checkout does not persist the checkout token; and no
+# step ever sees a write token unless the gate variable is set.
+#
+# Dedup across runs: this workflow does not commit handoff status back to the repository. Instead
+# the body of every filed issue carries the handoff's fingerprint marker, and each filing first
+# searches the target for that marker (components/issues/file.py). A fresh checkout therefore
+# cannot file the same defect twice. A search that cannot complete refuses the filing rather than
+# assuming it is absent.
+#
+# Failure isolation: fail-fast is off, so one target's failure (for example, the App not installed
+# on its owner) fails only that leg and never stops another target.
+name: Upstream issues (scheduled)
+
+on:
+  schedule:
+    # Daily, off the top of the hour.
+    - cron: "41 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upstream-issues
+  cancel-in-progress: false
+
+jobs:
+  targets:
+    name: Enumerate upstream-defect targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      matrix: ${{ steps.targets.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - id: targets
+        name: Repositories with a pending or filed handoff (compact JSON)
+        run: echo "matrix=$(repository-presenter issue-targets)" >> "$GITHUB_OUTPUT"
+
+  analyse:
+    name: Analyse ${{ matrix.target.repo }} (read-only)
+    needs: targets
+    if: ${{ needs.targets.outputs.matrix != '[]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.targets.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      # Read-only, repository-scoped. Metadata is the minimum every installation token carries;
+      # contents is the recheck's own file reads; issues finds an existing marker upstream.
+      - name: Mint a read token scoped to this target repository
+        id: read-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ matrix.target.owner }}
+          repositories: ${{ matrix.target.name }}
+          permission-contents: read
+          permission-issues: read
+          permission-metadata: read
+
+      - name: Dry run - what would be filed and what would be closed (no write credential here)
+        env:
+          GH_TOKEN: ${{ steps.read-token.outputs.token }}
+          REPO: ${{ matrix.target.repo }}
+        run: |
+          report="$RUNNER_TEMP/issue-report.txt"
+          rc=0
+          repository-presenter file-upstream-defects --repo "$REPO" > "$report" 2>&1 || rc=$?
+          repository-presenter redetect-upstream-defects --repo "$REPO" >> "$report" 2>&1 || rc=$?
+          cat "$report"
+          {
+            echo "### ${REPO} (dry run, read-only)"
+            echo '```'
+            cat "$report"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+
+      - name: Keep the dry-run report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-report-${{ matrix.target.owner }}__${{ matrix.target.name }}
+          path: ${{ runner.temp }}/issue-report.txt
+          if-no-files-found: warn
+
+  file-and-close:
+    name: File and close ${{ matrix.target.repo }} (owner-gated write)
+    needs: targets
+    if: ${{ vars.REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED == '1' && needs.targets.outputs.matrix != '[]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.targets.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - name: Mint a read token scoped to this target repository
+        id: read-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ matrix.target.owner }}
+          repositories: ${{ matrix.target.name }}
+          permission-contents: read
+          permission-issues: read
+          permission-metadata: read
+
+      # Write-scoped and separate from the read token: issues only, this one repository only. It is
+      # referenced by the two gated steps below and by no other step in this workflow.
+      - name: Mint an issues-write token scoped to this target repository
+        id: write-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ matrix.target.owner }}
+          repositories: ${{ matrix.target.name }}
+          permission-issues: write
+          permission-metadata: read
+
+      - name: "File new handoffs (gated: REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED=1 set here only)"
+        env:
+          REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED: "1"
+          GH_TOKEN: ${{ steps.read-token.outputs.token }}
+          GH_ISSUES_WRITE_TOKEN: ${{ steps.write-token.outputs.token }}
+          REPO: ${{ matrix.target.repo }}
+        run: repository-presenter file-upstream-defects --repo "$REPO" --file
+
+      - name: "Close issues whose defect is proven resolved (gated: same gate, same token)"
+        env:
+          REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED: "1"
+          GH_TOKEN: ${{ steps.read-token.outputs.token }}
+          GH_ISSUES_WRITE_TOKEN: ${{ steps.write-token.outputs.token }}
+          REPO: ${{ matrix.target.repo }}
+        run: repository-presenter redetect-upstream-defects --repo "$REPO" --close
