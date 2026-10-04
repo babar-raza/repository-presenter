@@ -51,6 +51,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.discover-orgs.outputs.matrix) }}
     steps:
+      # Metadata read only: the single step below is GET /repos/{owner}/{repo}.
       - name: Attempt to mint an installation token scoped to ${{ matrix.owner }}/${{ matrix.repo }}
         id: app-token
         continue-on-error: true
@@ -60,15 +61,18 @@ jobs:
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           owner: ${{ matrix.owner }}
           repositories: ${{ matrix.repo }}
+          permission-metadata: read
 
+      # A NOT-installed org fails its own leg (and so the run), with the org named, so an audit
+      # cannot read green while any registry org lacks the App installation.
       - name: Report this organization's real, observed outcome
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           if [ "${{ steps.app-token.outcome }}" != "success" ]; then
             echo "INSTALLED=false" >> "$GITHUB_STEP_SUMMARY"
-            echo "${{ matrix.owner }}: NOT installed (token mint failed - App has no installation on this org yet)"
-            exit 0
+            echo "::error::${{ matrix.owner }}: NOT installed (token mint failed - App has no installation on this org yet)"
+            exit 1
           fi
           full_name=$(gh api "repos/${{ matrix.owner }}/${{ matrix.repo }}" --jq '.full_name')
           echo "${{ matrix.owner }}: installed - reached $full_name"
