@@ -21,7 +21,9 @@ def _serve(monkeypatch: pytest.MonkeyPatch, *ids: str) -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path.endswith("/models"):
             return model_listing(*((i, "org") for i in ids))
-        # preflight also probes the routed model for seed support (G2-W19).
+        # The availability probe carries a json_schema response_format and must answer with
+        # schema-valid content; the seed probe (G2-W19) carries none and answers plainly.
+        content = '{"status": "ok"}' if "response_format" in json.loads(request.content) else "same"
         return httpx.Response(
             200,
             json={
@@ -32,7 +34,7 @@ def _serve(monkeypatch: pytest.MonkeyPatch, *ids: str) -> None:
                 "choices": [
                     {
                         "index": 0,
-                        "message": {"role": "assistant", "content": "same"},
+                        "message": {"role": "assistant", "content": content},
                         "finish_reason": "stop",
                     }
                 ],

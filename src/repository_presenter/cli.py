@@ -1283,8 +1283,9 @@ def run_present(
         if facts_only:
             return _report_facts_only(root, entry, clone.revision, document, transaction)
         # Fallback chains (core/llm/fallback.py), decided once at run start before any content
-        # call: each chain model gets one tiny availability request, and every route then names
-        # one model for the whole run. A sealed bundle's recorded model is kept while it answers.
+        # call: each route's own model must pass consecutive tiny schema-constrained probes, or the
+        # run fails closed. No substitute model is ever chosen. A sealed bundle's recorded model
+        # is kept while it is the route's own model and still answers.
         selection = select_models(
             config,
             prompts.routes().values(),
