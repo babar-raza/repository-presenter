@@ -613,6 +613,10 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
         "api_hubs must each be a supported public_symbol fact",
         "a material limitation cites at least one fact or inherited unit",
         "link 'link_target:003' is not a verified link target",
+        # An UNRESOLVED target no longer makes documentation_resources hold, so the section is
+        # omitted and the link to it is refused as well (README_CONTRACT.md row 15).
+        "link 'link_target:003' is assigned to a section that is not included: "
+        "'documentation_resources'",
         "link 'link_target:002' is assigned to a section that is not included: "
         "'third_party_notices'",
         "deviation names an unknown section 'changelog'",
@@ -1497,6 +1501,121 @@ def test_a_conditional_section_with_no_eligible_link_is_omitted_by_its_own_condi
     decisions = {entry["section_id"]: entry for entry in output["sections"]}
     assert decisions["documentation_resources"]["include"] is False
     assert output["links"] == []
+
+
+# Aspose.Font for Python's shape (2026-10-04, runs/transactions/aspose-font-foss__...,
+# c520e3eb...): link targets 001-007 are SUPPORTED and the plan placed every one of them in
+# identity, additional_examples or license, so documentation_resources held on the facts but had
+# no link to list. Its section_authoring job had no slot and cited link_target:product.banner,
+# which is UNRESOLVED (a ConnectTimeout probe), and was rejected twice.
+FONT_LIKE_FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (
+        _fact("identity:repository", "identity", ENTRY.repository),
+        _fact("format:output.stl", "format", ".stl"),
+        _fact("example:001", "example", "print(1)"),
+        _fact("example:002", "example", "print(2)"),
+        _fact("public_symbol:widget.scene", "public_symbol", "widget.Scene"),
+        _fact(
+            "link_target:001", "link_target", "https://github.com/org/Aspose.Widget-FOSS-for-Python"
+        ),
+        _fact("link_target:002", "link_target", "https://docs.aspose.org/widget"),
+        _fact("link_target:003", "link_target", "https://example.com/gone.png", "UNRESOLVED"),
+        _fact(
+            "link_target:product.banner",
+            "link_target",
+            "https://products.aspose.org/media/widget/python/banner-readme.png",
+            "UNRESOLVED",
+        ),
+    ),
+)
+
+
+def _font_like_output(links: list[dict[str, str]]) -> dict[str, Any]:
+    return {
+        "core_capabilities": [
+            {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+            {"title": "Run examples", "fact_ids": ["example:001"]},
+        ],
+        "at_a_glance": {
+            "input_format_ids": [],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": ["Build scenes", "Export STL", "Run examples"],
+        },
+        "quick_start_example_id": "example:001",
+        "additional_example_ids": ["example:002"],
+        "api_hubs": [{"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["example:001"]}],
+        "material_limitations": [],
+        "links": links,
+        "deviations": [],
+    }
+
+
+def test_a_plan_that_places_every_target_elsewhere_omits_documentation_resources() -> None:
+    # The facts hold a relevant SUPPORTED target, so the facts-only condition holds ...
+    assert section_conditions(FONT_LIKE_FACTS)["documentation_resources"] is True
+    # ... but this plan gives documentation_resources no link: the section has nothing to list
+    # and must be omitted by its own condition, not authored with no slot to fill.
+    output = _font_like_output(
+        [{"link_fact_id": "link_target:002", "section_id": "additional_examples"}]
+    )
+    assert plan_checks(output, FONT_LIKE_FACTS) == []
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is False
+
+
+def test_an_unresolved_link_target_is_never_assigned_to_a_section() -> None:
+    # Negative control: an UNRESOLVED target may not be the plan's link at all, so it cannot make
+    # the section hold and cannot reach a section_authoring slot as citable text.
+    output = _font_like_output(
+        [{"link_fact_id": "link_target:003", "section_id": "documentation_resources"}]
+    )
+    errors = plan_checks(output, FONT_LIKE_FACTS)
+    assert any("'link_target:003' is not a verified link target" in error for error in errors)
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is False
+
+
+def test_a_supported_link_target_is_still_placed_in_documentation_resources() -> None:
+    # Positive control: a SUPPORTED target assigned here keeps the section and its link.
+    output = _font_like_output(
+        [{"link_fact_id": "link_target:002", "section_id": "documentation_resources"}]
+    )
+    assert plan_checks(output, FONT_LIKE_FACTS) == []
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is True
+    assert output["links"] == [
+        {"link_fact_id": "link_target:002", "section_id": "documentation_resources"}
+    ]
+
+
+def test_a_ceiling_trim_emptying_documentation_resources_omits_it() -> None:
+    # Ceiling of one Aspose link: the optional documentation_resources link is the second Aspose
+    # link and is trimmed. Nothing else is placed there, so the section is omitted by its own
+    # condition, and the plan is not rejected for the trim (G4-W17 arrival item 16).
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FONT_LIKE_FACTS.facts,
+            _fact("link_target:004", "link_target", "https://docs.aspose.org/widget/guide"),
+        ),
+    )
+    output = _font_like_output(
+        [
+            {"link_fact_id": "link_target:002", "section_id": "additional_examples"},
+            {"link_fact_id": "link_target:004", "section_id": "documentation_resources"},
+        ]
+    )
+    errors = plan_checks(output, facts, PlanningPolicy(aspose_links_max=1))
+    assert errors == []
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is False
+    assert output["links"] == [
+        {"link_fact_id": "link_target:002", "section_id": "additional_examples"}
+    ]
 
 
 def test_reintroducing_the_empty_link_enum_fails_the_empty_enum_guard() -> None:
