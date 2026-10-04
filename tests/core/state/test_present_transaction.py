@@ -18,6 +18,11 @@ from typing import Any, get_args
 
 import pytest
 
+from repository_presenter.components.readme.evidence.processability import (
+    NO_IMPLEMENTATION_EVIDENCE,
+    NonProcessableDisposition,
+    write_disposition,
+)
 from repository_presenter.core.candidates import CANDIDATES_DIRNAME, CURRENT_FILENAME
 from repository_presenter.core.errors import IllegalTransitionError, StateBackendError
 from repository_presenter.core.registry.models import ProviderIdentity, RegistryEntry
@@ -606,11 +611,15 @@ _MID_SPINE = (
     "REVIEWING",
 )
 _SNAPSHOT_ONLY = PresentOutcome(kind="success", target_state="SNAPSHOTTING")
+_NON_OUTCOME = PresentOutcome(
+    kind="non_processable", target_state="NON_PROCESSABLE", detail="synthetic placeholder"
+)
 _OUTCOMES: dict[str, PresentOutcome] = {
     "ACCEPTED": _ACCEPTED,
     "READY_FOR_PROPOSAL": _READY,
     "SNAPSHOTTING": _SNAPSHOT_ONLY,
     "failed": _FAILED,
+    "non_processable": _NON_OUTCOME,
 }
 
 # Every state the durable wrapper itself can leave a record in (its own commits, its failure exits,
@@ -624,12 +633,14 @@ _EXPECTED_FINAL: dict[str, dict[str, str | None]] = {
         "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
         "SNAPSHOTTING": "SNAPSHOTTING",
         "failed": "FAILED_INTERNAL",
+        "non_processable": "NON_PROCESSABLE",
     },
     "SNAPSHOTTING": {
         "ACCEPTED": "ACCEPTED",
         "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
         "SNAPSHOTTING": "SNAPSHOTTING",
         "failed": "FAILED_INTERNAL",
+        "non_processable": None,
     },
     **{
         state: {
@@ -637,6 +648,7 @@ _EXPECTED_FINAL: dict[str, dict[str, str | None]] = {
             "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
             "SNAPSHOTTING": None,
             "failed": "FAILED_INTERNAL",
+            "non_processable": None,
         }
         for state in _MID_SPINE
     },
@@ -645,36 +657,51 @@ _EXPECTED_FINAL: dict[str, dict[str, str | None]] = {
         "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
         "SNAPSHOTTING": "INVALIDATED",
         "failed": "FAILED_INTERNAL",
+        "non_processable": None,
     },
     "ACCEPTED": {
         "ACCEPTED": "ACCEPTED",
         "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
         "SNAPSHOTTING": "INVALIDATED",
         "failed": "INVALIDATED",
+        "non_processable": None,
     },
     "READY_FOR_PROPOSAL": {
         "ACCEPTED": "ACCEPTED",
         "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
         "SNAPSHOTTING": "SNAPSHOTTING",
         "failed": "INVALIDATED",
+        "non_processable": "NON_PROCESSABLE",
     },
     "MONITORING": {
         "ACCEPTED": "ACCEPTED",
         "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
         "SNAPSHOTTING": "SNAPSHOTTING",
         "failed": "FAILED_INTERNAL",
+        "non_processable": "NON_PROCESSABLE",
     },
     "FAILED_INTERNAL": {
         "ACCEPTED": "ACCEPTED",
         "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
         "SNAPSHOTTING": "SNAPSHOTTING",
         "failed": "FAILED_INTERNAL",
+        "non_processable": None,
     },
     "INVALIDATED": {
         "ACCEPTED": "ACCEPTED",
         "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
         "SNAPSHOTTING": "INVALIDATED",
         "failed": "INVALIDATED",
+        "non_processable": None,
+    },
+    # A placeholder disposition is written by the wrapper now (see the non-processable tests
+    # below); NON_PROCESSABLE is terminal, re-entered through OBSERVED on a processable run.
+    "NON_PROCESSABLE": {
+        "ACCEPTED": "ACCEPTED",
+        "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+        "SNAPSHOTTING": "SNAPSHOTTING",
+        "failed": "FAILED_INTERNAL",
+        "non_processable": "NON_PROCESSABLE",
     },
 }
 
@@ -683,7 +710,6 @@ _EXPECTED_FINAL: dict[str, dict[str, str | None]] = {
 # attempt an unregistered hop.
 _NOT_WRITTEN_BY_WRAPPER: frozenset[str] = frozenset(
     {
-        "NON_PROCESSABLE",
         "UNCHANGED",
         "REPAIRING",
         "AWAITING_AUTHORIZATION",
@@ -759,3 +785,147 @@ def test_states_the_wrapper_never_writes_are_refused_cleanly_never_by_an_illegal
     except StateBackendError:
         record = backend.load(REPO)
         assert record is not None and record.state == state  # refused before any write
+
+
+def _write_disposition(path: Path, repository: str = REPO) -> Path:
+    """The real disposition artifact ``cli.py::run_present`` writes for a placeholder."""
+    write_disposition(
+        NonProcessableDisposition(
+            reason_code=NO_IMPLEMENTATION_EVIDENCE,
+            repository=repository,
+            source_revision="b" * 40,
+            tree_sha256="c" * 64,
+            ecosystem="python",
+            evidence_paths_inspected=("LICENSE", "README.md"),
+            resume_predicate="a later default-branch revision adds a python manifest",
+        ),
+        path,
+    )
+    return path
+
+
+def test_classify_a_written_disposition_is_non_processable_with_its_reason(tmp_path: Path) -> None:
+    disposition = _write_disposition(tmp_path / "disposition.json")
+    outcome = classify_present_outcome(
+        tmp_path, _entry(), exit_code=0, disposition_path=disposition
+    )
+    assert outcome.kind == "non_processable"
+    assert outcome.target_state == "NON_PROCESSABLE"
+    assert outcome.detail is not None
+    assert NO_IMPLEMENTATION_EVIDENCE in outcome.detail
+
+
+def test_classify_an_unreadable_disposition_fails_closed_never_non_processable(
+    tmp_path: Path,
+) -> None:
+    outcome = classify_present_outcome(
+        tmp_path, _entry(), exit_code=0, disposition_path=tmp_path / "missing.json"
+    )
+    assert outcome.kind == "failed"
+
+
+def test_classify_a_disposition_for_another_repository_fails_closed(tmp_path: Path) -> None:
+    disposition = _write_disposition(
+        tmp_path / "disposition.json", repository="example/Other-FOSS-for-Python"
+    )
+    outcome = classify_present_outcome(
+        tmp_path, _entry(), exit_code=0, disposition_path=disposition
+    )
+    assert outcome.kind == "failed"
+
+
+def test_a_nonzero_exit_with_a_disposition_is_still_failed(tmp_path: Path) -> None:
+    disposition = _write_disposition(tmp_path / "disposition.json")
+    outcome = classify_present_outcome(
+        tmp_path, _entry(), exit_code=1, disposition_path=disposition
+    )
+    assert outcome.kind == "failed"
+
+
+_NON_PROCESSABLE = PresentOutcome(
+    kind="non_processable", target_state="NON_PROCESSABLE", detail="synthetic placeholder"
+)
+
+
+def _present(backend: InMemoryStateBackend, outcome: PresentOutcome, run_id: str) -> int:
+    return run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=_classify_always(outcome),
+        workflow_run_id=run_id,
+    )
+
+
+def test_a_placeholder_from_a_first_trigger_commits_non_processable_not_failed() -> None:
+    backend = InMemoryStateBackend()
+    assert _present(backend, _NON_PROCESSABLE, "run-1") == 0
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "NON_PROCESSABLE"
+    assert record.failure is None
+    assert record.lease is None
+    assert record.last_transition is not None
+    assert record.last_transition.from_state == "OBSERVED"
+    assert record.last_transition.to_state == "NON_PROCESSABLE"
+
+
+def test_a_repeat_placeholder_run_commits_nothing_new() -> None:
+    backend = InMemoryStateBackend()
+    _present(backend, _NON_PROCESSABLE, "run-1")
+    first = backend.load(REPO)
+    assert first is not None
+    first_transition_id = first.last_transition.transition_id  # type: ignore[union-attr]
+
+    assert _present(backend, _NON_PROCESSABLE, "run-2") == 0
+    second = backend.load(REPO)
+    assert second is not None
+    assert second.state == "NON_PROCESSABLE"
+    assert second.last_transition.transition_id == first_transition_id  # type: ignore[union-attr]
+
+
+def test_a_placeholder_that_gains_implementation_reobserves_before_the_spine() -> None:
+    """NON_PROCESSABLE is terminal for its revision; its only registered exit is OBSERVED."""
+    backend = InMemoryStateBackend()
+    _present(backend, _NON_PROCESSABLE, "run-1")
+    assert _present(backend, _READY, "run-2") == 0
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "READY_FOR_PROPOSAL"
+    assert record.last_transition is not None
+    assert record.last_transition.from_state == "PROVING_NO_OP"
+
+
+def test_a_processable_repository_that_becomes_a_placeholder_walks_back_to_observed() -> None:
+    backend = InMemoryStateBackend()
+    _present(backend, _READY, "run-1")
+    assert _present(backend, _NON_PROCESSABLE, "run-2") == 0
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "NON_PROCESSABLE"
+    assert record.last_transition is not None
+    assert record.last_transition.from_state == "OBSERVED"
+
+
+def test_a_failure_after_a_placeholder_reobserves_then_fails() -> None:
+    backend = InMemoryStateBackend()
+    _present(backend, _NON_PROCESSABLE, "run-1")
+    assert _present(backend, _FAILED, "run-2") == 0
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "FAILED_INTERNAL"
+    assert record.failure is not None
+    assert record.last_transition is not None
+    assert record.last_transition.from_state == "OBSERVED"
+
+
+def test_a_placeholder_from_an_accepted_record_has_no_registered_path_and_fails_closed() -> None:
+    backend = InMemoryStateBackend()
+    _present(backend, _ACCEPTED, "run-1")
+    with pytest.raises(StateBackendError):
+        _present(backend, _NON_PROCESSABLE, "run-2")
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "ACCEPTED"
