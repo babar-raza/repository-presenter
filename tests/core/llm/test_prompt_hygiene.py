@@ -86,7 +86,15 @@ def test_only_the_registry_reads_the_manifest_directory() -> None:
             for node in ast.walk(tree)
         )
     )
-    assert yaml_readers == ["core/llm/prompts.py", "cursor.py"]
+    # The two long-standing readers, plus the CI-workflow reader: evidence/facts/assets.py parses a
+    # cloned repository's own .github/workflows files to verify a build-status badge target
+    # (plans/idea.md "real build status"). It never reads this repository's prompt manifests; the
+    # assertion above is what pins that (no module but the registry spells the manifest suffix).
+    assert yaml_readers == [
+        "components/readme/evidence/facts/assets.py",
+        "core/llm/prompts.py",
+        "cursor.py",
+    ]
 
 
 def test_code_names_only_governed_jobs() -> None:

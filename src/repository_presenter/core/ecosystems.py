@@ -12,9 +12,11 @@ imports only `core/` and its own module, and no stage after facts imports an ext
 
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Final
+from urllib.parse import quote
 
 from repository_presenter.core.errors import ConfigError
 
@@ -22,6 +24,14 @@ from repository_presenter.core.errors import ConfigError
 # a spec's ``source_install`` template spells them or a verifier's receipt names the exact steps it
 # proved for one repository (G4-W17 arrival item 50); the templates below spell this same prefix.
 CLONE_PREFIX: Final = "git clone https://github.com/{repository}.git\ncd {name}\n"
+
+
+# A manifest's runtime floor, as the runtime badge may state it: the first ``>=`` bound of a range
+# (``>=3.10,<3.13`` is a floor of 3.10), else a plain version or framework token (``21``,
+# ``net8.0``, ``2021``). Anything else (a union, a caret range, a multi-target list) has no single
+# floor to print, and the badge is omitted rather than guessed.
+_FLOOR_BOUND = re.compile(r">=\s*(\d+(?:\.\d+)*)")
+_PLAIN_FLOOR = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 
 @dataclass(frozen=True)
@@ -86,6 +96,10 @@ class EcosystemSpec:
     # cohort each used a different one, so naming any single property here would cite one three
     # of four repositories do not declare - a fabricated citation, not a generic-but-honest one.
     floor_declaration: str = ""
+    # Whether the floor fact names a minimum the runtime may exceed (a Python, Java, Go, or Node
+    # version) or an exact standard or framework target (a .NET target framework, a C++ standard,
+    # a Rust edition); the runtime badge appends "+" only to the former.
+    floor_is_minimum: bool = False
     manifest_globs: tuple[str, ...] = ()
     source_suffixes: frozenset[str] = field(default_factory=frozenset)
 
@@ -112,6 +126,29 @@ class EcosystemSpec:
             return ""
         group, _, artifact = package.partition(":")
         return self.version_badge.format(package=package, group=group, artifact=artifact or group)
+
+    def runtime_badge(self, floor: str) -> str:
+        """The language-or-runtime badge for the manifest ``floor`` this ecosystem's floor fact
+        carries, or an empty string when the ecosystem declares no floor or ``floor`` has no
+        single printable value (plans/idea.md: platform/runtime, only when the claim is
+        available). Shields.io escapes: ``-`` is ``--``, ``_`` is ``__``, a space is ``_``."""
+        if not self.floor_fact_id or not self.floor_label:
+            return ""
+        bound = _FLOOR_BOUND.search(floor)
+        text = bound.group(1) if bound else floor.strip()
+        if bound is None and _PLAIN_FLOOR.fullmatch(text) is None:
+            return ""
+        if self.floor_is_minimum:
+            text += "+"
+
+        def escape(part: str) -> str:
+            return quote(part.replace("-", "--").replace("_", "__").replace(" ", "_"), safe="_")
+
+        return (
+            f"![{self.floor_label}]"
+            f"(https://img.shields.io/badge/{escape(self.floor_label.lower())}-{escape(text)}"
+            "-blue.svg)"
+        )
 
     def clone_and_build(self, repository: str, name: str) -> str:
         """The shell commands that build this ecosystem's package from a source checkout, or an
@@ -184,6 +221,7 @@ PYTHON: Final = EcosystemSpec(
     floor_fact_id="package:python_requires",
     floor_label="Python",
     floor_declaration="python_requires",
+    floor_is_minimum=True,
     manifest_globs=("pyproject.toml", "setup.cfg", "setup.py"),
     source_suffixes=frozenset({".py"}),
 )
