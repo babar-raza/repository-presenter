@@ -16,6 +16,7 @@ from repository_presenter.components.readme.repair.targeted import (
     SlotSetProbe,
     defect_fingerprint,
     merge_equivalent,
+    omission_carriers,
     repair_checks,
     repair_packet,
     repair_schema,
@@ -23,6 +24,7 @@ from repository_presenter.components.readme.repair.targeted import (
     validation_defects,
     visible_line_budget_hint,
 )
+from repository_presenter.components.readme.review.independent.review import omission_defect
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
@@ -1427,3 +1429,213 @@ def test_a_repair_packet_carries_the_superseded_inherited_units_its_section_must
     assert "inherited_unit:099.paragraph" not in carried_ids
     uncarried = repair_packet(ENTRY, defect, {"units": []}, facts, [], {"type": "object"})
     assert all(record["kind"] != "inherited_unit" for record in uncarried["facts"])
+
+
+# --- S5 omission carriers (Font-FOSS-for-Python, 2026-10-05) -------------------------------------
+# The retained rejected S5 reply returned the plan byte-identical and claimed deviations went from
+# "[]" to a truncated repr. The verifier was right; the packet had told the model what was
+# missing but not which plan field could carry it. Fixtures below are the real shapes, trimmed.
+
+_OMISSION_COMMAND = (
+    "aspose-font preview-animation Roboto-VariableFont_wdth,wght.ttf sweep.png "
+    "--axis wdth --start 75 --end 100 --bounce"
+)
+_CARRIER_FACTS = FactsDocument(
+    "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+    "a" * 40,
+    (
+        Fact(
+            "public_symbol:aspose_font.cli.main",
+            "public_symbol",
+            "aspose_font.cli.main",
+            (Evidence("x"),),
+        ),
+        Fact(
+            "public_symbol:aspose_font.mcp.main",
+            "public_symbol",
+            "aspose_font.mcp.main",
+            (Evidence("x"),),
+        ),
+        Fact("example:007", "example", "from aspose_font import FontLoader", (Evidence("x"),)),
+        Fact("example:008", "example", "from aspose_font import WebFontBuilder", (Evidence("x"),)),
+        Fact("link_target:001", "link_target", "https://example.test/docs", (Evidence("x"),)),
+        Fact(
+            "inherited_unit:047.code_block",
+            "inherited_unit",
+            f"```bash\n{_OMISSION_COMMAND}\n```",
+            (Evidence("x"),),
+        ),
+        Fact(
+            "public_symbol:aspose_font.contradicted",
+            "public_symbol",
+            "aspose_font.contradicted",
+            (Evidence("x"),),
+            polarity="CONTRADICTED",
+        ),
+    ),
+)
+_CARRIER_PLAN: dict[str, Any] = {
+    "core_capabilities": [],
+    "additional_example_ids": ["example:007"],
+    "api_hubs": [{"symbol_fact_id": "public_symbol:aspose_font.cli.main", "fact_ids": []}],
+    "links": [],
+    "deviations": [{"section_id": "identity", "text": "kept", "fact_ids": ["link_target:001"]}],
+}
+_PLAN_CONTRACT: dict[str, Any] = {
+    "type": "object",
+    "properties": {name: {} for name in _CARRIER_PLAN},
+}
+
+
+def _omission_defect(
+    section: str, ids: list[str], quotes: list[str], stage: str | None = "S5"
+) -> Defect:
+    record = {
+        "id": "F05",
+        "section_id": section,
+        "causal_stage": "S7",
+        "omission": {
+            "kind": "omission",
+            "section_id": section,
+            "missing_ids": ids,
+            "missing_quotes": quotes,
+        },
+    }
+    return Defect(
+        defect_fingerprint("review", section, stage or "S7", "presentation", "|"),
+        "review",
+        "F05",
+        section,
+        stage,
+        record,
+    )
+
+
+def _carriers(defect: Defect) -> dict[str, Any] | None:
+    return omission_carriers(defect, _CARRIER_PLAN, _CARRIER_FACTS, _PLAN_CONTRACT)
+
+
+def test_an_s5_omission_packet_names_the_missing_ids_and_the_plan_fields_that_carry_them() -> None:
+    defect = _omission_defect(
+        "api_reference",
+        ["public_symbol:aspose_font.mcp.main", "example:008"],
+        ["The `aspose_font.cli.main` entry point provides command-line access."],
+    )
+    carriers = _carriers(defect)
+    assert carriers is not None
+    assert carriers["section_id"] == "api_reference"
+    assert carriers["plan_fields_for_section"] == ["api_hubs"]
+    assert carriers["upheld_missing"]["ids"] == [
+        "public_symbol:aspose_font.mcp.main",
+        "example:008",
+    ]
+    mcp, example, cli = carriers["items"]
+    assert mcp["plan_field"] == "api_hubs" and mcp["already_in_plan"] is False
+    # An example id is a real fact, but this section's plan field takes symbols, not examples.
+    assert example["plan_field"] is None
+    # A backticked identifier in the phrase resolves to the symbol the plan already holds.
+    assert cli["fact_ids"] == ["public_symbol:aspose_font.cli.main"]
+    assert cli["plan_field"] == "api_hubs" and cli["already_in_plan"] is True
+    packet = repair_packet(ENTRY, defect, _CARRIER_PLAN, _CARRIER_FACTS, [], _PLAN_CONTRACT)
+    assert packet["omission_carriers"] == carriers
+    assert set(packet) == MANIFESTS["targeted_repair"].manifest.packet.names
+
+
+def test_an_omitted_phrase_that_is_inherited_text_has_no_plan_field_to_carry_it() -> None:
+    """F04 on the real run: the remaining phrases were an inherited README heading and CLI
+    command, placed (or not) by the reconciliation's dispositions. The packet says no plan field
+    can carry them instead of inviting the model to invent one."""
+    defect = _omission_defect("additional_examples", [], [_OMISSION_COMMAND])
+    carriers = _carriers(defect)
+    assert carriers is not None
+    assert carriers["plan_fields_for_section"] == ["additional_example_ids"]
+    (item,) = carriers["items"]
+    assert item["fact_ids"] == ["inherited_unit:047.code_block"]
+    assert item["kinds"] == ["inherited_unit"]
+    assert item["plan_field"] is None and item["already_in_plan"] is False
+
+
+def test_a_missing_example_resolves_to_the_additional_examples_field() -> None:
+    defect = _omission_defect("additional_examples", ["example:007", "example:008"], [])
+    carriers = _carriers(defect)
+    assert carriers is not None
+    held, absent = carriers["items"]
+    assert held["plan_field"] == "additional_example_ids" and held["already_in_plan"] is True
+    assert absent["plan_field"] == "additional_example_ids" and absent["already_in_plan"] is False
+
+
+def test_omission_carriers_negative_controls() -> None:
+    assert _carriers(_omission_defect("api_reference", [], [])) is None
+    assert _carriers(_omission_defect("api_reference", ["example:008"], [], stage="S6")) is None
+    plain = Defect(
+        defect_fingerprint("review", "opening", "S5", "factuality", "|"),
+        "review",
+        "F01",
+        "opening",
+        "S5",
+        {"id": "F01"},
+    )
+    assert _carriers(plain) is None
+    # A CONTRADICTED fact is never a thing a plan may carry: it names no plan field.
+    contradicted = _omission_defect("api_reference", ["public_symbol:aspose_font.contradicted"], [])
+    (item,) = (_carriers(contradicted) or {"items": []})["items"]
+    assert item["fact_ids"] == [] and item["plan_field"] is None
+    # The packet for any other defect keeps the field, null.
+    other = repair_packet(ENTRY, plain, _CARRIER_PLAN, _CARRIER_FACTS, [], _PLAN_CONTRACT)
+    assert other["omission_carriers"] is None
+
+
+def test_a_fully_refuted_omission_finding_never_becomes_an_s5_repair() -> None:
+    """Nothing restorable remains after #253's refutation: the finding is dismissed (advisory
+    with a reason), so no defect, no S5 escalation and no packet is ever built for it."""
+    finding = {
+        "id": "F05",
+        "section_id": "api_reference",
+        "causal_stage": "S7",
+        "criterion": "presentation",
+        "omission": {
+            "kind": "omission",
+            "section_id": "api_reference",
+            "missing_ids": [],
+            "missing_quotes": ["a sentence neither the original README nor any fact contains"],
+        },
+    }
+    by_id = {fact.id: fact for fact in _CARRIER_FACTS.facts}
+    reason = omission_defect(
+        finding, "## API Reference\n\nSomething else.\n", by_id, evidence="the original text"
+    )
+    assert reason is not None and "nothing to restore" in reason
+
+
+def test_a_retained_unchanged_plan_with_a_false_change_claim_is_still_refused() -> None:
+    """The retained rejected reply: the whole plan returned unchanged with R01 claiming
+    deviations went from [] to a truncated repr. The verifier resolves the path correctly and
+    refuses it; widening the packet loosened no check. A really-changed value passes."""
+    defect = _omission_defect("additional_examples", ["example:008"], [])
+    claim = [
+        {
+            "id": "R01",
+            "path": "revised_output.deviations",
+            "before": "[]",
+            "after": "[  {    ",
+            "fact_ids": [],
+        }
+    ]
+    unchanged = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S5",
+        "revised_output": json.loads(json.dumps(_CARRIER_PLAN)),
+        "changes": claim,
+    }
+    errors = repair_checks(
+        unchanged, defect, {"type": "object"}, "selection_ids", FACTS, original=_CARRIER_PLAN
+    )
+    assert any("hold the identical value there" in error for error in errors)
+    changed = json.loads(json.dumps(unchanged))
+    changed["revised_output"]["deviations"] = []
+    assert not any(
+        "hold the identical value there" in error
+        for error in repair_checks(
+            changed, defect, {"type": "object"}, "selection_ids", FACTS, original=_CARRIER_PLAN
+        )
+    )
