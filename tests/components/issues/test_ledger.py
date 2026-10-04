@@ -64,10 +64,13 @@ def test_discover_and_load_the_real_backfilled_artifacts() -> None:
     # 2026-10-04: a fourth artifact is the G6-W01 live-proof synthetic handoff for
     # babar-raza/repository-presenter (issue #189, FILED) - a filing-path test record, not a
     # product defect; see the commit that added it.
+    # 2026-10-04: a fifth artifact is the BC-02 handoff for aspose-imaging-foss/Aspose.Imaging-FOSS-
+    # for-.NET (commit 99c235de): its install_command:dotnet is CONTRADICTED by NuGet (flat
+    # container 404, control aspose.imaging 200), status HANDOFF_PENDING, not filed.
     paths = discover_handoff_paths(REAL_UPSTREAM_DEFECTS)
-    assert len(paths) == 4
+    assert len(paths) == 5
     ledger = load_ledger(REAL_UPSTREAM_DEFECTS)
-    assert len(ledger) == 4
+    assert len(ledger) == 5
     html = lookup(
         ledger,
         "aspose-html-foss/Aspose.HTML-FOSS-for-Python",

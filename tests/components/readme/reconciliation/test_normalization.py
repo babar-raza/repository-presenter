@@ -486,7 +486,7 @@ def test_each_batchs_own_schema_is_bounded_to_its_own_units_not_the_repositorys_
     loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
     for total in (200, 2000):
         facts = _inherited_units_facts(total)
-        batches = reconciliation_batches(facts)
+        batches = reconciliation_batches(facts, loaded.manifest.sampling.max_output_tokens)
         for _, batch_units in batches:
             schema = reconciliation_schema(loaded, batch_units, facts, {})
             dispositions = schema["properties"]["dispositions"]
