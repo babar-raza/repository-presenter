@@ -64,11 +64,14 @@ src/repository_presenter/
     reconciliation/           source_reconciliation job wiring, dispositions
     composition/               presentation_planning, section_authoring, renderer
       placement.py             where each inherited unit renders, under the three placement rules
+      policy.py                the planning policy: capability, hub, line, and Aspose-link ceilings
+      link_budget.py           Aspose-link ceilings derived per document, domain, and surface slot (plans/idea.md), or configured; the plan trim and BC-06 both read it
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
     validation/
       registry.py              versioned check registry
       links/                   link resolution
+        rules.py                the pure rules BC-06 and BC-07 call: derived link ceilings, the Enterprise Edition anchor, the badge row's order and support
     review/
       independent/             independent_review job wiring
       acceptance/               30-point criterion profile (G2)
@@ -81,6 +84,7 @@ src/repository_presenter/
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
         product_pages.py        live product-page facts: Enterprise target, homepage, banner (RESEARCH §20)
+        assets.py               build and test assets from the tree, and the build-status badge target (a push-triggered build or test workflow read from the clone)
   components/metadata/       workstream 2 (docs/investigations/02-repo-metadata-community-files.md §5); never README-specific
     capture.py                Phase 0: read GitHub's observed description/homepage/topics via core/github, write the typed evidence artifact
     proposal.py                Phase 1: derive description/topics/homepage from already-verified facts (identity/license/link_target), diff against Phase 0's observation
