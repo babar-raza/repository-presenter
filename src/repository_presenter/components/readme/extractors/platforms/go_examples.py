@@ -32,6 +32,7 @@ from pathlib import Path
 
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.toolchains import resolve_tool
 
 _MAX_OUTPUT_CHARS = 4000
 _WORKSPACE_ATTEMPTS = 5
@@ -80,11 +81,7 @@ _STANDARD_LIBRARY: dict[str, str] = {
 
 def go_executable() -> str | None:
     """The Go toolchain this machine offers, shim included, or None when it has none."""
-    for name in ("go", "go.exe", "go.cmd"):
-        found = shutil.which(name)
-        if found:
-            return found
-    return None
+    return resolve_tool("go")
 
 
 def _clip(text: str) -> str:
