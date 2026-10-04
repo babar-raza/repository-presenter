@@ -1384,3 +1384,46 @@ def test_fact_conflict_negative_controls_do_not_route_to_planning() -> None:
     assert probe.observe_facts(neutral) == frozenset()
     assert probe.observe_facts(unknown) == frozenset()
     assert not probe.conflicts
+
+
+def test_a_repair_packet_carries_the_superseded_inherited_units_its_section_must_carry() -> None:
+    """Aspose.Slides for Java, development_testing (BC-10 F08, 2026-10-04): repair_packet drops
+    every inherited_unit fact by default (RC1), so an S6 repair of the section could never see the
+    test-suite paragraph the section must carry - it could repair the wording, never the content.
+    The units the caller names as must-carry are handed to the repair; nothing else is."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                "inherited_unit:092.paragraph",
+                "inherited_unit",
+                "The conformance tests unzip the produced .pptx and assert on the package.",
+                (Evidence("x"),),
+            ),
+            Fact(
+                "inherited_unit:099.paragraph",
+                "inherited_unit",
+                "An unrelated paragraph nothing here must carry.",
+                (Evidence("x"),),
+            ),
+        ),
+    )
+    defect = review_defects({"findings": [_finding("F08", "opening", "S6")]}, FACTS, LLM_SECTIONS)[
+        0
+    ]
+    carried = repair_packet(
+        ENTRY,
+        defect,
+        {"units": []},
+        facts,
+        [],
+        {"type": "object"},
+        carried=("inherited_unit:092.paragraph",),
+    )
+    carried_ids = {record["id"] for record in carried["facts"]}
+    assert "inherited_unit:092.paragraph" in carried_ids
+    assert "inherited_unit:099.paragraph" not in carried_ids
+    uncarried = repair_packet(ENTRY, defect, {"units": []}, facts, [], {"type": "object"})
+    assert all(record["kind"] != "inherited_unit" for record in uncarried["facts"])
