@@ -3,16 +3,15 @@
 from __future__ import annotations
 
 import json
-import os
 import re
-import stat
 import tempfile
 from pathlib import Path
 
 import pytest
 
 from repository_presenter.components.readme.extractors.platforms import typescript_examples
-from repository_presenter.core.examples import ExampleCandidate
+from repository_presenter.core.examples import ExampleCandidate, MeasuredBuild
+from support import fake_npm, npm_calls
 
 MANIFEST = {
     "name": "@aspose/widget",
@@ -363,45 +362,6 @@ def test_an_example_calling_a_member_that_does_not_exist_fails(tmp_path: Path) -
     assert "explode" in receipts[0].detail
 
 
-def _fake_npm(directory: Path, fail_run: bool = False) -> str:
-    """A stand-in `npm` that records its arguments and exits 0 - or 3 on `npm run ...` when asked.
-
-    The real one needs the network and a minute; what the verifier is tested on is what it does
-    with an exit code. Written per platform because `execute` runs argv[0] directly: a `.cmd`
-    where Windows resolves batch files, a `sh` script with its mode bit where the hosted runner
-    (ubuntu) does not.
-    """
-    directory.mkdir(parents=True, exist_ok=True)
-    if fail_run:
-        (directory / "fail_run").write_text("", encoding="utf-8")
-    if os.name == "nt":
-        path = directory / "npm.cmd"
-        path.write_text(
-            "@echo off\r\n"
-            'echo %*>>"%~dp0npm.log"\r\n'
-            'if "%1"=="run" if exist "%~dp0fail_run" exit /b 3\r\n'
-            "exit /b 0\r\n",
-            encoding="utf-8",
-        )
-    else:
-        path = directory / "npm"
-        path.write_text(
-            "#!/bin/sh\n"
-            'd=$(dirname "$0")\n'
-            'echo "$@" >> "$d/npm.log"\n'
-            'if [ "$1" = "run" ] && [ -f "$d/fail_run" ]; then exit 3; fi\n'
-            "exit 0\n",
-            encoding="utf-8",
-        )
-        path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-    return str(path)
-
-
-def _npm_calls(npm: str) -> list[str]:
-    log = Path(npm).parent / "npm.log"
-    return [line.strip() for line in log.read_text("utf-8").splitlines()] if log.is_file() else []
-
-
 def _building_repository(root: Path, build_script: bool) -> Path:
     barrel = _repository(root)
     manifest = {**MANIFEST, "scripts": {"build": "tsc"}} if build_script else MANIFEST
@@ -420,14 +380,14 @@ def test_the_manifests_own_build_is_driven_and_only_the_steps_it_proved_are_name
     root = tmp_path / "repository"
     root.mkdir()
     _building_repository(root, build_script=True)
-    npm = _fake_npm(tmp_path / "tools")
+    npm = fake_npm(tmp_path / "tools")
     workspace = tmp_path / "ws"
     workspace.mkdir()
     product = typescript_examples.build_product(root, workspace, npm, 60.0)
     assert product.verified is True
     assert product.command == "npm install\nnpm run build"
     assert product.summary == "succeeded (`npm install` exited 0; `npm run build` exited 0)"
-    assert _npm_calls(npm) == ["install", "run build"]
+    assert npm_calls(npm) == ["install", "run build"]
     # Driven in a copy that carries the manifest and its configuration; the read-only clone gains
     # nothing (no lockfile, no node_modules).
     assert sorted(path.name for path in root.iterdir()) == ["package.json", "src", "tsconfig.json"]
@@ -444,7 +404,7 @@ def test_a_manifest_with_no_build_script_proves_only_its_install(tmp_path: Path)
     root = tmp_path / "repository"
     root.mkdir()
     _building_repository(root, build_script=False)
-    npm = _fake_npm(tmp_path / "tools")
+    npm = fake_npm(tmp_path / "tools")
     workspace = tmp_path / "ws"
     workspace.mkdir()
     product = typescript_examples.build_product(root, workspace, npm, 60.0)
@@ -454,7 +414,7 @@ def test_a_manifest_with_no_build_script_proves_only_its_install(tmp_path: Path)
         "succeeded (`npm install` exited 0; the manifest declares no build script, so nothing "
         "was compiled)"
     )
-    assert _npm_calls(npm) == ["install"]
+    assert npm_calls(npm) == ["install"]
 
 
 def test_a_build_step_that_fails_proves_nothing(tmp_path: Path) -> None:
@@ -462,7 +422,7 @@ def test_a_build_step_that_fails_proves_nothing(tmp_path: Path) -> None:
     root = tmp_path / "repository"
     root.mkdir()
     _building_repository(root, build_script=True)
-    npm = _fake_npm(tmp_path / "tools", fail_run=True)
+    npm = fake_npm(tmp_path / "tools", fail_run=True)
     workspace = tmp_path / "ws"
     workspace.mkdir()
     product = typescript_examples.build_product(root, workspace, npm, 60.0)
@@ -476,8 +436,49 @@ def test_without_npm_the_build_is_not_attempted(tmp_path: Path) -> None:
     workspace = tmp_path / "ws"
     workspace.mkdir()
     product = typescript_examples.build_product(tmp_path, workspace, None, 60.0)
-    assert product == typescript_examples.ProductBuild(
-        False, "", "not attempted (no npm on this machine)"
+    assert product == MeasuredBuild(False, "", "not attempted (no npm on this machine)")
+
+
+def test_the_packages_own_build_is_measured_with_no_example_at_all(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """The .NET rule applied to npm (Aspose.PDF and Aspose.3D for TypeScript, measured 2026-10-04).
+    The registry answers 404 for the declared package, so the install claim is admissible only as
+    the source install the package's own build proves - and that proof cannot wait on a README
+    snippet: a snippet that fails, or a repository with none, still has a build that exits 0 or
+    does not. The same shape as `net_examples.verify_net_build`."""
+    root = tmp_path / "repository"
+    root.mkdir()
+    _building_repository(root, build_script=True)
+    npm = fake_npm(tmp_path / "tools")
+    monkeypatch.setattr(typescript_examples, "npm_executable", lambda: npm)
+    measured = typescript_examples.verify_typescript_build(root, tmp_path / "ws", 60.0)
+    assert measured == MeasuredBuild(
+        True,
+        "npm install\nnpm run build",
+        "succeeded (`npm install` exited 0; `npm run build` exited 0)",
+    )
+    assert npm_calls(npm) == ["install", "run build"]
+    # Driven in a copy: the read-only clone gains no lockfile and no node_modules.
+    assert sorted(path.name for path in root.iterdir()) == ["package.json", "src", "tsconfig.json"]
+
+
+def test_a_failed_package_build_and_a_machine_without_npm_measure_nothing(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Negative controls. A build step that exits non-zero admits nothing; a machine with no npm
+    says the build was not attempted, which is neither a pass nor a failure of the package."""
+    root = tmp_path / "repository"
+    root.mkdir()
+    _building_repository(root, build_script=True)
+    failing = fake_npm(tmp_path / "tools", fail_run=True)
+    monkeypatch.setattr(typescript_examples, "npm_executable", lambda: failing)
+    assert typescript_examples.verify_typescript_build(root, tmp_path / "ws", 60.0) == (
+        MeasuredBuild(False, "", "failed (`npm run build` exited 3 after `npm install` exited 0)")
+    )
+    monkeypatch.setattr(typescript_examples, "npm_executable", lambda: None)
+    assert typescript_examples.verify_typescript_build(root, tmp_path / "ws-none", 60.0) == (
+        MeasuredBuild(False, "", "not attempted (no npm on this machine)")
     )
 
 
@@ -491,7 +492,7 @@ def test_a_receipt_carries_what_the_packages_own_build_proved(
     root.mkdir()
     barrel = _building_repository(root, build_script=True)
     candidate = ExampleCandidate(1, "typescript", GOOD, "README.md", 1, 4, "unit:001")
-    npm = _fake_npm(tmp_path / "tools")
+    npm = fake_npm(tmp_path / "tools")
     monkeypatch.setattr(typescript_examples, "npm_executable", lambda: npm)
     receipts = typescript_examples.verify_typescript_examples(
         root, barrel, [candidate], tmp_path / "run", 180.0
@@ -502,7 +503,7 @@ def test_a_receipt_carries_what_the_packages_own_build_proved(
     assert receipts[0].detail.endswith(
         "; the package's own npm build succeeded (`npm install` exited 0; `npm run build` exited 0)"
     )
-    failing = _fake_npm(tmp_path / "tools-failing", fail_run=True)
+    failing = fake_npm(tmp_path / "tools-failing", fail_run=True)
     monkeypatch.setattr(typescript_examples, "npm_executable", lambda: failing)
     receipts = typescript_examples.verify_typescript_examples(
         root, barrel, [candidate], tmp_path / "run-failing", 180.0

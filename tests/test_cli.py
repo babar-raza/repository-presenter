@@ -2036,18 +2036,23 @@ def test_a_corrupt_bundle_artifact_fails_closed_before_any_call(
     assert len(gateway_ready.requests) == requests_before
 
 
-def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
+def test_present_reports_a_readme_only_placeholder_as_non_processable(
     project_with_registry: Path,
     readme_only_upstream: Path,
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
+    """The placeholder is a typed, evidence-bound disposition, not a failure: a success exit, the
+    insufficient-evidence reason named, and no candidate bundle or provider call."""
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
 
     captured = capsys.readouterr()
     assert gateway_ready.requests == []
-    assert code == EXIT_INCONSISTENT
-    assert "insufficient_evidence: NO_IMPLEMENTATION_EVIDENCE for " + CANARY in captured.out
+    assert code == EXIT_OK
+    assert (
+        "NON_PROCESSABLE: insufficient_evidence (NO_IMPLEMENTATION_EVIDENCE) for " + CANARY
+        in captured.out
+    )
     assert "resume when a later default-branch revision adds a python manifest" in captured.out
     transaction = next(
         (project_with_registry / "runs" / "transactions").glob("aspose-3d-foss__*/*")
@@ -2056,7 +2061,46 @@ def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
     assert not (transaction / "facts.json").exists()
     document = json.loads((transaction / "disposition.json").read_text("utf-8"))
     assert document["evidence_paths_inspected"] == ["LICENSE", "README.md"]
+    assert not list((project_with_registry / "candidates").glob("*/CURRENT"))
     assert "not implemented" not in captured.err
+
+
+def test_present_durable_state_records_a_placeholder_as_non_processable_not_failed(
+    project_with_registry: Path,
+    readme_only_upstream: Path,
+    gateway_ready: _ChatGateway,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The hosted transaction maps the placeholder's disposition to the NON_PROCESSABLE outcome
+    (a committed transition from OBSERVED, no failure record), never to FAILED_INTERNAL."""
+    state_remote = init_git_repository(tmp_path / "state-remote")
+    monkeypatch.setenv("GITHUB_RUN_ID", "2000")
+    code = main(
+        [
+            "present",
+            "--repo",
+            CANARY,
+            "--root",
+            str(project_with_registry),
+            "--durable-state",
+            "--state-remote",
+            str(state_remote),
+        ]
+    )
+    capsys.readouterr()
+    assert code == EXIT_OK
+    assert gateway_ready.requests == []
+    with GitStateBackend(remote=str(state_remote)) as backend:
+        record = backend.load(CANARY)
+        assert record is not None
+        assert record.state == "NON_PROCESSABLE"
+        assert record.failure is None
+        assert record.lease is None
+        assert record.last_transition is not None
+        assert record.last_transition.from_state == "OBSERVED"
+        assert record.last_transition.to_state == "NON_PROCESSABLE"
 
 
 def test_present_refuses_a_repository_outside_the_allow_list_before_cloning(
