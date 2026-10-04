@@ -4,7 +4,7 @@
   "provider_repository_id": 1185437353,
   "registry_revision": null,
   "active_transaction_id": "867c6034a7584a14a47dc1adfcb6f957",
-  "state": "INVALIDATED",
+  "state": "RETRYABLE",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -17,12 +17,12 @@
   "accepted_artifact": null,
   "proposal": null,
   "failure": {
-    "classification": "validation_failed",
-    "detail": "present exited 1 (a written disposition or a blocking validation failure - see this transaction's own runs/ output for which)",
-    "resume_state": "SNAPSHOTTING",
-    "occurred_at": "2026-10-04T13:28:27.014915+00:00",
+    "classification": "transient",
+    "detail": "recovery_sweep: nonterminal transaction had no valid lease",
+    "resume_state": "INVALIDATED",
+    "occurred_at": "2026-10-04T13:35:59.799766+00:00",
     "resume_predicate": null,
-    "recovery_count": 0
+    "recovery_count": 2
   },
   "lease": null,
   "last_transition": {
@@ -39,9 +39,9 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 16,
+  "state_version": 17,
   "recent_trigger_dedup_keys": {
     "run:37204846411:aspose-slides-foss/Aspose.Slides-FOSS-for-.NET": "867c6034a7584a14a47dc1adfcb6f957"
   },
-  "recovery_count": 1
+  "recovery_count": 2
 }
