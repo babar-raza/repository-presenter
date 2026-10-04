@@ -57,6 +57,12 @@ from repository_presenter.components.monitor.drift import (
     observe_drift,
     write_drift_document,
 )
+from repository_presenter.components.monitor.install_state import (
+    InstallStateError,
+    record_state,
+    summarize_installs,
+    write_state,
+)
 from repository_presenter.components.propose.effect import (
     AUTHORIZATION_VARIABLE as PROPOSE_AUTHORIZATION_VARIABLE,
 )
@@ -422,6 +428,28 @@ def build_parser() -> argparse.ArgumentParser:
             f"{DRIFT_FILENAME} (drift-<owner>.json with --owner)"
         ),
     )
+    install_record_cmd = subcommands.add_parser(
+        "monitor-install-record",
+        help=(
+            "record one owner's GitHub App installation state from its token mint outcome "
+            "(success = INSTALLED; failure = NOT_INSTALLED, a notice and never a failure)"
+        ),
+    )
+    install_record_cmd.add_argument("--owner", required=True, metavar="OWNER")
+    install_record_cmd.add_argument("--outcome", required=True, choices=("success", "failure"))
+    install_record_cmd.add_argument("--repositories", required=True, metavar="NAMES")
+    install_record_cmd.add_argument("--out", type=Path, required=True)
+    install_summary_cmd = subcommands.add_parser(
+        "monitor-install-summary",
+        help=(
+            "summarize every owner's installation state under DIR: emit a notice per missing "
+            "installation; exit 1 only when no owner could be observed at all"
+        ),
+    )
+    install_summary_cmd.add_argument("directory", type=Path, metavar="DIR")
+    install_summary_cmd.add_argument(
+        "--summary", type=Path, default=None, help="append the markdown summary to this file"
+    )
     file_cmd = subcommands.add_parser(
         "file-upstream-defects",
         help=(
@@ -554,6 +582,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_preflight(args.root)
     if args.command == "monitor":
         return run_monitor(args.root, owner=args.owner, out=args.out)
+    if args.command == "monitor-install-record":
+        return run_monitor_install_record(args.owner, args.outcome, args.repositories, args.out)
+    if args.command == "monitor-install-summary":
+        return run_monitor_install_summary(args.directory, summary=args.summary)
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(
             args.root, repository=args.repo, apply=args.apply, close=args.close
@@ -662,6 +694,33 @@ def run_monitor(
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def run_monitor_install_record(owner: str, outcome: str, repositories: str, out: Path) -> int:
+    """Record one owner's App installation state (G7-W06). Writes one JSON file, never a token."""
+    try:
+        state = record_state(owner, outcome, repositories)
+    except InstallStateError as exc:
+        _fail(str(exc))
+        return EXIT_USAGE
+    path = write_state(state, out)
+    print(f"monitor install: {owner} {state.state}")
+    print(f"record: {path}")
+    return EXIT_OK
+
+
+def run_monitor_install_summary(directory: Path, *, summary: Path | None = None) -> int:
+    """Summarize every owner's installation state: a notice per missing install, red if none."""
+    result = summarize_installs(directory)
+    for notice in result.notices:
+        print(notice)
+    if summary is not None:
+        with summary.open("a", encoding="utf-8") as handle:
+            handle.write(result.markdown + "\n")
+    print(result.markdown)
+    if result.problem is not None:
+        _fail(result.problem)
+    return result.exit_code
 
 
 def run_redetect_upstream_defects(
