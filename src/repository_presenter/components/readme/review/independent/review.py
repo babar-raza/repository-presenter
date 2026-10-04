@@ -139,7 +139,15 @@ ACCEPT = "ACCEPT"
 # asserts anything the fact does not support, never whether the quote restates everything the
 # fact says - a faithful compression is not a factual defect, and a quote that invents content
 # absent from the fact still fails both directions, since its own tokens are simply not there.
-REVIEWER_LOGIC_VERSION = "14"
+# "15" (structured omission findings, 2026-10-05; Aspose.Font-FOSS-for-Python's BC-10 stall): a
+# finding may now carry a typed ``omission`` claim - the section and the fact/example ids and exact
+# phrases the reviewer says it lacks - which deterministic code upholds or refutes
+# (``omission_partition``): every named id or phrase present in that section's rendered text refutes
+# it, an id no SUPPORTED fact carries (unknown, CONTRADICTED, UNRESOLVED) or a phrase nowhere in
+# the evidence is text nobody may restore, and any one that is truly absent upholds it. A typed
+# claim naming nothing checkable is advisory. ``absent`` is judged exactly as before; a finding
+# carrying both is dismissed only when both are settled. Changes which findings block.
+REVIEWER_LOGIC_VERSION = "15"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -984,6 +992,180 @@ def _record_absence_partition(
     record["absent_remaining"] = remaining
 
 
+_WHITESPACE = re.compile(r"\s+")
+OMISSION_KIND = "omission"
+
+
+def omission_claim(finding: Mapping[str, Any]) -> tuple[list[str], list[str]] | None:
+    """The typed omission claim a finding makes as ``(ids, quotes)``, or None when it makes none.
+
+    ``omission`` is ``{kind: "omission", section_id, missing_ids, missing_quotes}``: what the
+    reviewer says the named section lacks, as fact or example ids and exact phrases the code can
+    look for. A missing, null, or differently-kinded value is no claim, so a finding from before
+    the field existed reads exactly as it did.
+    """
+    claim = finding.get("omission")
+    if not isinstance(claim, Mapping) or claim.get("kind") != OMISSION_KIND:
+        return None
+
+    def strings(key: str) -> list[str]:
+        raw = claim.get(key)
+        entries = raw if isinstance(raw, list) else []
+        return list(dict.fromkeys(e for e in (str(x).strip() for x in entries) if e))
+
+    return strings("missing_ids"), strings("missing_quotes")
+
+
+def _spaced(text: str) -> str:
+    """Text for an exact comparison: typography folded and whitespace runs collapsed, nothing
+    else - no Markdown stripping and no ellipsis or anchor leniency, so a phrase that is only
+    partly there is not there."""
+    return _WHITESPACE.sub(" ", text.translate(_TYPOGRAPHY)).strip()
+
+
+def _id_rendered(
+    fact_id: str,
+    section_id: str,
+    section_text: str,
+    by_id: Mapping[str, Fact],
+    units: Mapping[str, Any] | None,
+) -> bool:
+    """Whether a fact or verified example is in the section: a content unit written for that
+    section cites it, or its literal value (a verified example's code, a command) is in the
+    section's rendered text."""
+    for unit in (units or {}).get("units", []):
+        if unit.get("section") == section_id and fact_id in unit.get("fact_ids", []):
+            return True
+    fact = by_id.get(fact_id)
+    value = _spaced(fact.value) if fact is not None else ""
+    return len(value) >= _LITERAL_VALUE_LENGTH and value in _spaced(section_text)
+
+
+def omission_partition(
+    finding: Mapping[str, Any],
+    candidate_readme: str,
+    by_id: Mapping[str, Fact],
+    evidence: str = "",
+    units: Mapping[str, Any] | None = None,
+) -> tuple[list[str], list[str], list[str]]:
+    """A typed omission claim's ids and phrases sorted three ways, like ``absence_partition``:
+    ``present`` (the named section renders them), ``unrestorable`` (an id no SUPPORTED fact
+    carries - unknown, CONTRADICTED or UNRESOLVED, which the contract never lets a section
+    state - or a phrase in neither the original README nor any fact value, so there is nothing to
+    restore), and ``remaining`` (truly absent and restorable: the claims that stand). Ids come
+    before phrases, each in the order claimed.
+    """
+    claim = omission_claim(finding)
+    if claim is None:
+        return [], [], []
+    ids, quotes = claim
+    section_id = str(finding.get("section_id") or "")
+    section_text = _section_slice(section_id, candidate_readme)
+    haystack = _spaced(section_text)
+    present: list[str] = []
+    unrestorable: list[str] = []
+    remaining: list[str] = []
+    for fact_id in ids:
+        fact = by_id.get(fact_id)
+        if _id_rendered(fact_id, section_id, section_text, by_id, units):
+            present.append(fact_id)
+        elif fact is None or fact.polarity != "SUPPORTED":
+            unrestorable.append(fact_id)
+        else:
+            remaining.append(fact_id)
+    for quote in quotes:
+        if _spaced(quote) in haystack:
+            present.append(quote)
+        elif evidence and not quote_located(quote, evidence):
+            unrestorable.append(quote)
+        else:
+            remaining.append(quote)
+    return present, unrestorable, remaining
+
+
+def omission_defect(
+    finding: Mapping[str, Any],
+    candidate_readme: str,
+    by_id: Mapping[str, Fact],
+    evidence: str = "",
+    units: Mapping[str, Any] | None = None,
+) -> str | None:
+    """Why a finding's typed omission claim is the reviewer's own defect, or None when it stands.
+
+    The reviewer proposes what is missing; this decides. The claim is refuted when every id and
+    phrase it names is rendered by the section it names (or none can be restored), and upheld when
+    any one is truly absent - a bundle of claims is never dismissed for its false members while a
+    true one remains. A claim that names nothing checkable, or a section other than the one the
+    finding routes a repair to, is prose: nothing here can judge it and no repair could act on it,
+    so it is advisory with this reason (AGENTS.md: a finding names a section and a causal stage, or
+    it is advisory).
+    """
+    claim = omission_claim(finding)
+    if claim is None:
+        return None
+    ids, quotes = claim
+    routed = str(finding.get("section_id") or "")
+    named = str((finding.get("omission") or {}).get("section_id") or routed)
+    if named != routed:
+        return (
+            f"the omission claim names section {named!r} but the finding routes its repair to "
+            f"{routed!r}: no repair there could restore it"
+        )
+    if not ids and not quotes:
+        return (
+            "the omission claim names no fact or example id and no exact phrase: nothing in it "
+            "can be checked, so it is a prose judgment no repair could act on"
+        )
+    present, unrestorable, remaining = omission_partition(
+        finding, candidate_readme, by_id, evidence, units
+    )
+    if remaining:
+        return None
+    parts = []
+    if present:
+        parts.append(
+            f"the finding claims section {named} omits {_named(present)}, which it renders"
+        )
+    if unrestorable:
+        parts.append(
+            f"the finding asks for {_named(unrestorable)}, which is not a SUPPORTED fact or "
+            "occurs in no original text: there is nothing to restore"
+        )
+    return "; ".join(parts)
+
+
+def _record_standing_partitions(
+    record: dict[str, Any],
+    finding: Mapping[str, Any],
+    candidate_readme: str,
+    evidence: str,
+    by_id: Mapping[str, Fact],
+    units: Mapping[str, Any] | None,
+) -> None:
+    """``_record_absence_partition`` plus the same split for a typed omission claim: on a standing
+    finding with both a settled part and a remainder, the settled ids/phrases and the remainder
+    (``omission_remaining``, as ``missing_ids``/``missing_quotes``) are recorded so a repair is
+    handed only what is truly missing."""
+    _record_absence_partition(record, finding, candidate_readme, evidence)
+    claim = omission_claim(finding)
+    if claim is None:
+        return
+    present, unrestorable, remaining = omission_partition(
+        finding, candidate_readme, by_id, evidence, units
+    )
+    if not remaining or not (present or unrestorable):
+        return
+    if present:
+        record["omission_refuted"] = present
+    if unrestorable:
+        record["omission_unrestorable"] = unrestorable
+    ids, _ = claim
+    record["omission_remaining"] = {
+        "missing_ids": [item for item in remaining if item in ids],
+        "missing_quotes": [item for item in remaining if item not in ids],
+    }
+
+
 def _named(claims: Sequence[str]) -> str:
     """The first few claims, quoted, so the reason names what it judged without listing all."""
     return ", ".join(repr(claim) for claim in claims[:_ABSENCE_REPORTED])
@@ -1539,9 +1721,15 @@ def scope_defect(
     ``dispositions.json``, is ``None`` until its one call site threads it through (item 86); the
     new disposition-aware exclusion is then inert, exactly as today.
     """
-    absence = absence_defect(finding, candidate_readme, evidence)
-    if absence is not None:
-        return absence
+    # A finding may state what it says is missing as ``absent`` strings, as a typed ``omission``
+    # claim, or both; it is the reviewer's own defect once every claim it makes is settled.
+    settled: list[str] = []
+    if _claimed_absent(finding):
+        settled.append(absence_defect(finding, candidate_readme, evidence) or "")
+    if omission_claim(finding) is not None:
+        settled.append(omission_defect(finding, candidate_readme, by_id, evidence, units) or "")
+    if settled and all(settled):
+        return "; ".join(settled)
     excluded = excluded_evidence_defect(finding, by_id)
     if excluded is not None:
         return excluded
@@ -1656,7 +1844,7 @@ def review_document(
         if reason is not None:
             record["reviewer_scope_defect"] = reason
         else:
-            _record_absence_partition(record, finding, candidate_readme, evidence)
+            _record_standing_partitions(record, finding, candidate_readme, evidence, by_id, units)
         alone = (
             second is not None
             and prose_judgment(finding)
@@ -1706,7 +1894,9 @@ def review_document(
                 if reason is not None:
                     record["reviewer_scope_defect"] = reason
                 else:
-                    _record_absence_partition(record, finding, candidate_readme, evidence)
+                    _record_standing_partitions(
+                        record, finding, candidate_readme, evidence, by_id, units
+                    )
                 in_majority = reason is None and finding_class(finding) in majority
                 if in_majority and blocking(finding):
                     record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
@@ -1748,7 +1938,9 @@ def review_document(
             if reason is not None:
                 record["reviewer_scope_defect"] = reason
             else:
-                _record_absence_partition(record, finding, candidate_readme, evidence)
+                _record_standing_partitions(
+                    record, finding, candidate_readme, evidence, by_id, units
+                )
             alone = prose_judgment(finding) and finding_class(finding) not in first_raised
             if reason is None and blocking(finding) and not alone:
                 record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]

@@ -620,6 +620,17 @@ def planning_schema(
                 if format_ids
                 else {"type": "array", "maxItems": 0}
             )
+    # At a Glance is required (README_CONTRACT.md row 6), so section_conditions holds it True and
+    # plan_checks refuses a null with "at_a_glance is included, so its formats and capabilities are
+    # given". The decoder must carry the same rule: the null variant stays only where the section
+    # can be omitted, so a model cannot spend its one re-ask on a reply the decoder admitted and the
+    # checks then refuse (Aspose.3D for TypeScript, 2026-10-04: two null replies, same job).
+    if section_conditions(facts)["at_a_glance"] is True:
+        properties["at_a_glance"] = next(
+            variant
+            for variant in properties["at_a_glance"]["oneOf"]
+            if variant.get("type") == "object"
+        )
     citable = citable_fact_ids(facts, investigation, dispositions, manifest.manifest)
     _pin_fact_id_arrays(schema, citable)
     _pin_unit_id_arrays(schema, citable_unit_ids(facts, citable))

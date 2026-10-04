@@ -2,18 +2,24 @@
 handoff as a real GitHub issue, and close a ``FILED`` handoff once its own check no longer fires.
 
 `AGENTS.md` "Security and Effects" requires every target write to be gated by the owner's explicit
-authorization, never inferred from a credential's presence or scope. Two independent conditions
-must both hold before this module ever calls ``core/github/client.py``'s ``create_issue`` or
-``close_issue``:
+authorization, never inferred from a credential's presence or scope. Every one of these must hold
+before this module ever calls ``core/github/client.py``'s ``create_issue`` (``close_issue`` is
+gated by 1 and 2 only - it can only close an issue this system recorded as filed):
 
-1. ``write_authorized(environment)`` - the dedicated, owner-controlled repository variable
-   ``REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED`` is set to a truthy value. The scheduled
-   workflow (``.github/workflows/issues-scheduled.yml``) sets it from the repository variable of the
-   same name, only on its write job; nothing else in this project sets it.
+1. ``write_authorized(environment)`` - the kill switch. The owner-controlled repository variable
+   ``REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED`` must be set to a truthy value. It can disable
+   every write by being unset or changed; it can never, alone, authorize one.
 2. A write-scoped token is actually supplied (``GH_ISSUES_WRITE_TOKEN`` - never the read-only
    ``GH_TOKEN``, a distinct App installation token scoped to one target repository).
+3. A per-handoff owner approval record (``approval.py``: ``ops/issue_approvals/<handoff-id>.json``)
+   exists for this exact handoff, names its target repository, matches the handoff's current
+   evidence digest, and has not expired. A changed handoff, or a missing or expired record, is
+   refused before any network call.
+4. The target is the handoff's own recorded repository: it is a well-formed ``owner/name``, it is
+   the repository the approval names, and (when the caller states one) it is the repository the
+   caller is operating on.
 
-Three further guards hold even with both gates open:
+Three further guards hold even with every gate open:
 
 - Duplicate filing is refused twice over. A handoff whose ``status`` is not ``HANDOFF_PENDING`` is
   never filed, and - because a scheduled run starts from a fresh checkout whose artifact may still
@@ -37,7 +43,15 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from datetime import datetime
 
+from repository_presenter.components.issues.approval import (
+    ApprovalStore,
+    evidence_digest,
+    handoff_id,
+    is_valid_repository,
+    verify_approval,
+)
 from repository_presenter.components.issues.model import CloseReason, Handoff, IssueRef
 from repository_presenter.components.issues.redetect import RedetectionResult
 from repository_presenter.core.errors import RepositoryMetadataError
@@ -48,14 +62,17 @@ from repository_presenter.core.github.client import (
     default_patch,
     default_post,
 )
+from repository_presenter.core.registry.write_gate import WritePermit
 
 AUTHORIZATION_VARIABLE = "REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED"
 _AUTHORIZED_VALUES = frozenset({"1", "true", "yes"})
 
 _NOT_AUTHORIZED_REASON = (
-    f"not authorized: set {AUTHORIZATION_VARIABLE}=1 (owner-controlled) - a token's presence or "
-    "scope is never by itself sufficient"
+    f"kill switch engaged: {AUTHORIZATION_VARIABLE} is not 1, so every write is disabled "
+    "(setting it never authorizes a filing by itself - each handoff also needs its own approval "
+    "record)"
 )
+_NO_APPROVAL_SOURCE_REASON = "no approval record source configured - refusing to file"
 _NO_TOKEN_REASON = "no write-scoped token available (GH_ISSUES_WRITE_TOKEN, never GH_TOKEN)"
 
 # GitHub's own state_reason values for a closed issue; CloseReason ("not planned") is ours.
@@ -63,8 +80,9 @@ _STATE_REASON = {"completed": "completed", "not planned": "not_planned"}
 
 
 def write_authorized(environment: Mapping[str, str]) -> bool:
-    """``True`` only when the owner has explicitly set ``AUTHORIZATION_VARIABLE`` to a truthy
-    value. Absence, an empty string, or any other value is unauthorized - fail closed."""
+    """``True`` only while the owner's kill switch ``AUTHORIZATION_VARIABLE`` is set to a truthy
+    value. Absence, an empty string, or any other value disables writes - fail closed. A ``True``
+    here is necessary and never sufficient: filing also needs the handoff's own approval record."""
     return environment.get(AUTHORIZATION_VARIABLE, "").strip().lower() in _AUTHORIZED_VALUES
 
 
@@ -118,6 +136,9 @@ class FilingPlan:
     title: str
     refusal: str | None
     already_filed: IssueRef | None
+    handoff_id: str = ""
+    evidence_digest: str = ""
+    approval_refused: bool = False
 
     @property
     def ready(self) -> bool:
@@ -131,13 +152,34 @@ def _not_pending_reason(status: str) -> str:
     )
 
 
+def _target_refusal(handoff: Handoff, expected_repository: str | None) -> str | None:
+    if not is_valid_repository(handoff.repository):
+        return f"handoff target {handoff.repository!r} is not a valid owner/name"
+    if (
+        expected_repository is not None
+        and handoff.repository.casefold() != expected_repository.casefold()
+    ):
+        return (
+            f"target mismatch: handoff targets {handoff.repository}, but this run operates on "
+            f"{expected_repository} - refusing to file outside the recorded target"
+        )
+    return None
+
+
 def plan_filing(
     handoff: Handoff,
     *,
     existing: Callable[[], IssueRef | None] | None = None,
     recheck: Callable[[], RedetectionResult] | None = None,
+    approvals: ApprovalStore | None = None,
+    now: Callable[[], datetime] | None = None,
+    expected_repository: str | None = None,
 ) -> FilingPlan:
     """Decide whether ``handoff`` would be filed, using only read calls.
+
+    The target and the owner's per-handoff approval record are checked first, from committed
+    files alone, so a handoff nobody approved never causes a network call. ``approvals`` is
+    required: a plan with no approval source is a refusal.
 
     ``existing`` searches the target for an issue already carrying this fingerprint; ``recheck``
     re-runs the handoff's own check at the current revision. Both may raise
@@ -145,17 +187,32 @@ def plan_filing(
     away. Neither is consulted for a handoff that is not ``HANDOFF_PENDING``.
     """
 
-    def _plan(refusal: str | None, already: IssueRef | None = None) -> FilingPlan:
+    def _plan(
+        refusal: str | None, already: IssueRef | None = None, *, refused: bool = False
+    ) -> FilingPlan:
         return FilingPlan(
             repository=handoff.repository,
             defect_fingerprint=handoff.defect_fingerprint,
             title=handoff.suggested_issue_title,
             refusal=refusal,
             already_filed=already,
+            handoff_id=handoff_id(handoff) if is_valid_repository(handoff.repository) else "",
+            evidence_digest=evidence_digest(handoff),
+            approval_refused=refused,
         )
 
     if handoff.status != "HANDOFF_PENDING":
         return _plan(_not_pending_reason(handoff.status))
+
+    target_refusal = _target_refusal(handoff, expected_repository)
+    if target_refusal is not None:
+        return _plan(target_refusal)
+
+    if approvals is None:
+        return _plan(_NO_APPROVAL_SOURCE_REASON, refused=True)
+    verdict = verify_approval(handoff, approvals, now=now)
+    if not verdict.approved:
+        return _plan(verdict.reason, refused=True)
 
     if existing is not None:
         try:
@@ -191,9 +248,19 @@ def file_handoff(
     create: WriteFn = default_post,
     existing: Callable[[], IssueRef | None] | None = None,
     recheck: Callable[[], RedetectionResult] | None = None,
+    approvals: ApprovalStore | None = None,
+    now: Callable[[], datetime] | None = None,
+    expected_repository: str | None = None,
+    permit: WritePermit,
 ) -> FileResult:
     """File ``handoff`` as a real GitHub issue - but only past every gate in this module's own
-    docstring. Every early return below makes no network call at all."""
+    docstring. Every early return below makes no network call at all.
+
+    ``permit`` is the registry write gate's proof (``core/registry/write_gate.py``): the target is
+    listed, active and mode ``full``. It is required, so a ``dry_run`` or ``disabled`` entry - for
+    which no permit can be obtained - can never reach this function."""
+    if permit.effect != "issue_filing" or permit.entry.repository != handoff.repository:
+        raise ValueError("the write permit does not clear this effect for this repository")
 
     def _refuse(authorized: bool, reason: str, *, error: bool = False) -> FileResult:
         return FileResult(
@@ -212,7 +279,14 @@ def file_handoff(
     if not token:
         return _refuse(True, _NO_TOKEN_REASON)
 
-    plan = plan_filing(handoff, existing=existing, recheck=recheck)
+    plan = plan_filing(
+        handoff,
+        existing=existing,
+        recheck=recheck,
+        approvals=approvals,
+        now=now,
+        expected_repository=expected_repository,
+    )
     if plan.already_filed is not None:
         found = plan.already_filed
         return FileResult(
