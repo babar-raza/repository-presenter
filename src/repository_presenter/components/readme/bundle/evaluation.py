@@ -11,8 +11,10 @@ validator reopens VALIDATING; the acceptance profile reopens REVIEWING; the poli
 PLANNING. The earliest affected
 state is the answer, or NONE when nothing changed (the environment class also carries every
 machine toolchain's resolved version, core/toolchains.py, so a toolchain change reopens EXTRACTING).
-The protected-content fingerprint is derived
-from the accepted dispositions rather than consumed, so the seal compares it, not this record.
+Each changed class also names its invalidation scope (``invalidation.py``: facts, evidence,
+reconciliation, presentation, planning, authoring, validator, reviewer), and the stage it reopens
+comes from that same table. The protected-content fingerprint is derived from the accepted
+dispositions rather than consumed, so the seal compares it, not this record.
 
 The evaluation derives only from the candidate's own dependencies.json: no global control-plane
 hash exists, and none may. It is written to the transaction as evaluation.json.
@@ -26,35 +28,14 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.bundle.invalidation import (
+    STATE_ORDER,
+    reopening_stage,
+    scope_of,
+)
+
 EVALUATION_FILENAME = "evaluation.json"
 NONE = "NONE"
-STATE_ORDER: tuple[str, ...] = (
-    "EXTRACTING",
-    "INVESTIGATING",
-    "RECONCILING",
-    "PLANNING",
-    "COMPOSING",
-    "VALIDATING",
-    "REVIEWING",
-)
-PROMPT_STATES: dict[str, str] = {
-    "repository_investigation": "INVESTIGATING",
-    "source_reconciliation": "RECONCILING",
-    "presentation_planning": "PLANNING",
-    "section_authoring": "COMPOSING",
-    "independent_review": "REVIEWING",
-    "targeted_repair": "REVIEWING",
-}
-# EVAL-01: shell/renderer feed dispositions.py's normalize()/placement_errors() and the coverage
-# logic RC-06 changed, both consumed starting at RECONCILING - the earliest stage either actually
-# touches, not the blanket COMPOSING every component used to reopen (docs/STATE_MACHINE.md
-# section 9). normalisation/reviewer_logic are genuinely COMPOSING-only and keep that mapping.
-COMPONENT_STATES: dict[str, str] = {
-    "shell": "RECONCILING",
-    "renderer": "RECONCILING",
-    "normalisation": "COMPOSING",
-    "reviewer_logic": "COMPOSING",
-}
 
 
 @dataclass(frozen=True)
@@ -62,6 +43,13 @@ class Change:
     dependency: str
     detail: str
     reopens: str
+    scope: str
+
+
+def _change(dependency: str, detail: str) -> Change:
+    """One changed input class: the stage it reopens and the scope it belongs to both come from
+    the invalidation table, never from a second mapping here."""
+    return Change(dependency, detail, reopening_stage(dependency), scope_of(dependency).name)
 
 
 @dataclass(frozen=True)
@@ -95,7 +83,7 @@ def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
     """Every changed dependency class with the state it reopens, in state order then name."""
     changes: list[Change] = []
     if _differs(sealed.get("source"), current.get("source")):
-        changes.append(Change("source", "revision or tree fingerprint changed", "EXTRACTING"))
+        changes.append(_change("source", "revision or tree fingerprint changed"))
     # G5-W02 (27.2 RC7): what answered extraction, not what the repository claims, so a fact
     # already SUPPORTED under one Python version or extractor build is never trusted unchanged
     # under a different one - each differing sub-field is its own change, reopening EXTRACTING
@@ -106,10 +94,9 @@ def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
         if sealed_environment.get(name) == current_environment.get(name):
             continue
         changes.append(
-            Change(
+            _change(
                 f"environment.{name}",
                 f"{sealed_environment.get(name)} -> {current_environment.get(name)}",
-                "EXTRACTING",
             )
         )
     sealed_facts = dict(sealed.get("facts", {}))
@@ -123,7 +110,7 @@ def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
             if sealed_facts[fact_id] != current_facts[fact_id]
         )
         detail = f"{len(added)} fact records added, {len(removed)} removed, {len(altered)} altered"
-        changes.append(Change("facts", detail, "EXTRACTING"))
+        changes.append(_change("facts", detail))
     sealed_prompts = dict(sealed.get("prompts", {}))
     current_prompts = dict(current.get("prompts", {}))
     for name in sorted(set(sealed_prompts) | set(current_prompts)):
@@ -140,13 +127,12 @@ def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
                 if sealed_prompts[name].get(field) != current_prompts[name].get(field)
             )
             detail = f"prompt {', '.join(fields)} changed"
-        changes.append(Change(f"prompts.{name}", detail, PROMPT_STATES.get(name, "INVESTIGATING")))
+        changes.append(_change(f"prompts.{name}", detail))
     if _differs(sealed.get("contract_version"), current.get("contract_version")):
         changes.append(
-            Change(
+            _change(
                 "contract_version",
                 f"{sealed.get('contract_version')} -> {current.get('contract_version')}",
-                "VALIDATING",
             )
         )
     sealed_components = dict(sealed.get("components", {}))
@@ -154,31 +140,27 @@ def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
     for name in sorted(set(sealed_components) | set(current_components)):
         if sealed_components.get(name) != current_components.get(name):
             changes.append(
-                Change(
+                _change(
                     f"components.{name}",
                     f"{sealed_components.get(name)} -> {current_components.get(name)}",
-                    COMPONENT_STATES.get(name, "RECONCILING"),
                 )
             )
     if _differs(sealed.get("validators"), current.get("validators")) or _differs(
         sealed.get("validator_version"), current.get("validator_version")
     ):
-        changes.append(
-            Change("validators", "a check or the validator version changed", "VALIDATING")
-        )
+        changes.append(_change("validators", "a check or the validator version changed"))
     if _differs(
         sealed.get("acceptance_profile_version"), current.get("acceptance_profile_version")
     ):
         changes.append(
-            Change(
+            _change(
                 "acceptance_profile_version",
                 f"{sealed.get('acceptance_profile_version')} -> "
                 f"{current.get('acceptance_profile_version')}",
-                "REVIEWING",
             )
         )
     if _differs(sealed.get("policy"), current.get("policy")):
-        changes.append(Change("policy", "policy version or hash changed", "PLANNING"))
+        changes.append(_change("policy", "policy version or hash changed"))
     ordered = sorted(
         changes, key=lambda change: (STATE_ORDER.index(change.reopens), change.dependency)
     )

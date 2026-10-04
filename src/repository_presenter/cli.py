@@ -64,6 +64,16 @@ from repository_presenter.components.monitor.drift import (
     observe_drift,
     write_drift_document,
 )
+from repository_presenter.components.monitor.install_state import (
+    MINT_ERROR,
+    InstallationState,
+    InstallStateError,
+    LookupResult,
+    lookup_installations,
+    record_state,
+    summarize_installs,
+    write_state,
+)
 from repository_presenter.components.propose.effect import (
     AUTHORIZATION_VARIABLE as PROPOSE_AUTHORIZATION_VARIABLE,
 )
@@ -74,12 +84,21 @@ from repository_presenter.components.propose.effect import (
 from repository_presenter.components.propose.effect import (
     write_authorized as propose_write_authorized,
 )
+from repository_presenter.components.readme.bundle.dry_run import (
+    HeldUpdate,
+    held_updates,
+    portfolio_routing,
+)
 from repository_presenter.components.readme.bundle.evaluation import (
     EVALUATION_FILENAME,
     evaluate,
     evaluation_document,
     summarize_evaluation,
     write_evaluation,
+)
+from repository_presenter.components.readme.bundle.invalidation import (
+    STATE_INVALIDATED,
+    STATE_UPDATE_AVAILABLE,
 )
 from repository_presenter.components.readme.bundle.portfolio import (
     DriftObservation,
@@ -98,6 +117,7 @@ from repository_presenter.components.readme.bundle.seal import (
     DEPENDENCIES_FILENAME,
     SealInputs,
     bundle_directory,
+    code_dependencies,
     invalidate_bundle,
     invalidates,
     seal_candidate,
@@ -159,9 +179,20 @@ from repository_presenter.components.readme.validation.registry import (
     summarize_validation,
 )
 from repository_presenter.core.authorization.proposal import (
+    AUTHORIZATION_DIRNAME,
+    CURRENT_POLICY_VERSION,
+    MAX_LIFETIME,
     ProposalAuthorization,
     authorize_proposal,
+    load_authorization_file,
+    record_filename,
+    render_record,
+    validate_authorization,
 )
+from repository_presenter.core.authorization.record_provenance import (
+    verify_record_provenance,
+)
+from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
 from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
     CURRENT_FILENAME,
@@ -172,6 +203,7 @@ from repository_presenter.core.candidates import (
     independently_accepted_candidates,
     integrity_valid_candidates,
     iter_sealed_bundles,
+    load_proposable_candidate,
     stale_candidates,
     verify_bundle,
 )
@@ -205,7 +237,7 @@ from repository_presenter.core.github.client import (
     create_ref as default_create_ref,
 )
 from repository_presenter.core.github.client import (
-    find_open_pull_request as default_find_open_pull_request,
+    find_pull_requests as default_find_pull_requests,
 )
 from repository_presenter.core.github.client import (
     get_contents as default_get_contents,
@@ -220,6 +252,12 @@ from repository_presenter.core.github.client import (
     update_pull_request as default_update_pull_request,
 )
 from repository_presenter.core.github.read_client import fetch_default_branch_sha
+from repository_presenter.core.github.token_provenance import (
+    verify_installation_token as default_verify_installation_token,
+)
+from repository_presenter.core.github.token_provenance import (
+    verify_pull_request_app as default_verify_pull_request_app,
+)
 from repository_presenter.core.hashing import sha256_text
 from repository_presenter.core.llm.fallback import describe, select_models
 from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, JobResult
@@ -240,6 +278,7 @@ from repository_presenter.core.registry.loader import (
     require_listed,
 )
 from repository_presenter.core.registry.models import RegistryEntry
+from repository_presenter.core.registry.write_gate import require_write_permitted
 from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.secrets import configured_secrets, find_secret_leaks, redact
 from repository_presenter.core.snapshot.capture import (
@@ -272,6 +311,8 @@ PROGRAM = "repository-presenter"
 RUNS_DIRNAME = "runs"
 MONITOR_DIRNAME = "monitor"
 DRIFT_FILENAME = "drift.json"
+APP_ID_VARIABLE = "GH_APP_ID"
+APP_KEY_VARIABLE = "GH_APP_PRIVATE_KEY"
 EXIT_OK = 0
 EXIT_INCONSISTENT = 1
 EXIT_USAGE = 2
@@ -476,6 +517,29 @@ def build_parser() -> argparse.ArgumentParser:
             f"{DRIFT_FILENAME} (drift-<owner>.json with --owner)"
         ),
     )
+    install_record_cmd = subcommands.add_parser(
+        "monitor-install-record",
+        help=(
+            "record one owner's GitHub App installation state from its token mint outcome "
+            "(success = INSTALLED; failure is looked up as the App: confirmed 404 = NOT_INSTALLED, "
+            "a notice; any other failure = MINT_ERROR, exit 1)"
+        ),
+    )
+    install_record_cmd.add_argument("--owner", required=True, metavar="OWNER")
+    install_record_cmd.add_argument("--outcome", required=True, choices=("success", "failure"))
+    install_record_cmd.add_argument("--repositories", required=True, metavar="NAMES")
+    install_record_cmd.add_argument("--out", type=Path, required=True)
+    install_summary_cmd = subcommands.add_parser(
+        "monitor-install-summary",
+        help=(
+            "summarize every owner's installation state under DIR: emit a notice per missing "
+            "installation; exit 1 only when no owner could be observed at all"
+        ),
+    )
+    install_summary_cmd.add_argument("directory", type=Path, metavar="DIR")
+    install_summary_cmd.add_argument(
+        "--summary", type=Path, default=None, help="append the markdown summary to this file"
+    )
     file_cmd = subcommands.add_parser(
         "file-upstream-defects",
         help=(
@@ -564,22 +628,42 @@ def build_parser() -> argparse.ArgumentParser:
     )
     propose.add_argument("--root", type=Path, default=None, help=root_help)
     propose.add_argument(
-        "--readme-file",
+        "--authorization-record",
         type=Path,
         default=None,
         metavar="PATH",
         help=(
-            "propose this file's content instead of --repo's registry-admitted sealed CURRENT "
-            "candidate - for the G6-W02 disposable-target proof only (a disposable test "
-            "repository is never registry-admitted and has no sealed bundle); requires "
-            "--source-revision; never used for a real, registry-admitted repository"
+            "the committed authorization record (ops/proposal-authorizations/*.json) that "
+            "authorizes this exact candidate; required for --propose. It must have been merged "
+            "to origin/main before the commit this run was triggered at - a run cannot "
+            "authorize itself"
+        ),
+    )
+    propose.add_argument(
+        "--trigger-sha",
+        default=None,
+        metavar="SHA",
+        help=(
+            "the commit this run was triggered at (the workflow passes ${{ github.sha }}); "
+            "defaults to $GITHUB_SHA, then HEAD"
+        ),
+    )
+    propose.add_argument(
+        "--local-test-readme-file",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "LOCAL TEST ONLY: assemble a dry-run plan for this file's content instead of "
+            "--repo's sealed candidate. Skips the registry and bundle checks, so it can never "
+            "reach a write: combining it with --propose is refused. Requires --source-revision"
         ),
     )
     propose.add_argument(
         "--source-revision",
         default=None,
         metavar="SHA",
-        help="required with --readme-file: the exact revision --readme-file's content came from",
+        help="with --local-test-readme-file only: the revision that content came from",
     )
     propose.add_argument(
         "--base-branch",
@@ -587,21 +671,48 @@ def build_parser() -> argparse.ArgumentParser:
         help="override the target's default branch; read live from GitHub when omitted",
     )
     propose.add_argument(
-        "--expires-in-minutes",
-        type=int,
-        default=15,
-        help="how long the assembled authorization stays valid before it must be re-minted",
-    )
-    propose.add_argument(
         "--propose",
         dest="do_propose",
         action="store_true",
         help=(
-            f"attempt to create/update the presenter branch and PR; refuses and explains why "
-            f"unless {PROPOSE_AUTHORIZATION_VARIABLE}=1 and a write-scoped GH_PROPOSAL_WRITE_TOKEN "
-            "are both present - prints the assembled authorization and makes no GitHub call when "
-            "omitted"
+            f"attempt to create/update the presenter branch and PR; refuses with a typed reason "
+            f"unless the registry entry is mode full, the bundle is READY_FOR_PROPOSAL at the "
+            f"target's current revision, a committed authorization record matches the candidate, "
+            f"{PROPOSE_AUTHORIZATION_VARIABLE}=1, and a repository-scoped GH_PROPOSAL_WRITE_TOKEN "
+            "App installation token is present - prints the plan and makes no write when omitted"
         ),
+    )
+    draft = subcommands.add_parser(
+        "draft-proposal-authorization",
+        help=(
+            "write the authorization record for --repo's current READY_FOR_PROPOSAL candidate to "
+            "ops/proposal-authorizations/ for a person to review and merge - the record is what "
+            "'propose --propose' later requires; drafting it authorizes nothing by itself"
+        ),
+    )
+    draft.add_argument("--repo", required=True, metavar="OWNER/NAME", help="the target repository")
+    draft.add_argument("--root", type=Path, default=None, help=root_help)
+    draft.add_argument(
+        "--approver", required=True, help="who is approving this exact candidate (a person)"
+    )
+    draft.add_argument(
+        "--base-branch",
+        default=None,
+        help="the branch the PR will target; the target's live default branch when omitted",
+    )
+    draft.add_argument(
+        "--expires-in-hours",
+        type=int,
+        default=24,
+        help="how long the record stays valid after it is drafted (at most 168)",
+    )
+    draft.add_argument(
+        "--supersedes-pr",
+        type=int,
+        action="append",
+        default=[],
+        metavar="N",
+        help="explicitly permit a re-proposal after this merged or closed presenter PR number",
     )
     health = subcommands.add_parser(
         "health-check",
@@ -693,6 +804,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_preflight(args.root)
     if args.command == "monitor":
         return run_monitor(args.root, owner=args.owner, out=args.out)
+    if args.command == "monitor-install-record":
+        return run_monitor_install_record(args.owner, args.outcome, args.repositories, args.out)
+    if args.command == "monitor-install-summary":
+        return run_monitor_install_summary(args.directory, summary=args.summary)
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(
             args.root, repository=args.repo, apply=args.apply, close=args.close
@@ -713,11 +828,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_propose(
             args.repo,
             args.root,
-            readme_file=args.readme_file,
+            local_test_readme_file=args.local_test_readme_file,
             source_revision=args.source_revision,
             base_branch=args.base_branch,
-            expires_in_minutes=args.expires_in_minutes,
+            authorization_record=args.authorization_record,
+            trigger_sha=args.trigger_sha,
             propose=args.do_propose,
+        )
+    if args.command == "draft-proposal-authorization":
+        return run_draft_proposal_authorization(
+            args.repo,
+            args.root,
+            approver=args.approver,
+            base_branch=args.base_branch,
+            expires_in_hours=args.expires_in_hours,
+            supersedes_prs=tuple(args.supersedes_pr),
         )
     if args.command == "health-check":
         return run_health_check(
@@ -818,6 +943,66 @@ def run_monitor(
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def run_monitor_install_record(
+    owner: str,
+    outcome: str,
+    repositories: str,
+    out: Path,
+    *,
+    lookup: Callable[..., list[LookupResult]] = lookup_installations,
+) -> int:
+    """Record one owner's App installation state (G7-W06). Writes one JSON file, never a token.
+
+    A failed mint is classified by an explicit installation lookup as the App (``GH_APP_ID`` and
+    ``GH_APP_PRIVATE_KEY`` from the environment): only a confirmed 404 is ``NOT_INSTALLED`` and
+    exits 0; any other failure is ``MINT_ERROR`` and exits 1, so that owner's leg fails.
+    """
+    app_id = os.environ.get(APP_ID_VARIABLE) or None
+    private_key = os.environ.get(APP_KEY_VARIABLE) or None
+    names = [name for name in repositories.split(",") if name]
+    lookup_call = None
+    if app_id is not None and private_key is not None and names:
+
+        def lookup_call() -> list[LookupResult]:
+            return lookup(owner, names, app_id=app_id, private_key=private_key)
+
+    try:
+        state = record_state(owner, outcome, repositories, lookup=lookup_call)
+    except InstallStateError as exc:
+        _fail(str(exc))
+        return EXIT_USAGE
+    except Exception as exc:  # signing or transport setup failed: unexplained, so not benign
+        reason = redact(f"{type(exc).__name__}: {exc}", [private_key or ""])
+        state = InstallationState(
+            owner,
+            MINT_ERROR,
+            repositories,
+            f"The read-only token for '{owner}' could not be minted and this is NOT a missing "
+            f"installation: the installation lookup could not run: {reason}. This leg fails.",
+        )
+    path = write_state(state, out)
+    print(f"monitor install: {owner} {state.state}")
+    print(f"record: {path}")
+    if state.state == MINT_ERROR:
+        _fail(state.detail or f"{owner}: token mint failed")
+        return EXIT_INCONSISTENT
+    return EXIT_OK
+
+
+def run_monitor_install_summary(directory: Path, *, summary: Path | None = None) -> int:
+    """Summarize every owner's installation state: a notice per missing install, red if none."""
+    result = summarize_installs(directory)
+    for notice in result.notices:
+        print(notice)
+    if summary is not None:
+        with summary.open("a", encoding="utf-8") as handle:
+            handle.write(result.markdown + "\n")
+    print(result.markdown)
+    if result.problem is not None:
+        _fail(result.problem)
+    return result.exit_code
 
 
 def run_redetect_upstream_defects(
@@ -1054,6 +1239,13 @@ def run_file_upstream_defects(
         )
     read_token = os.environ.get("GH_TOKEN") or None
     write_token = os.environ.get("GH_ISSUES_WRITE_TOKEN") or None
+    registry = None
+    if file:
+        try:
+            registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        except PresenterError as exc:
+            _fail(str(exc))
+            return exc.exit_code
     failures = 0
     for entry in entries:
         try:
@@ -1069,6 +1261,13 @@ def run_file_upstream_defects(
             continue
         existing = partial(_existing_lookup, handoff, read_token)
         recheck = partial(_redetect_or_inconclusive, handoff)
+        permit = None
+        if registry is not None:  # one choke point: only a mode-full entry receives an issue
+            try:
+                permit = require_write_permitted(registry, handoff.repository, "issue_filing")
+            except WriteRefusedError as refusal:
+                print(f"file: {handoff.repository} not filed ({refusal.code}): {refusal}")
+                continue
         try:
             if not file:
                 plan = issues_file.plan_filing(
@@ -1081,6 +1280,7 @@ def run_file_upstream_defects(
                 kill_switch_on = issues_file.write_authorized(os.environ)
                 print(_describe_plan(handoff, plan, kill_switch_on=kill_switch_on))
                 continue
+            assert permit is not None  # `registry` is loaded whenever `file` is set
             result = issues_file.file_handoff(
                 handoff,
                 token=write_token,
@@ -1090,6 +1290,7 @@ def run_file_upstream_defects(
                 recheck=recheck,
                 approvals=approvals,
                 expected_repository=repository,
+                permit=permit,
             )
         except Exception as exc:  # one handoff's failure never stops the others; reported below
             print(f"file: {handoff.repository} ERROR: {exc}")
@@ -1188,6 +1389,9 @@ def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = F
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)
         entry = require_listed(registry, repository)
         print(f"admitted: {entry.repository} (mode {entry.mode})")
+        permit = None
+        if apply:  # one choke point: a dry_run entry may not even attempt the write
+            permit = require_write_permitted(registry, repository, "metadata_write")
         token = os.environ.get("GH_TOKEN") or None
         observed = capture_repo_metadata(entry, token=token)
         metadata_dir = root / RUNS_DIRNAME / "metadata" / f"{entry.owner}__{entry.name}"
@@ -1263,6 +1467,7 @@ def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = F
             patch=default_patch,
             put=default_put,
             refetch=lambda: capture_repo_metadata(entry, token=write_token),
+            permit=permit,
         )
         for outcome in (result.description, result.homepage, result.topics):
             if not outcome.changed:
@@ -1281,104 +1486,137 @@ def _cli_utc_now() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _trigger_commit(trigger_sha: str | None) -> str:
+    """The commit this run was triggered at: the explicit value, else ``$GITHUB_SHA`` (fixed at
+    dispatch, so no step can move it), else the local ``HEAD``."""
+    return trigger_sha or os.environ.get("GITHUB_SHA") or "HEAD"
+
+
 def run_propose(
     repository: str,
     root_argument: Path | None,
     *,
-    readme_file: Path | None = None,
+    local_test_readme_file: Path | None = None,
     source_revision: str | None = None,
     base_branch: str | None = None,
-    expires_in_minutes: int = 15,
+    authorization_record: Path | None = None,
+    trigger_sha: str | None = None,
     propose: bool = False,
 ) -> int:
     """Create or update the one stable presenter branch/PR proposing ``repository``'s README
     candidate (G6-W02; ``components/propose/effect.py``).
 
-    Two content sources, never mixed:
+    A proposal carries exactly one thing: ``repository``'s sealed ``CURRENT`` candidate, and only
+    while that bundle is integrity-verified and ``READY_FOR_PROPOSAL`` at the revision the target
+    still has (a ``VALID_UPDATE_AVAILABLE`` or stale bundle is refused with a typed reason).
 
-    - By default, ``repository`` must be registry-admitted with a sealed ``CURRENT`` candidate
-      (``candidates/<owner>__<name>/CURRENT``) - the real, production shape this command exists
-      for. Nothing here re-validates the bundle's own acceptance; ``status``/``present`` already
-      own that.
-    - ``--readme-file`` (with required ``--source-revision``) bypasses the registry and sealed
-      bundle entirely, for the G6-W02 disposable-target proof only: a disposable test repository
-      created purely to exercise this write path is never registry-admitted (the registry names
-      only the authorized ``aspose-*-foss`` portfolio - ``AGENTS.md`` "Security and Effects"'s
-      allow-list governs *analysis* of that portfolio, which this command never performs; it only
-      opens or updates a pull request on whatever ``--repo`` names, using content supplied
-      directly). Never pass this for a real, registry-admitted repository.
+    Dry-run by default: it reports the plan, the registry mode, source freshness, and - when
+    ``--authorization-record`` is given - whether that record would be accepted, and writes nothing.
+    A ``dry_run`` registry entry never gets past this point. ``--propose`` requires, in order and
+    each with a typed refusal: a ``full`` registry entry, the candidate checks above, the owner
+    switch ``PROPOSE_AUTHORIZATION_VARIABLE``, a repository-scoped ``GH_PROPOSAL_WRITE_TOKEN`` App
+    installation token, an authorization record committed to ``origin/main`` before this run's
+    trigger commit that names this exact candidate, and no merged or closed presenter PR for it.
 
-    Dry-run by default: assembles and prints the authorization payload, making no GitHub call at
-    all. ``--propose`` attempts the write through ``components/propose/effect.py``, which refuses
-    (and explains exactly why, making no write call beyond whatever read it needed to decide the
-    refusal) unless ``PROPOSE_AUTHORIZATION_VARIABLE`` is set to a truthy value *and* a write-scoped
-    ``GH_PROPOSAL_WRITE_TOKEN`` is present - neither is set in this project's own environment today,
-    so ``--propose`` prints the same refusal here that it would anywhere else this command runs,
-    never a live repository write.
+    ``--local-test-readme-file`` is the only way to propose content that is not a sealed candidate.
+    It skips the registry and bundle checks precisely because it cannot write: with ``--propose`` it
+    is refused before anything else happens.
     """
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
     try:
-        if readme_file is not None:
-            if not source_revision:
-                _fail("propose: --readme-file requires --source-revision")
-                return EXIT_USAGE
-            if not readme_file.is_file():
-                _fail(f"propose: {readme_file} does not exist")
-                return EXIT_USAGE
-            readme_text = readme_file.read_text(encoding="utf-8")
-            revision = source_revision
-            print(
-                f"propose: {repository} using --readme-file (disposable-target proof only, "
-                "never a registered repository's own sealed candidate)"
-            )
-        else:
-            registry = load_registry(root / REGISTRY_RELATIVE_PATH)
-            entry = require_listed(registry, repository)
-            repository = entry.repository
-            print(f"admitted: {entry.repository} (mode {entry.mode})")
-            current_path = (
-                root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}" / CURRENT_FILENAME
-            )
-            if not current_path.is_file():
-                print(f"propose: no sealed CURRENT candidate for {repository} - nothing to propose")
-                return EXIT_OK
-            revision = current_path.read_text(encoding="utf-8").strip()
-            bundle = root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}" / revision
-            readme_path = bundle / README_FILENAME
-            if not readme_path.is_file():
-                print(
-                    f"propose: sealed bundle at {revision} has no {README_FILENAME} - nothing to "
-                    "propose"
+        if local_test_readme_file is not None:
+            if propose:
+                _fail(
+                    f"propose: {Refusal.LOCAL_TEST_CANNOT_WRITE}: --local-test-readme-file skips "
+                    "the registry and bundle checks and can never be combined with --propose"
                 )
-                return EXIT_OK
-            readme_text = readme_path.read_text(encoding="utf-8")
+                return EXIT_UNSAFE
+            if not source_revision:
+                _fail("propose: --local-test-readme-file requires --source-revision")
+                return EXIT_USAGE
+            if not local_test_readme_file.is_file():
+                _fail(f"propose: {local_test_readme_file} does not exist")
+                return EXIT_USAGE
+            readme_text = local_test_readme_file.read_text(encoding="utf-8")
+            print(
+                f"propose: LOCAL TEST ONLY - {repository} using {local_test_readme_file.name}; "
+                "registry and bundle checks skipped, no write is possible in this mode"
+            )
+            print(
+                f"propose: {repository} candidate_hash={sha256_text(readme_text)} "
+                f"source_revision={source_revision} branch={presenter_branch_name()}"
+            )
+            print("propose: dry run (local test mode never writes)")
+            return EXIT_OK
 
-        candidate_hash = sha256_text(readme_text)
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        entry = require_listed(registry, repository)
+        repository = entry.repository
+        print(f"admitted: {entry.repository} (mode {entry.mode})")
+        if propose:
+            permit = require_write_permitted(registry, repository, "readme_proposal")
+        elif entry.mode != "full":
+            print(f"propose: registry mode {entry.mode!r} - a dry-run result is all this can be")
+        candidate = load_proposable_candidate(root, repository)
+        readme_text = candidate.readme_text
+        revision = candidate.revision
+        candidate_hash = candidate.candidate_hash
         branch = presenter_branch_name()
-        issued_at = _cli_utc_now()
-        expires_at = (datetime.now(UTC) + timedelta(minutes=expires_in_minutes)).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
-        authorization = authorize_proposal(
-            repository=repository,
-            candidate_hash=candidate_hash,
-            source_revision=revision,
-            branch=branch,
-            issued_at=issued_at,
-            expires_at=expires_at,
-        )
         print(
             f"propose: {repository} candidate_hash={candidate_hash} source_revision={revision} "
-            f"branch={branch} policy_version={authorization.policy_version} "
-            f"expires_at={expires_at}"
+            f"branch={branch} policy_version={CURRENT_POLICY_VERSION}"
         )
+        trigger = _trigger_commit(trigger_sha)
+
+        def _load_authorization() -> ProposalAuthorization:
+            authorization = load_authorization_file(authorization_record)
+            assert authorization_record is not None  # load_authorization_file refused otherwise
+            provenance = verify_record_provenance(
+                authorization_record, control_root=root, trigger_sha=trigger
+            )
+            print(
+                f"propose: authorization record {authorization_record.name} approved by "
+                f"{authorization.approver}; commit {provenance.commit[:12]} by "
+                f"{provenance.author} at {provenance.committed_at}"
+            )
+            return authorization
+
         if not propose:
+            read_token = os.environ.get("GH_TOKEN") or None
+            live = fetch_default_branch_sha(repository, token=read_token)
+            if live.error is not None or live.sha is None or live.branch is None:
+                _fail(f"propose: could not read {repository}'s current revision: {live.error}")
+                return EXIT_INCONSISTENT
+            if live.sha != revision:
+                _fail(
+                    f"propose: {Refusal.SOURCE_MOVED}: bundle revision {revision} is not the "
+                    f"target's current revision {live.sha} - re-present before proposing"
+                )
+                return EXIT_UNSAFE
+            print("propose: bundle revision equals the target's current revision")
+            if authorization_record is None:
+                print("propose: no --authorization-record given (required for --propose)")
+            else:
+                authorization = _load_authorization()
+                decision = validate_authorization(
+                    authorization,
+                    now=_cli_utc_now(),
+                    expected_repository=repository,
+                    expected_candidate_hash=candidate_hash,
+                    expected_source_revision=revision,
+                    expected_base_branch=base_branch or live.branch,
+                    expected_branch=branch,
+                )
+                if not decision.granted:
+                    _fail(f"propose: {decision.code}: {decision.reason}")
+                    return EXIT_UNSAFE
+                print("propose: the authorization record matches this candidate")
             print(
                 "propose: dry run (pass --propose to attempt a write; still gated on "
-                f"{PROPOSE_AUTHORIZATION_VARIABLE} and a write-scoped GH_PROPOSAL_WRITE_TOKEN)"
+                f"{PROPOSE_AUTHORIZATION_VARIABLE} and a repository-scoped GH_PROPOSAL_WRITE_TOKEN)"
             )
             return EXIT_OK
 
@@ -1387,10 +1625,8 @@ def run_propose(
         # own read-only analysis uses and which has no write scope at all (AGENTS.md "Analysis uses
         # repository-scoped read-only credentials"). That write token is also the one this command
         # reads the target's live state with (default branch, current revision, current presenter-
-        # branch content): a disposable proof target is never registry-admitted, so GH_TOKEN would
-        # not even have read access to it, and a GitHub App's Contents:Write permission already
-        # implies read - exactly the one-token-per-effect-job shape docs/STATE_MACHINE.md section
-        # 12 describes, never a second credential smuggled in for convenience.
+        # branch content): a GitHub App's Contents:Write permission already implies read - exactly
+        # the one-token-per-effect-job shape docs/STATE_MACHINE.md section 12 describes.
         write_token = os.environ.get("GH_PROPOSAL_WRITE_TOKEN") or None
 
         def _recheck_source() -> str:
@@ -1408,7 +1644,7 @@ def run_propose(
         # Mirror propose_candidate's own gate here too, before the one read this command makes
         # ahead of the effect itself (resolving the default branch when --base-branch is omitted):
         # an unauthorized or under-credentialed --propose makes no GitHub call at all, not even a
-        # read, exactly like every other early refusal in this module's own docstring.
+        # read, exactly like every other early refusal in the effect's own docstring.
         base = base_branch
         if base is None and propose_write_authorized(os.environ) and write_token:
             default_branch_read = fetch_default_branch_sha(repository, token=write_token)
@@ -1426,26 +1662,29 @@ def run_propose(
             "Automated README proposal from repository-presenter.\n\n"
             f"- candidate_hash: {candidate_hash}\n"
             f"- source_revision: {revision}\n"
-            f"- policy_version: {authorization.policy_version}\n"
+            f"- policy_version: {CURRENT_POLICY_VERSION}\n"
         )
         result = propose_candidate(
             repository=repository,
             readme_text=readme_text,
             source_revision=revision,
-            authorization=authorization,
             base_branch=base,
             pr_title=pr_title,
             pr_body=pr_body,
             token=write_token,
             environment=os.environ,
-            branch=branch,
+            permit=permit,
+            load_authorization=_load_authorization,
             recheck_source=_recheck_source,
+            branch=branch,
             reconcile_write=_reconcile_write,
+            verify_token=default_verify_installation_token,
+            verify_pull_request_app=default_verify_pull_request_app,
             get_ref=default_get_ref,
             create_ref=default_create_ref,
             get_contents=default_get_contents,
             put_contents=default_put_contents,
-            find_open_pull_request=default_find_open_pull_request,
+            find_pull_requests=default_find_pull_requests,
             create_pull_request=default_create_pull_request,
             update_pull_request=default_update_pull_request,
         )
@@ -1453,11 +1692,87 @@ def run_propose(
             f"propose: {repository} authorized={result.authorized} effected={result.effected} - "
             f"{result.reason}"
         )
+        if result.reason_code is not None:
+            print(f"propose: refused ({result.reason_code})")
         if result.pr_url is not None:
             print(
                 f"  pr: {result.pr_url} (commit_written={result.commit_written} "
                 f"pr_created={result.pr_created} pr_updated={result.pr_updated})"
             )
+        if not result.effected:
+            return EXIT_UNSAFE
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    return EXIT_OK
+
+
+def run_draft_proposal_authorization(
+    repository: str,
+    root_argument: Path | None,
+    *,
+    approver: str,
+    base_branch: str | None = None,
+    expires_in_hours: int = 24,
+    supersedes_prs: tuple[int, ...] = (),
+) -> int:
+    """Write the authorization record for ``repository``'s current candidate under ``ops/
+    proposal-authorizations/`` for a person to review and merge.
+
+    Drafting authorizes nothing: ``propose --propose`` accepts a record only once it is merged to
+    ``origin/main`` before the commit a run is triggered at, so the run that drafts a record can
+    never consume it. Refuses for a repository that could not be written to (not listed, not
+    ``full``), a candidate that is not ``READY_FOR_PROPOSAL``, and a bundle behind the target."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    if not 0 < expires_in_hours <= MAX_LIFETIME // timedelta(hours=1):
+        _fail(
+            f"draft-proposal-authorization: --expires-in-hours must be 1..{MAX_LIFETIME.days * 24}"
+        )
+        return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        entry = require_listed(registry, repository)
+        require_write_permitted(registry, entry.repository, "readme_proposal")
+        candidate = load_proposable_candidate(root, entry.repository)
+        live = fetch_default_branch_sha(entry.repository, token=os.environ.get("GH_TOKEN") or None)
+        if live.error is not None or live.sha is None or live.branch is None:
+            _fail(f"draft-proposal-authorization: could not read the target: {live.error}")
+            return EXIT_INCONSISTENT
+        if live.sha != candidate.revision:
+            _fail(
+                f"draft-proposal-authorization: {Refusal.SOURCE_MOVED}: bundle revision "
+                f"{candidate.revision} is not the target's current revision {live.sha}"
+            )
+            return EXIT_UNSAFE
+        issued = datetime.now(UTC)
+        authorization = authorize_proposal(
+            repository=entry.repository,
+            candidate_hash=candidate.candidate_hash,
+            source_revision=candidate.revision,
+            base_branch=base_branch or live.branch,
+            branch=presenter_branch_name(),
+            approver=approver,
+            issued_at=issued.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            expires_at=(issued + timedelta(hours=expires_in_hours)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            supersedes_prs=supersedes_prs,
+        )
+        path = (
+            root
+            / AUTHORIZATION_DIRNAME
+            / record_filename(entry.repository, candidate.candidate_hash)
+        )
+        if path.exists():
+            _fail(f"draft-proposal-authorization: {path.relative_to(root).as_posix()} exists")
+            return EXIT_USAGE
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(render_record(authorization), encoding="utf-8", newline="\n")
+        print(
+            f"drafted: {path.relative_to(root).as_posix()} (expires {authorization.expires_at}) - "
+            "commit it through a reviewed pull request; it authorizes nothing until it is merged"
+        )
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
@@ -1531,6 +1846,7 @@ def run_status(
     reproducible = reproducible_candidates(root)
     accepted = independently_accepted_candidates(root, found)
     executed, example_total = examples_verification_summary(root)
+    held = held_updates(root)
     portfolio = _portfolio_report(root, found, drift, authorizations)
     if as_json:
         print(
@@ -1555,6 +1871,17 @@ def run_status(
                     },
                     "examples": {"executed": executed, "total": example_total},
                     "canary": cursor.canary,
+                    "candidate_states": _candidate_state_counts(root, held),
+                    "held_updates": [
+                        {
+                            "repository_dir": update.repository_dir,
+                            "revision": update.revision,
+                            "state": update.state,
+                            "scope": update.scope,
+                            "stage": update.stage,
+                        }
+                        for update in held
+                    ],
                     "stale": [
                         {
                             "repository_dir": candidate.repository_dir,
@@ -1580,6 +1907,8 @@ def run_status(
         )
         print(f"examples: {executed}/{example_total} verified across counted candidates")
         print(f"canary: {cursor.canary}")
+        for line in _candidate_state_lines(root, held):
+            print(line)
         if portfolio is not None:
             for line in render_portfolio_lines(portfolio):
                 print(line)
@@ -1592,6 +1921,7 @@ def run_status(
                         print(f"    {reason}")
             else:
                 print("stale: none")
+            _print_routing_dry_run(root)
     if on_disk != cursor.recorded_candidates:
         _fail(
             f"cursor records {cursor.recorded_candidates} current candidates "
@@ -1599,6 +1929,70 @@ def run_status(
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def _candidate_state_counts(root: Path, held: Sequence[HeldUpdate]) -> dict[str, int]:
+    """Current candidates by manifest state, the counted state beside the valid-but-uncounted one.
+
+    ``candidates:`` stays the cursor's headline (``READY_FOR_PROPOSAL`` only,
+    ``core.candidates.COUNTED_STATES``). A candidate holding an update after a prompt, template,
+    validator or reviewer change is still valid, so it is reported next to that number rather than
+    silently dropping out of view (docs/DECISION_LOG.md, the open counting question).
+    """
+    return {
+        "READY_FOR_PROPOSAL": count_current_candidates(root),
+        "VALID_UPDATE_AVAILABLE": sum(
+            1 for update in held if update.state == STATE_UPDATE_AVAILABLE
+        ),
+        "INVALIDATED": sum(1 for update in held if update.state == STATE_INVALIDATED),
+    }
+
+
+def _candidate_state_lines(root: Path, held: Sequence[HeldUpdate]) -> list[str]:
+    counts = _candidate_state_counts(root, held)
+    lines = [
+        "candidate states: "
+        f"{counts['READY_FOR_PROPOSAL']} READY_FOR_PROPOSAL (counted); "
+        f"{counts['VALID_UPDATE_AVAILABLE']} VALID_UPDATE_AVAILABLE "
+        "(valid, update pending, not counted); "
+        f"{counts['INVALIDATED']} INVALIDATED (not valid, not counted)"
+    ]
+    if held:
+        lines.append(f"updates: {len(held)} current candidate(s) hold an update -")
+        for update in held:
+            lines.append(
+                f"  {update.repository_dir} @ {update.revision}: {update.state} "
+                f"(scope {update.scope or 'unrecorded'}, "
+                f"re-enters {update.stage or 'unrecorded'})"
+            )
+    return lines
+
+
+def _print_routing_dry_run(root: Path) -> None:
+    """``status --stale``: how each CURRENT bundle would be routed by the running code's own
+    inputs, through the typed invalidation scopes (components/readme/bundle/invalidation.py).
+
+    A dry run: nothing is cloned, called or written, and a sealed bundle is never touched. The
+    source revision, fact records and host environment are not observable without a clone, so a
+    ``facts`` scope appears only in a real run.
+    """
+    try:
+        current_code = code_dependencies(load_manifests(root / PROMPTS_DIRNAME))
+    except PresenterError as exc:
+        print(f"routing: unavailable ({exc})")
+        return
+    rows = [row for row in portfolio_routing(root, current_code) if row.routing.state]
+    if not rows:
+        print("routing: no current candidate would change state")
+        return
+    print(f"routing: {len(rows)} current candidate(s) would change state (dry run, no writes) -")
+    for row in rows:
+        routing = row.routing
+        print(
+            f"  {row.repository_dir} @ {row.revision}: {row.state} -> {row.would_become} "
+            f"(scope {routing.triggering_scope}; scopes {', '.join(routing.scopes)}; "
+            f"re-enters {routing.stage})"
+        )
 
 
 def _portfolio_report(
@@ -1971,6 +2365,9 @@ def run_present(
                 consumed_calls=ledger.consumed_calls,
                 secrets=configured_secrets(os.environ),
                 earliest_affected_stage=evaluated["earliest_affected_stage"],
+                changed_dependencies=tuple(
+                    str(change["dependency"]) for change in evaluated["changes"]
+                ),
                 models_used=selection.models_used(),
             )
         )

@@ -230,6 +230,65 @@ def test_status_ignores_unsealed_and_uncounted_bundles(
     assert "candidates: 0/34" in capsys.readouterr().out
 
 
+def _set_manifest_fields(bundle: Path, **fields: Any) -> None:
+    path = bundle / "manifest.json"
+    path.write_text(json.dumps({**json.loads(path.read_text("utf-8")), **fields}), encoding="utf-8")
+
+
+def test_status_names_the_scope_that_triggered_each_held_update(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    held = write_bundle(project, "owner__alpha", "aaa111", "VALID_UPDATE_AVAILABLE")
+    _set_manifest_fields(
+        held, update={"triggering_scope": "reviewer", "earliest_affected_stage": "REVIEWING"}
+    )
+    invalidated = write_bundle(project, "owner__beta", "bbb222", "INVALIDATED")
+    _set_manifest_fields(invalidated, invalidated={"scope": "facts", "causal_stage": "EXTRACTING"})
+    write_bundle(project, "owner__gamma", "ccc333", "ACCEPTED")
+
+    assert main(["status", "--root", str(project)]) == EXIT_OK
+
+    out = capsys.readouterr().out
+    # Both numbers side by side, so a candidate waiting on an update never reads as invalid.
+    assert (
+        "candidate states: 0 READY_FOR_PROPOSAL (counted); "
+        "1 VALID_UPDATE_AVAILABLE (valid, update pending, not counted); "
+        "1 INVALIDATED (not valid, not counted)"
+    ) in out
+    assert "updates: 2 current candidate(s) hold an update -" in out
+    assert (
+        "owner__alpha @ aaa111: VALID_UPDATE_AVAILABLE (scope reviewer, re-enters REVIEWING)" in out
+    )
+    assert "owner__beta @ bbb222: INVALIDATED (scope facts, re-enters EXTRACTING)" in out
+    assert "owner__gamma" not in out.split("updates:")[1]
+
+
+def test_status_stale_dry_runs_the_routing_without_writing(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from repository_presenter.components.readme.bundle.seal import code_dependencies
+    from repository_presenter.core.llm.prompts import load_manifests
+
+    shutil.copytree(REPO_ROOT / "prompts", project / "prompts")
+    bundle = write_bundle(project, "owner__alpha", "aaa111", "READY_FOR_PROPOSAL")
+    sealed = code_dependencies(load_manifests(project / "prompts"))
+    sealed["components"] = {**sealed["components"], "renderer": "0"}
+    sealed["validator_version"] = "0"
+    (bundle / "dependencies.json").write_text(json.dumps(sealed), encoding="utf-8")
+    write_cursor(project, recorded_candidates=1)
+    before = {p: p.read_bytes() for p in (project / "candidates").rglob("*") if p.is_file()}
+
+    assert main(["status", "--stale", "--root", str(project)]) == EXIT_OK
+
+    out = capsys.readouterr().out
+    assert "routing: 1 current candidate(s) would change state (dry run, no writes) -" in out
+    assert (
+        "owner__alpha @ aaa111: READY_FOR_PROPOSAL -> VALID_UPDATE_AVAILABLE "
+        "(scope presentation; scopes presentation, validator; re-enters RECONCILING)"
+    ) in out
+    assert {p: p.read_bytes() for p in (project / "candidates").rglob("*") if p.is_file()} == before
+
+
 def test_status_flags_cursor_that_disagrees_with_disk(
     project: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -996,8 +1055,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "6",
         "renderer": "28",
-        "normalisation": "20",
-        "reviewer_logic": "14",
+        "normalisation": "21",
+        "reviewer_logic": "15",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
@@ -1373,6 +1432,7 @@ def _rejection(label: str, quote: str = OPENING_QUOTE) -> dict[str, Any]:
                 "quote": quote,
                 "fact_ids": ["identity:repository"],
                 "absent": [],
+                "omission": None,
                 "repair": "Name the developers concretely.",
             }
         ],
@@ -1644,6 +1704,7 @@ def _scope_rejection(label: str = "F01") -> dict[str, Any]:
                 "quote": SCOPE_QUOTE,
                 "fact_ids": ["identity:repository"],
                 "absent": [],
+                "omission": None,
                 "repair": "Add a bullet for the GLB-only export limitation.",
             }
         ],
@@ -1711,6 +1772,7 @@ def _presentation_rejection(label: str = "F01") -> dict[str, Any]:
                 "quote": SCOPE_QUOTE,
                 "fact_ids": [],
                 "absent": [],
+                "omission": None,
                 "repair": "Restore the original level of detail.",
             }
         ],
@@ -1970,14 +2032,17 @@ def test_a_changed_prompt_reopens_only_its_stage_and_records_an_update(
         assert (transaction / name).read_bytes() == (bundle / name).read_bytes()
     # review.json names the authoring prompt's hash, so it changes with the prompt too.
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    assert "(state READY_FOR_PROPOSAL, 14 files, provider calls 8; " in bundle_line
+    # An authoring-prompt change is not a factual input: the proven candidate stays valid with an
+    # update available, and the manifest names the scope (docs/STATE_MACHINE.md section 9).
+    assert "(state VALID_UPDATE_AVAILABLE, 14 files, provider calls 8; " in bundle_line
     assert (
-        "valid update available (presentation): dependencies.json, raw_calls.json, "
+        "valid update available (authoring): dependencies.json, raw_calls.json, "
         "review.json changed at COMPOSING; the proven candidate stays valid and the update waits "
         "in the transaction)"
     ) in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
-    assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["update"]["triggering_scope"] == "authoring"
     assert manifest["update"]["changed"] == ["dependencies.json", "raw_calls.json", "review.json"]
     assert {name: (bundle / name).read_bytes() for name in before} == before
 
@@ -2347,20 +2412,24 @@ def test_preflight_refusal_is_reported_by_status_with_nothing_else(
 
 
 def _assert_presentation_update(
-    out: str, bundle: Path, stage: str, changed: list[str], reused: tuple[str, ...]
+    out: str, bundle: Path, stage: str, changed: list[str], reused: tuple[str, ...], scope: str
 ) -> None:
+    """A non-factual scope: the proven candidate stays valid, an update is available, and the
+    manifest and the bundle line both name the scope that triggered it."""
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    assert "(state READY_FOR_PROPOSAL," in bundle_line
+    assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
+    assert f"valid update available ({scope}):" in bundle_line
     assert f"changed at {stage}; the proven candidate stays valid" in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
-    assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["update"]["triggering_scope"] == scope and "invalidated" not in manifest
     assert manifest["update"]["changed"] == changed
     for prefix in reused:
         line = next(line for line in out.splitlines() if line.startswith(prefix))
         assert "provider calls 0" in line, line
 
 
-def test_a_template_component_change_reopens_reconciling_and_records_a_factual_update(
+def test_a_template_component_change_reopens_reconciling_and_leaves_a_valid_update(
     project_with_registry: Path,
     sealed_canary: Path,
     local_canary: dict[str, Any],
@@ -2381,18 +2450,21 @@ def test_a_template_component_change_reopens_reconciling_and_records_a_factual_u
         "(earliest affected stage RECONCILING; 1 changes (components.renderer -> RECONCILING)"
     ) in out
     # dispositions.py's normalize()/placement_errors() consume shell, and RC-06's coverage logic
-    # lives in renderer.py - both are read starting at RECONCILING (EVAL-01), so a renderer bump
-    # is now a factual update, not the silently-reused presentation-only one it used to be: every
-    # stage is still seeded from the sealed bundle and reused byte-for-byte without a call, since
-    # nothing an LLM produced actually depends on the component version.
+    # lives in renderer.py - both are read starting at RECONCILING (EVAL-01). A template component
+    # is a presentation input, never a factual one, so the proven candidate stays valid with an
+    # update available (docs/STATE_MACHINE.md section 9; docs/DECISION_LOG.md 2026-09-06 07:45):
+    # every stage is still seeded from the sealed bundle and reused byte-for-byte without a call,
+    # since nothing an LLM produced actually depends on the component version.
     assert "seeded from sealed bundle: presentation_planning, repository_investigation, " in out
     assert len(gateway_ready.requests) == before
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
     assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
-    assert "valid update available (factual):" in bundle_line
-    assert "no longer counts as current until this is resolved or adopted" in bundle_line
+    assert "valid update available (presentation):" in bundle_line
+    assert "the proven candidate stays valid" in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["update"]["triggering_scope"] == "presentation"
+    assert manifest["update"]["classification"] == "presentation"
     assert manifest["update"]["changed"] == ["dependencies.json"]
     assert (bundle / "README.md").read_bytes() == readme_before
 
@@ -2421,6 +2493,7 @@ def test_a_shell_component_change_also_reopens_reconciling(
     assert len(gateway_ready.requests) == before
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["update"]["triggering_scope"] == "presentation"
 
 
 def test_a_validator_change_reopens_validating_and_rechecks_without_a_call(
@@ -2443,7 +2516,12 @@ def test_a_validator_change_reopens_validating_and_rechecks_without_a_call(
     assert len(gateway_ready.requests) == before
     # A validator change re-checks the accepted candidate; passing again, it stays valid.
     _assert_presentation_update(
-        out, bundle, "VALIDATING", ["dependencies.json"], ("plan: ", "units: ", "review: ")
+        out,
+        bundle,
+        "VALIDATING",
+        ["dependencies.json"],
+        ("plan: ", "units: ", "review: "),
+        "validator",
     )
 
 
@@ -2480,6 +2558,7 @@ def test_a_reviewer_rubric_change_reopens_reviewing_only(
         "REVIEWING",
         ["dependencies.json", "raw_calls.json", "review.json"],
         ("plan: ", "units: "),
+        "reviewer",
     )
 
 
@@ -2524,14 +2603,15 @@ def test_a_model_route_change_reopens_the_stage_that_used_it(
     # and the identical plan leaves every downstream artifact reused as well.
     assert len(gateway_ready.requests) == before + 1
     assert gateway_ready.requests[-1]["model"] == "other-route"
-    # A changed model is a changed candidate whatever plan it produces (fallback chains,
-    # models_used): the proven bundle moves to VALID_UPDATE_AVAILABLE and names the route.
+    # A changed model route is a prompt-class change (docs/DECISION_LOG.md 2026-09-06 07:45): the
+    # proven bundle stays valid with an update available, scoped by the prompt on that route.
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
     assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
-    assert "changed at PLANNING; the candidate no longer counts as current" in bundle_line
+    assert "valid update available (planning):" in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "VALID_UPDATE_AVAILABLE"
-    assert manifest["update"]["classification"] == "factual"
+    assert manifest["update"]["classification"] == "presentation"
+    assert manifest["update"]["triggering_scope"] == "planning"
     assert "models[other-route]: (none) -> other-route" in manifest["update"]["changed"]
     assert manifest["models_used"] == {"qwen3-next": "qwen3-next"}
     for prefix in ("investigation: ", "dispositions: ", "units: ", "review: "):
@@ -2559,7 +2639,7 @@ def test_a_planning_policy_change_reopens_planning(
     # The plan is asked again at most once; the stored downstream outputs are reused.
     assert len(gateway_ready.requests) - before <= 1
     _assert_presentation_update(
-        out, bundle, "PLANNING", ["dependencies.json"], ("units: ", "review: ")
+        out, bundle, "PLANNING", ["dependencies.json"], ("units: ", "review: "), "planning"
     )
 
 
@@ -2608,7 +2688,7 @@ def test_a_new_source_revision_reopens_extracting_and_supersedes_the_proven_bund
     assert sorted(states) == ["READY_FOR_PROPOSAL", "SUPERSEDED"]  # one current candidate
 
 
-def test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update(
+def test_a_changed_fact_record_reopens_extracting_and_invalidates_the_candidate(
     project_with_registry: Path,
     sealed_canary: Path,
     local_canary: dict[str, Any],
@@ -2635,14 +2715,16 @@ def test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update(
     # stored output is judged and reused without a call.
     assert len(gateway_ready.requests) == before
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    # A changed fact is a factual update: recorded, waiting, and the candidate previously proven
-    # no longer counts as current until the contradiction is resolved or adopted (TB-06, external
-    # review D6, 2026-09-08) - unlike a merely presentational update, which stays counted.
-    assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
-    assert "valid update available (factual):" in bundle_line
-    assert "no longer counts as current until this is resolved or adopted" in bundle_line
+    # A changed fact is a changed factual input the candidate consumed: it invalidates the
+    # candidate and re-enters at EXTRACTING (docs/STATE_MACHINE.md section 9). The update the
+    # re-entered pipeline produced is recorded and waits for a fresh zero-call process to adopt it.
+    assert "(state INVALIDATED," in bundle_line
+    assert "invalidated (facts):" in bundle_line
+    assert "no longer counts as current and re-enters at EXTRACTING" in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
-    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["state"] == "INVALIDATED" and manifest["update"]["available"]
+    assert manifest["invalidated"]["scope"] == "facts" and manifest["invalidated"]["check"] is None
+    assert manifest["update"]["triggering_scope"] == "facts"
     assert "facts.json" in manifest["update"]["changed"]
     assert "README.md" not in manifest["update"]["changed"]  # the same bytes render again
     assert (bundle / "README.md").read_bytes() == readme_before
@@ -2754,6 +2836,7 @@ def test_an_injected_preservation_defect_is_repaired_at_reconciling(
         "quote": OPENING_QUOTE,
         "fact_ids": ["inherited_unit:002.paragraph"],
         "absent": [],
+        "omission": None,
         "repair": "Preserve the inherited paragraph where a visitor finds it.",
     }
     restored = copy.deepcopy(LOCAL_DISPOSITIONS)
@@ -2843,6 +2926,7 @@ def test_an_s4_repair_may_declare_only_the_unit_its_own_change_touched(
         "quote": OPENING_QUOTE,
         "fact_ids": ["inherited_unit:002.paragraph"],
         "absent": [],
+        "omission": None,
         "repair": "Preserve the inherited paragraph where a visitor finds it.",
     }
     # Only the one changed disposition - the other three units of LOCAL_DISPOSITIONS are never
