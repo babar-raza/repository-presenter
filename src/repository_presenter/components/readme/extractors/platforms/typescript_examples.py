@@ -23,7 +23,6 @@ import os
 import re
 import shutil
 from collections.abc import Sequence
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -32,7 +31,11 @@ from repository_presenter.components.readme.extractors.platforms.typescript_barr
     compiler_options,
     read_json,
 )
-from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
+from repository_presenter.core.examples import (
+    ExampleCandidate,
+    ExampleReceipt,
+    MeasuredBuild,
+)
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
 from repository_presenter.core.toolchains import REGISTRY_VARIABLE, resolve_tool
 
@@ -385,23 +388,6 @@ def _version(compiler: str, workspace: Path) -> str:
     return result.stdout.strip() if result.return_code == 0 else ""
 
 
-@dataclass(frozen=True)
-class ProductBuild:
-    """What driving the package's own manifest build proved (G4-W17 arrival item 50).
-
-    ``command`` is the exact steps that exited 0, newline-joined in the order a reader runs them
-    from a checkout, and empty unless every step did: it is what a receipt hands
-    `_source_build_fact` to advertise, so it never names a step that was not proven. ``summary``
-    is the phrase every receipt carries - exit codes only, never a duration: a wall-clock cannot
-    repeat between two runs of one revision, and a receipt that carried one withdrew a seal's
-    no-op proof (net_examples.py, measured 2026-09-06 on Aspose.Cells for .NET).
-    """
-
-    verified: bool
-    command: str
-    summary: str
-
-
 def npm_executable() -> str | None:
     """`npm` as this machine offers it, or None when it offers none.
 
@@ -424,7 +410,7 @@ def npm_executable() -> str | None:
 
 def build_product(
     root: Path, workspace: Path, npm: str | None, timeout_seconds: float
-) -> ProductBuild:
+) -> MeasuredBuild:
     """Drive the manifest's own build in a copy of the checkout and say exactly what exited 0.
 
     Lane B's measurement (RESEARCH_LANE_B 617-645) is why nothing here is a template: `npm
@@ -437,13 +423,13 @@ def build_product(
     `build_product` is the same shape for CMake).
     """
     if npm is None:
-        return ProductBuild(False, "", "not attempted (no npm on this machine)")
+        return MeasuredBuild(False, "", "not attempted (no npm on this machine)")
     copy = workspace / _PRODUCT_DIRECTORY
     try:
         shutil.copytree(root, copy, ignore=shutil.ignore_patterns(*_NOT_COPIED), dirs_exist_ok=True)
     except OSError as error:
         # The error's text would carry this machine's paths into a receipt; its class does not.
-        return ProductBuild(
+        return MeasuredBuild(
             False, "", f"not attempted (the sources would not copy: {type(error).__name__})"
         )
     scripts = read_json(copy / "package.json").get("scripts")
@@ -463,11 +449,11 @@ def build_product(
         )
         after = f" after {' and '.join(f'`{done}` exited 0' for done in ran)}" if ran else ""
         if result.timed_out:
-            return ProductBuild(
+            return MeasuredBuild(
                 False, "", f"failed (`{spelled}` did not exit within {timeout_seconds:g}s{after})"
             )
         if result.return_code != 0:
-            return ProductBuild(
+            return MeasuredBuild(
                 False, "", f"failed (`{spelled}` exited {result.return_code}{after})"
             )
         ran.append(spelled)
@@ -475,7 +461,24 @@ def build_product(
     aside = (
         "" if declares_build else "; the manifest declares no build script, so nothing was compiled"
     )
-    return ProductBuild(True, "\n".join(ran), f"succeeded ({proven}{aside})")
+    return MeasuredBuild(True, "\n".join(ran), f"succeeded ({proven}{aside})")
+
+
+def verify_typescript_build(
+    package: Path, workspace: Path, timeout_seconds: float
+) -> MeasuredBuild:
+    """The package's own npm build, measured whether or not any README example exists.
+
+    The one rule for an npm install claim the registry does not confirm
+    (`evidence/facts/extract.py`, the same rule `net_examples.verify_net_build` applies to NuGet).
+    A README snippet that fails is that snippet's defect, and a repository with no snippet has no
+    receipt to read at all, so the build is driven here, once, on its own fresh run directory -
+    never the examples' workspace.
+    """
+    fresh = _fresh_workspace(workspace)
+    if fresh is None:
+        return MeasuredBuild(False, "", "not attempted (no clean workspace to build in)")
+    return build_product(package, fresh, npm_executable(), timeout_seconds)
 
 
 def verify_typescript_examples(
