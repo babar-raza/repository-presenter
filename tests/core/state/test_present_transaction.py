@@ -467,3 +467,104 @@ def test_a_failing_run_from_an_already_accepted_resume_invalidates_instead() -> 
 
 def then_past() -> str:
     return (datetime.now(UTC) - timedelta(hours=1)).isoformat()
+
+
+def _set_state(backend: InMemoryStateBackend, state: str) -> None:
+    save_state_patch(
+        backend,
+        REPO,
+        lambda r: r.model_copy(update={"state": state}),
+        provider_repository_id=PROVIDER_ID,
+    )
+
+
+def test_a_successful_rerun_from_invalidated_walks_forward_from_extracting() -> None:
+    """Reproduces the hosted defect recorded in docs/DEFECT_INDEX.md
+    (present_transaction.wrapper_outcome_no_registered_path): a repository left INVALIDATED by an
+    earlier run must not crash the wrapper when the next local pipeline run succeeds. schema.py's
+    only registered re-entry from INVALIDATED is EXTRACTING (the earliest affected stage), so the
+    receipt walks the spine from there - never a claim that skips the re-derivation."""
+    backend = InMemoryStateBackend()
+    run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=_classify_always(_ACCEPTED),
+        workflow_run_id="run-1",
+    )
+    _set_state(backend, "INVALIDATED")
+
+    exit_code = run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=_classify_always(_ACCEPTED),
+        workflow_run_id="run-2",
+    )
+    assert exit_code == 0
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "ACCEPTED"
+    assert record.last_transition is not None
+    assert record.last_transition.from_state == "REVIEWING"
+
+
+def test_a_successful_ready_rerun_from_invalidated_reaches_ready_for_proposal() -> None:
+    backend = InMemoryStateBackend()
+    run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=_classify_always(_ACCEPTED),
+        workflow_run_id="run-1",
+    )
+    _set_state(backend, "INVALIDATED")
+
+    exit_code = run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=_classify_always(_READY),
+        workflow_run_id="run-2",
+    )
+    assert exit_code == 0
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "READY_FOR_PROPOSAL"
+
+
+def test_a_failing_rerun_from_invalidated_stays_invalidated_without_an_illegal_hop() -> None:
+    backend = InMemoryStateBackend()
+    run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=_classify_always(_ACCEPTED),
+        workflow_run_id="run-1",
+    )
+    _set_state(backend, "INVALIDATED")
+
+    exit_code = run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 1,
+        classify=_classify_always(_FAILED),
+        workflow_run_id="run-2",
+    )
+    assert exit_code == 1
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "INVALIDATED"
+    assert record.lease is None

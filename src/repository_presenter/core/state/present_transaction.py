@@ -179,7 +179,10 @@ def _failure_target(current_state: TransactionState) -> TransactionState:
     no direct edge to ``FAILED_INTERNAL``, unlike every other active state this wrapper can resume
     into. ``INVALIDATED`` is the honest substitute: a failure discovered while resuming an
     ``ACCEPTED`` transaction means the previously accepted candidate no longer stands."""
-    return "INVALIDATED" if current_state == "ACCEPTED" else "FAILED_INTERNAL"
+    # INVALIDATED has no registered edge to FAILED_INTERNAL either (schema.py only registers its
+    # re-entry edges onto the active stages); a failing rerun of an already-invalidated candidate
+    # therefore stays INVALIDATED, the same early-return "no self-loop" case as a repeat failure.
+    return "INVALIDATED" if current_state in ("ACCEPTED", "INVALIDATED") else "FAILED_INTERNAL"
 
 
 def _success_hops(
@@ -193,6 +196,17 @@ def _success_hops(
     """
     if current_state == target_state:
         return []  # nothing changed; the registry has no self-loop and none is needed
+    if current_state == "INVALIDATED":
+        # schema.py's only registered re-entry from INVALIDATED is the earliest affected stage,
+        # EXTRACTING (sections 8/9's reopen tables). The local pipeline has just re-derived every
+        # stage from there onward, so the receipt walks the spine from EXTRACTING. A target before
+        # EXTRACTING (a --facts-only run) has no registered hop: the record honestly stays
+        # INVALIDATED, since nothing was re-proven.
+        if SUCCESS_SPINE.index(target_state) < SUCCESS_SPINE.index("EXTRACTING"):
+            return []
+        start = SUCCESS_SPINE.index("EXTRACTING")
+        end = SUCCESS_SPINE.index(target_state)
+        return list(SUCCESS_SPINE[start : end + 1])
     if current_state in _WILDCARD_RESUME_SOURCES:
         # FAILED_INTERNAL/BLOCKED_EXTERNAL -> any ACTIVE_STATE is registered (schema.py's own
         # wildcard); SNAPSHOTTING is this module's one re-entry point onto the spine.
