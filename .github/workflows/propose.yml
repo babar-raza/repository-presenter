@@ -8,19 +8,21 @@
 #     only after this mechanism is observed stable, per EXECUTION_STATE_MACHINE.md G7).
 #   - two jobs, two trust levels (docs/STATE_MACHINE.md section 12: analysis and proposal
 #     execution are separate jobs):
-#       `dry-run`  validates every dispatch input, then assembles and prints the authorization
-#                  payload. It holds no secret and no token of any kind (the dry run makes no
-#                  GitHub call), and its permissions are `contents: read` for the checkout alone.
+#       `dry-run`  validates every dispatch input, then reports the plan and whether the committed
+#                  authorization record would be accepted. It reads the target with a read-only
+#                  installation token (contents + metadata read, minted for the one target) that
+#                  only the dry-run step sees; it holds no write credential, and its GITHUB_TOKEN
+#                  permission is `contents: read` for the checkout alone.
 #       `write`    runs only when `dry-run` succeeded AND the dispatcher ticked `do_propose`. It is
-#                  the only job that names the App secrets, and the minted token is exposed to
-#                  exactly one step - the one that runs `repository-presenter propose --propose`.
+#                  the only job that mints a write token, and that token is exposed to exactly one
+#                  step - the one that runs `repository-presenter propose --propose`.
 #   - shell-injection hardening: no `${{ inputs.* }}` (or any other attacker-influenced
 #     expression) is ever interpolated into a `run:` script. Every dispatch input is passed through
 #     `env:` and read as a quoted shell variable; the first step of `dry-run` rejects any value
 #     outside a strict allow-pattern and echoes only the input's name, never its value (a value
 #     echoed into the log could itself carry a workflow command). `write` receives only the
 #     validated values, as `needs.dry-run.outputs.*`, and again only through `env:`.
-#     tests/test_workflow_app_tokens.py pins all of this, for every workflow in this directory.
+#     tests/test_workflow_hardening.py pins all of this, for every workflow in this directory.
 #   - concurrency: one run per target repository at a time (`cancel-in-progress: false`), so two
 #     proposals for one target can never race on the one stable presenter branch.
 #   - credential: the write credential is a repository-scoped GitHub App installation token minted
@@ -28,59 +30,45 @@
 #     preferred over hand-rolled JWT signing per AGENTS.md's battle-tested-solutions rule), scoped to
 #     exactly the one target repository and to the minimum permissions the effect uses - never the
 #     whole App installation, never a personal access token. It is exposed to the CLI as
-#     `GH_PROPOSAL_WRITE_TOKEN` only; this workflow never sets `GH_TOKEN` (the read-only analysis
-#     credential `present.yml`/`monitor.yml` use), so there is no ambient read-only token for the
-#     CLI to fall back to even by accident. Dependencies are installed before the token exists, and
-#     checkout does not persist the job's own GITHUB_TOKEN into .git/config.
+#     `GH_PROPOSAL_WRITE_TOKEN` only. The dry run's read-only token is exposed as `GH_TOKEN` (the
+#     analysis credential name `present.yml`/`monitor.yml` use) to the dry-run step only. Dependencies
+#     are installed before either token exists, and checkout does not persist the job's own
+#     GITHUB_TOKEN into .git/config.
 #
 # `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED=1` is set in the one "Propose for real" step below
 # only - never at the job or workflow level - so a reviewer of this file can see directly that the
 # owner's explicit go-ahead (AGENTS.md "Security and Effects": never inferred from credential
 # presence alone) and the actual GitHub-mutating step are the same step, not two that could drift
-# apart. The `dry-run` job always runs first and makes no GitHub call at all - every dispatch prints
-# the exact authorization payload (candidate hash, source revision, branch, policy version, expiry)
-# before any write is even possible.
+# apart. The `dry-run` job always runs first and writes nothing - every dispatch prints the plan
+# (candidate hash, source revision, branch, policy version) and the authorization decision before
+# any write is even possible.
 #
-# docs/STATE_MACHINE.md section 12.1: the *first* live exercise of this workflow against a real
-# external target must be owner-selected (the exact `repo` input), never agent-selected, and must
-# never name a real `aspose-*-foss` product repository - that is G6-W03's own separately authorized
-# scope. `inputs.readme_file`/`inputs.source_revision` exist only for that first disposable-target
-# proof, where the target has no registry entry and no sealed `candidates/` bundle to propose from
-# (`repository-presenter propose --help` documents the same split); `readme_file` is confined to
-# the sealed `candidates/` tree. `authorization_record` names the owner's authorization record
-# under `ops/`, which `repository-presenter propose --authorization-record` consumes.
+# The command (PR #241) proposes only a registry-admitted, `full`-mode repository's sealed
+# READY_FOR_PROPOSAL candidate. `authorization_record` names the committed record under
+# `ops/proposal-authorizations/`; the command verifies from git history that the record was merged to
+# origin/main before this run's trigger commit (`--trigger-sha`, this run's own `github.sha`), so
+# both checkouts are full-depth (`fetch-depth: 0`). A refused or unsafe outcome exits 3, which the
+# steps below report as a clear "proposal refused" failure. docs/STATE_MACHINE.md section 12.1: the
+# *first* live exercise against a real external target is owner-selected, never agent-selected.
 name: Propose
 
 on:
   workflow_dispatch:
     inputs:
       repo:
-        description: "Target repository (OWNER/NAME) - never a real aspose-*-foss product repository until G6-W03 explicitly authorizes it"
+        description: "Target repository (OWNER/NAME) - must be a registry-admitted full-mode repository; owner-selected for the first live exercise (docs/STATE_MACHINE.md 12.1)"
         required: true
-        type: string
-      readme_file:
-        description: "Disposable-target proof only: path to the README content to propose, inside the sealed tree (candidates/<owner>__<name>/<40-hex revision>/README.md), bypassing the registry/sealed-candidate lookup"
-        required: false
-        type: string
-      source_revision:
-        description: "Required together with readme_file: the exact 40-hex revision that content came from"
-        required: false
         type: string
       base_branch:
         description: "Override the target's default branch; read live from GitHub when left blank"
         required: false
         type: string
-      expires_in_minutes:
-        description: "How long the assembled authorization stays valid before it must be re-minted (1-60)"
-        required: false
-        type: string
-        default: "15"
       authorization_record:
-        description: "Path under ops/ to the owner's authorization record for this proposal; required when do_propose is checked"
+        description: "Path to the committed authorization record, ops/proposal-authorizations/<name>.json; required when do_propose is checked"
         required: false
         type: string
       do_propose:
-        description: "Leave unchecked for a dry run (print the authorization only, no GitHub call). Check to attempt the real write."
+        description: "Leave unchecked for a dry run (report the plan and the authorization decision, write nothing). Check to attempt the real write."
         required: false
         type: boolean
         default: false
@@ -106,10 +94,7 @@ jobs:
       owner: ${{ steps.validate.outputs.owner }}
       name: ${{ steps.validate.outputs.name }}
       repo: ${{ steps.validate.outputs.repo }}
-      readme_file: ${{ steps.validate.outputs.readme_file }}
-      source_revision: ${{ steps.validate.outputs.source_revision }}
       base_branch: ${{ steps.validate.outputs.base_branch }}
-      expires_in_minutes: ${{ steps.validate.outputs.expires_in_minutes }}
       authorization_record: ${{ steps.validate.outputs.authorization_record }}
     steps:
       # First, before checkout or any install: nothing the dispatcher typed is used until it has
@@ -119,10 +104,7 @@ jobs:
         id: validate
         env:
           INPUT_REPO: ${{ inputs.repo }}
-          INPUT_README_FILE: ${{ inputs.readme_file }}
-          INPUT_SOURCE_REVISION: ${{ inputs.source_revision }}
           INPUT_BASE_BRANCH: ${{ inputs.base_branch }}
-          INPUT_EXPIRES_IN_MINUTES: ${{ inputs.expires_in_minutes }}
           INPUT_AUTHORIZATION_RECORD: ${{ inputs.authorization_record }}
           INPUT_DO_PROPOSE: ${{ inputs.do_propose }}
         run: |
@@ -143,21 +125,6 @@ jobs:
           [[ "$name" =~ $name_re ]] || fail repo "name is not a valid GitHub repository name"
           [ "$name" != "." ] && [ "$name" != ".." ] || fail repo "name is not a valid GitHub repository name"
 
-          # readme_file: confined to the sealed candidates tree, one README per revision directory.
-          readme_re='^candidates/[A-Za-z0-9._-]+__[A-Za-z0-9._-]+/[0-9a-f]{40}/README\.md$'
-          if [ -n "$INPUT_README_FILE" ]; then
-            [[ "$INPUT_README_FILE" =~ $readme_re ]] \
-              || fail readme_file "must be candidates/<owner>__<name>/<40-hex revision>/README.md"
-          fi
-
-          # source_revision: exactly 40 lowercase hex, and present if and only if readme_file is.
-          if [ -n "$INPUT_README_FILE" ]; then
-            [[ "$INPUT_SOURCE_REVISION" =~ ^[0-9a-f]{40}$ ]] \
-              || fail source_revision "required with readme_file and must be a 40-hex revision"
-          elif [ -n "$INPUT_SOURCE_REVISION" ]; then
-            fail source_revision "is only valid together with readme_file"
-          fi
-
           # base_branch: optional, a conservative character set, then git's own ref-format rules.
           if [ -n "$INPUT_BASE_BRANCH" ]; then
             [[ "$INPUT_BASE_BRANCH" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$ ]] \
@@ -166,26 +133,18 @@ jobs:
               || fail base_branch "is not a valid git branch name"
           fi
 
-          # expires_in_minutes: a plain integer, 1 to 60 (10# so a leading zero is never octal).
-          [[ "$INPUT_EXPIRES_IN_MINUTES" =~ ^[0-9]{1,3}$ ]] \
-            || fail expires_in_minutes "must be an integer"
-          expires=$((10#$INPUT_EXPIRES_IN_MINUTES))
-          if [ "$expires" -lt 1 ] || [ "$expires" -gt 60 ]; then
-            fail expires_in_minutes "must be between 1 and 60"
-          fi
-
           # do_propose: a boolean input arrives as 'true' or 'false'; anything else is a defect.
           case "$INPUT_DO_PROPOSE" in
             true | false) ;;
             *) fail do_propose "must be true or false" ;;
           esac
 
-          # authorization_record: a path under ops/, no '..' segment (each segment starts with an
-          # alphanumeric), required for a real write.
-          record_re='^ops/([A-Za-z0-9][A-Za-z0-9._-]*/)*[A-Za-z0-9][A-Za-z0-9._-]*$'
+          # authorization_record: one JSON file directly under ops/proposal-authorizations/ (no
+          # subdirectory, no '..'), required for a real write.
+          record_re='^ops/proposal-authorizations/[A-Za-z0-9][A-Za-z0-9._-]*[.]json$'
           if [ -n "$INPUT_AUTHORIZATION_RECORD" ]; then
             [[ "$INPUT_AUTHORIZATION_RECORD" =~ $record_re ]] \
-              || fail authorization_record "must be a path under ops/"
+              || fail authorization_record "must be ops/proposal-authorizations/<name>.json"
             [ "${#INPUT_AUTHORIZATION_RECORD}" -le 200 ] \
               || fail authorization_record "is too long"
           elif [ "$INPUT_DO_PROPOSE" = "true" ]; then
@@ -196,29 +155,25 @@ jobs:
             echo "owner=$owner"
             echo "name=$name"
             echo "repo=$INPUT_REPO"
-            echo "readme_file=$INPUT_README_FILE"
-            echo "source_revision=$INPUT_SOURCE_REVISION"
             echo "base_branch=$INPUT_BASE_BRANCH"
-            echo "expires_in_minutes=$expires"
             echo "authorization_record=$INPUT_AUTHORIZATION_RECORD"
           } >> "$GITHUB_OUTPUT"
 
+      # Full depth: the command reads the authorization record's merge provenance from git history.
       - uses: actions/checkout@v5
         with:
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: Confirm referenced files are regular files in this checkout
+      - name: Confirm the authorization record is a regular file in this checkout
         env:
-          README_FILE: ${{ steps.validate.outputs.readme_file }}
           AUTHORIZATION_RECORD: ${{ steps.validate.outputs.authorization_record }}
         run: |
           set -euo pipefail
-          for path in "$README_FILE" "$AUTHORIZATION_RECORD"; do
-            if [ -n "$path" ] && { [ ! -f "$path" ] || [ -L "$path" ]; }; then
-              echo "::error::a referenced file is missing or is not a regular file in this checkout"
-              exit 1
-            fi
-          done
+          if [ -n "$AUTHORIZATION_RECORD" ] && { [ ! -f "$AUTHORIZATION_RECORD" ] || [ -L "$AUTHORIZATION_RECORD" ]; }; then
+            echo "::error::the authorization record is missing or is not a regular file in this checkout"
+            exit 1
+          fi
 
       - uses: actions/setup-python@v6
         with:
@@ -231,28 +186,44 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements-lock.txt
           python -m pip install --disable-pip-version-check --no-deps -e .
 
-      # No token, no secret: the dry run makes no GitHub call at all.
-      - name: Dry run - assemble and print the authorization payload, no GitHub call
+      # Read-only, by explicit permission-* inputs: the dry run reads the target's current revision
+      # and writes nothing. Scoped to exactly the one target repository.
+      - name: Mint a read-only installation token, scoped to this target repository alone
+        id: read-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ steps.validate.outputs.owner }}
+          repositories: ${{ steps.validate.outputs.name }}
+          permission-contents: read
+          permission-metadata: read
+
+      - name: Dry run - report the plan and the authorization decision, no write
         env:
+          GH_TOKEN: ${{ steps.read-token.outputs.token }}
           REPO: ${{ steps.validate.outputs.repo }}
-          README_FILE: ${{ steps.validate.outputs.readme_file }}
-          SOURCE_REVISION: ${{ steps.validate.outputs.source_revision }}
           BASE_BRANCH: ${{ steps.validate.outputs.base_branch }}
-          EXPIRES_IN_MINUTES: ${{ steps.validate.outputs.expires_in_minutes }}
           AUTHORIZATION_RECORD: ${{ steps.validate.outputs.authorization_record }}
+          TRIGGER_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          args=(--repo "$REPO" --expires-in-minutes "$EXPIRES_IN_MINUTES")
-          if [ -n "$README_FILE" ]; then
-            args+=(--readme-file "$README_FILE" --source-revision "$SOURCE_REVISION")
-          fi
+          args=(--repo "$REPO" --trigger-sha "$TRIGGER_SHA")
           if [ -n "$BASE_BRANCH" ]; then
             args+=(--base-branch "$BASE_BRANCH")
           fi
           if [ -n "$AUTHORIZATION_RECORD" ]; then
             args+=(--authorization-record "$AUTHORIZATION_RECORD")
           fi
-          repository-presenter propose "${args[@]}"
+          if repository-presenter propose "${args[@]}"; then
+            status=0
+          else
+            status=$?
+          fi
+          if [ "$status" -eq 3 ]; then
+            echo "::error::proposal refused (exit 3): the dry run was refused for a typed reason, printed above; nothing was written"
+          fi
+          exit "$status"
 
   write:
     name: Propose README to ${{ inputs.repo }}
@@ -264,8 +235,10 @@ jobs:
     permissions:
       contents: read
     steps:
+      # Full depth: the command reads the authorization record's merge provenance from git history.
       - uses: actions/checkout@v5
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - uses: actions/setup-python@v6
@@ -302,19 +275,22 @@ jobs:
           REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED: "1"
           GH_PROPOSAL_WRITE_TOKEN: ${{ steps.app-token.outputs.token }}
           REPO: ${{ needs.dry-run.outputs.repo }}
-          README_FILE: ${{ needs.dry-run.outputs.readme_file }}
-          SOURCE_REVISION: ${{ needs.dry-run.outputs.source_revision }}
           BASE_BRANCH: ${{ needs.dry-run.outputs.base_branch }}
-          EXPIRES_IN_MINUTES: ${{ needs.dry-run.outputs.expires_in_minutes }}
           AUTHORIZATION_RECORD: ${{ needs.dry-run.outputs.authorization_record }}
+          TRIGGER_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          args=(--repo "$REPO" --expires-in-minutes "$EXPIRES_IN_MINUTES")
-          if [ -n "$README_FILE" ]; then
-            args+=(--readme-file "$README_FILE" --source-revision "$SOURCE_REVISION")
-          fi
+          args=(--repo "$REPO" --trigger-sha "$TRIGGER_SHA")
           if [ -n "$BASE_BRANCH" ]; then
             args+=(--base-branch "$BASE_BRANCH")
           fi
           args+=(--authorization-record "$AUTHORIZATION_RECORD")
-          repository-presenter propose "${args[@]}" --propose
+          if repository-presenter propose "${args[@]}" --propose; then
+            status=0
+          else
+            status=$?
+          fi
+          if [ "$status" -eq 3 ]; then
+            echo "::error::proposal refused (exit 3): the command refused the write for a typed reason, printed above; nothing was written"
+          fi
+          exit "$status"

@@ -92,41 +92,61 @@ def run_blocks_with_input_expressions(workflow: dict[str, Any]) -> list[str]:
     ]
 
 
+def _mint_steps(job: dict[str, Any]) -> list[tuple[int, dict[str, Any]]]:
+    return [
+        (i, s) for i, s in enumerate(_steps(job)) if str(s.get("uses", "")).startswith(MINT_ACTION)
+    ]
+
+
 def token_exposure_violations(workflow: dict[str, Any]) -> list[str]:
-    """The write token, the App secrets and the write gate live in the ``write`` job alone."""
+    """Write-capable material lives in the ``write`` job alone; tokens reach one final step only.
+
+    The ``dry-run`` job may mint a read-only token (its dry run reads the target), but never a write
+    scope, the write token, or the write gate, and that read token is seen by its final step only.
+    """
     violations: list[str] = []
     for job_name, job in workflow["jobs"].items():
+        steps = _steps(job)
+        mints = _mint_steps(job)
+        is_write = job_name == WRITE_JOB
         text = yaml.safe_dump(job)
-        if job_name != WRITE_JOB:
+        if not is_write:
             for marker in (
-                MINT_ACTION,
-                "GH_APP_PRIVATE_KEY",
-                "GH_APP_ID",
-                "app-token",
                 "GH_PROPOSAL_WRITE_TOKEN",
                 "REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED",
+                "steps.app-token",
             ):
                 if marker in text:
                     violations.append(f"{job_name} references {marker}")
+            for _, mint in mints:
+                grants = {
+                    k: v for k, v in mint.get("with", {}).items() if k.startswith("permission-")
+                }
+                if not grants or any(str(v) != "read" for v in grants.values()):
+                    violations.append(f"{job_name} mints a non-read-only token")
+        if len(mints) != 1:
+            violations.append(f"{job_name} must mint exactly one token")
             continue
-        if "env" in job and "app-token" in yaml.safe_dump(job["env"]):
-            violations.append("the write token is exposed at job level")
-        steps = _steps(job)
-        mint = [i for i, s in enumerate(steps) if str(s.get("uses", "")).startswith(MINT_ACTION)]
-        if len(mint) != 1:
-            violations.append("write job must mint exactly one token")
-            continue
+        token_id = str(mints[0][1].get("id"))
+        reference = f"steps.{token_id}.outputs"
+        if "env" in job and reference in yaml.safe_dump(job["env"]):
+            violations.append(f"{job_name}: the token is exposed at job level")
         for index, step in enumerate(steps):
-            sees_token = "steps.app-token.outputs" in yaml.safe_dump(step.get("env", {}))
+            sees_token = reference in yaml.safe_dump(step.get("env", {})) or reference in str(
+                step.get("run", "")
+            )
             if sees_token and index != len(steps) - 1:
-                violations.append(f"write step {index} sees the token but is not the final step")
-            if index < mint[0] and sees_token:
-                violations.append(f"write step {index} uses the token before it is minted")
+                violations.append(f"{job_name} step {index} sees the token but is not the final")
+            if index < mints[0][0] and sees_token:
+                violations.append(f"{job_name} step {index} uses the token before it is minted")
         final = steps[-1]
-        if "GH_PROPOSAL_WRITE_TOKEN" not in final.get("env", {}):
-            violations.append("the final write step does not receive the token")
-        if "--propose" not in str(final.get("run", "")):
-            violations.append("the final write step is not the propose step")
+        if is_write:
+            if "GH_PROPOSAL_WRITE_TOKEN" not in final.get("env", {}):
+                violations.append("the final write step does not receive the token")
+            if "--propose" not in str(final.get("run", "")):
+                violations.append("the final write step is not the propose step")
+        elif "GH_TOKEN" not in final.get("env", {}):
+            violations.append("the final dry-run step does not receive the read token")
     return violations
 
 
@@ -185,10 +205,17 @@ def test_one_proposal_per_target_repository_at_a_time() -> None:
     assert concurrency_violations(_load(PROPOSE)) == []
 
 
-def test_the_dry_run_job_holds_no_secret_and_only_read_permission() -> None:
+def test_the_dry_run_job_holds_only_a_read_token_and_read_permission() -> None:
     job = _load(PROPOSE)["jobs"][DRY_RUN_JOB]
-    assert "secrets." not in yaml.safe_dump(job)
     assert job["permissions"] == {"contents": "read"}
+    ((_, mint),) = _mint_steps(job)
+    assert {k: v for k, v in mint["with"].items() if k.startswith("permission-")} == {
+        "permission-contents": "read",
+        "permission-metadata": "read",
+    }
+    # The secrets appear only on that mint step.
+    others = [s for s in _steps(job) if s is not mint]
+    assert "secrets." not in yaml.safe_dump(others)
 
 
 def test_checkouts_do_not_persist_the_job_token() -> None:
@@ -198,12 +225,61 @@ def test_checkouts_do_not_persist_the_job_token() -> None:
                 assert step["with"]["persist-credentials"] is False
 
 
-def test_the_authorization_record_reaches_the_command_through_env() -> None:
+def test_the_checkouts_are_full_depth_for_the_record_provenance() -> None:
+    for job in _load(PROPOSE)["jobs"].values():
+        checkouts = [
+            s for s in _steps(job) if str(s.get("uses", "")).startswith("actions/checkout@")
+        ]
+        assert checkouts
+        for step in checkouts:
+            assert step["with"]["fetch-depth"] == 0
+
+
+def test_the_record_and_trigger_sha_reach_the_command_through_env() -> None:
     jobs = _load(PROPOSE)["jobs"]
     for job_name in (DRY_RUN_JOB, WRITE_JOB):
         final = _steps(jobs[job_name])[-1]
         assert "AUTHORIZATION_RECORD" in final["env"]
+        assert final["env"]["TRIGGER_SHA"] == "${{ github.sha }}"
         assert '--authorization-record "$AUTHORIZATION_RECORD"' in final["run"]
+        assert '--trigger-sha "$TRIGGER_SHA"' in final["run"]
+
+
+def test_the_removed_cli_flags_and_inputs_are_gone() -> None:
+    text = (WORKFLOWS / PROPOSE).read_text(encoding="utf-8")
+    for removed in ("--readme-file", "--expires-in-minutes", "--source-revision"):
+        assert removed not in text
+    inputs = _load(PROPOSE)[True]["workflow_dispatch"]["inputs"]
+    assert set(inputs) == {"repo", "base_branch", "authorization_record", "do_propose"}
+
+
+@pytest.mark.parametrize("job_name", [DRY_RUN_JOB, WRITE_JOB])
+@pytest.mark.parametrize(("exit_code", "refused"), [(0, False), (1, False), (2, False), (3, True)])
+def test_exit_code_3_is_reported_as_a_refused_proposal(
+    tmp_path: Path, job_name: str, exit_code: int, refused: bool
+) -> None:
+    script = str(_steps(_load(PROPOSE)["jobs"][job_name])[-1]["run"])
+    fake = tmp_path / "bin"
+    fake.mkdir()
+    command = fake / "repository-presenter"
+    command.write_text(f'#!/usr/bin/env bash\necho "args: $*"\nexit {exit_code}\n', newline="\n")
+    command.chmod(0o755)
+    env = dict(os.environ)
+    env["PATH"] = f"{fake.as_posix()}{os.pathsep}{env['PATH']}"
+    env.update(
+        REPO="acme/x",
+        BASE_BRANCH="",
+        AUTHORIZATION_RECORD="ops/proposal-authorizations/a.json",
+        TRIGGER_SHA="a" * 40,
+    )
+    result = subprocess.run(
+        [_bash(), "-c", script], cwd=tmp_path, env=env, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == exit_code, result.stdout + result.stderr
+    assert ("proposal refused" in result.stdout) is refused
+    assert "--authorization-record ops/proposal-authorizations/a.json" in result.stdout
+    assert f"--trigger-sha {'a' * 40}" in result.stdout
+    assert ("--propose" in result.stdout.split("args:", 1)[1]) is (job_name == WRITE_JOB)
 
 
 # --- negative controls: each check rejects a deliberately broken workflow -----------------------
@@ -254,6 +330,33 @@ def test_a_mint_step_in_the_dry_run_job_is_rejected() -> None:
     def mutate(workflow: dict[str, Any]) -> None:
         mint = _step(workflow, WRITE_JOB, "Mint")
         workflow["jobs"][DRY_RUN_JOB]["steps"].insert(0, copy.deepcopy(mint))
+
+    assert token_exposure_violations(_broken(mutate))
+
+
+def test_a_non_read_only_mint_in_the_dry_run_job_is_rejected() -> None:
+    def mutate(workflow: dict[str, Any]) -> None:
+        mint = _step(workflow, DRY_RUN_JOB, "Mint")
+        mint["with"]["permission-pull-requests"] = "write"
+
+    assert token_exposure_violations(_broken(mutate))
+
+
+def test_a_mint_without_permission_inputs_is_rejected() -> None:
+    def mutate(workflow: dict[str, Any]) -> None:
+        mint = _step(workflow, DRY_RUN_JOB, "Mint")
+        mint["with"] = {k: v for k, v in mint["with"].items() if not k.startswith("permission-")}
+
+    assert token_exposure_violations(_broken(mutate))
+
+
+def test_the_read_token_in_a_non_final_dry_run_step_is_rejected() -> None:
+    def mutate(workflow: dict[str, Any]) -> None:
+        steps = workflow["jobs"][DRY_RUN_JOB]["steps"]
+        steps.insert(
+            len(steps) - 1,
+            {"name": "Extra", "env": {"T": "${{ steps.read-token.outputs.token }}"}, "run": "true"},
+        )
 
     assert token_exposure_violations(_broken(mutate))
 
@@ -329,15 +432,11 @@ def test_cancel_in_progress_is_rejected() -> None:
 
 GOOD = {
     "INPUT_REPO": "acme-org/disposable-target",
-    "INPUT_README_FILE": "",
-    "INPUT_SOURCE_REVISION": "",
     "INPUT_BASE_BRANCH": "",
-    "INPUT_EXPIRES_IN_MINUTES": "15",
     "INPUT_AUTHORIZATION_RECORD": "",
     "INPUT_DO_PROPOSE": "false",
 }
-REVISION = "0123456789abcdef0123456789abcdef01234567"
-README = f"candidates/acme-org__disposable-target/{REVISION}/README.md"
+RECORD = "ops/proposal-authorizations/2026-10-05-acme-readme.json"
 
 
 def _bash() -> str:
@@ -381,28 +480,19 @@ def test_a_valid_dry_run_dispatch_passes_and_publishes_the_split_target(tmp_path
         "owner": "acme-org",
         "name": "disposable-target",
         "repo": "acme-org/disposable-target",
-        "readme_file": "",
-        "source_revision": "",
         "base_branch": "",
-        "expires_in_minutes": "15",
         "authorization_record": "",
     }
 
 
 def test_a_fully_specified_write_dispatch_passes(tmp_path: Path) -> None:
     result = _validate(
-        tmp_path,
-        readme_file=README,
-        source_revision=REVISION,
-        base_branch="release/1.x",
-        expires_in_minutes="060",
-        authorization_record="ops/authorizations/2026-10-05-proof.yaml",
-        do_propose="true",
+        tmp_path, base_branch="release/1.x", authorization_record=RECORD, do_propose="true"
     )
     assert result.returncode == 0, result.stdout + result.stderr
     outputs = _outputs(tmp_path)
-    assert outputs["expires_in_minutes"] == "60"
-    assert outputs["authorization_record"] == "ops/authorizations/2026-10-05-proof.yaml"
+    assert outputs["authorization_record"] == RECORD
+    assert outputs["base_branch"] == "release/1.x"
 
 
 HOSTILE = [
@@ -417,12 +507,6 @@ HOSTILE = [
     ("repo", "acme/.."),
     ("repo", "acme/a/b"),
     ("repo", ""),
-    ("readme_file", "README.md"),
-    ("readme_file", f"candidates/../../etc/{REVISION}/README.md"),
-    ("readme_file", f"candidates/a__b/{REVISION}/README.md;touch pwned"),
-    ("readme_file", f"candidates/a__b/{REVISION}/README.md\nx"),
-    ("readme_file", "candidates/a__b/main/README.md"),
-    ("source_revision", REVISION),  # without a readme_file
     ("base_branch", "main;touch pwned"),
     ("base_branch", "main$(touch pwned)"),
     ("base_branch", "a..b"),
@@ -430,20 +514,18 @@ HOSTILE = [
     ("base_branch", "release/"),
     ("base_branch", "x.lock"),
     ("base_branch", "main\nx"),
-    ("expires_in_minutes", "0"),
-    ("expires_in_minutes", "61"),
-    ("expires_in_minutes", "1;touch pwned"),
-    ("expires_in_minutes", "abc"),
-    ("expires_in_minutes", "-5"),
-    ("expires_in_minutes", ""),
-    ("expires_in_minutes", "15\nx"),
     ("do_propose", "yes"),
-    ("authorization_record", "ops/../etc/passwd"),
+    ("authorization_record", "ops/../etc/passwd.json"),
     ("authorization_record", "/etc/passwd"),
     ("authorization_record", "ops/a b"),
     ("authorization_record", "ops/a;touch pwned"),
-    ("authorization_record", "docs/record.yaml"),
+    ("authorization_record", "docs/record.json"),
     ("authorization_record", "ops/"),
+    ("authorization_record", "ops/proposal-authorizations/"),
+    ("authorization_record", "ops/proposal-authorizations/a.yaml"),
+    ("authorization_record", "ops/proposal-authorizations/sub/a.json"),
+    ("authorization_record", "ops/proposal-authorizations/../a.json"),
+    ("authorization_record", "ops/proposal-authorizations/a.json\nx"),
 ]
 
 
@@ -457,20 +539,6 @@ def test_hostile_or_malformed_input_fails_closed(tmp_path: Path, field: str, val
         "the rejection message must name the input, never echo its value"
     )
     assert not (tmp_path / "output").exists() or not (tmp_path / "output").read_text()
-
-
-@pytest.mark.parametrize(
-    ("field", "value"),
-    [("readme_file", README), ("source_revision", REVISION[:-1] + "G")],
-)
-def test_source_revision_and_readme_file_must_come_together_and_be_exact(
-    tmp_path: Path, field: str, value: str
-) -> None:
-    # readme_file alone (no source_revision) and a malformed revision (with a readme_file) fail.
-    overrides = {field: value}
-    if field == "source_revision":
-        overrides["readme_file"] = README
-    assert _validate(tmp_path, **overrides).returncode != 0
 
 
 def test_a_real_write_without_an_authorization_record_fails_closed(tmp_path: Path) -> None:

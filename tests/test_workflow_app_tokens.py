@@ -32,14 +32,16 @@ EXPECTED_MINT_PERMISSIONS: dict[str, list[dict[str, str]]] = {
     # The analysis clone (contents) and GET /repos/{owner}/{repo} plus the read client's contents,
     # trees and commits reads (metadata). No write scope anywhere in this job.
     "present.yml": [{"permission-contents": "read", "permission-metadata": "read"}],
-    # The effect job: branch refs and contents writes (contents), open or refresh the presenter PR
+    # The dry-run job: a read-only token to read the target's current revision; no write scope.
+    # Then the effect job: branch refs and contents writes (contents), open or refresh the PR
     # (pull-requests). Nothing else: no issues, no administration.
     "propose.yml": [
+        {"permission-contents": "read", "permission-metadata": "read"},
         {
             "permission-contents": "write",
             "permission-metadata": "read",
             "permission-pull-requests": "write",
-        }
+        },
     ],
     # One read-only GET /repos/{owner}/{repo} and nothing else.
     "verify-app-installation.yml": [{"permission-metadata": "read"}],
