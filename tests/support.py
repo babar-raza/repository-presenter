@@ -303,3 +303,74 @@ class FakeDefaultBranchReader:
         if isinstance(outcome, DefaultBranchRead):
             return outcome
         return DefaultBranchRead(repository, sha=outcome, branch="main")
+
+
+def make_permit(repository: str, *, mode: str = "full", effect: str = "readme_proposal") -> Any:
+    """A ``WritePermit`` for a repository that is not a real Aspose FOSS name (the registry model
+    validates the name, ``model_construct`` does not) - the effect modules only read ``.effect``
+    and ``.entry.repository`` from it."""
+    from repository_presenter.core.registry.models import RegistryEntry
+    from repository_presenter.core.registry.write_gate import WritePermit
+
+    entry = RegistryEntry.model_construct(
+        repository=repository,
+        family="fixture",
+        platform="fixture",
+        ecosystem="fixture",
+        mode=mode,
+        policy_profile="fixture",
+        active=True,
+        provider_identity=None,
+    )
+    return WritePermit(effect=effect, entry=entry)  # type: ignore[arg-type]
+
+
+def write_registry_file(root: Path, entries: list[dict[str, Any]]) -> Path:
+    """``data/registry.json`` under a synthetic project root."""
+    path = root / "data" / "registry.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"schema_version": 1, "entries": entries}), encoding="utf-8")
+    return path
+
+
+def write_proposable_bundle(
+    root: Path,
+    repository: str,
+    revision: str,
+    readme_text: str,
+    *,
+    state: str = "READY_FOR_PROPOSAL",
+) -> Path:
+    """A sealed bundle with a real README and a manifest that verifies, plus ``CURRENT``."""
+    owner, name = repository.split("/", 1)
+    bundle = root / "candidates" / f"{owner}__{name}" / revision
+    bundle.mkdir(parents=True, exist_ok=True)
+    data = readme_text.encode("utf-8")
+    (bundle / "README.md").write_bytes(data)
+    (bundle / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "repository": repository,
+                "revision": revision,
+                "state": state,
+                "files": {
+                    "README.md": {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (bundle.parent / "CURRENT").write_text(f"{revision}\n", encoding="utf-8")
+    return bundle
+
+
+def merge_to_origin_main(root: Path, message: str = "merge") -> str:
+    """Commit everything under ``root`` (initialising a disposable repository on first use) and
+    point ``refs/remotes/origin/main`` at the new commit - the state of a control checkout whose
+    ``main`` already holds that content. Returns the commit."""
+    if not (root / ".git").exists():
+        init_git_repository(root, with_commit=False)
+    revision = commit_all(root, message)
+    assert run_git(["update-ref", "refs/remotes/origin/main", revision], cwd=root).returncode == 0
+    return revision

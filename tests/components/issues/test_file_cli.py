@@ -15,6 +15,7 @@ from repository_presenter import cli
 from repository_presenter.cli import EXIT_OK, main
 from repository_presenter.components.issues.file import AUTHORIZATION_VARIABLE
 from repository_presenter.components.issues.model import load_handoff
+from support import monitor_registry_entry, write_registry_file
 
 REPO_DIR = "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp"
 REPOSITORY = "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
@@ -55,6 +56,8 @@ def project_with_handoff(project: Path) -> Path:
     (handoff_dir / f"{FINGERPRINT}.json").write_text(
         json.dumps(HANDOFF_PAYLOAD, indent=2) + "\n", encoding="utf-8"
     )
+    # `--file` writes only to a registry-`full` entry (core/registry/write_gate.py).
+    write_registry_file(project, [monitor_registry_entry(REPOSITORY, mode="full")])
     return project
 
 
@@ -234,7 +237,8 @@ def test_repo_filter_reports_plainly_when_nothing_matches(
 # matrix the workflow fans out over.
 # ---------------------------------------------------------------------------
 
-OTHER_REPO = "acme-org/second-repo"
+OTHER_REPO = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+OTHER_DIR = "aspose-3d-foss__Aspose.3D-FOSS-for-Python"
 OTHER_FINGERPRINT = "c" * 64
 
 
@@ -246,7 +250,14 @@ def _write_second_handoff(project: Path) -> None:
         "suggested_issue_title": "second, independent defect",
         "suggested_issue_body": "independent finding\n",
     }
-    directory = project / "evidence" / "upstream-defects" / "acme-org__second-repo"
+    write_registry_file(
+        project,
+        [
+            monitor_registry_entry(REPOSITORY, mode="full", repository_id=1),
+            monitor_registry_entry(OTHER_REPO, mode="full", repository_id=2),
+        ],
+    )
+    directory = project / "evidence" / "upstream-defects" / OTHER_DIR
     directory.mkdir(parents=True)
     (directory / f"{OTHER_FINGERPRINT}.json").write_text(
         json.dumps(payload, indent=2) + "\n", encoding="utf-8"
@@ -329,7 +340,7 @@ def test_a_failed_filing_for_one_handoff_does_not_stop_the_others(
     assert len(succeeding.calls) == 1
     assert exit_code != EXIT_OK
     assert load_handoff(_handoff_path(project_with_handoff)).status == "HANDOFF_PENDING"
-    other = project_with_handoff / "evidence" / "upstream-defects" / "acme-org__second-repo"
+    other = project_with_handoff / "evidence" / "upstream-defects" / OTHER_DIR
     assert load_handoff(other / f"{OTHER_FINGERPRINT}.json").status == "FILED"
     assert "filed=True" in capsys.readouterr().out
 
@@ -404,7 +415,7 @@ def test_issue_targets_lists_each_repository_with_pending_or_filed_handoffs_as_j
     assert exit_code == EXIT_OK
     targets = json.loads(capsys.readouterr().out)
     assert targets == [
-        {"repo": OTHER_REPO, "owner": "acme-org", "name": "second-repo"},
+        {"repo": OTHER_REPO, "owner": "aspose-3d-foss", "name": "Aspose.3D-FOSS-for-Python"},
         {"repo": REPOSITORY, "owner": "aspose-cells-foss", "name": "Aspose.Cells-FOSS-for-Cpp"},
     ]
 

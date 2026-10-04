@@ -4,7 +4,7 @@ writes nothing without the explicit authorization variable. No test here makes a
 
 from __future__ import annotations
 
-import shutil
+import json
 from pathlib import Path
 from typing import Any
 
@@ -29,7 +29,11 @@ README_TEXT = (
 @pytest.fixture
 def project_with_registry(project: Path) -> Path:
     (project / "data").mkdir()
-    shutil.copy(REPO_ROOT / "data" / "registry.json", project / "data" / "registry.json")
+    registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text(encoding="utf-8"))
+    for entry in registry["entries"]:
+        if entry["repository"] == "aspose-3d-foss/Aspose.3D-FOSS-for-Python":
+            entry["mode"] = "full"  # `--apply` is refused for any other mode (see the gate tests)
+    (project / "data" / "registry.json").write_text(json.dumps(registry), encoding="utf-8")
     return project
 
 
