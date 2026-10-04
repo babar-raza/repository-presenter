@@ -47,7 +47,10 @@ def test_a_failed_second_reader_job_returns_none_not_an_empty_dict() -> None:
         assert _second_opinion(LOADED, PACKET, None, COMMON) is None
 
 
-def test_a_successful_second_reader_job_returns_its_output() -> None:
+def test_a_successful_second_reader_job_returns_its_own_job_result() -> None:
+    """G5-W02: `_second_opinion` returns the whole `JobResult`, not merely `.output` - the caller
+    needs `.request_sha256` too, to seal this read's own raw output under its own key in
+    raw_calls.json (`review.json` alone cannot always answer for a second read verbatim)."""
     result = JobResult(
         job="independent_review",
         output={"findings": [], "verdict": "ACCEPT", "preserve": []},
@@ -59,7 +62,7 @@ def test_a_successful_second_reader_job_returns_its_output() -> None:
         total_tokens=100,
     )
     with patch("repository_presenter.components.readme.repair.rounds.run_job", return_value=result):
-        assert _second_opinion(LOADED, PACKET, None, COMMON) == result.output
+        assert _second_opinion(LOADED, PACKET, None, COMMON) == result
 
 
 def test_a_failed_third_reader_job_returns_none_not_an_empty_dict() -> None:
@@ -73,7 +76,8 @@ def test_a_failed_third_reader_job_returns_none_not_an_empty_dict() -> None:
         assert _third_opinion(LOADED, PACKET, None, COMMON) is None
 
 
-def test_a_successful_third_reader_job_returns_its_output() -> None:
+def test_a_successful_third_reader_job_returns_its_own_job_result() -> None:
+    """Mirrors `test_a_successful_second_reader_job_returns_its_own_job_result` (G5-W02)."""
     result = JobResult(
         job="independent_review",
         output={"findings": [], "verdict": "ACCEPT", "preserve": []},
@@ -85,7 +89,7 @@ def test_a_successful_third_reader_job_returns_its_output() -> None:
         total_tokens=100,
     )
     with patch("repository_presenter.components.readme.repair.rounds.run_job", return_value=result):
-        assert _third_opinion(LOADED, PACKET, None, COMMON) == result.output
+        assert _third_opinion(LOADED, PACKET, None, COMMON) == result
 
 
 def test_the_escalation_set_is_exactly_the_three_documented_repositories() -> None:

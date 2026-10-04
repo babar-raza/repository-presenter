@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "repository": "babar-raza/repository-presenter",
+  "source_revision": "b7715aa5770930a48c8d79432da5045ca95e8e7d",
+  "defect_fingerprint": "sha256:b7bf37c2fe13d5ca3750a7d3cbd303638ad30b6b3b18e71385d1a9883686a452",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "3",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "https://pypi.org/pypi/rp-g6w01-liveproof-nonexistent-7f3a/json",
+      "detail": "HTTP 404 observed 2026-10-04: no PyPI distribution with this name exists"
+    }
+  ],
+  "claim": "SYNTHETIC G6-W01 FILING-PATH TEST RECORD, not a product defect. At revision b7715aa5770930a48c8d79432da5045ca95e8e7d, the PyPI registry has no distribution named 'rp-g6w01-liveproof-nonexistent-7f3a'; this exercises the issue-filing write path (components/issues/file.py) end to end against the owner's disposable control repository.",
+  "suggested_issue_title": "[G6-W01 live proof] synthetic filing-path test - not a product defect",
+  "suggested_issue_body": "**This issue is a synthetic live proof of repository-presenter's issue-filing write path (G6-W01).** It does not report a defect in this repository.\n\nRevision: `b7715aa5770930a48c8d79432da5045ca95e8e7d`\n\n## Evidence\n\n- `https://pypi.org/pypi/rp-g6w01-liveproof-nonexistent-7f3a/json`: HTTP 404 observed 2026-10-04 (no PyPI distribution with this name exists)\n\n<!-- repository-presenter-defect: sha256:b7bf37c2fe13d5ca3750a7d3cbd303638ad30b6b3b18e71385d1a9883686a452 -->\n",
+  "status": "FILED",
+  "issue_ref": {
+    "number": 189,
+    "url": "https://github.com/babar-raza/repository-presenter/issues/189"
+  },
+  "close_reason": null
+}
