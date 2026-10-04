@@ -197,7 +197,7 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert document["components"] == {
         "shell": "6",
         "renderer": "25",
-        "normalisation": "17",
+        "normalisation": "18",
         "reviewer_logic": "14",
     }
     assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 11

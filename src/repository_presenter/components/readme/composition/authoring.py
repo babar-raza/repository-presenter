@@ -230,7 +230,11 @@ _TYPE_OBJECTIVE = (
 # session, a different call site, the same shared constant) - renumbered to "17" on rebase rather
 # than reusing "16", since a version constant must move once per real meaning change, never share
 # a value across two independent ones.
-NORMALISATION_VERSION = "17"
+# "17" -> "18" (G5-W02, commit d0406bee, PR #184): the batch section_authoring task, the seeded
+# coherence/independent_review paths, and the normalisation changes above landed without this bump,
+# which tests/test_version_bump_discipline.py refuses. Bumped here so sealed candidates read as stale
+# against the new code, per docs/CI_AND_STALENESS_ASSESSMENT.md section 4 item 2.
+NORMALISATION_VERSION = "18"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
