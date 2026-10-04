@@ -1524,6 +1524,33 @@ def test_a_verified_source_build_satisfies_bc_02_without_a_registry_reading() ->
     )
 
 
+def test_bc_02_refuses_a_registry_command_the_registry_says_is_not_there() -> None:
+    """Mutation control for the unverified `dotnet add package` claim (Imaging-FOSS for .NET,
+    2026-10-04): if the admission step ever flipped a 404-contradicted registry install to
+    SUPPORTED, its evidence would still carry "package registry" - the old check's only test -
+    and the unverified command would ship. A SUPPORTED registry-kind install whose own reading
+    found no distribution is refused, whatever the wording around it."""
+    command = "dotnet add package Widget"
+    mutant = Fact(
+        "install_command:dotnet",
+        "install_command",
+        command,
+        (
+            Evidence(
+                "Widget.csproj", "install command for the package id declared by the manifest"
+            ),
+            Evidence(
+                "https://api.nuget.org/v3-flatcontainer/widget/index.json",
+                "package registry: distribution not found on nuget",
+            ),
+        ),
+        polarity="SUPPORTED",
+    )
+    failures = _check_install(_install_candidate(mutant, f"```bash\n{command}\n```"))
+    assert [failure.stage for failure in failures] == ["EXTRACTING"]
+    assert "found no distribution" in failures[0].detail
+
+
 def test_bc_02_refuses_a_source_build_advertising_a_step_its_receipt_did_not_prove() -> None:
     """G4-W17 arrival item 50: BC-02 consults the per-repository receipt for the exact command
     it names. A source-kind fact whose receipt proved `npm install` may advertise exactly that;
