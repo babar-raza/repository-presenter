@@ -23,10 +23,9 @@
 # prompt manifest declares (owner rule; core/sealing_plan.py refuses any other). GPT_OSS_MODEL is
 # never set here.
 #
-# Dependency, stated plainly: the drift monitor (branch g7-w06-drift-monitor) is NOT on main. This
-# workflow depends on it only through its output file contract. Until that producer lands and writes
-# drift/drift.json, the plan job fails closed with an explicit "drift monitor output not found" error
-# and makes no work - a missing input is never treated as zero drift or as all drift.
+# Dependency, stated plainly: this workflow depends on the drift monitor (monitor.yml, G7-W06) only
+# through its output file contract. Until a run writes drift/drift.json, the plan job fails
+# closed with an explicit "drift monitor output not found" error and makes no work - a missing input is never treated as zero drift or as all drift.
 #
 # Least privilege, per job: plan and propose hold contents: read at the job level; seal holds
 # contents: write only because present.yml's own durable-state refs live in this control repository
