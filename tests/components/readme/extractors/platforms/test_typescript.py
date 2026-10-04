@@ -6,13 +6,19 @@ import json
 from pathlib import Path
 from typing import Any
 
-from repository_presenter.components.readme.extractors.platforms import typescript
+from repository_presenter.components.readme.extractors.platforms import (
+    typescript,
+    typescript_examples,
+)
 from repository_presenter.components.readme.extractors.platforms.registry import (
     known_ecosystems,
     plugin_for,
+    verify_build,
 )
 from repository_presenter.core.ecosystems import spec_for
+from repository_presenter.core.examples import MeasuredBuild
 from repository_presenter.core.facts import Fact, slug
+from support import fake_npm
 
 MANIFEST = {
     "name": "@aspose/widget",
@@ -313,6 +319,31 @@ def test_a_missing_compiler_reports_not_verified_rather_than_failure(
     receipts = typescript.PLUGIN.verify_examples(tmp_path, [], candidates, tmp_path / "run")
     assert [receipt.outcome for receipt in receipts] == ["NOT_VERIFIED"]
     assert "BLOCKED_TOOLCHAIN" in receipts[0].detail
+
+
+def test_the_cli_measures_the_packages_own_build_through_the_plugin(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    """`run_present` reaches the build through `registry.verify_build`, which only a plugin that
+    provides the capability answers. A TypeScript package with a build script is measured by its
+    own `npm install` then `npm run build` - with no README example anywhere in the repository,
+    which is the case a registry 404 on a repository whose snippet fails would otherwise leave
+    unproven (`evidence/facts/extract.py`'s one source-install rule)."""
+    # The repository and the run directory are siblings: a workspace inside the checkout would be
+    # copied into itself, which is never the pipeline's layout (runs/ sits beside clones/).
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    _repository(repository, {**MANIFEST, "scripts": {"build": "tsc"}})
+    npm = fake_npm(tmp_path / "tools")
+    monkeypatch.setattr(typescript_examples, "npm_executable", lambda: npm)
+    manifest = typescript.PLUGIN.detect_manifest(repository)
+    assert manifest is not None
+    measured = verify_build(typescript.PLUGIN, repository, manifest, tmp_path / "ws")
+    assert measured == MeasuredBuild(
+        True,
+        "npm install\nnpm run build",
+        "succeeded (`npm install` exited 0; `npm run build` exited 0)",
+    )
 
 
 def test_the_plugin_imports_no_sibling_ecosystem() -> None:
