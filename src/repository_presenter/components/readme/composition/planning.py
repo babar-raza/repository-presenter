@@ -15,7 +15,7 @@ import copy
 import hashlib
 import json
 import re
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 from urllib.parse import unquote
@@ -31,12 +31,18 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
     shell_packet,
 )
+from repository_presenter.components.readme.composition.link_budget import (
+    SlotCounter,
+    plan_time_budget,
+    slot_violations,
+)
 from repository_presenter.components.readme.composition.placement import PLACED, placements
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
     policy_packet,
 )
+from repository_presenter.components.readme.evidence.facts.assets import CI_BADGE_FACT_ID
 from repository_presenter.components.readme.evidence.facts.links import (
     extract_links,
     heading_slug,
@@ -63,7 +69,9 @@ PLAN_FILENAME = "plan.json"
 _ASPOSE_DOMAINS = ("aspose.com", "aspose.org")
 # Rendered deterministically at their own fixed place (README_CONTRACT.md rows 3 and 18); never
 # a plan's own link assignment.
-_SHELL_OWNED_LINKS = frozenset({BANNER_FACT_ID, HOMEPAGE_FACT_ID, ENTERPRISE_FACT_ID})
+_SHELL_OWNED_LINKS = frozenset(
+    {BANNER_FACT_ID, HOMEPAGE_FACT_ID, ENTERPRISE_FACT_ID, CI_BADGE_FACT_ID}
+)
 
 
 def _unrenderable_anchor_ids(facts: FactsDocument) -> frozenset[str]:
@@ -383,22 +391,26 @@ def _decision(section: Section, holds: bool | None) -> dict[str, Any]:
 
 
 # The fact-ID arrays a plan writes, as (plan property, item property) paths into the schema.
-# G4-W17 arrival item 77 (lane F PROPOSAL F22, Email-.NET): ``material_limitations.unit_ids``
-# sits beside ``material_limitations.fact_ids`` in the same object and holds the same shape of
-# ID (an inherited_unit fact's own id, one of ``citable_fact_ids``' kinds), but item 59 enumerated
-# only the ``fact_ids``-named paths - measured live, a well-formed *fact* id written into
-# ``unit_ids`` cost Email-.NET a wasted S5 attempt before the binding caught it. Sharing the one
-# ``citable_fact_id`` enum (rather than a second, unit-only ``$defs`` branch) keeps
-# ``_pin_fact_id_arrays`` a single mechanism; the field name alone tells a reader which kind of ID
-# belongs there, exactly as it already does for a human reading ``fact_ids``/``shared_fact_ids``.
 _FACT_ID_ARRAYS = (
     ("core_capabilities", "fact_ids"),
     ("core_capabilities", "shared_fact_ids"),
     ("api_hubs", "fact_ids"),
     ("material_limitations", "fact_ids"),
-    ("material_limitations", "unit_ids"),
     ("deviations", "fact_ids"),
 )
+
+# The inherited-unit ID arrays a plan writes, same path shape. G4-W17 arrival item 77 (lane F
+# PROPOSAL F22, Email-.NET) pinned ``material_limitations.unit_ids`` to the shared
+# ``citable_fact_id`` enum, but that enum holds every fact the planner can see - an identity,
+# package or dependency fact is a member - while the binding admits only ``inherited_unit`` facts
+# in a unit array (``core/llm/binding.py``). So a well-formed fact ID written into ``unit_ids``
+# still decoded and was refused only after the call was spent: measured 2026-10-05 on
+# aspose-slides-foss/Aspose.Slides-FOSS-for-Java, where both S5 attempts filled ``unit_ids`` with
+# ``identity:repository``, ``package:java_release`` and ``dependency:none`` and the job failed
+# closed (``calls/*.rejected-{1,2}.json``). Lane F's own proposal asked for "its own enum - the
+# inherited-unit IDs the packet shows"; the shared-enum shortcut item 77 took instead defeated the
+# pinning. ``citable_unit_ids`` is that enum.
+_UNIT_ID_ARRAYS = (("material_limitations", "unit_ids"),)
 
 
 def citable_fact_ids(
@@ -437,6 +449,35 @@ def citable_fact_ids(
     )
     cited = {fact_id for fact_id in collect_ids(investigation).fact_ids if fact_id in supported}
     return sorted(shown | cited)
+
+
+def citable_unit_ids(facts: FactsDocument, citable: Sequence[str]) -> list[str]:
+    """The IDs a plan may write into a unit array: the citable IDs that are inherited units - a
+    subset of ``citable_fact_ids`` by construction, so it never widens past what the packet's
+    own ``facts`` field shows, and the only kind the binding admits in a unit array."""
+    units = {fact.id for fact in facts.by_kind("inherited_unit")}
+    return [fact_id for fact_id in citable if fact_id in units]
+
+
+def _pin_unit_id_arrays(schema: dict[str, Any], citable_units: list[str]) -> None:
+    """Pin every unit-ID array to ``citable_units`` through its own ``$defs`` enum, the shape
+    ``_pin_fact_id_arrays`` gives the fact-ID arrays; with no inherited unit shown an array is
+    pinned empty, as there is nothing a limitation could honestly cite."""
+    if citable_units:
+        schema.setdefault("$defs", {})["citable_unit_id"] = {
+            "type": "string",
+            "enum": citable_units,
+        }
+    for property_name, field in _UNIT_ID_ARRAYS:
+        items = schema["properties"].get(property_name, {}).get("items", {})
+        item_properties = items.get("properties", {})
+        if field not in item_properties:
+            continue
+        if citable_units:
+            item_properties[field]["items"] = {"$ref": "#/$defs/citable_unit_id"}
+            item_properties[field]["maxItems"] = len(citable_units)
+        else:
+            item_properties[field] = {"type": "array", "maxItems": 0}
 
 
 def _pin_fact_id_arrays(schema: dict[str, Any], citable: list[str]) -> None:
@@ -495,11 +536,13 @@ def planning_schema(
     no value could satisfy while the plan must still carry the key.
 
     Every fact-ID array a plan writes (``core_capabilities``' ``fact_ids`` and
-    ``shared_fact_ids``, the ``fact_ids`` of ``api_hubs``, ``material_limitations`` and
-    ``deviations``, and ``material_limitations``' own ``unit_ids``) is pinned to
-    ``citable_fact_ids`` - the IDs this packet shows - through one ``$defs`` enum
-    (``_pin_fact_id_arrays``; G4-W17 arrival item 59, extended to ``unit_ids`` by item 77), so an
-    ID naming no fact is refused at decode rather than by the binding after the call is spent.
+    ``shared_fact_ids``, and the ``fact_ids`` of ``api_hubs``, ``material_limitations`` and
+    ``deviations``) is pinned to ``citable_fact_ids`` - the IDs this packet shows - through one
+    ``$defs`` enum (``_pin_fact_id_arrays``; G4-W17 arrival item 59), so an ID naming no fact is
+    refused at decode rather than by the binding after the call is spent. The one unit-ID array,
+    ``material_limitations``' ``unit_ids``, is pinned to its own ``citable_unit_ids`` enum - the
+    citable IDs that are inherited units, the only kind the binding admits there
+    (``_pin_unit_id_arrays``; item 77 first shared the fact enum, which let a fact ID decode).
     This also gives every one of those arrays a real ``maxItems`` (``len(citable)``) where the
     static schema had none - the four outer list counts with no citable-set bound of their own
     (``material_limitations``, ``links``, ``deviations``, ``additional_example_ids``) get an
@@ -577,9 +620,9 @@ def planning_schema(
                 if format_ids
                 else {"type": "array", "maxItems": 0}
             )
-    _pin_fact_id_arrays(
-        schema, citable_fact_ids(facts, investigation, dispositions, manifest.manifest)
-    )
+    citable = citable_fact_ids(facts, investigation, dispositions, manifest.manifest)
+    _pin_fact_id_arrays(schema, citable)
+    _pin_unit_id_arrays(schema, citable_unit_ids(facts, citable))
     if not verified:
         # G4-W17 arrival item 54: with nothing verified the Quick Start row is omitted, so the
         # decoder is pinned to the only honest reply - null ids and an empty list - rather than
@@ -813,7 +856,7 @@ def plan_checks(
     # trim; a repair re-ask of planning alone then returns a byte-identical list (measured
     # 2026-09-06, Aspose.3D for Java, only blocker). Counting them here lets the trim below
     # reserve headroom for what is already committed to render, the only lever planning has.
-    preserved_aspose = 0
+    preserved_hrefs: list[str] = []
     if dispositions is not None:
         by_unit_id = {
             str(entry.get("unit_id")): entry for entry in dispositions.get("dispositions", [])
@@ -833,8 +876,8 @@ def plan_checks(
                     entry["disposition"] = "DEFER_UNRESOLVED"
                     entry["destination_section"] = None
             elif placement.outcome == "placed":
-                preserved_aspose += sum(
-                    1
+                preserved_hrefs.extend(
+                    target.href
                     for target in extract_links(placement.text)
                     if target.kind == "external"
                     and any(domain in target.href for domain in _ASPOSE_DOMAINS)
@@ -1028,20 +1071,26 @@ def plan_checks(
     # trim away.
     raw_links = output.get("links", [])
     kept_links: list[dict[str, Any]] = []
-    aspose_kept = 0
+    optional_hrefs: list[str] = []
     # G4-W17 arrival item 32: a preserved unit's own Aspose links already count against BC-06's
     # ceiling on the whole document, so the plan's own share is trimmed to what is left over.
     # Item 125: a disposition-required Aspose link reserves the same kind of headroom - it is
     # going to render in output['links'] itself, unlike a preserved unit's own verbatim link, but
     # it is equally outside the model's own free choice.
-    required_aspose = sum(
-        1
-        for target in required_link_sections
-        if target not in _SHELL_OWNED_LINKS
-        and link_facts.get(target) is not None
-        and any(domain in link_facts[target] for domain in _ASPOSE_DOMAINS)
-    )
-    trim_ceiling = max(policy.aspose_links_max - preserved_aspose - required_aspose, 0)
+    # The plan stage cannot know the rendered README's size, so it trims to the largest ceilings
+    # the policy admits for any document; BC-06 judges the rendered document against its own,
+    # exact per-slot ceilings (link_budget.py) and names any overage with the numbers.
+    budget = plan_time_budget(policy.link_allocation, policy.aspose_links_max)
+    counter = SlotCounter(budget)
+    for href in preserved_hrefs:
+        counter.add(href)
+    for target in required_link_sections:
+        if (
+            target not in _SHELL_OWNED_LINKS
+            and link_facts.get(target) is not None
+            and any(domain in link_facts[target] for domain in _ASPOSE_DOMAINS)
+        ):
+            counter.add(link_facts[target])
     for link in raw_links:
         target = link.get("link_fact_id")
         value = link_facts.get(target)
@@ -1050,10 +1099,11 @@ def plan_checks(
             and value is not None
             and any(domain in value for domain in _ASPOSE_DOMAINS)
         )
-        if is_aspose and target not in required_link_sections:
-            if aspose_kept >= trim_ceiling:
+        if is_aspose and value is not None and target not in required_link_sections:
+            if not counter.would_fit(value):
                 continue
-            aspose_kept += 1
+            counter.add(value)
+            optional_hrefs.append(value)
         kept_links.append(link)
     if len(kept_links) != len(raw_links):
         output["links"] = kept_links
@@ -1069,7 +1119,6 @@ def plan_checks(
             _decision(section, conditions[section.id]) for section in SEMANTIC_SHELL
         ]
         included = {entry["section_id"] for entry in output["sections"] if entry["include"]}
-    aspose = 0
     targets = [link.get("link_fact_id") for link in output.get("links", [])]
     for target in sorted({t for t in targets if targets.count(t) > 1}):
         errors.append(f"link {target!r} is assigned more than once; never the same target twice")
@@ -1098,18 +1147,11 @@ def plan_checks(
             )
         elif target not in link_facts:
             errors.append(f"link {target!r} is not a verified link target")
-        elif target not in required_link_sections and any(
-            domain in link_facts[target] for domain in _ASPOSE_DOMAINS
-        ):
-            # A disposition-required link (above) is never counted against the ceiling here
-            # either - only the model's own optional Aspose links are (item 125).
-            aspose += 1
         if section not in included:
             errors.append(
                 f"link {target!r} is assigned to a section that is not included: {section!r}"
             )
-    if aspose > policy.aspose_links_max:
-        errors.append(f"Aspose links exceed the ceiling of {policy.aspose_links_max}: {aspose}")
+    errors.extend(f"Aspose links: {problem}" for problem in slot_violations(budget, optional_hrefs))
     for deviation in output.get("deviations", []):
         if deviation.get("section_id") not in section_ids():
             errors.append(f"deviation names an unknown section {deviation.get('section_id')!r}")

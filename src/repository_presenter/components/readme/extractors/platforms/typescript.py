@@ -71,6 +71,7 @@ TYPESCRIPT = EcosystemSpec(
     floor_fact_id="package:node_engine",
     floor_label="Node.js",
     floor_declaration="engines.node",
+    floor_is_minimum=True,
     manifest_globs=("package.json",),
     source_suffixes=frozenset({".ts", ".tsx"}),
 )

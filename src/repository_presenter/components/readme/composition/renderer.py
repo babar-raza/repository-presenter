@@ -44,6 +44,7 @@ from repository_presenter.components.readme.composition.placement import (
     placements,
     renders_verbatim,
 )
+from repository_presenter.components.readme.evidence.facts.assets import CI_BADGE_FACT_ID
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.components.readme.evidence.facts.product_pages import (
     banner_target,
@@ -66,7 +67,11 @@ from repository_presenter.core.registry.models import RegistryEntry
 # (RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation). 26: a planner-authored
 # capability title and its At a Glance label take the document's canonical abbreviation spelling,
 # as every authored unit already does (BC-07, aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript).
-RENDERER_VERSION = "26"
+# 27: the badge row derives from verified facts per ecosystem and in plans/idea.md's stable order
+# (runtime badge from the ecosystem spec's floor fact, build status only from a verified push
+# workflow, contributors only when the source README's own target resolved), and the Enterprise
+# Edition anchor reads "full-featured <product> - Enterprise Edition".
+RENDERER_VERSION = "27"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -235,9 +240,39 @@ def anchor(heading: str) -> str:
     return _SLUG_STRIP.sub("", heading.strip().lower()).replace(" ", "-")
 
 
-def _badges(context: RenderContext) -> list[str]:
+# plans/idea.md ("Portfolio README Presentation Contract"): "one compact badge row in a stable
+# order: package or release, platform/runtime, real build status, license, then contributors when
+# those slots are supported." The slot names, in that order; validation reads the same tuple.
+BADGE_ORDER: tuple[str, ...] = ("package", "runtime", "build", "license", "contributors")
+
+
+def contributors_target(repository: str) -> str:
+    """The contributors graph a contributors badge links to."""
+    return f"https://github.com/{repository}/graphs/contributors"
+
+
+def ci_badge(fact: Fact) -> str:
+    """The build-status badge for the verified workflow ``fact`` records: the workflow page it
+    links to and its ``badge.svg``, restricted to the branch the workflow itself names when it
+    names one. Never composed from anything but the fact."""
+    branch = (fact.attributes or {}).get("branch")
+    query = f"?branch={quote(str(branch), safe='')}" if branch else ""
+    return f"[![Build Status]({fact.value}/badge.svg{query})]({fact.value})"
+
+
+def badge_slots(context: RenderContext) -> list[tuple[str, str]]:
+    """Every badge the verified facts support, as ``(slot, markdown)`` in ``BADGE_ORDER``.
+
+    Each slot is present only when its own claim is verified: the registry version badge when the
+    install is a published registry package, the runtime badge from the ecosystem spec's floor
+    fact (so no ecosystem borrows another's), the build badge when extraction recorded a real
+    push-triggered build or test workflow in the clone (``link_target:badge.ci``), the license
+    badge from the license facts, and the contributors badge only when the repository's own
+    README carried that exact contributors target and it resolved. A missing slot is omitted,
+    never filled.
+    """
     repo = context.entry.repository
-    badges: list[str] = []
+    badges: list[tuple[str, str]] = []
     spec = context.spec
     install = context.fact(spec.install_fact_id)
     package = context.fact("package:name")
@@ -259,24 +294,43 @@ def _badges(context: RenderContext) -> list[str]:
     ):
         badge = spec.badge(package.value)
         if badge:
-            badges.append(badge)
-    requires = context.fact("package:python_requires")
-    if requires is not None and requires.polarity == "SUPPORTED":
-        label = quote(requires.value.replace(">=", "").strip() + "+", safe="")
-        badges.append(f"![Python](https://img.shields.io/badge/python-{label}-blue.svg)")
+            badges.append(("package", badge))
+    floor = context.fact(spec.floor_fact_id) if spec.floor_fact_id else None
+    if floor is not None and floor.polarity == "SUPPORTED":
+        runtime = spec.runtime_badge(floor.value)
+        if runtime:
+            badges.append(("runtime", runtime))
+    ci = context.fact(CI_BADGE_FACT_ID)
+    if ci is not None and ci.polarity == "SUPPORTED":
+        badges.append(("build", ci_badge(ci)))
     spdx = context.fact("license:spdx")
     license_file = context.fact("license:file")
     if spdx is not None and license_file is not None and spdx.polarity == "SUPPORTED":
         badge = quote(spdx.value, safe="")
         badges.append(
-            f"[![License: {spdx.value}](https://img.shields.io/badge/License-{badge}-blue.svg)]"
-            f"({license_file.value})"
+            (
+                "license",
+                f"[![License: {spdx.value}](https://img.shields.io/badge/License-{badge}-blue.svg)]"
+                f"({license_file.value})",
+            )
         )
-    badges.append(
-        f"[![Contributors](https://img.shields.io/github/contributors/{repo})]"
-        f"(https://github.com/{repo}/graphs/contributors)"
-    )
+    target = contributors_target(repo).casefold()
+    if any(
+        fact.polarity == "SUPPORTED" and fact.value.casefold() == target
+        for fact in context.facts.by_kind("link_target")
+    ):
+        badges.append(
+            (
+                "contributors",
+                f"[![Contributors](https://img.shields.io/github/contributors/{repo})]"
+                f"({contributors_target(repo)})",
+            )
+        )
     return badges
+
+
+def _badges(context: RenderContext) -> list[str]:
+    return [markdown for _slot, markdown in badge_slots(context)]
 
 
 def _navigation(context: RenderContext) -> list[str]:
@@ -561,6 +615,18 @@ def _api_reference(context: RenderContext) -> list[str]:
     return lines
 
 
+def enterprise_anchor(name: str) -> str:
+    """The Enterprise Edition anchor text for the product ``name``.
+
+    plans/idea.md: "Aspose.com product links use natural explanatory prose and an informative
+    **full-featured ... Enterprise Edition** anchor below the fold." The anchor opens with
+    "full-featured", names the product, and ends with the one permitted edition name; the
+    renderer composes it from the verified target's level and the canonical product name, never
+    from model prose.
+    """
+    return f"full-featured {name} — Enterprise Edition"
+
+
 def _enterprise_paragraph(context: RenderContext) -> str:
     """README_CONTRACT.md section 2 row 18: the closing paragraph of Scope and Limitations,
     from the live verified Enterprise target; a family-level target names no platform, and
@@ -574,9 +640,7 @@ def _enterprise_paragraph(context: RenderContext) -> str:
     name = context.name.replace(" FOSS", "")
     if level == "family":
         name = name.split(" for ", 1)[0]
-    sentence = (
-        f"These limitations don't apply to [{name} \u2014 Enterprise Edition]({target.value})."
-    )
+    sentence = f"These limitations don't apply to [{enterprise_anchor(name)}]({target.value})."
     adds = context.unit("enterprise_relationship", "context").strip()
     return f"{sentence} {adds}" if adds else sentence
 
