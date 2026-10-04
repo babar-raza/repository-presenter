@@ -426,6 +426,40 @@ def approving_store(handoff: Handoff, **overrides: Any) -> MemoryApprovalStore:
     return MemoryApprovalStore({handoff_id(handoff): approval_text(handoff, **overrides)})
 
 
+def close_approval_text(
+    handoff: Handoff,
+    *,
+    issue_number: int | None = None,
+    close_reason: str = "not_planned",
+    digest: str | None = None,
+    repository: str | None = None,
+    approver: str = "owner-login",
+    approved_at: datetime | None = None,
+    expires_at: datetime | None = None,
+) -> str:
+    """An owner close-approval record (``ops/issue_close_approvals/<handoff-id>.json``) for the
+    issue ``handoff`` filed, valid now unless an argument overrides one field."""
+    approved = approved_at or datetime.now(UTC) - timedelta(hours=1)
+    expires = expires_at or approved + timedelta(days=7)
+    number = issue_number if issue_number is not None else handoff.issue_ref.number  # type: ignore[union-attr]
+    record = {
+        "handoff_id": handoff_id(handoff),
+        "repository": repository or handoff.repository,
+        "issue_number": number,
+        "close_reason": close_reason,
+        "evidence_digest": digest or evidence_digest(handoff),
+        "approver": approver,
+        "approved_at": approved.isoformat(),
+        "expires_at": expires.isoformat(),
+    }
+    return json.dumps(record, indent=2) + chr(10)
+
+
+def closing_store(handoff: Handoff, **overrides: Any) -> MemoryApprovalStore:
+    """A store holding a valid owner close approval for exactly ``handoff``'s filed issue."""
+    return MemoryApprovalStore({handoff_id(handoff): close_approval_text(handoff, **overrides)})
+
+
 def committed_approval_path(handoff: Handoff) -> str:
     return approval_relative_path(handoff_id(handoff))
 
