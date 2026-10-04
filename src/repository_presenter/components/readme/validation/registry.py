@@ -13,6 +13,7 @@ document records are context for the reviewer, never a verdict.
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import re
 from collections import Counter
@@ -198,7 +199,12 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # Closed at the same check that already judges "is what renders safe to follow": no such
         # construct may appear outside a fenced code block (code fences render as inert text, so
         # a documentation example quoting one is not this hazard).
-        "4",
+        # "5" (G8, BC-06 false positive on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript): the
+        # javascript:/vbscript: test read the words anywhere in prose, so "Document-level
+        # JavaScript: every entry" failed a candidate that carried no URL at all. The scheme is now
+        # judged only at a URL position (link/image destination, reference definition, autolink,
+        # URL-bearing attribute value), so a prose label passes and every real hazard still fails.
+        "5",
         "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the "
         "only edition name; no unsafe raw HTML (script/event-handler/dangerous-scheme) renders "
         "outside a fenced code block",
@@ -311,13 +317,47 @@ _BADGE_ROW = re.compile(rf"{_BADGE_TOKEN}(?: {_BADGE_TOKEN})*")
 _EDITION = re.compile(r"\b([A-Z][A-Za-z]+) Edition\b")
 # G7-W01 (docs/THREAT_MODEL.md area 3): the raw-HTML hazards no existing check reached - a
 # standalone or block-level tag that executes or navigates on its own, an inline event-handler
-# attribute (onerror=, onload=, ...), and a javascript:/vbscript: scheme wherever it appears, not
-# only inside an href `extract_links` would already have classified as "other" and failed on.
+# attribute (onerror=, onload=, ...), and a javascript:/vbscript: scheme where a URL is read.
 # Scanned outside fenced code blocks only: a fence renders as inert text on GitHub, so a
 # documentation example quoting one of these verbatim is not this hazard.
 _UNSAFE_HTML_TAG = re.compile(r"(?is)<\s*/?\s*(script|iframe|object|embed|meta|base)\b")
 _EVENT_HANDLER_ATTR = re.compile(r"(?is)\bon[a-z]+\s*=\s*[\"']")
-_DANGEROUS_SCHEME = re.compile(r"(?i)\b(?:javascript|vbscript):")
+# G8 (BC-06 false positive on aspose-pdf-foss, "Document-level JavaScript: every entry"): a scheme
+# is a hazard only at a position a URL is read, never wherever a word and a colon sit in prose. The
+# four URL positions are a markdown link or image destination `](...)`, a reference definition
+# `[label]: ...`, an autolink `<scheme:...>`, and the value of a URL-bearing attribute. The
+# attribute list includes SVG's values/to/from/by, which set an href through an animation
+# (`<animate attributeName="href" values="javascript:...">`). Each captures the URL as `url` (or
+# the quoted/bare attribute value) and is judged by `_is_dangerous_url`, never by its own shape.
+_URL_ATTRIBUTES = (
+    "href",
+    "src",
+    "action",
+    "formaction",
+    "data",
+    "poster",
+    "background",
+    "cite",
+    "codebase",
+    "longdesc",
+    "lowsrc",
+    "dynsrc",
+    "srcset",
+    "values",
+    "to",
+    "from",
+    "by",
+)
+_MD_DESTINATION = re.compile(r"\]\(\s*<?(?P<url>[^\s<>)]*)")
+_MD_REFERENCE_DEFINITION = re.compile(r"(?m)^[ ]{0,3}\[[^\]\n]+\]:[ \t]*<?(?P<url>[^\s<>]*)")
+_AUTOLINK = re.compile(r"<(?P<url>[^\s<>]*)")
+_HTML_URL_ATTRIBUTE = re.compile(
+    r"(?i)(?<![\w.:-])(?:[\w.-]+:)?(?:" + "|".join(_URL_ATTRIBUTES) + r")\s*=\s*"
+    r"""(?:"(?P<dq>[^"]*)"|'(?P<sq>[^']*)'|(?P<bare>[^\s"'>]+))"""
+)
+_DANGEROUS_SCHEME = re.compile(r"(?i)(?:javascript|vbscript):")
+_URL_CONTROLS = "".join(chr(code) for code in range(0x21))
+_URL_TAB_OR_NEWLINE = re.compile(r"[\t\n\r]")
 # A word after a dot is an extension spelling (.dae), not an abbreviation. G4-W17 arrival item
 # 103 (E21): a word immediately after a hyphen is a hyphen-continued name (aspose-html-foss),
 # not a bare abbreviation use either - the identical shape _COMMAND below is already hardened
@@ -884,6 +924,29 @@ def _renderer_owned(candidate: Candidate, href: str) -> bool:
     return href.rstrip("/") == target.rstrip("/")
 
 
+def _is_dangerous_url(value: str) -> bool:
+    """Whether a URL read at a URL position carries a javascript:/vbscript: scheme, judged the way
+    a renderer reads it: character references decode first (an HTML attribute value, and a
+    CommonMark link destination, both do), then a browser drops ASCII tab/newline anywhere and
+    leading C0 controls and spaces before it reads the scheme."""
+    url = _URL_TAB_OR_NEWLINE.sub("", html.unescape(value)).lstrip(_URL_CONTROLS)
+    return _DANGEROUS_SCHEME.match(url) is not None
+
+
+def _dangerous_url_spans(prose: str) -> list[tuple[int, str]]:
+    """Every (offset, span) where a javascript:/vbscript: scheme sits at a URL position in prose."""
+    found: list[tuple[int, str]] = []
+    for pattern in (_MD_DESTINATION, _MD_REFERENCE_DEFINITION, _AUTOLINK):
+        for match in pattern.finditer(prose):
+            if _is_dangerous_url(match.group("url")):
+                found.append((match.start(), match.group(0)))
+    for match in _HTML_URL_ATTRIBUTE.finditer(prose):
+        value = match.group("dq") or match.group("sq") or match.group("bare") or ""
+        if _is_dangerous_url(value):
+            found.append((match.start(), match.group(0)))
+    return found
+
+
 def _unsafe_html_failures(readme: str) -> list[Failure]:
     """G7-W01: every executing/navigating raw-HTML hazard outside a fenced code block.
 
@@ -891,20 +954,25 @@ def _unsafe_html_failures(readme: str) -> list[Failure]:
     raw `html_block` unit byte for byte like any other unit, and a reconciliation disposition may
     preserve it verbatim. `extract_links` (`evidence/facts/links.py`) only ever walks an `<a>`/
     `<img>` tag's own `href`/`src` - a standalone `<script>`, an `onerror=` handler on an
-    otherwise-ordinary tag, or a `javascript:`/`vbscript:` scheme anywhere else in the markup
-    never reached a check at all before this one. Each distinct offending span is named once, in
-    document order, so a repair has something concrete to remove.
+    otherwise-ordinary tag, or a `javascript:`/`vbscript:` scheme in a URL position elsewhere in
+    the markup never reached a check at all before this one. A scheme word in ordinary prose is
+    not a URL and is not named. Each distinct offending span is named once, in document order, so
+    a repair has something concrete to remove.
     """
-    failures: list[Failure] = []
     prose = "\n".join(_outside_fences(readme))
+    found = [
+        (match.start(), match.group(0))
+        for pattern in (_UNSAFE_HTML_TAG, _EVENT_HANDLER_ATTR)
+        for match in pattern.finditer(prose)
+    ]
+    found.extend(_dangerous_url_spans(prose))
+    failures: list[Failure] = []
     seen: set[str] = set()
-    for pattern in (_UNSAFE_HTML_TAG, _EVENT_HANDLER_ATTR, _DANGEROUS_SCHEME):
-        for match in pattern.finditer(prose):
-            span = match.group(0)
-            if span in seen:
-                continue
-            seen.add(span)
-            failures.append(Failure("COMPOSING", f"unsafe raw HTML in the candidate: {span!r}"))
+    for _, span in sorted(found):
+        if span in seen:
+            continue
+        seen.add(span)
+        failures.append(Failure("COMPOSING", f"unsafe raw HTML in the candidate: {span!r}"))
     return failures
 
 
