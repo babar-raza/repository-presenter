@@ -77,6 +77,32 @@ def test_a_missing_installation_is_recorded_as_a_notice_not_a_failure() -> None:
     assert "monitor-install-record" in record["run"]
 
 
+def test_the_record_step_classifies_with_the_app_credentials_and_can_fail_the_leg() -> None:
+    # The mint failure is absorbed only so the lookup can classify it. The record step itself must
+    # never absorb a failure: a non-404 answer exits 1 from it and so fails the owner's leg.
+    record = _step("drift", RECORD_PREFIX)
+
+    assert "continue-on-error" not in record
+    assert record["env"]["GH_APP_ID"] == "${{ secrets.GH_APP_ID }}"
+    assert record["env"]["GH_APP_PRIVATE_KEY"] == "${{ secrets.GH_APP_PRIVATE_KEY }}"
+    assert "|| true" not in record["run"]
+    assert "set +e" not in record["run"]
+
+
+def test_the_app_credentials_reach_no_step_but_the_mint_and_the_record_step() -> None:
+    holders = [
+        (job, step.get("name"))
+        for job, body in _workflow()["jobs"].items()
+        for step in body["steps"]
+        if "secrets.GH_APP_PRIVATE_KEY" in str(step)
+    ]
+
+    assert holders == [
+        ("drift", _step("drift", MINT_PREFIX)["name"]),
+        ("drift", _step("drift", RECORD_PREFIX)["name"]),
+    ]
+
+
 def test_observation_runs_only_with_a_minted_token_and_its_errors_still_fail_the_leg() -> None:
     observe = _step("drift", OBSERVE_PREFIX)
 

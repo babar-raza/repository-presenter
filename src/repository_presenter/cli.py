@@ -9,7 +9,7 @@ import os
 import shutil
 import sys
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from functools import partial
@@ -58,7 +58,11 @@ from repository_presenter.components.monitor.drift import (
     write_drift_document,
 )
 from repository_presenter.components.monitor.install_state import (
+    MINT_ERROR,
+    InstallationState,
     InstallStateError,
+    LookupResult,
+    lookup_installations,
     record_state,
     summarize_installs,
     write_state,
@@ -250,6 +254,8 @@ PROGRAM = "repository-presenter"
 RUNS_DIRNAME = "runs"
 MONITOR_DIRNAME = "monitor"
 DRIFT_FILENAME = "drift.json"
+APP_ID_VARIABLE = "GH_APP_ID"
+APP_KEY_VARIABLE = "GH_APP_PRIVATE_KEY"
 EXIT_OK = 0
 EXIT_INCONSISTENT = 1
 EXIT_USAGE = 2
@@ -432,7 +438,8 @@ def build_parser() -> argparse.ArgumentParser:
         "monitor-install-record",
         help=(
             "record one owner's GitHub App installation state from its token mint outcome "
-            "(success = INSTALLED; failure = NOT_INSTALLED, a notice and never a failure)"
+            "(success = INSTALLED; failure is looked up as the App: confirmed 404 = NOT_INSTALLED, "
+            "a notice; any other failure = MINT_ERROR, exit 1)"
         ),
     )
     install_record_cmd.add_argument("--owner", required=True, metavar="OWNER")
@@ -696,16 +703,49 @@ def run_monitor(
     return EXIT_OK
 
 
-def run_monitor_install_record(owner: str, outcome: str, repositories: str, out: Path) -> int:
-    """Record one owner's App installation state (G7-W06). Writes one JSON file, never a token."""
+def run_monitor_install_record(
+    owner: str,
+    outcome: str,
+    repositories: str,
+    out: Path,
+    *,
+    lookup: Callable[..., list[LookupResult]] = lookup_installations,
+) -> int:
+    """Record one owner's App installation state (G7-W06). Writes one JSON file, never a token.
+
+    A failed mint is classified by an explicit installation lookup as the App (``GH_APP_ID`` and
+    ``GH_APP_PRIVATE_KEY`` from the environment): only a confirmed 404 is ``NOT_INSTALLED`` and
+    exits 0; any other failure is ``MINT_ERROR`` and exits 1, so that owner's leg fails.
+    """
+    app_id = os.environ.get(APP_ID_VARIABLE) or None
+    private_key = os.environ.get(APP_KEY_VARIABLE) or None
+    names = [name for name in repositories.split(",") if name]
+    lookup_call = None
+    if app_id is not None and private_key is not None and names:
+
+        def lookup_call() -> list[LookupResult]:
+            return lookup(owner, names, app_id=app_id, private_key=private_key)
+
     try:
-        state = record_state(owner, outcome, repositories)
+        state = record_state(owner, outcome, repositories, lookup=lookup_call)
     except InstallStateError as exc:
         _fail(str(exc))
         return EXIT_USAGE
+    except Exception as exc:  # signing or transport setup failed: unexplained, so not benign
+        reason = redact(f"{type(exc).__name__}: {exc}", [private_key or ""])
+        state = InstallationState(
+            owner,
+            MINT_ERROR,
+            repositories,
+            f"The read-only token for '{owner}' could not be minted and this is NOT a missing "
+            f"installation: the installation lookup could not run: {reason}. This leg fails.",
+        )
     path = write_state(state, out)
     print(f"monitor install: {owner} {state.state}")
     print(f"record: {path}")
+    if state.state == MINT_ERROR:
+        _fail(state.detail or f"{owner}: token mint failed")
+        return EXIT_INCONSISTENT
     return EXIT_OK
 
 

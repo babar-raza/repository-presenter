@@ -196,13 +196,16 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH
   when any repository is `UNREACHABLE`, and the scheduled `monitor.yml` workflow runs it read-only.
 - **`monitor-install-record`** / **`monitor-install-summary`** — `monitor.yml`'s own per-owner
   GitHub App installation bookkeeping (G7-W06). `monitor-install-record` turns one owner's token
-  mint outcome (`--outcome success|failure`) into a state file under `--out`: a failed mint is
-  recorded as `NOT_INSTALLED`, naming the owner, the App, and `--repositories`, never a run
-  failure on its own. `monitor-install-summary DIR` reads every owner's state file under `DIR`,
-  prints a `::notice::` per missing installation plus a markdown table (appended to `--summary`
-  when given), and exits 1 only when no owner at all could be observed — every mint having failed
-  points at the App credentials, not a per-owner gap. Neither command makes a GitHub call or
-  writes a token to disk.
+  mint outcome (`--outcome success|failure`) into a state file under `--out`. A failed mint is never
+  judged from the outcome alone, because the mint action hides the HTTP status: the command asks
+  GitHub directly (`GET /repos/OWNER/NAME/installation`, authenticated as the App from
+  `GH_APP_ID` / `GH_APP_PRIVATE_KEY`). Only a confirmed 404 is recorded as `NOT_INSTALLED` (a
+  notice naming the owner, the App and `--repositories`, exit 0); any other answer (401, 403, 5xx,
+  an unrecognized status, a network error, an unexplained failure, missing credentials) is
+  `MINT_ERROR` and exits 1, failing that owner's leg. `monitor-install-summary DIR` reads every
+  owner's state file under `DIR`, prints a `::notice::` per missing installation plus a markdown
+  table (appended to `--summary` when given), and exits 1 only when no owner at all was
+  `INSTALLED`. No token or key is ever written to disk.
 - **`redetect-upstream-defects`** — re-evaluates each `evidence/upstream-defects/` handoff's own
   `triggering_check` against the target repository's current state (package-registry and GitHub
   Contents/tree reads) and reports whether it still fires. `--repo OWNER/NAME` limits the pass to

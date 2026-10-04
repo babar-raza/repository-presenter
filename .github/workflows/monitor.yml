@@ -137,10 +137,13 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements-lock.txt
           python -m pip install --disable-pip-version-check --no-deps -e .
 
-      # A mint failure is recorded, not raised: an owner whose App installation does not cover its
-      # enabled repositories (GitHub answers 404 for that lookup) is a notice naming the missing
-      # install. The coverage job below turns the run red only when no owner at all was observable,
-      # which points at the App credentials rather than at one owner's installation.
+      # A failed mint is NOT presumed to be a missing installation: the action does not expose the
+      # HTTP status behind it, and a revoked key (401), a permission problem (403), an outage (5xx)
+      # or a network error fail the same way. The mint failure is absorbed only so the next step
+      # can ask GitHub directly (GET /repos/{owner}/{repo}/installation, as the App). Only a
+      # confirmed 404 there is a notice naming the missing install; every other answer fails this
+      # owner's leg with its error. The coverage job below is a second net: it turns the run red
+      # when no owner at all is observable.
       - name: Mint a read-only installation token, scoped to this owner's enabled repositories
         id: app-token
         continue-on-error: true
@@ -152,12 +155,15 @@ jobs:
           repositories: ${{ matrix.repositories }}
           permission-contents: read
 
-      - name: Record this owner's installation state (INSTALLED, or NOT_INSTALLED as a notice)
+      - name: Record this owner's installation state (a notice only on a confirmed 404)
         if: always()
         env:
           MINT_OUTCOME: ${{ steps.app-token.outcome }}
           OWNER: ${{ matrix.owner }}
           REPOSITORIES: ${{ matrix.repositories }}
+          # Used only to authenticate the installation lookup after a failed mint; never printed.
+          GH_APP_ID: ${{ secrets.GH_APP_ID }}
+          GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
         run: |
           mkdir -p runs/monitor
           repository-presenter monitor-install-record --owner "$OWNER" \
