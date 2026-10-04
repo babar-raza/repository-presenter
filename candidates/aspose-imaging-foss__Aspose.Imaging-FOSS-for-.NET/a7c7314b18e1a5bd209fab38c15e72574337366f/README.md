@@ -82,8 +82,8 @@ The verified public surface has 3 types.
 
 | Class | Description |
 | --- | --- |
-| `ImageInfo` | Encapsulates core metadata of an image, including its width, height, format, bit depth, and frame count. |
-| `ImageProbe` | Provides methods to inspect image data from various sources—such as files, streams, or byte arrays—to detect the format and retrieve image metadata. |
+| `ImageInfo` | Provides metadata about an image, including its width, height, bit depth, frame count, and format, obtained by probing an image source. |
+| `ImageProbe` | Enables detection and inspection of image properties by probing image data from files, streams, or byte arrays to determine format and metadata. |
 
 #### Enumerations
 
@@ -101,10 +101,10 @@ The `Aspose.Imaging.Foss` class serves as the central type for image inspection 
 
 ## Scope and Limitations
 
-Aspose.Imaging FOSS for .NET provides a lightweight, open-source imaging library for .NET that focuses on format detection and basic metadata inspection, targeting netstandard2.0 and exposing the `Aspose.Imaging.Foss` namespace.
+Aspose.Imaging FOSS for .NET provides read-only image inspection for DICOM, `DjVu`, AVIF, and HEIC/HEIF formats on the netstandard2.0 target framework, reporting dimensions, bit depth, and frame or page count where supported.
 
-- The library does not support decoding, editing, or converting image formats; for those capabilities users should refer to Aspose.Imaging Enterprise Edition.
-- DICOM parsing supports only Implicit VR Little Endian and Explicit VR Little/Big Endian transfer syntaxes, and halts without further processing when encountering sequences or encapsulated pixel data with undefined length before locating Rows, Columns, or `BitsAllocated`.
+- DICOM parsing supports only Implicit VR Little Endian and Explicit VR Little/Big Endian transfer syntaxes, and halts rather than guessing when encountering sequences or encapsulated pixel data with undefined length before finding Rows, Columns, or `BitsAllocated`.
+- DjVu files report dimensions and frame count from the IFF chunk tree, with multi-page (DJVM) files reporting page count from the DIRM directory chunk and dimensions from the first embedded DJVU page.
 - Support for CDR is planned but not yet implemented.
 
 These limitations don't apply to [Aspose.Imaging for .NET — Enterprise Edition](https://products.aspose.com/imaging/net/). Aspose.Imaging FOSS for .NET provides open-source imaging capabilities for .NET developers targeting netstandard2.0, while the commercial Aspose.Imaging for .NET adds advanced features, enterprise support, and additional format handling beyond this package.

@@ -50,6 +50,12 @@ from typing import Any
 
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.toolchains import (
+    REGISTRY_VARIABLE,
+    recorded_tool,
+    resolve_tool,
+    subprocess_path,
+)
 
 _MAX_OUTPUT_CHARS = 4000
 _WORKSPACE_ATTEMPTS = 5
@@ -76,10 +82,9 @@ _UNBOUND_IDENTIFIER = re.compile(
     "[\u2018']([^\u2018\u2019']+)[\u2019'] "
     r"(?:was not declared in this scope|has not been declared)"
 )
-# The lane's toolchains are never on PATH (loop-prompt §1.3): a name is resolved by `which`, then
-# by the absolute path the machine-local registry the lane's receipt records.
-_REGISTRY_VARIABLE = "RP_TOOLCHAIN_REGISTRY"
-_REGISTRY_DEFAULT = Path("C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt")
+# Toolchains are resolved by `core/toolchains.py` (the machine's registry and install search, with
+# PATH per tool's own precedence); the registry variable name is re-exported for the tests.
+_REGISTRY_VARIABLE = REGISTRY_VARIABLE
 # A snippet with one of these is already a program; everything else is a body that needs one.
 _HAS_MAIN = re.compile(r"^[^\S\n]*(?:[A-Za-z_][\w:<>,\s*&]*\s+)?main\s*\(", re.MULTILINE)
 # What stays at file scope when a body is wrapped: preprocessor lines, comments, `using` and
@@ -100,62 +105,30 @@ _TIMEOUT_CONFIGURE = 300.0
 _TIMEOUT_BUILD = 300.0
 
 
-def _registry_path() -> Path:
-    recorded = os.environ.get(_REGISTRY_VARIABLE, "").strip()
-    return Path(recorded) if recorded else _REGISTRY_DEFAULT
-
-
-def recorded_tool(name: str) -> str | None:
-    """The absolute path the machine-local toolchain registry records for ``name``, if any."""
-    registry = _registry_path()
-    try:
-        text = registry.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return None
-    for line in text.splitlines():
-        key, separator, value = line.partition("=")
-        if separator and key.strip() == name and Path(value.strip()).is_file():
-            return value.strip()
-    return None
-
-
-def _resolve(names: Sequence[str], recorded: Sequence[str]) -> str | None:
-    for name in names:
-        found = shutil.which(name)
-        if found:
-            return found
-    for key in recorded:
-        found = recorded_tool(key)
-        if found:
-            return found
-    return None
-
-
 def cpp_compiler() -> str | None:
     """A C++ compiler this machine offers, or None when it offers none.
 
-    `which` first, so a hosted runner's own GCC or Clang is used where one is on `PATH`, then the
-    workspace-local GCC the lane's registry records - which is the only one on this machine
-    (OWNER-06; `TOOLCHAIN_PATHS.txt` records `gxx`).
+    `PATH` first, so a hosted runner's own GCC or Clang is used where one is on `PATH`, then the
+    workspace-local GCC the machine's registry records (`core/toolchains.py`, OWNER-06).
     """
-    return _resolve(("g++", "c++", "clang++"), ("gxx",))
+    return resolve_tool("gxx")
 
 
 def cmake_executable() -> str | None:
     """CMake as this machine offers it.
 
-    `which` before the registry deliberately. The winlibs toolchain bundles a `cmake.exe` with no
+    `PATH` before the registry deliberately. The winlibs toolchain bundles a `cmake.exe` with no
     certificate bundle, and a project whose configure step fetches a dependency over HTTPS dies in
     it with "SSL certificate verification failed: certificate signer not trusted" - measured
     2026-09-06 on Aspose.PDF for C++, which fetches GoogleTest at configure time and configured
     and built in 95 seconds under the machine's own CMake and not at all under the bundled one.
     """
-    return _resolve(("cmake",), ("cmake",))
+    return resolve_tool("cmake")
 
 
 def ninja_executable() -> str | None:
-    """Ninja as this machine offers it, or the one the lane's registry records."""
-    return _resolve(("ninja",), ("ninja",))
+    """Ninja as this machine offers it, or the one the machine's registry records."""
+    return resolve_tool("ninja")
 
 
 def toolchain_path(*tools: str | None) -> str:
@@ -165,11 +138,7 @@ def toolchain_path(*tools: str | None) -> str:
     E5). The built compiler needs its own directory on `PATH` to find its runtime DLLs, and CMake
     finds the compiler and the generator by name, so both directories must be here.
     """
-    directories = list(dict.fromkeys(str(Path(tool).parent) for tool in tools if tool))
-    inherited = os.environ.get("PATH", "")
-    if inherited:
-        directories.append(inherited)
-    return os.pathsep.join(directories)
+    return subprocess_path(*tools)
 
 
 _MSVC_ENV_VARS = ("INCLUDE", "LIB", "LIBPATH", "PATH")
