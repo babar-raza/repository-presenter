@@ -1681,3 +1681,26 @@ def test_prose_raises_a_known_abbreviation_to_its_canonical_form() -> None:
     # A word that only looks like one is left alone, and a dotted extension is an identifier.
     assert context.prose("The scene is saved.") == "The scene is saved."
     assert "`.glb`" in context.prose("Files use the .glb extension.")
+
+
+def test_a_planned_capability_title_is_raised_to_the_documents_abbreviation_spelling() -> None:
+    """Measured 2026-10-04 on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript: BC-07 failed at
+    COMPOSING on ``abbreviation 'pdf'`` located in key_capabilities. ``prose()`` raises every
+    authored unit's known abbreviations, but ``_section_body`` wrote a planner-authored capability
+    title (and the At a Glance label built from the same title) straight into the document, so a
+    title in lower case reached the README unchanged. The title is planning output rendered as
+    prose, so the same canonical spelling applies to it as to every other line of prose."""
+    plan = {
+        **PLAN,
+        "core_capabilities": [
+            {"title": "Build scenes", "fact_ids": ["public_symbol:aspose.threed.scene"]},
+            {"title": "Save glb files", "fact_ids": ["format:output.glb"]},
+        ],
+        "at_a_glance": {
+            **PLAN["at_a_glance"],
+            "capability_titles": ["Build scenes", "Save glb files"],
+        },
+    }
+    readme = render_readme(ENTRY, FACTS, plan, UNITS, DISPOSITIONS)
+    assert "- **Save GLB files.** " in readme
+    assert "Save glb files" not in readme

@@ -7,9 +7,11 @@ checks a genuine revision would have to pass.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from repository_presenter.components.readme.bundle.seal import seed_additional_calls
 from repository_presenter.components.readme.composition.authoring import (
@@ -24,6 +26,7 @@ from repository_presenter.components.readme.repair.rounds import (
     _second_opinion,
     _stage_target,
     _third_opinion,
+    repair_defect,
 )
 from repository_presenter.components.readme.repair.targeted import Defect
 from repository_presenter.components.readme.review.independent.review import (
@@ -290,3 +293,142 @@ def test_every_reconciliation_batch_is_sealed_so_a_fresh_clone_replays_it_with_z
     assert seed_additional_calls(tmp_path, store) == ["source_reconciliation"]
     assert store.get("b" * 64) == first.output
     assert store.get("c" * 64) == second.output
+
+
+class _RecordingStore:
+    def __init__(self) -> None:
+        self.puts: list[tuple[str, str, Any, dict[str, Any]]] = []
+
+    def put(self, request_sha256: str, job: str, model: Any, output: dict[str, Any]) -> None:
+        self.puts.append((request_sha256, job, model, output))
+
+
+class _RecordingLedger:
+    def __init__(self) -> None:
+        self.records: list[tuple[str, str | None, list[dict[str, Any]]]] = []
+
+    def record(
+        self,
+        defect: Defect,
+        outcome: str,
+        request_sha256: str | None = None,
+        changes: Any = (),
+    ) -> None:
+        self.records.append((outcome, request_sha256, list(changes)))
+
+
+def _bc07_repair_inputs(
+    plan: dict[str, Any], overage: int, levers: dict[str, int]
+) -> tuple[SimpleNamespace, Round, Defect, _RecordingStore, _RecordingLedger, dict[str, Any]]:
+    current = replace(_minimal_round(plan), readme="line\n" * 400)
+    defect = Defect(
+        fingerprint="f" * 24,
+        source="validation",
+        label="BC-07",
+        section_id=None,
+        stage="S5",
+        record={},
+    )
+    store = _RecordingStore()
+    ledger = _RecordingLedger()
+    tx = SimpleNamespace(
+        prompts={
+            "presentation_planning": SimpleNamespace(
+                manifest=SimpleNamespace(output=SimpleNamespace(schema_={}, binding=None))
+            ),
+            "targeted_repair": object(),
+        },
+        facts=FactsDocument("aspose-font-foss/Aspose.Font-FOSS-for-Python", "rev", ()),
+        entry=SimpleNamespace(
+            repository="aspose-font-foss/Aspose.Font-FOSS-for-Python", ecosystem="python"
+        ),
+        store=store,
+        config=None,
+        ledger=None,
+        context=None,
+    )
+    hint = {
+        "visible_lines_over_budget": overage,
+        "optional_plan_fields_and_their_visible_line_cost_if_cleared": levers,
+    }
+    return tx, current, defect, store, ledger, hint
+
+
+def test_a_bc07_overage_the_levers_provably_close_is_bounded_without_a_model_call() -> None:
+    """Measured shape, aspose-font-foss/Aspose.Font-FOSS-for-Python (docs/DECISION_LOG.md
+    2026-09-27/28): the model's targeted repair was asked to clear a lever and never did, though
+    a 127-line flagship alone clears a 5-line overage. ``repair_defect`` now clears it in code
+    first: the model is not called, the cleared plan is stored under the causal call's own request
+    hash (the same place a model reply would be), and the repair is recorded truthfully."""
+    plan = {
+        "flagship_example_id": "example:008",
+        "second_quick_start_example_id": None,
+        "additional_example_ids": ["example:008"],
+    }
+    tx, current, defect, store, ledger, hint = _bc07_repair_inputs(
+        plan, 5, {"flagship_example_id": 127}
+    )
+    with (
+        patch(
+            "repository_presenter.components.readme.repair.rounds.product_name", return_value="x"
+        ),
+        patch(
+            "repository_presenter.components.readme.repair.rounds._stage_target",
+            return_value=(current.planned, lambda revised: [], None, None, None),
+        ),
+        patch(
+            "repository_presenter.components.readme.repair.rounds.visible_line_budget_hint",
+            return_value=hint,
+        ),
+        patch(
+            "repository_presenter.components.readme.repair.rounds.run_job",
+            side_effect=AssertionError("the model must not be called for a provable clear"),
+        ),
+    ):
+        repair_defect(tx, current, defect, ledger)
+    assert len(store.puts) == 1
+    request_sha256, job, _model, cleared = store.puts[0]
+    assert request_sha256 == current.planned.request_sha256 and job == "presentation_planning"
+    assert cleared["flagship_example_id"] is None
+    assert cleared["additional_example_ids"] == ["example:008"]
+    assert ledger.records[0][0] == "repaired"
+    assert [change["path"] for change in ledger.records[0][2]] == ["flagship_example_id"]
+
+
+def test_a_bc07_overage_the_levers_cannot_provably_close_still_goes_to_the_model() -> None:
+    """Mutation control: an overage larger than the lever saving (even before the render margin)
+    is not bounded in code. The targeted repair is called exactly as before, and nothing is
+    stored by the bound."""
+    plan = {
+        "flagship_example_id": "example:008",
+        "second_quick_start_example_id": None,
+        "additional_example_ids": ["example:008"],
+    }
+    tx, current, defect, store, ledger, hint = _bc07_repair_inputs(
+        plan, 200, {"flagship_example_id": 127}
+    )
+    model = Mock(side_effect=JobError("model reached"))
+    with (
+        patch(
+            "repository_presenter.components.readme.repair.rounds.product_name", return_value="x"
+        ),
+        patch(
+            "repository_presenter.components.readme.repair.rounds._stage_target",
+            return_value=(current.planned, lambda revised: [], None, None, None),
+        ),
+        patch(
+            "repository_presenter.components.readme.repair.rounds.visible_line_budget_hint",
+            return_value=hint,
+        ),
+        patch("repository_presenter.components.readme.repair.rounds.run_job", model),
+        patch(
+            "repository_presenter.components.readme.repair.rounds.repair_packet", return_value={}
+        ),
+        patch(
+            "repository_presenter.components.readme.repair.rounds.repair_schema", return_value={}
+        ),
+    ):
+        repair_defect(tx, current, defect, ledger)
+    assert model.call_count == 1
+    assert store.puts == []
+    assert ledger.records[0][0] == "unrepairable"
