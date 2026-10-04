@@ -122,6 +122,7 @@ from repository_presenter.components.readme.evidence.processability import (
 )
 from repository_presenter.components.readme.extractors.examples.selection import select_examples
 from repository_presenter.components.readme.extractors.platforms.registry import (
+    known_ecosystems,
     plugin_for,
     verify_build,
 )
@@ -237,6 +238,12 @@ from repository_presenter.core.snapshot.capture import (
     write_source_artifacts,
 )
 from repository_presenter.core.state.git_backend import GitStateBackend
+from repository_presenter.core.state.health import (
+    DEFAULT_MAX_PROVIDER_CALLS,
+    DEFAULT_MAX_WALL_CLOCK_SECONDS,
+    Budgets,
+    evaluate_repository_health,
+)
 from repository_presenter.core.state.present_transaction import (
     STATE_TOKEN_VARIABLE,
     classify_present_outcome,
@@ -563,6 +570,64 @@ def build_parser() -> argparse.ArgumentParser:
             "omitted"
         ),
     )
+    health = subcommands.add_parser(
+        "health-check",
+        help=(
+            "dead-man monitoring for one repository's durable-state record (G7-W03): a named, "
+            "specific alert for a failed/invalidated transaction, staleness, or a budget overrun - "
+            "never a generic 'a run failed'. Deterministic only, read-only; prints '::error::' "
+            "annotations and exits non-zero on any alert, silent and exit 0 on a genuinely "
+            "healthy record"
+        ),
+    )
+    health.add_argument(
+        "--repo",
+        required=True,
+        metavar="OWNER/NAME",
+        help="repository coordinates exactly as listed in the registry",
+    )
+    health.add_argument("--root", type=Path, default=None, help=root_help)
+    health.add_argument(
+        "--state-remote",
+        default="origin",
+        help="the git remote this control repository's own state ref lives on",
+    )
+    health.add_argument(
+        "--wall-clock-seconds",
+        type=float,
+        default=None,
+        help=(
+            "this run's own measured wall-clock (e.g. from the workflow's own step timer); the "
+            "wall-clock budget check is skipped when omitted"
+        ),
+    )
+    health.add_argument(
+        "--provider-calls",
+        type=int,
+        default=None,
+        help=(
+            "this run's own measured provider-call count; auto-discovered from the sealed "
+            "bundle's own calls.jsonl ledger when omitted and a bundle exists for this revision"
+        ),
+    )
+    health.add_argument(
+        "--max-wall-clock-seconds",
+        type=float,
+        default=DEFAULT_MAX_WALL_CLOCK_SECONDS,
+        help="wall-clock budget ceiling, seconds (default: see core/state/health.py)",
+    )
+    health.add_argument(
+        "--max-provider-calls",
+        type=int,
+        default=DEFAULT_MAX_PROVIDER_CALLS,
+        help="provider-call budget ceiling (default: see core/state/health.py)",
+    )
+    health.add_argument(
+        "--stale-after-hours",
+        type=float,
+        default=24.0,
+        help="alert when no transition has been observed for longer than this many hours",
+    )
     return parser
 
 
@@ -612,6 +677,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             base_branch=args.base_branch,
             expires_in_minutes=args.expires_in_minutes,
             propose=args.do_propose,
+        )
+    if args.command == "health-check":
+        return run_health_check(
+            args.repo,
+            args.root,
+            state_remote=args.state_remote,
+            wall_clock_seconds=args.wall_clock_seconds,
+            provider_calls=args.provider_calls,
+            max_wall_clock_seconds=args.max_wall_clock_seconds,
+            max_provider_calls=args.max_provider_calls,
+            stale_after_hours=args.stale_after_hours,
         )
     parser.error(f"unknown command {args.command!r}")
 
@@ -783,6 +859,7 @@ def run_redetect_upstream_defects(
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
+    known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
         ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
     except HandoffError as exc:
@@ -902,6 +979,7 @@ def _redetect_or_inconclusive(handoff: Handoff) -> RedetectionResult:
     recheck rather than crashing the filer - ``file_handoff`` already fails closed on
     ``still_fires is None`` (this module's own docstring; ``AGENTS.md`` "Recheck upstream
     revision immediately before an effect")."""
+    known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
         return redetect(handoff)
     except RedetectorNotRegisteredError as exc:
@@ -1458,9 +1536,19 @@ def _report_facts_only(
 
 
 def run_present(
-    repository: str, root_argument: Path | None, *, facts_only: bool = False, fresh: bool = False
+    repository: str,
+    root_argument: Path | None,
+    *,
+    facts_only: bool = False,
+    fresh: bool = False,
+    on_disposition: Callable[[Path], None] | None = None,
 ) -> int:
     """Admit ``repository`` from the registry, then run the transaction stages.
+
+    A README-only placeholder (no manifest, no source) is not a failure: its processability
+    disposition is written under the transaction directory, ``on_disposition`` receives that path,
+    and the run returns ``EXIT_OK``. The durable transaction then records the NON_PROCESSABLE
+    outcome from that artifact (core/state/present_transaction.py). No candidate is ever sealed.
 
     ``facts_only`` stops after S2 with the processability and coverage record and makes no
     provider call: the cohort preflight reads every repository's failure class before any
@@ -1516,12 +1604,18 @@ def run_present(
         manifest_path = None if manifest is None else manifest.relative_to(clone.path).as_posix()
         disposition = assess_processability(snapshot, tree_paths, plugin, manifest_path)
         if disposition is not None:
-            write_disposition(disposition, transaction / DISPOSITION_FILENAME)
+            # The insufficient-evidence decision above is unchanged; this records it as the typed
+            # NON_PROCESSABLE disposition rather than a failure (docs/STATE_MACHINE.md section 6).
+            disposition_path = transaction / DISPOSITION_FILENAME
+            write_disposition(disposition, disposition_path)
+            if on_disposition is not None:
+                on_disposition(disposition_path)
             print(
-                f"insufficient_evidence: {disposition.reason_code} for {entry.repository} "
-                f"at {clone.revision}; resume when {disposition.resume_predicate}"
+                f"NON_PROCESSABLE: insufficient_evidence ({disposition.reason_code}) for "
+                f"{entry.repository} at {clone.revision}; resume when "
+                f"{disposition.resume_predicate}"
             )
-            return EXIT_INCONSISTENT
+            return EXIT_OK
         candidates: list[ExampleCandidate] = []
         receipts: list[ExampleReceipt] = []
         if snapshot.readme_path is not None:
@@ -1745,6 +1839,94 @@ def run_present(
     return EXIT_OK
 
 
+def _discover_provider_calls(root: Path, entry: RegistryEntry) -> int | None:
+    """The sealed bundle's own ledger, read the same way ``classify_present_outcome`` already
+    locates the bundle itself (``CURRENT`` -> revision -> ``runs/transactions/<repo>/<revision>``)
+    - ``manifest.json``'s own ``call_variance`` mechanism is this project's existing precedent for
+    "make it observable" logging; this reuses the same ``calls.jsonl`` ledger rather than inventing
+    a second accounting path. ``None`` when no bundle is sealed yet for this revision (a first run,
+    or a run that failed before composing anything) - the failure/staleness/wall-clock checks still
+    apply without a call count."""
+    candidates_dir = root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}"
+    current = candidates_dir / CURRENT_FILENAME
+    if not current.is_file():
+        return None
+    revision = current.read_text(encoding="utf-8").strip()
+    ledger_path = (
+        root
+        / RUNS_DIRNAME
+        / "transactions"
+        / f"{entry.owner}__{entry.name}"
+        / revision
+        / LEDGER_FILENAME
+    )
+    if not ledger_path.is_file():
+        return None
+    return Ledger(ledger_path).summary().provider_calls
+
+
+def run_health_check(
+    repository: str,
+    root_argument: Path | None,
+    *,
+    state_remote: str,
+    wall_clock_seconds: float | None,
+    provider_calls: int | None,
+    max_wall_clock_seconds: float | None,
+    max_provider_calls: int | None,
+    stale_after_hours: float,
+) -> int:
+    """Dead-man monitoring for one repository's durable-state record (G7-W03) - the
+    product-portfolio equivalent of ``.github/workflows/liveness.yml``'s own control-repository
+    supervision. Reads ``core/state``'s durable record (built by a real ``present --durable-state``
+    run, G5-W05) and, when ``--provider-calls`` is not given, the sealed bundle's own
+    ``calls.jsonl`` ledger; evaluates ``core/state/health.py``'s deterministic rules. Never an LLM
+    judgment, never a
+    state mutation - this command only reads and reports.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        entry = require_listed(registry, repository)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+
+    if provider_calls is None:
+        provider_calls = _discover_provider_calls(root, entry)
+
+    backend = GitStateBackend(
+        remote=state_remote, token=os.environ.get(STATE_TOKEN_VARIABLE) or None
+    )
+    try:
+        record = backend.load(entry.repository)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    finally:
+        backend.close()
+
+    alerts = evaluate_repository_health(
+        entry.repository,
+        record,
+        budgets=Budgets(
+            max_wall_clock_seconds=max_wall_clock_seconds, max_provider_calls=max_provider_calls
+        ),
+        stale_after=timedelta(hours=stale_after_hours),
+        wall_clock_seconds=wall_clock_seconds,
+        provider_calls=provider_calls,
+    )
+    if not alerts:
+        state = record.state if record is not None else "no record"
+        print(f"health: {entry.repository} healthy (state {state})")
+        return EXIT_OK
+    for alert in alerts:
+        print(alert.annotation())
+    return EXIT_INCONSISTENT
+
+
 def run_present_hosted(
     repository: str,
     root_argument: Path | None,
@@ -1789,6 +1971,9 @@ def run_present_hosted(
         remote=state_remote, token=os.environ.get(STATE_TOKEN_VARIABLE) or None
     )
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    # The processability disposition this run wrote, if any: the only artifact the transaction
+    # maps to NON_PROCESSABLE, handed over by the run itself rather than re-derived from disk.
+    disposition_paths: list[Path] = []
     try:
         return run_present_transaction(
             backend=backend,
@@ -1797,8 +1982,19 @@ def run_present_hosted(
             holder_id=holder,
             trigger_event_type=cast(TriggerEventType, trigger_event_type),
             workflow_run_id=run_id,
-            run=lambda: run_present(repository, root_argument, facts_only=facts_only, fresh=fresh),
-            classify=lambda exit_code: classify_present_outcome(root, entry, exit_code),
+            run=lambda: run_present(
+                repository,
+                root_argument,
+                facts_only=facts_only,
+                fresh=fresh,
+                on_disposition=disposition_paths.append,
+            ),
+            classify=lambda exit_code: classify_present_outcome(
+                root,
+                entry,
+                exit_code,
+                disposition_path=disposition_paths[-1] if disposition_paths else None,
+            ),
         )
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))

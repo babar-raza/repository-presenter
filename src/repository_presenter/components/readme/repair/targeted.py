@@ -99,8 +99,19 @@ class SlotSetProbe:
     """
 
     required: frozenset[str]
+    # The fact-selection half of the same planning decision (2026-10-04, aspose-font-foss/
+    # Aspose.Font-FOSS-for-Python, S6 finding F05-F08): the plan binds each slot to a fact set,
+    # and a repair whose correct wording cites a SUPPORTED fact outside its slot's set cannot be
+    # fixed at S6 - the plan chose the slot's facts. ``fact_sets`` is the plan's own per-slot
+    # binding, ``fact_universe`` the SUPPORTED fact IDs, ``neutral_facts`` the identity/package
+    # facts that belong to no slot. Unknown or unsupported IDs are not a planning signal and
+    # stay plain rejections.
+    fact_sets: Mapping[str, Collection[str]] = field(default_factory=dict, repr=False)
+    fact_universe: frozenset[str] = field(default_factory=frozenset, repr=False)
+    neutral_facts: frozenset[str] = field(default_factory=frozenset, repr=False)
     _returned: frozenset[str] | None = field(default=None, repr=False)
     _conflicted: bool = field(default=False, repr=False)
+    _fact_refs: frozenset[str] = field(default_factory=frozenset, repr=False)
 
     @property
     def returned(self) -> frozenset[str] | None:
@@ -112,9 +123,36 @@ class SlotSetProbe:
         if value != self.required:
             self._conflicted = True
 
+    def observe_facts(self, units: Sequence[Any]) -> frozenset[str]:
+        """Latch every SUPPORTED, non-neutral fact a reply's unit cites outside its own slot's
+        planned set; returns this reply's offending IDs. An accepted revision can never carry
+        one (``unit_checks`` rejects it), so this only ever speaks to a repair that failed."""
+        if not self.fact_sets:
+            return frozenset()
+        outside: set[str] = set()
+        for unit in units:
+            if not isinstance(unit, dict):
+                continue
+            bound = self.fact_sets.get(str(unit.get("slot")))
+            if bound is None:
+                continue
+            for fact_id in unit.get("fact_ids") or []:
+                if (
+                    fact_id in self.fact_universe
+                    and fact_id not in self.neutral_facts
+                    and fact_id not in bound
+                ):
+                    outside.add(fact_id)
+        self._fact_refs = self._fact_refs | frozenset(outside)
+        return frozenset(outside)
+
+    @property
+    def fact_conflicts(self) -> frozenset[str]:
+        return self._fact_refs
+
     @property
     def conflicts(self) -> bool:
-        return self._conflicted
+        return self._conflicted or bool(self._fact_refs)
 
 
 def defect_fingerprint(
@@ -748,6 +786,13 @@ def repair_checks(
                 f"({', '.join(sorted(slots.required))}); a revision filling "
                 f"{', '.join(sorted(returned)) or 'none of them'} would add, drop, or "
                 "re-choose a slot, which is a planning decision, not an authoring one"
+            )
+        outside_facts = slots.observe_facts(revised.get("units", []))
+        if outside_facts:
+            errors.append(
+                "revised_output: a unit cites "
+                f"{', '.join(sorted(outside_facts))}, outside its slot's planned facts; "
+                "choosing which facts a slot may cite is a planning decision, not an authoring one"
             )
     if original is not None:
         errors.extend(_uncorroborated_changes(output.get("changes", []), original, revised))

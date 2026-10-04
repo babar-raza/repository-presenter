@@ -164,6 +164,9 @@ repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--f
 repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
 repository-presenter monitor-install-record --owner OWNER --outcome {success,failure} --repositories NAMES --out PATH
 repository-presenter monitor-install-summary DIR [--summary PATH]
+repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remote REMOTE]
+  [--wall-clock-seconds N] [--provider-calls N] [--max-wall-clock-seconds N]
+  [--max-provider-calls N] [--stale-after-hours N]
 repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply] [--close]
 repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file]
 repository-presenter issue-targets [--root PATH]
@@ -206,6 +209,13 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH
   owner's state file under `DIR`, prints a `::notice::` per missing installation plus a markdown
   table (appended to `--summary` when given), and exits 1 only when no owner at all was
   `INSTALLED`. No token or key is ever written to disk.
+- **`health-check`** — dead-man monitoring for one repository's durable-state record (G7-W03), run by
+  `present.yml` after each transaction. It reads the record (and the sealed bundle's `calls.jsonl`
+  unless `--provider-calls` is given) and applies the deterministic rules in
+  `core/state/health.py`: no record, a failed state, a stale last transition (`--stale-after-hours`),
+  and wall-clock or provider-call budgets (`--max-wall-clock-seconds`, `--max-provider-calls`)
+  against the observed `--wall-clock-seconds` and `--provider-calls`. `--state-remote` names the
+  state remote. It only reads and reports; it makes no provider call and no state mutation.
 - **`redetect-upstream-defects`** — re-evaluates each `evidence/upstream-defects/` handoff's own
   `triggering_check` against the target repository's current state (package-registry and GitHub
   Contents/tree reads) and reports whether it still fires. `--repo OWNER/NAME` limits the pass to
