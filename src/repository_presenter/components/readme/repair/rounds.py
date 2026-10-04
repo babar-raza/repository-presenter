@@ -11,6 +11,7 @@ never retried. Every artifact of the round is written, so the last round is what
 
 from __future__ import annotations
 
+import copy
 import functools
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
@@ -44,6 +45,7 @@ from repository_presenter.components.readme.composition.components.identity impo
 from repository_presenter.components.readme.composition.placement import placed_texts, placements
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
+    bound_visible_line_overage,
     plan_checks,
     planning_packet,
     planning_schema,
@@ -94,6 +96,7 @@ from repository_presenter.components.readme.repair.targeted import (
     validation_defects,
     visible_line_budget_hint,
 )
+from repository_presenter.components.readme.review.acceptance.scorer import score_candidate
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     MAJORITY_VOTE_REPOSITORIES,
@@ -490,8 +493,11 @@ def run_round(tx: TransactionInputs) -> Round:
                 review = document(second=second_result.output, third=third_output)
             else:
                 review = document(second=second_result.output)
-    digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)
+    # G3-W02 ADVISORY: the acceptance score is recorded with the review. No blocking check reads
+    # it, and it is computed after check 10 so the record sees the same verdicts the bundle does.
+    review["acceptance_profile"] = score_candidate(readme, validation, review)
+    digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     digests["validation"] = write_validation(validation, tx.directory / VALIDATION_FILENAME)
     # G5-W02: the review reads above are not covered by anything else that seals verbatim output
     # (review.json folds first/second/third into findings/advisory, losing a corroborating read's
@@ -772,6 +778,27 @@ def repair_defect(
             stage_checks = _reject_insufficient_visible_line_overage(
                 stage_checks, visible_line_hint
             )
+            # Code first, where the arithmetic already proves the clear closes the overage: the
+            # model's own repair attempts cleared no lever on any recorded draw. The bound's reply
+            # must pass the causal stage's own checks, exactly as a model reply would, or it is not
+            # used and the targeted repair below runs as before.
+            bounded = bound_visible_line_overage(
+                target.output,
+                overage=visible_line_hint["visible_lines_over_budget"],
+                levers=visible_line_hint[
+                    "optional_plan_fields_and_their_visible_line_cost_if_cleared"
+                ],
+            )
+            if (
+                bounded is not None
+                and stage_checks is not None
+                and not stage_checks(copy.deepcopy(bounded["revised_output"]))
+            ):
+                tx.store.put(
+                    target.request_sha256, job, target.model_served, bounded["revised_output"]
+                )
+                repairs.record(defect, "repaired", None, bounded["changes"])
+                return
     recover_fn: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None
     if section_task is not None:
         recover_fn = functools.partial(

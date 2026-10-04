@@ -64,7 +64,9 @@ from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
 
 VALIDATION_FILENAME = "validation.json"
-VALIDATOR_VERSION = "4"
+# 5: check 7's canonical-abbreviation rule does not judge a placed inherited unit's own verbatim
+# line, which check 8 requires unchanged (BC-07, aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript).
+VALIDATOR_VERSION = "5"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -529,6 +531,23 @@ def _placements(candidate: Candidate) -> list[Placement]:
 
 def _placed_texts(candidate: Candidate) -> list[str]:
     return [p.text for p in _placements(candidate) if p.outcome == "placed"]
+
+
+def _verbatim_lines(candidate: Candidate) -> frozenset[str]:
+    """The stripped lines of every placed inherited prose unit's verbatim text.
+
+    README_CONTRACT.md section 7, check 8 (protected content preserved) requires a placed unit to
+    render exactly as the upstream wrote it, so the renderer cannot raise an abbreviation inside it
+    without breaking that check. A code block is excluded: it sits in a fence, which the
+    abbreviation scan never reads in the first place.
+    """
+    return frozenset(
+        line.strip()
+        for placement in _placements(candidate)
+        if placement.outcome == "placed" and not placement.unit_id.endswith(".code_block")
+        for line in placement.text.splitlines()
+        if line.strip()
+    )
 
 
 def _check_source(candidate: Candidate) -> list[Failure]:
@@ -1087,7 +1106,13 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
                 )
     prose = _prose(outside)
     lower_forms = canonical_abbreviations(candidate.facts)
-    offenders = sorted(word for word in set(_LOWER_WORD.findall(prose)) if word in lower_forms)
+    # A line a placed inherited unit renders verbatim is the upstream's own spelling, which check 8
+    # requires the renderer to keep unchanged, so this rule does not judge it (_verbatim_lines).
+    verbatim = _verbatim_lines(candidate)
+    authored_prose = _prose([line for line in outside if line.strip() not in verbatim])
+    offenders = sorted(
+        word for word in set(_LOWER_WORD.findall(authored_prose)) if word in lower_forms
+    )
     if offenders:
         # G4-W17 arrival item 78 (lane E E4, PDF-Python): a failure with no section_id routes to
         # section_id None, and repair/targeted.py records "no failing check names an LLM-owned
@@ -1099,7 +1124,9 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
         # stays section_id None honestly rather than routed somewhere a repair cannot act.
         llm_owned = {section.id for section in SEMANTIC_SHELL if section.owner != "D"}
         section_prose = {
-            section_id: _prose(text.splitlines()).lower()
+            section_id: _prose(
+                [line for line in text.splitlines() if line.strip() not in verbatim]
+            ).lower()
             for section_id, text in _section_texts(candidate.readme).items()
             if section_id in llm_owned
         }

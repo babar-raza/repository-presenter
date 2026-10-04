@@ -63,8 +63,10 @@ from repository_presenter.core.registry.models import RegistryEntry
 # G4-W17 arrival item 69). 24: a source_checkout-kind install (no build/install command ever
 # succeeds) gets its own honest, non-pip Installation prose and never the ordinary "To work from
 # a source checkout instead" suggestion or the registry version badge beside it
-# (RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation).
-RENDERER_VERSION = "25"
+# (RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation). 26: a planner-authored
+# capability title and its At a Glance label take the document's canonical abbreviation spelling,
+# as every authored unit already does (BC-07, aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript).
+RENDERER_VERSION = "26"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -764,7 +766,7 @@ def _at_a_glance(context: RenderContext) -> list[str]:
         for fact in (context.fact(i) for i in glance.get("output_format_ids", []))
         if fact is not None
     ]
-    titles = [_label(title) for title in glance.get("capability_titles", [])]
+    titles = [_label(context.canonical(title)) for title in glance.get("capability_titles", [])]
     lines = ["```mermaid", "flowchart TD"]
     chain: list[str] = []
     if inputs:
@@ -833,7 +835,11 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         lines.extend(_at_a_glance(context))
     elif sid == "key_capabilities":
         for index, item in enumerate(plan.get("core_capabilities", []), start=1):
-            lines.append(f"- **{item['title']}.** {context.unit(sid, f'capability:{index}')}")
+            # The title is planning output written as prose, so it takes the same canonical
+            # abbreviation spelling as every authored unit (``prose()``); writing it raw let a
+            # lower-case ``pdf`` in a planned title reach the document, failing BC-07 at COMPOSING.
+            title = context.canonical(str(item["title"]))
+            lines.append(f"- **{title}.** {context.unit(sid, f'capability:{index}')}")
     elif sid == "installation":
         lines.extend(_installation(context))
     elif sid == "dependencies":
