@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+  "provider_repository_id": 1185437353,
+  "registry_revision": null,
+  "active_transaction_id": "867c6034a7584a14a47dc1adfcb6f957",
+  "state": "OBSERVED",
+  "source": null,
+  "surfaces": {},
+  "dependencies": {
+    "facts": null,
+    "prompts": null,
+    "models": null,
+    "presentation": null,
+    "validation": null
+  },
+  "accepted_artifact": null,
+  "proposal": null,
+  "failure": null,
+  "lease": {
+    "holder_id": "present.yml:37204846411",
+    "acquired_at": "2026-10-04T13:13:47.692478+00:00",
+    "heartbeat_at": "2026-10-04T13:13:47.692478+00:00",
+    "expires_at": "2026-10-04T13:28:47.692478+00:00",
+    "fencing_token": 1
+  },
+  "last_transition": null,
+  "state_version": 1,
+  "recent_trigger_dedup_keys": {
+    "run:37204846411:aspose-slides-foss/Aspose.Slides-FOSS-for-.NET": "867c6034a7584a14a47dc1adfcb6f957"
+  },
+  "recovery_count": 0
+}
