@@ -97,6 +97,7 @@ from repository_presenter.components.readme.repair.targeted import (
     validation_defects,
     visible_line_budget_hint,
 )
+from repository_presenter.components.readme.review.acceptance.scorer import score_candidate
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     MAJORITY_VOTE_REPOSITORIES,
@@ -516,8 +517,11 @@ def run_round(tx: TransactionInputs) -> Round:
                 review = document(second=second_result.output, third=third_output)
             else:
                 review = document(second=second_result.output)
-    digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)
+    # G3-W02 ADVISORY: the acceptance score is recorded with the review. No blocking check reads
+    # it, and it is computed after check 10 so the record sees the same verdicts the bundle does.
+    review["acceptance_profile"] = score_candidate(readme, validation, review)
+    digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     digests["validation"] = write_validation(validation, tx.directory / VALIDATION_FILENAME)
     # G5-W02: the review reads above are not covered by anything else that seals verbatim output
     # (review.json folds first/second/third into findings/advisory, losing a corroborating read's

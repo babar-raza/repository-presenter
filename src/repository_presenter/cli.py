@@ -51,6 +51,11 @@ from repository_presenter.components.metadata.proposal import (
     build_proposal,
     diff_against_observed,
 )
+from repository_presenter.components.monitor.drift import (
+    drift_document,
+    observe_drift,
+    write_drift_document,
+)
 from repository_presenter.components.propose.effect import (
     AUTHORIZATION_VARIABLE as PROPOSE_AUTHORIZATION_VARIABLE,
 )
@@ -206,6 +211,7 @@ from repository_presenter.core.preflight import (
 from repository_presenter.core.probes import PROBES_FILENAME, write_probes
 from repository_presenter.core.registry.loader import (
     REGISTRY_RELATIVE_PATH,
+    enabled_entries,
     load_registry,
     require_listed,
 )
@@ -234,6 +240,8 @@ from repository_presenter.cursor import (
 
 PROGRAM = "repository-presenter"
 RUNS_DIRNAME = "runs"
+MONITOR_DIRNAME = "monitor"
+DRIFT_FILENAME = "drift.json"
 EXIT_OK = 0
 EXIT_INCONSISTENT = 1
 EXIT_USAGE = 2
@@ -368,6 +376,32 @@ def build_parser() -> argparse.ArgumentParser:
             "GitHub effect); a dry-run report only when omitted"
         ),
     )
+    monitor_cmd = subcommands.add_parser(
+        "monitor",
+        help=(
+            "observe each enabled registry repository's upstream default-branch head against its "
+            "CURRENT sealed bundle's revision (CURRENT/DRIFTED/NO_BUNDLE/UNREACHABLE); read-only, "
+            "no provider call, writes a JSON evidence file under runs/monitor/"
+        ),
+    )
+    monitor_cmd.add_argument("--root", type=Path, default=None, help=root_help)
+    monitor_cmd.add_argument(
+        "--owner",
+        default=None,
+        metavar="OWNER",
+        help=(
+            "only observe enabled entries under this GitHub owner; every enabled entry when omitted"
+        ),
+    )
+    monitor_cmd.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help=(
+            f"evidence file to write; defaults to {RUNS_DIRNAME}/{MONITOR_DIRNAME}/"
+            f"{DRIFT_FILENAME} (drift-<owner>.json with --owner)"
+        ),
+    )
     file_cmd = subcommands.add_parser(
         "file-upstream-defects",
         help=(
@@ -498,6 +532,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_present(args.repo, args.root, facts_only=args.facts_only, fresh=args.fresh)
     if args.command == "preflight":
         return run_preflight(args.root)
+    if args.command == "monitor":
+        return run_monitor(args.root, owner=args.owner, out=args.out)
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(args.root, repository=args.repo, apply=args.apply)
     if args.command == "file-upstream-defects":
@@ -545,6 +581,62 @@ def run_preflight(root_argument: Path | None) -> int:
         for line in describe(result.selection):
             print(line)
     print(f"catalog: {catalog_path.relative_to(root).as_posix()} (digest {digest})")
+    return EXIT_OK
+
+
+def run_monitor(
+    root_argument: Path | None, *, owner: str | None = None, out: Path | None = None
+) -> int:
+    """Observe every enabled registry entry's upstream head against its CURRENT bundle (G7-W06).
+
+    Read-only: the one credential is the read-only ``GH_TOKEN``, required here so an unattended
+    run never falls back to anonymous reads. It makes no provider call and writes only the
+    evidence file. Exit 1 when any repository was UNREACHABLE, because the observation is then
+    incomplete and the run must say so; DRIFTED and NO_BUNDLE are findings, not failures.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    token = os.environ.get("GH_TOKEN") or None
+    if token is None:
+        _fail(
+            "GH_TOKEN (the read-only analysis token) is required; "
+            "monitor reads no repository without it"
+        )
+        return EXIT_USAGE
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    entries = [e for e in enabled_entries(registry) if owner is None or e.owner == owner]
+    if not entries:
+        scope = f" for owner {owner}" if owner else ""
+        _fail(f"no enabled registry entries{scope}")
+        return EXIT_USAGE
+    observations = observe_drift(root, entries, token=token, read_head=fetch_default_branch_sha)
+    observed_at = datetime.now(UTC).isoformat(timespec="seconds")
+    document = drift_document(observations, observed_at=observed_at, owner=owner)
+    name = DRIFT_FILENAME if owner is None else f"drift-{owner}.json"
+    path = out or root / RUNS_DIRNAME / MONITOR_DIRNAME / name
+    write_drift_document(document, path)
+    for observation in sorted(observations, key=lambda o: o.repository):
+        head = (observation.head_revision or "-")[:12]
+        bundle = (observation.bundle_revision or "-")[:12]
+        line = f"{observation.status:<11} {observation.repository}  head {head}  bundle {bundle}"
+        if observation.detail:
+            line += f"  ({observation.detail})"
+        print(line)
+    counts = ", ".join(f"{status} {count}" for status, count in document["summary"].items())
+    print(f"monitor: {len(observations)} observed - {counts}")
+    print(f"evidence: {path}")
+    unreachable = [o.repository for o in observations if o.status == "UNREACHABLE"]
+    if unreachable:
+        _fail(
+            f"{len(unreachable)} repositor(ies) unreachable, observation incomplete: "
+            + ", ".join(unreachable)
+        )
+        return EXIT_INCONSISTENT
     return EXIT_OK
 
 
