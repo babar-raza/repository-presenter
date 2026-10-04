@@ -168,6 +168,30 @@ blocked on the unrelated `F08` finding above.
 
 **Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: not moved to Resolved. The three sub-shape fixes are in code (`composition/authoring.py`: `recover_forbidden_command_units` and `recover_section_authoring_output`; the title-restatement repair path via `recover_title_verbatim_opening`; the `recover=` call sites in `repair/rounds.py`) with mutation tests, but no listed sighting has been re-drawn with a fix observed firing. The Page-Python draw of 2026-09-25 cleared its first attempt without the forbidden-literal recovery. This entry keeps the bar its own 2026-09-27 status set: live measurement, not unit verification. Resume predicate: a live draw of one of the listed repositories in which a recovery fires and the candidate clears.
 
+### `composition.authoring.superseded_unit_not_carried`
+
+Reconciliation disposed an inherited prose unit `SUPERSEDE_REDUNDANT` into a placeable section
+(its substance is meant to be re-authored there), but the section's own authoring call was never
+given that unit: `composition/authoring.py::section_selections` handed `development_testing` only
+its `build_test_asset` facts and placed units. On `aspose-slides-foss/Aspose.Slides-FOSS-for-Java`
+(revision `620a2614...`) the README's test-suite layout and conformance rule
+(`inherited_unit:092.paragraph`, with `093`/`094`) therefore never reached the packet, and
+`unit_checks` had no rule that a superseded unit be carried or explicitly omitted. Independent
+review then blocked on it (`F08`, `development_testing`) on two of three pre-fix draws (the third
+accepted on the same finding); one targeted repair
+could not restore content the repair packet also withheld (`repair_packet` excludes inherited units
+by default). Scoped fix, `NORMALISATION_VERSION` 18 -> 19: superseded prose units join the section's
+citable set, each must be cited or explicitly omitted with a reason (`carried_unit_errors`), a
+last-resort recovery records any still-uncarried unit as an omission (never invented content), and
+the S6 repair packet carries the same units. Mutation-tested
+(`tests/components/readme/composition/test_authoring.py`,
+`tests/components/readme/repair/test_targeted.py`, `test_rounds.py`). Live (qwen3-next, `--fresh`,
+three draws): the development section states the test-suite layout and the conformance rule in all
+three; the review blocked on an unrelated `scope_limitations` finding in two of three. Not yet
+moved to Resolved: the F08 class has not been observed blocking in a live draw since the fix, but
+the candidate itself has not sealed. Other placeable sections with superseded inherited units
+(e.g. `scope_limitations`, `additional_examples`) are not covered by this scope yet.
+
 ### `composition.coherence.inherited_diagram_content_loss`
 
 Independent review's presentation criterion can catch S7 authoring/coherence rewriting an
