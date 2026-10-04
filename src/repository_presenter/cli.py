@@ -29,6 +29,7 @@ from repository_presenter.components.issues.ledger import (
 from repository_presenter.components.issues.model import (
     Handoff,
     HandoffError,
+    IssueRef,
     load_handoff,
     write_handoff,
 )
@@ -50,6 +51,11 @@ from repository_presenter.components.metadata.capture import (
 from repository_presenter.components.metadata.proposal import (
     build_proposal,
     diff_against_observed,
+)
+from repository_presenter.components.monitor.drift import (
+    drift_document,
+    observe_drift,
+    write_drift_document,
 )
 from repository_presenter.components.propose.effect import (
     AUTHORIZATION_VARIABLE as PROPOSE_AUTHORIZATION_VARIABLE,
@@ -78,6 +84,7 @@ from repository_presenter.components.readme.bundle.seal import (
     invalidate_bundle,
     invalidates,
     seal_candidate,
+    sealed_models,
     seed_additional_calls,
     seed_call_store,
     upstream_dependencies,
@@ -104,7 +111,10 @@ from repository_presenter.components.readme.evidence.processability import (
     write_disposition,
 )
 from repository_presenter.components.readme.extractors.examples.selection import select_examples
-from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
+from repository_presenter.components.readme.extractors.platforms.registry import (
+    plugin_for,
+    verify_build,
+)
 from repository_presenter.components.readme.investigation.dossier import (
     INVESTIGATION_FILENAME,
 )
@@ -149,6 +159,7 @@ from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
     ExampleCandidate,
     ExampleReceipt,
+    MeasuredBuild,
     write_receipts,
 )
 from repository_presenter.core.facts import (
@@ -163,6 +174,7 @@ from repository_presenter.core.github.client import (
     default_patch,
     default_post,
     default_put,
+    find_issue_with_marker,
 )
 from repository_presenter.core.github.client import (
     create_pull_request as default_create_pull_request,
@@ -187,6 +199,7 @@ from repository_presenter.core.github.client import (
 )
 from repository_presenter.core.github.read_client import fetch_default_branch_sha
 from repository_presenter.core.hashing import sha256_text
+from repository_presenter.core.llm.fallback import describe, select_models
 from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, JobResult
 from repository_presenter.core.llm.ledger import LEDGER_FILENAME, Ledger
 from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME, load_manifests, validate_routes
@@ -200,6 +213,7 @@ from repository_presenter.core.preflight import (
 from repository_presenter.core.probes import PROBES_FILENAME, write_probes
 from repository_presenter.core.registry.loader import (
     REGISTRY_RELATIVE_PATH,
+    enabled_entries,
     load_registry,
     require_listed,
 )
@@ -228,6 +242,8 @@ from repository_presenter.cursor import (
 
 PROGRAM = "repository-presenter"
 RUNS_DIRNAME = "runs"
+MONITOR_DIRNAME = "monitor"
+DRIFT_FILENAME = "drift.json"
 EXIT_OK = 0
 EXIT_INCONSISTENT = 1
 EXIT_USAGE = 2
@@ -362,6 +378,50 @@ def build_parser() -> argparse.ArgumentParser:
             "GitHub effect); a dry-run report only when omitted"
         ),
     )
+    redetect_cmd.add_argument(
+        "--close",
+        action="store_true",
+        help=(
+            "attempt to close each FILED issue whose check the re-run proves resolved, with the "
+            "close reason it proves; refuses and explains why unless "
+            f"{issues_file.AUTHORIZATION_VARIABLE}=1 and a write-scoped GH_ISSUES_WRITE_TOKEN are "
+            "both present - reports what it would close and makes no call when omitted"
+        ),
+    )
+    targets_cmd = subcommands.add_parser(
+        "issue-targets",
+        help=(
+            "print, as compact JSON, the repositories the scheduled upstream-issue workflow "
+            "acts on (every repository with a PENDING or FILED handoff) - its matrix"
+        ),
+    )
+    targets_cmd.add_argument("--root", type=Path, default=None, help=root_help)
+    monitor_cmd = subcommands.add_parser(
+        "monitor",
+        help=(
+            "observe each enabled registry repository's upstream default-branch head against its "
+            "CURRENT sealed bundle's revision (CURRENT/DRIFTED/NO_BUNDLE/UNREACHABLE); read-only, "
+            "no provider call, writes a JSON evidence file under runs/monitor/"
+        ),
+    )
+    monitor_cmd.add_argument("--root", type=Path, default=None, help=root_help)
+    monitor_cmd.add_argument(
+        "--owner",
+        default=None,
+        metavar="OWNER",
+        help=(
+            "only observe enabled entries under this GitHub owner; every enabled entry when omitted"
+        ),
+    )
+    monitor_cmd.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help=(
+            f"evidence file to write; defaults to {RUNS_DIRNAME}/{MONITOR_DIRNAME}/"
+            f"{DRIFT_FILENAME} (drift-<owner>.json with --owner)"
+        ),
+    )
     file_cmd = subcommands.add_parser(
         "file-upstream-defects",
         help=(
@@ -492,10 +552,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_present(args.repo, args.root, facts_only=args.facts_only, fresh=args.fresh)
     if args.command == "preflight":
         return run_preflight(args.root)
+    if args.command == "monitor":
+        return run_monitor(args.root, owner=args.owner, out=args.out)
     if args.command == "redetect-upstream-defects":
-        return run_redetect_upstream_defects(args.root, repository=args.repo, apply=args.apply)
+        return run_redetect_upstream_defects(
+            args.root, repository=args.repo, apply=args.apply, close=args.close
+        )
     if args.command == "file-upstream-defects":
         return run_file_upstream_defects(args.root, repository=args.repo, file=args.file)
+    if args.command == "issue-targets":
+        return run_issue_targets(args.root)
     if args.command == "metadata":
         return run_metadata(args.repo, args.root, apply=args.apply)
     if args.command == "propose":
@@ -535,21 +601,85 @@ def run_preflight(root_argument: Path | None) -> int:
         f"prompts: {len(result.prompts.manifests)} manifests routed to {', '.join(routes)}; "
         "content hashes recorded"
     )
+    if result.selection is not None:
+        for line in describe(result.selection):
+            print(line)
     print(f"catalog: {catalog_path.relative_to(root).as_posix()} (digest {digest})")
     return EXIT_OK
 
 
+def run_monitor(
+    root_argument: Path | None, *, owner: str | None = None, out: Path | None = None
+) -> int:
+    """Observe every enabled registry entry's upstream head against its CURRENT bundle (G7-W06).
+
+    Read-only: the one credential is the read-only ``GH_TOKEN``, required here so an unattended
+    run never falls back to anonymous reads. It makes no provider call and writes only the
+    evidence file. Exit 1 when any repository was UNREACHABLE, because the observation is then
+    incomplete and the run must say so; DRIFTED and NO_BUNDLE are findings, not failures.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    token = os.environ.get("GH_TOKEN") or None
+    if token is None:
+        _fail(
+            "GH_TOKEN (the read-only analysis token) is required; "
+            "monitor reads no repository without it"
+        )
+        return EXIT_USAGE
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    entries = [e for e in enabled_entries(registry) if owner is None or e.owner == owner]
+    if not entries:
+        scope = f" for owner {owner}" if owner else ""
+        _fail(f"no enabled registry entries{scope}")
+        return EXIT_USAGE
+    observations = observe_drift(root, entries, token=token, read_head=fetch_default_branch_sha)
+    observed_at = datetime.now(UTC).isoformat(timespec="seconds")
+    document = drift_document(observations, observed_at=observed_at, owner=owner)
+    name = DRIFT_FILENAME if owner is None else f"drift-{owner}.json"
+    path = out or root / RUNS_DIRNAME / MONITOR_DIRNAME / name
+    write_drift_document(document, path)
+    for observation in sorted(observations, key=lambda o: o.repository):
+        head = (observation.head_revision or "-")[:12]
+        bundle = (observation.bundle_revision or "-")[:12]
+        line = f"{observation.status:<11} {observation.repository}  head {head}  bundle {bundle}"
+        if observation.detail:
+            line += f"  ({observation.detail})"
+        print(line)
+    counts = ", ".join(f"{status} {count}" for status, count in document["summary"].items())
+    print(f"monitor: {len(observations)} observed - {counts}")
+    print(f"evidence: {path}")
+    unreachable = [o.repository for o in observations if o.status == "UNREACHABLE"]
+    if unreachable:
+        _fail(
+            f"{len(unreachable)} repositor(ies) unreachable, observation incomplete: "
+            + ", ".join(unreachable)
+        )
+        return EXIT_INCONSISTENT
+    return EXIT_OK
+
+
 def run_redetect_upstream_defects(
-    root_argument: Path | None, *, repository: str | None = None, apply: bool = False
+    root_argument: Path | None,
+    *,
+    repository: str | None = None,
+    apply: bool = False,
+    close: bool = False,
 ) -> int:
     """Re-evaluate every (or one `--repo`) handoff's own `triggering_check` right now.
 
-    Read + local-JSON only (`docs/DECISION_LOG.md`'s 2026-09-17 15:40 UTC ruling): builds the
-    dedup ledger from `evidence/upstream-defects/`, then for each entry calls
-    `issues.redetect.redetect` and prints whether the check still fires. `--apply`
-    writes back only the one schema-valid transition `redetect.py` can ever propose (`FILED` ->
-    `RESOLVED_UPSTREAM`, `issue_ref` unchanged) - never a `gh issue create`/`close` call, which
-    stays out of scope until its own separate write-authorization work item.
+    Read-only by default: builds the dedup ledger from `evidence/upstream-defects/`, then for each
+    entry calls `issues.redetect.redetect` and prints whether the check still fires and what
+    `--close` would close. `--close` (gated by `components/issues/file.py`: the owner's
+    authorization variable and a write-scoped `GH_ISSUES_WRITE_TOKEN`) closes the issue a `FILED`
+    handoff points to, with the close reason the check proves, and records `RESOLVED_UPSTREAM` only
+    after GitHub confirmed the close. `--apply` writes that one local transition without any GitHub
+    call; it is never a way around the close gate.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -571,6 +701,8 @@ def run_redetect_upstream_defects(
             else "redetect: no handoffs on record"
         )
         return EXIT_OK
+    write_token = os.environ.get("GH_ISSUES_WRITE_TOKEN") or None
+    failures = 0
     for entry in entries:
         try:
             handoff = load_handoff(entry.path)
@@ -582,6 +714,10 @@ def run_redetect_upstream_defects(
         except RedetectorNotRegisteredError as exc:
             print(f"redetect: {entry.repository} {entry.defect_fingerprint[:19]}...: {exc}")
             continue
+        except Exception as exc:  # one handoff's failure never stops the others; reported below
+            print(f"redetect: {entry.repository} {entry.defect_fingerprint[:19]}...: ERROR: {exc}")
+            failures += 1
+            continue
         print(
             f"redetect: {entry.repository} {entry.triggering_check_id} "
             f"(status {handoff.status}): {result.note}"
@@ -591,19 +727,74 @@ def run_redetect_upstream_defects(
                 f"  revision drifted: handoff recorded {handoff.source_revision}, "
                 f"current default-branch head is {result.checked_at_revision}"
             )
-        if result.proposed_status is not None:
-            print(
-                f"  proposed status: {handoff.status} -> {result.proposed_status} "
-                f"(reason: {result.proposed_close_reason})"
+        if result.proposed_status is None:
+            continue
+        print(
+            f"  proposed status: {handoff.status} -> {result.proposed_status} "
+            f"(reason: {result.proposed_close_reason})"
+        )
+        if close:
+            outcome = issues_file.close_handoff(
+                handoff,
+                result,
+                token=write_token,
+                environment=os.environ,
+                write=default_patch,
             )
-            if apply:
-                updated = apply_redetection(handoff, result)
-                write_handoff(updated, entry.path)
+            if not outcome.closed:
+                print(f"  close not performed: {outcome.reason}")
+                if outcome.error:
+                    failures += 1
+                continue
+            print(f"  closed: {outcome.reason}")
+            updated = apply_redetection(handoff, result)
+            write_handoff(updated, entry.path)
+            print(
+                f"  applied: {entry.path.relative_to(root).as_posix()} now {updated.status} "
+                f"({updated.close_reason})"
+            )
+        elif apply:
+            updated = apply_redetection(handoff, result)
+            write_handoff(updated, entry.path)
+            print(
+                f"  applied: {entry.path.relative_to(root).as_posix()} now {updated.status} "
+                f"({updated.close_reason})"
+            )
+        else:
+            refusal = issues_file.plan_close(handoff, result)
+            if refusal is None and handoff.issue_ref is not None:
                 print(
-                    f"  applied: {entry.path.relative_to(root).as_posix()} now {updated.status} "
-                    f"({updated.close_reason})"
+                    f"  would close #{handoff.issue_ref.number} ({result.proposed_close_reason}) "
+                    "(dry run; pass --close to attempt)"
                 )
+            else:
+                print(f"  would not close: {refusal} (dry run)")
+    return EXIT_INCONSISTENT if failures else EXIT_OK
+
+
+def run_issue_targets(root_argument: Path | None) -> int:
+    """Print, as compact JSON, every repository with a `HANDOFF_PENDING` or `FILED` handoff - the
+    scheduled upstream-issue workflow's matrix. Prints nothing else on stdout."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
+    except HandoffError as exc:
+        _fail(str(exc))
+        return EXIT_INCONSISTENT
+    repositories = sorted(
+        {e.repository for e in ledger.values() if e.last_observed_state in _ACTIONABLE_STATES}
+    )
+    targets = [
+        {"repo": repo, "owner": repo.split("/", 1)[0], "name": repo.split("/", 1)[1]}
+        for repo in repositories
+    ]
+    print(json.dumps(targets, separators=(",", ":")))
     return EXIT_OK
+
+
+_ACTIONABLE_STATES = frozenset({"HANDOFF_PENDING", "FILED"})
 
 
 def _redetect_or_inconclusive(handoff: Handoff) -> RedetectionResult:
@@ -635,19 +826,18 @@ def run_file_upstream_defects(
     """File each eligible (``HANDOFF_PENDING``) ``evidence/upstream-defects/`` handoff as a real
     GitHub issue.
 
-    Dry-run by default: lists what would be filed and makes no network call at all. ``--file``
-    attempts the write through ``components/issues/file.py``, which refuses (and explains exactly
-    why, making no write call) unless ``issues_file.AUTHORIZATION_VARIABLE`` is set to a truthy
-    value *and* a write-scoped ``GH_ISSUES_WRITE_TOKEN`` is present - neither is set in this
-    project's own environment today, so ``--file`` prints the same refusal here that it would
-    anywhere else this command runs, never a live issue creation.
+    Dry-run by default: each handoff is checked with read-only calls only (is an issue for its
+    fingerprint already upstream; does its own check still fire) and reported as would-file,
+    already-filed, or would-not-file. ``--file`` attempts the write through
+    ``components/issues/file.py``, which refuses (and says so, making no write call) unless
+    ``issues_file.AUTHORIZATION_VARIABLE`` is truthy *and* a write-scoped ``GH_ISSUES_WRITE_TOKEN``
+    is present. The scheduled workflow sets both only in its gated write job.
 
-    Before ever writing, this also re-runs the handoff's own ``triggering_check``
-    (``components/issues/redetect.py``) against the target repository's *current* state and
-    refuses to file anything the recheck cannot freshly confirm still fires (``AGENTS.md``
-    "Recheck upstream revision immediately before an effect"). A handoff whose status is not
-    ``HANDOFF_PENDING`` is skipped without even reaching the recheck - already-``FILED`` handoffs
-    are never re-filed (the dedup guard).
+    Dedup is two-fold: a handoff not ``HANDOFF_PENDING`` is skipped, and an upstream issue whose
+    body carries the handoff's fingerprint marker is recorded as ``FILED`` rather than re-filed -
+    that second check is what makes a fresh checkout's run idempotent. Each handoff is rechecked
+    against the repository's current state before its write. A failure for one handoff is reported
+    and does not stop the rest; the exit status is nonzero if any handoff failed.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -669,7 +859,9 @@ def run_file_upstream_defects(
             else "file: no handoffs on record"
         )
         return EXIT_OK
+    read_token = os.environ.get("GH_TOKEN") or None
     write_token = os.environ.get("GH_ISSUES_WRITE_TOKEN") or None
+    failures = 0
     for entry in entries:
         try:
             handoff = load_handoff(entry.path)
@@ -682,31 +874,68 @@ def run_file_upstream_defects(
                 f"status is {handoff.status!r}, not HANDOFF_PENDING"
             )
             continue
-        if not file:
-            print(
-                f"file: {handoff.repository} would file {handoff.suggested_issue_title!r} "
-                "(dry run; pass --file to attempt)"
+        existing = partial(_existing_lookup, handoff, read_token)
+        recheck = partial(_redetect_or_inconclusive, handoff)
+        try:
+            if not file:
+                plan = issues_file.plan_filing(handoff, existing=existing, recheck=recheck)
+                print(_describe_plan(handoff, plan))
+                continue
+            result = issues_file.file_handoff(
+                handoff,
+                token=write_token,
+                environment=os.environ,
+                create=default_post,
+                existing=existing,
+                recheck=recheck,
             )
+        except Exception as exc:  # one handoff's failure never stops the others; reported below
+            print(f"file: {handoff.repository} ERROR: {exc}")
+            failures += 1
             continue
-        result = issues_file.file_handoff(
-            handoff,
-            token=write_token,
-            environment=os.environ,
-            create=default_post,
-            recheck=partial(_redetect_or_inconclusive, handoff),
-        )
-        print(
-            f"file: {handoff.repository} authorized={result.authorized} "
-            f"filed={result.filed} - {result.reason}"
-        )
-        if result.filed and result.issue_ref is not None:
+        repo = handoff.repository
+        if result.filed:
+            print(f"file: {repo} authorized={result.authorized} filed=True - {result.reason}")
+        elif result.issue_ref is not None:
+            print(f"file: {repo} authorized={result.authorized} filed=False - {result.reason}")
+        elif result.error:
+            print(f"file: {repo} FAILED {handoff.suggested_issue_title!r}: {result.reason}")
+            failures += 1
+        else:
+            print(
+                f"file: {handoff.repository} would file {handoff.suggested_issue_title!r} - not "
+                f"performed (authorized={result.authorized} filed=False): {result.reason}"
+            )
+        if result.issue_ref is not None:
             updated = replace(handoff, status="FILED", issue_ref=result.issue_ref)
             write_handoff(updated, entry.path)
             print(
                 f"  applied: {entry.path.relative_to(root).as_posix()} now FILED "
                 f"({result.issue_ref.url})"
             )
-    return EXIT_OK
+    return EXIT_INCONSISTENT if failures else EXIT_OK
+
+
+def _existing_lookup(handoff: Handoff, token: str | None) -> IssueRef | None:
+    """The issue already carrying this handoff's fingerprint marker in its target, if any. Raises
+    `RepositoryMetadataError` when the scan is inconclusive; `file.py` refuses on that."""
+    owner, name = handoff.repository.split("/", 1)
+    found = find_issue_with_marker(
+        owner, name, issues_file.fingerprint_marker(handoff.defect_fingerprint), token=token
+    )
+    return None if found is None else IssueRef(number=found.number, url=found.url)
+
+
+def _describe_plan(handoff: Handoff, plan: issues_file.FilingPlan) -> str:
+    head = f"file: {handoff.repository} {handoff.suggested_issue_title!r}"
+    if plan.already_filed is not None:
+        return (
+            f"{head}: already filed upstream as #{plan.already_filed.number} "
+            f"({plan.already_filed.url}) - would only record it (dry run; pass --file to attempt)"
+        )
+    if plan.refusal is not None:
+        return f"{head}: would NOT file - {plan.refusal} (dry run; pass --file to attempt)"
+    return f"{head}: would file (dry run; pass --file to attempt)"
 
 
 def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = False) -> int:
@@ -1160,9 +1389,8 @@ def run_present(
         # clone: a transaction never runs without them and never queries the catalog itself.
         config = load_gateway_config(os.environ)
         prompts = load_manifests(root / PROMPTS_DIRNAME)
-        validate_routes(
-            prompts, read_catalog_ids(root / RUNS_DIRNAME / PREFLIGHT_DIRNAME / CATALOG_FILENAME)
-        )
+        catalog_ids = read_catalog_ids(root / RUNS_DIRNAME / PREFLIGHT_DIRNAME / CATALOG_FILENAME)
+        validate_routes(prompts, catalog_ids)
         clone = pinned_read_only_clone(
             entry.clone_url,
             root / RUNS_DIRNAME / "clones" / f"{entry.owner}__{entry.name}",
@@ -1218,11 +1446,33 @@ def run_present(
             for outcome, count in sorted(Counter(r.outcome for r in receipts).items())
         )
         print(f"examples: {len(candidates)} candidates; {outcomes or 'none'}")
+        # The manifest's own build, measured whether or not a README example exists (GIS has
+        # none): the one proof a source install may stand on when the registry does not confirm
+        # the package (`evidence/facts/extract.py`). Its own workspace, so it never clears the
+        # examples' run directories.
+        build = MeasuredBuild(False, "", "not attempted (no manifest)")
+        if manifest is not None:
+            build_key = hashlib.sha256(
+                f"{entry.repository}@{clone.revision}:build".encode()
+            ).hexdigest()[:12]
+            verify_snapshot(snapshot, clone.path)
+            build = verify_build(
+                plugin, clone.path, manifest, root / RUNS_DIRNAME / "verify" / build_key
+            )
+            print(f"build: {build.summary}")
         # Example verification (above) is the stage most likely to have just run build/install
         # tooling against clone.path; re-verify once more before fact extraction reads it too.
         verify_snapshot(snapshot, clone.path)
         document, probes = extract_facts(
-            entry, snapshot, clone.path, tree_paths, plugin, manifest, candidates, receipts
+            entry,
+            snapshot,
+            clone.path,
+            tree_paths,
+            plugin,
+            manifest,
+            candidates,
+            receipts,
+            build=build,
         )
         write_probes(probes, transaction / PROBES_FILENAME)
         facts_digest = write_facts(document, transaction / FACTS_FILENAME)
@@ -1252,6 +1502,18 @@ def run_present(
         )
         if facts_only:
             return _report_facts_only(root, entry, clone.revision, document, transaction)
+        # Fallback chains (core/llm/fallback.py), decided once at run start before any content
+        # call: each route's own model must pass consecutive tiny schema-constrained probes, or the
+        # run fails closed. No substitute model is ever chosen. A sealed bundle's recorded model
+        # is kept while it is the route's own model and still answers.
+        selection = select_models(
+            config,
+            prompts.routes().values(),
+            listed=catalog_ids,
+            recorded=None if sealed_manifest is None else sealed_models(bundle, sealed_manifest),
+        )
+        for line in describe(selection):
+            print(line)
         original_bytes: bytes | None = None
         original = ""
         if snapshot.readme_path is not None:
@@ -1294,7 +1556,7 @@ def run_present(
                 config=config,
                 ledger=ledger,
                 store=store,
-                context=JobContext(entry.repository, clone.revision),
+                context=JobContext(entry.repository, clone.revision, models=selection),
                 original=original,
                 original_bytes=original_bytes,
                 source_revision=clone.revision,
@@ -1370,6 +1632,7 @@ def run_present(
                 consumed_calls=ledger.consumed_calls,
                 secrets=configured_secrets(os.environ),
                 earliest_affected_stage=evaluated["earliest_affected_stage"],
+                models_used=selection.models_used(),
             )
         )
     except (PresenterError, RetryableOperationError) as exc:

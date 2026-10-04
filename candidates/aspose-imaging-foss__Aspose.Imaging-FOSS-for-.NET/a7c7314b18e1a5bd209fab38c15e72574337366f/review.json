@@ -1,0 +1,663 @@
+{
+  "acceptance_profile": {
+    "advisory": true,
+    "applicability_ratified": false,
+    "criteria": [
+      {
+        "evidence": [
+          "Aspose destination before the explanation: [5]"
+        ],
+        "id": "C01",
+        "points": null,
+        "status": "NOT_MET",
+        "title": "Product explained before promotion"
+      },
+      {
+        "evidence": [
+          "advisory presentation finding on key_capabilities (causal stage S6)"
+        ],
+        "id": "C02",
+        "points": null,
+        "status": "NOT_MET",
+        "title": "Visitor orientation"
+      },
+      {
+        "evidence": [
+          "BC-07 PASS"
+        ],
+        "id": "C03",
+        "points": null,
+        "status": "MET",
+        "title": "One H1 and one badge row"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C04",
+        "points": null,
+        "status": "MET",
+        "title": "Canonical product name"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C05",
+        "points": null,
+        "status": "MET",
+        "title": "Common visitor journey"
+      },
+      {
+        "evidence": [
+          "32 prose words outside links"
+        ],
+        "id": "C06",
+        "points": null,
+        "status": "MET",
+        "title": "License as prose"
+      },
+      {
+        "evidence": [
+          "no third-party notices heading"
+        ],
+        "id": "C07",
+        "points": null,
+        "status": "NOT_APPLICABLE",
+        "title": "Third-party notices link"
+      },
+      {
+        "evidence": [
+          "BC-07 PASS"
+        ],
+        "id": "C08",
+        "points": null,
+        "status": "MET",
+        "title": "Title case and canonical abbreviations"
+      },
+      {
+        "evidence": [
+          "BC-07 PASS"
+        ],
+        "id": "C09",
+        "points": null,
+        "status": "MET",
+        "title": "At a Glance topology"
+      },
+      {
+        "evidence": [
+          "advisory presentation finding on key_capabilities (causal stage S6)"
+        ],
+        "id": "C10",
+        "points": null,
+        "status": "NOT_MET",
+        "title": "Capability titles"
+      },
+      {
+        "evidence": [
+          "no required core section is collapsed"
+        ],
+        "id": "C11",
+        "points": null,
+        "status": "MET",
+        "title": "Core sections stay visible"
+      },
+      {
+        "evidence": [
+          "no additional examples"
+        ],
+        "id": "C12",
+        "points": null,
+        "status": "NOT_APPLICABLE",
+        "title": "Task-named additional examples"
+      },
+      {
+        "evidence": [
+          "every fence has a language; no repeated empty-line run"
+        ],
+        "id": "C13",
+        "points": null,
+        "status": "MET",
+        "title": "Fence languages and spacing"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C14",
+        "points": null,
+        "status": "MET",
+        "title": "Development and testing inventory"
+      },
+      {
+        "evidence": [
+          "no 'Other platforms' section"
+        ],
+        "id": "C15",
+        "points": null,
+        "status": "MET",
+        "title": "No Other Platforms section"
+      },
+      {
+        "evidence": [
+          "no assurance narration in the visitor text"
+        ],
+        "id": "C16",
+        "points": null,
+        "status": "MET",
+        "title": "No assurance narration"
+      },
+      {
+        "evidence": [
+          "Enterprise Edition is the only edition name"
+        ],
+        "id": "C17",
+        "points": null,
+        "status": "MET",
+        "title": "Enterprise Edition name"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C18",
+        "points": null,
+        "status": "MET",
+        "title": "Contextual Aspose links"
+      },
+      {
+        "evidence": [
+          "BC-05 PASS"
+        ],
+        "id": "C19",
+        "points": null,
+        "status": "MET",
+        "title": "Every source unit dispositioned"
+      },
+      {
+        "evidence": [
+          "BC-08 PASS"
+        ],
+        "id": "C20",
+        "points": null,
+        "status": "MET",
+        "title": "Valuable inherited content preserved"
+      },
+      {
+        "evidence": [
+          "BC-01 PASS",
+          "BC-04 PASS"
+        ],
+        "id": "C21",
+        "points": null,
+        "status": "MET",
+        "title": "Public claims map to evidence"
+      },
+      {
+        "evidence": [
+          "advisory presentation finding on key_capabilities (causal stage S6)"
+        ],
+        "id": "C22",
+        "points": null,
+        "status": "NOT_MET",
+        "title": "Proven public consumer surface"
+      },
+      {
+        "evidence": [
+          "BC-03 PASS"
+        ],
+        "id": "C23",
+        "points": null,
+        "status": "MET",
+        "title": "Executed example"
+      },
+      {
+        "evidence": [
+          "BC-02 PASS"
+        ],
+        "id": "C24",
+        "points": null,
+        "status": "MET",
+        "title": "Verified installation"
+      },
+      {
+        "evidence": [
+          "BC-10 PASS"
+        ],
+        "id": "C25",
+        "points": null,
+        "status": "MET",
+        "title": "Independent review accepts"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C26",
+        "points": null,
+        "status": "MET",
+        "title": "Coherent developer journey"
+      }
+    ],
+    "disqualifiers": [
+      {
+        "evidence": [
+          "no assurance narration in the visitor text"
+        ],
+        "id": "D01",
+        "status": "NOT_TRIGGERED",
+        "title": "Assurance narration in the public README"
+      },
+      {
+        "evidence": [
+          "no implementation label"
+        ],
+        "id": "D02",
+        "status": "NOT_TRIGGERED",
+        "title": "Generic implementation label"
+      },
+      {
+        "evidence": [
+          "Enterprise Edition is the only edition name"
+        ],
+        "id": "D03",
+        "status": "NOT_TRIGGERED",
+        "title": "Non-canonical edition name"
+      },
+      {
+        "evidence": [
+          "no 'Other platforms' section"
+        ],
+        "id": "D04",
+        "status": "NOT_TRIGGERED",
+        "title": "Other platforms or promotional section"
+      },
+      {
+        "evidence": [
+          "one H1 at line 1"
+        ],
+        "id": "D05",
+        "status": "NOT_TRIGGERED",
+        "title": "Not exactly one H1"
+      },
+      {
+        "evidence": [
+          "1 badge row(s), no duplicated badge"
+        ],
+        "id": "D06",
+        "status": "NOT_TRIGGERED",
+        "title": "Badge row duplicated or split"
+      },
+      {
+        "evidence": [
+          "BC-04 PASS"
+        ],
+        "id": "D07",
+        "status": "NOT_TRIGGERED",
+        "title": "Public claim without accepted evidence"
+      },
+      {
+        "evidence": [
+          "BC-05 PASS"
+        ],
+        "id": "D08",
+        "status": "NOT_TRIGGERED",
+        "title": "Source unit without one disposition"
+      },
+      {
+        "evidence": [
+          "BC-02 PASS",
+          "BC-03 PASS"
+        ],
+        "id": "D09",
+        "status": "NOT_TRIGGERED",
+        "title": "Unverified example or install command"
+      },
+      {
+        "evidence": [
+          "BC-08 PASS"
+        ],
+        "id": "D10",
+        "status": "NOT_TRIGGERED",
+        "title": "Valuable inherited content discarded"
+      },
+      {
+        "evidence": [
+          "BC-06 PASS"
+        ],
+        "id": "D11",
+        "status": "NOT_TRIGGERED",
+        "title": "Unverified or substitute link"
+      },
+      {
+        "evidence": [
+          "BC-10 PASS"
+        ],
+        "id": "D12",
+        "status": "NOT_TRIGGERED",
+        "title": "Independent review not accepted"
+      },
+      {
+        "evidence": [
+          "BC-09 PASS"
+        ],
+        "id": "D13",
+        "status": "NOT_TRIGGERED",
+        "title": "Secret in the candidate bundle"
+      },
+      {
+        "evidence": [
+          "no deterministic evaluator is ratified"
+        ],
+        "id": "D14",
+        "status": "UNEVALUATED",
+        "title": "Mechanical template filling"
+      }
+    ],
+    "outcome": "UNSCORED",
+    "points_earned": null,
+    "points_possible": null,
+    "profile_version": "1",
+    "ratified": false,
+    "schema_version": 1,
+    "scorer_version": "1",
+    "source": "plans/idea.md",
+    "total_points": 30,
+    "triggered_disqualifiers": [],
+    "unevaluated": {
+      "criteria": [],
+      "disqualifiers": [
+        "D14"
+      ]
+    }
+  },
+  "advisory": [
+    {
+      "absent": [
+        "[![CI](https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss/actions/workflows/ci.yml/badge.svg)](https://github.as",
+        "[![NuGet](https://img.shields.io/nuget/v/Aspose.Imaging.Foss.svg)](https://www.nuget.org/packages/Aspose.Imaging.Foss)"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:005",
+        "link_target:006"
+      ],
+      "id": "F01",
+      "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET)](https://github.com/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET/graphs/contributors)",
+      "repair": "Restore the CI badge and NuGet badge from the original README, and remove the unsupported 'Contributors' badge and promotional banner image.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate omits the CI badge and NuGet badge from the original README's badge row, and instead includes a generic 'Contributors' badge and a promotional banner image that are not supported by the facts."
+    },
+    {
+      "absent": [
+        "Zero-dependency image format detection and header probing for .NET.",
+        "identifies an image's format and reads its basic properties (dimensions, bit depth, frame count) directly from the file"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "package:name",
+        "package:target_framework",
+        "dependency:none"
+      ],
+      "id": "F02",
+      "quote": "Aspose.Imaging FOSS for .NET is a .NET library that enables developers to read, write, and convert raster images, vector graphics, and metafiles without requiring a commercial license.",
+      "repair": "Rewrite the opening to match the original README's description: 'Zero-dependency image format detection and header probing for .NET. It identifies an image's format and reads its basic properties directly from the file header — without decoding a single pixel.'",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The candidate's opening paragraph introduces incorrect functionality (read, write, and convert) and misrepresents the library's purpose, contradicting the original README which clearly states it is for 'zero-dependency image format detection and header probing' without decoding pixels."
+    },
+    {
+      "absent": [
+        "The original README does not list 'Multi-page format support' or 'Extensible format support' as key capabilities.",
+        "The original README mentions frame count detection for some formats but does not present multi-page processing as a core"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "public_symbol:aspose.imaging.foss.imageprobe"
+      ],
+      "id": "F03",
+      "quote": "- **Multi-page format support.** Processes image files containing multiple frames or pages, such as TIFF and GIF, by exposing each page as a distinct image layer for individual manipulation.",
+      "repair": "Remove 'Multi-page format support' and 'Extensible format support' from the Key Capabilities section, as they are not supported by the original README or facts.",
+      "reviewer_scope_defect": "the finding asks for \"The original README does not list 'Multi-page format support' or 'Extensible format support' as key capabilities.\", 'The original README mentions frame count detection for some formats but does not present multi-page processing as a core', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "key_capabilities",
+      "text": "The candidate's 'Key Capabilities' section includes 'Multi-page format support' and 'Extensible format support' as core capabilities, but the original README does not describe these as primary features and the facts do not support them as such."
+    },
+    {
+      "absent": [
+        "dotnet add package Aspose.Imaging.Foss"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:dotnet",
+        "link_target:003",
+        "link_target:004"
+      ],
+      "id": "F04",
+      "quote": "Aspose.Imaging.Foss is not yet published on NuGet; build it from a source checkout instead, verified against this revision:",
+      "repair": "Replace the installation instructions with the NuGet install command 'dotnet add package Aspose.Imaging.Foss' as shown in the original README.",
+      "reviewer_scope_defect": "the omission it names is backed by link_target:004, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "section_id": "installation",
+      "text": "The candidate states 'Aspose.Imaging.Foss is not yet published on NuGet' and provides a build-from-source command, but the original README shows a NuGet badge and install command using 'dotnet add package Aspose.Imaging.Foss'."
+    },
+    {
+      "absent": [
+        "ImageProbe",
+        "ImageInfo"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "public_symbol:aspose.imaging.foss.imageprobe"
+      ],
+      "id": "F05",
+      "quote": "Aspose.Imaging FOSS for .NET exposes the `Aspose.Imaging.Foss` class as its primary entry point for imaging operations...",
+      "repair": "Correct the API reference to describe `ImageProbe` and `ImageInfo` as the primary public types, not a non-existent `Aspose.Imaging.Foss` class.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'ImageInfo', 'ImageProbe', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate incorrectly describes 'Aspose.Imaging.Foss' as the primary entry point class, when the facts and original README show the public API surface consists of 'ImageProbe' and 'ImageInfo' types, not a class named 'Aspose.Imaging.Foss'."
+    },
+    {
+      "absent": [
+        "If you need to actually **decode, edit, or convert** any of these formats, that's a different job — see [Aspose.Imaging]"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "link_target:product.enterprise"
+      ],
+      "id": "F06",
+      "quote": "- The library does not support decoding, editing, or converting image formats; for those capabilities users should refer to Aspose.Imaging Enterprise Edition.",
+      "repair": "Rewrite the scope and limitations section to clarify that the library is intentionally limited to format detection and header probing, not that it lacks these features as a limitation.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate's 'Scope and Limitations' section incorrectly states the library 'does not support decoding, editing, or converting image formats' as a limitation, while the original README clearly states this is by design and the library is not intended for those purposes."
+    },
+    {
+      "absent": [
+        "[![CI](https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss/actions/workflows/ci.yml/badge.svg)](https://github.as",
+        "[![NuGet](https://img.shields.io/nuget/v/Aspose.Imaging.Foss.svg)](https://www.nuget.org/packages/Aspose.Imaging.Foss)"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:005",
+        "link_target:006"
+      ],
+      "id": "F01",
+      "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET)](https://github.com/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET/graphs/contributors)",
+      "reader": 2,
+      "repair": "Restore the CI and license badges from the original README, and remove the unsupported contributor badge and promotional banner.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate omits the CI badge and NuGet badge from the original README's badge row, and instead includes a promotional banner and contributor badge that are not supported by facts."
+    },
+    {
+      "absent": [
+        "identifies an image's format and reads its basic properties",
+        "without decoding a single pixel",
+        "It's built for cases where you need to know what a file is and how big it is, fast"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "package:name",
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "id": "F02",
+      "quote": "Aspose.Imaging FOSS for .NET is a .NET library that enables developers to read, write, and convert raster images, vector graphics, and metafiles without requiring a commercial license.",
+      "reader": 2,
+      "repair": "Rewrite the opening to match the original README's scope: focus on format detection and header probing, not read/write/convert capabilities.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The candidate's opening paragraph overstates capabilities by claiming the library enables 'read, write, and convert' operations, while the original README and facts confirm it only does detection and header probing without decoding."
+    },
+    {
+      "absent": [
+        "It has no NuGet dependencies and targets netstandard2.0 and net8.0.",
+        "Planned: CDR."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "id": "F03",
+      "quote": "- **Multi-page format support.** Processes image files containing multiple frames or pages, such as TIFF and GIF, by exposing each page as a distinct image layer for individual manipulation.",
+      "reader": 2,
+      "repair": "Remove 'Multi-page format support' and 'Extensible format support' from key capabilities; retain only those capabilities explicitly supported by the original README and facts.",
+      "section_id": "key_capabilities",
+      "single_reader_advisory": true,
+      "text": "The candidate's 'Key Capabilities' section includes 'Multi-page format support' and 'Extensible format support' as core capabilities, but the original README does not present these as primary capabilities and the facts do not support them as such."
+    },
+    {
+      "absent": [
+        "dotnet add package Aspose.Imaging.Foss"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:dotnet",
+        "link_target:003",
+        "link_target:004"
+      ],
+      "id": "F04",
+      "quote": "Aspose.Imaging.Foss is not yet published on NuGet; build it from a source checkout instead, verified against this revision:",
+      "reader": 2,
+      "repair": "Replace the build-from-source instruction with the official `dotnet add package Aspose.Imaging.Foss` command from the original README.",
+      "reviewer_scope_defect": "the omission it names is backed by link_target:004, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "section_id": "installation",
+      "text": "The candidate states 'Aspose.Imaging.Foss is not yet published on NuGet' and provides a build-from-source command, but the original README shows a NuGet package exists and provides a direct `dotnet add package` command."
+    },
+    {
+      "absent": [
+        "ImageProbe",
+        "ImageInfo"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "public_symbol:aspose.imaging.foss.imageprobe"
+      ],
+      "id": "F05",
+      "quote": "Aspose.Imaging FOSS for .NET exposes the `Aspose.Imaging.Foss` class as its primary entry point for imaging operations...",
+      "reader": 2,
+      "repair": "Correct the primary entry point to `ImageProbe` and describe `ImageInfo` as the return type for probe operations.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'ImageInfo', 'ImageProbe', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate incorrectly names `Aspose.Imaging.Foss` as the primary entry point class, while the original README and facts confirm `ImageProbe` is the main public API class."
+    },
+    {
+      "absent": [
+        "If you need to actually decode, edit, or convert any of these formats, that's a different job"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "id": "F06",
+      "quote": "- The library does not support decoding, editing, or converting image formats; for those capabilities users should refer to Aspose.Imaging Enterprise Edition.",
+      "reader": 2,
+      "repair": "Reframe this limitation as a design feature: the library intentionally avoids full decoding to remain lightweight and zero-dependency.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate's 'Scope and Limitations' section incorrectly states the library does not support 'decoding, editing, or converting image formats' as a limitation, while the original README clearly states this is by design and the library is not intended for those purposes."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:product.banner",
+        "link_target:product.homepage"
+      ],
+      "id": "F07",
+      "quote": "[![Aspose.Imaging FOSS for .NET](https://products.aspose.org/media/imaging/net/banner-readme.png)](https://products.aspose.org/imaging/net/)",
+      "reader": 2,
+      "repair": "Remove the banner image and its link, as the original README contains no such promotional element.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "banner",
+      "text": "The candidate includes a promotional banner image linking to the commercial product page, which is not present in the original README and introduces marketing content where product facts belong."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "a3b2066d504d61a8cb957068e38b2fd41af2ba26f7b8409e3f54e272b67403e6",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "1054769386e94148d2a655aab8d480aefea0597c59523612c51437d58c175c4f",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "012d630ea87dd4b2ed3b6aaa",
+      "573348ddd0e6b2ea5b590f8a",
+      "5b4af6802e28f2886ef081a2",
+      "7bf2dd6eda183d6293dbc405",
+      "8e354b15b1c1dbf784765257",
+      "c3eb94782fda205aa600bed3",
+      "dcdff0a647163c5adef33c0b"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

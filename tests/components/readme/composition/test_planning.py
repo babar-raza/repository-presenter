@@ -13,6 +13,7 @@ from jsonschema import Draft202012Validator
 from repository_presenter.components.readme.composition import planning
 from repository_presenter.components.readme.composition.components.shell import section_ids
 from repository_presenter.components.readme.composition.planning import (
+    bound_visible_line_overage,
     citable_fact_ids,
     plan_checks,
     planning_packet,
@@ -34,7 +35,7 @@ from repository_presenter.core.facts import (
 )
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
-from support import REPO_ROOT
+from support import REPO_ROOT, assert_no_empty_enums, empty_enum_paths
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -395,10 +396,12 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
     empty = planning_schema(loaded, FactsDocument(ENTRY.repository, "a" * 40, ()), {}, {})
     assert "$defs" not in empty
     for array, field in _FACT_ID_ARRAYS:
-        assert empty["properties"][array]["items"]["properties"][field] == {
-            "type": "array",
-            "maxItems": 0,
-        }
+        pinned = empty["properties"][array]
+        # An array whose only field is a fact-ID array (api_hubs, with nothing hubbable) is pinned
+        # as a whole: an empty array keeps no items to carry the field.
+        if "items" in pinned:
+            pinned = pinned["items"]["properties"][field]
+        assert pinned == {"type": "array", "maxItems": 0}
 
 
 def test_the_four_previously_unbounded_outer_arrays_now_refuse_past_their_ceiling() -> None:
@@ -610,6 +613,10 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
         "api_hubs must each be a supported public_symbol fact",
         "a material limitation cites at least one fact or inherited unit",
         "link 'link_target:003' is not a verified link target",
+        # An UNRESOLVED target no longer makes documentation_resources hold, so the section is
+        # omitted and the link to it is refused as well (README_CONTRACT.md row 15).
+        "link 'link_target:003' is assigned to a section that is not included: "
+        "'documentation_resources'",
         "link 'link_target:002' is assigned to a section that is not included: "
         "'third_party_notices'",
         "deviation names an unknown section 'changelog'",
@@ -1425,6 +1432,215 @@ def test_a_link_target_the_shell_already_renders_cannot_be_written_at_all() -> N
     ] == [f"'link_target:product.enterprise' is not one of {link_fact_id['enum']!r}"]
 
 
+# Aspose.GIS's shape (2026-10-04): the README's only link targets are the three the shell renders
+# at its own fixed places - the banner image, the homepage, and the Enterprise Edition target.
+SHELL_ONLY_LINK_FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (
+        _fact("identity:repository", "identity", ENTRY.repository),
+        _fact("format:output.stl", "format", ".stl"),
+        _fact("example:001", "example", "print(1)"),
+        _fact("public_symbol:widget.scene", "public_symbol", "widget.Scene"),
+        _product_fact(
+            "link_target:product.banner",
+            "https://products.aspose.org/media/widget/python/banner-readme.png",
+        ),
+        _product_fact("link_target:product.homepage", "https://products.aspose.org/widget/python/"),
+        Fact(
+            "link_target:product.enterprise",
+            "link_target",
+            "https://products.aspose.com/widget/python/",
+            (Evidence("https://products.aspose.com/widget/python/", "HTTP 200"),),
+            attributes={"role": "enterprise", "level": "platform"},
+        ),
+    ),
+)
+
+
+def test_no_planning_schema_carries_an_empty_enum_when_every_link_target_is_shell_owned() -> None:
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, SHELL_ONLY_LINK_FACTS, {}, {})
+    assert_no_empty_enums(schema)
+    # No link is eligible, so the plan may carry none: the list is pinned empty, as an empty
+    # format list or S4's empty fact-ID arrays already are, and any link at all is refused.
+    validator = Draft202012Validator(schema)
+    assert [e for e in validator.iter_errors(_plan(links=[])) if "links" in e.json_path] == []
+    shell_link = {"link_fact_id": "link_target:product.homepage", "section_id": "opening"}
+    assert [
+        e.json_path
+        for e in validator.iter_errors(_plan(links=[shell_link]))
+        if "links" in e.json_path
+    ] == ["$.links"]
+
+
+def test_a_conditional_section_with_no_eligible_link_is_omitted_by_its_own_condition() -> None:
+    # README_CONTRACT.md section 2 row 15: documentation_resources is Conditional on verified
+    # relevant targets. The shell's own three targets are never a plan's assignment (rows 3 and
+    # 18), so they cannot be the evidence that makes the section hold.
+    assert section_conditions(SHELL_ONLY_LINK_FACTS)["documentation_resources"] is False
+    output: dict[str, Any] = {
+        "core_capabilities": [
+            {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+            {"title": "Run examples", "fact_ids": ["example:001"]},
+        ],
+        "at_a_glance": {
+            "input_format_ids": [],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": ["Build scenes", "Export STL", "Run examples"],
+        },
+        "quick_start_example_id": "example:001",
+        "additional_example_ids": [],
+        "api_hubs": [{"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["example:001"]}],
+        "material_limitations": [],
+        "links": [],
+        "deviations": [],
+    }
+    assert plan_checks(output, SHELL_ONLY_LINK_FACTS) == []
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is False
+    assert output["links"] == []
+
+
+# Aspose.Font for Python's shape (2026-10-04, runs/transactions/aspose-font-foss__...,
+# c520e3eb...): link targets 001-007 are SUPPORTED and the plan placed every one of them in
+# identity, additional_examples or license, so documentation_resources held on the facts but had
+# no link to list. Its section_authoring job had no slot and cited link_target:product.banner,
+# which is UNRESOLVED (a ConnectTimeout probe), and was rejected twice.
+FONT_LIKE_FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (
+        _fact("identity:repository", "identity", ENTRY.repository),
+        _fact("format:output.stl", "format", ".stl"),
+        _fact("example:001", "example", "print(1)"),
+        _fact("example:002", "example", "print(2)"),
+        _fact("public_symbol:widget.scene", "public_symbol", "widget.Scene"),
+        _fact(
+            "link_target:001", "link_target", "https://github.com/org/Aspose.Widget-FOSS-for-Python"
+        ),
+        _fact("link_target:002", "link_target", "https://docs.aspose.org/widget"),
+        _fact("link_target:003", "link_target", "https://example.com/gone.png", "UNRESOLVED"),
+        _fact(
+            "link_target:product.banner",
+            "link_target",
+            "https://products.aspose.org/media/widget/python/banner-readme.png",
+            "UNRESOLVED",
+        ),
+    ),
+)
+
+
+def _font_like_output(links: list[dict[str, str]]) -> dict[str, Any]:
+    return {
+        "core_capabilities": [
+            {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+            {"title": "Run examples", "fact_ids": ["example:001"]},
+        ],
+        "at_a_glance": {
+            "input_format_ids": [],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": ["Build scenes", "Export STL", "Run examples"],
+        },
+        "quick_start_example_id": "example:001",
+        "additional_example_ids": ["example:002"],
+        "api_hubs": [{"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["example:001"]}],
+        "material_limitations": [],
+        "links": links,
+        "deviations": [],
+    }
+
+
+def test_a_plan_that_places_every_target_elsewhere_omits_documentation_resources() -> None:
+    # The facts hold a relevant SUPPORTED target, so the facts-only condition holds ...
+    assert section_conditions(FONT_LIKE_FACTS)["documentation_resources"] is True
+    # ... but this plan gives documentation_resources no link: the section has nothing to list
+    # and must be omitted by its own condition, not authored with no slot to fill.
+    output = _font_like_output(
+        [{"link_fact_id": "link_target:002", "section_id": "additional_examples"}]
+    )
+    assert plan_checks(output, FONT_LIKE_FACTS) == []
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is False
+
+
+def test_an_unresolved_link_target_is_never_assigned_to_a_section() -> None:
+    # Negative control: an UNRESOLVED target may not be the plan's link at all, so it cannot make
+    # the section hold and cannot reach a section_authoring slot as citable text.
+    output = _font_like_output(
+        [{"link_fact_id": "link_target:003", "section_id": "documentation_resources"}]
+    )
+    errors = plan_checks(output, FONT_LIKE_FACTS)
+    assert any("'link_target:003' is not a verified link target" in error for error in errors)
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is False
+
+
+def test_a_supported_link_target_is_still_placed_in_documentation_resources() -> None:
+    # Positive control: a SUPPORTED target assigned here keeps the section and its link.
+    output = _font_like_output(
+        [{"link_fact_id": "link_target:002", "section_id": "documentation_resources"}]
+    )
+    assert plan_checks(output, FONT_LIKE_FACTS) == []
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is True
+    assert output["links"] == [
+        {"link_fact_id": "link_target:002", "section_id": "documentation_resources"}
+    ]
+
+
+def test_a_ceiling_trim_emptying_documentation_resources_omits_it() -> None:
+    # Ceiling of one Aspose link: the optional documentation_resources link is the second Aspose
+    # link and is trimmed. Nothing else is placed there, so the section is omitted by its own
+    # condition, and the plan is not rejected for the trim (G4-W17 arrival item 16).
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FONT_LIKE_FACTS.facts,
+            _fact("link_target:004", "link_target", "https://docs.aspose.org/widget/guide"),
+        ),
+    )
+    output = _font_like_output(
+        [
+            {"link_fact_id": "link_target:002", "section_id": "additional_examples"},
+            {"link_fact_id": "link_target:004", "section_id": "documentation_resources"},
+        ]
+    )
+    errors = plan_checks(output, facts, PlanningPolicy(aspose_links_max=1))
+    assert errors == []
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is False
+    assert output["links"] == [
+        {"link_fact_id": "link_target:002", "section_id": "additional_examples"}
+    ]
+
+
+def test_reintroducing_the_empty_link_enum_fails_the_empty_enum_guard() -> None:
+    """Mutation check: the defect as it stood before the fix, grafted onto the real schema, must
+    be caught by the guard the test above relies on."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    mutant = planning_schema(loaded, SHELL_ONLY_LINK_FACTS, {}, {})
+    mutant["properties"]["links"] = {
+        "type": "array",
+        "maxItems": 30,
+        "items": {
+            "type": "object",
+            "required": ["link_fact_id", "section_id"],
+            "additionalProperties": False,
+            "properties": {
+                "link_fact_id": {"type": "string", "enum": []},
+                "section_id": {"type": "string", "minLength": 1},
+            },
+        },
+    }
+    assert empty_enum_paths(mutant) == ["$.properties.links.items.properties.link_fact_id"]
+    with pytest.raises(AssertionError):
+        assert_no_empty_enums(mutant)
+
+
 MIS_HUB_FACTS = FactsDocument(
     ENTRY.repository,
     "a" * 40,
@@ -1666,3 +1882,60 @@ def test_the_packets_facts_and_dispositions_share_one_inherited_unit_cap() -> No
     # packet's facts field actually shows (RESEARCH_AND_GUIDELINES.md section 27.2 RC1).
     citable = citable_fact_ids(many, {}, dispositions, MANIFEST)
     assert {i for i in citable if i.startswith("inherited_unit:")} == expected
+
+
+_OPTIONAL_LEVER_PLAN: dict[str, Any] = {
+    "flagship_example_id": "example:008",
+    "second_quick_start_example_id": "example:001",
+    "additional_example_ids": ["example:004", "example:008"],
+}
+
+
+def test_bound_visible_line_overage_clears_both_levers_when_their_saving_clears_the_overage() -> (
+    None
+):
+    """The deterministic bound on a BC-07 visible-line overage (``repair/rounds.py`` tries it
+    before the targeted repair call). When the exact saving of the plan's own optional example
+    levers clears the overage with the render margin to spare, the correction is made here, with
+    no model call. Measured shape, aspose-font-foss/Aspose.Font-FOSS-for-Python
+    (docs/DECISION_LOG.md 2026-09-27 and 2026-09-28): a flagship worth 127 visible lines clears a
+    5-line overage, yet the model's own repair attempts never cleared it."""
+    bounded = bound_visible_line_overage(
+        _OPTIONAL_LEVER_PLAN,
+        overage=5,
+        levers={"flagship_example_id": 127, "second_quick_start_example_id": 7},
+    )
+    assert bounded is not None
+    revised = bounded["revised_output"]
+    assert revised["flagship_example_id"] is None
+    assert revised["second_quick_start_example_id"] is None
+    # The example stays in its section's own collapsed block: additional_example_ids is untouched.
+    assert revised["additional_example_ids"] == ["example:004", "example:008"]
+    assert {change["path"] for change in bounded["changes"]} == {
+        "flagship_example_id",
+        "second_quick_start_example_id",
+    }
+    # The caller's own plan is never mutated; a rejected bound must leave it exactly as it was.
+    assert _OPTIONAL_LEVER_PLAN["flagship_example_id"] == "example:008"
+
+
+def test_bound_visible_line_overage_is_none_when_the_saving_misses_the_render_margin() -> None:
+    """Mutation control for the render margin: a saving equal to the overage (8 lines against 8)
+    is not taken, because a cleared example re-homed into a section or details block can add a
+    few visible lines the lever formula does not count. A saving that clears the overage with
+    that margin to spare is taken - the boundary, not a blanket refusal."""
+    plan = {**_OPTIONAL_LEVER_PLAN, "flagship_example_id": None}
+    lever = {"second_quick_start_example_id": 8}
+    assert bound_visible_line_overage(plan, overage=8, levers=lever) is None
+    wide = {"second_quick_start_example_id": 12}
+    assert bound_visible_line_overage(plan, overage=8, levers=wide) is not None
+
+
+def test_bound_visible_line_overage_is_none_without_an_overage_or_a_lever_to_clear() -> None:
+    """No overage, no named lever, or a named lever the plan already cleared: nothing to bound,
+    so the targeted repair runs exactly as it did before this bound existed."""
+    flagship = {"flagship_example_id": 127}
+    assert bound_visible_line_overage(_OPTIONAL_LEVER_PLAN, overage=0, levers=flagship) is None
+    assert bound_visible_line_overage(_OPTIONAL_LEVER_PLAN, overage=5, levers={}) is None
+    cleared = {**_OPTIONAL_LEVER_PLAN, "flagship_example_id": None}
+    assert bound_visible_line_overage(cleared, overage=5, levers=flagship) is None

@@ -1,0 +1,1315 @@
+{
+  "dispositions": [
+    {
+      "destination_section": "identity",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "license:spdx",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version"
+      ],
+      "rationale": "The H1 product name is rendered from facts in the identity section.",
+      "unit_id": "inherited_unit:001.heading"
+    },
+    {
+      "destination_section": "badges",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "link_target:029",
+        "link_target:030",
+        "link_target:031",
+        "link_target:032",
+        "link_target:033",
+        "link_target:034",
+        "link_target:035",
+        "link_target:036",
+        "link_target:037",
+        "link_target:product.banner",
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The badge row is rendered from facts in the badges section.",
+      "unit_id": "inherited_unit:002.badge_row"
+    },
+    {
+      "destination_section": "banner",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:009",
+        "link_target:010",
+        "link_target:product.banner",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The banner image is rendered from facts in the banner section.",
+      "unit_id": "inherited_unit:003.badge_row"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "license:spdx",
+        "import_path:asposeslidesfoss",
+        "package:cxx_standard",
+        "package:cmake_minimum",
+        "install_command:cmake",
+        "dependency:pugixml",
+        "dependency:development.miniz",
+        "dependency:development.googletest",
+        "dependency:development.gtest"
+      ],
+      "rationale": "The paragraph's substance is covered by the opening section; facts support rewriting it with verified details.",
+      "unit_id": "inherited_unit:004.paragraph"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The Navigation heading is rendered by the deterministic navigation section.",
+      "unit_id": "inherited_unit:005.heading"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020",
+        "link_target:021"
+      ],
+      "rationale": "The navigation list is rendered from facts in the navigation section.",
+      "unit_id": "inherited_unit:006.list"
+    },
+    {
+      "destination_section": "at_a_glance",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'At a Glance' is placeable and matches the section heading.",
+      "unit_id": "inherited_unit:007.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The Mermaid example is CONTRADICTED by example:001, so it is omitted.",
+      "unit_id": "inherited_unit:008.code_block"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading 'Key Capabilities' is placeable and matches the section heading.",
+      "unit_id": "inherited_unit:009.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The paragraph introduces the key capabilities list and is supported by public symbols.",
+      "unit_id": "inherited_unit:010.paragraph"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose"
+      ],
+      "rationale": "The list's substance is covered by the key capabilities section; facts support rewriting it with verified capabilities.",
+      "unit_id": "inherited_unit:011.list"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The heading 'Installation' is placeable and matches the section heading.",
+      "unit_id": "inherited_unit:012.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The paragraph describes installation methods supported by the install command fact.",
+      "unit_id": "inherited_unit:013.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The subsection heading 'Build From Source' is placeable under installation.",
+      "unit_id": "inherited_unit:014.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The build command is supported by the install command fact.",
+      "unit_id": "inherited_unit:015.code_block"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "The paragraph introduces dependencies, which are covered by the dependencies section.",
+      "unit_id": "inherited_unit:016.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "The dependency list is supported by the dependency facts.",
+      "unit_id": "inherited_unit:017.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml",
+        "package:cmake_minimum",
+        "package:cxx_standard"
+      ],
+      "rationale": "The paragraph states compiler and CMake requirements supported by package facts.",
+      "unit_id": "inherited_unit:018.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The subsection heading 'Consume via CMake FetchContent' is placeable under installation.",
+      "unit_id": "inherited_unit:019.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "import_path:asposeslidesfoss",
+        "install_command:cmake"
+      ],
+      "rationale": "The paragraph describes FetchContent usage, supported by the import path fact.",
+      "unit_id": "inherited_unit:020.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "import_path:asposeslidesfoss",
+        "install_command:cmake"
+      ],
+      "rationale": "The CMake snippet is supported by the import path fact.",
+      "unit_id": "inherited_unit:021.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "import_path:asposeslidesfoss",
+        "install_command:cmake"
+      ],
+      "rationale": "The paragraph describes include paths, supported by the import path fact.",
+      "unit_id": "inherited_unit:022.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The subsection heading 'Install and Use the Installed Package' is placeable under installation.",
+      "unit_id": "inherited_unit:023.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The install command is supported by the install command fact.",
+      "unit_id": "inherited_unit:024.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The paragraph describes the installed package structure, supported by the install command fact.",
+      "unit_id": "inherited_unit:025.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "import_path:asposeslidesfoss",
+        "install_command:cmake"
+      ],
+      "rationale": "The consumer CMake snippet is supported by the import path fact.",
+      "unit_id": "inherited_unit:026.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The CMake prefix path command is supported by the install command fact.",
+      "unit_id": "inherited_unit:027.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:examples",
+        "install_command:cmake"
+      ],
+      "rationale": "The paragraph describes the examples directory, supported by the build test asset fact.",
+      "unit_id": "inherited_unit:028.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake",
+        "package:version"
+      ],
+      "rationale": "The paragraph describes version compatibility, supported by the package version fact.",
+      "unit_id": "inherited_unit:029.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "The paragraph describes pugixml and miniz dependencies, supported by the dependency facts.",
+      "unit_id": "inherited_unit:030.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The subsection heading 'Install From NuGet on Windows' is placeable under installation.",
+      "unit_id": "inherited_unit:031.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake",
+        "link_target:005",
+        "link_target:006"
+      ],
+      "rationale": "The paragraph introduces the NuGet package, supported by the NuGet link facts.",
+      "unit_id": "inherited_unit:032.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake",
+        "link_target:005",
+        "link_target:006"
+      ],
+      "rationale": "The NuGet install command is supported by the NuGet link facts.",
+      "unit_id": "inherited_unit:033.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake",
+        "package:cmake_minimum",
+        "package:cxx_standard"
+      ],
+      "rationale": "The paragraph describes NuGet requirements, supported by package facts.",
+      "unit_id": "inherited_unit:034.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake",
+        "package:cmake_minimum",
+        "package:cxx_standard"
+      ],
+      "rationale": "The list describes NuGet requirements, supported by package facts.",
+      "unit_id": "inherited_unit:035.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "The paragraph describes NuGet dependencies, supported by the dependency facts.",
+      "unit_id": "inherited_unit:036.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:docs",
+        "install_command:cmake"
+      ],
+      "rationale": "The paragraph describes Linux/macOS packaging, supported by the docs build test asset fact.",
+      "unit_id": "inherited_unit:037.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "The heading 'Dependencies' is placeable and matches the section heading.",
+      "unit_id": "inherited_unit:038.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "The subsection heading 'Required Package Dependencies' is placeable under dependencies.",
+      "unit_id": "inherited_unit:039.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "The paragraph describes dependency resolution, supported by the dependency facts.",
+      "unit_id": "inherited_unit:040.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "The dependency list is rendered deterministically under dependencies; inherited details about pugixml and miniz are redundant.",
+      "unit_id": "inherited_unit:041.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading; the section it introduces is covered by the deterministic dependencies section.",
+      "unit_id": "inherited_unit:042.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml",
+        "package:cmake_minimum",
+        "package:cxx_standard"
+      ],
+      "rationale": "Compiler and CMake version requirements are part of the dependency snapshot rendered under dependencies.",
+      "unit_id": "inherited_unit:043.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading; development dependencies are covered under dependencies.",
+      "unit_id": "inherited_unit:044.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "googletest dependency is rendered deterministically under dependencies; this inherited list is redundant.",
+      "unit_id": "inherited_unit:045.list"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:015"
+      ],
+      "rationale": "The heading 'Quick Start' is supported by link_target:015 and belongs in the quick_start section.",
+      "unit_id": "inherited_unit:046.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this paragraph; the example in quick_start is rendered from example:008 and example:009.",
+      "unit_id": "inherited_unit:047.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The example code block is CONTRADICTED by example:001 and is never placed.",
+      "unit_id": "inherited_unit:048.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this explanatory paragraph; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:049.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this paragraph; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:050.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this example; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:051.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "rationale": "The heading 'Additional Examples' is supported by link_target:016 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:052.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "rationale": "The heading 'Format Text and Apply a Fill Effect' is supported by link_target:016 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:053.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this paragraph; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:054.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [
+        "example:003"
+      ],
+      "rationale": "The example code block is CONTRADICTED by example:003 and is never placed.",
+      "unit_id": "inherited_unit:055.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this HTML block; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:056.html_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "rationale": "The heading 'Table With a Colored, Bordered Cell' is supported by link_target:016 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:057.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this paragraph; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:058.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [
+        "example:004"
+      ],
+      "rationale": "The example code block is CONTRADICTED by example:004 and is never placed.",
+      "unit_id": "inherited_unit:059.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "rationale": "The heading 'Connector Between Two Shapes' is supported by link_target:016 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:060.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this paragraph; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:061.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [
+        "example:005"
+      ],
+      "rationale": "The example code block is CONTRADICTED by example:005 and is never placed.",
+      "unit_id": "inherited_unit:062.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "rationale": "The heading 'Outer Shadow Effect' is supported by link_target:016 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:063.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this paragraph; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:064.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [
+        "example:006"
+      ],
+      "rationale": "The example code block is CONTRADICTED by example:006 and is never placed.",
+      "unit_id": "inherited_unit:065.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "rationale": "The heading 'Speaker Notes' is supported by link_target:016 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:066.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this paragraph; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:067.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this example; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:068.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "rationale": "The heading 'Comments and Replies' is supported by link_target:016 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:069.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this paragraph; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:070.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:008"
+      ],
+      "rationale": "The example code block is SUPPORTED by example:008 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:071.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:016"
+      ],
+      "rationale": "The heading 'Document Properties' is supported by link_target:016 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:072.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:009"
+      ],
+      "rationale": "The example code block is SUPPORTED by example:009 and belongs in the additional_examples section.",
+      "unit_id": "inherited_unit:073.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this HTML block; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:074.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:017"
+      ],
+      "rationale": "The heading 'API Reference' is supported by link_target:017 and belongs in the api_reference section.",
+      "unit_id": "inherited_unit:075.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this paragraph; the API reference is rendered deterministically.",
+      "unit_id": "inherited_unit:076.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this HTML block; it is omitted as unsupported.",
+      "unit_id": "inherited_unit:077.html_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading; the API reference section is rendered deterministically.",
+      "unit_id": "inherited_unit:078.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this table; the API reference is rendered deterministically.",
+      "unit_id": "inherited_unit:079.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading; the API reference section is rendered deterministically.",
+      "unit_id": "inherited_unit:080.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The table of structs is superseded by the API reference section, which renders the complete public symbol inventory.",
+      "unit_id": "inherited_unit:081.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [],
+      "rationale": "The 'Enumerations' heading is redundant with the API reference section that enumerates all public symbols.",
+      "unit_id": "inherited_unit:082.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The table of enumerations is superseded by the API reference section, which renders the complete public symbol inventory.",
+      "unit_id": "inherited_unit:083.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports a 'Detailed Member Reference' section; the API reference section supersedes all member details.",
+      "unit_id": "inherited_unit:084.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The 'Presentation and Slides' heading is supported by public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:085.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.presentation",
+        "public_symbol:aspose.slides.foss.slidecollection",
+        "public_symbol:aspose.slides.foss.slide",
+        "public_symbol:aspose.slides.foss.masterslidecollection",
+        "public_symbol:aspose.slides.foss.globallayoutslidecollection",
+        "public_symbol:aspose.slides.foss.documentproperties",
+        "public_symbol:aspose.slides.foss.imagecollection"
+      ],
+      "rationale": "The listed Presentation and SlideCollection members are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:086.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.slidecollection"
+      ],
+      "rationale": "The SlideCollection members are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:086.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.slide",
+        "public_symbol:aspose.slides.foss.notesslidemanager"
+      ],
+      "rationale": "The Slide members are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:086.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The 'Shapes' heading is supported by public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:087.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.shapecollection",
+        "public_symbol:aspose.slides.foss.autoshape",
+        "public_symbol:aspose.slides.foss.connector",
+        "public_symbol:aspose.slides.foss.table",
+        "public_symbol:aspose.slides.foss.pictureframe"
+      ],
+      "rationale": "The ShapeCollection methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:088.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.shape",
+        "public_symbol:aspose.slides.foss.fillformat",
+        "public_symbol:aspose.slides.foss.lineformat",
+        "public_symbol:aspose.slides.foss.effectformat",
+        "public_symbol:aspose.slides.foss.threedformat"
+      ],
+      "rationale": "The Shape methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:088.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.connector"
+      ],
+      "rationale": "The Connector methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:088.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.table",
+        "public_symbol:aspose.slides.foss.rowcollection",
+        "public_symbol:aspose.slides.foss.columncollection"
+      ],
+      "rationale": "The Table methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:088.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.cell",
+        "public_symbol:aspose.slides.foss.textframe",
+        "public_symbol:aspose.slides.foss.cellformat"
+      ],
+      "rationale": "The Cell methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:088.005.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The 'Text' heading is supported by public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:089.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.textframe",
+        "public_symbol:aspose.slides.foss.paragraphcollection"
+      ],
+      "rationale": "The TextFrame methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:090.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.paragraph",
+        "public_symbol:aspose.slides.foss.portioncollection",
+        "public_symbol:aspose.slides.foss.paragraphformat"
+      ],
+      "rationale": "The Paragraph methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:090.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.portion",
+        "public_symbol:aspose.slides.foss.portionformat"
+      ],
+      "rationale": "The Portion methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:090.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.baseportionformat",
+        "public_symbol:aspose.slides.foss.fontdata"
+      ],
+      "rationale": "The BasePortionFormat methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:090.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The 'Fill, Line, Effects, and 3D' heading is supported by public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:091.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.fillformat",
+        "public_symbol:aspose.slides.foss.simplecolorformat",
+        "public_symbol:aspose.slides.foss.gradientformat",
+        "public_symbol:aspose.slides.foss.patternformat",
+        "public_symbol:aspose.slides.foss.picturefillformat"
+      ],
+      "rationale": "The FillFormat methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:092.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.lineformat"
+      ],
+      "rationale": "The LineFormat methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:092.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.effectformat",
+        "public_symbol:aspose.slides.foss.effects.outershadow",
+        "public_symbol:aspose.slides.foss.effects.glow",
+        "public_symbol:aspose.slides.foss.effects.blur",
+        "public_symbol:aspose.slides.foss.effects.softedge",
+        "public_symbol:aspose.slides.foss.effects.reflection",
+        "public_symbol:aspose.slides.foss.effects.innershadow",
+        "public_symbol:aspose.slides.foss.effects.presetshadow",
+        "public_symbol:aspose.slides.foss.effects.filloverlay"
+      ],
+      "rationale": "The EffectFormat methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:092.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.threedformat",
+        "public_symbol:aspose.slides.foss.camera",
+        "public_symbol:aspose.slides.foss.lightrig"
+      ],
+      "rationale": "The ThreeDFormat methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:092.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The 'Document Properties, Notes, and Comments' heading is supported by public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:093.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.documentproperties"
+      ],
+      "rationale": "The DocumentProperties methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:094.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.notesslidemanager"
+      ],
+      "rationale": "The NotesSlideManager methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:094.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.commentauthorcollection"
+      ],
+      "rationale": "The CommentAuthorCollection methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:094.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.commentcollection"
+      ],
+      "rationale": "The CommentCollection methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:094.004.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The 'Images' heading is supported by public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:095.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.imagecollection",
+        "public_symbol:aspose.slides.foss.ppimage"
+      ],
+      "rationale": "The ImageCollection methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:096.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss.pictureframe",
+        "public_symbol:aspose.slides.foss.picturefillformat"
+      ],
+      "rationale": "The PictureFrame methods are verified public symbols and should appear under the API reference section.",
+      "unit_id": "inherited_unit:096.002.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The closing </details> tag is non-content HTML and should be omitted.",
+      "unit_id": "inherited_unit:097.html_block"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "link_target:029",
+        "link_target:030"
+      ],
+      "rationale": "The 'Documentation & Resources' heading and its list items are supported by verified link targets and should be preserved.",
+      "unit_id": "inherited_unit:098.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "link_target:029",
+        "link_target:030"
+      ],
+      "rationale": "The list items under 'Documentation & Resources' are supported by verified link targets and should be preserved.",
+      "unit_id": "inherited_unit:099.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The 'Scope and Limitations' heading is supported by the inherited limitations and should be preserved.",
+      "unit_id": "inherited_unit:100.heading"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The paragraph introducing limitations is supported by the inherited limitations and should be preserved.",
+      "unit_id": "inherited_unit:101.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The list of limitations is supported by the inherited limitations and should be preserved.",
+      "unit_id": "inherited_unit:102.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The paragraph about the Enterprise Edition is supported by verified product links and should appear under enterprise_relationship.",
+      "unit_id": "inherited_unit:103.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "rationale": "The 'Development and Testing' heading is supported by build/test assets and should be preserved.",
+      "unit_id": "inherited_unit:104.heading"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci",
+        "dependency:development.googletest",
+        "dependency:development.gtest"
+      ],
+      "rationale": "The paragraph describes test suites and their build integration, which is covered by the Development and Testing section that uses CI and test asset facts.",
+      "unit_id": "inherited_unit:105.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci",
+        "install_command:cmake"
+      ],
+      "rationale": "The CMake/ctest commands are superseded by the Installation and Development and Testing sections, which already include verified build and test commands.",
+      "unit_id": "inherited_unit:106.code_block"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz",
+        "dependency:pugixml"
+      ],
+      "rationale": "The CMake options table is superseded by the Dependencies section, which enumerates dependencies and their roles per facts.",
+      "unit_id": "inherited_unit:107.table"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests"
+      ],
+      "rationale": "The CI workflow description is superseded by the Development and Testing section, which is built from CI and test asset facts.",
+      "unit_id": "inherited_unit:108.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:034",
+        "link_target:035",
+        "link_target:036",
+        "link_target:037"
+      ],
+      "rationale": "The paragraph documents contribution guidelines and reporting channels, which are relevant to scope and limitations as supporting process information.",
+      "unit_id": "inherited_unit:109.paragraph"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The '## License' heading is preserved as the section heading for the License section, which is required and placeable.",
+      "unit_id": "inherited_unit:110.heading"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The paragraph states the MIT license and its permissions, which matches the license fact and is preserved in the License section.",
+      "unit_id": "inherited_unit:111.paragraph"
+    }
+  ]
+}

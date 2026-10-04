@@ -52,6 +52,22 @@ class ExampleCandidate:
 
 
 @dataclass(frozen=True)
+class MeasuredBuild:
+    """What driving a package's own build proved, independent of any README example.
+
+    ``command`` is the one spelled step that exited 0, exactly as a reader runs it from the
+    checkout, and empty unless it did: `_source_build_fact` may advertise only this, so a command
+    nobody measured is never rendered. ``summary`` is exit codes only - never a duration, since a
+    wall-clock line withdrew a seal's no-op proof (2026-09-06). Shared by every ecosystem that can
+    drive its own build (.NET from 2026-10-04); the examples' own receipts are not the proof.
+    """
+
+    verified: bool
+    command: str
+    summary: str
+
+
+@dataclass(frozen=True)
 class FixtureBinding:
     """An input file staged under the name the example opens.
 

@@ -30,9 +30,11 @@ from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.state.git_backend import GitStateBackend
 from support import (
     REPO_ROOT,
+    FakeDefaultBranchReader,
     commit_all,
     init_git_repository,
     mock_gateway,
+    monitor_registry_entry,
     write_bundle,
     write_cursor,
 )
@@ -450,11 +452,34 @@ LOCAL_UNITS: dict[str, dict[str, Any]] = {
 }
 
 
+def _liveness_reply(model: str) -> httpx.Response:
+    """A model that answers the availability probe (core/llm/fallback.py) with schema-valid JSON."""
+    body = {
+        "id": "chatcmpl-probe",
+        "object": "chat.completion",
+        "created": 1,
+        "model": model,
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": '{"status": "ok"}'},
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+    }
+    return httpx.Response(200, json=body)
+
+
 class _ChatGateway:
     """A scripted chat gateway: one canned output per job, every request body recorded."""
 
     def __init__(self) -> None:
+        # Content calls only: ``requests`` is what the zero-call assertions count. A chain
+        # availability probe or seed probe is the one liveness token, answered and kept apart in
+        # ``probes``, so a no-op rerun's zero content calls stay assertable as before.
         self.requests: list[dict[str, Any]] = []
+        self.probes: list[dict[str, Any]] = []
         # Per-job queues consumed in order before the canned output applies. An authoring queue
         # may be scoped to one section as "section_authoring:<section_id>", so a test can script
         # the reply for the section it is about without also scripting every section before it.
@@ -463,6 +488,9 @@ class _ChatGateway:
     def __call__(self, request: httpx.Request) -> httpx.Response:
         assert request.url.path.endswith("/chat/completions")
         payload = json.loads(request.content)
+        if payload["messages"] == [{"role": "user", "content": "ping"}]:
+            self.probes.append(payload)
+            return _liveness_reply(payload["model"])
         self.requests.append(payload)
         job = payload["response_format"]["json_schema"]["name"]
         user = payload["messages"][1]["content"]
@@ -871,8 +899,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "6",
-        "renderer": "25",
-        "normalisation": "17",
+        "renderer": "26",
+        "normalisation": "19",
         "reviewer_logic": "14",
     }
     assert "install_command:pip" in dependencies["facts"]
@@ -2009,11 +2037,13 @@ def test_preflight_records_the_catalog_and_never_prints_the_key(
 ) -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.headers["authorization"] == f"Bearer {LIVE_KEY}"
-        data = [
-            {"id": "qwen3-next", "object": "model", "owned_by": "org"},
-            {"id": "gpt-oss", "object": "model", "owned_by": "org"},
-        ]
-        return httpx.Response(200, json={"object": "list", "data": data})
+        if request.url.path.endswith("/models"):
+            data = [
+                {"id": "qwen3-next", "object": "model", "owned_by": "org"},
+                {"id": "gpt-oss", "object": "model", "owned_by": "org"},
+            ]
+            return httpx.Response(200, json={"object": "list", "data": data})
+        return _liveness_reply(json.loads(request.content)["model"])
 
     _gateway(monkeypatch, handler)
     shutil.copytree(REPO_ROOT / "prompts", project / "prompts")
@@ -2023,7 +2053,12 @@ def test_preflight_records_the_catalog_and_never_prints_the_key(
     assert out[0] == "gateway: gw.example reachable (GPT_OSS_API_KEY read, never printed)"
     assert out[1] == "models: gpt-oss, qwen3-next (2)"
     assert out[2] == "prompts: 6 manifests routed to qwen3-next; content hashes recorded"
-    assert re.fullmatch(r"catalog: runs/preflight/catalog\.json \(digest [0-9a-f]{64}\)", out[3])
+    # No substitute is ever probed: the route's own model is the whole chain.
+    assert out[3] == (
+        "chain qwen3-next: qwen3-next HTTP 200, schema-valid, 2 of 2 consecutive passes (available)"
+    )
+    assert out[4] == "route qwen3-next: will use qwen3-next (primary)"
+    assert re.fullmatch(r"catalog: runs/preflight/catalog\.json \(digest [0-9a-f]{64}\)", out[5])
     assert LIVE_KEY not in captured.out + captured.err
     raw = (project / "runs" / "preflight" / "catalog.json").read_text("utf-8")
     catalog = json.loads(raw)
@@ -2248,13 +2283,19 @@ def test_a_model_route_change_reopens_the_stage_that_used_it(
     # and the identical plan leaves every downstream artifact reused as well.
     assert len(gateway_ready.requests) == before + 1
     assert gateway_ready.requests[-1]["model"] == "other-route"
-    _assert_presentation_update(
-        out,
-        bundle,
-        "PLANNING",
-        ["dependencies.json"],
-        ("investigation: ", "dispositions: ", "units: ", "review: "),
-    )
+    # A changed model is a changed candidate whatever plan it produces (fallback chains,
+    # models_used): the proven bundle moves to VALID_UPDATE_AVAILABLE and names the route.
+    bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
+    assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
+    assert "changed at PLANNING; the candidate no longer counts as current" in bundle_line
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE"
+    assert manifest["update"]["classification"] == "factual"
+    assert "models[other-route]: (none) -> other-route" in manifest["update"]["changed"]
+    assert manifest["models_used"] == {"qwen3-next": "qwen3-next"}
+    for prefix in ("investigation: ", "dispositions: ", "units: ", "review: "):
+        line = next(line for line in out.splitlines() if line.startswith(prefix))
+        assert "provider calls 0" in line, line
 
 
 def test_a_planning_policy_change_reopens_planning(
@@ -2737,3 +2778,141 @@ def test_an_exhausted_retry_is_reported_cleanly_and_never_as_a_traceback(
         "repository-presenter: the gateway did not answer after the bounded retries: timeout"
     ]
     assert "Traceback" not in captured.err
+
+
+# --- G7-W06 drift monitor: `repository-presenter monitor` (read-only; injected GitHub reader) ---
+
+MONITOR_TOKEN = "ghs_fixture_monitor_read_token_9876543210"
+MONITOR_PYTHON = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+MONITOR_JAVA = "aspose-3d-foss/Aspose.3D-FOSS-for-Java"
+MONITOR_DISABLED = "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript"
+MONITOR_CELLS = "aspose-cells-foss/Aspose.Cells-FOSS-for-Python"
+MONITOR_BUNDLED = "5" * 40
+MONITOR_HEAD = "4" * 40
+
+
+@pytest.fixture
+def monitor_root(project: Path) -> Path:
+    """A synthetic project: one bundled repository, one bare one, one disabled, one other owner."""
+    (project / "data").mkdir()
+    payload = {
+        "schema_version": 1,
+        "entries": [
+            monitor_registry_entry(MONITOR_PYTHON, repository_id=1),
+            monitor_registry_entry(MONITOR_JAVA, repository_id=2),
+            monitor_registry_entry(MONITOR_DISABLED, mode="disabled", repository_id=3),
+            monitor_registry_entry(MONITOR_CELLS, repository_id=4),
+        ],
+    }
+    (project / "data" / "registry.json").write_text(json.dumps(payload), encoding="utf-8")
+    write_bundle(
+        project, "aspose-3d-foss__Aspose.3D-FOSS-for-Python", MONITOR_BUNDLED, "READY_FOR_PROPOSAL"
+    )
+    return project
+
+
+def test_monitor_without_the_read_token_observes_nothing(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    reader = FakeDefaultBranchReader({})
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+
+    code = main(["monitor", "--root", str(monitor_root)])
+
+    assert code == EXIT_USAGE
+    assert reader.calls == []
+    assert "GH_TOKEN" in capsys.readouterr().err
+    assert not (monitor_root / "runs").exists()
+
+
+def test_monitor_records_each_enabled_repository_and_exits_one_on_an_unreachable_one(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    reader = FakeDefaultBranchReader(
+        {
+            MONITOR_PYTHON: MONITOR_HEAD,
+            # Negative control: the failure carries the token; it must reach no output.
+            MONITOR_JAVA: RuntimeError(f"401 rejected {MONITOR_TOKEN}"),
+            MONITOR_CELLS: MONITOR_HEAD,
+        }
+    )
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.setenv("GH_TOKEN", MONITOR_TOKEN)
+
+    code = main(["monitor", "--root", str(monitor_root)])
+
+    assert code == EXIT_INCONSISTENT
+    assert reader.calls == [MONITOR_PYTHON, MONITOR_JAVA, MONITOR_CELLS]
+    assert reader.tokens == [MONITOR_TOKEN] * 3
+    evidence = monitor_root / "runs" / "monitor" / "drift.json"
+    text = evidence.read_text(encoding="utf-8")
+    document = json.loads(text)
+    assert document["owner"] is None
+    assert document["summary"] == {"CURRENT": 0, "DRIFTED": 1, "NO_BUNDLE": 1, "UNREACHABLE": 1}
+    statuses = {row["repository"]: row["status"] for row in document["repositories"]}
+    assert statuses == {
+        MONITOR_PYTHON: "DRIFTED",
+        MONITOR_JAVA: "UNREACHABLE",
+        MONITOR_CELLS: "NO_BUNDLE",
+    }
+    captured = capsys.readouterr()
+    assert MONITOR_TOKEN not in text + captured.out + captured.err
+    assert MONITOR_JAVA in captured.err
+    assert "1 repositor(ies) unreachable" in captured.err
+
+
+def test_monitor_exits_zero_when_every_enabled_repository_is_observed(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    reader = FakeDefaultBranchReader(
+        {MONITOR_PYTHON: MONITOR_BUNDLED, MONITOR_JAVA: MONITOR_HEAD, MONITOR_CELLS: MONITOR_HEAD}
+    )
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.setenv("GH_TOKEN", MONITOR_TOKEN)
+
+    code = main(["monitor", "--root", str(monitor_root)])
+
+    assert code == EXIT_OK
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert "CURRENT" in captured.out
+    assert "monitor: 3 observed - CURRENT 1, DRIFTED 0, NO_BUNDLE 2, UNREACHABLE 0" in captured.out
+
+
+def test_monitor_owner_filter_observes_only_that_owners_enabled_entries(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reader = FakeDefaultBranchReader({MONITOR_CELLS: MONITOR_HEAD})
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.setenv("GH_TOKEN", MONITOR_TOKEN)
+
+    code = main(["monitor", "--root", str(monitor_root), "--owner", "aspose-cells-foss"])
+
+    assert code == EXIT_OK
+    assert reader.calls == [MONITOR_CELLS]
+    evidence = monitor_root / "runs" / "monitor" / "drift-aspose-cells-foss.json"
+    assert json.loads(evidence.read_text(encoding="utf-8"))["owner"] == "aspose-cells-foss"
+
+
+def test_monitor_refuses_an_owner_with_no_enabled_entry(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    reader = FakeDefaultBranchReader({})
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.setenv("GH_TOKEN", MONITOR_TOKEN)
+
+    code = main(["monitor", "--root", str(monitor_root), "--owner", "aspose-nope-foss"])
+
+    assert code == EXIT_USAGE
+    assert reader.calls == []
+    assert "no enabled registry entries for owner aspose-nope-foss" in capsys.readouterr().err

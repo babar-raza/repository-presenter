@@ -1,21 +1,32 @@
 # First hosted-execution slice (docs/STATE_MACHINE.md section 20.6's own checklist item
 # "monitor.yml authored, then act-tested"). This is deliberately NOT the durable-state-backed
-# present.yml pipeline section 20 describes -- no CAS/lease/recovery backend exists yet
+# present.yml pipeline section 20 describes. [2026-10-04 correction: the CAS/lease/recovery backend
+# now exists (core/state/, G5-W04) and present.yml wires it (G5-W05); this workflow does not use it.]
 # (docs/investigations/12-supervisor-and-production-reassessment.md section 5.4/7), and this
-# workflow proves nothing about that missing piece. It only confirms two low-risk, read-only
+# workflow proves nothing about the durable-state path. It only confirms two low-risk, read-only
 # preconditions a future scheduled run would need:
 #   1. the configured LLM gateway is reachable (repository-presenter preflight);
 #   2. the canary repository (project/state.yaml's progress.canary) is still reachable read-only.
 # It makes no repository write, opens no PR, and uses no write-scoped credential -- `permissions:
 # contents: read` below is the whole grant.
 #
-# workflow_dispatch only, deliberately -- not a schedule trigger. A schedule needs the durable
-# state backend, GitHub App credential automation (OWNER-04), and the gateway's real rate-limit
-# behavior measured under parallel composition (docs/STATE_MACHINE.md section 20.3) before an
-# unattended cron run is safe. Adding `schedule:` is a named follow-up, not an oversight.
+# G7-W06 (state.yaml, EXECUTION_STATE_MACHINE.md G7 Work item 3): the schedule trigger below makes
+# this an unattended, cron-fired READ-ONLY run. The health-check job keeps its gateway preflight on
+# manual dispatch only, so a scheduled run makes zero LLM-gateway requests.
+#
+# The drift job observes every enabled registry repository's upstream default-branch head against
+# its CURRENT sealed bundle's revision (`repository-presenter monitor`, components/monitor/drift.py).
+# An installation token is per organization, so the job runs one leg per owner, each minting a
+# read-only token scoped to that owner's enabled repositories alone. No step in this workflow holds
+# a write permission: `permissions` below grants `contents: read`, and each token is narrowed to
+# `permission-contents: read`. The evidence is uploaded as a workflow artifact, never committed. PR
+# creation is not part of this workflow (G7-W06 stage 2).
 name: Monitor
 
 on:
+  schedule:
+    # Every 6 hours, off the top of the hour to avoid the scheduler's busiest slot.
+    - cron: "17 */6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -42,7 +53,8 @@ jobs:
       - name: Official entry point (read-only; also names the canary)
         run: repository-presenter status
 
-      - name: LLM gateway reachable
+      - name: LLM gateway reachable (manual dispatch only; scheduled runs make no provider calls)
+        if: github.event_name == 'workflow_dispatch'
         env:
           GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
           GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
@@ -68,3 +80,85 @@ jobs:
           # checkout runs, and breaks even a remote-only command's own repo-context lookup).
           scratch=$(mktemp -d)
           git -C "$scratch" ls-remote "https://github.com/${canary}.git" HEAD
+
+  drift-plan:
+    name: Plan the drift observation (one leg per owner with enabled entries)
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Derive owner -> enabled repository names from data/registry.json
+        id: plan
+        run: |
+          # The same selection as core/registry/loader.py::enabled_entries (mode other than
+          # "disabled"); the observation itself re-applies that rule, so this only sizes the legs.
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+
+          with open("data/registry.json", encoding="utf-8") as f:
+              data = json.load(f)
+          owners: dict[str, list[str]] = {}
+          for entry in data["entries"]:
+              if entry["mode"] == "disabled":
+                  continue
+              owner, name = entry["repository"].split("/", 1)
+              owners.setdefault(owner, []).append(name)
+          legs = [
+              {"owner": owner, "repositories": ",".join(sorted(names))}
+              for owner, names in sorted(owners.items())
+          ]
+          print("matrix=" + json.dumps({"include": legs}))
+          PY
+
+  drift:
+    name: Drift observation, read-only (${{ matrix.owner }})
+    needs: drift-plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.drift-plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Mint a read-only installation token, scoped to this owner's enabled repositories
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ matrix.owner }}
+          repositories: ${{ matrix.repositories }}
+          permission-contents: read
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - name: Observe each enabled repository's upstream head against its sealed bundle
+        # Only the read-only token is in this step's environment: no provider key, and no
+        # write-scoped token of any kind. A failed mint fails this leg, never a fallback credential.
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          OWNER: ${{ matrix.owner }}
+        run: repository-presenter monitor --owner "$OWNER" --out "runs/monitor/drift-$OWNER.json"
+
+      - name: Upload the drift evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-${{ matrix.owner }}
+          path: runs/monitor/
+          if-no-files-found: warn

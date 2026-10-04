@@ -9,15 +9,6 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:aspose_barcode_foss",
-        "public_symbol:aspose_barcode_foss.api",
-        "public_symbol:aspose_barcode_foss.barcode",
-        "public_symbol:aspose_barcode_foss.generate"
-      ],
-      "symbol_fact_id": "public_symbol:aspose_barcode_foss"
-    },
-    {
-      "fact_ids": [
         "public_symbol:aspose_barcode_foss.barcode",
         "public_symbol:aspose_barcode_foss.barcode.render",
         "public_symbol:aspose_barcode_foss.barcode.to_pdf",
@@ -28,38 +19,65 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose_barcode_foss.code128",
-        "public_symbol:aspose_barcode_foss.code128encodemode",
-        "public_symbol:aspose_barcode_foss.code128options"
+        "public_symbol:aspose_barcode_foss.generate"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_barcode_foss.generate"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.code128"
       ],
       "symbol_fact_id": "public_symbol:aspose_barcode_foss.code128"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose_barcode_foss.code39",
-        "public_symbol:aspose_barcode_foss.code39encodemode",
-        "public_symbol:aspose_barcode_foss.code39ext",
-        "public_symbol:aspose_barcode_foss.code39options"
-      ],
-      "symbol_fact_id": "public_symbol:aspose_barcode_foss.code39"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose_barcode_foss.qr",
-        "public_symbol:aspose_barcode_foss.qrencodemode",
-        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
-        "public_symbol:aspose_barcode_foss.qroptions"
+        "public_symbol:aspose_barcode_foss.qr"
       ],
       "symbol_fact_id": "public_symbol:aspose_barcode_foss.qr"
     },
     {
       "fact_ids": [
+        "public_symbol:aspose_barcode_foss.code39"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_barcode_foss.code39"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.ean13"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_barcode_foss.ean13"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.ean8"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_barcode_foss.ean8"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.upca"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_barcode_foss.upca"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.upce"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_barcode_foss.upce"
+    },
+    {
+      "fact_ids": [
         "public_symbol:aspose_barcode_foss.renderers.svgrenderer",
-        "public_symbol:aspose_barcode_foss.renderers.renderer",
-        "public_symbol:aspose_barcode_foss.renderers.pngrenderer",
-        "public_symbol:aspose_barcode_foss.renderers.pdfrenderer"
+        "public_symbol:aspose_barcode_foss.svgrenderer"
       ],
       "symbol_fact_id": "public_symbol:aspose_barcode_foss.renderers.svgrenderer"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.renderers.pngrenderer",
+        "public_symbol:aspose_barcode_foss.pngrenderer"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_barcode_foss.renderers.pngrenderer"
     },
     {
       "fact_ids": [
@@ -67,47 +85,15 @@
         "public_symbol:aspose_barcode_foss.resolvedrenderoptions"
       ],
       "symbol_fact_id": "public_symbol:aspose_barcode_foss.renderoptions"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose_barcode_foss.exceptions",
-        "public_symbol:aspose_barcode_foss.exceptions.barcodeerror",
-        "public_symbol:aspose_barcode_foss.exceptions.encodingerror",
-        "public_symbol:aspose_barcode_foss.exceptions.invalidinputerror",
-        "public_symbol:aspose_barcode_foss.exceptions.renderingerror",
-        "public_symbol:aspose_barcode_foss.exceptions.symbologynotfounderror",
-        "public_symbol:aspose_barcode_foss.exceptions.unsupportedcapabilityerror",
-        "public_symbol:aspose_barcode_foss.exceptions.unsupportedfeatureerror"
-      ],
-      "symbol_fact_id": "public_symbol:aspose_barcode_foss.exceptions"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose_barcode_foss.options",
-        "public_symbol:aspose_barcode_foss.options.code128encodemode",
-        "public_symbol:aspose_barcode_foss.options.code128options",
-        "public_symbol:aspose_barcode_foss.options.code39encodemode",
-        "public_symbol:aspose_barcode_foss.options.code39options",
-        "public_symbol:aspose_barcode_foss.options.ean13options",
-        "public_symbol:aspose_barcode_foss.options.ean8options",
-        "public_symbol:aspose_barcode_foss.options.encodeoptions",
-        "public_symbol:aspose_barcode_foss.options.qrencodemode",
-        "public_symbol:aspose_barcode_foss.options.qrerrorcorrectionlevel",
-        "public_symbol:aspose_barcode_foss.options.qroptions",
-        "public_symbol:aspose_barcode_foss.options.renderoptions",
-        "public_symbol:aspose_barcode_foss.options.resolvedrenderoptions",
-        "public_symbol:aspose_barcode_foss.options.upcaoptions",
-        "public_symbol:aspose_barcode_foss.options.upceoptions"
-      ],
-      "symbol_fact_id": "public_symbol:aspose_barcode_foss.options"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
       "Generate multiple barcode symbologies",
-      "Encode with symbology-specific options",
-      "Render to SVG and PNG",
-      "Custom rendering via Renderer subclasses"
+      "Render barcodes to SVG and PNG",
+      "Configure rendering options",
+      "Customize symbology-specific options",
+      "Handle errors explicitly"
     ],
     "input_format_ids": [],
     "output_format_ids": []
@@ -119,42 +105,20 @@
         "example:002",
         "example:003",
         "example:004",
-        "example:005",
-        "example:006",
         "public_symbol:aspose_barcode_foss.code128",
         "public_symbol:aspose_barcode_foss.code39",
         "public_symbol:aspose_barcode_foss.ean13",
         "public_symbol:aspose_barcode_foss.ean8",
         "public_symbol:aspose_barcode_foss.upca",
         "public_symbol:aspose_barcode_foss.upce",
-        "public_symbol:aspose_barcode_foss.qr",
-        "public_symbol:aspose_barcode_foss.generate"
+        "public_symbol:aspose_barcode_foss.qr"
       ],
       "shared_fact_ids": [
         "example:001",
         "example:003",
-        "example:004",
-        "example:005",
-        "example:006"
+        "example:004"
       ],
       "title": "Generate multiple barcode symbologies"
-    },
-    {
-      "fact_ids": [
-        "example:003",
-        "example:004",
-        "example:005",
-        "public_symbol:aspose_barcode_foss.options.code128encodemode",
-        "public_symbol:aspose_barcode_foss.options.code39options",
-        "public_symbol:aspose_barcode_foss.options.qrerrorcorrectionlevel",
-        "public_symbol:aspose_barcode_foss.options.qrencodemode"
-      ],
-      "shared_fact_ids": [
-        "example:003",
-        "example:004",
-        "example:005"
-      ],
-      "title": "Encode with symbology-specific options"
     },
     {
       "fact_ids": [
@@ -162,26 +126,48 @@
         "example:005",
         "public_symbol:aspose_barcode_foss.barcode.to_svg",
         "public_symbol:aspose_barcode_foss.barcode.to_png",
-        "public_symbol:aspose_barcode_foss.renderers.svgrenderer",
-        "public_symbol:aspose_barcode_foss.renderers.pngrenderer"
+        "public_symbol:aspose_barcode_foss.svgrenderer",
+        "public_symbol:aspose_barcode_foss.pngrenderer"
       ],
       "shared_fact_ids": [
         "example:001",
         "example:005"
       ],
-      "title": "Render to SVG and PNG"
+      "title": "Render barcodes to SVG and PNG"
     },
     {
       "fact_ids": [
-        "example:006",
-        "public_symbol:aspose_barcode_foss.renderers.renderer",
-        "public_symbol:aspose_barcode_foss.renderers.pdfrenderer",
-        "public_symbol:aspose_barcode_foss.barcode.render"
+        "example:005",
+        "public_symbol:aspose_barcode_foss.renderoptions"
       ],
       "shared_fact_ids": [
-        "example:006"
+        "example:005"
       ],
-      "title": "Custom rendering via Renderer subclasses"
+      "title": "Configure rendering options"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "public_symbol:aspose_barcode_foss.code128encodemode",
+        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
+        "public_symbol:aspose_barcode_foss.code39options"
+      ],
+      "shared_fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "title": "Customize symbology-specific options"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.barcodeerror",
+        "public_symbol:aspose_barcode_foss.encodingerror",
+        "public_symbol:aspose_barcode_foss.renderingerror",
+        "public_symbol:aspose_barcode_foss.invalidinputerror"
+      ],
+      "shared_fact_ids": [],
+      "title": "Handle errors explicitly"
     }
   ],
   "deviations": [
@@ -191,10 +177,10 @@
         "link_target:023"
       ],
       "section_id": "enterprise_relationship",
-      "text": "The Enterprise Edition link target exists but the shell condition for enterprise_relationship is false; the paragraph about the Enterprise Edition is deferred and not rendered."
+      "text": "The Enterprise Edition relationship paragraph was deferred to a separate section but no enterprise target URL is available in policy; it is omitted."
     }
   ],
-  "flagship_example_id": "example:002",
+  "flagship_example_id": "example:005",
   "links": [
     {
       "link_fact_id": "link_target:019",
@@ -216,24 +202,7 @@
   "material_limitations": [
     {
       "fact_ids": [
-        "public_symbol:aspose_barcode_foss.barcode.to_pdf",
-        "public_symbol:aspose_barcode_foss.pdfrenderer"
-      ],
-      "unit_ids": [
-        "inherited_unit:052.list"
-      ]
-    },
-    {
-      "fact_ids": [
-        "identity:family"
-      ],
-      "unit_ids": [
-        "inherited_unit:052.list"
-      ]
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose_barcode_foss.options.encodeoptions"
+        "install_command:pip"
       ],
       "unit_ids": [
         "inherited_unit:052.list"

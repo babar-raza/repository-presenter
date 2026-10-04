@@ -230,7 +230,19 @@ _TYPE_OBJECTIVE = (
 # session, a different call site, the same shared constant) - renumbered to "17" on rebase rather
 # than reusing "16", since a version constant must move once per real meaning change, never share
 # a value across two independent ones.
-NORMALISATION_VERSION = "17"
+#
+# "18": a slot with nothing it may cite now pins its fact_ids to maxLength 0 rather than an empty
+# enum, which no strict json_schema request can carry (the S5 HTTP 500/502 class, 2026-10-04).
+# Every request that could ever have succeeded is byte-identical; only the unsatisfiable one moved.
+#
+# "19": the direction check's own vocabulary (`_prose_direction`) now reads a dotted identifier's
+# member name ("aspose_font.FontLoader.open") as a name, never as the verb "open", and counts the
+# writing verbs create/produce/generate/emit as output. The live Aspose.Font opening (2026-10-04,
+# qwen3-next, present --fresh) was refused twice for correct claims: "open" in an identifier read
+# the unit as input, so its three written formats were named as read. A unit that names both
+# directions is still not judged (the TB-09 rule), and a single-direction contradiction is still
+# refused. Zero of the 3017 units in candidates/ change verdict.
+NORMALISATION_VERSION = "19"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -810,6 +822,16 @@ def authoring_schema(manifest: LoadedManifest, task: SectionTask) -> dict[str, A
     units["minItems"] = len(task.slots)
     units["maxItems"] = len(task.slots)
     item = units["items"]
+
+    def _fact_id_items(slot: str) -> dict[str, Any]:
+        allowed = citable(task, slot)
+        if allowed:
+            return {"type": "string", "enum": allowed}
+        # Nothing this slot may cite: an empty enum is a keyword no value satisfies, which no
+        # strict json_schema request can carry (the S5 HTTP 500/502 class, 2026-10-04). maxLength 0
+        # admits only "", which names no fact, so the binding refuses it on the deterministic path.
+        return {"type": "string", "maxLength": 0}
+
     # One entry per slot, in the task's order: the slot it fills and the only facts its unit may
     # cite. Both are the code's to state - the plan assigned them - so a reply that fills the
     # wrong slot or cites another slot's fact is unrepresentable rather than rejected, which is
@@ -826,7 +848,7 @@ def authoring_schema(manifest: LoadedManifest, task: SectionTask) -> dict[str, A
                 "slot": {"const": slot},
                 "fact_ids": {
                     **item["properties"]["fact_ids"],
-                    "items": {"type": "string", "enum": citable(task, slot)},
+                    "items": _fact_id_items(slot),
                 },
             },
         }
@@ -1353,7 +1375,9 @@ def merge_repeated_slots(output: dict[str, Any]) -> list[str]:
 # `core/` layering forbids importing an extractor's own word lists here regardless
 # (docs/REPOSITORY_LAYOUT.md section 2.1).
 _PROSE_EXTENSION = re.compile(r"(?<![\w.])\.[A-Za-z]{2,5}\b")
-_PROSE_WORD = re.compile(r"[A-Za-z]+")
+# A prose word, never part of an identifier: the "open" of aspose_font.FontLoader.open is a member
+# name, not the verb "open", so it neither reads nor writes anything.
+_PROSE_WORD = re.compile(r"(?<![\w.])[A-Za-z]+(?!\w|\.[A-Za-z_])")
 _PROSE_INPUT_WORDS = frozenset(
     {
         "read",
@@ -1374,13 +1398,38 @@ _PROSE_INPUT_WORDS = frozenset(
     }
 )
 _PROSE_OUTPUT_WORDS = frozenset(
-    {"write", "writes", "writing", "save", "saves", "saving", "export", "exports", "exporting"}
+    {
+        "write",
+        "writes",
+        "writing",
+        "save",
+        "saves",
+        "saving",
+        "export",
+        "exports",
+        "exporting",
+        # Writing verbs the unit's own prose uses for generated output (the live opening said
+        # "create visual previews in .png", "produce QA reports in .html").
+        "create",
+        "creates",
+        "creating",
+        "produce",
+        "produces",
+        "producing",
+        "generate",
+        "generates",
+        "generating",
+        "emit",
+        "emits",
+        "emitting",
+    }
 )
 
 
 def _prose_direction(text: str) -> str | None:
     """ "input", "output", or None when the text names both or neither direction - an unambiguous
-    bag-of-words read, never a sentence-level parse (TB-09, D9)."""
+    bag-of-words read, never a sentence-level parse (TB-09, D9). Identifiers do not vote: the
+    "open" of ``aspose_font.FontLoader.open`` is a member name, not the verb."""
     words = {word.lower() for word in _PROSE_WORD.findall(text)}
     is_input = bool(words & _PROSE_INPUT_WORDS)
     is_output = bool(words & _PROSE_OUTPUT_WORDS)

@@ -8,6 +8,7 @@ from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import httpx
 import pytest
@@ -15,11 +16,32 @@ from openai import OpenAI
 
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.git_safety.git import run_git
+from repository_presenter.core.github.read_client import DefaultBranchRead
 from repository_presenter.core.llm import transport
 from repository_presenter.core.state.cas import SaveResult
 from repository_presenter.core.state.schema import RepositoryRecord
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def empty_enum_paths(node: Any, path: str = "$") -> list[str]:
+    """Every JSON-schema path whose ``enum`` is an empty list. No value satisfies such a keyword,
+    so a strict json_schema request carrying one cannot be decoded (the S5 HTTP 500/502 on
+    Aspose.GIS, 2026-10-04, whose three link targets were all shell-owned)."""
+    found: list[str] = []
+    if isinstance(node, dict):
+        if node.get("enum") == []:
+            found.append(path)
+        for key, value in node.items():
+            found.extend(empty_enum_paths(value, f"{path}.{key}"))
+    elif isinstance(node, list):
+        for index, value in enumerate(node):
+            found.extend(empty_enum_paths(value, f"{path}[{index}]"))
+    return found
+
+
+def assert_no_empty_enums(schema: dict[str, Any]) -> None:
+    assert empty_enum_paths(schema) == [], "a strict json_schema request cannot carry an empty enum"
 
 
 class InMemoryStateBackend:
@@ -234,3 +256,50 @@ def call_statistics(calls_jsonl: Path) -> dict[str, CallStatistics]:
         job: CallStatistics(count, invalid[job], tuple(rejections.get(job, ())))
         for job, count in sorted(calls.items())
     }
+
+
+def monitor_registry_entry(
+    repository: str, *, mode: str = "dry_run", repository_id: int = 1
+) -> dict[str, Any]:
+    """One registry entry payload for an Aspose FOSS repository (``data/registry.json`` shape)."""
+    owner, name = repository.split("/")
+    family = owner.removeprefix("aspose-").removesuffix("-foss")
+    platform = name.split("-for-")[1].lower()
+    platform = "net" if platform == ".net" else platform
+    return {
+        "repository": repository,
+        "family": family,
+        "platform": platform,
+        "ecosystem": platform,
+        "mode": mode,
+        "policy_profile": "fixture",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": repository_id,
+            "node_id": f"R_fixture_{repository_id}",
+        },
+    }
+
+
+class FakeDefaultBranchReader:
+    """Injected stand-in for ``core/github/read_client.py::fetch_default_branch_sha``.
+
+    Each repository maps to a head sha, a ready ``DefaultBranchRead``, or an exception to raise.
+    Every call and the token it was given are recorded, so a test can prove what was read.
+    """
+
+    def __init__(self, outcomes: dict[str, str | DefaultBranchRead | Exception]) -> None:
+        self.outcomes = outcomes
+        self.calls: list[str] = []
+        self.tokens: list[str | None] = []
+
+    def __call__(self, repository: str, *, token: str | None = None) -> DefaultBranchRead:
+        self.calls.append(repository)
+        self.tokens.append(token)
+        outcome = self.outcomes[repository]
+        if isinstance(outcome, Exception):
+            raise outcome
+        if isinstance(outcome, DefaultBranchRead):
+            return outcome
+        return DefaultBranchRead(repository, sha=outcome, branch="main")

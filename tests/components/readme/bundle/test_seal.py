@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -196,8 +197,8 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert document["contract_version"] == "readme-contract-v1"
     assert document["components"] == {
         "shell": "6",
-        "renderer": "25",
-        "normalisation": "17",
+        "renderer": "26",
+        "normalisation": "19",
         "reviewer_logic": "14",
     }
     assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 11
@@ -604,3 +605,120 @@ def test_a_publish_failure_partway_through_leaves_no_partial_bundle(
     assert {p.name: p.read_bytes() for p in bundle.iterdir()} == before_files
     assert (bundle.parent / "CURRENT").read_bytes() == before_current
     assert [p for p in bundle.parent.iterdir() if p.name.startswith(".")] == []
+
+
+# --- models_used: a sealed bundle records the models it was produced with ------------------
+
+PRIMARY = "qwen3-next"
+
+
+def _manifest_path(tmp_path: Path) -> Path:
+    return (
+        tmp_path
+        / "candidates"
+        / "aspose-3d-foss__Aspose.3D-FOSS-for-Python"
+        / REVISION
+        / "manifest.json"
+    )
+
+
+def _sealed_manifest(tmp_path: Path) -> dict[str, Any]:
+    manifest = json.loads(_manifest_path(tmp_path).read_text(encoding="utf-8"))
+    jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
+    return manifest
+
+
+def _with_models(tmp_path: Path, provider_calls: int, models: dict[str, str] | None) -> SealInputs:
+    return replace(_inputs(tmp_path, provider_calls=provider_calls), models_used=models)
+
+
+def _proven_bundle(tmp_path: Path) -> None:
+    """A transaction sealed at ACCEPTED, then reproduced by a zero-call process: READY."""
+    _transaction(tmp_path)
+    assert seal_candidate(_inputs(tmp_path, provider_calls=7)).state == "ACCEPTED"
+    assert seal_candidate(_inputs(tmp_path, provider_calls=0)).state == "READY_FOR_PROPOSAL"
+
+
+def test_the_seal_records_the_models_it_was_produced_with(tmp_path: Path) -> None:
+    _transaction(tmp_path)
+    seal_candidate(_with_models(tmp_path, 7, {PRIMARY: "gpt-oss"}))
+    assert _sealed_manifest(tmp_path)["models_used"] == {PRIMARY: "gpt-oss"}
+
+
+def test_a_changed_model_reopens_valid_update_available_and_names_the_change(
+    tmp_path: Path,
+) -> None:
+    _proven_bundle(tmp_path)
+    readme = _manifest_path(tmp_path).parent / "README.md"
+    before = readme.read_bytes()
+
+    result = seal_candidate(_with_models(tmp_path, 2, {PRIMARY: "gpt-oss"}))
+
+    # The same route answered by another model is a different candidate: factual by construction,
+    # whatever its bytes say. The candidate stops counting and no sealed byte is replaced.
+    assert result.state == "VALID_UPDATE_AVAILABLE" and result.changed
+    assert count_current_candidates(tmp_path) == 0
+    manifest = _sealed_manifest(tmp_path)
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE"
+    assert manifest["update"]["classification"] == "factual"
+    assert manifest["update"]["changed"] == ["models[qwen3-next]: qwen3-next -> gpt-oss"]
+    assert manifest["update"]["models_used"] == {PRIMARY: "gpt-oss"}
+    assert manifest["models_used"] == {PRIMARY: PRIMARY}  # the sealed content keeps its model
+    assert readme.read_bytes() == before
+
+
+def test_a_rerun_on_the_sealed_model_stays_a_zero_call_no_op(tmp_path: Path) -> None:
+    """Negative control: an unchanged model is not an update, so the proof is not disturbed."""
+    _proven_bundle(tmp_path)
+    again = seal_candidate(_with_models(tmp_path, 0, {PRIMARY: PRIMARY}))
+    assert again.state == "READY_FOR_PROPOSAL" and not again.changed
+    assert again.note.startswith("no-op:")
+    assert "update" not in _sealed_manifest(tmp_path)
+
+
+def test_a_fresh_zero_call_run_on_the_waiting_model_adopts_the_update(tmp_path: Path) -> None:
+    _proven_bundle(tmp_path)
+    seal_candidate(_with_models(tmp_path, 2, {PRIMARY: "gpt-oss"}))
+
+    adopted = seal_candidate(_with_models(tmp_path, 0, {PRIMARY: "gpt-oss"}))
+
+    assert adopted.state == "READY_FOR_PROPOSAL" and adopted.changed
+    assert adopted.note.startswith("update adopted (factual)")
+    manifest = _sealed_manifest(tmp_path)
+    assert manifest["models_used"] == {PRIMARY: "gpt-oss"}
+    assert manifest["adopted"]["previous_models_used"] == {PRIMARY: PRIMARY}
+    assert "update" not in manifest and manifest["no_op_proof"]["provider_calls"] == 0
+
+
+def test_a_run_on_a_different_model_than_the_waiting_update_is_not_adopted(
+    tmp_path: Path,
+) -> None:
+    """Negative control: adoption is only for the exact update a fresh process reproduced."""
+    _proven_bundle(tmp_path)
+    seal_candidate(_with_models(tmp_path, 2, {PRIMARY: "gpt-oss"}))
+
+    other = seal_candidate(_with_models(tmp_path, 0, {PRIMARY: "recommended"}))
+
+    assert other.state == "VALID_UPDATE_AVAILABLE" and other.changed
+    manifest = _sealed_manifest(tmp_path)
+    assert manifest["update"]["models_used"] == {PRIMARY: "recommended"}
+    assert "adopted" not in manifest and manifest["models_used"] == {PRIMARY: PRIMARY}
+
+
+def test_a_bundle_sealed_before_models_were_recorded_reads_its_routes_as_their_own_names(
+    tmp_path: Path,
+) -> None:
+    """Every route answered as itself before fallback chains; that is what such a bundle says."""
+    _proven_bundle(tmp_path)
+    manifest = _sealed_manifest(tmp_path)
+    del manifest["models_used"]
+    _manifest_path(tmp_path).write_text(json.dumps(manifest), encoding="utf-8")
+
+    unchanged = seal_candidate(_with_models(tmp_path, 0, {PRIMARY: PRIMARY}))
+    assert unchanged.state == "READY_FOR_PROPOSAL" and not unchanged.changed
+
+    changed = seal_candidate(_with_models(tmp_path, 2, {PRIMARY: "gpt-oss"}))
+    assert changed.state == "VALID_UPDATE_AVAILABLE"
+    assert _sealed_manifest(tmp_path)["update"]["changed"] == [
+        "models[qwen3-next]: qwen3-next -> gpt-oss"
+    ]

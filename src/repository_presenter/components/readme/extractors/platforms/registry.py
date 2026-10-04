@@ -15,6 +15,7 @@ from repository_presenter.core.examples import (
     ExampleReceipt,
     FormatClaim,
     FormatDeclaration,
+    MeasuredBuild,
 )
 from repository_presenter.core.facts import Fact
 from repository_presenter.core.probes import ProbeRecord
@@ -99,3 +100,20 @@ def plugin_for(ecosystem: str) -> PlatformPlugin:
             )
         _loaded[ecosystem] = plugin
     return _loaded[ecosystem]
+
+
+def verify_build(
+    plugin: PlatformPlugin, root: Path, manifest: Path, workspace: Path
+) -> MeasuredBuild:
+    """The plugin's own measured build, or an honest "not attempted" when it drives none.
+
+    Optional by capability, not by ecosystem name: a plugin that can drive its package's own
+    build provides ``verify_build``; every other plugin is answered here without a branch on
+    which ecosystem it is (RESEARCH_AND_GUIDELINES.md section 7.4). The result feeds the one
+    source-install rule in `evidence/facts/extract.py`, never a registry command.
+    """
+    method = getattr(plugin, "verify_build", None)
+    if method is None:
+        return MeasuredBuild(False, "", "not attempted (this ecosystem drives no build of its own)")
+    result: MeasuredBuild = method(root, manifest, workspace)
+    return result

@@ -1,0 +1,186 @@
+[
+  {
+    "elapsed_ms": 869,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.com/slides/net/"
+  },
+  {
+    "elapsed_ms": 2415,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://dotnet.microsoft.com/"
+  },
+  {
+    "elapsed_ms": 2526,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://forum.aspose.com/c/slides/11"
+  },
+  {
+    "elapsed_ms": 2187,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/actions"
+  },
+  {
+    "elapsed_ms": 2000,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/actions/workflows/ci.yml"
+  },
+  {
+    "elapsed_ms": 1712,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/actions/workflows/ci.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 1619,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/CHANGELOG.md"
+  },
+  {
+    "elapsed_ms": 1589,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/CODE_OF_CONDUCT.md"
+  },
+  {
+    "elapsed_ms": 1662,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/CONTRIBUTING.md"
+  },
+  {
+    "elapsed_ms": 1671,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/LICENSE"
+  },
+  {
+    "elapsed_ms": 1552,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/SECURITY.md"
+  },
+  {
+    "elapsed_ms": 1451,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/issues"
+  },
+  {
+    "elapsed_ms": 1614,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"
+  },
+  {
+    "elapsed_ms": 1786,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java"
+  },
+  {
+    "elapsed_ms": 1628,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python"
+  },
+  {
+    "elapsed_ms": 607,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/.NET-8.0%20%7C%2010.0-512BD4.svg"
+  },
+  {
+    "elapsed_ms": 634,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/license-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1975,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/nuget/v/Aspose.Slides.FOSS.svg"
+  },
+  {
+    "elapsed_ms": 881,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.com/slides/net/"
+  },
+  {
+    "elapsed_ms": 778,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/slides/net/"
+  },
+  {
+    "elapsed_ms": 926,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.com/slides/net/"
+  },
+  {
+    "elapsed_ms": 2414,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://www.nuget.org/packages/Aspose.Slides.FOSS/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "nuget-flatcontainer-api",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "nuget:Aspose.Slides.FOSS"
+  }
+]
