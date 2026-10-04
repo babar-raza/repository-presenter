@@ -6,7 +6,10 @@ from collections.abc import Sequence
 from dataclasses import replace
 from pathlib import Path
 
-from repository_presenter.components.readme.evidence.facts.assets import asset_facts
+from repository_presenter.components.readme.evidence.facts.assets import (
+    asset_facts,
+    ci_badge_fact,
+)
 from repository_presenter.components.readme.evidence.facts.formats import format_facts
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
 from repository_presenter.components.readme.evidence.facts.license import license_facts
@@ -261,6 +264,10 @@ def extract_facts(
         )
     )
     facts.extend(asset_facts(tree_paths))
+    # plans/idea.md: a build-status badge only for a real workflow in the clone.
+    ci_badge = ci_badge_fact(entry.repository, clone_path, tree_paths)
+    if ci_badge is not None:
+        facts.append(ci_badge)
     facts.extend(product_page_facts(entry))
     if snapshot.readme_path is not None:
         readme_bytes = (clone_path / snapshot.readme_path).read_bytes()

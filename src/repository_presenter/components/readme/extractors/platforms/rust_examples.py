@@ -38,15 +38,15 @@ from pathlib import Path
 
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.toolchains import REGISTRY_VARIABLE, recorded_path, resolve_tool
+
+_REGISTRY_VARIABLE = REGISTRY_VARIABLE  # the name the registry tests set (core/toolchains.py)
 
 _MAX_OUTPUT_CHARS = 4000
 _WORKSPACE_ATTEMPTS = 5
 _CRATE_DIRECTORY = "crate"
 _EXAMPLE_STEM = "rp_example"
-# The lane's toolchains are never on PATH (loop-prompt §1.3): a name is resolved by `which`, then
-# by its `.cmd` shim, then by the absolute path the machine-local registry records.
-_REGISTRY_VARIABLE = "RP_TOOLCHAIN_REGISTRY"
-_REGISTRY_DEFAULT = Path("C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt")
+# Toolchains are resolved by `core/toolchains.py`: PATH, then the machine's recorded registry.
 # `cargo` and `rustc` are rustup proxies; they find the toolchain through RUSTUP_HOME, and the
 # disposable profile has already moved USERPROFILE away from the `.rustup` beside it.
 _RUSTUP_HOME = "RUSTUP_HOME"
@@ -73,31 +73,9 @@ _MAIN_FUNCTION = re.compile(r"(?m)^\s*(?:pub\s+)?(?:async\s+)?fn\s+main\s*\(")
 _UNCOPIED = frozenset({".git", "target", ".github", "node_modules"})
 
 
-def _registry_path() -> Path:
-    recorded = os.environ.get(_REGISTRY_VARIABLE, "").strip()
-    return Path(recorded) if recorded else _REGISTRY_DEFAULT
-
-
-def recorded_tool(name: str) -> str | None:
-    """The absolute path the machine-local toolchain registry records for ``name``, if any."""
-    try:
-        text = _registry_path().read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return None
-    for line in text.splitlines():
-        key, separator, value = line.partition("=")
-        if separator and key.strip() == name and Path(value.strip()).exists():
-            return value.strip()
-    return None
-
-
 def cargo_executable() -> str | None:
-    """`cargo` as this machine offers it, or None when it offers none."""
-    for candidate in ("cargo", "cargo.exe"):
-        found = shutil.which(candidate)
-        if found:
-            return found
-    return recorded_tool("cargo")
+    """`cargo` as this machine offers it, or None when it offers none (`core/toolchains.py`)."""
+    return resolve_tool("cargo")
 
 
 def rustup_home(cargo: str) -> str | None:
@@ -111,7 +89,7 @@ def rustup_home(cargo: str) -> str | None:
     ambient = os.environ.get(_RUSTUP_HOME, "").strip()
     if ambient:
         return ambient
-    recorded = recorded_tool("rustup_home")
+    recorded = recorded_path("rustup_home")
     if recorded:
         return recorded
     sibling = Path(cargo).parent.parent.parent / "rustup-home"

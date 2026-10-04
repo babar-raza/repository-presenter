@@ -33,6 +33,7 @@ src/repository_presenter/
     package_registry.py     the registry-reading type and per-ecosystem observer lookup that stages after facts use without importing an extractor
     probes.py               what a live read observed - status, timing, volatile reading - kept out of the hashed facts
     execution.py            bounded secret-free execution of repository examples
+    toolchains.py           machine toolchain resolution (registry, install search, per-tool PATH precedence) and the environment toolchain fingerprint
     config.py               gateway configuration from the process environment (a subpackage once G4 adds GitHub App configuration)
     git_safety/              push-neutered clone, safety checks
     snapshot/                immutable repository snapshot capture
@@ -64,11 +65,14 @@ src/repository_presenter/
     reconciliation/           source_reconciliation job wiring, dispositions
     composition/               presentation_planning, section_authoring, renderer
       placement.py             where each inherited unit renders, under the three placement rules
+      policy.py                the planning policy: capability, hub, line, and Aspose-link ceilings
+      link_budget.py           Aspose-link ceilings derived per document, domain, and surface slot (plans/idea.md), or configured; the plan trim and BC-06 both read it
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
     validation/
       registry.py              versioned check registry
       links/                   link resolution
+        rules.py                the pure rules BC-06 and BC-07 call: derived link ceilings, the Enterprise Edition anchor, the badge row's order and support
     review/
       independent/             independent_review job wiring
       acceptance/               30-point criterion profile (G2)
@@ -82,9 +86,11 @@ src/repository_presenter/
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
         product_pages.py        live product-page facts: Enterprise target, homepage, banner (RESEARCH §20)
+        assets.py               build and test assets from the tree, and the build-status badge target (a push-triggered build or test workflow read from the clone)
   components/metadata/       workstream 2 (docs/investigations/02-repo-metadata-community-files.md §5); never README-specific
     capture.py                Phase 0: read GitHub's observed description/homepage/topics via core/github, write the typed evidence artifact
     proposal.py                Phase 1: derive description/topics/homepage from already-verified facts (identity/license/link_target), diff against Phase 0's observation
+    preservation.py          deterministic keep-vs-replace rules for maintainer-authored description/homepage and the topic merge (no LLM); proposal.py and apply.py consume it
     apply.py                  Phase 2: PATCH/PUT that diff to GitHub - gated behind an explicit owner-controlled authorization signal plus a write-scoped token distinct from the read-only GH_TOKEN; unset in this project's own environment today, so built and tested, never fired (docs/DECISION_LOG.md)
   components/propose/        G6-W02 (docs/EXECUTION_STATE_MACHINE.md G6; docs/STATE_MACHINE.md §§11-12); the README-proposal PR effect, never README-content-specific itself (the candidate text is only an input)
     effect.py                  the gated write: create/update the one stable presenter branch and its one open PR - gated behind an owner-controlled authorization signal, a write-scoped GH_PROPOSAL_WRITE_TOKEN distinct from GH_TOKEN/GH_METADATA_WRITE_TOKEN/GH_ISSUES_WRITE_TOKEN, core/authorization/proposal.py's own payload re-validation, and a source-revision recheck immediately before the write; unset in this project's own environment today, so built and tested, never fired (docs/DECISION_LOG.md)
@@ -111,7 +117,7 @@ tests/                       mirrors src/repository_presenter/ package for packa
   fixtures/oracles/           development-only fixtures and oracles (FIXTURE_OR_ORACLE_ONLY)
   fixtures/readme_only/      README-only placeholder repository (the non-processable negative control)
 .github/workflows/           ci.yml now; monitor.yml, present.yml, propose.yml from G4
-scripts/                     ci_check.sh (the local CI-equivalent; see its own header for exactly which ci.yml steps it mirrors and which it deliberately omits), check_import_root.py (ci_check.sh's preflight: fails when `import repository_presenter` resolves outside this checkout's src/, e.g. a worktree sharing a venv), check_lock_drift.sh (G7-W02: regenerates requirements-lock.txt in a scratch copy and diffs against the committed one, CI-only - needs network the same way ci.yml's own "Install from the lock" step does)
+scripts/                     ci_check.sh (the local CI-equivalent; see its own header for exactly which ci.yml steps it mirrors and which it deliberately omits), ci_output_dir.sh (sourced by ci_check.sh: a private mktemp -d output directory per invocation, removed by an EXIT trap, so concurrent runs sharing one tools venv never overwrite each other's SBOM/audit files), check_import_root.py (ci_check.sh's preflight: fails when `import repository_presenter` resolves outside this checkout's src/, e.g. a worktree sharing a venv), check_lock_drift.sh (G7-W02: regenerates requirements-lock.txt in a scratch copy and diffs against the committed one, CI-only - needs network the same way ci.yml's own "Install from the lock" step does)
 tools/                        owner/reviewer tooling (tools/README.md) - supervises the loop and lanes from outside; never imported by src/, never touched by the loop or a lane, never read for an acceptance predicate
   reviewer/                   reviewer_check.py, stop_monitor.py, timestamp_monitor.py, unblock_monitor.py, research_edit.py (reusable governance-edit helpers), procedure.md; .local/ gitignored (state, never portfolio content)
   census/                     portfolio_census.py (planning-time only); .local/ gitignored (clone scratch space)
