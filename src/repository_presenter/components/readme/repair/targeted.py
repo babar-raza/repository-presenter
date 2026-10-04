@@ -623,12 +623,20 @@ def _resolve_change_path(document: Any, path: str) -> Any:
     trimmed = path.strip()
     if trimmed.startswith("$."):
         trimmed = trimmed[2:]
-    elif trimmed == "revised_output":
+    # Both prefixes are stripped in sequence, never as an if/elif: a JSONPath-style spelling of
+    # the reply's own key (`$.revised_output.units[3].text`) carries both, and stripping only the
+    # first left `revised_output` as a literal key that never resolves on either side.
+    if trimmed == "revised_output":
         trimmed = ""
     elif trimmed.startswith("revised_output."):
         trimmed = trimmed[len("revised_output.") :]
     for match in _PATH_SEGMENT.finditer(trimmed):
         index, key = match.groups()
+        # A dotted list index (`units.0.text`) names the same element as `units[0].text`; the
+        # sealed repairs.json ledgers record it in sixteen accepted changes. Read as a key, it
+        # never resolves against a list, so the change is refused as untruthful.
+        if index is None and key is not None and key.isdigit() and isinstance(value, list):
+            index, key = key, None
         if index is not None:
             if not isinstance(value, list) or not 0 <= int(index) < len(value):
                 return _UNRESOLVED

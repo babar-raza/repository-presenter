@@ -48,6 +48,8 @@ the wrapper's own error text names `INVALIDATED` literally, not `VALID_UPDATE_AV
 confirmed fixed - re-run the hosted workflow after the fix lands and check this exact candidate
 before moving this entry to Resolved.
 
+**Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: still Open. The success-path mapping that sends `VALID_UPDATE_AVAILABLE` to `ACCEPTED` (`core/state/present_transaction.py`, around lines 170-175) was introduced in `ffb5ccbd` (a `git log -S` search for its comment text finds only that commit); `73f76648` changed the failure branch. A hosted `present.yml` run on branch `g5-w05-hosted-proof` (run `37197380582`, 2026-10-04 11:02 UTC, head `a41662ce`) concluded success, but that branch is not `main`, and no record shows the sighted candidate (revision `65b1f577...`) re-run after any fix. Moves to Resolved only on that candidate's hosted re-run on `main` with no wrapper error.
+
 ### `section_authoring.rejection_no_recover`
 
 `section_authoring`'s rejection-repair loop had no deterministic `recover=` backstop, unlike
@@ -112,6 +114,8 @@ is fixed and mutation-tested, but not yet measured firing live on this or any ot
 repair-path fix (sightings 2-3) also remains landed but not yet live-verified as a success against
 either of its own originating repositories - BarCode-Python's own reseal is still separately
 blocked on the unrelated `F08` finding above.
+
+**Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: not moved to Resolved. The three sub-shape fixes are in code (`composition/authoring.py`: `recover_forbidden_command_units` and `recover_section_authoring_output`; the title-restatement repair path via `recover_title_verbatim_opening`; the `recover=` call sites in `repair/rounds.py`) with mutation tests, but no listed sighting has been re-drawn with a fix observed firing. The Page-Python draw of 2026-09-25 cleared its first attempt without the forbidden-literal recovery. This entry keeps the bar its own 2026-09-27 status set: live measurement, not unit verification. Resume predicate: a live draw of one of the listed repositories in which a recovery fires and the candidate clears.
 
 ### `composition.authoring.superseded_unit_not_carried`
 
@@ -179,6 +183,8 @@ provenance citations, never a named capability) in a second commit, covered by i
 test; three further live draws after the fix each failed before reaching S8 on different,
 unrelated, already-documented defects, so the refined check has not yet been re-exercised live -
 honestly left here rather than moved to Resolved until a future draw confirms it end to end.
+
+**Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: still Open. `G3-W05` is COMPLETE, with its gate-manifest record (`evidence/build/G3_PYTHON_COHORT/manifest.json`, `g3_w05`). Two mutation tests reproduce both sightings' shapes (`tests/components/readme/composition/test_coherence.py`). The only live draw that reached S8 ran before the identity/package exclusion; the three draws after the refinement failed at earlier, unrelated stages. This entry's own bar, a live draw that re-exercises the refined check end to end, is not yet met. Moves to Resolved on that draw.
 
 ## Resolved
 

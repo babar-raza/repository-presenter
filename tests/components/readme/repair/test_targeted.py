@@ -830,6 +830,208 @@ def test_a_revised_output_prefixed_change_claiming_an_untrue_edit_is_still_refus
     ]
 
 
+def _scope_limitations_output(*texts: str) -> dict[str, Any]:
+    """An S6 section_authoring output shaped like scope_limitations: one slot per unit."""
+    slots = ["scope", *(f"limitation:{i}" for i in range(1, len(texts)))]
+    return {
+        "units": [
+            {"section": "scope_limitations", "slot": slot, "text": text, "fact_ids": []}
+            for slot, text in zip(slots, texts, strict=True)
+        ],
+        "omitted": [],
+    }
+
+
+def test_a_dollar_prefixed_revised_output_path_names_a_real_edit_and_is_corroborated() -> None:
+    """Found by reading `_resolve_change_path` against the reply schema: the two prefix rules
+    are an `if`/`elif` chain, so a path spelled JSONPath-style with the reply's own top-level key
+    (`$.revised_output.units[3].text`) has its `$.` stripped and then never has
+    `revised_output.` stripped - the key is looked up literally, never resolves on either side,
+    and a genuine consolidation edit is refused as an untruthful claim. The same shape the
+    rounds-level reply uses for every other path, just with the `$.` prefix the prompt allows."""
+    defect = Defect(
+        defect_fingerprint("review", "scope_limitations", "S6", "factuality"),
+        "review",
+        "F04",
+        "scope_limitations",
+        "S6",
+        {},
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    original_output = _scope_limitations_output(
+        "Intro sentence.",
+        "Does not read barcodes.",
+        "PDF is not implemented; ECI is not implemented.",
+        "ECI is not implemented.",
+    )
+    # The duplicate (units[3]) is consolidated into its own, distinct limitation text; every slot
+    # is still filled, so only the text at units[3] moved.
+    revised_output = _scope_limitations_output(
+        "Intro sentence.",
+        "Does not read barcodes.",
+        "PDF is not implemented; ECI is not implemented.",
+        "GS1 parsing is not implemented.",
+    )
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S6",
+        "revised_output": revised_output,
+        "changes": [
+            {
+                "id": "R01",
+                "path": "$.revised_output.units[3].text",
+                "before": "ECI is not implemented.",
+                "after": "GS1 parsing is not implemented.",
+                "fact_ids": [],
+            }
+        ],
+    }
+    assert (
+        repair_checks(output, defect, contract, "fact_ids", FACTS, original=original_output) == []
+    )
+
+
+def test_a_dollar_prefixed_revised_output_path_claiming_an_untrue_edit_is_still_refused() -> None:
+    """Negative control for the fix above: the identical `$.revised_output.`-prefixed claim, but
+    units[3] genuinely did not change - the path must resolve, compare equal, and be refused. A
+    fix that made every prefixed path count as corroborated would fail here."""
+    defect = Defect(
+        defect_fingerprint("review", "scope_limitations", "S6", "factuality"),
+        "review",
+        "F04",
+        "scope_limitations",
+        "S6",
+        {},
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    original_output = _scope_limitations_output(
+        "Intro sentence.",
+        "Does not read barcodes.",
+        "PDF is not implemented; ECI is not implemented.",
+        "ECI is not implemented.",
+    )
+    # Only units[1] moved; the claim names units[3], which the revision left exactly as it was.
+    revised_output = _scope_limitations_output(
+        "Intro sentence.",
+        "Does not read barcodes, ever.",
+        "PDF is not implemented; ECI is not implemented.",
+        "ECI is not implemented.",
+    )
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S6",
+        "revised_output": revised_output,
+        "changes": [
+            {
+                "id": "R01",
+                "path": "$.revised_output.units[3].text",
+                "before": "ECI is not implemented.",
+                "after": "GS1 parsing is not implemented.",
+                "fact_ids": [],
+            }
+        ],
+    }
+    errors = repair_checks(output, defect, contract, "fact_ids", FACTS, original=original_output)
+    assert errors == [
+        "revised_output: change R01 claims '$.revised_output.units[3].text' changed "
+        "('ECI is not implemented.' to 'GS1 parsing is not implemented.'), but the causal "
+        "stage's own input and this revision hold the identical value there"
+    ]
+
+
+def test_a_dotted_list_index_path_naming_a_real_edit_is_corroborated_not_refused() -> None:
+    """Found by counting the paths the sealed repairs.json ledgers actually record: `units.0.text`
+    (dotted list index) appears in sixteen accepted changes across the repository runs, and the
+    model's own reply uses it whenever it does not follow the `[N]` form. `_resolve_change_path`
+    accepts only `[N]` for a list, so a dotted index resolves to the unresolved sentinel on both
+    sides, compares equal, and a real edit is refused as an untruthful claim."""
+    defect = Defect(
+        defect_fingerprint("review", "scope_limitations", "S6", "factuality"),
+        "review",
+        "F04",
+        "scope_limitations",
+        "S6",
+        {},
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    original_output = _scope_limitations_output(
+        "Intro sentence.",
+        "Does not read barcodes.",
+        "PDF is not implemented; ECI is not implemented.",
+        "ECI is not implemented.",
+    )
+    revised_output = _scope_limitations_output(
+        "Intro sentence.",
+        "Does not read barcodes.",
+        "PDF is not implemented; ECI is not implemented.",
+        "GS1 parsing is not implemented.",
+    )
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S6",
+        "revised_output": revised_output,
+        "changes": [
+            {
+                "id": "R01",
+                "path": "revised_output.units.3.text",
+                "before": "ECI is not implemented.",
+                "after": "GS1 parsing is not implemented.",
+                "fact_ids": [],
+            }
+        ],
+    }
+    assert (
+        repair_checks(output, defect, contract, "fact_ids", FACTS, original=original_output) == []
+    )
+
+
+def test_a_dotted_list_index_path_claiming_an_untrue_edit_is_still_refused() -> None:
+    """Negative control for the dotted-index fix: `units.3.text` names a unit the revision left
+    unchanged, so the claim is still refused. Resolving the dotted form must never make an
+    unresolved or unchanged path count as corroborated."""
+    defect = Defect(
+        defect_fingerprint("review", "scope_limitations", "S6", "factuality"),
+        "review",
+        "F04",
+        "scope_limitations",
+        "S6",
+        {},
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    original_output = _scope_limitations_output(
+        "Intro sentence.",
+        "Does not read barcodes.",
+        "PDF is not implemented; ECI is not implemented.",
+        "ECI is not implemented.",
+    )
+    revised_output = _scope_limitations_output(
+        "Intro sentence.",
+        "Does not read barcodes, ever.",
+        "PDF is not implemented; ECI is not implemented.",
+        "ECI is not implemented.",
+    )
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S6",
+        "revised_output": revised_output,
+        "changes": [
+            {
+                "id": "R01",
+                "path": "revised_output.units.3.text",
+                "before": "ECI is not implemented.",
+                "after": "GS1 parsing is not implemented.",
+                "fact_ids": [],
+            }
+        ],
+    }
+    errors = repair_checks(output, defect, contract, "fact_ids", FACTS, original=original_output)
+    assert errors == [
+        "revised_output: change R01 claims 'revised_output.units.3.text' changed "
+        "('ECI is not implemented.' to 'GS1 parsing is not implemented.'), but the causal "
+        "stage's own input and this revision hold the identical value there"
+    ]
+
+
 def test_a_changes_entry_is_never_checked_when_the_causal_stages_original_is_not_given() -> None:
     """Backward-compatible control: repair_checks is still called with no `original=` at all in
     the existing tests above - the item 93 check is skipped, not a spurious error, whenever the
