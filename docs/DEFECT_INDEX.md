@@ -447,6 +447,125 @@ PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `tools/discovery/portf
 
 **Id** REV-V4-10 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 10 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `portfolio_discovery` has a production importer (a CLI subcommand or workflow) with a test, or is removed per the reuse manifest; a real candidate manifest reaches `AWAITING_AUTHORIZATION`/`PROPOSING`/`MONITORING` through the effect path (a production-shaped proof against the disposable target), or the states are documented as reserved; the credential-gated write functions get their live proof under the active gate.
 
+### `autonomy.drift_to_reseal_to_propose_chain_not_wired` (REV-V3-01)
+
+`.github/workflows/monitor.yml` triggers on `schedule` (every 6 hours) and `workflow_dispatch`, and its `drift` job's only effect is `actions/upload-artifact@v4` of `runs/monitor/`; it never calls `gh workflow run`, emits a `repository_dispatch`, or invokes `present.yml` or `propose.yml`. `present.yml` triggers on `workflow_dispatch` and `repository_dispatch` only (no `schedule:`), and `propose.yml` on `workflow_dispatch` only with a manual `repo` input. `plans/idea.md:317-319` (Gate B) requires 'reopen only drifted repositories at their earliest affected boundary, independently reseal every changed candidate'; the drift, reopen and reseal chain has no wiring.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/monitor.yml:27,160` (schedule; the only effect is the artifact upload) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/present.yml:31-38` and `.github/workflows/propose.yml:37-38` (manual and dispatch triggers only) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:317-319` (Gate B) |
+
+**Id** REV-V3-01 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 1 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: G7-W06 (unattended scheduling) and the Gate B wiring; no separate work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `monitor.yml` (or a workflow it dispatches) triggers `present.yml` for each `DRIFTED` repository, a hosted run shows a drifted canary reopened and resealed without a manual dispatch, and `propose.yml` is still reachable only through the authorization gate.
+
+### `monitor.hosted_scheduled_run_red_app_installation_404` (REV-V3-02)
+
+`gh run list --workflow=monitor.yml --branch main` shows exactly two runs ever: a `workflow_dispatch` on 2026-10-01 (success) and the only scheduled run, 2026-10-04T16:52:41Z (run `37218382559`), conclusion `failure`. Verifier note: the failing step is narrow. 13 of 14 per-owner drift legs passed; the `aspose-html-foss` leg failed at 'Mint a read-only installation token' with `Not Found` (HTTP 404) on `GET /repos/aspose-html-foss/Aspose.HTML-FOSS-for-Python/installation`, a GitHub App installation gap for that owner (the App is not installed there or cannot see the repository), not a gateway or infrastructure outage. With `fail-fast: false`, the single bad leg still turns the run red. `AGENTS.md` requires a red hosted run to be fixed in the same session; this one was not as of verification.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | hosted run `37218382559` (schedule, 2026-10-04T16:52:41Z, failure); step 'Mint a read-only installation token, scoped to this owner's enabled repositories' on the `aspose-html-foss` leg |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `gh run list --workflow=monitor.yml --branch main --limit 5` (two runs: the 2026-10-01 dispatch and this schedule run) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `AGENTS.md` 'Git and Commits' (a red hosted run is fixed immediately) |
+
+**Id** REV-V3-02 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 2 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: OWNER-04 (GitHub App installation across the registry organizations); the App must be installed for `aspose-html-foss`, or that owner's leg must be excluded or made non-fatal by an owner decision; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a scheduled `monitor.yml` run on `main` concludes `success` (or the `aspose-html-foss` leg is excluded by a recorded decision), checked with `gh run list --workflow=monitor.yml --event schedule`; and `gh api` for the App installation on `aspose-html-foss` returns 200.
+
+### `registry.registry_revision_v1_absent_denominator_is_live_count` (REV-V3-03)
+
+`plans/idea.md:152` says `RegistryRevisionV1` supplies the campaign denominator and every observation's disposition. The type has no hits in `src/` (only `docs/investigations/11-idea-md-gap-analysis.md:92,210`). `project/state.yaml:17-19` sets `denominator: 36` with `denominator_status` stating it tracks `data/registry.json`'s live entry count (owner ruling 2026-09-30, reversing the 2026-09-23 freeze-at-G4 policy), and `data/registry.json` holds 36 entries. This is a deliberate, documented divergence rather than a hidden defect; the requirement in `idea.md` is nevertheless unmet.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `grep -rn RegistryRevisionV1 src docs` (only the two gap-analysis lines) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `project/state.yaml:17-19`; `data/registry.json` (36 entries) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:152` |
+
+**Id** REV-V3-03 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 3 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: owner decision (2026-09-30 ruling stands); a frozen-revision type is a proposal only the owner can admit; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: either a frozen `RegistryRevisionV1` schema and loader exist with the denominator derived from a named revision, or `plans/idea.md:152` and the authority note record the live-count ruling; `grep -rn RegistryRevisionV1 src schemas` shows which.
+
+### `status.three_terminal_states_prose_only_four_counts_not_seven` (REV-V3-04)
+
+`PORTFOLIO_AGENT_ACCEPTED`, `PORTFOLIO_PUBLICATION_READY_AWAITING_EFFECT_AUTHORIZATION` and `PR_ELIGIBLE` have no hits in `src/` or `schemas/`; they appear in `plans/idea.md:16,199-200,318-319` and in docs that note the gap. `run_status` prints one `candidates: N/denominator` ratio and a `progress:` line with four counts (ever sealed, integrity-valid, current-code reproducible, independently accepted). `plans/idea.md:212-213` requires portfolio reporting to separate fact-valid, presentation-valid, independently accepted, no-op-proven, source-fresh, publication-eligible and effect-authorized counts.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:1278-1289` (`run_status`) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:16,199-200,212-213,318-319`; `docs/investigations/11-idea-md-gap-analysis.md:66-67`; `docs/DECISION_LOG.md:3670` |
+
+**Id** REV-V3-04 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 4 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: no work item yet; `AGENTS.md` says progress is counted in one unit only (N/34), so adding counts needs an owner decision; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `repository-presenter status` output includes the source-fresh, publication-eligible and effect-authorized counts (or an owner ruling drops them), and the three terminal state names have a schema or code home; `grep -rn PR_ELIGIBLE src schemas` shows it.
+
+### `discovery.gate_c0_not_part_of_the_product` (REV-V3-05)
+
+`tools/discovery/portfolio_discovery.py` lives outside `src/` and no production module imports it (the only `src/` mentions are doc comments in `core/github/client.py`). It lists `GET /orgs/{org}/repos?type=public`, and its status taxonomy is `populated|empty|not_found|inaccessible`, not the nine-way inventory `plans/idea.md:290-292` requires (public, private, internal, archived, unmatched, ambiguous, inaccessible, renamed, transferred, by stable provider identity). No workflow references it, and `docs/investigations/11-idea-md-gap-analysis.md:54-62` agrees Gate C0 was built after Gate A, the reverse of the required order. Overlaps REV-V4-10, which records the same unreached module.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `tools/discovery/portfolio_discovery.py:379,386` (`type=public`); status taxonomy near `:363` |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `grep -rln portfolio_discovery .github/workflows/` returns nothing |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:290-292`; `docs/investigations/11-idea-md-gap-analysis.md:54-62` |
+
+**Id** REV-V3-05 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 5 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: no work item yet (discovery integration); see also REV-V4-10; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: discovery runs as a scheduled workflow through a CLI subcommand with authenticated all-visibility pagination, records all nine observation classes by stable provider identity, and a test covers private, archived and renamed repositories; `grep -rn portfolio_discovery src/` shows a production importer.
+
+### `present.non_processable_producer_missing_seven_registry_entries_orphaned` (REV-V3-06)
+
+The literal token `NON_PROCESSABLE_NO_IMPLEMENTATION` does not exist; the real tokens are the state `NON_PROCESSABLE` (`docs/STATE_MACHINE.md:126-127,174`, `core/state/schema.py`) and the reason code `NO_IMPLEMENTATION_EVIDENCE` (`components/readme/evidence/processability.py`). The local, non-durable `present` path prints a generic `insufficient_evidence: <reason_code> ...` line and returns `EXIT_INCONSISTENT` without surfacing a `NON_PROCESSABLE` transition. Seven registry entries have no directory under `candidates/` (29 exist) and no recorded disposition: `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript`, `aspose-font-foss/Aspose.Font-FOSS-for-Python`, `aspose-gis-foss/Aspose.GIS.FOSS-for-.Net`, `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript`, `aspose-tex-foss/Aspose.TeX-FOSS-for-Python`, `aspose-psd-foss/Aspose.PSD-FOSS-for-.NET`, `aspose-psd-foss/Aspose.PSD-FOSS-for-Python`, because `present` has evidently never been run against them. Verifier note: PR #216 ('feat(readme): NON_PROCESSABLE disposition for README-only placeholders') is OPEN and unmerged, and fixes only the generic durable-state mechanism; it does not run `present` against the seven orphaned entries, so they stay uncovered even if it merges.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:1421-1424` (generic `insufficient_evidence` line and exit) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/readme/evidence/processability.py:19,53`; `src/repository_presenter/core/state/schema.py:30,81,112,186` |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `ls candidates/` (29 directories, none for the seven); PR #216 state OPEN, `mergedAt` null (checked 2026-10-05) |
+
+**Id** REV-V3-06 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 6 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: PR #216 (generic durable-state mechanism, open); the seven orphaned entries have no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: PR #216 is merged and `present` has been run against each of the seven entries with a recorded outcome (a `NON_PROCESSABLE` or `insufficient_evidence` disposition, or a sealed candidate); `ls candidates/` or the durable-state records account for all 36 registry entries.
+
+### `monitor.drift_sha_only_no_reopen_and_local_bundle_bytes_unverified` (REV-V3-07)
+
+PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `components/monitor/drift.py::observe_repository` compares the upstream default-branch head SHA against the sealed bundle's recorded `source_revision` only (`status = "CURRENT" if read.sha == bundle_revision else "DRIFTED"`); no tree or content hash is compared. CONFIRMED: nothing re-enters reconciliation, because `DRIFTED` is only written to the uploaded JSON (`write_drift_document`) and no workflow or code path reopens the candidate (same evidence as REV-V3-01). OVERSTATED: 'cannot see a README overwrite' is wrong, since any upstream content change, including a README edit, produces a new commit SHA and flips the status to `DRIFTED`. The real gap is narrower: the local sealed bundle's own README bytes are never re-verified against anything upstream (`core/candidates.py::verify_bundle` checks only the bundle's internal digest self-consistency, so a tampered bundle with a matching manifest digest passes), and `DRIFTED` repositories are not reopened downstream.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/monitor/drift.py:94` (SHA-only comparison); `:145-149` (`write_drift_document`, evidence only) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/candidates.py:91` (`verify_bundle`, internal consistency only) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:317-318` |
+
+**Id** REV-V3-07 · **Severity** Medium-High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 7 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: same Gate B wiring as REV-V3-01; bundle-bytes verification has no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a test shows a `DRIFTED` repository is reopened downstream, and a test shows a sealed bundle whose README bytes were altered with its manifest digest rewritten is detected against the recorded source revision; `drift.py` or `candidates.py` re-derives the README digest from the recorded source.
+
+### `noop_proof.soft_exit_code_literal_fresh_process_unreconciled_totals` (REV-V3-08)
+
+Four sub-claims, all confirmed. (1) The hosted `present.yml` no-op rerun checks only the exit code; `run_present_transaction` returns the process exit code unchanged regardless of `classify(exit_code)`, so a run landing at `ACCEPTED` (not proven) exits 0 like one at `READY_FOR_PROPOSAL`, and the workflow cannot tell them apart. (2) `"fresh_process": True` is a hard-coded literal in both proof dictionaries in `seal.py`, not computed or verified. (3) `composition_ledger` drops any `calls.jsonl` line whose `logical_call_id` is not in the composition's `consumed_calls`, so the sealed ledger is not a complete transcript of every attempt (a documented design choice, not a concealed one). (4) `provider_calls_made` is used once, to populate `inputs.provider_calls`; nothing sums provider calls across bundles or cross-checks totals against raw ledger records, which `plans/idea.md:347-352` requires ('per-README and portfolio totals must reconcile with the underlying call records').
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/state/present_transaction.py:372-379` (exit code returned unchanged); `.github/workflows/present.yml` no-op proof step |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/readme/bundle/seal.py:680,874` (`fresh_process: True`); `:356-375` (`composition_ledger`) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:1631` (the only `provider_calls_made` use); `plans/idea.md:347-352` |
+
+**Id** REV-V3-08 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 8 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: no work item yet (no-op proof hardening, G5/G7); the zero-call no-op proof is a core `AGENTS.md` requirement; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: the hosted rerun step fails unless the second run's output reports zero provider calls and a byte-identical bundle (a workflow audit test asserts it), `fresh_process` is derived from a recorded process identity rather than a literal, and a test reconciles per-README call totals against the raw ledger.
+
+### `operations.missing_safeguards_concurrency_budget_deadman_lease_heartbeat` (REV-V3-09)
+
+Four confirmed gaps. (1) `concurrency:` exists only in `ci.yml`, `issues-scheduled.yml` and `mirror-gitlab.yml`; it is absent from `monitor.yml`, `present.yml`, `propose.yml`, `liveness.yml`, `audit-app-installations.yml` and `verify-app-installation.yml`. (2) No budget or cost cap exists in `src/` (no `budget_cap`, `cost_cap`, `max_provider_calls` or similar) although `docs/STATE_MACHINE.md:488` states 'LLM call and cost budgets are enforced per repository transaction and portfolio run.' (3) `liveness.yml` is a real 30-minute dead-man switch, but it watches stale open PRs, stranded branches and `main` inactivity during an active sprint; it never checks `monitor.yml`'s run history or conclusion, so a silent or failing monitor schedule raises no alert (REV-V3-02's red run is exactly that case). (4) Verifier note: `renew_lease` (`core/state/cas.py:168`) and the `heartbeat_at` lease field exist and are unit-tested (`tests/core/state/test_cas.py:139-192`), but `renew_lease` has no production caller; `run_present_transaction` acquires the lease once and releases it, never renewing during a long hosted run.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `grep -ln '^concurrency:' .github/workflows/*.yml` returns three files |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `docs/STATE_MACHINE.md:488` versus no budget symbol in `src/` |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/liveness.yml:48-136` |
+| 4 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/state/cas.py:168` (`renew_lease`); `src/repository_presenter/core/state/schema.py:284` (`heartbeat_at`); `src/repository_presenter/core/state/present_transaction.py:332-381` (no renewal) |
+
+**Id** REV-V3-09 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 9 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: G7 operations hardening; no work item yet for each of the four; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `present.yml`, `monitor.yml` and `propose.yml` each declare a `concurrency:` group, a per-transaction provider-call budget is enforced in code with a test that refuses over-budget runs, `liveness.yml` (or a sibling) alerts on a stale or failed `monitor.yml` run, and `grep -rn renew_lease src/` shows a production caller with a test.
+
+### `state.durable_state_used_only_by_present` (REV-V3-10)
+
+`cli.py` imports `GitStateBackend`, the `present_transaction` helpers and `TriggerEventType` from `core.state.*`, and uses them in exactly one place, the `present --durable-state` branch. No other command (`monitor`, `propose`, `status`, `--facts-only`) touches `core.state`. `present.yml` is the only workflow that passes `--durable-state`; `monitor.yml`'s own header says 'this workflow does not use it' and `propose.yml` has no such flag. `AGENTS.md` assigns transitions, invalidation, caching, leases and recovery to deterministic code, so only one of the three effect-adjacent workflows participates. Sequenced by design, but it leaves monitor and propose outside recovery.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:229-235` (imports); `:1689-1702` (the only uses) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/monitor.yml:4` (header: this workflow does not use it); `.github/workflows/propose.yml` (no `--durable-state`) |
+
+**Id** REV-V3-10 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 10 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: G7 wiring; no work item yet for monitor and propose durable-state use; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `monitor` and `propose` runs record their transitions through `GitStateBackend` (a test shows a `propose` effect advances `AWAITING_AUTHORIZATION` to `PROPOSING` in durable state), and the `monitor.yml` header comment no longer says it does not use the backend.
+
 ## Resolved
 
 ### `review.cited_paraphrase_whole_fact_dilution`
