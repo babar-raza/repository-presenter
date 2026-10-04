@@ -26,6 +26,7 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_tasks,
     merge_units,
     reconstructed_task_output,
+    recover_carried_units,
     recover_section_authoring_output,
     recover_title_verbatim_opening,
     repair_title_verbatim_opening_errors,
@@ -349,7 +350,9 @@ def run_round(tx: TransactionInputs) -> Round:
             # or neither may apply), re-validated through the real unit_checks before ever
             # being accepted.
             recover=functools.partial(
-                recover_section_authoring_output, slot_titles=task.slot_titles
+                recover_section_authoring_output,
+                slot_titles=task.slot_titles,
+                must_carry=task.must_carry,
             ),
             **common,
         )
@@ -756,6 +759,28 @@ def _stage_target(
     )
 
 
+def _with_carried_units(
+    recover: Callable[[dict[str, Any]], dict[str, Any] | None], must_carry: frozenset[str]
+) -> Callable[[dict[str, Any]], dict[str, Any] | None]:
+    """A repair's own last-resort recovery, extended with the must-carry omission record.
+
+    A ``targeted_repair`` reply wraps its units in ``revised_output``, so the carry recovery runs
+    on that shape, after the title recovery; with nothing to carry the recovery is returned
+    unchanged. Each step is re-validated by the repair's real checks (unit_checks included)."""
+    if not must_carry:
+        return recover
+
+    def recovered(output: dict[str, Any]) -> dict[str, Any] | None:
+        first = recover(output)
+        base = first if first is not None else output
+        revised = base.get("revised_output")
+        if isinstance(revised, dict) and recover_carried_units(revised, must_carry):
+            return base
+        return first
+
+    return recovered
+
+
 def repair_defect(
     tx: TransactionInputs, current: Round, defect: Defect, repairs: RepairLedger
 ) -> None:
@@ -841,8 +866,9 @@ def repair_defect(
                 return
     recover_fn: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None
     if section_task is not None:
-        recover_fn = functools.partial(
-            recover_title_verbatim_opening, slot_titles=section_task.slot_titles
+        recover_fn = _with_carried_units(
+            functools.partial(recover_title_verbatim_opening, slot_titles=section_task.slot_titles),
+            section_task.must_carry,
         )
     elif visible_line_hint is not None:
         recover_fn = functools.partial(
@@ -862,6 +888,9 @@ def repair_defect(
                 allowed,
                 slot_facts,
                 visible_line_hint,
+                # The superseded inherited units an S6 section must carry: a repair that cannot
+                # see them can repair the wording but never the missing content.
+                carried=section_task.must_carry if section_task is not None else (),
             ),
             config=tx.config,
             facts=tx.facts,
