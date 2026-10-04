@@ -44,6 +44,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
+from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.facts import (
     DECLARED_SYMBOL_KINDS,
     Fact,
@@ -109,20 +110,139 @@ _UNIT_ORDINAL = re.compile(r"^inherited_unit:(\d{3})(?:\.\d{3})?\.[a-z_]+$")
 
 
 _RECONCILIATION_BATCH = 40
-# PHASE0/G: units per source_reconciliation call - the same "too big for one call, split by
-# natural unit, never reorder" shape section_authoring's own _type_batches() already proves
-# (composition/authoring.py's own _TYPE_BATCH, same value). Calibrated against the real,
-# currently-failing case: aspose-cells-foss/Aspose.Cells-FOSS-for-Rust genuinely truncates its
-# single-call reconciliation output at max_output_tokens=32000 once RC-06 grows it to 91 units
-# (measured ~351 tokens/unit of output - the fix is output-side, not input-side: the packet
-# itself was never close to a size limit, its own required *reply* was). 40 units/batch keeps a
-# batch's own worst-case output (40 x 351 =~ 14,040 tokens) comfortably under budget with real
-# headroom, not a guess (docs/DECISION_LOG.md records the full measurement this rests on).
+# S4 output budget. A reply is bounded by construction, not by a measured average: the schema
+# caps each disposition's fact_ids at RECONCILIATION_FACT_IDS_PER_DISPOSITION, and a batch is
+# only as large as the longest reply the schema admits still fits max_output_tokens, counted at
+# OUTPUT_CHARS_PER_TOKEN_FLOOR characters per token. The defect this closes (PDF-TypeScript,
+# 2026-10-04): one 40-unit reply reached finish_reason length at 32,000 tokens, and the same
+# request then answered 4,666. A disposition's citations were bounded only by the batch's citable
+# set (739 IDs there), so a repeating list could run to the whole budget. The same class ran away
+# on Cells-Go (2026-09-11, 1,047 repeated IDs) and PDF-.NET (F27).
+RECONCILIATION_FACT_IDS_PER_DISPOSITION = 16
+# The healthy 40-unit reply measured 4.2 characters per token (19,616 characters, 4,666 tokens,
+# qwen3-next). Identifier-dense JSON packs fewer, so the bound uses this floor, never that average.
+OUTPUT_CHARS_PER_TOKEN_FLOOR = 2.5
+# The rationale's maxLength and the disposition enum, as the manifest states them; a test holds
+# both to the manifest so the bound below can never drift from the schema it is computed for.
+_RATIONALE_MAX_CHARS = 160
+_DISPOSITIONS = (
+    "VERIFIED_PRESERVE",
+    "VERIFIED_REWRITE",
+    "VERIFIED_MOVE",
+    "CORRECT_WITH_EVIDENCE",
+    "SUPERSEDE_REDUNDANT",
+    "OMIT_UNSUPPORTED",
+    "DEFER_UNRESOLVED",
+    "NON_CONTENT",
+)
 
 
-def reconciliation_batches(facts: FactsDocument) -> list[tuple[str, list[Fact]]]:
-    """Every inherited unit, split into fixed-size batches in document (ordinal) order - one
-    ``(batch_id, units)`` pair per ``source_reconciliation`` call this round makes.
+def _longest(node: Mapping[str, Any]) -> int | None:
+    """The longest serialized value a schema node admits, JSON quotes included; ``None`` if open."""
+    if "enum" in node:
+        return max(len(json.dumps(value, ensure_ascii=False)) for value in node["enum"])
+    if "oneOf" in node:
+        known = [
+            size for size in (_longest(option) for option in node["oneOf"]) if size is not None
+        ]
+        return max(known) if len(known) == len(node["oneOf"]) else None
+    if node.get("type") == "null":
+        return len("null")
+    if node.get("type") == "string" and "maxLength" in node:
+        return int(node["maxLength"]) + 2
+    return None
+
+
+def _reply_chars(
+    records: int,
+    *,
+    unit_chars: int,
+    disposition_chars: int,
+    destination_chars: int,
+    fact_id_chars: int,
+    citations: int,
+    rationale_chars: int,
+) -> int:
+    """Characters of the longest reply of ``records`` dispositions: every value at the given
+    serialized length, every citation list full, pretty-printed (the wider of the two forms a
+    model writes, so compact output is bounded too)."""
+    record = {
+        "unit_id": "u" * (unit_chars - 2),
+        "disposition": "d" * (disposition_chars - 2),
+        "destination_section": "s" * (destination_chars - 2),
+        "fact_ids": ["f" * (fact_id_chars - 2)] * citations,
+        "rationale": "r" * (rationale_chars - 2),
+    }
+    return len(json.dumps({"dispositions": [record] * records}, indent=2, ensure_ascii=False))
+
+
+def output_chars_bound(schema: Mapping[str, Any]) -> int | None:
+    """The longest reply, in characters, that ``schema`` admits; ``None`` when a field it leaves
+    open makes the bound infinite. Computed from the schema the job is decoded under, so it tracks
+    the schema rather than a separate estimate; it is a bound only to the extent the decoder
+    enforces that schema, which the live proof checks against a real reply."""
+    dispositions = schema["properties"]["dispositions"]
+    props = dispositions["items"]["properties"]
+    fact_ids = props["fact_ids"]
+    sizes = {
+        "unit_chars": _longest(props["unit_id"]),
+        "disposition_chars": _longest(props["disposition"]),
+        "destination_chars": _longest(props["destination_section"]),
+        "rationale_chars": _longest(props["rationale"]),
+        "citations": fact_ids.get("maxItems"),
+    }
+    if None in sizes.values() or "maxItems" not in dispositions:
+        return None
+    fact_chars = _longest(fact_ids["items"]) if "items" in fact_ids else 0
+    if fact_chars is None:
+        return None
+    return _reply_chars(
+        dispositions["maxItems"],
+        **{k: v for k, v in sizes.items() if k != "citations"},
+        fact_id_chars=fact_chars,
+        citations=sizes["citations"],
+    )
+
+
+def _batch_size(facts: FactsDocument, max_output_tokens: int) -> int:
+    """The largest batch, up to _RECONCILIATION_BATCH units, whose longest reply the schema
+    admits still fits the budget. Sized from the repository's own longest identifiers, so it
+    holds for any citable set the packet can show: every ID a batch could cite is in ``facts``."""
+    units = list(facts.by_kind("inherited_unit"))
+    if not units:
+        return _RECONCILIATION_BATCH
+    budget = max_output_tokens * OUTPUT_CHARS_PER_TOKEN_FLOOR
+    sizes = {
+        "unit_chars": max(len(json.dumps(unit.id)) for unit in units),
+        "disposition_chars": max(len(json.dumps(name)) for name in _DISPOSITIONS),
+        "destination_chars": max(len(json.dumps(name)) for name in section_ids()),
+        "rationale_chars": _RATIONALE_MAX_CHARS + 2,
+        "fact_id_chars": max(len(json.dumps(fact.id)) for fact in facts.facts),
+        "citations": RECONCILIATION_FACT_IDS_PER_DISPOSITION,
+    }
+
+    def fits(size: int) -> bool:
+        return _reply_chars(size, **sizes) <= budget
+
+    size = min(_RECONCILIATION_BATCH, len(units))
+    while size > 1 and not fits(size):
+        size -= 1
+    if not fits(size):
+        raise ConfigError(
+            f"one unit's longest reply ({_reply_chars(1, **sizes)} characters) exceeds the "
+            f"source_reconciliation budget ({budget:.0f} characters); lower "
+            "RECONCILIATION_FACT_IDS_PER_DISPOSITION or raise max_output_tokens"
+        )
+    return size
+
+
+def reconciliation_batches(
+    facts: FactsDocument, max_output_tokens: int
+) -> list[tuple[str, list[Fact]]]:
+    """Every inherited unit, split into batches in document (ordinal) order - one
+    ``(batch_id, units)`` pair per ``source_reconciliation`` call this round makes. A batch holds
+    at most _RECONCILIATION_BATCH units, and fewer when its longest reply would not fit
+    ``max_output_tokens`` (see _batch_size). No unit is ever dropped.
 
     Ordinal order, not grouped by ``.section``: a batch boundary may occasionally fall inside one
     heading's own units, but preserves the document's own unit ordering exactly, which
@@ -131,12 +251,10 @@ def reconciliation_batches(facts: FactsDocument) -> list[tuple[str, list[Fact]]]
     ``reconcile_checks`` (below) judges each disposition independently of its neighbours anyway.
     """
     units = list(facts.by_kind("inherited_unit"))
+    size = _batch_size(facts, max_output_tokens)
     return [
-        (
-            f"reconciliation#{index // _RECONCILIATION_BATCH + 1}",
-            units[index : index + _RECONCILIATION_BATCH],
-        )
-        for index in range(0, len(units), _RECONCILIATION_BATCH)
+        (f"reconciliation#{index // size + 1}", units[index : index + size])
+        for index in range(0, len(units), size)
     ]
 
 
@@ -261,20 +379,25 @@ def reconciliation_schema(
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     dispositions = schema["properties"]["dispositions"]
     citable = citable_fact_ids(facts, manifest.manifest, batch_units, investigation)
+    # The destination is a shell section or null: an open string here is the one field a runaway
+    # could fill to the budget unchecked (the same enum treatment unit_id and fact_ids get below).
+    dispositions["items"]["properties"]["destination_section"] = {
+        "oneOf": [{"type": "null"}, {"type": "string", "enum": list(section_ids())}]
+    }
     if citable:
         dispositions["items"]["properties"]["fact_ids"]["items"] = {
             "type": "string",
             "enum": citable,
         }
-        # item 121 (F27's own resume predicate): item 40 bounded each *entry* to a citable ID but
-        # left the *array* itself open, so a runaway completion could still repeat enum-valid IDs
-        # past any real need and exhaust the token budget by sheer repetition - measured live on
-        # PDF-.NET (32,000-token TruncatedOutput on one attempt, 3,016 tokens on an identical
-        # retry of the same request hash; DECISION_LOG.md, RESEARCH_LANE_F.md F27). No disposition
-        # can legitimately cite more distinct facts than this batch's own citable set holds, so
-        # that set's own size - already computed above, no separate measurement to keep in sync -
-        # is the bound.
-        dispositions["items"]["properties"]["fact_ids"]["maxItems"] = len(citable)
+        # item 121 (F27) bounded the array by the citable set, which is 739 IDs on PDF-TypeScript
+        # and more elsewhere - a bound that does not bound the reply, since a repeating citation
+        # list can run to the whole budget (2026-10-04: 32,000 tokens on one attempt). The cap is
+        # per disposition and small: the symbols a placed unit names are added by code (see
+        # ``normalize``), so the job cites the facts that carry its decision, and output_chars_bound
+        # proves the whole batch's longest reply fits the budget at this cap.
+        dispositions["items"]["properties"]["fact_ids"]["maxItems"] = min(
+            len(citable), RECONCILIATION_FACT_IDS_PER_DISPOSITION
+        )
     else:
         dispositions["items"]["properties"]["fact_ids"] = {"type": "array", "maxItems": 0}
     units = [fact.id for fact in batch_units]
