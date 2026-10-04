@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,11 @@ from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.loader import load_registry
 from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.state.git_backend import GitStateBackend
+from repository_presenter.core.state.schema import (
+    FailureRecord,
+    RepositoryRecord,
+    TransitionReceipt,
+)
 from support import (
     REPO_ROOT,
     FakeDefaultBranchReader,
@@ -1056,6 +1062,107 @@ def test_present_durable_state_commits_a_real_transition_across_two_hosted_runs(
         assert record.last_transition is not None
         assert record.last_transition.to_state == "READY_FOR_PROPOSAL"
 
+    # G7-W03: the real hosted present.yml wires health-check right after this same transaction -
+    # a genuinely healthy, freshly-proven, zero-call record produces no alert.
+    health_code = main(
+        [
+            "health-check",
+            "--repo",
+            CANARY,
+            "--root",
+            str(project_with_registry),
+            "--state-remote",
+            str(state_remote),
+            "--wall-clock-seconds",
+            "12.5",
+        ]
+    )
+    out = capsys.readouterr().out
+    assert health_code == EXIT_OK
+    assert "healthy" in out
+    assert "::error::" not in out
+
+
+def test_health_check_refuses_a_repository_outside_the_allow_list(
+    project_with_registry: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The same read gate every other subcommand uses (``require_listed``) - health-check never
+    even opens a connection to the state remote for a repository this project is not authorized to
+    touch."""
+    state_remote = init_git_repository(tmp_path / "state-remote")
+    code = main(
+        [
+            "health-check",
+            "--repo",
+            "not-aspose/not-registered",
+            "--root",
+            str(project_with_registry),
+            "--state-remote",
+            str(state_remote),
+        ]
+    )
+    assert code == EXIT_UNSAFE
+    assert "not in the registry allow-list" in capsys.readouterr().err
+
+
+def test_health_check_prints_a_named_alert_and_exits_non_zero_on_a_failed_record(
+    project_with_registry: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """G7-W03's own acceptance bar through the real CLI entry point ``present.yml`` invokes: a
+    repository whose durable record was left ``FAILED_INTERNAL`` by a prior transaction produces a
+    named, specific alert naming the repository and the failing stage, and the command exits
+    non-zero so the hosting Actions job itself goes red (``liveness.yml``'s own established
+    alerting contract)."""
+    state_remote = init_git_repository(tmp_path / "state-remote")
+    with GitStateBackend(remote=str(state_remote)) as backend:
+        backend.save(
+            CANARY,
+            RepositoryRecord(
+                repository=CANARY,
+                provider_repository_id=1,
+                state="FAILED_INTERNAL",
+                last_transition=TransitionReceipt(
+                    transition_id="t-1",
+                    transaction_id="tx-1",
+                    repository=CANARY,
+                    from_state="COMPOSING",
+                    to_state="FAILED_INTERNAL",
+                    event="seed",
+                    occurred_at=datetime.now(UTC).isoformat(),
+                    input_manifest="x",
+                    output_manifest="x",
+                    policy_version="v1",
+                    fencing_token=1,
+                ),
+                failure=FailureRecord(
+                    classification="validation_failed",
+                    detail="synthetic CLI-level exercise (G7-W03)",
+                    resume_state="COMPOSING",
+                    occurred_at=datetime.now(UTC).isoformat(),
+                ),
+            ),
+            expected_version=None,
+        )
+
+    code = main(
+        [
+            "health-check",
+            "--repo",
+            CANARY,
+            "--root",
+            str(project_with_registry),
+            "--state-remote",
+            str(state_remote),
+        ]
+    )
+    out = capsys.readouterr().out
+    assert code == EXIT_INCONSISTENT
+    assert "::error::" in out
+    assert f"repository={CANARY}" in out
+    assert "stage=COMPOSING" in out
+    assert "kind=transaction_failed" in out
+    assert "synthetic CLI-level exercise" in out
+
 
 def test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle(
     project_with_registry: Path,
@@ -1929,18 +2036,23 @@ def test_a_corrupt_bundle_artifact_fails_closed_before_any_call(
     assert len(gateway_ready.requests) == requests_before
 
 
-def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
+def test_present_reports_a_readme_only_placeholder_as_non_processable(
     project_with_registry: Path,
     readme_only_upstream: Path,
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
+    """The placeholder is a typed, evidence-bound disposition, not a failure: a success exit, the
+    insufficient-evidence reason named, and no candidate bundle or provider call."""
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
 
     captured = capsys.readouterr()
     assert gateway_ready.requests == []
-    assert code == EXIT_INCONSISTENT
-    assert "insufficient_evidence: NO_IMPLEMENTATION_EVIDENCE for " + CANARY in captured.out
+    assert code == EXIT_OK
+    assert (
+        "NON_PROCESSABLE: insufficient_evidence (NO_IMPLEMENTATION_EVIDENCE) for " + CANARY
+        in captured.out
+    )
     assert "resume when a later default-branch revision adds a python manifest" in captured.out
     transaction = next(
         (project_with_registry / "runs" / "transactions").glob("aspose-3d-foss__*/*")
@@ -1949,7 +2061,46 @@ def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
     assert not (transaction / "facts.json").exists()
     document = json.loads((transaction / "disposition.json").read_text("utf-8"))
     assert document["evidence_paths_inspected"] == ["LICENSE", "README.md"]
+    assert not list((project_with_registry / "candidates").glob("*/CURRENT"))
     assert "not implemented" not in captured.err
+
+
+def test_present_durable_state_records_a_placeholder_as_non_processable_not_failed(
+    project_with_registry: Path,
+    readme_only_upstream: Path,
+    gateway_ready: _ChatGateway,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The hosted transaction maps the placeholder's disposition to the NON_PROCESSABLE outcome
+    (a committed transition from OBSERVED, no failure record), never to FAILED_INTERNAL."""
+    state_remote = init_git_repository(tmp_path / "state-remote")
+    monkeypatch.setenv("GITHUB_RUN_ID", "2000")
+    code = main(
+        [
+            "present",
+            "--repo",
+            CANARY,
+            "--root",
+            str(project_with_registry),
+            "--durable-state",
+            "--state-remote",
+            str(state_remote),
+        ]
+    )
+    capsys.readouterr()
+    assert code == EXIT_OK
+    assert gateway_ready.requests == []
+    with GitStateBackend(remote=str(state_remote)) as backend:
+        record = backend.load(CANARY)
+        assert record is not None
+        assert record.state == "NON_PROCESSABLE"
+        assert record.failure is None
+        assert record.lease is None
+        assert record.last_transition is not None
+        assert record.last_transition.from_state == "OBSERVED"
+        assert record.last_transition.to_state == "NON_PROCESSABLE"
 
 
 def test_present_refuses_a_repository_outside_the_allow_list_before_cloning(
