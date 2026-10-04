@@ -39,6 +39,7 @@ from repository_presenter.core.llm.binding import (
     fold_duplicate_units,
     resolve_symbol_ids,
 )
+from repository_presenter.core.llm.fallback import ModelSelection
 from repository_presenter.core.llm.ledger import CallRecord, Ledger, canonical_hash
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.retry import RetryableOperationError, run_with_retry
@@ -94,8 +95,22 @@ def _prompt_schema(node: Any, omitted: list[int]) -> Any:
 
 @dataclass(frozen=True)
 class JobContext:
+    """Where a run's calls belong, and which model each route answers with for the whole run.
+
+    ``models`` is the run's fixed selection (core/llm/fallback.py). ``None`` means no fallback
+    decision was made and every route names its own primary, exactly as before chains existed;
+    the production run always passes a selection.
+    """
+
     repository: str
     source_revision: str
+    models: ModelSelection | None = None
+
+
+def effective_model(manifest: LoadedManifest, context: JobContext) -> str:
+    """The model this run's calls of ``manifest`` name: the run's selection, else the primary."""
+    route = manifest.manifest.model_route
+    return route if context.models is None else context.models.model_for(route)
 
 
 @dataclass(frozen=True)
@@ -224,8 +239,14 @@ def request_payload(
     manifest: LoadedManifest,
     messages: list[dict[str, str]],
     call_schema: dict[str, Any] | None = None,
+    *,
+    model: str | None = None,
 ) -> dict[str, Any]:
-    """The chat-completion request; ``json_schema`` makes the gateway enforce the output shape."""
+    """The chat-completion request; ``json_schema`` makes the gateway enforce the output shape.
+
+    ``model`` is the effective model (core/llm/fallback.py); ``None`` names the manifest's primary
+    route. It is inside the payload, so it is inside the request hash the call store is keyed by.
+    """
     sampling = manifest.manifest.sampling
     response_format: dict[str, Any] = {"type": sampling.response_format}
     if sampling.response_format == "json_schema":
@@ -235,7 +256,7 @@ def request_payload(
             "strict": True,
         }
     payload: dict[str, Any] = {
-        "model": manifest.manifest.model_route,
+        "model": manifest.manifest.model_route if model is None else model,
         "messages": messages,
         "temperature": sampling.temperature,
         "max_tokens": sampling.max_output_tokens,
@@ -286,16 +307,26 @@ class _Attempts:
         context: JobContext,
         ledger: Ledger,
         logical_id: str,
+        model: str | None = None,
     ) -> None:
         self.manifest = manifest
         self.context = context
         self.ledger = ledger
         self.logical_id = logical_id
+        # The model the request names: the run_job caller's own, never re-decided per attempt.
+        self.model = effective_model(manifest, context) if model is None else model
         self.count = 0
         self.last_model: str | None = None
         self.last_tokens: int | None = None
 
     def call(self, config: GatewayConfig, payload: dict[str, Any]) -> _Reply:
+        if payload.get("model") != self.model:
+            # The run's one model decision, enforced at the wire: a payload naming any other
+            # model is a defect in the caller, refused before a provider call is made.
+            raise ConfigError(
+                f"{self.manifest.manifest.prompt_id}: request names {payload.get('model')!r} but "
+                f"this run decided {self.model!r}; a run never switches models mid-run"
+            )
         self.count += 1
         started_at = _now()
         started = time.monotonic()
@@ -386,6 +417,7 @@ class _Attempts:
             prompt_sha256=self.manifest.sha256,
             model_route=self.manifest.manifest.model_route,
             model_served=reply.model if reply else self.last_model,
+            effective_model=self.model,
             attempt=self.count,
             disposition="provider_call",
             started_at=started_at,
@@ -454,16 +486,21 @@ def _parse(
 
 
 def request_hash(
-    manifest: LoadedManifest, packet: Mapping[str, Any], call_schema: dict[str, Any] | None = None
+    manifest: LoadedManifest,
+    packet: Mapping[str, Any],
+    call_schema: dict[str, Any] | None = None,
+    *,
+    model: str | None = None,
 ) -> str:
     """The store key ``run_job`` would compute for this exact packet, without calling anything.
 
     G5-W02 (27.2 RC4): a caller that can reconstruct a job's own accepted output from other
     evidence (a sealed bundle's own artifacts) needs this same key to seed the store before
     ``run_job`` runs, so the reconstruction is found the same way a real cache hit would be.
+    ``model`` is the effective model (``effective_model``); a different model is a different key.
     """
     messages = render_messages(manifest, packet, call_schema)
-    payload = request_payload(manifest, messages, call_schema)
+    payload = request_payload(manifest, messages, call_schema, model=model)
     return canonical_hash({"prompt_sha256": manifest.sha256, "payload": payload})
 
 
@@ -499,8 +536,9 @@ def run_job(
     verifiable correction passes nothing here and this parameter is inert for it.
     """
     job = manifest.manifest.prompt_id
+    model = effective_model(manifest, context)
     messages = render_messages(manifest, packet, call_schema)
-    payload = request_payload(manifest, messages, call_schema)
+    payload = request_payload(manifest, messages, call_schema, model=model)
     request_sha256 = canonical_hash({"prompt_sha256": manifest.sha256, "payload": payload})
     stored = store.get(request_sha256)
     if stored is not None:
@@ -528,6 +566,7 @@ def run_job(
             prompt_sha256=manifest.sha256,
             model_route=manifest.manifest.model_route,
             model_served=None,
+            effective_model=model,
             attempt=0,
             disposition="cache_reuse",
             started_at=now,
@@ -567,7 +606,7 @@ def run_job(
             ledger.append(reuse)
             return JobResult(job, output, request_sha256, 0, 0, True, None, None)
 
-    attempts = _Attempts(manifest, context, ledger, request_sha256)
+    attempts = _Attempts(manifest, context, ledger, request_sha256, model)
     current = payload
     rejection: list[str] = []
     for ask in (1, 2):

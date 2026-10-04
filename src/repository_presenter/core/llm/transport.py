@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from openai import APIConnectionError, APIStatusError, OpenAI
+from openai import APIConnectionError, APIStatusError, APITimeoutError, OpenAI
 
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.errors import GatewayError
@@ -89,7 +89,7 @@ def probe_seed(config: GatewayConfig, model: str) -> SeedProbe:
     gateway does, not what was cached.
     """
     client = build_client(config)
-    messages = [{"role": "user", "content": "ping"}]
+    messages = _liveness_messages()
     replies: list[str] = []
     for _ in range(2):
         try:
@@ -115,3 +115,49 @@ def probe_seed(config: GatewayConfig, model: str) -> SeedProbe:
         deterministic,
         "honoured" if deterministic else "accepted, non-deterministic",
     )
+
+
+@dataclass(frozen=True)
+class AvailabilityProbe:
+    """Whether one model answered one tiny chat request, and how it failed when it did not."""
+
+    model: str
+    available: bool
+    detail: str
+
+
+def _liveness_messages() -> list[dict[str, str]]:
+    """The one liveness token both probes send: a yes-or-no question the gateway answers, never
+    prompt text (the single exemption tests/core/llm/test_prompt_hygiene.py allows this module)."""
+    return [{"role": "user", "content": "ping"}]
+
+
+# Enough output for any chat model to finish a one-word reply, far under any real budget.
+_AVAILABILITY_MAX_TOKENS = 16
+# A dead route must not hold a run for the whole job timeout: each probe is capped on its own.
+_AVAILABILITY_TIMEOUT_SECONDS = 120.0
+
+
+def probe_availability(config: GatewayConfig, model: str) -> AvailabilityProbe:
+    """One tiny chat completion; a 2xx answer is available, anything else is named and not used.
+
+    Failures are reported by status or exception class only, never a response body, and never
+    raise: an unavailable model is an input to the fallback decision (core/llm/fallback.py), not
+    an error of its own. Not a content call: its reply is discarded and nothing is recorded in
+    the call ledger.
+    """
+    client = build_client(config).with_options(timeout=_AVAILABILITY_TIMEOUT_SECONDS, max_retries=0)
+    try:
+        client.chat.completions.create(
+            model=model,
+            messages=_liveness_messages(),  # type: ignore[arg-type]
+            max_tokens=_AVAILABILITY_MAX_TOKENS,
+            temperature=0,
+        )
+    except APIStatusError as exc:
+        return AvailabilityProbe(model, False, f"HTTP {exc.status_code}")
+    except APITimeoutError:
+        return AvailabilityProbe(model, False, "timeout")
+    except APIConnectionError as exc:
+        return AvailabilityProbe(model, False, type(exc).__name__)
+    return AvailabilityProbe(model, True, "HTTP 200")
