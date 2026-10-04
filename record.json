@@ -4,7 +4,7 @@
   "provider_repository_id": 1185437353,
   "registry_revision": null,
   "active_transaction_id": "867c6034a7584a14a47dc1adfcb6f957",
-  "state": "ACCEPTED",
+  "state": "INVALIDATED",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -16,7 +16,14 @@
   },
   "accepted_artifact": null,
   "proposal": null,
-  "failure": null,
+  "failure": {
+    "classification": "validation_failed",
+    "detail": "present exited 1 (a written disposition or a blocking validation failure - see this transaction's own runs/ output for which)",
+    "resume_state": "SNAPSHOTTING",
+    "occurred_at": "2026-10-04T13:28:27.014915+00:00",
+    "resume_predicate": null,
+    "recovery_count": 0
+  },
   "lease": {
     "holder_id": "present.yml:37204846411-noop-proof",
     "acquired_at": "2026-10-04T13:23:19.480956+00:00",
@@ -25,20 +32,20 @@
     "fencing_token": 1
   },
   "last_transition": {
-    "transition_id": "fee4c46f069d48dcb4358984cc381fd0",
+    "transition_id": "b98db912b9674eec960f83eb3610d305",
     "transaction_id": "867c6034a7584a14a47dc1adfcb6f957",
     "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
-    "from_state": "REVIEWING",
-    "to_state": "ACCEPTED",
-    "event": "present.yml hosted transaction completed (one coarse receipt spanning the local pipeline's own stages - see core/state/present_transaction.py's module docstring)",
-    "occurred_at": "2026-10-04T13:23:11.985118+00:00",
+    "from_state": "ACCEPTED",
+    "to_state": "INVALIDATED",
+    "event": "present.yml hosted transaction failed",
+    "occurred_at": "2026-10-04T13:28:26.560275+00:00",
     "actor": "runtime",
     "input_manifest": "registry:aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
     "output_manifest": "candidates/aspose-slides-foss__Aspose.Slides-FOSS-for-.NET/CURRENT",
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 14,
+  "state_version": 15,
   "recent_trigger_dedup_keys": {
     "run:37204846411:aspose-slides-foss/Aspose.Slides-FOSS-for-.NET": "867c6034a7584a14a47dc1adfcb6f957"
   },
