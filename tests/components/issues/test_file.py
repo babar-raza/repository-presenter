@@ -12,10 +12,10 @@ from repository_presenter.components.issues.file import (
     AUTHORIZATION_VARIABLE,
     FileResult,
     close_handoff,
-    file_handoff,
-    plan_filing,
     write_authorized,
 )
+from repository_presenter.components.issues.file import file_handoff as _file_handoff
+from repository_presenter.components.issues.file import plan_filing as _plan_filing
 from repository_presenter.components.issues.model import (
     EvidenceEntry,
     Handoff,
@@ -24,6 +24,7 @@ from repository_presenter.components.issues.model import (
 )
 from repository_presenter.components.issues.redetect import RedetectionResult
 from repository_presenter.core.errors import RepositoryMetadataError
+from support import approving_store
 
 REPO = "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
 REVISION = "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2"
@@ -59,6 +60,18 @@ def _fires(*, still_fires: bool | None, note: str = "still fires") -> Redetectio
         fresh_evidence=(),
         proposed_status=None,
     )
+
+
+def file_handoff(handoff: Handoff, **kwargs: Any) -> FileResult:
+    """``file_handoff`` with the owner's approval for ``handoff`` committed. These tests are about
+    the other gates; the approval gate's own refusals are in test_approval.py."""
+    kwargs.setdefault("approvals", approving_store(handoff))
+    return _file_handoff(handoff, **kwargs)
+
+
+def plan_filing(handoff: Handoff, **kwargs: Any) -> Any:
+    kwargs.setdefault("approvals", approving_store(handoff))
+    return _plan_filing(handoff, **kwargs)
 
 
 class _RecordingCreate:
@@ -108,6 +121,7 @@ def test_unauthorized_makes_no_create_call_at_all() -> None:
     assert result.authorized is False
     assert result.filed is False
     assert AUTHORIZATION_VARIABLE in result.reason
+    assert "kill switch" in result.reason
 
 
 def test_authorized_but_no_token_makes_no_create_call() -> None:
@@ -401,7 +415,7 @@ def test_close_is_refused_without_the_gate_and_makes_no_call() -> None:
     )
     assert write.calls == []
     assert result.closed is False
-    assert "not authorized" in result.reason
+    assert "kill switch engaged" in result.reason
 
 
 def test_a_resolved_filed_handoff_is_closed_with_its_close_reason_as_github_state_reason() -> None:
