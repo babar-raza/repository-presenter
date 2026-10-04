@@ -1,0 +1,146 @@
+[
+  {
+    "elapsed_ms": 679,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/slides/cpp/"
+  },
+  {
+    "elapsed_ms": 1456,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"
+  },
+  {
+    "elapsed_ms": 1412,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 1460,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp/issues"
+  },
+  {
+    "elapsed_ms": 1349,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/google/googletest"
+  },
+  {
+    "elapsed_ms": 1371,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/richgel999/miniz"
+  },
+  {
+    "elapsed_ms": 1385,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/zeux/pugixml"
+  },
+  {
+    "elapsed_ms": 625,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/C%2B%2B-20-blue.svg"
+  },
+  {
+    "elapsed_ms": 656,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 2378,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.svg"
+  },
+  {
+    "elapsed_ms": 1133,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/nuget/v/Aspose.Slides.Cpp.FOSS.svg"
+  },
+  {
+    "elapsed_ms": 779,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/slides/cpp/"
+  },
+  {
+    "elapsed_ms": 669,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/slides/cpp/"
+  },
+  {
+    "elapsed_ms": 558,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/slides/cpp/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 536,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/slides/cpp/"
+  },
+  {
+    "elapsed_ms": 795,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/slides/cpp/"
+  },
+  {
+    "elapsed_ms": 2465,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://www.nuget.org/packages/Aspose.Slides.Cpp.FOSS/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "package_registry.json (offline)",
+    "outcome": "UNRESOLVED",
+    "status": null,
+    "target": "none:AsposeSlidesFoss"
+  }
+]

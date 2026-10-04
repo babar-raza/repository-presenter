@@ -97,6 +97,7 @@ from repository_presenter.components.readme.repair.targeted import (
     validation_defects,
     visible_line_budget_hint,
 )
+from repository_presenter.components.readme.review.acceptance.scorer import score_candidate
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     MAJORITY_VOTE_REPOSITORIES,
@@ -296,7 +297,9 @@ def run_round(tx: TransactionInputs) -> Round:
     # entry, no cross-entry logic - checked directly, not assumed), so a per-batch check is exactly
     # as strict as the old whole-document check was.
     reconciled: dict[str, JobResult] = {}
-    for batch_id, batch_units in reconciliation_batches(facts):
+    for batch_id, batch_units in reconciliation_batches(
+        facts, loaded.manifest.sampling.max_output_tokens
+    ):
         # Real bug, found live against Cells-Rust (docs/DECISION_LOG.md): core/llm/binding.py's
         # binding_errors recomputes "every inherited unit expected" from whatever FactsDocument
         # is passed as the job's own facts= - the whole repository's, unless narrowed here - so
@@ -537,8 +540,11 @@ def run_round(tx: TransactionInputs) -> Round:
                 review = document(second=second_result.output, third=third_output)
             else:
                 review = document(second=second_result.output)
-    digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)
+    # G3-W02 ADVISORY: the acceptance score is recorded with the review. No blocking check reads
+    # it, and it is computed after check 10 so the record sees the same verdicts the bundle does.
+    review["acceptance_profile"] = score_candidate(readme, validation, review)
+    digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     digests["validation"] = write_validation(validation, tx.directory / VALIDATION_FILENAME)
     # G5-W02: the review reads above are not covered by anything else that seals verbatim output
     # (review.json folds first/second/third into findings/advisory, losing a corroborating read's
@@ -681,7 +687,12 @@ def _reject_insufficient_visible_line_overage(
 
 
 def _stage_target(
-    current: Round, defect: Defect, facts: FactsDocument, name: str, ecosystem: str
+    current: Round,
+    defect: Defect,
+    facts: FactsDocument,
+    name: str,
+    ecosystem: str,
+    prompts: PromptRegistry,
 ) -> tuple[
     JobResult, Any, frozenset[str] | None, Mapping[str, frozenset[str]] | None, FactsDocument
 ]:
@@ -716,7 +727,11 @@ def _stage_target(
         # dict insertion order, not sorted(keys) - "reconciliation#10" would sort before
         # "reconciliation#2" lexicographically; current.reconciled is built in batch order.
         first_batch_id = next(iter(current.reconciled))
-        batch_units = dict(reconciliation_batches(facts))[first_batch_id]
+        # The budget is read here, where batching happens, from the same manifest run_round splits
+        # with. Read eagerly by the caller it would require source_reconciliation for every repair,
+        # including stages that never batch.
+        reconciliation_budget = prompts["source_reconciliation"].manifest.sampling.max_output_tokens
+        batch_units = dict(reconciliation_batches(facts, reconciliation_budget))[first_batch_id]
         batch_facts = reconciliation_batch_facts(facts, batch_units)
         # Real bug, found live against Cells-Rust: repair_checks's own binding_errors call
         # (repair/targeted.py) needs the SAME batch-scoped facts reconciliation_batch_facts()
@@ -781,7 +796,12 @@ def repair_defect(
     job = STAGE_JOBS[defect.stage]
     causal = tx.prompts[job]
     target, stage_checks, allowed, slot_facts, stage_facts = _stage_target(
-        current, defect, tx.facts, product_name(tx.entry), tx.entry.ecosystem
+        current,
+        defect,
+        tx.facts,
+        product_name(tx.entry),
+        tx.entry.ecosystem,
+        tx.prompts,
     )
     contract = causal.manifest.output.schema_
     probe = _slot_set_probe(current, defect)

@@ -1,0 +1,323 @@
+{
+  "advisory": [
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "id": "F01",
+      "quote": "# Aspose.Slides FOSS for Cpp",
+      "repair": "Change the title to '# Aspose.Slides FOSS for C++' to match the repository name and original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate uses 'Aspose.Slides FOSS for Cpp' as the product name, but the original README and facts consistently use 'Aspose.Slides FOSS for C++'."
+    },
+    {
+      "absent": [
+        "[![C++](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](CMakeLists.txt)",
+        "[![NuGet](https://img.shields.io/nuget/v/Aspose.Slides.Cpp.FOSS.svg)](https://www.nuget.org/packages/Aspose.Slides.Cpp.F"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006"
+      ],
+      "id": "F02",
+      "quote": "Aspose.Slides FOSS for Cpp is a C++ library that enables developers to create, read, and convert PowerPoint presentations programmatically. It solves the problem of automating slide deck generation and modification without requiring Microsoft PowerPoint, supporting formats such as PPTX as output. The library is used by C++ developers building applications that need to generate reports, presentations, or documentation dynamically. Built to C++20 standards, it requires CMake 3.20 or later and uses",
+      "repair": "Add the C++20 and NuGet badges to the opening paragraph to match the original README's informative badge row.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The candidate omits the C++20 and NuGet badges present in the original README, which are important for quick assessment of language standard and package availability."
+    },
+    {
+      "absent": [
+        "subgraph StartingPoints[",
+        "subgraph Outputs["
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "PRODUCT[",
+      "repair": "Restore the original Mermaid diagram structure with 'Starting Points' and 'Outputs' subgraphs to accurately reflect the library's data flow.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The candidate's Mermaid diagram is significantly simplified and omits the 'Starting Points' and 'Outputs' nodes present in the original, which are essential for understanding the library's input and output flow."
+    },
+    {
+      "absent": [
+        "### Consume via CMake FetchContent",
+        "### Install and Use the Installed Package",
+        "### Install From NuGet on Windows"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "id": "F04",
+      "quote": "AsposeSlidesFoss is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+      "repair": "Include all installation methods (FetchContent, installed package, NuGet) as in the original README to provide a complete setup guide.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The candidate omits critical installation methods (FetchContent, installed package, NuGet) that are present in the original README, reducing the guide's completeness."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz"
+      ],
+      "id": "F05",
+      "quote": "### Development Dependencies",
+      "repair": "Remove 'AsposeSlidesFoss' from the dependency list and clarify that 'googletest' and 'miniz' are build/test dependencies, not runtime dependencies.",
+      "reviewer_scope_defect": "the quote is the heading 'Development Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate lists 'AsposeSlidesFoss', 'googletest', 'GTest', and 'miniz' as development dependencies, but the original README and facts show these are not separate dependencies but part of the build system or test framework."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:008",
+        "example:009"
+      ],
+      "id": "F06",
+      "quote": "This example creates a new presentation, adds a comment author and two comments with a reply relationship, then saves the file as `comments.pptx` using Aspose.Slides FOSS for Cpp 26.9.0.",
+      "repair": "Remove the version-specific note 'using Aspose.Slides FOSS for Cpp 26.9.0' from the Quick Start examples to match the original README's style.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "quick_start",
+      "text": "The candidate's Quick Start examples omit the version-specific note 'using Aspose.Slides FOSS for Cpp 26.9.0' present in the original, which is important for version clarity."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "id": "F07",
+      "quote": "### Foss",
+      "repair": "Remove the redundant '### Foss' heading and the duplicated public symbol inventory to keep the API reference concise and focused.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.slides.foss, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "api_reference",
+      "text": "The candidate's API reference section includes a redundant 'Foss' heading and duplicates the public symbol inventory, which is already rendered deterministically, making the section verbose and less focused."
+    },
+    {
+      "absent": [
+        "These are defects, not missing features — the call succeeds and the object model agrees with the caller afterward. **`",
+        "pugixml is a leak of an implementation detail into the interface"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "id": "F08",
+      "quote": "Aspose.Slides FOSS for Cpp version 26.9.0 is a C++ library for creating and manipulating PowerPoint presentations, supporting C++20 and requiring CMake 3.20 or later. It is distributed under the MIT license and targets the C++ ecosystem with the repository aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp at revision c41f8dddc499fb0058fc9557cb364d70fbd3cef1. The library exposes the `Aspose.Slides.Foss` public symbol and depends on pugixml and miniz.",
+      "repair": "Restore the specific technical limitations (clone defects, pugixml leak, SaveFormat exceptions) from the original README to provide accurate scope information.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate's Scope and Limitations section is overly generic and omits specific technical limitations (e.g., clone defects, pugixml leak, SaveFormat exceptions) present in the original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:platform"
+      ],
+      "id": "F01",
+      "quote": "# Aspose.Slides FOSS for Cpp",
+      "reader": 2,
+      "repair": "Change the title to '# Aspose.Slides FOSS for C++' to match the repository name and platform fact.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate uses 'Aspose.Slides FOSS for Cpp' instead of the correct product name 'Aspose.Slides FOSS for C++'."
+    },
+    {
+      "absent": [
+        "[![C++](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](CMakeLists.txt)",
+        "[![NuGet](https://img.shields.io/nuget/v/Aspose.Slides.Cpp.FOSS.svg)](https://www.nuget.org/packages/Aspose.Slides.Cpp.F"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006"
+      ],
+      "id": "F02",
+      "quote": "Aspose.Slides FOSS for Cpp is a C++ library that enables developers to create, read, and convert PowerPoint presentations programmatically. It solves the problem of automating slide deck generation and modification without requiring Microsoft PowerPoint, supporting formats such as PPTX as output. The library is used by C++ developers building applications that need to generate reports, presentations, or documentation dynamically. Built to C++20 standards, it requires CMake 3.20 or later and uses",
+      "reader": 2,
+      "repair": "Add the C++20 and NuGet badges to the top badge row to match the original README and provide verified version and package information.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The candidate omits the C++20 badge and NuGet badge present in the original README, reducing completeness."
+    },
+    {
+      "absent": [
+        "subgraph StartingPoints[",
+        "subgraph Outputs["
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "PRODUCT[",
+      "reader": 2,
+      "repair": "Restore the full Mermaid flowchart structure with 'Starting Points' and 'Outputs' subgraphs to match the original README's specificity.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the candidate is simplified and omits the 'Starting Points' and 'Outputs' nodes present in the original, reducing specificity."
+    },
+    {
+      "absent": [
+        "### Consume via CMake FetchContent",
+        "### Install and Use the Installed Package",
+        "### Install From NuGet on Windows"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "id": "F04",
+      "quote": "`AsposeSlidesFoss` is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+      "reader": 2,
+      "repair": "Add the FetchContent, install, and NuGet subsections to the Installation section to match the original README's installation options.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The candidate omits the FetchContent, install, and NuGet installation subsections present in the original README, reducing completeness."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:development.asposeslidesfoss",
+        "dependency:development.googletest",
+        "dependency:development.gtest",
+        "dependency:development.miniz"
+      ],
+      "id": "F05",
+      "quote": "### Development Dependencies",
+      "reader": 2,
+      "repair": "Remove 'AsposeSlidesFoss' from the Development Dependencies list, as it is the library itself, not a dependency.",
+      "reviewer_scope_defect": "the quote is the heading 'Development Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate lists 'AsposeSlidesFoss', 'googletest', 'GTest', and 'miniz' as development dependencies, but the original README does not list AsposeSlidesFoss as a dependency of itself."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "The verified public surface has 234 types.",
+      "reader": 2,
+      "repair": "Remove the '234 types' claim or replace it with a factual statement about the API surface, such as 'The primary entry point is Presentation'.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate claims the public API surface has 234 types, but the original README does not state this number and the candidate provides no fact-based verification."
+    },
+    {
+      "absent": [
+        "charts, SmartArt, OLE objects, and mathematical text",
+        "animations and slide transitions",
+        "group shapes",
+        "hyperlinks and action settings",
+        "slide backgrounds and themes",
+        "slide size",
+        "saving to a stream",
+        "adding an image from a path or a stream"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "Aspose.Slides FOSS for Cpp version 26.9.0 is a C++ library for creating and manipulating PowerPoint presentations, supporting C++20 and requiring CMake 3.20 or later. It is distributed under the MIT license and targets the C++ ecosystem with the repository aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp at revision c41f8dddc499fb0058fc9557cb364d70fbd3cef1. The library exposes the `Aspose.Slides.Foss` public symbol and depends on pugixml and miniz.",
+      "reader": 2,
+      "repair": "Restore the detailed limitations from the original README, including missing features like charts, animations, and save format restrictions.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate's Scope and Limitations section is vague and omits critical limitations present in the original README, such as missing charts, SmartArt, animations, and save format restrictions."
+    },
+    {
+      "absent": [
+        "## Third-Party Notices",
+        "See [Third-party notices](THIRD_PARTY_NOTICES)."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "third_party_notices:file"
+      ],
+      "id": "F08",
+      "quote": "These limitations don't apply to [Aspose.Slides for Cpp — Enterprise Edition](https://products.aspose.com/slides/cpp/). Aspose.Slides FOSS for Cpp provides core presentation manipulation capabilities, while the commercial edition extends functionality with advanced features such as digital signatures, watermarking, and enhanced export options.",
+      "reader": 2,
+      "repair": "Add the 'Third-Party Notices' section with a link to the THIRD_PARTY_NOTICES file as in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '## Third-Party Notices', 'See [Third-party notices](THIRD_PARTY_NOTICES).', which the candidate contains",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate omits the 'Third-Party Notices' section heading and content present in the original README."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "a3b2066d504d61a8cb957068e38b2fd41af2ba26f7b8409e3f54e272b67403e6",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "27d3f41c32e84c05934c711489612ebc5cf3f1fd85df686e74536ce398152618",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "012d630ea87dd4b2ed3b6aaa",
+      "5b4af6802e28f2886ef081a2",
+      "75ce3972a5bdabd7147b459d",
+      "7b39d108aee98d84de885f46",
+      "7bf2dd6eda183d6293dbc405",
+      "8e354b15b1c1dbf784765257",
+      "949e03aa2a199c11ad781c51",
+      "d781ad532f35f6143cb672ef"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}
