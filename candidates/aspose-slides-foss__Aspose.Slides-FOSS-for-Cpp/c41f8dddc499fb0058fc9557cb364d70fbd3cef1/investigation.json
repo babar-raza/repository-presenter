@@ -1,0 +1,163 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:cxx_standard",
+      "package:cmake_minimum"
+    ],
+    "text": "C++ developers building cross-platform applications that need to generate or manipulate PowerPoint presentations without requiring Microsoft PowerPoint or COM interop."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "text": "Create new presentations or load existing .pptx files, add slides, and save in Office Open XML formats using the Presentation class.",
+      "title": "Create and modify presentations"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "text": "Add, remove, and clone slides; insert AutoShapes, Tables, Connectors, and PictureFrames; reorder shapes; and traverse nested GroupShapes.",
+      "title": "Manage slides and shapes"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides"
+      ],
+      "text": "Apply character, paragraph, and text-frame formatting; solid, gradient, pattern, or picture fills; line styles; and visual effects like shadows and 3D.",
+      "title": "Format text and shapes"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "text": "Add comment authors, comments, and replies with timestamps and positions; manage core, application, and custom document properties.",
+      "title": "Add comments and document properties"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "text": "Embed images from in-memory byte buffers via ImageCollection::add_image() and attach them as PictureFrames to slides.",
+      "title": "Embed images"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "text": "Save presentations to six Office Open XML formats: PPTX, PPTM, PPSX, PPSM, POTX, and POTM using SaveFormat.",
+      "title": "Export to PowerPoint formats"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "text": "No support for charts, SmartArt, OLE objects, mathematical text, animations, slide transitions, group shapes, hyperlinks, slide backgrounds, themes, or slide size configuration."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "text": "Saving to streams, loading images from paths or streams, and exporting to non-PPTX formats (PDF, HTML, SVG, images) is unsupported and throws std::invalid_argument."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "text": "slides().add_clone() loses the source shapes' text; masters().add_clone() does not persist to the saved file."
+    },
+    {
+      "fact_ids": [
+        "dependency:pugixml",
+        "dependency:development.miniz"
+      ],
+      "text": "pugixml is exposed in the public interface, requiring consumers to have its headers available; miniz is linked privately and only needed at link time."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform"
+      ],
+      "text": "Enables programmatic PowerPoint presentation creation and modification in C++ without external dependencies like Microsoft Office."
+    },
+    {
+      "fact_ids": [
+        "install_command:cmake",
+        "dependency:pugixml",
+        "dependency:development.miniz",
+        "dependency:development.googletest",
+        "dependency:development.gtest"
+      ],
+      "text": "Provides a CMake-integrated build system with automatic dependency fetching via FetchContent for pugixml, miniz, and GoogleTest."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "example:009"
+      ],
+      "text": "Supports preservation of unknown XML parts during load-save round-trips, ensuring content not yet modeled remains intact."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "license:spdx"
+    ],
+    "text": "Aspose.Slides FOSS for C++ is a C++20 library for creating, reading, and editing PowerPoint .pptx presentations, distributed under the MIT license."
+  },
+  "uncertainties": [
+    "The exact set of SaveFormat values supported beyond the six Office Open XML formats is not fully enumerated in facts.",
+    "Whether the library supports VBA macro reading or writing beyond throwing on macro-enabled formats is not stated.",
+    "The behavior of add_clone() and insert_clone() for layout slides or master slides is not detailed beyond masters().add_clone()."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "install_command:cmake",
+        "package:cmake_minimum",
+        "package:cxx_standard"
+      ],
+      "name": "Build from source",
+      "text": "Clone the repository and run CMake to configure and build the library using CMake 3.20+ and C++20."
+    },
+    {
+      "fact_ids": [
+        "import_path:asposeslidesfoss",
+        "dependency:development.asposeslidesfoss"
+      ],
+      "name": "Consume via CMake FetchContent",
+      "text": "Integrate the library directly into a CMake project using FetchContent, with include paths exposed via the aspose_slides_foss target."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci",
+        "dependency:development.googletest",
+        "dependency:development.gtest"
+      ],
+      "name": "Run tests",
+      "text": "Build and run unit, integration, and conformance tests under tests/ using GoogleTest, with CI validating output package structure."
+    }
+  ]
+}

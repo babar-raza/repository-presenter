@@ -30,9 +30,11 @@ from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.state.git_backend import GitStateBackend
 from support import (
     REPO_ROOT,
+    FakeDefaultBranchReader,
     commit_all,
     init_git_repository,
     mock_gateway,
+    monitor_registry_entry,
     write_bundle,
     write_cursor,
 )
@@ -898,7 +900,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "6",
         "renderer": "26",
-        "normalisation": "18",
+        "normalisation": "19",
         "reviewer_logic": "14",
     }
     assert "install_command:pip" in dependencies["facts"]
@@ -2776,3 +2778,141 @@ def test_an_exhausted_retry_is_reported_cleanly_and_never_as_a_traceback(
         "repository-presenter: the gateway did not answer after the bounded retries: timeout"
     ]
     assert "Traceback" not in captured.err
+
+
+# --- G7-W06 drift monitor: `repository-presenter monitor` (read-only; injected GitHub reader) ---
+
+MONITOR_TOKEN = "ghs_fixture_monitor_read_token_9876543210"
+MONITOR_PYTHON = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+MONITOR_JAVA = "aspose-3d-foss/Aspose.3D-FOSS-for-Java"
+MONITOR_DISABLED = "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript"
+MONITOR_CELLS = "aspose-cells-foss/Aspose.Cells-FOSS-for-Python"
+MONITOR_BUNDLED = "5" * 40
+MONITOR_HEAD = "4" * 40
+
+
+@pytest.fixture
+def monitor_root(project: Path) -> Path:
+    """A synthetic project: one bundled repository, one bare one, one disabled, one other owner."""
+    (project / "data").mkdir()
+    payload = {
+        "schema_version": 1,
+        "entries": [
+            monitor_registry_entry(MONITOR_PYTHON, repository_id=1),
+            monitor_registry_entry(MONITOR_JAVA, repository_id=2),
+            monitor_registry_entry(MONITOR_DISABLED, mode="disabled", repository_id=3),
+            monitor_registry_entry(MONITOR_CELLS, repository_id=4),
+        ],
+    }
+    (project / "data" / "registry.json").write_text(json.dumps(payload), encoding="utf-8")
+    write_bundle(
+        project, "aspose-3d-foss__Aspose.3D-FOSS-for-Python", MONITOR_BUNDLED, "READY_FOR_PROPOSAL"
+    )
+    return project
+
+
+def test_monitor_without_the_read_token_observes_nothing(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    reader = FakeDefaultBranchReader({})
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+
+    code = main(["monitor", "--root", str(monitor_root)])
+
+    assert code == EXIT_USAGE
+    assert reader.calls == []
+    assert "GH_TOKEN" in capsys.readouterr().err
+    assert not (monitor_root / "runs").exists()
+
+
+def test_monitor_records_each_enabled_repository_and_exits_one_on_an_unreachable_one(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    reader = FakeDefaultBranchReader(
+        {
+            MONITOR_PYTHON: MONITOR_HEAD,
+            # Negative control: the failure carries the token; it must reach no output.
+            MONITOR_JAVA: RuntimeError(f"401 rejected {MONITOR_TOKEN}"),
+            MONITOR_CELLS: MONITOR_HEAD,
+        }
+    )
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.setenv("GH_TOKEN", MONITOR_TOKEN)
+
+    code = main(["monitor", "--root", str(monitor_root)])
+
+    assert code == EXIT_INCONSISTENT
+    assert reader.calls == [MONITOR_PYTHON, MONITOR_JAVA, MONITOR_CELLS]
+    assert reader.tokens == [MONITOR_TOKEN] * 3
+    evidence = monitor_root / "runs" / "monitor" / "drift.json"
+    text = evidence.read_text(encoding="utf-8")
+    document = json.loads(text)
+    assert document["owner"] is None
+    assert document["summary"] == {"CURRENT": 0, "DRIFTED": 1, "NO_BUNDLE": 1, "UNREACHABLE": 1}
+    statuses = {row["repository"]: row["status"] for row in document["repositories"]}
+    assert statuses == {
+        MONITOR_PYTHON: "DRIFTED",
+        MONITOR_JAVA: "UNREACHABLE",
+        MONITOR_CELLS: "NO_BUNDLE",
+    }
+    captured = capsys.readouterr()
+    assert MONITOR_TOKEN not in text + captured.out + captured.err
+    assert MONITOR_JAVA in captured.err
+    assert "1 repositor(ies) unreachable" in captured.err
+
+
+def test_monitor_exits_zero_when_every_enabled_repository_is_observed(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    reader = FakeDefaultBranchReader(
+        {MONITOR_PYTHON: MONITOR_BUNDLED, MONITOR_JAVA: MONITOR_HEAD, MONITOR_CELLS: MONITOR_HEAD}
+    )
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.setenv("GH_TOKEN", MONITOR_TOKEN)
+
+    code = main(["monitor", "--root", str(monitor_root)])
+
+    assert code == EXIT_OK
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert "CURRENT" in captured.out
+    assert "monitor: 3 observed - CURRENT 1, DRIFTED 0, NO_BUNDLE 2, UNREACHABLE 0" in captured.out
+
+
+def test_monitor_owner_filter_observes_only_that_owners_enabled_entries(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reader = FakeDefaultBranchReader({MONITOR_CELLS: MONITOR_HEAD})
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.setenv("GH_TOKEN", MONITOR_TOKEN)
+
+    code = main(["monitor", "--root", str(monitor_root), "--owner", "aspose-cells-foss"])
+
+    assert code == EXIT_OK
+    assert reader.calls == [MONITOR_CELLS]
+    evidence = monitor_root / "runs" / "monitor" / "drift-aspose-cells-foss.json"
+    assert json.loads(evidence.read_text(encoding="utf-8"))["owner"] == "aspose-cells-foss"
+
+
+def test_monitor_refuses_an_owner_with_no_enabled_entry(
+    monitor_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    reader = FakeDefaultBranchReader({})
+    monkeypatch.setattr(cli, "fetch_default_branch_sha", reader)
+    monkeypatch.setenv("GH_TOKEN", MONITOR_TOKEN)
+
+    code = main(["monitor", "--root", str(monitor_root), "--owner", "aspose-nope-foss"])
+
+    assert code == EXIT_USAGE
+    assert reader.calls == []
+    assert "no enabled registry entries for owner aspose-nope-foss" in capsys.readouterr().err

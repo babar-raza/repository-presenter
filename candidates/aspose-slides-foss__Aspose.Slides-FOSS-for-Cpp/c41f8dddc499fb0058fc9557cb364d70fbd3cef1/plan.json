@@ -1,0 +1,301 @@
+{
+  "additional_example_ids": [],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.slides.foss"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and modify presentations",
+      "Manage slides and shapes",
+      "Format text and shapes",
+      "Add comments and document properties",
+      "Embed images",
+      "Export to PowerPoint formats"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Create and modify presentations"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Manage slides and shapes"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.slides"
+      ],
+      "title": "Format text and shapes"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Add comments and document properties"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Embed images"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "example:008",
+        "example:009",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Export to PowerPoint formats"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:008.code_block"
+      ],
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the inherited README is CONTRADICTED and omitted; the section is included but with empty format lists because no verified input or output format facts exist."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:055.code_block",
+        "inherited_unit:059.code_block",
+        "inherited_unit:062.code_block",
+        "inherited_unit:065.code_block",
+        "inherited_unit:068.code_block",
+        "inherited_unit:071.code_block",
+        "inherited_unit:073.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "All additional examples in the inherited README are CONTRADICTED and omitted; only the two Quick Start examples are verified."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:079.table",
+        "inherited_unit:081.table",
+        "inherited_unit:083.table"
+      ],
+      "section_id": "api_reference",
+      "text": "The full public symbol inventory is rendered deterministically; inherited tables are omitted."
+    }
+  ],
+  "flagship_example_id": null,
+  "links": [
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:029",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:030",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:031",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "link_fact_id": "link_target:032",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:033",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:034",
+      "section_id": "scope_limitations"
+    },
+    {
+      "link_fact_id": "link_target:035",
+      "section_id": "scope_limitations"
+    },
+    {
+      "link_fact_id": "link_target:036",
+      "section_id": "scope_limitations"
+    },
+    {
+      "link_fact_id": "link_target:037",
+      "section_id": "scope_limitations"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.slides.foss"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "dependency:pugixml",
+        "dependency:development.miniz"
+      ],
+      "unit_ids": []
+    }
+  ],
+  "quick_start_example_id": "example:008",
+  "second_quick_start_example_id": "example:009",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

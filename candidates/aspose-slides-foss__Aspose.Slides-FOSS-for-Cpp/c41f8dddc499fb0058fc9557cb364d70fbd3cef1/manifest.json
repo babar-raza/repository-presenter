@@ -1,0 +1,135 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 2,
+      "job": "independent_review",
+      "response_sha256s": [
+        "182f81bf27d486ef6a4909feaddd3f760f97ffaae507cd691264a9aa89c9e35f",
+        "2299c442ebdb4873d462ff0e6b8d79cd1b8a3cf140787d73726b8b90f26856ee"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "presentation_planning",
+      "response_sha256s": [
+        "51edf7df6af2d97f064f43ec22bd9dd0c7aa0140c58912c1f9cf1477fd17696a",
+        "bf78546beb2caa167cafb6e0dedc2c19210fa35e3859ee05164929e7147f5253"
+      ]
+    },
+    {
+      "distinct_responses": 19,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "08e2bb438946a055f5debdf86e76700a2957800b5bf620961834e3a04478d4cc",
+        "2dd004dda34733d3196b3914c5657864354194b7eef8e8d7ab8233b6d6e7255a",
+        "345df50438cb5a927b67abbf8a9628e5cf7007961db97e7b720846d2fc1b8d31",
+        "37a438ed6379ceaca73b9c790f96841c0fd5d04b0d6fe640062292b719720179",
+        "48ae0c0e1424adb892da34e8c6eb2f87a4f1271f5806f9d31f13e3d0d1ae649c",
+        "50fd1b6ac08b9090242696a50dbdaa056db38c84d8e58019b58073a8a49bfcac",
+        "51e6cb88bf38ead067ecdd39796c58b1b190305c804aab885144e4e91279551a",
+        "6caec95a56deae5de8622b31f8b354051f04a90e1d98862926b2f08c41fe6dd0",
+        "70a05803ed37897fdc19ef189f00596009a9f60f9a2958493b464071f9ba6b4a",
+        "9d9eef7cc252031e0f704a9b835e207c857144f1713f6e927a5727833e3d5522",
+        "a093bc2fc70808c7bd6245430cd254171cc3058d81565f58820d4353a15445d9",
+        "c58d5ac7eab10b4f9ecceb5c63b6f8c6839c9dd02759b2d8b6c80e5aa65a3589",
+        "c5ba6423dea48cb37fa0268fb33d1d8195d436af322f9a879b2d7b9febbdabd9",
+        "c833b0a743b39d45927969fd6637a317901958d43735ca047706e21d5ab10830",
+        "cef8af6132f6af0e2ad6385e944754d04330c326b96115f77a190d23b9d85c99",
+        "d84e0388ef6ce44c436d92a50d5d51af2f96c96752fbd22d24e95ebbda19dd16",
+        "df01bd7c216c74a27b3f7d54a818b3e664a68e0bdb2775148fc591cbd1e4ada4",
+        "f9b656e4dd8ce42dba4065f99f3a82d3c0bb336c8ef0b2cb6b0ddd6b60adf89e",
+        "fd6674cd0d400f444aac92d3e689766ebeba7028af7d35be1c94a4afe95bd63d"
+      ]
+    },
+    {
+      "distinct_responses": 4,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "77c350cd02dee6065754f4ea7ceb3279f7f9abbcfc6cd7c4a867ce2077f35e0e",
+        "cfed2535d698e001a9f8bdca1bbc116a7c1aac8931761e9e376bb83a2fd4c5e8",
+        "d46d6d1d83692b2600cc7cf70077949549a64925c5d29d0cf7c21ba3a7b157ff",
+        "fb2b89fddd99fd0c8b26f10b40af5b45e0b5cd032803662b5df321e5f3ebef70"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 16,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 38321,
+      "sha256": "27d3f41c32e84c05934c711489612ebc5cf3f1fd85df686e74536ce398152618"
+    },
+    "README.patch": {
+      "bytes": 82621,
+      "sha256": "b57257d2707e05e2d28c2eb480692ae0f9d70ac1571067ca8cda69d1bfb7dc72"
+    },
+    "calls.jsonl": {
+      "bytes": 63821,
+      "sha256": "c22420226f0cdb0602cd6b576b468f0cd37c034daca288077e8e4f45b45523ec"
+    },
+    "content_units.json": {
+      "bytes": 91591,
+      "sha256": "20db78b9772aade185f327d89a87f9985adfd374b6a86366509c2896cebcba36"
+    },
+    "dependencies.json": {
+      "bytes": 407770,
+      "sha256": "f69f3c4c8a0661bb14955ba9c0c2ba90e10fc2590b39dcc1585896d054dd7ee9"
+    },
+    "dispositions.json": {
+      "bytes": 48859,
+      "sha256": "b4817fe8377c54b3e4cdc9f7da03b2ac30106ab612ffe77f1b725fd2a7975717"
+    },
+    "examples.json": {
+      "bytes": 12340,
+      "sha256": "ac8012e553d73cdd5bce99c07d35a47453ec44e61b2ca252fea271778da7ea70"
+    },
+    "facts.json": {
+      "bytes": 1672672,
+      "sha256": "6ac957d550144507d9ca06684ea58cdd4e482e94d0470176aebf5cc5491f90bd"
+    },
+    "investigation.json": {
+      "bytes": 5978,
+      "sha256": "81f8b3ba746d061e7f4a033c790c56c63683b4d20925eb03a283436919f0dcfc"
+    },
+    "plan.json": {
+      "bytes": 7252,
+      "sha256": "ba6854d259c8c4a1b4052060fc10191fa5fba74a99f351b0e2dc885868793398"
+    },
+    "probes.json": {
+      "bytes": 3456,
+      "sha256": "9af31b4ce3d684449a87fcc6e4fcd37d61e0ccc88349c1960492a2a899d6a32f"
+    },
+    "raw_calls.json": {
+      "bytes": 113830,
+      "sha256": "d152550b510c19fae16d2befbaedc50117d7ec6b785f0c4727b58fa29edf1799"
+    },
+    "review.json": {
+      "bytes": 19704,
+      "sha256": "a0a209024da67e7852e9fa56e5f9c7f59d2838778869262bb680e055ff4befb0"
+    },
+    "validation.json": {
+      "bytes": 12102,
+      "sha256": "983f1bdc7e505ddb2a6a4c74fc582e0487c8f80aefe3ec9a545ddfea661df4c9"
+    }
+  },
+  "models_used": {
+    "qwen3-next": "qwen3-next"
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-10-04T13:12:54Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+  "revision": "c41f8dddc499fb0058fc9557cb364d70fbd3cef1",
+  "schema_version": 1,
+  "sealed_at": "2026-10-04T13:12:54Z",
+  "state": "READY_FOR_PROPOSAL"
+}

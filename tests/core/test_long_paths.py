@@ -13,7 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from repository_presenter.core.long_paths import long_path
+from repository_presenter.core import long_paths
+from repository_presenter.core.long_paths import exceeds_max_path, long_path
 
 pytestmark = pytest.mark.skipif(sys.platform != "win32", reason="MAX_PATH is a Windows-only limit")
 
@@ -44,8 +45,10 @@ def test_a_path_beyond_max_path_is_unreadable_unprefixed_and_readable_prefixed(
     assert len(str(target)) > 260
     long_path(target).write_text("namespace A { public class B {} }\n", encoding="utf-8")
 
-    with pytest.raises(OSError):
-        target.read_text(encoding="utf-8")
+    # Host-independent: beyond MAX_PATH, so the prefix is needed on every machine.
+    # Whether an unprefixed read fails depends on LongPathsEnabled; not asserted.
+    assert exceeds_max_path(target)
+    assert str(long_path(target)).startswith("\\\\?\\")
 
     assert long_path(target).read_text(encoding="utf-8") == "namespace A { public class B {} }\n"
 
@@ -69,3 +72,19 @@ def test_a_path_that_does_not_exist_yet_is_still_prefixed(tmp_path: Path) -> Non
     prefixed = long_path(missing)
     assert str(prefixed).startswith("\\\\?\\")
     assert str(prefixed).endswith("does-not-exist-yet.txt")
+
+
+def test_the_max_path_check_fires_for_a_long_path_on_any_host(tmp_path: Path) -> None:
+    """Negative control: the verdict is a length fact. The module reads no host policy, so a machine
+    with LongPathsEnabled=1 gets the same True here as one without."""
+    deep = tmp_path
+    for i in range(6):
+        deep = deep / (f"segment_{i}_" + "x" * 40)
+    target = deep / ("f" * 60 + ".cs")
+    assert len(str(target)) > 260
+    assert exceeds_max_path(target) is True
+    assert "winreg" not in vars(long_paths)
+
+
+def test_the_max_path_check_stays_quiet_for_a_short_path(tmp_path: Path) -> None:
+    assert exceeds_max_path(tmp_path / "short.txt") is False

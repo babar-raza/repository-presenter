@@ -36,7 +36,8 @@
 #   - ruff, mypy and pytest run as "python -m <tool>", the same entry points as the console
 #     scripts. The venv's mypy.exe launcher exits 1 silently on this machine.
 #   - PYTHONPATH is set to this checkout's src. Otherwise an editable install of another checkout
-#     is what gets tested.
+#     is what gets tested. scripts/check_import_root.py verifies it held and exits 2 before any
+#     check runs if repository_presenter still resolves outside src/ (a worktree sharing a venv).
 #   - Shell: ci.yml's "run" steps use bash -e; the SBOM step runs under set -e to match.
 #
 # NOT auto-generated from .github/workflows/ci.yml: the two must be kept in sync by hand when
@@ -54,11 +55,19 @@ PINNED_PIP_AUDIT="2.10.1"
 
 # Scripts/ on Windows, bin/ elsewhere; prints nothing when the venv is absent (CI).
 venv_bin() {
+  local dir=""
   if [ -d "$1/Scripts" ]; then
-    (cd "$1/Scripts" && pwd)
+    dir="$1/Scripts"
   elif [ -d "$1/bin" ]; then
-    (cd "$1/bin" && pwd)
+    dir="$1/bin"
+  else
+    return 0
   fi
+  # pwd echoes an inherited PWD, and git sets PWD in Windows form (E:/...) when it runs a hook. A
+  # drive colon in PATH splits the entry, so the venv silently dropped out and the system Python ran
+  # the checks (2026-10-04: the pre-push hook refused a push that passes by hand). Rewrite the drive
+  # letter to the POSIX form bash expects.
+  (cd "$dir" && pwd) | sed -E 's#^([A-Za-z]):#/\1#'
 }
 
 REPO_BIN="$(venv_bin "$RP_VENV")"
@@ -120,6 +129,13 @@ lock_check="$("$PY" -m pip install --dry-run --disable-pip-version-check -r requ
 lock_rc=$?
 if [ "$lock_rc" -ne 0 ] || printf '%s\n' "$lock_check" | grep -q "Would install"; then
   MISSING+=("repo venv does not satisfy requirements-lock.txt (pip dry run would change it); re-provision it as the header describes")
+fi
+
+# Verifies the PYTHONPATH exported above actually took effect for every check below: an editable
+# install of another checkout (a shared .venv junction, a stale pip install -e) would otherwise be
+# what the checks import. Run with the same environment the checks get, so it tests what they test.
+if ! import_root="$("$PY" scripts/check_import_root.py . 2>&1)"; then
+  MISSING+=("repository_presenter does not resolve inside this checkout: $import_root (re-point the repo venv's editable install at this checkout, or set PYTHONPATH to its src)")
 fi
 
 if [ "${#MISSING[@]}" -gt 0 ]; then

@@ -16,6 +16,28 @@ against at least one of its own listed sightings, not merely proposed.
 
 ## Open
 
+### `s4_reconciliation.output_runaway_past_budget`
+
+S4 `source_reconciliation` replies run to the manifest's `max_output_tokens` (`finish_reason
+length`) and the job stops before any blocking check. The schema let a disposition's `fact_ids`
+array reach the batch's whole citable set (739 IDs on PDF-TypeScript, more elsewhere), and nothing
+bounded the reply's total, so a repeating citation list could fill the budget. Three independent
+sightings, all of the same mechanism:
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` | 2026-09-11 | 1,047 repeated `public_symbol:` entries in one array, `finish_reason length` on both runs (`docs/DECISION_LOG.md` S4-REGRESSION; `tests/components/readme/reconciliation/test_normalization.py`) |
+| 2 | `aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET` | G4-W17 item 121 (F27) | 32,000-token `TruncatedOutput` on one attempt, 3,016 tokens on an identical retry of the same request hash |
+| 3 | `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` | 2026-10-04 (revision `a8661f8b`) | batch 1 (40 units) `finish_reason length` at 32,000 tokens; the identical request then answered `stop` at 4,666 tokens (qwen3-next, temperature 0, seed 1) |
+
+Fix (branch `fix/s4-output-budget`): `fact_ids` capped per disposition at 16
+(`RECONCILIATION_FACT_IDS_PER_DISPOSITION`), `destination_section` an enum of the shell's section
+IDs, and batch size derived from the longest reply the schema admits at the budget's
+characters-per-token floor (`output_chars_bound`). A truncated reply is kept beside the call store
+(`*.rejected-N.json`) before the typed `TruncatedOutput` failure, so the runaway field is read from
+evidence next time. Status: fixed on the branch; closes when the live proof on sighting 3 reaches
+past S4.
+
 ### `readme.bc07_visible_budget_repaired_by_model_only`
 
 Check 7's visible-line budget (`validation/registry.py`, `_check_structure`) measures the composed
@@ -76,6 +98,8 @@ confirmed fixed - re-run the hosted workflow after the fix lands and check this 
 before moving this entry to Resolved.
 
 **Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: still Open. The success-path mapping that sends `VALID_UPDATE_AVAILABLE` to `ACCEPTED` (`core/state/present_transaction.py`, around lines 170-175) was introduced in `ffb5ccbd` (a `git log -S` search for its comment text finds only that commit); `73f76648` changed the failure branch. A hosted `present.yml` run on branch `g5-w05-hosted-proof` (run `37197380582`, 2026-10-04 11:02 UTC, head `a41662ce`) concluded success, but that branch is not `main`, and no record shows the sighted candidate (revision `65b1f577...`) re-run after any fix. Moves to Resolved only on that candidate's hosted re-run on `main` with no wrapper error.
+
+**Status 2026-10-04 (fix in PR #215, branch `fix/durable-invalidated-path`; not yet verified on hosted `main`)**: fixed in code, still Open until that re-run. Root cause confirmed from the code: `INVALIDATED` is written by the wrapper's own failure branch (`ACCEPTED` -> `INVALIDATED`), and `admit_trigger` never resets a record's state, so a run that starts from a record left at `INVALIDATED` reached `_success_hops`, which had no path out of `INVALIDATED`. The `VALID_UPDATE_AVAILABLE` outcome already commits `ACCEPTED`, never `INVALIDATED`; the fix does not change that mapping. The fix registers the `INVALIDATED` -> `EXTRACTING` re-entry the schema already defines and closes the other unregistered pairs a table test found for wrapper-reachable states (`MONITORING`, `PROVING_NO_OP` / `ACCEPTED` behind an outcome, and a failure from `READY_FOR_PROPOSAL`). The hosted record's own history for the sighted candidate was not inspected.
 
 ### `section_authoring.rejection_no_recover`
 
