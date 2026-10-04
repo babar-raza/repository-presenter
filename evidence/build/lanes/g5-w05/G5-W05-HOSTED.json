@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "lane": "g5-w05",
+  "gate": "G5_RERUN_DURABILITY_AND_HOSTED_OPERATION",
+  "work_item": "G5-W05",
+  "work_item_status": "PENDING",
+  "recorded_at": "2026-10-04T10:30:00+00:00",
+  "control_revision_note": "Hosted proof attempts for G5-W05 on the canary. The cursor stays PENDING: the separate-run zero-call criterion is not met (see verdict). No product repository was written; no PR was opened in any aspose-*-foss repository.",
+  "canary": {
+    "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+    "local_sealed_bundle": {
+      "state": "READY_FOR_PROPOSAL",
+      "sealed_at": "2026-09-09T18:46:59Z",
+      "no_op_proof": "byte_identical true, fresh_process true, provider_calls 0",
+      "README_md_lines": 774,
+      "README_md_sha256": "b693f34f29d82af98720a7df4716bf3b8dbddaaafff38656d2fcf9936b9870fd"
+    }
+  },
+  "hosted_runs": [
+    {
+      "run_id": "36859856641",
+      "url": "https://github.com/babar-raza/repository-presenter/actions/runs/36859856641",
+      "branch": "main",
+      "conclusion": "failure",
+      "provider_calls_first_invocation": 23,
+      "result": "bundle VALID_UPDATE_AVAILABLE; then wrapper crash 'INVALIDATED' has no registered path toward a committed outcome"
+    },
+    {
+      "run_id": "37191850108",
+      "url": "https://github.com/babar-raza/repository-presenter/actions/runs/37191850108",
+      "branch": "main",
+      "conclusion": "failure",
+      "provider_calls_first_invocation": "not printed; gateway returned HTTP 500 after bounded retries",
+      "result": "gateway HTTP 500 after bounded retries; then wrapper raised 'INVALIDATED' -> 'FAILED_INTERNAL' is not in the transition registry"
+    },
+    {
+      "run_id": "37193095657",
+      "url": "https://github.com/babar-raza/repository-presenter/actions/runs/37193095657",
+      "branch": "g5-w05-hosted-proof",
+      "commit": "1d18aa15",
+      "conclusion": "success",
+      "provider_calls_first_invocation": 28,
+      "first_invocation_result": "bundle state VALID_UPDATE_AVAILABLE, 14 files, provider calls 28",
+      "no_op_invocation_result": "bundle state READY_FOR_PROPOSAL, 13 files, provider calls 0; a fresh process reproduced the waiting update byte for byte with zero provider calls",
+      "readme_lines": 834,
+      "readme_sha256_in_run_log": "5bfedf0f3674eebdc9b770c590dbf62b8ce8d23aff86bf03143c285204a184bf"
+    },
+    {
+      "run_id": "37193824462",
+      "url": "https://github.com/babar-raza/repository-presenter/actions/runs/37193824462",
+      "branch": "g5-w05-hosted-proof",
+      "commit": "1d18aa15",
+      "conclusion": "failure",
+      "provider_calls": "not printed; the run died before its summary lines",
+      "result": "independent_review: output rejected twice (unknown fact ID format:output.fbx); then wrapper raised 'READY_FOR_PROPOSAL' -> 'FAILED_INTERNAL' is not in the transition registry",
+      "note": "A separate run on an unchanged revision made live provider calls, because the hosted environment class differs from the local sealed bundle's (16 environment changes reopen EXTRACTING)."
+    }
+  ],
+  "pr_ci": {
+    "pr": "https://github.com/babar-raza/repository-presenter/pull/192",
+    "run": "37193397840",
+    "python_3_11": "pass",
+    "python_3_12": "pass",
+    "python_3_13": "pass"
+  },
+  "verdict": {
+    "state_matches_local_bundle": true,
+    "same_bytes_as_local_bundle": false,
+    "zero_calls_in_same_run_rerun": true,
+    "zero_calls_on_separate_run": false,
+    "reason_bytes_differ": "The hosted environment (Ubuntu, Python 3.11) differs from the sealed local environment, so EXTRACTING reopens by design (G5-W02 environment class). The hosted composition is a new revision-bound bundle, not a byte copy of the local one.",
+    "reason_separate_run_not_zero": "The hosted bundle is not committed, so a fresh runner starts without a reusable call store matching its own environment class. Closing this needs either committing hosted-sealed bundles or sealing the canary under the hosted environment; both are owner-level decisions, not a src/ fix."
+  },
+  "defects_fixed_on_branch": [
+    "present_transaction.wrapper_outcome_no_registered_path: INVALIDATED has no registered success path (fixed: walks the spine from EXTRACTING)",
+    "present_transaction: INVALIDATED -> FAILED_INTERNAL is unregistered (fixed: failure from INVALIDATED stays INVALIDATED)",
+    "present_transaction: READY_FOR_PROPOSAL -> FAILED_INTERNAL is unregistered (fixed: failure from READY_FOR_PROPOSAL records the failure without a hop)"
+  ],
+  "open_after_this_item": [
+    "Separate-run zero-call criterion: needs a decision on whether hosted-sealed bundles persist (G5-W02 follow-up).",
+    "Reviewer output nondeterminism on fresh draws (unknown fact ID format:output.fbx rejected twice) at independent_review."
+  ]
+}
