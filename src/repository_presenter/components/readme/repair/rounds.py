@@ -19,6 +19,7 @@ from typing import Any
 
 from repository_presenter.components.readme.composition.authoring import (
     CONTENT_UNITS_FILENAME,
+    RAW_CALLS_FILENAME,
     SectionTask,
     authoring_schema,
     authoring_tasks,
@@ -29,6 +30,7 @@ from repository_presenter.components.readme.composition.authoring import (
     repair_title_verbatim_opening_errors,
     unit_checks,
     write_content_units,
+    write_raw_calls,
 )
 from repository_presenter.components.readme.composition.coherence import (
     apply_coherence,
@@ -185,25 +187,47 @@ class Round:
 
 def _second_opinion(
     loaded: LoadedManifest, packet: Mapping[str, Any], checks: Any, common: Mapping[str, Any]
-) -> dict[str, Any] | None:
-    """The second reader's output, or ``None`` when the job raised ``JobError`` - never ``{}``,
-    which ``review_document`` reads as a completed reading that corroborated nothing (TB-04)."""
+) -> JobResult | None:
+    """The second reader's own ``JobResult``, or ``None`` when the job raised ``JobError`` - never
+    an empty output, which ``review_document`` reads as a completed reading that corroborated
+    nothing (TB-04). Returns the whole ``JobResult``, not just ``.output`` (G5-W02): the caller
+    needs ``.request_sha256`` too, to seal this read's own raw output under its own call's own key
+    in ``raw_calls.json`` - ``review.json`` alone cannot always answer for it on a later replay
+    (a rejected first read never carries the second reader's own non-blocking findings forward)."""
     try:
-        return run_job(second_reader(loaded), packet, checks=checks, **common).output
+        return run_job(second_reader(loaded), packet, checks=checks, **common)
     except JobError:
         return None
 
 
 def _third_opinion(
     loaded: LoadedManifest, packet: Mapping[str, Any], checks: Any, common: Mapping[str, Any]
-) -> dict[str, Any] | None:
-    """The third reader's output for a 2-of-3 majority-vote escalation (section 5.6), or ``None``
-    when the job raised ``JobError`` - mirrors ``_second_opinion`` exactly, including the
-    ``None``-never-``{}`` rule its own docstring explains."""
+) -> JobResult | None:
+    """The third reader's own ``JobResult`` for a 2-of-3 majority-vote escalation (section 5.6),
+    or ``None`` when the job raised ``JobError`` - mirrors ``_second_opinion`` exactly, including
+    returning the whole ``JobResult`` rather than just ``.output`` (G5-W02)."""
     try:
-        return run_job(third_reader(loaded), packet, checks=checks, **common).output
+        return run_job(third_reader(loaded), packet, checks=checks, **common)
     except JobError:
         return None
+
+
+def _raw_call_entry(result: JobResult) -> dict[str, Any]:
+    """One ``raw_calls.json`` entry for ``result`` (G5-W02): the shape
+    ``composition/authoring.py::write_raw_calls`` and ``bundle/seal.py::seed_additional_calls``
+    both already document and agree on.
+
+    Deliberately excludes ``result.model_served``: ``core/llm/jobs.py::run_job`` hardcodes it to
+    ``None`` on its own cache-reuse path (never the originally-served model name), so a round that
+    reuses a prior call - exactly the no-op-proof rerun this item's own acceptance bar names -
+    would otherwise write a ``raw_calls.json`` that differs from the one the original, live call
+    wrote, falsely tripping the byte-identical no-op comparison (measured live: hosted CI's own
+    canary no-op proof, `AssertionError: assert 'ACCEPTED' == 'READY_FOR_PROPOSAL'`, `raw_calls.
+    json changed since the last seal`). Neither `investigation.json`/`dispositions.json`/`plan.
+    json` ever carry `model_served` in their own sealed content for the identical reason - only
+    `calls.jsonl` does, and that file is `bundle/seal.py::REPLAY_EXEMPT` precisely because it
+    carries exactly this kind of per-run-only metadata."""
+    return {"job": result.job, "output": result.output}
 
 
 def run_round(tx: TransactionInputs) -> Round:
@@ -368,6 +392,24 @@ def run_round(tx: TransactionInputs) -> Round:
     digests["units"] = write_content_units(units, tx.directory / CONTENT_UNITS_FILENAME)
     digests["readme"] = write_text(readme, tx.directory / README_FILENAME)
     digests["patch"] = write_text(render_patch(tx.original, readme), tx.directory / PATCH_FILENAME)
+    # G5-W02 (27.2 RC4's own remaining gap): raw_calls.json seals every accepted call above that
+    # no other sealed artifact already answers for verbatim - every coherence batch, plus a batch
+    # section_authoring task (a non-batch one is already reconstructed from content_units.json
+    # alone by reconstructed_task_output, seeded before its own run_job call further up). Written
+    # now so a round that stops at blocking_failures below (never reaching review) still seals
+    # whatever it made; the review block further down adds its own reads and rewrites this same
+    # file, exactly like digests["validation"] is written once here and again after review.
+    raw_calls: dict[str, dict[str, Any]] = {
+        result.request_sha256: _raw_call_entry(result) for result in coherent.values()
+    }
+    raw_calls.update(
+        {
+            authored[task.label].request_sha256: _raw_call_entry(authored[task.label])
+            for task in tasks
+            if task.is_batch
+        }
+    )
+    digests["raw_calls"] = write_raw_calls(raw_calls, tx.directory / RAW_CALLS_FILENAME)
     # Stage S9 runs exactly the contract's blocking checks over the written artifacts; a
     # failure names its causal stage so repair reopens the cause, never the validation.
     validation = validate_candidate(
@@ -447,11 +489,13 @@ def run_round(tx: TransactionInputs) -> Round:
     # path now means the uncorroborated ACCEPT fails check 10 rather than sealing. A repository
     # named in MAJORITY_VOTE_REPOSITORIES (section 5.6) escalates this to a 2-of-3 vote among
     # three independent reads instead of one confirming read - see the branch just below.
+    second_result: JobResult | None = None
+    third_result: JobResult | None = None
     if review["verdict"] == ACCEPT or any(
         prose_judgment(finding) for finding in review["findings"]
     ):
-        second = _second_opinion(loaded, packet, checks, common)
-        if second is not None:
+        second_result = _second_opinion(loaded, packet, checks, common)
+        if second_result is not None:
             if tx.entry.repository in MAJORITY_VOTE_REPOSITORIES:
                 # Section 5.6 escalation: this repository's own documented rerun history
                 # (docs/DECISION_LOG.md) already shows two or more distinct S10 findings across
@@ -459,13 +503,24 @@ def run_round(tx: TransactionInputs) -> Round:
                 # independent reads rather than one confirming read alone. A failed third read
                 # (JobError) falls back to the unescalated single-confirming-read rule below,
                 # never to a looser one - losing verification must never increase assurance.
-                third = _third_opinion(loaded, packet, checks, common)
-                review = document(second=second, third=third)
+                third_result = _third_opinion(loaded, packet, checks, common)
+                third_output = third_result.output if third_result is not None else None
+                review = document(second=second_result.output, third=third_output)
             else:
-                review = document(second=second)
+                review = document(second=second_result.output)
     digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)
     digests["validation"] = write_validation(validation, tx.directory / VALIDATION_FILENAME)
+    # G5-W02: the review reads above are not covered by anything else that seals verbatim output
+    # (review.json folds first/second/third into findings/advisory, losing a corroborating read's
+    # own non-blocking findings whenever the first read already rejected - see write_raw_calls's
+    # own docstring), so they join the raw_calls.json this round already wrote after coherence.
+    raw_calls[reviewed.request_sha256] = _raw_call_entry(reviewed)
+    if second_result is not None:
+        raw_calls[second_result.request_sha256] = _raw_call_entry(second_result)
+    if third_result is not None:
+        raw_calls[third_result.request_sha256] = _raw_call_entry(third_result)
+    digests["raw_calls"] = write_raw_calls(raw_calls, tx.directory / RAW_CALLS_FILENAME)
     current.validation = validation
     current.reviewed = reviewed
     current.review = review
