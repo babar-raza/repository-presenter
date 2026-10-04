@@ -35,10 +35,20 @@ from repository_presenter.components.readme.composition.authoring import (
     unit_checks,
     verified_members,
 )
+from repository_presenter.components.readme.composition.components.glance import (
+    GLANCE_LINE_CHARS,
+    GLANCE_MAX_LINES,
+    wrapped_lines,
+)
 from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
     SUBSECTION_HEADINGS,
+)
+from repository_presenter.components.readme.composition.components.terminology import (
+    LOWER_WORD,
+    noncanonical_terms,
+    title_case_violations,
 )
 from repository_presenter.components.readme.composition.placement import (
     Placement,
@@ -60,6 +70,7 @@ from repository_presenter.components.readme.evidence.facts.links import (
 )
 from repository_presenter.components.readme.evidence.facts.product_pages import banner_target
 from repository_presenter.core.ecosystems import spec_for
+from repository_presenter.core.examples import collapse_blank_runs
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
@@ -70,7 +81,13 @@ VALIDATION_FILENAME = "validation.json"
 # 6: BC-02 v4 refuses a SUPPORTED registry-kind install whose own reading found no distribution
 # (Imaging-FOSS for .NET and GIS, 2026-10-04). Both branches had taken "5" independently; the
 # merged validator means both changes, so it moves once more.
-VALIDATOR_VERSION = "6"
+# 7: BC-07 v8 closes the verification V2 items 8 and 9 enforcement gaps (see BC-07's own comment):
+# every heading is read for title case and canonical abbreviations, a fence needs a language,
+# the document carries no repeated empty-line run, a visible section never sits in a collapsed
+# block, narration covers the vocabulary idea.md lists, and an At a Glance label wraps within three
+# lines. A bundle sealed under 6 re-checks under 7 and, where it newly fails, shows
+# VALID_UPDATE_AVAILABLE on re-render rather than being invalidated.
+VALIDATOR_VERSION = "7"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -231,9 +248,21 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # right-side negative lookahead composition/renderer.py's own pattern already has, so a
         # word that STARTS a hyphenated compound (a module path's own trailing segment) is no
         # longer a false-positive bare-abbreviation match.
-        "7",
+        # "8" (verification V2 items 8 and 9, a meaning change per the increment rule), each clause
+        # quoted from plans/idea.md or docs/README_CONTRACT.md in the work item's PR: a heading of
+        # any level is judged for title case and canonical abbreviation casing (the abbreviation
+        # list is now the one governed registry in components/terminology.py, which names PS and the
+        # mixed-case glTF and npm); a code fence carries a language and neither a fence nor the
+        # document carries a repeated empty-line run; a section the shell marks visible never
+        # renders inside a collapsed block; the narration list gains the evidence vocabulary
+        # idea.md names (network policy, registry receipts, evidence collectors, validation
+        # status) and its plural and hyphenated forms; and an At a Glance label wraps within three
+        # lines at the common node width (components/glance.py).
+        "8",
         "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; "
-        "At a Glance topology and column rules; no internal narration; within the length budget",
+        "At a Glance topology, column rules and label geometry; fence languages and normalized "
+        "spacing; visible sections never collapsed; no internal narration; within the length "
+        "budget",
         ("structure",),
         "S9",
     ),
@@ -365,8 +394,8 @@ _URL_TAB_OR_NEWLINE = re.compile(r"[\t\n\r]")
 # 112 (lane D PROPOSAL P25, PDF-Go): item 103 guarded only the left side, so a word that STARTS a
 # hyphenated compound (a module path's own trailing segment, e.g. pdf-go) still matched - the
 # right-side negative lookahead now completes the two-sided guard composition/renderer.py's own
-# _LOWER_WORD already has, so the two patterns match exactly.
-_LOWER_WORD = re.compile(r"(?<![.\w:-])[a-z]{3,}(?![\w:-])")
+# _LOWER_WORD already has, so the two patterns match exactly. Since verification V2 item 8 that
+# pattern is terminology.LOWER_WORD, the one definition the renderer and this check both read.
 _LINK_DESTINATION = re.compile(r"\]\([^)]*\)")
 _URL = re.compile(r"https?://\S+")
 # G4-W17 arrival item 26 (lane B, Aspose.Slides for C++, measured 2026-09-06). `\b` alone let
@@ -395,7 +424,29 @@ _NARRATION = (
     "generated by",
     "this readme was",
     "real, verified",
+    # plans/idea.md: "Source revisions, isolated-build conditions, network policy, registry
+    # receipts, provider calls, evidence collectors, and validation status belong in evidence".
+    # The first three were already here; the last four were the gap (verification V2 item 9).
+    "network policy",
+    "registry receipt",
+    "evidence collector",
+    "validation status",
 )
+# How plans/idea.md spells the evidence vocabulary it lists: a plural, a hyphen for a space
+# ("isolated-build conditions"), and "policies". A bare word-bounded phrase read none of "provider
+# calls", "source revisions" or "isolated-build" as narration - the singular alone matched - so
+# each listed phrase carries the pattern for every form the idea text itself uses. Zero tolerance
+# throughout: the contract states no count threshold ("Never present: ... internal assurance
+# narration"), so one occurrence blocks.
+_NARRATION_FORMS = {
+    "source revision": r"source[ -]revisions?",
+    "isolated build": r"isolated[ -]builds?",
+    "provider call": r"provider[ -]calls?",
+    "network policy": r"network[ -]polic(?:y|ies)",
+    "registry receipt": r"registry[ -]receipts?",
+    "evidence collector": r"evidence[ -]collectors?",
+    "validation status": r"validation[ -]status",
+}
 # "real, verified" (external review, 2026-09-07): measured twice, verbatim, in a sealed
 # candidate's Additional Examples lead-in ("More real, verified snippets are collected below") -
 # a claim about the document's own verification process, the same category as "provider call"
@@ -456,7 +507,7 @@ def narration_patterns(
             phrase,
             _generated_by_pattern()
             if phrase == "generated by"
-            else re.compile(rf"\b{re.escape(phrase)}\b"),
+            else re.compile(rf"\b{_NARRATION_FORMS.get(phrase, re.escape(phrase))}\b"),
         )
         for phrase in _NARRATION
     )
@@ -1109,10 +1160,147 @@ def _topology_failures(body: str, has_inputs: bool) -> list[Failure]:
         )
     for label in _GLANCE_LABEL.findall(body):
         for token in label.split():
-            if len(token) > 28:
+            if len(token) > GLANCE_LINE_CHARS:
                 failures.append(
                     Failure("COMPOSING", f"At a Glance label token over 28 characters: {token!r}")
                 )
+        # README_CONTRACT.md section 2.1: "no label wrapping past three lines at Mermaid's default
+        # node width - a longer title is shortened at planning, never clipped at render". Every
+        # label, endpoint or capability, wraps under the one common width of components/glance.py.
+        height = len(wrapped_lines(label))
+        if height > GLANCE_MAX_LINES:
+            failures.append(
+                Failure(
+                    "PLANNING",
+                    f"At a Glance label {label!r} wraps to {height} lines at the common node "
+                    f"width of {GLANCE_LINE_CHARS} characters; at most {GLANCE_MAX_LINES}",
+                )
+            )
+    return failures
+
+
+def _outside_lines(readme: str) -> list[tuple[str, str | None]]:
+    """(line, shell section id) for every line outside a fenced block, in document order."""
+    found: list[tuple[str, str | None]] = []
+    inside = False
+    for line, section in zip(readme.splitlines(), _section_lines(readme), strict=True):
+        stripped = line.strip()
+        if stripped.startswith("```") and not inside:
+            inside = True
+        elif stripped == "```" and inside:
+            inside = False
+        elif not inside:
+            found.append((line, section))
+    return found
+
+
+def _heading_case_failures(
+    line: str, text: str, forms: dict[str, str], section: str | None
+) -> list[Failure]:
+    """plans/idea.md: "Every Markdown heading uses title case. Visitor-facing technical
+    abbreviations use their canonical uppercase forms throughout" - judged on every heading below
+    the H1, whatever level and whatever fixed set or task name admitted it (verification V2 item 8:
+    a level-3 task heading was never title-cased, and a heading was never read for abbreviations at
+    all, because `_prose` drops every `#` line)."""
+    failures = [
+        Failure(
+            "COMPOSING",
+            f"heading {line!r}: abbreviation {found!r} is not in its canonical form {canonical}",
+            section,
+        )
+        for found, canonical in noncanonical_terms(text, forms)
+    ]
+    wrong = title_case_violations(text, forms)
+    if wrong:
+        failures.append(
+            Failure(
+                "COMPOSING",
+                f"heading {line!r} is not in title case: {', '.join(repr(w) for w in wrong)}",
+                section,
+            )
+        )
+    return failures
+
+
+_DETAILS_OPEN = re.compile(r"(?i)<details\b")
+_DETAILS_CLOSE = re.compile(r"(?i)</details\s*>")
+
+
+def _collapsed_section_failures(readme: str) -> list[Failure]:
+    """plans/idea.md: "installation, the minimal example, all selected core capabilities, every
+    material limitation, top APIs, and the visitor-relevant development and testing summary remain
+    visible ... Only secondary material such as additional examples and long API inventories may be
+    collapsed"; README_CONTRACT.md section 2, row 17: "Never collapsed". The shell's own
+    Visibility column is the data: a section it marks ``visible`` whose heading renders inside a
+    ``<details>`` block is hidden from a visitor who has not clicked, and fails here.
+    """
+    visible = {
+        section.heading: section.id
+        for section in SEMANTIC_SHELL
+        if section.heading and section.visibility == "visible"
+    }
+    failures: list[Failure] = []
+    depth = 0
+    for line, _section in _outside_lines(readme):
+        if depth > 0 and line.startswith("## "):
+            heading = line[3:].strip()
+            if heading in visible:
+                failures.append(
+                    Failure(
+                        "COMPOSING",
+                        f"visible section {heading!r} renders inside a collapsed <details> block",
+                    )
+                )
+        depth = max(0, depth + len(_DETAILS_OPEN.findall(line)) - len(_DETAILS_CLOSE.findall(line)))
+    return failures
+
+
+def _fence_and_spacing_failures(candidate: Candidate) -> list[Failure]:
+    """plans/idea.md: "Every source fence carries its correct language identifier and visitor
+    examples use normalized, language-valid spacing without repeated empty-line runs";
+    README_CONTRACT.md row 10: "Correct fence language, normalized spacing".
+
+    A fence with no info string, and two or more consecutive empty lines inside a fence or outside
+    one, fail. A
+    placed inherited code block is exempt from both: check 8 requires it to render exactly as the
+    upstream wrote it, so the upstream's own spelling is not this check's to judge (the same
+    exemption `_verbatim_lines` gives the abbreviation rule).
+    """
+    verbatim_bodies = {
+        _fence_body(placement.text)[1].strip()
+        for placement in _placements(candidate)
+        if placement.outcome == "placed" and placement.unit_id.endswith(".code_block")
+    }
+    failures: list[Failure] = []
+    for token in MarkdownIt("commonmark").parse(candidate.readme):
+        if token.type != "fence" or token.content.strip() in verbatim_bodies:
+            continue
+        line = (token.map[0] + 1) if token.map else 0
+        if not token.info.strip():
+            failures.append(Failure("COMPOSING", f"code fence at line {line} has no language"))
+        body = token.content.rstrip("\n")
+        if collapse_blank_runs(body) != body:
+            failures.append(
+                Failure("COMPOSING", f"code fence at line {line} has a repeated empty-line run")
+            )
+    blank = 0
+    inside = False
+    for number, text in enumerate(candidate.readme.splitlines(), start=1):
+        stripped = text.strip()
+        if stripped.startswith("```") and not inside:
+            inside = True
+        elif stripped == "```" and inside:
+            inside = False
+        if inside or stripped.startswith("```"):
+            blank = 0
+        elif not stripped:
+            blank += 1
+            if blank == 2:
+                failures.append(
+                    Failure("COMPOSING", f"repeated empty-line run ending at line {number}")
+                )
+        else:
+            blank = 0
     return failures
 
 
@@ -1186,26 +1374,40 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
     # and 2 of Aspose.3D for .NET's 293).
     topics = set(api_reference_names(candidate.facts).values())
     api_lines = set(_section_texts(candidate.readme).get("api_reference", "").splitlines())
-    for line in outside:
+    forms = canonical_abbreviations(candidate.facts)
+    owned = {section.id for section in SEMANTIC_SHELL if section.owner != "D"}
+    for line, section_id in _outside_lines(candidate.readme):
         if line.startswith("#") and not line.startswith("# "):
             level = len(line) - len(line.lstrip("#"))
             text = line.lstrip("#").strip()
-            if level == 3 and text in tasks:
-                continue
-            if level == 3 and line in api_lines and text in topics:
-                continue
-            if (level, text in headings, text in SUBSECTION_HEADINGS) not in _HEADING_OK:
+            # An API Reference topic is a type's own name (a code identifier), spelled as the
+            # symbol spells it; it is judged neither as English nor as an abbreviation.
+            identifier = level == 3 and line in api_lines and text in topics
+            known = (
+                (level == 3 and text in tasks)
+                or identifier
+                or (level, text in headings, text in SUBSECTION_HEADINGS) in _HEADING_OK
+            )
+            if not known:
                 failures.append(
                     Failure("COMPOSING", f"heading {line!r} is not a shell heading in title case")
                 )
+            if not identifier:
+                failures.extend(
+                    _heading_case_failures(
+                        line, text, forms, section_id if section_id in owned else None
+                    )
+                )
     prose = _prose(outside)
-    lower_forms = canonical_abbreviations(candidate.facts)
+    lower_forms = forms
     # A line a placed inherited unit renders verbatim is the upstream's own spelling, which check 8
     # requires the renderer to keep unchanged, so this rule does not judge it (_verbatim_lines).
     verbatim = _verbatim_lines(candidate)
     authored_prose = _prose([line for line in outside if line.strip() not in verbatim])
     offenders = sorted(
-        word for word in set(_LOWER_WORD.findall(authored_prose)) if word in lower_forms
+        word
+        for word in set(LOWER_WORD.findall(authored_prose))
+        if word in lower_forms and lower_forms[word] != word
     )
     if offenders:
         # G4-W17 arrival item 78 (lane E E4, PDF-Python): a failure with no section_id routes to
@@ -1232,10 +1434,12 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
             failures.append(
                 Failure(
                     "COMPOSING",
-                    f"abbreviation {word!r} is not in its canonical form {word.upper()}",
+                    f"abbreviation {word!r} is not in its canonical form {lower_forms[word]}",
                     located,
                 )
             )
+    failures.extend(_collapsed_section_failures(candidate.readme))
+    failures.extend(_fence_and_spacing_failures(candidate))
     graphs = [body for language, body in _fences(candidate.readme) if language == "mermaid"]
     if len(graphs) > 1:
         failures.append(Failure("COMPOSING", "more than one At a Glance graph"))
@@ -1337,7 +1541,9 @@ def protected_fragments(candidate: Candidate) -> list[tuple[str, str, str]]:
         if unit_type == "code_block":
             language, body = _fence_body(fact.value)
             if language == candidate.entry.ecosystem and body.strip():
-                fragments.append(("example", body, fact.id))
+                # An example enters the facts with its blank-line runs collapsed (selection.py),
+                # so the upstream body is compared in the same normalised spacing.
+                fragments.append(("example", collapse_blank_runs(body), fact.id))
             fragments.extend(
                 ("command", line.strip(), fact.id)
                 for line in body.splitlines()

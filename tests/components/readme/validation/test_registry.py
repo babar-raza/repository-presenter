@@ -17,6 +17,7 @@ from repository_presenter.components.readme.composition.authoring import (
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
 from repository_presenter.components.readme.composition.renderer import (
     api_reference_names,
+    collapse_document_blank_runs,
     render_readme,
 )
 from repository_presenter.components.readme.validation.registry import (
@@ -292,7 +293,7 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # VALIDATOR_VERSION 6 (BC-07 on main took 5; BC-02 v4 refuses a SUPPORTED registry install the
     # registry did not confirm, and lands on the same constant). The checks above pass under the
     # current validator, so only the pin needed to move.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "6"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "7"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
@@ -1472,13 +1473,263 @@ def test_example_headings_are_real_unique_task_names(tmp_path: Path) -> None:
         "## Additional Examples\n\nLead-in.\n\n<details>\n"
         "<summary>View Additional Examples</summary>\n\n"
         "### Example 2\n\n```python\nprint(1)\n```\n\n### Example 2\n\n```python\nprint(1)\n```\n\n"
-        "### Save a scene\n\n```python\nprint(1)\n```\n\n</details>\n"
+        "### Save a Scene\n\n```python\nprint(1)\n```\n\n</details>\n"
     )
     document = validate_candidate(_candidate(_candidate().readme + "\n" + section), tmp_path, ())
     details = _failed(document, "BC-07")["details"]
     assert "example heading 'Example 2' is reused" in details
     assert "example heading 'Example 2' names no task" in details
-    assert not any("Save a scene" in detail for detail in details)
+    assert not any("Save a Scene" in detail for detail in details)
+
+
+# ---------------------------------------------------------------------------------------------
+# Verification V2 items 8 and 9 (BC-07 v8): heading case and abbreviations, fence languages and
+# spacing, visible sections, narration vocabulary, At a Glance label geometry. Each rule quotes
+# plans/idea.md or docs/README_CONTRACT.md in the work item's PR; each has a negative control.
+# ---------------------------------------------------------------------------------------------
+
+_EXAMPLES_OPEN = (
+    "## Additional Examples\n\nLead-in.\n\n<details>\n"
+    "<summary>View Additional Examples</summary>\n\n"
+)
+_EXAMPLES_CLOSE = "\n</details>\n"
+
+
+def _with_example_heading(heading: str) -> Candidate:
+    section = _EXAMPLES_OPEN + f"### {heading}\n\n```python\nprint(1)\n```\n" + _EXAMPLES_CLOSE
+    return _candidate(_candidate().readme + "\n" + section)
+
+
+def _structure_details(candidate: Candidate, tmp_path: Path) -> list[str]:
+    document = validate_candidate(candidate, tmp_path, ())
+    return next(check for check in document["checks"] if check["id"] == "BC-07")["details"]
+
+
+def test_a_mis_cased_abbreviation_in_a_heading_fails(tmp_path: Path) -> None:
+    """plans/idea.md: "Visitor-facing technical abbreviations use their canonical uppercase forms
+    throughout, including PS, EPS, PDF, XPS, XLSX, HTML". `_prose` drops every heading line, so a
+    heading was never read for this at all (V2 item 8)."""
+    details = _structure_details(_with_example_heading("Convert Pdf to Image"), tmp_path)
+    assert (
+        "heading '### Convert Pdf to Image': abbreviation 'Pdf' is not in its canonical form PDF"
+        in details
+    )
+    # a mixed-case standard has one canonical spelling: npm
+    details = _structure_details(_with_example_heading("Install with NPM"), tmp_path)
+    assert (
+        "heading '### Install with NPM': abbreviation 'NPM' is not in its canonical form npm"
+        in details
+    )
+
+
+def test_a_level_three_task_heading_with_the_wrong_title_case_fails(tmp_path: Path) -> None:
+    """plans/idea.md: "Every Markdown heading uses title case." A level-three task heading skipped
+    the shell-heading test by an explicit `continue` and was never title-cased (V2 item 8)."""
+    details = _structure_details(_with_example_heading("Save a scene to disk"), tmp_path)
+    assert "heading '### Save a scene to disk' is not in title case: 'scene', 'disk'" in details
+    details = _structure_details(_with_example_heading("Save a Scene to Disk"), tmp_path)
+    assert not any("Save a Scene to Disk" in detail for detail in details)
+
+
+def test_the_legitimate_ps_form_passes_in_a_heading_and_in_prose(tmp_path: Path) -> None:
+    details = _structure_details(_with_example_heading("Convert PS to PDF"), tmp_path)
+    assert not any("Convert PS to PDF" in detail for detail in details)
+    readme = _candidate().readme.replace(
+        "## Scope and Limitations\n\n", "## Scope and Limitations\n\nIt reads PS files.\n\n"
+    )
+    assert "It reads PS files." in readme
+    assert not any("abbreviation" in d for d in _structure_details(_candidate(readme), tmp_path))
+
+
+def test_ps_is_an_abbreviation_that_lowercase_prose_can_no_longer_slip_past(
+    tmp_path: Path,
+) -> None:
+    """The fixed set lacked "PS" and the discovered-extension gate demanded three letters, so
+    "ps" was unspellable either way. Both now name it (components/terminology.py)."""
+    readme = _candidate().readme.replace(
+        "## Scope and Limitations\n\n", "## Scope and Limitations\n\nIt reads ps files.\n\n"
+    )
+    document = validate_candidate(_candidate(readme), tmp_path, ())
+    structure = _failed(document, "BC-07")
+    detail = "abbreviation 'ps' is not in its canonical form PS"
+    assert detail in structure["details"]
+    located = next(f for f in structure["failures"] if f["detail"] == detail)
+    assert located["section_id"] == "scope_limitations"
+
+
+def test_a_heading_case_failure_names_the_llm_owned_section_that_wrote_it(tmp_path: Path) -> None:
+    document = validate_candidate(_with_example_heading("Save a scene to disk"), tmp_path, ())
+    structure = _failed(document, "BC-07")
+    located = next(f for f in structure["failures"] if "title case" in f["detail"])
+    assert located["section_id"] == "additional_examples" and located["causal_stage"] == "COMPOSING"
+
+
+def test_a_level_four_heading_is_title_cased_too(tmp_path: Path) -> None:
+    readme = _candidate().readme + "\n#### Detailed member reference\n"
+    details = _structure_details(_candidate(readme), tmp_path)
+    assert any("'#### Detailed member reference' is not in title case" in d for d in details)
+
+
+def test_the_renderer_title_cases_the_task_heading_the_model_wrote() -> None:
+    """The fix lives where the heading is made: the unit is the model's sentence, the heading is
+    the template's. Re-rendering a sealed candidate's own units yields a passing document."""
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact(
+                "example:002",
+                "example",
+                "print(2)\n",
+                "lines 1-2; python fence; unit inherited_unit:900.code_block",
+                "example 2: EXECUTED; exit 0",
+            ),
+        ),
+    )
+    plan = {
+        **PLAN,
+        "sections": [
+            {
+                **section,
+                "include": section["include"] or section["section_id"] == "additional_examples",
+            }
+            for section in PLAN["sections"]
+        ],
+        "additional_example_ids": ["example:002"],
+    }
+    units = {
+        "units": [
+            *UNITS["units"],
+            _unit("additional_examples", "workflow:example:002", "Save a scene to a PS file."),
+        ],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, plan, units, DISPOSITIONS)
+    assert "### Save a Scene to a PS File" in readme
+    assert "### Save a scene" not in readme
+
+
+def test_a_fence_without_a_language_fails(tmp_path: Path) -> None:
+    """plans/idea.md: "Every source fence carries its correct language identifier"; README_CONTRACT
+    row 10: "Correct fence language"."""
+    readme = _candidate().readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\n```\nsome output\n```\n\n",
+    )
+    details = _structure_details(_candidate(readme), tmp_path)
+    assert any(
+        d.startswith("code fence at line") and d.endswith("has no language") for d in details
+    )
+    fenced = readme.replace("```\nsome output", "```text\nsome output")
+    assert not any("has no language" in d for d in _structure_details(_candidate(fenced), tmp_path))
+
+
+def test_a_placed_inherited_code_block_is_exempt_from_the_fence_language_rule(
+    tmp_path: Path,
+) -> None:
+    """Check 8 requires a placed inherited block to render exactly as the upstream wrote it, so an
+    upstream fence with no info string is the upstream's own spelling, not this check's to judge."""
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:901.code_block", "inherited_unit", "```\nsome output\n```"),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            *DISPOSITIONS["dispositions"],
+            {
+                "unit_id": "inherited_unit:901.code_block",
+                "disposition": "VERIFIED_MOVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": [],
+                "rationale": "r",
+            },
+        ]
+    }
+    candidate = _candidate(facts=facts, dispositions=dispositions)
+    assert "```\nsome output\n```" in candidate.readme
+    assert not any("has no language" in d for d in _structure_details(candidate, tmp_path))
+
+
+def test_a_repeated_empty_line_run_fails_outside_and_inside_a_fence(tmp_path: Path) -> None:
+    """plans/idea.md: "visitor examples use normalized, language-valid spacing without repeated
+    empty-line runs"."""
+    readme = _candidate().readme
+    spaced = readme.replace("## Scope and Limitations\n\n", "## Scope and Limitations\n\n\n")
+    assert spaced != readme
+    details = _structure_details(_candidate(spaced), tmp_path)
+    assert any(d.startswith("repeated empty-line run ending at line") for d in details)
+    inside = readme.replace("Scene().save('a.glb')\n", "Scene().save('a.glb')\n\n\nprint(1)\n")
+    assert inside != readme
+    details = _structure_details(_candidate(inside), tmp_path)
+    assert any("has a repeated empty-line run" in d for d in details)
+    # a single empty line inside and outside a fence is normal spacing
+    assert not any("empty-line" in d for d in _structure_details(_candidate(), tmp_path))
+
+
+def test_the_assembled_document_never_carries_an_empty_line_run() -> None:
+    assert collapse_document_blank_runs("a\n\n\n\nb\n") == "a\n\nb\n"
+    fenced = "a\n\n```text\nx\n\n\ny\n```\n\n\nb\n"
+    assert collapse_document_blank_runs(fenced) == "a\n\n```text\nx\n\n\ny\n```\n\nb\n"
+    assert "\n\n\n" not in _candidate().readme
+
+
+def test_a_visible_section_inside_a_collapsed_block_fails(tmp_path: Path) -> None:
+    """plans/idea.md: "installation, the minimal example, all selected core capabilities, every
+    material limitation, top APIs, and the visitor-relevant development and testing summary remain
+    visible ... Only secondary material such as additional examples and long API inventories may be
+    collapsed"; README_CONTRACT row 17: "Never collapsed"."""
+    readme = _candidate().readme
+    hidden = readme.replace(
+        "## Installation\n", "<details>\n<summary>Show</summary>\n\n## Installation\n", 1
+    ).replace("## Quick Start\n", "</details>\n\n## Quick Start\n", 1)
+    assert hidden != readme
+    details = _structure_details(_candidate(hidden), tmp_path)
+    assert "visible section 'Installation' renders inside a collapsed <details> block" in details
+    # the shell's own collapsible sections may be collapsed
+    assert not any("collapsed" in d for d in _structure_details(_candidate(), tmp_path))
+
+
+def test_narration_covers_the_vocabulary_idea_md_lists_in_every_form(tmp_path: Path) -> None:
+    """plans/idea.md: "Source revisions, isolated-build conditions, network policy, registry
+    receipts, provider calls, evidence collectors, and validation status belong in evidence". One
+    occurrence blocks - the contract states no count threshold."""
+    readme = _candidate().readme
+    for sentence, phrase in (
+        ("The network policy blocks it.", "network policy"),
+        ("Registry receipts confirm it.", "registry receipt"),
+        ("Evidence collectors ran.", "evidence collector"),
+        ("The validation status is green.", "validation status"),
+        ("It made two provider calls.", "provider call"),
+        ("Tied to source revisions.", "source revision"),
+        ("An isolated-build condition.", "isolated build"),
+        ("Network policies apply.", "network policy"),
+    ):
+        narrated = readme.replace(
+            "## Scope and Limitations\n\n", f"## Scope and Limitations\n\n{sentence}\n\n"
+        )
+        assert narrated != readme
+        details = _structure_details(_candidate(narrated), tmp_path)
+        assert f"internal narration {phrase!r}" in details, sentence
+
+
+def test_an_at_a_glance_label_that_wraps_past_three_lines_fails(tmp_path: Path) -> None:
+    """README_CONTRACT section 2.1: "no label wrapping past three lines at Mermaid's default node
+    width - a longer title is shortened at planning, never clipped at render"."""
+    readme = _candidate().readme
+    long_label = " ".join(["Export", "scenes"] * 10)
+    widened = readme.replace('c1["Build scenes"]', f'c1["{long_label}"]')
+    assert widened != readme
+    document = validate_candidate(_candidate(widened), tmp_path, ())
+    structure = _failed(document, "BC-07")
+    located = next(f for f in structure["failures"] if "wraps to" in f["detail"])
+    assert located["causal_stage"] == "PLANNING"
+    assert "lines at the common node width of 28 characters; at most 3" in located["detail"]
+    assert not any("wraps to" in d for d in _structure_details(_candidate(), tmp_path))
 
 
 def test_the_aspose_ceiling_counts_contextual_links_not_the_mandated_rows() -> None:

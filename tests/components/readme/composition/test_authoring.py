@@ -2487,6 +2487,29 @@ def test_the_canonical_abbreviations_cover_the_set_and_this_products_formats() -
     assert "max" not in forms, "a format extension that is an ordinary word is not one"
 
 
+def test_ps_and_the_mixed_case_standards_are_canonical_from_one_registry() -> None:
+    """plans/idea.md: "canonical uppercase forms throughout, including PS, EPS, PDF, XPS, XLSX,
+    HTML, and equivalent discovered formats". The fixed set lacked "PS" and the discovered-format
+    gate demanded three letters, so "ps" could be canonical by neither path (V2 item 8); the
+    registry (components/terminology.py) owns the list, and a two-letter discovered extension
+    qualifies unless it is an ordinary word."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("format:input.ai", "format", ".ai"),
+            _fact("format:output.gltf", "format", ".gltf"),
+            _fact("format:output.go", "format", ".go"),
+        ),
+    )
+    forms = canonical_abbreviations(facts)
+    assert forms["ps"] == "PS" and forms["eps"] == "EPS"
+    assert forms["ai"] == "AI", "a two-letter discovered format is an abbreviation"
+    assert forms["gltf"] == "glTF", "contract section 2: never GLTF or Gltf"
+    assert "go" not in forms, "a two-letter extension that is an ordinary word is not one"
+
+
 def test_one_note_extension_is_not_flagged_as_an_abbreviation() -> None:
     """G4-W17 arrival item 104. Measured on Note-Python: `.one` (Microsoft OneNote's own format
     extension) was missing from `WORD_EXTENSIONS`, so `canonical_abbreviations()` added a

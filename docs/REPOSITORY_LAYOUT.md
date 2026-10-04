@@ -65,6 +65,8 @@ src/repository_presenter/
       placement.py             where each inherited unit renders, under the three placement rules
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
+      terminology.py           the governed technical-terminology registry and heading-case grammar: the one owner of canonical abbreviations (PS, PDF, glTF, npm) and title case
+      glance.py                the At a Glance label-geometry policy: one common wrap width, at most three lines
     validation/
       registry.py              versioned check registry
       links/                   link resolution

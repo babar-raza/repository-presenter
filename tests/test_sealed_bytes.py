@@ -232,6 +232,50 @@ KNOWN_BLOCKED_STALE = {
 }
 
 
+# Verification V2 items 8 and 9 (docs/DECISION_LOG.md section 31 2026-10-05): the template now
+# title-cases an additional example's task heading (to_title_case) and collapses any run of empty
+# lines outside a fence (collapse_document_blank_runs), so each candidate below - sealed with a
+# sentence-case task heading, a repeated empty-line run, or both - re-renders to bytes that differ
+# from its sealed README in exactly those lines (diff checked directly: heading lines only, and one
+# empty line, nothing else moves). BC-07 v8 judges the same two rules, so the sealed bytes would
+# newly fail it; re-rendering from the sealed artifacts passes it with zero provider calls. A real
+# re-seal (through `present`) picks the change up; that is separate, owner-sequenced work. The three
+# candidates that already carry an entry above stay as recorded: their earlier causes persist.
+_V2_ITEM_8_9_REASON = (
+    "the template now title-cases the additional-examples task heading and collapses an empty-line "
+    "run outside a fence (V2 items 8 and 9, BC-07 v8): the sealed bytes carry a sentence-case task "
+    "heading and/or a repeated empty-line run; a re-render differs in those lines only - see "
+    "comment above"
+)
+_V2_ITEM_8_9_REF = "docs/DECISION_LOG.md section 31 2026-10-05 (verification V2 items 8 and 9)"
+KNOWN_BLOCKED_STALE.update(
+    {
+        name: {"reason": _V2_ITEM_8_9_REASON, "ref": _V2_ITEM_8_9_REF}
+        for name in (
+            "aspose-3d-foss__Aspose.3D-FOSS-for-.NET",
+            "aspose-3d-foss__Aspose.3D-FOSS-for-Java",
+            "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
+            "aspose-cells-foss__Aspose.Cells-FOSS-for-Go",
+            "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
+            "aspose-cells-foss__Aspose.Cells-FOSS-for-Python",
+            "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+            "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript",
+            "aspose-email-foss__Aspose.Email-FOSS-for-.Net",
+            "aspose-email-foss__Aspose.Email-FOSS-for-Python",
+            "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+            "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+            "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+            "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go",
+            "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+            "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET",
+            "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+            "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+            "aspose-slides-foss__Aspose.Slides-FOSS-for-Java",
+        )
+    }
+)
+
+
 def _bundle_param(bundle: Path) -> Any:
     name = bundle.parent.name
     record = KNOWN_BLOCKED_STALE.get(name)

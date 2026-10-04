@@ -12,6 +12,25 @@ FormatDirection = Literal["input", "output"]
 RECEIPTS_FILENAME = "examples.json"
 
 
+def collapse_blank_runs(text: str) -> str:
+    """``text`` with every run of two or more empty lines reduced to one empty line.
+
+    plans/idea.md: "visitor examples use normalized, language-valid spacing without repeated
+    empty-line runs". An empty line is one with only whitespace; every other line is untouched.
+    Applied where an example enters the facts (so the code that is executed is the code that is
+    shown) and by check 8 to the upstream body it compares against, so neither side of that
+    comparison depends on how the upstream happened to space its example.
+    """
+    kept: list[str] = []
+    previous_empty = False
+    for line in text.split("\n"):
+        empty = not line.strip()
+        if not (empty and previous_empty):
+            kept.append(line)
+        previous_empty = empty
+    return "\n".join(kept)
+
+
 @dataclass(frozen=True)
 class FormatClaim:
     """A file extension one example statement loads (input) or saves (output), by code line."""

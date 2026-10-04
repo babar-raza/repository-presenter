@@ -290,7 +290,7 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
         "```",
     ]
     assert "<summary>View Additional Examples</summary>" in lines
-    assert "### Print a number" in lines and lines.count("<details>") == 2
+    assert "### Print a Number" in lines and lines.count("<details>") == 2
     assert "<summary>View the Complete Public API Surface</summary>" in lines
     assert "| `Scene` | Public class. |" in lines and "### Scene" in lines
     assert "`Scene` holds the scene graph." in lines
@@ -1546,7 +1546,7 @@ def test_at_a_glance_drops_absent_groups_and_balances_six_or_more_capabilities()
 def test_the_flagship_example_stands_visible_before_the_collapsed_block() -> None:
     collapsed = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     assert "<details>" + chr(10) + "<summary>View Additional Examples</summary>" in collapsed
-    assert collapsed.index("<details>") < collapsed.index("### Print a number")
+    assert collapsed.index("<details>") < collapsed.index("### Print a Number")
     flagship = {**PLAN, "flagship_example_id": "example:002"}
     readme = render_readme(ENTRY, FACTS, flagship, UNITS, DISPOSITIONS)
     section = readme.split("## Additional Examples" + chr(10), 1)[1].split(chr(10) + "## ", 1)[0]
@@ -1554,7 +1554,7 @@ def test_the_flagship_example_stands_visible_before_the_collapsed_block() -> Non
     assert section.strip().splitlines() == [
         "One more workflow follows.",
         "",
-        "### Print a number",
+        "### Print a Number",
         "",
         "```python",
         "print(2)",
@@ -1675,9 +1675,12 @@ def test_prose_raises_a_known_abbreviation_to_its_canonical_form() -> None:
     context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     assert context.prose("Scenes save as glb files.") == "Scenes save as GLB files."
     assert context.prose("The api returns json.") == "The API returns JSON."
-    # Only a format these facts record is an abbreviation here, so another product's extension
-    # stays as written and the check keeps its say over it.
-    assert context.prose("Scenes save as gltf files.") == "Scenes save as gltf files."
+    # Only a format these facts record, or a standard the governed registry names, is an
+    # abbreviation here, so another product's extension stays as written and the check keeps its
+    # say over it. The registry names glTF (README_CONTRACT.md section 2: never "Gltf" or "GLTF").
+    assert context.prose("Scenes save as fbx files.") == "Scenes save as fbx files."
+    assert context.prose("Scenes save as gltf files.") == "Scenes save as glTF files."
+    assert context.prose("It reads ps and eps files.") == "It reads PS and EPS files."
     # A word that only looks like one is left alone, and a dotted extension is an identifier.
     assert context.prose("The scene is saved.") == "The scene is saved."
     assert "`.glb`" in context.prose("Files use the .glb extension.")
@@ -1704,3 +1707,11 @@ def test_a_planned_capability_title_is_raised_to_the_documents_abbreviation_spel
     readme = render_readme(ENTRY, FACTS, plan, UNITS, DISPOSITIONS)
     assert "- **Save GLB files.** " in readme
     assert "Save glb files" not in readme
+
+
+def test_an_additional_example_task_heading_is_title_cased_by_the_template() -> None:
+    """plans/idea.md: "Every Markdown heading uses title case." The unit is the model's sentence
+    ("Print a number"); the heading the template makes of it is in title case (V2 item 8)."""
+    readme = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert "### Print a Number" in readme.splitlines()
+    assert "### Print a number" not in readme.splitlines()
