@@ -407,6 +407,14 @@ Analysis uses a repository-scoped read-only GitHub App token. Proposal execution
 separate job with a freshly minted repository-scoped contents/pull-request token. Ambient personal
 tokens are never fallback production credentials.
 
+Implemented as (2026-10-05, `docs/DECISION_LOG.md`): a write needs a registry entry that is listed,
+active and mode `full` (`core/registry/write_gate.py`); a candidate bundle that is
+`READY_FOR_PROPOSAL` at the target's live revision; and an authorization record under
+`ops/proposal-authorizations/` that was merged to `origin/main` before the commit the run was
+triggered at, so the run that consumes it can never have created it. The write token must be an
+installation token scoped to exactly the target, and a merged or closed presenter PR for the same
+candidate is not recreated unless the record names it.
+
 ### 12.1 First-live-exercise target selection (2026-09-28 owner-directed protocol)
 
 For each production workstream in `docs/PRODUCTION_ROADMAP.md` (and any future effect-capable
