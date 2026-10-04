@@ -51,7 +51,24 @@ jobs:
     name: Present one repository (durable-state-backed)
     runs-on: ubuntu-latest
     steps:
+      # persist-credentials: false - actions/checkout's own default persists a
+      # github.com-scoped `http.https://github.com/.extraheader` credential in .git/config for
+      # every later step to inherit. This job never needs that credential (its own git operations
+      # against both the target repository and this control repository's own state ref carry their
+      # own explicit, distinctly-scoped tokens via GitStateBackend/pinned_read_only_clone's
+      # github_https_auth_env, never the checkout's ambient one) - and a hosted run, not locally
+      # reproducible under act's own checkout mechanism, proved live why leaving it on is actively
+      # harmful: git's own http.extraheader config is a per-host, not per-repository, setting, so
+      # the checkout's own persisted header for https://github.com/ and this job's own explicit
+      # header for the *target* repository's clone (a different repository, same host) both apply
+      # to the same request - GitHub's own server then rejects it outright ("remote: Duplicate
+      # header: \"Authorization\"", HTTP 400), the real cause behind present.yml's first two hosted
+      # runs' own opaque "cannot resolve the default-branch revision" failures (36846316608,
+      # 36846738278; core/git_safety/clone.py's own failure_detail fix is what made this visible at
+      # all - see docs/DECISION_LOG.md, this date).
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Resolve the target repository from this trigger
         id: target
@@ -117,8 +134,34 @@ jobs:
           GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
           GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
         run: |
+          # Two invocations, deliberately, in this one job: a fresh GitHub Actions runner always
+          # starts with empty runs/ (gitignored, never committed), so the *first* invocation alone
+          # can never be the no-op proof - this is not special to a hosted runner, it is this
+          # project's own existing, required design for any candidate to ever reach
+          # READY_FOR_PROPOSAL at all (bundle/seal.py's own seal_candidate: a first seal always
+          # records state ACCEPTED with "the no-op proof needs a rerun in a fresh process" - no
+          # single invocation can ever prove itself byte-identical to itself). The second
+          # invocation, sharing this same job's own now-warm runs/ call-store cache, is that fresh-
+          # process rerun: zero new provider calls, the literal acceptance-bar proof. A distinct
+          # --workflow-run-id for each keeps trigger.py's own dedup (section 3.2) from folding the
+          # second call into the first's already-completed transaction and skipping it outright.
+          if repository-presenter present \
+            --repo "${{ steps.target.outputs.repository }}" \
+            --durable-state \
+            --trigger-event-type "${{ github.event_name == 'workflow_dispatch' && 'workflow_dispatch' || 'repository_dispatch' }}" \
+            --workflow-run-id "${{ github.run_id }}"; then
+            first_exit=0
+          else
+            first_exit=$?
+          fi
+          if [ "$first_exit" -ne 0 ]; then
+            echo "::error::first present invocation failed (exit $first_exit); skipping the no-op-proof rerun"
+            exit "$first_exit"
+          fi
+          echo "::group::No-op proof: a second, fresh-process rerun against the same revision"
           repository-presenter present \
             --repo "${{ steps.target.outputs.repository }}" \
             --durable-state \
             --trigger-event-type "${{ github.event_name == 'workflow_dispatch' && 'workflow_dispatch' || 'repository_dispatch' }}" \
-            --workflow-run-id "${{ github.run_id }}"
+            --workflow-run-id "${{ github.run_id }}-noop-proof"
+          echo "::endgroup::"

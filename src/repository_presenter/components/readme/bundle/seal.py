@@ -75,8 +75,13 @@ from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
 
 DEPENDENCIES_FILENAME = "dependencies.json"
 CURRENT_FILENAME = "CURRENT"
-CONTRACT_VERSION = "readme-contract-v1-draft"
-ACCEPTANCE_PROFILE_VERSION = None  # the 30-point profile arrives at G2
+CONTRACT_VERSION = "readme-contract-v1"
+# G3-W02 (frozen 2026-10-01, docs/DECISION_LOG.md PA-05 prep and this date's flip): the 30-point
+# criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set
+# are frozen as contract v1 together - this starts the plain incrementing convention every other
+# component version already uses (RENDERER_VERSION, SHELL_VERSION, VALIDATOR_VERSION), bumped
+# only when a BC-* predicate's own meaning changes, never for a same-meaning bug fix.
+ACCEPTANCE_PROFILE_VERSION = "1"
 REQUIRED_ARTIFACTS = (
     "README.md",
     "README.patch",

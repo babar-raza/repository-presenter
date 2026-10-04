@@ -16,7 +16,8 @@
     "suggested_issue_title",
     "suggested_issue_body",
     "status",
-    "issue_ref"
+    "issue_ref",
+    "close_reason"
   ],
   "properties": {
     "schema_version": { "const": 1 },
@@ -92,6 +93,13 @@
           }
         }
       ]
+    },
+    "close_reason": {
+      "description": "Set only when status is RESOLVED_UPSTREAM, mirroring `gh issue close --reason`'s own two values (docs/investigations/03-issue-tracking.md section 6): \"completed\" when a later drift-triggered re-run shows the same triggering_check genuinely no longer firing at a revision that has moved since filing (the defect was fixed upstream); \"not planned\" when the check's own version changed what it judges since this handoff was filed, or the check no longer fires at the *same* revision that was filed against (nothing upstream changed, so the original finding was a false positive). Never set for any other status.",
+      "oneOf": [
+        { "type": "null" },
+        { "enum": ["completed", "not planned"] }
+      ]
     }
   },
   "allOf": [
@@ -102,6 +110,14 @@
     {
       "if": { "properties": { "status": { "enum": ["FILED", "RESOLVED_UPSTREAM"] } } },
       "then": { "properties": { "issue_ref": { "type": "object" } } }
+    },
+    {
+      "if": { "properties": { "status": { "enum": ["HANDOFF_PENDING", "HANDOFF_ACKNOWLEDGED", "FILED"] } } },
+      "then": { "properties": { "close_reason": { "type": "null" } } }
+    },
+    {
+      "if": { "properties": { "status": { "const": "RESOLVED_UPSTREAM" } } },
+      "then": { "properties": { "close_reason": { "enum": ["completed", "not planned"] } } }
     }
   ]
 }

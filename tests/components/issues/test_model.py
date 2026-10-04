@@ -51,6 +51,7 @@ def _minimal_payload(**overrides: object) -> dict:
         "suggested_issue_body": "body",
         "status": "HANDOFF_PENDING",
         "issue_ref": None,
+        "close_reason": None,
     }
     payload.update(overrides)
     return payload
@@ -108,6 +109,50 @@ def test_pending_with_issue_ref_fails_closed(tmp_path: Path) -> None:
         load_handoff(path)
 
 
+def test_resolved_without_close_reason_fails_closed(tmp_path: Path) -> None:
+    payload = _minimal_payload(
+        status="RESOLVED_UPSTREAM",
+        issue_ref={"number": 1, "url": "https://github.com/o/r/issues/1"},
+    )
+    path = tmp_path / "h.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(HandoffError, match="close_reason"):
+        load_handoff(path)
+
+
+def test_pending_with_close_reason_fails_closed(tmp_path: Path) -> None:
+    payload = _minimal_payload(close_reason="completed")
+    path = tmp_path / "h.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(HandoffError, match="close_reason"):
+        load_handoff(path)
+
+
+def test_unknown_close_reason_fails_closed(tmp_path: Path) -> None:
+    payload = _minimal_payload(
+        status="RESOLVED_UPSTREAM",
+        issue_ref={"number": 1, "url": "https://github.com/o/r/issues/1"},
+        close_reason="fixed",
+    )
+    path = tmp_path / "h.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(HandoffError, match="close_reason"):
+        load_handoff(path)
+
+
+def test_resolved_with_each_valid_close_reason_round_trips(tmp_path: Path) -> None:
+    for reason in ("completed", "not planned"):
+        payload = _minimal_payload(
+            status="RESOLVED_UPSTREAM",
+            issue_ref={"number": 1, "url": "https://github.com/o/r/issues/1"},
+            close_reason=reason,
+        )
+        path = tmp_path / f"h-{reason.replace(' ', '_')}.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        handoff = load_handoff(path)
+        assert handoff.close_reason == reason
+
+
 def test_malformed_json_fails_closed(tmp_path: Path) -> None:
     path = tmp_path / "h.json"
     path.write_text("not json", encoding="utf-8")
@@ -153,3 +198,4 @@ def test_evidence_entry_and_issue_ref_are_plain_frozen_records() -> None:
         issue_ref=ref,
     )
     assert handoff.key == ("o/r", "sha256:" + "b" * 64)
+    assert handoff.close_reason is None  # default: never set for any status but RESOLVED_UPSTREAM
