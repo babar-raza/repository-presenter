@@ -17,13 +17,7 @@
   "accepted_artifact": null,
   "proposal": null,
   "failure": null,
-  "lease": {
-    "holder_id": "present.yml:37206133366",
-    "acquired_at": "2026-10-04T13:36:01.749848+00:00",
-    "heartbeat_at": "2026-10-04T13:36:01.749848+00:00",
-    "expires_at": "2026-10-04T13:51:01.749848+00:00",
-    "fencing_token": 1
-  },
+  "lease": null,
   "last_transition": {
     "transition_id": "b98db912b9674eec960f83eb3610d305",
     "transaction_id": "867c6034a7584a14a47dc1adfcb6f957",
@@ -38,7 +32,7 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 19,
+  "state_version": 20,
   "recent_trigger_dedup_keys": {
     "run:37204846411:aspose-slides-foss/Aspose.Slides-FOSS-for-.NET": "867c6034a7584a14a47dc1adfcb6f957"
   },
