@@ -29,6 +29,21 @@ from pathlib import Path
 _EXTENDED_LENGTH_PREFIX = "\\\\?\\"
 _UNC_PREFIX = "\\\\?\\UNC\\"
 
+# Win32's plain-path limit, in characters. A constant, not a query: the verdict below never
+# depends on the host's LongPathsEnabled policy, so the same path gets the same answer everywhere.
+MAX_PATH = 260
+
+
+def exceeds_max_path(path: Path) -> bool:
+    """True when ``path`` is longer than ``MAX_PATH`` as a plain string.
+
+    A pure length check against the constant. It reads no host setting, so it is the same on a
+    machine with ``LongPathsEnabled`` set as on one without. Whether an unprefixed read then
+    succeeds depends on that policy; this predicate does not, and it decides when a path needs
+    ``long_path``.
+    """
+    return len(str(path)) > MAX_PATH
+
 
 def long_path(path: Path) -> Path:
     """``path``, as an absolute Windows extended-length path; unchanged on every other platform.
