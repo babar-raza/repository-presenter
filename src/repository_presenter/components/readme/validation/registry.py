@@ -41,6 +41,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     SEMANTIC_SHELL,
     SUBSECTION_HEADINGS,
 )
+from repository_presenter.components.readme.composition.link_budget import slot_violations
 from repository_presenter.components.readme.composition.placement import (
     Placement,
     placements,
@@ -50,7 +51,9 @@ from repository_presenter.components.readme.composition.policy import (
     PlanningPolicy,
 )
 from repository_presenter.components.readme.composition.renderer import (
+    RenderContext,
     api_reference_names,
+    badge_slots,
     line_counts,
 )
 from repository_presenter.components.readme.evidence.facts.links import (
@@ -59,7 +62,15 @@ from repository_presenter.components.readme.evidence.facts.links import (
     extract_links,
     heading_slugs,
 )
-from repository_presenter.components.readme.evidence.facts.product_pages import banner_target
+from repository_presenter.components.readme.evidence.facts.product_pages import (
+    banner_target,
+    enterprise_target,
+)
+from repository_presenter.components.readme.validation.links.rules import (
+    badge_problems,
+    enterprise_anchor_problems,
+    readme_link_budget,
+)
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
@@ -71,10 +82,13 @@ VALIDATION_FILENAME = "validation.json"
 # 6: BC-02 v4 refuses a SUPPORTED registry-kind install whose own reading found no distribution
 # (Imaging-FOSS for .NET and GIS, 2026-10-04). Both branches had taken "5" independently; the
 # merged validator means both changes, so it moves once more.
-# 7: BC-06 fails the forbidden edition substitutes case-insensitively ("commercial edition",
-# plans/idea.md L51-53), and the new BC-12 fails a product-name variant that differs from the
+# 7: BC-06 v6 judges Aspose links against the per-document, per-domain, per-surface ceilings
+# plans/idea.md describes and requires the "full-featured ... Enterprise Edition" anchor; BC-07 v8
+# checks the badge row's stable order and that every badge is one the verified facts support.
+# 8: BC-06 v7 fails the forbidden edition substitutes case-insensitively ("commercial edition",
+# plans/idea.md L51-53) and the new BC-12 fails a product-name variant that differs from the
 # registry's canonical name (plans/idea.md L84-85); both measured on the sealed READMEs.
-VALIDATOR_VERSION = "7"
+VALIDATOR_VERSION = "8"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -208,12 +222,17 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # JavaScript: every entry" failed a candidate that carried no URL at all. The scheme is now
         # judged only at a URL position (link/image destination, reference definition, autolink,
         # URL-bearing attribute value), so a prose label passes and every real hazard still fails.
-        # "6" (plans/idea.md L51-53): the edition substitutes idea.md names ("commercial
+        # "6" (links, anchor and badges rules): the Aspose ceiling is derived per rendered
+        # document - total, domain, and surface slots from visible words and verified examples,
+        # or configured - instead of a fixed 4 (plans/idea.md, composition/link_budget.py), and
+        # the Enterprise Edition link text must read "full-featured <product> - Enterprise
+        # Edition" when the plan includes the closing paragraph and the target is verified.
+        # "7" (plans/idea.md L51-53): the edition substitutes idea.md names ("commercial
         # edition," "On-Premise edition," "paid version," "full version") fail case-insensitively
         # in any prose position, headings included, naming the section they render in. Earlier
         # versions matched only a capitalised "Xxx Edition", so the lowercase "commercial
         # edition" the authoring code itself once generated passed in 19 sealed READMEs.
-        "6",
+        "7",
         "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the "
         "only edition name (no substitute in any letter case); no unsafe raw HTML "
         "(script/event-handler/dangerous-scheme) renders outside a fenced code block",
@@ -240,7 +259,10 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # right-side negative lookahead composition/renderer.py's own pattern already has, so a
         # word that STARTS a hyphenated compound (a module path's own trailing segment) is no
         # longer a false-positive bare-abbreviation match.
-        "7",
+        # "8" (links, anchor and badges rules): the badge row must keep plans/idea.md's stable
+        # order (package, runtime, build status, license, contributors), repeat no slot, and
+        # contain only badges the verified facts support (renderer.badge_slots).
+        "8",
         "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; "
         "At a Glance topology and column rules; no internal narration; within the length budget",
         ("structure",),
@@ -1141,7 +1163,7 @@ def _check_links(candidate: Candidate) -> list[Failure]:
         for fact in candidate.facts.by_kind("link_target")
         if fact.id.startswith("link_target:product.") and fact.polarity == "SUPPORTED"
     }
-    aspose = 0
+    aspose_hrefs: list[str] = []
     # G4-W17 arrival item 47 (lane D PROPOSAL P20, Aspose.PDF for Go, measured 2026-09-08). An
     # anchor to a heading the candidate does not render failed with no section, so
     # repair/targeted.py::validation_defects recorded it unrepairable - item 23's shape, one
@@ -1161,7 +1183,7 @@ def _check_links(candidate: Candidate) -> list[Failure]:
         elif target.kind == "external":
             host = (urlsplit(target.href).hostname or "").lower()
             if _is_aspose(host) and target.href not in mandated:
-                aspose += 1
+                aspose_hrefs.append(target.href)
             fact = by_value.get(target.href)
             if fact is not None:
                 if fact.polarity != "SUPPORTED":
@@ -1175,11 +1197,26 @@ def _check_links(candidate: Candidate) -> list[Failure]:
             failures.append(
                 Failure("COMPOSING", f"{target.href}: {target.kind} links are never rendered")
             )
-    ceiling = candidate.policy.aspose_links_max
-    if aspose > ceiling:
+    # plans/idea.md: ceilings derived per document from its visible size and verified examples
+    # (or configured), per total, per domain, and per surface slot.
+    budget = readme_link_budget(candidate.readme, candidate.facts, candidate.policy)
+    for problem in slot_violations(budget, aspose_hrefs):
         failures.append(
-            Failure("PLANNING", f"{aspose} Aspose links exceed the ceiling of {ceiling}")
+            Failure(
+                "PLANNING",
+                f"{problem} ({budget.mode} budget from {budget.measurement.visible_prose_words}"
+                f" visible words and {budget.measurement.verified_examples} verified examples)",
+            )
         )
+    enterprise = enterprise_target(candidate.facts.facts)
+    included = any(
+        entry.get("section_id") == "enterprise_relationship" and entry.get("include")
+        for entry in candidate.plan.get("sections", [])
+    )
+    for problem in enterprise_anchor_problems(
+        candidate.readme, enterprise.value if enterprise is not None else None, included
+    ):
+        failures.append(Failure("COMPOSING", problem, "enterprise_relationship"))
     failures.extend(_edition_substitute_failures(candidate.readme))
     return failures
 
@@ -1286,6 +1323,22 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
     ]
     if len(badge_rows) != 1:
         failures.append(Failure("COMPOSING", f"expected one badge row; found {len(badge_rows)}"))
+    else:
+        # plans/idea.md: stable order, each badge only when its claim is verified, none
+        # duplicated or fabricated. The expected row is what the renderer derives from the facts.
+        expected = badge_slots(
+            RenderContext(
+                candidate.entry,
+                candidate.facts,
+                candidate.plan,
+                candidate.units,
+                candidate.dispositions,
+            )
+        )
+        failures.extend(
+            Failure("COMPOSING", problem, "badges")
+            for problem in badge_problems(badge_rows[0].strip(), expected)
+        )
     # README_CONTRACT.md row 14: every verified public type exactly once, keyed by its canonical
     # defining location, and the Core API table lists those types and nothing else.
     types = [
