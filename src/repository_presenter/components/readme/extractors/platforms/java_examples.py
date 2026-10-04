@@ -36,6 +36,7 @@ from pathlib import Path
 
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.toolchains import resolve_tool, subprocess_path
 
 _MAX_OUTPUT_CHARS = 4000
 _WORKSPACE_ATTEMPTS = 5
@@ -132,12 +133,13 @@ _WRAPPED = """{imports}public class {name} {{
 
 
 def javac_executable() -> str | None:
-    """The compiler this machine offers, `.exe` and `.cmd` shims included, or None."""
-    for name in ("javac", "javac.exe", "javac.cmd"):
-        found = shutil.which(name)
-        if found:
-            return found
-    return None
+    """The JDK compiler this machine records, installs or offers, or None when it has none.
+
+    Resolved by `core/toolchains.py` ahead of PATH: the same present must not execute examples in
+    one shell and report BLOCKED_TOOLCHAIN in another (measured 2026-10-04, javac on the machine's
+    own install root and absent from PATH).
+    """
+    return resolve_tool("javac")
 
 
 def _clip(text: str) -> str:
@@ -381,12 +383,14 @@ def _environment(javac: str, run_dir: Path) -> dict[str, str]:
     `JAVA_HOME` is not on the execution boundary's allow-list, so the subprocess would otherwise
     inherit nothing - and this machine's `JAVA_HOME` names JDK 17 while `javac` resolves to JDK
     21 (§28.11). Deriving it from the resolved binary keeps the compiler and its home the same
-    installation.
+    installation. The subprocess `PATH` gets the JDK's own directory first (`subprocess_path`);
+    the process's `PATH` is never written.
     """
     overlay = profile_environment(run_dir)
     home = Path(javac).resolve().parent.parent
     if (home / "lib").is_dir():
         overlay["JAVA_HOME"] = str(home)
+    overlay["PATH"] = subprocess_path(javac)
     return overlay
 
 
