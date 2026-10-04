@@ -246,6 +246,58 @@ KNOWN_BLOCKED_STALE = {
 }
 
 
+# plans/idea.md links, anchor, and badge rules (docs/DECISION_LOG.md section 31 2026-10-05, renderer
+# 27): the badge row is derived from verified facts per ecosystem in the stable order (a runtime
+# badge for .NET/Java/Go/C++/Rust/Node floors, not Python alone; the contributors badge only when
+# the source README's own target resolved; a build-status badge only for a verified workflow), and
+# the Enterprise Edition anchor reads "full-featured <product> - Enterprise Edition". Each bundle
+# below differs from a fresh render in exactly those spans (diff checked per bundle, not assumed).
+# A real, deliberate, correct rendering-behavior change; each needs a real re-seal through `present`
+# to pick it up, since validation/review were judged against the old bytes. `strict=True` as above.
+_LINKS_ANCHOR_BADGES_STALE = (
+    "aspose-3d-foss__Aspose.3D-FOSS-for-.NET",
+    "aspose-3d-foss__Aspose.3D-FOSS-for-Java",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Go",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript",
+    "aspose-email-foss__Aspose.Email-FOSS-for-.Net",
+    "aspose-email-foss__Aspose.Email-FOSS-for-Cpp",
+    "aspose-email-foss__Aspose.Email-FOSS-for-Python",
+    "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+    "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET",
+    "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+    "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+    "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go",
+    "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET",
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET",
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Java",
+    "aspose-words-foss__Aspose.Words-FOSS-for-.NET",
+    "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+)
+for _name in _LINKS_ANCHOR_BADGES_STALE:
+    KNOWN_BLOCKED_STALE.setdefault(
+        _name,
+        {
+            "since": "2026-10-05",
+            "expires": "2026-11-04",
+            "reason": (
+                "renderer 27: the badge row derives per ecosystem from verified facts in the "
+                "stable order (runtime badge, contributors only when verified) and the Enterprise "
+                "Edition anchor opens 'full-featured' - see comment above"
+            ),
+            "ref": (
+                "G4-W17 links, anchor and badges rules; docs/DECISION_LOG.md section 31 2026-10-05"
+            ),
+        },
+    )
+
+
 def block_is_live(record: dict[str, str], today: dt.date) -> bool:
     """Whether a ledger record still excuses its candidate: true through its `expires` date."""
     return today <= dt.date.fromisoformat(record["expires"])
