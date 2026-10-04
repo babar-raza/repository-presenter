@@ -112,6 +112,7 @@ from repository_presenter.components.readme.evidence.processability import (
 )
 from repository_presenter.components.readme.extractors.examples.selection import select_examples
 from repository_presenter.components.readme.extractors.platforms.registry import (
+    known_ecosystems,
     plugin_for,
     verify_build,
 )
@@ -684,6 +685,7 @@ def run_redetect_upstream_defects(
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
+    known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
         ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
     except HandoffError as exc:
@@ -803,6 +805,7 @@ def _redetect_or_inconclusive(handoff: Handoff) -> RedetectionResult:
     recheck rather than crashing the filer - ``file_handoff`` already fails closed on
     ``still_fires is None`` (this module's own docstring; ``AGENTS.md`` "Recheck upstream
     revision immediately before an effect")."""
+    known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
         return redetect(handoff)
     except RedetectorNotRegisteredError as exc:

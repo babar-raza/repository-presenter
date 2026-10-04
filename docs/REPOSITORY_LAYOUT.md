@@ -30,6 +30,7 @@ src/repository_presenter/
     retry.py                bounded retry policies on tenacity
     facts.py                typed fact records and the facts.json writer (the extraction boundary)
     examples.py             shared example-verification types and the receipts writer
+    package_registry.py     the registry-reading type and per-ecosystem observer lookup that stages after facts use without importing an extractor
     probes.py               what a live read observed - status, timing, volatile reading - kept out of the hashed facts
     execution.py            bounded secret-free execution of repository examples
     toolchains.py           machine toolchain resolution (registry, install search, per-tool PATH precedence) and the environment toolchain fingerprint
