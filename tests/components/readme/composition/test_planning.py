@@ -544,7 +544,9 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
         }
     )
     errors = [
-        e for e in validator.iter_errors(unresolved) if e.json_path == "$.at_a_glance.input_format_ids"
+        e
+        for e in validator.iter_errors(unresolved)
+        if e.json_path == "$.at_a_glance.input_format_ids"
     ]
     assert len(errors) == 1
     assert errors[0].validator == "maxItems"
@@ -560,7 +562,9 @@ def test_a_null_at_a_glance_is_not_decodable_while_the_required_section_holds() 
     schema = planning_schema(loaded, FACTS, {}, {})
     assert schema["properties"]["at_a_glance"]["type"] == "object"
     validator = Draft202012Validator(schema)
-    assert [e for e in validator.iter_errors(_plan()) if e.json_path.startswith("$.at_a_glance")] == []
+    assert [
+        e for e in validator.iter_errors(_plan()) if e.json_path.startswith("$.at_a_glance")
+    ] == []
     nulled = [
         e for e in validator.iter_errors(_plan(at_a_glance=None)) if e.json_path == "$.at_a_glance"
     ]
