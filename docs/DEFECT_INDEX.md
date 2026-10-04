@@ -16,6 +16,38 @@ against at least one of its own listed sightings, not merely proposed.
 
 ## Open
 
+### `present_transaction.wrapper_outcome_no_registered_path`
+
+`core/state/present_transaction.py`'s durable-state wrapper (landed G5-W05, PR #172/#181) crashes
+with `'INVALIDATED' has no registered path toward a committed outcome` whenever the real pipeline's
+own outcome is `VALID_UPDATE_AVAILABLE` - the wrapper's own docstring claims its scope "only ever
+produces OBSERVED, a success-spine state, FAILED_INTERNAL, or INVALIDATED," but `VALID_UPDATE_AVAILABLE`
+is none of those, so it has no registered commit path at all. The underlying pipeline itself
+completes correctly every time this fires (facts extracted, review ACCEPT, bundle written) - the
+crash is purely in the wrapper's own outcome-classification table, not the pipeline. Intermittent
+across otherwise-identical runs (one run with this exact outcome succeeded), suggesting an
+ordering/state race rather than a deterministic branch, though not yet root-caused to that level.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-3d-foss/Aspose.3D-FOSS-for-Python` | 2026-10-01 09:59 UTC | hosted run `36846316608`, 39s, failure |
+| 2 | (same, re-run) | 2026-10-01 10:03 UTC | hosted run `36846738278`, 42s, failure, identical error |
+| 3 | `aspose-3d-foss/Aspose.3D-FOSS-for-Python` | 2026-10-01 10:32 UTC | hosted run `36849829170`, 34s, failure |
+| 4 | (same candidate, revision `65b1f577...`) | 2026-10-01 12:09-12:24 UTC | hosted run `36859856641`, 15m10s, failure - full log confirms real pipeline success (review ACCEPT, bundle state `VALID_UPDATE_AVAILABLE`, 14 files) immediately followed by `##[error]first present invocation failed (exit 1); skipping the no-op-proof rerun` |
+
+**Status 2026-10-01 (independent owner-relayed QA pass, re-verified directly against the real run log
+before recording)**: of the last 6 hosted `present.yml` runs, only 1 (10:41 UTC) succeeded - this is
+not a flaky one-off, it is the dominant outcome right now. This blocks G5-W05's own acceptance bar
+("a real hosted run... reaches the same accepted result as local execution... hosted CI green")
+from being reliably met, which in turn blocks G7-W06 (turning on unattended scheduling - the literal
+"hosted to work autonomously" requirement `plans/idea.md` names) from being safe to land. A lane was
+already mid-fix on a related gap in this same module (`_BRIDGE_SOURCES`, adding an `INVALIDATED`
+resume-source re-entry point) when this entry was written; directly messaged to confirm whether that
+fix actually covers this specific `VALID_UPDATE_AVAILABLE`-outcome case or is a distinct gap, since
+the wrapper's own error text names `INVALIDATED` literally, not `VALID_UPDATE_AVAILABLE`. Not yet
+confirmed fixed - re-run the hosted workflow after the fix lands and check this exact candidate
+before moving this entry to Resolved.
+
 ### `section_authoring.rejection_no_recover`
 
 `section_authoring`'s rejection-repair loop had no deterministic `recover=` backstop, unlike
