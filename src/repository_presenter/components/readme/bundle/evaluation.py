@@ -9,7 +9,9 @@ component reopens the earliest stage it actually touches (shell/renderer: RECONC
 normalisation/reviewer_logic: COMPOSING - EVAL-01, 2026-09-10); the contract version or a
 validator reopens VALIDATING; the acceptance profile reopens REVIEWING; the policy reopens
 PLANNING. The earliest affected
-state is the answer, or NONE when nothing changed. The protected-content fingerprint is derived
+state is the answer, or NONE when nothing changed (the environment class also carries every
+machine toolchain's resolved version, core/toolchains.py, so a toolchain change reopens EXTRACTING).
+The protected-content fingerprint is derived
 from the accepted dispositions rather than consumed, so the seal compares it, not this record.
 
 The evaluation derives only from the candidate's own dependencies.json: no global control-plane
@@ -76,6 +78,19 @@ def _differs(sealed: Any, current: Any) -> bool:
     return bool(sealed != current)
 
 
+def _flatten(environment: dict[str, Any]) -> dict[str, Any]:
+    """Dotted names for nested environment classes (``toolchains.javac``), so each sub-field is
+    its own change rather than one opaque dict comparison."""
+    flat: dict[str, Any] = {}
+    for name, value in environment.items():
+        if isinstance(value, dict):
+            for part, nested in value.items():
+                flat[f"{name}.{part}"] = nested
+        else:
+            flat[name] = value
+    return flat
+
+
 def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
     """Every changed dependency class with the state it reopens, in state order then name."""
     changes: list[Change] = []
@@ -85,8 +100,8 @@ def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
     # already SUPPORTED under one Python version or extractor build is never trusted unchanged
     # under a different one - each differing sub-field is its own change, reopening EXTRACTING
     # like the source itself.
-    sealed_environment = dict(sealed.get("environment", {}))
-    current_environment = dict(current.get("environment", {}))
+    sealed_environment = _flatten(dict(sealed.get("environment", {})))
+    current_environment = _flatten(dict(current.get("environment", {})))
     for name in sorted(set(sealed_environment) | set(current_environment)):
         if sealed_environment.get(name) == current_environment.get(name):
             continue

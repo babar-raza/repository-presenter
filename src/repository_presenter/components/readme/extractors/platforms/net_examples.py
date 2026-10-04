@@ -28,6 +28,7 @@ from repository_presenter.core.ecosystems import NET
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
 from repository_presenter.core.long_paths import long_path
+from repository_presenter.core.toolchains import resolve_tool
 
 _MAX_OUTPUT_CHARS = 4000
 # Top-level statements need no class or Main, so a README snippet drops straight in. The
@@ -80,11 +81,7 @@ _CS_IDENTIFIER = re.compile(r"\b([A-Z][A-Za-z0-9_]*)\b")
 
 def dotnet_executable() -> str | None:
     """The SDK this machine offers, `.cmd` shim included, or None when it has none."""
-    for name in ("dotnet", "dotnet.exe", "dotnet.cmd"):
-        found = shutil.which(name)
-        if found:
-            return found
-    return None
+    return resolve_tool("dotnet")
 
 
 def _clip(text: str) -> str:

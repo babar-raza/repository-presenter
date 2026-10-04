@@ -78,6 +78,7 @@ from repository_presenter.core.llm.ledger import LEDGER_FILENAME, canonical_hash
 from repository_presenter.core.llm.prompts import PromptRegistry
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
+from repository_presenter.core.toolchains import toolchain_fingerprint
 
 DEPENDENCIES_FILENAME = "dependencies.json"
 CURRENT_FILENAME = "CURRENT"
@@ -179,13 +180,9 @@ def _presenter_site_manifest_hash() -> str:
 
     Kept, correctly scoped and honestly named: a change in *this* process's own dependencies can
     change extraction or rendering behavior in ways worth reopening for, exactly like
-    ``extractor_version``. It is deliberately not claimed to be more than that. A genuine
-    per-ecosystem *target* toolchain fingerprint (the C++ compiler and CMake versions, the JDK,
-    cargo/rustc, go, node/npm actually used to verify a candidate's own examples) needs new,
-    structured capture at extraction time threaded through to sealing - no such data exists
-    anywhere today to fold in cheaply, and building it under this deadline risks exactly the
-    rushed-heuristic mistake this project has already made and undone once (item 49). Tracked as
-    its own, separately-scoped follow-up, not attempted here.
+    ``extractor_version``. It is deliberately not claimed to be more than that. The target's own
+    verifier toolchains are a separate class, ``toolchain_fingerprint()`` (core/toolchains.py),
+    recorded under ``environment.toolchains`` by ``environment_dependencies`` (2026-10-04).
     """
     packages = sorted(f"{dist.name}=={dist.version}" for dist in distributions() if dist.name)
     return canonical_hash(packages)
@@ -195,15 +192,18 @@ def environment_dependencies() -> dict[str, Any]:
     """What answered this run's extraction, never a claim the repository itself makes (27.2
     RC7): the Python version the venv was cloned from, the OS, this codebase's own extractor and
     inherited-unit-inventory versions, and repository-presenter's own resolved package set (never
-    the target's - see ``_presenter_site_manifest_hash``). A change in any reopens EXTRACTING,
-    the same stage a source or fact change would - a fact SUPPORTED under one environment is not
-    trusted unchanged under a different one."""
+    the target's - see ``_presenter_site_manifest_hash``), and every machine toolchain a verifier
+    resolves, by its resolved version or ``absent`` (``toolchains``, 2026-10-04: a toolchain that
+    appears, disappears or changes version changed what the examples could have proven). A change
+    in any reopens EXTRACTING, the same stage a source or fact change would - a fact SUPPORTED
+    under one environment is not trusted unchanged under a different one."""
     return {
         "python_version": platform.python_version(),
         "os": platform.system(),
         "extractor_version": EXTRACTOR_VERSION,
         "inherited_units_version": INHERITED_UNITS_VERSION,
         "presenter_site_manifest": _presenter_site_manifest_hash(),
+        "toolchains": toolchain_fingerprint(),
     }
 
 
