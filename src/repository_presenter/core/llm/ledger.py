@@ -82,6 +82,11 @@ class CallRecord:
     # happened this run, this is always ``False``: whether a re-ask happened belongs to the
     # original provider_call record this one reuses, not to the reuse event itself.
     derived_via_reask: bool | None = None
+    # The model this call's request named (core/llm/fallback.py): the route's primary, or the
+    # fallback the run chose for it. It is part of the request hash, so a record's request_sha256
+    # never matches a call made under a different model. ``None`` only for a ledger sealed before
+    # fallback chains existed.
+    effective_model: str | None = None
     schema_version: int = 1
 
     def to_line(self) -> str:

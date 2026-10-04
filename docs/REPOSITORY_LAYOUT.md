@@ -40,6 +40,7 @@ src/repository_presenter/
       read_client.py          read-only file/tree/default-branch-head reads (workstream 3 redetection); no write call anywhere yet
     preflight.py            fail-closed LLM gateway check recording the model catalog (the GitHub check joins it at G4)
     llm/                     transport, ledger, call schema, prompt registry, prompt hygiene
+      fallback.py              model fallback chains: the one FALLBACK_CHAINS table, per-run availability probes, one fixed effective model per route (owner directive, 2026-10-04)
     state/                   repository/proposal records, backend, migrations
     evidence/                evidence writer and manifest schema
     registry/                registry loader, revision store

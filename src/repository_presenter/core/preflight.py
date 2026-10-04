@@ -16,6 +16,7 @@ from pathlib import Path
 
 from repository_presenter.core.config import MODEL_VARIABLE, GatewayConfig
 from repository_presenter.core.errors import ConfigError, GatewayError
+from repository_presenter.core.llm.fallback import ModelSelection, select_models
 from repository_presenter.core.llm.prompts import PromptRegistry, load_manifests, validate_routes
 from repository_presenter.core.llm.transport import (
     ModelCatalog,
@@ -34,13 +35,16 @@ class PreflightResult:
     model_override: str | None
     prompts: PromptRegistry
     seed_support: tuple[SeedProbe, ...] = ()
+    selection: ModelSelection | None = None
 
 
 def run_gateway_preflight(config: GatewayConfig, prompts_dir: Path) -> PreflightResult:
     """Reach the gateway, list its models, and check every governed route against the list.
 
-    An override the catalog does not contain, and a manifest routed to a model the catalog no
-    longer lists, both fail closed: no job runs on a guessed model.
+    An override the catalog does not contain, a manifest routed to a model the catalog no longer
+    lists, and a route whose whole fallback chain fails to answer all fail closed: no job runs on
+    a guessed model. The chain decision preflight reports is the one a run would make right now;
+    a run makes its own at its start, since availability changes.
     """
     prompts = load_manifests(prompts_dir)
     catalog = list_models(config)
@@ -54,7 +58,8 @@ def run_gateway_preflight(config: GatewayConfig, prompts_dir: Path) -> Preflight
     # job uses, and section 18.4 asks the gateway rather than assuming (section 27.5 D4).
     routed = sorted({loaded.manifest.model_route for loaded in prompts.manifests.values()})
     probes = tuple(probe_seed(config, model) for model in routed)
-    return PreflightResult(catalog, config.model_override, prompts, probes)
+    selection = select_models(config, routed, listed=catalog.ids)
+    return PreflightResult(catalog, config.model_override, prompts, probes, selection)
 
 
 def read_catalog_ids(path: Path) -> tuple[str, ...]:
@@ -95,6 +100,23 @@ def write_catalog(result: PreflightResult, path: Path) -> str:
             {"prompt_id": job, "model_route": loaded.manifest.model_route, "sha256": loaded.sha256}
             for job, loaded in sorted(result.prompts.manifests.items())
         ],
+        "fallback": None
+        if result.selection is None
+        else {
+            "probes": [
+                {"model": probe.model, "available": probe.available, "detail": probe.detail}
+                for probe in result.selection.probes
+            ],
+            "decisions": [
+                {
+                    "route": decision.route,
+                    "chain": list(decision.chain),
+                    "model": decision.model,
+                    "reason": decision.reason,
+                }
+                for decision in result.selection.decisions.values()
+            ],
+        },
     }
     data = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
     path.parent.mkdir(parents=True, exist_ok=True)

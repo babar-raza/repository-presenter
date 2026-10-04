@@ -450,11 +450,34 @@ LOCAL_UNITS: dict[str, dict[str, Any]] = {
 }
 
 
+def _liveness_reply(model: str) -> httpx.Response:
+    """A model that answers the one-token availability probe (core/llm/fallback.py)."""
+    body = {
+        "id": "chatcmpl-probe",
+        "object": "chat.completion",
+        "created": 1,
+        "model": model,
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": "pong"},
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+    }
+    return httpx.Response(200, json=body)
+
+
 class _ChatGateway:
     """A scripted chat gateway: one canned output per job, every request body recorded."""
 
     def __init__(self) -> None:
+        # Content calls only: ``requests`` is what the zero-call assertions count. A chain
+        # availability probe carries no response_format and is answered and kept apart in
+        # ``probes``, so a no-op rerun's zero content calls stay assertable as before.
         self.requests: list[dict[str, Any]] = []
+        self.probes: list[dict[str, Any]] = []
         # Per-job queues consumed in order before the canned output applies. An authoring queue
         # may be scoped to one section as "section_authoring:<section_id>", so a test can script
         # the reply for the section it is about without also scripting every section before it.
@@ -463,6 +486,9 @@ class _ChatGateway:
     def __call__(self, request: httpx.Request) -> httpx.Response:
         assert request.url.path.endswith("/chat/completions")
         payload = json.loads(request.content)
+        if "response_format" not in payload:
+            self.probes.append(payload)
+            return _liveness_reply(payload["model"])
         self.requests.append(payload)
         job = payload["response_format"]["json_schema"]["name"]
         user = payload["messages"][1]["content"]
@@ -2009,11 +2035,13 @@ def test_preflight_records_the_catalog_and_never_prints_the_key(
 ) -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.headers["authorization"] == f"Bearer {LIVE_KEY}"
-        data = [
-            {"id": "qwen3-next", "object": "model", "owned_by": "org"},
-            {"id": "gpt-oss", "object": "model", "owned_by": "org"},
-        ]
-        return httpx.Response(200, json={"object": "list", "data": data})
+        if request.url.path.endswith("/models"):
+            data = [
+                {"id": "qwen3-next", "object": "model", "owned_by": "org"},
+                {"id": "gpt-oss", "object": "model", "owned_by": "org"},
+            ]
+            return httpx.Response(200, json={"object": "list", "data": data})
+        return _liveness_reply(json.loads(request.content)["model"])
 
     _gateway(monkeypatch, handler)
     shutil.copytree(REPO_ROOT / "prompts", project / "prompts")
@@ -2023,7 +2051,13 @@ def test_preflight_records_the_catalog_and_never_prints_the_key(
     assert out[0] == "gateway: gw.example reachable (GPT_OSS_API_KEY read, never printed)"
     assert out[1] == "models: gpt-oss, qwen3-next (2)"
     assert out[2] == "prompts: 6 manifests routed to qwen3-next; content hashes recorded"
-    assert re.fullmatch(r"catalog: runs/preflight/catalog\.json \(digest [0-9a-f]{64}\)", out[3])
+    assert out[3] == (
+        "chain qwen3-next: qwen3-next HTTP 200 (available) -> gpt-oss HTTP 200 (available)"
+        " -> recommended not in the recorded catalog (unavailable)"
+        " -> Qwen2.5-VL-7B not in the recorded catalog (unavailable)"
+    )
+    assert out[4] == "route qwen3-next: will use qwen3-next (primary)"
+    assert re.fullmatch(r"catalog: runs/preflight/catalog\.json \(digest [0-9a-f]{64}\)", out[5])
     assert LIVE_KEY not in captured.out + captured.err
     raw = (project / "runs" / "preflight" / "catalog.json").read_text("utf-8")
     catalog = json.loads(raw)
@@ -2248,13 +2282,19 @@ def test_a_model_route_change_reopens_the_stage_that_used_it(
     # and the identical plan leaves every downstream artifact reused as well.
     assert len(gateway_ready.requests) == before + 1
     assert gateway_ready.requests[-1]["model"] == "other-route"
-    _assert_presentation_update(
-        out,
-        bundle,
-        "PLANNING",
-        ["dependencies.json"],
-        ("investigation: ", "dispositions: ", "units: ", "review: "),
-    )
+    # A changed model is a changed candidate whatever plan it produces (fallback chains,
+    # models_used): the proven bundle moves to VALID_UPDATE_AVAILABLE and names the route.
+    bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
+    assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
+    assert "changed at PLANNING; the candidate no longer counts as current" in bundle_line
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE"
+    assert manifest["update"]["classification"] == "factual"
+    assert "models[other-route]: (none) -> other-route" in manifest["update"]["changed"]
+    assert manifest["models_used"] == {"qwen3-next": "qwen3-next"}
+    for prefix in ("investigation: ", "dispositions: ", "units: ", "review: "):
+        line = next(line for line in out.splitlines() if line.startswith(prefix))
+        assert "provider calls 0" in line, line
 
 
 def test_a_planning_policy_change_reopens_planning(

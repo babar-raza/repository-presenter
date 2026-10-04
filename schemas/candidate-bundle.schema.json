@@ -47,6 +47,11 @@
       "additionalProperties": { "$ref": "#/$defs/file_digest" }
     },
     "provider_calls": { "type": "integer", "minimum": 0 },
+    "models_used": {
+      "type": "object",
+      "description": "route -> the model this run answered it with (core/llm/fallback.py); a consumed input, so a change is a recorded factual update.",
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
     "update": {
       "type": "object",
       "additionalProperties": false,
@@ -61,6 +66,10 @@
         "files": {
           "type": "object",
           "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        },
+        "models_used": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "minLength": 1 }
         }
       }
     },
@@ -74,6 +83,10 @@
         "changed": { "type": "array", "items": { "type": "string" } },
         "recorded_at": { "$ref": "#/$defs/timestamp" },
         "previous_proof": { "type": ["object", "null"] },
+        "previous_models_used": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
         "adopted_at": { "$ref": "#/$defs/timestamp" }
       }
     },

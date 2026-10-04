@@ -29,6 +29,11 @@ The manifest also carries an optional call_variance: any job whose successful at
 transaction's whole history never settled on one response, named with every distinct response
 hash, so provider non-determinism is visible from manifest.json alone (RC-05,
 RESEARCH_AND_GUIDELINES.md 27.2 RC5/SW6).
+
+models_used maps each manifest route to the model the run answered it with (core/llm/fallback.py).
+It is provenance and a consumed input: a rerun whose effective model for any route differs from
+the sealed one is a recorded change, classified factual, that moves a proven bundle to
+VALID_UPDATE_AVAILABLE exactly as a contradicted fact does. Never a silent switch.
 """
 
 from __future__ import annotations
@@ -145,6 +150,9 @@ class SealInputs:
     secrets: Sequence[ConfiguredSecret]
     consumed_calls: frozenset[str] = frozenset()
     earliest_affected_stage: str | None = None
+    # route -> the model this run answered it with. ``None`` means no fallback decision was made
+    # and every route answered as its own primary, exactly as before chains existed.
+    models_used: Mapping[str, str] | None = None
 
 
 @dataclass(frozen=True)
@@ -382,6 +390,35 @@ def _read_manifest(path: Path) -> dict[str, Any] | None:
     return loaded if isinstance(loaded, dict) else None
 
 
+def _current_models(inputs: SealInputs) -> dict[str, str]:
+    """route -> the model this run answered it with; without a fallback decision, each route's
+    own name, which is what every run before chains answered with."""
+    if inputs.models_used is not None:
+        return dict(sorted(inputs.models_used.items()))
+    return {route: route for route in sorted(set(inputs.prompts.routes().values()))}
+
+
+def sealed_models(bundle: Path, manifest: Mapping[str, Any]) -> dict[str, str]:
+    """route -> the model the proven bundle was sealed with. A bundle sealed before models_used
+    existed answered every route with its own name, so its routes are read from dependencies.json,
+    the record of what it consumed."""
+    recorded = manifest.get("models_used")
+    if isinstance(recorded, dict):
+        return {str(route): str(model) for route, model in recorded.items()}
+    dependencies = json.loads((bundle / DEPENDENCIES_FILENAME).read_text(encoding="utf-8"))
+    routes = {str(prompt["model_route"]) for prompt in dependencies.get("prompts", {}).values()}
+    return {route: route for route in sorted(routes)}
+
+
+def _model_changes(sealed: Mapping[str, str], current: Mapping[str, str]) -> list[str]:
+    """One line per route whose effective model differs from the sealed one, in route order."""
+    return [
+        f"models[{route}]: {sealed.get(route, '(none)')} -> {current.get(route, '(none)')}"
+        for route in sorted(set(sealed) | set(current))
+        if sealed.get(route) != current.get(route)
+    ]
+
+
 def _write_bundle(
     bundle: Path,
     staged: Mapping[str, bytes],
@@ -411,6 +448,7 @@ def _write_bundle(
         "provider_calls": provider_calls,
         "no_op_proof": proof,
         "composition": _composition(staged),
+        "models_used": _current_models(inputs),
         **({"call_variance": variance} if variance else {}),
         **dict(extra or {}),
     }
@@ -580,10 +618,16 @@ def _record_update(
     differing: list[str],
     staged: Mapping[str, bytes],
     inputs: SealInputs,
+    model_changes: Sequence[str] = (),
 ) -> SealResult:
-    factual = bool(FACTUAL_ARTIFACTS & set(differing)) or (
-        inputs.earliest_affected_stage in EARLY_STATES
+    # A model change is factual by construction: the same route answered by another model is a
+    # different candidate, whatever its bytes happen to say (fallback chains, models_used).
+    factual = (
+        bool(FACTUAL_ARTIFACTS & set(differing))
+        or inputs.earliest_affected_stage in EARLY_STATES
+        or bool(model_changes)
     )
+    differing = [*differing, *model_changes]
     # A factual contradiction moves the bundle's own manifest state out of the counted
     # READY_FOR_PROPOSAL, to VALID_UPDATE_AVAILABLE (docs/STATE_MACHINE.md sections 5, 9);
     # genuinely harmless presentation drift stays READY_FOR_PROPOSAL, counted, exactly as before.
@@ -597,6 +641,7 @@ def _record_update(
         "changed": differing,
         "transaction": inputs.transaction.name,
         "files": _update_digests(staged),
+        "models_used": _current_models(inputs),
     }
     existing = {k: v for k, v in dict(manifest.get("update") or {}).items() if k != "recorded_at"}
     changed = existing != update or manifest.get("state") != state
@@ -646,6 +691,7 @@ def _adopt_update(
         "changed": changed,
         "recorded_at": waiting.get("recorded_at"),
         "previous_proof": manifest.get("no_op_proof"),
+        "previous_models_used": sealed_models(bundle, manifest),
         "adopted_at": proof["proven_at"],
     }
     files = _write_bundle(
@@ -758,13 +804,25 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
     # factual update - TB-06) is still a proven bundle with a waiting update: a rerun reproducing
     # that exact update must still be able to adopt it, not fall through to the destructive
     # re-seal-as-ACCEPTED branch below just because the state moved off READY_FOR_PROPOSAL.
+    # The models this run answered with, against the models the bundle was sealed with: a change
+    # is a consumed input that moved, so it counts exactly like a changed artifact does here.
+    current_models = _current_models(inputs)
+    recorded_models = sealed_models(bundle, manifest)
+    model_changes = _model_changes(recorded_models, current_models)
     if (
-        differing
+        (differing or model_changes)
         and manifest.get("state") in (STATE_READY, STATE_UPDATE_AVAILABLE)
         and manifest.get("no_op_proof")
     ):
         waiting = dict(manifest.get("update") or {})
-        if inputs.provider_calls == 0 and waiting.get("files") == _update_digests(staged):
+        # A waiting update made with the models this run now answers with, reproduced with zero
+        # calls, is the same update: adopt it. Anything else replaces it as a new recorded update.
+        waiting_models = waiting.get("models_used", recorded_models)
+        if (
+            inputs.provider_calls == 0
+            and waiting.get("files") == _update_digests(staged)
+            and waiting_models == current_models
+        ):
             # The waiting update is proven the way a first seal is: a fresh process reproduced
             # it byte for byte with zero provider calls, so the bundle adopts it as its proven
             # content and keeps the previous proof for the record. Scheduling that rerun is
@@ -772,8 +830,8 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             return _adopt_update(bundle, manifest, waiting, staged, inputs)
         # The proven candidate stays valid; the run produced a valid update, recorded on the
         # manifest and left in the transaction (docs/STATE_MACHINE.md section 9).
-        return _record_update(bundle, manifest, differing, staged, inputs)
-    if differing:
+        return _record_update(bundle, manifest, differing, staged, inputs, model_changes)
+    if differing or model_changes:
         files = _write_bundle(
             bundle,
             staged,
@@ -782,13 +840,14 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             provider_calls=inputs.provider_calls,
             inputs=inputs,
         )
+        changed = [*differing, *model_changes]
         return SealResult(
             bundle,
             STATE_ACCEPTED,
             files,
             None,
             True,
-            f"re-sealed: {', '.join(differing)} changed since the last seal; proof withdrawn",
+            f"re-sealed: {', '.join(changed)} changed since the last seal; proof withdrawn",
         )
     if inputs.provider_calls > 0:
         return SealResult(

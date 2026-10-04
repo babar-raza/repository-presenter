@@ -78,6 +78,7 @@ from repository_presenter.components.readme.bundle.seal import (
     invalidate_bundle,
     invalidates,
     seal_candidate,
+    sealed_models,
     seed_additional_calls,
     seed_call_store,
     upstream_dependencies,
@@ -187,6 +188,7 @@ from repository_presenter.core.github.client import (
 )
 from repository_presenter.core.github.read_client import fetch_default_branch_sha
 from repository_presenter.core.hashing import sha256_text
+from repository_presenter.core.llm.fallback import describe, select_models
 from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, JobResult
 from repository_presenter.core.llm.ledger import LEDGER_FILENAME, Ledger
 from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME, load_manifests, validate_routes
@@ -535,6 +537,9 @@ def run_preflight(root_argument: Path | None) -> int:
         f"prompts: {len(result.prompts.manifests)} manifests routed to {', '.join(routes)}; "
         "content hashes recorded"
     )
+    if result.selection is not None:
+        for line in describe(result.selection):
+            print(line)
     print(f"catalog: {catalog_path.relative_to(root).as_posix()} (digest {digest})")
     return EXIT_OK
 
@@ -1160,9 +1165,8 @@ def run_present(
         # clone: a transaction never runs without them and never queries the catalog itself.
         config = load_gateway_config(os.environ)
         prompts = load_manifests(root / PROMPTS_DIRNAME)
-        validate_routes(
-            prompts, read_catalog_ids(root / RUNS_DIRNAME / PREFLIGHT_DIRNAME / CATALOG_FILENAME)
-        )
+        catalog_ids = read_catalog_ids(root / RUNS_DIRNAME / PREFLIGHT_DIRNAME / CATALOG_FILENAME)
+        validate_routes(prompts, catalog_ids)
         clone = pinned_read_only_clone(
             entry.clone_url,
             root / RUNS_DIRNAME / "clones" / f"{entry.owner}__{entry.name}",
@@ -1252,6 +1256,17 @@ def run_present(
         )
         if facts_only:
             return _report_facts_only(root, entry, clone.revision, document, transaction)
+        # Fallback chains (core/llm/fallback.py), decided once at run start before any content
+        # call: each chain model gets one tiny availability request, and every route then names
+        # one model for the whole run. A sealed bundle's recorded model is kept while it answers.
+        selection = select_models(
+            config,
+            prompts.routes().values(),
+            listed=catalog_ids,
+            recorded=None if sealed_manifest is None else sealed_models(bundle, sealed_manifest),
+        )
+        for line in describe(selection):
+            print(line)
         original_bytes: bytes | None = None
         original = ""
         if snapshot.readme_path is not None:
@@ -1294,7 +1309,7 @@ def run_present(
                 config=config,
                 ledger=ledger,
                 store=store,
-                context=JobContext(entry.repository, clone.revision),
+                context=JobContext(entry.repository, clone.revision, models=selection),
                 original=original,
                 original_bytes=original_bytes,
                 source_revision=clone.revision,
@@ -1370,6 +1385,7 @@ def run_present(
                 consumed_calls=ledger.consumed_calls,
                 secrets=configured_secrets(os.environ),
                 earliest_affected_stage=evaluated["earliest_affected_stage"],
+                models_used=selection.models_used(),
             )
         )
     except (PresenterError, RetryableOperationError) as exc:

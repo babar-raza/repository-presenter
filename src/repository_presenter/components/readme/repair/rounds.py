@@ -122,6 +122,7 @@ from repository_presenter.core.llm.jobs import (
     CallStore,
     JobContext,
     JobResult,
+    effective_model,
     request_hash,
     run_job,
 )
@@ -315,7 +316,12 @@ def run_round(tx: TransactionInputs) -> Round:
         # runs/ to reuse, but the sealed bundle's own content_units.json may already answer this
         # exact task - seed the store at the hash this call would use before making it.
         if tx.sealed_bundle is not None:
-            task_hash = request_hash(loaded, task.packet, call_schema)
+            task_hash = request_hash(
+                loaded,
+                task.packet,
+                call_schema,
+                model=effective_model(loaded, tx.context),
+            )
             if tx.store.get(task_hash) is None:
                 reconstructed = reconstructed_task_output(
                     tx.sealed_bundle, task, facts, loaded.sha256
