@@ -9,13 +9,19 @@
 # It makes no repository write, opens no PR, and uses no write-scoped credential -- `permissions:
 # contents: read` below is the whole grant.
 #
-# workflow_dispatch only, deliberately -- not a schedule trigger. A schedule needs the durable
-# state backend, GitHub App credential automation (OWNER-04), and the gateway's real rate-limit
-# behavior measured under parallel composition (docs/STATE_MACHINE.md section 20.3) before an
-# unattended cron run is safe. Adding `schedule:` is a named follow-up, not an oversight.
+# G7-W06 stage 1 (state.yaml, EXECUTION_STATE_MACHINE.md G7 Work item 3): the schedule trigger
+# below makes this an unattended, cron-fired READ-ONLY observation run. Observation-only is the
+# reason it is safe now: no repository write, no PR, no provider call, and no credential beyond the
+# read-only grant above. The durable state backend, GitHub App automation (OWNER-04), and rate-limit
+# measurements in docs/STATE_MACHINE.md section 20.3 gate PR-creating automation (G7-W06 stage 2),
+# not this observation-only run. Consequence: the gateway preflight step runs only on manual
+# workflow_dispatch, so a scheduled run makes zero LLM-gateway requests.
 name: Monitor
 
 on:
+  schedule:
+    # Every 6 hours, off the top of the hour to avoid the scheduler's busiest slot.
+    - cron: "17 */6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -42,7 +48,8 @@ jobs:
       - name: Official entry point (read-only; also names the canary)
         run: repository-presenter status
 
-      - name: LLM gateway reachable
+      - name: LLM gateway reachable (manual dispatch only; scheduled runs make no provider calls)
+        if: github.event_name == 'workflow_dispatch'
         env:
           GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
           GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
