@@ -106,6 +106,17 @@ jobs:
         continue-on-error: true
         run: mypy src
 
+      # The C++ example verifier (src/repository_presenter/components/readme/extractors/platforms/
+      # cpp_examples.py) probes g++, cmake and ninja from PATH and its tests assert the CMake build
+      # itself ran. A hosted ubuntu-latest image happens to ship cmake and ninja, but a local act
+      # image does not, so the toolchain is declared here rather than inherited from the runner image
+      # (the same explicit provisioning present.yml uses for the same verifier).
+      - name: GCC, CMake and Ninja for the C++ example verifier (g++, cmake, ninja)
+        run: |
+          set -eu
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends g++ cmake ninja-build
+
       - name: Unit tests, schema validation, canary, and path budget
         id: pytest
         continue-on-error: true
