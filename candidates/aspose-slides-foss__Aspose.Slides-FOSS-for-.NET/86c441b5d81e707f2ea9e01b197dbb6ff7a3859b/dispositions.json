@@ -1,0 +1,839 @@
+{
+  "dispositions": [
+    {
+      "destination_section": "identity",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework"
+      ],
+      "rationale": "The H1 product name is rendered deterministically from identity facts and must not be inherited.",
+      "unit_id": "inherited_unit:001.heading"
+    },
+    {
+      "destination_section": "badges",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:product.banner",
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The badge row is rendered deterministically from verified badge targets and must not be inherited.",
+      "unit_id": "inherited_unit:002.badge_row"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "license:spdx",
+        "dependency:none"
+      ],
+      "rationale": "The opening paragraph matches the product summary and is supported by identity, package, license, and dependency facts.",
+      "unit_id": "inherited_unit:003.paragraph"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The paragraph clarifies the target audience and scope; supported by identity, package, and public symbol facts.",
+      "unit_id": "inherited_unit:004.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'At a glance' heading is not supported; the Mermaid diagram is superseded by the 'At a Glance' section.",
+      "unit_id": "inherited_unit:005.heading"
+    },
+    {
+      "destination_section": "at_a_glance",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The Mermaid diagram is superseded by the 'At a Glance' section, which is rendered from verified capabilities.",
+      "unit_id": "inherited_unit:006.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph explaining the diagram is unsupported; the diagram itself is superseded.",
+      "unit_id": "inherited_unit:007.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Requirements' heading is unsupported; target frameworks and dependencies are rendered in 'Dependencies'.",
+      "unit_id": "inherited_unit:008.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:none",
+        "package:target_framework"
+      ],
+      "rationale": "The dependency table is superseded by the 'Dependencies' section, which is rendered from package and dependency facts.",
+      "unit_id": "inherited_unit:009.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about target frameworks is unsupported; target frameworks are rendered in 'Dependencies'.",
+      "unit_id": "inherited_unit:010.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Installation' heading is unsupported; the install command is rendered in the 'Installation' section.",
+      "unit_id": "inherited_unit:011.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "rationale": "The install command is rendered deterministically and must not be inherited.",
+      "unit_id": "inherited_unit:012.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:none",
+        "install_command:dotnet",
+        "package:name",
+        "package:target_framework"
+      ],
+      "rationale": "The paragraph clarifies casing and dependencies; supported by package and dependency facts.",
+      "unit_id": "inherited_unit:013.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about other installation routes is unsupported; only the NuGet command is verified.",
+      "unit_id": "inherited_unit:014.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Build from source' heading is unsupported; build workflows are rendered in 'Development and Testing'.",
+      "unit_id": "inherited_unit:015.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "rationale": "The build command is unsupported; only the NuGet install command is verified.",
+      "unit_id": "inherited_unit:016.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about referencing the project is unsupported.",
+      "unit_id": "inherited_unit:017.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The XML project reference is unsupported.",
+      "unit_id": "inherited_unit:018.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Install the package CI built' heading is unsupported.",
+      "unit_id": "inherited_unit:019.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about CI artifacts is unsupported.",
+      "unit_id": "inherited_unit:020.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The nuget.config example is unsupported.",
+      "unit_id": "inherited_unit:021.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "rationale": "The CI package install command is unsupported.",
+      "unit_id": "inherited_unit:022.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about CI versioning is unsupported.",
+      "unit_id": "inherited_unit:023.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Quick start' heading is unsupported; the example is rendered in 'Quick Start'.",
+      "unit_id": "inherited_unit:024.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss",
+        "public_symbol:aspose.slides.foss.export"
+      ],
+      "rationale": "The quick start example is executed and verified; supported by public symbol facts.",
+      "unit_id": "inherited_unit:025.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Output:' label is unsupported.",
+      "unit_id": "inherited_unit:026.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The output block is unsupported.",
+      "unit_id": "inherited_unit:027.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The paragraph about default slide size is supported by public symbol facts.",
+      "unit_id": "inherited_unit:028.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Why the !' heading is unsupported.",
+      "unit_id": "inherited_unit:029.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about nullable annotations is unsupported.",
+      "unit_id": "inherited_unit:030.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Examples' heading is unsupported; examples are rendered in 'Additional Examples'.",
+      "unit_id": "inherited_unit:031.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about example verification is unsupported.",
+      "unit_id": "inherited_unit:032.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about namespaces is unsupported.",
+      "unit_id": "inherited_unit:033.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The using directives example is unsupported.",
+      "unit_id": "inherited_unit:034.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about Color and PointF types is unsupported.",
+      "unit_id": "inherited_unit:035.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about implicit usings is unsupported.",
+      "unit_id": "inherited_unit:036.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Text and formatting' heading is unsupported.",
+      "unit_id": "inherited_unit:037.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss",
+        "public_symbol:aspose.slides.foss.export"
+      ],
+      "rationale": "The text formatting example is executed and verified; supported by public symbol facts.",
+      "unit_id": "inherited_unit:038.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The paragraph about XML output is supported by public symbol facts.",
+      "unit_id": "inherited_unit:039.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Tables' heading is unsupported.",
+      "unit_id": "inherited_unit:040.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The table example is covered by the Additional Examples section, which the plan renders from facts.",
+      "unit_id": "inherited_unit:041.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about `<a:tc>` cells and merge attributes; it is unsupported.",
+      "unit_id": "inherited_unit:042.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Pictures' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:043.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The picture example is covered by the Additional Examples section, which the plan renders from facts.",
+      "unit_id": "inherited_unit:044.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about `<a:blip r:embed>` or the absence of a file-path overload; it is unsupported.",
+      "unit_id": "inherited_unit:045.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Effects' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:046.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The effects example is covered by the Additional Examples section, which the plan renders from facts.",
+      "unit_id": "inherited_unit:047.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the list of effect elements; it is unsupported.",
+      "unit_id": "inherited_unit:048.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Notes and comments' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:049.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The notes and comments example is covered by the Additional Examples section, which the plan renders from facts.",
+      "unit_id": "inherited_unit:050.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about `ppt/notesSlides` and absence of `threadedComments`; it is unsupported.",
+      "unit_id": "inherited_unit:051.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Sections' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:052.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The sections example is covered by the Additional Examples section, which the plan renders from facts.",
+      "unit_id": "inherited_unit:053.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about `<p14:section>` elements and constructor details; it is unsupported.",
+      "unit_id": "inherited_unit:054.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Streams' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:055.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The streams example is covered by the Additional Examples section, which the plan renders from facts.",
+      "unit_id": "inherited_unit:056.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about `ILoadOptions` and slide-subset overloads; it is unsupported.",
+      "unit_id": "inherited_unit:057.paragraph"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The 'What it can do' heading is superseded by the Key Capabilities section, which the plan renders from facts.",
+      "unit_id": "inherited_unit:058.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about XML confirmation; it is unsupported.",
+      "unit_id": "inherited_unit:059.paragraph"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The capabilities list is superseded by the Key Capabilities section, which the plan renders from facts.",
+      "unit_id": "inherited_unit:060.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The 'What it cannot do' heading is superseded by the Scope and Limitations section, which the plan renders from facts.",
+      "unit_id": "inherited_unit:061.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about this file's purpose; it is unsupported.",
+      "unit_id": "inherited_unit:062.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Not in the public API' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:063.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the table of unsupported features; it is unsupported.",
+      "unit_id": "inherited_unit:064.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Save formats' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:065.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about SaveFormat values; it is unsupported.",
+      "unit_id": "inherited_unit:066.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the table of supported and refused formats; it is unsupported.",
+      "unit_id": "inherited_unit:067.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about content types; it is unsupported.",
+      "unit_id": "inherited_unit:068.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the code block listing content types; it is unsupported.",
+      "unit_id": "inherited_unit:069.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the refusal message; it is unsupported.",
+      "unit_id": "inherited_unit:070.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the code block showing refusal messages; it is unsupported.",
+      "unit_id": "inherited_unit:071.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about file extension and Office behavior; it is unsupported.",
+      "unit_id": "inherited_unit:072.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'What round-trip does and does not mean' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:073.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the measured fixture details; it is unsupported.",
+      "unit_id": "inherited_unit:074.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the round-trip table; it is unsupported.",
+      "unit_id": "inherited_unit:075.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the explanation of rewritten parts; it is unsupported.",
+      "unit_id": "inherited_unit:076.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Text language' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:077.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about missing language attributes; it is unsupported.",
+      "unit_id": "inherited_unit:078.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Choosing an edition' heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:079.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports the claim about editions and measurement date; it is unsupported.",
+      "unit_id": "inherited_unit:080.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The table's comparison of capabilities across editions is superseded by the scope_limitations section, which enumerates verified limitations for this edition.",
+      "unit_id": "inherited_unit:081.table"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The summary of capabilities and limitations is superseded by the scope_limitations section, which contains the same substance in a deterministic format.",
+      "unit_id": "inherited_unit:082.paragraph"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "public_symbol:aspose.slides"
+      ],
+      "rationale": "The list of sibling FOSS repositories is moved to documentation_resources as supporting ecosystem links.",
+      "unit_id": "inherited_unit:083.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading 'Documentation and support' is omitted because its content is re-authored under 'Documentation & Resources' and 'API Reference'.",
+      "unit_id": "inherited_unit:084.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "public_symbol:aspose.slides"
+      ],
+      "rationale": "The paragraph's claim about commercial product documentation is supported, but the heading 'Documentation and support' is omitted; the links are placed under 'E",
+      "unit_id": "inherited_unit:085.paragraph"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019"
+      ],
+      "rationale": "The list of commercial product links is moved to documentation_resources as verified external resources.",
+      "unit_id": "inherited_unit:086.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:product.enterprise",
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "rationale": "The paragraph's description of commercial product features not present here is supported, but the heading 'When you want the commercial product instead' is reph",
+      "unit_id": "inherited_unit:087.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:020"
+      ],
+      "rationale": "The paragraph's instruction for bug reports is moved to development_testing as part of the contribution workflow.",
+      "unit_id": "inherited_unit:088.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading 'Contributing' is omitted because its content is re-authored under 'Development and Testing'.",
+      "unit_id": "inherited_unit:089.heading"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:021"
+      ],
+      "rationale": "The paragraph's instructions for pull requests and tests are moved to development_testing as part of the contribution workflow.",
+      "unit_id": "inherited_unit:090.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:022",
+        "link_target:023"
+      ],
+      "rationale": "The paragraph's links to Code of Conduct and CHANGELOG are moved to development_testing as supporting repository files.",
+      "unit_id": "inherited_unit:091.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading 'Security' is omitted because its content is re-authored under 'Development and Testing'.",
+      "unit_id": "inherited_unit:092.heading"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:024"
+      ],
+      "rationale": "The paragraph's security reporting instructions are moved to development_testing as part of the contribution workflow.",
+      "unit_id": "inherited_unit:093.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The heading 'License' is omitted because its content is rendered deterministically under the 'License' section.",
+      "unit_id": "inherited_unit:094.heading"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The paragraph's license declaration is superseded by the deterministic license section, which renders the same substance.",
+      "unit_id": "inherited_unit:095.paragraph"
+    }
+  ]
+}

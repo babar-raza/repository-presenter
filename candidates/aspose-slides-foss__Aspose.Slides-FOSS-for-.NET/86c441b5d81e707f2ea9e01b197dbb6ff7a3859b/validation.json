@@ -177,17 +177,14 @@
           "supported": 2
         },
         {
-          "extracted": 4,
+          "extracted": 2,
           "kind": "package",
-          "supported": 4
+          "supported": 2
         },
         {
           "extracted": 27,
           "kind": "link_target",
-          "reasons": [
-            "UNRESOLVED: ambiguous platform targets: python, python-net, python-java; enterprise target"
-          ],
-          "supported": 26
+          "supported": 27
         }
       ],
       "required": true,
@@ -199,10 +196,7 @@
         {
           "extracted": 27,
           "kind": "link_target",
-          "reasons": [
-            "UNRESOLVED: ambiguous platform targets: python, python-net, python-java; enterprise target"
-          ],
-          "supported": 26
+          "supported": 27
         }
       ],
       "required": false,
@@ -217,9 +211,9 @@
           "supported": 5
         },
         {
-          "extracted": 4,
+          "extracted": 2,
           "kind": "package",
-          "supported": 4
+          "supported": 2
         },
         {
           "extracted": 0,
@@ -227,9 +221,9 @@
           "supported": 0
         },
         {
-          "extracted": 70,
+          "extracted": 2589,
           "kind": "public_symbol",
-          "supported": 70
+          "supported": 2589
         }
       ],
       "required": true,
@@ -250,9 +244,9 @@
           "supported": 0
         },
         {
-          "extracted": 70,
+          "extracted": 2589,
           "kind": "public_symbol",
-          "supported": 70
+          "supported": 2589
         }
       ],
       "required": false,
@@ -262,14 +256,19 @@
       "included": true,
       "kinds": [
         {
-          "extracted": 70,
+          "extracted": 2589,
           "kind": "public_symbol",
-          "supported": 70
+          "supported": 2589
         },
         {
-          "extracted": 6,
+          "extracted": 9,
           "kind": "example",
-          "supported": 6
+          "reasons": [
+            "UNRESOLVED: example 1: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version",
+            "UNRESOLVED: example 2: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version",
+            "UNRESOLVED: example 3: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version"
+          ],
+          "supported": 0
         },
         {
           "extracted": 0,
@@ -277,9 +276,9 @@
           "supported": 0
         },
         {
-          "extracted": 1,
+          "extracted": 0,
           "kind": "import_path",
-          "supported": 1
+          "supported": 0
         }
       ],
       "required": true,
@@ -294,9 +293,9 @@
           "supported": 1
         },
         {
-          "extracted": 4,
+          "extracted": 2,
           "kind": "package",
-          "supported": 4
+          "supported": 2
         }
       ],
       "required": true,
@@ -315,24 +314,34 @@
       "section_id": "dependencies"
     },
     {
-      "included": true,
+      "included": false,
       "kinds": [
         {
-          "extracted": 6,
+          "extracted": 9,
           "kind": "example",
-          "supported": 6
+          "reasons": [
+            "UNRESOLVED: example 1: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version",
+            "UNRESOLVED: example 2: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version",
+            "UNRESOLVED: example 3: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version"
+          ],
+          "supported": 0
         }
       ],
       "required": false,
       "section_id": "quick_start"
     },
     {
-      "included": true,
+      "included": false,
       "kinds": [
         {
-          "extracted": 6,
+          "extracted": 9,
           "kind": "example",
-          "supported": 6
+          "reasons": [
+            "UNRESOLVED: example 1: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version",
+            "UNRESOLVED: example 2: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version",
+            "UNRESOLVED: example 3: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version"
+          ],
+          "supported": 0
         }
       ],
       "required": false,
@@ -342,9 +351,9 @@
       "included": true,
       "kinds": [
         {
-          "extracted": 70,
+          "extracted": 2589,
           "kind": "public_symbol",
-          "supported": 70
+          "supported": 2589
         }
       ],
       "required": true,
@@ -356,10 +365,7 @@
         {
           "extracted": 27,
           "kind": "link_target",
-          "reasons": [
-            "UNRESOLVED: ambiguous platform targets: python, python-net, python-java; enterprise target"
-          ],
-          "supported": 26
+          "supported": 27
         }
       ],
       "required": false,
@@ -369,19 +375,24 @@
       "included": true,
       "kinds": [
         {
-          "extracted": 59,
+          "extracted": 95,
           "kind": "inherited_unit",
-          "supported": 59
+          "supported": 95
         },
         {
-          "extracted": 6,
+          "extracted": 9,
           "kind": "example",
-          "supported": 6
+          "reasons": [
+            "UNRESOLVED: example 1: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version",
+            "UNRESOLVED: example 2: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version",
+            "UNRESOLVED: example 3: NOT_VERIFIED; BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version"
+          ],
+          "supported": 0
         },
         {
-          "extracted": 70,
+          "extracted": 2589,
           "kind": "public_symbol",
-          "supported": 70
+          "supported": 2589
         }
       ],
       "required": true,
@@ -391,24 +402,21 @@
       "included": true,
       "kinds": [
         {
-          "extracted": 2,
+          "extracted": 3,
           "kind": "build_test_asset",
-          "supported": 2
+          "supported": 3
         }
       ],
       "required": false,
       "section_id": "development_testing"
     },
     {
-      "included": false,
+      "included": true,
       "kinds": [
         {
           "extracted": 27,
           "kind": "link_target",
-          "reasons": [
-            "UNRESOLVED: ambiguous platform targets: python, python-net, python-java; enterprise target"
-          ],
-          "supported": 26
+          "supported": 27
         }
       ],
       "required": false,
@@ -439,11 +447,11 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "786262abb12c177308e17389a8a30defddbf2fe675c5d16049a3b228ee10fb07",
-  "readme_sha256": "19a239c551f38b18461d4aaf155c371d44b4c31ad98853ba16136c66c050aed5",
-  "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+  "protected_content_fingerprint": "0807ee2bfbd2fa31c798adb98ff1e5b88df8cde5963dadf3cf26b4f327b0a238",
+  "readme_sha256": "723bfcec2e45a3349be8a8c2d7cc37f971014841a7e731e1c6a07f96612ff70b",
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
   "schema_version": 1,
-  "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+  "source_revision": "86c441b5d81e707f2ea9e01b197dbb6ff7a3859b",
   "summary": {
     "fail": 0,
     "pass": 11,

@@ -451,7 +451,7 @@ LOCAL_UNITS: dict[str, dict[str, Any]] = {
 
 
 def _liveness_reply(model: str) -> httpx.Response:
-    """A model that answers the one-token availability probe (core/llm/fallback.py)."""
+    """A model that answers the availability probe (core/llm/fallback.py) with schema-valid JSON."""
     body = {
         "id": "chatcmpl-probe",
         "object": "chat.completion",
@@ -460,7 +460,7 @@ def _liveness_reply(model: str) -> httpx.Response:
         "choices": [
             {
                 "index": 0,
-                "message": {"role": "assistant", "content": "pong"},
+                "message": {"role": "assistant", "content": '{"status": "ok"}'},
                 "finish_reason": "stop",
             }
         ],
@@ -474,7 +474,7 @@ class _ChatGateway:
 
     def __init__(self) -> None:
         # Content calls only: ``requests`` is what the zero-call assertions count. A chain
-        # availability probe carries no response_format and is answered and kept apart in
+        # availability probe or seed probe is the one liveness token, answered and kept apart in
         # ``probes``, so a no-op rerun's zero content calls stay assertable as before.
         self.requests: list[dict[str, Any]] = []
         self.probes: list[dict[str, Any]] = []
@@ -486,7 +486,7 @@ class _ChatGateway:
     def __call__(self, request: httpx.Request) -> httpx.Response:
         assert request.url.path.endswith("/chat/completions")
         payload = json.loads(request.content)
-        if "response_format" not in payload:
+        if payload["messages"] == [{"role": "user", "content": "ping"}]:
             self.probes.append(payload)
             return _liveness_reply(payload["model"])
         self.requests.append(payload)
@@ -897,7 +897,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "6",
-        "renderer": "25",
+        "renderer": "26",
         "normalisation": "18",
         "reviewer_logic": "15",
     }
@@ -2051,10 +2051,9 @@ def test_preflight_records_the_catalog_and_never_prints_the_key(
     assert out[0] == "gateway: gw.example reachable (GPT_OSS_API_KEY read, never printed)"
     assert out[1] == "models: gpt-oss, qwen3-next (2)"
     assert out[2] == "prompts: 6 manifests routed to qwen3-next; content hashes recorded"
+    # No substitute is ever probed: the route's own model is the whole chain.
     assert out[3] == (
-        "chain qwen3-next: qwen3-next HTTP 200 (available) -> gpt-oss HTTP 200 (available)"
-        " -> recommended not in the recorded catalog (unavailable)"
-        " -> Qwen2.5-VL-7B not in the recorded catalog (unavailable)"
+        "chain qwen3-next: qwen3-next HTTP 200, schema-valid, 2 of 2 consecutive passes (available)"
     )
     assert out[4] == "route qwen3-next: will use qwen3-next (primary)"
     assert re.fullmatch(r"catalog: runs/preflight/catalog\.json \(digest [0-9a-f]{64}\)", out[5])

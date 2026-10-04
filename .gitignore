@@ -12,6 +12,8 @@ __pycache__/
 /dist/
 .venv/
 venv/
+# scripts/ci_check.sh's isolated tools venv (uv, pip-audit) and its SBOM/audit outputs
+/.venv-ci-tools/
 
 # Secrets and local overrides -- credentials never enter the repository
 .env

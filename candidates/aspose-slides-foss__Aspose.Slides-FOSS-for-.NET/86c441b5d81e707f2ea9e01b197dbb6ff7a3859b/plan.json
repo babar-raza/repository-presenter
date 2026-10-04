@@ -1,0 +1,364 @@
+{
+  "additional_example_ids": [],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "symbol_fact_id": "public_symbol:aspose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.slides"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.slides.foss"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and edit presentations",
+      "Slide manipulation",
+      "Shape rendering",
+      "Text formatting",
+      "Fill and line styling",
+      "Effects and 3D",
+      "Notes and comments",
+      "Document properties"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Create and edit presentations"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Slide manipulation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Shape rendering"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Text formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Fill and line styling"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Effects and 3D"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Notes and comments"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "title": "Document properties"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram from the inherited README is omitted; the section is rendered from verified capabilities instead."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "section_id": "scope_limitations",
+      "text": "The table of unsupported features from the inherited README is omitted; limitations are rendered from verified facts instead."
+    }
+  ],
+  "flagship_example_id": null,
+  "links": [
+    {
+      "link_fact_id": "link_target:015",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:016",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:017",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:018",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:012",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:013",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:014",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "development_testing"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.slides",
+        "public_symbol:aspose.slides.foss"
+      ],
+      "unit_ids": []
+    }
+  ],
+  "quick_start_example_id": null,
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "quick_start"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}
