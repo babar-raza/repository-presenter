@@ -186,7 +186,12 @@ def test__stage_target_s5_refuses_a_revision_identical_to_the_plan_it_would_repa
     defect = Defect("fp", "validation", "BC-07", None, "S5", {})
 
     target, stage_checks, allowed, slot_facts, stage_facts = _stage_target(
-        current, defect, facts, "Product", "python"
+        current,
+        defect,
+        facts,
+        "Product",
+        "python",
+        MANIFESTS,
     )
 
     assert target is current.planned

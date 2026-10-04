@@ -42,10 +42,12 @@ Agentic/Deterministic Boundary).
 from __future__ import annotations
 
 import ast
+import os
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from typing import Any
 
 from repository_presenter.components.issues.model import (
     CloseReason,
@@ -79,6 +81,18 @@ class RedetectorNotRegisteredError(ValueError):
     """No re-detection mechanism is registered for this handoff's `triggering_check.id`."""
 
 
+def _with_env_token(read: Callable[..., Any]) -> Callable[..., Any]:
+    """Pass ``GH_TOKEN`` - the repository-scoped read credential, when the workflow supplies one -
+    to a GitHub read, read at call time and never stored. Without it the read is anonymous (public
+    repositories only, far lower rate limit), which is what an unauthenticated local run gets."""
+
+    def _call(*args: Any, **kwargs: Any) -> Any:
+        kwargs.setdefault("token", os.environ.get("GH_TOKEN") or None)
+        return read(*args, **kwargs)
+
+    return _call
+
+
 @dataclass(frozen=True)
 class RedetectionReads:
     """The read-only capabilities a redetector needs, each independently overridable for a test -
@@ -89,7 +103,11 @@ class RedetectionReads:
     observe_pypi: Callable[..., RegistryObservation] = observe_pypi
 
 
-DEFAULT_READS = RedetectionReads()
+DEFAULT_READS = RedetectionReads(
+    fetch_default_branch_sha=_with_env_token(fetch_default_branch_sha),
+    fetch_file=_with_env_token(fetch_file),
+    observe_pypi=observe_pypi,
+)
 
 
 @dataclass(frozen=True)
