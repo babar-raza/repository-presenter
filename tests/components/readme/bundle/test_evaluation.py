@@ -115,21 +115,44 @@ def test_each_dependency_class_names_the_state_it_reopens() -> None:
         "acceptance_profile_version": ("acceptance_profile_version", "REVIEWING"),
         "policy__sha256": ("policy", "PLANNING"),
     }
+    scopes = {
+        "source": "facts",
+        "environment.python_version": "facts",
+        "environment.extractor_version": "facts",
+        "environment.inherited_units_version": "facts",
+        "facts": "facts",
+        "prompts.repository_investigation": "evidence",
+        "prompts.source_reconciliation": "reconciliation",
+        "prompts.presentation_planning": "planning",
+        "prompts.section_authoring": "authoring",
+        "prompts.independent_review": "reviewer",
+        "prompts.targeted_repair": "reviewer",
+        "contract_version": "validator",
+        "components.shell": "presentation",
+        "components.renderer": "presentation",
+        "components.normalisation": "authoring",
+        "components.reviewer_logic": "reviewer",
+        "validators": "validator",
+        "acceptance_profile_version": "reviewer",
+        "policy": "planning",
+    }
     for path, (dependency, state) in cases.items():
         evaluation = evaluate(SEALED, _current(**{path: "changed"}))
         assert [c.dependency for c in evaluation.changes] == [dependency], path
         assert evaluation.earliest == state, path
+        # Every change also names the typed invalidation scope it belongs to.
+        assert [c.scope for c in evaluation.changes] == [scopes[dependency]], path
     added = _current()
     added["facts"]["format:input.obj"] = "3" * 64
     del added["facts"]["identity:repository"]
     evaluation = evaluate(SEALED, added)
     assert evaluation.changes == (
-        Change("facts", "1 fact records added, 1 removed, 0 altered", "EXTRACTING"),
+        Change("facts", "1 fact records added, 1 removed, 0 altered", "EXTRACTING", "facts"),
     )
     new_prompt = _current()
     new_prompt["prompts"]["extra_job"] = {"sha256": "z" * 64, "version": "1", "model_route": "m"}
     assert evaluate(SEALED, new_prompt).changes == (
-        Change("prompts.extra_job", "prompt added", "INVESTIGATING"),
+        Change("prompts.extra_job", "prompt added", "INVESTIGATING", "evidence"),
     )
 
 

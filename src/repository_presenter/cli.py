@@ -74,6 +74,10 @@ from repository_presenter.components.readme.bundle.evaluation import (
     summarize_evaluation,
     write_evaluation,
 )
+from repository_presenter.components.readme.bundle.portfolio import (
+    held_updates,
+    portfolio_routing,
+)
 from repository_presenter.components.readme.bundle.reproducibility import (
     reproducible_candidates,
 )
@@ -81,6 +85,7 @@ from repository_presenter.components.readme.bundle.seal import (
     DEPENDENCIES_FILENAME,
     SealInputs,
     bundle_directory,
+    code_dependencies,
     invalidate_bundle,
     invalidates,
     seal_candidate,
@@ -1366,6 +1371,15 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
     executed, example_total = examples_verification_summary(root)
     print(f"examples: {executed}/{example_total} verified across counted candidates")
     print(f"canary: {cursor.canary}")
+    held = held_updates(root)
+    if held:
+        print(f"updates: {len(held)} current candidate(s) hold an update -")
+        for update in held:
+            print(
+                f"  {update.repository_dir} @ {update.revision}: {update.state} "
+                f"(scope {update.scope or 'unrecorded'}, "
+                f"re-enters {update.stage or 'unrecorded'})"
+            )
     if stale:
         if found:
             print(f"stale: {len(found)} current candidate(s) behind the running code -")
@@ -1375,6 +1389,7 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
                     print(f"    {reason}")
         else:
             print("stale: none")
+        _print_routing_dry_run(root)
     if on_disk != cursor.recorded_candidates:
         _fail(
             f"cursor records {cursor.recorded_candidates} current candidates "
@@ -1382,6 +1397,33 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def _print_routing_dry_run(root: Path) -> None:
+    """``status --stale``: how each CURRENT bundle would be routed by the running code's own
+    inputs, through the typed invalidation scopes (components/readme/bundle/invalidation.py).
+
+    A dry run: nothing is cloned, called or written, and a sealed bundle is never touched. The
+    source revision, fact records and host environment are not observable without a clone, so a
+    ``facts`` scope appears only in a real run.
+    """
+    try:
+        current_code = code_dependencies(load_manifests(root / PROMPTS_DIRNAME))
+    except PresenterError as exc:
+        print(f"routing: unavailable ({exc})")
+        return
+    rows = [row for row in portfolio_routing(root, current_code) if row.routing.state]
+    if not rows:
+        print("routing: no current candidate would change state")
+        return
+    print(f"routing: {len(rows)} current candidate(s) would change state (dry run, no writes) -")
+    for row in rows:
+        routing = row.routing
+        print(
+            f"  {row.repository_dir} @ {row.revision}: {row.state} -> {row.would_become} "
+            f"(scope {routing.triggering_scope}; scopes {', '.join(routing.scopes)}; "
+            f"re-enters {routing.stage})"
+        )
 
 
 PREFLIGHT_FILENAME = "preflight.json"
@@ -1726,6 +1768,9 @@ def run_present(
                 consumed_calls=ledger.consumed_calls,
                 secrets=configured_secrets(os.environ),
                 earliest_affected_stage=evaluated["earliest_affected_stage"],
+                changed_dependencies=tuple(
+                    str(change["dependency"]) for change in evaluated["changes"]
+                ),
                 models_used=selection.models_used(),
             )
         )
