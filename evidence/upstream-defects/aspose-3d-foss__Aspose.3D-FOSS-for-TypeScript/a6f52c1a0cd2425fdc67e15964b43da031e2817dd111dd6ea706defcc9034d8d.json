@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:a6f52c1a0cd2425fdc67e15964b43da031e2817dd111dd6ea706defcc9034d8d",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "4",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "https://registry.npmjs.org/@aspose%2f3d",
+      "detail": "curl -s -o /dev/null -w '%{http_code}' https://registry.npmjs.org/@aspose%2f3d -> 404 on 2026-10-04 (no packument for the package name the manifest declares)."
+    },
+    {
+      "path": "package.json",
+      "detail": "\"name\": \"@aspose/3d\" at revision 66cb26df3b031f0bf6976d4e88dc89721983afa4 (read via `gh api repos/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript/contents/package.json` on 2026-10-04); `\"build\": \"tsc\"`. This is the name install_command:npm is derived from: `npm install @aspose/3d`."
+    },
+    {
+      "path": "live run",
+      "detail": "Owner-reported: the same BC-02 CONTRADICTED shape (install_command:npm, \"npm distribution not found\") on this repository before the source-install fallback existed."
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript is not published on npm under the name its package.json declares (@aspose/3d; npm registry HTTP 404), so an `npm install @aspose/3d` claim is CONTRADICTED. The package is an unpublished distribution fact; the repository's own source build is the honest path at this revision, and it is only admitted when the package's own build is measured to exit 0.",
+  "suggested_issue_title": "install_command:npm is CONTRADICTED at 66cb26df3b03",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-02) found `install_command:npm` CONTRADICTED while re-verifying `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` at revision `66cb26df3b031f0bf6976d4e88dc89721983afa4`.\n\n## Evidence\n\n- `https://registry.npmjs.org/@aspose%2f3d`: HTTP 404 on 2026-10-04\n- `package.json`: name `@aspose/3d`\n\n<!-- repository-presenter-defect: sha256:a6f52c1a0cd2425fdc67e15964b43da031e2817dd111dd6ea706defcc9034d8d -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

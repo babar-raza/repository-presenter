@@ -9,7 +9,7 @@ import os
 import shutil
 import sys
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from functools import partial
@@ -112,6 +112,7 @@ from repository_presenter.components.readme.evidence.processability import (
 )
 from repository_presenter.components.readme.extractors.examples.selection import select_examples
 from repository_presenter.components.readme.extractors.platforms.registry import (
+    known_ecosystems,
     plugin_for,
     verify_build,
 )
@@ -684,6 +685,7 @@ def run_redetect_upstream_defects(
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
+    known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
         ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
     except HandoffError as exc:
@@ -803,6 +805,7 @@ def _redetect_or_inconclusive(handoff: Handoff) -> RedetectionResult:
     recheck rather than crashing the filer - ``file_handoff`` already fails closed on
     ``still_fires is None`` (this module's own docstring; ``AGENTS.md`` "Recheck upstream
     revision immediately before an effect")."""
+    known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
         return redetect(handoff)
     except RedetectorNotRegisteredError as exc:
@@ -1359,9 +1362,19 @@ def _report_facts_only(
 
 
 def run_present(
-    repository: str, root_argument: Path | None, *, facts_only: bool = False, fresh: bool = False
+    repository: str,
+    root_argument: Path | None,
+    *,
+    facts_only: bool = False,
+    fresh: bool = False,
+    on_disposition: Callable[[Path], None] | None = None,
 ) -> int:
     """Admit ``repository`` from the registry, then run the transaction stages.
+
+    A README-only placeholder (no manifest, no source) is not a failure: its processability
+    disposition is written under the transaction directory, ``on_disposition`` receives that path,
+    and the run returns ``EXIT_OK``. The durable transaction then records the NON_PROCESSABLE
+    outcome from that artifact (core/state/present_transaction.py). No candidate is ever sealed.
 
     ``facts_only`` stops after S2 with the processability and coverage record and makes no
     provider call: the cohort preflight reads every repository's failure class before any
@@ -1417,12 +1430,18 @@ def run_present(
         manifest_path = None if manifest is None else manifest.relative_to(clone.path).as_posix()
         disposition = assess_processability(snapshot, tree_paths, plugin, manifest_path)
         if disposition is not None:
-            write_disposition(disposition, transaction / DISPOSITION_FILENAME)
+            # The insufficient-evidence decision above is unchanged; this records it as the typed
+            # NON_PROCESSABLE disposition rather than a failure (docs/STATE_MACHINE.md section 6).
+            disposition_path = transaction / DISPOSITION_FILENAME
+            write_disposition(disposition, disposition_path)
+            if on_disposition is not None:
+                on_disposition(disposition_path)
             print(
-                f"insufficient_evidence: {disposition.reason_code} for {entry.repository} "
-                f"at {clone.revision}; resume when {disposition.resume_predicate}"
+                f"NON_PROCESSABLE: insufficient_evidence ({disposition.reason_code}) for "
+                f"{entry.repository} at {clone.revision}; resume when "
+                f"{disposition.resume_predicate}"
             )
-            return EXIT_INCONSISTENT
+            return EXIT_OK
         candidates: list[ExampleCandidate] = []
         receipts: list[ExampleReceipt] = []
         if snapshot.readme_path is not None:
@@ -1690,6 +1709,9 @@ def run_present_hosted(
         remote=state_remote, token=os.environ.get(STATE_TOKEN_VARIABLE) or None
     )
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    # The processability disposition this run wrote, if any: the only artifact the transaction
+    # maps to NON_PROCESSABLE, handed over by the run itself rather than re-derived from disk.
+    disposition_paths: list[Path] = []
     try:
         return run_present_transaction(
             backend=backend,
@@ -1698,8 +1720,19 @@ def run_present_hosted(
             holder_id=holder,
             trigger_event_type=cast(TriggerEventType, trigger_event_type),
             workflow_run_id=run_id,
-            run=lambda: run_present(repository, root_argument, facts_only=facts_only, fresh=fresh),
-            classify=lambda exit_code: classify_present_outcome(root, entry, exit_code),
+            run=lambda: run_present(
+                repository,
+                root_argument,
+                facts_only=facts_only,
+                fresh=fresh,
+                on_disposition=disposition_paths.append,
+            ),
+            classify=lambda exit_code: classify_present_outcome(
+                root,
+                entry,
+                exit_code,
+                disposition_path=disposition_paths[-1] if disposition_paths else None,
+            ),
         )
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))

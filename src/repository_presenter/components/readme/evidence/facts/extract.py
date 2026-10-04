@@ -105,8 +105,9 @@ def _source_build_fact(
     # this fact is about to advertise as "verified against this revision".
     spec = spec_for(entry.ecosystem)
     name = entry.repository.split("/")[-1]
-    # The one rule for a .NET install claim the registry does not confirm (Imaging-FOSS for .NET
-    # and GIS, 2026-10-04): a package the registry lists as absent, or whose claim no manifest
+    # The one rule for a .NET or npm install claim the registry does not confirm (Imaging-FOSS for
+    # .NET and GIS, 2026-10-04; Aspose.PDF and Aspose.3D for TypeScript, 2026-10-04): a package
+    # the registry lists as absent, or whose claim no manifest
     # field produced, is advertised only as the source install the package's own build proved -
     # never as the registry command. A build that did not exit 0 admits nothing here. The
     # measured steps are the one command the proof ran; no example is needed for this proof, and
