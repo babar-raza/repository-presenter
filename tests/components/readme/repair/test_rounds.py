@@ -19,6 +19,7 @@ from repository_presenter.components.readme.repair.rounds import (
     _second_opinion,
     _stage_target,
     _third_opinion,
+    _with_carried_units,
     repair_defect,
 )
 from repository_presenter.components.readme.repair.targeted import Defect
@@ -253,6 +254,46 @@ def test_reject_insufficient_visible_line_overage_composes_with_the_stages_own_c
     both = guarded({"flagship_example_id": "example:008"})
     assert "an unrelated plan_checks failure" in both
     assert any("visible lines" in error for error in both)
+
+
+def test_a_repair_recovery_records_an_uncarried_superseded_unit_inside_revised_output() -> None:
+    """Aspose.Slides for Java, development_testing (BC-10 F08): the S6 repair's last-resort
+    recovery must also cover the must-carry units, and only on the revised_output shape a
+    targeted_repair reply uses. With nothing to carry the recovery is returned unchanged, so no
+    other section's repair behaves differently."""
+    must_carry = frozenset({"inherited_unit:092.paragraph"})
+
+    def no_title_fix(output: dict[str, Any]) -> dict[str, Any] | None:
+        return None
+
+    assert _with_carried_units(no_title_fix, frozenset()) is no_title_fix
+    recover = _with_carried_units(no_title_fix, must_carry)
+    reply: dict[str, Any] = {
+        "revised_output": {
+            "units": [{"section": "development_testing", "slot": "summary", "text": "x"}],
+            "omitted": [],
+        }
+    }
+    recovered = recover(reply)
+    assert recovered is reply
+    assert [item["fact_id"] for item in reply["revised_output"]["omitted"]] == [
+        "inherited_unit:092.paragraph"
+    ]
+    # Mutation control: a reply already carrying the unit is left alone.
+    settled: dict[str, Any] = {
+        "revised_output": {
+            "units": [
+                {
+                    "section": "development_testing",
+                    "slot": "summary",
+                    "text": "x",
+                    "fact_ids": ["inherited_unit:092.paragraph"],
+                }
+            ],
+            "omitted": [],
+        }
+    }
+    assert recover(settled) is None
 
 
 class _RecordingStore:

@@ -470,6 +470,7 @@ def repair_packet(
     allowed: Collection[str] | None = None,
     slot_facts: Mapping[str, Collection[str]] | None = None,
     visible_line_budget: Mapping[str, Any] | None = None,
+    carried: Collection[str] = (),
 ) -> dict[str, Any]:
     """The packet for one repair call: the defect, the one artifact it may revise, its contract.
 
@@ -492,7 +493,11 @@ def repair_packet(
     if allowed is not None:
         permitted = set(allowed)
         records = [record for record in records if record["id"] in permitted]
-    records = [*records, *_named_inherited_units(defect, facts)]
+    records = [
+        *records,
+        *_named_inherited_units(defect, facts),
+        *_carried_inherited_units(facts, carried),
+    ]
     packet: dict[str, Any] = {
         "repository": entry.repository,
         "defect": {**defect.record, "fingerprint": defect.fingerprint, "source": defect.source},
@@ -507,6 +512,23 @@ def repair_packet(
         else None,
     }
     return packet
+
+
+def _carried_inherited_units(
+    facts: FactsDocument, carried: Collection[str]
+) -> list[dict[str, str]]:
+    """The inherited_unit records a caller names as must-carry for the section being repaired -
+    only those IDs, never the rest of the corpus (RC1). The caller computes the set from the
+    reconciliation's own dispositions (composition/authoring.py ``carried_units``), never from
+    any finding's prose."""
+    wanted = set(carried)
+    if not wanted:
+        return []
+    return [
+        record
+        for record in bounded_records(facts, ["inherited_unit"], ("SUPPORTED",))
+        if record["id"] in wanted
+    ]
 
 
 def _named_inherited_units(defect: Defect, facts: FactsDocument) -> list[dict[str, str]]:
