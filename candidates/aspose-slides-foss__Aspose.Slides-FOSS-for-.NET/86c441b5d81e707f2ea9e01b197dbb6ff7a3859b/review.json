@@ -1,0 +1,243 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "An MIT-licensed .NET library that creates, reads and edits PowerPoint `.pptx` presentations by building the Office Open ",
+        "no PowerPoint installation, no COM interop, no native dependency and no NuGet dependencies at all."
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "license:spdx",
+        "dependency:none"
+      ],
+      "id": "F02",
+      "quote": "Aspose.Slides FOSS for .NET is a free, open-source library that enables developers to create, read, and convert PowerPoint presentations in .NET applications without requiring Microsoft PowerPoint. It supports reading and writing the PPTX format and other common slide formats, allowing users to programmatically build presentations with shapes, text, tables, images, and effects. The library is designed for .NET developers building desktop or server applications who need reliable presentation au",
+      "repair": "Restore the original opening paragraph's precise technical description: 'An MIT-licensed .NET library that creates, reads and edits PowerPoint `.pptx` presentations by building the Office Open XML package itself — no PowerPoint installation, no COM interop, no native dependency and no NuGet dependencies at all.'",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The candidate's opening paragraph is significantly reworded and adds promotional language not present in the original README, such as 'free, open-source library' and 'reliable presentation automation', which changes the tone and factual basis."
+    },
+    {
+      "absent": [
+        "subgraph StartingPoints[",
+        "subgraph Outputs["
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "```mermaid flowchart TD PRODUCT[",
+      "repair": "Restore the original Mermaid diagram structure with 'Starting Points' and 'Outputs' subgraphs to accurately represent the library's data flow and maintain consistency with the original README.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The candidate's Mermaid diagram in 'At a Glance' is simplified and omits critical elements from the original, including 'Starting Points' and 'Outputs' subgraphs, which are essential for understanding the library's input/output flow."
+    },
+    {
+      "absent": [
+        "187 of the 189 `ShapeType` values",
+        "prstGeom prst=",
+        "a:rPr b=1 sz=2400",
+        "a:latin typeface="
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "- **Create and edit presentations.** Create and edit presentations by instantiating a new `Presentation` object, adding slides, and saving in PPTX format without requiring Microsoft PowerPoint.",
+      "repair": "Restore specific technical details from the original README, such as the exact number of supported ShapeType values and specific XML elements produced, to maintain factual accuracy and technical precision.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.slides.foss.baseportionformat.presentation, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The candidate's 'Key Capabilities' section is overly generic and omits specific technical details from the original, such as the exact number of ShapeType values (187 of 189) and specific XML elements produced."
+    },
+    {
+      "absent": [
+        "Build from source",
+        "Install the package CI built"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "Install the published package from NuGet (`Aspose.Slides.FOSS`):",
+      "repair": "Restore the 'Build from source' and 'Install the package CI built' sections to provide complete installation instructions as documented in the original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "installation",
+      "text": "The candidate omits the 'Build from source' and 'Install the package CI built' sections, which are important alternative installation methods documented in the original README."
+    },
+    {
+      "absent": [
+        "The diagram is an overview, not a contract. Each box is expanded, with the XML it produces, under What it can do; the b",
+        "Three namespaces cover every sample on this page"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "The verified public surface has 264 types.",
+      "repair": "Remove the extensive public API surface list and restore the original README's approach of directing developers to the 'What it can do' section and providing concise, actionable examples.",
+      "reviewer_scope_defect": "the omission it names is inherited_unit:007.paragraph's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
+      "section_id": "api_reference",
+      "text": "The candidate's 'API Reference' section includes an extensive public API surface list that is not present in the original README and appears to be generated rather than curated, making it overwhelming and not useful for developers."
+    },
+    {
+      "absent": [
+        "Charts | `IShapeCollection.AddChart` does not exist",
+        "SmartArt, OLE objects, video, audio | no `AddSmartArt` / `AddOleObjectFrame` / `AddVideoFrame` / `AddAudioFrame`",
+        "Save formats | `SaveFormat` declares **21** values. `Save` writes **three** of them and raises `NotSupportedException`"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "Aspose.Slides FOSS for .NET does not support advanced animation and transition effects beyond basic slide transitions.",
+      "repair": "Restore the detailed 'What it cannot do' table from the original README to provide clear, specific information about the library's limitations.",
+      "reviewer_scope_defect": "the omission it names is inherited_unit:064.table's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
+      "section_id": "scope_limitations",
+      "text": "The candidate's 'Scope and Limitations' section is vague and omits the detailed 'What it cannot do' table from the original README, which is critical for developers to understand the library's boundaries."
+    },
+    {
+      "absent": [
+        "It is for developers who need to generate or modify decks on a server or in a build, and who are working *inside* the P",
+        "It is not a renderer or a converter: it does not produce PDF, HTML or images"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "- **[Aspose.Slides for .NET — product page](https://products.aspose.com/slides/net/)** — The product page introduces Aspose.Slides for .NET, the commercial offering that complements this FOSS library, and describes its feature set and licensing options.",
+      "repair": "Refocus the 'Documentation & Resources' section on the FOSS library itself and remove promotional links to the commercial product to maintain clarity about the library's scope.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "documentation_resources",
+      "text": "The candidate's 'Documentation & Resources' section includes promotional links to the commercial product that are not present in the original README's focus on the FOSS library, creating confusion about the library's scope."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "[![Aspose.Slides FOSS for .NET](https://products.aspose.org/media/slides/net/banner-readme.png)](https://products.aspose.org/slides/net/)",
+      "reader": 2,
+      "repair": "Remove the banner image link to maintain focus on the library's technical capabilities and avoid promotional content.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "banner",
+      "text": "The candidate includes a promotional banner image link that is not present in the original README, which is inappropriate for a FOSS library and shifts focus away from technical substance."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "The verified public surface has 264 types.",
+      "reader": 2,
+      "repair": "Remove the unverified type count and the exhaustive type list; keep only essential API reference information that is factually supported.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate includes an excessive and unverified public API surface count (264 types) and a massive detailed type list that is not supported by any fact and appears to be copied from elsewhere, making the section bloated and untrustworthy."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "Aspose.Slides FOSS for .NET does not support exporting presentations to formats other than PPTX and PDF.",
+      "reader": 2,
+      "repair": "Correct the limitation to state that only PPTX, PPSX, and POTX formats are supported for saving, and PDF export is not supported.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate incorrectly states 'Aspose.Slides FOSS for .NET does not support exporting presentations to formats other than PPTX and PDF', but the original README explicitly states PDF export is not supported at all."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "Aspose.Slides FOSS for .NET does not support advanced animation and transition effects beyond basic slide transitions. Aspose.Slides FOSS for .NET does not support macro or VBA project handling within presentations. Aspose.Slides FOSS for .NET does not support editing or rendering of 3D shapes or 3D effects in presentations. Aspose.Slides FOSS for .NET does not support exporting presentations to formats other than PPTX and PDF. Aspose.Slides FOSS for .NET does not support advanced chart editing",
+      "reader": 2,
+      "repair": "Consolidate limitations into a single, clear section based on the original README's 'What it cannot do' section, removing duplicate statements.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate repeats the same unsupported limitation statements multiple times in different sections, creating redundancy and confusion about what is actually supported."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "- **[Aspose.Slides for .NET — product page](https://products.aspose.com/slides/net/)** — The product page introduces Aspose.Slides for .NET, the commercial offering that complements this FOSS library",
+      "reader": 2,
+      "repair": "Remove the commercial product page link from the documentation section and keep only links to the FOSS repository and its sister repositories.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "documentation_resources",
+      "text": "The candidate includes a link to the commercial product's product page in the documentation section, which is inappropriate for a FOSS library README and creates confusion about the library's open-source nature."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "The suite covers 139 test files under tests/.",
+      "reader": 2,
+      "repair": "Remove the unverified test file count or replace it with a factual statement about the test structure.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The candidate states 'The suite covers 139 test files under tests/' but this specific number is not supported by any fact and appears to be fabricated."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "a3b2066d504d61a8cb957068e38b2fd41af2ba26f7b8409e3f54e272b67403e6",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [
+    "The candidate retains the core structure and most sections, but the presentation issues listed above significantly degrade the developer experience.",
+    "The candidate preserves the MIT license information and NuGet package name, which are critical facts.",
+    "The candidate preserves the repository URL and basic installation command, which are essential for developers."
+  ],
+  "readme_sha256": "723bfcec2e45a3349be8a8c2d7cc37f971014841a7e731e1c6a07f96612ff70b",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
+      "2e3e72ea29414d0b61e310f7",
+      "3c3b7985b1f0977c7f120bba",
+      "adde0a739f41df621d521032",
+      "c3eb94782fda205aa600bed3"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}
