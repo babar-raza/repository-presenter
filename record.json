@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
+  "provider_repository_id": 1359836523,
+  "registry_revision": null,
+  "active_transaction_id": "f52de9906ea445bfa89c2f54c99c9a25",
+  "state": "OBSERVED",
+  "source": null,
+  "surfaces": {},
+  "dependencies": {
+    "facts": null,
+    "prompts": null,
+    "models": null,
+    "presentation": null,
+    "validation": null
+  },
+  "accepted_artifact": null,
+  "proposal": null,
+  "failure": null,
+  "lease": {
+    "holder_id": "present.yml:37231183326",
+    "acquired_at": "2026-10-04T20:12:58.287466+00:00",
+    "heartbeat_at": "2026-10-04T20:12:58.287466+00:00",
+    "expires_at": "2026-10-04T20:27:58.287466+00:00",
+    "fencing_token": 1
+  },
+  "last_transition": null,
+  "state_version": 1,
+  "recent_trigger_dedup_keys": {
+    "run:37231183326:aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET": "f52de9906ea445bfa89c2f54c99c9a25"
+  },
+  "recovery_count": 0
+}
