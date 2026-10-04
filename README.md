@@ -50,8 +50,8 @@ authorized repository, it:
 | Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript) | **Partially built** — extractor plugins exist for all seven; sealed candidates so far cover fewer |
 | Deterministic Markdown renderer; the LLM never writes the final document, only fact-ID-bound content units | **Built** |
 | Safety: pinned, read-only, push-neutered git clones; secret-canary scan before any bundle is sealed | **Built** |
-| Upstream-defect detection and re-detection (`redetect-upstream-defects`); local, evidence-backed handoff records | **Built** — read-only re-checks and a status-only write; never a `gh issue create`/`close` call |
-| Upstream defect *reporting* (`file-upstream-defects`; filing genuine product defects as GitHub issues) | **Built** — gated: refuses without an owner-controlled authorization variable and a write-scoped token, both unset in this project's own environment (see [Security](#security-and-effects)) |
+| Upstream-defect detection and re-detection (`redetect-upstream-defects`); local, evidence-backed handoff records | **Built** — read-only re-checks; a status-only local write; a gated `close` of an issue this system filed, once its check proves the defect resolved |
+| Upstream defect *reporting* (`file-upstream-defects`; filing genuine product defects as GitHub issues) | **Built** — gated: refuses without an owner-controlled authorization variable and a write-scoped token. Scheduled by `.github/workflows/issues-scheduled.yml`; its write job runs only once the owner sets the repository variable (see [Security](#security-and-effects)) |
 | Production GitHub App credentials, installed across every registry organization | **Built** — a write-capable credential existing; it is not itself write authorization (see [Security](#security-and-effects)) |
 | Repo description/topics/homepage: read GitHub's observed values, propose a candidate from verified facts, diff | **Built** — read-only; no write call without explicit dual authorization |
 | Hosted, autonomous, scheduled portfolio monitoring | **Planned** (Gate G5) |
@@ -141,8 +141,8 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `GH_TOKEN` | optional | Repository-scoped, read-only; used for `present`'s clone step and `metadata`'s `GET /repos/{owner}/{repo}` call |
 | `GH_METADATA_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `metadata --apply` reads it, and only after `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `metadata --apply`'s write; a token's mere presence never implies this |
-| `GH_ISSUES_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `file-upstream-defects --file` reads it, and only after `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` also authorizes a write |
-| `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `file-upstream-defects --file`'s write; a token's mere presence never implies this |
+| `GH_ISSUES_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `file-upstream-defects --file` and `redetect-upstream-defects --close` read it, and only after `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` also authorizes a write |
+| `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for the issue filing and closing writes (`file-upstream-defects --file`, `redetect-upstream-defects --close`); a token's mere presence never implies this. In CI it is set only from the repository variable of the same name, on the gated write job |
 | `GH_PROPOSAL_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`/`GH_METADATA_WRITE_TOKEN`/`GH_ISSUES_WRITE_TOKEN`; only `propose --propose` reads it, and only after `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `propose --propose`'s write; a token's mere presence never implies this |
 
@@ -162,8 +162,9 @@ repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--f
   [--durable-state [--trigger-event-type TYPE] [--workflow-run-id ID] [--holder-id ID]
                     [--state-remote REMOTE]]
 repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
-repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply]
+repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply] [--close]
 repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file]
+repository-presenter issue-targets [--root PATH]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH --source-revision SHA] [--base-branch NAME] [--expires-in-minutes N] [--propose]
 ```
@@ -192,20 +193,26 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH
   owner's enabled entries). It makes no provider call and no write to any repository; it exits 1
   when any repository is `UNREACHABLE`, and the scheduled `monitor.yml` workflow runs it read-only.
 - **`redetect-upstream-defects`** — re-evaluates each `evidence/upstream-defects/` handoff's own
-  `triggering_check` against the target repository's current state (read-only: package-registry
-  and GitHub Contents/tree reads, no `gh issue create`/`close` call) and reports whether it still
-  fires. `--repo OWNER/NAME` limits the pass to one repository. `--apply` writes back the one
-  schema-valid status change this can ever propose (`FILED` -> `RESOLVED_UPSTREAM`); a dry-run
-  report otherwise.
+  `triggering_check` against the target repository's current state (package-registry and GitHub
+  Contents/tree reads) and reports whether it still fires. `--repo OWNER/NAME` limits the pass to
+  one repository. `--apply` writes back the one schema-valid status change this can ever propose
+  (`FILED` -> `RESOLVED_UPSTREAM`) without any GitHub call; a dry-run report otherwise. `--close`
+  is the gated write: it closes the issue a `FILED` handoff points to, with the close reason the
+  check proves (`completed` or `not planned`), and records `RESOLVED_UPSTREAM` only after GitHub
+  confirmed the close. Without the gate it reports what it would close and makes no call.
 - **`file-upstream-defects`** — files each eligible (`HANDOFF_PENDING`) `evidence/upstream-defects/`
-  handoff as a real GitHub issue; dry-run by default (lists what would be filed, no network call at
-  all). `--repo OWNER/NAME` limits the pass to one repository. `--file` attempts the write, but only
-  past two independent, explicit gates — the owner-controlled
-  `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED=1`, and a write-scoped `GH_ISSUES_WRITE_TOKEN`
-  (never `GH_TOKEN`) — plus a fresh recheck (via `redetect-upstream-defects`'s own mechanism) that
-  the defect still fires immediately before the call; a handoff whose status is not
-  `HANDOFF_PENDING` is skipped outright (the duplicate-filing guard). Neither gate is set in this
-  project's own environment, so `--file` reports exactly why it wrote nothing rather than guessing.
+  handoff as a real GitHub issue; dry-run by default (read-only: reports what would be filed, what
+  is already filed upstream, and what would not be filed, with the reason). `--repo OWNER/NAME`
+  limits the pass to one repository. `--file` attempts the write, but only past two independent,
+  explicit gates — the owner-controlled `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED=1`, and a
+  write-scoped `GH_ISSUES_WRITE_TOKEN` (never `GH_TOKEN`). Before the write it searches the target
+  for the handoff's fingerprint marker (so a fresh checkout cannot file a duplicate), rechecks that
+  the defect still fires, and refuses on any inconclusive result. A handoff whose status is not
+  `HANDOFF_PENDING` is skipped outright.
+- **`issue-targets`** — prints, as compact JSON, the repositories with a pending or filed handoff.
+  The scheduled `.github/workflows/issues-scheduled.yml` uses it as its matrix: a read-only analysis
+  per repository always, and the gated write job only when the repository variable
+  `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` is set to `1`.
 - **`metadata --repo OWNER/NAME`** — workstream 2 capture and proposal, dry-run by default: reads
   GitHub's currently-observed `description`/`homepage`/`topics` for the repository, and, when a
   sealed `CURRENT` candidate exists, proposes a candidate value for each field derived only from

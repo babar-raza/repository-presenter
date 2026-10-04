@@ -37,6 +37,17 @@ HANDOFF_PAYLOAD = {
 }
 
 
+@pytest.fixture(autouse=True)
+def _no_live_github(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Every upstream call these tests reach is an injected fake: the marker lookup finds nothing
+    by default, the recheck confirms the defect still fires, and any PATCH is recorded, never sent.
+    A test that needs a different answer overrides the one name it cares about."""
+    monkeypatch.setattr(cli, "find_issue_with_marker", lambda *a, **k: None)
+    monkeypatch.setattr(cli, "redetect", _fires_true)
+    monkeypatch.setattr(cli, "default_patch", _RecordingCreate(status_code=200, body={}))
+    monkeypatch.setattr(cli, "default_post", _RecordingCreate())
+
+
 @pytest.fixture
 def project_with_handoff(project: Path) -> Path:
     handoff_dir = project / "evidence" / "upstream-defects" / REPO_DIR
@@ -216,3 +227,198 @@ def test_repo_filter_reports_plainly_when_nothing_matches(
     )
     assert exit_code == EXIT_OK
     assert "no handoff found for 'someone-else/unrelated'" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------------------
+# The scheduled run: dedup across fresh checkouts, failure isolation, the gated close, and the
+# matrix the workflow fans out over.
+# ---------------------------------------------------------------------------
+
+OTHER_REPO = "acme-org/second-repo"
+OTHER_FINGERPRINT = "c" * 64
+
+
+def _write_second_handoff(project: Path) -> None:
+    payload = {
+        **HANDOFF_PAYLOAD,
+        "repository": OTHER_REPO,
+        "defect_fingerprint": f"sha256:{OTHER_FINGERPRINT}",
+        "suggested_issue_title": "second, independent defect",
+        "suggested_issue_body": "independent finding\n",
+    }
+    directory = project / "evidence" / "upstream-defects" / "acme-org__second-repo"
+    directory.mkdir(parents=True)
+    (directory / f"{OTHER_FINGERPRINT}.json").write_text(
+        json.dumps(payload, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def _handoff_path(project: Path) -> Path:
+    return project / "evidence" / "upstream-defects" / REPO_DIR / f"{FINGERPRINT}.json"
+
+
+def _write_filed_handoff(project: Path, *, number: int = 7) -> None:
+    payload = {
+        **HANDOFF_PAYLOAD,
+        "status": "FILED",
+        "issue_ref": {"number": number, "url": f"https://x/issues/{number}"},
+    }
+    _handoff_path(project).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def _resolved_not_planned(handoff: object) -> object:
+    from repository_presenter.components.issues.redetect import RedetectionResult
+
+    return RedetectionResult(
+        repository=REPOSITORY,
+        defect_fingerprint=f"sha256:{FINGERPRINT}",
+        triggering_check_id="BC-02",
+        checked_at="2026-10-04T00:00:00+00:00",
+        checked_at_revision=REVISION,
+        revision_drifted=False,
+        still_fires=False,
+        note="no longer fires",
+        fresh_evidence=(),
+        proposed_status="RESOLVED_UPSTREAM",
+        proposed_close_reason="not planned",
+    )
+
+
+def test_a_second_run_from_a_fresh_checkout_files_nothing_when_the_upstream_issue_exists(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from repository_presenter.components.issues.model import IssueRef
+
+    create = _RecordingCreate()
+    monkeypatch.setattr(cli, "default_post", create)
+    monkeypatch.setattr(
+        cli, "find_issue_with_marker", lambda *a, **k: _Found(number=7, url="https://x/issues/7")
+    )
+    monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
+    monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
+
+    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+
+    assert exit_code == EXIT_OK
+    assert create.calls == []
+    assert "already filed" in capsys.readouterr().out
+    updated = load_handoff(_handoff_path(project_with_handoff))
+    assert updated.status == "FILED"
+    assert updated.issue_ref == IssueRef(number=7, url="https://x/issues/7")
+
+
+def test_a_failed_filing_for_one_handoff_does_not_stop_the_others(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _write_second_handoff(project_with_handoff)
+    failing = _RecordingCreate(status_code=500, body={"message": "boom"})
+    succeeding = _RecordingCreate()
+
+    def route(url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
+        if f"/repos/{REPOSITORY}/" in url:
+            return failing(url, token, payload)
+        return succeeding(url, token, payload)
+
+    monkeypatch.setattr(cli, "default_post", route)
+    monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
+    monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
+
+    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+
+    assert len(failing.calls) == 1
+    assert len(succeeding.calls) == 1
+    assert exit_code != EXIT_OK
+    assert load_handoff(_handoff_path(project_with_handoff)).status == "HANDOFF_PENDING"
+    other = project_with_handoff / "evidence" / "upstream-defects" / "acme-org__second-repo"
+    assert load_handoff(other / f"{OTHER_FINGERPRINT}.json").status == "FILED"
+    assert "filed=True" in capsys.readouterr().out
+
+
+def test_a_resolved_filed_handoff_is_closed_with_its_close_reason(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _write_filed_handoff(project_with_handoff)
+    patch = _RecordingCreate(status_code=200, body={"state": "closed"})
+    monkeypatch.setattr(cli, "default_patch", patch)
+    monkeypatch.setattr(cli, "redetect", _resolved_not_planned)
+    monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
+    monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
+
+    exit_code = main(["redetect-upstream-defects", "--root", str(project_with_handoff), "--close"])
+
+    assert exit_code == EXIT_OK
+    assert len(patch.calls) == 1
+    url, token, payload = patch.calls[0]
+    assert url == f"https://api.github.com/repos/{REPOSITORY}/issues/7"
+    assert token == "fake-write-token-for-this-test-only"
+    assert payload == {"state": "closed", "state_reason": "not_planned"}
+    updated = load_handoff(_handoff_path(project_with_handoff))
+    assert updated.status == "RESOLVED_UPSTREAM"
+    assert updated.close_reason == "not planned"
+    assert updated.issue_ref is not None and updated.issue_ref.number == 7
+    assert "fake-write-token-for-this-test-only" not in capsys.readouterr().out
+
+
+def test_close_without_the_gate_makes_no_call_and_says_what_it_would_close(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _write_filed_handoff(project_with_handoff)
+    patch = _RecordingCreate(status_code=200, body={"state": "closed"})
+    monkeypatch.setattr(cli, "default_patch", patch)
+    monkeypatch.setattr(cli, "redetect", _resolved_not_planned)
+    monkeypatch.delenv(AUTHORIZATION_VARIABLE, raising=False)
+
+    exit_code = main(["redetect-upstream-defects", "--root", str(project_with_handoff)])
+
+    assert exit_code == EXIT_OK
+    assert patch.calls == []
+    out = capsys.readouterr().out
+    assert "would close #7" in out
+    assert load_handoff(_handoff_path(project_with_handoff)).status == "FILED"
+
+
+def test_the_dry_run_names_each_handoff_it_would_file_with_the_gate_unset(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _write_second_handoff(project_with_handoff)
+    create = _RecordingCreate()
+    monkeypatch.setattr(cli, "default_post", create)
+    monkeypatch.delenv(AUTHORIZATION_VARIABLE, raising=False)
+
+    exit_code = main(["file-upstream-defects", "--root", str(project_with_handoff), "--file"])
+
+    assert exit_code == EXIT_OK
+    assert create.calls == []
+    out = capsys.readouterr().out
+    assert "would file" in out
+    assert HANDOFF_PAYLOAD["suggested_issue_title"] in out
+    assert "second, independent defect" in out
+    assert AUTHORIZATION_VARIABLE in out
+
+
+def test_issue_targets_lists_each_repository_with_pending_or_filed_handoffs_as_json(
+    project_with_handoff: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _write_second_handoff(project_with_handoff)
+    exit_code = main(["issue-targets", "--root", str(project_with_handoff)])
+    assert exit_code == EXIT_OK
+    targets = json.loads(capsys.readouterr().out)
+    assert targets == [
+        {"repo": OTHER_REPO, "owner": "acme-org", "name": "second-repo"},
+        {"repo": REPOSITORY, "owner": "aspose-cells-foss", "name": "Aspose.Cells-FOSS-for-Cpp"},
+    ]
+
+
+def test_issue_targets_is_an_empty_list_when_nothing_is_actionable(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["issue-targets", "--root", str(project)]) == EXIT_OK
+    assert json.loads(capsys.readouterr().out) == []
+
+
+class _Found:
+    """Stands in for a ``CreatedIssue`` returned by the upstream marker lookup."""
+
+    def __init__(self, *, number: int, url: str) -> None:
+        self.number = number
+        self.url = url
