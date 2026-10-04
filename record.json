@@ -4,7 +4,7 @@
   "provider_repository_id": 1138357893,
   "registry_revision": null,
   "active_transaction_id": "d5b66209dd384bd6b6e921310d7c0d71",
-  "state": "COMPOSING",
+  "state": "VALIDATING",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -25,20 +25,20 @@
     "fencing_token": 1
   },
   "last_transition": {
-    "transition_id": "c5727be585a44d7ab2a2b3445a0f752e",
+    "transition_id": "ec2537e2668e46efa2bcd6bf4b5d7d14",
     "transaction_id": "d5b66209dd384bd6b6e921310d7c0d71",
     "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
-    "from_state": "PLANNING",
-    "to_state": "COMPOSING",
+    "from_state": "COMPOSING",
+    "to_state": "VALIDATING",
     "event": "present.yml hosted transaction completed (one coarse receipt spanning the local pipeline's own stages - see core/state/present_transaction.py's module docstring)",
-    "occurred_at": "2026-10-04T11:20:09.541436+00:00",
+    "occurred_at": "2026-10-04T11:20:11.303191+00:00",
     "actor": "runtime",
     "input_manifest": "registry:aspose-3d-foss/Aspose.3D-FOSS-for-Python",
     "output_manifest": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/CURRENT",
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 60,
+  "state_version": 61,
   "recent_trigger_dedup_keys": {
     "run:36846316608:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "c10d0e8f3981420db933efcf16457339",
     "run:36846738278:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "7483865b14ff4539a5bf0e709a64d326",
