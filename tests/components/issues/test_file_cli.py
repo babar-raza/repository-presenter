@@ -16,7 +16,7 @@ from repository_presenter.cli import EXIT_OK, EXIT_USAGE, main
 from repository_presenter.components.issues.approval import handoff_id
 from repository_presenter.components.issues.file import AUTHORIZATION_VARIABLE
 from repository_presenter.components.issues.model import load_handoff
-from support import approval_text
+from support import approval_text, monitor_registry_entry, write_registry_file
 
 REPO_DIR = "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp"
 REPOSITORY = "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
@@ -91,6 +91,8 @@ def project_with_handoff(project: Path) -> Path:
     (handoff_dir / f"{FINGERPRINT}.json").write_text(
         json.dumps(HANDOFF_PAYLOAD, indent=2) + "\n", encoding="utf-8"
     )
+    # `--file` writes only to a registry-`full` entry (core/registry/write_gate.py).
+    write_registry_file(project, [monitor_registry_entry(REPOSITORY, mode="full")])
     return project
 
 
@@ -651,3 +653,107 @@ class _Found:
     def __init__(self, *, number: int, url: str) -> None:
         self.number = number
         self.url = url
+
+
+# ---------------------------------------------------------------------------
+# The two independent gates on the filing path: the registry write gate (mode `full` -> a
+# `WritePermit`) and the per-handoff approval record. Each alone is insufficient, so removing
+# either one makes exactly one of these tests fail.
+# ---------------------------------------------------------------------------
+
+
+def _file_args(project: Path) -> list[str]:
+    return ["file-upstream-defects", "--root", str(project), "--file", "--repo", REPOSITORY]
+
+
+def _set_registry_mode(project: Path, mode: str) -> None:
+    write_registry_file(project, [monitor_registry_entry(REPOSITORY, mode=mode)])
+
+
+def test_end_to_end_a_handoff_is_filed_only_when_all_four_gates_hold(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Registry mode full + permit, an approval record that verifies against the handoff digest, the
+    kill switch on, and a write token: exactly one issue is filed, and the handoff is recorded."""
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+
+    assert main(_file_args(project_with_handoff)) == EXIT_OK
+
+    assert [url for url, _, _ in create.calls] == [
+        f"https://api.github.com/repos/{REPOSITORY}/issues"
+    ]
+    assert load_handoff(_handoff_path(project_with_handoff)).status == "FILED"
+    assert "filed=True" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("mode", ["dry_run", "disabled"])
+def test_end_to_end_an_approved_handoff_is_not_filed_when_the_registry_mode_is_not_full(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    mode: str,
+) -> None:
+    """Approval record present and verifying, kill switch on, token present - and still nothing:
+    the registry write gate alone refuses. Fails if the permit check is removed."""
+    _set_registry_mode(project_with_handoff, mode)
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+
+    assert main(_file_args(project_with_handoff)) == EXIT_OK
+
+    assert create.calls == []
+    assert load_handoff(_handoff_path(project_with_handoff)).status == "HANDOFF_PENDING"
+    out = capsys.readouterr().out
+    assert "not filed (registry_" in out
+
+
+def test_end_to_end_a_full_mode_handoff_is_not_filed_without_its_approval_record(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    approvals: list[_CommittedApprovals],
+) -> None:
+    """Registry mode full and a permit, kill switch on, token present - and still nothing: no
+    approval record. Fails if the approval check is removed."""
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+    _approve(monkeypatch)  # approves no repository
+
+    assert main(_file_args(project_with_handoff)) == EXIT_OK
+
+    assert create.calls == []
+    assert load_handoff(_handoff_path(project_with_handoff)).status == "HANDOFF_PENDING"
+
+
+def test_end_to_end_a_full_mode_approved_handoff_is_not_filed_with_the_kill_switch_off(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+    monkeypatch.delenv(AUTHORIZATION_VARIABLE)
+
+    assert main(_file_args(project_with_handoff)) == EXIT_OK
+
+    assert create.calls == []
+
+
+def test_the_filing_effect_cannot_be_reached_without_a_matching_permit(
+    project_with_handoff: Path,
+) -> None:
+    """``file_handoff`` takes the registry permit as a required argument and checks it names this
+    effect and this repository."""
+    from repository_presenter.components.issues.file import file_handoff
+    from support import make_permit
+
+    handoff = load_handoff(_handoff_path(project_with_handoff))
+    with pytest.raises(TypeError, match="permit"):
+        file_handoff(handoff, token="t", environment={AUTHORIZATION_VARIABLE: "1"})  # type: ignore[call-arg]
+    for wrong in (
+        make_permit("someone/else", effect="issue_filing"),
+        make_permit(REPOSITORY, effect="readme_proposal"),
+    ):
+        with pytest.raises(ValueError, match="permit"):
+            file_handoff(
+                handoff, token="t", environment={AUTHORIZATION_VARIABLE: "1"}, permit=wrong
+            )

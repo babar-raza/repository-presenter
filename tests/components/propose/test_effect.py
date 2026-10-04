@@ -5,15 +5,23 @@ lost-response reconciliation path - never a blind retry."""
 
 from __future__ import annotations
 
+import pytest
+
 from repository_presenter.components.propose.effect import (
     AUTHORIZATION_VARIABLE,
     ProposalEffectResult,
     propose_candidate,
 )
-from repository_presenter.core.authorization.proposal import authorize_proposal
+from repository_presenter.core.authorization.proposal import (
+    ProposalAuthorization,
+    authorize_proposal,
+)
+from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
 from repository_presenter.core.errors import RepositoryMetadataError
 from repository_presenter.core.github.client import CommitOutcome, FileContents, PullRequestRef
+from repository_presenter.core.github.token_provenance import TokenDecision
 from repository_presenter.core.hashing import sha256_text
+from support import make_permit
 
 REPOSITORY = "babar-raza/disposable-target"
 BASE_BRANCH = "main"
@@ -23,12 +31,14 @@ README_V1 = "# Disposable Target\n\nOriginal content.\n"
 README_V2 = "# Disposable Target\n\nUpdated content.\n"
 
 
-def _authorization(readme_text: str = README_V1, **overrides: object) -> object:
+def _authorization(readme_text: str = README_V1, **overrides: object) -> ProposalAuthorization:
     fields: dict[str, object] = {
         "repository": REPOSITORY,
         "candidate_hash": sha256_text(readme_text),
         "source_revision": SOURCE_REVISION,
+        "base_branch": BASE_BRANCH,
         "branch": BRANCH,
+        "approver": "a-person",
         "issued_at": "2026-10-01T00:00:00Z",
         "expires_at": "2026-10-01T01:00:00Z",
     }
@@ -44,6 +54,8 @@ class FakeGitHub:
         self.refs: dict[str, str] = {BASE_BRANCH: base_sha}
         self.files: dict[tuple[str, str], FileContents] = {}
         self.prs: dict[str, PullRequestRef] = {}
+        #: merged/closed pull requests from the presenter branch (newest first)
+        self.settled_prs: list[PullRequestRef] = []
         self._next_pr_number = 100
         self._next_file_sha = 1
         # "ok" | "unreachable_landed" | "unreachable_lost" | "fail"; "ok" is the default.
@@ -100,10 +112,12 @@ class FakeGitHub:
         self.files[(branch, path)] = FileContents(path=path, sha=new_sha, text=text)
         return CommitOutcome(content_sha=new_sha, commit_sha=f"commit-{new_sha}")
 
-    def find_open_pull_request(
+    def find_pull_requests(
         self, owner: str, name: str, *, head_branch: str, token: str
-    ) -> PullRequestRef | None:
-        return self.prs.get(head_branch)
+    ) -> tuple[PullRequestRef, ...]:
+        """Every state, as the real client reports: the open PR (if any) plus settled ones."""
+        open_pr = self.prs.get(head_branch)
+        return (*([open_pr] if open_pr else []), *self.settled_prs)
 
     def create_pull_request(
         self, owner: str, name: str, *, title: str, body: str, head: str, base: str, token: str
@@ -140,23 +154,41 @@ class FakeGitHub:
             "create_ref": self.create_ref,
             "get_contents": self.get_contents,
             "put_contents": self.put_contents,
-            "find_open_pull_request": self.find_open_pull_request,
+            "find_pull_requests": self.find_pull_requests,
             "create_pull_request": self.create_pull_request,
             "update_pull_request": self.update_pull_request,
         }
 
 
-def _propose(github: FakeGitHub, *, readme_text: str = README_V1, authorization=None, **overrides):
+def _ok_token(repository: str, token: str) -> TokenDecision:
+    return TokenDecision(True)
+
+
+def _ok_pr_app(owner: str, name: str, number: int, *, token: str) -> TokenDecision:
+    return TokenDecision(True)
+
+
+def _propose(
+    github: FakeGitHub,
+    *,
+    readme_text: str = README_V1,
+    authorization: ProposalAuthorization | None = None,
+    **overrides: object,
+) -> ProposalEffectResult:
     authorization = authorization or _authorization(readme_text)
     kwargs: dict[str, object] = {
         "repository": REPOSITORY,
         "readme_text": readme_text,
         "source_revision": SOURCE_REVISION,
-        "authorization": authorization,
+        "permit": make_permit(REPOSITORY),
+        "load_authorization": lambda: authorization,
+        "recheck_source": lambda: SOURCE_REVISION,
+        "verify_token": _ok_token,
+        "verify_pull_request_app": _ok_pr_app,
         "base_branch": BASE_BRANCH,
         "pr_title": "Update README via repository-presenter",
         "pr_body": "Automated README proposal.",
-        "token": "ghp_write",
+        "token": "ghs_write",
         "environment": {AUTHORIZATION_VARIABLE: "1"},
         "clock": lambda: "2026-10-01T00:30:00Z",  # deterministic: authorization expires 01:00:00Z
     }
@@ -241,10 +273,25 @@ def test_a_confirmed_live_source_revision_proceeds() -> None:
     assert result.effected is True
 
 
-def test_no_recheck_supplied_still_proceeds_recheck_is_optional() -> None:
+def test_the_source_recheck_is_required_not_optional() -> None:
+    """AGENTS.md "Recheck upstream revision immediately before an effect": an effect that can be
+    called without a recheck is one that can be called against a moved target."""
     github = FakeGitHub()
-    result = _propose(github)
-    assert result.effected is True
+    kwargs: dict[str, object] = {
+        "repository": REPOSITORY,
+        "readme_text": README_V1,
+        "source_revision": SOURCE_REVISION,
+        "permit": make_permit(REPOSITORY),
+        "load_authorization": lambda: _authorization(),
+        "base_branch": BASE_BRANCH,
+        "pr_title": "t",
+        "pr_body": "b",
+        "token": "ghs_write",
+        "environment": {AUTHORIZATION_VARIABLE: "1"},
+        **github.kwargs(),
+    }
+    with pytest.raises(TypeError, match="recheck_source"):
+        propose_candidate(**kwargs)  # type: ignore[arg-type]
 
 
 # ---------------------------------------------------------------------------
@@ -404,5 +451,229 @@ def test_a_retry_that_also_fails_after_reconciliation_is_refused() -> None:
 
 def test_result_never_echoes_the_token() -> None:
     github = FakeGitHub()
-    result = _propose(github, token="ghp_super_secret_write_token")
-    assert "ghp_super_secret_write_token" not in repr(result)
+    result = _propose(github, token="ghs_super_secret_write_token")
+    assert "ghs_super_secret_write_token" not in repr(result)
+
+
+# ---------------------------------------------------------------------------
+# typed refusals: every gate names a Refusal code, and none makes a write
+# ---------------------------------------------------------------------------
+
+
+def _assert_refused_without_writes(
+    github: FakeGitHub, result: ProposalEffectResult, code: Refusal
+) -> None:
+    assert result.effected is False
+    assert result.reason_code is code
+    assert github.create_ref_calls == []
+    assert github.put_calls == []
+    assert github.create_pr_calls == 0
+    assert github.update_pr_calls == 0
+
+
+def test_every_early_refusal_carries_its_typed_code() -> None:
+    github = FakeGitHub()
+    assert _propose(github, environment={}).reason_code is Refusal.WRITE_NOT_ENABLED
+    assert _propose(github, token=None).reason_code is Refusal.NO_WRITE_TOKEN
+    stale = _propose(github, recheck_source=lambda: "a" * 40)
+    _assert_refused_without_writes(github, stale, Refusal.SOURCE_MOVED)
+
+
+def test_a_missing_authorization_record_refuses_with_the_typed_reason() -> None:
+    github = FakeGitHub()
+
+    def missing() -> ProposalAuthorization:
+        raise WriteRefusedError(Refusal.AUTHORIZATION_MISSING, "no authorization record supplied")
+
+    result = _propose(github, load_authorization=missing)
+    _assert_refused_without_writes(github, result, Refusal.AUTHORIZATION_MISSING)
+    assert "no authorization record" in result.reason
+
+
+def test_an_uncommitted_authorization_record_refuses_with_the_typed_reason() -> None:
+    """The record exists but git provenance says it did not pre-date the run: the loader raises
+    ``AUTHORIZATION_NOT_COMMITTED`` and the effect passes that code through untouched."""
+    github = FakeGitHub()
+
+    def self_made() -> ProposalAuthorization:
+        raise WriteRefusedError(Refusal.AUTHORIZATION_NOT_COMMITTED, "not on origin/main")
+
+    result = _propose(github, load_authorization=self_made)
+    _assert_refused_without_writes(github, result, Refusal.AUTHORIZATION_NOT_COMMITTED)
+
+
+def test_an_expired_authorization_has_the_expired_code() -> None:
+    github = FakeGitHub()
+    result = _propose(github, authorization=_authorization(expires_at="2026-10-01T00:10:00Z"))
+    _assert_refused_without_writes(github, result, Refusal.AUTHORIZATION_EXPIRED)
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"candidate_hash": "0" * 64},
+        {"source_revision": "b" * 40},
+        {"repository": "other-org/other-repo"},
+        {"base_branch": "develop"},
+        {"branch": "some-other-branch"},
+        {"policy_version": "0"},
+    ],
+)
+def test_a_mismatched_authorization_has_the_mismatch_code(overrides: dict[str, str]) -> None:
+    github = FakeGitHub()
+    result = _propose(github, authorization=_authorization(**overrides))
+    _assert_refused_without_writes(github, result, Refusal.AUTHORIZATION_MISMATCH)
+
+
+def test_the_authorization_is_checked_against_the_candidate_not_against_itself() -> None:
+    """The tautology this replaces: a record can never validate merely because the dispatcher
+    computed matching values. A record for README_V1 does not authorize README_V2, whatever else
+    in the call agrees."""
+    github = FakeGitHub()
+    result = _propose(github, readme_text=README_V2, authorization=_authorization(README_V1))
+    _assert_refused_without_writes(github, result, Refusal.AUTHORIZATION_MISMATCH)
+
+
+def test_a_permit_for_another_repository_or_effect_cannot_reach_the_effect() -> None:
+    github = FakeGitHub()
+    with pytest.raises(ValueError, match="permit"):
+        _propose(github, permit=make_permit("someone/else"))
+    with pytest.raises(ValueError, match="permit"):
+        _propose(github, permit=make_permit(REPOSITORY, effect="metadata_write"))
+
+
+# ---------------------------------------------------------------------------
+# write-token provenance
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "code", [Refusal.TOKEN_NOT_INSTALLATION, Refusal.TOKEN_WRONG_SCOPE, Refusal.TOKEN_UNVERIFIABLE]
+)
+def test_a_token_that_fails_provenance_refuses_before_any_write(code: Refusal) -> None:
+    github = FakeGitHub()
+    seen: list[tuple[str, str]] = []
+
+    def verify(repository: str, token: str) -> TokenDecision:
+        seen.append((repository, token))
+        return TokenDecision(False, code, "refused by provenance")
+
+    result = _propose(github, verify_token=verify)
+    _assert_refused_without_writes(github, result, code)
+    assert seen == [(REPOSITORY, "ghs_write")]
+
+
+# ---------------------------------------------------------------------------
+# pull-request history: a settled proposal is not recreated
+# ---------------------------------------------------------------------------
+
+
+def _settled(
+    state: str, *, number: int = 7, candidate_hash: str | None = None, body: str | None = None
+) -> PullRequestRef:
+    text = body if body is not None else f"- candidate_hash: {candidate_hash}\n"
+    return PullRequestRef(
+        number=number,
+        url=f"https://github.com/{REPOSITORY}/pull/{number}",
+        title="Update README via repository-presenter",
+        body=text,
+        state=state,
+    )
+
+
+@pytest.mark.parametrize(
+    ("state", "code"),
+    [("merged", Refusal.PR_ALREADY_MERGED), ("closed", Refusal.PR_ALREADY_CLOSED)],
+)
+def test_a_merged_or_closed_pr_for_the_same_candidate_is_not_recreated(
+    state: str, code: Refusal
+) -> None:
+    github = FakeGitHub()
+    github.settled_prs = [_settled(state, candidate_hash=sha256_text(README_V1))]
+    result = _propose(github)
+    _assert_refused_without_writes(github, result, code)
+    assert "#7" in result.reason
+
+
+def test_a_settled_pr_with_no_candidate_hash_counts_as_the_same_candidate() -> None:
+    """Unknown is never new: a body that lost its hash line still blocks recreation."""
+    github = FakeGitHub()
+    github.settled_prs = [_settled("closed", body="edited by a maintainer")]
+    result = _propose(github)
+    _assert_refused_without_writes(github, result, Refusal.PR_ALREADY_CLOSED)
+
+
+def test_the_pr_history_is_read_before_any_branch_or_commit_is_written() -> None:
+    github = FakeGitHub()
+    github.settled_prs = [_settled("merged", candidate_hash=sha256_text(README_V1))]
+    result = _propose(github)
+    assert result.effected is False
+    assert BRANCH not in github.refs  # no stray presenter branch left behind by a refused run
+
+
+def test_a_settled_pr_for_a_different_candidate_does_not_block_a_new_proposal() -> None:
+    """Drift produced a new candidate: that is the policy's new-upstream-drift permission."""
+    github = FakeGitHub()
+    github.settled_prs = [_settled("merged", candidate_hash=sha256_text(README_V2))]
+    result = _propose(github, readme_text=README_V1)
+    assert result.effected is True
+    assert result.pr_created is True
+
+
+@pytest.mark.parametrize("state", ["merged", "closed"])
+def test_a_record_naming_the_settled_pr_permits_the_reproposal(state: str) -> None:
+    github = FakeGitHub()
+    github.settled_prs = [_settled(state, number=7, candidate_hash=sha256_text(README_V1))]
+    result = _propose(github, authorization=_authorization(supersedes_prs=(7,)))
+    assert result.effected is True
+    assert result.pr_created is True
+
+
+def test_a_record_naming_a_different_pr_does_not_permit_the_reproposal() -> None:
+    github = FakeGitHub()
+    github.settled_prs = [_settled("merged", number=7, candidate_hash=sha256_text(README_V1))]
+    result = _propose(github, authorization=_authorization(supersedes_prs=(8,)))
+    _assert_refused_without_writes(github, result, Refusal.PR_ALREADY_MERGED)
+
+
+def test_an_unreadable_pr_history_refuses_rather_than_assuming_none() -> None:
+    github = FakeGitHub()
+
+    def unreadable(*args: object, **kwargs: object) -> tuple[PullRequestRef, ...]:
+        raise RepositoryMetadataError("unreachable (ConnectError)")
+
+    result = _propose(github, find_pull_requests=unreadable)
+    _assert_refused_without_writes(github, result, Refusal.GITHUB_ERROR)
+
+
+# ---------------------------------------------------------------------------
+# attribution of the pull request to the expected GitHub App
+# ---------------------------------------------------------------------------
+
+
+def test_an_existing_open_pr_from_another_app_is_not_updated() -> None:
+    github = FakeGitHub()
+    assert _propose(github).effected is True  # opens the PR
+    writes_before = (len(github.put_calls), github.update_pr_calls)
+
+    def foreign(owner: str, name: str, number: int, *, token: str) -> TokenDecision:
+        return TokenDecision(False, Refusal.TOKEN_APP_MISMATCH, "performed by another app")
+
+    result = _propose(github, pr_body="a revised body", verify_pull_request_app=foreign)
+    assert result.effected is False
+    assert result.reason_code is Refusal.TOKEN_APP_MISMATCH
+    assert (len(github.put_calls), github.update_pr_calls) == writes_before
+
+
+def test_a_newly_created_pr_attributed_to_another_app_is_reported_not_effected() -> None:
+    github = FakeGitHub()
+
+    def foreign(owner: str, name: str, number: int, *, token: str) -> TokenDecision:
+        return TokenDecision(False, Refusal.TOKEN_APP_MISMATCH, "performed by another app")
+
+    result = _propose(github, verify_pull_request_app=foreign)
+    assert result.effected is False
+    assert result.reason_code is Refusal.TOKEN_APP_MISMATCH
+    assert result.pr_created is True  # the PR exists; the result says so and says to review it
+    assert result.pr_url is not None
+    assert result.pr_url in result.reason
