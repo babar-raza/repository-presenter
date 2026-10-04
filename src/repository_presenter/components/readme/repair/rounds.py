@@ -51,7 +51,7 @@ from repository_presenter.components.readme.composition.planning import (
     plan_checks,
     planning_packet,
     planning_schema,
-    recover_uncited_capability_titles,
+    recover_planning_output,
     recover_visible_line_overage,
     write_plan,
 )
@@ -338,7 +338,7 @@ def run_round(tx: TransactionInputs) -> Round:
             ecosystem=entry.ecosystem,
         ),
         call_schema=planning_schema(loaded, facts, investigation.output, dispositions),
-        recover=functools.partial(recover_uncited_capability_titles, facts=facts),
+        recover=functools.partial(recover_planning_output, facts=facts),
         **common,
     )
     digests["plan"] = write_plan(planned.output, tx.directory / PLAN_FILENAME)
