@@ -303,8 +303,9 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # VALIDATOR_VERSION 8: BC-06 v7 fails the edition substitutes in any letter case and BC-12
     # (canonical product name) is new; VALIDATOR_VERSION 9: BC-07 v9 (verification V2 items 8 and
     # 9); VALIDATOR_VERSION 10: BC-11 v2 is judged from measured evidence (core/noop_proof.py).
+    # VALIDATOR_VERSION 11: a refused ACCEPT names the corroborating second read that failed.
     # This candidate names no edition, spells its name whole, and passes all of them.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "10"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "11"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
