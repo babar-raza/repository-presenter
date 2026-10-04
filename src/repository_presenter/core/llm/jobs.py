@@ -172,11 +172,22 @@ class CallStore:
         self.path(request_sha256).write_bytes(text.encode("utf-8"))
 
     def reject(
-        self, request_sha256: str, attempt: int, job: str, content: str, errors: list[str]
+        self,
+        request_sha256: str,
+        attempt: int,
+        job: str,
+        content: str,
+        errors: list[str],
+        *,
+        stage: str = "",
     ) -> Path:
-        """Keep a rejected reply beside the store, so a rejection can be read, never guessed."""
+        """Keep a rejected reply beside the store, so a rejection can be read, never guessed.
+
+        ``stage`` names a derived copy of attempt ``attempt`` (``fix``: the job's last-resort
+        ``recover`` correction) so it is kept beside, never over, the model's own reply."""
         self.directory.mkdir(parents=True, exist_ok=True)
-        path = self.directory / f"{request_sha256[:12]}.rejected-{attempt}.json"
+        suffix = f"-{stage}" if stage else ""
+        path = self.directory / f"{request_sha256[:12]}.rejected-{attempt}{suffix}.json"
         payload = {"job": job, "attempt": attempt, "rejection": errors, "content": content}
         text = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
         path.write_bytes(text.encode("utf-8"))
@@ -609,6 +620,7 @@ def run_job(
     attempts = _Attempts(manifest, context, ledger, request_sha256, model)
     current = payload
     rejection: list[str] = []
+    recovered_rejection: list[str] = []
     for ask in (1, 2):
         reply = run_with_retry("llm_call", functools.partial(attempts.call, config, current))
         if reply.finish_reason == "length":
@@ -665,8 +677,17 @@ def run_job(
                         reply.model,
                         attempts.last_tokens,
                     )
-                rejection = fixed_rejection
-    raise JobError(f"{job}: output rejected twice; last rejection: {'; '.join(rejection)}")
+                # The corrected copy failed too. It is kept beside the model's own reply, and
+                # its rejection is reported after - never instead of - the model's: the model's
+                # rejection is the one its reply earned, and the copy's is derived from it.
+                store.reject(
+                    request_sha256, ask, job, json.dumps(corrected), fixed_rejection, stage="fix"
+                )
+                recovered_rejection = fixed_rejection
+    message = f"{job}: output rejected twice; last rejection: {'; '.join(rejection)}"
+    if recovered_rejection:
+        message += f"; recover's correction was rejected too: {'; '.join(recovered_rejection)}"
+    raise JobError(message)
 
 
 def _re_ask(
