@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "provider_repository_id": 1168969375,
+  "registry_revision": null,
+  "active_transaction_id": "ddc5964b5adc4693b8e6355e3128b2ff",
+  "state": "OBSERVED",
+  "source": null,
+  "surfaces": {},
+  "dependencies": {
+    "facts": null,
+    "prompts": null,
+    "models": null,
+    "presentation": null,
+    "validation": null
+  },
+  "accepted_artifact": null,
+  "proposal": null,
+  "failure": null,
+  "lease": {
+    "holder_id": "present.yml:37205255086",
+    "acquired_at": "2026-10-04T13:21:07.220351+00:00",
+    "heartbeat_at": "2026-10-04T13:21:07.220351+00:00",
+    "expires_at": "2026-10-04T13:36:07.220351+00:00",
+    "fencing_token": 1
+  },
+  "last_transition": null,
+  "state_version": 1,
+  "recent_trigger_dedup_keys": {
+    "run:37205255086:aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "ddc5964b5adc4693b8e6355e3128b2ff"
+  },
+  "recovery_count": 0
+}
