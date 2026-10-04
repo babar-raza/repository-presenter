@@ -64,6 +64,7 @@ from repository_presenter.components.readme.evidence.facts.inherited import (
     INHERITED_UNITS_VERSION,
 )
 from repository_presenter.components.readme.extractors.surface.extractor import EXTRACTOR_VERSION
+from repository_presenter.components.readme.review.acceptance.profile import PROFILE_VERSION
 from repository_presenter.components.readme.review.independent.review import REVIEWER_LOGIC_VERSION
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
@@ -83,12 +84,12 @@ from repository_presenter.core.toolchains import toolchain_fingerprint
 DEPENDENCIES_FILENAME = "dependencies.json"
 CURRENT_FILENAME = "CURRENT"
 CONTRACT_VERSION = "readme-contract-v1"
-# G3-W02 (frozen 2026-10-01, docs/DECISION_LOG.md PA-05 prep and this date's flip): the 30-point
-# criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set
-# are frozen as contract v1 together - this starts the plain incrementing convention every other
-# component version already uses (RENDERER_VERSION, SHELL_VERSION, VALIDATOR_VERSION), bumped
-# only when a BC-* predicate's own meaning changes, never for a same-meaning bug fix.
-ACCEPTANCE_PROFILE_VERSION = "1"
+# G3-W02: the acceptance profile version. The value is "1", frozen 2026-10-01 with the contract
+# (docs/DECISION_LOG.md PA-05). The profile itself (review/acceptance/profile.py) is still
+# UNRATIFIED and its scorer is ADVISORY, so no blocking check reads it and the value is not
+# bumped: a bump would reopen REVIEWING for every sealed candidate. Bump it only when a blocking
+# check's meaning changes or the owner ratifies the profile.
+ACCEPTANCE_PROFILE_VERSION = PROFILE_VERSION
 REQUIRED_ARTIFACTS = (
     "README.md",
     "README.patch",

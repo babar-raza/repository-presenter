@@ -25,7 +25,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter.core.ecosystems import NET
-from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
+from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, MeasuredBuild
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
 from repository_presenter.core.long_paths import long_path
 from repository_presenter.core.toolchains import resolve_tool
@@ -77,6 +77,8 @@ _CS_TYPE = re.compile(
 # way ImplicitUsings only ever supplies namespace-level usings.
 _CS_USING = re.compile(r"(?m)^[ \t]*using[ \t]+(?!static\b)([\w.]+)[ \t]*;")
 _CS_IDENTIFIER = re.compile(r"\b([A-Z][A-Za-z0-9_]*)\b")
+_PRODUCT_DIRECTORY = "rp_product_build"
+_NOT_COPIED = (".git",)
 
 
 def dotnet_executable() -> str | None:
@@ -86,6 +88,68 @@ def dotnet_executable() -> str | None:
 
 def _clip(text: str) -> str:
     return text if len(text) <= _MAX_OUTPUT_CHARS else text[:_MAX_OUTPUT_CHARS] + "..."
+
+
+def build_product(
+    root: Path, project: Path, workspace: Path, dotnet: str, timeout_seconds: float
+) -> MeasuredBuild:
+    """Build the governing project in a copy of the checkout and say exactly what exited 0.
+
+    Imaging-FOSS for .NET and GIS (measured live 2026-10-04): Imaging's one README example fails
+    to compile on its own snippet (`bytes` is undefined) while the product's own `dotnet build`
+    exits 0; GIS has no README and so no example at all. Either way only the package's own build
+    can prove a source install, so it is driven here, once, independent of any example. The copy
+    keeps the clone clean; the spelling is the project path relative to the checkout, because a
+    repository with a solution beside its project would make a bare `dotnet build` name another
+    target.
+    """
+    relative = project.relative_to(root).as_posix()
+    spelled = f"dotnet build {relative}"
+    copy = workspace / _PRODUCT_DIRECTORY
+    try:
+        # An upstream repository's own deep paths can exceed MAX_PATH (GIS, measured 2026-10-04:
+        # one 261-character source path failed the whole copy), so both ends use the extended form.
+        shutil.copytree(
+            long_path(root),
+            long_path(copy),
+            ignore=shutil.ignore_patterns(*_NOT_COPIED),
+            dirs_exist_ok=True,
+        )
+    except (OSError, shutil.Error) as error:
+        # The error's text would carry this machine's paths into a receipt; its class does not.
+        return MeasuredBuild(
+            False, "", f"not attempted (the sources would not copy: {type(error).__name__})"
+        )
+    result = execute(
+        [dotnet, "build", relative],
+        workspace=copy,
+        timeout_seconds=timeout_seconds,
+        extra_environment=profile_environment(workspace),
+    )
+    if result.timed_out:
+        return MeasuredBuild(
+            False, "", f"failed (`{spelled}` did not exit within {timeout_seconds:g}s)"
+        )
+    if result.return_code != 0:
+        return MeasuredBuild(False, "", f"failed (`{spelled}` exited {result.return_code})")
+    return MeasuredBuild(True, spelled, f"succeeded (`{spelled}` exited 0)")
+
+
+def verify_net_build(root: Path, project: Path | None, workspace: Path) -> MeasuredBuild:
+    """The governing project's measured build, or an honest "not attempted" when this machine
+    cannot run one. Only a project file can be built: a `Directory.Build.props` governs the
+    projects beside it and is never a build target."""
+    if project is None or project.suffix.lower() not in {".csproj", ".fsproj"}:
+        return MeasuredBuild(False, "", "not attempted (no buildable project file to build)")
+    dotnet = dotnet_executable()
+    if dotnet is None:
+        return MeasuredBuild(False, "", "not attempted (no dotnet SDK on this machine)")
+    fresh = _fresh_workspace(workspace)
+    if fresh is None:
+        return MeasuredBuild(False, "", "not attempted (no clean workspace to build in)")
+    if not _sdk_version(dotnet, fresh):
+        return MeasuredBuild(False, "", "not attempted (the dotnet SDK did not report a version)")
+    return build_product(root, project, fresh, dotnet, NET.install_timeout_seconds)
 
 
 def _blocked(candidates: Sequence[ExampleCandidate], detail: str) -> list[ExampleReceipt]:
