@@ -12,6 +12,7 @@ from jsonschema import Draft202012Validator
 from repository_presenter.components.readme.composition.renderer import (
     ADDITIONAL_EXAMPLES_SUMMARY,
 )
+from repository_presenter.components.readme.repair.targeted import review_defects
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
@@ -92,6 +93,7 @@ def _finding(label: str, section: str, stage: str, quote: str = "") -> dict[str,
         "quote": quote,
         "fact_ids": ["format:input.obj"],
         "absent": [],
+        "omission": None,
         "repair": "Drop the claim.",
     }
 
@@ -2511,3 +2513,278 @@ def test_two_of_three_majority_vote_escalation() -> None:
     )
     assert both_refuted["verdict"] == ACCEPT and both_refuted["findings"] == []
     assert both_refuted["advisory"][0]["reviewer_scope_defect"].startswith("the quote contains")
+
+
+# --- Structured omission findings (2026-10-05) -------------------------------------------------
+# Live shape: Aspose.Font-FOSS-for-Python's independent review claimed its quick_start "omits the
+# original's 'Create a release-safe static instance' example" and blocked BC-10. The candidate's
+# quick_start renders example:001 and example:002; the example the reviewer asked for is
+# example:003, which failed verification (CONTRADICTED) and so may never be restored. The text
+# below is a minimal copy of that run's quick_start, facts, content units, and F04 finding.
+
+_FONT_EX1 = (
+    "from aspose_font import FontLoader, WebFontBuilder\n\n"
+    'font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")\n'
+    'bundle = WebFontBuilder.build(font, presets=("latin",), text="Aspose Web")\n'
+    'bundle.write_to("web-out")\n'
+)
+_FONT_EX2 = (
+    "from aspose_font import FontLoader, FontQaReporter\n\n"
+    'font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")\n'
+    "package = FontQaReporter.build_package(\n"
+    '    font,\n    "qa-package",\n    presets=("latin",),\n    preview_instance_name="Bold",\n)\n'
+    "print(package.preview_path)\n"
+)
+_FONT_EX3 = (
+    "from aspose_font import FontLoader\n\n"
+    'font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")\n'
+    "instance = font.instantiate(\n"
+    '    {"wght": "Bold", "wdth": "Condensed"},\n    naming_strategy="ribbi-safe",\n'
+    '    family_suffix="Beta",\n    stat_policy="static",\n)\n'
+    'instance.save("roboto-beta-bold.ttf")\n'
+)
+_FONT_EX4 = (
+    "from aspose_font import FontLoader\n\n"
+    'font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")\n'
+    'board = font.build_family_review_board(output_dir="board")\n'
+)
+_FONT_CANDIDATE = (
+    "# Aspose.Font FOSS for Python\n\n"
+    "## Quick Start\n\n"
+    "The first example opens a variable font and builds a web handoff package.\n\n"
+    f"```python\n{_FONT_EX1}```\n\n"
+    "The second example generates a quality assurance package with a named preview instance.\n\n"
+    f"```python\n{_FONT_EX2}```\n\n"
+    "## Additional Examples\n\n"
+    "### Build a family review board\n\n"
+    f"```python\n{_FONT_EX4}```\n\n"
+    "## License\n\nMIT.\n"
+)
+_FONT_ORIGINAL = (
+    "# aspose-font\n\nCreate a release-safe static instance:\n\n"
+    f"```python\n{_FONT_EX3}```\n\n## Quick Start\n\n```python\n{_FONT_EX2}```\n"
+    "Create a release-safe static instance:\n"
+)
+_FONT_FACTS = FactsDocument(
+    "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+    "b" * 40,
+    (
+        Fact("example:001", "example", _FONT_EX1, (Evidence("x"),)),
+        Fact("example:002", "example", _FONT_EX2, (Evidence("x"),)),
+        Fact("example:003", "example", _FONT_EX3, (Evidence("x"),), polarity="CONTRADICTED"),
+        Fact("example:004", "example", _FONT_EX4, (Evidence("x"),)),
+    ),
+)
+_FONT_BY_ID = {fact.id: fact for fact in _FONT_FACTS.facts}
+_FONT_EVIDENCE = claim_evidence(_FONT_ORIGINAL, _FONT_FACTS)
+_FONT_UNITS = {
+    "units": [
+        {"section": "quick_start", "slot": "lead_in", "fact_ids": ["example:001"], "text": "a"},
+        {"section": "quick_start", "slot": "lead_in:2", "fact_ids": ["example:002"], "text": "b"},
+        {"section": "additional_examples", "slot": "x", "fact_ids": ["example:004"], "text": "c"},
+    ]
+}
+_PARTIAL_QUOTE = "print(package.preview_path)\n```\nCreate a release-safe static instance:"
+
+
+def _omission(
+    *ids: str, quotes: tuple[str, ...] = (), section: str = "quick_start"
+) -> dict[str, Any]:
+    return {
+        "kind": "omission",
+        "section_id": section,
+        "missing_ids": list(ids),
+        "missing_quotes": list(quotes),
+    }
+
+
+def _font_finding(omission: dict[str, Any] | None, absent: tuple[str, ...] = ()) -> dict[str, Any]:
+    """The reviewer's F04, as returned live, with the typed claim the v11 prompt asks for."""
+    return {
+        "id": "F04",
+        "section_id": "quick_start",
+        "causal_stage": "S6",
+        "criterion": "presentation",
+        "text": "The quick start omits the original's 'Create a release-safe static instance'.",
+        "quote": "The second example generates a quality assurance package",
+        "fact_ids": [],
+        "absent": list(absent),
+        "omission": omission,
+        "repair": "Restore the 'Create a release-safe static instance' example.",
+    }
+
+
+def _font_defect(finding: dict[str, Any]) -> str | None:
+    return scope_defect(finding, _FONT_CANDIDATE, _FONT_BY_ID, _FONT_EVIDENCE, units=_FONT_UNITS)
+
+
+def _font_review(*findings: dict[str, Any]) -> dict[str, Any]:
+    output = {"verdict": "REJECT_PRESENTATION", "findings": list(findings), "preserve": []}
+    return review_document(
+        output,
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=_FONT_CANDIDATE,
+        facts=_FONT_FACTS,
+        original_readme=_FONT_ORIGINAL,
+        units=_FONT_UNITS,
+    )
+
+
+def test_a_false_omission_claim_is_refuted_by_the_sections_own_rendered_examples() -> None:
+    # The quick start renders example:001 and :002 (cited by its units, and their code is in the
+    # section's text); a claim that it lacks them is the reviewer's own defect, not a block.
+    claim = _omission(
+        "example:001", "example:002", quotes=('"qa-package",', "WebFontBuilder.build(font")
+    )
+    reason = _font_defect(_font_finding(claim))
+    assert reason is not None and "renders" in reason
+    review = _font_review(_font_finding(claim))
+    assert review["findings"] == [] and review["verdict"] == ACCEPT
+    assert [f["id"] for f in review["advisory"]] == ["F04"]
+    assert review["advisory"][0]["reviewer_scope_defect"] == reason
+
+
+def test_the_live_font_python_claim_names_an_example_that_failed_verification() -> None:
+    # The reviewer's real demand: the contradicted example:003. Nothing may restore it - the
+    # contract admits an example only once verified - so the claim is refuted, not a repair task.
+    reason = _font_defect(_font_finding(_omission("example:003")))
+    assert reason is not None and "nothing to restore" in reason
+    # The same demand with an id no fact carries at all is text nobody wrote.
+    assert _font_defect(_font_finding(_omission("example:099"))) is not None
+    # Even alongside a true claim it stays settled, so the repair is handed only the true one.
+    mixed = _font_review(_font_finding(_omission("example:003", "example:004")))
+    (finding,) = mixed["findings"]
+    assert finding["omission_remaining"] == {"missing_ids": ["example:004"], "missing_quotes": []}
+    assert finding["omission_unrestorable"] == ["example:003"]
+
+
+def test_a_true_omission_still_blocks_and_routes_to_repair_at_the_named_section() -> None:
+    # example:004 is SUPPORTED and lives in Additional Examples, not Quick Start: truly absent
+    # from the named section, so the claim stands (section-scoped, like `absent`).
+    finding = _font_finding(_omission("example:004"))
+    assert _font_defect(finding) is None
+    review = _font_review(finding)
+    (blocked,) = review["findings"]
+    assert blocked["section_id"] == "quick_start" and blocked["causal_state"] == "COMPOSING"
+    assert review["verdict"] == "REJECT_PRESENTATION" and review["advisory"] == []
+    (defect,) = review_defects(review, _FONT_FACTS, {"quick_start"})
+    assert defect.section_id == "quick_start" and defect.stage == "S6"
+
+
+def test_a_standing_omission_is_narrowed_to_the_remainder_for_the_repair() -> None:
+    review = _font_review(_font_finding(_omission("example:001", "example:004")))
+    (blocked,) = review["findings"]
+    assert blocked["omission_refuted"] == ["example:001"]
+    (defect,) = review_defects(review, _FONT_FACTS, {"quick_start"})
+    assert defect.record["omission"]["missing_ids"] == ["example:004"]
+    assert defect.record["omission_as_returned"]["missing_ids"] == ["example:001", "example:004"]
+
+
+def test_a_quote_only_partly_in_the_section_is_upheld() -> None:
+    # The first half is the section's last line, the second half is original text that is not in
+    # the section: matching is exact after whitespace folding, so the joined quote is absent.
+    assert _PARTIAL_QUOTE in _FONT_ORIGINAL
+    assert _font_defect(_font_finding(_omission(quotes=(_PARTIAL_QUOTE,)))) is None
+    # Whitespace alone never makes a difference: re-wrapped, a present quote still refutes.
+    rewrapped = 'FontQaReporter.build_package(  font,\n "qa-package",'
+    assert _font_defect(_font_finding(_omission(quotes=(rewrapped,)))) is not None
+    # A phrase in neither the original README nor any fact is invented, so nothing to restore.
+    assert _font_defect(_font_finding(_omission(quotes=("a sentence nobody wrote",)))) is not None
+
+
+def test_a_prose_only_omission_claim_is_advisory_with_its_reason() -> None:
+    reason = _font_defect(_font_finding(_omission()))
+    assert reason is not None and "names no fact or example id and no exact phrase" in reason
+    review = _font_review(_font_finding(_omission()))
+    assert review["findings"] == [] and review["verdict"] == ACCEPT
+    assert review["advisory"][0]["reviewer_scope_defect"] == reason
+    # A claim routed at a different section than the repair would revise cannot be acted on.
+    elsewhere = _font_finding(_omission("example:004", section="additional_examples"))
+    assert "no repair there could restore it" in (_font_defect(elsewhere) or "")
+    # No typed claim at all is not read as prose: such a finding is judged exactly as before.
+    assert _font_defect(_font_finding(None)) is None
+    assert _font_defect({k: v for k, v in _font_finding(None).items() if k != "omission"}) is None
+
+
+def test_an_absent_claim_and_an_omission_claim_must_both_be_settled_to_dismiss() -> None:
+    settled_absent = ("from aspose_font import FontLoader, FontQaReporter",)
+    assert _font_defect(_font_finding(_omission("example:003"), settled_absent)) is not None
+    # One true claim of either kind keeps the finding standing.
+    assert _font_defect(_font_finding(_omission("example:004"), settled_absent)) is None
+    true_absent = ("font.build_family_review_board",)
+    assert _font_defect(_font_finding(_omission("example:003"), true_absent)) is None
+
+
+def test_the_omission_refuter_dies_under_mutation(monkeypatch: Any) -> None:
+    from repository_presenter.components.readme.review.independent import review as module
+
+    cases = {
+        "false": _font_finding(_omission("example:001", quotes=('"qa-package",',))),
+        "failed": _font_finding(_omission("example:003")),
+        "true": _font_finding(_omission("example:004")),
+        "partial": _font_finding(_omission(quotes=(_PARTIAL_QUOTE,))),
+        "invented": _font_finding(_omission(quotes=("a sentence nobody wrote",))),
+    }
+
+    def outcomes() -> dict[str, bool]:
+        return {name: _font_defect(f) is not None for name, f in cases.items()}
+
+    expected = {"false": True, "failed": True, "true": False, "partial": False, "invented": True}
+    assert outcomes() == expected
+
+    real = module.omission_partition
+
+    def everything_present(finding: Any, *args: Any, **kwargs: Any) -> Any:
+        ids, quotes = module.omission_claim(finding) or ([], [])
+        return [*ids, *quotes], [], []
+
+    def nothing_present(finding: Any, *args: Any, **kwargs: Any) -> Any:
+        ids, quotes = module.omission_claim(finding) or ([], [])
+        return [], [], [*ids, *quotes]
+
+    def polarity_ignored(finding: Any, *args: Any, **kwargs: Any) -> Any:
+        present, unrestorable, remaining = real(finding, *args, **kwargs)
+        ids, _ = module.omission_claim(finding) or ([], [])
+        moved = [item for item in unrestorable if item in ids]
+        return present, [i for i in unrestorable if i not in moved], [*remaining, *moved]
+
+    def invention_unchecked(finding: Any, *args: Any, **kwargs: Any) -> Any:
+        present, unrestorable, remaining = real(finding, *args, **kwargs)
+        ids, _ = module.omission_claim(finding) or ([], [])
+        moved = [item for item in unrestorable if item not in ids]
+        return present, [i for i in unrestorable if i not in moved], [*remaining, *moved]
+
+    for mutant in (everything_present, nothing_present, polarity_ignored, invention_unchecked):
+        with monkeypatch.context() as patch:
+            patch.setattr(module, "omission_partition", mutant)
+            assert outcomes() != expected, f"{mutant.__name__} survived"
+
+    # Mutants of the helpers themselves: a loose quote match is what the partial case guards, and
+    # ignoring where a section's examples are cited and rendered is what the false case guards.
+    with monkeypatch.context() as patch:
+        patch.setattr(module, "_spaced", lambda text: text.split("\n")[0].strip())
+        assert outcomes() != expected
+    with monkeypatch.context() as patch:
+        patch.setattr(module, "_id_rendered", lambda *args, **kwargs: False)
+        assert outcomes() != expected
+
+
+def test_the_review_schema_accepts_a_typed_omission_and_null_and_rejects_a_malformed_one() -> None:
+    validator = Draft202012Validator(REVIEWER.manifest.output.schema_)
+
+    def reply(omission: Any) -> dict[str, Any]:
+        return {
+            "verdict": "REJECT_PRESENTATION",
+            "findings": [{**_finding("F01", "quick_start", "S6"), "omission": omission}],
+            "preserve": [],
+        }
+
+    validator.validate(reply(None))
+    validator.validate(reply(_omission("example:003", quotes=("Create a release-safe",))))
+    assert list(validator.iter_errors(reply({**_omission("example:003"), "kind": "gap"})))
+    assert list(validator.iter_errors(reply({"kind": "omission", "section_id": "quick_start"})))
+    no_field = reply(None)
+    del no_field["findings"][0]["omission"]
+    assert list(validator.iter_errors(no_field))  # null is the explicit "no omission claimed"
