@@ -1038,6 +1038,84 @@ def test_a_partly_refuted_absence_finding_records_the_claims_that_still_stand() 
     assert record["reader"] == 2 and record["absent_remaining"] == ["src/public/", "src/internal/"]
 
 
+# BC-10 F06 on Aspose.3D for TypeScript (2026-10-04): the candidate's own Scope and Limitations
+# section, and the eight absence claims the reviewer copied from the ORIGINAL README's bullets.
+# Both are exact copies of the run's artifacts (tests/fixtures/review/bc10_f06/).
+_F06_FIXTURES = REPO_ROOT / "tests" / "fixtures" / "review" / "bc10_f06"
+F06_SCOPE = (_F06_FIXTURES / "scope_limitations.md").read_text(encoding="utf-8")
+F06_CLAIMS: tuple[str, ...] = tuple(
+    json.loads((_F06_FIXTURES / "absent_claims.json").read_text(encoding="utf-8"))
+)
+
+
+def _f06(absent: list[str]) -> dict[str, Any]:
+    return {
+        **_finding("F06", "scope_limitations", "S6"),
+        "criterion": "presentation",
+        "fact_ids": [],
+        "absent": absent,
+    }
+
+
+def test_bc10_f06_restated_claims_are_refuted_and_the_real_gaps_stand() -> None:
+    """BC-10 F06 (2026-10-04): the reviewer's absence claims are the original README's bullets, and
+    the candidate states the same limitations in its own words. A literal lookup refuted none of
+    the eight, so the whole finding blocked and its repair was handed all eight back. Measured
+    against the candidate's own section: four are restated in one sentence and are refuted; four
+    are not in its bytes (the npm packaging defect and its runtime-dependency cause, the
+    declared-entry-point defect, the three Boolean operation names, the sibling-platform note) and
+    still stand - so F06 narrows to a real remainder rather than vanishing."""
+    finding = _f06(list(F06_CLAIMS))
+    present, invented, remaining = absence_partition(finding, F06_SCOPE, "")
+    assert present == sorted([F06_CLAIMS[0], F06_CLAIMS[3], F06_CLAIMS[4], F06_CLAIMS[6]])
+    assert remaining == [F06_CLAIMS[1], F06_CLAIMS[2], F06_CLAIMS[5], F06_CLAIMS[7]]
+    assert invented == []
+    assert absence_defect(finding, F06_SCOPE, "") is None  # a real remainder: it stands
+
+
+def test_an_absence_the_candidate_restates_in_its_own_words_is_the_reviewers_own_defect() -> None:
+    """The exact F06 case in its reviewer-quoted form: the original's "very top" against the
+    candidate's "top", one word apart. Literal lookup said absent and the finding blocked; the
+    candidate's one sentence carries every distinctive word of the claim, so it is refuted - and
+    through review_document it never blocks. Negative controls: a claim the candidate really lacks
+    still blocks, and words spread across two sentences are not a restatement."""
+    obj_claim = "OBJ export only writes geometry attached at the very top of the scene graph"
+    obj = _f06([obj_claim])
+    reason = absence_defect(obj, F06_SCOPE, "")
+    assert reason is not None and "which the candidate contains" in reason
+    refuted = review_document(
+        {"verdict": "REJECT_PRESENTATION", "findings": [obj], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=F06_SCOPE,
+        facts=FACTS,
+    )
+    assert refuted["verdict"] == ACCEPT and refuted["findings"] == []
+    assert refuted["advisory"][0]["reviewer_scope_defect"] == reason
+
+    gap = _f06(["`Node.evaluateGlobalTransform` ignores the parent transform entirely"])
+    assert absence_defect(gap, F06_SCOPE, "") is None
+    blocks = review_document(
+        {"verdict": "REJECT_PRESENTATION", "findings": [gap], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=F06_SCOPE,
+        facts=FACTS,
+    )
+    assert [finding["id"] for finding in blocks["findings"]] == ["F06"]
+
+    split = (
+        "## Scope and Limitations\n\n"
+        "OBJ export writes only the geometry attached to the root. Geometry attached through "
+        "child nodes is omitted from the scene graph output.\n\n"
+        "## Development and Testing\n"
+    )
+    spread = _f06(["OBJ export writes geometry attached to the scene graph"])
+    assert absence_defect(spread, split, "") is None
+
+
 def test_a_finding_against_a_sentence_the_renderer_wrote_is_out_of_scope() -> None:
     """The renderer writes counts from the facts into sections an LLM otherwise owns.
 

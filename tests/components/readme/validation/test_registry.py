@@ -1271,6 +1271,55 @@ def test_bc03_checks_the_ecosystems_own_declared_fence_aliases(tmp_path: Path) -
     }
 
 
+# BC-03 (c), 2026-10-04 on Aspose.3D for TypeScript: example:002 is the original README's own
+# broken block (`node.entity.controlPoints` - Entity has no such member). Its receipt is FAILED
+# (TS2339 in the example's own file), so its fact is CONTRADICTED, and reconciliation dispositioned
+# the inherited block never placed. The candidate renders no such fence, so BC-03 passing is
+# correct.
+_BROKEN_EXAMPLE = "from aspose.threed import Scene\nScene().controlPoints\n"
+_BROKEN_RECEIPT = (
+    "example 2: FAILED; example_002.ts(9,54): error TS2339: Property 'controlPoints' does not "
+    "exist on type 'Entity'."
+)
+
+
+def test_bc03_passes_a_contradicted_example_only_while_no_candidate_renders_it() -> None:
+    """(c): BC-03 judges the examples a candidate renders - planned, executed, verbatim - not every
+    example fact in the snapshot. A CONTRADICTED example the candidate does not render is never a
+    BC-03 failure, and the contract says so (one unverifiable example never blocks a candidate).
+    The controls prove the check still catches the same block the moment it is planned or rendered:
+    a planned CONTRADICTED example fails as EXTRACTING, and the same broken code rendered as a fence
+    fails as COMPOSING."""
+    broken = _fact(
+        "example:002",
+        "example",
+        _BROKEN_EXAMPLE,
+        "lines 143-155; typescript fence; unit inherited_unit:026.code_block",
+        _BROKEN_RECEIPT,
+        polarity="CONTRADICTED",
+    )
+    facts = FactsDocument(ENTRY.repository, REVISION, (*BASE_FACTS, broken))
+    readme = _candidate().readme
+
+    assert _check_examples(_candidate(readme=readme, facts=facts)) == []
+
+    planned = _candidate(
+        readme=readme,
+        facts=facts,
+        plan={**PLAN, "additional_example_ids": ["example:002"]},
+    )
+    (not_compiled,) = _check_examples(planned)
+    assert not_compiled.stage == "EXTRACTING"
+    assert not_compiled.detail == (
+        "example:002 was not executed or compiled at this revision (CONTRADICTED)"
+    )
+
+    rendered = _candidate(readme=readme + f"\n```python\n{_BROKEN_EXAMPLE}```\n", facts=facts)
+    (stray,) = _check_examples(rendered)
+    assert stray.stage == "COMPOSING"
+    assert "not a planned verified example" in stray.detail
+
+
 def test_bc03_reaches_net_only_through_its_own_declared_aliases(tmp_path: Path) -> None:
     """TB-05, D5's own confirming case: a .NET candidate's examples are fenced ```csharp - the
     bare ecosystem string is "net", so `language == candidate.entry.ecosystem` never matched a
