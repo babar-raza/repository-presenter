@@ -46,6 +46,21 @@ EXPECTED_MINT_PERMISSIONS: dict[str, list[dict[str, str]]] = {
     "audit-app-installations.yml": [{"permission-metadata": "read"}],
     # No App token at all: the canary reachability probe is an anonymous git ls-remote.
     "monitor.yml": [],
+    # The scheduled upstream-issue workflow, one mint per target repository: the read-only analysis
+    # (contents for the recheck reads, issues to find an existing marker, metadata); then, only in
+    # the owner-gated file-and-close job, a read token of the same shape and a separate issues-write
+    # token. No other write scope, no administration.
+    "issues-scheduled.yml": [
+        {"permission-contents": "read", "permission-issues": "read", "permission-metadata": "read"},
+        {"permission-contents": "read", "permission-issues": "read", "permission-metadata": "read"},
+        {"permission-issues": "write", "permission-metadata": "read"},
+    ],
+}
+
+# The only workflows allowed to mint a write-scoped App token, and the write scopes each may hold.
+ALLOWED_WRITE_SCOPES: dict[str, list[str]] = {
+    "propose.yml": ["permission-contents", "permission-pull-requests"],
+    "issues-scheduled.yml": ["permission-issues"],
 }
 
 EXPRESSION = re.compile(r"\$\{\{\s*([^}]+?)\s*\}\}")
@@ -87,14 +102,12 @@ def test_every_mint_step_is_scoped_to_named_repositories(name: str) -> None:
         assert step["with"].get("repositories"), f"{name}: mint step has no repositories: scope"
 
 
-def test_only_propose_holds_a_write_scoped_app_token() -> None:
+def test_only_the_named_effect_jobs_hold_write_scoped_app_tokens() -> None:
     for name in EXPECTED_MINT_PERMISSIONS:
+        allowed = ALLOWED_WRITE_SCOPES.get(name, [])
         for step in _mint_steps(_load(name)):
             writes = sorted(key for key, value in _granted(step).items() if value == "write")
-            if name == "propose.yml":
-                assert writes == ["permission-contents", "permission-pull-requests"]
-            else:
-                assert writes == [], f"{name} mints a write-scoped token: {writes}"
+            assert writes in ([], allowed), f"{name} mints an unexpected write scope: {writes}"
 
 
 def _audit_report_script() -> str:

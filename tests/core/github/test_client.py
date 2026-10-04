@@ -13,9 +13,12 @@ import pytest
 from repository_presenter.core.errors import RepositoryMetadataError
 from repository_presenter.core.github.client import (
     API_ROOT,
+    ISSUE_LIST_MAX_PAGES,
+    close_issue,
     create_issue,
     create_pull_request,
     create_ref,
+    find_issue_with_marker,
     find_open_pull_request,
     get_contents,
     get_ref,
@@ -652,3 +655,115 @@ def test_update_pull_request_raises_on_a_non_200_status() -> None:
     write = _RecordingWrite(status_code=404, body={"message": "Not Found"})
     with pytest.raises(RepositoryMetadataError):
         update_pull_request(OWNER, REPO, 11, title="t", body="b", token="ghp_w", write=write)
+
+
+# ---------------------------------------------------------------------------
+# find_issue_with_marker (the remote dedup read) and close_issue (the gated close's write)
+# ---------------------------------------------------------------------------
+
+MARKER = "<!-- repository-presenter-defect: sha256:abc -->"
+
+
+class _PagedFetch:
+    """Serves ``pages[n-1]`` for the nth request and records every URL it was asked for."""
+
+    def __init__(self, *pages: tuple[int, object]) -> None:
+        self.pages = list(pages)
+        self.urls: list[str] = []
+
+    def __call__(self, url: str, token: str | None) -> tuple[int, object]:
+        self.urls.append(url)
+        assert token == "ghp_r"
+        index = len(self.urls) - 1
+        return self.pages[min(index, len(self.pages) - 1)]
+
+
+def _issue(number: int, body: str, **extra: object) -> dict[str, object]:
+    return {
+        "number": number,
+        "html_url": f"https://github.com/o/n/issues/{number}",
+        "body": body,
+        **extra,
+    }
+
+
+def test_find_issue_returns_the_issue_whose_body_carries_the_marker_even_when_closed() -> None:
+    fetch = _PagedFetch(
+        (200, [_issue(3, "unrelated"), _issue(9, f"text\n\n{MARKER}\n", state="closed")]),
+    )
+    found = find_issue_with_marker(OWNER, REPO, MARKER, token="ghp_r", fetch=fetch)
+    assert found is not None
+    assert found.number == 9
+    assert found.url == "https://github.com/o/n/issues/9"
+    assert "state=all" in fetch.urls[0]
+
+
+def test_find_issue_skips_pull_requests_that_happen_to_carry_the_marker() -> None:
+    fetch = _PagedFetch(
+        (200, [_issue(5, MARKER, pull_request={"url": "x"}), _issue(6, "no marker")]),
+    )
+    assert find_issue_with_marker(OWNER, REPO, MARKER, token="ghp_r", fetch=fetch) is None
+
+
+def test_find_issue_returns_none_only_after_a_short_final_page() -> None:
+    fetch = _PagedFetch((200, [_issue(1, "a"), _issue(2, "b")]))
+    assert find_issue_with_marker(OWNER, REPO, MARKER, token="ghp_r", fetch=fetch) is None
+    assert len(fetch.urls) == 1
+
+
+def test_find_issue_pages_past_a_full_page_to_find_the_marker() -> None:
+    full_page = [_issue(n, "no") for n in range(100)]
+    fetch = _PagedFetch((200, full_page), (200, [_issue(777, MARKER)]))
+    found = find_issue_with_marker(OWNER, REPO, MARKER, token="ghp_r", fetch=fetch)
+    assert found is not None and found.number == 777
+    assert "page=2" in fetch.urls[1]
+
+
+def test_find_issue_fails_closed_on_an_http_error_never_reporting_absence() -> None:
+    fetch = _PagedFetch((403, {"message": "Forbidden"}))
+    with pytest.raises(RepositoryMetadataError):
+        find_issue_with_marker(OWNER, REPO, MARKER, token="ghp_r", fetch=fetch)
+
+
+def test_find_issue_fails_closed_when_unreachable() -> None:
+    fetch = _PagedFetch((-1, "ConnectError: boom"))
+    with pytest.raises(RepositoryMetadataError):
+        find_issue_with_marker(OWNER, REPO, MARKER, token="ghp_r", fetch=fetch)
+
+
+def test_find_issue_fails_closed_past_the_page_cap() -> None:
+    full_page = [_issue(n, "no") for n in range(100)]
+    fetch = _PagedFetch((200, full_page))
+    with pytest.raises(RepositoryMetadataError, match="cannot prove absence"):
+        find_issue_with_marker(OWNER, REPO, MARKER, token="ghp_r", fetch=fetch)
+    assert len(fetch.urls) == ISSUE_LIST_MAX_PAGES
+
+
+def test_close_issue_patches_state_closed_with_github_state_reason() -> None:
+    write = _RecordingWrite(status_code=200, body={"number": 42, "state": "closed"})
+    close_issue(OWNER, REPO, 42, state_reason="not_planned", token="ghp_w", write=write)
+    assert len(write.calls) == 1
+    url, token, payload = write.calls[0]
+    assert url == f"{API_ROOT}/repos/{OWNER}/{REPO}/issues/42"
+    assert token == "ghp_w"
+    assert payload == {"state": "closed", "state_reason": "not_planned"}
+
+
+def test_close_issue_refuses_without_a_token_and_makes_no_call() -> None:
+    write = _RecordingWrite(status_code=200)
+    with pytest.raises(RepositoryMetadataError):
+        close_issue(OWNER, REPO, 42, state_reason="completed", token="", write=write)
+    assert write.calls == []
+
+
+def test_close_issue_rejects_a_reason_github_does_not_define() -> None:
+    write = _RecordingWrite(status_code=200)
+    with pytest.raises(ValueError):
+        close_issue(OWNER, REPO, 42, state_reason="not planned", token="ghp_w", write=write)
+    assert write.calls == []
+
+
+def test_close_issue_raises_on_a_non_200_status() -> None:
+    write = _RecordingWrite(status_code=404, body={"message": "Not Found"})
+    with pytest.raises(RepositoryMetadataError):
+        close_issue(OWNER, REPO, 42, state_reason="completed", token="ghp_w", write=write)
