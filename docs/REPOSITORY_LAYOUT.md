@@ -33,6 +33,7 @@ src/repository_presenter/
     package_registry.py     the registry-reading type and per-ecosystem observer lookup that stages after facts use without importing an extractor
     probes.py               what a live read observed - status, timing, volatile reading - kept out of the hashed facts
     execution.py            bounded secret-free execution of repository examples
+    toolchains.py           machine toolchain resolution (registry, install search, per-tool PATH precedence) and the environment toolchain fingerprint
     config.py               gateway configuration from the process environment (a subpackage once G4 adds GitHub App configuration)
     git_safety/              push-neutered clone, safety checks
     snapshot/                immutable repository snapshot capture
