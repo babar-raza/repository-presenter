@@ -1,0 +1,42 @@
+{
+  "attempts": {
+    "107ba5996aac4925dcc72f8a": {
+      "changes": [
+        {
+          "after": "[]",
+          "before": "[  {   {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {  ",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.omitted"
+        }
+      ],
+      "label": "F08",
+      "misrouted": false,
+      "outcome": "repaired",
+      "re_raised": [
+        "F08"
+      ],
+      "reason": null,
+      "request_sha256": "8a25eae2e116b4fbf2b779d098ddf8e64fff606c232b049b1daa943959b53abd",
+      "section_id": "additional_examples",
+      "source": "review",
+      "stage": "S6"
+    },
+    "9a08fbebb2e9a4afcc408cc1": {
+      "changes": [],
+      "label": "F07",
+      "misrouted": false,
+      "outcome": "unrepairable",
+      "re_raised": [
+        "F07"
+      ],
+      "reason": "targeted_repair: output rejected twice; last rejection: revised_output: matches the causal stage's own output unchanged; a no-op cannot repair a defect this stage's content did not change",
+      "request_sha256": null,
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "4740ffdc9ae8d52f645fc596d5343bfd279ac3d0dc2cebc4cd3e0adde01b0e16",
+  "schema_version": 1
+}
