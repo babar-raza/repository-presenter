@@ -213,6 +213,35 @@ def test_bundle_schema_accepts_sealed_bundles() -> None:
     assert errors(validator, sealed_manifest("ACCEPTED")) == []
 
 
+def test_bundle_schema_stays_backward_compatible_with_bundles_sealed_before_the_proof_fields() -> (
+    None
+):
+    """REV-V3-08: sealed_by, ledger_totals, update.recorded_by and no_op_proof.first_run/rerun are
+    additive. A manifest without them (the shape every bundle sealed before the measured no-op
+    proof has) validates, and so does every manifest committed under candidates/."""
+    validator = load_schema("candidate-bundle.schema.json")
+    old = sealed_manifest("READY_FOR_PROPOSAL")
+    assert not {"sealed_by", "ledger_totals"} & set(old)
+    assert not {"first_run", "rerun"} & set(old["no_op_proof"])
+    assert errors(validator, old) == []
+    waiting = sealed_manifest("VALID_UPDATE_AVAILABLE")
+    waiting["no_op_proof"] = old["no_op_proof"]
+    waiting["update"] = {
+        "available": True,
+        "classification": "presentation",
+        "earliest_affected_stage": None,
+        "changed": ["README.md"],
+        "transaction": "t",
+        "recorded_at": "2026-09-02T12:06:00+05:00",
+    }
+    assert errors(validator, waiting) == []
+    committed = sorted((REPO_ROOT / "candidates").glob("*/*/manifest.json"))
+    assert committed, "no committed bundle to check"
+    for path in committed:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert errors(validator, manifest) == [], path.parent.parent.name
+
+
 def test_bundle_schema_requires_no_op_proof_before_ready_for_proposal() -> None:
     validator = load_schema("candidate-bundle.schema.json")
     unproven = sealed_manifest("READY_FOR_PROPOSAL")
