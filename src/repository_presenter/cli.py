@@ -9,7 +9,7 @@ import os
 import shutil
 import sys
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from functools import partial
@@ -18,6 +18,12 @@ from typing import cast
 
 from repository_presenter import __version__
 from repository_presenter.components.issues import file as issues_file
+from repository_presenter.components.issues.approval import (
+    ApprovalProvenanceError,
+    GitApprovalStore,
+    approval_relative_path,
+    verify_approval,
+)
 from repository_presenter.components.issues.draft import (
     eligible_for_handoff,
     record_handoff_if_new,
@@ -51,6 +57,7 @@ from repository_presenter.components.metadata.capture import (
 from repository_presenter.components.metadata.proposal import (
     build_proposal,
     diff_against_observed,
+    write_diff_record,
 )
 from repository_presenter.components.monitor.drift import (
     drift_document,
@@ -73,6 +80,16 @@ from repository_presenter.components.readme.bundle.evaluation import (
     evaluation_document,
     summarize_evaluation,
     write_evaluation,
+)
+from repository_presenter.components.readme.bundle.portfolio import (
+    DriftObservation,
+    PortfolioReport,
+    assess_portfolio,
+    load_authorizations,
+    load_drift,
+)
+from repository_presenter.components.readme.bundle.portfolio import (
+    render_lines as render_portfolio_lines,
 )
 from repository_presenter.components.readme.bundle.reproducibility import (
     reproducible_candidates,
@@ -112,6 +129,7 @@ from repository_presenter.components.readme.evidence.processability import (
 )
 from repository_presenter.components.readme.extractors.examples.selection import select_examples
 from repository_presenter.components.readme.extractors.platforms.registry import (
+    known_ecosystems,
     plugin_for,
     verify_build,
 )
@@ -159,6 +177,7 @@ from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
     CURRENT_FILENAME,
     BundleError,
+    StaleCandidate,
     count_current_candidates,
     examples_verification_summary,
     independently_accepted_candidates,
@@ -169,7 +188,7 @@ from repository_presenter.core.candidates import (
     verify_bundle,
 )
 from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
-from repository_presenter.core.errors import JobError, PresenterError
+from repository_presenter.core.errors import ConfigError, JobError, PresenterError
 from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
     ExampleCandidate,
@@ -249,6 +268,12 @@ from repository_presenter.core.snapshot.capture import (
     write_source_artifacts,
 )
 from repository_presenter.core.state.git_backend import GitStateBackend
+from repository_presenter.core.state.health import (
+    DEFAULT_MAX_PROVIDER_CALLS,
+    DEFAULT_MAX_WALL_CLOCK_SECONDS,
+    Budgets,
+    evaluate_repository_health,
+)
 from repository_presenter.core.state.present_transaction import (
     STATE_TOKEN_VARIABLE,
     classify_present_outcome,
@@ -295,6 +320,32 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "also report every current candidate whose dependencies.json is behind the running "
             "code's component/check versions - a pure read, makes no provider call"
+        ),
+    )
+    status.add_argument(
+        "--json",
+        dest="as_json",
+        action="store_true",
+        help="print one machine-readable JSON document instead of the text report",
+    )
+    status.add_argument(
+        "--drift",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "a monitor drift evidence document (or a directory of them); without it the "
+            "source-fresh count is reported as unobserved, never guessed"
+        ),
+    )
+    status.add_argument(
+        "--authorizations",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "proposal authorization records (a JSON object, a list, or a directory of such "
+            "files) to count as effect-authorized when valid for the exact sealed candidate"
         ),
     )
     present = subcommands.add_parser(
@@ -463,10 +514,31 @@ def build_parser() -> argparse.ArgumentParser:
         "--file",
         action="store_true",
         help=(
-            f"attempt to file each eligible handoff as a GitHub issue; refuses and explains why "
-            f"unless {issues_file.AUTHORIZATION_VARIABLE}=1 and a write-scoped "
-            "GH_ISSUES_WRITE_TOKEN are both present - lists what would be filed and makes no "
-            "write call when omitted"
+            f"attempt to file each eligible handoff as a GitHub issue (requires --repo); refuses "
+            f"and explains why unless {issues_file.AUTHORIZATION_VARIABLE}=1 (the kill switch), a "
+            "write-scoped GH_ISSUES_WRITE_TOKEN, and a committed, unexpired owner approval "
+            "record for that exact handoff (ops/issue_approvals/<handoff-id>.json) are all "
+            "present - reports WOULD-FILE / WOULD-NOT-FILE per handoff and makes no write call "
+            "when omitted"
+        ),
+    )
+    file_cmd.add_argument(
+        "--approvals-ref",
+        default="HEAD",
+        metavar="GIT_REF",
+        help=(
+            "git ref the owner approval records are read from (never the working tree); the "
+            "scheduled workflow passes the commit it was triggered on"
+        ),
+    )
+    file_cmd.add_argument(
+        "--count-writable",
+        action="store_true",
+        help=(
+            "print only the number of handoffs the write job could act on: HANDOFF_PENDING "
+            "ones that currently hold a valid owner approval, plus FILED ones (a possible "
+            "close). Committed files only, no network; the workflow mints its write token only "
+            "when this is nonzero"
         ),
     )
     metadata = subcommands.add_parser(
@@ -597,6 +669,64 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="N",
         help="explicitly permit a re-proposal after this merged or closed presenter PR number",
     )
+    health = subcommands.add_parser(
+        "health-check",
+        help=(
+            "dead-man monitoring for one repository's durable-state record (G7-W03): a named, "
+            "specific alert for a failed/invalidated transaction, staleness, or a budget overrun - "
+            "never a generic 'a run failed'. Deterministic only, read-only; prints '::error::' "
+            "annotations and exits non-zero on any alert, silent and exit 0 on a genuinely "
+            "healthy record"
+        ),
+    )
+    health.add_argument(
+        "--repo",
+        required=True,
+        metavar="OWNER/NAME",
+        help="repository coordinates exactly as listed in the registry",
+    )
+    health.add_argument("--root", type=Path, default=None, help=root_help)
+    health.add_argument(
+        "--state-remote",
+        default="origin",
+        help="the git remote this control repository's own state ref lives on",
+    )
+    health.add_argument(
+        "--wall-clock-seconds",
+        type=float,
+        default=None,
+        help=(
+            "this run's own measured wall-clock (e.g. from the workflow's own step timer); the "
+            "wall-clock budget check is skipped when omitted"
+        ),
+    )
+    health.add_argument(
+        "--provider-calls",
+        type=int,
+        default=None,
+        help=(
+            "this run's own measured provider-call count; auto-discovered from the sealed "
+            "bundle's own calls.jsonl ledger when omitted and a bundle exists for this revision"
+        ),
+    )
+    health.add_argument(
+        "--max-wall-clock-seconds",
+        type=float,
+        default=DEFAULT_MAX_WALL_CLOCK_SECONDS,
+        help="wall-clock budget ceiling, seconds (default: see core/state/health.py)",
+    )
+    health.add_argument(
+        "--max-provider-calls",
+        type=int,
+        default=DEFAULT_MAX_PROVIDER_CALLS,
+        help="provider-call budget ceiling (default: see core/state/health.py)",
+    )
+    health.add_argument(
+        "--stale-after-hours",
+        type=float,
+        default=24.0,
+        help="alert when no transition has been observed for longer than this many hours",
+    )
     return parser
 
 
@@ -605,7 +735,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "status":
-        return run_status(args.root, stale=args.stale)
+        return run_status(
+            args.root,
+            stale=args.stale,
+            as_json=args.as_json,
+            drift_path=args.drift,
+            authorizations_path=args.authorizations,
+        )
     if args.command == "present":
         if args.durable_state:
             return run_present_hosted(
@@ -628,7 +764,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.root, repository=args.repo, apply=args.apply, close=args.close
         )
     if args.command == "file-upstream-defects":
-        return run_file_upstream_defects(args.root, repository=args.repo, file=args.file)
+        return run_file_upstream_defects(
+            args.root,
+            repository=args.repo,
+            file=args.file,
+            approvals_ref=args.approvals_ref,
+            count_writable=args.count_writable,
+        )
     if args.command == "issue-targets":
         return run_issue_targets(args.root)
     if args.command == "metadata":
@@ -652,6 +794,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             base_branch=args.base_branch,
             expires_in_hours=args.expires_in_hours,
             supersedes_prs=tuple(args.supersedes_pr),
+        )
+    if args.command == "health-check":
+        return run_health_check(
+            args.repo,
+            args.root,
+            state_remote=args.state_remote,
+            wall_clock_seconds=args.wall_clock_seconds,
+            provider_calls=args.provider_calls,
+            max_wall_clock_seconds=args.max_wall_clock_seconds,
+            max_provider_calls=args.max_provider_calls,
+            stale_after_hours=args.stale_after_hours,
         )
     parser.error(f"unknown command {args.command!r}")
 
@@ -763,6 +916,7 @@ def run_redetect_upstream_defects(
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
+    known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
         ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
     except HandoffError as exc:
@@ -882,6 +1036,7 @@ def _redetect_or_inconclusive(handoff: Handoff) -> RedetectionResult:
     recheck rather than crashing the filer - ``file_handoff`` already fails closed on
     ``still_fires is None`` (this module's own docstring; ``AGENTS.md`` "Recheck upstream
     revision immediately before an effect")."""
+    known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
         return redetect(handoff)
     except RedetectorNotRegisteredError as exc:
@@ -900,17 +1055,25 @@ def _redetect_or_inconclusive(handoff: Handoff) -> RedetectionResult:
 
 
 def run_file_upstream_defects(
-    root_argument: Path | None, *, repository: str | None = None, file: bool = False
+    root_argument: Path | None,
+    *,
+    repository: str | None = None,
+    file: bool = False,
+    approvals_ref: str = "HEAD",
+    count_writable: bool = False,
 ) -> int:
     """File each eligible (``HANDOFF_PENDING``) ``evidence/upstream-defects/`` handoff as a real
     GitHub issue.
 
-    Dry-run by default: each handoff is checked with read-only calls only (is an issue for its
-    fingerprint already upstream; does its own check still fire) and reported as would-file,
-    already-filed, or would-not-file. ``--file`` attempts the write through
-    ``components/issues/file.py``, which refuses (and says so, making no write call) unless
-    ``issues_file.AUTHORIZATION_VARIABLE`` is truthy *and* a write-scoped ``GH_ISSUES_WRITE_TOKEN``
-    is present. The scheduled workflow sets both only in its gated write job.
+    Dry-run by default: each handoff is checked with read-only calls only (is there a committed,
+    unexpired owner approval for exactly this handoff; is an issue for its fingerprint already
+    upstream; does its own check still fire) and reported ``WOULD-FILE`` or ``WOULD-NOT-FILE`` with
+    the reason. ``--file`` attempts the write through ``components/issues/file.py``, which refuses
+    (and says so, making no write call) unless the kill switch
+    ``issues_file.AUTHORIZATION_VARIABLE`` is truthy, a write-scoped ``GH_ISSUES_WRITE_TOKEN`` is
+    present, *and* the handoff has its own approval record, read from ``approvals_ref`` in git.
+    ``--file`` requires ``repository`` and never files a handoff for any other. The scheduled
+    workflow sets the kill switch and the token only in its gated write job.
 
     Dedup is two-fold: a handoff not ``HANDOFF_PENDING`` is skipped, and an upstream issue whose
     body carries the handoff's fingerprint marker is recorded as ``FILED`` rather than re-filed -
@@ -921,9 +1084,13 @@ def run_file_upstream_defects(
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
+    if file and repository is None:
+        _fail("file-upstream-defects --file requires --repo: a write is bound to one target")
+        return EXIT_USAGE
     try:
+        approvals = GitApprovalStore(root, approvals_ref)
         ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
-    except HandoffError as exc:
+    except (HandoffError, ApprovalProvenanceError) as exc:
         _fail(str(exc))
         return EXIT_INCONSISTENT
     entries = [
@@ -932,12 +1099,35 @@ def run_file_upstream_defects(
         if repository is None or entry.repository == repository
     ]
     if not entries:
+        if count_writable:
+            print(0)
+            return EXIT_OK
         print(
             f"file: no handoff found for {repository!r}"
             if repository
             else "file: no handoffs on record"
         )
         return EXIT_OK
+    if count_writable:
+        writable = 0
+        for entry in entries:
+            try:
+                handoff = load_handoff(entry.path)
+            except HandoffError as exc:
+                _fail(str(exc))
+                return EXIT_INCONSISTENT
+            if handoff.status == "FILED" or (
+                handoff.status == "HANDOFF_PENDING" and verify_approval(handoff, approvals).approved
+            ):
+                writable += 1
+        print(writable)
+        return EXIT_OK
+    if not file:
+        print(
+            f"file: kill switch {issues_file.AUTHORIZATION_VARIABLE} = "
+            f"{'ON' if issues_file.write_authorized(os.environ) else 'OFF'} "
+            "(necessary, never sufficient: each handoff also needs its own approval record)"
+        )
     read_token = os.environ.get("GH_TOKEN") or None
     write_token = os.environ.get("GH_ISSUES_WRITE_TOKEN") or None
     registry = None
@@ -962,17 +1152,26 @@ def run_file_upstream_defects(
             continue
         existing = partial(_existing_lookup, handoff, read_token)
         recheck = partial(_redetect_or_inconclusive, handoff)
+        permit = None
         if registry is not None:  # one choke point: only a mode-full entry receives an issue
             try:
-                require_write_permitted(registry, handoff.repository, "issue_filing")
+                permit = require_write_permitted(registry, handoff.repository, "issue_filing")
             except WriteRefusedError as refusal:
                 print(f"file: {handoff.repository} not filed ({refusal.code}): {refusal}")
                 continue
         try:
             if not file:
-                plan = issues_file.plan_filing(handoff, existing=existing, recheck=recheck)
-                print(_describe_plan(handoff, plan))
+                plan = issues_file.plan_filing(
+                    handoff,
+                    existing=existing,
+                    recheck=recheck,
+                    approvals=approvals,
+                    expected_repository=repository,
+                )
+                kill_switch_on = issues_file.write_authorized(os.environ)
+                print(_describe_plan(handoff, plan, kill_switch_on=kill_switch_on))
                 continue
+            assert permit is not None  # `registry` is loaded whenever `file` is set
             result = issues_file.file_handoff(
                 handoff,
                 token=write_token,
@@ -980,6 +1179,9 @@ def run_file_upstream_defects(
                 create=default_post,
                 existing=existing,
                 recheck=recheck,
+                approvals=approvals,
+                expected_repository=repository,
+                permit=permit,
             )
         except Exception as exc:  # one handoff's failure never stops the others; reported below
             print(f"file: {handoff.repository} ERROR: {exc}")
@@ -995,8 +1197,8 @@ def run_file_upstream_defects(
             failures += 1
         else:
             print(
-                f"file: {handoff.repository} would file {handoff.suggested_issue_title!r} - not "
-                f"performed (authorized={result.authorized} filed=False): {result.reason}"
+                f"file: {handoff.repository} WOULD-NOT-FILE {handoff.suggested_issue_title!r} - "
+                f"not performed (authorized={result.authorized} filed=False): {result.reason}"
             )
         if result.issue_ref is not None:
             updated = replace(handoff, status="FILED", issue_ref=result.issue_ref)
@@ -1018,16 +1220,37 @@ def _existing_lookup(handoff: Handoff, token: str | None) -> IssueRef | None:
     return None if found is None else IssueRef(number=found.number, url=found.url)
 
 
-def _describe_plan(handoff: Handoff, plan: issues_file.FilingPlan) -> str:
+def _describe_plan(
+    handoff: Handoff, plan: issues_file.FilingPlan, *, kill_switch_on: bool = True
+) -> str:
     head = f"file: {handoff.repository} {handoff.suggested_issue_title!r}"
     if plan.already_filed is not None:
         return (
-            f"{head}: already filed upstream as #{plan.already_filed.number} "
-            f"({plan.already_filed.url}) - would only record it (dry run; pass --file to attempt)"
+            f"{head}: WOULD-NOT-FILE - already filed upstream as #{plan.already_filed.number} "
+            f"({plan.already_filed.url}); would only record it (dry run; pass --file to attempt)"
         )
     if plan.refusal is not None:
-        return f"{head}: would NOT file - {plan.refusal} (dry run; pass --file to attempt)"
-    return f"{head}: would file (dry run; pass --file to attempt)"
+        line = f"{head}: WOULD-NOT-FILE - {plan.refusal} (dry run; pass --file to attempt)"
+        if plan.approval_refused and plan.handoff_id:
+            line += (
+                f"\n  owner approval: commit {approval_relative_path(plan.handoff_id)} with "
+                f"handoff_id {plan.handoff_id}, repository {plan.repository}, "
+                f"evidence_digest {plan.evidence_digest}, approver, approved_at, expires_at "
+                "(see ops/issue_approvals/README.md)"
+            )
+        return line
+    if not kill_switch_on:
+        return (
+            f"{head}: WOULD-NOT-FILE - approved and eligible, but the kill switch "
+            f"{issues_file.AUTHORIZATION_VARIABLE} is not 1 (dry run; pass --file to attempt)"
+        )
+    return (
+        f"{head}: WOULD-FILE - owner-approved, no upstream duplicate, defect still fires "
+        "(dry run; pass --file to attempt)"
+    )
+
+
+PROPOSAL_RECORD_FILENAME = "repo_metadata_proposal.json"
 
 
 def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = False) -> int:
@@ -1057,8 +1280,9 @@ def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = F
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)
         entry = require_listed(registry, repository)
         print(f"admitted: {entry.repository} (mode {entry.mode})")
+        permit = None
         if apply:  # one choke point: a dry_run entry may not even attempt the write
-            require_write_permitted(registry, repository, "metadata_write")
+            permit = require_write_permitted(registry, repository, "metadata_write")
         token = os.environ.get("GH_TOKEN") or None
         observed = capture_repo_metadata(entry, token=token)
         metadata_dir = root / RUNS_DIRNAME / "metadata" / f"{entry.owner}__{entry.name}"
@@ -1098,8 +1322,18 @@ def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = F
             f"proposed: topics={list(proposal.topics)} (sources: {list(proposal.topics_sources)})"
         )
         print(f"proposed: homepage={proposal.homepage!r} (source: {proposal.homepage_source})")
+        record_path = metadata_dir / PROPOSAL_RECORD_FILENAME
+        record_digest = write_diff_record(diff, record_path)
+        print(
+            f"decision: description {diff.description_decision.summary}; "
+            f"homepage {diff.homepage_decision.summary}; topics {diff.topics_decision.summary}"
+        )
+        print(
+            f"record: {record_path.relative_to(root).as_posix()} (digest {record_digest}; "
+            f"existing topics {list(diff.observed_topics)} -> final {list(diff.final_topics)})"
+        )
         if not diff.has_changes:
-            print("diff: none - GitHub's observed metadata already matches the proposal")
+            print("diff: none - nothing to change (GitHub's metadata matches, or was preserved)")
             if apply:
                 print("apply: nothing to change")
             return EXIT_OK
@@ -1124,6 +1358,7 @@ def run_metadata(repository: str, root_argument: Path | None, *, apply: bool = F
             patch=default_patch,
             put=default_put,
             refetch=lambda: capture_repo_metadata(entry, token=write_token),
+            permit=permit,
         )
         for outcome in (result.description, result.homepage, result.topics):
             if not outcome.changed:
@@ -1435,7 +1670,14 @@ def run_draft_proposal_authorization(
     return EXIT_OK
 
 
-def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
+def run_status(
+    root_argument: Path | None,
+    *,
+    stale: bool = False,
+    as_json: bool = False,
+    drift_path: Path | None = None,
+    authorizations_path: Path | None = None,
+) -> int:
     """Print version, gate, work item, and N/34 progress from sealed bundles on disk.
 
     ``--stale`` additionally reports every current candidate whose sealed ``dependencies.json``
@@ -1452,6 +1694,13 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
     check below are both left pointed at ``count_current_candidates`` exactly as before - that is
     the number ``cursor.recorded_candidates`` has always meant, and this new line reports
     alongside it rather than replacing it.
+
+    The ``portfolio:`` block (``components/readme/bundle/portfolio.py``, which defines each
+    predicate) reports ``plans/idea.md``'s seven separated counts - fact-valid, presentation-valid,
+    independently accepted, no-op-proven, source-fresh, publication-eligible, effect-authorized -
+    plus a partition that puts every live registry entry in exactly one bucket. ``--json`` prints
+    the whole report as one document instead; ``--drift`` and ``--authorizations`` supply the two
+    inputs this offline command cannot observe itself (upstream freshness, an authorization).
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -1468,39 +1717,87 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
         }
         current_validators = {check.id: check.version for check in BLOCKING_CHECKS}
         found = stale_candidates(root, current_components, current_validators, VALIDATOR_VERSION)
+        drift = load_drift(drift_path) if drift_path is not None else None
+        authorizations = (
+            load_authorizations(authorizations_path) if authorizations_path is not None else None
+        )
     except (CursorError, BundleError, OSError) as exc:
         _fail(str(exc))
         return EXIT_INCONSISTENT
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
     if leaks:
         for leak in leaks:
             relative = leak.path.relative_to(root).as_posix()
             _fail(f"secret canary: value of {leak.variable} found in {relative}")
         return EXIT_UNSAFE
-    print(f"{PROGRAM} {__version__}")
-    print(f"gate: {cursor.current_gate_id} ({cursor.current_gate_status})")
-    print(f"work item: {cursor.active_work_item_id} ({cursor.active_work_item_status})")
-    print(f"candidates: {on_disk}/{cursor.denominator} current reviewable no-op-proven")
     historical = len({bundle.repository_dir for bundle in iter_sealed_bundles(root)})
     integrity_valid = integrity_valid_candidates(root)
     reproducible = reproducible_candidates(root)
     accepted = independently_accepted_candidates(root, found)
-    print(
-        f"progress: {historical} ever sealed, {integrity_valid} integrity-valid, "
-        f"{reproducible} current-code reproducible, {accepted} independently accepted "
-        "(stale-excluded)"
-    )
     executed, example_total = examples_verification_summary(root)
-    print(f"examples: {executed}/{example_total} verified across counted candidates")
-    print(f"canary: {cursor.canary}")
-    if stale:
-        if found:
-            print(f"stale: {len(found)} current candidate(s) behind the running code -")
-            for candidate in found:
-                print(f"  {candidate.repository_dir} @ {candidate.revision}:")
-                for reason in candidate.reasons:
-                    print(f"    {reason}")
-        else:
-            print("stale: none")
+    portfolio = _portfolio_report(root, found, drift, authorizations)
+    if as_json:
+        print(
+            json.dumps(
+                {
+                    "program": PROGRAM,
+                    "version": __version__,
+                    "gate": {
+                        "id": cursor.current_gate_id,
+                        "status": cursor.current_gate_status,
+                    },
+                    "work_item": {
+                        "id": cursor.active_work_item_id,
+                        "status": cursor.active_work_item_status,
+                    },
+                    "candidates": {"current": on_disk, "denominator": cursor.denominator},
+                    "progress": {
+                        "ever_sealed": historical,
+                        "integrity_valid": integrity_valid,
+                        "current_code_reproducible": reproducible,
+                        "independently_accepted_stale_excluded": accepted,
+                    },
+                    "examples": {"executed": executed, "total": example_total},
+                    "canary": cursor.canary,
+                    "stale": [
+                        {
+                            "repository_dir": candidate.repository_dir,
+                            "revision": candidate.revision,
+                            "reasons": list(candidate.reasons),
+                        }
+                        for candidate in found
+                    ],
+                    "portfolio": None if portfolio is None else portfolio.to_json(),
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(f"{PROGRAM} {__version__}")
+        print(f"gate: {cursor.current_gate_id} ({cursor.current_gate_status})")
+        print(f"work item: {cursor.active_work_item_id} ({cursor.active_work_item_status})")
+        print(f"candidates: {on_disk}/{cursor.denominator} current reviewable no-op-proven")
+        print(
+            f"progress: {historical} ever sealed, {integrity_valid} integrity-valid, "
+            f"{reproducible} current-code reproducible, {accepted} independently accepted "
+            "(stale-excluded)"
+        )
+        print(f"examples: {executed}/{example_total} verified across counted candidates")
+        print(f"canary: {cursor.canary}")
+        if portfolio is not None:
+            for line in render_portfolio_lines(portfolio):
+                print(line)
+        if stale:
+            if found:
+                print(f"stale: {len(found)} current candidate(s) behind the running code -")
+                for candidate in found:
+                    print(f"  {candidate.repository_dir} @ {candidate.revision}:")
+                    for reason in candidate.reasons:
+                        print(f"    {reason}")
+            else:
+                print("stale: none")
     if on_disk != cursor.recorded_candidates:
         _fail(
             f"cursor records {cursor.recorded_candidates} current candidates "
@@ -1508,6 +1805,34 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def _portfolio_report(
+    root: Path,
+    found: Sequence[StaleCandidate],
+    drift: Mapping[str, DriftObservation] | None,
+    authorizations: Mapping[str, Sequence[ProposalAuthorization]] | None,
+) -> PortfolioReport | None:
+    """The seven separated counts over the live registry, or None when there is no registry.
+
+    A project without a loadable registry (a minimal fixture, a checkout that never configured
+    one) has no denominator to partition, so it prints no portfolio block rather than failing the
+    whole command over an informational signal - the same degradation ``reproducible_candidates``
+    already documents.
+    """
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+    except ConfigError:
+        return None
+    return assess_portfolio(
+        root,
+        registry.entries,
+        stale_directories={candidate.repository_dir for candidate in found},
+        expected_branch=presenter_branch_name(),
+        now=_cli_utc_now(),
+        drift=drift,
+        authorizations=authorizations,
+    )
 
 
 PREFLIGHT_FILENAME = "preflight.json"
@@ -1563,9 +1888,19 @@ def _report_facts_only(
 
 
 def run_present(
-    repository: str, root_argument: Path | None, *, facts_only: bool = False, fresh: bool = False
+    repository: str,
+    root_argument: Path | None,
+    *,
+    facts_only: bool = False,
+    fresh: bool = False,
+    on_disposition: Callable[[Path], None] | None = None,
 ) -> int:
     """Admit ``repository`` from the registry, then run the transaction stages.
+
+    A README-only placeholder (no manifest, no source) is not a failure: its processability
+    disposition is written under the transaction directory, ``on_disposition`` receives that path,
+    and the run returns ``EXIT_OK``. The durable transaction then records the NON_PROCESSABLE
+    outcome from that artifact (core/state/present_transaction.py). No candidate is ever sealed.
 
     ``facts_only`` stops after S2 with the processability and coverage record and makes no
     provider call: the cohort preflight reads every repository's failure class before any
@@ -1621,12 +1956,18 @@ def run_present(
         manifest_path = None if manifest is None else manifest.relative_to(clone.path).as_posix()
         disposition = assess_processability(snapshot, tree_paths, plugin, manifest_path)
         if disposition is not None:
-            write_disposition(disposition, transaction / DISPOSITION_FILENAME)
+            # The insufficient-evidence decision above is unchanged; this records it as the typed
+            # NON_PROCESSABLE disposition rather than a failure (docs/STATE_MACHINE.md section 6).
+            disposition_path = transaction / DISPOSITION_FILENAME
+            write_disposition(disposition, disposition_path)
+            if on_disposition is not None:
+                on_disposition(disposition_path)
             print(
-                f"insufficient_evidence: {disposition.reason_code} for {entry.repository} "
-                f"at {clone.revision}; resume when {disposition.resume_predicate}"
+                f"NON_PROCESSABLE: insufficient_evidence ({disposition.reason_code}) for "
+                f"{entry.repository} at {clone.revision}; resume when "
+                f"{disposition.resume_predicate}"
             )
-            return EXIT_INCONSISTENT
+            return EXIT_OK
         candidates: list[ExampleCandidate] = []
         receipts: list[ExampleReceipt] = []
         if snapshot.readme_path is not None:
@@ -1850,6 +2191,94 @@ def run_present(
     return EXIT_OK
 
 
+def _discover_provider_calls(root: Path, entry: RegistryEntry) -> int | None:
+    """The sealed bundle's own ledger, read the same way ``classify_present_outcome`` already
+    locates the bundle itself (``CURRENT`` -> revision -> ``runs/transactions/<repo>/<revision>``)
+    - ``manifest.json``'s own ``call_variance`` mechanism is this project's existing precedent for
+    "make it observable" logging; this reuses the same ``calls.jsonl`` ledger rather than inventing
+    a second accounting path. ``None`` when no bundle is sealed yet for this revision (a first run,
+    or a run that failed before composing anything) - the failure/staleness/wall-clock checks still
+    apply without a call count."""
+    candidates_dir = root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}"
+    current = candidates_dir / CURRENT_FILENAME
+    if not current.is_file():
+        return None
+    revision = current.read_text(encoding="utf-8").strip()
+    ledger_path = (
+        root
+        / RUNS_DIRNAME
+        / "transactions"
+        / f"{entry.owner}__{entry.name}"
+        / revision
+        / LEDGER_FILENAME
+    )
+    if not ledger_path.is_file():
+        return None
+    return Ledger(ledger_path).summary().provider_calls
+
+
+def run_health_check(
+    repository: str,
+    root_argument: Path | None,
+    *,
+    state_remote: str,
+    wall_clock_seconds: float | None,
+    provider_calls: int | None,
+    max_wall_clock_seconds: float | None,
+    max_provider_calls: int | None,
+    stale_after_hours: float,
+) -> int:
+    """Dead-man monitoring for one repository's durable-state record (G7-W03) - the
+    product-portfolio equivalent of ``.github/workflows/liveness.yml``'s own control-repository
+    supervision. Reads ``core/state``'s durable record (built by a real ``present --durable-state``
+    run, G5-W05) and, when ``--provider-calls`` is not given, the sealed bundle's own
+    ``calls.jsonl`` ledger; evaluates ``core/state/health.py``'s deterministic rules. Never an LLM
+    judgment, never a
+    state mutation - this command only reads and reports.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        entry = require_listed(registry, repository)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+
+    if provider_calls is None:
+        provider_calls = _discover_provider_calls(root, entry)
+
+    backend = GitStateBackend(
+        remote=state_remote, token=os.environ.get(STATE_TOKEN_VARIABLE) or None
+    )
+    try:
+        record = backend.load(entry.repository)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    finally:
+        backend.close()
+
+    alerts = evaluate_repository_health(
+        entry.repository,
+        record,
+        budgets=Budgets(
+            max_wall_clock_seconds=max_wall_clock_seconds, max_provider_calls=max_provider_calls
+        ),
+        stale_after=timedelta(hours=stale_after_hours),
+        wall_clock_seconds=wall_clock_seconds,
+        provider_calls=provider_calls,
+    )
+    if not alerts:
+        state = record.state if record is not None else "no record"
+        print(f"health: {entry.repository} healthy (state {state})")
+        return EXIT_OK
+    for alert in alerts:
+        print(alert.annotation())
+    return EXIT_INCONSISTENT
+
+
 def run_present_hosted(
     repository: str,
     root_argument: Path | None,
@@ -1894,6 +2323,9 @@ def run_present_hosted(
         remote=state_remote, token=os.environ.get(STATE_TOKEN_VARIABLE) or None
     )
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    # The processability disposition this run wrote, if any: the only artifact the transaction
+    # maps to NON_PROCESSABLE, handed over by the run itself rather than re-derived from disk.
+    disposition_paths: list[Path] = []
     try:
         return run_present_transaction(
             backend=backend,
@@ -1902,8 +2334,19 @@ def run_present_hosted(
             holder_id=holder,
             trigger_event_type=cast(TriggerEventType, trigger_event_type),
             workflow_run_id=run_id,
-            run=lambda: run_present(repository, root_argument, facts_only=facts_only, fresh=fresh),
-            classify=lambda exit_code: classify_present_outcome(root, entry, exit_code),
+            run=lambda: run_present(
+                repository,
+                root_argument,
+                facts_only=facts_only,
+                fresh=fresh,
+                on_disposition=disposition_paths.append,
+            ),
+            classify=lambda exit_code: classify_present_outcome(
+                root,
+                entry,
+                exit_code,
+                disposition_path=disposition_paths[-1] if disposition_paths else None,
+            ),
         )
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))

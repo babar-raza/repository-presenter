@@ -6,6 +6,8 @@ and simply never calling the live GitHub defaults for the other."""
 
 from __future__ import annotations
 
+import subprocess
+import sys
 from dataclasses import replace
 
 import pytest
@@ -18,10 +20,10 @@ from repository_presenter.components.issues.redetect import (
     redetect,
     registered_check_ids,
 )
-from repository_presenter.components.readme.extractors.platforms.python_registry import (
-    RegistryObservation,
-)
+from repository_presenter.core import package_registry
+from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.github.read_client import DefaultBranchRead, FileRead
+from repository_presenter.core.package_registry import RegistryObservation
 from support import REPO_ROOT
 
 HTML_PYTHON_HANDOFF = (
@@ -49,6 +51,63 @@ def test_unregistered_check_id_fails_closed() -> None:
     handoff = replace(original, triggering_check=replace(original.triggering_check, id="BC-99"))
     with pytest.raises(RedetectorNotRegisteredError, match="BC-99"):
         redetect(handoff)
+
+
+def _github_reads(handoff: Handoff) -> dict[str, object]:
+    """The two GitHub reads, injected, with the registry read deliberately left to the default."""
+    return {
+        "fetch_default_branch_sha": lambda repository, **_: DefaultBranchRead(
+            repository, sha=handoff.source_revision, branch="main"
+        ),
+        "fetch_file": lambda repository, revision, path, **_: FileRead(
+            repository, revision, path, found=True, content="build-backend = 'x'\n"
+        ),
+    }
+
+
+def test_the_default_registry_read_goes_through_core_not_a_python_extractor(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With the registry read left at its default, redetect resolves it by ecosystem name through
+    `core/package_registry.py` - a stand-in registered there answers, so no extractor module is
+    needed to replay the read (RESEARCH_AND_GUIDELINES.md section 7.4)."""
+    asked: list[tuple[str, str | None]] = []
+
+    def stand_in(name: str, version: str | None) -> RegistryObservation:
+        asked.append((name, version))
+        return RegistryObservation(
+            name, f"https://pypi.org/pypi/{name}/json", found=False, status=404
+        )
+
+    monkeypatch.setitem(package_registry.OBSERVERS, "python", stand_in)
+    handoff = load_handoff(HTML_PYTHON_HANDOFF)
+    reads = RedetectionReads(**_github_reads(handoff))  # type: ignore[arg-type]
+    result = redetect(handoff, reads=reads)
+    assert result.still_fires is True
+    assert asked == [("aspose-html-foss", None)]
+
+
+def test_the_default_registry_read_fails_closed_when_no_observer_is_registered(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(package_registry, "OBSERVERS", {})
+    handoff = load_handoff(HTML_PYTHON_HANDOFF)
+    reads = RedetectionReads(**_github_reads(handoff))  # type: ignore[arg-type]
+    with pytest.raises(ConfigError, match="no package-registry observer"):
+        redetect(handoff, reads=reads)
+
+
+def test_importing_redetect_loads_no_extractor_module() -> None:
+    """A fresh interpreter that imports the redetect module holds no extractor module afterwards."""
+    code = (
+        "import sys\n"
+        "import repository_presenter.components.issues.redetect\n"
+        "loaded = sorted(m for m in sys.modules if 'readme.extractors' in m)\n"
+        "print(loaded)\n"
+        "raise SystemExit(1 if loaded else 0)\n"
+    )
+    done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=False)
+    assert done.returncode == 0, done.stdout + done.stderr
 
 
 # --- BC-02 (HTML-Python: install_command CONTRADICTED against the package registry) ---------

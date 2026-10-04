@@ -51,7 +51,7 @@ authorized repository, it:
 | Deterministic Markdown renderer; the LLM never writes the final document, only fact-ID-bound content units | **Built** |
 | Safety: pinned, read-only, push-neutered git clones; secret-canary scan before any bundle is sealed | **Built** |
 | Upstream-defect detection and re-detection (`redetect-upstream-defects`); local, evidence-backed handoff records | **Built** — read-only re-checks; a status-only local write; a gated `close` of an issue this system filed, once its check proves the defect resolved |
-| Upstream defect *reporting* (`file-upstream-defects`; filing genuine product defects as GitHub issues) | **Built** — gated: refuses without an owner-controlled authorization variable and a write-scoped token. Scheduled by `.github/workflows/issues-scheduled.yml`; its write job runs only once the owner sets the repository variable (see [Security](#security-and-effects)) |
+| Upstream defect *reporting* (`file-upstream-defects`; filing genuine product defects as GitHub issues) | **Built** — gated: refuses without the owner's kill-switch variable, a write-scoped token and a committed per-handoff owner approval record (`ops/issue_approvals/`). Scheduled by `.github/workflows/issues-scheduled.yml`; its write job runs only once the owner sets the repository variable (see [Security](#security-and-effects)) |
 | Production GitHub App credentials, installed across every registry organization | **Built** — a write-capable credential existing; it is not itself write authorization (see [Security](#security-and-effects)) |
 | Repo description/topics/homepage: read GitHub's observed values, propose a candidate from verified facts, diff | **Built** — read-only; no write call without explicit dual authorization |
 | Hosted, autonomous, scheduled portfolio monitoring | **Planned** (Gate G5) |
@@ -142,7 +142,7 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `GH_METADATA_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `metadata --apply` reads it, and only after `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `metadata --apply`'s write; a token's mere presence never implies this |
 | `GH_ISSUES_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `file-upstream-defects --file` and `redetect-upstream-defects --close` read it, and only after `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` also authorizes a write |
-| `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for the issue filing and closing writes (`file-upstream-defects --file`, `redetect-upstream-defects --close`); a token's mere presence never implies this. In CI it is set only from the repository variable of the same name, on the gated write job |
+| `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled kill switch for the issue filing and closing writes (`file-upstream-defects --file`, `redetect-upstream-defects --close`): unset or not `1` disables every write; `1` never authorizes a filing by itself (that needs the handoff's own `ops/issue_approvals/` record), and a token's mere presence never implies it. In CI it is set only from the repository variable of the same name, on the gated write job |
 | `GH_PROPOSAL_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`/`GH_METADATA_WRITE_TOKEN`/`GH_ISSUES_WRITE_TOKEN`; only `propose --propose` reads it, and only after `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `propose --propose`'s write; a token's mere presence never implies this |
 
@@ -156,14 +156,17 @@ repository_presenter`).
 
 ```
 repository-presenter --version
-repository-presenter status [--root PATH] [--stale]
+repository-presenter status [--root PATH] [--stale] [--json] [--drift PATH] [--authorizations PATH]
 repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
   [--durable-state [--trigger-event-type TYPE] [--workflow-run-id ID] [--holder-id ID]
                     [--state-remote REMOTE]]
 repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
+repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remote REMOTE]
+  [--wall-clock-seconds N] [--provider-calls N] [--max-wall-clock-seconds N]
+  [--max-provider-calls N] [--stale-after-hours N]
 repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply] [--close]
-repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file]
+repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file] [--approvals-ref GIT_REF] [--count-writable]
 repository-presenter issue-targets [--root PATH]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
@@ -174,7 +177,13 @@ repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver N
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
   from sealed bundles on disk. `--stale` additionally reports any current candidate whose recorded
   dependencies are behind the running code's component/check versions; it is a pure read and makes
-  no provider call.
+  no provider call. It also prints the portfolio block: `plans/idea.md`'s seven separated counts
+  (fact-valid, presentation-valid, independently accepted, no-op-proven, source-fresh,
+  publication-eligible, effect-authorized) and a partition placing every live registry entry in
+  exactly one bucket; the predicates are defined in `components/readme/bundle/portfolio.py`.
+  `--json` prints one machine-readable document instead. `--drift PATH` supplies a monitor drift
+  document so source-fresh can be observed (otherwise it is reported unobserved), and
+  `--authorizations PATH` supplies authorization records for the effect-authorized count.
 - **`preflight`** — reaches the LLM gateway using the process environment, lists its live models,
   and records the catalog under `runs/preflight/catalog.json`.
 - **`present --repo OWNER/NAME`** — runs the full transaction for one repository listed in the
@@ -194,6 +203,13 @@ repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver N
   under `runs/monitor/drift.json` (`--out` overrides the path; `--owner` limits the run to one
   owner's enabled entries). It makes no provider call and no write to any repository; it exits 1
   when any repository is `UNREACHABLE`, and the scheduled `monitor.yml` workflow runs it read-only.
+- **`health-check`** — dead-man monitoring for one repository's durable-state record (G7-W03), run by
+  `present.yml` after each transaction. It reads the record (and the sealed bundle's `calls.jsonl`
+  unless `--provider-calls` is given) and applies the deterministic rules in
+  `core/state/health.py`: no record, a failed state, a stale last transition (`--stale-after-hours`),
+  and wall-clock or provider-call budgets (`--max-wall-clock-seconds`, `--max-provider-calls`)
+  against the observed `--wall-clock-seconds` and `--provider-calls`. `--state-remote` names the
+  state remote. It only reads and reports; it makes no provider call and no state mutation.
 - **`redetect-upstream-defects`** — re-evaluates each `evidence/upstream-defects/` handoff's own
   `triggering_check` against the target repository's current state (package-registry and GitHub
   Contents/tree reads) and reports whether it still fires. `--repo OWNER/NAME` limits the pass to
@@ -205,9 +221,13 @@ repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver N
 - **`file-upstream-defects`** — files each eligible (`HANDOFF_PENDING`) `evidence/upstream-defects/`
   handoff as a real GitHub issue; dry-run by default (read-only: reports what would be filed, what
   is already filed upstream, and what would not be filed, with the reason). `--repo OWNER/NAME`
-  limits the pass to one repository. `--file` attempts the write, but only past two independent,
-  explicit gates — the owner-controlled `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED=1`, and a
-  write-scoped `GH_ISSUES_WRITE_TOKEN` (never `GH_TOKEN`). Before the write it searches the target
+  limits the pass to one repository (required with `--file`). Each handoff is reported `WOULD-FILE` or
+  `WOULD-NOT-FILE` with the reason. `--file` attempts the write, but only past explicit gates — the
+  owner's kill switch `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED=1` (it can stop every write and
+  never authorizes one), a write-scoped `GH_ISSUES_WRITE_TOKEN` (never `GH_TOKEN`), and an unexpired
+  owner approval record `ops/issue_approvals/<handoff-id>.json` for that exact handoff, whose digest
+  must match the handoff as it is now (`--approvals-ref` names the git ref it is read from;
+  `--count-writable` prints how many handoffs the write job could act on). Before the write it searches the target
   for the handoff's fingerprint marker (so a fresh checkout cannot file a duplicate), rechecks that
   the defect still fires, and refuses on any inconclusive result. A handoff whose status is not
   `HANDOFF_PENDING` is skipped outright.

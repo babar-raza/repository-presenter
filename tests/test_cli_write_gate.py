@@ -13,8 +13,6 @@ import pytest
 
 from repository_presenter import cli
 from repository_presenter.cli import EXIT_OK, EXIT_UNSAFE, main
-from repository_presenter.components.issues.file import AUTHORIZATION_VARIABLE as ISSUES_VARIABLE
-from repository_presenter.components.issues.redetect import RedetectionResult
 from repository_presenter.components.metadata.apply import (
     AUTHORIZATION_VARIABLE as METADATA_VARIABLE,
 )
@@ -101,46 +99,6 @@ def _handoff(root: Path, repository: str) -> None:
         "close_reason": None,
     }
     (directory / f"{FINGERPRINT}.json").write_text(json.dumps(payload), encoding="utf-8")
-
-
-def test_issue_filing_skips_a_dry_run_entry_and_files_for_a_full_one(
-    control: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
-) -> None:
-    _handoff(control, DRY)
-    _handoff(control, FULL)
-    posts: list[str] = []
-
-    def post(url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
-        posts.append(url)
-        return 201, {"number": 7, "html_url": "https://github.com/x/y/issues/7"}
-
-    monkeypatch.setattr(cli, "default_post", post)
-    monkeypatch.setattr(cli, "find_issue_with_marker", lambda *a, **k: None)
-    monkeypatch.setattr(
-        cli,
-        "redetect",
-        lambda handoff: RedetectionResult(
-            repository=handoff.repository,
-            defect_fingerprint=handoff.defect_fingerprint,
-            triggering_check_id="BC-02",
-            checked_at="2026-10-05T00:00:00+00:00",
-            checked_at_revision=REVISION,
-            revision_drifted=False,
-            still_fires=True,
-            note="still fires",
-            fresh_evidence=(),
-            proposed_status=None,
-        ),
-    )
-    monkeypatch.setenv(ISSUES_VARIABLE, "1")
-    monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "ghs_fake-token-for-this-test-only")
-
-    exit_code = main(["file-upstream-defects", "--root", str(control), "--file"])
-
-    out = capsys.readouterr().out
-    assert exit_code == EXIT_OK
-    assert f"file: {DRY} not filed (registry_dry_run)" in out
-    assert len(posts) == 1 and f"/repos/{FULL}/" in posts[0]  # only the full entry was written to
 
 
 def test_a_dry_run_of_issue_filing_does_not_need_the_registry(
