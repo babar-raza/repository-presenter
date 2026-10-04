@@ -829,7 +829,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert code == EXIT_OK and captured.err == ""
     bundle_dir = f"candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/{revision}"
     assert (
-        f"bundle: {bundle_dir} (state ACCEPTED, 13 files, provider calls 13; sealed; "
+        f"bundle: {bundle_dir} (state ACCEPTED, 14 files, provider calls 13; sealed; "
         "the no-op proof needs a rerun in a fresh process)"
     ) in captured.out
     bundle = project_with_registry / bundle_dir
@@ -849,6 +849,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
             "investigation.json",
             "plan.json",
             "probes.json",
+            "raw_calls.json",
             "review.json",
             "validation.json",
         ]
@@ -1037,21 +1038,32 @@ def test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle(
     """G5-W02 (27.2 RC4). `runs/` is gitignored, so a hosted runner's first run of an
     already-sealed revision starts with nothing local to reuse - the exact case the prior test
     (same-process, warm `runs/`) never exercises. Deleting the whole transaction workspace
-    between two `present` runs is the faithful simulation: both seeding mechanisms
-    (`seed_call_store`'s pre-pass for investigation/reconciliation/planning, and
-    `reconstructed_task_output`'s per-task seeding for section_authoring) read only from the
-    sealed bundle under `candidates/`, never from `runs/`.
+    between two `present` runs is the faithful simulation: every seeding mechanism
+    (`seed_call_store`'s pre-pass for investigation/reconciliation/planning,
+    `reconstructed_task_output`'s per-task seeding for a non-batch section_authoring task, and
+    `seed_additional_calls`'s own pre-pass for everything neither of those reaches - a batch
+    section_authoring task, every coherence batch, and independent_review's reads) reads only
+    from the sealed bundle under `candidates/`, never from `runs/`.
 
-    This canary's plan carries one bounded batch task (`api_reference`'s member types) that is
-    never seeded by design (`reconstructed_task_output` declines a batch - its own omitted facts
-    are not separable from its section's other batches once merged), and `coherence` shares
-    `section_authoring`'s own job name but a packet no mechanism here reconstructs, so both cost
-    a real call regardless. `independent_review` is not seeded at all (G5-W02's own remaining
-    gap). Six of the seven authoring tasks - everything but the one genuine batch - and all
-    three of investigation/reconciliation/planning cost zero calls; this test caught the exact
-    bug where they silently did not (`seed_call_store` keyed by the ledger's own
-    `request_sha256` field, `canonical_hash(payload)` for one physical attempt, instead of
-    `logical_call_id`, the actual `CallStore` key) before this commit fixed it.
+    This canary's plan carries one bounded batch task (`api_reference`'s member types) that
+    `reconstructed_task_output` still declines by design (its own omitted facts are not
+    separable from its section's other batches once merged into `content_units.json`), and a
+    `coherence` call that shares `section_authoring`'s own job name but a packet no
+    content-artifact-based mechanism here reconstructs - `raw_calls.json` seals both verbatim
+    instead, keyed by each call's own `request_sha256` (`composition/authoring.py::
+    write_raw_calls`), so a byte-identical second run's freshly computed request hash matches
+    the sealed entry directly, with no separate lineage check needed. The same mechanism seals
+    `independent_review`'s first read and its corroborating second read (PHASE1/F6) - `review.json`
+    alone cannot always answer for either verbatim, since a rejected first read never carries the
+    second reader's own non-blocking findings forward.
+
+    Every one of the seven authoring tasks, every coherence batch, both review reads, and all
+    three of investigation/reconciliation/planning now cost zero calls - the full acceptance bar
+    G5-W02's own item record names ("delete runs/, run present ...: byte-identical, zero calls").
+    This test caught two real bugs before they shipped: `seed_call_store` keyed by the ledger's
+    own `request_sha256` field (one physical attempt) instead of `logical_call_id` (the actual
+    `CallStore` key), and - before `raw_calls.json` existed - the batch/coherence/review calls
+    above costing four real calls every single replay, not merely on the first.
     """
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     before = len(gateway_ready.requests)
@@ -1066,20 +1078,13 @@ def test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle(
         line for line in captured.out.splitlines() if line.startswith("seeded from sealed bundle:")
     )
     assert seeded_line == (
-        "seeded from sealed bundle: presentation_planning, repository_investigation, "
-        "source_reconciliation"
+        "seeded from sealed bundle: independent_review, presentation_planning, "
+        "repository_investigation, section_authoring, source_reconciliation"
     )
-    made = gateway_ready.requests[before:]
-    names = [request["response_format"]["json_schema"]["name"] for request in made]
-    # The batch task and coherence (out of scope here, see the docstring) plus the unseeded
-    # review and its corroborating second read (PHASE1/F6) - four real calls, not the
-    # fourteen-plus a fully cold run would cost.
-    assert names == [
-        "section_authoring",
-        "section_authoring",
-        "independent_review",
-        "independent_review",
-    ]
+    # The real no-op proof this item's own acceptance bar names: zero new provider calls on a
+    # byte-identical second run against an empty runs/ directory, not merely the six-of-seven a
+    # prior, incomplete seeding mechanism reached.
+    assert gateway_ready.requests[before:] == []
 
 
 def test_present_fresh_skips_seeding_even_against_a_warm_local_transaction(
@@ -1740,14 +1745,15 @@ def test_a_changed_prompt_reopens_only_its_stage_and_records_an_update(
         assert (transaction / name).read_bytes() == (bundle / name).read_bytes()
     # review.json names the authoring prompt's hash, so it changes with the prompt too.
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    assert "(state READY_FOR_PROPOSAL, 13 files, provider calls 8; " in bundle_line
+    assert "(state READY_FOR_PROPOSAL, 14 files, provider calls 8; " in bundle_line
     assert (
-        "valid update available (presentation): dependencies.json, review.json changed at "
-        "COMPOSING; the proven candidate stays valid and the update waits in the transaction)"
+        "valid update available (presentation): dependencies.json, raw_calls.json, "
+        "review.json changed at COMPOSING; the proven candidate stays valid and the update waits "
+        "in the transaction)"
     ) in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
-    assert manifest["update"]["changed"] == ["dependencies.json", "review.json"]
+    assert manifest["update"]["changed"] == ["dependencies.json", "raw_calls.json", "review.json"]
     assert {name: (bundle / name).read_bytes() for name in before} == before
 
 
@@ -2193,7 +2199,11 @@ def test_a_reviewer_rubric_change_reopens_reviewing_only(
         "independent_review",
     ]
     _assert_presentation_update(
-        out, bundle, "REVIEWING", ["dependencies.json", "review.json"], ("plan: ", "units: ")
+        out,
+        bundle,
+        "REVIEWING",
+        ["dependencies.json", "raw_calls.json", "review.json"],
+        ("plan: ", "units: "),
     )
 
 

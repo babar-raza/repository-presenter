@@ -275,16 +275,22 @@ advisory count either way.
 ## 7. Bundle layout
 
 `candidates/<owner>__<name>/<revision>/` holds `README.md`, `README.patch`, `facts.json`,
-`investigation.json`, `dispositions.json`, `plan.json`, `content_units.json`, `examples.json`,
-`probes.json`, `validation.json`, `review.json`, `repairs.json`, `calls.jsonl`,
+`investigation.json`, `dispositions.json`, `plan.json`, `content_units.json`, `raw_calls.json`,
+`examples.json`, `probes.json`, `validation.json`, `review.json`, `repairs.json`, `calls.jsonl`,
 `dependencies.json`, and `manifest.json`. A bundle carries every artifact its own facts cite as
 evidence: `examples.json` is the verification receipt each `example` fact names, and
 `repairs.json` the record of what a repair attempted, so neither is left dangling outside the
 seal. `probes.json` records every live read that informed a fact — its status, how long it took,
 and any reading that changes without the repository changing, such as a registry's latest
-version — because a fact's evidence is hashed and must not move when only the world does. A
-transaction that composed without one seals without it; `probes.json` and `calls.jsonl` carry a
-clock, so neither is compared byte for byte in the no-op proof. The manifest seals the
+version — because a fact's evidence is hashed and must not move when only the world does.
+`raw_calls.json` (G5-W02, 27.2 RC4) seals, verbatim and keyed by each call's own request hash,
+every accepted call no other artifact already answers for byte for byte - a coherence batch, an
+independent_review read, and a batch section_authoring task - so a fresh clone with an empty
+`runs/` directory can replay an unchanged revision with zero provider calls; a non-batch
+section_authoring task is reconstructed from `content_units.json` alone instead, and is not
+duplicated here. A transaction that composed without one seals without it; `probes.json` and
+`calls.jsonl` carry a clock, so neither is compared byte for byte in the no-op proof. The
+manifest seals the
 bundle (`schemas/candidate-bundle.schema.json`); only `READY_FOR_PROPOSAL` counts toward N/34.
 The manifest also carries an optional `call_variance`: when a job's successful attempts across
 the transaction's whole history - every repair round and reopening, not only what the accepted
