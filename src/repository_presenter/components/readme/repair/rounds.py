@@ -51,7 +51,7 @@ from repository_presenter.components.readme.composition.planning import (
     plan_checks,
     planning_packet,
     planning_schema,
-    recover_uncited_capability_titles,
+    recover_planning_output,
     recover_visible_line_overage,
     write_plan,
 )
@@ -235,6 +235,36 @@ def _raw_call_entry(result: JobResult) -> dict[str, Any]:
     return {"job": result.job, "output": result.output}
 
 
+def _round_raw_calls(
+    reconciled: Mapping[str, JobResult],
+    coherent: Mapping[str, JobResult],
+    authored: Mapping[str, JobResult],
+    tasks: Sequence[SectionTask],
+) -> dict[str, dict[str, Any]]:
+    """Every accepted call of a round that no other sealed artifact answers for verbatim, keyed by
+    its own request hash. Each source_reconciliation batch belongs here: dispositions.json holds
+    only the merged document, and bundle/seal.py::seed_call_store deliberately never seeds a job
+    with more than one successful attempt, so a multi-batch reconciliation (a repository above one
+    batch's unit bound, e.g. Aspose.Slides-FOSS-for-.NET at 95 units) was otherwise re-called on
+    every fresh runner - measured on the first hosted present.yml run of that revision, which made
+    3 dispositions calls the sealed bundle's own content could have answered (docs/DECISION_LOG.md,
+    2026-10-04)."""
+    raw_calls: dict[str, dict[str, Any]] = {
+        result.request_sha256: _raw_call_entry(result) for result in reconciled.values()
+    }
+    raw_calls.update(
+        {result.request_sha256: _raw_call_entry(result) for result in coherent.values()}
+    )
+    raw_calls.update(
+        {
+            authored[task.label].request_sha256: _raw_call_entry(authored[task.label])
+            for task in tasks
+            if task.is_batch
+        }
+    )
+    return raw_calls
+
+
 def run_round(tx: TransactionInputs) -> Round:
     """Stages S3 to S10 once, every artifact written; unchanged requests reuse the store."""
     prompts, facts, entry = tx.prompts, tx.facts, tx.entry
@@ -308,7 +338,7 @@ def run_round(tx: TransactionInputs) -> Round:
             ecosystem=entry.ecosystem,
         ),
         call_schema=planning_schema(loaded, facts, investigation.output, dispositions),
-        recover=functools.partial(recover_uncited_capability_titles, facts=facts),
+        recover=functools.partial(recover_planning_output, facts=facts),
         **common,
     )
     digests["plan"] = write_plan(planned.output, tx.directory / PLAN_FILENAME)
@@ -413,16 +443,7 @@ def run_round(tx: TransactionInputs) -> Round:
     # now so a round that stops at blocking_failures below (never reaching review) still seals
     # whatever it made; the review block further down adds its own reads and rewrites this same
     # file, exactly like digests["validation"] is written once here and again after review.
-    raw_calls: dict[str, dict[str, Any]] = {
-        result.request_sha256: _raw_call_entry(result) for result in coherent.values()
-    }
-    raw_calls.update(
-        {
-            authored[task.label].request_sha256: _raw_call_entry(authored[task.label])
-            for task in tasks
-            if task.is_batch
-        }
-    )
+    raw_calls = _round_raw_calls(reconciled, coherent, authored, tasks)
     digests["raw_calls"] = write_raw_calls(raw_calls, tx.directory / RAW_CALLS_FILENAME)
     # Stage S9 runs exactly the contract's blocking checks over the written artifacts; a
     # failure names its causal stage so repair reopens the cause, never the validation.
