@@ -1114,7 +1114,7 @@ def test_end_to_end_an_approved_handoff_is_not_filed_with_an_unverified_write_to
     code: Refusal,
 ) -> None:
     """Registry full, approval verifying, kill switch on, token present - but the token is a PAT,
-    too wide, for another repository, or unverifiable: nothing is posted. Fails without the check."""
+    too wide, for another repository, or unverifiable: nothing is posted. Fails without it."""
     create = _RecordingCreate()
     _open_gates(monkeypatch, create)
     asked: list[tuple[str, str]] = []
