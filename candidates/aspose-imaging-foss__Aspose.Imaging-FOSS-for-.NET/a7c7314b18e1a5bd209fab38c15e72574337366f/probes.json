@@ -1,0 +1,58 @@
+[
+  {
+    "elapsed_ms": 2261,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss/actions/workflows/ci.yml"
+  },
+  {
+    "elapsed_ms": 2001,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss/actions/workflows/ci.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 920,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1720,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/nuget/v/Aspose.Imaging.Foss.svg"
+  },
+  {
+    "elapsed_ms": 784,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/imaging/net/"
+  },
+  {
+    "elapsed_ms": 2286,
+    "kind": "link",
+    "observation": null,
+    "outcome": "MISSING",
+    "status": 404,
+    "target": "https://www.nuget.org/packages/Aspose.Imaging.Foss"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "nuget-flatcontainer-api",
+    "outcome": "CONTRADICTED",
+    "status": null,
+    "target": "nuget:Aspose.Imaging.Foss"
+  }
+]

@@ -1,0 +1,217 @@
+{
+  "dispositions": [
+    {
+      "destination_section": "identity",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework"
+      ],
+      "rationale": "The H1 product name is rendered deterministically from identity:repository.",
+      "unit_id": "inherited_unit:001.heading"
+    },
+    {
+      "destination_section": "badges",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:product.banner",
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
+      ],
+      "rationale": "Badge row content is preserved and moved to badges; the NuGet link target is contradicted and omitted.",
+      "unit_id": "inherited_unit:002.badge_row"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "package:name",
+        "package:target_framework",
+        "dependency:none"
+      ],
+      "rationale": "Substance is supported but wording is re-authored to match deterministic opening content.",
+      "unit_id": "inherited_unit:003.paragraph"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "public_symbol:aspose.imaging.foss.imageprobe"
+      ],
+      "rationale": "Substance is supported but wording is re-authored to match deterministic opening content.",
+      "unit_id": "inherited_unit:004.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:none"
+      ],
+      "rationale": "Zero-dependency statement is rendered deterministically in the dependencies section.",
+      "unit_id": "inherited_unit:005.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading or its implied section; omitted.",
+      "unit_id": "inherited_unit:006.heading"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "public_symbol:aspose.imaging.foss.imageprobe"
+      ],
+      "rationale": "Substance about format coverage gaps is supported but wording is re-authored for opening.",
+      "unit_id": "inherited_unit:007.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "rationale": "Commercial product link is verified and moved to enterprise_relationship.",
+      "unit_id": "inherited_unit:008.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading or its implied section; omitted.",
+      "unit_id": "inherited_unit:009.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this table or its implied section; omitted.",
+      "unit_id": "inherited_unit:010.table"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "public_symbol:aspose.imaging.foss.imageprobe"
+      ],
+      "rationale": "DICOM parsing detail is supported and moved to key_capabilities with rephrased wording.",
+      "unit_id": "inherited_unit:011.paragraph"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "public_symbol:aspose.imaging.foss.imageprobe"
+      ],
+      "rationale": "DjVu parsing detail is supported and moved to key_capabilities with rephrased wording.",
+      "unit_id": "inherited_unit:012.paragraph"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "public_symbol:aspose.imaging.foss.imageprobe"
+      ],
+      "rationale": "AVIF/HEIC parsing detail is supported and moved to key_capabilities with rephrased wording.",
+      "unit_id": "inherited_unit:013.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "rationale": "Planned CDR support is a limitation and moved to scope_limitations with rephrased wording.",
+      "unit_id": "inherited_unit:014.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading or its implied section; omitted.",
+      "unit_id": "inherited_unit:015.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The install command in the inherited unit is contradicted by install_command:dotnet.",
+      "unit_id": "inherited_unit:016.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading or its implied section; omitted.",
+      "unit_id": "inherited_unit:017.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The example code block is contradicted by example:001.",
+      "unit_id": "inherited_unit:018.code_block"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss",
+        "public_symbol:aspose.imaging.foss.imageprobe"
+      ],
+      "rationale": "Robust error handling detail is supported and moved to key_capabilities with rephrased wording.",
+      "unit_id": "inherited_unit:019.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading or its implied section; omitted.",
+      "unit_id": "inherited_unit:020.heading"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "rationale": "Extensibility mechanism detail is supported and moved to scope_limitations with rephrased wording.",
+      "unit_id": "inherited_unit:021.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No fact supports this heading or its implied section; omitted.",
+      "unit_id": "inherited_unit:022.heading"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "License statement is rendered deterministically from license facts.",
+      "unit_id": "inherited_unit:023.paragraph"
+    }
+  ]
+}

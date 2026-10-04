@@ -1,0 +1,139 @@
+{
+  "acceptance_profile_version": "1",
+  "components": {
+    "normalisation": "19",
+    "renderer": "26",
+    "reviewer_logic": "14",
+    "shell": "6"
+  },
+  "contract_version": "readme-contract-v1",
+  "environment": {
+    "extractor_version": "1",
+    "inherited_units_version": "1",
+    "os": "Windows",
+    "presenter_site_manifest": "23d2a43bbb97c58c6f82c65b0c78a86aa06710793ea79c453a863e80e3089bf2",
+    "python_version": "3.13.2"
+  },
+  "facts": {
+    "build_test_asset:ci": "468b2c34c4aa42ffec6c478c5b0c7ad23a8945d9e612d92761b6e1dc55607c22",
+    "build_test_asset:tests": "5f7852412246d7d979906830150de24d85b99d65790ec1f1514d03efe3db8986",
+    "dependency:none": "17df8858fdcb7419cfbae07067317d1a2fa3031e765156c4e8a1bec09d38cf8d",
+    "example:001": "0ce75f9a0edce933eadee18782139ba20e4c38556320028e6bf5338688f2d177",
+    "identity:ecosystem": "7a572ffe3ad23b1fbb7be0523247a2fea482c2418ea04b866ddb3b0a8b71676a",
+    "identity:family": "5edfa5bce00f8041c2ccb1ad6c9d18a800e51e2ebb94cd5590ea69653823d67f",
+    "identity:platform": "67e5665e794b3101d5404eb8d1a0f4c9287549654f24f520475c9b603967e434",
+    "identity:repository": "77eefef70eef9d0b6db1fc0bec8a73914ef3a171ac78ed68d6a2710c0428aadc",
+    "identity:revision": "cdaad87a29ef3594559dfba1fd4bb925c58c1610f2404dd8c49565d350467a39",
+    "inherited_unit:001.heading": "f8b65d8c0094d2c843c4e671baa86416ad3c7cfb0946d333eb95fe4d18a6f36f",
+    "inherited_unit:002.badge_row": "c9090ce91c3d4ff2816fee882a80f5f65dd24ac410a1424c972334c739565f67",
+    "inherited_unit:003.paragraph": "2de5685a69f111c7217e20337588ff98d0f69c8edcc87c7178532046409c069a",
+    "inherited_unit:004.paragraph": "59f857d313234a389b28b27a32f72d3676c173744ca89be5a0b2ed26205a0dd0",
+    "inherited_unit:005.paragraph": "5567a06fa483e6b9766d4b597732e25ae41e382f2bb74009b7d4de9e4f10de77",
+    "inherited_unit:006.heading": "2d44191a79788844294f8a68eccb1b729c3cc5584ff9e1bee827f0128e427fc8",
+    "inherited_unit:007.paragraph": "180334925782b7e22f25bb30e0fd5590135fcf41a477eef040cc6d9f5ead3635",
+    "inherited_unit:008.paragraph": "784e8428f4c4d8206183422f182df2bcca00bac36c379dcb2cc94380bad8b796",
+    "inherited_unit:009.heading": "4dbb6960144af23c4ebabef49bfddd7ee6ca810ea8251ffaf0b4242738d99eae",
+    "inherited_unit:010.table": "22c3bea458ab7ce25bf384a992117f27b051f153fe930a2a2459cb92f2387398",
+    "inherited_unit:011.paragraph": "547f81204003c18bfbb9cede17b8dfa412d7ff18131ecdc665f994ab5d4fa666",
+    "inherited_unit:012.paragraph": "4c1e85af391ebfc4fd25a46a225eb6580d5b849c0e2e775b741b44e939e10e58",
+    "inherited_unit:013.paragraph": "fd155f8552748c0e25d90c9862502fae69cb5f009b1e969288ef4c5b291bc5de",
+    "inherited_unit:014.paragraph": "470a37fac8601580f124fe4755c141ab9874495b11a0b17d8a8d3fcecca82fae",
+    "inherited_unit:015.heading": "2e2662580e76b3495d50e3bbb3533c22c631a2f3be6053f240d4c6c3927b0659",
+    "inherited_unit:016.code_block": "7c9a2d0801fa3af4a1631ce822b1db837347ad097736da1a6166884133633c13",
+    "inherited_unit:017.heading": "65bb815a881c6f418144e8edbdfd0ec6acaf70b6b22d2099aeeda73214f0d020",
+    "inherited_unit:018.code_block": "96b904e236a0693bc0f7ebb6e4029766c7b056c8a20056ed604355334acac556",
+    "inherited_unit:019.paragraph": "0d0de16e0ef89737f207fa69f8238e0dc896504c8437d978f913cccba3c641ba",
+    "inherited_unit:020.heading": "e5a07a8da19e9df5c050ab8996ee3b960067f9f65be837994167d9e93891eb1c",
+    "inherited_unit:021.paragraph": "0d6a98edba6e426a0569f3aaefda6d66bcadc073a6f6ae924c69984167fdbd2a",
+    "inherited_unit:022.heading": "76a92f747ec22ddb5f29733219f757b36617493219fce5507286bf0b9cf8d529",
+    "inherited_unit:023.paragraph": "938dae2380df141d06f32a7eceeb3cb2a70779721410ac221161518d6f403879",
+    "install_command:dotnet": "fa939020e57c13a5aab4519a837ed4a858864eb89308215980a5d4728e4134c4",
+    "license:file": "4d120bd6fe7ea62aad075b68f94315f2fab58d3a5bf8a6d63ea221334ac5e3ff",
+    "license:spdx": "ceb6ce5bf3986503b24dc2912f86a900b6b2ff3631822ffd1d9233de7587f57e",
+    "link_target:001": "02ba6e9b48a0154eaa7b1d6813dbe5f1bc95cf781f8ad75518969c40cebaabd3",
+    "link_target:002": "a4a479cb97b6ccec641681de3e156a41abec6bacb05387cea64939f920e254be",
+    "link_target:003": "4af882820bc9fbb0e90d5a74b93e9bedd3e1812b1b5f8d95d7ee9652465f1e7f",
+    "link_target:004": "64aaf93546234d63831d3efbafeab29b605b5b0c8ec304ae9775894714b1c34b",
+    "link_target:005": "ee572f0c4ee57e1fd66d55c91b688fe0f7bb2eeb43ce1ec5ea415db9c84c80a3",
+    "link_target:006": "955d55461d056554d9b51540e40d6a4827e6a61ebedc17e831712691165427e8",
+    "link_target:007": "ca612d514f220ac8825bcf3b495f83f479cbf137b624b7a1dde27b03a6fa8aaa",
+    "link_target:product.banner": "eb10c25e1546d268f9b6e3df16ddbef2ed9e3e8debea035ff8951f5158d240d5",
+    "link_target:product.enterprise": "d8849fa0cdbae321abcf955c89fea3db24200b0265c69e67f981227d5323e853",
+    "link_target:product.homepage": "7b568417384155f70455ed04c27d07e81330d45a9b32f60d3cff861bb8a8adff",
+    "package:name": "febd6d821ec269e3ec3d7c15a3b46658e88e01bfbc9f347a25e9e79245a9a352",
+    "package:target_framework": "28adaa880090cc3d6130ceeb3b69a573ac8b0092a768804f8ac6399007bad035",
+    "public_symbol:aspose": "5c10b4269716ceee03e7a25f0c5e57c441d459fb932e34b75c3b7dbd6c5637fd",
+    "public_symbol:aspose.imaging": "56d81e94eb3fe2f3d3b2b584f17db3f02bd87ee8d7628dc06f7d6548f351eb84",
+    "public_symbol:aspose.imaging.foss": "afbb6bcd87a7f361e434d080079847359c1811f1240bd20ffb92b25894114b54",
+    "public_symbol:aspose.imaging.foss.imageformat": "64e686439f8181ce86480609f3d2076d1216760b1cf26bb68000696ab73cf7e4",
+    "public_symbol:aspose.imaging.foss.imageinfo": "15f9830ca11145e8b6f2c84fab64fb9449ec2e4905e86001e87b45d2b24ef059",
+    "public_symbol:aspose.imaging.foss.imageinfo.bitdepth": "224518415d47daac7d8749b0a90bdf9aad8f86afef7963df3b9f84a4ab490a5b",
+    "public_symbol:aspose.imaging.foss.imageinfo.format": "048cb4a1eeea29843dfcb05d004bb6c3b446ff82b27953458ef3e9af1fe4d7ca",
+    "public_symbol:aspose.imaging.foss.imageinfo.framecount": "d0eaa27e116f2f240e0d12c6ad161d70d0ea2c8a2c2a674e79a2eb260b380cb0",
+    "public_symbol:aspose.imaging.foss.imageinfo.height": "b35f8c83d9f49cd785f2dd84dad1dfb32762f772266348ba74e254c6f68c9d11",
+    "public_symbol:aspose.imaging.foss.imageinfo.imageinfo": "e6b1f582b74b7d8da9439958bbba2d737df53e3619410cfef8fb18aae33e8693",
+    "public_symbol:aspose.imaging.foss.imageinfo.width": "8e07673b38dfa11c431e95f48cc8d154c0d134c7584d3e3fbe0d1ba33637bfc4",
+    "public_symbol:aspose.imaging.foss.imageprobe": "e7cac74777a5c93707798443b8a42f6b99b25040705a3a241c91bb5f830bf4bb",
+    "public_symbol:aspose.imaging.foss.imageprobe.detectformat": "f1b48a0bec5317b86aab5803d292b1c02cb9befe976913d00a59af9b7a56e97c",
+    "public_symbol:aspose.imaging.foss.imageprobe.probe": "4899fe410b5215becf4e8a7d860c76cb25843aa5ebc884b820f28f81e78710e7",
+    "public_symbol:aspose.imaging.foss.imageprobe.probeasync": "d4adfcbf17aad9dc2888433de55669f583b2371892dbbcffd943cf295b713c9d",
+    "public_symbol:aspose.imaging.foss.imageprobe.probefile": "a6de8ddccaf20487638d99aafb7d0bf152df31b8f195ecb092e28dcfb088dfe9",
+    "public_symbol:aspose.imaging.foss.imageprobe.probefileasync": "455a8d961143d4e86e10b7eff182b72a118e81b45fcd035514b29bb325ba445c"
+  },
+  "policy": {
+    "sha256": "52cd7a97800a3df8fee21a2c99beb6f62f7d5dff45fb7cd8e6006f7e6b18d9b1",
+    "version": "1"
+  },
+  "prompts": {
+    "independent_review": {
+      "model_route": "qwen3-next",
+      "sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+      "version": "10"
+    },
+    "presentation_planning": {
+      "model_route": "qwen3-next",
+      "sha256": "17d2351fafb18615218603d9b19642037d715136e31c8413faaeb10c7d1dba98",
+      "version": "14"
+    },
+    "repository_investigation": {
+      "model_route": "qwen3-next",
+      "sha256": "a72f8e208d9b2d82bb613c8e11a03b613da9237945a8d2221d7aa3f64a772c0c",
+      "version": "2"
+    },
+    "section_authoring": {
+      "model_route": "qwen3-next",
+      "sha256": "a3b2066d504d61a8cb957068e38b2fd41af2ba26f7b8409e3f54e272b67403e6",
+      "version": "18"
+    },
+    "source_reconciliation": {
+      "model_route": "qwen3-next",
+      "sha256": "603abcfc355cf198f59b3bf596f4c528fd2e05c941191fe279908fafe63f10ab",
+      "version": "7"
+    },
+    "targeted_repair": {
+      "model_route": "qwen3-next",
+      "sha256": "7bdddd8cdbc2c03dd9310d6dbba9efafc2f369559b9bfc4a84a020896f55209a",
+      "version": "10"
+    }
+  },
+  "protected_content_fingerprint": "38a247752a27ec394db711ec872cedfc290b19d47639577ec603c6371cfb45a7",
+  "schema_version": 1,
+  "source": {
+    "revision": "a7c7314b18e1a5bd209fab38c15e72574337366f",
+    "tree_sha256": "3f25daeaba7823349f7f2836207b9a0908dc4cf3c5e26d610e8eb8336f59b20f"
+  },
+  "validator_version": "6",
+  "validators": {
+    "BC-01": "1",
+    "BC-02": "4",
+    "BC-03": "2",
+    "BC-04": "2",
+    "BC-05": "1",
+    "BC-06": "4",
+    "BC-07": "7",
+    "BC-08": "2",
+    "BC-09": "1",
+    "BC-10": "4",
+    "BC-11": "1"
+  }
+}
