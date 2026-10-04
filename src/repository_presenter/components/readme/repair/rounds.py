@@ -577,8 +577,53 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
     return defects
 
 
+# Keys a stage output carries for provenance, never for what a reader sees: ``fact_ids`` names what
+# a unit or plan entry cites, ``omitted`` lists what a reply declined to use.
+_PROVENANCE_KEYS = frozenset({"fact_ids", "omitted"})
+_NOOP_LITERAL = (
+    "matches the causal stage's own output unchanged; a no-op cannot repair a defect this "
+    "stage's content did not change"
+)
+_NOOP_PRINTED = (
+    "prints the causal stage's own text unchanged - a no-op: the reply moved only fact citations "
+    "or the omitted list, and a review finding is a judgement about printed prose, which nothing "
+    "in the reply changed"
+)
+
+
+def printed_content(document: Any) -> Any:
+    """A stage output reduced to what a reader sees: every key except the provenance ones, at any
+    depth. Two outputs that print the same text are equal here whatever they cite."""
+    if isinstance(document, dict):
+        return {
+            key: printed_content(value)
+            for key, value in document.items()
+            if key not in _PROVENANCE_KEYS
+        }
+    if isinstance(document, list):
+        return [printed_content(value) for value in document]
+    return document
+
+
+def prose_repair_is_noop(defect: Defect, revised: Any, original: Any) -> bool:
+    """Whether a review finding's repair left the printed text exactly as the causal stage wrote
+    it. A review finding is a judgement about printed prose, so only a change to what a reader sees
+    can resolve it; a reply that re-cites the same text, or edits the omitted list alone, cannot.
+    Validation defects are not judged this way: a fact citation can be their whole repair.
+
+    Measured 2026-10-04 on Aspose.3D for TypeScript (BC-10 F06): five repairs returned every unit's
+    text unchanged - each self-declared change was before == after - and moved only fact_ids and
+    the omitted list. The whole-object equality in ``_refuse_noop`` saw those as different outputs,
+    so every one was recorded "repaired" and the finding re-raised unchanged.
+    """
+    return defect.source == "review" and printed_content(revised) == printed_content(original)
+
+
 def _refuse_noop(
-    original: dict[str, Any], checks: Callable[[dict[str, Any]], list[str]] | None
+    original: dict[str, Any],
+    checks: Callable[[dict[str, Any]], list[str]] | None,
+    *,
+    prose: bool = False,
 ) -> Callable[[dict[str, Any]], list[str]]:
     """Wrap a causal stage's own checks so a revision proven identical to the stage's own output
     is refused before those checks even run.
@@ -592,14 +637,19 @@ def _refuse_noop(
     (`repair/targeted.py`) is not this work item's file to edit, so the refusal lives here, at the
     one seam `_stage_target` already owns for every causal stage - S3, S4, S5, and S6 alike, not
     just the S5 case this was measured on, since nothing about the mechanism is S5-specific.
+
+    ``prose`` (a review finding's repair) compares what a reader sees rather than the whole
+    object: see ``prose_repair_is_noop``. Whole-object equality alone let a reply that re-cited
+    the same text pass as a different output.
     """
 
     def guarded(revised: dict[str, Any]) -> list[str]:
-        if revised == original:
-            return [
-                "matches the causal stage's own output unchanged; a no-op cannot repair a "
-                "defect this stage's content did not change"
-            ]
+        if prose:
+            unchanged = printed_content(revised) == printed_content(original)
+        else:
+            unchanged = revised == original
+        if unchanged:
+            return [_NOOP_PRINTED if prose else _NOOP_LITERAL]
         return list(checks(revised)) if checks is not None else []
 
     return guarded
@@ -684,10 +734,11 @@ def _stage_target(
     are wrapped in ``_refuse_noop`` against that stage's own accepted output, so a repair reply
     proven identical to what it was meant to revise is refused, never recorded "repaired".
     """
+    prose = defect.source == "review"
     if defect.stage == "S3":
         return (
             current.investigation,
-            _refuse_noop(current.investigation.output, None),
+            _refuse_noop(current.investigation.output, None, prose=prose),
             None,
             None,
             facts,
@@ -722,6 +773,7 @@ def _stage_target(
             _refuse_noop(
                 current.reconciled[first_batch_id].output,
                 functools.partial(reconcile_checks, facts=batch_facts),
+                prose=prose,
             ),
             None,
             None,
@@ -738,6 +790,7 @@ def _stage_target(
                     dispositions=current.dispositions,
                     ecosystem=ecosystem,
                 ),
+                prose=prose,
             ),
             None,
             None,
@@ -749,6 +802,7 @@ def _stage_target(
         _refuse_noop(
             current.authored[task.label].output,
             functools.partial(unit_checks, task=task, facts=facts, name=name),
+            prose=prose,
         ),
         task.accepted_ids,
         task.slot_facts,
@@ -893,7 +947,15 @@ def repair_defect(
             return
         repairs.record(replace(defect, reason=str(exc)), "unrepairable")
         return
-    tx.store.put(target.request_sha256, job, result.model_served, result.output["revised_output"])
+    revised = result.output["revised_output"]
+    tx.store.put(target.request_sha256, job, result.model_served, revised)
+    if prose_repair_is_noop(defect, revised, target.output):
+        # The guard in _stage_target refuses this reply before it is accepted, and run_job re-runs
+        # the checks on a recovered correction, so this is the record-time backstop: a review
+        # finding whose printed text the repair left unchanged is never recorded "repaired", and
+        # the finding stays blocking when it re-raises (docs/README_CONTRACT.md section 6).
+        repairs.record(replace(defect, reason=_NOOP_PRINTED), "unrepairable")
+        return
     repairs.record(defect, "repaired", result.request_sha256, result.output.get("changes", []))
 
 

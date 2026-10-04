@@ -1,0 +1,10 @@
+[
+  "- Rendering is not implemented in this FOSS build — `Scene.render()` throws an error.",
+  "- A real npm packaging defect affects 3MF import/export in this FOSS build — a normal package install does not pull in a",
+  "- `Mesh`'s Boolean operations (`union`, `difference`, `intersect`), `optimize()`, and `isManifold()` all throw `Error('",
+  "- `VertexElement.setIndices()`/`clear()` throw `Error('... is not implemented')` in this FOSS build.",
+  "- `Node.selectSingleObject()`/`selectObjects()` throw `Error('... is not implemented')`.",
+  "- Text watermarking is not currently functional in this FOSS build (the identical defect independently confirmed on",
+  "- The `FileSystem` virtualization abstraction (`readFile`, `writeFile`, `createZipFileSystem`, `createLocalFileSystem`",
+  "- A real npm packaging defect affects this package's declared entry point — the real build does not produce the file `p"
+]

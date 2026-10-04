@@ -139,7 +139,7 @@ ACCEPT = "ACCEPT"
 # asserts anything the fact does not support, never whether the quote restates everything the
 # fact says - a faithful compression is not a factual defect, and a quote that invents content
 # absent from the fact still fails both directions, since its own tokens are simply not there.
-REVIEWER_LOGIC_VERSION = "14"
+REVIEWER_LOGIC_VERSION = "15"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -248,6 +248,31 @@ def quote_located(quote: str, candidate_readme: str) -> bool:
     if _ELLIPSIS.search(wanted) and fragments and all(part in haystack for part in fragments):
         return True
     return len(wanted) > _ANCHOR_LENGTH and wanted[:_ANCHOR_LENGTH] in haystack
+
+
+# An absence claim is copied from the ORIGINAL README (the prompt requires it), while the candidate
+# is a rewrite of that same material. Measured 2026-10-04 on Aspose.3D for TypeScript (BC-10 F06):
+# each of the eight claims was the original's own bullet, and the candidate restated the same
+# limitation in fewer words ("top" for "very top", "not functional" for "not implemented"), so a
+# literal lookup refuted none of them and a finding whose claims the candidate already carried
+# blocked. A claim counts as present when ONE candidate sentence carries at least this share of
+# the claim's own distinctive words - the claim's meaning in the candidate's wording, never a
+# loose match across sentences or sections. Below the minimum word count a claim is too short to
+# restate by coincidence, so only a literal occurrence refutes it.
+_ABSENCE_MIN_WORDS = 4
+_ABSENCE_MIN_COVERAGE = 0.8
+_SENTENCE_BREAK = re.compile(r"[.;!?](?=\s|$)|\n")
+
+
+def absence_restated(claim: str, candidate_text: str) -> bool:
+    """Whether one sentence of ``candidate_text`` restates ``claim``'s distinctive content."""
+    wanted = _content_tokens(_normalized(claim))
+    if len(wanted) < _ABSENCE_MIN_WORDS:
+        return False
+    return any(
+        len(wanted & _content_tokens(_normalized(sentence))) / len(wanted) >= _ABSENCE_MIN_COVERAGE
+        for sentence in _SENTENCE_BREAK.split(candidate_text)
+    )
 
 
 def review_packet(
@@ -950,7 +975,13 @@ def absence_partition(
     claims = _claimed_absent(finding)
     section_id = str(finding.get("section_id") or "")
     haystack = _section_slice(section_id, candidate_readme)
-    present = sorted({claim for claim in claims if quote_located(claim, haystack)})
+    present = sorted(
+        {
+            claim
+            for claim in claims
+            if quote_located(claim, haystack) or absence_restated(claim, haystack)
+        }
+    )
     invented = (
         sorted(
             {
