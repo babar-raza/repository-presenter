@@ -84,12 +84,21 @@ from repository_presenter.components.propose.effect import (
 from repository_presenter.components.propose.effect import (
     write_authorized as propose_write_authorized,
 )
+from repository_presenter.components.readme.bundle.dry_run import (
+    HeldUpdate,
+    held_updates,
+    portfolio_routing,
+)
 from repository_presenter.components.readme.bundle.evaluation import (
     EVALUATION_FILENAME,
     evaluate,
     evaluation_document,
     summarize_evaluation,
     write_evaluation,
+)
+from repository_presenter.components.readme.bundle.invalidation import (
+    STATE_INVALIDATED,
+    STATE_UPDATE_AVAILABLE,
 )
 from repository_presenter.components.readme.bundle.portfolio import (
     DriftObservation,
@@ -108,6 +117,7 @@ from repository_presenter.components.readme.bundle.seal import (
     DEPENDENCIES_FILENAME,
     SealInputs,
     bundle_directory,
+    code_dependencies,
     invalidate_bundle,
     invalidates,
     seal_candidate,
@@ -1836,6 +1846,7 @@ def run_status(
     reproducible = reproducible_candidates(root)
     accepted = independently_accepted_candidates(root, found)
     executed, example_total = examples_verification_summary(root)
+    held = held_updates(root)
     portfolio = _portfolio_report(root, found, drift, authorizations)
     if as_json:
         print(
@@ -1860,6 +1871,17 @@ def run_status(
                     },
                     "examples": {"executed": executed, "total": example_total},
                     "canary": cursor.canary,
+                    "candidate_states": _candidate_state_counts(root, held),
+                    "held_updates": [
+                        {
+                            "repository_dir": update.repository_dir,
+                            "revision": update.revision,
+                            "state": update.state,
+                            "scope": update.scope,
+                            "stage": update.stage,
+                        }
+                        for update in held
+                    ],
                     "stale": [
                         {
                             "repository_dir": candidate.repository_dir,
@@ -1885,6 +1907,8 @@ def run_status(
         )
         print(f"examples: {executed}/{example_total} verified across counted candidates")
         print(f"canary: {cursor.canary}")
+        for line in _candidate_state_lines(root, held):
+            print(line)
         if portfolio is not None:
             for line in render_portfolio_lines(portfolio):
                 print(line)
@@ -1897,6 +1921,7 @@ def run_status(
                         print(f"    {reason}")
             else:
                 print("stale: none")
+            _print_routing_dry_run(root)
     if on_disk != cursor.recorded_candidates:
         _fail(
             f"cursor records {cursor.recorded_candidates} current candidates "
@@ -1904,6 +1929,70 @@ def run_status(
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def _candidate_state_counts(root: Path, held: Sequence[HeldUpdate]) -> dict[str, int]:
+    """Current candidates by manifest state, the counted state beside the valid-but-uncounted one.
+
+    ``candidates:`` stays the cursor's headline (``READY_FOR_PROPOSAL`` only,
+    ``core.candidates.COUNTED_STATES``). A candidate holding an update after a prompt, template,
+    validator or reviewer change is still valid, so it is reported next to that number rather than
+    silently dropping out of view (docs/DECISION_LOG.md, the open counting question).
+    """
+    return {
+        "READY_FOR_PROPOSAL": count_current_candidates(root),
+        "VALID_UPDATE_AVAILABLE": sum(
+            1 for update in held if update.state == STATE_UPDATE_AVAILABLE
+        ),
+        "INVALIDATED": sum(1 for update in held if update.state == STATE_INVALIDATED),
+    }
+
+
+def _candidate_state_lines(root: Path, held: Sequence[HeldUpdate]) -> list[str]:
+    counts = _candidate_state_counts(root, held)
+    lines = [
+        "candidate states: "
+        f"{counts['READY_FOR_PROPOSAL']} READY_FOR_PROPOSAL (counted); "
+        f"{counts['VALID_UPDATE_AVAILABLE']} VALID_UPDATE_AVAILABLE "
+        "(valid, update pending, not counted); "
+        f"{counts['INVALIDATED']} INVALIDATED (not valid, not counted)"
+    ]
+    if held:
+        lines.append(f"updates: {len(held)} current candidate(s) hold an update -")
+        for update in held:
+            lines.append(
+                f"  {update.repository_dir} @ {update.revision}: {update.state} "
+                f"(scope {update.scope or 'unrecorded'}, "
+                f"re-enters {update.stage or 'unrecorded'})"
+            )
+    return lines
+
+
+def _print_routing_dry_run(root: Path) -> None:
+    """``status --stale``: how each CURRENT bundle would be routed by the running code's own
+    inputs, through the typed invalidation scopes (components/readme/bundle/invalidation.py).
+
+    A dry run: nothing is cloned, called or written, and a sealed bundle is never touched. The
+    source revision, fact records and host environment are not observable without a clone, so a
+    ``facts`` scope appears only in a real run.
+    """
+    try:
+        current_code = code_dependencies(load_manifests(root / PROMPTS_DIRNAME))
+    except PresenterError as exc:
+        print(f"routing: unavailable ({exc})")
+        return
+    rows = [row for row in portfolio_routing(root, current_code) if row.routing.state]
+    if not rows:
+        print("routing: no current candidate would change state")
+        return
+    print(f"routing: {len(rows)} current candidate(s) would change state (dry run, no writes) -")
+    for row in rows:
+        routing = row.routing
+        print(
+            f"  {row.repository_dir} @ {row.revision}: {row.state} -> {row.would_become} "
+            f"(scope {routing.triggering_scope}; scopes {', '.join(routing.scopes)}; "
+            f"re-enters {routing.stage})"
+        )
 
 
 def _portfolio_report(
@@ -2276,6 +2365,9 @@ def run_present(
                 consumed_calls=ledger.consumed_calls,
                 secrets=configured_secrets(os.environ),
                 earliest_affected_stage=evaluated["earliest_affected_stage"],
+                changed_dependencies=tuple(
+                    str(change["dependency"]) for change in evaluated["changes"]
+                ),
                 models_used=selection.models_used(),
             )
         )

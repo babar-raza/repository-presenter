@@ -88,6 +88,8 @@ src/repository_presenter/
     bundle/
       seal.py                  the sealed bundle, dependencies.json, and the no-op proof (S12)
       evaluation.py            dependency evaluation: changed inputs and the stage they reopen
+      invalidation.py          typed invalidation scopes: scope -> stage and state tables, and the routing (STATE_MACHINE.md §9)
+      dry_run.py               read-only dry run: every CURRENT bundle's routing under the running code, and held updates
       portfolio.py             plans/idea.md's seven separated portfolio counts and the one-bucket-per-entry partition `status` prints (pure read; predicates defined in its docstring)
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)

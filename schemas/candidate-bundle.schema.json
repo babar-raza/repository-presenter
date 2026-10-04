@@ -49,7 +49,7 @@
     "provider_calls": { "type": "integer", "minimum": 0 },
     "models_used": {
       "type": "object",
-      "description": "route -> the model this run answered it with (core/llm/fallback.py); a consumed input, so a change is a recorded factual update.",
+      "description": "route -> the model this run answered it with (core/llm/fallback.py); a consumed input, so a change is a recorded update scoped by the prompts that route answers.",
       "additionalProperties": { "type": "string", "minLength": 1 }
     },
     "update": {
@@ -59,6 +59,19 @@
       "properties": {
         "available": { "const": true },
         "classification": { "enum": ["presentation", "factual"] },
+        "scopes": {
+          "type": "array",
+          "description": "Every invalidation scope whose consumed input changed, in stage order (components/readme/bundle/invalidation.py).",
+          "items": { "enum": ["facts", "evidence", "reconciliation", "presentation", "planning", "authoring", "validator", "reviewer"] }
+        },
+        "triggering_scope": {
+          "enum": ["facts", "evidence", "reconciliation", "presentation", "planning", "authoring", "validator", "reviewer"],
+          "description": "The scope that decided the state: the facts scope (INVALIDATED) when it changed, else the earliest."
+        },
+        "scope_basis": {
+          "enum": ["inputs", "artifacts"],
+          "description": "inputs: computed from the changed dependencies; artifacts: a rerun's bytes moved with no consumed input changed."
+        },
         "earliest_affected_stage": { "type": ["string", "null"] },
         "changed": { "type": "array", "items": { "type": "string" } },
         "transaction": { "type": "string" },
@@ -79,6 +92,9 @@
       "required": ["classification", "earliest_affected_stage", "changed", "recorded_at", "previous_proof", "adopted_at"],
       "properties": {
         "classification": { "enum": ["presentation", "factual"] },
+        "scopes": { "type": "array", "items": { "enum": ["facts", "evidence", "reconciliation", "presentation", "planning", "authoring", "validator", "reviewer"] } },
+        "triggering_scope": { "enum": ["facts", "evidence", "reconciliation", "presentation", "planning", "authoring", "validator", "reviewer"] },
+        "scope_basis": { "enum": ["inputs", "artifacts"] },
         "earliest_affected_stage": { "type": ["string", "null"] },
         "changed": { "type": "array", "items": { "type": "string" } },
         "recorded_at": { "$ref": "#/$defs/timestamp" },
@@ -96,7 +112,8 @@
       "additionalProperties": false,
       "required": ["check", "causal_stage", "detail", "recorded_at"],
       "properties": {
-        "check": { "type": "string" },
+        "check": { "type": ["string", "null"], "description": "The failing blocking check; null when a changed factual input (the facts scope) invalidated the candidate." },
+        "scope": { "enum": ["facts", "evidence", "reconciliation", "presentation", "planning", "authoring", "validator", "reviewer"], "description": "The invalidation scope that triggered it, when a changed input did." },
         "causal_stage": { "type": ["string", "null"] },
         "detail": { "type": "string" },
         "recorded_at": { "$ref": "#/$defs/timestamp" }
