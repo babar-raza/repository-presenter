@@ -107,7 +107,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.imaging.foss.imageinfo",
-      "text": "Encapsulates core metadata of an image, including its width, height, format, bit depth, and frame count."
+      "text": "Provides metadata about an image, including its width, height, bit depth, frame count, and format, obtained by probing an image source."
     },
     {
       "fact_ids": [
@@ -115,7 +115,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.imaging.foss.imageprobe",
-      "text": "Provides methods to inspect image data from various sources—such as files, streams, or byte arrays—to detect the format and retrieve image metadata."
+      "text": "Enables detection and inspection of image properties by probing image data from files, streams, or byte arrays to determine format and metadata."
     },
     {
       "fact_ids": [
@@ -124,40 +124,50 @@
         "identity:platform",
         "identity:repository",
         "identity:revision",
-        "inherited_unit:008.paragraph",
         "inherited_unit:011.paragraph",
-        "inherited_unit:014.paragraph",
+        "inherited_unit:012.paragraph",
+        "inherited_unit:013.paragraph",
         "package:name",
         "package:target_framework",
         "public_symbol:aspose.imaging.foss"
       ],
       "section": "scope_limitations",
       "slot": "scope",
-      "text": "Aspose.Imaging FOSS for .NET provides a lightweight, open-source imaging library for .NET that focuses on format detection and basic metadata inspection, targeting netstandard2.0 and exposing the Aspose.Imaging.Foss namespace."
+      "text": "Aspose.Imaging FOSS for .NET provides read-only image inspection for DICOM, DjVu, AVIF, and HEIC/HEIF formats on the netstandard2.0 target framework, reporting dimensions, bit depth, and frame or page count where supported."
     },
     {
       "fact_ids": [
-        "inherited_unit:008.paragraph",
         "inherited_unit:011.paragraph",
-        "inherited_unit:014.paragraph",
+        "inherited_unit:012.paragraph",
+        "inherited_unit:013.paragraph",
         "public_symbol:aspose.imaging.foss"
       ],
       "section": "scope_limitations",
       "slot": "limitation:1",
-      "text": "The library does not support decoding, editing, or converting image formats; for those capabilities users should refer to Aspose.Imaging Enterprise Edition."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:011.paragraph",
-        "public_symbol:aspose.imaging.foss"
-      ],
-      "section": "scope_limitations",
-      "slot": "limitation:2",
-      "text": "DICOM parsing supports only Implicit VR Little Endian and Explicit VR Little/Big Endian transfer syntaxes, and halts without further processing when encountering sequences or encapsulated pixel data with undefined length before locating Rows, Columns, or BitsAllocated."
+      "text": "DICOM parsing supports only Implicit VR Little Endian and Explicit VR Little/Big Endian transfer syntaxes, and halts rather than guessing when encountering sequences or encapsulated pixel data with undefined length before finding Rows, Columns, or BitsAllocated."
     },
     {
       "fact_ids": [
         "inherited_unit:014.paragraph",
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "DjVu files report dimensions and frame count from the IFF chunk tree, with multi-page (DJVM) files reporting page count from the DIRM directory chunk and dimensions from the first embedded DJVU page."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:011.paragraph",
+        "inherited_unit:012.paragraph",
+        "inherited_unit:013.paragraph",
+        "inherited_unit:014.paragraph",
+        "package:name",
+        "package:target_framework",
         "public_symbol:aspose.imaging.foss"
       ],
       "section": "scope_limitations",
