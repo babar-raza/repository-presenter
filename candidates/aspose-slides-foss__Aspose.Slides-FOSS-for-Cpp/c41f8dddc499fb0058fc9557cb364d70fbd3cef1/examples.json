@@ -1,0 +1,110 @@
+[
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "example_001.cpp:14:19: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "example_001.cpp: In function 'int main()':\nexample_001.cpp:14:19: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'\n   14 |     auto& shape = slide.shapes().add_auto_shape(ShapeType::RECTANGLE, 50, 50, 400, 150);\n      |                   ^~~~~\nIn file included from include/Aspose/Slides/Foss/picture_fill_format.h:9,\n                 from include/Aspose/Slides/Foss/fill_format.h:14,\n                 from include/Aspose/Slides/Foss/effects/fill_overlay.h:11,\n                 from include/Aspose/Slides/Foss/i_effect_format.h:7,\n                 from include/Aspose/Slides/Foss/effect_format.h:10,\n                 from include/Aspose/Slides/Foss/shape.h:13,\n                 from include/Aspose/Slides/Foss/shape_collection.h:16,\n                 from include/Aspose/Slides/Foss/master_slide.h:12,\n                 from include/Aspose/Slides/Foss/layout_slide.h:11,\n                 from include/Aspose/Slides/Foss/global_layout_slide_collection.h:12,\n                 from include/Aspose/Slides/Foss/presentation.h:14,\n                 from example_001.cpp:1:\ninclude/Aspose/Slides/Foss/picture.h:20:7: note: forward declaration of 'class Aspose::Slides::Foss::Slide'\n   20 | class Slide;\n      |       ^~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "the fence uses `Presentation`, `existing`, `ShapeType`, `SaveFormat` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "example_002.cpp: In function 'int main()':\nexample_002.cpp:3:5: error: 'Presentation' was not declared in this scope\n    3 |     Presentation existing(\"input.pptx\");\n      |     ^~~~~~~~~~~~\nexample_002.cpp:4:5: error: 'existing' was not declared in this scope\n    4 |     existing.slides()[0].shapes().add_auto_shape(ShapeType::ELLIPSE, 100, 100, 200, 200);\n      |     ^~~~~~~~\nexample_002.cpp:4:50: error: 'ShapeType' has not been declared\n    4 |     existing.slides()[0].shapes().add_auto_shape(ShapeType::ELLIPSE, 100, 100, 200, 200);\n      |                                                  ^~~~~~~~~\nexample_002.cpp:5:36: error: 'SaveFormat' has not been declared\n    5 |     existing.save(\"modified.pptx\", SaveFormat::PPTX);\n      |                                    ^~~~~~~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "example_003.cpp:15:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "example_003.cpp: In function 'int main()':\nexample_003.cpp:15:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'\n   15 |     auto& shape = pres.slides()[0].shapes().add_auto_shape(ShapeType::RECTANGLE, 50, 50, 400, 150);\n      |                                   ^\nIn file included from include/Aspose/Slides/Foss/picture_fill_format.h:9,\n                 from include/Aspose/Slides/Foss/fill_format.h:14,\n                 from include/Aspose/Slides/Foss/effects/fill_overlay.h:11,\n                 from include/Aspose/Slides/Foss/i_effect_format.h:7,\n                 from include/Aspose/Slides/Foss/effect_format.h:10,\n                 from include/Aspose/Slides/Foss/shape.h:13,\n                 from include/Aspose/Slides/Foss/shape_collection.h:16,\n                 from include/Aspose/Slides/Foss/master_slide.h:12,\n                 from include/Aspose/Slides/Foss/layout_slide.h:11,\n                 from include/Aspose/Slides/Foss/global_layout_slide_collection.h:12,\n                 from include/Aspose/Slides/Foss/presentation.h:14,\n                 from example_003.cpp:1:\ninclude/Aspose/Slides/Foss/picture.h:20:7: note: forward declaration of 'class Aspose::Slides::Foss::Slide'\n   20 | class Slide;\n      |       ^~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "example_004.cpp:15:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "example_004.cpp: In function 'int main()':\nexample_004.cpp:15:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'\n   15 |     auto& table = pres.slides()[0].shapes().add_table(50, 50, col_widths, row_heights);\n      |                                   ^\nIn file included from include/Aspose/Slides/Foss/picture_fill_format.h:9,\n                 from include/Aspose/Slides/Foss/fill_format.h:14,\n                 from include/Aspose/Slides/Foss/effects/fill_overlay.h:11,\n                 from include/Aspose/Slides/Foss/i_effect_format.h:7,\n                 from include/Aspose/Slides/Foss/effect_format.h:10,\n                 from include/Aspose/Slides/Foss/shape.h:13,\n                 from include/Aspose/Slides/Foss/shape_collection.h:16,\n                 from include/Aspose/Slides/Foss/master_slide.h:12,\n                 from include/Aspose/Slides/Foss/layout_slide.h:11,\n                 from include/Aspose/Slides/Foss/global_layout_slide_collection.h:12,\n                 from include/Aspose/Slides/Foss/presentation.h:14,\n                 from example_004.cpp:1:\ninclude/Aspose/Slides/Foss/picture.h:20:7: note: forward declaration of 'class Aspose::Slides::Foss::Slide'\n   20 | class Slide;\n      |       ^~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "example_005.cpp:13:18: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "example_005.cpp: In function 'int main()':\nexample_005.cpp:13:18: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'\n   13 |     auto& box1 = slide.shapes().add_auto_shape(ShapeType::RECTANGLE, 50, 100, 150, 60);\n      |                  ^~~~~\nIn file included from include/Aspose/Slides/Foss/picture_fill_format.h:9,\n                 from include/Aspose/Slides/Foss/fill_format.h:14,\n                 from include/Aspose/Slides/Foss/effects/fill_overlay.h:11,\n                 from include/Aspose/Slides/Foss/i_effect_format.h:7,\n                 from include/Aspose/Slides/Foss/effect_format.h:10,\n                 from include/Aspose/Slides/Foss/shape.h:13,\n                 from include/Aspose/Slides/Foss/shape_collection.h:16,\n                 from include/Aspose/Slides/Foss/master_slide.h:12,\n                 from include/Aspose/Slides/Foss/layout_slide.h:11,\n                 from include/Aspose/Slides/Foss/global_layout_slide_collection.h:12,\n                 from include/Aspose/Slides/Foss/presentation.h:14,\n                 from example_005.cpp:1:\ninclude/Aspose/Slides/Foss/picture.h:20:7: note: forward declaration of 'class Aspose::Slides::Foss::Slide'\n   20 | class Slide;\n      |       ^~~~~\nexample_005.cpp:14:18: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'\n   14 |     auto& box2 = slide.shapes().add_auto_shape(ShapeType::RECTANGLE, 350, 100, 150, 60);\n      |                  ^~~~~\ninclude/Aspose/Slides/Foss/picture.h:20:7: note: forward declaration of 'class Aspose::Slides::Foss::Slide'\n   20 | class Slide;\n      |       ^~~~~\nexample_005.cpp:15:18: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'\n   15 |     auto& conn = slide.shapes().add_connector(ShapeType::BENT_CONNECTOR3, 0, 0, 10, 10);\n      |                  ^~~~~\ninclude/Aspose/Slides/Foss/picture.h:20:7: note: forward declaration of 'class Aspose::Slides::Foss::Slide'\n   20 | class Slide;\n      |       ^~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "example_006.cpp:13:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "example_006.cpp: In function 'int main()':\nexample_006.cpp:13:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'\n   13 |     auto& shape = pres.slides()[0].shapes().add_auto_shape(ShapeType::RECTANGLE, 100, 100, 200, 100);\n      |                                   ^\nIn file included from include/Aspose/Slides/Foss/picture_fill_format.h:9,\n                 from include/Aspose/Slides/Foss/fill_format.h:14,\n                 from include/Aspose/Slides/Foss/effects/fill_overlay.h:11,\n                 from include/Aspose/Slides/Foss/i_effect_format.h:7,\n                 from include/Aspose/Slides/Foss/effect_format.h:10,\n                 from include/Aspose/Slides/Foss/shape.h:13,\n                 from include/Aspose/Slides/Foss/shape_collection.h:16,\n                 from include/Aspose/Slides/Foss/master_slide.h:12,\n                 from include/Aspose/Slides/Foss/layout_slide.h:11,\n                 from include/Aspose/Slides/Foss/global_layout_slide_collection.h:12,\n                 from include/Aspose/Slides/Foss/presentation.h:14,\n                 from example_006.cpp:1:\ninclude/Aspose/Slides/Foss/picture.h:20:7: note: forward declaration of 'class Aspose::Slides::Foss::Slide'\n   20 | class Slide;\n      |       ^~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "example_007.cpp:12:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "example_007.cpp: In function 'int main()':\nexample_007.cpp:12:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'\n   12 |     auto* notes = pres.slides()[0].notes_slide_manager().add_notes_slide();\n      |                                   ^\nIn file included from include/Aspose/Slides/Foss/picture_fill_format.h:9,\n                 from include/Aspose/Slides/Foss/fill_format.h:14,\n                 from include/Aspose/Slides/Foss/effects/fill_overlay.h:11,\n                 from include/Aspose/Slides/Foss/i_effect_format.h:7,\n                 from include/Aspose/Slides/Foss/effect_format.h:10,\n                 from include/Aspose/Slides/Foss/shape.h:13,\n                 from include/Aspose/Slides/Foss/shape_collection.h:16,\n                 from include/Aspose/Slides/Foss/master_slide.h:12,\n                 from include/Aspose/Slides/Foss/layout_slide.h:11,\n                 from include/Aspose/Slides/Foss/global_layout_slide_collection.h:12,\n                 from include/Aspose/Slides/Foss/presentation.h:14,\n                 from example_007.cpp:1:\ninclude/Aspose/Slides/Foss/picture.h:20:7: note: forward declaration of 'class Aspose::Slides::Foss::Slide'\n   20 | class Slide;\n      |       ^~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "syntax-checked against aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp with g++.EXE (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0 -std=c++20 -fsyntax-only; the library's own CMake build succeeded",
+    "fixtures": [],
+    "ordinal": 8,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "syntax-checked against aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp with g++.EXE (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0 -std=c++20 -fsyntax-only; the library's own CMake build succeeded",
+    "fixtures": [],
+    "ordinal": 9,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  }
+]
