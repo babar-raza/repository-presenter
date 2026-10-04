@@ -18,6 +18,7 @@ import re
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote
 
 from repository_presenter.components.readme.composition.authoring import (
     prose_nouns,
@@ -42,7 +43,10 @@ from repository_presenter.components.readme.composition.policy import (
     policy_packet,
 )
 from repository_presenter.components.readme.evidence.facts.assets import CI_BADGE_FACT_ID
-from repository_presenter.components.readme.evidence.facts.links import extract_links
+from repository_presenter.components.readme.evidence.facts.links import (
+    extract_links,
+    heading_slug,
+)
 from repository_presenter.components.readme.evidence.facts.product_pages import (
     BANNER_FACT_ID,
     ENTERPRISE_FACT_ID,
@@ -68,6 +72,27 @@ _ASPOSE_DOMAINS = ("aspose.com", "aspose.org")
 _SHELL_OWNED_LINKS = frozenset(
     {BANNER_FACT_ID, HOMEPAGE_FACT_ID, ENTERPRISE_FACT_ID, CI_BADGE_FACT_ID}
 )
+
+
+def _unrenderable_anchor_ids(facts: FactsDocument) -> frozenset[str]:
+    """SUPPORTED in-page anchor ``link_target`` IDs the candidate cannot resolve.
+
+    A source README's ``[Redaction](#redaction)`` is a SUPPORTED fact because that heading exists
+    in the *source*; the candidate is re-composed from the shell and renders only the shell's own
+    headings (plus whatever the renderer derives), so any other fragment is a link to nothing.
+    Measured 2026-10-04 on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript (source README of 4,000+
+    lines, headings #forms, #redaction, #markdown ...): the plan assigned ``#redaction`` to
+    documentation_resources and BC-06 failed "no heading #redaction". The shell's own heading
+    slugs stay assignable; navigation is rendered by the renderer, not from the plan.
+    """
+    shell = {heading_slug(section.heading) for section in SEMANTIC_SHELL if section.heading}
+    return frozenset(
+        fact.id
+        for fact in facts.by_kind("link_target")
+        if fact.polarity == "SUPPORTED"
+        and fact.value.startswith("#")
+        and unquote(fact.value[1:]).lower() not in shell
+    )
 
 
 def _supported(facts: FactsDocument, kind: str) -> list[str]:
@@ -548,10 +573,11 @@ def planning_schema(
     # appended by the _missing_links backstop, never written by the model.
     link_properties = properties.get("links", {}).get("items", {}).get("properties", {})
     if "link_fact_id" in link_properties:
+        unrenderable = _unrenderable_anchor_ids(facts)
         assignable = sorted(
             record["id"]
             for record in bounded_records(facts, {"link_target"})
-            if record["id"] not in _SHELL_OWNED_LINKS
+            if record["id"] not in _SHELL_OWNED_LINKS and record["id"] not in unrenderable
         )
         if assignable:
             link_properties["link_fact_id"] = {"type": "string", "enum": assignable}
@@ -566,6 +592,16 @@ def planning_schema(
         hubbable = sorted(visible_symbol_ids - mis_hubbed)
         if hubbable:
             hub_properties["symbol_fact_id"] = {"type": "string", "enum": hubbable}
+            # api_reference is a Required row (README_CONTRACT.md row 14) and plan_checks demands
+            # hubs exactly when it is included, so an empty list is an answer no plan can be
+            # accepted with. Measured 2026-10-04 on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript
+            # (1,151 hubbable symbols, every README example UNRESOLVED so no example is
+            # choosable): qwen3-next wrote api_hubs [] on both attempts, byte-identical at
+            # temperature zero, and the re-ask changed nothing, blocking S5. A rejection message
+            # asks the model to notice its own mistake; minItems makes the mistake impossible to
+            # write, the same reasoning as the enums above.
+            if section_conditions(facts)["api_reference"]:
+                properties["api_hubs"]["minItems"] = 1
         else:
             # The same empty-enum defect as links above: no hub can be named, so none may be.
             properties["api_hubs"] = {"type": "array", "maxItems": 0}
@@ -1026,6 +1062,7 @@ def plan_checks(
     link_facts = {
         fact.id: fact.value for fact in facts.by_kind("link_target") if fact.polarity == "SUPPORTED"
     }
+    unrenderable_anchors = _unrenderable_anchor_ids(facts)
     # Item 125: every link_target a VERIFIED_REWRITE disposition names is a completeness
     # obligation _missing_links' own backstop enforces (RC-01), not a free choice the ceiling
     # trim below may judge the same way it judges the model's own optional links - both used to
@@ -1114,7 +1151,12 @@ def plan_checks(
                 "needs to reference it directly"
             )
             continue
-        if target not in link_facts:
+        if target in unrenderable_anchors and target not in required_link_sections:
+            errors.append(
+                f"link {target!r} is an in-page anchor to a source README heading this document "
+                "does not render; assign a link the candidate can resolve"
+            )
+        elif target not in link_facts:
             errors.append(f"link {target!r} is not a verified link target")
         if section not in included:
             errors.append(
