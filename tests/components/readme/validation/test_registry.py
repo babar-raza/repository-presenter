@@ -1,4 +1,4 @@
-"""The eleven blocking checks: a sound candidate passes nine and pends two; each failure names
+"""The twelve blocking checks: a sound candidate passes ten and pends two; each failure names
 its causal stage; validation.json is deterministic."""
 
 from __future__ import annotations
@@ -8,7 +8,10 @@ import dataclasses
 import hashlib
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
+
+import pytest
 
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
@@ -22,13 +25,16 @@ from repository_presenter.components.readme.composition.renderer import (
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
     Candidate,
+    _check_canonical_name,
     _check_examples,
     _check_install,
     _check_links,
     _check_structure,
+    _edition_substitute_failures,
     _fences,
     _renderer_owned,
     blocking_failures,
+    canonical_name_pattern,
     protected_fragments,
     summarize_validation,
     validate_candidate,
@@ -37,6 +43,7 @@ from repository_presenter.components.readme.validation.registry import (
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
+from support import REPO_ROOT
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -280,9 +287,10 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
         **{f"BC-{i:02d}": "PASS" for i in range(1, 10)},
         "BC-10": "PENDING",
         "BC-11": "PENDING",
+        "BC-12": "PASS",
     }
-    assert document["summary"] == {"pass": 9, "fail": 0, "pending": 2}
-    assert summarize_validation(document) == "pass 9, fail 0, pending 2"
+    assert document["summary"] == {"pass": 10, "fail": 0, "pending": 2}
+    assert summarize_validation(document) == "pass 10, fail 0, pending 2"
     assert document["checks"][9]["judged_at"] == "S10"
     assert document["checks"][10]["details"] == ["judged at S12"]
     assert all(check["causal_stage"] is None for check in document["checks"])
@@ -292,7 +300,9 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # VALIDATOR_VERSION 6 (BC-07 on main took 5; BC-02 v4 refuses a SUPPORTED registry install the
     # registry did not confirm, and lands on the same constant). The checks above pass under the
     # current validator, so only the pin needed to move.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "6"
+    # VALIDATOR_VERSION 7: BC-06 fails the edition substitutes in any letter case and BC-12
+    # (canonical product name) is new; this candidate names no edition and spells its name whole.
+    assert document["source_revision"] == REVISION and document["validator_version"] == "7"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
@@ -1256,6 +1266,14 @@ def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
     assert links["causal_stage"] == "COMPOSING"
     assert links["details"] == ["non-canonical edition name 'Community Edition'"]
 
+    # plans/idea.md L51-53: the lowercase substitute the authoring code once generated fails too.
+    lowercase_edition = validate_candidate(
+        _candidate(readme + "\nThe commercial edition adds FBX export.\n"), tmp_path, ()
+    )
+    links = _failed(lowercase_edition, "BC-06")
+    assert links["causal_stage"] == "COMPOSING"
+    assert links["details"] == ["non-canonical edition name 'commercial edition'"]
+
     stray = validate_candidate(_candidate(readme.replace("`Scene`", "`Unknown`")), tmp_path, ())
     assert _failed(stray, "BC-04")["details"] == ["code span 'Unknown' is not a fact value"]
 
@@ -1797,3 +1815,162 @@ def test_bc_02_accepts_a_source_checkout_fact_that_never_claims_a_verified_build
     # EXTRACTING's acceptance passed.
     missing_render = _check_install(_install_candidate(checkout, "nothing here"))
     assert missing_render and "does not render" in missing_render[0].detail
+
+
+EDITION_SUBSTITUTES = (
+    "commercial edition",
+    "Commercial Edition",
+    "COMMERCIAL EDITION",
+    "On-Premise edition",
+    "on-premises edition",
+    "paid version",
+    "full version",
+    "premium edition",
+    "commercial\nedition",
+)
+
+
+@pytest.mark.parametrize("phrase", EDITION_SUBSTITUTES)
+def test_bc06_fails_every_edition_substitute_in_any_letter_case(
+    phrase: str, tmp_path: Path
+) -> None:
+    sound = _candidate()
+    assert "edition" not in sound.readme.lower().replace("enterprise edition", "")
+    document = validate_candidate(
+        _candidate(sound.readme + f"\nThe {phrase} extends this with more formats.\n"),
+        tmp_path,
+        (),
+    )
+    failure = _failed(document, "BC-06")
+    assert failure["causal_stage"] == "COMPOSING"
+    assert len(failure["details"]) == 1
+    assert failure["details"][0].startswith("non-canonical edition name ")
+
+
+def test_bc06_names_the_section_a_lowercase_edition_substitute_renders_in(tmp_path: Path) -> None:
+    readme = _candidate().readme
+    heading = "## Scope and Limitations"
+    assert heading in readme
+    marked = readme.replace(heading, heading + "\n\nThe commercial edition adds more.", 1)
+    document = validate_candidate(_candidate(marked), tmp_path, ())
+    failures = _failed(document, "BC-06")["failures"]
+    assert [f["section_id"] for f in failures] == ["scope_limitations"]
+
+
+def test_bc06_passes_without_an_edition_phrase_and_ignores_code(tmp_path: Path) -> None:
+    sound = _candidate()
+    assert _verdicts(validate_candidate(sound, tmp_path, ()))["BC-06"] == "PASS"
+    # Enterprise Edition is the one permitted name; code spans and fences are not prose.
+    extra = (
+        "\nIt adds more. Read about the Enterprise Edition.\n"
+        "Run `commercial edition` and see the `full version` flag.\n"
+        "```text\nthe commercial edition and the paid version\n```\n"
+    )
+    document = validate_candidate(_candidate(sound.readme + extra), tmp_path, ())
+    assert _verdicts(document)["BC-06"] == "PASS"
+
+
+CANONICAL = "Aspose.3D FOSS for Python"
+
+
+def _bc12(readme: str, tmp_path: Path) -> list[str]:
+    document = validate_candidate(_candidate(readme), tmp_path, ())
+    check = next(c for c in document["checks"] if c["id"] == "BC-12")
+    return list(check["details"]) if check["verdict"] == "FAIL" else []
+
+
+@pytest.mark.parametrize(
+    "variant",
+    [
+        "Aspose.3D.FOSS for Python",
+        "Aspose.3D-FOSS for Python",
+        "Aspose.3D_FOSS for Python",
+        "Aspose 3D FOSS for Python",
+        "Aspose3D FOSS for Python",
+        "Aspose.3D.FOSS.for.Python",
+        "aspose.3d foss for python",
+        "ASPOSE.3D FOSS FOR PYTHON",
+        "Aspose.3D FOSS",
+        "Aspose.3D.FOSS",
+        "Aspose.3D FOSS for Java",
+    ],
+)
+def test_bc12_fails_a_product_name_variant_in_prose(variant: str, tmp_path: Path) -> None:
+    sound = _candidate().readme
+    assert _bc12(sound, tmp_path) == []
+    details = _bc12(sound + f"\n{variant} provides core scene management.\n", tmp_path)
+    assert len(details) == 1, details
+    assert f"is not the canonical name {CANONICAL!r}" in details[0]
+
+
+def test_bc12_passes_the_canonical_name_and_technical_identifiers(tmp_path: Path) -> None:
+    sound = _candidate().readme
+    assert CANONICAL in sound
+    spelled = (
+        f"\n{CANONICAL} provides core scene management.\n"
+        "The package is named aspose-3d-foss at version 26.1.0.\n"
+        "Install the aspose-3d-foss package or import `Aspose.3D.FOSS`.\n"
+        "The namespace Aspose.3D.FOSS exposes the scene types.\n"
+        "Built with Aspose.3D.FOSS version 26.1.0 for netstandard2.0.\n"
+        "```text\nAspose.3D.FOSS for Python and aspose_3d_foss\n```\n"
+        "See [the repository](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python).\n"
+        "Compare with Aspose.3D for Python, the product page's own name.\n"
+    )
+    assert _bc12(sound + spelled, tmp_path) == []
+
+
+def test_bc12_names_the_section_and_routes_to_composing(tmp_path: Path) -> None:
+    readme = _candidate().readme
+    heading = "## Scope and Limitations"
+    marked = readme.replace(heading, heading + "\n\nAspose.3D.FOSS opens every format.", 1)
+    document = validate_candidate(_candidate(marked), tmp_path, ())
+    failure = _failed(document, "BC-12")
+    assert failure["causal_stage"] == "COMPOSING"
+    assert [f["section_id"] for f in failure["failures"]] == ["scope_limitations"]
+
+
+def test_canonical_name_pattern_is_built_from_the_name_alone() -> None:
+    pattern = canonical_name_pattern("Aspose.Words FOSS for .NET")
+    found = [
+        m.group(0) for m in pattern.finditer("Aspose.Words.FOSS for .NET and aspose words-foss")
+    ]
+    assert found == ["Aspose.Words.FOSS for .NET", "aspose words-foss"]
+    # A name with no FOSS segment must match whole.
+    whole = canonical_name_pattern("Aspose.Page for Python")
+    assert [m.group(0) for m in whole.finditer("Aspose.Page for Python; Aspose.Page")] == [
+        "Aspose.Page for Python"
+    ]
+
+
+# The sealed README that carries the bad forms (docs/DECISION_LOG.md 2026-10-05, verification V2
+# items 1 and 4): lowercase "commercial edition" on line 550 and "Aspose.3D.FOSS" standing in for
+# the product name on lines 169, 550 and 554. The revision directory is immutable; the bundle is
+# read, never edited.
+SEALED_3D_NET = (
+    REPO_ROOT
+    / "candidates"
+    / "aspose-3d-foss__Aspose.3D-FOSS-for-.NET"
+    / "52b0f00ebf28a0b4173921725ff170685ec2c502"
+    / "README.md"
+)
+
+
+def test_the_real_sealed_readme_with_the_bad_forms_fails_bc06_and_bc12() -> None:
+    if not SEALED_3D_NET.is_file():
+        pytest.skip("the pinned sealed revision is not in this checkout")
+    readme = SEALED_3D_NET.read_text(encoding="utf-8")
+    registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text(encoding="utf-8"))
+    entry = RegistryEntry.model_validate(
+        next(e for e in registry["entries"] if e["repository"].endswith("Aspose.3D-FOSS-for-.NET"))
+    )
+    editions = [f.detail for f in _edition_substitute_failures(readme)]
+    assert editions == ["non-canonical edition name 'commercial edition'"]
+    names = [f.detail for f in _check_canonical_name(SimpleNamespace(entry=entry, readme=readme))]
+    canonical = "Aspose.3D FOSS for .NET"
+    assert {name.split(" is not")[0] for name in names} == {
+        "product name 'Aspose.3D.FOSS for .NET'",
+        "product name 'Aspose.3D.FOSS'",
+    }
+    assert all(name.endswith(f"canonical name {canonical!r}") for name in names)
+    # The H1 the renderer owns is the canonical name and is not itself flagged.
+    assert readme.splitlines()[0] == "# Aspose.3D FOSS for .NET"

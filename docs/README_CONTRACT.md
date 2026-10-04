@@ -226,7 +226,7 @@ license statement, validation, sealing, no-op proof, and state.
 
 ## 5. Blocking checks
 
-Exactly these eleven block acceptance at G1. Everything else is advisory until contract v1 freezes.
+Exactly these twelve block acceptance at G1. Everything else is advisory until contract v1 freezes.
 
 | # | Check | Sections |
 |---|---|---|
@@ -235,12 +235,13 @@ Exactly these eleven block acceptance at G1. Everything else is advisory until c
 | 3 | Every rendered example was executed or compiled in isolation at this revision | `quick_start`, `additional_examples` |
 | 4 | Every content unit's fact IDs exist, are `SUPPORTED`, and lie within the fact set the plan assigned to that unit's slot — a capability description cites its own title's facts, never another slot's, and the capability's title is supported by the facts its unit cites; every identifier in prose is a fact value in a code span | `opening`, `key_capabilities`, `scope_limitations`, `api_reference`, `documentation_resources`, `enterprise_relationship` |
 | 5 | Every material inherited unit has exactly one disposition; placed units appear in their destination | all |
-| 6 | Every link resolves; Aspose links are contextual and within ceilings; "Enterprise Edition" is the only edition name; no unsafe raw HTML (`<script>`/`<iframe>`/an event-handler attribute, or a `javascript:` or `vbscript:` scheme at a URL position - a link or image destination, a reference definition, an autolink, or a URL-bearing attribute value; prose that merely contains the words is not a URL) renders outside a fenced code block | `documentation_resources`, `enterprise_relationship`, `badges` |
+| 6 | Every link resolves; Aspose links are contextual and within ceilings; "Enterprise Edition" is the only edition name (no substitute such as "commercial edition" or "paid version", in any letter case — `plans/idea.md` L51-53); no unsafe raw HTML (`<script>`/`<iframe>`/an event-handler attribute, or a `javascript:` or `vbscript:` scheme at a URL position - a link or image destination, a reference definition, an autolink, or a URL-bearing attribute value; prose that merely contains the words is not a URL) renders outside a fenced code block | `documentation_resources`, `enterprise_relationship`, `badges` |
 | 7 | Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the visible-length budget (content inside `<details>` is unbounded but verified) | structure |
 | 8 | Protected content preserved | all |
 | 9 | No configured secret in the bundle | bundle |
 | 10 | Independent review returns `ACCEPT` with the reviewer identity separate from authoring, and no advisory is left on a required row (§6) | review |
 | 11 | Fresh-process rerun from an empty `runs/` directory is byte-identical with zero provider calls | bundle |
+| 12 | Every product-name position in the prose spells the registry's canonical product name exactly (row 1 of §2; `plans/idea.md` L84-85): no separator, case, or suffix variant such as `Aspose.3D.FOSS` for `Aspose.3D FOSS for .NET`; exact technical identifiers stay in code spans, or beside a package/namespace/version cue | all |
 
 Advisory at G1, candidates for v1 blocking at G2: search-intent lineage per title, prose quality
 (sentence length, hedges, superlatives), navigation completeness, badge floor, dependency claim

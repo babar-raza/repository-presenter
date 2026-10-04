@@ -248,11 +248,30 @@ _TYPE_OBJECTIVE = (
 # aspose-slides-foss/Aspose.Slides-FOSS-for-Java (BC-10 F08, 2026-10-04): the test-suite and
 # conformance-rule paragraphs were SUPERSEDE_REDUNDANT into this section, yet section_selections
 # gave the authoring call only the build_test_asset facts, so no unit could state them.
-NORMALISATION_VERSION = "20"
+# 21: the enterprise_relationship rewrite of "Enterprise Edition" into "commercial edition" is
+# gone, and an authored unit that names any edition substitute is rejected instead. plans/idea.md
+# L51-53 allows exactly one edition name (Enterprise Edition) and forbids "commercial edition" and
+# every other substitute; the old rewrite generated the forbidden phrase into 19 sealed READMEs
+# while BC-06 only matched capitalised forms. The model now writes the context sentence with no
+# edition phrase at all (the renderer's shell sentence names the Enterprise Edition once).
+NORMALISATION_VERSION = "21"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
-# "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
-# proper name the shell already carries.
-_EDITION = re.compile(r"\bEnterprise Edition\b")
+# plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
+# "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
+# The substitutes are matched case-insensitively (the lowercase "commercial edition" is the form
+# the old code generated). Shared with validation/registry.py BC-06, so authoring rejects at the
+# earliest stage exactly what the blocking check would fail later.
+EDITION_SUBSTITUTE = re.compile(
+    r"(?i)\b(?:commercial|on[- ]?premises?|premium|paid|full|licensed|proprietary)[\s-]+"
+    r"(?:edition|version)s?\b"
+)
+
+
+def edition_substitutes(text: str) -> list[str]:
+    """The forbidden edition substitutes ``text`` names, each as written, in order."""
+    return [match.group(0) for match in EDITION_SUBSTITUTE.finditer(text)]
+
+
 # The words of a capability title, extensions included, so the concrete things a title names
 # can be looked for among the formats the facts record.
 _TITLE_WORD = re.compile(r"[A-Za-z0-9.]+")
@@ -408,9 +427,12 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one unit of two to four sentences",
     ),
     "enterprise_relationship": (
-        "At most one sentence on what the commercial edition adds beyond this package, only "
-        "from the accepted facts (the existing README's own statements); never the words "
-        "Enterprise Edition, which the renderer names exactly once; empty when no fact says.",
+        "At most one sentence on what the commercial product adds beyond this package, only "
+        "from the accepted facts (the existing README's own statements). The renderer prints a "
+        "sentence naming the Enterprise Edition directly before this one, so refer back to it "
+        "as 'it' or 'that product'; never write an edition or version label for it, "
+        "the proper name included, since the renderer prints the only permitted one; "
+        "empty when no fact says.",
         "one unit of at most one sentence",
     ),
 }
@@ -1592,20 +1614,22 @@ def unit_checks(
             f"got {', '.join(str(slot) for slot in slots_seen)}"
         )
     # README_CONTRACT.md row 18: the shell's closing sentence names the Enterprise Edition
-    # exactly once, so the authored context sentence never repeats the name. The code owns that
-    # canonical form, so it normalises the repeat away rather than re-asking the model and
-    # rejecting the reply (docs/RESEARCH_AND_GUIDELINES.md section 27.10); the check stays and
-    # still fails for a name the normalisation cannot reach.
-    if task.section_id == "enterprise_relationship":
-        for unit in output.get("units", []):
-            unit["text"] = _EDITION.sub("commercial edition", str(unit.get("text", "")))
+    # exactly once, so the authored context sentence never repeats the name. plans/idea.md
+    # L51-53 forbids every other edition name, so no unit of any section may name a substitute.
+    # Neither is rewritten here: the only wording the code could insert is a forbidden one, so
+    # the unit is rejected and the model re-asked (a code-inserted substitute is what put
+    # "commercial edition" into 19 sealed READMEs).
     for unit in output.get("units", []):
-        if task.section_id == "enterprise_relationship" and "Enterprise Edition" in str(
-            unit.get("text", "")
-        ):
+        text = str(unit.get("text", ""))
+        if task.section_id == "enterprise_relationship" and "Enterprise Edition" in text:
             errors.append(
                 f"unit {unit.get('slot')}: names the Enterprise Edition; the shell's closing "
                 "sentence names it exactly once"
+            )
+        for phrase in edition_substitutes(text):
+            errors.append(
+                f"unit {unit.get('slot')}: names the edition as {phrase!r}; Enterprise Edition is "
+                "the only edition name and the shell prints it, so name no edition"
             )
     # G4-W17 arrival item 99 (E19): a slot's title is printed immediately before its unit
     # (the packet's own title_rule already tells the model this), so a unit's own text

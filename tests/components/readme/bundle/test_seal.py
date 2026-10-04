@@ -198,10 +198,10 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert document["components"] == {
         "shell": "6",
         "renderer": "26",
-        "normalisation": "20",
+        "normalisation": "21",
         "reviewer_logic": "14",
     }
-    assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 11
+    assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 12
     assert document["acceptance_profile_version"] == "1"
     assert document["protected_content_fingerprint"] == "f" * 64
     assert len(document["policy"]["sha256"]) == 64 and document["policy"]["version"] == "1"

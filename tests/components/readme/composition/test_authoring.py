@@ -12,6 +12,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.composition.authoring import (
+    _OBJECTIVES,
     AUTHORED_SECTIONS,
     SectionTask,
     _fact_direction,
@@ -24,6 +25,7 @@ from repository_presenter.components.readme.composition.authoring import (
     cited_inherited_identifiers,
     command_block_tokens,
     command_lines,
+    edition_substitutes,
     forbidden_text_pattern,
     identifier_allowed,
     identifier_tokens,
@@ -2168,15 +2170,16 @@ def test_a_slot_is_told_what_the_renderer_already_prints_beside_it() -> None:
     assert "renders" not in tasks["opening"].packet["objective"]
 
 
-def test_the_enterprise_context_never_repeats_the_edition_name() -> None:
-    # README_CONTRACT.md row 18: the shell names the Enterprise Edition exactly once.
+def test_the_enterprise_context_never_repeats_or_substitutes_the_edition_name() -> None:
+    # README_CONTRACT.md row 18: the shell names the Enterprise Edition exactly once; plans/
+    # idea.md L51-53: no other edition name exists. The code inserts no edition phrase at all.
     task = SectionTask(
         "enterprise_relationship", {}, frozenset({"identity:repository"}), ("context",)
     )
 
-    def unit(text: str) -> dict[str, object]:
+    def unit(text: str, section: str = "enterprise_relationship") -> dict[str, object]:
         return {
-            "section": "enterprise_relationship",
+            "section": section,
             "slot": "context",
             "text": text,
             "fact_ids": ["identity:repository"],
@@ -2188,27 +2191,43 @@ def test_the_enterprise_context_never_repeats_the_edition_name() -> None:
         )
         == []
     )
-    # The code owns the canonical form, so a repeat is normalised away rather than re-asked
-    # (RESEARCH_AND_GUIDELINES.md section 27.10); the sentence keeps its meaning and the shell
-    # still names the edition exactly once.
+    # A repeat of the name is rejected and left byte-for-byte as the model wrote it: the old
+    # rewrite into "commercial edition" generated the very phrase idea.md forbids.
     repeated = {"units": [unit("The Enterprise Edition adds FBX export.")], "omitted": []}
-    assert unit_checks(repeated, task, FACTS, NAME) == []
-    assert repeated["units"][0]["text"] == "The commercial edition adds FBX export."
-    # The normalisation is confined to the section whose shell sentence carries the name.
-    elsewhere = SectionTask("opening", {}, frozenset({"identity:repository"}), ("opening",))
-    other = {
-        "units": [
-            {
-                "section": "opening",
-                "slot": "opening",
-                "text": "The Enterprise Edition adds FBX export.",
-                "fact_ids": ["identity:repository"],
-            }
-        ],
-        "omitted": [],
-    }
+    errors = unit_checks(repeated, task, FACTS, NAME)
+    assert len(errors) == 1 and "names the Enterprise Edition" in errors[0]
+    assert repeated["units"][0]["text"] == "The Enterprise Edition adds FBX export."
+    # Negative control: the old rewrite's output now fails, in any letter case, in any section.
+    for text in (
+        "The commercial edition adds FBX export.",
+        "The Commercial Edition adds FBX export.",
+        "A paid version adds FBX export.",
+        "The on-premise edition adds FBX export.",
+        "The full\nversion adds FBX export.",
+    ):
+        for section, section_task in (
+            ("enterprise_relationship", task),
+            (
+                "opening",
+                SectionTask("opening", {}, frozenset({"identity:repository"}), ("context",)),
+            ),
+        ):
+            substituted = {"units": [unit(text, section)], "omitted": []}
+            errors = unit_checks(substituted, section_task, FACTS, NAME)
+            assert any("names the edition as" in error for error in errors), (text, section)
+            assert substituted["units"][0]["text"] == text
+    # Outside the Enterprise section the proper name is not this unit check's concern.
+    elsewhere = SectionTask("opening", {}, frozenset({"identity:repository"}), ("context",))
+    other = {"units": [unit("The Enterprise Edition adds FBX export.", "opening")], "omitted": []}
     assert unit_checks(other, elsewhere, FACTS, NAME) == []
-    assert other["units"][0]["text"] == "The Enterprise Edition adds FBX export."
+    # The objective given to the model asks for no edition phrase and uses none itself.
+    objective = authoring_tasks(ENTRY, FACTS, INVESTIGATION, DISPOSITIONS, PLAN)
+    for task_ in objective:
+        assert not edition_substitutes(str(task_.packet.get("objective", "")))
+    assert not edition_substitutes(_OBJECTIVES["enterprise_relationship"][0])
+    manifest = load_manifests(REPO_ROOT / "prompts")["section_authoring"].manifest
+    assert not edition_substitutes(manifest.system)
+    assert "Call the commercial product only" not in manifest.system
 
 
 def test_a_unit_never_restates_its_own_slots_title() -> None:
