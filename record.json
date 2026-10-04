@@ -3,7 +3,7 @@
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "provider_repository_id": 1138357893,
   "registry_revision": null,
-  "active_transaction_id": "2658f49168c1421babdf7f892df6c0df",
+  "active_transaction_id": "d5b66209dd384bd6b6e921310d7c0d71",
   "state": "READY_FOR_PROPOSAL",
   "source": null,
   "surfaces": {},
@@ -17,7 +17,13 @@
   "accepted_artifact": null,
   "proposal": null,
   "failure": null,
-  "lease": null,
+  "lease": {
+    "holder_id": "present.yml:37197380582",
+    "acquired_at": "2026-10-04T11:03:16.590131+00:00",
+    "heartbeat_at": "2026-10-04T11:03:16.590131+00:00",
+    "expires_at": "2026-10-04T11:18:16.590131+00:00",
+    "fencing_token": 1
+  },
   "last_transition": {
     "transition_id": "e70fa76ba60c4437bbb293622059b83f",
     "transaction_id": "25b7a7da2459460f840d3080ec2bfbd2",
@@ -32,13 +38,14 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 51,
+  "state_version": 52,
   "recent_trigger_dedup_keys": {
     "run:36846316608:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "c10d0e8f3981420db933efcf16457339",
     "run:36846738278:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "7483865b14ff4539a5bf0e709a64d326",
     "run:36849829170:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "d974c0355ca541348285a31c667f7952",
     "run:36850716408:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "25b7a7da2459460f840d3080ec2bfbd2",
-    "run:37193824462:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "2658f49168c1421babdf7f892df6c0df"
+    "run:37193824462:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "2658f49168c1421babdf7f892df6c0df",
+    "run:37197380582:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "d5b66209dd384bd6b6e921310d7c0d71"
   },
   "recovery_count": 5
 }
