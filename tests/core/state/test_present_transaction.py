@@ -568,3 +568,38 @@ def test_a_failing_rerun_from_invalidated_stays_invalidated_without_an_illegal_h
     assert record is not None
     assert record.state == "INVALIDATED"
     assert record.lease is None
+
+
+def test_a_failing_rerun_of_a_proven_candidate_keeps_it_ready_and_records_the_failure() -> None:
+    """Reproduces the second hosted defect (run 37193824462): a repository already at
+    READY_FOR_PROPOSAL whose next run's reviewer output is rejected twice crashed the wrapper with
+    "'READY_FOR_PROPOSAL' -> 'FAILED_INTERNAL' is not in the transition registry". No edge exists
+    from READY_FOR_PROPOSAL to FAILED_INTERNAL, and a run that reached no verdict is no evidence
+    against the proven candidate, so the state stands and the failure is recorded, not hopped."""
+    backend = InMemoryStateBackend()
+    run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=_classify_always(_READY),
+        workflow_run_id="run-1",
+    )
+
+    exit_code = run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 1,
+        classify=_classify_always(_FAILED),
+        workflow_run_id="run-2",
+    )
+    assert exit_code == 1
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "READY_FOR_PROPOSAL"
+    assert record.failure is not None
+    assert record.failure.detail == "synthetic failure"
+    assert record.lease is None

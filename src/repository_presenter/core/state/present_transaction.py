@@ -53,12 +53,16 @@ from uuid import uuid4
 from repository_presenter.core.candidates import CANDIDATES_DIRNAME, CURRENT_FILENAME, verify_bundle
 from repository_presenter.core.errors import StateBackendError
 from repository_presenter.core.registry.models import RegistryEntry
-from repository_presenter.core.state.cas import StateBackend, record_transition, release_lease
+from repository_presenter.core.state.cas import (
+    StateBackend,
+    record_transition,
+    release_lease,
+    save_state_patch,
+)
 from repository_presenter.core.state.recovery import recovery_sweep, resume_recoverable
 from repository_presenter.core.state.schema import (
     FailureRecord,
     LeaseRecord,
-    RepositoryRecord,
     TransactionState,
 )
 from repository_presenter.core.state.trigger import (
@@ -236,6 +240,18 @@ def _success_hops(
     )
 
 
+def _failure_record(outcome: PresentOutcome) -> FailureRecord:
+    return FailureRecord(
+        classification="validation_failed",
+        detail=outcome.detail or "present reported a failure",
+        # Informational only: neither FAILED_INTERNAL nor INVALIDATED is auto-resumed by
+        # recovery_sweep; a later trigger re-enters through this module's own admit_trigger path
+        # regardless of what resume_state names.
+        resume_state="SNAPSHOTTING",
+        occurred_at=_now_iso(),
+    )
+
+
 def _commit_outcome(
     backend: StateBackend,
     repository: str,
@@ -246,6 +262,19 @@ def _commit_outcome(
 ) -> None:
     output_manifest = f"candidates/{repository.replace('/', '__', 1)}/CURRENT"
     input_manifest = f"registry:{repository}"
+    if outcome.kind == "failed" and current_state == "READY_FOR_PROPOSAL":
+        # READY_FOR_PROPOSAL has no registered edge to FAILED_INTERNAL (schema.py), and INVALIDATED
+        # is reserved for a failed check on the candidate itself (components/readme/bundle/seal.py's
+        # invalidates()). A run that could not reach a verdict - e.g. the reviewer's output rejected
+        # twice on a fresh draw, observed live on hosted run 37193824462 - says nothing against the
+        # already proven candidate, so the state stands and the failure is recorded without a hop.
+        save_state_patch(
+            backend,
+            repository,
+            lambda record: record.model_copy(update={"failure": _failure_record(outcome)}),
+            provider_repository_id=provider_repository_id,
+        )
+        return
     if outcome.kind == "failed":
         target = _failure_target(current_state)
         if current_state == target:
@@ -257,21 +286,6 @@ def _commit_outcome(
             # re-writing the same state a second time.
             return
 
-        def mark_failed(record: RepositoryRecord) -> RepositoryRecord:
-            return record.model_copy(
-                update={
-                    "failure": FailureRecord(
-                        classification="validation_failed",
-                        detail=outcome.detail or "present reported a failure",
-                        # Informational only: neither FAILED_INTERNAL nor INVALIDATED is
-                        # auto-resumed by recovery_sweep; a later trigger re-enters through this
-                        # module's own admit_trigger path regardless of what resume_state names.
-                        resume_state="SNAPSHOTTING",
-                        occurred_at=_now_iso(),
-                    )
-                }
-            )
-
         record_transition(
             backend,
             repository,
@@ -282,7 +296,7 @@ def _commit_outcome(
             output_manifest=output_manifest,
             policy_version=POLICY_VERSION,
             provider_repository_id=provider_repository_id,
-            patch=mark_failed,
+            patch=lambda record: record.model_copy(update={"failure": _failure_record(outcome)}),
         )
         return
 
