@@ -302,6 +302,82 @@ def create_issue(
     return CreatedIssue(number=int(response_body["number"]), url=str(response_body["html_url"]))
 
 
+ISSUE_LIST_PAGE_SIZE = 100
+ISSUE_LIST_MAX_PAGES = 10
+
+
+def find_issue_with_marker(
+    owner: str,
+    name: str,
+    marker: str,
+    *,
+    token: str | None,
+    fetch: FetchFn = default_fetch,
+) -> CreatedIssue | None:
+    """The issue (open or closed, never a pull request) whose body contains ``marker``, or ``None``.
+
+    This is the remote half of the filer's dedup: a scheduled run starts from a fresh checkout whose
+    handoff may still read ``HANDOFF_PENDING``, so the upstream issue body itself must prove the
+    defect was already filed. ``None`` is returned only after every page was read and none matched.
+    Raises :class:`RepositoryMetadataError` when the scan is incomplete (an error, or more than
+    ``ISSUE_LIST_MAX_PAGES`` full pages) - absence is never inferred from a partial read.
+    """
+    for page in range(1, ISSUE_LIST_MAX_PAGES + 1):
+        url = (
+            f"{API_ROOT}/repos/{owner}/{name}/issues"
+            f"?state=all&per_page={ISSUE_LIST_PAGE_SIZE}&page={page}"
+        )
+        status_code, body = fetch(url, token)
+        if status_code == -1:
+            raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+        if status_code != 200 or not isinstance(body, list):
+            raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+        for item in body:
+            if not isinstance(item, dict) or "pull_request" in item:
+                continue
+            text = item.get("body")
+            if isinstance(text, str) and marker in text:
+                number = item.get("number")
+                html_url = item.get("html_url")
+                if not isinstance(number, int) or not isinstance(html_url, str):
+                    raise RepositoryMetadataError(
+                        f"{owner}/{name}: matching issue has no usable number/html_url"
+                    )
+                return CreatedIssue(number=number, url=html_url)
+        if len(body) < ISSUE_LIST_PAGE_SIZE:
+            return None
+    raise RepositoryMetadataError(
+        f"{owner}/{name}: more than {ISSUE_LIST_MAX_PAGES} pages of issues - cannot prove absence"
+    )
+
+
+def close_issue(
+    owner: str,
+    name: str,
+    number: int,
+    *,
+    state_reason: str,
+    token: str,
+    write: WriteFn = default_patch,
+) -> None:
+    """``PATCH /repos/{owner}/{repo}/issues/{number}`` with ``state: closed`` and GitHub's own
+    ``state_reason`` (``completed`` or ``not_planned``).
+
+    Raises :class:`RepositoryMetadataError` on anything but a well-formed HTTP 200. Closing an
+    already-closed issue is GitHub-idempotent, so a re-run never fails on it.
+    """
+    if state_reason not in ("completed", "not_planned"):
+        raise ValueError(f"unsupported state_reason {state_reason!r}")
+    if not token:
+        raise RepositoryMetadataError(f"{owner}/{name}: PATCH refused - no write-scoped token")
+    url = f"{API_ROOT}/repos/{owner}/{name}/issues/{number}"
+    status_code, body = write(url, token, {"state": "closed", "state_reason": state_reason})
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200:
+        raise RepositoryMetadataError(f"{owner}/{name}: PATCH {url} returned HTTP {status_code}")
+
+
 # ---------------------------------------------------------------------------
 # Proposal effect: branch, contents, and pull-request primitives
 # (components/propose/effect.py's own gated caller, not this module).
