@@ -266,7 +266,12 @@ or it blocks, reported as the transaction's outcome rather than retried a third 
 attempts are one per equivalent fingerprint; the second failure changes evidence, prompt, model
 route, or stage. A finding that alleges an absence states what it claims is missing as text the
 code can look for; a string it names that the candidate does contain refutes the finding, which is
-recorded with its reason. A required row of §2 admits zero advisories left standing before
+recorded with its reason. A finding may state the same claim as a typed `omission` — the section and
+the fact or example IDs and exact phrases it says are missing; code, never the reviewer, decides:
+every named ID or phrase present in that section's rendered text refutes it, an ID no SUPPORTED fact
+carries or a phrase in no original text is nothing to restore and refutes it too, any one truly
+absent upholds it and routes the repair to the named section, and a claim naming nothing checkable
+is advisory with its reason. A required row of §2 admits zero advisories left standing before
 `READY_FOR_PROPOSAL`: an advisory is deferred repair work, not accepted work, so a finding nothing
 contradicted, against a section every candidate must have, blocks and is reported. A refuted
 finding is not deferred work — no revision could act on it — so it never blocks; `review.json`

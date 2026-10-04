@@ -238,6 +238,12 @@ def review_defects(
         if remaining is not None:
             record["absent_as_returned"] = list(finding.get("absent", []))
             record["absent"] = list(remaining)
+        omitted = finding.get("omission_remaining")
+        if omitted is not None and isinstance(finding.get("omission"), dict):
+            # The typed omission claim, narrowed the same way: ids/phrases the section already
+            # renders (or that nothing may restore) are not handed to the repair as work.
+            record["omission_as_returned"] = dict(finding["omission"])
+            record["omission"] = {**finding["omission"], **omitted}
         defects.append(
             Defect(
                 defect_fingerprint("review", section, stage or named, criterion, context),
