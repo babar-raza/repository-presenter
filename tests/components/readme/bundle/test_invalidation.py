@@ -10,6 +10,10 @@ from typing import Any
 
 import pytest
 
+from repository_presenter.components.readme.bundle.dry_run import (
+    held_updates,
+    portfolio_routing,
+)
 from repository_presenter.components.readme.bundle.evaluation import evaluate
 from repository_presenter.components.readme.bundle.invalidation import (
     COMPONENT_SCOPES,
@@ -26,10 +30,6 @@ from repository_presenter.components.readme.bundle.invalidation import (
     route,
     scope_of,
     scope_of_artifact,
-)
-from repository_presenter.components.readme.bundle.portfolio import (
-    held_updates,
-    portfolio_routing,
 )
 from repository_presenter.components.readme.bundle.seal import (
     DEPENDENCIES_FILENAME,

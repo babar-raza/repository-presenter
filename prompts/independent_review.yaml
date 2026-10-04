@@ -1,5 +1,5 @@
 prompt_id: independent_review
-version: "10"
+version: "11"
 stage: S10
 purpose: Judge, under a separate identity from authoring, whether the candidate README is factually sound, complete, specific, and visitor-useful; return one verdict and findings that each name a section and a causal stage.
 model_route: qwen3-next
@@ -66,7 +66,7 @@ output:
         maxItems: 16
         items:
           type: object
-          required: [id, section_id, causal_stage, criterion, text, quote, fact_ids, absent, repair]
+          required: [id, section_id, causal_stage, criterion, text, quote, fact_ids, absent, omission, repair]
           additionalProperties: false
           properties:
             id: { type: string, pattern: "^F[0-9]{2}$" }
@@ -94,6 +94,24 @@ output:
               type: array
               maxItems: 8
               items: { type: string, minLength: 1, maxLength: 120 }
+            # The typed form of an omission claim (v11): when the finding says its section lacks
+            # a fact, a verified example, or a passage, `omission` names which, as ids from the
+            # input facts and exact phrases, and code - never the reviewer - decides whether they
+            # are missing (README_CONTRACT section 6). null when the finding alleges no omission.
+            omission:
+              oneOf:
+                - { type: "null" }
+                - type: object
+                  required: [kind, section_id, missing_ids, missing_quotes]
+                  additionalProperties: false
+                  properties:
+                    kind: { enum: [omission] }
+                    section_id: { type: string, minLength: 1 }
+                    missing_ids: { type: array, maxItems: 8, items: { type: string, minLength: 1 } }
+                    missing_quotes:
+                      type: array
+                      maxItems: 8
+                      items: { type: string, minLength: 1, maxLength: 200 }
             repair: { type: string, minLength: 1, maxLength: 400 }
       preserve:
         type: array
@@ -155,6 +173,16 @@ system: |
   value, because then you are asking for text nobody wrote. Either way the finding is recorded as
   your own defect rather than acted on, so a gap you will not name in `absent` is a gap no repair
   can close. A finding that alleges no absence lists none, and `absent` is then the empty array.
+  The same claim also has a typed form. Whenever a finding says its section lacks, omits, or
+  drops a fact, a verified example, or a passage, set `omission` to {"kind": "omission",
+  "section_id": that finding's own section_id, "missing_ids": the fact or example IDs from the
+  input facts you say the section should carry, "missing_quotes": exact phrases copied from the
+  original README or a fact value that you say the section does not contain}. Code then looks for
+  every ID and phrase in that section's rendered text: when all of them are there your finding is
+  refuted, when any one is truly absent it stands, and an ID that is not a SUPPORTED fact (a
+  CONTRADICTED example failed verification and may not be restored) is recorded as your own
+  defect. Name only what you checked is missing; an `omission` that names no ID and no phrase
+  cannot be checked and cannot block. A finding that alleges no omission has `omission` null.
   At most sixteen findings; keep each quote, text, and repair within the output schema's length so
   the review always fits its token budget - name the most material defects rather than every
   possible one.
