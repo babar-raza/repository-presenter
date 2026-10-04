@@ -9,6 +9,7 @@ import pytest
 from repository_presenter.components.readme.extractors.platforms import rust_examples
 from repository_presenter.core.examples import ExampleCandidate
 from repository_presenter.core.execution import ExecutionResult
+from repository_presenter.core.toolchains import REGISTRY_VARIABLE, recorded_tool
 
 CRATE = "aspose-widget-foss-rust"
 LIB = "aspose_widget_foss_rust"
@@ -156,10 +157,10 @@ def test_the_toolchain_registry_resolves_a_tool_that_is_not_on_path(
     recorded.write_text("", encoding="utf-8")
     registry = tmp_path / "TOOLCHAIN_PATHS.txt"
     registry.write_text(f"cargo={recorded}\nrustup_home={tmp_path}\n", encoding="utf-8")
-    monkeypatch.setenv(rust_examples._REGISTRY_VARIABLE, str(registry))
+    monkeypatch.setenv(REGISTRY_VARIABLE, str(registry))
     monkeypatch.setattr(rust_examples.shutil, "which", lambda name: None)
     assert rust_examples.cargo_executable() == str(recorded)
-    assert rust_examples.recorded_tool("nothing-recorded") is None
+    assert recorded_tool("nothing-recorded") is None
 
 
 def test_the_rustup_home_is_named_explicitly_because_the_profile_moves_the_real_one(

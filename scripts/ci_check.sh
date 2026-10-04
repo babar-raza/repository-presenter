@@ -9,6 +9,8 @@
 #   RP_VENV=<dir>        repo venv (default ./.venv). Its Scripts/ or bin/ goes first on PATH for
 #                        this process only, so "repository-presenter" resolves as it does in CI.
 #   CI_TOOLS_VENV=<dir>  isolated tools venv (default ./.venv-ci-tools).
+#   CI_CHECK_KEEP_OUTPUT=1  keep this run's private SBOM/audit output directory (printed on exit)
+#                        for debugging; by default it is removed on exit, success or failure.
 #
 # Local tools. Preflight checks every one before any check runs and exits 2, naming what is
 # missing, if one is absent or off its pin. Nothing here is installed system-wide.
@@ -30,9 +32,17 @@
 #   - Python matrix 3.11/3.12/3.13: only the repo venv's interpreter runs here.
 #   - Checkout, pip cache, the uv/pip-audit install steps, "Install from the lock" and the SBOM
 #     artifact upload are CI plumbing. Preflight verifies their outcome instead of repeating them.
-#   - SBOM and audit outputs go to $CI_TOOLS_VENV/sbom, not evidence/sbom, so a local run never
-#     rewrites the committed SBOM snapshot. ci.yml's /tmp paths were also replaced: a Python
-#     heredoc's "/tmp/..." resolves to E:\tmp on Windows, so the JSON path is passed as an argument.
+#   - SBOM and audit outputs go to a private per-invocation directory (mktemp -d under the OS temp
+#     dir, see scripts/ci_output_dir.sh), not evidence/sbom, so a local run never rewrites the
+#     committed SBOM snapshot, and not a fixed path under the shared tools venv: many sessions run
+#     this script at once against one CI_TOOLS_VENV and used to overwrite or truncate each other's
+#     pip-audit-osv.json. The directory is removed by an EXIT trap even on failure (set
+#     CI_CHECK_KEEP_OUTPUT=1 to keep it). ci.yml's /tmp paths were also replaced: a Python heredoc's
+#     "/tmp/..." resolves to E:	mp on Windows, so the JSON path is passed as an argument.
+#   - Other shared paths, audited 2026-10-05: lockdrift already uses its own mktemp -d with a trap;
+#     ruff/mypy/pytest caches are per checkout (git-ignored, one worktree per session); pip, uv and
+#     pip-audit's HTTP caches are the tools' own user-level caches, which they write atomically and
+#     are meant to share; pip-audit's resolver venv for "-r" is a private tempfile directory.
 #   - ruff, mypy and pytest run as "python -m <tool>", the same entry points as the console
 #     scripts. The venv's mypy.exe launcher exits 1 silently on this machine.
 #   - PYTHONPATH is set to this checkout's src. Otherwise an editable install of another checkout
@@ -49,7 +59,11 @@ set -u
 
 RP_VENV="${RP_VENV:-.venv}"
 CI_TOOLS_VENV="${CI_TOOLS_VENV:-.venv-ci-tools}"
-SBOM_DIR="$CI_TOOLS_VENV/sbom"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/ci_output_dir.sh
+. "$SCRIPT_DIR/ci_output_dir.sh"
+# Sets SBOM_DIR to a fresh private directory and installs the cleanup trap (see that file).
+ci_output_dir_init || exit 2
 PINNED_UV="0.12.21"
 PINNED_PIP_AUDIT="2.10.1"
 

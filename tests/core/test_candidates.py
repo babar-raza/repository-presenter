@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 
+from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
 from repository_presenter.core.candidates import (
     BundleError,
     SealedBundle,
@@ -18,11 +19,13 @@ from repository_presenter.core.candidates import (
     independently_accepted_candidates,
     integrity_valid_candidates,
     iter_sealed_bundles,
+    load_proposable_candidate,
     ready_revision,
     stale_candidates,
     verify_bundle,
 )
-from support import write_bundle
+from repository_presenter.core.hashing import sha256_text
+from support import write_bundle, write_proposable_bundle
 
 
 def test_missing_candidates_directory_counts_zero(tmp_path: Path) -> None:
@@ -362,3 +365,102 @@ def test_ready_revision_fails_closed_on_a_corrupt_current_bundle(tmp_path: Path)
     )
     with pytest.raises(BundleError, match="corrupt"):
         ready_revision(tmp_path, "aspose-x-foss/Aspose.X-FOSS-for-Python")
+
+
+# ---------------------------------------------------------------------------
+# load_proposable_candidate: only a final, verified, READY_FOR_PROPOSAL bundle is proposable
+# ---------------------------------------------------------------------------
+
+PROPOSABLE = "aspose-cells-foss/Aspose.Cells-FOSS-for-Java"
+REVISION = "c65329e7257b1311abb9686d7e4957a8cc002955"
+
+
+def test_a_ready_for_proposal_bundle_is_proposable(tmp_path: Path) -> None:
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n\nBody.\n")
+    candidate = load_proposable_candidate(tmp_path, PROPOSABLE)
+    assert candidate.revision == REVISION
+    assert candidate.readme_text == "# Cells\n\nBody.\n"
+    assert candidate.candidate_hash == sha256_text("# Cells\n\nBody.\n")
+
+
+def test_the_sealed_bytes_are_proposed_without_newline_translation(tmp_path: Path) -> None:
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "line one\r\nline two\r\n")
+    assert load_proposable_candidate(tmp_path, PROPOSABLE).readme_text == "line one\r\nline two\r\n"
+
+
+@pytest.mark.parametrize("state", ["VALID_UPDATE_AVAILABLE", "ACCEPTED", "INVALIDATED", "BLOCKED"])
+def test_a_bundle_not_in_ready_for_proposal_is_refused(tmp_path: Path, state: str) -> None:
+    """The Slides-Java shape: CURRENT names a bundle that is sealed and intact but no longer the
+    final candidate."""
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", state=state)
+    with pytest.raises(WriteRefusedError) as info:
+        load_proposable_candidate(tmp_path, PROPOSABLE)
+    assert info.value.code is Refusal.BUNDLE_NOT_READY
+    assert state in str(info.value)
+
+
+def test_a_repository_with_no_current_candidate_is_refused(tmp_path: Path) -> None:
+    with pytest.raises(WriteRefusedError) as info:
+        load_proposable_candidate(tmp_path, PROPOSABLE)
+    assert info.value.code is Refusal.BUNDLE_MISSING
+
+
+def test_current_naming_a_revision_with_no_bundle_is_refused(tmp_path: Path) -> None:
+    bundle = write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n")
+    (bundle.parent / "CURRENT").write_text("0" * 40 + "\n", encoding="utf-8")
+    with pytest.raises(WriteRefusedError) as info:
+        load_proposable_candidate(tmp_path, PROPOSABLE)
+    assert info.value.code is Refusal.BUNDLE_MISSING
+
+
+def test_a_tampered_readme_fails_integrity_and_is_refused(tmp_path: Path) -> None:
+    bundle = write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n")
+    (bundle / "README.md").write_text("# Tampered\n", encoding="utf-8")
+    with pytest.raises(WriteRefusedError) as info:
+        load_proposable_candidate(tmp_path, PROPOSABLE)
+    assert info.value.code is Refusal.BUNDLE_INCONSISTENT
+
+
+def test_a_manifest_for_another_revision_or_repository_is_refused(tmp_path: Path) -> None:
+    bundle = write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n")
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    for field, value in (("revision", "f" * 40), ("repository", "someone/else")):
+        (bundle / "manifest.json").write_text(
+            json.dumps({**manifest, field: value}), encoding="utf-8"
+        )
+        with pytest.raises(WriteRefusedError) as info:
+            load_proposable_candidate(tmp_path, PROPOSABLE)
+        assert info.value.code is Refusal.BUNDLE_INCONSISTENT
+
+
+def test_a_bundle_whose_manifest_lists_no_readme_is_refused(tmp_path: Path) -> None:
+    bundle = write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n")
+    (bundle / "facts.json").write_text("{}", encoding="utf-8")
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    manifest["files"] = {"facts.json": {"sha256": hashlib.sha256(b"{}").hexdigest(), "bytes": 2}}
+    (bundle / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(WriteRefusedError) as info:
+        load_proposable_candidate(tmp_path, PROPOSABLE)
+    assert info.value.code is Refusal.BUNDLE_INCONSISTENT
+
+
+def test_the_real_slides_java_candidate_is_not_proposable_when_it_is_not_ready() -> None:
+    """Against the checked-in candidates tree: whatever state Slides-Java's CURRENT bundle holds,
+    only READY_FOR_PROPOSAL may be loaded - the load either returns that state's candidate or
+    refuses with BUNDLE_NOT_READY, never anything in between."""
+    from support import REPO_ROOT
+
+    repository = "aspose-slides-foss/Aspose.Slides-FOSS-for-Java"
+    directory = REPO_ROOT / "candidates" / repository.replace("/", "__")
+    if not (directory / "CURRENT").is_file():
+        pytest.skip("no Slides-Java candidate in this tree")
+    revision = (directory / "CURRENT").read_text(encoding="utf-8").strip()
+    state = json.loads((directory / revision / "manifest.json").read_text(encoding="utf-8"))[
+        "state"
+    ]
+    if state == "READY_FOR_PROPOSAL":
+        assert load_proposable_candidate(REPO_ROOT, repository).revision == revision
+        return
+    with pytest.raises(WriteRefusedError) as info:
+        load_proposable_candidate(REPO_ROOT, repository)
+    assert info.value.code is Refusal.BUNDLE_NOT_READY

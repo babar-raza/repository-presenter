@@ -82,26 +82,45 @@ jobs:
 
       - name: Resolve the target repository from this trigger
         id: target
+        env:
+          # Untrusted trigger input: reaches the script only as a quoted shell variable, never as
+          # interpolated script text.
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_REPOSITORY: ${{ inputs.repository }}
+          PAYLOAD_REPOSITORY: ${{ github.event.client_payload.repository }}
         run: |
-          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            repository="${{ github.event.client_payload.repository }}"
+          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
+            repository="$PAYLOAD_REPOSITORY"
           else
-            repository="${{ inputs.repository }}"
+            repository="$DISPATCH_REPOSITORY"
           fi
           if [ -z "$repository" ]; then
             echo "::error::no target repository named by this trigger"
             exit 1
           fi
-          owner="${repository%%/*}"
-          name="${repository#*/}"
-          if [ "$owner" = "$repository" ] || [ -z "$name" ]; then
-            echo "::error::'$repository' is not an owner/name repository coordinate"
+          # Validate before anything is written to $GITHUB_OUTPUT: a value with a newline, a CR,
+          # '=' or '::' must never become an extra output or a workflow command. The error names
+          # the rule, never the raw value. Same patterns as propose.yml's validation step.
+          owner_re='^[A-Za-z0-9](-?[A-Za-z0-9]){0,38}$'
+          name_re='^[A-Za-z0-9._][A-Za-z0-9._-]{0,99}$'
+          if [[ "$repository" != */* ]]; then
+            echo "::error::the target repository is not an owner/name repository coordinate"
             exit 1
           fi
-          echo "repository: $repository"
-          echo "repository=$repository" >> "$GITHUB_OUTPUT"
-          echo "owner=$owner" >> "$GITHUB_OUTPUT"
-          echo "name=$name" >> "$GITHUB_OUTPUT"
+          owner="${repository%%/*}"
+          name="${repository#*/}"
+          if ! [[ "$owner" =~ $owner_re ]] || ! [[ "$name" =~ $name_re ]] ||
+             [ "$name" = "." ] || [ "$name" = ".." ]; then
+            echo "::error::the target repository is not a valid GitHub owner/name coordinate"
+            exit 1
+          fi
+          # Outputs are written from the validated variables only.
+          echo "repository: $owner/$name"
+          {
+            echo "repository=$owner/$name"
+            echo "owner=$owner"
+            echo "name=$name"
+          } >> "$GITHUB_OUTPUT"
 
       # Read-only, by explicit permission-* inputs: without them this token would inherit every
       # permission the App holds, including contents and pull_requests write. This job's steps only
@@ -217,6 +236,10 @@ jobs:
           RP_PYTHON_TOOLCHAINS: ${{ runner.temp }}/rp-python
           GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
           GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
+          # The target repository and trigger type reach the script as quoted shell variables, never
+          # as interpolated script text.
+          TARGET_REPOSITORY: ${{ steps.target.outputs.repository }}
+          TRIGGER_EVENT_TYPE: ${{ github.event_name == 'repository_dispatch' && 'repository_dispatch' || 'workflow_dispatch' }}
         run: |
           # Two invocations, deliberately, in this one job: a fresh GitHub Actions runner always
           # starts with empty runs/ (gitignored, never committed), so the *first* invocation alone
@@ -230,9 +253,9 @@ jobs:
           # --workflow-run-id for each keeps trigger.py's own dedup (section 3.2) from folding the
           # second call into the first's already-completed transaction and skipping it outright.
           if repository-presenter present \
-            --repo "${{ steps.target.outputs.repository }}" \
+            --repo "$TARGET_REPOSITORY" \
             --durable-state \
-            --trigger-event-type "${{ github.event_name == 'repository_dispatch' && 'repository_dispatch' || 'workflow_dispatch' }}" \
+            --trigger-event-type "$TRIGGER_EVENT_TYPE" \
             --workflow-run-id "${{ github.run_id }}"; then
             first_exit=0
           else
@@ -244,9 +267,9 @@ jobs:
           fi
           echo "::group::No-op proof: a second, fresh-process rerun against the same revision"
           repository-presenter present \
-            --repo "${{ steps.target.outputs.repository }}" \
+            --repo "$TARGET_REPOSITORY" \
             --durable-state \
-            --trigger-event-type "${{ github.event_name == 'repository_dispatch' && 'repository_dispatch' || 'workflow_dispatch' }}" \
+            --trigger-event-type "$TRIGGER_EVENT_TYPE" \
             --workflow-run-id "${{ github.run_id }}-noop-proof"
           echo "::endgroup::"
 
@@ -296,18 +319,21 @@ jobs:
         if: always() && steps.target.outcome == 'success'
         env:
           REPOSITORY_PRESENTER_STATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Step outputs reach the script only as quoted shell variables, never as interpolated text.
+          STARTED: ${{ steps.timer.outputs.started }}
+          TARGET_REPOSITORY: ${{ steps.target.outputs.repository }}
         run: |
-          started="${{ steps.timer.outputs.started }}"
+          started="$STARTED"
           if [ -n "$started" ]; then
             elapsed=$(( $(date -u +%s) - started ))
             echo "wall-clock: ${elapsed}s"
             repository-presenter health-check \
-              --repo "${{ steps.target.outputs.repository }}" \
+              --repo "$TARGET_REPOSITORY" \
               --wall-clock-seconds "$elapsed"
           else
             # The timer step itself never ran (a step between it and target resolution failed,
             # e.g. the App-token mint or the lock install) - that step's own ::error:: already
             # names the problem; still check the durable record without a wall-clock reading
             # rather than skip health entirely.
-            repository-presenter health-check --repo "${{ steps.target.outputs.repository }}"
+            repository-presenter health-check --repo "$TARGET_REPOSITORY"
           fi

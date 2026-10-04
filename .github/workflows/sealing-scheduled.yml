@@ -14,10 +14,21 @@
 #          propose.yml via workflow_call with
 #          candidate_artifact set, so it proposes only the bundle this run just sealed and exported,
 #          and only when that bundle is READY_FOR_PROPOSAL. The write token is minted inside
-#          propose.yml's own job, never in plan or seal. The whole job runs only when the owner
-#          variable REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED is exactly "1" (set by the owner in
-#          the repository's Actions variables; never inferred from credential presence). Unset, this
-#          workflow is read-only observation: it plans and seals and writes nothing to any target.
+#          propose.yml's own `write` job, never in plan or seal. The whole job runs only when the
+#          owner variable REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED is exactly "1" (set by the
+#          owner in the repository's Actions variables; never inferred from credential presence).
+#          Unset, this workflow is read-only observation: it plans and seals and writes nothing to
+#          any target.
+#
+# Nothing is written or proposed to a target unless ALL of these hold, each checked independently
+# and none created by this workflow: the registry write gate permits (entry listed, active, mode
+# "full"); an authorization record for exactly the sealed candidate (ops/proposal-authorizations/
+# <owner>__<name>__<candidate hash prefix>.json) that a person reviewed and merged to origin/main
+# before this run's trigger commit (propose.yml passes --authorization-record and --trigger-sha and
+# checks out full history; a refusal exits 3 and writes nothing); the owner variable above; and the
+# command's own recheck that the target's live revision still matches. No step here or in
+# propose.yml runs git commit or push, and no job writes to any branch of this repository; the only
+# write other than the gated target proposal is present.yml's durable-state refs in this repository.
 #
 # No model is configured anywhere in this file: sealing runs on qwen3-next alone, the route each
 # prompt manifest declares (owner rule; core/sealing_plan.py refuses any other). GPT_OSS_MODEL is

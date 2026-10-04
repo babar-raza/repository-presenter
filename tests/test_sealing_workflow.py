@@ -171,9 +171,21 @@ def test_present_is_callable_per_repository_and_exports_only_a_ready_bundle() ->
 
 
 def test_present_resolves_the_target_from_the_call_input_for_every_non_dispatch_event() -> None:
+    """Under workflow_call from the schedule, github.event_name is the caller's (schedule), so only
+    a repository_dispatch reads the payload; every other event reads the input. The values reach
+    the script through env, never as interpolated text (tests/test_workflow_hardening.py)."""
     text = (WORKFLOWS / "present.yml").read_text(encoding="utf-8")
-    assert '"${{ github.event_name }}" = "repository_dispatch"' in text
-    assert 'repository="${{ inputs.repository }}"' in text
+    assert '[ "$EVENT_NAME" = "repository_dispatch" ]' in text
+    assert 'repository="$PAYLOAD_REPOSITORY"' in text
+    assert 'repository="$DISPATCH_REPOSITORY"' in text
+    assert "DISPATCH_REPOSITORY: ${{ inputs.repository }}" in text
+    assert "github.event_name == 'repository_dispatch' && 'repository_dispatch'" in text
+
+
+def _propose_jobs() -> dict[str, Any]:
+    jobs = _load(WORKFLOWS / "propose.yml")["jobs"]
+    assert set(jobs) == {"dry-run", "write"}
+    return jobs
 
 
 def test_propose_is_callable_and_its_real_write_stays_gated_on_do_propose() -> None:
@@ -181,36 +193,68 @@ def test_propose_is_callable_and_its_real_write_stays_gated_on_do_propose() -> N
     triggers = _triggers(propose)
     assert set(triggers) == {"workflow_call", "workflow_dispatch"}
     call_inputs = triggers["workflow_call"]["inputs"]
-    assert {"repo", "do_propose", "candidate_artifact"} <= set(call_inputs)
-    steps = propose["jobs"]["propose"]["steps"]
-    real = next(s for s in steps if str(s.get("name", "")).startswith("Propose for real"))
-    gate = "inputs.candidate_artifact == '' || steps.ready.outputs.ready == 'true'"
-    assert real["if"] == f"${{{{ inputs.do_propose && ({gate}) }}}}"
+    assert {"repo", "do_propose", "candidate_artifact", "authorization_record"} <= set(call_inputs)
+    jobs = _propose_jobs()
+    write = jobs["write"]
+    # The write job runs only for a requested write, after a successful dry run that decided to
+    # proceed (a READY bundle and an authorization record located for exactly that candidate).
+    assert write["if"] == (
+        "${{ inputs.do_propose && needs.dry-run.result == 'success'"
+        " && needs.dry-run.outputs.proceed == 'true' }}"
+    )
+    real = next(s for s in write["steps"] if str(s.get("name", "")).startswith("Propose for real"))
     assert real["env"]["REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED"] == "1"
+    assert "--authorization-record" in real["run"] and "--trigger-sha" in real["run"]
+    assert "--expires-in-minutes" not in real["run"] and "--readme-file" not in real["run"]
+    assert "exit 3" in real["run"] or "-eq 3" in real["run"]
     # The authorization is set only in the one real-write step, never at job or workflow level.
     assert "REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED" not in propose.get("env", {})
-    assert "REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED" not in propose["jobs"]["propose"].get(
-        "env", {}
-    )
+    for job in jobs.values():
+        assert "REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED" not in job.get("env", {})
+    # Full history for the record's merge provenance, in both jobs.
+    for job in jobs.values():
+        checkout = next(
+            s for s in job["steps"] if str(s.get("uses", "")).startswith("actions/checkout")
+        )
+        assert checkout["with"]["fetch-depth"] == 0
 
 
 def test_propose_imports_only_a_bundle_this_run_sealed_and_proposes_nothing_otherwise() -> None:
-    propose = _load(WORKFLOWS / "propose.yml")
-    steps = propose["jobs"]["propose"]["steps"]
+    jobs = _propose_jobs()
+    steps = jobs["dry-run"]["steps"]
     by_id = {s["id"]: s for s in steps if "id" in s}
     assert by_id["import"]["continue-on-error"] is True
     assert "candidate_artifact" in by_id["import"]["if"]
     ready = by_id["ready"]
     assert "sealed-ready" in ready["run"] and "exit 0" in ready["run"]
-    mint = by_id["app-token"]
-    assert (
-        mint["if"]
-        == "${{ inputs.candidate_artifact == '' || steps.ready.outputs.ready == 'true' }}"
-    )
+    gate = "steps.validate.outputs.candidate_artifact == '' || steps.ready.outputs.ready == 'true'"
+    assert by_id["read-token"]["if"] == f"${{{{ {gate} }}}}"
     dry = next(s for s in steps if str(s.get("name", "")).startswith("Dry run"))
-    assert (
-        dry["if"] == "${{ inputs.candidate_artifact == '' || steps.ready.outputs.ready == 'true' }}"
-    )
+    assert dry["if"] == "${{ steps.record.outputs.proceed == 'true' }}"
+    # The record is located, never created: a scheduled call looks for the file named for exactly
+    # the sealed candidate, and nothing proposes without one.
+    record = by_id["record"]["run"]
+    assert "ops/proposal-authorizations/${OWNER}__${NAME}__${hash:0:12}.json" in record
+    assert "nothing to propose" in record
+    assert "git " not in record and "gh " not in record
+    # The write job re-imports and re-requires the same READY bundle on its own runner.
+    write_steps = jobs["write"]["steps"]
+    assert any(s.get("name") == "Require the same READY_FOR_PROPOSAL bundle" for s in write_steps)
+
+
+def test_no_job_in_the_scheduled_chain_can_commit_or_push() -> None:
+    """The scheduled workflow, present.yml and propose.yml carry no git commit/push and no step
+    that writes to a branch: the only write capabilities are present.yml's durable-state refs in
+    this control repository (token-scoped to it) and the gated, target-scoped propose write."""
+    for name in ("sealing-scheduled.yml", "propose.yml"):
+        text = (WORKFLOWS / name).read_text(encoding="utf-8")
+        code = "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
+        assert not re.search(r"\bgit\s+(commit|push)\b", code), name
+        assert "git-auto-commit" not in code and "stefanzweifel" not in code, name
+    scheduled = _load(SCHEDULED)
+    for job in scheduled["jobs"].values():
+        for step in job.get("steps", []):
+            assert "commit" not in str(step.get("run", "")).lower().replace("committed", "")
 
 
 def test_the_drift_contract_is_consumed_through_its_file_path_alone(

@@ -101,6 +101,7 @@ def _inputs(
     secrets: tuple[ConfiguredSecret, ...] = (),
     stage: str | None = None,
     revision: str = REVISION,
+    dependencies: tuple[str, ...] = (),
 ) -> SealInputs:
     return SealInputs(
         entry=ENTRY,
@@ -114,6 +115,7 @@ def _inputs(
         provider_calls=provider_calls,
         secrets=secrets,
         earliest_affected_stage=stage,
+        changed_dependencies=dependencies,
     )
 
 
@@ -197,9 +199,9 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert document["contract_version"] == "readme-contract-v1"
     assert document["components"] == {
         "shell": "6",
-        "renderer": "26",
-        "normalisation": "20",
-        "reviewer_logic": "14",
+        "renderer": "27",
+        "normalisation": "21",
+        "reviewer_logic": "15",
     }
     assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 11
     assert document["acceptance_profile_version"] == "1"
@@ -331,29 +333,43 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     assert again.note.startswith("no-op:")
     assert (bundle / "manifest.json").read_bytes() == before
 
-    # A proven candidate stays valid: a differing run records an update and touches no file.
+    # A proven candidate stays valid: a differing run records an update and touches no file. An
+    # authoring-prompt change is not a factual input, so the state is VALID_UPDATE_AVAILABLE and
+    # the manifest names the scope that triggered it (docs/STATE_MACHINE.md section 9).
     _transaction(tmp_path, readme="# Changed\n")
-    updated = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="COMPOSING"))
-    assert updated.state == "READY_FOR_PROPOSAL" and updated.proof is not None and updated.changed
-    assert updated.note.startswith("valid update available (presentation): README.md changed")
+    authoring = ("prompts.section_authoring",)
+    updated = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage="COMPOSING", dependencies=authoring)
+    )
+    assert updated.state == "VALID_UPDATE_AVAILABLE" and updated.proof is not None
+    assert updated.changed
+    assert updated.note.startswith("valid update available (authoring): README.md changed")
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
-    assert manifest["state"] == "READY_FOR_PROPOSAL"
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and "invalidated" not in manifest
     assert manifest["update"]["classification"] == "presentation"
+    assert manifest["update"]["triggering_scope"] == "authoring"
+    assert manifest["update"]["scopes"] == ["authoring"]
+    assert manifest["update"]["scope_basis"] == "inputs"
     assert manifest["update"]["changed"] == ["README.md"]
     assert manifest["update"]["earliest_affected_stage"] == "COMPOSING"
     assert (bundle / "README.md").read_text("utf-8") == "# Doc\n"
     assert manifest["update"]["files"]["README.md"] == hashlib.sha256(b"# Changed\n").hexdigest()
-    withheld = seal_candidate(_inputs(tmp_path, provider_calls=1, stage="COMPOSING"))
+    withheld = seal_candidate(
+        _inputs(tmp_path, provider_calls=1, stage="COMPOSING", dependencies=authoring)
+    )
     assert not withheld.changed  # the same update is not recorded twice, nor adopted unproven
     assert (bundle / "README.md").read_text("utf-8") == "# Doc\n"
     # A fresh zero-call process reproducing the waiting update proves it; the bundle adopts it.
-    adopted = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="COMPOSING"))
+    adopted = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage="COMPOSING", dependencies=authoring)
+    )
     assert adopted.state == "READY_FOR_PROPOSAL" and adopted.changed
-    assert adopted.note.startswith("update adopted (presentation): a fresh process reproduced")
+    assert adopted.note.startswith("update adopted (authoring): a fresh process reproduced")
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
     assert "update" not in manifest and manifest["adopted"]["changed"] == ["README.md"]
+    assert manifest["adopted"]["triggering_scope"] == "authoring"
     assert manifest["adopted"]["previous_proof"]["provider_calls"] == 0
     assert manifest["no_op_proof"]["provider_calls"] == 0 and manifest["provider_calls"] == 0
     assert (bundle / "README.md").read_text("utf-8") == "# Changed\n"
@@ -361,26 +377,35 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     (tmp_path / "runs" / "transactions" / "owner__name" / REVISION / "facts.json").write_text(
         '{"facts": ["new"]}\n', encoding="utf-8", newline="\n"
     )
-    factual = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="EXTRACTING"))
+    facts = ("facts",)
+    factual = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage="EXTRACTING", dependencies=facts)
+    )
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert factual.changed and manifest["update"]["classification"] == "factual"
     assert manifest["update"]["changed"] == ["facts.json"] and "adopted" in manifest
-    # TB-06 (external review D6, 2026-09-08): a factual contradiction moves the bundle's own
-    # state out of the counted READY_FOR_PROPOSAL - unlike the presentation update above, which
-    # stayed READY_FOR_PROPOSAL and counted throughout.
-    assert factual.state == "VALID_UPDATE_AVAILABLE"
-    assert manifest["state"] == "VALID_UPDATE_AVAILABLE"
+    # A changed factual input the candidate consumed invalidates it (docs/STATE_MACHINE.md section
+    # 9); the manifest records the scope, and the update the re-entered pipeline produced waits.
+    assert factual.state == "INVALIDATED"
+    assert manifest["state"] == "INVALIDATED"
+    assert manifest["invalidated"]["scope"] == "facts" and manifest["invalidated"]["check"] is None
+    assert manifest["invalidated"]["causal_stage"] == "EXTRACTING"
+    assert manifest["update"]["triggering_scope"] == "facts"
+    assert factual.note.startswith("invalidated (facts): facts.json changed")
     jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
     assert count_current_candidates(tmp_path) == 0  # no longer counts as current
-    # A fresh zero-call process reproducing that exact factual update still proves and adopts it
-    # (the Forbidden clause: the two-run, zero-provider-call discipline is preserved exactly even
-    # once the state has moved off READY_FOR_PROPOSAL to VALID_UPDATE_AVAILABLE).
-    resolved = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="EXTRACTING"))
+    # A fresh zero-call process reproducing that exact update still proves and adopts it (the
+    # Forbidden clause: the two-run, zero-provider-call discipline is preserved exactly even
+    # once the state has moved off READY_FOR_PROPOSAL to INVALIDATED).
+    resolved = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage="EXTRACTING", dependencies=facts)
+    )
     assert resolved.state == "READY_FOR_PROPOSAL" and resolved.changed
-    assert resolved.note.startswith("update adopted (factual): a fresh process reproduced")
+    assert resolved.note.startswith("update adopted (facts): a fresh process reproduced")
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
     assert manifest["state"] == "READY_FOR_PROPOSAL" and "update" not in manifest
+    assert "invalidated" not in manifest and manifest["adopted"]["triggering_scope"] == "facts"
     assert (bundle / "facts.json").read_text("utf-8") == '{"facts": ["new"]}\n'
     assert count_current_candidates(tmp_path) == 1  # counts again once adopted
 
@@ -654,13 +679,15 @@ def test_a_changed_model_reopens_valid_update_available_and_names_the_change(
 
     result = seal_candidate(_with_models(tmp_path, 2, {PRIMARY: "gpt-oss"}))
 
-    # The same route answered by another model is a different candidate: factual by construction,
-    # whatever its bytes say. The candidate stops counting and no sealed byte is replaced.
+    # A model-route change is a prompt-class change (docs/DECISION_LOG.md 2026-09-06 07:45): the
+    # sealed candidate stays valid with an update available, scoped by the prompts the route
+    # answers - never a factual input, so never an invalidation. No sealed byte is replaced.
     assert result.state == "VALID_UPDATE_AVAILABLE" and result.changed
-    assert count_current_candidates(tmp_path) == 0
     manifest = _sealed_manifest(tmp_path)
-    assert manifest["state"] == "VALID_UPDATE_AVAILABLE"
-    assert manifest["update"]["classification"] == "factual"
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and "invalidated" not in manifest
+    assert manifest["update"]["classification"] == "presentation"
+    assert manifest["update"]["triggering_scope"] == "evidence"
+    assert "facts" not in manifest["update"]["scopes"]
     assert manifest["update"]["changed"] == ["models[qwen3-next]: qwen3-next -> gpt-oss"]
     assert manifest["update"]["models_used"] == {PRIMARY: "gpt-oss"}
     assert manifest["models_used"] == {PRIMARY: PRIMARY}  # the sealed content keeps its model
@@ -683,7 +710,7 @@ def test_a_fresh_zero_call_run_on_the_waiting_model_adopts_the_update(tmp_path: 
     adopted = seal_candidate(_with_models(tmp_path, 0, {PRIMARY: "gpt-oss"}))
 
     assert adopted.state == "READY_FOR_PROPOSAL" and adopted.changed
-    assert adopted.note.startswith("update adopted (factual)")
+    assert adopted.note.startswith("update adopted (evidence)")
     manifest = _sealed_manifest(tmp_path)
     assert manifest["models_used"] == {PRIMARY: "gpt-oss"}
     assert manifest["adopted"]["previous_models_used"] == {PRIMARY: PRIMARY}
@@ -722,3 +749,204 @@ def test_a_bundle_sealed_before_models_were_recorded_reads_its_routes_as_their_o
     assert _sealed_manifest(tmp_path)["update"]["changed"] == [
         "models[qwen3-next]: qwen3-next -> gpt-oss"
     ]
+
+
+# --- typed invalidation scopes: each scope lands in the state the scope table defines ------------
+
+
+def _bundle_dir(tmp_path: Path) -> Path:
+    return _manifest_path(tmp_path).parent
+
+
+def _alter(tmp_path: Path, name: str, text: str) -> None:
+    transaction = tmp_path / "runs" / "transactions" / "owner__name" / REVISION
+    (transaction / name).write_text(text, encoding="utf-8", newline="\n")
+
+
+def _sealed_files(tmp_path: Path) -> dict[str, bytes]:
+    return {
+        p.name: p.read_bytes() for p in _bundle_dir(tmp_path).iterdir() if p.name != "manifest.json"
+    }
+
+
+def _changed_validation() -> str:
+    changed = _validation()
+    changed["checks"][0]["details"] = ["a newer check noted something"]
+    return json.dumps(changed, indent=2, sort_keys=True) + "\n"
+
+
+# scope -> (a consumed input class that changed, the artifact its stage rewrites, new bytes)
+SCOPE_CASES: dict[str, tuple[str, str, str]] = {
+    "facts": ("facts", "facts.json", '{"facts": ["new"]}\n'),
+    "evidence": ("prompts.repository_investigation", "investigation.json", '{"new": 1}\n'),
+    "reconciliation": ("prompts.source_reconciliation", "dispositions.json", '{"new": 1}\n'),
+    "presentation": ("components.renderer", "README.md", "# Re-rendered\n"),
+    "planning": ("prompts.presentation_planning", "plan.json", '{"sections": ["new"]}\n'),
+    "authoring": ("prompts.section_authoring", "content_units.json", '{"units": ["new"]}\n'),
+    "validator": ("validators", "validation.json", _changed_validation()),
+    "reviewer": ("prompts.independent_review", "review.json", '{"verdict": "ACCEPT", "n": 2}\n'),
+}
+
+
+def test_every_scope_has_a_case() -> None:
+    from repository_presenter.components.readme.bundle.invalidation import SCOPES
+
+    assert set(SCOPE_CASES) == {scope.name for scope in SCOPES}
+
+
+@pytest.mark.parametrize("scope_name", sorted(SCOPE_CASES))
+def test_a_changed_input_lands_in_the_state_its_scope_defines(
+    tmp_path: Path, scope_name: str
+) -> None:
+    from repository_presenter.components.readme.bundle.invalidation import (
+        SCOPE_BY_NAME,
+        reopening_stage,
+    )
+
+    dependency, artifact, text = SCOPE_CASES[scope_name]
+    scope = SCOPE_BY_NAME[scope_name]
+    _proven_bundle(tmp_path)
+    sealed = _sealed_files(tmp_path)
+    _alter(tmp_path, artifact, text)
+    stage = reopening_stage(dependency)
+
+    result = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage=stage, dependencies=(dependency,))
+    )
+
+    manifest = _sealed_manifest(tmp_path)
+    assert result.state == scope.state == manifest["state"]
+    assert manifest["update"]["triggering_scope"] == scope_name
+    assert manifest["update"]["scopes"] == [scope_name]
+    assert manifest["update"]["scope_basis"] == "inputs"
+    assert manifest["update"]["earliest_affected_stage"] == stage
+    if scope.state == "INVALIDATED":
+        assert scope_name == "facts"  # the one scope that is itself a factual input
+        assert manifest["invalidated"]["scope"] == scope_name
+        assert manifest["invalidated"]["causal_stage"] == stage
+        assert manifest["update"]["classification"] == "factual"
+        assert result.note.startswith(f"invalidated ({scope_name}):")
+    else:
+        assert "invalidated" not in manifest
+        assert manifest["update"]["classification"] == "presentation"
+        assert result.note.startswith(f"valid update available ({scope_name}):")
+    # The sealed bytes are never modified by recording an update, whatever the scope.
+    assert _sealed_files(tmp_path) == sealed
+
+
+@pytest.mark.parametrize("dependency", ["validators", "contract_version"])
+def test_a_validator_change_never_invalidates(tmp_path: Path, dependency: str) -> None:
+    """Negative control (AGENTS.md): a validator change re-checks and may yield
+    VALID_UPDATE_AVAILABLE, never invalidation."""
+    _proven_bundle(tmp_path)
+    _alter(tmp_path, "validation.json", _changed_validation())
+
+    result = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage="VALIDATING", dependencies=(dependency,))
+    )
+
+    assert result.state == "VALID_UPDATE_AVAILABLE"
+    assert "invalidated" not in _sealed_manifest(tmp_path)
+
+
+@pytest.mark.parametrize("dependency", ["prompts.independent_review", "acceptance_profile_version"])
+def test_a_reviewer_change_never_invalidates(tmp_path: Path, dependency: str) -> None:
+    _proven_bundle(tmp_path)
+    _alter(tmp_path, "review.json", '{"verdict": "ACCEPT", "n": 2}\n')
+    result = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage="REVIEWING", dependencies=(dependency,))
+    )
+    assert result.state == "VALID_UPDATE_AVAILABLE"
+    assert "invalidated" not in _sealed_manifest(tmp_path)
+
+
+def test_a_facts_change_alongside_other_scopes_invalidates_and_names_facts(
+    tmp_path: Path,
+) -> None:
+    _proven_bundle(tmp_path)
+    _alter(tmp_path, "facts.json", '{"facts": ["new"]}\n')
+    _alter(tmp_path, "README.md", "# Re-rendered\n")
+
+    result = seal_candidate(
+        _inputs(
+            tmp_path,
+            provider_calls=0,
+            stage="EXTRACTING",
+            dependencies=("validators", "facts", "components.renderer"),
+        )
+    )
+
+    manifest = _sealed_manifest(tmp_path)
+    assert result.state == "INVALIDATED"
+    assert manifest["update"]["triggering_scope"] == "facts"
+    assert manifest["update"]["scopes"] == ["facts", "presentation", "validator"]
+
+
+def test_an_unrelated_component_change_affects_nothing(tmp_path: Path) -> None:
+    """Negative control: a component the candidate did not consume changed in the running code,
+    so no consumed input moved and the rerun reproduces every sealed byte: no update, no state
+    change, and the manifest is not even rewritten."""
+    _proven_bundle(tmp_path)
+    before = _manifest_path(tmp_path).read_bytes()
+
+    result = seal_candidate(_inputs(tmp_path, provider_calls=0, dependencies=()))
+
+    assert result.state == "READY_FOR_PROPOSAL" and not result.changed
+    assert result.note.startswith("no-op:")
+    assert _manifest_path(tmp_path).read_bytes() == before
+
+
+def test_drift_with_no_changed_input_is_scoped_by_the_artifact_that_moved(
+    tmp_path: Path,
+) -> None:
+    _proven_bundle(tmp_path)
+    _alter(tmp_path, "plan.json", '{"sections": ["drift"]}\n')
+
+    result = seal_candidate(_inputs(tmp_path, provider_calls=0, dependencies=()))
+
+    manifest = _sealed_manifest(tmp_path)
+    assert result.state == "VALID_UPDATE_AVAILABLE"
+    assert manifest["update"]["triggering_scope"] == "planning"
+    assert manifest["update"]["scope_basis"] == "artifacts"
+
+
+def test_a_dependency_no_scope_covers_fails_the_seal_closed(tmp_path: Path) -> None:
+    """Negative control: an input class with no row in the scope table never guesses a state."""
+    _proven_bundle(tmp_path)
+    _alter(tmp_path, "README.md", "# Changed\n")
+    with pytest.raises(SealError, match="no invalidation scope for the dependency 'surprise'"):
+        seal_candidate(_inputs(tmp_path, provider_calls=0, dependencies=("surprise",)))
+    assert _sealed_manifest(tmp_path)["state"] == "READY_FOR_PROPOSAL"
+
+
+def test_a_bundle_invalidated_by_a_failing_check_is_resealed_not_adopted(tmp_path: Path) -> None:
+    """Negative control: only an INVALIDATED bundle that carries a waiting update adopts it; one a
+    failing check invalidated holds no update and re-enters through a fresh seal as before."""
+    _proven_bundle(tmp_path)
+    failing = {"id": "BC-02", "verdict": "FAIL", "causal_stage": "EXTRACTING", "details": ["x"]}
+    invalidate_bundle(_bundle_dir(tmp_path), failing)
+    _alter(tmp_path, "README.md", "# Re-composed\n")
+
+    result = seal_candidate(_inputs(tmp_path, provider_calls=0, dependencies=("facts",)))
+
+    assert result.state == "ACCEPTED" and result.proof is None
+    assert result.note.startswith("re-sealed:")
+    assert "invalidated" not in _sealed_manifest(tmp_path)
+
+
+def test_a_waiting_invalidation_is_replaced_when_a_different_update_arrives(
+    tmp_path: Path,
+) -> None:
+    _proven_bundle(tmp_path)
+    _alter(tmp_path, "facts.json", '{"facts": ["a"]}\n')
+    seal_candidate(_inputs(tmp_path, provider_calls=0, stage="EXTRACTING", dependencies=("facts",)))
+    first = _sealed_manifest(tmp_path)["update"]["files"]["facts.json"]
+
+    _alter(tmp_path, "facts.json", '{"facts": ["b"]}\n')
+    other = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage="EXTRACTING", dependencies=("facts",))
+    )
+
+    manifest = _sealed_manifest(tmp_path)
+    assert other.state == "INVALIDATED" and other.changed and "adopted" not in manifest
+    assert manifest["update"]["files"]["facts.json"] != first

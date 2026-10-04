@@ -24,8 +24,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.examples import RECEIPTS_FILENAME
+from repository_presenter.core.hashing import sha256_text
 
 CANDIDATES_DIRNAME = "candidates"
 BUNDLE_MANIFEST_NAME = "manifest.json"
@@ -380,3 +382,70 @@ def _read_state(manifest: Path) -> str:
     if not isinstance(state, str) or not state:
         raise BundleError(f"bundle manifest has no state: {manifest}")
     return state
+
+
+#: The bundle's candidate README (``components/readme/composition/renderer.py::README_FILENAME`` -
+#: duplicated, since ``core/`` may not import a ``components/readme/`` module).
+README_FILENAME = "README.md"
+
+
+@dataclass(frozen=True)
+class ProposableCandidate:
+    """The one candidate a proposal may carry: the README text of ``repository``'s ``CURRENT``
+    bundle, which is sealed, integrity-verified and ``READY_FOR_PROPOSAL``."""
+
+    repository: str
+    revision: str
+    readme_text: str
+    candidate_hash: str
+
+
+def load_proposable_candidate(root: Path, repository: str) -> ProposableCandidate:
+    """Load ``repository``'s candidate for proposal, or raise :class:`WriteRefusedError` (typed).
+
+    ``CURRENT`` may point at a revision that is no longer ``READY_FOR_PROPOSAL`` (for example
+    ``VALID_UPDATE_AVAILABLE`` after a component changed): such a bundle is not a final candidate
+    and is never proposed. The bundle's recorded revision is returned so the caller can compare it
+    with the target's live upstream revision."""
+    owner, name = repository.split("/", 1)
+    repository_dir = root / CANDIDATES_DIRNAME / f"{owner}__{name}"
+    current = repository_dir / CURRENT_FILENAME
+    if not current.is_file():
+        raise WriteRefusedError(
+            Refusal.BUNDLE_MISSING, f"no sealed CURRENT candidate for {repository}"
+        )
+    revision = current.read_text(encoding="utf-8").strip()
+    bundle = repository_dir / revision
+    try:
+        manifest = verify_bundle(bundle)
+    except BundleError as exc:
+        raise WriteRefusedError(Refusal.BUNDLE_INCONSISTENT, str(exc)) from exc
+    if manifest is None:
+        raise WriteRefusedError(
+            Refusal.BUNDLE_MISSING, f"CURRENT names revision {revision!r} with no sealed bundle"
+        )
+    if manifest.get("revision") != revision or manifest.get("repository") != repository:
+        raise WriteRefusedError(
+            Refusal.BUNDLE_INCONSISTENT,
+            f"bundle manifest ({manifest.get('repository')!r} @ {manifest.get('revision')!r}) "
+            f"does not match {repository} @ CURRENT {revision!r}",
+        )
+    state = manifest.get("state")
+    if state not in COUNTED_STATES:
+        raise WriteRefusedError(
+            Refusal.BUNDLE_NOT_READY,
+            f"{repository} @ {revision} is {state!r}, not READY_FOR_PROPOSAL - only a final, "
+            "no-op-proven candidate is proposed",
+        )
+    if README_FILENAME not in dict(manifest.get("files", {})):
+        raise WriteRefusedError(
+            Refusal.BUNDLE_INCONSISTENT, f"sealed bundle at {revision} lists no {README_FILENAME}"
+        )
+    # Bytes, not read_text(): no newline translation between the sealed bytes and what is proposed.
+    readme_text = (bundle / README_FILENAME).read_bytes().decode("utf-8")
+    return ProposableCandidate(
+        repository=repository,
+        revision=revision,
+        readme_text=readme_text,
+        candidate_hash=sha256_text(readme_text),
+    )
