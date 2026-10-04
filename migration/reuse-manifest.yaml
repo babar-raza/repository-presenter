@@ -1287,6 +1287,9 @@ file_records:
       One recorded patch: every `from extraction.X import` becomes this package's absolute
       path, and the origin's `__init__` re-export module is replaced by an empty one, because
       it imported package_root and package_manifest - other facades' closure, not this one's.
+      Second recorded patch (2026-10-05): `get_parser` delegates to `core/grammars.py` and
+      `_LANG_ALIASES` is gone, so no grammar is downloaded at run time (the origin fell back to
+      `tree_sitter_language_pack`, which fetched parsers from a GitHub release on first use).
   - source_id: aspose-org
     source_path: scripts/pipeline/extraction/lang/__init__.py
     sha256: 7b01567b8c395131d83809109a7659bee0d2ebd315014961ffaa4ab738db9c03

@@ -36,6 +36,7 @@ from repository_presenter.core.examples import (
     MeasuredBuild,
 )
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
 _PARSER_LANGUAGE = "csharp"
@@ -312,8 +313,6 @@ class NetPlugin:
 
     def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
         """Public types and members, read from the tree by the shared extractor."""
-        from tree_sitter_language_pack import get_parser
-
         package_root = self.detect_manifest(root)
         source_root = package_root.parent if package_root is not None else root
         symbols = surface_symbols(

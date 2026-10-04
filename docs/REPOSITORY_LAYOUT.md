@@ -28,6 +28,7 @@ src/repository_presenter/
     hashing.py               canonical text hashing
     errors.py               typed failure hierarchy mapped to CLI exit codes
     retry.py                bounded retry policies on tenacity
+    grammars.py             tree-sitter parsers built from pinned per-language wheels; a missing grammar is a typed refusal, never a download
     facts.py                typed fact records and the facts.json writer (the extraction boundary)
     examples.py             shared example-verification types and the receipts writer
     probes.py               what a live read observed - status, timing, volatile reading - kept out of the hashed facts

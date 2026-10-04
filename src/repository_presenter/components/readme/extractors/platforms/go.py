@@ -44,6 +44,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
 )
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
 GO = EcosystemSpec(
@@ -307,8 +308,6 @@ class GoPlugin:
         namespace is. A symbol from a file Go would not let a consumer import is dropped before
         any of that: it never was part of the surface.
         """
-        from tree_sitter_language_pack import get_parser
-
         manifest = self.detect_manifest(root)
         if manifest is None:
             return []
