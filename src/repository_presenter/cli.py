@@ -64,6 +64,16 @@ from repository_presenter.components.monitor.drift import (
     observe_drift,
     write_drift_document,
 )
+from repository_presenter.components.monitor.install_state import (
+    MINT_ERROR,
+    InstallationState,
+    InstallStateError,
+    LookupResult,
+    lookup_installations,
+    record_state,
+    summarize_installs,
+    write_state,
+)
 from repository_presenter.components.propose.effect import (
     AUTHORIZATION_VARIABLE as PROPOSE_AUTHORIZATION_VARIABLE,
 )
@@ -282,6 +292,8 @@ PROGRAM = "repository-presenter"
 RUNS_DIRNAME = "runs"
 MONITOR_DIRNAME = "monitor"
 DRIFT_FILENAME = "drift.json"
+APP_ID_VARIABLE = "GH_APP_ID"
+APP_KEY_VARIABLE = "GH_APP_PRIVATE_KEY"
 EXIT_OK = 0
 EXIT_INCONSISTENT = 1
 EXIT_USAGE = 2
@@ -485,6 +497,29 @@ def build_parser() -> argparse.ArgumentParser:
             f"evidence file to write; defaults to {RUNS_DIRNAME}/{MONITOR_DIRNAME}/"
             f"{DRIFT_FILENAME} (drift-<owner>.json with --owner)"
         ),
+    )
+    install_record_cmd = subcommands.add_parser(
+        "monitor-install-record",
+        help=(
+            "record one owner's GitHub App installation state from its token mint outcome "
+            "(success = INSTALLED; failure is looked up as the App: confirmed 404 = NOT_INSTALLED, "
+            "a notice; any other failure = MINT_ERROR, exit 1)"
+        ),
+    )
+    install_record_cmd.add_argument("--owner", required=True, metavar="OWNER")
+    install_record_cmd.add_argument("--outcome", required=True, choices=("success", "failure"))
+    install_record_cmd.add_argument("--repositories", required=True, metavar="NAMES")
+    install_record_cmd.add_argument("--out", type=Path, required=True)
+    install_summary_cmd = subcommands.add_parser(
+        "monitor-install-summary",
+        help=(
+            "summarize every owner's installation state under DIR: emit a notice per missing "
+            "installation; exit 1 only when no owner could be observed at all"
+        ),
+    )
+    install_summary_cmd.add_argument("directory", type=Path, metavar="DIR")
+    install_summary_cmd.add_argument(
+        "--summary", type=Path, default=None, help="append the markdown summary to this file"
     )
     file_cmd = subcommands.add_parser(
         "file-upstream-defects",
@@ -703,6 +738,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_preflight(args.root)
     if args.command == "monitor":
         return run_monitor(args.root, owner=args.owner, out=args.out)
+    if args.command == "monitor-install-record":
+        return run_monitor_install_record(args.owner, args.outcome, args.repositories, args.out)
+    if args.command == "monitor-install-summary":
+        return run_monitor_install_summary(args.directory, summary=args.summary)
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(
             args.root, repository=args.repo, apply=args.apply, close=args.close
@@ -828,6 +867,66 @@ def run_monitor(
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def run_monitor_install_record(
+    owner: str,
+    outcome: str,
+    repositories: str,
+    out: Path,
+    *,
+    lookup: Callable[..., list[LookupResult]] = lookup_installations,
+) -> int:
+    """Record one owner's App installation state (G7-W06). Writes one JSON file, never a token.
+
+    A failed mint is classified by an explicit installation lookup as the App (``GH_APP_ID`` and
+    ``GH_APP_PRIVATE_KEY`` from the environment): only a confirmed 404 is ``NOT_INSTALLED`` and
+    exits 0; any other failure is ``MINT_ERROR`` and exits 1, so that owner's leg fails.
+    """
+    app_id = os.environ.get(APP_ID_VARIABLE) or None
+    private_key = os.environ.get(APP_KEY_VARIABLE) or None
+    names = [name for name in repositories.split(",") if name]
+    lookup_call = None
+    if app_id is not None and private_key is not None and names:
+
+        def lookup_call() -> list[LookupResult]:
+            return lookup(owner, names, app_id=app_id, private_key=private_key)
+
+    try:
+        state = record_state(owner, outcome, repositories, lookup=lookup_call)
+    except InstallStateError as exc:
+        _fail(str(exc))
+        return EXIT_USAGE
+    except Exception as exc:  # signing or transport setup failed: unexplained, so not benign
+        reason = redact(f"{type(exc).__name__}: {exc}", [private_key or ""])
+        state = InstallationState(
+            owner,
+            MINT_ERROR,
+            repositories,
+            f"The read-only token for '{owner}' could not be minted and this is NOT a missing "
+            f"installation: the installation lookup could not run: {reason}. This leg fails.",
+        )
+    path = write_state(state, out)
+    print(f"monitor install: {owner} {state.state}")
+    print(f"record: {path}")
+    if state.state == MINT_ERROR:
+        _fail(state.detail or f"{owner}: token mint failed")
+        return EXIT_INCONSISTENT
+    return EXIT_OK
+
+
+def run_monitor_install_summary(directory: Path, *, summary: Path | None = None) -> int:
+    """Summarize every owner's installation state: a notice per missing install, red if none."""
+    result = summarize_installs(directory)
+    for notice in result.notices:
+        print(notice)
+    if summary is not None:
+        with summary.open("a", encoding="utf-8") as handle:
+            handle.write(result.markdown + "\n")
+    print(result.markdown)
+    if result.problem is not None:
+        _fail(result.problem)
+    return result.exit_code
 
 
 def run_redetect_upstream_defects(
