@@ -150,13 +150,12 @@ def _run_audit_report(tmp_path: Path, outcome: str) -> subprocess.CompletedProce
         pytest.skip("bash is not available to execute the audit's report step")
     script = _render(
         _audit_report_script(),
-        {
-            "steps.app-token.outcome": outcome,
-            "matrix.owner": "acme-org",
-            "matrix.repo": "acme-repo",
-        },
+        {"steps.app-token.outcome": outcome},
     )
     env = {key: value for key, value in os.environ.items() if key != "GH_TOKEN"}
+    # The matrix coordinates reach the step through env:, never as interpolated script text.
+    env["OWNER"] = "acme-org"
+    env["REPO"] = "acme-repo"
     env["GITHUB_STEP_SUMMARY"] = (tmp_path / "summary.md").as_posix()
     return subprocess.run(
         [bash, "-c", script],

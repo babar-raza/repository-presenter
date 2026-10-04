@@ -72,11 +72,17 @@ jobs:
 
       - name: Resolve the target repository from this trigger
         id: target
+        env:
+          # Untrusted trigger input: reaches the script only as a quoted shell variable, never as
+          # interpolated script text.
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_REPOSITORY: ${{ inputs.repository }}
+          PAYLOAD_REPOSITORY: ${{ github.event.client_payload.repository }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            repository="${{ inputs.repository }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            repository="$DISPATCH_REPOSITORY"
           else
-            repository="${{ github.event.client_payload.repository }}"
+            repository="$PAYLOAD_REPOSITORY"
           fi
           if [ -z "$repository" ]; then
             echo "::error::no target repository named by this trigger"
@@ -203,6 +209,10 @@ jobs:
           RP_PYTHON_TOOLCHAINS: ${{ runner.temp }}/rp-python
           GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
           GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
+          # The target repository and trigger type reach the script as quoted shell variables, never
+          # as interpolated script text.
+          TARGET_REPOSITORY: ${{ steps.target.outputs.repository }}
+          TRIGGER_EVENT_TYPE: ${{ github.event_name == 'workflow_dispatch' && 'workflow_dispatch' || 'repository_dispatch' }}
         run: |
           # Two invocations, deliberately, in this one job: a fresh GitHub Actions runner always
           # starts with empty runs/ (gitignored, never committed), so the *first* invocation alone
@@ -216,9 +226,9 @@ jobs:
           # --workflow-run-id for each keeps trigger.py's own dedup (section 3.2) from folding the
           # second call into the first's already-completed transaction and skipping it outright.
           if repository-presenter present \
-            --repo "${{ steps.target.outputs.repository }}" \
+            --repo "$TARGET_REPOSITORY" \
             --durable-state \
-            --trigger-event-type "${{ github.event_name == 'workflow_dispatch' && 'workflow_dispatch' || 'repository_dispatch' }}" \
+            --trigger-event-type "$TRIGGER_EVENT_TYPE" \
             --workflow-run-id "${{ github.run_id }}"; then
             first_exit=0
           else
@@ -230,8 +240,8 @@ jobs:
           fi
           echo "::group::No-op proof: a second, fresh-process rerun against the same revision"
           repository-presenter present \
-            --repo "${{ steps.target.outputs.repository }}" \
+            --repo "$TARGET_REPOSITORY" \
             --durable-state \
-            --trigger-event-type "${{ github.event_name == 'workflow_dispatch' && 'workflow_dispatch' || 'repository_dispatch' }}" \
+            --trigger-event-type "$TRIGGER_EVENT_TYPE" \
             --workflow-run-id "${{ github.run_id }}-noop-proof"
           echo "::endgroup::"
