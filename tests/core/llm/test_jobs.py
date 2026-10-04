@@ -649,6 +649,36 @@ def test_a_truncated_reply_fails_fast_naming_the_budget(
     ]
 
 
+def test_a_truncated_reply_is_kept_beside_the_store_and_never_accepted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The truncated reply is the only evidence of which field ran away; it is kept like any
+    rejected reply (CallStore.reject), and it is still never accepted, even when it parses."""
+    truncated = '{"product_summary": {"text": "x", "fact_ids": ["public_symbol:a.b", '
+    _Gateway(monkeypatch, _completion(truncated, finish_reason="length"))
+    store = CallStore(tmp_path / "calls")
+    with pytest.raises(JobError, match="truncated at the manifest's max_output_tokens"):
+        run_job(
+            MANIFEST,
+            PACKET,
+            config=CONFIG,
+            facts=FACTS,
+            ledger=Ledger(tmp_path / "calls.jsonl"),
+            store=store,
+            context=CONTEXT,
+        )
+    kept = sorted((tmp_path / "calls").glob("*.rejected-1.json"))
+    assert len(kept) == 1
+    record = json.loads(kept[0].read_text(encoding="utf-8"))
+    assert record["content"] == json.dumps(truncated)  # _completion encodes its content
+    assert record["job"] == MANIFEST.manifest.prompt_id
+    assert record["rejection"] == ["output truncated at the manifest's max_output_tokens"]
+    accepted = [
+        path for path in (tmp_path / "calls").glob("*.json") if ".rejected-" not in path.name
+    ]
+    assert accepted == []  # no accepted output was stored for the truncated call
+
+
 def test_a_second_rejection_fails_the_job_closed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from repository_presenter.components.readme.extractors.platforms import net
 from repository_presenter.components.readme.extractors.platforms.registry import (
     known_ecosystems,
@@ -282,6 +284,62 @@ def test_a_missing_verifier_reports_not_verified_rather_than_failure(tmp_path: P
     ]
     receipts = net.PLUGIN.verify_examples(tmp_path, [], candidates, tmp_path / "run")
     assert [receipt.outcome for receipt in receipts] == ["NOT_VERIFIED"]
+
+
+@pytest.mark.parametrize("product_exit", [0, 1])
+def test_the_manifests_own_build_is_driven_once_and_measured_with_no_example(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, product_exit: int
+) -> None:
+    """The one measured build a .NET install claim may advertise (Imaging-FOSS for .NET and
+    GIS, measured 2026-10-04). It is driven once, against the governing project, and needs no
+    README example: a snippet's own failure is the snippet's defect, and a README with no C#
+    example at all still has a buildable package. Exit codes only - no duration is recorded."""
+    from repository_presenter.components.readme.extractors.platforms import net_examples
+    from repository_presenter.core.execution import ExecutionResult
+
+    # The checkout and the verifier's workspace are siblings, as the facts stage lays them out.
+    upstream = tmp_path / "upstream"
+    _repository(upstream)
+    manifest = upstream / "src" / "Aspose.Widget" / "Aspose.Widget.csproj"
+    product_argv = ["dotnet", "build", "src/Aspose.Widget/Aspose.Widget.csproj"]
+    seen: list[list[str]] = []
+
+    def fake_execute(argv: list[str], **_: Any) -> ExecutionResult:
+        seen.append(list(argv))
+        if list(argv) == ["dotnet", "--version"]:
+            return ExecutionResult(tuple(argv), 0, "8.0.425\n", "", False)
+        code = product_exit if list(argv) == product_argv else 0
+        return ExecutionResult(tuple(argv), code, "", "", False)
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake_execute)
+    measured = net.PLUGIN.verify_build(upstream, manifest, tmp_path / "run")
+    assert seen.count(product_argv) == 1
+    assert measured.verified is (product_exit == 0)
+    expected = "dotnet build src/Aspose.Widget/Aspose.Widget.csproj" if product_exit == 0 else ""
+    assert measured.command == expected
+    assert "duration" not in measured.summary.lower()
+
+
+def test_a_project_with_no_package_id_takes_the_msbuild_default_name(tmp_path: Path) -> None:
+    """GIS, measured 2026-10-04: `Aspose.GIS.FOSS.csproj` declares no PackageId, so the vendored
+    reader found no name and the plugin emitted no install claim at all - BC-02 then failed "no
+    install command fact". MSBuild's own default is PackageId = AssemblyName = the project file's
+    name, so the claim exists under that name and goes through the registry like any other."""
+    project = tmp_path / "src" / "Aspose.Gis.Foss" / "Aspose.Gis.Foss.csproj"
+    project.parent.mkdir(parents=True)
+    project.write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n'
+        "    <TargetFramework>net10.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    facts = {f.id: f for f in net.PLUGIN.manifest_facts(tmp_path, project, [])}
+    assert facts["package:name"].value == "Aspose.Gis.Foss"
+    install = facts["install_command:dotnet"]
+    assert install.value == "dotnet add package Aspose.Gis.Foss"
+    assert install.polarity == "UNRESOLVED"
+    assert "manifest" in install.evidence[0].detail
+    assert "default" in facts["package:name"].evidence[0].detail
 
 
 def test_the_plugin_imports_no_sibling_ecosystem() -> None:

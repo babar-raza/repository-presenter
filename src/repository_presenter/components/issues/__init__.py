@@ -19,11 +19,12 @@ neither of which needs a GitHub write scope:
   handoff artifact this package's lifecycle already governs gets created automatically instead of
   only through the separate, manually-invoked `redetect-upstream-defects` CLI subcommand.
 - `file.py` — the gated write half: files a `HANDOFF_PENDING` handoff as a real
-  `POST /repos/{owner}/{repo}/issues` call, but only past two independent, explicit gates (an
-  owner-controlled authorization signal, and a write-scoped token distinct from the read-only
-  `GH_TOKEN` every other module here uses) and a fresh recheck that the defect still fires; none
-  of that is set anywhere in this project's own environment today, so it is built and tested,
-  never fired.
+  `POST /repos/{owner}/{repo}/issues` call, and closes a `FILED` handoff whose check no longer
+  fires (`PATCH .../issues/{n}`), each only past two independent, explicit gates (an owner-
+  controlled authorization variable, and a write-scoped token distinct from the read-only
+  `GH_TOKEN` every other module here uses). Filing also rechecks the defect and searches the target
+  for the handoff's fingerprint marker, so a fresh checkout cannot file a duplicate. It runs only
+  from `.github/workflows/issues-scheduled.yml`'s gated write job.
 
 Every other module here (`model.py`, `ledger.py`, `redetect.py`, `draft.py`) stays read + local-
 JSON only and calls no GitHub Issues write endpoint; only `file.py` ever does, and only past its
