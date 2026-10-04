@@ -230,7 +230,11 @@ _TYPE_OBJECTIVE = (
 # session, a different call site, the same shared constant) - renumbered to "17" on rebase rather
 # than reusing "16", since a version constant must move once per real meaning change, never share
 # a value across two independent ones.
-NORMALISATION_VERSION = "17"
+#
+# "18": a slot with nothing it may cite now pins its fact_ids to maxLength 0 rather than an empty
+# enum, which no strict json_schema request can carry (the S5 HTTP 500/502 class, 2026-10-04).
+# Every request that could ever have succeeded is byte-identical; only the unsatisfiable one moved.
+NORMALISATION_VERSION = "18"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -810,6 +814,16 @@ def authoring_schema(manifest: LoadedManifest, task: SectionTask) -> dict[str, A
     units["minItems"] = len(task.slots)
     units["maxItems"] = len(task.slots)
     item = units["items"]
+
+    def _fact_id_items(slot: str) -> dict[str, Any]:
+        allowed = citable(task, slot)
+        if allowed:
+            return {"type": "string", "enum": allowed}
+        # Nothing this slot may cite: an empty enum is a keyword no value satisfies, which no
+        # strict json_schema request can carry (the S5 HTTP 500/502 class, 2026-10-04). maxLength 0
+        # admits only "", which names no fact, so the binding refuses it on the deterministic path.
+        return {"type": "string", "maxLength": 0}
+
     # One entry per slot, in the task's order: the slot it fills and the only facts its unit may
     # cite. Both are the code's to state - the plan assigned them - so a reply that fills the
     # wrong slot or cites another slot's fact is unrepresentable rather than rejected, which is
@@ -826,7 +840,7 @@ def authoring_schema(manifest: LoadedManifest, task: SectionTask) -> dict[str, A
                 "slot": {"const": slot},
                 "fact_ids": {
                     **item["properties"]["fact_ids"],
-                    "items": {"type": "string", "enum": citable(task, slot)},
+                    "items": _fact_id_items(slot),
                 },
             },
         }

@@ -106,10 +106,16 @@ def section_conditions(
     facts: FactsDocument, policy: PlanningPolicy = DEFAULT_POLICY
 ) -> dict[str, bool | None]:
     """Whether each section's condition holds: True, False, or None when the plan decides."""
+    # A relevant target is one a plan may assign: a shell-owned target renders at its own fixed
+    # place and is refused as an assignment (plan_checks), so it cannot be the evidence that makes
+    # documentation_resources hold (README_CONTRACT.md row 15, Conditional on verified relevant
+    # targets). Aspose.GIS's three shell-owned targets made this section hold with nothing to list.
     links = [
         fact.id
         for fact in facts.by_kind("link_target")
-        if fact.polarity == "SUPPORTED" and fact.value.startswith(("http://", "https://"))
+        if fact.polarity == "SUPPORTED"
+        and fact.id not in _SHELL_OWNED_LINKS
+        and fact.value.startswith(("http://", "https://"))
     ]
     evaluated: dict[str, bool | None] = {
         "banner": banner_target(facts.facts) is not None,  # README_CONTRACT.md row 3
@@ -491,6 +497,12 @@ def planning_schema(
     if "section_id" in deviations:
         # The canary's planner named a deviation against 'links', which is not a shell section.
         deviations["section_id"] = {"type": "string", "enum": list(section_ids())}
+    # With nothing assignable, the list itself is pinned empty (maxItems 0) rather than given an
+    # empty enum: no value satisfies an empty enum, so a strict json_schema request carrying one
+    # cannot be decoded (the S5 HTTP 500/502 on Aspose.GIS, 2026-10-04). The contract's own
+    # disposition follows: documentation_resources is omitted by its condition (section_conditions),
+    # and the one completeness obligation a link can carry - a VERIFIED_REWRITE target - is
+    # appended by the _missing_links backstop, never written by the model.
     link_properties = properties.get("links", {}).get("items", {}).get("properties", {})
     if "link_fact_id" in link_properties:
         assignable = sorted(
@@ -498,7 +510,10 @@ def planning_schema(
             for record in bounded_records(facts, {"link_target"})
             if record["id"] not in _SHELL_OWNED_LINKS
         )
-        link_properties["link_fact_id"] = {"type": "string", "enum": assignable}
+        if assignable:
+            link_properties["link_fact_id"] = {"type": "string", "enum": assignable}
+        else:
+            properties["links"] = {"type": "array", "maxItems": 0}
     hub_properties = properties.get("api_hubs", {}).get("items", {}).get("properties", {})
     if "symbol_fact_id" in hub_properties:
         mis_hubbed = _mis_hubbed_symbol_ids(facts)
@@ -506,7 +521,11 @@ def planning_schema(
         # packet's PLANNING_SYMBOL_CAP already excluded must never appear as a choosable hub either.
         visible_symbol_ids = _admitted_public_symbol_ids(facts)
         hubbable = sorted(visible_symbol_ids - mis_hubbed)
-        hub_properties["symbol_fact_id"] = {"type": "string", "enum": hubbable}
+        if hubbable:
+            hub_properties["symbol_fact_id"] = {"type": "string", "enum": hubbable}
+        else:
+            # The same empty-enum defect as links above: no hub can be named, so none may be.
+            properties["api_hubs"] = {"type": "array", "maxItems": 0}
     formats = _verified_formats(facts)
     for variant in properties.get("at_a_glance", {}).get("oneOf", []):
         if variant.get("type") != "object":
