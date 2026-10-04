@@ -61,6 +61,7 @@ from repository_presenter.core.state.schema import (
     LeaseRecord,
     RepositoryRecord,
     TransactionState,
+    is_registered_transition,
 )
 from repository_presenter.core.state.trigger import (
     TriggerEventType,
@@ -109,15 +110,14 @@ _WILDCARD_RESUME_SOURCES: frozenset[TransactionState] = frozenset(
     {"BLOCKED_EXTERNAL", "FAILED_INTERNAL"}
 )
 
-# docs/STATE_MACHINE.md section 6: a README-only placeholder is NON_PROCESSABLE, terminal for its
-# revision. Its only registered exit is OBSERVED (schema.py), so every path in is spelled out here
-# rather than searched for. A current state absent from both this table and NON_PROCESSABLE itself
-# has no registered path, and the transition fails closed (see _non_processable_hops).
-_NON_PROCESSABLE_HOPS: dict[TransactionState, tuple[TransactionState, ...]] = {
-    "OBSERVED": ("NON_PROCESSABLE",),
-    # A repository proven READY_FOR_PROPOSAL whose source is now empty: close the cycle first.
-    "READY_FOR_PROPOSAL": ("MONITORING", "OBSERVED", "NON_PROCESSABLE"),
-}
+# A record left at INVALIDATED re-enters at EXTRACTING: the one registered INVALIDATED -> active
+# edge schema.py defines for a whole-pipeline re-run (docs/STATE_MACHINE.md section 9's "earliest
+# affected stage" for a repository revision change, which a full local re-run always re-derives).
+_INVALIDATED_REENTRY: TransactionState = "EXTRACTING"
+
+# States whose outcome-regressions have no registered edge back toward SNAPSHOTTING. Both have a
+# registered edge to INVALIDATED (schema.py), so a run whose outcome sits behind them routes there.
+_ROUTES_THROUGH_INVALIDATED: frozenset[TransactionState] = frozenset({"ACCEPTED", "PROVING_NO_OP"})
 
 
 @dataclass(frozen=True)
@@ -128,7 +128,7 @@ class PresentOutcome:
     kind: Literal["success", "failed", "non_processable"]
     # "success": the success-spine position this run reached (ACCEPTED or READY_FOR_PROPOSAL,
     # or SNAPSHOTTING for an EXIT_OK run that sealed no bundle at all, e.g. --facts-only).
-    # "non_processable": always NON_PROCESSABLE.
+    # "non_processable": always NON_PROCESSABLE (docs/STATE_MACHINE.md section 6).
     target_state: TransactionState | None = None
     # "failed": attached to the committed failure state as FailureRecord.
     # "non_processable": the disposition's reason code and resume predicate, for the run output.
@@ -187,9 +187,9 @@ def classify_present_outcome(
     ``"non_processable"`` (see :func:`_classify_disposition`). The caller passes the path only from
     the run it just performed, so this never guesses which transaction's artifact to read.
 
-    Otherwise ``exit_code == 0`` reads the sealed bundle this run just left on disk (``CURRENT``
-    plus its manifest - the exact mechanism ``core/candidates.py``'s own stale/count helpers already
-    use) to report which success-spine state it actually reached: ``READY_FOR_PROPOSAL`` for a
+    ``exit_code == 0`` reads the sealed bundle this run just left on disk (``CURRENT`` plus its
+    manifest - the exact mechanism ``core/candidates.py``'s own stale/count helpers already use) to
+    report which success-spine state it actually reached: ``READY_FOR_PROPOSAL`` for a
     byte-identical, zero-provider-call reproduction of an already-sealed candidate (the hosted
     no-op-proof scenario G5-W05 exists to prove, or an equally real fresh no-op proof this very
     run), ``ACCEPTED`` for real new or changed composition work not yet proven in this run.
@@ -225,12 +225,27 @@ def classify_present_outcome(
     return PresentOutcome(kind="success", target_state="ACCEPTED")
 
 
-def _failure_target(current_state: TransactionState) -> TransactionState:
-    """``ACCEPTED``'s only two registered edges are ``PROVING_NO_OP`` and ``INVALIDATED`` - it has
-    no direct edge to ``FAILED_INTERNAL``, unlike every other active state this wrapper can resume
-    into. ``INVALIDATED`` is the honest substitute: a failure discovered while resuming an
-    ``ACCEPTED`` transaction means the previously accepted candidate no longer stands."""
-    return "INVALIDATED" if current_state == "ACCEPTED" else "FAILED_INTERNAL"
+def _failure_hops(current_state: TransactionState) -> list[TransactionState]:
+    """The registered hops a failed run commits from ``current_state``.
+
+    ``ACCEPTED`` and ``READY_FOR_PROPOSAL`` have no registered edge to ``FAILED_INTERNAL``; both
+    have one to ``INVALIDATED``, and a failure discovered while a sealed (possibly proven) candidate
+    is in play means that candidate no longer stands (docs/STATE_MACHINE.md section 10: "Failure
+    routes through ``INVALIDATED``"). ``INVALIDATED`` is already the routing state a failure lands
+    on, so it commits nothing new - the same reasoning as a repeat ``FAILED_INTERNAL``. A
+    ``MONITORING`` record's only registered next state is ``OBSERVED``, so a failure is recorded
+    from there. Everything else reaches ``FAILED_INTERNAL`` directly.
+    """
+    if current_state == "INVALIDATED" or current_state == "FAILED_INTERNAL":
+        return []
+    if current_state == "NON_PROCESSABLE":
+        # Its only registered exit is OBSERVED; a failure is then recorded from there.
+        return ["OBSERVED", "FAILED_INTERNAL"]
+    if current_state in ("ACCEPTED", "READY_FOR_PROPOSAL"):
+        return ["INVALIDATED"]
+    if current_state == "MONITORING":
+        return ["OBSERVED", "FAILED_INTERNAL"]
+    return ["FAILED_INTERNAL"]
 
 
 def _success_hops(
@@ -244,32 +259,39 @@ def _success_hops(
     """
     if current_state == target_state:
         return []  # nothing changed; the registry has no self-loop and none is needed
-    if current_state == "NON_PROCESSABLE":
-        # The placeholder gained implementation evidence: its only registered exit is OBSERVED.
-        end = SUCCESS_SPINE.index(target_state)
-        return ["OBSERVED", *SUCCESS_SPINE[1 : end + 1]]
+    if current_state == "INVALIDATED":
+        if target_state == "SNAPSHOTTING":
+            # Nothing conclusive to commit: the invalidation stands, and no registered edge leads
+            # from INVALIDATED back to SNAPSHOTTING. Nothing new to say, as with a repeat failure.
+            return []
+        # INVALIDATED's registered re-entry (docs/STATE_MACHINE.md section 9: "earliest affected
+        # active state"). A full local re-run re-derives everything from the immutable snapshot, so
+        # the earliest stage it honestly re-enters is EXTRACTING.
+        return [_INVALIDATED_REENTRY, *_forward(_INVALIDATED_REENTRY, target_state)]
     if current_state in _WILDCARD_RESUME_SOURCES:
         # FAILED_INTERNAL/BLOCKED_EXTERNAL -> any ACTIVE_STATE is registered (schema.py's own
         # wildcard); SNAPSHOTTING is this module's one re-entry point onto the spine.
-        bridge: list[TransactionState] = ["SNAPSHOTTING"]
-        start = SUCCESS_SPINE.index("SNAPSHOTTING")
-        end = SUCCESS_SPINE.index(target_state)
-        return bridge + list(SUCCESS_SPINE[start + 1 : end + 1])
+        return ["SNAPSHOTTING", *_forward("SNAPSHOTTING", target_state)]
+    if current_state == "NON_PROCESSABLE":
+        # The placeholder gained implementation evidence: its only registered exit is OBSERVED.
+        return ["OBSERVED", *_forward("OBSERVED", target_state)]
+    if current_state == "MONITORING":
+        # MONITORING is quiescent; its only registered next state is OBSERVED, the top of the spine.
+        return ["OBSERVED", *_forward("OBSERVED", target_state)]
     if current_state in SUCCESS_SPINE:
-        start = SUCCESS_SPINE.index(current_state)
-        end = SUCCESS_SPINE.index(target_state)
-        if end > start:
-            return list(SUCCESS_SPINE[start + 1 : end + 1])
+        if SUCCESS_SPINE.index(current_state) < SUCCESS_SPINE.index(target_state):
+            return _forward(current_state, target_state)
         if current_state == "READY_FOR_PROPOSAL":
             # A real regression: the repository was previously fully sealed and proven, and this
             # run found genuine new, unproven work. READY_FOR_PROPOSAL -> MONITORING -> OBSERVED
             # is the only registered way back toward the top of the spine from a quiescent
             # READY_FOR_PROPOSAL; restart from there.
-            return ["MONITORING", "OBSERVED", *SUCCESS_SPINE[1 : end + 1]]
-        raise StateBackendError(
-            f"present_transaction: no registered path from {current_state!r} back to "
-            f"{target_state!r} (the only known regression is READY_FOR_PROPOSAL -> ACCEPTED)"
-        )
+            return ["MONITORING", "OBSERVED", *_forward("OBSERVED", target_state)]
+        if current_state in _ROUTES_THROUGH_INVALIDATED:
+            # The run's outcome sits behind this record and no registered edge regresses it. Both
+            # states have a registered edge to INVALIDATED, which then re-enters as above (or, for
+            # a no-bundle outcome, stops there).
+            return ["INVALIDATED", *_success_hops("INVALIDATED", target_state)]
     raise StateBackendError(
         f"present_transaction: {current_state!r} has no registered path toward a committed "
         "outcome - this wiring's own scope only ever produces OBSERVED, a success-spine state, "
@@ -277,47 +299,47 @@ def _success_hops(
     )
 
 
+def _forward(from_state: TransactionState, to_state: TransactionState) -> list[TransactionState]:
+    """The spine hops strictly after ``from_state`` up to and including ``to_state``. Callers
+    guarantee ``to_state`` is at or after ``from_state`` on :data:`SUCCESS_SPINE`."""
+    start = SUCCESS_SPINE.index(from_state)
+    end = SUCCESS_SPINE.index(to_state)
+    return list(SUCCESS_SPINE[start + 1 : end + 1])
+
+
 def _non_processable_hops(current_state: TransactionState) -> list[TransactionState]:
     """The registered hops from ``current_state`` into NON_PROCESSABLE, or fail closed.
 
-    Recording a placeholder from a state with no registered path would either skip the registry or
-    misstate the repository's history, so an unreachable state raises instead (the lease is still
-    released by the caller's ``finally``, and the durable record is left exactly as it was).
+    Only OBSERVED (directly), MONITORING (via OBSERVED) and READY_FOR_PROPOSAL (closing the cycle
+    through MONITORING) have a registered route. Any other state raises before any write, so the
+    durable record is left exactly as it was and the placeholder disposition stays on disk.
     """
     if current_state == "NON_PROCESSABLE":
         return []  # already recorded for this revision; the registry has no self-loop
-    hops = _NON_PROCESSABLE_HOPS.get(current_state)
-    if hops is None:
-        raise StateBackendError(
-            f"present_transaction: {current_state!r} has no registered path to NON_PROCESSABLE "
-            "(only OBSERVED and READY_FOR_PROPOSAL do); the placeholder disposition is left on "
-            "disk and the durable record is unchanged"
-        )
-    return list(hops)
+    if current_state == "OBSERVED":
+        return ["NON_PROCESSABLE"]
+    if current_state == "MONITORING":
+        return ["OBSERVED", "NON_PROCESSABLE"]
+    if current_state == "READY_FOR_PROPOSAL":
+        return ["MONITORING", "OBSERVED", "NON_PROCESSABLE"]
+    raise StateBackendError(
+        f"present_transaction: {current_state!r} has no registered path to NON_PROCESSABLE "
+        "(only OBSERVED, MONITORING and READY_FOR_PROPOSAL do); the placeholder disposition is "
+        "left on disk and the durable record is unchanged"
+    )
 
 
-def _record_hops(
-    backend: StateBackend,
-    repository: str,
-    lease: LeaseRecord,
-    provider_repository_id: int,
-    hops: list[TransactionState],
-    event: str,
-    input_manifest: str,
-    output_manifest: str,
-) -> None:
+def _require_registered_path(start: TransactionState, hops: list[TransactionState]) -> None:
+    """Check every planned hop against schema.py's own registry before the first write, so a
+    planning defect fails closed here with no partial commit, never as an IllegalTransitionError
+    raised from inside record_transition halfway through the hop list."""
+    previous = start
     for to_state in hops:
-        record_transition(
-            backend,
-            repository,
-            lease,
-            to_state=to_state,
-            event=event,
-            input_manifest=input_manifest,
-            output_manifest=output_manifest,
-            policy_version=POLICY_VERSION,
-            provider_repository_id=provider_repository_id,
-        )
+        if not is_registered_transition(previous, to_state):
+            raise StateBackendError(
+                f"present_transaction: no registered path {previous!r} -> {to_state!r}"
+            )
+        previous = to_state
 
 
 def _commit_outcome(
@@ -330,90 +352,56 @@ def _commit_outcome(
 ) -> None:
     output_manifest = f"candidates/{repository.replace('/', '__', 1)}/CURRENT"
     input_manifest = f"registry:{repository}"
-    if outcome.kind == "non_processable":
-        _record_hops(
-            backend,
-            repository,
-            lease,
-            provider_repository_id,
-            _non_processable_hops(current_state),
-            event=(
-                "present.yml hosted transaction classified NON_PROCESSABLE (processability "
-                "disposition written; no candidate sealed)"
-            ),
-            input_manifest=input_manifest,
-            output_manifest=output_manifest,
+
+    def mark_failed(record: RepositoryRecord) -> RepositoryRecord:
+        return record.model_copy(
+            update={
+                "failure": FailureRecord(
+                    classification="validation_failed",
+                    detail=outcome.detail or "present reported a failure",
+                    # Informational only: neither FAILED_INTERNAL nor INVALIDATED is auto-resumed
+                    # by recovery_sweep; a later trigger re-enters through this module's own
+                    # admit_trigger path regardless of what resume_state names.
+                    resume_state="SNAPSHOTTING",
+                    occurred_at=_now_iso(),
+                )
+            }
         )
-        return
+
     if outcome.kind == "failed":
-        if current_state == "NON_PROCESSABLE":
-            # The one registered exit from the terminal placeholder state: re-observe the revision,
-            # then record the failure from OBSERVED like any other observed run.
-            _record_hops(
-                backend,
-                repository,
-                lease,
-                provider_repository_id,
-                ["OBSERVED"],
-                event="present.yml hosted transaction re-observed a non-processable repository",
-                input_manifest=input_manifest,
-                output_manifest=output_manifest,
-            )
-            current_state = "OBSERVED"
-        target = _failure_target(current_state)
-        if current_state == target:
-            # The registry has no self-loop (same reasoning as _success_hops's own early return):
-            # a repeat failure that lands on the same already-committed terminal state - e.g. two
-            # consecutive hosted runs both failing at FAILED_INTERNAL - has no registered hop to
-            # commit. The record already correctly reflects "failed, not yet resolved"; a later
-            # trigger re-enters through admit_trigger regardless, so nothing is lost by not
-            # re-writing the same state a second time.
-            return
-
-        def mark_failed(record: RepositoryRecord) -> RepositoryRecord:
-            return record.model_copy(
-                update={
-                    "failure": FailureRecord(
-                        classification="validation_failed",
-                        detail=outcome.detail or "present reported a failure",
-                        # Informational only: neither FAILED_INTERNAL nor INVALIDATED is
-                        # auto-resumed by recovery_sweep; a later trigger re-enters through this
-                        # module's own admit_trigger path regardless of what resume_state names.
-                        resume_state="SNAPSHOTTING",
-                        occurred_at=_now_iso(),
-                    )
-                }
-            )
-
+        # A repeat failure that lands on the state it already holds (INVALIDATED, FAILED_INTERNAL)
+        # plans no hop at all: the registry has no self-loop, and the record already correctly
+        # reads "failed, not yet resolved".
+        hops = _failure_hops(current_state)
+        event = "present.yml hosted transaction failed"
+    elif outcome.kind == "non_processable":
+        hops = _non_processable_hops(current_state)
+        event = (
+            "present.yml hosted transaction classified NON_PROCESSABLE (processability "
+            "disposition written; no candidate sealed)"
+        )
+    else:
+        assert outcome.target_state is not None
+        hops = _success_hops(current_state, outcome.target_state)
+        event = (
+            "present.yml hosted transaction completed (one coarse receipt spanning the local "
+            "pipeline's own stages - see core/state/present_transaction.py's module docstring)"
+        )
+    _require_registered_path(current_state, hops)
+    for index, to_state in enumerate(hops):
+        is_final_failure_hop = outcome.kind == "failed" and index == len(hops) - 1
         record_transition(
             backend,
             repository,
             lease,
-            to_state=target,
-            event="present.yml hosted transaction failed",
+            to_state=to_state,
+            event=event,
             input_manifest=input_manifest,
             output_manifest=output_manifest,
             policy_version=POLICY_VERSION,
             provider_repository_id=provider_repository_id,
-            patch=mark_failed,
+            patch=mark_failed if is_final_failure_hop else None,
         )
-        return
-
-    assert outcome.target_state is not None
-    event = (
-        "present.yml hosted transaction completed (one coarse receipt spanning the local "
-        "pipeline's own stages - see core/state/present_transaction.py's module docstring)"
-    )
-    _record_hops(
-        backend,
-        repository,
-        lease,
-        provider_repository_id,
-        _success_hops(current_state, outcome.target_state),
-        event=event,
-        input_manifest=input_manifest,
-        output_manifest=output_manifest,
-    )
 
 
 def run_present_transaction(
