@@ -24,7 +24,7 @@ from repository_presenter.components.issues.model import (
 )
 from repository_presenter.components.issues.redetect import RedetectionResult
 from repository_presenter.core.errors import RepositoryMetadataError
-from support import approving_store
+from support import approving_store, make_permit
 
 REPO = "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
 REVISION = "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2"
@@ -66,6 +66,7 @@ def file_handoff(handoff: Handoff, **kwargs: Any) -> FileResult:
     """``file_handoff`` with the owner's approval for ``handoff`` committed. These tests are about
     the other gates; the approval gate's own refusals are in test_approval.py."""
     kwargs.setdefault("approvals", approving_store(handoff))
+    kwargs.setdefault("permit", make_permit(handoff.repository, effect="issue_filing"))
     return _file_handoff(handoff, **kwargs)
 
 

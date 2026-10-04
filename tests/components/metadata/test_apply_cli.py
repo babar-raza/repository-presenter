@@ -4,7 +4,7 @@ writes nothing without the explicit authorization variable. No test here makes a
 
 from __future__ import annotations
 
-import shutil
+import json
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +12,6 @@ import pytest
 
 from repository_presenter import cli
 from repository_presenter.cli import EXIT_OK, main
-from repository_presenter.components.metadata import apply as apply_module
 from repository_presenter.components.metadata.apply import AUTHORIZATION_VARIABLE
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument, fact_id, write_facts
 from repository_presenter.core.github.client import ObservedRepository
@@ -27,16 +26,14 @@ README_TEXT = (
 )
 
 
-@pytest.fixture(autouse=True)
-def _allowing_shared_write_gate(monkeypatch: pytest.MonkeyPatch) -> None:
-    """The shipped default gate fails closed; these tests exercise the paths behind it."""
-    monkeypatch.setattr(apply_module, "shared_write_gate", lambda repository: None)
-
-
 @pytest.fixture
 def project_with_registry(project: Path) -> Path:
     (project / "data").mkdir()
-    shutil.copy(REPO_ROOT / "data" / "registry.json", project / "data" / "registry.json")
+    registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text(encoding="utf-8"))
+    for entry in registry["entries"]:
+        if entry["repository"] == "aspose-3d-foss/Aspose.3D-FOSS-for-Python":
+            entry["mode"] = "full"  # `--apply` is refused for any other mode (see the gate tests)
+    (project / "data" / "registry.json").write_text(json.dumps(registry), encoding="utf-8")
     return project
 
 

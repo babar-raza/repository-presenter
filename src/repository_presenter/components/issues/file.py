@@ -62,6 +62,7 @@ from repository_presenter.core.github.client import (
     default_patch,
     default_post,
 )
+from repository_presenter.core.registry.write_gate import WritePermit
 
 AUTHORIZATION_VARIABLE = "REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED"
 _AUTHORIZED_VALUES = frozenset({"1", "true", "yes"})
@@ -250,9 +251,16 @@ def file_handoff(
     approvals: ApprovalStore | None = None,
     now: Callable[[], datetime] | None = None,
     expected_repository: str | None = None,
+    permit: WritePermit,
 ) -> FileResult:
     """File ``handoff`` as a real GitHub issue - but only past every gate in this module's own
-    docstring. Every early return below makes no network call at all."""
+    docstring. Every early return below makes no network call at all.
+
+    ``permit`` is the registry write gate's proof (``core/registry/write_gate.py``): the target is
+    listed, active and mode ``full``. It is required, so a ``dry_run`` or ``disabled`` entry - for
+    which no permit can be obtained - can never reach this function."""
+    if permit.effect != "issue_filing" or permit.entry.repository != handoff.repository:
+        raise ValueError("the write permit does not clear this effect for this repository")
 
     def _refuse(authorized: bool, reason: str, *, error: bool = False) -> FileResult:
         return FileResult(
