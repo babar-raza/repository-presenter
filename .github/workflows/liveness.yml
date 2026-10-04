@@ -7,6 +7,15 @@
 # recovery is a new supervisor session running tools/reviewer/procedure.md section 0.
 #
 # Read-only by design: no write permission, no repo mutation, ever.
+#
+# When this run is red (contract since 2026-10-04): only a failed liveness signal. That is either
+# the observer being blind (the open-PR listing or the git refs cannot be read) or main having gone
+# quiet during a declared sprint (plans/sprint/ACTIVE). Stale in-flight work is an OBSERVATION, not
+# a failure: an open PR older than 30 minutes is normally a lane still working, and every red run
+# from 2026-09-11 to 2026-10-04 was red only because of that observation. Stale PRs and stranded
+# remote branches are therefore written as ::notice:: annotations and a step summary, so the list
+# stays visible while the run stays green. Steps run in sequence, so a red observation step would
+# also skip the health check after it; this is a second reason observations must not fail.
 name: Liveness
 
 on:
@@ -36,47 +45,88 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Open PRs older than 30 minutes (label-independent)
+      - name: Observe open PRs older than 30 minutes (label-independent; notice, not failure)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Merged lane PRs land ~3 minutes after CI turns green (measured norm, 27 of 29);
           # 30 minutes open is two orders of magnitude past it. Label 'hold' exempts a PR the
           # owner deliberately parks. PRs #29/#30 carried no lane label — never filter by label.
-          now=$(date -u +%s)
-          stale=0
-          gh pr list --state open --limit 50 --json number,createdAt,labels,headRefName \
-            --jq '.[] | [.number, .createdAt, ([.labels[].name] | join(",")), .headRefName] | @tsv' |
-          while IFS=$'\t' read -r num created labels branch; do
-            age_min=$(( (now - $(date -u -d "$created" +%s)) / 60 ))
-            case ",$labels," in *,hold,*) continue ;; esac
-            if [ "$age_min" -gt 30 ]; then
-              echo "::error::open PR #$num ($branch) is ${age_min} min old with no 'hold' label — a dead agent's PR; adopt or close it (loop-prompt section 1.1)"
-              echo 1 > /tmp/stale_flag
-            fi
-          done
-          test ! -f /tmp/stale_flag
+          #
+          # A failed listing is a liveness failure (the observer is blind) and fails this step.
+          # Stale PRs are notices. Parsing is in python, not a bash `read` over a tab-separated
+          # list: bash treats tab as IFS whitespace, so an empty labels field collapsed and the
+          # branch name landed in the empty slot (2026-10-04: every PR printed "()" as its branch).
+          set -euo pipefail
+          listing=$(gh pr list --state open --limit 200 --json number,createdAt,labels,headRefName)
+          python3 - "$listing" <<'PY'
+          import datetime as dt
+          import json
+          import os
+          import sys
 
-      - name: Remote branches ahead of main and untouched for 12+ hours
+          prs = json.loads(sys.argv[1])
+          now = dt.datetime.now(dt.timezone.utc)
+          rows = []
+          for pr in prs:
+              created = dt.datetime.fromisoformat(pr["createdAt"].replace("Z", "+00:00"))
+              age_min = int((now - created).total_seconds() // 60)
+              if age_min <= 30:
+                  continue
+              labels = {label["name"] for label in pr.get("labels", [])}
+              branch = pr["headRefName"]
+              if "hold" in labels:
+                  status = "held (label hold)"
+              else:
+                  status = "stale: adopt or close (loop-prompt section 1.1)"
+                  print(
+                      f"::notice title=Stale open PR::PR #{pr['number']} ({branch}) is "
+                      f"{age_min} min old with no 'hold' label; adopt or close it"
+                  )
+              rows.append(f"| #{pr['number']} | `{branch}` | {age_min} | {status} |")
+          lines = [
+              "### Open PRs older than 30 minutes",
+              f"{len(prs)} open PR(s); {len(rows)} older than 30 minutes (observation only).",
+          ]
+          if rows:
+              lines += ["", "| PR | branch | age (min) | status |", "|---|---|---|---|"] + rows
+          summary = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary:
+              with open(summary, "a", encoding="utf-8") as handle:
+                  handle.write("\n".join(lines) + "\n")
+          print("\n".join(lines))
+          PY
+
+      - name: Observe remote branches ahead of main and untouched for 12+ hours (notice, not failure)
         run: |
+          # Stranded work is an observation like a stale PR: the run names it, a human decides.
+          # A failed git read is a liveness failure and fails the step.
+          set -euo pipefail
           now=$(date -u +%s)
-          fail=0
-          for ref in $(git for-each-ref refs/remotes/origin --format '%(refname:short)'); do
+          refs=$(git for-each-ref refs/remotes/origin --format '%(refname:short)')
+          stranded=0
+          while read -r ref; do
             case "$ref" in origin/main|origin/HEAD) continue ;; esac
-            ahead=$(git rev-list --count origin/main.."$ref" 2>/dev/null || echo 0)
+            ahead=$(git rev-list --count "origin/main..$ref")
             [ "$ahead" -gt 0 ] || continue
             tip_age_h=$(( (now - $(git log -1 --format=%ct "$ref")) / 3600 ))
             if [ "$tip_age_h" -ge 12 ]; then
-              echo "::error::branch $ref is $ahead commit(s) ahead of main and untouched for ${tip_age_h}h — stranded work; inspect, adopt or delete"
-              fail=1
+              echo "::notice title=Stranded remote branch::branch $ref is $ahead commit(s) ahead of main and untouched for ${tip_age_h}h; inspect, adopt or delete"
+              stranded=$((stranded + 1))
             fi
-          done
-          exit $fail
+          done <<< "$refs"
+          line="$stranded remote branch(es) ahead of main and untouched for 12+ hours (observation only)."
+          echo "$line"
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            printf '\n### Stranded remote branches\n%s\n' "$line" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Main inactivity while a sprint is active
         run: |
           # plans/sprint/ACTIVE exists only during a declared sprint (created by the sprint plan,
           # removed at closeout) — outside one, quiet main is normal and this check passes.
+          # This is a real health signal: while a sprint is active, silent main means the executor
+          # and supervisor may both be down. It stays red.
           test -f plans/sprint/ACTIVE || { echo "no active sprint; inactivity check skipped"; exit 0; }
           age_h=$(( ( $(date -u +%s) - $(git log -1 --format=%ct origin/main) ) / 3600 ))
           if [ "$age_h" -ge 4 ]; then
