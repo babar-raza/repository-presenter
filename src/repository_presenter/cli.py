@@ -1429,6 +1429,7 @@ def run_file_upstream_defects(
                 approvals=approvals,
                 expected_repository=repository,
                 permit=permit,
+                verify_token=partial(default_verify_installation_token, handoff.repository),
             )
         except Exception as exc:  # one handoff's failure never stops the others; reported below
             print(f"file: {handoff.repository} ERROR: {exc}")

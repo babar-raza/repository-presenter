@@ -13,7 +13,10 @@ before this module ever calls ``core/github/client.py``'s ``create_issue``:
    ``REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED`` must be set to a truthy value. It can disable
    every write by being unset or changed; it can never, alone, authorize one.
 3. A write-scoped token is actually supplied (``GH_ISSUES_WRITE_TOKEN`` - never the read-only
-   ``GH_TOKEN``, a distinct App installation token scoped to one target repository).
+   ``GH_TOKEN``, a distinct App installation token scoped to one target repository), and its
+   provenance is verified (``core/github/token_provenance.py``) for filing and closing alike: an
+   installation token reaching exactly the target; a hand-set personal access token, a wider or
+   other-repository scope, or an unverifiable token is refused before any lookup or write.
 4. A per-handoff owner approval record (``approval.py``: ``ops/issue_approvals/<handoff-id>.json``)
    exists for this exact handoff, names its target repository, matches the handoff's current
    evidence digest, and has not expired. A changed handoff, or a missing or expired record, is
@@ -192,6 +195,7 @@ def plan_filing(
     approvals: ApprovalStore | None = None,
     now: Callable[[], datetime] | None = None,
     expected_repository: str | None = None,
+    token_check: Callable[[], str | None] | None = None,
 ) -> FilingPlan:
     """Decide whether ``handoff`` would be filed, using only read calls.
 
@@ -232,6 +236,11 @@ def plan_filing(
     if not verdict.approved:
         return _plan(verdict.reason, refused=True)
 
+    if token_check is not None:  # provenance of the write token, before any upstream lookup
+        token_refusal = token_check()
+        if token_refusal is not None:
+            return _plan(token_refusal)
+
     if existing is not None:
         try:
             found = existing()
@@ -270,13 +279,17 @@ def file_handoff(
     now: Callable[[], datetime] | None = None,
     expected_repository: str | None = None,
     permit: WritePermit,
+    verify_token: Callable[[str], TokenDecision],
 ) -> FileResult:
     """File ``handoff`` as a real GitHub issue - but only past every gate in this module's own
     docstring. Every early return below makes no network call at all.
 
     ``permit`` is the registry write gate's proof (``core/registry/write_gate.py``): the target is
     listed, active and mode ``full``. It is required, so a ``dry_run`` or ``disabled`` entry - for
-    which no permit can be obtained - can never reach this function."""
+    which no permit can be obtained - can never reach this function. ``verify_token`` proves the
+    write token is an installation token scoped to exactly the target
+    (``core/github/token_provenance.py``): a hand-set personal access token, a token that reaches
+    more than the target, or one that cannot be verified is refused before any lookup or POST."""
     if permit.effect != "issue_filing" or permit.entry.repository != handoff.repository:
         raise ValueError("the write permit does not clear this effect for this repository")
 
@@ -297,6 +310,10 @@ def file_handoff(
     if not token:
         return _refuse(True, _NO_TOKEN_REASON)
 
+    def _token_check() -> str | None:
+        decision = verify_token(token)
+        return None if decision.ok else f"write token refused ({decision.code}): {decision.reason}"
+
     plan = plan_filing(
         handoff,
         existing=existing,
@@ -304,6 +321,7 @@ def file_handoff(
         approvals=approvals,
         now=now,
         expected_repository=expected_repository,
+        token_check=_token_check,
     )
     if plan.already_filed is not None:
         found = plan.already_filed

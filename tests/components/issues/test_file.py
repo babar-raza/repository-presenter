@@ -30,8 +30,17 @@ from repository_presenter.components.issues.redetect import RedetectionResult
 from repository_presenter.core.authorization.refusals import Refusal
 from repository_presenter.core.errors import RepositoryMetadataError
 from repository_presenter.core.github.client import IssueSnapshot
-from repository_presenter.core.github.token_provenance import TokenDecision
-from support import MemoryApprovalStore, approving_store, closing_store, make_permit
+from repository_presenter.core.github.token_provenance import (
+    TokenDecision,
+    verify_installation_token,
+)
+from support import (
+    MemoryApprovalStore,
+    accepting_token_verifier,
+    approving_store,
+    closing_store,
+    make_permit,
+)
 
 REPO = "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
 REVISION = "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2"
@@ -74,6 +83,7 @@ def file_handoff(handoff: Handoff, **kwargs: Any) -> FileResult:
     the other gates; the approval gate's own refusals are in test_approval.py."""
     kwargs.setdefault("approvals", approving_store(handoff))
     kwargs.setdefault("permit", make_permit(handoff.repository, effect="issue_filing"))
+    kwargs.setdefault("verify_token", accepting_token_verifier)
     return _file_handoff(handoff, **kwargs)
 
 
@@ -827,3 +837,164 @@ def test_the_close_plan_without_a_read_credential_is_ready_but_not_verified() ->
     )
     assert plan.ready
     assert plan.verified is False
+
+
+# ---------------------------------------------------------------------------
+# file_handoff: write-token provenance (the same check the close path makes). The verifier is the
+# real ``verify_installation_token`` over a fake GitHub; only the transport is injected.
+# ---------------------------------------------------------------------------
+
+_INSTALLATION_TOKEN = "ghs_installation-token-for-this-test-only"
+
+
+def _github_listing(*repositories: str, total: int | None = None) -> Any:
+    """A fake ``GET /installation/repositories`` answering for a token reaching ``repositories``."""
+    calls: list[tuple[str, str | None]] = []
+
+    def fetch(url: str, token: str | None) -> tuple[int, Any]:
+        calls.append((url, token))
+        listed = [{"full_name": name} for name in repositories]
+        return 200, {"total_count": len(listed) if total is None else total, "repositories": listed}
+
+    fetch.calls = calls  # type: ignore[attr-defined]
+    return fetch
+
+
+def _real_verifier(fetch: Any) -> Any:
+    return lambda token: verify_installation_token(REPO, token, fetch=fetch)
+
+
+def _filing_with(token: str, fetch: Any, create: _RecordingCreate, lookups: list[str]) -> Any:
+    def existing() -> IssueRef | None:
+        lookups.append("existing")
+        return None
+
+    def recheck() -> RedetectionResult:
+        lookups.append("recheck")
+        return _fires(still_fires=True)
+
+    return file_handoff(
+        _handoff(),
+        token=token,
+        environment={AUTHORIZATION_VARIABLE: "1"},
+        create=create,
+        existing=existing,
+        recheck=recheck,
+        verify_token=_real_verifier(fetch),
+    )
+
+
+def test_a_valid_installation_token_scoped_to_exactly_the_target_files() -> None:
+    create, lookups = _RecordingCreate(), []
+    fetch = _github_listing(REPO)
+    result = _filing_with(_INSTALLATION_TOKEN, fetch, create, lookups)
+    assert result.filed is True
+    assert len(create.calls) == 1
+    assert create.calls[0][1] == _INSTALLATION_TOKEN
+    assert fetch.calls and fetch.calls[0][1] == _INSTALLATION_TOKEN
+
+
+def test_a_hand_set_personal_access_token_is_refused_before_any_request() -> None:
+    create, lookups = _RecordingCreate(), []
+    fetch = _github_listing(REPO)
+    result = _filing_with("ghp_hand-set-personal-access-token", fetch, create, lookups)
+    assert result.filed is False
+    assert result.error is False
+    assert str(Refusal.TOKEN_NOT_INSTALLATION) in result.reason
+    assert create.calls == [] and lookups == []
+    assert fetch.calls == []  # a PAT is never even sent to GitHub
+
+
+@pytest.mark.parametrize(
+    ("repositories", "total"),
+    [
+        ((REPO, "aspose-cells-foss/Another-Repo"), None),
+        (("aspose-cells-foss/Another-Repo",), None),
+        ((), None),
+    ],
+    ids=["wider-than-target", "other-repository-only", "reaches-nothing"],
+)
+def test_a_token_that_does_not_reach_exactly_the_target_is_refused(
+    repositories: tuple[str, ...], total: int | None
+) -> None:
+    create, lookups = _RecordingCreate(), []
+    result = _filing_with(
+        _INSTALLATION_TOKEN, _github_listing(*repositories, total=total), create, lookups
+    )
+    assert result.filed is False
+    assert str(Refusal.TOKEN_WRONG_SCOPE) in result.reason
+    assert create.calls == [] and lookups == []
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        (-1, "ConnectError: timed out"),
+        (500, {}),
+        (200, []),
+        (200, {"total_count": 3, "repositories": []}),
+    ],
+    ids=["unreachable", "http-500", "not-a-listing", "incomplete-listing"],
+)
+def test_an_unverifiable_token_is_refused(response: tuple[int, Any]) -> None:
+    create, lookups = _RecordingCreate(), []
+    result = _filing_with(_INSTALLATION_TOKEN, lambda url, token: response, create, lookups)
+    assert result.filed is False
+    assert str(Refusal.TOKEN_UNVERIFIABLE) in result.reason
+    assert create.calls == [] and lookups == []
+
+
+def test_a_github_refusal_of_the_token_is_a_refusal_not_a_filing() -> None:
+    create, lookups = _RecordingCreate(), []
+    result = _filing_with(_INSTALLATION_TOKEN, lambda url, token: (401, {}), create, lookups)
+    assert result.filed is False
+    assert str(Refusal.TOKEN_NOT_INSTALLATION) in result.reason
+    assert create.calls == []
+
+
+def test_token_provenance_is_checked_after_approval_and_before_any_upstream_lookup() -> None:
+    """No approval -> no network at all (the verifier is not even asked); approved -> the token is
+    verified before the marker search or recheck."""
+    verify = _Spy(TokenDecision(True))
+    create = _RecordingCreate()
+    unapproved = _file_handoff(
+        _handoff(),
+        token=_INSTALLATION_TOKEN,
+        environment={AUTHORIZATION_VARIABLE: "1"},
+        create=create,
+        approvals=MemoryApprovalStore(),
+        permit=make_permit(REPO, effect="issue_filing"),
+        verify_token=verify,
+    )
+    assert unapproved.filed is False
+    assert verify.calls == 0
+
+    order: list[str] = []
+    approved_verify = lambda token: (order.append("verify"), TokenDecision(True))[1]  # noqa: E731
+    _file_handoff(
+        _handoff(),
+        token=_INSTALLATION_TOKEN,
+        environment={AUTHORIZATION_VARIABLE: "1"},
+        create=create,
+        approvals=approving_store(_handoff()),
+        permit=make_permit(REPO, effect="issue_filing"),
+        verify_token=approved_verify,
+        existing=lambda: (order.append("existing"), None)[1],
+        recheck=lambda: (order.append("recheck"), _fires(still_fires=True))[1],
+    )
+    assert order == ["verify", "existing", "recheck"]
+
+
+def test_an_already_filed_upstream_issue_is_not_recorded_on_an_unverified_token() -> None:
+    create = _RecordingCreate()
+    verify = _Spy(TokenDecision(False, Refusal.TOKEN_WRONG_SCOPE, "too wide"))
+    result = file_handoff(
+        _handoff(),
+        token=_INSTALLATION_TOKEN,
+        environment={AUTHORIZATION_VARIABLE: "1"},
+        create=create,
+        existing=lambda: _issue_ref(7),
+        verify_token=verify,
+    )
+    assert result.issue_ref is None
+    assert create.calls == []

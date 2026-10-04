@@ -1096,5 +1096,38 @@ def test_the_filing_effect_cannot_be_reached_without_a_matching_permit(
     ):
         with pytest.raises(ValueError, match="permit"):
             file_handoff(
-                handoff, token="t", environment={AUTHORIZATION_VARIABLE: "1"}, permit=wrong
+                handoff,
+                token="t",
+                environment={AUTHORIZATION_VARIABLE: "1"},
+                permit=wrong,
+                verify_token=lambda token: TokenDecision(True),
             )
+
+
+@pytest.mark.parametrize(
+    "code", [Refusal.TOKEN_NOT_INSTALLATION, Refusal.TOKEN_WRONG_SCOPE, Refusal.TOKEN_UNVERIFIABLE]
+)
+def test_end_to_end_an_approved_handoff_is_not_filed_with_an_unverified_write_token(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    code: Refusal,
+) -> None:
+    """Registry full, approval verifying, kill switch on, token present - but the token is a PAT,
+    too wide, for another repository, or unverifiable: nothing is posted. Fails without the check."""
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+    asked: list[tuple[str, str]] = []
+
+    def refuse(repository: str, token: str) -> TokenDecision:
+        asked.append((repository, token))
+        return TokenDecision(False, code, "not acceptable")
+
+    monkeypatch.setattr(cli, "default_verify_installation_token", refuse)
+
+    assert main(_file_args(project_with_handoff)) == EXIT_OK
+
+    assert create.calls == []
+    assert asked == [(REPOSITORY, "fake-write-token-for-this-test-only")]
+    assert load_handoff(_handoff_path(project_with_handoff)).status == "HANDOFF_PENDING"
+    assert str(code) in capsys.readouterr().out

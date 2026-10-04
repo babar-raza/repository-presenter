@@ -314,6 +314,13 @@ class FakeDefaultBranchReader:
         return DefaultBranchRead(repository, sha=outcome, branch="main")
 
 
+def accepting_token_verifier(token: str) -> Any:
+    """A token verifier that accepts any token - for tests about the gates other than provenance."""
+    from repository_presenter.core.github.token_provenance import TokenDecision
+
+    return TokenDecision(True)
+
+
 def make_permit(repository: str, *, mode: str = "full", effect: str = "readme_proposal") -> Any:
     """A ``WritePermit`` for a repository that is not a real Aspose FOSS name (the registry model
     validates the name, ``model_construct`` does not) - the effect modules only read ``.effect``
