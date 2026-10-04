@@ -44,8 +44,9 @@ EXPECTED_MINT_PERMISSIONS: dict[str, list[dict[str, str]]] = {
     # One read-only GET /repos/{owner}/{repo} and nothing else.
     "verify-app-installation.yml": [{"permission-metadata": "read"}],
     "audit-app-installations.yml": [{"permission-metadata": "read"}],
-    # No App token at all: the canary reachability probe is an anonymous git ls-remote.
-    "monitor.yml": [],
+    # The reachability probe is an anonymous git ls-remote. The drift leg (one per owner) mints one
+    # read-only token narrowed to contents, and nothing else.
+    "monitor.yml": [{"permission-contents": "read"}],
     # The scheduled upstream-issue workflow, one mint per target repository: the read-only analysis
     # (contents for the recheck reads, issues to find an existing marker, metadata); then, only in
     # the owner-gated file-and-close job, a read token of the same shape and a separate issues-write

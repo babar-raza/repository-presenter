@@ -161,6 +161,7 @@ repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
   [--durable-state [--trigger-event-type TYPE] [--workflow-run-id ID] [--holder-id ID]
                     [--state-remote REMOTE]]
+repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
 repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply] [--close]
 repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file]
 repository-presenter issue-targets [--root PATH]
@@ -185,6 +186,12 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--readme-file PATH
   `.github/workflows/present.yml` uses, and a plain local run never needs it. `--trigger-event-type`,
   `--workflow-run-id` (defaults to `GITHUB_RUN_ID`), `--holder-id`, and `--state-remote` (defaults to
   `origin`) configure that wiring; see `core/state/present_transaction.py` for the full design.
+- **`monitor`** — observes each enabled registry repository's upstream default-branch head with the
+  read-only `GH_TOKEN` and compares it with its `CURRENT` sealed bundle's revision, recording one
+  status per repository (`CURRENT`, `DRIFTED`, `NO_BUNDLE`, `UNREACHABLE`) in a JSON evidence file
+  under `runs/monitor/drift.json` (`--out` overrides the path; `--owner` limits the run to one
+  owner's enabled entries). It makes no provider call and no write to any repository; it exits 1
+  when any repository is `UNREACHABLE`, and the scheduled `monitor.yml` workflow runs it read-only.
 - **`redetect-upstream-defects`** — re-evaluates each `evidence/upstream-defects/` handoff's own
   `triggering_check` against the target repository's current state (package-registry and GitHub
   Contents/tree reads) and reports whether it still fires. `--repo OWNER/NAME` limits the pass to
