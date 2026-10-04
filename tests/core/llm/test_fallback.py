@@ -1,7 +1,12 @@
-"""Model fallback chains: one decision per route per run, recorded, never switched mid-run.
+"""Model availability at run start: a route's own model must prove it can do the work, or stop.
 
-Every probe and every content call goes through the mock gateway (tests/support.py), so these
-tests exercise the real SDK client, retry-free transport, and run_job path without the network.
+No substitute model is ever selected: a sealed result must come from the route's own model. Every
+probe and every content call goes through the mock gateway (tests/support.py), so these tests
+exercise the real SDK client, retry-free transport, and run_job path without the network. A probe
+is the same strict json_schema shape a content call sends, and the route's model is available only
+after PROBE_CONSECUTIVE_PASSES probes in a row pass: HTTP 200 with content that satisfies the probe
+schema. Each test's gateway script says what each probe answers, so the negative controls
+(plain-text 200, a schema-violating 200, one pass then a failure) are exercised directly.
 """
 
 from __future__ import annotations
@@ -17,8 +22,10 @@ import pytest
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.errors import ConfigError, GatewayError, JobError
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm import fallback
 from repository_presenter.core.llm.fallback import (
     FALLBACK_CHAINS,
+    PROBE_CONSECUTIVE_PASSES,
     ModelChainExhaustedError,
     ModelSelection,
     chain_for,
@@ -41,10 +48,11 @@ from repository_presenter.core.preflight import run_gateway_preflight, write_cat
 from support import REPO_ROOT, mock_gateway, model_listing
 
 PRIMARY = "qwen3-next"
-CHAIN = ("qwen3-next", "gpt-oss", "recommended", "Qwen2.5-VL-7B")
+# Models that answer in the catalog but are never a substitute for the route's own model.
+OTHERS = ("gpt-oss", "recommended", "Qwen2.5-VL-7B")
 # The catalog as observed: two chat models that answer, one that answers HTTP 500, and two that
 # are not chat routes at all (an image and an embedding model).
-ALL_MODELS = (*CHAIN, "stable-diffusion-3.5-large", "qwen3-embedding-8b", "experimental")
+ALL_MODELS = (PRIMARY, *OTHERS, "stable-diffusion-3.5-large", "qwen3-embedding-8b", "experimental")
 
 CONFIG = GatewayConfig("https://gw.example/v1", "sk-test-key-0123456789")
 CONTEXT = JobContext("org/repo", "a" * 40)
@@ -83,7 +91,7 @@ def _investigation() -> dict[str, Any]:
     }
 
 
-def _completion(content: dict[str, Any], model: str) -> httpx.Response:
+def _reply(content: str, model: str) -> httpx.Response:
     body = {
         "id": "chatcmpl-1",
         "object": "chat.completion",
@@ -92,7 +100,7 @@ def _completion(content: dict[str, Any], model: str) -> httpx.Response:
         "choices": [
             {
                 "index": 0,
-                "message": {"role": "assistant", "content": json.dumps(content)},
+                "message": {"role": "assistant", "content": content},
                 "finish_reason": "stop",
             }
         ],
@@ -101,18 +109,54 @@ def _completion(content: dict[str, Any], model: str) -> httpx.Response:
     return httpx.Response(200, json=body)
 
 
+def _completion(content: dict[str, Any], model: str) -> httpx.Response:
+    return _reply(json.dumps(content), model)
+
+
+def _each(models: tuple[str, ...] | list[str], times: int = PROBE_CONSECUTIVE_PASSES) -> list[str]:
+    """What a run's probe log holds when every model is probed ``times`` in a row, in order."""
+    return [model for model in models for _ in range(times)]
+
+
+# What a scripted probe can answer. "ok" is the only reply that satisfies the probe schema.
+PROBE_OK = "ok"
+PROBE_500 = "500"
+PROBE_PLAIN_TEXT = "text"  # HTTP 200, the plain-text reply a chat-only check would accept
+PROBE_WRONG_VALUE = "wrong"  # HTTP 200, valid JSON, but the enum rejects its value
+PROBE_EXTRA_FIELD = "extra"  # HTTP 200, valid JSON, but additionalProperties is false
+_PROBE_REPLIES = {
+    PROBE_OK: json.dumps({"status": "ok"}),
+    PROBE_PLAIN_TEXT: "I am here and ready to help.",
+    PROBE_WRONG_VALUE: json.dumps({"status": "nope"}),
+    PROBE_EXTRA_FIELD: json.dumps({"status": "ok", "extra": 1}),
+}
+
+
 class FakeGateway:
     """Answers each model as ``up`` says; a model not in ``up`` answers HTTP 500, as observed.
 
-    Probes (one tiny ``ping`` request) and content calls are recorded apart, so a test can prove
-    how many of each a run made and which model each one named.
+    ``probe_script`` overrides what a model's probes answer, one entry per probe in order, and
+    once the script is spent the model answers by ``up`` again. Probes (the ``ping`` liveness
+    token) and content calls are recorded apart, so a test can prove how many of each a run made,
+    which model each named, and the exact request shape each probe sent.
     """
 
-    def __init__(self, monkeypatch: pytest.MonkeyPatch, up: set[str]) -> None:
+    def __init__(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        up: set[str],
+        probe_script: dict[str, list[str]] | None = None,
+    ) -> None:
         self.up = set(up)
+        self.script = {model: list(replies) for model, replies in (probe_script or {}).items()}
         self.probes: list[str] = []
+        self.probe_bodies: list[dict[str, Any]] = []
         self.content: list[str] = []
+        self.content_bodies: list[dict[str, Any]] = []
         self.listed: tuple[str, ...] = ALL_MODELS
+        # A content call to a model not in ``up``. 500 is transient and retried with backoff, so a
+        # test that needs no waiting sets a non-transient status such as 400.
+        self.content_down_status = 500
         mock_gateway(monkeypatch, self)
 
     def __call__(self, request: httpx.Request) -> httpx.Response:
@@ -123,11 +167,20 @@ class FakeGateway:
         # A probe is the one liveness token; every other request is a content call.
         if body["messages"][-1]["content"] == "ping":
             self.probes.append(model)
-        else:
-            self.content.append(model)
+            self.probe_bodies.append(body)
+            return self._probe_reply(model)
+        self.content.append(model)
+        self.content_bodies.append(body)
         if model not in self.up:
-            return httpx.Response(500, json={"error": {"message": "upstream exhausted"}})
+            return httpx.Response(self.content_down_status, json={"error": {"message": "down"}})
         return _completion(_investigation(), model=model)
+
+    def _probe_reply(self, model: str) -> httpx.Response:
+        scripted = self.script.get(model)
+        outcome = scripted.pop(0) if scripted else (PROBE_OK if model in self.up else PROBE_500)
+        if outcome == PROBE_500:
+            return httpx.Response(500, json={"error": {"message": "upstream exhausted"}})
+        return _reply(_PROBE_REPLIES[outcome], model)
 
 
 def _run(
@@ -148,17 +201,17 @@ def _run(
     return result, ledger, store
 
 
-# --- the chain itself ------------------------------------------------------------------------
+# --- the route's own model is the only model -----------------------------------------------------
 
 
-def test_the_chain_is_the_route_then_its_configured_fallbacks() -> None:
-    assert chain_for(PRIMARY) == CHAIN
-    assert FALLBACK_CHAINS[PRIMARY] == ("gpt-oss", "recommended", "Qwen2.5-VL-7B")
-    # A route with no configured fallbacks has a chain of its own name alone: no silent fallback.
+def test_the_chain_for_a_route_is_the_route_alone() -> None:
+    # No substitute is configured: the table is empty, so every route's chain is itself.
+    assert FALLBACK_CHAINS == {}
+    assert chain_for(PRIMARY) == (PRIMARY,)
     assert chain_for("unlisted-model") == ("unlisted-model",)
 
 
-def test_a_chain_that_repeats_a_model_is_a_configuration_error(
+def test_a_configured_substitute_that_repeats_a_model_is_a_configuration_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setitem(FALLBACK_CHAINS, "looping", ("gpt-oss", "gpt-oss"))
@@ -166,92 +219,68 @@ def test_a_chain_that_repeats_a_model_is_a_configuration_error(
         chain_for("looping")
 
 
-# --- chain selection at run start --------------------------------------------------------------
-
-
-def test_a_downed_primary_is_replaced_by_the_first_fallback_that_answers(
+def test_a_route_whose_model_passes_is_selected_probed_in_a_row_and_used_for_the_run(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    gateway = FakeGateway(monkeypatch, up={"gpt-oss", "recommended", "Qwen2.5-VL-7B"})
-    selection = select_models(CONFIG, [PRIMARY])
-    decision = selection.decisions[PRIMARY]
-    assert decision.model == "gpt-oss"
-    assert decision.reason == "primary qwen3-next unavailable"
-    # Each chain model is probed exactly once, in chain order - never once per job or per call.
-    assert gateway.probes == list(CHAIN)
-    assert gateway.content == []
-
-    result, ledger, _ = _run(tmp_path, selection)
-    assert gateway.content == ["gpt-oss"]
-    assert result.model_served == "gpt-oss"
-    record = ledger.records()[0]
-    assert record.effective_model == "gpt-oss" and record.model_route == PRIMARY
-
-
-def test_a_run_whose_primary_answers_names_the_primary_and_probes_each_model_once(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    gateway = FakeGateway(monkeypatch, up=set(CHAIN))
+    gateway = FakeGateway(monkeypatch, up={PRIMARY, *OTHERS})
     selection = select_models(CONFIG, [PRIMARY])
     assert selection.decisions[PRIMARY].model == PRIMARY
     assert selection.decisions[PRIMARY].reason == "primary"
-    assert gateway.probes == list(CHAIN)
+    assert gateway.probes == _each((PRIMARY,))
+    assert gateway.content == []
 
-    _, ledger, _ = _run(tmp_path, selection)
+    result, ledger, _ = _run(tmp_path, selection)
     assert gateway.content == [PRIMARY]
+    assert result.model_served == PRIMARY
     assert ledger.records()[0].effective_model == PRIMARY
 
 
-def test_an_exhausted_chain_fails_closed_with_a_typed_error_before_any_content_call(
+def test_a_route_whose_model_is_down_fails_closed_and_no_other_model_is_probed_or_called(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    gateway = FakeGateway(monkeypatch, up=set())
+    # Every other model answers, and none of them is used: the route's own model must.
+    gateway = FakeGateway(monkeypatch, up=set(OTHERS))
     with pytest.raises(ModelChainExhaustedError) as raised:
         select_models(CONFIG, [PRIMARY])
     assert isinstance(raised.value, GatewayError)
-    message = str(raised.value)
-    assert "no model in its chain answered" in message
-    assert "qwen3-next HTTP 500" in message and "Qwen2.5-VL-7B HTTP 500" in message
-    assert gateway.probes == list(CHAIN) and gateway.content == []
+    assert "qwen3-next HTTP 500" in str(raised.value)
+    assert gateway.probes == [PRIMARY]
+    assert gateway.content == []
 
 
-def test_a_fallback_the_recorded_catalog_does_not_list_is_never_probed_into_use(
+def test_a_route_model_the_recorded_catalog_does_not_list_fails_closed_without_a_probe(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    gateway = FakeGateway(monkeypatch, up=set(CHAIN))
-    selection = select_models(CONFIG, [PRIMARY], listed=(PRIMARY, "recommended"))
-    assert selection.decisions[PRIMARY].model == PRIMARY
-    assert "gpt-oss" not in gateway.probes  # refused from the catalog, no request made
-    unlisted = next(probe for probe in selection.probes if probe.model == "gpt-oss")
-    assert unlisted == AvailabilityProbe("gpt-oss", False, "not in the recorded catalog")
+    gateway = FakeGateway(monkeypatch, up=set(ALL_MODELS))
+    with pytest.raises(ModelChainExhaustedError, match="not in the recorded catalog"):
+        select_models(CONFIG, [PRIMARY], listed=OTHERS)
+    assert PRIMARY not in gateway.probes
 
 
-# --- one decision per run; never a mid-run switch ----------------------------------------------
-
-
-def test_a_mid_run_recovery_of_the_primary_does_not_switch_the_run(
+def test_a_route_model_that_fails_mid_run_is_not_replaced_and_no_probe_is_repeated(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    gateway = FakeGateway(monkeypatch, up={"gpt-oss", "recommended", "Qwen2.5-VL-7B"})
+    gateway = FakeGateway(monkeypatch, up={PRIMARY, *OTHERS})
     selection = select_models(CONFIG, [PRIMARY])
     probes_at_start = len(gateway.probes)
-    gateway.up.add(PRIMARY)  # the primary comes back while the run is in progress
-
-    _run(tmp_path, selection)
-    assert gateway.content == ["gpt-oss"]  # every call of the run, no switch to the primary
-    assert len(gateway.probes) == probes_at_start  # no re-probe mid-run
+    gateway.up.discard(PRIMARY)  # the chosen model goes down while the run is in progress
+    gateway.content_down_status = 400  # refused, not transient: no backoff, no retry
+    with pytest.raises(JobError, match="HTTP 400"):
+        _run(tmp_path, selection)
+    # Every call named the route's own model; no call fell through to another, nothing re-probed.
+    assert gateway.content == [PRIMARY]
+    assert len(gateway.probes) == probes_at_start
 
 
 def test_a_call_naming_any_other_model_is_refused_before_it_reaches_the_gateway(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    gateway = FakeGateway(monkeypatch, up=set(CHAIN))
-    selection = select_models(CONFIG, [PRIMARY], recorded={PRIMARY: "gpt-oss"})
-    assert selection.model_for(PRIMARY) == "gpt-oss"
+    gateway = FakeGateway(monkeypatch, up={PRIMARY, *OTHERS})
+    selection = select_models(CONFIG, [PRIMARY])
     attempts = _Attempts(
         MANIFEST, replace(CONTEXT, models=selection), Ledger(tmp_path / "x.jsonl"), "logical"
     )
-    other = request_payload(MANIFEST, render_messages(MANIFEST, PACKET), model=PRIMARY)
+    other = request_payload(MANIFEST, render_messages(MANIFEST, PACKET), model=OTHERS[0])
     with pytest.raises(ConfigError, match="never switches models mid-run"):
         attempts.call(CONFIG, other)
     assert gateway.content == [] and attempts.count == 0
@@ -266,127 +295,248 @@ def test_a_route_outside_the_run_selection_is_refused_rather_than_defaulted() ->
 # --- the effective model is part of the request, the record, and the cache key -----------------
 
 
-def test_the_request_hash_changes_with_the_effective_model_and_not_for_the_primary() -> None:
+def test_the_request_hash_changes_with_the_model_named_and_not_for_the_route() -> None:
     primary_hash = request_hash(MANIFEST, PACKET)
     assert request_hash(MANIFEST, PACKET, model=PRIMARY) == primary_hash
-    fallback_hash = request_hash(MANIFEST, PACKET, model="gpt-oss")
-    assert fallback_hash != primary_hash
-    assert request_hash(MANIFEST, PACKET, model="recommended") != fallback_hash
-    payload = request_payload(MANIFEST, render_messages(MANIFEST, PACKET), model="gpt-oss")
-    assert payload["model"] == "gpt-oss"
+    assert request_hash(MANIFEST, PACKET, model="other-model") != primary_hash
+    payload = request_payload(MANIFEST, render_messages(MANIFEST, PACKET), model="other-model")
+    assert payload["model"] == "other-model"
 
 
-def test_the_call_store_never_reuses_an_output_produced_by_a_different_model(
+def test_the_route_payload_is_unchanged_and_names_the_route() -> None:
+    messages = render_messages(MANIFEST, PACKET)
+    sampling = MANIFEST.manifest.sampling
+    assert sampling.max_output_tokens == 3000
+    expected = {
+        "model": PRIMARY,
+        "messages": messages,
+        "temperature": sampling.temperature,
+        "max_tokens": sampling.max_output_tokens,
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": MANIFEST.manifest.prompt_id,
+                "schema": MANIFEST.manifest.output.schema_,
+                "strict": True,
+            },
+        },
+        "seed": sampling.seed,
+    }
+    assert json.dumps(request_payload(MANIFEST, messages)) == json.dumps(expected)
+    assert json.dumps(request_payload(MANIFEST, messages, model=PRIMARY)) == json.dumps(expected)
+
+
+def test_a_route_run_sends_and_records_the_manifest_budget(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    gateway = FakeGateway(monkeypatch, up=set(CHAIN))
-    store = CallStore(tmp_path / "calls")
-    ledger = Ledger(tmp_path / "calls.jsonl")
-    primary = run_job(
-        MANIFEST, PACKET, config=CONFIG, facts=FACTS, ledger=ledger, store=store, context=CONTEXT
-    )
-    assert primary.provider_calls == 1
-
-    fallen_back = select_models(CONFIG, [PRIMARY], recorded={PRIMARY: "gpt-oss"})
-    again = run_job(
-        MANIFEST,
-        PACKET,
-        config=CONFIG,
-        facts=FACTS,
-        ledger=ledger,
-        store=store,
-        context=replace(CONTEXT, models=fallen_back),
-    )
-    # A different key, so a real call under the other model - never the primary's stored output.
-    assert again.request_sha256 != primary.request_sha256
-    assert again.provider_calls == 1 and not again.cache_reused
-    assert gateway.content == [PRIMARY, "gpt-oss"]
+    gateway = FakeGateway(monkeypatch, up={PRIMARY})
+    _, ledger, _ = _run(tmp_path, select_models(CONFIG, [PRIMARY]))
+    assert gateway.content_bodies[0]["max_tokens"] == 3000
+    assert ledger.records()[0].max_tokens == 3000
+    assert ledger.records()[0].effective_model == PRIMARY
 
 
-def test_a_fallback_output_that_fails_a_check_is_neither_stored_nor_reused(
+def test_a_route_output_that_fails_a_check_is_neither_stored_nor_reused(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    gateway = FakeGateway(monkeypatch, up={"gpt-oss"})
+    gateway = FakeGateway(monkeypatch, up={PRIMARY})
     selection = select_models(CONFIG, [PRIMARY])
 
     def refuse(output: dict[str, Any]) -> list[str]:
-        """The same quality gate every model answers to, whichever model produced the reply."""
+        """The same quality gate every call answers to, whichever model produced the reply."""
         return ["quality gate: refused"]
 
     with pytest.raises(JobError, match="rejected twice"):
         _run(tmp_path, selection, checks=refuse)
-    assert gateway.content == ["gpt-oss", "gpt-oss"]  # the one re-ask, still the same model
+    assert gateway.content == [PRIMARY, PRIMARY]  # the one re-ask, still the same model
     store = CallStore(tmp_path / "calls")
-    key = request_hash(MANIFEST, PACKET, model="gpt-oss")
-    assert store.get(key) is None
+    assert store.get(request_hash(MANIFEST, PACKET, model=PRIMARY)) is None
     ledger = Ledger(tmp_path / "calls.jsonl")
     rejected = [r for r in ledger.records() if r.outcome == "response_invalid"]
-    assert rejected and all(r.effective_model == "gpt-oss" for r in rejected)
+    assert rejected and all(r.effective_model == PRIMARY for r in rejected)
 
 
-# --- reproducibility: the recorded model is preferred while it answers --------------------------
+# --- reproducibility: a recorded model is honoured only when it is the route's own ---------------
 
 
 def test_a_rerun_reuses_its_recorded_model_while_that_model_answers(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    FakeGateway(monkeypatch, up=set(CHAIN))
-    selection = select_models(CONFIG, [PRIMARY], recorded={PRIMARY: "gpt-oss"})
+    FakeGateway(monkeypatch, up={PRIMARY})
+    selection = select_models(CONFIG, [PRIMARY], recorded={PRIMARY: PRIMARY})
     decision = selection.decisions[PRIMARY]
-    assert decision.model == "gpt-oss" and decision.reason == "recorded model still available"
-    assert selection.models_used() == {PRIMARY: "gpt-oss"}
+    assert decision.model == PRIMARY and decision.reason == "recorded model still available"
+    assert selection.models_used() == {PRIMARY: PRIMARY}
 
 
-def test_a_recorded_model_that_no_longer_answers_is_replaced_and_the_change_is_named(
+def test_a_recorded_route_model_that_no_longer_answers_fails_closed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    FakeGateway(monkeypatch, up={PRIMARY, "recommended"})
+    gateway = FakeGateway(monkeypatch, up=set(OTHERS))
+    with pytest.raises(ModelChainExhaustedError, match="qwen3-next HTTP 500"):
+        select_models(CONFIG, [PRIMARY], recorded={PRIMARY: PRIMARY})
+    assert gateway.probes == [PRIMARY] and gateway.content == []
+
+
+def test_a_recorded_substitute_from_an_earlier_bundle_is_never_used(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gateway = FakeGateway(monkeypatch, up={PRIMARY, *OTHERS})
     selection = select_models(CONFIG, [PRIMARY], recorded={PRIMARY: "gpt-oss"})
     decision = selection.decisions[PRIMARY]
     assert decision.model == PRIMARY
-    assert decision.reason == "recorded model gpt-oss unavailable"
-    assert decision.recorded == "gpt-oss"
-
-
-def test_a_recorded_model_outside_the_chain_is_not_reused(monkeypatch: pytest.MonkeyPatch) -> None:
-    FakeGateway(monkeypatch, up=set(CHAIN))
-    selection = select_models(CONFIG, [PRIMARY], recorded={PRIMARY: "retired-model"})
-    decision = selection.decisions[PRIMARY]
-    assert decision.model == PRIMARY
-    assert decision.reason == "recorded model retired-model is not in the chain"
+    assert decision.reason == "recorded model gpt-oss is not in the chain"
+    assert "gpt-oss" not in gateway.probes
 
 
 # --- operator-facing output ---------------------------------------------------------------------
 
 
-def test_the_description_names_every_chain_member_and_the_model_each_route_will_use(
+def test_the_description_names_the_route_and_its_probe_outcome(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    FakeGateway(monkeypatch, up={"gpt-oss", "recommended", "Qwen2.5-VL-7B"})
+    FakeGateway(monkeypatch, up={PRIMARY})
     lines = describe(select_models(CONFIG, [PRIMARY]))
     assert lines[0] == (
-        "chain qwen3-next: qwen3-next HTTP 500 (unavailable) -> gpt-oss HTTP 200 (available)"
-        " -> recommended HTTP 200 (available) -> Qwen2.5-VL-7B HTTP 200 (available)"
+        "chain qwen3-next: qwen3-next HTTP 200, schema-valid, 2 of 2 consecutive passes (available)"
     )
-    assert lines[1] == "route qwen3-next: will use gpt-oss (primary qwen3-next unavailable)"
+    assert lines[1] == "route qwen3-next: will use qwen3-next (primary)"
 
 
-def test_preflight_decides_the_chain_and_records_it_in_the_catalog(
+def test_preflight_records_the_route_decision_in_the_catalog(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    FakeGateway(monkeypatch, up={"gpt-oss", "recommended", "Qwen2.5-VL-7B"})
+    FakeGateway(monkeypatch, up={PRIMARY, *OTHERS})
     result = run_gateway_preflight(CONFIG, REPO_ROOT / "prompts")
     assert result.selection is not None
-    assert result.selection.models_used() == {PRIMARY: "gpt-oss"}
+    assert result.selection.models_used() == {PRIMARY: PRIMARY}
     write_catalog(result, tmp_path / "catalog.json")
     recorded = json.loads((tmp_path / "catalog.json").read_text(encoding="utf-8"))
-    assert recorded["fallback"]["decisions"][0]["model"] == "gpt-oss"
-    assert [probe["model"] for probe in recorded["fallback"]["probes"]] == list(CHAIN)
+    assert recorded["fallback"]["decisions"][0]["model"] == PRIMARY
+    assert [probe["model"] for probe in recorded["fallback"]["probes"]] == [PRIMARY]
 
 
-def test_preflight_refuses_a_route_whose_whole_chain_is_down(
+def test_preflight_refuses_a_route_whose_own_model_is_down(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    FakeGateway(monkeypatch, up=set())
+    FakeGateway(monkeypatch, up=set(OTHERS))
     with pytest.raises(ModelChainExhaustedError):
         run_gateway_preflight(CONFIG, REPO_ROOT / "prompts")
+
+
+# --- availability: a probe must answer the way a content call must -------------------------------
+
+
+@pytest.mark.parametrize("reply", [PROBE_PLAIN_TEXT, PROBE_WRONG_VALUE, PROBE_EXTRA_FIELD])
+def test_a_plain_200_probe_whose_content_breaks_the_schema_is_rejected(
+    monkeypatch: pytest.MonkeyPatch, reply: str
+) -> None:
+    # The route's model answers HTTP 200 to its probe, but never with schema-valid content.
+    gateway = FakeGateway(monkeypatch, up={PRIMARY, *OTHERS}, probe_script={PRIMARY: [reply]})
+    with pytest.raises(ModelChainExhaustedError) as raised:
+        select_models(CONFIG, [PRIMARY])
+    assert "qwen3-next HTTP 200, content not schema-valid" in str(raised.value)
+    assert gateway.probes == [PRIMARY]  # rejected at once; no later pass can rescue it
+    assert gateway.content == []
+
+
+def test_two_consecutive_passes_select_the_route_model(monkeypatch: pytest.MonkeyPatch) -> None:
+    gateway = FakeGateway(monkeypatch, up={PRIMARY})
+    selection = select_models(CONFIG, [PRIMARY])
+    assert selection.decisions[PRIMARY].model == PRIMARY
+    assert gateway.probes == [PRIMARY, PRIMARY]
+    assert selection.probes[0] == AvailabilityProbe(
+        PRIMARY, True, "HTTP 200, schema-valid, 2 of 2 consecutive passes"
+    )
+
+
+def test_a_probe_sends_the_strict_json_schema_shape_a_content_call_sends(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gateway = FakeGateway(monkeypatch, up={PRIMARY})
+    select_models(CONFIG, [PRIMARY])
+    probe_body = gateway.probe_bodies[0]
+    content_body = request_payload(MANIFEST, render_messages(MANIFEST, PACKET))
+    assert set(probe_body) == {"model", "messages", "max_tokens", "temperature", "response_format"}
+    assert set(probe_body["response_format"]) == set(content_body["response_format"])
+    json_schema = probe_body["response_format"]["json_schema"]
+    assert set(json_schema) == set(content_body["response_format"]["json_schema"])
+    assert json_schema["strict"] is True
+    assert json_schema["schema"] == {
+        "type": "object",
+        "properties": {"status": {"type": "string", "enum": ["ok"]}},
+        "required": ["status"],
+        "additionalProperties": False,
+    }
+
+
+def test_one_pass_then_a_failure_fails_closed_and_the_model_is_not_selected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gateway = FakeGateway(
+        monkeypatch, up={PRIMARY, *OTHERS}, probe_script={PRIMARY: [PROBE_OK, PROBE_500]}
+    )
+    with pytest.raises(ModelChainExhaustedError) as raised:
+        select_models(CONFIG, [PRIMARY])
+    assert "qwen3-next HTTP 500 after 1 of 2 consecutive passes" in str(raised.value)
+    assert gateway.probes == [PRIMARY, PRIMARY]
+    assert gateway.content == []
+
+
+def test_a_pass_a_failure_then_a_pass_is_not_two_consecutive_passes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Were the third probe counted, the model would have passed "twice" in total; it must not.
+    gateway = FakeGateway(
+        monkeypatch, up={PRIMARY}, probe_script={PRIMARY: [PROBE_OK, PROBE_500, PROBE_OK]}
+    )
+    with pytest.raises(ModelChainExhaustedError):
+        select_models(CONFIG, [PRIMARY])
+    assert gateway.probes == [PRIMARY, PRIMARY]
+
+
+def test_a_failed_probe_is_never_retried_so_a_later_pass_cannot_hide_it(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gateway = FakeGateway(
+        monkeypatch, up={PRIMARY}, probe_script={PRIMARY: [PROBE_500, PROBE_OK, PROBE_OK]}
+    )
+    with pytest.raises(ModelChainExhaustedError):
+        select_models(CONFIG, [PRIMARY])
+    assert gateway.probes == [PRIMARY]
+
+
+def test_the_route_failing_raises_the_typed_error_naming_it_and_its_probe_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gateway = FakeGateway(
+        monkeypatch,
+        up=set(OTHERS),
+        probe_script={PRIMARY: [PROBE_OK, PROBE_PLAIN_TEXT]},
+    )
+    with pytest.raises(ModelChainExhaustedError) as raised:
+        select_models(CONFIG, [PRIMARY])
+    assert isinstance(raised.value, GatewayError)
+    message = str(raised.value)
+    assert (
+        "qwen3-next HTTP 200, content not schema-valid after 1 of 2 consecutive passes" in message
+    )
+    assert "no substitute model is used" in message
+    assert gateway.probes == [PRIMARY, PRIMARY] and gateway.content == []
+
+
+def test_the_consecutive_pass_requirement_is_one_constant(monkeypatch: pytest.MonkeyPatch) -> None:
+    assert PROBE_CONSECUTIVE_PASSES == 2
+    gateway = FakeGateway(monkeypatch, up={PRIMARY})
+    monkeypatch.setattr(fallback, "PROBE_CONSECUTIVE_PASSES", 3)
+    select_models(CONFIG, [PRIMARY])
+    assert gateway.probes == _each((PRIMARY,), 3)
+
+
+def test_a_consecutive_pass_requirement_below_one_is_a_configuration_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    FakeGateway(monkeypatch, up={PRIMARY})
+    monkeypatch.setattr(fallback, "PROBE_CONSECUTIVE_PASSES", 0)
+    with pytest.raises(ConfigError, match="at least 1"):
+        select_models(CONFIG, [PRIMARY])
