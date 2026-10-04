@@ -2199,10 +2199,11 @@ def write_raw_calls(calls: Mapping[str, Mapping[str, Any]], path: Path) -> str:
     """raw_calls.json: every accepted call this round made that no other sealed artifact already
     answers for verbatim (G5-W02, 27.2 RC4's own remaining gap, named explicitly in
     ``tests/test_cli.py::test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle``'s own
-    docstring) - a ``coherence`` batch, an ``independent_review`` read (first, second, or third),
-    and a batch ``section_authoring`` task. A non-batch ``section_authoring`` task is already
-    reconstructed from ``content_units.json`` alone by ``reconstructed_task_output`` above and is
-    not duplicated here.
+    docstring) - each ``source_reconciliation`` batch, a ``coherence`` batch, an
+    ``independent_review`` read (first, second, or third), and a batch ``section_authoring`` task
+    (``repair/rounds.py::_round_raw_calls`` assembles them). A non-batch ``section_authoring``
+    task is already reconstructed from ``content_units.json`` alone by
+    ``reconstructed_task_output`` above and is not duplicated here.
 
     Keyed by the call's own ``request_sha256`` - exactly the ``CallStore`` key ``run_job`` computes
     fresh on a later run (``core/llm/jobs.py::run_job``: ``canonical_hash({"prompt_sha256": ...,
