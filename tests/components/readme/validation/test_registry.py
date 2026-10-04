@@ -15,6 +15,8 @@ from repository_presenter.components.readme.composition.authoring import (
     slot_fact_sets,
 )
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
+from repository_presenter.components.readme.composition.link_budget import LinkAllocationPolicy
+from repository_presenter.components.readme.composition.policy import PlanningPolicy
 from repository_presenter.components.readme.composition.renderer import (
     api_reference_names,
     render_readme,
@@ -292,7 +294,7 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # VALIDATOR_VERSION 6 (BC-07 on main took 5; BC-02 v4 refuses a SUPPORTED registry install the
     # registry did not confirm, and lands on the same constant). The checks above pass under the
     # current validator, so only the pin needed to move.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "6"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "7"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
@@ -1481,31 +1483,204 @@ def test_example_headings_are_real_unique_task_names(tmp_path: Path) -> None:
     assert not any("Save a scene" in detail for detail in details)
 
 
+def _link_fact(name: str, url: str) -> Fact:
+    return Fact(f"link_target:{name}", "link_target", url, (Evidence(url, "HTTP 200"),))
+
+
+def _with_links(*extra: Fact) -> FactsDocument:
+    return FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, *extra))
+
+
 def test_the_aspose_ceiling_counts_contextual_links_not_the_mandated_rows() -> None:
     # README_CONTRACT.md row 15 bounds the contextual Aspose links; the banner (row 3) and the
     # Enterprise target (row 18) are mandated rows rendered from verified product facts.
-    def fact(name: str, url: str) -> Fact:
-        return Fact(f"link_target:{name}", "link_target", url, (Evidence(url, "HTTP 200"),))
-
-    docs = [fact(f"doc{n}", f"https://docs.aspose.org/3d/python/page-{n}/") for n in range(5)]
-    banner = fact("product.banner", "https://products.aspose.org/media/3d/python/banner-readme.png")
-    homepage = fact("product.homepage", "https://products.aspose.org/3d/python/")
-    enterprise = fact("product.enterprise", "https://products.aspose.com/3d/python-net/")
-    facts = FactsDocument(
-        FACTS.repository, FACTS.source_revision, (*FACTS.facts, *docs, banner, homepage, enterprise)
+    docs = [_link_fact(f"doc{n}", f"https://docs.aspose.org/3d/python/page-{n}/") for n in range(5)]
+    banner = _link_fact(
+        "product.banner", "https://products.aspose.org/media/3d/python/banner-readme.png"
     )
+    homepage = _link_fact("product.homepage", "https://products.aspose.org/3d/python/")
+    enterprise = _link_fact("product.enterprise", "https://products.aspose.com/3d/python-net/")
+    facts = _with_links(*docs, banner, homepage, enterprise)
     base = _candidate().readme
     nl = chr(10)
     mandated = (
         f"[![Aspose.3D FOSS for Python]({banner.value})]({homepage.value})"
-        f"{nl}{nl}[Enterprise Edition]({enterprise.value}){nl}"
+        f"{nl}{nl}[full-featured Aspose.3D for Python — Enterprise Edition]"
+        f"({enterprise.value}){nl}"
     )
-    four = " ".join(f"[page {n}]({docs[n].value})" for n in range(4))
-    within = _candidate(readme=nl.join([base, mandated, four, ""]), facts=facts)
-    assert not any("exceed the ceiling" in str(failure) for failure in _check_links(within))
-    five = f"{four} [page 4]({docs[4].value})"
-    over = _candidate(readme=nl.join([base, mandated, five, ""]), facts=facts)
-    assert any("5 Aspose links exceed the ceiling of 4" in str(f) for f in _check_links(over))
+    # Little visible prose: the derived total is 2, and only contextual links count against it.
+    two = " ".join(f"[page {n}]({docs[n].value})" for n in range(2))
+    within = _candidate(readme=nl.join([base, mandated, two, ""]), facts=facts)
+    assert not any("exceed" in str(failure) for failure in _check_links(within))
+    three = f"{two} [page 2]({docs[2].value})"
+    over = _candidate(readme=nl.join([base, mandated, three, ""]), facts=facts)
+    assert any("3 Aspose links exceed the ceiling of" in str(f) for f in _check_links(over))
+
+
+def test_the_ceiling_is_derived_from_this_documents_size_and_examples() -> None:
+    # Negative control for the old fixed constant of 4: a short README with no verified example
+    # earns a total of 2, so three contextual links fail even though 3 < 4.
+    links = [
+        _link_fact("d", "https://docs.aspose.org/3d/python/"),
+        _link_fact("k", "https://kb.aspose.org/3d/python/"),
+        _link_fact("r", "https://reference.aspose.org/3d/python/"),
+    ]
+    facts = _with_links(*links)
+    nl = chr(10)
+    row = " ".join(f"[{link.id[-1]}]({link.value})" for link in links)
+    short = _candidate(readme=nl.join(["# T", "", "A few words.", "", row, ""]), facts=facts)
+    failures = [str(f) for f in _check_links(short) if f.stage == "PLANNING"]
+    assert any("3 Aspose links exceed the ceiling of 2" in f for f in failures)
+    # The same three links in a document with enough visible prose are within a total of 4.
+    words = " ".join(["word"] * 1300)
+    long = _candidate(readme=nl.join(["# T", "", words, "", row, ""]), facts=facts)
+    assert not any("exceed" in str(f) for f in _check_links(long))
+
+
+def test_the_per_surface_and_per_domain_slots_are_enforced() -> None:
+    nl = chr(10)
+    words = " ".join(["word"] * 1300)
+    blogs = [_link_fact(f"b{n}", f"https://blog.aspose.org/post-{n}/") for n in range(2)]
+    coms = [_link_fact(f"c{n}", f"https://docs.aspose.com/page-{n}/") for n in range(3)]
+    facts = _with_links(*blogs, *coms)
+
+    def failures(selected: list[Fact]) -> list[str]:
+        row = " ".join(f"[x{n}]({f.value})" for n, f in enumerate(selected))
+        candidate = _candidate(readme=nl.join(["# T", "", words, "", row, ""]), facts=facts)
+        return [str(f) for f in _check_links(candidate) if f.stage == "PLANNING"]
+
+    assert any("2 blog links exceed the blog slot ceiling of 1" in f for f in failures(blogs))
+    assert any("3 aspose.com links exceed the aspose.com ceiling of 2" in f for f in failures(coms))
+    assert failures([blogs[0], coms[0], coms[1]]) == []
+
+
+def test_a_configured_link_policy_replaces_the_derived_ceilings() -> None:
+    links = [_link_fact(f"d{n}", f"https://docs.aspose.org/3d/python/p{n}/") for n in range(3)]
+    facts = _with_links(*links)
+    nl = chr(10)
+    row = " ".join(f"[x{n}]({f.value})" for n, f in enumerate(links))
+    readme = nl.join(["# T", "", "Short.", "", row, ""])
+    derived = _candidate(readme=readme, facts=facts)
+    assert any("exceed" in str(f) for f in _check_links(derived))
+    roomy = PlanningPolicy(link_allocation=LinkAllocationPolicy(5, 5, 1, 1, 5, 1, 1, 1))
+    configured = dataclasses.replace(derived, policy=roomy)
+    assert not any("exceed" in str(f) for f in _check_links(configured))
+    tight = PlanningPolicy(link_allocation=LinkAllocationPolicy(5, 5, 1, 1, 1, 1, 1, 1))
+    assert any(
+        "3 docs links exceed the docs slot ceiling of 1" in str(f)
+        for f in _check_links(dataclasses.replace(derived, policy=tight))
+    )
+
+
+ENTERPRISE_URL = "https://products.aspose.com/3d/python-net/"
+
+
+def _enterprise_candidate(anchor: str | None) -> Candidate:
+    enterprise = Fact(
+        "link_target:product.enterprise",
+        "link_target",
+        ENTERPRISE_URL,
+        (Evidence(ENTERPRISE_URL, "HTTP 200; enterprise target"),),
+        attributes={"role": "enterprise", "level": "platform", "platform": "python"},
+    )
+    plan = {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True}
+            if entry["section_id"] == "enterprise_relationship"
+            else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+    paragraph = "" if anchor is None else f"[{anchor}]({ENTERPRISE_URL}) adds more."
+    readme = _candidate().readme + "\n" + paragraph + "\n"
+    return _candidate(readme=readme, facts=_with_links(enterprise), plan=plan)
+
+
+def test_the_enterprise_anchor_must_be_full_featured_and_link_the_verified_target() -> None:
+    good = _enterprise_candidate("full-featured Aspose.3D for Python — Enterprise Edition")
+    assert not [f for f in _check_links(good) if f.section == "enterprise_relationship"]
+    for bad in (
+        "Aspose.3D for Python — Enterprise Edition",  # the pre-fix anchor: no full-featured
+        "full-featured Aspose.3D for Python",  # no edition name at the end
+        "click here",
+    ):
+        failures = [f for f in _check_links(_enterprise_candidate(bad)) if f.section]
+        assert any("full-featured <product>" in f.detail for f in failures), bad
+    missing = [f for f in _check_links(_enterprise_candidate(None)) if f.section]
+    assert any("is not linked from the document" in f.detail for f in missing)
+
+
+def test_without_a_verified_enterprise_target_no_anchor_is_required() -> None:
+    assert not [f for f in _check_links(_candidate()) if f.section == "enterprise_relationship"]
+
+
+def _row_candidate(row: str, extra: tuple[Fact, ...] = ()) -> Candidate:
+    floor = _fact("package:python_requires", "package", ">=3.7")
+    base = _candidate(facts=_with_links(floor, *extra))
+    lines = base.readme.splitlines()
+    index = next(i for i, line in enumerate(lines) if line.startswith("[![PyPI]"))
+    lines[index] = row
+    return dataclasses.replace(base, readme="\n".join(lines) + "\n")
+
+
+PYPI = (
+    "[![PyPI](https://img.shields.io/pypi/v/aspose-3d-foss.svg)]"
+    "(https://pypi.org/project/aspose-3d-foss/)"
+)
+RUNTIME = "![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)"
+LICENSE_BADGE = "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)"
+CI_FACT = Fact(
+    "link_target:badge.ci",
+    "link_target",
+    f"https://github.com/{ENTRY.repository}/actions/workflows/ci.yml",
+    (Evidence(".github/workflows/ci.yml", "triggers push on main; runs pytest"),),
+    attributes={"role": "build status badge", "branch": "main"},
+)
+CI_BADGE = f"[![Build Status]({CI_FACT.value}/badge.svg?branch=main)]({CI_FACT.value})"
+
+
+def _badge_failures(candidate: Candidate) -> list[str]:
+    return [f.detail for f in _check_structure(candidate) if f.section == "badges"]
+
+
+def test_the_renderers_own_badge_row_passes_the_badge_check() -> None:
+    assert _badge_failures(_candidate()) == []
+    full = _row_candidate(f"{PYPI} {RUNTIME} {CI_BADGE} {LICENSE_BADGE}", (CI_FACT,))
+    assert _badge_failures(full) == []
+
+
+def test_a_badge_row_out_of_the_stable_order_is_a_blocking_failure() -> None:
+    swapped = _row_candidate(f"{PYPI} {LICENSE_BADGE} {RUNTIME}")
+    details = _badge_failures(swapped)
+    assert any("breaks the stable order" in d for d in details), details
+    # Build status belongs between the runtime and the license, not after it.
+    late = _row_candidate(f"{PYPI} {RUNTIME} {LICENSE_BADGE} {CI_BADGE}", (CI_FACT,))
+    assert any("breaks the stable order" in d for d in _badge_failures(late))
+
+
+def test_a_duplicated_or_fabricated_badge_is_a_blocking_failure() -> None:
+    twice = _row_candidate(f"{PYPI} {RUNTIME} {RUNTIME} {LICENSE_BADGE}")
+    assert any("duplicate runtime badge" in d for d in _badge_failures(twice))
+    # A build badge with no verified workflow fact is fabricated, whatever its URL looks like.
+    forged = _row_candidate(f"{PYPI} {RUNTIME} {CI_BADGE} {LICENSE_BADGE}")
+    assert any("build badge is not supported" in d for d in _badge_failures(forged))
+    # So is a contributors badge the source README never carried.
+    contributors = (
+        f"[![Contributors](https://img.shields.io/github/contributors/{ENTRY.repository})]"
+        f"(https://github.com/{ENTRY.repository}/graphs/contributors)"
+    )
+    unconditional = _row_candidate(f"{PYPI} {RUNTIME} {LICENSE_BADGE} {contributors}")
+    assert any("contributors badge is not supported" in d for d in _badge_failures(unconditional))
+    # A runtime badge stating a floor the manifest does not declare differs from the fact.
+    other = "![Python](https://img.shields.io/badge/python-3.12%2B-blue.svg)"
+    wrong = _row_candidate(f"{PYPI} {other} {LICENSE_BADGE}")
+    assert any("runtime badge differs from the verified one" in d for d in _badge_failures(wrong))
+
+
+def test_an_omitted_badge_is_allowed() -> None:
+    assert _badge_failures(_row_candidate(LICENSE_BADGE)) == []
+    assert _badge_failures(_row_candidate(f"{PYPI} {LICENSE_BADGE}")) == []
 
 
 def test_check_four_blocks_a_unit_citing_another_slots_facts(tmp_path: Path) -> None:
