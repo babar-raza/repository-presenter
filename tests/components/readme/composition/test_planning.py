@@ -2229,3 +2229,87 @@ def test_bound_visible_line_overage_is_none_without_an_overage_or_a_lever_to_cle
     assert bound_visible_line_overage(_OPTIONAL_LEVER_PLAN, overage=5, levers={}) is None
     cleared = {**_OPTIONAL_LEVER_PLAN, "flagship_example_id": None}
     assert bound_visible_line_overage(cleared, overage=5, levers=flagship) is None
+
+
+def _slot_facts(*urls: str) -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            *(_fact(f"link_target:9{n:02d}", "link_target", url) for n, url in enumerate(urls)),
+        ),
+    )
+
+
+def _link_plan(count: int) -> dict[str, Any]:
+    return _plan(
+        links=[
+            {"link_fact_id": f"link_target:9{n:02d}", "section_id": "documentation_resources"}
+            for n in range(count)
+        ]
+    )
+
+
+def _kept(plan: dict[str, Any]) -> list[str]:
+    return [link["link_fact_id"] for link in plan["links"]]
+
+
+def test_the_plan_trim_enforces_each_surface_slot_not_only_the_total() -> None:
+    """plans/idea.md: ceilings for `products`/`docs`/`kb`/`blog`/`reference` slots. Three docs
+    links fit the total of 4 but not the docs slot of 2 (negative control for the old single
+    constant, which admitted all three)."""
+    facts = _slot_facts(
+        "https://docs.aspose.org/widget/python/a/",
+        "https://docs.aspose.org/widget/python/b/",
+        "https://docs.aspose.org/widget/python/c/",
+        "https://kb.aspose.org/widget/python/",
+    )
+    plan = _link_plan(4)
+    assert plan_checks(plan, facts) == []
+    assert _kept(plan) == ["link_target:900", "link_target:901", "link_target:903"]
+
+
+def test_the_plan_trim_enforces_the_aspose_com_domain_slot() -> None:
+    facts = _slot_facts(
+        "https://docs.aspose.com/widget/a/",
+        "https://reference.aspose.com/widget/b/",
+        "https://kb.aspose.com/widget/c/",
+        "https://docs.aspose.org/widget/python/",
+    )
+    plan = _link_plan(4)
+    assert plan_checks(plan, facts) == []
+    # aspose.com may take at most half the total of 4.
+    assert _kept(plan) == ["link_target:900", "link_target:901", "link_target:903"]
+
+
+def test_a_configured_policy_replaces_the_plan_trim_ceilings() -> None:
+    from repository_presenter.components.readme.composition.link_budget import (
+        LinkAllocationPolicy,
+    )
+
+    facts = _slot_facts(
+        "https://docs.aspose.org/widget/python/a/",
+        "https://docs.aspose.org/widget/python/b/",
+        "https://docs.aspose.org/widget/python/c/",
+    )
+    roomy = PlanningPolicy(link_allocation=LinkAllocationPolicy(6, 6, 1, 1, 3, 1, 1, 1))
+    plan = _link_plan(3)
+    assert plan_checks(plan, facts, roomy) == []
+    assert len(_kept(plan)) == 3
+    tight = PlanningPolicy(link_allocation=LinkAllocationPolicy(1, 1, 1, 1, 1, 1, 1, 1))
+    plan = _link_plan(3)
+    assert plan_checks(plan, facts, tight) == []
+    assert _kept(plan) == ["link_target:900"]
+
+
+def test_the_shell_owned_ci_badge_target_is_never_a_plan_link() -> None:
+    ci = _fact(
+        "link_target:badge.ci", "link_target", "https://github.com/o/r/actions/workflows/ci.yml"
+    )
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, ci))
+    plan = _plan(
+        links=[{"link_fact_id": "link_target:badge.ci", "section_id": "documentation_resources"}]
+    )
+    errors = plan_checks(plan, facts)
+    assert any("link 'link_target:badge.ci' renders on its own" in error for error in errors)

@@ -2220,6 +2220,26 @@ file_records:
       AGENTS.md's reuse-manifest discipline requires for every reuse-source pull, and adds the
       missing registry-wide match test the work item's acceptance bar names.
 
+  - source_path: src/readme_agent/links/allocation.py
+    sha256: 14ae91890f185d68c5fe18ba593348405c7cf9915a3af1d5d6fb723d227e00a9
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/components/readme/composition/link_budget.py
+    retained_behavior:
+      - "measure_readme_content_units' content measurement - visible prose words (URLs and image text excluded) plus 100 units per verified fenced example, a Mermaid fence never counting - carried as measure_content, with the one change that prose inside a <details> block no longer counts (idea.md: 'visible content size', and the contract's own 'visible' means outside <details>)."
+      - "The automatic tiers (600 / 1200 / 2000 / 3000 content units) and the five surface shares (products, docs, kb, reference two, blog one, each capped by the total), carried as resolve_link_budget; configured maxima replace every automatic value, as idea.md says."
+    removed_behavior:
+      - "The pydantic model layer (ContentUnitMeasurementV1, ResolvedLinkBudgetV1, LinkAllocationPolicyV1 from readme_agent.registry.models): frozen dataclasses against this project's own PlanningPolicy instead; no readme_agent import survives."
+      - "The generated-relationship-disclosure exclusion from the word count: this project's Enterprise paragraph is a few words and counts like any other prose."
+      - "The automatic total above 4 (tiers 5 and 6): capped by PlanningPolicy.aspose_links_max (default 4), the ceiling this contract has always enforced, so derivation can only tighten what was fixed. Raising it is an owner decision."
+      - "aspose.org's two-thirds share: aspose.org may take the whole total, because README_CONTRACT.md row 15 lists docs, knowledge-base, and reference targets (all aspose.org) as one section's normal content, and a two-thirds share would forbid that trio at a total of three. aspose.com keeps its half (rounded up)."
+    tests_ported:
+      - "No direct legacy test ported; tests/components/readme/composition/test_link_budget.py, the BC-06 tests in tests/components/readme/validation/test_registry.py, and the plan-trim tests in tests/components/readme/composition/test_planning.py are written fresh against the new types, with negative controls for the old fixed constant."
+    acceptance: "Every sealed README under candidates/ was measured and judged against its derived ceilings (the pull request that landed this record lists which bundles would change); BC-06 v5 and the plan trim read one function; ruff, mypy, and pytest green."
+    import_closure: []
+    pulled_at: "2026-10-05"
+    work_item: G4-W17
+    provenance: "Studied read-only at the frozen revision a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815 (git show a8a163f7:src/readme_agent/links/allocation.py, 179 lines, sha256 above); the sibling checkout is never imported."
+
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward
   census_gate: G4_MULTI_LANGUAGE_COHORTS
