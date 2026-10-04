@@ -14,16 +14,21 @@ import hashlib
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, get_args
+
+import pytest
 
 from repository_presenter.core.candidates import CANDIDATES_DIRNAME, CURRENT_FILENAME
+from repository_presenter.core.errors import IllegalTransitionError, StateBackendError
 from repository_presenter.core.registry.models import ProviderIdentity, RegistryEntry
 from repository_presenter.core.state.cas import acquire_lease, record_transition, save_state_patch
 from repository_presenter.core.state.present_transaction import (
     PresentOutcome,
+    _commit_outcome,
     classify_present_outcome,
     run_present_transaction,
 )
+from repository_presenter.core.state.schema import TransactionState
 from repository_presenter.core.state.trigger import admit_trigger, normalize_trigger
 from support import InMemoryStateBackend
 
@@ -467,3 +472,290 @@ def test_a_failing_run_from_an_already_accepted_resume_invalidates_instead() -> 
 
 def then_past() -> str:
     return (datetime.now(UTC) - timedelta(hours=1)).isoformat()
+
+
+# --- durable outcome table (defect: present_transaction.wrapper_outcome_no_registered_path) ------
+#
+# The wrapper's real production sequence: a sealed ACCEPTED candidate, a later run's pipeline fails
+# (ACCEPTED -> INVALIDATED is the one registered failure exit from ACCEPTED), and the next run
+# succeeds with a VALID_UPDATE_AVAILABLE bundle (a changed consumed presentation input whose update
+# waits; the durable outcome is ACCEPTED - the candidate stays valid and is never invalidated by a
+# non-critical update, docs/STATE_MACHINE.md section 9). That next run crashed with
+# "'INVALIDATED' has no registered path toward a committed outcome" because admission never resets
+# a record's state, so the wrapper started its success hops from INVALIDATED.
+
+
+def _bundle_state(state: str, *, update: bool = False) -> dict[str, Any]:
+    extra: dict[str, Any] = {"state": state, "provider_calls": 0}
+    if state == "READY_FOR_PROPOSAL":
+        extra["no_op_proof"] = {"fresh_process": True, "byte_identical": True, "provider_calls": 0}
+    else:
+        extra["no_op_proof"] = None
+    if update:
+        extra["update"] = {"available": True, "classification": "presentation"}
+    return extra
+
+
+def test_a_changed_consumed_input_after_a_sealed_candidate_was_invalidated_commits_without_raising(
+    tmp_path: Path,
+) -> None:
+    entry = _entry()
+    backend = InMemoryStateBackend()
+
+    def classify(exit_code: int) -> PresentOutcome:
+        return classify_present_outcome(tmp_path, entry, exit_code)
+
+    # 1. A sealed candidate lands ACCEPTED.
+    _write_bundle(tmp_path, entry, "rev-1", _bundle_state("ACCEPTED"))
+    run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=classify,
+        workflow_run_id="run-1",
+    )
+    assert backend.load(REPO).state == "ACCEPTED"  # type: ignore[union-attr]
+
+    # 2. A later run's pipeline fails: the registered ACCEPTED -> INVALIDATED exit.
+    run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 1,
+        classify=classify,
+        workflow_run_id="run-2",
+    )
+    assert backend.load(REPO).state == "INVALIDATED"  # type: ignore[union-attr]
+
+    # 3. The next run succeeds; its bundle is VALID_UPDATE_AVAILABLE. Must commit, never raise.
+    _write_bundle(tmp_path, entry, "rev-2", _bundle_state("VALID_UPDATE_AVAILABLE", update=True))
+    exit_code = run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=classify,
+        workflow_run_id="run-3",
+    )
+    assert exit_code == 0
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "ACCEPTED"
+    assert record.last_transition is not None
+    assert record.last_transition.to_state == "ACCEPTED"
+    assert record.lease is None
+
+
+@pytest.mark.parametrize("start", ["ACCEPTED", "READY_FOR_PROPOSAL"])
+def test_a_genuinely_invalid_candidate_still_commits_invalidated(
+    tmp_path: Path, start: str
+) -> None:
+    """Negative control: a failed factual check (the bundle itself is written INVALIDATED on
+    disk, exit 1) must still land INVALIDATED - the fix never softens a real invalidation.
+    READY_FOR_PROPOSAL previously had no registered failure exit at all and crashed with
+    IllegalTransitionError."""
+    entry = _entry()
+    backend = InMemoryStateBackend()
+    seed = _ACCEPTED if start == "ACCEPTED" else _READY
+    run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 0,
+        classify=_classify_always(seed),
+        workflow_run_id="run-seed",
+    )
+    assert backend.load(REPO).state == start  # type: ignore[union-attr]
+
+    _write_bundle(
+        tmp_path,
+        entry,
+        "rev-bad",
+        {"state": "INVALIDATED", "invalidated": {"check": "BC-08", "classification": "factual"}},
+    )
+    exit_code = run_present_transaction(
+        backend=backend,
+        repository=REPO,
+        provider_repository_id=PROVIDER_ID,
+        holder_id="worker-a",
+        run=lambda: 1,
+        classify=lambda code: classify_present_outcome(tmp_path, entry, code),
+        workflow_run_id="run-bad",
+    )
+    assert exit_code == 1
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == "INVALIDATED"
+    assert record.last_transition is not None
+    assert record.last_transition.to_state == "INVALIDATED"
+    assert record.failure is not None
+
+
+_MID_SPINE = (
+    "EXTRACTING",
+    "INVESTIGATING",
+    "RECONCILING",
+    "PLANNING",
+    "COMPOSING",
+    "VALIDATING",
+    "REVIEWING",
+)
+_SNAPSHOT_ONLY = PresentOutcome(kind="success", target_state="SNAPSHOTTING")
+_OUTCOMES: dict[str, PresentOutcome] = {
+    "ACCEPTED": _ACCEPTED,
+    "READY_FOR_PROPOSAL": _READY,
+    "SNAPSHOTTING": _SNAPSHOT_ONLY,
+    "failed": _FAILED,
+}
+
+# Every state the durable wrapper itself can leave a record in (its own commits, its failure exits,
+# and the one intermediate hop of a READY_FOR_PROPOSAL regression), mapped to the record state each
+# outcome must commit. ``None`` is the one declared refusal: a facts-only (SNAPSHOTTING) outcome
+# behind a mid-spine record has no registered route back to SNAPSHOTTING, so the wrapper refuses
+# before writing anything (fail closed, never an attempted unregistered hop).
+_EXPECTED_FINAL: dict[str, dict[str, str | None]] = {
+    "OBSERVED": {
+        "ACCEPTED": "ACCEPTED",
+        "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+        "SNAPSHOTTING": "SNAPSHOTTING",
+        "failed": "FAILED_INTERNAL",
+    },
+    "SNAPSHOTTING": {
+        "ACCEPTED": "ACCEPTED",
+        "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+        "SNAPSHOTTING": "SNAPSHOTTING",
+        "failed": "FAILED_INTERNAL",
+    },
+    **{
+        state: {
+            "ACCEPTED": "ACCEPTED",
+            "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+            "SNAPSHOTTING": None,
+            "failed": "FAILED_INTERNAL",
+        }
+        for state in _MID_SPINE
+    },
+    "PROVING_NO_OP": {
+        "ACCEPTED": "ACCEPTED",
+        "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+        "SNAPSHOTTING": "INVALIDATED",
+        "failed": "FAILED_INTERNAL",
+    },
+    "ACCEPTED": {
+        "ACCEPTED": "ACCEPTED",
+        "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+        "SNAPSHOTTING": "INVALIDATED",
+        "failed": "INVALIDATED",
+    },
+    "READY_FOR_PROPOSAL": {
+        "ACCEPTED": "ACCEPTED",
+        "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+        "SNAPSHOTTING": "SNAPSHOTTING",
+        "failed": "INVALIDATED",
+    },
+    "MONITORING": {
+        "ACCEPTED": "ACCEPTED",
+        "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+        "SNAPSHOTTING": "SNAPSHOTTING",
+        "failed": "FAILED_INTERNAL",
+    },
+    "FAILED_INTERNAL": {
+        "ACCEPTED": "ACCEPTED",
+        "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+        "SNAPSHOTTING": "SNAPSHOTTING",
+        "failed": "FAILED_INTERNAL",
+    },
+    "INVALIDATED": {
+        "ACCEPTED": "ACCEPTED",
+        "READY_FOR_PROPOSAL": "READY_FOR_PROPOSAL",
+        "SNAPSHOTTING": "INVALIDATED",
+        "failed": "INVALIDATED",
+    },
+}
+
+# States no wrapper commit or recovery step ever writes today: a later stage (processability,
+# authorization, proposal, repair) owns them, so the wrapper must refuse them cleanly, never
+# attempt an unregistered hop.
+_NOT_WRITTEN_BY_WRAPPER: frozenset[str] = frozenset(
+    {
+        "NON_PROCESSABLE",
+        "UNCHANGED",
+        "REPAIRING",
+        "AWAITING_AUTHORIZATION",
+        "PROPOSING",
+        "RETRYABLE",
+        "BLOCKED_EXTERNAL",
+        "SUPERSEDED",
+    }
+)
+
+
+def _seed_record(backend: InMemoryStateBackend, state: str) -> Any:
+    """A real lease on a real record already sitting at ``state`` (no faked transition history)."""
+    lease = acquire_lease(
+        backend, REPO, holder_id="worker-enum", provider_repository_id=PROVIDER_ID
+    )
+    assert lease is not None
+    save_state_patch(
+        backend,
+        REPO,
+        lambda r: r.model_copy(update={"state": state, "active_transaction_id": "tx-enum"}),
+        provider_repository_id=PROVIDER_ID,
+    )
+    return lease
+
+
+def test_the_outcome_table_classifies_every_transaction_state() -> None:
+    """A state added to the schema must be classified here, never silently left without a path."""
+    classified = set(_EXPECTED_FINAL) | _NOT_WRITTEN_BY_WRAPPER
+    assert classified == set(get_args(TransactionState))
+    assert not (set(_EXPECTED_FINAL) & _NOT_WRITTEN_BY_WRAPPER)
+
+
+@pytest.mark.parametrize(
+    ("state", "outcome_name"),
+    [(s, o) for s in _EXPECTED_FINAL for o in _OUTCOMES],
+)
+def test_every_reachable_state_and_outcome_pair_has_a_registered_path(
+    state: str, outcome_name: str
+) -> None:
+    backend = InMemoryStateBackend()
+    lease = _seed_record(backend, state)
+    expected = _EXPECTED_FINAL[state][outcome_name]
+    outcome = _OUTCOMES[outcome_name]
+
+    if expected is None:
+        with pytest.raises(StateBackendError) as info:
+            _commit_outcome(backend, REPO, lease, PROVIDER_ID, state, outcome)  # type: ignore[arg-type]
+        assert not isinstance(info.value, IllegalTransitionError)
+        record = backend.load(REPO)
+        assert record is not None and record.state == state  # refused before any write
+        return
+
+    _commit_outcome(backend, REPO, lease, PROVIDER_ID, state, outcome)  # type: ignore[arg-type]
+    record = backend.load(REPO)
+    assert record is not None
+    assert record.state == expected
+
+
+@pytest.mark.parametrize(
+    ("state", "outcome_name"),
+    [(s, o) for s in sorted(_NOT_WRITTEN_BY_WRAPPER) for o in _OUTCOMES],
+)
+def test_states_the_wrapper_never_writes_are_refused_cleanly_never_by_an_illegal_hop(
+    state: str, outcome_name: str
+) -> None:
+    backend = InMemoryStateBackend()
+    lease = _seed_record(backend, state)
+    try:
+        _commit_outcome(backend, REPO, lease, PROVIDER_ID, state, _OUTCOMES[outcome_name])  # type: ignore[arg-type]
+    except IllegalTransitionError as error:  # pragma: no cover - the failure this guards against
+        pytest.fail(f"unregistered hop attempted from {state!r}: {error}")
+    except StateBackendError:
+        record = backend.load(REPO)
+        assert record is not None and record.state == state  # refused before any write

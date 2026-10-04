@@ -87,6 +87,9 @@ src/repository_presenter/
   components/propose/        G6-W02 (docs/EXECUTION_STATE_MACHINE.md G6; docs/STATE_MACHINE.md §§11-12); the README-proposal PR effect, never README-content-specific itself (the candidate text is only an input)
     effect.py                  the gated write: create/update the one stable presenter branch and its one open PR - gated behind an owner-controlled authorization signal, a write-scoped GH_PROPOSAL_WRITE_TOKEN distinct from GH_TOKEN/GH_METADATA_WRITE_TOKEN/GH_ISSUES_WRITE_TOKEN, core/authorization/proposal.py's own payload re-validation, and a source-revision recheck immediately before the write; unset in this project's own environment today, so built and tested, never fired (docs/DECISION_LOG.md)
 
+  components/monitor/        G7-W06 (docs/EXECUTION_STATE_MACHINE.md G7 work item 3); scheduled read-only drift observation: each enabled registry repository's upstream default-branch head against its CURRENT sealed bundle's revision (CURRENT/DRIFTED/NO_BUNDLE/UNREACHABLE); never README-specific; no provider call, no write
+    drift.py                  the observation and its evidence document (runs/monitor/drift.json); the `repository-presenter monitor` command (cli.py) is its only caller
+
 prompts/                     one governed manifest per job (README_CONTRACT.md §3), flat, six files at G1
 schemas/                     JSON Schemas for the cursor, manifest, candidate bundle, prompt manifests
 data/                        registry, link, family, and priority data pulled per migration/reuse-manifest.yaml
@@ -105,7 +108,7 @@ tests/                       mirrors src/repository_presenter/ package for packa
   fixtures/oracles/           development-only fixtures and oracles (FIXTURE_OR_ORACLE_ONLY)
   fixtures/readme_only/      README-only placeholder repository (the non-processable negative control)
 .github/workflows/           ci.yml now; monitor.yml, present.yml, propose.yml from G4
-scripts/                     ci_check.sh (the local CI-equivalent; see its own header for exactly which ci.yml steps it mirrors and which it deliberately omits), check_lock_drift.sh (G7-W02: regenerates requirements-lock.txt in a scratch copy and diffs against the committed one, CI-only - needs network the same way ci.yml's own "Install from the lock" step does)
+scripts/                     ci_check.sh (the local CI-equivalent; see its own header for exactly which ci.yml steps it mirrors and which it deliberately omits), check_import_root.py (ci_check.sh's preflight: fails when `import repository_presenter` resolves outside this checkout's src/, e.g. a worktree sharing a venv), check_lock_drift.sh (G7-W02: regenerates requirements-lock.txt in a scratch copy and diffs against the committed one, CI-only - needs network the same way ci.yml's own "Install from the lock" step does)
 tools/                        owner/reviewer tooling (tools/README.md) - supervises the loop and lanes from outside; never imported by src/, never touched by the loop or a lane, never read for an acceptance predicate
   reviewer/                   reviewer_check.py, stop_monitor.py, timestamp_monitor.py, unblock_monitor.py, research_edit.py (reusable governance-edit helpers), procedure.md; .local/ gitignored (state, never portfolio content)
   census/                     portfolio_census.py (planning-time only); .local/ gitignored (clone scratch space)

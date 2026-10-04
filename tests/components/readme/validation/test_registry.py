@@ -289,7 +289,10 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     assert document["readme_sha256"] == hashlib.sha256(candidate.readme.encode()).hexdigest()
     assert len(document["protected_content_fingerprint"]) == 64
     assert document["advisory"] == []
-    assert document["source_revision"] == REVISION and document["validator_version"] == "4"
+    # VALIDATOR_VERSION 6 (BC-07 on main took 5; BC-02 v4 refuses a SUPPORTED registry install the
+    # registry did not confirm, and lands on the same constant). The checks above pass under the
+    # current validator, so only the pin needed to move.
+    assert document["source_revision"] == REVISION and document["validator_version"] == "6"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
@@ -607,6 +610,88 @@ def test_a_word_starting_a_hyphenated_compound_is_not_flagged_as_a_bare_abbrevia
         "abbreviation 'pdf' is not in its canonical form PDF"
         in _failed(document, "BC-07")["details"]
     )
+
+
+def test_a_planned_capability_title_reaches_the_document_in_canonical_form(tmp_path: Path) -> None:
+    """Measured 2026-10-04 on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript: BC-07 failed at
+    COMPOSING with ``abbreviation 'pdf' is not in its canonical form PDF`` located in
+    key_capabilities, on a planner-authored title the renderer wrote verbatim. End to end: the
+    rendered title and the composed document both carry the canonical spelling, so BC-07 passes
+    on it. The negative control below (an authored lower-case abbreviation) still blocks."""
+    titles = ["Build scenes", "Save GLB", "Read pdf files", "Inspect nodes", "Convert files"]
+    plan = {
+        **PLAN,
+        "core_capabilities": [{"title": t, "fact_ids": ["identity:repository"]} for t in titles],
+        "at_a_glance": {**PLAN["at_a_glance"], "capability_titles": titles},
+    }
+    candidate = _candidate(plan=plan)
+    assert "- **Read PDF files.** " in candidate.readme
+    document = validate_candidate(candidate, tmp_path, ())
+    assert "BC-07" not in {f["id"] for f in blocking_failures(document)}
+    # Mutation: the same lower-case word, authored as prose rather than a planned title, still
+    # blocks - the canonical form is applied where the renderer writes text, never a free pass.
+    authored = candidate.readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nParses pdf documents directly.\n\n",
+    )
+    document = validate_candidate(_candidate(authored, plan=plan), tmp_path, ())
+    assert (
+        "abbreviation 'pdf' is not in its canonical form PDF"
+        in _failed(document, "BC-07")["details"]
+    )
+
+
+def test_a_verbatim_preserved_unit_keeps_its_source_spelling_of_an_abbreviation(
+    tmp_path: Path,
+) -> None:
+    """README_CONTRACT.md section 7 check 8 (protected content preserved) requires a placed
+    inherited unit to render exactly as the upstream wrote it, so the renderer cannot raise an
+    abbreviation inside it without breaking that check. Check 7's canonical-abbreviation rule
+    therefore does not judge a line that is that verbatim unit's own text (the same exemption
+    narration already grants inherited prose). Measured 2026-10-04 on PDF-TypeScript: BC-07
+    failed on ``abbreviation 'http'`` located in scope_limitations. The exemption is line-exact:
+    the same word on an authored line of the same section still blocks."""
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:900.paragraph",
+                "inherited_unit",
+                "Remote resources load over http when the option is enabled.",
+            ),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            *DISPOSITIONS["dispositions"],
+            {
+                "unit_id": "inherited_unit:900.paragraph",
+                "disposition": "VERIFIED_MOVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": [],
+                "rationale": "r",
+            },
+        ]
+    }
+    candidate = _candidate(facts=facts, dispositions=dispositions)
+    assert "Remote resources load over http when the option is enabled." in candidate.readme
+    document = validate_candidate(candidate, tmp_path, ())
+    assert "BC-07" not in {f["id"] for f in blocking_failures(document)}
+    # Negative control: the identical lower-case word, authored in the same section, still blocks.
+    authored = candidate.readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nLoads resources over http.\n\n",
+    )
+    document = validate_candidate(
+        _candidate(authored, facts=facts, dispositions=dispositions), tmp_path, ()
+    )
+    structure = _failed(document, "BC-07")
+    detail = "abbreviation 'http' is not in its canonical form HTTP"
+    assert detail in structure["details"]
+    located = next(f for f in structure["failures"] if f["detail"] == detail)
+    assert located["section_id"] == "scope_limitations"
 
 
 def test_narration_catches_a_claim_about_the_documents_own_verification(tmp_path: Path) -> None:
@@ -1576,6 +1661,33 @@ def test_a_verified_source_build_satisfies_bc_02_without_a_registry_reading() ->
         "install_command:dotnet lacks manifest, package-registry, or source-build evidence: "
         "install command for the package id declared by the manifest"
     )
+
+
+def test_bc_02_refuses_a_registry_command_the_registry_says_is_not_there() -> None:
+    """Mutation control for the unverified `dotnet add package` claim (Imaging-FOSS for .NET,
+    2026-10-04): if the admission step ever flipped a 404-contradicted registry install to
+    SUPPORTED, its evidence would still carry "package registry" - the old check's only test -
+    and the unverified command would ship. A SUPPORTED registry-kind install whose own reading
+    found no distribution is refused, whatever the wording around it."""
+    command = "dotnet add package Widget"
+    mutant = Fact(
+        "install_command:dotnet",
+        "install_command",
+        command,
+        (
+            Evidence(
+                "Widget.csproj", "install command for the package id declared by the manifest"
+            ),
+            Evidence(
+                "https://api.nuget.org/v3-flatcontainer/widget/index.json",
+                "package registry: distribution not found on nuget",
+            ),
+        ),
+        polarity="SUPPORTED",
+    )
+    failures = _check_install(_install_candidate(mutant, f"```bash\n{command}\n```"))
+    assert [failure.stage for failure in failures] == ["EXTRACTING"]
+    assert "found no distribution" in failures[0].detail
 
 
 def test_bc_02_refuses_a_source_build_advertising_a_step_its_receipt_did_not_prove() -> None:

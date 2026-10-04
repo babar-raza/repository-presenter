@@ -30,7 +30,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
     shell_packet,
 )
-from repository_presenter.components.readme.composition.placement import placements
+from repository_presenter.components.readme.composition.placement import PLACED, placements
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
@@ -681,6 +681,32 @@ def _apply_links(output: dict[str, Any], missing: list[Any]) -> None:
     output["links"] = [*output.get("links", []), *missing]
 
 
+def _placed_into(dispositions: dict[str, Any] | None, section: str) -> bool:
+    """Whether reconciliation preserves or moves an inherited unit into ``section``."""
+    if dispositions is None:
+        return False
+    return any(
+        entry.get("disposition") in PLACED and entry.get("destination_section") == section
+        for entry in dispositions.get("dispositions", [])
+    )
+
+
+def _documentation_resources_holds(
+    output: dict[str, Any], facts: FactsDocument, dispositions: dict[str, Any] | None
+) -> bool:
+    """README_CONTRACT.md row 15: the section has content only when this plan assigns it a
+    SUPPORTED, non-shell link target, or reconciliation places a unit in it."""
+    verified = {
+        fact.id
+        for fact in facts.by_kind("link_target")
+        if fact.polarity == "SUPPORTED" and fact.id not in _SHELL_OWNED_LINKS
+    }
+    return _placed_into(dispositions, "documentation_resources") or any(
+        link.get("section_id") == "documentation_resources" and link.get("link_fact_id") in verified
+        for link in output.get("links", [])
+    )
+
+
 _BACKSTOPS: tuple[tuple[str, _BackstopRequired, _BackstopApply], ...] = (
     ("additional_example_ids", _missing_additional_examples, _apply_additional_examples),
     ("links", _missing_links, _apply_links),
@@ -732,6 +758,16 @@ def plan_checks(
         missing = required(output, facts, dispositions)
         if missing:
             apply(output, missing)
+    # README_CONTRACT.md row 15 (Conditional on verified relevant targets): the section holds only
+    # when this plan gives it a verified target or a preserved/moved unit. The facts can hold a
+    # target while the plan places every one in another section (Aspose.Font for Python,
+    # 2026-10-04: links 001-007 went to identity, additional_examples and license); then
+    # section_authoring had no slot to fill and cited the UNRESOLVED link_target:product.banner.
+    # Recomputed from this plan's own links and placements after the backstop, exactly as
+    # additional_examples is recomputed from its own quick starts above.
+    conditions["documentation_resources"] = _documentation_resources_holds(
+        output, facts, dispositions
+    )
     output["sections"] = [_decision(section, conditions[section.id]) for section in SEMANTIC_SHELL]
     decisions = {entry["section_id"]: entry for entry in output["sections"]}
     included = {section for section, entry in decisions.items() if entry["include"]}
@@ -984,6 +1020,18 @@ def plan_checks(
         kept_links.append(link)
     if len(kept_links) != len(raw_links):
         output["links"] = kept_links
+    if "documentation_resources" in included and not _documentation_resources_holds(
+        output, facts, dispositions
+    ):
+        # The ceiling trim above can remove the section's only link after its condition was
+        # decided. Nothing else is placed there (the condition counts placements), so the section
+        # is omitted by its own condition. The trim's own rule is to drop, never to reject the plan
+        # (G4-W17 arrival item 16). The checks above that read `included` concern other sections.
+        conditions["documentation_resources"] = False
+        output["sections"] = [
+            _decision(section, conditions[section.id]) for section in SEMANTIC_SHELL
+        ]
+        included = {entry["section_id"] for entry in output["sections"] if entry["include"]}
     aspose = 0
     targets = [link.get("link_fact_id") for link in output.get("links", [])]
     for target in sorted({t for t in targets if targets.count(t) > 1}):
@@ -1128,6 +1176,39 @@ def recover_visible_line_overage(
         for index, (field_name, before) in enumerate(cleared, start=1)
     ]
     return corrected
+
+
+# The lever formula (repair/targeted.py::visible_line_budget_hint) prices a cleared example at its
+# own block's visible lines, but two rendering edges sit outside it: a cleared example re-homed into
+# an Additional Examples section that does not exist yet opens that section (heading, lead-in,
+# blank lines), and one moved into an existing details block can leave the blank line before the
+# block behind. A deterministic clear is taken only when its exact saving clears the overage with
+# this margin to spare; anything closer is left to the targeted repair, which re-measures the
+# rendered document.
+VISIBLE_LINE_RENDER_MARGIN = 4
+
+
+def bound_visible_line_overage(
+    output: Mapping[str, Any], *, overage: int, levers: Mapping[str, int]
+) -> dict[str, Any] | None:
+    """The deterministic bound on a BC-07 visible-line overage: a targeted_repair-shaped correction
+    (``revised_output`` plus truthful ``changes``) that clears every named optional example lever,
+    when the exact saving of those levers clears ``overage`` with ``VISIBLE_LINE_RENDER_MARGIN``
+    to spare; ``None`` otherwise, so the causal stage's own repair runs as before.
+
+    ``repair/rounds.py`` tries this before the targeted repair call. Measured on the recorded
+    aspose-font-foss/Aspose.Font-FOSS-for-Python draws (docs/DECISION_LOG.md, 2026-09-17 to
+    2026-09-28): overages of 5 to 77 visible lines, a flagship alone worth 127, and the model's own
+    repair attempt cleared neither lever on any recorded draw, so the same overage re-raised. Code
+    clears what the arithmetic proves is enough; the model is asked only when it is not.
+    """
+    if overage <= 0 or not levers:
+        return None
+    if sum(levers.values()) - VISIBLE_LINE_RENDER_MARGIN < overage:
+        return None
+    return recover_visible_line_overage(
+        {"revised_output": copy.deepcopy(dict(output)), "changes": []}, levers=levers
+    )
 
 
 def summarize_plan(output: dict[str, Any]) -> str:
