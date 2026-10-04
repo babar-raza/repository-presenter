@@ -83,6 +83,7 @@ src/repository_presenter/
     bundle/
       seal.py                  the sealed bundle, dependencies.json, and the no-op proof (S12)
       evaluation.py            dependency evaluation: changed inputs and the stage they reopen
+      portfolio.py             plans/idea.md's seven separated portfolio counts and the one-bucket-per-entry partition `status` prints (pure read; predicates defined in its docstring)
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
         product_pages.py        live product-page facts: Enterprise target, homepage, banner (RESEARCH §20)
