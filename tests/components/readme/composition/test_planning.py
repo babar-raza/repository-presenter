@@ -34,7 +34,7 @@ from repository_presenter.core.facts import (
 )
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
-from support import REPO_ROOT
+from support import REPO_ROOT, assert_no_empty_enums, empty_enum_paths
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -395,10 +395,12 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
     empty = planning_schema(loaded, FactsDocument(ENTRY.repository, "a" * 40, ()), {}, {})
     assert "$defs" not in empty
     for array, field in _FACT_ID_ARRAYS:
-        assert empty["properties"][array]["items"]["properties"][field] == {
-            "type": "array",
-            "maxItems": 0,
-        }
+        pinned = empty["properties"][array]
+        # An array whose only field is a fact-ID array (api_hubs, with nothing hubbable) is pinned
+        # as a whole: an empty array keeps no items to carry the field.
+        if "items" in pinned:
+            pinned = pinned["items"]["properties"][field]
+        assert pinned == {"type": "array", "maxItems": 0}
 
 
 def test_the_four_previously_unbounded_outer_arrays_now_refuse_past_their_ceiling() -> None:
@@ -1423,6 +1425,100 @@ def test_a_link_target_the_shell_already_renders_cannot_be_written_at_all() -> N
         for error in validator.iter_errors(plan)
         if error.json_path == "$.links[0].link_fact_id"
     ] == [f"'link_target:product.enterprise' is not one of {link_fact_id['enum']!r}"]
+
+
+# Aspose.GIS's shape (2026-10-04): the README's only link targets are the three the shell renders
+# at its own fixed places - the banner image, the homepage, and the Enterprise Edition target.
+SHELL_ONLY_LINK_FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (
+        _fact("identity:repository", "identity", ENTRY.repository),
+        _fact("format:output.stl", "format", ".stl"),
+        _fact("example:001", "example", "print(1)"),
+        _fact("public_symbol:widget.scene", "public_symbol", "widget.Scene"),
+        _product_fact(
+            "link_target:product.banner",
+            "https://products.aspose.org/media/widget/python/banner-readme.png",
+        ),
+        _product_fact("link_target:product.homepage", "https://products.aspose.org/widget/python/"),
+        Fact(
+            "link_target:product.enterprise",
+            "link_target",
+            "https://products.aspose.com/widget/python/",
+            (Evidence("https://products.aspose.com/widget/python/", "HTTP 200"),),
+            attributes={"role": "enterprise", "level": "platform"},
+        ),
+    ),
+)
+
+
+def test_no_planning_schema_carries_an_empty_enum_when_every_link_target_is_shell_owned() -> None:
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, SHELL_ONLY_LINK_FACTS, {}, {})
+    assert_no_empty_enums(schema)
+    # No link is eligible, so the plan may carry none: the list is pinned empty, as an empty
+    # format list or S4's empty fact-ID arrays already are, and any link at all is refused.
+    validator = Draft202012Validator(schema)
+    assert [e for e in validator.iter_errors(_plan(links=[])) if "links" in e.json_path] == []
+    shell_link = {"link_fact_id": "link_target:product.homepage", "section_id": "opening"}
+    assert [
+        e.json_path
+        for e in validator.iter_errors(_plan(links=[shell_link]))
+        if "links" in e.json_path
+    ] == ["$.links"]
+
+
+def test_a_conditional_section_with_no_eligible_link_is_omitted_by_its_own_condition() -> None:
+    # README_CONTRACT.md section 2 row 15: documentation_resources is Conditional on verified
+    # relevant targets. The shell's own three targets are never a plan's assignment (rows 3 and
+    # 18), so they cannot be the evidence that makes the section hold.
+    assert section_conditions(SHELL_ONLY_LINK_FACTS)["documentation_resources"] is False
+    output: dict[str, Any] = {
+        "core_capabilities": [
+            {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+            {"title": "Run examples", "fact_ids": ["example:001"]},
+        ],
+        "at_a_glance": {
+            "input_format_ids": [],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": ["Build scenes", "Export STL", "Run examples"],
+        },
+        "quick_start_example_id": "example:001",
+        "additional_example_ids": [],
+        "api_hubs": [{"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["example:001"]}],
+        "material_limitations": [],
+        "links": [],
+        "deviations": [],
+    }
+    assert plan_checks(output, SHELL_ONLY_LINK_FACTS) == []
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    assert decisions["documentation_resources"]["include"] is False
+    assert output["links"] == []
+
+
+def test_reintroducing_the_empty_link_enum_fails_the_empty_enum_guard() -> None:
+    """Mutation check: the defect as it stood before the fix, grafted onto the real schema, must
+    be caught by the guard the test above relies on."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    mutant = planning_schema(loaded, SHELL_ONLY_LINK_FACTS, {}, {})
+    mutant["properties"]["links"] = {
+        "type": "array",
+        "maxItems": 30,
+        "items": {
+            "type": "object",
+            "required": ["link_fact_id", "section_id"],
+            "additionalProperties": False,
+            "properties": {
+                "link_fact_id": {"type": "string", "enum": []},
+                "section_id": {"type": "string", "minLength": 1},
+            },
+        },
+    }
+    assert empty_enum_paths(mutant) == ["$.properties.links.items.properties.link_fact_id"]
+    with pytest.raises(AssertionError):
+        assert_no_empty_enums(mutant)
 
 
 MIS_HUB_FACTS = FactsDocument(
