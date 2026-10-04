@@ -43,6 +43,7 @@ only adds the durable-state *receipt* that a transaction ran, not a replacement 
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -124,11 +125,13 @@ class PresentOutcome:
     """What one local-pipeline invocation actually did, typed so
     :func:`run_present_transaction` never has to re-derive it."""
 
-    kind: Literal["success", "failed"]
+    kind: Literal["success", "failed", "non_processable"]
     # "success": the success-spine position this run reached (ACCEPTED or READY_FOR_PROPOSAL,
     # or SNAPSHOTTING for an EXIT_OK run that sealed no bundle at all, e.g. --facts-only).
+    # "non_processable": always NON_PROCESSABLE (docs/STATE_MACHINE.md section 6).
     target_state: TransactionState | None = None
     # "failed": attached to the committed failure state as FailureRecord.
+    # "non_processable": the disposition's reason code and resume predicate, for the run output.
     detail: str | None = None
 
 
@@ -136,17 +139,53 @@ def _now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
-def classify_present_outcome(root: Path, entry: RegistryEntry, exit_code: int) -> PresentOutcome:
+def _classify_disposition(entry: RegistryEntry, path: Path) -> PresentOutcome:
+    """Map a written processability disposition onto NON_PROCESSABLE, reading it back rather than
+    trusting the success exit code alone.
+
+    The artifact (``components/readme/evidence/processability.py``'s ``disposition.json``) must
+    parse, name this repository, and carry its reason code; anything else fails closed as a
+    failure, never as a quiet non-processable record. Only the reason is read here - this module
+    stays free of ``components/`` imports (``core/`` may not depend on them).
+    """
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return PresentOutcome(
+            kind="failed", detail=f"processability disposition {path.name} is unreadable"
+        )
+    if not isinstance(document, dict):
+        return PresentOutcome(
+            kind="failed", detail=f"processability disposition {path.name} is not an object"
+        )
+    reason = document.get("reason_code")
+    if document.get("repository") != entry.repository or not isinstance(reason, str) or not reason:
+        return PresentOutcome(
+            kind="failed",
+            detail=f"processability disposition {path.name} does not name {entry.repository}",
+        )
+    predicate = document.get("resume_predicate")
+    resume = predicate if isinstance(predicate, str) and predicate else "unspecified"
+    return PresentOutcome(
+        kind="non_processable",
+        target_state="NON_PROCESSABLE",
+        detail=f"NON_PROCESSABLE: insufficient_evidence ({reason}); resume when {resume}",
+    )
+
+
+def classify_present_outcome(
+    root: Path, entry: RegistryEntry, exit_code: int, *, disposition_path: Path | None = None
+) -> PresentOutcome:
     """Map one local-pipeline invocation's outcome onto this module's typed result.
 
-    ``exit_code != 0`` (a written disposition, a blocking validation failure, or any other typed
-    failure ``cli.py::run_present`` already converts into an exit code) always classifies
-    ``"failed"``. Telling a genuinely non-processable repository apart from a real validation/code
-    defect from outside ``run_present``'s own int return value needs either a second, independent
-    read of the transaction's own disposition file (whose path this function cannot derive without
-    also duplicating ``run_present``'s own clone/revision resolution) or a refactor of its return
-    type - both materially larger than this item's own bar. Collapsing to one outcome is the
-    honest, conservative choice, named here rather than silently assumed.
+    ``exit_code != 0`` (a blocking validation failure or any other typed failure
+    ``cli.py::run_present`` already converts into an exit code) always classifies ``"failed"``,
+    even when a disposition was also written.
+
+    ``exit_code == 0`` with ``disposition_path`` set means ``run_present`` decided the repository is
+    a README-only placeholder and wrote that disposition instead of candidate work: the outcome is
+    ``"non_processable"`` (see :func:`_classify_disposition`). The caller passes the path only from
+    the run it just performed, so this never guesses which transaction's artifact to read.
 
     ``exit_code == 0`` reads the sealed bundle this run just left on disk (``CURRENT`` plus its
     manifest - the exact mechanism ``core/candidates.py``'s own stale/count helpers already use) to
@@ -159,10 +198,12 @@ def classify_present_outcome(root: Path, entry: RegistryEntry, exit_code: int) -
         return PresentOutcome(
             kind="failed",
             detail=(
-                f"present exited {exit_code} (a written disposition or a blocking validation "
+                f"present exited {exit_code} (a blocking validation failure or another typed "
                 "failure - see this transaction's own runs/ output for which)"
             ),
         )
+    if disposition_path is not None:
+        return _classify_disposition(entry, disposition_path)
 
     candidates_dir = root / CANDIDATES_DIRNAME / f"{entry.owner}__{entry.name}"
     current = candidates_dir / CURRENT_FILENAME
@@ -197,6 +238,9 @@ def _failure_hops(current_state: TransactionState) -> list[TransactionState]:
     """
     if current_state == "INVALIDATED" or current_state == "FAILED_INTERNAL":
         return []
+    if current_state == "NON_PROCESSABLE":
+        # Its only registered exit is OBSERVED; a failure is then recorded from there.
+        return ["OBSERVED", "FAILED_INTERNAL"]
     if current_state in ("ACCEPTED", "READY_FOR_PROPOSAL"):
         return ["INVALIDATED"]
     if current_state == "MONITORING":
@@ -228,6 +272,9 @@ def _success_hops(
         # FAILED_INTERNAL/BLOCKED_EXTERNAL -> any ACTIVE_STATE is registered (schema.py's own
         # wildcard); SNAPSHOTTING is this module's one re-entry point onto the spine.
         return ["SNAPSHOTTING", *_forward("SNAPSHOTTING", target_state)]
+    if current_state == "NON_PROCESSABLE":
+        # The placeholder gained implementation evidence: its only registered exit is OBSERVED.
+        return ["OBSERVED", *_forward("OBSERVED", target_state)]
     if current_state == "MONITORING":
         # MONITORING is quiescent; its only registered next state is OBSERVED, the top of the spine.
         return ["OBSERVED", *_forward("OBSERVED", target_state)]
@@ -258,6 +305,28 @@ def _forward(from_state: TransactionState, to_state: TransactionState) -> list[T
     start = SUCCESS_SPINE.index(from_state)
     end = SUCCESS_SPINE.index(to_state)
     return list(SUCCESS_SPINE[start + 1 : end + 1])
+
+
+def _non_processable_hops(current_state: TransactionState) -> list[TransactionState]:
+    """The registered hops from ``current_state`` into NON_PROCESSABLE, or fail closed.
+
+    Only OBSERVED (directly), MONITORING (via OBSERVED) and READY_FOR_PROPOSAL (closing the cycle
+    through MONITORING) have a registered route. Any other state raises before any write, so the
+    durable record is left exactly as it was and the placeholder disposition stays on disk.
+    """
+    if current_state == "NON_PROCESSABLE":
+        return []  # already recorded for this revision; the registry has no self-loop
+    if current_state == "OBSERVED":
+        return ["NON_PROCESSABLE"]
+    if current_state == "MONITORING":
+        return ["OBSERVED", "NON_PROCESSABLE"]
+    if current_state == "READY_FOR_PROPOSAL":
+        return ["MONITORING", "OBSERVED", "NON_PROCESSABLE"]
+    raise StateBackendError(
+        f"present_transaction: {current_state!r} has no registered path to NON_PROCESSABLE "
+        "(only OBSERVED, MONITORING and READY_FOR_PROPOSAL do); the placeholder disposition is "
+        "left on disk and the durable record is unchanged"
+    )
 
 
 def _require_registered_path(start: TransactionState, hops: list[TransactionState]) -> None:
@@ -305,6 +374,12 @@ def _commit_outcome(
         # reads "failed, not yet resolved".
         hops = _failure_hops(current_state)
         event = "present.yml hosted transaction failed"
+    elif outcome.kind == "non_processable":
+        hops = _non_processable_hops(current_state)
+        event = (
+            "present.yml hosted transaction classified NON_PROCESSABLE (processability "
+            "disposition written; no candidate sealed)"
+        )
     else:
         assert outcome.target_state is not None
         hops = _success_hops(current_state, outcome.target_state)

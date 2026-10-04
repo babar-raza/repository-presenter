@@ -23,7 +23,6 @@ import os
 import re
 import shutil
 from collections.abc import Sequence
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -32,8 +31,15 @@ from repository_presenter.components.readme.extractors.platforms.typescript_barr
     compiler_options,
     read_json,
 )
-from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
+from repository_presenter.core.examples import (
+    ExampleCandidate,
+    ExampleReceipt,
+    MeasuredBuild,
+)
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.toolchains import REGISTRY_VARIABLE, resolve_tool
+
+_REGISTRY_VARIABLE = REGISTRY_VARIABLE  # the name the registry tests set (core/toolchains.py)
 
 _MAX_OUTPUT_CHARS = 4000
 _WORKSPACE_ATTEMPTS = 5
@@ -45,10 +51,7 @@ _NOT_COPIED = (".git", "node_modules")
 # `<file>(<line>,<column>): error TSxxxx: <message>` is the only diagnostic shape tsc prints
 # without `--pretty`, which is off by default when stdout is not a terminal.
 _DIAGNOSTIC = re.compile(r"^(?P<file>[^(]+)\((?P<line>\d+),(?P<column>\d+)\): error (?P<rest>.+)$")
-# The lane's toolchains are never on PATH (loop-prompt §1.3): a name is resolved by `which`, then
-# by its `.cmd` shim, then by the machine-local registry the lane's receipt records.
-_REGISTRY_VARIABLE = "RP_TOOLCHAIN_REGISTRY"
-_REGISTRY_DEFAULT = Path("C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt")
+# Toolchains are resolved by `core/toolchains.py` (the machine's registry, then PATH, per tool).
 # What a snippet is checked under. Not the package's own `strict` settings: the contract's claim
 # is that the example's types and calls exist at this revision, and a README snippet is not
 # required to satisfy the library's own lint policy to prove that.
@@ -128,25 +131,6 @@ _HOST_SOURCE = "\n".join(
 )
 
 
-def _registry_path() -> Path:
-    recorded = os.environ.get(_REGISTRY_VARIABLE, "").strip()
-    return Path(recorded) if recorded else _REGISTRY_DEFAULT
-
-
-def recorded_tool(name: str) -> str | None:
-    """The absolute path the machine-local toolchain registry records for ``name``, if any."""
-    registry = _registry_path()
-    try:
-        text = registry.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return None
-    for line in text.splitlines():
-        key, separator, value = line.partition("=")
-        if separator and key.strip() == name and Path(value.strip()).is_file():
-            return value.strip()
-    return None
-
-
 def typescript_compiler() -> str | None:
     """`tsc` as this machine offers it, or None when it offers none.
 
@@ -163,14 +147,7 @@ def typescript_compiler() -> str | None:
     `.cmd` shim, only when the registry has nothing for `tsc`, so a hosted runner with no registry
     file resolves exactly as before (`evidence/build/lanes/lane-b/LANE-B-00.json`).
     """
-    recorded = recorded_tool("tsc")
-    if recorded:
-        return recorded
-    for candidate in ("tsc", "tsc.cmd"):
-        found = shutil.which(candidate)
-        if found:
-            return found
-    return None
+    return resolve_tool("tsc")
 
 
 def _clip(text: str) -> str:
@@ -411,23 +388,6 @@ def _version(compiler: str, workspace: Path) -> str:
     return result.stdout.strip() if result.return_code == 0 else ""
 
 
-@dataclass(frozen=True)
-class ProductBuild:
-    """What driving the package's own manifest build proved (G4-W17 arrival item 50).
-
-    ``command`` is the exact steps that exited 0, newline-joined in the order a reader runs them
-    from a checkout, and empty unless every step did: it is what a receipt hands
-    `_source_build_fact` to advertise, so it never names a step that was not proven. ``summary``
-    is the phrase every receipt carries - exit codes only, never a duration: a wall-clock cannot
-    repeat between two runs of one revision, and a receipt that carried one withdrew a seal's
-    no-op proof (net_examples.py, measured 2026-09-06 on Aspose.Cells for .NET).
-    """
-
-    verified: bool
-    command: str
-    summary: str
-
-
 def npm_executable() -> str | None:
     """`npm` as this machine offers it, or None when it offers none.
 
@@ -436,14 +396,10 @@ def npm_executable() -> str | None:
     toolchain registry, then beside whichever `node` is found - nothing is added to `PATH`.
     """
     names = ("npm.cmd", "npm") if os.name == "nt" else ("npm",)
-    for candidate in names:
-        found = shutil.which(candidate)
-        if found:
-            return found
-    recorded = recorded_tool("npm")
-    if recorded:
-        return recorded
-    node = shutil.which("node")
+    found = resolve_tool("npm")
+    if found:
+        return found
+    node = resolve_tool("node")
     if node:
         for candidate in names:
             sibling = Path(node).with_name(candidate)
@@ -454,7 +410,7 @@ def npm_executable() -> str | None:
 
 def build_product(
     root: Path, workspace: Path, npm: str | None, timeout_seconds: float
-) -> ProductBuild:
+) -> MeasuredBuild:
     """Drive the manifest's own build in a copy of the checkout and say exactly what exited 0.
 
     Lane B's measurement (RESEARCH_LANE_B 617-645) is why nothing here is a template: `npm
@@ -467,13 +423,13 @@ def build_product(
     `build_product` is the same shape for CMake).
     """
     if npm is None:
-        return ProductBuild(False, "", "not attempted (no npm on this machine)")
+        return MeasuredBuild(False, "", "not attempted (no npm on this machine)")
     copy = workspace / _PRODUCT_DIRECTORY
     try:
         shutil.copytree(root, copy, ignore=shutil.ignore_patterns(*_NOT_COPIED), dirs_exist_ok=True)
     except OSError as error:
         # The error's text would carry this machine's paths into a receipt; its class does not.
-        return ProductBuild(
+        return MeasuredBuild(
             False, "", f"not attempted (the sources would not copy: {type(error).__name__})"
         )
     scripts = read_json(copy / "package.json").get("scripts")
@@ -493,11 +449,11 @@ def build_product(
         )
         after = f" after {' and '.join(f'`{done}` exited 0' for done in ran)}" if ran else ""
         if result.timed_out:
-            return ProductBuild(
+            return MeasuredBuild(
                 False, "", f"failed (`{spelled}` did not exit within {timeout_seconds:g}s{after})"
             )
         if result.return_code != 0:
-            return ProductBuild(
+            return MeasuredBuild(
                 False, "", f"failed (`{spelled}` exited {result.return_code}{after})"
             )
         ran.append(spelled)
@@ -505,7 +461,24 @@ def build_product(
     aside = (
         "" if declares_build else "; the manifest declares no build script, so nothing was compiled"
     )
-    return ProductBuild(True, "\n".join(ran), f"succeeded ({proven}{aside})")
+    return MeasuredBuild(True, "\n".join(ran), f"succeeded ({proven}{aside})")
+
+
+def verify_typescript_build(
+    package: Path, workspace: Path, timeout_seconds: float
+) -> MeasuredBuild:
+    """The package's own npm build, measured whether or not any README example exists.
+
+    The one rule for an npm install claim the registry does not confirm
+    (`evidence/facts/extract.py`, the same rule `net_examples.verify_net_build` applies to NuGet).
+    A README snippet that fails is that snippet's defect, and a repository with no snippet has no
+    receipt to read at all, so the build is driven here, once, on its own fresh run directory -
+    never the examples' workspace.
+    """
+    fresh = _fresh_workspace(workspace)
+    if fresh is None:
+        return MeasuredBuild(False, "", "not attempted (no clean workspace to build in)")
+    return build_product(package, fresh, npm_executable(), timeout_seconds)
 
 
 def verify_typescript_examples(

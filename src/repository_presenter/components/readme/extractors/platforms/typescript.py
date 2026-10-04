@@ -31,6 +31,7 @@ from repository_presenter.components.readme.extractors.platforms.typescript_barr
     reexported_bindings,
 )
 from repository_presenter.components.readme.extractors.platforms.typescript_examples import (
+    verify_typescript_build,
     verify_typescript_examples,
 )
 from repository_presenter.components.readme.extractors.surface.extractor import surface_symbols
@@ -42,6 +43,7 @@ from repository_presenter.core.examples import (
     ExampleReceipt,
     FormatClaim,
     FormatDeclaration,
+    MeasuredBuild,
 )
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id, slug
 from repository_presenter.core.grammars import get_parser
@@ -447,6 +449,17 @@ class TypeScriptPlugin:
             workspace,
             TYPESCRIPT.example_timeout_seconds,
             TYPESCRIPT.install_timeout_seconds,
+        )
+
+    def verify_build(self, root: Path, manifest: Path, workspace: Path) -> MeasuredBuild:
+        """The package's own `npm install` and `npm run build`, measured with no example needed.
+
+        A registry 404 for the declared package (`install_command:npm` CONTRADICTED) is admitted
+        only as the source install these steps exited 0 on; the one rule is in
+        `evidence/facts/extract.py`, and `registry.verify_build` is what calls this.
+        """
+        return verify_typescript_build(
+            manifest.parent, workspace, TYPESCRIPT.install_timeout_seconds
         )
 
     def format_claims(self, code: str) -> Sequence[FormatClaim]:
