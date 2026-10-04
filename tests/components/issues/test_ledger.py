@@ -61,10 +61,13 @@ def test_discover_and_load_the_real_backfilled_artifacts() -> None:
     # (components/issues/draft.py, commit 6fa11ad) postdated the finding, so it was never drafted
     # live; constructed instead via the real Fact/FactsDocument/draft_handoff/write_handoff path,
     # never a handwritten JSON shape.
+    # 2026-10-04: a fourth artifact is the G6-W01 live-proof synthetic handoff for
+    # babar-raza/repository-presenter (issue #189, FILED) - a filing-path test record, not a
+    # product defect; see the commit that added it.
     paths = discover_handoff_paths(REAL_UPSTREAM_DEFECTS)
-    assert len(paths) == 3
+    assert len(paths) == 4
     ledger = load_ledger(REAL_UPSTREAM_DEFECTS)
-    assert len(ledger) == 3
+    assert len(ledger) == 4
     html = lookup(
         ledger,
         "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
