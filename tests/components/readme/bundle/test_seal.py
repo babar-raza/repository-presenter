@@ -198,7 +198,7 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert document["components"] == {
         "shell": "6",
         "renderer": "25",
-        "normalisation": "18",
+        "normalisation": "19",
         "reviewer_logic": "14",
     }
     assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 11
@@ -445,6 +445,50 @@ def test_seed_call_store_reuses_the_three_one_to_one_stages_from_a_sealed_bundle
 
     empty = seed_call_store(tmp_path / "nonexistent", CallStore(tmp_path / "runs" / "calls2"))
     assert empty == []
+
+
+def test_seed_call_store_never_replaces_an_accepted_output_of_the_same_revision(
+    tmp_path: Path,
+) -> None:
+    """Defect (aspose-slides-foss/Aspose.Slides-FOSS-for-Java at 620a2614, dry_run, 2026-10-04).
+    A fresh present accepted a transaction at this revision (recorded VALID_UPDATE_AVAILABLE,
+    not adopted). A plain rerun then seeded its call store from the older sealed bundle, and
+    the unconditional ``put`` replaced the transaction's own accepted repository_investigation
+    output (6 workflows) with the bundle's (5). Every downstream request then carried a different
+    packet, so 21 of 21 content calls missed the store and went live, and the zero-call replay
+    of the accepted transaction was unreachable.
+
+    The store under runs/transactions/<repo>/<revision>/ is the accepted transaction at that
+    revision; a sealed bundle may only answer a request the store does not already answer, or
+    answer it with the same output. A stored output for the same request key is never replaced.
+    """
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "investigation.json").write_text('{"workflows": ["sealed"]}\n', encoding="utf-8")
+    (bundle / "calls.jsonl").write_text(
+        json.dumps(
+            {
+                "job": "repository_investigation",
+                "outcome": "success",
+                "logical_call_id": "a" * 64,
+                "request_sha256": "attempt-payload-hash",
+                "model_served": "qwen3-next",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    store = CallStore(tmp_path / "runs" / "calls")
+    store.put("a" * 64, "repository_investigation", "qwen3-next", {"workflows": ["accepted"]})
+
+    assert seed_call_store(bundle, store) == []
+    assert store.get("a" * 64) == {"workflows": ["accepted"]}
+
+    # The same output already stored is the sealed answer too: reported as seeded, unchanged.
+    agreeing = CallStore(tmp_path / "runs" / "agreeing")
+    agreeing.put("a" * 64, "repository_investigation", "qwen3-next", {"workflows": ["sealed"]})
+    assert seed_call_store(bundle, agreeing) == ["repository_investigation"]
+    assert agreeing.get("a" * 64) == {"workflows": ["sealed"]}
 
 
 def test_seed_additional_calls_reuses_whatever_raw_calls_json_names_by_its_own_hash(

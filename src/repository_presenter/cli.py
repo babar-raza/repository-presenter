@@ -1289,7 +1289,8 @@ def run_present(
             # revision starts with nothing to reuse - seed what the sealed bundle's own
             # artifacts can answer for before making any call. Skipped under --fresh: every job
             # makes a genuinely live call instead (CS-03 follow-up, see this function's own
-            # docstring).
+            # docstring). An accepted output already in this transaction's own store (a prior
+            # run at this revision, possibly unadopted) is never replaced by the bundle's older one.
             seeded = set(seed_call_store(bundle, store))
             # G5-W02's own remaining gap: seed_call_store only ever reaches the three 1:1 jobs
             # its own _SEEDABLE_JOBS names; coherence, independent_review, and a batch
@@ -1318,7 +1319,6 @@ def run_present(
                 tree_paths=tree_paths,
                 directory=transaction,
                 secrets=configured_secrets(os.environ),
-                sealed_bundle=bundle if sealed_manifest is not None else None,
             )
         )
     except (PresenterError, RetryableOperationError) as exc:

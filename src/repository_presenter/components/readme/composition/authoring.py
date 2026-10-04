@@ -17,7 +17,7 @@ import hashlib
 import json
 import re
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any
@@ -36,7 +36,6 @@ from repository_presenter.components.readme.composition.components.shell import 
 )
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.core.facts import Fact, FactsDocument, bounded_records
-from repository_presenter.core.llm.ledger import canonical_hash
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -234,7 +233,13 @@ _TYPE_OBJECTIVE = (
 # "18": a slot with nothing it may cite now pins its fact_ids to maxLength 0 rather than an empty
 # enum, which no strict json_schema request can carry (the S5 HTTP 500/502 class, 2026-10-04).
 # Every request that could ever have succeeded is byte-identical; only the unsatisfiable one moved.
-NORMALISATION_VERSION = "18"
+#
+# "19": a sealed section is no longer rebuilt from content_units.json by section and slot name
+# (reconstructed_task_output and its lineage check are removed). Every section_authoring call is
+# seeded only by its own request hash, from raw_calls.json, so a changed packet input (a plan
+# title, an investigation capability) replays nothing (2026-10-04). A sealed candidate that
+# predates raw_calls.json reads as stale here and needs one re-seal before a fresh clone replays it.
+NORMALISATION_VERSION = "19"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -1934,83 +1939,6 @@ def recover_section_authoring_output(
     return output if changed else None
 
 
-def _reconstruction_lineage_holds(
-    bundle: Path, fact_ids: set[str], facts: FactsDocument, prompt_sha256: str
-) -> bool:
-    """Whether a sealed bundle's own record of what it consumed still matches now (R5, external
-    review, 2026-09-08).
-
-    Matching a reconstructed unit to a task by section+slot name is not proof the unit was ever
-    produced by a request resembling this task's own current one - the facts behind it, or the
-    ``section_authoring`` prompt itself, may have changed since the bundle was sealed. The sealed
-    bundle's own ``dependencies.json`` already records exactly this, at the same precision the
-    rest of the system trusts it for (``bundle/evaluation.py``'s own reopening decision): a
-    ``canonical_hash`` of every consumed fact's full content, and every consumed prompt's own
-    sha256. A reconstruction is trusted only when both are still bit-identical to what is sealed -
-    not merely present, not merely equal in value - for every fact ID a reconstructed unit cites,
-    and for the current ``section_authoring`` prompt itself. Anything else is a stale
-    reconstruction, seeded under a hash a fresh call would otherwise correctly recompute, and
-    ``reconstructed_task_output`` returns ``None`` so the caller makes that real call instead.
-    """
-    dependencies_path = bundle / "dependencies.json"
-    if not dependencies_path.is_file():
-        return False
-    sealed = json.loads(dependencies_path.read_text(encoding="utf-8"))
-    sealed_prompt = sealed.get("prompts", {}).get("section_authoring", {})
-    if sealed_prompt.get("sha256") != prompt_sha256:
-        return False
-    sealed_facts: dict[str, str] = sealed.get("facts", {})
-    current_by_id = {fact.id: fact for fact in facts.facts}
-    for fact_id in fact_ids:
-        current_fact = current_by_id.get(fact_id)
-        if current_fact is None:
-            return False
-        if sealed_facts.get(fact_id) != canonical_hash(asdict(current_fact)):
-            return False
-    return True
-
-
-def reconstructed_task_output(
-    bundle: Path, task: SectionTask, facts: FactsDocument, prompt_sha256: str
-) -> dict[str, Any] | None:
-    """One task's own accepted output, rebuilt from a sealed bundle's merged
-    ``content_units.json`` - never a new committed bytes for it (G5-W02, 27.2 RC4).
-
-    A unit already carries its own ``section`` and ``slot`` (the model's own output schema
-    requires both), so a task's exact contribution is recoverable by filtering on both - not
-    section alone, which a batched section (``task.is_batch``) would blur across its several
-    tasks with no way to tell them apart again. A batched task is never reconstructed for that
-    reason: ``merge_units`` flattens every batch's own ``omitted`` list under their shared
-    section with nothing left distinguishing which batch it came from, so a batched task's own
-    omitted facts cannot be told apart once merged, and a caller must not guess. Returns None
-    when the bundle carries no such artifact, the task is a batch, the reconstruction would be
-    incomplete (a slot's unit is missing), or the facts/prompt behind it have since changed
-    (``_reconstruction_lineage_holds``, R5) - a caller falls back to a real call either way.
-    """
-    if task.is_batch:
-        return None
-    path = bundle / CONTENT_UNITS_FILENAME
-    if not path.is_file():
-        return None
-    document = json.loads(path.read_text(encoding="utf-8"))
-    units = [
-        unit
-        for unit in document.get("units", [])
-        if unit.get("section") == task.section_id and unit.get("slot") in task.slots
-    ]
-    if {unit.get("slot") for unit in units} != set(task.slots):
-        return None
-    cited_fact_ids = {fact_id for unit in units for fact_id in unit.get("fact_ids", [])}
-    if not _reconstruction_lineage_holds(bundle, cited_fact_ids, facts, prompt_sha256):
-        return None
-    omitted = [
-        {key: value for key, value in item.items() if key != "section"}
-        for item in document.get("omitted", [])
-        if item.get("section") == task.section_id
-    ]
-    return {"units": units, "omitted": omitted}
-
-
 def merge_units(
     outputs: list[tuple[str, dict[str, Any]]] | dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
@@ -2041,20 +1969,17 @@ def write_raw_calls(calls: Mapping[str, Mapping[str, Any]], path: Path) -> str:
     answers for verbatim (G5-W02, 27.2 RC4's own remaining gap, named explicitly in
     ``tests/test_cli.py::test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle``'s own
     docstring) - a ``coherence`` batch, an ``independent_review`` read (first, second, or third),
-    and a batch ``section_authoring`` task. A non-batch ``section_authoring`` task is already
-    reconstructed from ``content_units.json`` alone by ``reconstructed_task_output`` above and is
-    not duplicated here.
+    and every ``section_authoring`` task, batch or not. A non-batch section is recorded here by
+    its own request hash too, never rebuilt from ``content_units.json`` by section and slot name:
+    that rebuild replayed a sealed unit under a changed plan title (2026-10-04).
 
     Keyed by the call's own ``request_sha256`` - exactly the ``CallStore`` key ``run_job`` computes
     fresh on a later run (``core/llm/jobs.py::run_job``: ``canonical_hash({"prompt_sha256": ...,
     "payload": ...})``), so a seeded entry is reused only when the request that would produce it
     now is byte-identical to the one that produced it before; nothing else needs to be checked.
-    This is simpler than ``reconstructed_task_output``'s own lineage check (``_reconstruction_
-    lineage_holds``): that mechanism is keyed by section+slot, not by the request hash itself, so
-    it has to separately verify the facts and prompt behind a match still hold today. Keying by
-    the hash directly makes a match itself the proof - a stale entry simply never matches a fresh
-    hash, the same way :func:`seed_call_store`'s own ``logical_call_id`` keying already works for
-    the three 1:1 jobs it covers.
+    Keying by the hash directly makes a match itself the proof - a stale entry simply never
+    matches a fresh hash, the same way :func:`seed_call_store`'s own ``logical_call_id`` keying
+    already works for the three 1:1 jobs it covers.
 
     A caller builds ``calls`` from each call's own ``JobResult``: ``{result.request_sha256:
     {"job": result.job, "output": result.output}}`` - deliberately never ``result.model_served``,

@@ -525,8 +525,17 @@ def seed_call_store(bundle: Path, store: CallStore) -> list[str]:
     That job is left unseeded, so a replay still makes one real call for it rather than lying
     about which attempt is genuine.
 
-    Returns the job names actually seeded, so a caller can report or test the count without
-    reading the store back.
+    A stored output is never replaced. ``store`` is the transaction's own call store for this
+    revision, so an entry already in it is an accepted output of this revision - the seed a rerun
+    must replay (an unadopted accepted transaction is one, and the bundle may be older). Replacing
+    it with the sealed bundle's answer for the same request would make every downstream request
+    differ from the accepted transaction's, so the rerun would call the provider again and could
+    not reproduce that transaction (2026-10-04, aspose-slides-foss/Aspose.Slides-FOSS-for-Java at
+    620a2614: 21 of 21 content calls went live). An entry holding the same output as the sealed
+    artifact is the seed already in place, and counts as seeded.
+
+    Returns the job names actually seeded (or already holding the sealed answer), so a caller
+    can report or test the count without reading the store back.
     """
     ledger_path = bundle / LEDGER_FILENAME
     if not ledger_path.is_file():
@@ -549,7 +558,12 @@ def seed_call_store(bundle: Path, store: CallStore) -> list[str]:
         if not isinstance(logical_call_id, str) or not logical_call_id:
             continue
         output = json.loads(artifact.read_text(encoding="utf-8"))
-        store.put(logical_call_id, job, record.get("model_served"), output)
+        held = store.get(logical_call_id)
+        if held is not None and held != output:
+            # The transaction's own accepted answer for this request stands (see docstring).
+            continue
+        if held is None:
+            store.put(logical_call_id, job, record.get("model_served"), output)
         seeded.append(job)
     return seeded
 
@@ -557,9 +571,8 @@ def seed_call_store(bundle: Path, store: CallStore) -> list[str]:
 def seed_additional_calls(bundle: Path, store: CallStore) -> list[str]:
     """Pre-populate ``store`` from a sealed bundle's own ``raw_calls.json`` (when it has one) -
     the counterpart to :func:`seed_call_store` above for the calls that function's own
-    ``_SEEDABLE_JOBS`` (and ``composition/authoring.py::reconstructed_task_output``, which
-    ``repair/rounds.py`` already applies per non-batch ``section_authoring`` task) cannot reach:
-    a ``coherence`` batch, an ``independent_review`` read, and a batch ``section_authoring`` task
+    ``_SEEDABLE_JOBS`` cannot reach: a ``coherence`` batch, an ``independent_review`` read, and
+    every ``section_authoring`` task (batch or not, each keyed by its own request hash)
     (G5-W02's own remaining gap, named explicitly in ``tests/test_cli.py::test_present_from_an_
     empty_runs_directory_reuses_a_sealed_bundle``'s docstring before this function existed).
 

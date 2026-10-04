@@ -24,7 +24,6 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_schema,
     authoring_tasks,
     merge_units,
-    reconstructed_task_output,
     recover_section_authoring_output,
     recover_title_verbatim_opening,
     repair_title_verbatim_opening_errors,
@@ -122,8 +121,6 @@ from repository_presenter.core.llm.jobs import (
     CallStore,
     JobContext,
     JobResult,
-    effective_model,
-    request_hash,
     run_job,
 )
 from repository_presenter.core.llm.ledger import Ledger, canonical_hash
@@ -150,10 +147,6 @@ class TransactionInputs:
     tree_paths: Sequence[str]
     directory: Path
     secrets: Sequence[ConfiguredSecret]
-    # G5-W02 (27.2 RC4): a sealed bundle for this exact revision, when one exists, so an
-    # authoring task whose accepted output is reconstructable from it seeds the store before
-    # its own run_job call rather than making a call the bundle already answers.
-    sealed_bundle: Path | None = None
 
 
 @dataclass
@@ -312,22 +305,6 @@ def run_round(tx: TransactionInputs) -> Round:
     authored: dict[str, JobResult] = {}
     for task in tasks:
         call_schema = authoring_schema(loaded, task)
-        # G5-W02 (27.2 RC4): a fresh clone of an already-sealed revision has nothing in its own
-        # runs/ to reuse, but the sealed bundle's own content_units.json may already answer this
-        # exact task - seed the store at the hash this call would use before making it.
-        if tx.sealed_bundle is not None:
-            task_hash = request_hash(
-                loaded,
-                task.packet,
-                call_schema,
-                model=effective_model(loaded, tx.context),
-            )
-            if tx.store.get(task_hash) is None:
-                reconstructed = reconstructed_task_output(
-                    tx.sealed_bundle, task, facts, loaded.sha256
-                )
-                if reconstructed is not None:
-                    tx.store.put(task_hash, loaded.manifest.prompt_id, None, reconstructed)
         authored[task.label] = run_job(
             loaded,
             task.packet,
@@ -398,10 +375,10 @@ def run_round(tx: TransactionInputs) -> Round:
     digests["units"] = write_content_units(units, tx.directory / CONTENT_UNITS_FILENAME)
     digests["readme"] = write_text(readme, tx.directory / README_FILENAME)
     digests["patch"] = write_text(render_patch(tx.original, readme), tx.directory / PATCH_FILENAME)
-    # G5-W02 (27.2 RC4's own remaining gap): raw_calls.json seals every accepted call above that
-    # no other sealed artifact already answers for verbatim - every coherence batch, plus a batch
-    # section_authoring task (a non-batch one is already reconstructed from content_units.json
-    # alone by reconstructed_task_output, seeded before its own run_job call further up). Written
+    # G5-W02 (27.2 RC4): raw_calls.json seals every accepted call above that no other sealed
+    # artifact answers for verbatim, keyed by its own request hash: every coherence batch, every
+    # section_authoring task (batch or not - a rerun replays a section only when its own request
+    # hash matches the sealed one, never by section name), and each review read. Written
     # now so a round that stops at blocking_failures below (never reaching review) still seals
     # whatever it made; the review block further down adds its own reads and rewrites this same
     # file, exactly like digests["validation"] is written once here and again after review.
@@ -412,7 +389,6 @@ def run_round(tx: TransactionInputs) -> Round:
         {
             authored[task.label].request_sha256: _raw_call_entry(authored[task.label])
             for task in tasks
-            if task.is_batch
         }
     )
     digests["raw_calls"] = write_raw_calls(raw_calls, tx.directory / RAW_CALLS_FILENAME)

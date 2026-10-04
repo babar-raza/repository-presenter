@@ -898,7 +898,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "6",
         "renderer": "25",
-        "normalisation": "18",
+        "normalisation": "19",
         "reviewer_logic": "14",
     }
     assert "install_command:pip" in dependencies["facts"]
@@ -1144,6 +1144,203 @@ def test_present_fresh_skips_seeding_even_against_a_warm_local_transaction(
     # --fresh, against the identical revision and an already-warm local transaction, must cost
     # strictly more - proof neither the sealed bundle nor the leftover local cache answered.
     assert len(made) > 4
+
+
+# A plausible reply that differs from LOCAL_INVESTIGATION in one capability title, so it is a
+# different accepted investigation at the same revision (the defect's own run 2 shape) and every
+# downstream packet that carries the capability list differs from the sealed bundle's.
+REPLAYED_INVESTIGATION: dict[str, Any] = {
+    **LOCAL_INVESTIGATION,
+    "capabilities": [
+        {**LOCAL_INVESTIGATION["capabilities"][0], "title": "Build scenes in memory"},
+        *LOCAL_INVESTIGATION["capabilities"][1:],
+    ],
+}
+
+
+def _transaction_files(transaction: Path) -> dict[str, bytes]:
+    """Every top-level artifact of a transaction except its clock-carrying ledger and probes."""
+    return {
+        path.name: path.read_bytes()
+        for path in sorted(transaction.iterdir())
+        if path.is_file() and path.name not in {"calls.jsonl", "probes.json"}
+    }
+
+
+def _seal_then_accept_unadopted_transaction(
+    project: Path, gateway: _ChatGateway, capsys: pytest.CaptureFixture[str]
+) -> Path:
+    """Seal the canary with the default investigation and prove it with a zero-call rerun (the
+    defect's own starting point: a proven READY_FOR_PROPOSAL bundle), then run a fresh present
+    whose investigation differs. That accepted transaction is recorded as a waiting update and
+    the bundle keeps its older sealed artifacts - the transaction a rerun must replay."""
+    assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
+    capsys.readouterr()
+    assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
+    capsys.readouterr()
+    bundle = next((project / "candidates").glob("*/*"))
+    proven = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert proven["state"] == "READY_FOR_PROPOSAL" and proven["no_op_proof"]
+    sealed_investigation = (bundle / "investigation.json").read_bytes()
+    gateway.queues["repository_investigation"] = [copy.deepcopy(REPLAYED_INVESTIGATION)]
+    assert main(["present", "--repo", CANARY, "--root", str(project), "--fresh"]) == EXIT_OK
+    out = capsys.readouterr().out
+    assert "valid update available" in out
+    assert (bundle / "investigation.json").read_bytes() == sealed_investigation
+    return next((project / "runs" / "transactions").glob("*/*"))
+
+
+def test_a_rerun_replays_an_accepted_unadopted_transaction_with_zero_calls(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Defect (aspose-slides-foss/Aspose.Slides-FOSS-for-Java at 620a2614, 2026-10-04): a plain
+    rerun at the same revision seeded its call store from the older sealed bundle, overwriting
+    the accepted transaction's own repository_investigation output, so every downstream request
+    missed the store and went live. The accepted transaction is the seed: zero content calls, and
+    the transaction's artifacts come back byte for byte."""
+    transaction = _seal_then_accept_unadopted_transaction(
+        project_with_registry, gateway_ready, capsys
+    )
+    accepted = _transaction_files(transaction)
+    before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert gateway_ready.requests[before:] == []
+    assert _transaction_files(transaction) == accepted
+    assert "investigation: " in out and "provider calls 0, model stored output reused" in out
+
+
+def test_a_changed_consumed_input_never_replays_the_accepted_transaction(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Negative control: the accepted investigation is answered only for the exact request it
+    was accepted for. A changed consumed input (here the investigation prompt) is a different
+    request, so the rerun calls the provider for it and never replays the stored reply."""
+    transaction = _seal_then_accept_unadopted_transaction(
+        project_with_registry, gateway_ready, capsys
+    )
+    manifest_path = project_with_registry / "prompts" / "repository_investigation.yaml"
+    manifest_path.write_text(
+        manifest_path.read_text("utf-8") + "\n# revised wording\n", encoding="utf-8", newline="\n"
+    )
+    before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    capsys.readouterr()
+    assert code == EXIT_OK
+    investigation_calls = [
+        request
+        for request in gateway_ready.requests[before:]
+        if request["response_format"]["json_schema"]["name"] == "repository_investigation"
+    ]
+    assert len(investigation_calls) == 1
+    replayed = json.loads((transaction / "investigation.json").read_text("utf-8"))
+    assert replayed == LOCAL_INVESTIGATION  # the live reply, not the accepted one
+
+
+def test_a_different_revision_never_replays_another_revisions_transaction(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Negative control: an accepted transaction at one revision is never a seed for another.
+    A new commit on the same upstream is a new revision with its own (absent) transaction and
+    sealed bundle, so its investigation is a live call and no seeding line is printed."""
+    transaction = _seal_then_accept_unadopted_transaction(
+        project_with_registry, gateway_ready, capsys
+    )
+    (local_canary["source"] / "NOTES.txt").write_text("A second revision.\n", encoding="utf-8")
+    commit_all(local_canary["source"], "second revision")
+    before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert not any(line.startswith("seeded from sealed bundle:") for line in out.splitlines())
+    other = next(
+        path
+        for path in (project_with_registry / "runs" / "transactions").glob("*/*")
+        if path != transaction
+    )
+    assert other.name != transaction.name
+    made = gateway_ready.requests[before:]
+    assert any(
+        request["response_format"]["json_schema"]["name"] == "repository_investigation"
+        for request in made
+    )
+
+
+def _authored_sections(requests: list[dict[str, Any]]) -> list[str]:
+    """Section names of the section_authoring calls in ``requests``, coherence's ``all`` aside."""
+    names: list[str] = []
+    for request in requests:
+        if request["response_format"]["json_schema"]["name"] != "section_authoring":
+            continue
+        named = re.search(r"^Section: (\S+)$", request["messages"][1]["content"], re.M)
+        if named and named.group(1) != "all":
+            names.append(named.group(1))
+    return names
+
+
+def test_a_changed_plan_title_never_replays_the_sealed_section(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Negative control (2026-10-04). A sealed section's unit answers only the request it was
+    sealed for. A plan that now titles a capability differently changes that section's packet,
+    so its authoring call is live and the sealed unit is never replayed under the new title. The
+    earlier section+slot reconstruction replayed exactly that unit, with zero calls, because its
+    lineage check compared only cited facts and the section prompt."""
+    main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    capsys.readouterr()
+    shutil.rmtree(project_with_registry / "runs" / "transactions")
+    manifest_path = project_with_registry / "prompts" / "presentation_planning.yaml"
+    manifest_path.write_text(
+        manifest_path.read_text("utf-8") + "\n# revised wording\n", encoding="utf-8", newline="\n"
+    )
+    plan = copy.deepcopy(LOCAL_PLAN)
+    plan["core_capabilities"][0]["title"] = "Create scenes in memory"
+    plan["at_a_glance"]["capability_titles"][0] = "Create scenes in memory"
+    gateway_ready.queues["presentation_planning"] = [plan]
+    before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    capsys.readouterr()
+    assert code == EXIT_OK
+    assert "key_capabilities" in _authored_sections(gateway_ready.requests[before:])
+
+
+def test_present_fresh_makes_every_section_call_live_against_a_sealed_bundle(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """--fresh means every job calls live: a sealed bundle's section content is not reconstructed
+    under it either (the earlier code passed the sealed bundle to the rounds regardless of --fresh,
+    so every non-batch section replayed with zero calls even under --fresh)."""
+    main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    capsys.readouterr()
+    before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry), "--fresh"])
+    capsys.readouterr()
+    assert code == EXIT_OK
+    sections = _authored_sections(gateway_ready.requests[before:])
+    assert {"opening", "key_capabilities", "quick_start"} <= set(sections)
 
 
 OPENING_QUOTE = "Developers using Python use it to write GLB from code."
