@@ -4,7 +4,7 @@
   "provider_repository_id": 1185437353,
   "registry_revision": null,
   "active_transaction_id": "867c6034a7584a14a47dc1adfcb6f957",
-  "state": "PLANNING",
+  "state": "COMPOSING",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -25,20 +25,20 @@
     "fencing_token": 1
   },
   "last_transition": {
-    "transition_id": "bbd3007a8a484f048a724b1e192e6a36",
+    "transition_id": "4c0f914d1c91459eaf4c5926832c93c7",
     "transaction_id": "867c6034a7584a14a47dc1adfcb6f957",
     "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
-    "from_state": "RECONCILING",
-    "to_state": "PLANNING",
+    "from_state": "PLANNING",
+    "to_state": "COMPOSING",
     "event": "present.yml hosted transaction completed (one coarse receipt spanning the local pipeline's own stages - see core/state/present_transaction.py's module docstring)",
-    "occurred_at": "2026-10-04T13:23:03.798283+00:00",
+    "occurred_at": "2026-10-04T13:23:05.855689+00:00",
     "actor": "runtime",
     "input_manifest": "registry:aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
     "output_manifest": "candidates/aspose-slides-foss__Aspose.Slides-FOSS-for-.NET/CURRENT",
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 6,
+  "state_version": 7,
   "recent_trigger_dedup_keys": {
     "run:37204846411:aspose-slides-foss/Aspose.Slides-FOSS-for-.NET": "867c6034a7584a14a47dc1adfcb6f957"
   },
