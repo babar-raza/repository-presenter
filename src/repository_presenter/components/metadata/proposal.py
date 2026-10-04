@@ -20,13 +20,34 @@ assert something the README does not already support (AGENTS.md "Truth and READM
 A repository with no sealed candidate yet, or whose product-homepage lookup was never
 ``SUPPORTED``, gets ``None`` for the corresponding field rather than a guess - the same
 "insufficient_evidence over fabrication" discipline README composition already follows.
+
+Maintainer content is preserved by default (``preservation.py`` holds the rules and rationale).
+The *diff* - not the raw proposal - is what an apply consumes:
+
+- ``description``/``homepage`` replace an existing value only when ``preservation`` proves it weak;
+  otherwise the diff records "kept, maintainer-authored" and the differing proposal stays advisory.
+- ``topics`` are merged, never replaced: ``final_topics`` is the existing topics plus verified
+  additions, minus only the removals ``topic_removals`` justifies by a cited verified fact.
+  ``observed_topics`` records what was there, so a write can be audited (``write_diff_record``).
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
+from repository_presenter.components.metadata.preservation import (
+    MAINTAINER_AUTHORED,
+    TopicRemoval,
+    assess_description,
+    assess_homepage,
+    justified_topic_removals,
+    merge_topics,
+)
 from repository_presenter.core.facts import FactsDocument
 
 DESCRIPTION_MAX_LENGTH = 350  # GitHub's own field limit
@@ -51,11 +72,41 @@ class ProposedRepoMetadata:
     topics_sources: tuple[str, ...]
     homepage: str | None
     homepage_source: str | None
+    # The SUPPORTED ``identity:platform`` (or ``identity:ecosystem``) fact the proposal was built
+    # from; ``preservation`` uses it to recognise a description/topic that contradicts it.
+    verified_platform: str | None = None
+    verified_platform_fact: str | None = None
+
+
+@dataclass(frozen=True)
+class FieldDecision:
+    """What the diff decided for one field and why, e.g. ``replace``/``empty`` or
+    ``keep``/``maintainer-authored``. ``action``: ``unchanged`` (already equal), ``none`` (nothing
+    verified to propose), ``set``/``replace`` (written because the existing value was empty/weak),
+    ``keep`` (a differing proposal withheld to preserve the maintainer's value), ``merge``
+    (topics)."""
+
+    action: str
+    rule: str
+
+    @property
+    def summary(self) -> str:
+        if self.action == "keep":
+            return f"kept, {self.rule}"
+        return f"{self.action} ({self.rule})" if self.rule else self.action
+
+
+_UNDECIDED = FieldDecision("unchanged", "")
 
 
 @dataclass(frozen=True)
 class RepoMetadataDiff:
-    """The proposal against Phase 0's observation, field by field."""
+    """The proposal against Phase 0's observation, field by field.
+
+    ``*_changed`` mean "an apply should write this field", after preservation:
+    ``description_changed`` is false when a differing proposal was withheld to keep a
+    maintainer-authored description.
+    """
 
     repository: str
     proposed: ProposedRepoMetadata
@@ -65,6 +116,18 @@ class RepoMetadataDiff:
     description_changed: bool
     homepage_changed: bool
     topics_changed: bool
+    description_decision: FieldDecision = _UNDECIDED
+    homepage_decision: FieldDecision = _UNDECIDED
+    topics_decision: FieldDecision = _UNDECIDED
+    topic_removals: tuple[TopicRemoval, ...] = ()
+
+    @property
+    def final_topics(self) -> tuple[str, ...]:
+        """The complete topic set an apply must PUT (GitHub's endpoint replaces the whole set):
+        every existing topic except a justified removal, then each verified addition."""
+        removed = {removal.topic for removal in self.topic_removals}
+        kept = tuple(topic for topic in self.observed_topics if topic not in removed)
+        return merge_topics(kept, self.proposed.topics)
 
     @property
     def has_changes(self) -> bool:
@@ -183,6 +246,8 @@ def build_proposal(facts: FactsDocument, readme_text: str | None) -> ProposedRep
     description, description_source = propose_description(readme_text)
     topics, topics_sources = propose_topics(facts)
     homepage, homepage_source = propose_homepage(facts)
+    supported = {f.id: f for f in facts.facts if f.polarity == "SUPPORTED"}
+    platform = supported.get("identity:platform") or supported.get("identity:ecosystem")
     return ProposedRepoMetadata(
         description=description,
         description_source=description_source,
@@ -190,7 +255,21 @@ def build_proposal(facts: FactsDocument, readme_text: str | None) -> ProposedRep
         topics_sources=topics_sources,
         homepage=homepage,
         homepage_source=homepage_source,
+        verified_platform=platform.value if platform is not None else None,
+        verified_platform_fact=platform.id if platform is not None else None,
     )
+
+
+def _decide_text_field(
+    proposed: str | None, observed: str | None, weak: bool, rule: str
+) -> tuple[bool, FieldDecision]:
+    if proposed is None:
+        return False, FieldDecision("none", "no verified proposal")
+    if proposed == observed:
+        return False, FieldDecision("unchanged", "already matches")
+    if weak:
+        return True, FieldDecision("set" if rule == "empty" else "replace", rule)
+    return False, FieldDecision("keep", MAINTAINER_AUTHORED)
 
 
 def diff_against_observed(
@@ -200,18 +279,44 @@ def diff_against_observed(
     observed_homepage: str | None,
     observed_topics: tuple[str, ...],
 ) -> RepoMetadataDiff:
-    """Compare ``proposed`` against Phase 0's observation. Topics compare as sets - GitHub topic
-    order carries no meaning; description and homepage compare exactly.
+    """Compare ``proposed`` against Phase 0's observation, preserving maintainer content.
+
+    - description / homepage: written only when the existing value is empty or weak under
+      ``preservation``'s documented rules; a differing proposal against a non-weak value is
+      withheld (``FieldDecision`` ``keep``: "kept, maintainer-authored").
+    - topics: a merge (existing + verified additions), never a replace; an existing topic is
+      removed only when ``topic_removals`` cites the verified fact that contradicts it. Topics
+      compare as sets - GitHub topic order carries no meaning.
 
     A field this module could not safely propose (``None``) is never treated as "matches" or
     "differs" from an observed value - it is simply not proposed, and is reported as unchanged
     (nothing to diff), never as a phantom change.
     """
-    description_changed = (
-        proposed.description is not None and proposed.description != observed_description
+    description_verdict = assess_description(
+        observed_description, repository, proposed.verified_platform
     )
-    homepage_changed = proposed.homepage is not None and proposed.homepage != observed_homepage
-    topics_changed = bool(proposed.topics) and set(proposed.topics) != set(observed_topics)
+    description_changed, description_decision = _decide_text_field(
+        proposed.description,
+        observed_description,
+        description_verdict.weak,
+        description_verdict.rule,
+    )
+    homepage_verdict = assess_homepage(observed_homepage, repository)
+    homepage_changed, homepage_decision = _decide_text_field(
+        proposed.homepage, observed_homepage, homepage_verdict.weak, homepage_verdict.rule
+    )
+    removals = justified_topic_removals(
+        observed_topics, proposed.verified_platform_fact, proposed.verified_platform
+    )
+    kept = tuple(t for t in observed_topics if t not in {r.topic for r in removals})
+    final = merge_topics(kept, proposed.topics)
+    topics_changed = set(final) != set(observed_topics)
+    added = sum(1 for t in final if t not in observed_topics)
+    topics_decision = (
+        FieldDecision("merge", f"+{added} verified, -{len(removals)} justified")
+        if topics_changed
+        else FieldDecision("unchanged", "existing topics already cover the proposal")
+    )
     return RepoMetadataDiff(
         repository=repository,
         proposed=proposed,
@@ -221,4 +326,59 @@ def diff_against_observed(
         description_changed=description_changed,
         homepage_changed=homepage_changed,
         topics_changed=topics_changed,
+        description_decision=description_decision,
+        homepage_decision=homepage_decision,
+        topics_decision=topics_decision,
+        topic_removals=removals,
     )
+
+
+def diff_record(diff: RepoMetadataDiff) -> dict[str, Any]:
+    """A JSON-serialisable audit record: what was there, what was proposed, what an apply would
+    write, and the decision (with its rule) for each field. Contains no credentials."""
+    final = diff.final_topics
+    return {
+        "schema_version": 1,
+        "repository": diff.repository,
+        "description": {
+            "existing": diff.observed_description,
+            "proposed": diff.proposed.description,
+            "proposed_source": diff.proposed.description_source,
+            "decision": diff.description_decision.summary,
+            "write": diff.description_changed,
+        },
+        "homepage": {
+            "existing": diff.observed_homepage,
+            "proposed": diff.proposed.homepage,
+            "proposed_source": diff.proposed.homepage_source,
+            "decision": diff.homepage_decision.summary,
+            "write": diff.homepage_changed,
+        },
+        "topics": {
+            "existing": list(diff.observed_topics),
+            "proposed": list(diff.proposed.topics),
+            "proposed_sources": list(diff.proposed.topics_sources),
+            "final": list(final),
+            "added": [t for t in final if t not in diff.observed_topics],
+            "removed": [
+                {
+                    "topic": r.topic,
+                    "fact_id": r.fact_id,
+                    "fact_value": r.fact_value,
+                    "reason": r.reason,
+                }
+                for r in diff.topic_removals
+            ],
+            "decision": diff.topics_decision.summary,
+            "write": diff.topics_changed,
+        },
+    }
+
+
+def write_diff_record(diff: RepoMetadataDiff, path: Path) -> str:
+    """Write :func:`diff_record` as sorted-key JSON and return the SHA-256 of the written bytes
+    (mirrors ``capture.write_capture``)."""
+    data = (json.dumps(diff_record(diff), indent=2, sort_keys=True) + "\n").encode("utf-8")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    return hashlib.sha256(data).hexdigest()
