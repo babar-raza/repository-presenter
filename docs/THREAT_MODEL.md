@@ -176,8 +176,12 @@ Closed at `validation/registry.py` (BC-06, `VALIDATOR_VERSION` "3" -> "4", `Chec
 "3" -> "4"): a new `_unsafe_html_failures` scans the candidate README outside fenced code blocks
 (`_outside_fences` - a fence renders as inert text on GitHub, so a documentation example quoting one
 of these verbatim is not this hazard) for `<script>`/`<iframe>`/`<object>`/`<embed>`/`<meta>`/
-`<base>` tags, an `on[a-z]+=` event-handler attribute, and a `javascript:`/`vbscript:` scheme
-appearing anywhere, not only inside a markdown-shaped link. Every sealed candidate's
+`<base>` tags, an `on[a-z]+=` event-handler attribute, and a `javascript:`/`vbscript:` scheme at a
+URL position (a link or image destination, a reference definition, an autolink, or a URL-bearing
+attribute value, judged after character references decode and a browser's tab/newline/control
+stripping). A scheme word in ordinary prose is not a URL and is not a hazard (G8, BC-06 `Check`
+"4" -> "5": "Document-level JavaScript: every entry" on aspose-pdf-foss failed a candidate with no
+URL in it). Every sealed candidate's
 `validator_version` reads as stale against the new value (the sanctioned re-check mechanism
 `AGENTS.md` names - "validator and reviewer changes re-check and may yield
 `VALID_UPDATE_AVAILABLE`, never blanket invalidation" - never a forced reseal).

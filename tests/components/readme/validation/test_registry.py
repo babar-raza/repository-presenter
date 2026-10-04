@@ -938,6 +938,60 @@ def test_unsafe_raw_html_surviving_from_an_adversarial_readme_fails_bc06(tmp_pat
     assert _verdicts(validate_candidate(_candidate(fenced), tmp_path, ()))["BC-06"] == "PASS"
 
 
+def test_a_scheme_name_in_prose_is_not_a_url_and_fails_no_check(tmp_path: Path) -> None:
+    """BC-06 false positive (aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript). The scheme rule
+    matched `javascript:`/`vbscript:` anywhere outside a fence, so the API-reference prose label
+    "Document-level JavaScript: every entry ..." (a docstring of `GetJavaScripts`) failed the
+    whole candidate. A colon after a word is not a URL: the scheme is a hazard only where a URL is
+    read - a link or image destination, a reference definition, an autolink, or a URL-bearing
+    attribute value - and every one of these prose spellings must pass."""
+    readme = _candidate().readme
+    prose = (
+        "GetJavaScripts: Document-level JavaScript: every entry of the /Names /JavaScript tree, "
+        "sorted by name.\n\n"
+        "VBScript: legacy macro support is out of scope.\n\n"
+        "A `javascript:` scheme in a link is refused, see [Scope](#scope-and-limitations).\n\n"
+        '<p title="JavaScript: intro" data-label="VBScript: example">A label.</p>\n\n'
+    )
+    labelled = readme.replace(
+        "## Scope and Limitations\n\n", "## Scope and Limitations\n\n" + prose
+    )
+    assert labelled != readme
+    assert _verdicts(validate_candidate(_candidate(labelled), tmp_path, ()))["BC-06"] == "PASS"
+
+
+def test_a_dangerous_scheme_at_every_url_position_still_fails_bc06(tmp_path: Path) -> None:
+    """Negative controls for the URL-position rule: each real hazard, at each place a URL is
+    read, still fails BC-06 naming the offending span. The span is named by its `script:` tail,
+    which every spelling below carries (including the entity- and tab-obfuscated ones, whose raw
+    text the detail quotes as written)."""
+    readme = _candidate().readme
+    hazards = (
+        "[x](javascript:alert(1))",  # markdown link destination
+        "[x]( javascript:alert(1) )",  # destination after whitespace
+        "[x](<javascript:alert(1)>)",  # angle-bracket destination
+        "![x](vbscript:msgbox(1))",  # markdown image destination
+        "[x][ref]\n\n[ref]: javascript:alert(1)",  # reference-style definition
+        "<javascript:alert(1)>",  # autolink
+        '<a href="javascript:alert(1)">click</a>',  # double-quoted href
+        "<a href='javascript:alert(1)'>click</a>",  # single-quoted href
+        "<a href=javascript:alert(1)>click</a>",  # unquoted href
+        '<img src="vbscript:msgbox(1)">',  # src
+        '<a href="&#106;avascript:alert(1)">click</a>',  # entity-encoded scheme
+        '<a href="java\tscript:alert(1)">click</a>',  # tab inside the scheme
+        '<a xlink:href="javascript:alert(1)">click</a>',  # namespaced href
+        '<form action="javascript:alert(1)"></form>',  # form action
+        '<svg><animate attributeName="href" values="javascript:alert(1)"/></svg>',  # SVG values
+    )
+    for hazard in hazards:
+        injected = readme.replace(
+            "## Scope and Limitations\n\n", f"## Scope and Limitations\n\n{hazard}\n\n"
+        )
+        assert injected != readme, hazard
+        failed = _failed(validate_candidate(_candidate(injected), tmp_path, ()), "BC-06")
+        assert any("script:" in detail for detail in failed["details"]), hazard
+
+
 def test_renderer_owned_reads_a_registrys_click_through_target_off_ecosystemspec() -> None:
     """G4-W17 arrival item 89 (words-net worker LANE-F-03, Words-.NET). `_renderer_owned`
     special-cased pypi.org's own registry-page path and github.com's own repository path, but had
