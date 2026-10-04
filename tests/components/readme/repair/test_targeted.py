@@ -1330,6 +1330,62 @@ def test_a_repair_packet_forwards_a_given_visible_line_budget_hint_verbatim() ->
     assert packet["visible_line_budget"] == given_hint
 
 
+def test_a_repair_citing_a_supported_fact_outside_its_slot_is_a_planning_conflict() -> None:
+    """2026-10-04, aspose-font-foss/Aspose.Font-FOSS-for-Python, S6 finding F05 (scope_limitations).
+    The reviewer's correct wording attributes methods to ``aspose_font.SmartInstancer``, citing
+    that class's own SUPPORTED fact - which the plan had not bound to the slot (the plan gave the
+    slot only the module-level fact). A reply citing it is rejected, and the rejection latches a
+    planning conflict so the repair escalates once to S5 instead of being recorded unrepairable
+    after a no-op retry."""
+    slot_facts = {"limitation:3": frozenset({"public_symbol:aspose_font"})}
+    probe = SlotSetProbe(
+        frozenset({"limitation:3"}),
+        fact_sets=slot_facts,
+        fact_universe=frozenset(
+            {"public_symbol:aspose_font", "public_symbol:aspose_font.smartinstancer"}
+        ),
+        neutral_facts=frozenset({"package:python_requires"}),
+    )
+    revised = {
+        "units": [
+            {
+                "slot": "limitation:3",
+                "fact_ids": ["public_symbol:aspose_font.smartinstancer"],
+            }
+        ]
+    }
+    probe.returned = frozenset({"limitation:3"})
+    assert not probe.conflicts
+    assert probe.observe_facts(revised["units"]) == frozenset(
+        {"public_symbol:aspose_font.smartinstancer"}
+    )
+    assert probe.conflicts
+    assert probe.fact_conflicts == frozenset({"public_symbol:aspose_font.smartinstancer"})
+
+
+def test_fact_conflict_negative_controls_do_not_route_to_planning() -> None:
+    """Negative controls for the fact-selection signal: a slot's own facts, a neutral identity or
+    package fact, and an ID that is not a SUPPORTED fact at all must never latch a conflict."""
+    probe = SlotSetProbe(
+        frozenset({"limitation:3", "limitation:4"}),
+        fact_sets={
+            "limitation:3": frozenset({"public_symbol:aspose_font"}),
+            "limitation:4": frozenset({"public_symbol:aspose_font"}),
+        },
+        fact_universe=frozenset(
+            {"public_symbol:aspose_font", "public_symbol:aspose_font.smartinstancer"}
+        ),
+        neutral_facts=frozenset({"package:python_requires"}),
+    )
+    own = [{"slot": "limitation:3", "fact_ids": ["public_symbol:aspose_font"]}]
+    neutral = [{"slot": "limitation:4", "fact_ids": ["package:python_requires"]}]
+    unknown = [{"slot": "limitation:4", "fact_ids": ["public_symbol:made_up_method"]}]
+    assert probe.observe_facts(own) == frozenset()
+    assert probe.observe_facts(neutral) == frozenset()
+    assert probe.observe_facts(unknown) == frozenset()
+    assert not probe.conflicts
+
+
 def test_a_repair_packet_carries_the_superseded_inherited_units_its_section_must_carry() -> None:
     """Aspose.Slides for Java, development_testing (BC-10 F08, 2026-10-04): repair_packet drops
     every inherited_unit fact by default (RC1), so an S6 repair of the section could never see the
