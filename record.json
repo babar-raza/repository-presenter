@@ -17,13 +17,7 @@
   "accepted_artifact": null,
   "proposal": null,
   "failure": null,
-  "lease": {
-    "holder_id": "present.yml:37193095657",
-    "acquired_at": "2026-10-04T09:44:39.561496+00:00",
-    "heartbeat_at": "2026-10-04T09:44:39.561496+00:00",
-    "expires_at": "2026-10-04T09:59:39.561496+00:00",
-    "fencing_token": 1
-  },
+  "lease": null,
   "last_transition": {
     "transition_id": "41a864da5a5349d5b8888ed333ca91ee",
     "transaction_id": "25b7a7da2459460f840d3080ec2bfbd2",
@@ -38,7 +32,7 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 42,
+  "state_version": 43,
   "recent_trigger_dedup_keys": {
     "run:36846316608:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "c10d0e8f3981420db933efcf16457339",
     "run:36846738278:aspose-3d-foss/Aspose.3D-FOSS-for-Python": "7483865b14ff4539a5bf0e709a64d326",
