@@ -207,8 +207,18 @@ def binding_errors(payload: Any, facts: FactsDocument, binding: Binding) -> list
             errors.append(f"fact {fact_id} is {fact.polarity}, not SUPPORTED")
     for unit_id in dict.fromkeys(cited.unit_ids):
         unit = known.get(unit_id)
-        if unit is None or unit.kind != "inherited_unit":
+        if unit is None:
             errors.append(f"unknown inherited unit {unit_id}")
+        elif unit.kind != "inherited_unit":
+            # A real fact written into a unit field (a plan's unit_ids filled with the same
+            # identity or package IDs as its fact_ids, measured on Slides-Java 2026-10-05): the
+            # bare "unknown inherited unit" gave the one re-ask no way to see that the ID is
+            # fine and the field is wrong, and the identical reply came back.
+            errors.append(
+                f"unknown inherited unit {unit_id}: it is a fact of kind {unit.kind}, not an "
+                "inherited_unit; unit_ids take only inherited_unit:... IDs, so cite this one in "
+                "fact_ids and leave unit_ids empty when no inherited unit applies"
+            )
     if binding == "unit_ids":
         expected = [fact.id for fact in facts.by_kind("inherited_unit")]
         counts = {unit_id: cited.unit_ids.count(unit_id) for unit_id in expected}
