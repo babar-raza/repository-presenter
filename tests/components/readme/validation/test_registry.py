@@ -1690,6 +1690,30 @@ def test_bc_02_refuses_a_registry_command_the_registry_says_is_not_there() -> No
     assert "found no distribution" in failures[0].detail
 
 
+def test_bc_02_refuses_an_npm_command_the_registry_says_is_not_there() -> None:
+    """Mutation control for the unverified `npm install` claim (Aspose.PDF and Aspose.3D for
+    TypeScript, 2026-10-04): the npm registry answers 404 for the declared package, and a
+    SUPPORTED registry-kind install whose own reading found no distribution is refused, whatever
+    its wording - the same control the .NET install carries."""
+    command = "npm install @aspose/widget"
+    mutant = Fact(
+        "install_command:npm",
+        "install_command",
+        command,
+        (
+            Evidence("package.json", "install command for the name declared by the manifest"),
+            Evidence(
+                "https://registry.npmjs.org/@aspose%2Fwidget",
+                "package registry: distribution not found on npm",
+            ),
+        ),
+        polarity="SUPPORTED",
+    )
+    failures = _check_install(_install_candidate(mutant, f"```bash\n{command}\n```"))
+    assert [failure.stage for failure in failures] == ["EXTRACTING"]
+    assert "found no distribution" in failures[0].detail
+
+
 def test_bc_02_refuses_a_source_build_advertising_a_step_its_receipt_did_not_prove() -> None:
     """G4-W17 arrival item 50: BC-02 consults the per-repository receipt for the exact command
     it names. A source-kind fact whose receipt proved `npm install` may advertise exactly that;
