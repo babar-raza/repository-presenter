@@ -488,7 +488,7 @@ behavior are proven; and the system operates without routine human initiation or
 | Exactly one disposition per material source unit; LLM reasoning mandatory; every call attributable; zero-call no-op; small governed prompt registry | G1 | Blocking checks, six prompt manifests, ledger, fresh-process replay. |
 | System decides product and platform; ecosystem truth includes the public consumer surface | G1 (Python), G2, G4 (all) | Plugin registry and platform verifiers with negative controls. |
 | Aspose.org and sibling assets are oracles, never runtime dependencies; benchmark quality profile met or exceeded (`BENCHMARK_REFRESH_AVAILABLE`) | G1 rule, G4 pull, G5 benchmark | Fixture-only, plus file pulls with records and tests in G4, never a runtime import; benchmark comparison is development-only. |
-| 30-point acceptance, zero hard disqualifiers, criterion-specific evidence | G3 | Frozen as contract v1 after the Python cohort. |
+| 30-point acceptance, zero hard disqualifiers, criterion-specific evidence | G3 | **NOT IMPLEMENTED** (2026-10-04 wiring audit: no scorer in `src/`; only `ACCEPTANCE_PROFILE_VERSION = "1"` exists, `bundle/seal.py`). Original note: frozen as contract v1 after the Python cohort. |
 | Independent non-authoring review; second reviewer only on typed trigger | G1 | Hard invariant. |
 | Complete authorized discovery; hard allow-list; frozen registry revision; new repositories disabled and read-only; explicit exclusions | G4 registry freeze, G5 intake | Registry modules pulled and refactored. |
 | README-only placeholders become non-processable with resume predicates | G1 fixture, G3 and G4 PSD | Zero LLM calls. |
