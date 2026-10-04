@@ -237,6 +237,101 @@ honestly left here rather than moved to Resolved until a future draw confirms it
 
 **Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: still Open. `G3-W05` is COMPLETE, with its gate-manifest record (`evidence/build/G3_PYTHON_COHORT/manifest.json`, `g3_w05`). Two mutation tests reproduce both sightings' shapes (`tests/components/readme/composition/test_coherence.py`). The only live draw that reached S8 ran before the identity/package exclusion; the three draws after the refinement failed at earlier, unrelated stages. This entry's own bar, a live draw that re-exercises the refined check end to end, is not yet met. Moves to Resolved on that draw.
 
+### `registry.write_gate_unwired_mode_unenforced` (REV-V1-01)
+
+`core/registry/loader.py::is_permitted` is the registry's write gate (a `disabled` entry is analyzed but never proposed to), yet nothing in `src/`, `scripts/` or `.github/workflows/` calls it. Every admission point uses the read gate `require_listed`, and `mode` (`full` / `dry_run` / `disabled`, `core/registry/models.py`) is only printed, never branched on. The live registry is recorded as 34 entries (full 2, dry_run 29, disabled 3, `docs/RESEARCH_AND_GUIDELINES.md:775`), so 32 of 34 are intended not to be proposal-eligible and nothing enforces that.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/registry/loader.py:54` (definition); the only other references are `tests/core/registry/test_loader.py:85,126,130` |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:966,1106,1383,1677` (`require_listed` at all four admission points); `cli.py:967,1108,1385` (`mode` printed only) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/propose/effect.py` (no reference to `mode` or the registry) |
+
+**Id** REV-V1-01 · **Severity** Critical · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 1 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: grep shows `is_permitted` has a production caller in `run_propose` (and in the effect path) and a test that a `dry_run` and a `disabled` entry are each refused before any write call; `grep -rn is_permitted src/` returns more than the definition.
+
+### `propose.candidate_state_and_registry_not_checked` (REV-V1-02)
+
+`run_propose` reads `--readme-file` directly with no `load_registry` / `require_listed`; the default path consults the registry but only tests that `CURRENT` and `README.md` exist, never `manifest.json`'s `state`. `core/candidates.py` (`COUNTED_STATES = {READY_FOR_PROPOSAL}`) documents that `CURRENT` can point at a revision that is not `READY_FOR_PROPOSAL`. Reproduced on live data: `candidates/aspose-slides-foss__Aspose.Slides-FOSS-for-Java/CURRENT` is `620a2614...` whose manifest state is `VALID_UPDATE_AVAILABLE`, so the default path would propose that non-final candidate. `.github/workflows/propose.yml` takes `repo` and `readme_file` as free-text `workflow_dispatch` strings with no registry or state pre-check.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:1090-1124` (`--readme-file` branch skips the registry; default branch checks only file existence) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/candidates.py:37` (`COUNTED_STATES`) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `candidates/aspose-slides-foss__Aspose.Slides-FOSS-for-Java/620a2614418854b4a18966a361e6907ddc88c7cb/manifest.json:111` (`state: VALID_UPDATE_AVAILABLE`) reached by `CURRENT` |
+| 4 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/propose.yml:38-47` (free-text dispatch inputs) |
+
+**Id** REV-V1-02 · **Severity** Critical · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 2 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a test shows `run_propose` refuses a `CURRENT` whose manifest state is not `READY_FOR_PROPOSAL` (using the Slides-Java shape above), and refuses a `--readme-file` for a repository that is not a registry entry permitted by `is_permitted`; `grep -n READY_FOR_PROPOSAL src/repository_presenter/cli.py` finds the gate.
+
+### `propose.workflow_shell_injection_and_shared_write_token_job` (REV-V1-03)
+
+`.github/workflows/propose.yml` substitutes `${{ inputs.repo }}`, `inputs.expires_in_minutes`, `inputs.readme_file`, `inputs.source_revision` and `inputs.base_branch` directly into `run:` script text before bash parses it (the standard GitHub Actions script-injection class; YAML-level quoting does not help). The file has one job, `propose`, which holds the untrusted-input steps, the dry run, and the write-scoped App token mint (`actions/create-github-app-token@v2`), so injected shell runs with the write token reachable in the same runner.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/propose.yml:92,100,101,102,104,105` (`${{ inputs.* }}` inside `run:` blocks) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/propose.yml:70-71,117,134` (single `propose` job; token mint and `GH_PROPOSAL_WRITE_TOKEN` in the same job) |
+
+**Id** REV-V1-03 · **Severity** Critical · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 3 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -n 'inputs\.' .github/workflows/propose.yml` shows each input reaches `run:` only through an `env:` mapping (never inline), the dry run and the token-minting write step are separate jobs with the mint in the write job only, and a workflow-audit test in `tests/` asserts both.
+
+### `propose.authorization_self_minted_self_validated` (REV-V1-04)
+
+`authorize_proposal` is a plain constructor with no validation; `run_propose` computes `candidate_hash = sha256_text(readme_text)` and passes it in, then `propose_candidate` calls `validate_authorization` with `expected_candidate_hash=sha256_text(readme_text)` over the same `readme_text`, plus the same repository, revision and branch values. No independently sourced record (a persisted approval or a separate approver) is checked, so validation can only detect a clock or in-process mismatch. The only external gates are the `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` variable and token presence, both set by whoever submits the dispatch form that also chose the target and file.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/authorization/proposal.py:55-85` (`authorize_proposal`, no validation) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:1126-1139` (hash computed and authorization built in one call) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/propose/effect.py:205-218` (`write_authorized`, then `validate_authorization` over the same values) |
+
+**Id** REV-V1-04 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 4 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `propose_candidate` accepts an authorization record loaded from a source the author path cannot write (a sealed-bundle approval or a separate approver artifact), a test shows a record whose `candidate_hash` was not independently approved is refused, and a test shows a record minted in the same process without that approval is refused.
+
+### `propose.app_only_token_is_workflow_convention` (REV-V1-05)
+
+PARTIAL: the claim that the code accepts any `GH_TOKEN` is wrong. The write path reads only `GH_PROPOSAL_WRITE_TOKEN` and `effect.py` states it refuses `GH_TOKEN`. The surviving part is real: nothing in code checks that the value in `GH_PROPOSAL_WRITE_TOKEN` is a GitHub App installation token (`effect.py` documents App tokens only 'in principle'; there is no prefix or claims check in `core/github/client.py` or `effect.py`). The 'App only' guarantee therefore lives in the `propose.yml` mint step, so a local or differently authored run with a hand-set PAT is treated identically.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:1153-1161` (reads `GH_PROPOSAL_WRITE_TOKEN`, never `GH_TOKEN`) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/propose/effect.py:22-25,109` (App token 'in principle'; `_NO_TOKEN_REASON`) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/propose.yml:115-125` (the only enforcement) |
+
+**Id** REV-V1-05 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 5 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: either a runtime check that rejects a non-App-installation token before any write (a test with a PAT-shaped value is refused), or a documented decision that the YAML-only guarantee is accepted, with the audit test that pins the mint step; a grep of `src/repository_presenter/components/propose/` for the token-shape check shows which.
+
+### `metadata.description_overwrite_and_topics_full_replace` (REV-V1-06)
+
+`diff_against_observed` flags `description_changed` on any difference with no quality or maintainer-authorship guard, and `apply` then calls `update_repository` unconditionally with the proposed description. `replace_topics` is `PUT /repos/{owner}/{repo}/topics`, a full replace, while `propose_topics` derives only a small deterministic set, so any maintainer-added topic outside it is dropped on write. Latent, not armed: no workflow in `.github/workflows/` invokes the `metadata --apply` path and `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` is unset in this project's environment.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/metadata/proposal.py:210-212` (`description_changed`) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/metadata/apply.py:157-181` (unconditional update once authorized) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/github/client.py:222-242` (`replace_topics`, full replace); `src/repository_presenter/components/metadata/proposal.py:141-168` (`propose_topics`) |
+
+**Id** REV-V1-06 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 6 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a test shows an existing non-empty maintainer description is not overwritten without an explicit owner decision, and a test shows `apply` merges the observed topics into the proposed set (union) rather than replacing them; `grep -rn replace_topics src/` shows the caller passes a union.
+
+### `issues.filing_global_gate_no_per_handoff_approval` (REV-V1-07)
+
+`issues-scheduled.yml`'s `file-and-close` job is gated only by `vars.REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED == '1'` and fans out over every repository with a `HANDOFF_PENDING` or `FILED` handoff (`_ACTIONABLE_STATES`). When omitted, `file-upstream-defects --repo` files every `HANDOFF_PENDING` handoff. Live data: the Aspose.HTML-FOSS-for-Python and Aspose.TeX-FOSS-for-Python handoffs are both `HANDOFF_PENDING` today, so one repository variable set to `1` would file both as real issues against real `aspose-*-foss` repositories in one scheduled run with no review of either body.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/issues-scheduled.yml:143,149` (sole gate; matrix over all targets) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:438,787,797` (files all `HANDOFF_PENDING` when `--repo` omitted; `_ACTIONABLE_STATES`) |
+| 3 | `babar-raza/repository-presenter` | 2026-10-05 | `evidence/upstream-defects/aspose-html-foss__Aspose.HTML-FOSS-for-Python/ae9f06b95a4cc18609d64276e4a831bf9260ed6ea9c613f36cf2876478ea849a.json:32` and `evidence/upstream-defects/aspose-tex-foss__Aspose.TeX-FOSS-for-Python/c00f9615a81bb9f3c77f45df5ded5036d8da0cce6d6dee01634a27b3f3659188.json:28` (`status: HANDOFF_PENDING`) |
+
+**Id** REV-V1-07 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 7 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: filing requires a per-handoff approval recorded outside the filing job (a handoff-level field or approval artifact checked by `file-upstream-defects --file`), a test shows an unapproved `HANDOFF_PENDING` handoff is not filed when the global variable is `1`, and the workflow matrix is restricted to approved handoffs.
+
+### `propose.pr_lookup_open_only_recreates_merged_pr` (REV-V1-08)
+
+`find_open_pull_request` queries `pulls?head=...&state=open`, and `propose_candidate` calls `create_pull_request` whenever no open PR is found, with no check of closed or merged PR history for the head branch. The presenter branch name is a constant (`presenter_branch_name()` returns `PRESENTER_BRANCH`), so after a presenter PR is merged or closed the next run that finds no open PR opens a duplicate PR for content already merged or declined upstream. `create_pull_request`'s own docstring treats 'none open' as 'never existed'.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/github/client.py:543` (`state=open`); `client.py:560-585` (`create_pull_request` after the open lookup) |
+| 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/propose/effect.py:301-317` (create when `existing_pr is None`); `effect.py:97-102` (constant branch) |
+
+**Id** REV-V1-08 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 8 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a test shows that when a closed or merged PR exists for the presenter head branch, `propose_candidate` does not create a new PR and reports the prior outcome; `grep -n 'state=' src/repository_presenter/core/github/client.py` shows the lookup covers `state=all` (or a separate closed lookup) for the head branch.
+
 ## Resolved
 
 ### `review.cited_paraphrase_whole_fact_dilution`
