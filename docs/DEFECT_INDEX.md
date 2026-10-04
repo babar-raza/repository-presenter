@@ -237,6 +237,28 @@ honestly left here rather than moved to Resolved until a future draw confirms it
 
 **Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: still Open. `G3-W05` is COMPLETE, with its gate-manifest record (`evidence/build/G3_PYTHON_COHORT/manifest.json`, `g3_w05`). Two mutation tests reproduce both sightings' shapes (`tests/components/readme/composition/test_coherence.py`). The only live draw that reached S8 ran before the identity/package exclusion; the three draws after the refinement failed at earlier, unrelated stages. This entry's own bar, a live draw that re-exercises the refined check end to end, is not yet met. Moves to Resolved on that draw.
 
+### `composition.planning.unit_ids_decode_admits_fact_ids`
+
+S5 `presentation_planning` rejects a plan whose `material_limitations[].unit_ids` holds a real fact
+ID of another kind (`identity:*`, `package:*`, `dependency:*`) and burns both of the job's attempts
+on it. The array was pinned (item 77) to the same `citable_fact_id` enum as the `fact_ids` arrays,
+which contains every fact the planner can see, but the binding admits only `inherited_unit` facts
+in a unit array, so the ID decoded and was refused only after the call was spent. The one re-ask
+saw a bare "unknown inherited unit X" and repeated the reply.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-email-foss/Aspose.Email-FOSS-for-.Net` | 2026-09-16 | `docs/RESEARCH_LANE_F.md` F22: `package:target_framework` written into `unit_ids`, S5 attempt 1 rejected (attempt 2 succeeded) |
+| 2 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | 2026-10-01 | `docs/DECISION_LOG.md` (the refined-check verification entry): a `--fresh` draw failed S5 on "unknown inherited unit identity:ecosystem" |
+| 3 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | 2026-10-05 | both S5 attempts of one `--fresh` draw (`calls/*.rejected-{1,2}.json`, retained under `runs/`) filled every `material_limitations[].unit_ids` with the same `identity:*`/`package:java_release`/`dependency:none` IDs as `fact_ids`; `presentation_planning: output rejected twice` |
+
+**Status 2026-10-05**: fix landed on its branch, not yet moved to Resolved. `unit_ids` now has its
+own `citable_unit_id` enum (the citable IDs that are inherited units, `planning.citable_unit_ids`);
+the binding's message for a real fact of the wrong kind names the field mistake; and
+`core/llm/jobs.py` keeps a failed `recover` correction as `rejected-N-fix.json` and reports it after
+the model's own rejection. Replayed offline over the 27 sealed bundles: all 81 `unit_ids` citations
+lie inside the new enum. Not yet confirmed on a live draw of sighting #3's repository.
+
 ### `registry.write_gate_unwired_mode_unenforced` (REV-V1-01)
 
 `core/registry/loader.py::is_permitted` is the registry's write gate (a `disabled` entry is analyzed but never proposed to), yet nothing in `src/`, `scripts/` or `.github/workflows/` calls it. Every admission point uses the read gate `require_listed`, and `mode` (`full` / `dry_run` / `disabled`, `core/registry/models.py`) is only printed, never branched on. The live registry is recorded as 34 entries (full 2, dry_run 29, disabled 3, `docs/RESEARCH_AND_GUIDELINES.md:775`), so 32 of 34 are intended not to be proposal-eligible and nothing enforces that.
@@ -391,6 +413,8 @@ PARTIAL, recorded as the verifier narrowed it. EXACT: `tests/test_sealed_bytes.p
 
 **Id** REV-V4-05 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 5 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `KNOWN_BLOCKED_STALE` in `tests/test_sealed_bytes.py` is empty or each remaining entry names a dated owner decision, and the Go, .NET, Java and TypeScript platform tests each contain a registry-'not found' case asserting `CONTRADICTED` (grep `CONTRADICTED` in each `test_<ecosystem>.py`).
 
+**Fix in flight or landed:** PR #235 (merged on GitHub 2026-10-04; dated test debt and Go/.NET negative controls) - not yet reverified.
+
 ### `issues.redetect_imports_python_ecosystem_extractor` (REV-V4-06)
 
 `components/issues/redetect.py` imports `RegistryObservation` and `observe_pypi` from `components/readme/extractors/platforms/python_registry.py` (its docstring names the dependency). That is a cross-component, single-ecosystem import: `AGENTS.md` requires ecosystems to be added through registries and forbids one ecosystem's extractor being imported across stages (`RESEARCH_AND_GUIDELINES.md` section 7.4), and a BC-02 upstream-defect handoff from Go, .NET, Rust, Java and others has no re-detection path; only PyPI-backed findings can be re-checked.
@@ -400,6 +424,8 @@ PARTIAL, recorded as the verifier narrowed it. EXACT: `tests/test_sealed_bytes.p
 | 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/issues/redetect.py:58-61` (the import); self-documented at `redetect.py:17-20` |
 
 **Id** REV-V4-06 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 6 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -n 'extractors.platforms' src/repository_presenter/components/issues/redetect.py` returns nothing, registry observation goes through a registered per-ecosystem interface, and a test re-detects a non-Python handoff.
+
+**Fix in flight or landed:** PR #235 (merged on GitHub 2026-10-04; issues/extractor import boundary) - not yet reverified.
 
 ### `docs.stale_paths_roadmap_and_idea_products_json` (REV-V4-07)
 
@@ -411,6 +437,8 @@ PARTIAL, recorded as the verifier narrowed it. EXACT: `tests/test_sealed_bytes.p
 | 2 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:151,396` versus `data/registry.json` (the only file in `data/`) |
 
 **Id** REV-V4-07 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 7 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -n 'repo_metadata\|upstream_defects/ledger' docs/PRODUCTION_ROADMAP.md` returns nothing, each cited path exists on disk, and `plans/idea.md` either maps `data/products.json` to `data/registry.json` in its authority note or no longer names it (owner decision, since `plans/idea.md` is the human authority).
+
+**Fix in flight or landed:** PR #235 (merged on GitHub 2026-10-04; `docs/PRODUCTION_ROADMAP.md` path corrections only, `plans/idea.md` `data/products.json` left as an owner decision) - not yet reverified.
 
 ### `seal.ready_for_proposal_acceptance_profile_advisory` (REV-V4-08)
 
@@ -518,6 +546,8 @@ The literal token `NON_PROCESSABLE_NO_IMPLEMENTATION` does not exist; the real t
 
 **Id** REV-V3-06 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 6 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: PR #216 (generic durable-state mechanism, open); the seven orphaned entries have no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: PR #216 is merged and `present` has been run against each of the seven entries with a recorded outcome (a `NON_PROCESSABLE` or `insufficient_evidence` disposition, or a sealed candidate); `ls candidates/` or the durable-state records account for all 36 registry entries.
 
+**Fix in flight or landed:** PR #216 (merged on GitHub 2026-10-04; the generic NON_PROCESSABLE mechanism only, the seven orphaned registry entries are still uncovered) - not yet reverified.
+
 ### `monitor.drift_sha_only_no_reopen_and_local_bundle_bytes_unverified` (REV-V3-07)
 
 PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `components/monitor/drift.py::observe_repository` compares the upstream default-branch head SHA against the sealed bundle's recorded `source_revision` only (`status = "CURRENT" if read.sha == bundle_revision else "DRIFTED"`); no tree or content hash is compared. CONFIRMED: nothing re-enters reconciliation, because `DRIFTED` is only written to the uploaded JSON (`write_drift_document`) and no workflow or code path reopens the candidate (same evidence as REV-V3-01). OVERSTATED: 'cannot see a README overwrite' is wrong, since any upstream content change, including a README edit, produces a new commit SHA and flips the status to `DRIFTED`. The real gap is narrower: the local sealed bundle's own README bytes are never re-verified against anything upstream (`core/candidates.py::verify_bundle` checks only the bundle's internal digest self-consistency, so a tampered bundle with a matching manifest digest passes), and `DRIFTED` repositories are not reopened downstream.
@@ -554,6 +584,8 @@ Four confirmed gaps. (1) `concurrency:` exists only in `ci.yml`, `issues-schedul
 | 4 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/core/state/cas.py:168` (`renew_lease`); `src/repository_presenter/core/state/schema.py:284` (`heartbeat_at`); `src/repository_presenter/core/state/present_transaction.py:332-381` (no renewal) |
 
 **Id** REV-V3-09 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 9 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: G7 operations hardening; no work item yet for each of the four; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `present.yml`, `monitor.yml` and `propose.yml` each declare a `concurrency:` group, a per-transaction provider-call budget is enforced in code with a test that refuses over-budget runs, `liveness.yml` (or a sibling) alerts on a stale or failed `monitor.yml` run, and `grep -rn renew_lease src/` shows a production caller with a test.
+
+**Fix in flight or landed:** PR #239 (merged on GitHub 2026-10-04; G7-W03 dead-man health check for `present.yml` only, not for `monitor.yml`) - not yet reverified.
 
 ### `state.durable_state_used_only_by_present` (REV-V3-10)
 

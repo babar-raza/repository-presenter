@@ -14,6 +14,7 @@
       },
       {
         "evidence": [
+          "advisory presentation finding on key_capabilities (causal stage S6)",
           "advisory presentation finding on key_capabilities (causal stage S6)"
         ],
         "id": "C02",
@@ -86,6 +87,7 @@
       },
       {
         "evidence": [
+          "advisory presentation finding on key_capabilities (causal stage S6)",
           "advisory presentation finding on key_capabilities (causal stage S6)"
         ],
         "id": "C10",
@@ -195,6 +197,7 @@
       },
       {
         "evidence": [
+          "advisory presentation finding on key_capabilities (causal stage S6)",
           "advisory presentation finding on key_capabilities (causal stage S6)"
         ],
         "id": "C22",
@@ -389,110 +392,123 @@
       ],
       "id": "F01",
       "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET)](https://github.com/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET/graphs/contributors)",
-      "repair": "Restore the CI badge and NuGet badge from the original README, and remove the unsupported 'Contributors' badge and promotional banner image.",
+      "repair": "Restore the CI badge and NuGet badge to the top badge row, replacing the contributors badge which is not supported by facts.",
       "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "identity",
-      "text": "The candidate omits the CI badge and NuGet badge from the original README's badge row, and instead includes a generic 'Contributors' badge and a promotional banner image that are not supported by the facts."
+      "text": "The candidate omits the CI and NuGet badges present in the original README, which are important for assessing project health and package availability."
     },
     {
-      "absent": [
-        "Zero-dependency image format detection and header probing for .NET.",
-        "identifies an image's format and reads its basic properties (dimensions, bit depth, frame count) directly from the file"
-      ],
-      "causal_stage": "S7",
+      "absent": [],
+      "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "identity:repository",
-        "package:name",
-        "package:target_framework",
-        "dependency:none"
+        "example:001",
+        "public_symbol:aspose.imaging.foss"
       ],
       "id": "F02",
       "quote": "Aspose.Imaging FOSS for .NET is a .NET library that enables developers to read, write, and convert raster images, vector graphics, and metafiles without requiring a commercial license.",
-      "repair": "Rewrite the opening to match the original README's description: 'Zero-dependency image format detection and header probing for .NET. It identifies an image's format and reads its basic properties directly from the file header — without decoding a single pixel.'",
+      "repair": "Change 'read, write, and convert' to 'inspect and identify' to match the read-only nature of the library as described in the original README and supported by facts.",
       "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "opening",
-      "text": "The candidate's opening paragraph introduces incorrect functionality (read, write, and convert) and misrepresents the library's purpose, contradicting the original README which clearly states it is for 'zero-dependency image format detection and header probing' without decoding pixels."
+      "text": "The candidate's opening paragraph overstates capabilities by claiming 'read, write, and convert' functionality, while the original README and facts only support read-only inspection (format detection and header probing)."
     },
     {
-      "absent": [
-        "The original README does not list 'Multi-page format support' or 'Extensible format support' as key capabilities.",
-        "The original README mentions frame count detection for some formats but does not present multi-page processing as a core"
-      ],
-      "causal_stage": "S7",
+      "absent": [],
+      "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "public_symbol:aspose.imaging.foss",
-        "public_symbol:aspose.imaging.foss.imageprobe"
+        "public_symbol:aspose.imaging.foss"
       ],
       "id": "F03",
-      "quote": "- **Multi-page format support.** Processes image files containing multiple frames or pages, such as TIFF and GIF, by exposing each page as a distinct image layer for individual manipulation.",
-      "repair": "Remove 'Multi-page format support' and 'Extensible format support' from the Key Capabilities section, as they are not supported by the original README or facts.",
-      "reviewer_scope_defect": "the finding asks for \"The original README does not list 'Multi-page format support' or 'Extensible format support' as key capabilities.\", 'The original README mentions frame count detection for some formats but does not present multi-page processing as a core', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "quote": "Processes image files containing multiple frames or pages, such as TIFF and GIF, by exposing each page as a distinct image layer for individual manipulation.",
+      "repair": "Change to 'Reports frame or page count for multi-page formats such as TIFF and GIF by reading header metadata only, without exposing individual layers for manipulation.'",
       "section_id": "key_capabilities",
-      "text": "The candidate's 'Key Capabilities' section includes 'Multi-page format support' and 'Extensible format support' as core capabilities, but the original README does not describe these as primary features and the facts do not support them as such."
+      "single_reader_advisory": true,
+      "text": "The candidate's 'Multi-page format support' capability incorrectly states 'Processes image files containing multiple frames or pages... by exposing each page as a distinct image layer for individual manipulation', implying write/processing capabilities, while the original README only confirms header-level frame count detection."
     },
     {
-      "absent": [
-        "dotnet add package Aspose.Imaging.Foss"
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001"
       ],
+      "id": "F04",
+      "quote": "Ensures that malformed or incomplete image data triggers predictable exceptions rather than crashes, preserving application stability during processing.",
+      "repair": "Change to 'Never throws on malformed or truncated input; returns an ImageInfo with just the Format set when a file matches a format's signature but its header cannot be fully parsed.'",
+      "section_id": "key_capabilities",
+      "single_reader_advisory": true,
+      "text": "The candidate's 'Robust error handling' capability incorrectly states 'triggers predictable exceptions rather than crashes', while the original README explicitly states the library 'never throws on malformed or truncated input'."
+    },
+    {
+      "absent": [],
       "causal_stage": "S7",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "install_command:dotnet",
         "link_target:003",
         "link_target:004"
       ],
-      "id": "F04",
+      "id": "F05",
       "quote": "Aspose.Imaging.Foss is not yet published on NuGet; build it from a source checkout instead, verified against this revision:",
-      "repair": "Replace the installation instructions with the NuGet install command 'dotnet add package Aspose.Imaging.Foss' as shown in the original README.",
-      "reviewer_scope_defect": "the omission it names is backed by link_target:004, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "repair": "Change to 'Install Aspose.Imaging.Foss from NuGet using:' and then provide the correct install command 'dotnet add package Aspose.Imaging.Foss'.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "installation",
-      "text": "The candidate states 'Aspose.Imaging.Foss is not yet published on NuGet' and provides a build-from-source command, but the original README shows a NuGet badge and install command using 'dotnet add package Aspose.Imaging.Foss'."
+      "text": "The candidate states 'Aspose.Imaging.Foss is not yet published on NuGet', which contradicts the NuGet badge and link in the original README and the fact that the package exists."
     },
     {
-      "absent": [
-        "ImageProbe",
-        "ImageInfo"
-      ],
-      "causal_stage": "S7",
+      "absent": [],
+      "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
         "public_symbol:aspose.imaging.foss",
         "public_symbol:aspose.imaging.foss.imageprobe"
       ],
-      "id": "F05",
-      "quote": "Aspose.Imaging FOSS for .NET exposes the `Aspose.Imaging.Foss` class as its primary entry point for imaging operations...",
-      "repair": "Correct the API reference to describe `ImageProbe` and `ImageInfo` as the primary public types, not a non-existent `Aspose.Imaging.Foss` class.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'ImageInfo', 'ImageProbe', which the candidate contains",
+      "id": "F06",
+      "quote": "Aspose.Imaging FOSS for .NET exposes the `Aspose.Imaging.Foss` class as its primary entry point...",
+      "repair": "Change to 'Aspose.Imaging FOSS for .NET exposes the `ImageProbe` class as its primary entry point for image inspection, with `ImageInfo` providing metadata results.'",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "api_reference",
-      "text": "The candidate incorrectly describes 'Aspose.Imaging.Foss' as the primary entry point class, when the facts and original README show the public API surface consists of 'ImageProbe' and 'ImageInfo' types, not a class named 'Aspose.Imaging.Foss'."
+      "text": "The candidate incorrectly describes 'Aspose.Imaging.Foss' as a class, when the original README and facts confirm the public API surface consists of the ImageProbe and ImageInfo types, with no 'Aspose.Imaging.Foss' class."
     },
     {
-      "absent": [
-        "If you need to actually **decode, edit, or convert** any of these formats, that's a different job — see [Aspose.Imaging]"
-      ],
-      "causal_stage": "S7",
+      "absent": [],
+      "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
         "public_symbol:aspose.imaging.foss",
-        "link_target:product.enterprise"
+        "public_symbol:aspose.imaging.foss.imageprobe"
       ],
-      "id": "F06",
-      "quote": "- The library does not support decoding, editing, or converting image formats; for those capabilities users should refer to Aspose.Imaging Enterprise Edition.",
-      "repair": "Rewrite the scope and limitations section to clarify that the library is intentionally limited to format detection and header probing, not that it lacks these features as a limitation.",
+      "id": "F07",
+      "quote": "The verified public surface has 3 types.",
+      "repair": "Change to 'The verified public surface has 2 primary types: ImageProbe and ImageInfo, plus the ImageFormat enumeration.'",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate's API reference section incorrectly claims the verified public surface has 3 types, while the original README and facts only support ImageProbe and ImageInfo (and ImageFormat enum), not 3 distinct types."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "id": "F08",
+      "quote": "Aspose.Imaging FOSS for .NET provides read-only image inspection for DICOM, `DjVu`, AVIF, and HEIC/HEIF formats on the netstandard2.0 target framework...",
+      "repair": "Change to 'Aspose.Imaging FOSS for .NET provides format detection and header probing for DICOM, DjVu, AVIF, and HEIC/HEIF formats on the netstandard2.0 target framework...'",
       "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "scope_limitations",
-      "text": "The candidate's 'Scope and Limitations' section incorrectly states the library 'does not support decoding, editing, or converting image formats' as a limitation, while the original README clearly states this is by design and the library is not intended for those purposes."
+      "text": "The candidate's 'Scope and Limitations' section incorrectly states the library provides 'read-only image inspection for DICOM, DjVu, AVIF, and HEIC/HEIF formats', while the original README and facts confirm these formats are supported for detection and header probing, not general 'inspection'."
     },
     {
       "absent": [
-        "[![CI](https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss/actions/workflows/ci.yml/badge.svg)](https://github.as",
+        "[![CI](https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss/actions/workflows/ci.yml/badge.svg)](https://githubcom",
         "[![NuGet](https://img.shields.io/nuget/v/Aspose.Imaging.Foss.svg)](https://www.nuget.org/packages/Aspose.Imaging.Foss)"
       ],
       "causal_stage": "S7",
@@ -508,77 +524,47 @@
       "id": "F01",
       "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET)](https://github.com/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET/graphs/contributors)",
       "reader": 2,
-      "repair": "Restore the CI and license badges from the original README, and remove the unsupported contributor badge and promotional banner.",
+      "repair": "Restore the CI and NuGet badges from the original README to maintain consistency with project health indicators.",
       "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "identity",
-      "text": "The candidate omits the CI badge and NuGet badge from the original README's badge row, and instead includes a promotional banner and contributor badge that are not supported by facts."
+      "text": "The candidate omits the CI and NuGet badges present in the original README, which are important for assessing project health and package availability."
     },
     {
-      "absent": [
-        "identifies an image's format and reads its basic properties",
-        "without decoding a single pixel",
-        "It's built for cases where you need to know what a file is and how big it is, fast"
-      ],
+      "absent": [],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
         "identity:repository",
-        "package:name",
-        "public_symbol:aspose.imaging.foss"
+        "package:name"
       ],
       "id": "F02",
       "quote": "Aspose.Imaging FOSS for .NET is a .NET library that enables developers to read, write, and convert raster images, vector graphics, and metafiles without requiring a commercial license.",
       "reader": 2,
-      "repair": "Rewrite the opening to match the original README's scope: focus on format detection and header probing, not read/write/convert capabilities.",
+      "repair": "Replace the opening paragraph with the original's precise description: 'Zero-dependency image format detection and header probing for .NET.'",
       "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "opening",
-      "text": "The candidate's opening paragraph overstates capabilities by claiming the library enables 'read, write, and convert' operations, while the original README and facts confirm it only does detection and header probing without decoding."
+      "text": "The candidate's opening paragraph introduces incorrect functionality (read/write/convert) that contradicts the original README's explicit 'zero-dependency image format detection and header probing' scope."
     },
     {
-      "absent": [
-        "It has no NuGet dependencies and targets netstandard2.0 and net8.0.",
-        "Planned: CDR."
-      ],
+      "absent": [],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "public_symbol:aspose.imaging.foss"
-      ],
-      "id": "F03",
-      "quote": "- **Multi-page format support.** Processes image files containing multiple frames or pages, such as TIFF and GIF, by exposing each page as a distinct image layer for individual manipulation.",
-      "reader": 2,
-      "repair": "Remove 'Multi-page format support' and 'Extensible format support' from key capabilities; retain only those capabilities explicitly supported by the original README and facts.",
-      "section_id": "key_capabilities",
-      "single_reader_advisory": true,
-      "text": "The candidate's 'Key Capabilities' section includes 'Multi-page format support' and 'Extensible format support' as core capabilities, but the original README does not present these as primary capabilities and the facts do not support them as such."
-    },
-    {
-      "absent": [
-        "dotnet add package Aspose.Imaging.Foss"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "install_command:dotnet",
         "link_target:003",
         "link_target:004"
       ],
       "id": "F04",
-      "quote": "Aspose.Imaging.Foss is not yet published on NuGet; build it from a source checkout instead, verified against this revision:",
+      "quote": "Aspose.Imaging.Foss is not yet published on NuGet; build it from a source checkout instead...",
       "reader": 2,
-      "repair": "Replace the build-from-source instruction with the official `dotnet add package Aspose.Imaging.Foss` command from the original README.",
-      "reviewer_scope_defect": "the omission it names is backed by link_target:004, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "repair": "Update the installation section to use the standard `dotnet add package Aspose.Imaging.Foss` command as shown in the original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "installation",
-      "text": "The candidate states 'Aspose.Imaging.Foss is not yet published on NuGet' and provides a build-from-source command, but the original README shows a NuGet package exists and provides a direct `dotnet add package` command."
+      "text": "The candidate incorrectly states 'Aspose.Imaging.Foss is not yet published on NuGet' when the original README shows a NuGet badge and link."
     },
     {
-      "absent": [
-        "ImageProbe",
-        "ImageInfo"
-      ],
+      "absent": [],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
@@ -587,17 +573,15 @@
         "public_symbol:aspose.imaging.foss.imageprobe"
       ],
       "id": "F05",
-      "quote": "Aspose.Imaging FOSS for .NET exposes the `Aspose.Imaging.Foss` class as its primary entry point for imaging operations...",
+      "quote": "Aspose.Imaging FOSS for .NET exposes the `Aspose.Imaging.Foss` class as its primary entry point...",
       "reader": 2,
-      "repair": "Correct the primary entry point to `ImageProbe` and describe `ImageInfo` as the return type for probe operations.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'ImageInfo', 'ImageProbe', which the candidate contains",
+      "repair": "Correct the API reference to identify `ImageProbe` as the primary public type, not `Aspose.Imaging.Foss`.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "api_reference",
-      "text": "The candidate incorrectly names `Aspose.Imaging.Foss` as the primary entry point class, while the original README and facts confirm `ImageProbe` is the main public API class."
+      "text": "The candidate incorrectly describes `Aspose.Imaging.Foss` as a class when facts and original README confirm `ImageProbe` is the primary public type."
     },
     {
-      "absent": [
-        "If you need to actually decode, edit, or convert any of these formats, that's a different job"
-      ],
+      "absent": [],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
@@ -605,12 +589,12 @@
         "public_symbol:aspose.imaging.foss"
       ],
       "id": "F06",
-      "quote": "- The library does not support decoding, editing, or converting image formats; for those capabilities users should refer to Aspose.Imaging Enterprise Edition.",
+      "quote": "Aspose.Imaging FOSS for .NET provides read-only image inspection for DICOM, DjVu, AVIF, and HEIC/HEIF formats...",
       "reader": 2,
-      "repair": "Reframe this limitation as a design feature: the library intentionally avoids full decoding to remain lightweight and zero-dependency.",
+      "repair": "Replace 'read-only image inspection' with the accurate description: 'zero-dependency image format detection and header probing'.",
       "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "scope_limitations",
-      "text": "The candidate's 'Scope and Limitations' section incorrectly states the library does not support 'decoding, editing, or converting image formats' as a limitation, while the original README clearly states this is by design and the library is not intended for those purposes."
+      "text": "The candidate's 'Scope and Limitations' section incorrectly states the library provides 'read-only image inspection' when the original README clarifies it only probes headers without decoding pixels."
     },
     {
       "absent": [],
@@ -624,10 +608,24 @@
       "id": "F07",
       "quote": "[![Aspose.Imaging FOSS for .NET](https://products.aspose.org/media/imaging/net/banner-readme.png)](https://products.aspose.org/imaging/net/)",
       "reader": 2,
-      "repair": "Remove the banner image and its link, as the original README contains no such promotional element.",
+      "repair": "Remove the banner image and link to maintain focus on technical documentation rather than commercial promotion.",
       "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "banner",
-      "text": "The candidate includes a promotional banner image linking to the commercial product page, which is not present in the original README and introduces marketing content where product facts belong."
+      "text": "The candidate includes a promotional banner link to products.aspose.org that was not in the original README and introduces commercial branding where the original was technical."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "## Navigation",
+      "reader": 2,
+      "repair": "Align navigation items with the original README's structure, which had no explicit navigation section and focused on core technical content.",
+      "reviewer_scope_defect": "the quote is the heading 'Navigation', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "navigation",
+      "text": "The candidate's navigation section includes 'API Reference' and 'Dependencies' items not present in the original README's structure."
     }
   ],
   "authoring": {
@@ -638,7 +636,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "1054769386e94148d2a655aab8d480aefea0597c59523612c51437d58c175c4f",
+  "readme_sha256": "775d25b7faa9d451745231dfbf0e7b4f1d15954145ddf71d3996971676ea0caa",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -654,7 +652,7 @@
       "7bf2dd6eda183d6293dbc405",
       "8e354b15b1c1dbf784765257",
       "c3eb94782fda205aa600bed3",
-      "dcdff0a647163c5adef33c0b"
+      "f2c8df1c5afac4f97d9a63fa"
     ],
     "read": 2
   },
