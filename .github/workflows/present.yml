@@ -205,6 +205,10 @@ jobs:
           GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
         run: repository-presenter preflight
 
+      - name: Start the wall-clock timer (G7-W03's own budget input)
+        id: timer
+        run: echo "started=$(date -u +%s)" >> "$GITHUB_OUTPUT"
+
       - name: Present the target repository, durable-state-backed
         env:
           # The target repository's own read-only analysis credential - the installation token
@@ -258,3 +262,34 @@ jobs:
             --trigger-event-type "$TRIGGER_EVENT_TYPE" \
             --workflow-run-id "${{ github.run_id }}-noop-proof"
           echo "::endgroup::"
+
+      # G7-W03 (EXECUTION_STATE_MACHINE.md G7 Work item 1/4) - dead-man monitoring, the
+      # product-portfolio equivalent of liveness.yml's own control-repository supervision.
+      # `if: always()` so a failed present step above is itself observed and alerted on, never
+      # silently skipped - core/state/health.py's own rules read the durable record the present
+      # step just committed (success or failure alike) and name a specific repository/stage/kind
+      # rather than leaving "the job went red" to be the only signal. Read-only: no write
+      # credential beyond the same state-ref read already used above.
+      - name: "Health: alert on this transaction's own outcome"
+        # always() except when the trigger itself never resolved a repository at all (the
+        # "Resolve the target repository" step above failed) - there is then no coordinate to
+        # check and that step's own ::error:: already names the problem; avoids a second, empty
+        # --repo invocation adding a confusing, redundant failure.
+        if: always() && steps.target.outcome == 'success'
+        env:
+          REPOSITORY_PRESENTER_STATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          started="${{ steps.timer.outputs.started }}"
+          if [ -n "$started" ]; then
+            elapsed=$(( $(date -u +%s) - started ))
+            echo "wall-clock: ${elapsed}s"
+            repository-presenter health-check \
+              --repo "${{ steps.target.outputs.repository }}" \
+              --wall-clock-seconds "$elapsed"
+          else
+            # The timer step itself never ran (a step between it and target resolution failed,
+            # e.g. the App-token mint or the lock install) - that step's own ::error:: already
+            # names the problem; still check the durable record without a wall-clock reading
+            # rather than skip health entirely.
+            repository-presenter health-check --repo "${{ steps.target.outputs.repository }}"
+          fi

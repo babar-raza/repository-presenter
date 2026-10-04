@@ -82,7 +82,7 @@
         "identity:repository"
       ],
       "section_id": "identity",
-      "text": "H1 is rendered deterministically from identity:repository instead of inherited_unit:001.heading."
+      "text": "H1 is rendered deterministically from identity:repository instead of inherited heading."
     },
     {
       "fact_ids": [
@@ -91,10 +91,7 @@
         "link_target:003",
         "link_target:005",
         "link_target:006",
-        "link_target:007",
-        "link_target:product.banner",
-        "link_target:product.enterprise",
-        "link_target:product.homepage"
+        "link_target:007"
       ],
       "section_id": "badges",
       "text": "Badge row content is preserved and moved to badges; the NuGet link target is contradicted and omitted."
@@ -104,9 +101,7 @@
         "identity:repository",
         "package:name",
         "package:target_framework",
-        "dependency:none",
-        "public_symbol:aspose.imaging.foss",
-        "public_symbol:aspose.imaging.foss.imageprobe"
+        "dependency:none"
       ],
       "section_id": "opening",
       "text": "Substance is supported but wording is re-authored to match deterministic opening content."
@@ -135,22 +130,6 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.imaging.foss",
-        "public_symbol:aspose.imaging.foss.imageprobe"
-      ],
-      "section_id": "key_capabilities",
-      "text": "DjVu parsing detail is supported and moved to key_capabilities with rephrased wording."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.imaging.foss",
-        "public_symbol:aspose.imaging.foss.imageprobe"
-      ],
-      "section_id": "key_capabilities",
-      "text": "AVIF/HEIC parsing detail is supported and moved to key_capabilities with rephrased wording."
-    },
-    {
-      "fact_ids": [
         "public_symbol:aspose.imaging.foss"
       ],
       "section_id": "scope_limitations",
@@ -158,11 +137,11 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.imaging.foss",
-        "public_symbol:aspose.imaging.foss.imageprobe"
+        "license:file",
+        "license:spdx"
       ],
-      "section_id": "key_capabilities",
-      "text": "Robust error handling detail is supported and moved to key_capabilities with rephrased wording."
+      "section_id": "license",
+      "text": "License statement is rendered deterministically from license facts."
     }
   ],
   "flagship_example_id": null,
@@ -172,24 +151,12 @@
       "section_id": "badges"
     },
     {
-      "link_fact_id": "link_target:003",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:005",
-      "section_id": "badges"
-    },
-    {
-      "link_fact_id": "link_target:006",
-      "section_id": "license"
-    },
-    {
       "link_fact_id": "link_target:007",
       "section_id": "enterprise_relationship"
     },
     {
-      "link_fact_id": "link_target:001",
-      "section_id": "development_testing"
+      "link_fact_id": "link_target:006",
+      "section_id": "license"
     }
   ],
   "material_limitations": [
@@ -198,8 +165,16 @@
         "public_symbol:aspose.imaging.foss"
       ],
       "unit_ids": [
-        "inherited_unit:008.paragraph",
         "inherited_unit:011.paragraph",
+        "inherited_unit:012.paragraph",
+        "inherited_unit:013.paragraph"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "unit_ids": [
         "inherited_unit:014.paragraph"
       ]
     }
