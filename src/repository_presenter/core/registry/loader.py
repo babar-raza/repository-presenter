@@ -1,9 +1,11 @@
 """Load the registry allow-list and gate admission; fail closed on anything malformed.
 
 ``require_listed`` is the read gate: presence in the registry is the only authorization needed
-to analyze a repository. ``is_permitted`` is the deliberately stricter write gate: a
-``disabled`` entry is analyzed but never proposed to. Every entry point that touches a
-repository calls one of these before any network or git operation.
+to analyze a repository. ``is_permitted`` is the deliberately stricter first half of the write
+gate: a ``disabled`` entry is analyzed but never proposed to. It is not called by an entry point
+directly: ``write_gate.require_write_permitted`` wraps it, adds the ``full``-mode rule, and is the
+one function every write path calls. Every entry point that touches a repository calls
+``require_listed`` or that gate before any network or git operation.
 """
 
 from __future__ import annotations

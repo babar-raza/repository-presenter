@@ -39,6 +39,7 @@ src/repository_presenter/
     snapshot/                immutable repository snapshot capture
     github/                  read and write GitHub API clients
       client.py               read-only GET /repos/{owner}/{repo} (workstream 2 Phase 0); no write call anywhere yet
+      token_provenance.py     refuses a write token that is not an installation token scoped to exactly the target repository, and a pull request not performed by the Repository Presenter App (id 5092474) - the write path's credential check
       read_client.py          read-only file/tree/default-branch-head reads (workstream 3 redetection); no write call anywhere yet
     preflight.py            fail-closed LLM gateway check recording the model catalog (the GitHub check joins it at G4)
     llm/                     transport, ledger, call schema, prompt registry, prompt hygiene
@@ -46,8 +47,11 @@ src/repository_presenter/
     state/                   repository/proposal records, backend, migrations
     evidence/                evidence writer and manifest schema
     registry/                registry loader, revision store
+      write_gate.py            the one write gate every write path calls: listed, active and mode `full`, else a typed refusal; yields the WritePermit the effect requires
     authorization/           effect-authorization contracts
-      proposal.py              the typed README-proposal authorization payload (G6-W02): candidate hash, source revision, branch, PR intent, policy version, expiry; assembled and re-validated, never agent-produced
+      proposal.py              the persisted README-proposal authorization record (G6-W02): repository, candidate hash, source revision, base and presenter branch, approver, window, explicit re-proposal list; loaded from `ops/proposal-authorizations/` and re-validated against the candidate, never agent-produced
+      record_provenance.py     proves a record was merged to origin/main before the commit the consuming run was triggered at, so a run cannot authorize itself
+      refusals.py              the typed refusal codes (and WriteRefusedError) every write path reports
     candidates.py            sealed-bundle counting (already built)
     secrets.py               secret-canary scanning (already built)
   components/issues/         workstream 3 (docs/investigations/03-issue-tracking.md); tracks confirmed upstream defects and, per PRODUCTION_ROADMAP.md's WS2 ruling, missing community/contribution/licensing/security files as findings; never README-specific; read+local-JSON only except file.py's own gated write
@@ -115,6 +119,7 @@ evidence/sbom/requirements-lock.cdx.json  committed CycloneDX SBOM for this proj
 evidence/g6-w02/proof-readme-v1.md  the disposable-target README input (G6-W02 live proof) passed to `repository-presenter propose --readme-file` in propose.yml's own dispatch; a fixed proof fixture for the write path, never a product candidate, and never read by any product stage. Its redacted run record lives beside it as evidence/g6-w02/LIVE_PROOF.md
 candidates/<owner>__<name>/<revision>/   sealed candidate bundles (README_CONTRACT.md §7)
 candidates/<owner>__<name>/CURRENT       pointer file naming the current revision
+ops/proposal-authorizations/  one reviewed JSON record per authorized README proposal (`repository-presenter draft-proposal-authorization` writes it; a person merges it through a pull request before the propose run is triggered); `propose --propose` refuses without one (docs/DECISION_LOG.md 2026-10-05)
 tests/                       mirrors src/repository_presenter/ package for package (see §3)
   fixtures/oracles/           development-only fixtures and oracles (FIXTURE_OR_ORACLE_ONLY)
   fixtures/readme_only/      README-only placeholder repository (the non-processable negative control)

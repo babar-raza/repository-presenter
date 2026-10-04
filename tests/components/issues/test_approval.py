@@ -45,6 +45,7 @@ from support import (
     commit_all,
     committed_approval_path,
     init_git_repository,
+    make_permit,
 )
 
 REPO = "aspose-html-foss/Aspose.HTML-FOSS-for-Python"
@@ -114,6 +115,7 @@ def _file(
         create=create or _RecordingCreate(),
         approvals=store,
         now=lambda: NOW,
+        permit=make_permit(handoff.repository, effect="issue_filing"),
         **extra,
     )
 
@@ -372,7 +374,11 @@ def test_the_kill_switch_alone_never_authorizes_a_filing() -> None:
     """The incident: the variable set, a token present, nothing approved -> nothing filed."""
     create = _RecordingCreate()
     result = file_handoff(
-        _handoff(), token="fake-write-token", environment=KILL_SWITCH_ON, create=create
+        _handoff(),
+        token="fake-write-token",
+        environment=KILL_SWITCH_ON,
+        create=create,
+        permit=make_permit(REPO, effect="issue_filing"),
     )
     _refused(result, create, "no approval record source")
 
@@ -593,6 +599,7 @@ def test_end_to_end_a_committed_record_files_and_a_changed_handoff_does_not(tmp_
         approvals=store,
         now=lambda: NOW,
         expected_repository=REPO,
+        permit=make_permit(REPO, effect="issue_filing"),
     )
     assert result.filed is True
     assert len(create.calls) == 1
@@ -606,6 +613,7 @@ def test_end_to_end_a_committed_record_files_and_a_changed_handoff_does_not(tmp_
         create=again,
         approvals=store,
         now=lambda: NOW,
+        permit=make_permit(REPO, effect="issue_filing"),
     )
     assert refused.filed is False
     assert again.calls == []
