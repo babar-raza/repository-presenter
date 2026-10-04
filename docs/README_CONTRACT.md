@@ -4,7 +4,7 @@ Status: normative for every candidate. Version 1 froze as `readme-contract-v1` a
 (G3-W02, 2026-10-01 — deferred past the originally-planned G2 exit while G3/G4's own multi-cohort
 work was still in flight, per the flip-timing paragraph below); it now changes only at a declared
 version boundary with regression evaluation across every current candidate. Every bundle's
-`dependencies.json` names the version it was built against.  
+`dependencies.json` names the version it was built against. [2026-10-04 correction: only the two version constants froze. The 30-point criterion profile named in the flip paragraph and in section 5 is NOT implemented (no scorer in `src/`), and G3 is not yet accepted, so "at G3 exit" is premature. See `project/state.yaml` G3-W02.]  
 **Revision discipline (2026-09-03, hold met 2026-09-04):** this draft was revised three times in two
 days ahead of any candidate sealing against it — the legacy pattern of the target moving faster than
 output — and was held until one did (G2-W02 sealed at `65b1f577`). The discipline stays: a change
