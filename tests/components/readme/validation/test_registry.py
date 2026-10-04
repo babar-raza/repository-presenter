@@ -289,7 +289,10 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     assert document["readme_sha256"] == hashlib.sha256(candidate.readme.encode()).hexdigest()
     assert len(document["protected_content_fingerprint"]) == 64
     assert document["advisory"] == []
-    assert document["source_revision"] == REVISION and document["validator_version"] == "4"
+    # VALIDATOR_VERSION 5 (BC-02 v4 refuses a SUPPORTED registry install the registry did not
+    # confirm). The pin was left at "4" when 99c235de bumped the version; the checks above pass
+    # under the current validator, so only this pin was stale.
+    assert document["source_revision"] == REVISION and document["validator_version"] == "5"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
