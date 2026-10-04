@@ -1,0 +1,2551 @@
+{
+  "3442d8dd330d8cdad2a4483220190858126dd8e1ee3cfe70f3a87a8ef8ab257b": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.lightingdirection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.lightingdirection",
+          "text": "LightingDirection represents the direction of a light source used in 3D effects."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.linealignment"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.linealignment",
+          "text": "LineAlignment specifies how a line is aligned relative to its anchor point."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.linearrowheadlength"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.linearrowheadlength",
+          "text": "LineArrowheadLength defines the length of an arrowhead on a line."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.linearrowheadstyle"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.linearrowheadstyle",
+          "text": "LineArrowheadStyle specifies the style of an arrowhead on a line."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.linearrowheadwidth"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.linearrowheadwidth",
+          "text": "LineArrowheadWidth defines the width of an arrowhead on a line."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.linecapstyle"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.linecapstyle",
+          "text": "LineCapStyle specifies how the ends of a line are drawn."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.linedashstyle"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.linedashstyle",
+          "text": "LineDashStyle specifies the dash pattern used for a line."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.linefillformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.linefillformat",
+          "text": "LineFillFormat holds the fill properties for a line, including solid, gradient, and pattern fills."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.lineformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.lineformat",
+          "text": "LineFormat provides access to the visual properties of a line, such as style, width, and arrowheads."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.linejoinstyle"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.linejoinstyle",
+          "text": "LineJoinStyle specifies how line segments are joined together."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.linestyle"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.linestyle",
+          "text": "LineStyle specifies the basic style of a line, such as single or double."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.masterlayoutslidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.masterlayoutslidecollection",
+          "text": "MasterLayoutSlideCollection contains the layout slides associated with a master slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.masterreference"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.masterreference",
+          "text": "MasterReference holds a reference to a master slide used by a layout slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.masterslide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.masterslide",
+          "text": "MasterSlide defines the master layout and design for a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.masterslidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.masterslidecollection",
+          "text": "MasterSlideCollection contains all master slides in a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.materialpresettype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.materialpresettype",
+          "text": "MaterialPresetType specifies a preset material used in 3D rendering."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.notessize"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.notessize",
+          "text": "NotesSize specifies the dimensions and orientation of notes pages."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.notesslide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.notesslide",
+          "text": "NotesSlide holds the notes and header-footer content associated with a slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.notesslideheaderfootermanager"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.notesslideheaderfootermanager",
+          "text": "NotesSlideHeaderFooterManager provides access to header and footer settings on a notes slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.notesslidemanager"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.notesslidemanager",
+          "text": "NotesSlideManager provides methods to manage notes slides for presentation slides."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.notesslidepart"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.notesslidepart",
+          "text": "NotesSlidePart represents the underlying data structure of a notes slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.nullablebool"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.nullablebool",
+          "text": "NullableBool represents a Boolean value that can be true, false, or undefined."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.numberedbulletstyle"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.numberedbulletstyle",
+          "text": "NumberedBulletStyle specifies the style of numbered bullets in a list."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ppimage"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ppimage",
+          "text": "PPImage represents a picture object stored in a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.pviobject"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.pviobject",
+          "text": "PVIObject is the base class for all presentation visual items."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.paragraph"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.paragraph",
+          "text": "Paragraph represents a paragraph of text within a text frame."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.paragraphcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.paragraphcollection",
+          "text": "ParagraphCollection contains all paragraphs in a text frame."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.paragraphformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.paragraphformat",
+          "text": "ParagraphFormat holds formatting properties for a paragraph, such as alignment and spacing."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.patternformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.patternformat",
+          "text": "PatternFormat specifies the pattern used to fill an area."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.patternstyle"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.patternstyle",
+          "text": "PatternStyle specifies the style of a fill pattern."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.picture"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.picture",
+          "text": "Picture represents a picture object in a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.picturefillformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.picturefillformat",
+          "text": "PictureFillFormat holds the fill properties for a picture, such as tile or stretch."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.picturefillmode"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.picturefillmode",
+          "text": "PictureFillMode specifies how a picture is used to fill an area."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.pictureframe"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.pictureframe",
+          "text": "PictureFrame represents a shape that contains a picture."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.pictureframelock"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.pictureframelock",
+          "text": "PictureFrameLock specifies which operations are restricted on a picture frame."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.portion"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.portion",
+          "text": "Portion represents a run of text with the same formatting within a paragraph."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.portioncollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.portioncollection",
+          "text": "PortionCollection contains all portions in a paragraph."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.portionformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.portionformat",
+          "text": "PortionFormat holds formatting properties for a portion, such as font and color."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.presentation"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.presentation",
+          "text": "Presentation represents a complete PowerPoint file and provides access to its slides and content."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.presetcolor"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.presetcolor",
+          "text": "PresetColor specifies a predefined color value."
+        }
+      ]
+    }
+  },
+  "4bae6cfe4a33b8fce4296713afc6ffde059e0f01853b6ff6273c3f792d1c3e08": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.ioutershadow"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.ioutershadow",
+          "text": "IOuterShadow represents an outer shadow effect that can be applied to a shape, with properties for blur radius, direction, distance, color, and scaling or skewing of the shadow."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.ipresetshadow"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.ipresetshadow",
+          "text": "IPresetShadow represents a preset shadow effect that can be applied to a shape, with properties for direction, distance, color, and a predefined shadow style."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.ireflection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.ireflection",
+          "text": "IReflection represents a reflection effect that can be applied to a shape, with properties for blur radius, direction, distance, opacity, and fade direction."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.isoftedge"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.isoftedge",
+          "text": "ISoftEdge represents a soft edge effect that can be applied to a shape to smooth its boundaries."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.imagetransformoperation"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.imagetransformoperation",
+          "text": "ImageTransformOperation is the base interface for image transform operations such as shadows, reflections, and soft edges."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.innershadow"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.innershadow",
+          "text": "InnerShadow represents an inner shadow effect that can be applied to a shape, with properties for blur radius, direction, distance, and color."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.outershadow"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.outershadow",
+          "text": "OuterShadow represents an outer shadow effect that can be applied to a shape, with properties for blur radius, direction, distance, color, and scaling or skewing of the shadow."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.presetshadow"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.presetshadow",
+          "text": "PresetShadow represents a preset shadow effect that can be applied to a shape, with properties for direction, distance, color, and a predefined shadow style."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.reflection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.reflection",
+          "text": "Reflection represents a reflection effect that can be applied to a shape, with properties for blur radius, direction, distance, opacity, and fade direction."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.softedge"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.softedge",
+          "text": "SoftEdge represents a soft edge effect that can be applied to a shape to smooth its boundaries."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.fillblendmode"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.fillblendmode",
+          "text": "FillBlendMode specifies how a fill blends with content behind it."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.fillformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.fillformat",
+          "text": "FillFormat provides access to the fill properties of a shape, such as solid, gradient, pattern, or texture fills."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.filltype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.filltype",
+          "text": "FillType specifies the type of fill applied to a shape, such as solid, gradient, pattern, or texture."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.fontalignment"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.fontalignment",
+          "text": "FontAlignment specifies the alignment of text within a text frame or paragraph."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.fontdata"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.fontdata",
+          "text": "FontData holds information about a font used in a presentation, such as name, height, and formatting attributes."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.geometryshape"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.geometryshape",
+          "text": "GeometryShape represents a shape with a defined geometric path and properties for its geometry."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.globallayoutslidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.globallayoutslidecollection",
+          "text": "GlobalLayoutSlideCollection provides access to the global layout slides in a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.gradientdirection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.gradientdirection",
+          "text": "GradientDirection specifies the direction of a gradient fill."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.gradientformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.gradientformat",
+          "text": "GradientFormat provides access to the gradient fill properties of a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.gradientshape"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.gradientshape",
+          "text": "GradientShape represents a shape with a gradient fill applied to it."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.gradientstop"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.gradientstop",
+          "text": "GradientStop defines a color and position within a gradient fill."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.gradientstopcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.gradientstopcollection",
+          "text": "GradientStopCollection is a collection of gradient stops that define a gradient fill."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.graphicalobject"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.graphicalobject",
+          "text": "GraphicalObject is the base class for all objects that can be drawn on a slide, such as shapes, tables, and charts."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.graphicalobjectlock"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.graphicalobjectlock",
+          "text": "GraphicalObjectLock specifies which operations are locked for a graphical object."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.groupshape"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.groupshape",
+          "text": "GroupShape represents a container that holds multiple shapes as a single unit."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.headingpair"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.headingpair",
+          "text": "HeadingPair represents a pair of values used in document summary information."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iadjustvalue"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iadjustvalue",
+          "text": "IAdjustValue represents a value that can be adjusted on a shape, such as a corner radius or turn amount."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iadjustvaluecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iadjustvaluecollection",
+          "text": "IAdjustValueCollection is a collection of adjust values that define the adjustable parameters of a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iautoshape"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iautoshape",
+          "text": "IAutoShape represents an auto shape with a predefined geometry and formatting options."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ibasehandoutnotesslideheaderfootermanager"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ibasehandoutnotesslideheaderfootermanager",
+          "text": "IBaseHandoutNotesSlideHeaderFooterManager provides access to header and footer settings for handout and notes slides."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ibaseheaderfootermanager"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ibaseheaderfootermanager",
+          "text": "IBaseHeaderFooterManager provides access to header and footer settings for slides."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ibaseportionformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ibaseportionformat",
+          "text": "IBasePortionFormat provides access to the formatting properties of a text portion."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ibaseslide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ibaseslide",
+          "text": "IBaseSlide is the base interface for all slide types in a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ibaseslideheaderfootermanager"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ibaseslideheaderfootermanager",
+          "text": "IBaseSlideHeaderFooterManager provides access to header and footer settings for a slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ibulktextformattable"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ibulktextformattable",
+          "text": "IBulkTextFormattable allows bulk formatting of text within a text frame."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ibulletformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ibulletformat",
+          "text": "IBulletFormat provides access to the bullet formatting properties of a paragraph."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icamera"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icamera",
+          "text": "ICamera represents a camera used to define 3D view settings for a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icell"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icell",
+          "text": "ICell represents a cell in a table."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icellcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icellcollection",
+          "text": "ICellCollection is a collection of cells in a table row."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icellformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icellformat",
+          "text": "ICellFormat provides access to the formatting properties of a table cell."
+        }
+      ]
+    }
+  },
+  "6314bbb2a52f7ed309c1505c48fea9345db250cf4135462acca3abbfab014c63": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [
+        {
+          "fact_id": "example:001",
+          "reason": "Contradicted example; not used in any unit."
+        },
+        {
+          "fact_id": "example:002",
+          "reason": "Unresolved example; not used in any unit."
+        },
+        {
+          "fact_id": "example:003",
+          "reason": "Contradicted example; not used in any unit."
+        },
+        {
+          "fact_id": "example:004",
+          "reason": "Contradicted example; not used in any unit."
+        },
+        {
+          "fact_id": "example:005",
+          "reason": "Contradicted example; not used in any unit."
+        },
+        {
+          "fact_id": "example:006",
+          "reason": "Contradicted example; not used in any unit."
+        },
+        {
+          "fact_id": "example:007",
+          "reason": "Contradicted example; not used in any unit."
+        }
+      ],
+      "units": [
+        {
+          "fact_ids": [
+            "link_target:025"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:025",
+          "text": "The getting started guide introduces Aspose.Slides FOSS for Cpp fundamentals and initial setup for version 26.9.0."
+        },
+        {
+          "fact_ids": [
+            "link_target:026"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:026",
+          "text": "The how-to guides and FAQ provide practical examples and answers for common tasks when using Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "link_target:027"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:027",
+          "text": "The full API reference documents all classes, methods, and functionality available in Aspose.Slides FOSS for Cpp. It covers all 234 verified public types; the API Reference section above covers the essentials."
+        },
+        {
+          "fact_ids": [
+            "link_target:028"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:028",
+          "text": "The publishing guide explains how to build and package Aspose.Slides FOSS for Cpp for distribution."
+        },
+        {
+          "fact_ids": [
+            "link_target:029"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:029",
+          "text": "The GitHub repository hosts the source code, release artifacts, and development history for Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "link_target:030"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:030",
+          "text": "Found a bug or have a feature request? Open an issue."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:cmake_minimum",
+            "package:cxx_standard",
+            "package:name",
+            "package:version",
+            "public_symbol:aspose.slides.foss",
+            "dependency:pugixml",
+            "dependency:development.miniz"
+          ],
+          "section": "scope_limitations",
+          "slot": "scope",
+          "text": "Aspose.Slides FOSS for Cpp version 26.9.0 is a C++ library for creating and manipulating PowerPoint presentations, supporting C++20 and requiring CMake 3.20 or later. It is distributed under the MIT license and targets the C++ ecosystem with the repository aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp at revision c41f8dddc499fb0058fc9557cb364d70fbd3cef1. The library exposes the Aspose.Slides.Foss public symbol and depends on pugixml and miniz."
+        },
+        {
+          "fact_ids": [
+            "install_command:cmake"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:1",
+          "text": "Installation requires cloning the repository and running CMake with a minimum version of 3.20."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:2",
+          "text": "The public symbol Aspose.Slides.Foss defines the namespace and class names used in the library, and no other API symbols are exposed beyond those documented in the public interface."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:3",
+          "text": "The library exposes only the Aspose.Slides.Foss public symbol and does not provide access to internal implementation details or private symbols outside that namespace."
+        },
+        {
+          "fact_ids": [
+            "dependency:development.miniz",
+            "dependency:pugixml"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:4",
+          "text": "The library depends on the external libraries pugixml and miniz, which must be available during the build process."
+        },
+        {
+          "fact_ids": [
+            "build_test_asset:ci",
+            "build_test_asset:docs",
+            "build_test_asset:examples",
+            "build_test_asset:tests"
+          ],
+          "section": "development_testing",
+          "slot": "summary",
+          "text": "Build and test Aspose.Slides FOSS for Cpp using CMake 3.20 or later with C++20 support, leveraging the repository's own tests, examples, and documentation assets."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:cmake_minimum",
+            "package:cxx_standard",
+            "package:name",
+            "package:version"
+          ],
+          "section": "enterprise_relationship",
+          "slot": "context",
+          "text": "Aspose.Slides FOSS for Cpp provides core presentation manipulation capabilities, while the commercial edition extends functionality with advanced features such as digital signatures, watermarking, and enhanced export options."
+        }
+      ]
+    }
+  },
+  "836d6c6ce094c342d96a6e3999cb5ed724c9081d5071e83492f475486cd03102": {
+    "job": "independent_review",
+    "output": {
+      "findings": [
+        {
+          "absent": [],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "identity:repository"
+          ],
+          "id": "F01",
+          "quote": "# Aspose.Slides FOSS for Cpp",
+          "repair": "Change the title to '# Aspose.Slides FOSS for C++' to match the repository name and original README.",
+          "section_id": "identity",
+          "text": "The candidate uses 'Aspose.Slides FOSS for Cpp' as the product name, but the original README and facts consistently use 'Aspose.Slides FOSS for C++'."
+        },
+        {
+          "absent": [
+            "[![C++](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](CMakeLists.txt)",
+            "[![NuGet](https://img.shields.io/nuget/v/Aspose.Slides.Cpp.FOSS.svg)](https://www.nuget.org/packages/Aspose.Slides.Cpp.F"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "link_target:003",
+            "link_target:004",
+            "link_target:005",
+            "link_target:006"
+          ],
+          "id": "F02",
+          "quote": "Aspose.Slides FOSS for Cpp is a C++ library that enables developers to create, read, and convert PowerPoint presentations programmatically. It solves the problem of automating slide deck generation and modification without requiring Microsoft PowerPoint, supporting formats such as PPTX as output. The library is used by C++ developers building applications that need to generate reports, presentations, or documentation dynamically. Built to C++20 standards, it requires CMake 3.20 or later and uses",
+          "repair": "Add the C++20 and NuGet badges to the opening paragraph to match the original README's informative badge row.",
+          "section_id": "opening",
+          "text": "The candidate omits the C++20 and NuGet badges present in the original README, which are important for quick assessment of language standard and package availability."
+        },
+        {
+          "absent": [
+            "subgraph StartingPoints[",
+            "subgraph Outputs["
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F03",
+          "quote": "PRODUCT[",
+          "repair": "Restore the original Mermaid diagram structure with 'Starting Points' and 'Outputs' subgraphs to accurately reflect the library's data flow.",
+          "section_id": "at_a_glance",
+          "text": "The candidate's Mermaid diagram is significantly simplified and omits the 'Starting Points' and 'Outputs' nodes present in the original, which are essential for understanding the library's input and output flow."
+        },
+        {
+          "absent": [
+            "### Consume via CMake FetchContent",
+            "### Install and Use the Installed Package",
+            "### Install From NuGet on Windows"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "install_command:cmake"
+          ],
+          "id": "F04",
+          "quote": "AsposeSlidesFoss is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+          "repair": "Include all installation methods (FetchContent, installed package, NuGet) as in the original README to provide a complete setup guide.",
+          "section_id": "installation",
+          "text": "The candidate omits critical installation methods (FetchContent, installed package, NuGet) that are present in the original README, reducing the guide's completeness."
+        },
+        {
+          "absent": [],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "dependency:development.asposeslidesfoss",
+            "dependency:development.googletest",
+            "dependency:development.gtest",
+            "dependency:development.miniz"
+          ],
+          "id": "F05",
+          "quote": "### Development Dependencies",
+          "repair": "Remove 'AsposeSlidesFoss' from the dependency list and clarify that 'googletest' and 'miniz' are build/test dependencies, not runtime dependencies.",
+          "section_id": "dependencies",
+          "text": "The candidate lists 'AsposeSlidesFoss', 'googletest', 'GTest', and 'miniz' as development dependencies, but the original README and facts show these are not separate dependencies but part of the build system or test framework."
+        },
+        {
+          "absent": [],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "example:008",
+            "example:009"
+          ],
+          "id": "F06",
+          "quote": "This example creates a new presentation, adds a comment author and two comments with a reply relationship, then saves the file as `comments.pptx` using Aspose.Slides FOSS for Cpp 26.9.0.",
+          "repair": "Remove the version-specific note 'using Aspose.Slides FOSS for Cpp 26.9.0' from the Quick Start examples to match the original README's style.",
+          "section_id": "quick_start",
+          "text": "The candidate's Quick Start examples omit the version-specific note 'using Aspose.Slides FOSS for Cpp 26.9.0' present in the original, which is important for version clarity."
+        },
+        {
+          "absent": [],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss"
+          ],
+          "id": "F07",
+          "quote": "### Foss",
+          "repair": "Remove the redundant '### Foss' heading and the duplicated public symbol inventory to keep the API reference concise and focused.",
+          "section_id": "api_reference",
+          "text": "The candidate's API reference section includes a redundant 'Foss' heading and duplicates the public symbol inventory, which is already rendered deterministically, making the section verbose and less focused."
+        },
+        {
+          "absent": [
+            "These are defects, not missing features — the call succeeds and the object model agrees with the caller afterward. **`",
+            "pugixml is a leak of an implementation detail into the interface"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss"
+          ],
+          "id": "F08",
+          "quote": "Aspose.Slides FOSS for Cpp version 26.9.0 is a C++ library for creating and manipulating PowerPoint presentations, supporting C++20 and requiring CMake 3.20 or later. It is distributed under the MIT license and targets the C++ ecosystem with the repository aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp at revision c41f8dddc499fb0058fc9557cb364d70fbd3cef1. The library exposes the `Aspose.Slides.Foss` public symbol and depends on pugixml and miniz.",
+          "repair": "Restore the specific technical limitations (clone defects, pugixml leak, SaveFormat exceptions) from the original README to provide accurate scope information.",
+          "section_id": "scope_limitations",
+          "text": "The candidate's Scope and Limitations section is overly generic and omits specific technical limitations (e.g., clone defects, pugixml leak, SaveFormat exceptions) present in the original README."
+        }
+      ],
+      "preserve": [],
+      "verdict": "REJECT_PRESENTATION"
+    }
+  },
+  "897005d08ffb260ae6290851a568ed682269bf63ed3572d431aa037de7bc0c35": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.adjustvalue"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.adjustvalue",
+          "text": "Aspose.Slides.Foss.AdjustValue represents a single adjustable parameter for a shape geometry, storing its raw value, angle, and associated geometry element name."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.adjustvaluecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.adjustvaluecollection",
+          "text": "Aspose.Slides.Foss.AdjustValueCollection is a container that holds multiple AdjustValue instances and provides iteration and size operations."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.autoshape"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.autoshape",
+          "text": "Aspose.Slides.Foss.AutoShape represents a predefined geometric shape such as a rectangle, ellipse, or arrow that can be added to a slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.basehandoutnotesslideheaderfootermanager"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.basehandoutnotesslideheaderfootermanager",
+          "text": "Aspose.Slides.Foss.BaseHandoutNotesSlideHeaderFooterManager provides access to header and footer settings for handout and notes slides."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.baseportionformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.baseportionformat",
+          "text": "Aspose.Slides.Foss.BasePortionFormat defines common formatting properties for text portions, including font settings, color, and effects."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.baseshapelock"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.baseshapelock",
+          "text": "Aspose.Slides.Foss.BaseShapeLock specifies which operations are restricted on a shape, such as moving, resizing, or editing its geometry."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.baseslide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.baseslide",
+          "text": "Aspose.Slides.Foss.BaseSlide is the base class for all slide types and provides access to shapes, headers, footers, and slide properties."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.bevelpresettype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.bevelpresettype",
+          "text": "Aspose.Slides.Foss.BevelPresetType enumerates predefined bevel styles that can be applied to a shape's three-dimensional appearance."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.bulletformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.bulletformat",
+          "text": "Aspose.Slides.Foss.BulletFormat controls the appearance and behavior of bullet points in a text paragraph."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.bullettype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.bullettype",
+          "text": "Aspose.Slides.Foss.BulletType specifies the kind of bullet used in a paragraph, such as none, bullet, or number."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.camera"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.camera",
+          "text": "Aspose.Slides.Foss.Camera defines the viewing perspective and projection settings for three-dimensional shapes."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.camerapresettype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.camerapresettype",
+          "text": "Aspose.Slides.Foss.CameraPresetType enumerates predefined camera positions and angles for three-dimensional scene rendering."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.cell"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.cell",
+          "text": "Aspose.Slides.Foss.Cell represents an individual cell within a table and provides access to its content and formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.cellcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.cellcollection",
+          "text": "Aspose.Slides.Foss.CellCollection is a container for table cells that supports indexed access and iteration."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.cellformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.cellformat",
+          "text": "Aspose.Slides.Foss.CellFormat specifies the visual appearance of a table cell, including fill, border, and text formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.colorformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.colorformat",
+          "text": "Aspose.Slides.Foss.ColorFormat encapsulates color information and supports solid, gradient, pattern, and picture fill types."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.colortype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.colortype",
+          "text": "Aspose.Slides.Foss.ColorType enumerates the categories of color representation used in Aspose.Slides.Foss, such as solid or scheme."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.column"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.column",
+          "text": "Aspose.Slides.Foss.Column represents a single column in a table and provides access to its cells and formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.columncollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.columncollection",
+          "text": "Aspose.Slides.Foss.ColumnCollection is a container for table columns that supports indexed access and iteration."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.columnformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.columnformat",
+          "text": "Aspose.Slides.Foss.ColumnFormat defines formatting properties that apply to an entire table column."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.comment"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.comment",
+          "text": "Aspose.Slides.Foss.Comment represents a user comment attached to a slide or shape, including author, text, and timestamp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.commentauthor"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.commentauthor",
+          "text": "Aspose.Slides.Foss.CommentAuthor stores information about a comment author, such as name, initials, and associated comments."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.commentauthorcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.commentauthorcollection",
+          "text": "Aspose.Slides.Foss.CommentAuthorCollection is a container for comment authors that supports iteration and author lookup."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.commentcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.commentcollection",
+          "text": "Aspose.Slides.Foss.CommentCollection is a container for comments attached to a slide or shape, supporting indexed access and iteration."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.connector"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.connector",
+          "text": "Aspose.Slides.Foss.Connector is a line that automatically connects two shapes and updates its path when the shapes move."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.documentproperties"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.documentproperties",
+          "text": "Aspose.Slides.Foss.DocumentProperties provides access to built-in and custom metadata properties of a presentation document."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.drawing.color"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.drawing.color",
+          "text": "Aspose.Slides.Foss.Drawing.Color represents a color value and provides static methods to create common colors."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.drawing.pointf"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.drawing.pointf",
+          "text": "Aspose.Slides.Foss.Drawing.PointF represents a point in two-dimensional space using floating-point coordinates."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.drawing.rectanglef"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.drawing.rectanglef",
+          "text": "Aspose.Slides.Foss.Drawing.RectangleF represents a rectangle in two-dimensional space using floating-point coordinates."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.drawing.size"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.drawing.size",
+          "text": "Aspose.Slides.Foss.Drawing.Size represents the width and height of a rectangle using integer values."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.drawing.sizef"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.drawing.sizef",
+          "text": "Aspose.Slides.Foss.Drawing.SizeF represents the width and height of a rectangle using floating-point values."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effectformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effectformat",
+          "text": "Aspose.Slides.Foss.EffectFormat provides access to visual effects such as shadows, glows, blurs, and three-dimensional settings applied to a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.blur"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.blur",
+          "text": "Aspose.Slides.Foss.Effects.Blur applies a blur effect to a shape, softening its edges by averaging pixel values."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.filloverlay"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.filloverlay",
+          "text": "Aspose.Slides.Foss.Effects.FillOverlay combines a fill color with the underlying shape fill using a specified blend mode."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.glow"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.glow",
+          "text": "Aspose.Slides.Foss.Effects.Glow adds a luminous outline around a shape, simulating light emission."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.iblur"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.iblur",
+          "text": "Aspose.Slides.Foss.Effects.IBlur is an interface that defines the contract for applying a blur effect to a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.ifilloverlay"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.ifilloverlay",
+          "text": "Aspose.Slides.Foss.Effects.IFillOverlay is an interface that defines the contract for applying a fill overlay effect to a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.iglow"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.iglow",
+          "text": "Aspose.Slides.Foss.Effects.IGlow is an interface that defines the contract for applying a glow effect to a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.iimagetransformoperation"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.iimagetransformoperation",
+          "text": "Aspose.Slides.Foss.Effects.IImageTransformOperation is an interface for image transformation operations such as blur, fill overlay, and glow."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.effects.iinnershadow"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.effects.iinnershadow",
+          "text": "Aspose.Slides.Foss.Effects.IInnerShadow is an interface that defines the contract for applying an inner shadow effect to a shape."
+        }
+      ]
+    }
+  },
+  "90150cd297bce3fde76bbd8209b2f66760b6cfe206e58c5b5faa64c4c01e6241": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.inotesslidemanager"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.inotesslidemanager",
+          "text": "INotesSlideManager provides methods to add and remove notes slides and access the notes slide for a given slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ippimage"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ippimage",
+          "text": "IPPImage represents a picture placeholder image with properties such as width, height, and binary data."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iparagraph"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iparagraph",
+          "text": "IParagraph represents a paragraph within a text frame and contains portions and paragraph formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iparagraphcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iparagraphcollection",
+          "text": "IParagraphCollection is a collection of paragraphs that supports enumeration, indexing, and modification operations."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iparagraphformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iparagraphformat",
+          "text": "IParagraphFormat defines formatting properties for a paragraph such as alignment, indentation, and line break behavior."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ipatternformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ipatternformat",
+          "text": "IPatternFormat specifies pattern fill properties for shapes, text, or other elements."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ipicturefillformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ipicturefillformat",
+          "text": "IPictureFillFormat defines how a picture is used to fill a shape, including tiling and cropping options."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ipictureframe"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ipictureframe",
+          "text": "IPictureFrame represents a picture frame shape that contains an image and supports formatting and positioning."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ipictureframelock"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ipictureframelock",
+          "text": "IPictureFrameLock restricts editing operations on a picture frame such as cropping or aspect ratio changes."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iportion"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iportion",
+          "text": "IPortion represents a segment of text with a uniform format within a paragraph."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iportioncollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iportioncollection",
+          "text": "IPortionCollection is a collection of text portions that supports enumeration, indexing, and modification operations."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iportionformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iportionformat",
+          "text": "IPortionFormat defines formatting properties for a text portion such as font height, bold, and color."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ipresentation"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ipresentation",
+          "text": "IPresentation represents a PowerPoint presentation and provides access to slides, sections, and presentation-wide properties."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ipresentationcomponent"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ipresentationcomponent",
+          "text": "IPresentationComponent is a base interface for presentation elements that can be identified and managed within the document."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.irow"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.irow",
+          "text": "IRow represents a row in a table and contains cells with text and formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.irowcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.irowcollection",
+          "text": "IRowCollection is a collection of table rows that supports enumeration, indexing, and modification operations."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.irowformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.irowformat",
+          "text": "IRowFormat defines formatting properties for a table row such as height and fill style."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.isection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.isection",
+          "text": "ISection represents a section in a presentation and contains layout slides and slide masters."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ishape"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ishape",
+          "text": "IShape is a base interface for all shapes on a slide including auto shapes, pictures, tables, and connectors."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ishapebevel"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ishapebevel",
+          "text": "IShapeBevel defines the bevel effect applied to a shape's edges for three-dimensional appearance."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ishapecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ishapecollection",
+          "text": "IShapeCollection is a collection of shapes on a slide that supports enumeration, indexing, and modification operations."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ishapeframe"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ishapeframe",
+          "text": "IShapeFrame defines the position, size, and lock settings for a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ishapestyle"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ishapestyle",
+          "text": "IShapeStyle provides access to the visual style properties of a shape such as line and fill formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.islide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.islide",
+          "text": "ISlide represents a slide in a presentation and contains shapes, text frames, and slide-specific properties."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.islidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.islidecollection",
+          "text": "ISlideCollection is a collection of slides that supports enumeration, indexing, and modification operations."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.islidecomponent"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.islidecomponent",
+          "text": "ISlideComponent is a base interface for slide elements that can be identified and managed within a slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.islidespicture"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.islidespicture",
+          "text": "ISlidesPicture represents a picture object embedded in a slide with properties such as image data and size."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.itable"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.itable",
+          "text": "ITable represents a table shape composed of rows and cells for structured data display."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.itableformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.itableformat",
+          "text": "ITableFormat defines formatting properties for a table such as cell margins and border styles."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.itextframe"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.itextframe",
+          "text": "ITextFrame represents a container for text within a shape and holds paragraphs and formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.itextframeformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.itextframeformat",
+          "text": "ITextFrameFormat defines formatting properties for a text frame such as margins and text wrapping."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ithreedformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ithreedformat",
+          "text": "IThreeDFormat specifies three-dimensional properties for a shape such as extrusion and perspective."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ithreedparamsource"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ithreedparamsource",
+          "text": "IThreeDParamSource defines the source of three-dimensional parameters for a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.image"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.image",
+          "text": "Image represents an image stored in the presentation's image collection with metadata such as width and height."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.imagecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.imagecollection",
+          "text": "ImageCollection is a collection of images in the presentation that supports enumeration and indexing."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.images"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.images",
+          "text": "Images provides access to the collection of images stored in the presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.layoutslide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.layoutslide",
+          "text": "LayoutSlide defines the layout and placeholder structure for slides based on a master slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.layoutslidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.layoutslidecollection",
+          "text": "LayoutSlideCollection is a collection of layout slides that supports enumeration and indexing."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.lightrig"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.lightrig",
+          "text": "LightRig defines a lighting setup for three-dimensional shapes with preset types and direction."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.lightrigpresettype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.lightrigpresettype",
+          "text": "LightRigPresetType specifies the preset lighting configuration used for three-dimensional shapes."
+        }
+      ]
+    }
+  },
+  "d39b5d808ab1ec6cc87acbd36b7c5b62ee951fefde19d2ff12f05802dc7788d7": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icolorformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icolorformat",
+          "text": "IColorFormat represents a color definition that can be a solid color, a preset color, a scheme color, or a color defined by RGB float values."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icolumn"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icolumn",
+          "text": "IColumn represents a single column in a table, providing access to its width, format, and text content."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icolumncollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icolumncollection",
+          "text": "IColumnCollection is a collection of columns in a table, supporting operations such as adding, inserting, and removing columns."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icolumnformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icolumnformat",
+          "text": "IColumnFormat defines the formatting properties that apply to a table column, such as width and fill."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icomment"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icomment",
+          "text": "IComment represents a comment attached to a slide, including its author, creation time, position, and text content."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icommentauthor"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icommentauthor",
+          "text": "ICommentAuthor represents a comment author identified by name and initials, with a collection of their comments."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icommentauthorcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icommentauthorcollection",
+          "text": "ICommentAuthorCollection manages a set of comment authors, allowing addition, lookup, and removal of authors."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.icommentcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.icommentcollection",
+          "text": "ICommentCollection holds all comments associated with a slide, supporting enumeration and removal of individual comments."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iconnector"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iconnector",
+          "text": "IConnector represents a connector shape that links two shapes and can be repositioned dynamically."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.idocumentproperties"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.idocumentproperties",
+          "text": "IDocumentProperties provides access to built-in and custom document metadata properties of a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ieffectformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ieffectformat",
+          "text": "IEffectFormat exposes effects such as shadows, glows, and 3D formatting that can be applied to a shape."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ieffectparamsource"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ieffectparamsource",
+          "text": "IEffectParamSource defines the source of effect parameters used in shape effect formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ifillformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ifillformat",
+          "text": "IFillFormat describes how a shape is filled, including solid, gradient, pattern, or picture fill types."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ifillparamsource"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ifillparamsource",
+          "text": "IFillParamSource specifies the origin of fill parameters used in shape fill formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ifontdata"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ifontdata",
+          "text": "IFontData holds font information such as name, height, bold, italic, and other typographic attributes."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.igeometryshape"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.igeometryshape",
+          "text": "IGeometryShape represents a shape with geometric properties such as path, vertices, and transformation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.igloballayoutslidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.igloballayoutslidecollection",
+          "text": "IGlobalLayoutSlideCollection contains all global layout slides available in the presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.igradientformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.igradientformat",
+          "text": "IGradientFormat defines gradient fill properties including direction, style, and stops."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.igradientstop"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.igradientstop",
+          "text": "IGradientStop represents a single color stop in a gradient fill, with position and color information."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.igradientstopcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.igradientstopcollection",
+          "text": "IGradientStopCollection manages a sequence of gradient stops used in gradient fill definitions."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.igraphicalobject"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.igraphicalobject",
+          "text": "IGraphicalObject is the base interface for all graphical elements on a slide, such as shapes, tables, and charts."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.igraphicalobjectlock"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.igraphicalobjectlock",
+          "text": "IGraphicalObjectLock controls whether a graphical object can be selected, edited, or reordered."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.igroupshape"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.igroupshape",
+          "text": "IGroupShape represents a container that holds multiple shapes as a single unit."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iheadingpair"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iheadingpair",
+          "text": "IHeadingPair represents a pair of document property values used for document summary information."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ihyperlinkcontainer"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ihyperlinkcontainer",
+          "text": "IHyperlinkContainer provides access to hyperlink settings associated with a shape or text portion."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iimage"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iimage",
+          "text": "IImage represents an image embedded in a presentation, including its binary data and metadata."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iimagecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iimagecollection",
+          "text": "IImageCollection manages a set of images used in the presentation, supporting addition and removal."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ilayoutslide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ilayoutslide",
+          "text": "ILayoutSlide defines the layout and placeholder structure for slides based on a master slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ilayoutslidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ilayoutslidecollection",
+          "text": "ILayoutSlideCollection contains all layout slides associated with a master slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ilightrig"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ilightrig",
+          "text": "ILightRig defines a 3D lighting setup used to illuminate 3D shapes in a slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ilinefillformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ilinefillformat",
+          "text": "ILineFillFormat specifies how the line (stroke) of a shape is filled."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ilineformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ilineformat",
+          "text": "ILineFormat defines the visual properties of a shape's outline, such as weight, dash style, and color."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.ilineparamsource"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.ilineparamsource",
+          "text": "ILineParamSource specifies the origin of line parameters used in shape line formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.iloadoptions"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.iloadoptions",
+          "text": "ILoadOptions controls how a presentation file is loaded, including password handling and format detection."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.imasterlayoutslidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.imasterlayoutslidecollection",
+          "text": "IMasterLayoutSlideCollection holds all layout slides derived from a master slide."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.imasterslide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.imasterslide",
+          "text": "IMasterSlide defines the base layout and formatting for a set of slides in a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.imasterslidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.imasterslidecollection",
+          "text": "IMasterSlideCollection contains all master slides in the presentation, each defining a unique layout theme."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.inotessize"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.inotessize",
+          "text": "INotesSize specifies the dimensions and orientation of the notes page in a presentation."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.inotesslide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.inotesslide",
+          "text": "INotesSlide holds the notes content associated with a slide, including text and formatting."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.inotesslideheaderfootermanager"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.inotesslideheaderfootermanager",
+          "text": "INotesSlideHeaderFooterManager controls the visibility and content of header and footer elements on a notes slide."
+        }
+      ]
+    }
+  },
+  "e5000efd4b8e9e63c0418103acc6847fdb6196e6dc1f02a3add13d78f318924e": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [
+        {
+          "fact_id": "link_target:025",
+          "reason": "Link target fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "link_target:026",
+          "reason": "Link target fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "link_target:027",
+          "reason": "Link target fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "link_target:028",
+          "reason": "Link target fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "link_target:029",
+          "reason": "Link target fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "link_target:030",
+          "reason": "Link target fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "build_test_asset:tests",
+          "reason": "Build test asset fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "build_test_asset:examples",
+          "reason": "Build test asset fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "build_test_asset:docs",
+          "reason": "Build test asset fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "inherited_unit:100.heading",
+          "reason": "Inherited unit fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "inherited_unit:109.paragraph",
+          "reason": "Inherited unit fact is not in the accepted facts list and cannot be cited."
+        },
+        {
+          "fact_id": "enterprise_relationship/context",
+          "reason": "Enterprise relationship unit is not in the objective's return list."
+        },
+        {
+          "fact_id": "documentation_resources/link:link_target:025",
+          "reason": "Documentation resources unit is not in the objective's return list."
+        },
+        {
+          "fact_id": "scope_limitations/scope",
+          "reason": "Scope limitations unit is not in the objective's return list."
+        },
+        {
+          "fact_id": "scope_limitations/limitation:1",
+          "reason": "Scope limitations unit is not in the objective's return list."
+        },
+        {
+          "fact_id": "scope_limitations/limitation:2",
+          "reason": "Scope limitations unit is not in the objective's return list."
+        },
+        {
+          "fact_id": "scope_limitations/limitation:3",
+          "reason": "Scope limitations unit is not in the objective's return list."
+        },
+        {
+          "fact_id": "scope_limitations/limitation:4",
+          "reason": "Scope limitations unit is not in the objective's return list."
+        },
+        {
+          "fact_id": "development_testing/summary",
+          "reason": "Development testing unit is not in the objective's return list."
+        }
+      ],
+      "units": [
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "package:name",
+            "package:version",
+            "package:cxx_standard",
+            "package:cmake_minimum",
+            "dependency:pugixml",
+            "example:008",
+            "example:009"
+          ],
+          "section": "opening",
+          "slot": "opening",
+          "text": "Aspose.Slides FOSS for Cpp is a C++ library that enables developers to create, read, and convert PowerPoint presentations programmatically. It solves the problem of automating slide deck generation and modification without requiring Microsoft PowerPoint, supporting formats such as PPTX as output. The library is used by C++ developers building applications that need to generate reports, presentations, or documentation dynamically. Built to C++20 standards, it requires CMake 3.20 or later and depends on pugixml for XML processing."
+        },
+        {
+          "fact_ids": [
+            "example:008",
+            "example:009",
+            "public_symbol:aspose.slides.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:1",
+          "text": "Create and modify presentations using the Aspose.Slides.Foss API, which initializes a new presentation with one blank slide and supports saving in multiple formats."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides",
+            "public_symbol:aspose.slides.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:2",
+          "text": "Access slide collections and add various shape types to slides, enabling structured content organization."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose",
+            "public_symbol:aspose.slides"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:3",
+          "text": "Apply detailed formatting to text and shapes including font height, bold styling, and solid fill colors for visual customization."
+        },
+        {
+          "fact_ids": [
+            "example:008",
+            "example:009",
+            "public_symbol:aspose.slides.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:4",
+          "text": "Attach comment authors and replies to specific slides with precise positioning, and set title, author, and custom numeric document properties."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:5",
+          "text": "Embed images into presentations using the Aspose.Slides.Foss API, supporting common image formats for visual enrichment."
+        },
+        {
+          "fact_ids": [
+            "example:008",
+            "example:009",
+            "public_symbol:aspose.slides.foss"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:6",
+          "text": "Export presentations as PPTX files using the SaveFormat enumeration."
+        },
+        {
+          "fact_ids": [
+            "example:008"
+          ],
+          "section": "quick_start",
+          "slot": "lead_in",
+          "text": "This example creates a new presentation, adds a comment author and two comments with a reply relationship, then saves the file as comments.pptx using Aspose.Slides FOSS for Cpp 26.9.0."
+        },
+        {
+          "fact_ids": [
+            "example:009"
+          ],
+          "section": "quick_start",
+          "slot": "lead_in:2",
+          "text": "This example creates a new presentation, sets built-in and custom document properties, then saves the file as deck.pptx using Aspose.Slides FOSS for Cpp 26.9.0."
+        },
+        {
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:cmake_minimum",
+            "package:cxx_standard",
+            "package:name",
+            "package:version",
+            "public_symbol:aspose.slides.foss"
+          ],
+          "section": "api_reference",
+          "slot": "intro",
+          "text": "Aspose.Slides FOSS for Cpp exposes the AsposeSlidesFoss class as its primary entry point, providing constructors to create new presentations or load existing .pptx files. The class exposes collections for slides, shapes, images, comment authors, masters, and document properties, enabling full programmatic control over presentation content and structure."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.slides.foss",
+          "text": "The Aspose.Slides.Foss class supports creating new presentations with a default blank slide or loading from a file path, and provides access to slide collections, master slides, layout slides, comment authors, images, and document properties through dedicated member functions, with save operations supporting export to .pptx format."
+        }
+      ]
+    }
+  },
+  "f1db3440cae699caffe3cbba1ddfc9e3a9c86dd815510691ddb27b7c08381e43": {
+    "job": "independent_review",
+    "output": {
+      "findings": [
+        {
+          "absent": [],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "identity:platform"
+          ],
+          "id": "F01",
+          "quote": "# Aspose.Slides FOSS for Cpp",
+          "repair": "Change the title to '# Aspose.Slides FOSS for C++' to match the repository name and platform fact.",
+          "section_id": "identity",
+          "text": "The candidate uses 'Aspose.Slides FOSS for Cpp' instead of the correct product name 'Aspose.Slides FOSS for C++'."
+        },
+        {
+          "absent": [
+            "[![C++](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](CMakeLists.txt)",
+            "[![NuGet](https://img.shields.io/nuget/v/Aspose.Slides.Cpp.FOSS.svg)](https://www.nuget.org/packages/Aspose.Slides.Cpp.F"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "link_target:003",
+            "link_target:004",
+            "link_target:005",
+            "link_target:006"
+          ],
+          "id": "F02",
+          "quote": "Aspose.Slides FOSS for Cpp is a C++ library that enables developers to create, read, and convert PowerPoint presentations programmatically. It solves the problem of automating slide deck generation and modification without requiring Microsoft PowerPoint, supporting formats such as PPTX as output. The library is used by C++ developers building applications that need to generate reports, presentations, or documentation dynamically. Built to C++20 standards, it requires CMake 3.20 or later and uses",
+          "repair": "Add the C++20 and NuGet badges to the top badge row to match the original README and provide verified version and package information.",
+          "section_id": "opening",
+          "text": "The candidate omits the C++20 badge and NuGet badge present in the original README, reducing completeness."
+        },
+        {
+          "absent": [
+            "subgraph StartingPoints[",
+            "subgraph Outputs["
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F03",
+          "quote": "PRODUCT[",
+          "repair": "Restore the full Mermaid flowchart structure with 'Starting Points' and 'Outputs' subgraphs to match the original README's specificity.",
+          "section_id": "at_a_glance",
+          "text": "The Mermaid diagram in the candidate is simplified and omits the 'Starting Points' and 'Outputs' nodes present in the original, reducing specificity."
+        },
+        {
+          "absent": [
+            "### Consume via CMake FetchContent",
+            "### Install and Use the Installed Package",
+            "### Install From NuGet on Windows"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "install_command:cmake"
+          ],
+          "id": "F04",
+          "quote": "`AsposeSlidesFoss` is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+          "repair": "Add the FetchContent, install, and NuGet subsections to the Installation section to match the original README's installation options.",
+          "section_id": "installation",
+          "text": "The candidate omits the FetchContent, install, and NuGet installation subsections present in the original README, reducing completeness."
+        },
+        {
+          "absent": [],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "dependency:development.asposeslidesfoss",
+            "dependency:development.googletest",
+            "dependency:development.gtest",
+            "dependency:development.miniz"
+          ],
+          "id": "F05",
+          "quote": "### Development Dependencies",
+          "repair": "Remove 'AsposeSlidesFoss' from the Development Dependencies list, as it is the library itself, not a dependency.",
+          "section_id": "dependencies",
+          "text": "The candidate lists 'AsposeSlidesFoss', 'googletest', 'GTest', and 'miniz' as development dependencies, but the original README does not list AsposeSlidesFoss as a dependency of itself."
+        },
+        {
+          "absent": [],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F06",
+          "quote": "The verified public surface has 234 types.",
+          "repair": "Remove the '234 types' claim or replace it with a factual statement about the API surface, such as 'The primary entry point is Presentation'.",
+          "section_id": "api_reference",
+          "text": "The candidate claims the public API surface has 234 types, but the original README does not state this number and the candidate provides no fact-based verification."
+        },
+        {
+          "absent": [
+            "charts, SmartArt, OLE objects, and mathematical text",
+            "animations and slide transitions",
+            "group shapes",
+            "hyperlinks and action settings",
+            "slide backgrounds and themes",
+            "slide size",
+            "saving to a stream",
+            "adding an image from a path or a stream"
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [],
+          "id": "F07",
+          "quote": "Aspose.Slides FOSS for Cpp version 26.9.0 is a C++ library for creating and manipulating PowerPoint presentations, supporting C++20 and requiring CMake 3.20 or later. It is distributed under the MIT license and targets the C++ ecosystem with the repository aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp at revision c41f8dddc499fb0058fc9557cb364d70fbd3cef1. The library exposes the `Aspose.Slides.Foss` public symbol and depends on pugixml and miniz.",
+          "repair": "Restore the detailed limitations from the original README, including missing features like charts, animations, and save format restrictions.",
+          "section_id": "scope_limitations",
+          "text": "The candidate's Scope and Limitations section is vague and omits critical limitations present in the original README, such as missing charts, SmartArt, animations, and save format restrictions."
+        },
+        {
+          "absent": [
+            "## Third-Party Notices",
+            "See [Third-party notices](THIRD_PARTY_NOTICES)."
+          ],
+          "causal_stage": "S6",
+          "criterion": "presentation",
+          "fact_ids": [
+            "third_party_notices:file"
+          ],
+          "id": "F08",
+          "quote": "These limitations don't apply to [Aspose.Slides for Cpp — Enterprise Edition](https://products.aspose.com/slides/cpp/). Aspose.Slides FOSS for Cpp provides core presentation manipulation capabilities, while the commercial edition extends functionality with advanced features such as digital signatures, watermarking, and enhanced export options.",
+          "repair": "Add the 'Third-Party Notices' section with a link to the THIRD_PARTY_NOTICES file as in the original README.",
+          "section_id": "enterprise_relationship",
+          "text": "The candidate omits the 'Third-Party Notices' section heading and content present in the original README."
+        }
+      ],
+      "preserve": [],
+      "verdict": "REJECT_PRESENTATION"
+    }
+  },
+  "f4608b265d0693fd0de1b80b7d9f94ef95a1e70f6e18fa34a8ed51250fa8b1f1": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.presetshadowtype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.presetshadowtype",
+          "text": "PresetShadowType represents a predefined shadow style that can be applied to shapes in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.rectanglealignment"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.rectanglealignment",
+          "text": "RectangleAlignment specifies how a rectangle is aligned relative to its container in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.row"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.row",
+          "text": "Row represents a single row in a table in Aspose.Slides FOSS for Cpp and provides access to its formatting and cell contents."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.rowcollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.rowcollection",
+          "text": "RowCollection is a collection of Row objects that belong to a table in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.rowformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.rowformat",
+          "text": "RowFormat holds the formatting properties that apply to a Row in a table in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.saveformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.saveformat",
+          "text": "SaveFormat enumerates the file formats that Aspose.Slides FOSS for Cpp supports for saving presentations."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.schemecolor"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.schemecolor",
+          "text": "SchemeColor represents a color that is part of a presentation's color scheme in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.shape"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.shape",
+          "text": "Shape is the base class for all drawing objects such as auto shapes, lines, connectors, and text frames in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.shapebevel"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.shapebevel",
+          "text": "ShapeBevel defines the bevel effect applied to a shape in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.shapecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.shapecollection",
+          "text": "ShapeCollection is a collection of Shape objects contained in a slide in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.shapeframe"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.shapeframe",
+          "text": "ShapeFrame holds the geometric properties such as position and size of a shape in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.shapetype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.shapetype",
+          "text": "ShapeType identifies the geometric type of an auto shape in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.simplecolorformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.simplecolorformat",
+          "text": "SimpleColorFormat provides a simple way to specify a solid color for use in formatting elements in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.slide"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.slide",
+          "text": "Slide represents a single slide in a presentation in Aspose.Slides FOSS for Cpp and contains its shapes and content."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.slidecollection"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.slidecollection",
+          "text": "SlideCollection is a collection of Slide objects that make up a presentation in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.slidelayouttype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.slidelayouttype",
+          "text": "SlideLayoutType specifies the layout type of a slide such as title, content, or blank in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.slidereference"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.slidereference",
+          "text": "SlideReference provides a lightweight reference to a slide for use in linking or navigation in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.sourceformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.sourceformat",
+          "text": "SourceFormat enumerates the file formats that Aspose.Slides FOSS for Cpp can load as input presentations."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.table"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.table",
+          "text": "Table represents a tabular structure composed of rows and cells in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.tableformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.tableformat",
+          "text": "TableFormat holds the formatting properties that apply to an entire table in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.tablestylepreset"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.tablestylepreset",
+          "text": "TableStylePreset defines a predefined style that can be applied to a table in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textalignment"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textalignment",
+          "text": "TextAlignment specifies the horizontal alignment of text within a text frame in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textanchortype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textanchortype",
+          "text": "TextAnchorType defines how text is anchored vertically within a text frame in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textautofittype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textautofittype",
+          "text": "TextAutofitType controls how text automatically resizes or fits within a text frame in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textcaptype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textcaptype",
+          "text": "TextCapType specifies the capitalization style applied to text in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textframe"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textframe",
+          "text": "TextFrame contains text content and provides access to its formatting and layout in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textframeformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textframeformat",
+          "text": "TextFrameFormat holds the formatting properties that apply to a TextFrame in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textshapetype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textshapetype",
+          "text": "TextShapeType identifies the type of a text shape such as a text box or placeholder in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textstrikethroughtype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textstrikethroughtype",
+          "text": "TextStrikethroughType specifies the style of strikethrough applied to text in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textunderlinetype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textunderlinetype",
+          "text": "TextUnderlineType specifies the style of underline applied to text in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.textverticaltype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.textverticaltype",
+          "text": "TextVerticalType defines the vertical orientation of text in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.theme.ithemeable"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.theme.ithemeable",
+          "text": "IThemeable is an interface implemented by objects that can participate in a presentation's theme in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.threedformat"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.threedformat",
+          "text": "ThreeDFormat provides access to three-dimensional properties such as extrusion and rotation for a shape in Aspose.Slides FOSS for Cpp."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.slides.foss.tileflip"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.slides.foss.tileflip",
+          "text": "TileFlip specifies how a picture or gradient fill is flipped when tiled in Aspose.Slides FOSS for Cpp."
+        }
+      ]
+    }
+  }
+}

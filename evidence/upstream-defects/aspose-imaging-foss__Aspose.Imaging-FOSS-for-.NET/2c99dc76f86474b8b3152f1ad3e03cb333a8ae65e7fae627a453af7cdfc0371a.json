@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
+  "source_revision": "a7c7314b18e1a5bd209fab38c15e72574337366f",
+  "defect_fingerprint": "sha256:2c99dc76f86474b8b3152f1ad3e03cb333a8ae65e7fae627a453af7cdfc0371a",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj",
+      "detail": "install command for the package id declared by the manifest"
+    },
+    {
+      "path": "https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json",
+      "detail": "package registry: distribution not found on nuget"
+    },
+    {
+      "path": "https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json",
+      "detail": "HTTP 404 on 2026-10-04 11:22Z (curl): no version index for the package id Aspose.Imaging.Foss."
+    },
+    {
+      "path": "https://api.nuget.org/v3/registration5-gz-semver2/aspose.imaging.foss/index.json",
+      "detail": "HTTP 404 on 2026-10-04 (curl): no registration for Aspose.Imaging.Foss."
+    },
+    {
+      "path": "https://azuresearch-usnc.nuget.org/query?q=packageid:Aspose.Imaging.Foss&prerelease=true",
+      "detail": "NuGet search: totalHits 0 on 2026-10-04 (curl)."
+    },
+    {
+      "path": "https://www.nuget.org/packages/Aspose.Imaging.Foss",
+      "detail": "HTTP 404 on 2026-10-04 (the README's own NuGet badge target, link_target:004 CONTRADICTED)."
+    },
+    {
+      "path": "https://api.nuget.org/v3-flatcontainer/aspose.imaging/index.json",
+      "detail": "Control: HTTP 200 on 2026-10-04, so the probe itself works; this is an unpublished distribution, not a checker defect."
+    },
+    {
+      "path": "README.md",
+      "detail": "Separate upstream defect, not part of this claim: the csharp example at lines 68-78 does not compile on its own snippet (CS0103: \bytes does not exist in the current context, line 76 ImageProbe.DetectFormat(bytes)). The product's own dotnet build src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj exits 0 at revision a7c7314b, so the source install proof stands without the snippet; the snippet itself is excluded from the candidate (rule 16)."
+    }
+  ],
+  "claim": "At revision a7c7314b18e1a5bd209fab38c15e72574337366f, aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET's own install_command:dotnet is CONTRADICTED (package registry: distribution not found on nuget). The unpublished package is an upstream distribution fact (flat container, registration and search all negative; control aspose.imaging HTTP 200), so the source install is the honest path at this revision.",
+  "suggested_issue_title": "install_command:dotnet is CONTRADICTED at a7c7314b18e1",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-02) found `install_command:dotnet` CONTRADICTED while re-verifying `aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET` at revision `a7c7314b18e1a5bd209fab38c15e72574337366f`.\n\n## Evidence\n\n- `src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj`: install command for the package id declared by the manifest\n- `https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json`: package registry: distribution not found on nuget\n\n<!-- repository-presenter-defect: sha256:2c99dc76f86474b8b3152f1ad3e03cb333a8ae65e7fae627a453af7cdfc0371a -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}
