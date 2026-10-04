@@ -19,6 +19,7 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.components.readme.composition.planning import (
     bound_visible_line_overage,
     citable_fact_ids,
+    citable_unit_ids,
     plan_checks,
     planning_packet,
     planning_schema,
@@ -325,7 +326,6 @@ _FACT_ID_ARRAYS = (
     ("core_capabilities", "shared_fact_ids"),
     ("api_hubs", "fact_ids"),
     ("material_limitations", "fact_ids"),
-    ("material_limitations", "unit_ids"),  # G4-W17 arrival item 77
     ("deviations", "fact_ids"),
 )
 
@@ -350,7 +350,10 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
         "public_symbol:widget.scene",
     ]  # every SUPPORTED fact; never the UNRESOLVED format or the CONTRADICTED example and link
     assert citable_fact_ids(FACTS, {}, {}, MANIFEST) == citable
-    assert schema["$defs"] == {"citable_fact_id": {"type": "string", "enum": citable}}
+    assert schema["$defs"] == {
+        "citable_fact_id": {"type": "string", "enum": citable},
+        "citable_unit_id": {"type": "string", "enum": ["inherited_unit:001.paragraph"]},
+    }
     for array, field in _FACT_ID_ARRAYS:
         pinned = schema["properties"][array]["items"]["properties"][field]
         assert pinned["items"] == {"$ref": "#/$defs/citable_fact_id"}
@@ -382,17 +385,30 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
     assert refused(_plan(material_limitations=[limitation])) == [
         ("$.material_limitations[0].fact_ids[0]", "enum")
     ]
-    # G4-W17 arrival item 77 (lane F PROPOSAL F22, Email-.NET): unit_ids sits beside fact_ids in
-    # the same object and previously carried no enum at all - a well-formed fact id written there
-    # (the exact live shape: package:target_framework, a real fact, written into the unit array)
-    # was refused only by the binding after the call was spent.
+    # unit_ids sits beside fact_ids in the same object but holds a different ID space: only
+    # inherited_unit facts. An invented ID is refused at decode (G4-W17 arrival item 77) ...
     unit_limitation = {"fact_ids": [], "unit_ids": ["format:msg"]}
     assert refused(_plan(material_limitations=[unit_limitation])) == [
         ("$.material_limitations[0].unit_ids[0]", "enum")
     ]
-    # A real inherited_unit id is admitted - the same set fact_ids draws from, not a narrower one.
+    # ... and so is a REAL, citable fact ID of another kind - the live Slides-Java shape
+    # (2026-10-05): both S5 attempts filled unit_ids with identity:repository, which is in the
+    # fact enum but is not an inherited unit, so the binding refused it after the call was spent.
+    for fact_id in ("identity:repository", "example:001", "public_symbol:widget.scene"):
+        assert fact_id in citable
+        wrong_kind = {"fact_ids": [fact_id], "unit_ids": [fact_id]}
+        assert refused(_plan(material_limitations=[wrong_kind])) == [
+            ("$.material_limitations[0].unit_ids[0]", "enum")
+        ], fact_id
+    # Negative control: the same IDs remain valid where they belong, in fact_ids, and a real
+    # inherited_unit id is still admitted in unit_ids.
+    as_fact = {"fact_ids": ["identity:repository"], "unit_ids": []}
+    assert refused(_plan(material_limitations=[as_fact])) == []
     real_unit = {"fact_ids": [], "unit_ids": ["inherited_unit:001.paragraph"]}
     assert refused(_plan(material_limitations=[real_unit])) == []
+    unit_array = schema["properties"]["material_limitations"]["items"]["properties"]["unit_ids"]
+    assert unit_array["items"] == {"$ref": "#/$defs/citable_unit_id"}
+    assert unit_array["maxItems"] == 1
     deviation = {"section_id": "opening", "text": "t", "fact_ids": ["format:msg"]}
     assert refused(_plan(deviations=[deviation])) == [("$.deviations[0].fact_ids[0]", "enum")]
     # The bound: a citation list longer than the citable set can only be repeating itself.
@@ -410,6 +426,9 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
         if "items" in pinned:
             pinned = pinned["items"]["properties"][field]
         assert pinned == {"type": "array", "maxItems": 0}
+    # With no inherited unit shown the unit array is pinned empty too, never to an empty enum.
+    empty_units = empty["properties"]["material_limitations"]["items"]["properties"]["unit_ids"]
+    assert empty_units == {"type": "array", "maxItems": 0}
 
 
 def test_the_four_previously_unbounded_outer_arrays_now_refuse_past_their_ceiling() -> None:
@@ -558,6 +577,33 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
     ]
     assert len(errors) == 1
     assert errors[0].validator == "maxItems"
+
+
+def test_one_schema_is_object_only_for_at_a_glance_and_pins_fact_and_unit_ids() -> None:
+    """The two planning-schema narrowings hold on the same specialised schema: a required At a
+    Glance is object-only (a null is refused at decode), and the fact-ID arrays and the inherited
+    unit-ID arrays are pinned through their own ``$defs`` enums (#238). Neither pass may undo the
+    other, and a plan breaking all three at once is refused for all three."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS, {}, {})
+    assert schema["properties"]["at_a_glance"]["type"] == "object"
+    assert set(schema["$defs"]) == {"citable_fact_id", "citable_unit_id"}
+    limitations = schema["properties"]["material_limitations"]["items"]["properties"]
+    assert limitations["fact_ids"]["items"] == {"$ref": "#/$defs/citable_fact_id"}
+    assert limitations["unit_ids"]["items"] == {"$ref": "#/$defs/citable_unit_id"}
+    validator = Draft202012Validator(schema)
+    scoped = ("$.at_a_glance", "$.material_limitations")
+    assert [e for e in validator.iter_errors(_plan()) if e.json_path.startswith(scoped)] == []
+    broken = _plan(
+        at_a_glance=None,
+        material_limitations=[{"fact_ids": ["format:msg"], "unit_ids": ["format:msg"]}],
+    )
+    refused_at = {error.json_path for error in validator.iter_errors(broken)}
+    assert {
+        "$.at_a_glance",
+        "$.material_limitations[0].fact_ids[0]",
+        "$.material_limitations[0].unit_ids[0]",
+    } <= refused_at
 
 
 def test_a_null_at_a_glance_is_not_decodable_while_the_required_section_holds() -> None:
@@ -2120,10 +2166,12 @@ def test_the_packets_facts_and_dispositions_share_one_inherited_unit_cap() -> No
     assert set(facts_units) == expected  # document order, the first UNIT_CAP units
     assert set(disposition_units) == expected  # the same set - one combined budget
 
-    # citable_fact_ids (material_limitations.unit_ids' own enum) never widens past what the
-    # packet's facts field actually shows (RESEARCH_AND_GUIDELINES.md section 27.2 RC1).
+    # citable_fact_ids never widens past what the packet's facts field actually shows
+    # (RESEARCH_AND_GUIDELINES.md section 27.2 RC1), and material_limitations.unit_ids' own enum
+    # is exactly that set's inherited units.
     citable = citable_fact_ids(many, {}, dispositions, MANIFEST)
     assert {i for i in citable if i.startswith("inherited_unit:")} == expected
+    assert set(citable_unit_ids(many, citable)) == expected
 
 
 _OPTIONAL_LEVER_PLAN: dict[str, Any] = {
