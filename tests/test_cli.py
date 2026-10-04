@@ -1180,7 +1180,9 @@ def _seal_then_accept_unadopted_transaction(
     capsys.readouterr()
     assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
     capsys.readouterr()
-    bundle = next((project / "candidates").glob("*/*"))
+    # Directories only: candidates/<repo>/ also holds the CURRENT pointer file, and directory
+    # order is not stable across platforms (hosted Linux picked CURRENT first).
+    bundle = next(path for path in (project / "candidates").glob("*/*") if path.is_dir())
     proven = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert proven["state"] == "READY_FOR_PROPOSAL" and proven["no_op_proof"]
     sealed_investigation = (bundle / "investigation.json").read_bytes()
