@@ -66,7 +66,10 @@ from repository_presenter.core.registry.models import RegistryEntry
 # (RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation). 26: a planner-authored
 # capability title and its At a Glance label take the document's canonical abbreviation spelling,
 # as every authored unit already does (BC-07, aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript).
-RENDERER_VERSION = "26"
+# 27: Navigation links only the sections whose body renders, so a required section with no
+# supporting fact (License in a repository with no license file) leaves no link to an omitted
+# heading (BC-06, aspose-gis-foss/Aspose.GIS.FOSS-for-.Net).
+RENDERER_VERSION = "27"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
