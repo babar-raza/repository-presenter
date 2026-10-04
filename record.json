@@ -4,7 +4,7 @@
   "provider_repository_id": 1168969375,
   "registry_revision": null,
   "active_transaction_id": "ddc5964b5adc4693b8e6355e3128b2ff",
-  "state": "EXTRACTING",
+  "state": "INVESTIGATING",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -25,20 +25,20 @@
     "fencing_token": 1
   },
   "last_transition": {
-    "transition_id": "ebaca919256040538fa5d8d9d9e9a419",
+    "transition_id": "8f728b449a0b4951bed19d5bda3773f5",
     "transaction_id": "ddc5964b5adc4693b8e6355e3128b2ff",
     "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
-    "from_state": "SNAPSHOTTING",
-    "to_state": "EXTRACTING",
+    "from_state": "EXTRACTING",
+    "to_state": "INVESTIGATING",
     "event": "present.yml hosted transaction completed (one coarse receipt spanning the local pipeline's own stages - see core/state/present_transaction.py's module docstring)",
-    "occurred_at": "2026-10-04T13:33:41.139193+00:00",
+    "occurred_at": "2026-10-04T13:33:42.515375+00:00",
     "actor": "runtime",
     "input_manifest": "registry:aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
     "output_manifest": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript/CURRENT",
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 3,
+  "state_version": 4,
   "recent_trigger_dedup_keys": {
     "run:37205255086:aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "ddc5964b5adc4693b8e6355e3128b2ff"
   },
