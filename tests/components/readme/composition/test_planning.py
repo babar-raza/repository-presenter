@@ -508,10 +508,8 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
     direction the list is pinned empty rather than given an empty enum."""
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
     schema = planning_schema(loaded, FACTS, {}, {})
-    glance_variants = schema["properties"]["at_a_glance"]["oneOf"]
-    variants = [v for v in glance_variants if v.get("type") == "object"]
-    assert len(variants) == 1
-    glance = variants[0]["properties"]
+    # At a Glance is required here, so the decoder carries the object variant alone.
+    glance = schema["properties"]["at_a_glance"]["properties"]
     assert glance["output_format_ids"] == {
         "type": "array",
         "items": {"type": "string", "enum": ["format:output.stl"]},
@@ -533,11 +531,9 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
             "capability_titles": ["Build scenes", "Export STL", "Run examples"],
         }
     )
-    errors = [e for e in validator.iter_errors(wrong) if e.json_path == "$.at_a_glance"]
-    assert len(errors) == 1
-    assert "'public_symbol:widget.scene' is not one of ['format:output.stl']" in [
-        c.message for c in errors[0].context
-    ]
+    errors = [e for e in validator.iter_errors(wrong) if e.json_path.startswith("$.at_a_glance")]
+    assert [e.json_path for e in errors] == ["$.at_a_glance.output_format_ids[0]"]
+    assert "'public_symbol:widget.scene' is not one of ['format:output.stl']" in errors[0].message
     # With no verified input format the list is pinned empty, so the UNRESOLVED input format is
     # unwritable there too - refused by maxItems, not left to an empty enum nothing satisfies.
     unresolved = _plan(
@@ -547,12 +543,36 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
             "capability_titles": ["Build scenes", "Export STL", "Run examples"],
         }
     )
-    errors = [e for e in validator.iter_errors(unresolved) if e.json_path == "$.at_a_glance"]
+    errors = [
+        e for e in validator.iter_errors(unresolved) if e.json_path == "$.at_a_glance.input_format_ids"
+    ]
     assert len(errors) == 1
-    assert any(
-        c.validator == "maxItems" and c.json_path == "$.at_a_glance.input_format_ids"
-        for c in errors[0].context
+    assert errors[0].validator == "maxItems"
+
+
+def test_a_null_at_a_glance_is_not_decodable_while_the_required_section_holds() -> None:
+    """Aspose.3D for TypeScript, 2026-10-04: presentation_planning returned at_a_glance null twice
+    in one job. At a Glance is required, so section_conditions holds it, and plan_checks refuses a
+    null ("at_a_glance is included, so its formats and capabilities are given"). The decoder
+    admitted that null through the manifest's oneOf null variant, so the one re-ask was spent on a
+    reply the checks had already decided. The decoder now carries the same rule."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS, {}, {})
+    assert schema["properties"]["at_a_glance"]["type"] == "object"
+    validator = Draft202012Validator(schema)
+    assert [e for e in validator.iter_errors(_plan()) if e.json_path.startswith("$.at_a_glance")] == []
+    nulled = [
+        e for e in validator.iter_errors(_plan(at_a_glance=None)) if e.json_path == "$.at_a_glance"
+    ]
+    assert len(nulled) == 1
+    # Negative control: the checker refuses the same null, so the decoder and checks agree.
+    assert "at_a_glance is included, so its formats and capabilities are given" in plan_checks(
+        _plan(at_a_glance=None), FACTS
     )
+    # The manifest's own schema keeps its null variant: the specialisation is per call.
+    assert loaded.manifest.output.schema_["properties"]["at_a_glance"]["oneOf"][0] == {
+        "type": "null"
+    }
 
 
 def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
