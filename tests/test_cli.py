@@ -76,6 +76,96 @@ def test_status_reports_this_repository_cursor(
     assert out[6] == "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
 
 
+def test_status_reports_the_seven_separated_counts_and_the_denominator(
+    repo_root: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """plans/idea.md: portfolio reporting separates fact-valid, presentation-valid, independently
+    accepted, no-op-proven, source-fresh, publication-eligible and effect-authorized counts. The
+    block follows the existing ``canary:`` line, so every earlier line keeps its position."""
+    assert main(["status", "--root", str(repo_root)]) == EXIT_OK
+    out = capsys.readouterr().out
+    denominator = len(load_registry(REPO_ROOT / "data" / "registry.json").entries)
+    assert f"portfolio: {denominator} live registry entries" in out
+    for label in (
+        "fact-valid ",
+        "presentation-valid ",
+        "independently accepted ",
+        "no-op-proven ",
+        "source-fresh unobserved (no --drift)",
+        "publication-eligible ",
+        "effect-authorized ",
+        "ready but acceptance advisory",
+        "partition (each entry in exactly one)",
+    ):
+        assert label in out
+    assert out.index("canary:") < out.index("portfolio:")
+
+
+def test_status_json_is_machine_readable_and_matches_the_text_counts(
+    repo_root: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["status", "--root", str(repo_root), "--json"]) == EXIT_OK
+    document = json.loads(capsys.readouterr().out)
+    registry = load_registry(REPO_ROOT / "data" / "registry.json")
+    portfolio = document["portfolio"]
+    assert portfolio["denominator"] == len(registry.entries)
+    assert list(portfolio["counts"]) == [
+        "fact_valid",
+        "presentation_valid",
+        "independently_accepted",
+        "no_op_proven",
+        "source_fresh",
+        "publication_eligible",
+        "effect_authorized",
+    ]
+    assert sum(portfolio["buckets"].values()) == portfolio["denominator"]
+    assert portfolio["counts"]["source_fresh"] is None
+    assert portfolio["source_freshness_observed"] is False
+    assert document["candidates"]["current"] <= document["candidates"]["denominator"]
+    assert set(document["progress"]) == {
+        "ever_sealed",
+        "integrity_valid",
+        "current_code_reproducible",
+        "independently_accepted_stale_excluded",
+    }
+    assert document["canary"] == "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+
+
+def test_status_without_a_registry_has_no_portfolio_block(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["status", "--root", str(project)]) == EXIT_OK
+    assert "portfolio:" not in capsys.readouterr().out
+    assert main(["status", "--root", str(project), "--json"]) == EXIT_OK
+    assert json.loads(capsys.readouterr().out)["portfolio"] is None
+
+
+def test_status_takes_drift_and_authorization_evidence_without_guessing(
+    project_with_registry: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    drift = tmp_path / "drift.json"
+    drift.write_text(json.dumps({"repositories": []}), encoding="utf-8")
+    authorizations = tmp_path / "authorizations.json"
+    authorizations.write_text("[]", encoding="utf-8")
+    argv = ["status", "--root", str(project_with_registry), "--json"]
+    assert main([*argv, "--drift", str(drift), "--authorizations", str(authorizations)]) == EXIT_OK
+    portfolio = json.loads(capsys.readouterr().out)["portfolio"]
+    assert portfolio["source_freshness_observed"] is True
+    assert portfolio["authorizations_supplied"] is True
+    assert portfolio["counts"]["source_fresh"] == 0
+    assert portfolio["counts"]["effect_authorized"] == 0
+
+
+def test_status_rejects_malformed_drift_evidence(
+    project_with_registry: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    drift = tmp_path / "drift.json"
+    drift.write_text("{not json", encoding="utf-8")
+    argv = ["status", "--root", str(project_with_registry), "--drift", str(drift)]
+    assert main(argv) == EXIT_USAGE
+    assert "drift evidence is malformed" in capsys.readouterr().err
+
+
 def test_status_reports_examples_verified_across_sealed_bundles(
     project_with_registry: Path,
     sealed_canary: Path,
