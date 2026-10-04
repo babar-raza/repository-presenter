@@ -11,7 +11,7 @@ import pytest
 from repository_presenter.components.readme.extractors.platforms import net_examples
 from repository_presenter.core.examples import ExampleCandidate
 from repository_presenter.core.execution import ExecutionResult
-from repository_presenter.core.long_paths import long_path
+from repository_presenter.core.long_paths import exceeds_max_path, long_path
 
 
 def _candidate(ordinal: int, code: str) -> ExampleCandidate:
@@ -160,8 +160,9 @@ def test_public_types_reads_a_file_whose_clone_path_exceeds_max_path(tmp_path: P
         encoding="utf-8",
     )
 
-    with pytest.raises(OSError):
-        target.read_text(encoding="utf-8")
+    # Host-independent: beyond MAX_PATH on every machine. Whether an unprefixed read
+    # fails depends on LongPathsEnabled, so that is not asserted; public_types() must read it.
+    assert exceeds_max_path(target)
 
     assert net_examples.public_types(tmp_path) == {"IVisitor": "Aspose.Words.Deep.IVisitor"}
 

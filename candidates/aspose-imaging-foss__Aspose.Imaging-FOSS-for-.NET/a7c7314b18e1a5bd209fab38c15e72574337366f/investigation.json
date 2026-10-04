@@ -1,0 +1,135 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:target_framework",
+      "dependency:none"
+    ],
+    "text": "Developers building .NET applications that need fast, lightweight image format detection and header probing without full decoding or heavy dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Detects image format from file headers using signature matching and format-specific handlers.",
+      "title": "Format detection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Reads dimensions, bit depth, and frame count directly from image headers without pixel decoding.",
+      "title": "Header property extraction"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Parses DICOM Implicit VR Little Endian and Explicit VR Little/Big Endian transfer syntaxes, extracting metadata up to pixel data.",
+      "title": "DICOM support"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Reports page count and dimensions for multi-page formats like DjVu (DJVM) and AVIF/HEIC via container structures.",
+      "title": "Multi-page format support"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Returns partial ImageInfo instead of throwing when headers are malformed or truncated.",
+      "title": "Robust error handling"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Supports adding new formats by implementing IFormatHandler and registering it in ImageProbe.",
+      "title": "Extensible format support"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Does not decode, edit, or convert images — only detects format and reads header properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "DICOM parsing stops if it encounters a sequence or encapsulated pixel data with undefined length before finding Rows/Columns/BitsAllocated."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "CDR format support is planned but not yet implemented."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Enables format detection and dimension extraction for rare or complex formats like DICOM, PSD, EMF/WMF, and DjVu without full decoding."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Avoids the overhead of full image decoding when only metadata such as format, dimensions, bit depth, and frame count are needed."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.imaging.foss"
+      ],
+      "text": "Provides a unified .NET FOSS interface for probing formats that other libraries do not support, such as DICOM and EMF/WMF."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:target_framework",
+      "dependency:none"
+    ],
+    "text": "Aspose.Imaging.Foss is a zero-dependency .NET library for detecting image formats and reading basic header properties without decoding pixels."
+  },
+  "uncertainties": [
+    "Whether net8.0 is officially supported despite the target_framework fact only specifying netstandard2.0.",
+    "Exact list of all supported formats beyond those explicitly mentioned in the README.",
+    "Whether the library supports reading color space or ICC profile information from headers."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "name": "Build from source",
+      "text": "Clone the repository and build the project using dotnet build on the Aspose.Imaging.Foss.csproj file."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "name": "Run tests",
+      "text": "Execute tests located in the tests/ directory as part of the build process."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:ci"
+      ],
+      "name": "CI validation",
+      "text": "Continuous integration workflows defined in .github/workflows/ validate changes before merging."
+    }
+  ]
+}
