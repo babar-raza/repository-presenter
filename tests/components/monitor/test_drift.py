@@ -14,6 +14,7 @@ from typing import Any
 
 import pytest
 
+from repository_presenter.cli import main
 from repository_presenter.components.monitor.drift import (
     MAX_DRIFT_AGE,
     RepositoryDrift,
@@ -25,13 +26,18 @@ from repository_presenter.components.monitor.drift import (
 )
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.github.read_client import DefaultBranchRead
+from repository_presenter.core.registry.loader import (
+    REGISTRY_RELATIVE_PATH,
+    enabled_entries,
+    load_registry,
+)
 from repository_presenter.core.registry.models import Registry, RegistryEntry
 from repository_presenter.core.sealing_plan import (
     DRIFT_CONTRACT_VERSION,
     plan_sealing_run,
     read_drift_contract,
 )
-from support import FakeDefaultBranchReader, monitor_registry_entry, write_bundle
+from support import REPO_ROOT, FakeDefaultBranchReader, monitor_registry_entry, write_bundle
 
 TOKEN = "ghs_fixture_read_token_value_0123456789"
 BUNDLED = "1111111111111111111111111111111111111111"
@@ -286,3 +292,45 @@ def _plan_registry(*repositories: str) -> Registry:
         for index, repository in enumerate(repositories, start=1)
     ]
     return Registry.model_validate({"schema_version": 1, "entries": raw})
+
+
+def test_the_drift_contract_command_runs_through_the_real_parser_with_the_workflow_arguments(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The workflow's own argv, through the real argparse tree. Before the fix the subcommand had no
+    # --root, so main() raised AttributeError ('Namespace' object has no attribute 'root') and the
+    # plan job crashed before it could plan anything.
+    registry = load_registry(REPO_ROOT / REGISTRY_RELATIVE_PATH)
+    monitor = tmp_path / "monitor"
+    now = datetime.now(UTC).isoformat(timespec="seconds")
+    for owner in sorted({entry.owner for entry in enabled_entries(registry)}):
+        rows = [
+            RepositoryDrift(entry.repository, entry.mode, "CURRENT", None, "main", None, None)
+            for entry in enabled_entries(registry)
+            if entry.owner == owner
+        ]
+        write_drift_document(
+            drift_document(rows, observed_at=now, owner=owner), monitor / f"drift-{owner}.json"
+        )
+    out = tmp_path / "drift" / "drift.json"
+    monkeypatch.chdir(REPO_ROOT)
+
+    code = main(["monitor-drift-contract", str(monitor), "--out", str(out)])
+
+    assert code == 0
+    records = read_drift_contract(out)
+    assert {record.repository for record in records} == {
+        entry.repository for entry in enabled_entries(registry)
+    }
+
+
+def test_the_drift_contract_command_refuses_with_its_exit_code_when_evidence_is_absent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(REPO_ROOT)
+    out = tmp_path / "drift.json"
+
+    code = main(["monitor-drift-contract", str(tmp_path / "empty"), "--out", str(out)])
+
+    assert code == ConfigError.exit_code
+    assert not out.exists()

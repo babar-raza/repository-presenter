@@ -626,6 +626,7 @@ def build_parser() -> argparse.ArgumentParser:
     drift_contract_cmd.add_argument(
         "--out", type=Path, required=True, help="the sealing contract file to write"
     )
+    drift_contract_cmd.add_argument("--root", type=Path, default=None, help=root_help)
     file_cmd = subcommands.add_parser(
         "file-upstream-defects",
         help=(
