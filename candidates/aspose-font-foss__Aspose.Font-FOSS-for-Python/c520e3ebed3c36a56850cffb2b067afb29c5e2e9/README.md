@@ -1,0 +1,691 @@
+# Aspose.Font FOSS for Python
+
+![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
+
+[![Aspose.Font FOSS for Python](https://products.aspose.org/media/font/python/banner-readme.png)](https://products.aspose.org/font/python/)
+
+Aspose.Font FOSS for Python is a Python library that enables developers to open, inspect, subset, and convert variable and static OpenType fonts. It solves problems around font web optimization, variable font instantiation, and quality assurance by providing tools to build web font bundles, generate previews in `.png` and `.svg` formats, and produce HTML quality reports. The library is used by font engineers and web developers who need to prepare fonts for production use, inspect glyph-level changes across instances, and ensure compatibility between font variants. It supports reading `.ttf` files and writing `.png`, `.svg`, and `.html` outputs.
+
+## Navigation
+
+- [At a Glance](#at-a-glance)
+- [Key Capabilities](#key-capabilities)
+- [Installation](#installation)
+- [Dependencies](#dependencies)
+- [Quick Start](#quick-start)
+- [Additional Examples](#additional-examples)
+- [API Reference](#api-reference)
+- [Scope and Limitations](#scope-and-limitations)
+- [Development and Testing](#development-and-testing)
+- [License](#license)
+
+## At a Glance
+
+```mermaid
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing TTF file"]
+  end
+  PRODUCT["Aspose.Font FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Open and inspect multiple font formats"]
+      c2["Instantiate and customize variable fonts"]
+      c3["Subset fonts for web delivery"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Generate visual and machine-readable review assets"]
+      c5["Inspect variable-font interpolation and compatibility"]
+      c6["Support CLI and MCP automation"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["HTML, PNG, or SVG file"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs
+```
+
+## Key Capabilities
+
+- **Open and inspect multiple font formats.** Open `.ttf` variable fonts using `aspose_font.FontLoader.open` and inspect their axes, `named_instances`, and metrics through the `aspose_font.TtfFont` interface.
+- **Instantiate and customize variable fonts.** Instantiate specific variable font instances with `aspose_font.SmartInstancer.instantiate` and preview naming outcomes using `aspose_font.SmartInstancer.preview_naming_policy`.
+- **Subset fonts for web delivery.** Subset fonts for web delivery using `aspose_font.FontSubsetter.subset_for_web_with_coverage` with presets from `aspose_font.FontSubsetter.available_presets`.
+- **Generate visual and machine-readable review assets.** Generate visual previews in `.png` and `.svg` formats and machine-readable QA reports in `.html` using `aspose_font.FontQaReport.write_html`.
+- **Inspect variable-font interpolation and compatibility.** Inspect interpolation deltas and compatibility between variable font instances using `aspose_font.DeltaInspector.compare_variable_glyph` and `aspose_font.CompatibilityChecker.compare_variable_instances`.
+- **Support CLI and MCP automation.** Support command-line and MCP automation through `aspose_font.mcp.main`, `aspose_font.mcp.font_subset`, and `aspose_font.mcp.web_build` entry points.
+
+## Installation
+
+`aspose-font` is not yet published on PyPI; build it from a source checkout instead, verified against this revision:
+
+```bash
+git clone https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python.git
+cd Aspose.Font-FOSS-for-Python
+pip install .
+```
+
+The package declares `python_requires` as `>=3.10`.
+
+## Dependencies
+
+### Required Package Dependencies
+
+No required third-party package dependencies; in `pyproject.toml`, no `project.dependencies` is declared.
+
+### Optional Dependencies
+
+- `mcp>=1.0` (extra `mcp`)
+
+### Native and System Requirements
+
+- Requires Python 3.10 or later (`python_requires=">=3.10"` in `pyproject.toml`).
+
+### Development Dependencies
+
+- `build>=1.2` (extra `dev`)
+- `pytest>=7.4` (extra `dev`)
+- `ruff>=0.4` (extra `dev`)
+
+## Quick Start
+
+Build a web handoff package for Latin-covered variable font glyphs with a preview string.
+
+```python
+from aspose_font import FontLoader, WebFontBuilder
+
+font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")
+bundle = WebFontBuilder.build(
+    font,
+    presets=("latin",),
+    text="Aspose Web",
+    variable_mode="auto",
+    include_woff=False,
+)
+bundle.write_to("web-out")
+
+print(bundle.manifest["export_mode"])
+print(bundle.manifest["subset"]["coverage"]["covered_count"])
+```
+
+Generate QA evidence for the same variable font with Latin coverage and a named preview instance.
+
+```python
+from aspose_font import FontLoader, FontQaReporter
+
+font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")
+package = FontQaReporter.build_package(
+    font,
+    "qa-package",
+    presets=("latin",),
+    text="Aspose QA",
+    preview_instance_name="Bold",
+)
+
+print(package.json_path)
+print(package.html_path)
+print(package.preview_path)
+```
+
+## Additional Examples
+
+Aspose.Font FOSS for Python supports variable font workflows including family review, axis grid proof, delta inspection, and web package handoff.
+
+### Build web packages, QA reports, and compatibility checks
+
+```python
+from aspose_font import FontLoader, FontPreviewBuilder, FontQaReporter, WebFontBuilder
+from aspose_font import FontCleaner
+from aspose_font.subsetter import FontSubsetter
+
+font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")
+
+subset_result = FontSubsetter.subset_for_web_with_coverage(
+    font,
+    presets=("latin", "arabic"),
+    text="Aspose مرحبا",
+)
+print(subset_result.font.num_glyphs)
+print(subset_result.coverage.covered_count, subset_result.coverage.missing_codepoints)
+
+preview = FontPreviewBuilder.build(font, instance_name="Bold", text="Preview")
+preview.write_to("preview.png")
+
+svg_preview = FontPreviewBuilder.build(
+    font,
+    instance_name="Bold",
+    text="Preview",
+    output_format="svg",
+)
+svg_preview.write_to("preview.svg")
+
+instanced = font.smart_instancer.instantiate(
+    {"wght": "Bold", "wdth": "Condensed"},
+    naming_strategy="ribbi-safe",
+    family_suffix="Beta",
+)
+print(instanced.font_family, instanced.font_style, instanced.ttf_tables.name.get(17))
+
+menu_named = font.instantiate(
+    {"wght": 700, "wdth": 75},
+    naming_strategy="ribbi-safe",
+    legacy_family_name="Acme Sans Menu",
+    typographic_family_name="Acme Sans Pro",
+    stat_policy="static",
+)
+print(menu_named.ttf_tables.name.get(1), menu_named.ttf_tables.name.get(16))
+print("STAT" in menu_named.ttf_tables._raw)
+
+preview = font.preview_naming_policy(
+    {"wght": 700, "wdth": 75},
+    naming_strategy="ribbi-safe",
+    stat_policy="static",
+)
+print(preview.stat_diagnostics.generated_stat_axis_value_flags)
+
+cleaned = FontCleaner.clean_for_web(font)
+print("meta" in cleaned.ttf_tables._raw)
+
+compat = font.smart_instancer.check_compatibility(
+    before_instance_name="Regular",
+    after_instance_name="Condensed Bold",
+    text="Aspose",
+)
+print(compat.is_compatible, len(compat.issues))
+
+delta = font.smart_instancer.inspect_deltas(
+    instance_name="Bold",
+    codepoint=ord("A"),
+)
+print(delta.total_tuple_count, len(delta.active_tuples))
+
+text_compare = font.smart_instancer.compare_delta_text(
+    text="Aspose",
+    before_instance_name="Regular",
+    after_instance_name="Condensed Bold",
+)
+print(text_compare.moved_glyph_count, text_compare.comparable_glyph_count)
+
+qa_report = FontQaReporter.build(
+    font,
+    presets=("latin",),
+    text="Aspose QA",
+)
+qa_report.write_html("font-qa-report.html")
+
+bundle = font.smart_instancer.build_web_bundle(
+    instance_name="Bold",
+    family_suffix="Beta",
+    include_woff=False,
+    preview_text="Aspose Variable",
+)
+bundle.write_to("web-out")
+
+subset_bundle = WebFontBuilder.build(
+    font,
+    presets=("latin", "arabic"),
+    text="Aspose",
+    include_woff=False,
+)
+print(subset_bundle.manifest["export_mode"])
+print(subset_bundle.manifest["subset"]["coverage"]["missing_count"])
+
+live_bundle = WebFontBuilder.build(
+    font,
+    include_woff=False,
+    variable_mode="live",
+)
+print(live_bundle.manifest["requested_variable_mode"], live_bundle.manifest["export_mode"])
+
+static_stat_bundle = WebFontBuilder.build(
+    font,
+    include_woff=False,
+    variable_mode="static",
+    instance_name="Bold",
+    stat_policy="static",
+)
+print(static_stat_bundle.manifest["requested_stat_policy"])
+
+grid_package = font.smart_instancer.build_axis_grid_web_family_package(
+    "wght",
+    [400.0, 700.0],
+    family_name="Roboto Grid",
+    include_woff=False,
+    preview_text="Grid Family",
+    naming_strategy="preserve-family",
+)
+grid_package.write_to("web-grid-family")
+print(grid_package.manifest["bundles"][1]["review_label"])
+```
+
+<details>
+<summary>View Additional Examples</summary>
+
+### Build a family review board for multiple named instances
+
+```python
+from aspose_font import FontLoader
+
+font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")
+board = font.smart_instancer.build_family_review_board(
+    ["Bold", "Condensed Bold"],
+    include_default=True,
+    text="Aspose Variable",
+    family_name="Roboto Review",
+)
+board.write_to("roboto-family-review-board.png")
+```
+
+### Generate an axis grid proof sheet for a single axis
+
+```python
+from aspose_font import FontLoader
+
+font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")
+grid = font.smart_instancer.build_axis_grid_sheet(
+    "wght",
+    secondary_axis_tag="wdth",
+    use_axis_presets=True,
+    use_secondary_axis_presets=True,
+    text="Aspose Grid",
+    size=48,
+    file_stem="roboto-axis-grid",
+)
+grid.write_to("roboto-axis-grid.png")
+```
+
+### Inspect outline deltas between two named instances
+
+```python
+from aspose_font import FontLoader
+
+font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")
+report = font.smart_instancer.compare_delta_glyph(
+    codepoint=ord("A"),
+    before_instance_name="Regular",
+    after_instance_name="Condensed Bold",
+)
+print(report.is_comparable, report.moved_point_count)
+```
+
+### Inspect variable font structure and instance metadata
+
+```python
+from aspose_font import FontLoader
+
+font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")
+print(font.is_variable)
+print([axis.tag for axis in font.axes])
+print(len(font.named_instances))
+print(font.get_axis("wght").get_preset("Bold").value)
+print(font.smart_instancer.resolve({"wght": "Bold", "wdth": "Condensed"}).label)
+print(font.smart_instancer.suggest_axis_values("wght", include_bounds=True))
+print(font.get_axis("wght").name(("fr-CA", "en")))
+print(font.get_axis("wght").range_summary)
+print(font.get_named_instance("Condensed Bold").format_coordinates(font.variable_axes, include_tags=True))
+print(font.get_axis("wght").localized_labels(("pt-PT", "fr-CA")))
+print(font.variable_presentation(preferred_languages=("en",))["axes"][0]["range_summary"])
+print(font.variable_presentation(preferred_languages=("fr-CA", "en"))["axes"][0]["language_profiles"][0])
+```
+
+
+`WebFontBuilder` and the `web-build` CLI produce browser-ready files plus machine-readable evidence:
+
+```bash
+aspose-font preview-animation Roboto-VariableFont_wdth,wght.ttf sweep.png --axis wdth --start 75 --end 100 --bounce
+aspose-font preview-animation-path-showcase Roboto-VariableFont_wdth,wght.ttf story-showcase --state Regular --state "wght=700,wdth=75" --state Bold --preset showcase
+```
+
+The generated grid-family package links back to the demo-site direction: `family.html` shows
+coordinate labels like `wdth=100 wght=700`, while `family-manifest.json` exposes the same
+`review_label` and `instance_coordinates` fields for automation.
+
+</details>
+
+## API Reference
+
+Aspose.Font FOSS for Python provides core tools for working with variable fonts, with `aspose_font.FontLoader` as the primary entry point for loading font data and supporting classes like `aspose_font.SmartInstancer`, `aspose_font.FontSubsetter`, and `aspose_font.WebFontBuilder` handling downstream processing tasks.
+
+The verified public surface has 142 types.
+
+<details>
+<summary>View the Complete Public API Surface</summary>
+
+### Core API
+
+| Class | Description |
+| --- | --- |
+| `ActiveTupleSummary` | ActiveTupleSummary represents a summary of active variation tuples for a variable font axis. |
+| `AnimationAsset` | AnimationAsset encapsulates an asset used in font animation sequences. |
+| `AnimationFramePackage` | AnimationFramePackage groups animation frames for export or review purposes. |
+| `AnimationPreset` | AnimationPreset defines a reusable configuration for font animation effects. |
+| `AnimationPreviewBuilder` | AnimationPreviewBuilder constructs preview packages for font animation variations. |
+| `AnimationReviewPackage` | AnimationReviewPackage bundles animation assets for internal review workflows. |
+| `AnimationShowcasePackage` | AnimationShowcasePackage packages animation assets for presentation or demonstration. |
+| `AnimationStep` | AnimationStep represents a single step in a font animation sequence. |
+| `AxisRecord` | AxisRecord describes a single axis in a variable font's variation space. |
+| `CffFont` | CffFont represents a Compact Font Format font and provides access to its internal structures. |
+| `ClosePath` | ClosePath indicates the end of a contour in a glyph's outline path. |
+| `CompatibilityChecker` | CompatibilityChecker compares fonts or font instances to determine compatibility. |
+| `CompatibilityReport` | CompatibilityReport summarizes compatibility findings between fonts or instances. |
+| `CompositeComponentMovement` | CompositeComponentMovement describes movement of a component within a composite glyph. |
+| `CompositeGlyphComponent` | CompositeGlyphComponent represents a single component in a composite glyph definition. |
+| `CoverageGroup` | Coverage diagnostics for one request source such as a preset, text, or range. |
+| `CurveTo` | CurveTo defines a cubic Bézier curve segment in a glyph outline. |
+| `DeltaInspector` | DeltaInspector analyzes and compares variation deltas across glyphs or text. |
+| `DeltaPoint` | DeltaPoint represents a single point's variation delta in a glyph. |
+| `DeltaTupleReport` | DeltaTupleReport summarizes delta values for a specific variation tuple. |
+| `EotFont` | Embedded OpenType (EOT) wrapper over an inner TrueType/OpenType font. |
+| `FamilyReviewExportPackage` | FamilyReviewExportPackage bundles a font family for review and export workflows. |
+| `Font` | Font provides a unified interface for loading, inspecting, and working with font files. |
+| `FontCleaner` | Font metadata and technical table cleaner. |
+| `FontConversionException` | FontConversionException is raised when a font conversion operation fails. |
+| `FontEncoding` | FontEncoding describes the character encoding used by a font. |
+| `FontException` | FontException is the base class for font-related errors. |
+| `FontLoader` | FontLoader provides methods to load fonts from files or streams. |
+| `FontMetrics` | FontMetrics holds typographic metrics for a font, such as ascender and descender values. |
+| `FontNotSupportedException` | FontNotSupportedException is raised when a font format is not supported. |
+| `FontParseException` | FontParseException is raised when a font file cannot be parsed correctly. |
+| `FontPreviewBuilder` | FontPreviewBuilder generates preview images and packages for font inspection. |
+| `FontQaPackage` | Paths and report data for a self-contained QA report package. |
+| `FontQaReport` | Structured QA report with JSON and HTML writers. |
+| `FontQaReporter` | Build first-slice QA reports from existing public font APIs. |
+| `FontSourceInfo` | Describe the origin of loaded bytes. |
+| `FontSubsetter` | FontSubsetter creates optimized subsets of fonts for web or embedding use. |
+| `FvarTable` | FvarTable provides access to the font variation axis definitions in a font. |
+| `Glyph` | Glyph represents a single character glyph and its outline data. |
+| `GlyphAccessor` | GlyphAccessor provides indexed access to glyphs within a font. |
+| `GlyphCompatibilityIssue` | GlyphCompatibilityIssue describes a specific compatibility problem with a glyph. |
+| `GlyphDeltaComparisonReport` | GlyphDeltaComparisonReport compares variation deltas for a glyph across instances. |
+| `GlyphDeltaReport` | GlyphDeltaReport summarizes variation deltas for a single glyph. |
+| `GlyphId` | GlyphId uniquely identifies a glyph within a font. |
+| `GlyphInterpolationIssue` | GlyphInterpolationIssue describes a problem with glyph interpolation across instances. |
+| `GlyphLayout` | A single glyph positioned in world-space layout coordinates. |
+| `GlyphNotFoundException` | GlyphNotFoundException is raised when a requested glyph is missing from a font. |
+| `GlyphOutlineStats` | GlyphOutlineStats represents statistics about the outline of a glyph. |
+| `GlyphPath` | GlyphPath defines the vector path of a glyph using a sequence of path commands. |
+| `KernPair` | KernPair stores a pair of glyphs and their kerning adjustment value. |
+| `LanguageProfile` | LanguageProfile holds language-specific naming information for a font. |
+| `LineTo` | LineTo represents a straight line segment in a glyph path. |
+| `LoadedFont` | Friendly loader result that wraps a font plus source metadata. |
+| `LocalizationCoverage` | LocalizationCoverage indicates which languages are covered, requested, matched, or missing for a font. |
+| `LocalizationResolution` | LocalizationResolution describes how closely a font's language coverage matches a requested language. |
+| `MoveTo` | MoveTo defines the starting point of a new contour in a glyph path. |
+| `NamedInstance` | NamedInstance represents a named variation of a variable font defined in the font's name table. |
+| `NamingPolicyPreview` | Dry-run result for generated static-instance name records. |
+| `PathCommand` | PathCommand is the base type for individual drawing operations in a glyph path. |
+| `PlatformNamingDiagnostics` | PlatformNamingDiagnostics provides diagnostic information about naming support across platforms. |
+| `PreviewImage` | PreviewImage holds an image used for font preview purposes. |
+| `QuadraticTo` | QuadraticTo represents a quadratic Bézier curve segment in a glyph path. |
+| `Rasterizer` | Scanline rasterizer for GlyphPath outlines with pure-Python PNG export. |
+| `RequestedLanguageHint` | RequestedLanguageHint indicates which language a client requested for font localization. |
+| `ResolvedInstance` | ResolvedInstance represents a specific instance of a variable font after coordinate resolution. |
+| `SmartInstancer` | SmartInstancer provides tools to resolve, inspect, and generate previews for variable font instances. |
+| `StatNamingDiagnostics` | StatNamingDiagnostics provides diagnostic information about STAT table naming support. |
+| `SubsetCoverage` | Aggregate Unicode coverage diagnostics for a subsetting request. |
+| `SubsetResult` | Subsetting output bundled with the coverage report used to produce it. |
+| `TextDeltaComparisonReport` | TextDeltaComparisonReport summarizes differences between two text rendering outputs. |
+| `TextDeltaReport` | TextDeltaReport summarizes which glyphs are active, supported, or missing in a text rendering. |
+| `TextLayout` | Result of a TextRenderer.layout() call. |
+| `TextRenderer` | Lays out text using a font's glyph metrics and optional kern pairs. |
+| `TtfFont` | TtfFont represents a TrueType font file and provides access to its tables and metadata. |
+| `TupleScalarDelta` | TupleScalarDelta represents a scalar variation delta for a single tuple in a variable font. |
+| `Type1Font` | Type1Font represents a font file that follows the Type 1 format specification. |
+| `UnsupportedFontFormatException` | UnsupportedFontFormatException is raised when a font file format is not supported. |
+| `VariableAxis` | VariableAxis describes a variation axis of a variable font, such as weight or width. |
+| `VariableAxisPreset` | VariableAxisPreset defines standard variation axes with default labels and ranges. |
+| `VariableInstance` | VariableInstance represents a specific point in the variation space of a variable font. |
+| `WebFontAsset` | WebFontAsset represents a single web font file and its associated metadata. |
+| `WebFontBuilder` | WebFontBuilder provides methods to construct and optimize web font packages. |
+| `WebFontBundle` | WebFontBundle groups web font assets for a single font family and style. |
+| `WebFontFamilyPackage` | WebFontFamilyPackage bundles all web font assets for a complete font family. |
+| `WebFontOptimizer` | WebFontOptimizer provides tools to reduce web font file sizes and improve loading. |
+| `WebFontOptimizerPackage` | WebFontOptimizerPackage holds configuration and results for web font optimization. |
+| `Woff2Font` | Woff2Font represents a WOFF2 compressed web font file. |
+| `WoffFont` | WoffFont represents a WOFF compressed web font file. |
+| `CffCharset` | CffCharset defines the character set mapping for a Compact Font Format table. |
+| `CffDict` | CffDict holds dictionary entries for a Compact Font Format table. |
+| `CffEncoding` | CffEncoding defines how glyphs are encoded in a Compact Font Format table. |
+| `CffIndex` | CffIndex provides indexed access to data within a Compact Font Format table. |
+| `PrivateDict` | PrivateDict stores private dictionary entries for a Compact Font Format table. |
+| `TopDict` | TopDict holds the top-level dictionary entries for a Compact Font Format table. |
+| `Type2Interpreter` | Interprets Type 2 charstrings into GlyphPath commands. |
+| `PrivateDictOp` | PrivateDictOp represents an operator in the CFF Private Dictionary used during font parsing and serialization. |
+| `TopDictOp` | TopDictOp represents an operator in the CFF Top Dictionary used during font parsing and serialization. |
+| `CurveAdapter` | CurveAdapter provides utilities to convert between cubic and quadratic Bézier curve representations in font outlines. |
+| `FontConverter` | FontConverter enables conversion of font data between different font formats supported by Aspose.Font FOSS for Python. |
+| `EotHeader` | EotHeader encapsulates the header structure of an Embedded OpenType font file. |
+| `CompletedTaskRecord` | CompletedTaskRecord holds metadata about a task that has finished processing in the reporting system. |
+| `TaskCompletionReceipt` | TaskCompletionReceipt provides a formal acknowledgment that a task has been completed successfully. |
+| `TaskTokenEstimate` | TaskTokenEstimate supplies an estimated token count required to process a given font task. |
+| `CffSerializer` | CffSerializer writes Compact Font Format data to a byte stream according to the CFF specification. |
+| `EotSerializer` | EotSerializer writes Embedded OpenType font data to a byte stream according to the EOT specification. |
+| `TtfSerializer` | TtfSerializer writes TrueType font data to a byte stream according to the TrueType specification. |
+| `Type1Serializer` | Type1Serializer writes font data to either PFA or PFB format. |
+| `TtfTableSet` | TtfTableSet provides access to the raw table data of a TrueType font file. |
+| `TtcFaceRecord` | TtcFaceRecord describes a single font face within a TrueType Collection file. |
+| `TtfGlyphParser` | TtfGlyphParser reads and interprets glyph outline data from a TrueType font file. |
+| `TtfInstancer` | TtfInstancer generates a static instance from a variable font by applying specified axis values. |
+| `CmapTable` | CmapTable manages the character code to glyph index mapping table in a TrueType font. |
+| `GlyfTable` | GlyfTable stores and provides access to the glyph outline data in a TrueType font. |
+| `HMetric` | HMetric holds horizontal metrics for a single glyph in a TrueType font. |
+| `HeadTable` | HeadTable contains global information about the TrueType font file. |
+| `HheaTable` | HheaTable provides horizontal header metrics for a TrueType font. |
+| `HmtxTable` | HmtxTable stores horizontal metrics for all glyphs in a TrueType font. |
+| `HvarTable` | HvarTable manages horizontal variation data for variable fonts. |
+| `KernTable` | KernTable stores kerning pair adjustments for a TrueType font. |
+| `LocaTable` | LocaTable provides offsets to glyph data locations within the glyf table of a TrueType font. |
+| `MaxpTable` | MaxpTable contains maximum profile information for a TrueType font. |
+| `NameTable` | NameTable stores human-readable names and metadata for a TrueType font. |
+| `Os2Table` | Os2Table contains Windows-specific font metrics and properties. |
+| `PostTable` | PostTable stores glyph naming and metric information for a TrueType font. |
+| `AvarAxisMap` | AvarAxisMap defines axis variation mapping curves for a variable font. |
+| `AvarTable` | AvarTable manages axis variation mapping data for a variable font. |
+| `CmapSubtable` | CmapSubtable represents a single subtable within the character mapping table of a TrueType font. |
+| `GvarTable` | GvarTable stores glyph variation data for variable fonts. |
+| `TupleVariation` | TupleVariation describes a single variation tuple within a glyph variation data record. |
+| `DeltaSetIndex` | DeltaSetIndex encodes a reference to a set of variation deltas in an HVAR table. |
+| `DeltaSetIndexMap` | DeltaSetIndexMap maps glyph indices to delta set indices in an HVAR table. |
+| `ItemVariationData` | ItemVariationData holds a set of variation deltas for a subset of items in an HVAR table. |
+| `ItemVariationStore` | ItemVariationStore organizes variation data for items in an HVAR table. |
+| `VariationRegion` | VariationRegion defines a region in variation space for an HVAR table. |
+| `VariationRegionAxis` | VariationRegionAxis describes a single axis range within a variation region for an HVAR table. |
+| `NameRecord` | Represents a name record in a TrueType name table, storing typographic name information such as font family and subfamily names with platform and encoding details. |
+| `AfmData` | Encapsulates metrics and metadata for a Type 1 font extracted from an AFM file, including glyph metrics, kerning pairs, and font-wide information. |
+| `AfmGlyphMetric` | Describes the bounding box, advance width, and other metrics for a single glyph in a Type 1 font's AFM data. |
+| `PfbSegment` | Represents a segment of a Type 1 font's PFB file, containing either ASCII or binary encoded font data. |
+| `Type1FontData` | Holds the complete data for a Type 1 font, including metrics from AFM and binary data from PFB, enabling font inspection and conversion. |
+| `Type1Interpreter` | Processes Type 1 font program data to reconstruct font outlines and metrics from encoded glyph descriptions. |
+
+#### Enumerations
+
+| Enumeration | Description |
+| --- | --- |
+| `FontType` | FontType enumerates the supported font formats, such as TrueType and OpenType. |
+
+#### Detailed Member Reference
+
+### FontLoader
+
+The `aspose_font.FontLoader` class enables loading font data from files or streams using its open and load methods, which parse font files and expose their structure for further processing.
+
+- `load`: Load a font and keep friendly metadata about where it came from.
+- `open`: Load a font from a file path, raw bytes, or stream.
+
+### SmartInstancer
+
+The `aspose_font.SmartInstancer` class provides methods to instantiate specific variable font instances, check compatibility between fonts, and resolve axis coordinates to named instances or custom values.
+
+- `axes`: Defined as `def axes(self)`.
+- `build_axis_grid_previews`: Defined as `def build_axis_grid_previews(self, axis_tag: str, values: list[float] / tuple[float, ...]=(), *, secondary_axis_tag: str / None=None, secondary_values: list[float] / tuple[float, ...]=(), coordinates: dict[str, float] / None=None, instance_name: str / None=None, use_axis_presets: bool=False, use_secondary_axis_presets: bool=False, include_default: bool=True, include_bounds: bool=False, text: str='Hamburgefons 0123456789', size: float=72.0, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int=12, antialias: bool=True, output_format: str='png') -> list[tuple[ResolvedInstance, PreviewImage]]`.
+- `build_axis_grid_sheet`: Defined as `def build_axis_grid_sheet(self, axis_tag: str, values: list[float] / tuple[float, ...]=(), *, secondary_axis_tag: str / None=None, secondary_values: list[float] / tuple[float, ...]=(), coordinates: dict[str, float] / None=None, instance_name: str / None=None, use_axis_presets: bool=False, use_secondary_axis_presets: bool=False, include_default: bool=True, include_bounds: bool=False, text: str='Hamburgefons 0123456789', size: float=72.0, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int=12, antialias: bool=True, gap: int=16, file_stem: str='preview-grid-sheet') -> PreviewImage`.
+- `build_axis_grid_web_bundles`: Defined as `def build_axis_grid_web_bundles(self, axis_tag: str, values: list[float / str] / tuple[float / str, ...]=(), *, secondary_axis_tag: str / None=None, secondary_values: list[float / str] / tuple[float / str, ...]=(), coordinates: dict[str, float / str] / None=None, instance_name: str / None=None, use_axis_presets: bool=False, use_secondary_axis_presets: bool=False, include_default: bool=True, include_bounds: bool=False, **kwargs) -> list[tuple[ResolvedInstance, WebFontBundle]]`.
+- `build_axis_grid_web_family_package`: Defined as `def build_axis_grid_web_family_package(self, axis_tag: str, values: list[float / str] / tuple[float / str, ...], *, secondary_axis_tag: str / None=None, secondary_values: list[float / str] / tuple[float / str, ...]=(), coordinates: dict[str, float / str] / None=None, instance_name: str / None=None, family_name: str / None=None, **kwargs) -> WebFontFamilyPackage`.
+- `build_comparison_sheet`: Defined as `def build_comparison_sheet(self, *, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, text: str='Hamburgefons 0123456789', size: float=72.0, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int=12, antialias: bool=True, gap: int=16, file_stem: str='preview-compare-sheet') -> PreviewImage`.
+- `build_delta_comparison_sheet`: Defined as `def build_delta_comparison_sheet(self, *, glyph_id: int / None=None, codepoint: int / None=None, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, top_points: int=8, panel_size: int=220, file_stem: str='delta-compare-sheet') -> PreviewImage`.
+- `build_delta_sheet`: Defined as `def build_delta_sheet(self, *, glyph_id: int / None=None, codepoint: int / None=None, coordinates: dict[str, float] / None=None, instance_name: str / None=None, top_points: int=8, panel_size: int=220, file_stem: str='delta-sheet') -> PreviewImage`.
+- `build_delta_text_comparison_sheet`: Defined as `def build_delta_text_comparison_sheet(self, *, text: str, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, top_points: int=8, panel_size: int=220, columns: int=3, file_stem: str='delta-text-compare-sheet') -> PreviewImage`.
+- `build_delta_text_sheet`: Defined as `def build_delta_text_sheet(self, *, text: str, coordinates: dict[str, float] / None=None, instance_name: str / None=None, top_points: int=8, panel_size: int=220, columns: int=3, file_stem: str='delta-text-sheet') -> PreviewImage`.
+- `build_family_review_board`: Defined as `def build_family_review_board(self, names: list[str] / tuple[str, ...] / None=None, *, include_default: bool=False, text: str='Hamburgefons 0123456789', family_name: str / None=None, file_stem: str='family-review-board') -> PreviewImage`.
+- `build_family_review_export_package`: Defined as `def build_family_review_export_package(self, names: list[str] / tuple[str, ...] / None=None, *, include_default: bool=False, text: str='Hamburgefons 0123456789', family_name: str / None=None, file_stem: str='family-review-board') -> FamilyReviewExportPackage`.
+- `build_matrix_sheet`: Defined as `def build_matrix_sheet(self, names: list[str] / tuple[str, ...] / None=None, *, include_default: bool=False, text: str='Hamburgefons 0123456789', file_stem: str='family-matrix') -> PreviewImage`.
+- `build_preview`: Defined as `def build_preview(self, coordinates: dict[str, float / str] / None=None, *, instance_name: str / None=None, output_format: str='png', **axis_values: float / str) -> PreviewImage`.
+- `build_previews`: Defined as `def build_previews(self, names: list[str] / tuple[str, ...] / None=None, *, include_default: bool=False, text: str='Hamburgefons 0123456789', size: float=72.0, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int=12, antialias: bool=True, output_format: str='png') -> list[tuple[ResolvedInstance, PreviewImage]]`.
+- `build_waterfall_sheet`: Defined as `def build_waterfall_sheet(self, names: list[str] / tuple[str, ...] / None=None, *, include_default: bool=False, text: str='Hamburgefons 0123456789', file_stem: str='family-waterfall') -> PreviewImage`.
+- `build_web_bundle`: Defined as `def build_web_bundle(self, coordinates: dict[str, float] / None=None, *, instance_name: str / None=None, **kwargs) -> WebFontBundle`.
+- `build_web_bundles`: Defined as `def build_web_bundles(self, names: list[str] / tuple[str, ...] / None=None, *, include_default: bool=False, **kwargs) -> list[tuple[ResolvedInstance, WebFontBundle]]`.
+- `build_web_family_package`: Defined as `def build_web_family_package(self, names: list[str] / tuple[str, ...] / None=None, *, include_default: bool=False, family_name: str / None=None, **kwargs) -> WebFontFamilyPackage`.
+- `check_compatibility`: Defined as `def check_compatibility(self, *, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, codepoints: list[int] / tuple[int, ...] / None=None, text: str='') -> CompatibilityReport`.
+- `compare_delta_glyph`: Defined as `def compare_delta_glyph(self, *, glyph_id: int / None=None, codepoint: int / None=None, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, top_points: int=8) -> GlyphDeltaComparisonReport`.
+- `compare_delta_text`: Defined as `def compare_delta_text(self, *, text: str, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, top_points: int=8) -> TextDeltaComparisonReport`.
+- `default_coordinates`: Defined as `def default_coordinates(self) -> dict[str, float]`.
+- `font`: Defined as `def font(self) -> 'TtfFont'`.
+- `inspect_delta_text`: Defined as `def inspect_delta_text(self, *, text: str, coordinates: dict[str, float] / None=None, instance_name: str / None=None, top_points: int=8) -> TextDeltaReport`.
+- `inspect_deltas`: Defined as `def inspect_deltas(self, *, glyph_id: int / None=None, codepoint: int / None=None, coordinates: dict[str, float] / None=None, instance_name: str / None=None, top_points: int=8) -> GlyphDeltaReport`.
+- `instantiate`: Defined as `def instantiate(self, coordinates: dict[str, float / str] / None=None, *, instance_name: str / None=None, naming_strategy: str='instance-family', family_suffix: str / None=None, legacy_family_name: str / None=None, typographic_family_name: str / None=None, legacy_style_name: str / None=None, typographic_style_name: str / None=None, stat_policy: str='drop', **axis_values: float / str) -> 'TtfFont'`.
+- `instantiate_many`: Defined as `def instantiate_many(self, names: list[str] / tuple[str, ...] / None=None, *, include_default: bool=False, naming_strategy: str='instance-family', family_suffix: str / None=None, legacy_family_name: str / None=None, typographic_family_name: str / None=None, legacy_style_name: str / None=None, typographic_style_name: str / None=None, stat_policy: str='drop') -> list[tuple[ResolvedInstance, 'TtfFont']]`.
+- `instantiate_named`: Defined as `def instantiate_named(self, name: str, *, coordinates: dict[str, float / str] / None=None, naming_strategy: str='instance-family', family_suffix: str / None=None, legacy_family_name: str / None=None, typographic_family_name: str / None=None, legacy_style_name: str / None=None, typographic_style_name: str / None=None, stat_policy: str='drop', **axis_values: float / str) -> 'TtfFont'`.
+- `named_instances`: Defined as `def named_instances(self)`.
+- `preview_naming_policy`: Defined as `def preview_naming_policy(self, coordinates: dict[str, float / str] / None=None, *, instance_name: str / None=None, naming_strategy: str='instance-family', family_suffix: str / None=None, legacy_family_name: str / None=None, typographic_family_name: str / None=None, legacy_style_name: str / None=None, typographic_style_name: str / None=None, stat_policy: str='drop', **axis_values: float / str)`.
+- `resolve`: Defined as `def resolve(self, coordinates: dict[str, float / str] / None=None, *, instance_name: str / None=None, **axis_values: float / str) -> ResolvedInstance`.
+- `resolve_axis_grid`: Defined as `def resolve_axis_grid(self, axis_tag: str, values: list[float / str] / tuple[float / str, ...]=(), *, secondary_axis_tag: str / None=None, secondary_values: list[float / str] / tuple[float / str, ...]=(), coordinates: dict[str, float / str] / None=None, instance_name: str / None=None, use_axis_presets: bool=False, use_secondary_axis_presets: bool=False, include_default: bool=True, include_bounds: bool=False) -> list[ResolvedInstance]`.
+- `resolve_named_many`: Defined as `def resolve_named_many(self, names: list[str] / tuple[str, ...] / None=None, *, include_default: bool=False) -> list[ResolvedInstance]`.
+- `suggest_axis_values`: Defined as `def suggest_axis_values(self, axis_tag: str, *, include_default: bool=True, include_bounds: bool=False) -> list[float]`.
+
+### FontSubsetter
+
+The `aspose_font.FontSubsetter` class supports web font optimization by allowing subsetting with coverage analysis and applying predefined presets via its `available_presets` and `subset_for_web_with_coverage` methods.
+
+- `analyze_coverage`: Report which requested Unicode codepoints the font can encode.
+- `analyze_web_coverage`: Report coverage for combined preset, text, codepoint, and range inputs.
+- `available_presets`: Defined as `def available_presets() -> tuple[str, ...]`.
+- `resolve_codepoints`: Defined as `def resolve_codepoints(cls, *, presets: str / Iterable[str]=(), text: str='', codepoints: Iterable[int]=(), ranges: Iterable[tuple[int, int] / range]=()) -> set[int]`.
+- `subset`: Defined as `def subset(cls, font: Font, codepoints: set[int]) -> Font`.
+- `subset_by_gids`: Defined as `def subset_by_gids(cls, font: Font, gids: set[int]) -> Font`.
+- `subset_by_presets`: Defined as `def subset_by_presets(cls, font: Font, presets: str / Iterable[str]) -> Font`.
+- `subset_by_text`: Defined as `def subset_by_text(cls, font: Font, text: str) -> Font`.
+- `subset_for_web`: Defined as `def subset_for_web(cls, font: Font, *, presets: str / Iterable[str]=(), text: str='', codepoints: Iterable[int]=(), ranges: Iterable[tuple[int, int] / range]=()) -> Font`.
+- `subset_for_web_with_coverage`: Subset from web selection inputs and include grouped coverage diagnostics.
+- `subset_with_coverage`: Subset by codepoints and return both the new font and coverage diagnostics.
+
+### WebFontBuilder
+
+The `aspose_font.WebFontBuilder` class builds web-ready font packages using its build method, which generates optimized assets for browser delivery.
+
+- `build`: Defined as `def build(cls, font: Font, *, file_stem: str / None=None, include_woff: bool=True, font_display: str='swap', preview_text: str=_DEFAULT_PREVIEW_TEXT, instance_coordinates: dict[str, float] / None=None, instance_name: str / None=None, presets: str / Iterable[str]=(), text: str='', codepoints: Iterable[int]=(), ranges: Iterable[tuple[int, int] / range]=(), specimen_template: str='classic', variable_mode: str='auto', naming_strategy: str='instance-family', family_suffix: str / None=None, legacy_family_name: str / None=None, typographic_family_name: str / None=None, legacy_style_name: str / None=None, typographic_style_name: str / None=None, stat_policy: str='drop') -> WebFontBundle`.
+- `build_family_matrix_preview`: Defined as `def build_family_matrix_preview(cls, bundles: list[WebFontBundle], *, preview_text: str=_DEFAULT_PREVIEW_TEXT, file_stem: str='family-matrix') -> PreviewImage`.
+- `build_family_package`: Defined as `def build_family_package(cls, bundles: list[WebFontBundle], *, family_name: str / None=None, css_filename: str='family.css', html_filename: str='family.html', preview_text: str=_DEFAULT_PREVIEW_TEXT, specimen_template: str='classic') -> WebFontFamilyPackage`.
+- `build_family_review_board`: Defined as `def build_family_review_board(cls, bundles: list[WebFontBundle], *, family_name: str / None=None, preview_text: str=_DEFAULT_PREVIEW_TEXT, file_stem: str='family-review-board') -> PreviewImage`.
+- `build_family_review_export_package`: Defined as `def build_family_review_export_package(cls, bundles: list[WebFontBundle], *, family_name: str / None=None, preview_text: str=_DEFAULT_PREVIEW_TEXT, file_stem: str='family-review-board') -> FamilyReviewExportPackage`.
+- `build_family_waterfall_preview`: Defined as `def build_family_waterfall_preview(cls, bundles: list[WebFontBundle], *, preview_text: str=_DEFAULT_PREVIEW_TEXT, file_stem: str='family-waterfall') -> PreviewImage`.
+
+### FontQaReporter
+
+The `aspose_font.FontQaReporter` class generates quality assurance reports and packages using its build and `build_package` methods to validate font correctness and consistency.
+
+- `build`: Defined as `def build(cls, font: Font, *, source_label: str / None=None, presets: Iterable[str]=(), text: str='', codepoints: Iterable[int]=(), ranges: Iterable[tuple[int, int] / range]=(), preferred_languages: str / tuple[str, ...]='en') -> FontQaReport`.
+- `build_package`: Defined as `def build_package(cls, font: Font, output_dir: str / Path, *, source_label: str / None=None, presets: Iterable[str]=(), text: str='', codepoints: Iterable[int]=(), ranges: Iterable[tuple[int, int] / range]=(), preferred_languages: str / tuple[str, ...]='en', preview_text: str / None=None, preview_instance_name: str / None=None) -> FontQaPackage`.
+
+### DeltaInspector
+
+The `aspose_font.DeltaInspector` class compares variable font glyphs and inspects deltas using `compare_variable_glyph` and `inspect_variable_glyph` to detect rendering inconsistencies.
+
+- `build_delta_comparison_sheet`: Defined as `def build_delta_comparison_sheet(cls, font, *, glyph_id: int / None=None, codepoint: int / None=None, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, top_points: int=8, panel_size: int=220, file_stem: str='delta-compare-sheet') -> PreviewImage`.
+- `build_delta_sheet`: Defined as `def build_delta_sheet(cls, font, *, glyph_id: int / None=None, codepoint: int / None=None, coordinates: dict[str, float] / None=None, instance_name: str / None=None, top_points: int=8, panel_size: int=220, file_stem: str='delta-sheet') -> PreviewImage`.
+- `build_delta_text_comparison_sheet`: Defined as `def build_delta_text_comparison_sheet(cls, font, *, text: str, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, top_points: int=8, panel_size: int=220, columns: int=3, file_stem: str='delta-text-compare-sheet') -> PreviewImage`.
+- `build_delta_text_sheet`: Defined as `def build_delta_text_sheet(cls, font, *, text: str, coordinates: dict[str, float] / None=None, instance_name: str / None=None, top_points: int=8, panel_size: int=220, columns: int=3, file_stem: str='delta-text-sheet') -> PreviewImage`.
+- `compare_variable_glyph`: Defined as `def compare_variable_glyph(cls, font, *, glyph_id: int / None=None, codepoint: int / None=None, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, top_points: int=8) -> GlyphDeltaComparisonReport`.
+- `compare_variable_text`: Defined as `def compare_variable_text(cls, font, *, text: str, before_coordinates: dict[str, float] / None=None, after_coordinates: dict[str, float] / None=None, before_instance_name: str / None=None, after_instance_name: str / None=None, top_points: int=8) -> TextDeltaComparisonReport`.
+- `inspect_variable_glyph`: Defined as `def inspect_variable_glyph(cls, font, *, glyph_id: int / None=None, codepoint: int / None=None, coordinates: dict[str, float] / None=None, instance_name: str / None=None, top_points: int=8) -> GlyphDeltaReport`.
+- `inspect_variable_text`: Defined as `def inspect_variable_text(cls, font, *, text: str, coordinates: dict[str, float] / None=None, instance_name: str / None=None, top_points: int=8) -> TextDeltaReport`.
+
+### AnimationPreviewBuilder
+
+The `aspose_font.AnimationPreviewBuilder` class creates animated previews of variable fonts using `build_axis_sweep` and `build_path` to visualize axis interactions.
+
+- `available_presets`: Defined as `def available_presets(cls) -> tuple[str, ...]`.
+- `build_axis_sweep`: Defined as `def build_axis_sweep(cls, font: Font, axis_tag: str, start_val: float, end_val: float, *, text: str=_DEFAULT_PREVIEW_TEXT, frames: int / None=None, fps: int / None=None, bounce: bool / None=None, size: float / None=None, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int / None=None, antialias: bool=True, preset: str='standard', file_stem: str / None=None, instance_name: str / None=None, base_coordinates: Mapping[str, float / str] / None=None, easing: str='linear', caption_mode: str='labels') -> AnimationAsset`.
+- `build_axis_sweep_package`: Defined as `def build_axis_sweep_package(cls, font: Font, axis_tag: str, start_val: float, end_val: float, **kwargs) -> AnimationFramePackage`.
+- `build_named_instance_path`: Defined as `def build_named_instance_path(cls, font: Font, instance_names: Iterable[str], *, text: str=_DEFAULT_PREVIEW_TEXT, frames_per_segment: int / None=None, hold_frames: int=0, fps: int / None=None, bounce: bool / None=None, size: float / None=None, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int / None=None, antialias: bool=True, preset: str='standard', file_stem: str / None=None, easing: str='linear', caption_mode: str='labels') -> AnimationAsset`.
+- `build_path`: Defined as `def build_path(cls, font: Font, steps: Iterable[AnimationStep / Mapping[str, float / str]], *, text: str=_DEFAULT_PREVIEW_TEXT, frames_per_segment: int / None=None, hold_frames: int=0, fps: int / None=None, bounce: bool / None=None, size: float / None=None, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int / None=None, antialias: bool=True, preset: str='standard', file_stem: str / None=None, easing: str='linear', caption_mode: str='labels') -> AnimationAsset`.
+- `build_path_package`: Defined as `def build_path_package(cls, font: Font, steps: Iterable[AnimationStep / Mapping[str, float / str]], *, text: str=_DEFAULT_PREVIEW_TEXT, frames_per_segment: int / None=None, hold_frames: int=0, fps: int / None=None, bounce: bool / None=None, size: float / None=None, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int / None=None, antialias: bool=True, preset: str='standard', file_stem: str / None=None, easing: str='linear', caption_mode: str='labels') -> AnimationFramePackage`.
+- `build_path_review_package`: Defined as `def build_path_review_package(cls, font: Font, steps: Iterable[AnimationStep / Mapping[str, float / str]], *, text: str=_DEFAULT_PREVIEW_TEXT, frames_per_segment: int / None=None, hold_frames: int=0, fps: int / None=None, bounce: bool / None=None, size: float / None=None, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int / None=None, antialias: bool=True, preset: str='standard', file_stem: str / None=None, easing: str='linear', caption_mode: str='labels') -> AnimationReviewPackage`.
+- `build_path_showcase_package`: Defined as `def build_path_showcase_package(cls, font: Font, steps: Iterable[AnimationStep / Mapping[str, float / str]], *, text: str=_DEFAULT_PREVIEW_TEXT, frames_per_segment: int / None=None, hold_frames: int=0, fps: int / None=None, bounce: bool / None=None, size: float / None=None, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int / None=None, antialias: bool=True, preset: str='standard', file_stem: str / None=None, easing: str='linear', caption_mode: str='labels') -> AnimationShowcasePackage`.
+
+### main
+
+The `aspose_font.mcp.main` entry point orchestrates command-line operations including font subsetting and web builds via its `font_subset` and `web_build` subcommands.
+
+### FontPreviewBuilder
+
+The `aspose_font.FontPreviewBuilder` class generates static font previews using its build method to produce visual samples for review and documentation.
+
+- `build`: Defined as `def build(cls, font: Font, *, text: str=_DEFAULT_PREVIEW_TEXT, size: float=72.0, color: tuple[int, int, int]=(17, 17, 17), background: tuple[int, int, int]=(255, 253, 248), padding: int=12, antialias: bool=True, file_stem: str / None=None, instance_coordinates: dict[str, float] / None=None, instance_name: str / None=None, output_format: str='png') -> PreviewImage`.
+- `compose_difference_preview`: Defined as `def compose_difference_preview(before: PreviewImage, after: PreviewImage, *, file_stem: str='preview-diff', background: tuple[int, int, int]=(255, 253, 248), before_color: tuple[int, int, int]=(198, 109, 42), after_color: tuple[int, int, int]=(71, 126, 199), overlap_color: tuple[int, int, int]=(126, 94, 156), threshold: int=8) -> PreviewImage`.
+- `compose_overlay_preview`: Defined as `def compose_overlay_preview(before: PreviewImage, after: PreviewImage, *, file_stem: str='preview-overlay', background: tuple[int, int, int]=(255, 253, 248), before_color: tuple[int, int, int]=(198, 109, 42), after_color: tuple[int, int, int]=(71, 126, 199), overlap_color: tuple[int, int, int]=(126, 94, 156), threshold: int=8) -> PreviewImage`.
+- `compose_sheet`: Defined as `def compose_sheet(previews: list[PreviewImage], *, columns: int, gap: int=16, background: tuple[int, int, int]=(255, 253, 248), title: str / None=None, column_headers: list[str] / None=None, row_headers: list[str] / None=None, labels: list[str] / None=None, footer_lines: list[str] / None=None, label_color: tuple[int, int, int]=_BOARD_LABEL, file_stem: str='preview-sheet') -> PreviewImage`.
+
+### FontCleaner
+
+The `aspose_font.FontCleaner` class prepares fonts for web use by removing unnecessary table data with its `clean_for_web` method.
+
+- `clean_for_web`: Produce a cleaned font appropriate for web or distribution output.
+
+### TtfFont
+
+The `aspose_font.TtfFont` class represents a TrueType font and exposes its variable axes, named instances, and smart instancer instance through its axes, `named_instances`, and `smart_instancer` members.
+
+- `available_naming_strategies`: Defined as `def available_naming_strategies() -> tuple[str, ...]`.
+- `axes`: Defined as `def axes(self) -> 'list[AxisRecord]'`.
+- `cff_font`: Defined as `def cff_font(self)`.
+- `encoding`: Defined as `def encoding(self) -> FontEncoding`.
+- `font_family`: Defined as `def font_family(self) -> str`.
+- `font_name`: Defined as `def font_name(self) -> str`.
+- `font_style`: Defined as `def font_style(self) -> str`.
+- `font_type`: Defined as `def font_type(self) -> FontType`.
+- `fvar`: Lazily parse and return the FVAR table, or None if not a variable font.
+- `get_axis`: Defined as `def get_axis(self, tag: str) -> VariableAxis / None`.
+- `get_kern_pairs`: Defined as `def get_kern_pairs(self) -> list[KernPair]`.
+- `get_named_instance`: Defined as `def get_named_instance(self, name: str, *, preferred_languages: str / tuple[str, ...]='en') -> VariableInstance / None`.
+- `get_table_bytes`: Defined as `def get_table_bytes(self, tag: str) -> bytes`.
+- `glyph_accessor`: Defined as `def glyph_accessor(self) -> GlyphAccessor`.
+- `hvar`: Defined as `def hvar(self) -> 'HvarTable / None'`.
+- `instantiate`: Defined as `def instantiate(self, coordinates: dict[str, float], *, naming_strategy: str='instance-family', family_suffix: str / None=None, legacy_family_name: str / None=None, typographic_family_name: str / None=None, legacy_style_name: str / None=None, typographic_style_name: str / None=None, stat_policy: str='drop') -> 'TtfFont'`.
+- `is_variable`: Defined as `def is_variable(self) -> bool`.
+- `metrics`: Defined as `def metrics(self) -> FontMetrics`.
+- `named_instances`: Defined as `def named_instances(self) -> 'list[NamedInstance]'`.
+- `num_glyphs`: Defined as `def num_glyphs(self) -> int`.
+- `preview_naming_policy`: Defined as `def preview_naming_policy(self, coordinates: dict[str, float], *, naming_strategy: str='instance-family', family_suffix: str / None=None, legacy_family_name: str / None=None, typographic_family_name: str / None=None, legacy_style_name: str / None=None, typographic_style_name: str / None=None, stat_policy: str='drop')`.
+- `set_table_bytes`: Defined as `def set_table_bytes(self, tag: str, data: bytes) -> None`.
+- `smart_instancer`: Defined as `def smart_instancer(self)`.
+- `to_bytes`: Defined as `def to_bytes(self, font_type: FontType / None=None) -> bytes`.
+- `ttf_tables`: Defined as `def ttf_tables(self) -> TtfTableSet`.
+- `variable_axes`: Defined as `def variable_axes(self) -> list[VariableAxis]`.
+- `variable_instances`: Defined as `def variable_instances(self) -> list[VariableInstance]`.
+- `variable_presentation`: Defined as `def variable_presentation(self, *, preferred_languages: str / tuple[str, ...]='en', include_suggested_values: bool=True) -> dict[str, object]`.
+
+</details>
+
+## Scope and Limitations
+
+Aspose.Font FOSS for Python provides font conversion and inspection capabilities for Python applications, supporting variable font manipulation through the `FontConverter` class.
+
+- The package requires Python version 3.10 or higher.
+- The `FontConverter` class exposes methods such as convert, build, and open to process font data, but does not support direct manipulation of internal structures like _raw or `active_tuples`.
+- Optional support for the mcp>=1.0 package is available but not required for core functionality.
+
+These limitations don't apply to [full-featured Aspose.Font — Enterprise Edition](https://products.aspose.com/font/). The commercial Aspose.Font — commercial edition extends this open-source offering with additional capabilities for variable font manipulation and web optimization workflows.
+
+## Development and Testing
+
+The toolchain requires Python 3.10 or later and uses the aspose-font package version 1.0.0 under the MIT license. Test suites in the tests/ directory validate font loading, instance instantiation, and web bundle generation, ensuring compatibility and correctness across variable font axes. These verification flows also refresh the generated demo site content.
+
+The suite covers 29 test files under `tests/`.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE.txt). The MIT License permits use, copying, modification, distribution, sublicensing, and commercial use, provided its copyright and permission notice are retained. The software is provided without warranty.
