@@ -345,6 +345,18 @@ def merge_equivalent(defects: Sequence[Defect]) -> list[Defect]:
     return list(merged.values())
 
 
+# The version of the repair behaviour a ledger entry was made under: which levers exist, what a
+# lever clears, how a replacement is judged. The ledger is scoped to a composition (revision,
+# facts, prompts) but code is not in that id, so a new or corrected repair lever on the same
+# facts and prompts found its defect already attempted and re-raised it without trying the fix
+# (aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-05). Bump this when repair behaviour
+# changes in a way that could resolve a defect an earlier version could not; an attempt recorded
+# under another value no longer counts, so the changed code gets its one attempt. "1": the first
+# version to record it; entries written before it carry no value and keep counting exactly as
+# they did, so a sealed bundle's repairs.json is read and rewritten byte for byte.
+REPAIR_LOGIC_VERSION = "1"
+
+
 @dataclass
 class RepairLedger:
     """repairs.json: every attempt by fingerprint; a second equivalent failure is never retried.
@@ -373,7 +385,16 @@ class RepairLedger:
         self.attempts = dict(stored.get("attempts", {}))
 
     def attempted(self, fingerprint: str) -> bool:
-        return fingerprint in self.attempts
+        """Whether this fingerprint's one attempt has been spent under the current repair logic.
+
+        An entry with no ``repair_logic_version`` is legacy and counts, as it always did. An entry
+        recorded under another version does not: the code that would repair it has changed.
+        """
+        entry = self.attempts.get(fingerprint)
+        if entry is None:
+            return False
+        recorded = entry.get("repair_logic_version")
+        return recorded is None or recorded == REPAIR_LOGIC_VERSION
 
     def record(
         self,
@@ -396,6 +417,7 @@ class RepairLedger:
             # reviewer's causal_stage guessed) is now correctly targeting instead (RC-04,
             # RESEARCH_AND_GUIDELINES.md 27.2 RC4/SW4, 2026-09-08). Absent or False otherwise.
             "misrouted": bool(defect.record.get("misrouted", False)),
+            "repair_logic_version": REPAIR_LOGIC_VERSION,
         }
         self.write()
 
