@@ -691,6 +691,7 @@ def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> 
         ENTRY, declared("UNCLASSIFIED", "UNRESOLVED"), PLAN, UNITS, DISPOSITIONS
     )
     assert "## License" not in unresolved.splitlines()
+    assert "- [License](#license)" not in unresolved.splitlines()
     # With a file, the sealed wording - the file linked - is untouched.
     assert (
         render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
@@ -698,6 +699,31 @@ def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> 
         .startswith(
             "This project is licensed under the [MIT License](LICENSE). The MIT License permits"
         )
+    )
+
+
+def test_navigation_links_only_the_headings_the_document_renders() -> None:
+    """Run 1 of the Aspose.GIS.FOSS for .Net seal (2026-10-04): the repository ships no license
+    file and no license fact, so the required License section renders no body and no heading,
+    yet Navigation still linked `(#license)`, failing BC-06 at COMPOSING (`#license: no heading
+    #license`). Navigation must derive from the same rendered-section truth render_readme uses.
+    Negative control: with the license fact present, the License link stays."""
+    no_license = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(f for f in FACTS.facts if not f.id.startswith("license:")),
+    )
+    readme = render_readme(ENTRY, no_license, PLAN, UNITS, DISPOSITIONS)
+    lines = readme.splitlines()
+    assert "## License" not in lines
+    assert "- [License](#license)" not in lines
+    headings = {line[3:] for line in lines if line.startswith("## ")}
+    links = [line.split("(#", 1)[1].rstrip(")") for line in lines if line.startswith("- [")]
+    # Every navigation entry that remains resolves to a heading this document renders.
+    assert links and all(any(anchor(heading) == link for heading in headings) for link in links)
+    assert (
+        "- [License](#license)"
+        in render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS).splitlines()
     )
 
 
