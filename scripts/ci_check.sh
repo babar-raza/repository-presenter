@@ -48,6 +48,8 @@
 #   - PYTHONPATH is set to this checkout's src. Otherwise an editable install of another checkout
 #     is what gets tested. scripts/check_import_root.py verifies it held and exits 2 before any
 #     check runs if repository_presenter still resolves outside src/ (a worktree sharing a venv).
+#   - Staleness: scripts/check_staleness.sh prints a warning (never a failure) when this checkout is
+#     more than 20 commits behind origin/main. ci.yml has no counterpart: CI checks out the merge ref.
 #   - Shell: ci.yml's "run" steps use bash -e; the SBOM step runs under set -e to match.
 #
 # NOT auto-generated from .github/workflows/ci.yml: the two must be kept in sync by hand when
@@ -111,6 +113,10 @@ with_tools() {
 echo "interpreter: $(command -v "$PY") ($("$PY" --version 2>&1))"
 echo "src: ${PYTHONPATH:-<unset>}"
 echo
+
+# Warn-only: a checkout far behind origin/main may be testing stale code (scripts/check_staleness.sh
+# explains the threshold). It never changes an outcome or the exit code, so it cannot block a merge.
+bash "$SCRIPT_DIR/check_staleness.sh" || true
 
 MISSING=()
 
