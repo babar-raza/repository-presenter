@@ -1,115 +1,55 @@
 # Repository Presenter
 
 Repository Presenter is an autonomous, GitHub-native system that keeps the README files of
-authorized product repositories accurate, credible, repository-specific, and current. It combines
-deterministic evidence, validation, state, and safety controls with a configurable LLM for product
-interpretation, editorial planning, composition, and independent review. README health is the
-foundational component; other repository-presentation surfaces are planned to follow through the
-same core.
+authorized product repositories accurate, credible, repository-specific, and current. Deterministic
+code owns evidence, validation, state, and safety; a configurable LLM owns product interpretation,
+editorial planning, composition, and independent review. README health is the first component;
+other repository-presentation surfaces are planned to follow through the same core.
 
-It is the successor to the legacy `babar-raza/foss-readme-optimizer` repository. Reusable legacy
-behavior migrates here only through the pull-based ledger in
+It is the successor to the legacy `babar-raza/foss-readme-optimizer` repository. Legacy behavior
+migrates here only through the pull-based ledger in
 [`migration/reuse-manifest.yaml`](migration/reuse-manifest.yaml) — a file enters when a gate
 actually needs it, never as a bulk port.
 
+**Contents:** [Status](#project-status) · [Quick start](#quick-start) ·
+[Mental model](#mental-model) · [How it works](#how-it-works) · [Repository map](#repository-map) ·
+[Hosted workflows](#hosted-workflows) · [Built vs planned](#scope-built-vs-planned) ·
+[Contributing](#contributing-as-a-human) · [For coding agents](#for-coding-agents) ·
+[Configuration](#configuration) · [CLI reference](#cli-reference) ·
+[Security](#security-and-effects) · [Docs](#project-documentation)
+
 ## Project status
 
-Active development, not yet a stable release. Source install only — there is no PyPI package.
-Gates `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, and `G2_STABILITY_UNDER_CHANGE` are accepted;
-the project is currently working through `G3_PYTHON_COHORT` and `G4_MULTI_LANGUAGE_COHORTS`. It
-does not yet open pull requests against target repositories — today it produces and seals local
-README candidates only (see [Scope](#scope-built-vs-planned) below).
+Active development, not a stable release. Source install only — there is no PyPI package.
 
-For the live gate, active work item, and exact candidate count, run `repository-presenter status`
-yourself, or read [`project/state.yaml`](project/state.yaml) — the one live cursor for this
-project. This file intentionally never restates those numbers: they change with nearly every
-merged work item, and a number frozen into prose here would be wrong within days.
+**Snapshot as of 2026-10-05** (the live numbers are whatever `repository-presenter status` prints
+today; [`project/state.yaml`](project/state.yaml) is the one live cursor and wins over this table):
 
-## What it does
-
-The goal is a central repository-presentation agent, not a one-off README rewriter. Given an
-authorized repository, it:
-
-- reads the repository's own source, manifests, tests, examples, license, and releases as ground
-  truth, and never treats an existing README or another agent's claim as trusted without
-  verification;
-- extracts and reconciles facts against that evidence, then plans and composes a candidate README
-  from the accepted facts;
-- validates the candidate against a fixed set of blocking checks and an independent, non-authoring
-  review before it can be sealed;
-- proves the result reproducible: an immediate rerun against an already-sealed revision must
-  reproduce byte-identical output while making zero further calls to the LLM gateway (the
-  project's "no-op proof").
-
-## Scope: built vs. planned
-
-| Capability | Status |
+| Question | Answer |
 |---|---|
-| Facts → investigation → reconciliation → planning → composition → validation → independent review → seal pipeline | **Built** (gates G0–G2 accepted) |
-| Local CLI (`status`, `present`, `preflight`, `redetect-upstream-defects`, `file-upstream-defects`, `metadata`, `propose`) | **Built** |
-| Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript) | **Partially built** — extractor plugins exist for all seven; sealed candidates so far cover fewer |
-| Deterministic Markdown renderer; the LLM never writes the final document, only fact-ID-bound content units | **Built** |
-| Safety: pinned, read-only, push-neutered git clones; secret-canary scan before any bundle is sealed | **Built** |
-| Upstream-defect detection and re-detection (`redetect-upstream-defects`); local, evidence-backed handoff records | **Built** — read-only re-checks; a status-only local write; a gated `close` of an issue this system filed, once its check proves the defect resolved |
-| Upstream defect *reporting* (`file-upstream-defects`; filing genuine product defects as GitHub issues) | **Built** — gated: refuses without the owner's kill-switch variable, a write-scoped token and a committed per-handoff owner approval record (`ops/issue_approvals/`). Scheduled by `.github/workflows/issues-scheduled.yml`; its write job runs only once the owner sets the repository variable (see [Security](#security-and-effects)) |
-| Production GitHub App credentials, installed across every registry organization | **Built** — a write-capable credential existing; it is not itself write authorization (see [Security](#security-and-effects)) |
-| Repo description/topics/homepage: read GitHub's observed values, propose a candidate from verified facts, diff | **Built** — read-only; no write call without explicit dual authorization |
-| Hosted, autonomous, scheduled portfolio monitoring | **Planned** (Gate G5) |
-| Automatic pull-request proposals via a GitHub App, with independent effect authorization (`propose`) | **Built**, disposable-target live proof still open — gated: refuses without an owner-controlled authorization variable and a write-scoped token, both unset in this project's own environment; no disposable test repository is yet named to exercise it live (see [Security](#security-and-effects)) |
-| Production deployment and continuous unattended operation | **Planned** (Gate G7) |
-| Visual-asset / social-preview image preparation | **Planned** — same pilot carve-out |
-| Repo description/topics/homepage: apply the proposal to GitHub; community/security file generation; release-link auditing | **Planned** |
+| Accepted gates | `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UNDER_CHANGE` |
+| Current gate | `G3_PYTHON_COHORT` (READY) |
+| Active work item | `G4-W17` — landing shared-code fixes from the lane agents, and resealing candidates they invalidate |
+| Progress | **28 of 36** registry repositories hold a current, reviewable, no-op-proven candidate (29 ever sealed; 5 registry entries have no bundle yet; 2 are disabled) |
+| Pending update | 1 candidate (`Aspose.Slides-FOSS-for-Java`) is `VALID_UPDATE_AVAILABLE`: still valid, update not yet re-sealed |
+| Independent acceptance | 0 candidates — the 30-point acceptance profile is still advisory, not ratified (`G3-W02`) |
+| Pull requests against target repos | **None opened yet.** The proposal path is built and gated; its first live proof is open (see below) |
+| Hosted operation | Workflows exist and are wired; the scheduled, unattended path has not yet been proven by a real cron-fired run |
 
-For the exact current candidate count against the full target set, run `repository-presenter
-status` — see [Project status](#project-status).
+What is blocking the next milestones (`BLOCKED_EXTERNAL`, owner decisions — not code defects):
 
-## How it works
+- **First real pull request.** `propose.yml` was dispatched twice on 2026-10-04 and stopped at
+  GitHub App token minting (installation lookup returned HTTP 404). The disposable-target proof
+  (create, update without duplicate, stale-source block, lost-response reconciliation) has not run,
+  and every repository's first real PR also needs its own fresh owner authorization.
+- **Unattended scheduling.** `monitor.yml` has a schedule trigger, but no cron-fired run has been
+  reconciled against local state yet (`G7-W06`).
 
-Deterministic code and an LLM each own a distinct half of the work. The LLM interprets a
-repository and proposes typed, fact-ID-bound content — it never writes the final Markdown, never
-advances durable state, and never mutates a repository directly. Deterministic code owns commands,
-links, badges, diagram topology, exact identifiers, validation, and every state transition; it
-accepts or rejects what the LLM proposes.
+Do not copy these numbers into other documents; they change with nearly every merged work item.
 
-Each repository moves through one linear transaction: snapshot the pinned revision, extract facts,
-investigate and reconcile them against any existing README content, plan and compose a candidate,
-validate it against a fixed set of blocking checks, pass it through an independent review, then
-seal it into a content-addressed bundle. Sealing also proves the no-op guarantee described above.
+## Quick start
 
-A sealed candidate itself follows a fixed shape — a semantic template with a default visible-line
-budget and its own set of blocking checks — documented in full in
-[`docs/README_CONTRACT.md`](docs/README_CONTRACT.md). Full runtime design (portfolio-wide
-scheduling, proposal creation, effect authorization) is in
-[`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md); most of it is still G5+ future scope, not what
-runs today.
-
-## Repository structure
-
-```
-src/repository_presenter/   cli.py (entry point), core/ (shared capabilities), components/ (pipeline)
-  components/readme/          the README transaction: evidence, investigation, reconciliation,
-                               composition, validation, independent review, repair, bundle sealing
-  components/metadata/        repo description/topics/homepage capture, proposal, gated apply
-  components/issues/          upstream-defect ledger, handoff drafting, redetection, gated issue filing
-  components/propose/         README-proposal PR effect: idempotent branch/commit/PR, gated write
-prompts/                    one governed YAML manifest per LLM job
-schemas/                    JSON Schemas for state, manifest, and bundle validation
-data/                       registry.json — the admitted-repository allow-list
-candidates/<owner>__<name>/<revision>/   sealed README bundles, with a CURRENT pointer
-tests/                      mirrors src/ path-for-path, plus flat repo-wide invariant tests
-docs/                       authority and research documents
-plans/, project/, migration/   product authority, live cursor, legacy reuse ledger
-tools/                      owner/reviewer tooling — not part of the shipped package
-```
-
-## Requirements
-
-- Python 3.11 or later (CI tests 3.11, 3.12, and 3.13).
-- Core dependencies: `httpx`, `jsonschema`, `markdown-it-py`, `openai`, `packaging`, `pydantic`,
-  `tenacity`, `pyyaml`, plus pinned `tree-sitter` packages used by the multi-language source
-  extractor.
-
-## Installation
+**Goal: see the system work in about five minutes, with no credentials.**
 
 ```bash
 git clone https://github.com/babar-raza/repository-presenter.git
@@ -117,16 +57,214 @@ cd repository-presenter
 python -m venv .venv
 .venv\Scripts\pip install -e .[dev]      # Windows
 # .venv/bin/pip install -e .[dev]        # macOS/Linux
+git config core.hooksPath .githooks      # once per clone: runs scripts/ci_check.sh before push
+
+repository-presenter status              # gate, work item, candidate count — read-only, no network
+repository-presenter status --stale      # which sealed candidates the running code has outgrown
+bash scripts/ci_check.sh                 # the same checks CI runs (lint, format, types, tests, smoke)
 ```
 
-Or install exactly what CI installs, from the hashed lock file:
+Look at a finished product: any `candidates/<owner>__<name>/CURRENT` points at a sealed bundle
+whose `README.md` is the proposed README and whose `facts.json`, `plan.json`, `validation.json`,
+and `review.json` show how it was derived and checked.
+
+To run the real pipeline on one repository you need an LLM gateway and, optionally, a read-only
+GitHub token — see [Configuration](#configuration) and the [Example](#example).
+
+## Mental model
+
+| Term | Meaning |
+|---|---|
+| **Registry** | [`data/registry.json`](data/registry.json): the hard allow-list of admitted repositories (36 entries across 15 `aspose-*-foss` organizations; Python 13, .NET 9, Java 4, C++ 4, TypeScript 3, Go 2, Rust 1). Nothing outside it is ever reached. |
+| **Mode** | Per registry entry: `dry_run` (analyze and seal locally, can never write), `full` (may propose, if separately authorized), or `disabled`. |
+| **Facts** | Deterministic, provenance-bound claims extracted from an immutable upstream revision. Every public README claim must map to one. |
+| **Candidate / bundle** | A proposed README plus the content-addressed evidence that justifies it, under `candidates/<owner>__<name>/<revision>/`; `CURRENT` points at the live one. |
+| **Seal** | Writing a bundle after every blocking check and the independent review pass. |
+| **No-op proof** | Re-running against a sealed revision reproduces byte-identical output with **zero** LLM calls. |
+| **Gate / work item** | Build-order milestones (`G0`–`G7`) and the numbered items inside them. [`project/state.yaml`](project/state.yaml) says which is active. |
+| **Cursor** | `project/state.yaml` — the only record of implementation status. |
+| **Handoff** | A local, evidence-backed record of a genuine upstream product defect, which may become a GitHub issue (gated). |
+| **`BLOCKED_EXTERNAL` / `FAILED_INTERNAL`** | Blocker classes: something only an owner can supply, versus a defect in this code. The second is never an acceptable stopping point. |
+
+The unit of progress is one: **current reviewable no-op-proven candidates, N/36**. Code volume,
+plans, and evidence files are supporting work, not progress.
+
+## How it works
+
+The LLM proposes; deterministic code disposes. The LLM interprets a repository and returns typed,
+fact-ID-bound content — it never writes the final Markdown, never advances durable state, never
+grants authorization, and never mutates a repository. Deterministic code owns commands, links,
+badges, diagram topology, identifiers, validation, every state transition, and every GitHub effect.
+
+```
+ pinned snapshot ─▶ facts ─▶ investigation ─▶ reconciliation ─▶ planning ─▶ composition
+ (read-only clone)  (7 ecosystem   (LLM: gaps)     (LLM: keep/merge/      (LLM)      (LLM units →
+                     extractors)                    drop each unit)                   deterministic
+                                                                                      Markdown renderer)
+        ─▶ validation ─▶ independent review ─▶ targeted repair ─▶ seal ─▶ (gated) propose PR
+           (blocking     (separate from the   (route to the      (bundle +   one stable branch,
+            checks)       author)              causal stage)      no-op      authorized per repo)
+                                                                  proof)
+```
+
+- **Truth.** The exact immutable upstream revision is the factual authority. An existing README is
+  valuable evidence, not automatic truth; every material source README unit gets exactly one
+  explicit disposition (kept, merged, rewritten, dropped).
+- **Defects route to their earliest cause.** A failing check is never weakened to hide an upstream
+  defect; repair goes back to the stage that caused it.
+- **Invalidation is input-based.** A candidate is invalidated only through an input it consumed.
+  Validator or reviewer changes re-check it and may yield `VALID_UPDATE_AVAILABLE`, never blanket
+  invalidation.
+- **Placeholder repositories** (README/license only) return `insufficient_evidence`; no candidate
+  is fabricated.
+
+The sealed README's shape and its blocking checks are specified in
+[`docs/README_CONTRACT.md`](docs/README_CONTRACT.md). Full runtime design (scheduling, proposal,
+effect authorization) is in [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md); build order is in
+[`docs/EXECUTION_STATE_MACHINE.md`](docs/EXECUTION_STATE_MACHINE.md).
+
+## Repository map
+
+```
+src/repository_presenter/
+  cli.py                      the one entry point (also: python -m repository_presenter)
+  cursor.py                   reads project/state.yaml and sealed bundles for `status`
+  core/                       reusable capabilities, no README-specific logic:
+                                registry, snapshot, git_safety, facts, llm (gateway, call cache),
+                                state (durable CAS/lease/recovery), authorization, github,
+                                secrets, grammars, toolchains, sealing_plan
+  components/
+    readme/                   the README transaction: extractors/ (one per ecosystem), evidence,
+                              investigation, reconciliation, composition, validation, review,
+                              repair, bundle (sealing, portfolio counts), upstream_defects
+    metadata/                 repo description/topics/homepage: observe, propose, gated apply
+    issues/                   upstream-defect ledger, handoff drafting, redetection, gated filing
+    propose/                  the PR effect: idempotent branch/commit/PR, gated write
+    monitor/                  read-only drift observation of upstream default branches
+prompts/                      one governed YAML manifest per LLM job
+schemas/                      JSON Schemas: state, manifest, bundle
+data/registry.json            the admitted-repository allow-list
+candidates/<owner>__<name>/   sealed bundles per revision, plus a CURRENT pointer
+evidence/                     build/gate evidence, upstream-defect handoffs, SBOM — redacted, checksummed
+ops/                          owner approval records (issue_approvals/; proposal authorizations)
+tests/                        mirrors src/ path-for-path, plus flat repo-wide invariant tests
+docs/  plans/  project/       authority documents, product authority, live cursor
+migration/                    legacy reuse ledger
+tools/                        owner/reviewer tooling — never imported by the product
+.github/workflows/            hosted automation (below)
+```
+
+Where a new file belongs is decided by [`docs/REPOSITORY_LAYOUT.md`](docs/REPOSITORY_LAYOUT.md):
+README-specific work under `components/readme`, reusable capabilities under `core`, ecosystems and
+families through registries rather than central `if/elif` chains.
+
+## Hosted workflows
+
+| Workflow | Trigger | Does | Writes? |
+|---|---|---|---|
+| `ci.yml` | push, PR | Ruff, mypy, pytest on Python 3.11/3.12/3.13; SBOM and vulnerability audit. Red CI is a production defect. | no |
+| `monitor.yml` | cron (every 6 h), manual | Observes each enabled repository's upstream head vs its `CURRENT` bundle; records drift evidence | no |
+| `present.yml` | manual / dispatch | One isolated, durable-state-backed README transaction for one repository, with a fresh per-repository App token | state ref on this repo only |
+| `sealing-scheduled.yml` | scheduled | Plans (≤3 `DRIFTED` repositories per run, `qwen3-next` only), seals, and hands sealed candidates to `propose.yml`; owner can pause with `REPOSITORY_PRESENTER_SEALING_PAUSED=1` | proposal leg only when authorized |
+| `propose.yml` | manual / `workflow_call` | Opens or updates the one stable presenter PR on a target — the only target-write path | **yes**, gated (see [Security](#security-and-effects)) |
+| `issues-scheduled.yml` | cron (daily) | Read-only defect analysis per repository; gated filing and closing of upstream issues | gated |
+| `liveness.yml` | cron (every 30 min) | Out-of-band dead-man check; detects and fails loudly, repairs nothing | no |
+| `verify-app-installation.yml`, `audit-app-installations.yml` | manual | Prove the GitHub App can mint a read-only token for one repository / every registry organization | no |
+| `mirror-gitlab.yml` | push to `main` | Keeps a GitLab mirror of `main` and tags current (non-forced) | GitLab mirror |
+
+## Scope: built vs planned
+
+| Capability | Status |
+|---|---|
+| Snapshot → facts → investigation → reconciliation → planning → composition → validation → independent review → repair → seal | **Built**; 28 current sealed candidates |
+| Deterministic Markdown renderer; the LLM never writes the final document | **Built** |
+| Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript) with pinned per-language tree-sitter wheels (no parser is downloaded at run time) | **Built**; sealed candidates exist for all seven |
+| Safety: pinned, read-only, push-neutered clones; secret-canary scan before sealing | **Built** |
+| Durable state (content-addressed storage, leases, fencing tokens, recovery) | **Built** (`core/state/`) |
+| Drift monitoring (`monitor`) and unattended sealing plan (`sealing-plan`) | **Built**; the scheduled path is not yet proven by a real cron-fired run |
+| Upstream-defect detection, re-detection, and gated issue filing/closing | **Built**; one live write proof exists (an issue on this control repository, not on a product repository) |
+| Repo description/topics/homepage: observe, propose, diff | **Built**, read-only; applying is gated and unproven live |
+| GitHub App credentials installed across the registry organizations | **Built** — a credential existing is not write authorization |
+| Pull-request proposals (`propose`) | **Built and gated; first live disposable-target proof still open** (`G6-W02`) |
+| Acceptance contract v1 frozen as a ratified 30-point profile | **Planned** (`G3-W02`); only the version constants are frozen so far |
+| Hosted, autonomous portfolio operation in production | **Planned** (`G7-W06`) |
+| Visual-asset / social-preview preparation; community and security file generation; release-link auditing | **Planned** |
+
+## Contributing (as a human)
+
+1. Read the [Quick start](#quick-start), then [`AGENTS.md`](AGENTS.md) — it governs conduct for
+   people and agents alike — and `project/state.yaml` for what is active right now.
+2. Pick the smallest coherent change that closes a gate predicate. Only one shared-code item is
+   active at a time; disjoint paths may run in parallel.
+3. Change code and its tests together. Behavior changes need focused tests, including negative
+   controls (hallucinated or malformed model output, illegal transitions, stale evidence, secret
+   leakage, duplicate effects). Unit tests do not prove live LLM, hosted, or GitHub behavior.
+4. Run the broad checks, then finish any work item with a run of the official entry point
+   (`repository-presenter present …`) on the canary — a module with no production importer is a
+   defect, not a deliverable.
+5. Open a branch and PR against `main`. `main` is protected: the three CI jobs
+   (Python 3.11/3.12/3.13) are required and PRs auto-merge on green. Never force-push, never push to
+   a product repository.
 
 ```bash
-pip install -r requirements-lock.txt
-pip install --no-deps -e .
+ruff check . && ruff format --check . && mypy src && pytest      # or: bash scripts/ci_check.sh
 ```
 
-There is no published package yet — install from source only.
+Reproduce CI's exact environment from the hashed lock file:
+`pip install -r requirements-lock.txt && pip install --no-deps -e .`
+
+Requirements: Python 3.11+; core dependencies `httpx`, `jsonschema`, `markdown-it-py`, `openai`,
+`packaging`, `pydantic`, `tenacity`, `pyyaml`, plus pinned per-language `tree-sitter` wheels.
+
+## For coding agents
+
+This section is a map, not the rules — the rules live in [`AGENTS.md`](AGENTS.md) (≤200 lines).
+
+**Read order at session start**
+
+1. [`project/state.yaml`](project/state.yaml) — the only live cursor (it is large; read it in
+   sections, or run `repository-presenter status` first).
+2. The current gate in [`docs/EXECUTION_STATE_MACHINE.md`](docs/EXECUTION_STATE_MACHINE.md).
+3. [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md) for runtime behavior, and
+   [`docs/README_CONTRACT.md`](docs/README_CONTRACT.md) when touching facts, composition,
+   validation, or review.
+4. [`docs/RESEARCH_AND_GUIDELINES.md`](docs/RESEARCH_AND_GUIDELINES.md) and
+   [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) (§31) for context and recent decisions.
+5. [`plans/idea.md`](plans/idea.md) — the product outcome standard; never a task list.
+
+**Who owns what** — never create a competing plan, roadmap, or status file:
+
+| Subject | Owner |
+|---|---|
+| Product outcome, standing constraints | `plans/idea.md` |
+| Agent conduct and safety | `AGENTS.md` |
+| Build order, gate acceptance | `docs/EXECUTION_STATE_MACHINE.md` |
+| Runtime behavior | `docs/STATE_MACHINE.md` |
+| README shape and blocking checks | `docs/README_CONTRACT.md` |
+| File placement | `docs/REPOSITORY_LAYOUT.md` |
+| Current implementation status | `project/state.yaml` |
+| Legacy reuse | `migration/reuse-manifest.yaml` |
+| Supervision and lanes | `docs/SUPERVISION.md` |
+| Recurring defect classes (3 sightings = priority) | `docs/DEFECT_INDEX.md` |
+| Implemented interfaces | `schemas/` and tests |
+
+**Invariants that catch agents out**
+
+- The LLM never advances state, grants authorization, asserts a gate result, or writes to a
+  repository. Put deterministic things (links, commands, hashes, transitions) in code.
+- Templates are presentation assets, never sources of facts, package names, or commands.
+- Do not weaken a downstream check to hide an upstream defect; route to the earliest causal stage.
+- Two equivalent failed attempts, or 15 minutes without narrowing the cause, forbids a third:
+  write a first-principles diagnosis and change the evidence, prompt, model, component, or boundary.
+- A candidate reaching `READY_FOR_PROPOSAL` never implies publication authorization.
+- Update the cursor in the same commit that establishes its claimed state; AI-authored commits carry
+  a `Co-Authored-By` trailer; after a push, watch CI to completion and fix red immediately.
+- `tests/test_readme_reference.py` fails if a CLI subcommand or flag is missing from this README —
+  update the [CLI reference](#cli-reference) whenever the parser changes.
+
+**Handy commands for orientation:** `repository-presenter status --json` (machine-readable),
+`repository-presenter status --stale`, `repository-presenter sealed-ready --repo OWNER/NAME`,
+`repository-presenter present --repo OWNER/NAME --facts-only` (no provider calls).
 
 ## Configuration
 
@@ -327,38 +465,27 @@ and coverage record with no provider calls. Dropping `--facts-only` runs the ful
 if every blocking check and the independent review pass, seals a candidate under
 `candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/<revision>/`. Running `present` again against
 the same sealed revision reproduces the identical bundle with zero new provider calls — the no-op
-proof. `status` then reports the updated candidate count.
+proof. `status` then reports the updated candidate count. This repository is the project's canary.
 
 ## Security and effects
 
 - Analysis clones are pinned to one revision, read-only, and push-disabled; a hard allow-list
   gates which repositories can be reached at all (`data/registry.json`).
-- Write credentials are separate from analysis credentials, short-lived, and target-scoped; a
-  write credential's mere presence never implies authorization to use it — a distinct,
-  owner-controlled variable must also be set, checked independently by the code that would write.
+- Write credentials are separate from analysis credentials, short-lived, and target-scoped, and
+  exist only in a separate effect job. A write credential's mere presence never implies
+  authorization — a distinct, owner-controlled variable must also be set, checked independently by
+  the code that would write.
 - Initial publication is pull-request-only; this project never pushes directly to a target
-  repository's default branch, and does not open pull requests against any target repository yet
-  (Gate G6).
+  repository's default branch. No pull request has been opened against any product repository yet
+  (`G6-W02`/`G6-W03`); each repository's first one needs its own fresh owner authorization,
+  recorded under `ops/` and merged by a person before the run that consumes it.
+- Candidate acceptance never implies publication authorization.
 - Secrets are never logged, committed, cached, or persisted; every CLI command scans for
   configured-secret leakage before reporting success.
 
-Full rules are in [`AGENTS.md`](AGENTS.md)'s "Security and Effects" section.
-
-## Development and testing
-
-```bash
-ruff check .
-ruff format --check .
-mypy src
-pytest
-```
-
-`tests/` mirrors `src/` path-for-path, plus a handful of flat, repository-wide invariant tests at
-`tests/test_*.py`. `bash scripts/ci_check.sh` runs the same checks CI runs, followed by a smoke
-test of the built entry point, resolving the repo-local `.venv` automatically on Windows or POSIX.
-
-Run `git config core.hooksPath .githooks` once per clone so `scripts/ci_check.sh` runs
-automatically before every push to this repository's own `origin`.
+Full rules are in [`AGENTS.md`](AGENTS.md)'s "Security and Effects" section; the threat model is in
+[`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md), and credential rotation in
+[`docs/CREDENTIAL_ROTATION_RUNBOOK.md`](docs/CREDENTIAL_ROTATION_RUNBOOK.md).
 
 ## Project documentation
 
@@ -372,10 +499,13 @@ automatically before every push to this repository's own `origin`.
 | Where a file lives | [`docs/REPOSITORY_LAYOUT.md`](docs/REPOSITORY_LAYOUT.md) |
 | Session supervision: supervisor, lane agents, monitors, liveness | [`docs/SUPERVISION.md`](docs/SUPERVISION.md) |
 | Research record and design reasoning | [`docs/RESEARCH_AND_GUIDELINES.md`](docs/RESEARCH_AND_GUIDELINES.md) |
+| Decisions and provenance (append-only) | [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) |
+| Recurring defect classes | [`docs/DEFECT_INDEX.md`](docs/DEFECT_INDEX.md) |
+| Production workstreams beyond sealing | [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md) |
+| Threat model | [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md) |
 | Live implementation cursor | [`project/state.yaml`](project/state.yaml) |
 | Legacy-code disposition | [`migration/reuse-manifest.yaml`](migration/reuse-manifest.yaml) |
-
-Read order for a new session is defined in `AGENTS.md`.
+| Owner/reviewer tooling | [`tools/README.md`](tools/README.md) |
 
 ## License
 

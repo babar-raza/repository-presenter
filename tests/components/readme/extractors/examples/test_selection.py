@@ -152,3 +152,11 @@ scene = Scene()
 """
     candidates = select_examples("README.md", readme, "python")
     assert len(candidates) == 1
+
+
+def test_an_examples_blank_line_runs_collapse_where_it_enters_the_facts() -> None:
+    """plans/idea.md: "visitor examples use normalized ... spacing without repeated empty-line
+    runs" - the code that is executed is the code that is shown, so the run is gone at selection."""
+    readme = b"```python\nimport a\n\n\n\nprint(a)\n```\n"
+    [candidate] = select_examples("README.md", readme, "python")
+    assert candidate.code == "import a\n\nprint(a)\n"

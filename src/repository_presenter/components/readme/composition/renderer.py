@@ -38,6 +38,10 @@ from repository_presenter.components.readme.composition.components.shell import 
     SEMANTIC_SHELL,
     Section,
 )
+from repository_presenter.components.readme.composition.components.terminology import (
+    LOWER_WORD,
+    to_title_case,
+)
 from repository_presenter.components.readme.composition.placement import (
     api_reference_hub_methods,
     placed_texts,
@@ -75,17 +79,25 @@ from repository_presenter.core.registry.models import RegistryEntry
 # supporting fact (License in a repository with no license file) leaves no link to an omitted
 # heading (BC-06, aspose-gis-foss/Aspose.GIS.FOSS-for-.Net).
 RENDERER_VERSION = "28"
+# 29 (verification V2 item 8): canonical() reads the one governed terminology registry's word
+# pattern, which admits a two-letter abbreviation, so prose "ps" now reads "PS" (plans/idea.md: "PS,
+# EPS, PDF, XPS, XLSX, HTML"). The additional-examples task heading is title-cased by the template
+# (to_title_case) rather than left as the model's sentence, and the assembled document collapses any
+# run of empty lines outside a fence (collapse_document_blank_runs) - a deliberate deterministic
+# normalisation of model-authored text: plans/idea.md requires "Every Markdown heading uses title
+# case" and "without repeated empty-line runs", and the authoring prompt never asks for either.
+RENDERER_VERSION = "29"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
 __all__ = ["renders_verbatim"]  # re-exported for the validator and the tests
-# Excludes a hyphen or colon neighbor too, not just a dot or word character: without it, "pdf"
+# LOWER_WORD (components/terminology.py) excludes a hyphen or colon neighbor too, not just a dot
+# or word character: without it, "pdf"
 # inside the package coordinate "aspose-pdf-foss" canonicalized to "aspose-PDF-foss" - altering
 # an exact package name's source spelling, which README_CONTRACT.md section 2 requires verbatim
 # inside a code span, and item (44)/(40)'s new coordinate handling then had nothing but the
 # altered spelling to match against the fact's own (unaltered) value. External review, 2026-09-07.
-_LOWER_WORD = re.compile(r"(?<![.\w:-])[a-z]{3,}(?![\w:-])")
 _WORD = re.compile(r"\b[A-Z][A-Za-z0-9]*\b")
 _EXTENSION = re.compile(r"(?<![\w`.])\.[a-z0-9]{2,}\b")
 _SLUG_STRIP = re.compile(r"[^\w\- ]")
@@ -177,7 +189,7 @@ class RenderContext:
 
     def canonical(self, text: str) -> str:
         """``text`` with every known abbreviation raised to the spelling the document uses."""
-        return _LOWER_WORD.sub(
+        return LOWER_WORD.sub(
             lambda match: self.abbreviations.get(match.group(0), match.group(0)), text
         )
 
@@ -896,7 +908,11 @@ def _example_entry(context: RenderContext, sid: str, example_id: str) -> list[st
     example = context.fact(example_id)
     assert example is not None
     task = context.unit(sid, f"workflow:{example_id}").strip().rstrip(".")
-    return ["", f"### {task}", "", *_code_block(context.spec.fence, example.value)]
+    # plans/idea.md: "Every Markdown heading uses title case." The unit is the model's sentence;
+    # the heading it becomes is the template's, so capitalisation is applied here, not asked of
+    # the model (verification V2 item 8: 20 of 29 sealed bundles carried sentence-case headings).
+    heading = to_title_case(task, context.abbreviations)
+    return ["", f"### {heading}", "", *_code_block(context.spec.fence, example.value)]
 
 
 def _section_body(context: RenderContext, section: Section) -> list[str]:
@@ -1052,7 +1068,31 @@ def render_readme(
             continue
         heading = [f"## {section.heading}", ""] if section.heading else []
         blocks.append("\n".join(heading + body).rstrip("\n"))
-    return "\n\n".join(blocks) + "\n"
+    return collapse_document_blank_runs("\n\n".join(blocks) + "\n")
+
+
+def collapse_document_blank_runs(text: str) -> str:
+    """``text`` with no run of two or more empty lines outside a fenced code block.
+
+    plans/idea.md: "visitor examples use normalized, language-valid spacing without repeated
+    empty-line runs". Sections are assembled from independently built blocks, each of which may
+    begin or end with its own separating empty line, so the join is the one place that can promise
+    the document as a whole never carries a run. A fence's own lines are never touched.
+    """
+    kept: list[str] = []
+    inside = False
+    previous_empty = False
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("```") and not inside:
+            inside = True
+        elif stripped == "```" and inside:
+            inside = False
+        empty = not inside and not stripped
+        if not (empty and previous_empty):
+            kept.append(line)
+        previous_empty = empty
+    return "\n".join(kept)
 
 
 def render_patch(original: str, rendered: str) -> str:
