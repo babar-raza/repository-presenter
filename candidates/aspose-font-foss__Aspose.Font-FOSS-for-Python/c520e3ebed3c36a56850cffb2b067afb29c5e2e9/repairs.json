@@ -1,0 +1,138 @@
+{
+  "attempts": {
+    "11999fbdd41fa076daabf68f": {
+      "changes": [
+        {
+          "after": "example:001, example:007, example:008, public_symbol:aspose_font.smartinstancer.instantiate, public_symbol:aspose_font.smartinstancer.preview_naming_policy",
+          "before": "example:007, example:008, public_symbol:aspose_font.smartinstancer.instantiate, public_symbol:aspose_font.smartinstancer.preview_naming_policy",
+          "fact_ids": [
+            "example:001",
+            "example:007",
+            "example:008"
+          ],
+          "id": "R01",
+          "path": "core_capabilities.1.fact_ids"
+        },
+        {
+          "after": "example:001, example:008, public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage, public_symbol:aspose_font.fontsubsetter.available_presets",
+          "before": "example:008, public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage, public_symbol:aspose_font.fontsubsetter.available_presets",
+          "fact_ids": [
+            "example:001",
+            "example:008"
+          ],
+          "id": "R02",
+          "path": "core_capabilities.2.fact_ids"
+        }
+      ],
+      "label": "F06",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "ae70309e1689b474f8cf594f750e0255b30917f85d6736242e5e3109bcae2bac",
+      "section_id": null,
+      "source": "review",
+      "stage": "S5"
+    },
+    "61b2fd4870eb4fdc09848bfa": {
+      "changes": [],
+      "label": "F06",
+      "misrouted": false,
+      "outcome": "escalated",
+      "reason": "; escalated once to a plan-level repair at S5",
+      "request_sha256": null,
+      "section_id": "quick_start",
+      "source": "review",
+      "stage": "S6"
+    },
+    "8f619c76900e9ae25cb4a8a2": {
+      "changes": [
+        {
+          "after": "[  ",
+          "before": "[  ",
+          "fact_ids": [
+            "public_symbol:aspose_font.cli.main",
+            "public_symbol:aspose_font.animationpreviewbuilder.build_axis_sweep",
+            "public_symbol:aspose_font.animationasset.write_to"
+          ],
+          "id": "R01",
+          "path": "additional_example_ids"
+        }
+      ],
+      "label": "F07",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "8c5fbdf4475160a918937ce0dec4ad43f8ddffef0e201e19b7b2d6f63d3e0f91",
+      "section_id": null,
+      "source": "review",
+      "stage": "S5"
+    },
+    "9efc454bd4b2ad951c4c1ed7": {
+      "changes": [],
+      "label": "F07",
+      "misrouted": false,
+      "outcome": "escalated",
+      "reason": "; escalated once to a plan-level repair at S5",
+      "request_sha256": null,
+      "section_id": "additional_examples",
+      "source": "review",
+      "stage": "S6"
+    },
+    "a270520c69c3c904becee6ce": {
+      "changes": [
+        {
+          "after": "example:004, example:005, example:006, example:007, example:008",
+          "before": "example:004, example:005, example:006, example:007, example:008, public_symbol:aspose_font.cli.main, public_symbol:aspose_font.animationpreviewbuilder.build_axis_sweep, public_symbol:aspose_font.animationasset.write_to",
+          "fact_ids": [
+            "example:004",
+            "example:005",
+            "example:006",
+            "example:007",
+            "example:008"
+          ],
+          "id": "R01",
+          "path": "additional_example_ids"
+        },
+        {
+          "after": "[...public_symbol:aspose_font.mcp.main...]",
+          "before": "[...public_symbol:aspose_font.cli.main...]",
+          "fact_ids": [
+            "public_symbol:aspose_font.mcp.main",
+            "public_symbol:aspose_font.mcp.font_subset",
+            "public_symbol:aspose_font.mcp.web_build"
+          ],
+          "id": "R02",
+          "path": "api_hubs"
+        },
+        {
+          "after": "[...public_symbol:aspose_font.mcp.main...]",
+          "before": "[...public_symbol:aspose_font.cli.main...]",
+          "fact_ids": [
+            "public_symbol:aspose_font.mcp.main",
+            "public_symbol:aspose_font.mcp.font_subset",
+            "public_symbol:aspose_font.mcp.web_build"
+          ],
+          "id": "R03",
+          "path": "core_capabilities"
+        },
+        {
+          "after": "[]",
+          "before": "[...public_symbol:aspose_font.cli.main...]",
+          "fact_ids": [],
+          "id": "R04",
+          "path": "deviations"
+        }
+      ],
+      "label": "BC-03",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "aedb3912d81fd51f6573fde726ce9f55c7e55d95b43d295d5e98f92a3aea3018",
+      "section_id": null,
+      "source": "validation",
+      "stage": "S5"
+    }
+  },
+  "composition": "a15afee5c6ef17e3f11b60fcd6ede3daf3d0b74633fa2161c1608ab06b6a5cba",
+  "schema_version": 1
+}

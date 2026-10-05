@@ -1,0 +1,1538 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "enterprise_relationship/context"
+    ]
+  },
+  "omitted": [
+    {
+      "fact_id": "identity:repository",
+      "reason": "Repository identity is not relevant to toolchain requirements and is stated elsewhere in the document.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision hash is not relevant to toolchain requirements and is stated elsewhere in the document.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "Family identity is not relevant to toolchain requirements and is stated elsewhere in the document.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "Ecosystem identity is not relevant to toolchain requirements and is stated elsewhere in the document.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:066.heading",
+      "reason": "Heading identity is not relevant to toolchain requirements and is rendered verbatim by the renderer.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:python_requires",
+        "package:license",
+        "install_command:pip",
+        "example:001",
+        "example:002",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "example:008",
+        "public_symbol:aspose_font.smartinstancer.instantiate",
+        "public_symbol:aspose_font.smartinstancer.check_compatibility",
+        "public_symbol:aspose_font.webfontbuilder.build",
+        "public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage",
+        "format:output.png",
+        "format:output.svg",
+        "format:output.html",
+        "public_symbol:aspose_font.cli.main",
+        "public_symbol:aspose_font.mcp.main",
+        "public_symbol:aspose_font.mcp.font_subset",
+        "public_symbol:aspose_font.mcp.web_build",
+        "format:input.ttf",
+        "public_symbol:aspose_font.fontloader.open",
+        "public_symbol:aspose_font.ttffont.axes",
+        "public_symbol:aspose_font.ttffont.named_instances",
+        "public_symbol:aspose_font.ttffont.metrics",
+        "public_symbol:aspose_font.smartinstancer.preview_naming_policy",
+        "public_symbol:aspose_font.fontsubsetter.available_presets",
+        "public_symbol:aspose_font.fontqareport.write_html",
+        "public_symbol:aspose_font.deltainspector.compare_variable_glyph",
+        "public_symbol:aspose_font.compatibilitychecker.compare_variable_instances"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Font FOSS for Python is a Python library that enables developers to open, inspect, subset, and convert variable and static OpenType fonts. It solves problems around font web optimization, variable font instantiation, and quality assurance by providing tools to build web font bundles, generate previews in .png and .svg formats, and produce HTML quality reports. The library is used by font engineers and web developers who need to prepare fonts for production use, inspect glyph-level changes across instances, and ensure compatibility between font variants. It supports reading .ttf files and writing .png, .svg, and .html outputs."
+    },
+    {
+      "fact_ids": [
+        "format:input.ttf",
+        "public_symbol:aspose_font.fontloader.open",
+        "public_symbol:aspose_font.ttffont.axes",
+        "public_symbol:aspose_font.ttffont.metrics",
+        "public_symbol:aspose_font.ttffont.named_instances"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Open .ttf variable fonts using aspose_font.FontLoader.open and inspect their axes, named_instances, and metrics through the aspose_font.TtfFont interface."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008",
+        "public_symbol:aspose_font.smartinstancer.instantiate",
+        "public_symbol:aspose_font.smartinstancer.preview_naming_policy"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Instantiate specific variable font instances with aspose_font.SmartInstancer.instantiate and preview naming outcomes using aspose_font.SmartInstancer.preview_naming_policy."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "public_symbol:aspose_font.fontsubsetter.available_presets",
+        "public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Subset fonts for web delivery using aspose_font.FontSubsetter.subset_for_web_with_coverage with presets from aspose_font.FontSubsetter.available_presets."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "example:005",
+        "example:008",
+        "format:output.html",
+        "format:output.png",
+        "format:output.svg",
+        "public_symbol:aspose_font.fontqareport.write_html"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Generate visual previews in .png and .svg formats and machine-readable QA reports in .html using aspose_font.FontQaReport.write_html."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:008",
+        "public_symbol:aspose_font.compatibilitychecker.compare_variable_instances",
+        "public_symbol:aspose_font.deltainspector.compare_variable_glyph"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Inspect interpolation deltas and compatibility between variable font instances using aspose_font.DeltaInspector.compare_variable_glyph and aspose_font.CompatibilityChecker.compare_variable_instances."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.mcp.font_subset",
+        "public_symbol:aspose_font.mcp.main",
+        "public_symbol:aspose_font.mcp.web_build"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Support command-line and MCP automation through aspose_font.mcp.main, aspose_font.mcp.font_subset, and aspose_font.mcp.web_build entry points."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Build a web handoff package for Latin-covered variable font glyphs with a preview string."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "Generate QA evidence for the same variable font with Latin coverage and a named preview instance."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "Aspose.Font FOSS for Python supports variable font workflows including family review, axis grid proof, delta inspection, and web package handoff."
+    },
+    {
+      "fact_ids": [
+        "example:004"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Build a family review board for multiple named instances."
+    },
+    {
+      "fact_ids": [
+        "example:005"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Generate an axis grid proof sheet for a single axis."
+    },
+    {
+      "fact_ids": [
+        "example:006"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Inspect outline deltas between two named instances."
+    },
+    {
+      "fact_ids": [
+        "example:007"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Inspect variable font structure and instance metadata."
+    },
+    {
+      "fact_ids": [
+        "example:008"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:008",
+      "text": "Build web packages, QA reports, and compatibility checks."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.fontloader",
+        "public_symbol:aspose_font.fontloader.load",
+        "public_symbol:aspose_font.fontloader.open",
+        "public_symbol:aspose_font.smartinstancer",
+        "public_symbol:aspose_font.smartinstancer.check_compatibility",
+        "public_symbol:aspose_font.smartinstancer.instantiate",
+        "public_symbol:aspose_font.smartinstancer.resolve",
+        "public_symbol:aspose_font.fontsubsetter",
+        "public_symbol:aspose_font.fontsubsetter.available_presets",
+        "public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage",
+        "public_symbol:aspose_font.webfontbuilder",
+        "public_symbol:aspose_font.webfontbuilder.build"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Font FOSS for Python provides core tools for working with variable fonts, with aspose_font.FontLoader as the primary entry point for loading font data and supporting classes like aspose_font.SmartInstancer, aspose_font.FontSubsetter, and aspose_font.WebFontBuilder handling downstream processing tasks."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.fontloader",
+        "public_symbol:aspose_font.fontloader.load",
+        "public_symbol:aspose_font.fontloader.open"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.fontloader",
+      "text": "The aspose_font.FontLoader class enables loading font data from files or streams using its open and load methods, which parse font files and expose their structure for further processing."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.smartinstancer",
+        "public_symbol:aspose_font.smartinstancer.check_compatibility",
+        "public_symbol:aspose_font.smartinstancer.instantiate",
+        "public_symbol:aspose_font.smartinstancer.resolve"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.smartinstancer",
+      "text": "The aspose_font.SmartInstancer class provides methods to instantiate specific variable font instances, check compatibility between fonts, and resolve axis coordinates to named instances or custom values."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.fontsubsetter",
+        "public_symbol:aspose_font.fontsubsetter.available_presets",
+        "public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.fontsubsetter",
+      "text": "The aspose_font.FontSubsetter class supports web font optimization by allowing subsetting with coverage analysis and applying predefined presets via its available_presets and subset_for_web_with_coverage methods."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.webfontbuilder",
+        "public_symbol:aspose_font.webfontbuilder.build"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.webfontbuilder",
+      "text": "The aspose_font.WebFontBuilder class builds web-ready font packages using its build method, which generates optimized assets for browser delivery."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.fontqareporter",
+        "public_symbol:aspose_font.fontqareporter.build",
+        "public_symbol:aspose_font.fontqareporter.build_package"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.fontqareporter",
+      "text": "The aspose_font.FontQaReporter class generates quality assurance reports and packages using its build and build_package methods to validate font correctness and consistency."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.deltainspector",
+        "public_symbol:aspose_font.deltainspector.compare_variable_glyph",
+        "public_symbol:aspose_font.deltainspector.inspect_variable_glyph"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.deltainspector",
+      "text": "The aspose_font.DeltaInspector class compares variable font glyphs and inspects deltas using compare_variable_glyph and inspect_variable_glyph to detect rendering inconsistencies."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.animationpreviewbuilder",
+        "public_symbol:aspose_font.animationpreviewbuilder.build_axis_sweep",
+        "public_symbol:aspose_font.animationpreviewbuilder.build_path"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.animationpreviewbuilder",
+      "text": "The aspose_font.AnimationPreviewBuilder class creates animated previews of variable fonts using build_axis_sweep and build_path to visualize axis interactions."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.mcp.font_subset",
+        "public_symbol:aspose_font.mcp.main",
+        "public_symbol:aspose_font.mcp.web_build"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.mcp.main",
+      "text": "The aspose_font.mcp.main entry point orchestrates command-line operations including font subsetting and web builds via its font_subset and web_build subcommands."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.fontpreviewbuilder",
+        "public_symbol:aspose_font.fontpreviewbuilder.build"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.fontpreviewbuilder",
+      "text": "The aspose_font.FontPreviewBuilder class generates static font previews using its build method to produce visual samples for review and documentation."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.fontcleaner",
+        "public_symbol:aspose_font.fontcleaner.clean_for_web"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.fontcleaner",
+      "text": "The aspose_font.FontCleaner class prepares fonts for web use by removing unnecessary table data with its clean_for_web method."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.ttffont",
+        "public_symbol:aspose_font.ttffont.axes",
+        "public_symbol:aspose_font.ttffont.named_instances",
+        "public_symbol:aspose_font.ttffont.smart_instancer"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_font.ttffont",
+      "text": "The aspose_font.TtfFont class represents a TrueType font and exposes its variable axes, named instances, and smart instancer instance through its axes, named_instances, and smart_instancer members."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.activetuplesummary"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.activetuplesummary",
+      "text": "ActiveTupleSummary represents a summary of active variation tuples for a variable font axis."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.animationasset"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.animationasset",
+      "text": "AnimationAsset encapsulates an asset used in font animation sequences."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.animationframepackage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.animationframepackage",
+      "text": "AnimationFramePackage groups animation frames for export or review purposes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.animationpreset"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.animationpreset",
+      "text": "AnimationPreset defines a reusable configuration for font animation effects."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.animationpreviewbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.animationpreviewbuilder",
+      "text": "AnimationPreviewBuilder constructs preview packages for font animation variations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.animationreviewpackage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.animationreviewpackage",
+      "text": "AnimationReviewPackage bundles animation assets for internal review workflows."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.animationshowcasepackage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.animationshowcasepackage",
+      "text": "AnimationShowcasePackage packages animation assets for presentation or demonstration."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.animationstep"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.animationstep",
+      "text": "AnimationStep represents a single step in a font animation sequence."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.axisrecord"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.axisrecord",
+      "text": "AxisRecord describes a single axis in a variable font's variation space."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cfffont"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.cfffont",
+      "text": "CffFont represents a Compact Font Format font and provides access to its internal structures."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.closepath"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.closepath",
+      "text": "ClosePath indicates the end of a contour in a glyph's outline path."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.compatibilitychecker"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.compatibilitychecker",
+      "text": "CompatibilityChecker compares fonts or font instances to determine compatibility."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.compatibilityreport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.compatibilityreport",
+      "text": "CompatibilityReport summarizes compatibility findings between fonts or instances."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.compositecomponentmovement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.compositecomponentmovement",
+      "text": "CompositeComponentMovement describes movement of a component within a composite glyph."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.compositeglyphcomponent"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.compositeglyphcomponent",
+      "text": "CompositeGlyphComponent represents a single component in a composite glyph definition."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.curveto"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.curveto",
+      "text": "CurveTo defines a cubic Bézier curve segment in a glyph outline."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.deltainspector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.deltainspector",
+      "text": "DeltaInspector analyzes and compares variation deltas across glyphs or text."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.deltapoint"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.deltapoint",
+      "text": "DeltaPoint represents a single point's variation delta in a glyph."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.deltatuplereport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.deltatuplereport",
+      "text": "DeltaTupleReport summarizes delta values for a specific variation tuple."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.familyreviewexportpackage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.familyreviewexportpackage",
+      "text": "FamilyReviewExportPackage bundles a font family for review and export workflows."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.font"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.font",
+      "text": "Font provides a unified interface for loading, inspecting, and working with font files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontconversionexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fontconversionexception",
+      "text": "FontConversionException is raised when a font conversion operation fails."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontencoding"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fontencoding",
+      "text": "FontEncoding describes the character encoding used by a font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fontexception",
+      "text": "FontException is the base class for font-related errors."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontloader"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fontloader",
+      "text": "FontLoader provides methods to load fonts from files or streams."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontmetrics"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fontmetrics",
+      "text": "FontMetrics holds typographic metrics for a font, such as ascender and descender values."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontnotsupportedexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fontnotsupportedexception",
+      "text": "FontNotSupportedException is raised when a font format is not supported."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontparseexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fontparseexception",
+      "text": "FontParseException is raised when a font file cannot be parsed correctly."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontpreviewbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fontpreviewbuilder",
+      "text": "FontPreviewBuilder generates preview images and packages for font inspection."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontsubsetter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fontsubsetter",
+      "text": "FontSubsetter creates optimized subsets of fonts for web or embedding use."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fonttype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fonttype",
+      "text": "FontType enumerates the supported font formats, such as TrueType and OpenType."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fvartable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.fvartable",
+      "text": "FvarTable provides access to the font variation axis definitions in a font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyph"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyph",
+      "text": "Glyph represents a single character glyph and its outline data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyphaccessor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyphaccessor",
+      "text": "GlyphAccessor provides indexed access to glyphs within a font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyphcompatibilityissue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyphcompatibilityissue",
+      "text": "GlyphCompatibilityIssue describes a specific compatibility problem with a glyph."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyphdeltacomparisonreport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyphdeltacomparisonreport",
+      "text": "GlyphDeltaComparisonReport compares variation deltas for a glyph across instances."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyphdeltareport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyphdeltareport",
+      "text": "GlyphDeltaReport summarizes variation deltas for a single glyph."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyphid"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyphid",
+      "text": "GlyphId uniquely identifies a glyph within a font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyphinterpolationissue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyphinterpolationissue",
+      "text": "GlyphInterpolationIssue describes a problem with glyph interpolation across instances."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyphnotfoundexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyphnotfoundexception",
+      "text": "GlyphNotFoundException is raised when a requested glyph is missing from a font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyphoutlinestats"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyphoutlinestats",
+      "text": "GlyphOutlineStats represents statistics about the outline of a glyph."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.glyphpath"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.glyphpath",
+      "text": "GlyphPath defines the vector path of a glyph using a sequence of path commands."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.kernpair"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.kernpair",
+      "text": "KernPair stores a pair of glyphs and their kerning adjustment value."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.languageprofile"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.languageprofile",
+      "text": "LanguageProfile holds language-specific naming information for a font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.lineto"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.lineto",
+      "text": "LineTo represents a straight line segment in a glyph path."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.localizationcoverage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.localizationcoverage",
+      "text": "LocalizationCoverage indicates which languages are covered, requested, matched, or missing for a font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.localizationresolution"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.localizationresolution",
+      "text": "LocalizationResolution describes how closely a font's language coverage matches a requested language."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.moveto"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.moveto",
+      "text": "MoveTo defines the starting point of a new contour in a glyph path."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.namedinstance"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.namedinstance",
+      "text": "NamedInstance represents a named variation of a variable font defined in the font's name table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.pathcommand"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.pathcommand",
+      "text": "PathCommand is the base type for individual drawing operations in a glyph path."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.platformnamingdiagnostics"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.platformnamingdiagnostics",
+      "text": "PlatformNamingDiagnostics provides diagnostic information about naming support across platforms."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.previewimage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.previewimage",
+      "text": "PreviewImage holds an image used for font preview purposes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.quadraticto"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.quadraticto",
+      "text": "QuadraticTo represents a quadratic Bézier curve segment in a glyph path."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.requestedlanguagehint"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.requestedlanguagehint",
+      "text": "RequestedLanguageHint indicates which language a client requested for font localization."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.resolvedinstance"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.resolvedinstance",
+      "text": "ResolvedInstance represents a specific instance of a variable font after coordinate resolution."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.smartinstancer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.smartinstancer",
+      "text": "SmartInstancer provides tools to resolve, inspect, and generate previews for variable font instances."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.statnamingdiagnostics"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.statnamingdiagnostics",
+      "text": "StatNamingDiagnostics provides diagnostic information about STAT table naming support."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.textdeltacomparisonreport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.textdeltacomparisonreport",
+      "text": "TextDeltaComparisonReport summarizes differences between two text rendering outputs."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.textdeltareport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.textdeltareport",
+      "text": "TextDeltaReport summarizes which glyphs are active, supported, or missing in a text rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttffont"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttffont",
+      "text": "TtfFont represents a TrueType font file and provides access to its tables and metadata."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.tuplescalardelta"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.tuplescalardelta",
+      "text": "TupleScalarDelta represents a scalar variation delta for a single tuple in a variable font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.type1font"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.type1font",
+      "text": "Type1Font represents a font file that follows the Type 1 format specification."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.unsupportedfontformatexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.unsupportedfontformatexception",
+      "text": "UnsupportedFontFormatException is raised when a font file format is not supported."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.variableaxis"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.variableaxis",
+      "text": "VariableAxis describes a variation axis of a variable font, such as weight or width."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.variableaxispreset"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.variableaxispreset",
+      "text": "VariableAxisPreset defines standard variation axes with default labels and ranges."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.variableinstance"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.variableinstance",
+      "text": "VariableInstance represents a specific point in the variation space of a variable font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.webfontasset"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.webfontasset",
+      "text": "WebFontAsset represents a single web font file and its associated metadata."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.webfontbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.webfontbuilder",
+      "text": "WebFontBuilder provides methods to construct and optimize web font packages."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.webfontbundle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.webfontbundle",
+      "text": "WebFontBundle groups web font assets for a single font family and style."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.webfontfamilypackage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.webfontfamilypackage",
+      "text": "WebFontFamilyPackage bundles all web font assets for a complete font family."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.webfontoptimizer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.webfontoptimizer",
+      "text": "WebFontOptimizer provides tools to reduce web font file sizes and improve loading."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.webfontoptimizerpackage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.webfontoptimizerpackage",
+      "text": "WebFontOptimizerPackage holds configuration and results for web font optimization."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.woff2font"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.woff2font",
+      "text": "Woff2Font represents a WOFF2 compressed web font file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.wofffont"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.wofffont",
+      "text": "WoffFont represents a WOFF compressed web font file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cff.cffcharset"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.cff.cffcharset",
+      "text": "CffCharset defines the character set mapping for a Compact Font Format table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cff.cffdict"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.cff.cffdict",
+      "text": "CffDict holds dictionary entries for a Compact Font Format table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cff.cffencoding"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.cff.cffencoding",
+      "text": "CffEncoding defines how glyphs are encoded in a Compact Font Format table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cff.cffindex"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.cff.cffindex",
+      "text": "CffIndex provides indexed access to data within a Compact Font Format table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cff.privatedict"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.cff.privatedict",
+      "text": "PrivateDict stores private dictionary entries for a Compact Font Format table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cff.topdict"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.cff.topdict",
+      "text": "TopDict holds the top-level dictionary entries for a Compact Font Format table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cff.dict_privatedictop"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.cff.dict_privatedictop",
+      "text": "PrivateDictOp represents an operator in the CFF Private Dictionary used during font parsing and serialization."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cff.dict_topdictop"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.cff.dict_topdictop",
+      "text": "TopDictOp represents an operator in the CFF Top Dictionary used during font parsing and serialization."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.converter.curveadapter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.converter.curveadapter",
+      "text": "CurveAdapter provides utilities to convert between cubic and quadratic Bézier curve representations in font outlines."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.converter.fontconverter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.converter.fontconverter",
+      "text": "FontConverter enables conversion of font data between different font formats supported by Aspose.Font FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.eot.font.eotheader"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.eot.font.eotheader",
+      "text": "EotHeader encapsulates the header structure of an Embedded OpenType font file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.reporting.completedtaskrecord"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.reporting.completedtaskrecord",
+      "text": "CompletedTaskRecord holds metadata about a task that has finished processing in the reporting system."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.reporting.taskcompletionreceipt"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.reporting.taskcompletionreceipt",
+      "text": "TaskCompletionReceipt provides a formal acknowledgment that a task has been completed successfully."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.reporting.tasktokenestimate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.reporting.tasktokenestimate",
+      "text": "TaskTokenEstimate supplies an estimated token count required to process a given font task."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.serializer.cffserializer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.serializer.cffserializer",
+      "text": "CffSerializer writes Compact Font Format data to a byte stream according to the CFF specification."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.serializer.eotserializer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.serializer.eotserializer",
+      "text": "EotSerializer writes Embedded OpenType font data to a byte stream according to the EOT specification."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.serializer.ttfserializer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.serializer.ttfserializer",
+      "text": "TtfSerializer writes TrueType font data to a byte stream according to the TrueType specification."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.serializer.type1serializer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.serializer.type1serializer",
+      "text": "Type1Serializer writes font data to either PFA or PFB format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.ttftableset"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.ttftableset",
+      "text": "TtfTableSet provides access to the raw table data of a TrueType font file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.collection.ttcfacerecord"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.collection.ttcfacerecord",
+      "text": "TtcFaceRecord describes a single font face within a TrueType Collection file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.glyph.ttfglyphparser"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.glyph.ttfglyphparser",
+      "text": "TtfGlyphParser reads and interprets glyph outline data from a TrueType font file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.instancer.ttfinstancer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.instancer.ttfinstancer",
+      "text": "TtfInstancer generates a static instance from a variable font by applying specified axis values."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.cmaptable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.cmaptable",
+      "text": "CmapTable manages the character code to glyph index mapping table in a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.glyftable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.glyftable",
+      "text": "GlyfTable stores and provides access to the glyph outline data in a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hmetric"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hmetric",
+      "text": "HMetric holds horizontal metrics for a single glyph in a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.headtable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.headtable",
+      "text": "HeadTable contains global information about the TrueType font file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hheatable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hheatable",
+      "text": "HheaTable provides horizontal header metrics for a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hmtxtable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hmtxtable",
+      "text": "HmtxTable stores horizontal metrics for all glyphs in a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hvartable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hvartable",
+      "text": "HvarTable manages horizontal variation data for variable fonts."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.kerntable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.kerntable",
+      "text": "KernTable stores kerning pair adjustments for a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.locatable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.locatable",
+      "text": "LocaTable provides offsets to glyph data locations within the glyf table of a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.maxptable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.maxptable",
+      "text": "MaxpTable contains maximum profile information for a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.nametable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.nametable",
+      "text": "NameTable stores human-readable names and metadata for a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.os2table"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.os2table",
+      "text": "Os2Table contains Windows-specific font metrics and properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.posttable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.posttable",
+      "text": "PostTable stores glyph naming and metric information for a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.avar.avaraxismap"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.avar.avaraxismap",
+      "text": "AvarAxisMap defines axis variation mapping curves for a variable font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.avar.avartable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.avar.avartable",
+      "text": "AvarTable manages axis variation mapping data for a variable font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.cmap.cmapsubtable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.cmap.cmapsubtable",
+      "text": "CmapSubtable represents a single subtable within the character mapping table of a TrueType font."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.gvar.gvartable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.gvar.gvartable",
+      "text": "GvarTable stores glyph variation data for variable fonts."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.gvar.tuplevariation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.gvar.tuplevariation",
+      "text": "TupleVariation describes a single variation tuple within a glyph variation data record."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hvar.deltasetindex"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hvar.deltasetindex",
+      "text": "DeltaSetIndex encodes a reference to a set of variation deltas in an HVAR table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hvar.deltasetindexmap"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hvar.deltasetindexmap",
+      "text": "DeltaSetIndexMap maps glyph indices to delta set indices in an HVAR table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hvar.itemvariationdata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hvar.itemvariationdata",
+      "text": "ItemVariationData holds a set of variation deltas for a subset of items in an HVAR table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hvar.itemvariationstore"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hvar.itemvariationstore",
+      "text": "ItemVariationStore organizes variation data for items in an HVAR table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hvar.variationregion"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hvar.variationregion",
+      "text": "VariationRegion defines a region in variation space for an HVAR table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.hvar.variationregionaxis"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.hvar.variationregionaxis",
+      "text": "VariationRegionAxis describes a single axis range within a variation region for an HVAR table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttf.tables.name.namerecord"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.ttf.tables.name.namerecord",
+      "text": "Represents a name record in a TrueType name table, storing typographic name information such as font family and subfamily names with platform and encoding details."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.type1.afmdata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.type1.afmdata",
+      "text": "Encapsulates metrics and metadata for a Type 1 font extracted from an AFM file, including glyph metrics, kerning pairs, and font-wide information."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.type1.afmglyphmetric"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.type1.afmglyphmetric",
+      "text": "Describes the bounding box, advance width, and other metrics for a single glyph in a Type 1 font's AFM data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.type1.pfbsegment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.type1.pfbsegment",
+      "text": "Represents a segment of a Type 1 font's PFB file, containing either ASCII or binary encoded font data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.type1.type1fontdata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.type1.type1fontdata",
+      "text": "Holds the complete data for a Type 1 font, including metrics from AFM and binary data from PFB, enabling font inspection and conversion."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.type1.type1interpreter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_font.type1.type1interpreter",
+      "text": "Processes Type 1 font program data to reconstruct font outlines and metrics from encoded glyph descriptions."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:aspose_font.converter.fontconverter"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Font FOSS for Python provides font conversion and inspection capabilities for Python applications, supporting variable font manipulation through the FontConverter class."
+    },
+    {
+      "fact_ids": [
+        "package:python_requires"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "The package requires Python version 3.10 or higher."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.converter.fontconverter"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "The FontConverter class exposes methods such as convert, build, and open to process font data, but does not support direct manipulation of internal structures like _raw or active_tuples."
+    },
+    {
+      "fact_ids": [
+        "dependency:optional.mcp.mcp-1.0"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Optional support for the mcp>=1.0 package is available but not required for core functionality."
+    },
+    {
+      "fact_ids": [
+        "identity:platform",
+        "package:python_requires",
+        "package:name",
+        "package:version",
+        "package:license",
+        "build_test_asset:tests",
+        "inherited_unit:068.paragraph"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "The toolchain requires Python 3.10 or later and uses the aspose-font package version 1.0.0 under the MIT license. Test suites in the tests/ directory validate font loading, instance instantiation, and web bundle generation, ensuring compatibility and correctness across variable font axes. These verification flows also refresh the generated demo site content."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "The commercial Aspose.Font — commercial edition extends this open-source offering with additional capabilities for variable font manipulation and web optimization workflows."
+    }
+  ]
+}
