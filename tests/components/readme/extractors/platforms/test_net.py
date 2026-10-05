@@ -275,6 +275,44 @@ def test_an_unreadable_registry_leaves_the_install_claim_unresolved(
     assert probes and probes[0].outcome == "UNRESOLVED"
 
 
+def test_a_package_the_registry_does_not_carry_contradicts_the_install_claim(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    """A registry that answers conclusively "not published" contradicts the install claim.
+
+    The mirror of Rust's negative control: the unreadable-registry test above proves silence is
+    not absence; this proves a conclusive absence is not silence. README_CONTRACT section 2 row 8
+    requires an unpublished package to be stated plainly rather than shown with an install
+    command the registry contradicts, and BC-02 reads this polarity and the evidence wording.
+    """
+    tree = _repository(tmp_path)
+    manifest = net.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    facts = net.PLUGIN.manifest_facts(tmp_path, manifest, tree)
+
+    def absent(*args: Any, **kwargs: Any) -> Any:
+        from repository_presenter.components.readme.extractors.surface.registry import (
+            RegistryObservation,
+        )
+
+        return RegistryObservation(
+            "nuget",
+            "Aspose.Widget",
+            False,
+            False,
+            "https://api.nuget.org/v3-flatcontainer/aspose.widget/index.json",
+            "nuget-api",
+            "live_probe",
+        )
+
+    monkeypatch.setattr(net, "observe", absent)
+    resolved, probes = net.PLUGIN.registry_facts(facts)
+    assert [fact.polarity for fact in resolved] == ["CONTRADICTED"]
+    assert resolved[0].confidence == 1.0
+    assert "distribution not found" in (resolved[0].evidence[-1].detail or "")
+    assert probes and probes[0].outcome == "CONTRADICTED"
+
+
 def test_a_missing_verifier_reports_not_verified_rather_than_failure(tmp_path: Path) -> None:
     """Section 29.6 E5: a check this plugin cannot run is UNRESOLVED, never CONTRADICTED."""
     from repository_presenter.core.examples import ExampleCandidate
@@ -366,7 +404,6 @@ def test_the_plugin_imports_no_sibling_ecosystem() -> None:
                 "pathlib",
                 "typing",
                 "__future__",
-                "tree_sitter_language_pack",
                 # A project file is XML, and reading what it declares about itself is .NET's
                 # own knowledge; the standard library parser keeps it out of shared code.
                 "xml.etree",

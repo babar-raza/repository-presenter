@@ -829,7 +829,7 @@ def repair_defect(
         tx.prompts,
     )
     contract = causal.manifest.output.schema_
-    probe = _slot_set_probe(current, defect)
+    probe = _slot_set_probe(current, defect, tx.facts)
     # G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC (BarCode-Python BC-10 F03): an S6 repair
     # gets review's own stricter title-restatement standard layered onto its stage_checks (never
     # onto unit_checks itself) and a matching recover= last resort, so a reply that still opens a
@@ -947,15 +947,26 @@ def repair_defect(
     repairs.record(defect, "repaired", result.request_sha256, result.output.get("changes", []))
 
 
-def _slot_set_probe(current: Round, defect: Defect) -> SlotSetProbe | None:
-    """The plan's own slot set for an authored section's repair; None for every other stage."""
+def _slot_set_probe(current: Round, defect: Defect, facts: FactsDocument) -> SlotSetProbe | None:
+    """The plan's own slot set and per-slot fact binding for an authored section's repair; None
+    for every other stage. The fact binding is what lets a reply citing a SUPPORTED fact outside
+    its slot's plan be routed to planning (SlotSetProbe.observe_facts) instead of re-asked."""
     if defect.stage != "S6":
         return None
     task = next(
         (task for task in current.tasks if task.section_id == defect.section_id),
         None,
     )
-    return None if task is None else SlotSetProbe(frozenset(task.slots))
+    if task is None:
+        return None
+    return SlotSetProbe(
+        frozenset(task.slots),
+        fact_sets=dict(task.slot_facts),
+        fact_universe=frozenset(fact.id for fact in facts.facts),
+        neutral_facts=frozenset(
+            fact.id for fact in facts.facts if fact.kind in {"identity", "package"}
+        ),
+    )
 
 
 def escalate_to_plan(
@@ -971,11 +982,19 @@ def escalate_to_plan(
     the attempt that proved the need, so run_transaction's one-attempt-per-fingerprint rule allows
     exactly one escalation and no more.
     """
-    returned = ", ".join(sorted(probe.returned or ())) or "no slot"
-    reason = (
-        f"the revision would leave {returned} where the plan assigned "
-        f"{', '.join(sorted(probe.required))}; escalated once to a plan-level repair at S5"
-    )
+    parts: list[str] = []
+    if probe.returned is not None and probe.returned != probe.required:
+        returned = ", ".join(sorted(probe.returned)) or "no slot"
+        parts.append(
+            f"the revision would leave {returned} where the plan assigned "
+            f"{', '.join(sorted(probe.required))}"
+        )
+    if probe.fact_conflicts:
+        parts.append(
+            "the revision cites "
+            f"{', '.join(sorted(probe.fact_conflicts))} outside the slot's planned facts"
+        )
+    reason = "; ".join(parts) + "; escalated once to a plan-level repair at S5"
     repairs.record(replace(defect, reason=reason), "escalated")
     escalated = replace(
         defect,

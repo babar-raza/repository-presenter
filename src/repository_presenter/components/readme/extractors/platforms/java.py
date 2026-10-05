@@ -35,6 +35,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
 )
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
 JAVA: Final = EcosystemSpec(
@@ -66,6 +67,7 @@ JAVA: Final = EcosystemSpec(
     # (Slides declares `release`, 3D and Cells `target`, PDF `target`). The fact's own evidence
     # names the exact property that was read.
     floor_declaration="maven.compiler",
+    floor_is_minimum=True,
     manifest_globs=("pom.xml",),
     source_suffixes=frozenset({".java"}),
 )
@@ -459,8 +461,6 @@ class JavaPlugin:
         (`org.aspose.slides.foss.internal.*`) and its README mentions it nowhere - so parity holds
         with the exclusion on and the default stands for this cohort.
         """
-        from tree_sitter_language_pack import get_parser
-
         symbols = surface_symbols(
             get_parser(_PARSER_LANGUAGE),
             _PARSER_LANGUAGE,

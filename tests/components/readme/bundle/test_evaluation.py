@@ -115,21 +115,44 @@ def test_each_dependency_class_names_the_state_it_reopens() -> None:
         "acceptance_profile_version": ("acceptance_profile_version", "REVIEWING"),
         "policy__sha256": ("policy", "PLANNING"),
     }
+    scopes = {
+        "source": "facts",
+        "environment.python_version": "facts",
+        "environment.extractor_version": "facts",
+        "environment.inherited_units_version": "facts",
+        "facts": "facts",
+        "prompts.repository_investigation": "evidence",
+        "prompts.source_reconciliation": "reconciliation",
+        "prompts.presentation_planning": "planning",
+        "prompts.section_authoring": "authoring",
+        "prompts.independent_review": "reviewer",
+        "prompts.targeted_repair": "reviewer",
+        "contract_version": "validator",
+        "components.shell": "presentation",
+        "components.renderer": "presentation",
+        "components.normalisation": "authoring",
+        "components.reviewer_logic": "reviewer",
+        "validators": "validator",
+        "acceptance_profile_version": "reviewer",
+        "policy": "planning",
+    }
     for path, (dependency, state) in cases.items():
         evaluation = evaluate(SEALED, _current(**{path: "changed"}))
         assert [c.dependency for c in evaluation.changes] == [dependency], path
         assert evaluation.earliest == state, path
+        # Every change also names the typed invalidation scope it belongs to.
+        assert [c.scope for c in evaluation.changes] == [scopes[dependency]], path
     added = _current()
     added["facts"]["format:input.obj"] = "3" * 64
     del added["facts"]["identity:repository"]
     evaluation = evaluate(SEALED, added)
     assert evaluation.changes == (
-        Change("facts", "1 fact records added, 1 removed, 0 altered", "EXTRACTING"),
+        Change("facts", "1 fact records added, 1 removed, 0 altered", "EXTRACTING", "facts"),
     )
     new_prompt = _current()
     new_prompt["prompts"]["extra_job"] = {"sha256": "z" * 64, "version": "1", "model_route": "m"}
     assert evaluate(SEALED, new_prompt).changes == (
-        Change("prompts.extra_job", "prompt added", "INVESTIGATING"),
+        Change("prompts.extra_job", "prompt added", "INVESTIGATING", "evidence"),
     )
 
 
@@ -235,3 +258,65 @@ def test_each_dependency_class_of_a_real_record_reopens_its_own_state(
     assert evaluation.earliest == state, label
     assert len(evaluation.changes) == 1, (label, evaluation.changes)
     assert evaluation.changes[0].dependency.startswith(path[0]), label
+
+
+# G5-W02 / RC7 follow-up (2026-10-04): the environment class carries each machine toolchain's
+# resolved version, so a toolchain that appears, disappears or changes version between two
+# fingerprint computations reopens EXTRACTING - the stage whose receipts it could have changed.
+# Only the resolution and the version probe are faked; the record is built by the real function.
+def _record_with_toolchains(
+    monkeypatch: pytest.MonkeyPatch, versions: dict[str, str]
+) -> dict[str, Any]:
+    from repository_presenter.core import toolchains
+
+    monkeypatch.setattr(
+        toolchains,
+        "resolve_tool",
+        lambda name: f"/machine/{name}" if name in versions else None,
+    )
+    monkeypatch.setattr(toolchains, "probe_version", lambda name, path: versions[name])
+    facts = FactsDocument(
+        "owner/repo",
+        "r" * 40,
+        (Fact("identity:repository", "identity", "owner/repo", (Evidence("x"),)),),
+    )
+    prompts = load_manifests(REPO_ROOT / "prompts")
+    return upstream_dependencies("r" * 40, "t" * 64, facts, prompts)
+
+
+def test_a_toolchain_that_disappears_between_two_fingerprints_reopens_extracting(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    before = _record_with_toolchains(monkeypatch, {"javac": "21.0.11", "cmake": "4.4.1"})
+    after = _record_with_toolchains(monkeypatch, {"cmake": "4.4.1"})
+    evaluation = evaluate(before, after)
+    assert evaluation.earliest == "EXTRACTING"
+    assert [(change.dependency, change.detail) for change in evaluation.changes] == [
+        ("environment.toolchains.javac", "21.0.11 -> absent")
+    ]
+
+
+def test_a_toolchain_version_change_reopens_extracting(monkeypatch: pytest.MonkeyPatch) -> None:
+    before = _record_with_toolchains(monkeypatch, {"javac": "21.0.11"})
+    after = _record_with_toolchains(monkeypatch, {"javac": "17.0.19"})
+    evaluation = evaluate(before, after)
+    assert evaluation.earliest == "EXTRACTING"
+    assert evaluation.changes[0].dependency == "environment.toolchains.javac"
+
+
+def test_identical_toolchain_availability_reopens_nothing(monkeypatch: pytest.MonkeyPatch) -> None:
+    versions = {"javac": "21.0.11", "cmake": "4.4.1", "tsc": "5.9.3"}
+    before = _record_with_toolchains(monkeypatch, versions)
+    after = _record_with_toolchains(monkeypatch, dict(versions))
+    assert evaluate(before, after).earliest == "NONE"
+
+
+def test_a_record_sealed_before_toolchains_were_fingerprinted_reopens_extracting(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A sealed record without the toolchain class cannot prove what the verifiers saw."""
+    sealed = _record_with_toolchains(monkeypatch, {"javac": "21.0.11"})
+    legacy = copy.deepcopy(sealed)
+    del legacy["environment"]["toolchains"]
+    evaluation = evaluate(legacy, sealed)
+    assert evaluation.earliest == "EXTRACTING"

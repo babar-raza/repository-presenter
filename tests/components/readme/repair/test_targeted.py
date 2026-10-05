@@ -7,15 +7,19 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
 from jsonschema import Draft202012Validator
 
+from repository_presenter.components.readme.repair import targeted
 from repository_presenter.components.readme.repair.targeted import (
     EVIDENCE_REASON,
+    REPAIR_LOGIC_VERSION,
     Defect,
     RepairLedger,
     SlotSetProbe,
     defect_fingerprint,
     merge_equivalent,
+    omission_carriers,
     repair_checks,
     repair_packet,
     repair_schema,
@@ -23,6 +27,7 @@ from repository_presenter.components.readme.repair.targeted import (
     validation_defects,
     visible_line_budget_hint,
 )
+from repository_presenter.components.readme.review.independent.review import omission_defect
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
@@ -499,6 +504,7 @@ def test_the_ledger_records_each_fingerprint_once_and_survives_reload(tmp_path: 
         "request_sha256": None,
         "changes": [],
         "misrouted": False,
+        "repair_logic_version": REPAIR_LOGIC_VERSION,
     }
     assert reloaded.summary() == "1 repaired (F01 S6 opening), 1 unrepairable recorded advisory"
     reloaded.note_re_raised(Defect("abc", "review", "F03", "opening", "S6", {"id": "F03"}))
@@ -1330,6 +1336,62 @@ def test_a_repair_packet_forwards_a_given_visible_line_budget_hint_verbatim() ->
     assert packet["visible_line_budget"] == given_hint
 
 
+def test_a_repair_citing_a_supported_fact_outside_its_slot_is_a_planning_conflict() -> None:
+    """2026-10-04, aspose-font-foss/Aspose.Font-FOSS-for-Python, S6 finding F05 (scope_limitations).
+    The reviewer's correct wording attributes methods to ``aspose_font.SmartInstancer``, citing
+    that class's own SUPPORTED fact - which the plan had not bound to the slot (the plan gave the
+    slot only the module-level fact). A reply citing it is rejected, and the rejection latches a
+    planning conflict so the repair escalates once to S5 instead of being recorded unrepairable
+    after a no-op retry."""
+    slot_facts = {"limitation:3": frozenset({"public_symbol:aspose_font"})}
+    probe = SlotSetProbe(
+        frozenset({"limitation:3"}),
+        fact_sets=slot_facts,
+        fact_universe=frozenset(
+            {"public_symbol:aspose_font", "public_symbol:aspose_font.smartinstancer"}
+        ),
+        neutral_facts=frozenset({"package:python_requires"}),
+    )
+    revised = {
+        "units": [
+            {
+                "slot": "limitation:3",
+                "fact_ids": ["public_symbol:aspose_font.smartinstancer"],
+            }
+        ]
+    }
+    probe.returned = frozenset({"limitation:3"})
+    assert not probe.conflicts
+    assert probe.observe_facts(revised["units"]) == frozenset(
+        {"public_symbol:aspose_font.smartinstancer"}
+    )
+    assert probe.conflicts
+    assert probe.fact_conflicts == frozenset({"public_symbol:aspose_font.smartinstancer"})
+
+
+def test_fact_conflict_negative_controls_do_not_route_to_planning() -> None:
+    """Negative controls for the fact-selection signal: a slot's own facts, a neutral identity or
+    package fact, and an ID that is not a SUPPORTED fact at all must never latch a conflict."""
+    probe = SlotSetProbe(
+        frozenset({"limitation:3", "limitation:4"}),
+        fact_sets={
+            "limitation:3": frozenset({"public_symbol:aspose_font"}),
+            "limitation:4": frozenset({"public_symbol:aspose_font"}),
+        },
+        fact_universe=frozenset(
+            {"public_symbol:aspose_font", "public_symbol:aspose_font.smartinstancer"}
+        ),
+        neutral_facts=frozenset({"package:python_requires"}),
+    )
+    own = [{"slot": "limitation:3", "fact_ids": ["public_symbol:aspose_font"]}]
+    neutral = [{"slot": "limitation:4", "fact_ids": ["package:python_requires"]}]
+    unknown = [{"slot": "limitation:4", "fact_ids": ["public_symbol:made_up_method"]}]
+    assert probe.observe_facts(own) == frozenset()
+    assert probe.observe_facts(neutral) == frozenset()
+    assert probe.observe_facts(unknown) == frozenset()
+    assert not probe.conflicts
+
+
 def test_a_repair_packet_carries_the_superseded_inherited_units_its_section_must_carry() -> None:
     """Aspose.Slides for Java, development_testing (BC-10 F08, 2026-10-04): repair_packet drops
     every inherited_unit fact by default (RC1), so an S6 repair of the section could never see the
@@ -1371,3 +1433,294 @@ def test_a_repair_packet_carries_the_superseded_inherited_units_its_section_must
     assert "inherited_unit:099.paragraph" not in carried_ids
     uncarried = repair_packet(ENTRY, defect, {"units": []}, facts, [], {"type": "object"})
     assert all(record["kind"] != "inherited_unit" for record in uncarried["facts"])
+
+
+# --- S5 omission carriers (Font-FOSS-for-Python, 2026-10-05) -------------------------------------
+# The retained rejected S5 reply returned the plan byte-identical and claimed deviations went from
+# "[]" to a truncated repr. The verifier was right; the packet had told the model what was
+# missing but not which plan field could carry it. Fixtures below are the real shapes, trimmed.
+
+_OMISSION_COMMAND = (
+    "aspose-font preview-animation Roboto-VariableFont_wdth,wght.ttf sweep.png "
+    "--axis wdth --start 75 --end 100 --bounce"
+)
+_CARRIER_FACTS = FactsDocument(
+    "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+    "a" * 40,
+    (
+        Fact(
+            "public_symbol:aspose_font.cli.main",
+            "public_symbol",
+            "aspose_font.cli.main",
+            (Evidence("x"),),
+        ),
+        Fact(
+            "public_symbol:aspose_font.mcp.main",
+            "public_symbol",
+            "aspose_font.mcp.main",
+            (Evidence("x"),),
+        ),
+        Fact("example:007", "example", "from aspose_font import FontLoader", (Evidence("x"),)),
+        Fact("example:008", "example", "from aspose_font import WebFontBuilder", (Evidence("x"),)),
+        Fact("link_target:001", "link_target", "https://example.test/docs", (Evidence("x"),)),
+        Fact(
+            "inherited_unit:047.code_block",
+            "inherited_unit",
+            f"```bash\n{_OMISSION_COMMAND}\n```",
+            (Evidence("x"),),
+        ),
+        Fact(
+            "public_symbol:aspose_font.contradicted",
+            "public_symbol",
+            "aspose_font.contradicted",
+            (Evidence("x"),),
+            polarity="CONTRADICTED",
+        ),
+    ),
+)
+_CARRIER_PLAN: dict[str, Any] = {
+    "core_capabilities": [],
+    "additional_example_ids": ["example:007"],
+    "api_hubs": [{"symbol_fact_id": "public_symbol:aspose_font.cli.main", "fact_ids": []}],
+    "links": [],
+    "deviations": [{"section_id": "identity", "text": "kept", "fact_ids": ["link_target:001"]}],
+}
+_PLAN_CONTRACT: dict[str, Any] = {
+    "type": "object",
+    "properties": {name: {} for name in _CARRIER_PLAN},
+}
+
+
+def _omission_defect(
+    section: str, ids: list[str], quotes: list[str], stage: str | None = "S5"
+) -> Defect:
+    record = {
+        "id": "F05",
+        "section_id": section,
+        "causal_stage": "S7",
+        "omission": {
+            "kind": "omission",
+            "section_id": section,
+            "missing_ids": ids,
+            "missing_quotes": quotes,
+        },
+    }
+    return Defect(
+        defect_fingerprint("review", section, stage or "S7", "presentation", "|"),
+        "review",
+        "F05",
+        section,
+        stage,
+        record,
+    )
+
+
+def _carriers(defect: Defect) -> dict[str, Any] | None:
+    return omission_carriers(defect, _CARRIER_PLAN, _CARRIER_FACTS, _PLAN_CONTRACT)
+
+
+def test_an_s5_omission_packet_names_the_missing_ids_and_the_plan_fields_that_carry_them() -> None:
+    defect = _omission_defect(
+        "api_reference",
+        ["public_symbol:aspose_font.mcp.main", "example:008"],
+        ["The `aspose_font.cli.main` entry point provides command-line access."],
+    )
+    carriers = _carriers(defect)
+    assert carriers is not None
+    assert carriers["section_id"] == "api_reference"
+    assert carriers["plan_fields_for_section"] == ["api_hubs"]
+    assert carriers["upheld_missing"]["ids"] == [
+        "public_symbol:aspose_font.mcp.main",
+        "example:008",
+    ]
+    mcp, example, cli = carriers["items"]
+    assert mcp["plan_field"] == "api_hubs" and mcp["already_in_plan"] is False
+    # An example id is a real fact, but this section's plan field takes symbols, not examples.
+    assert example["plan_field"] is None
+    # A backticked identifier in the phrase resolves to the symbol the plan already holds.
+    assert cli["fact_ids"] == ["public_symbol:aspose_font.cli.main"]
+    assert cli["plan_field"] == "api_hubs" and cli["already_in_plan"] is True
+    packet = repair_packet(ENTRY, defect, _CARRIER_PLAN, _CARRIER_FACTS, [], _PLAN_CONTRACT)
+    assert packet["omission_carriers"] == carriers
+    assert set(packet) == MANIFESTS["targeted_repair"].manifest.packet.names
+
+
+def test_an_omitted_phrase_that_is_inherited_text_has_no_plan_field_to_carry_it() -> None:
+    """F04 on the real run: the remaining phrases were an inherited README heading and CLI
+    command, placed (or not) by the reconciliation's dispositions. The packet says no plan field
+    can carry them instead of inviting the model to invent one."""
+    defect = _omission_defect("additional_examples", [], [_OMISSION_COMMAND])
+    carriers = _carriers(defect)
+    assert carriers is not None
+    assert carriers["plan_fields_for_section"] == ["additional_example_ids"]
+    (item,) = carriers["items"]
+    assert item["fact_ids"] == ["inherited_unit:047.code_block"]
+    assert item["kinds"] == ["inherited_unit"]
+    assert item["plan_field"] is None and item["already_in_plan"] is False
+
+
+def test_a_missing_example_resolves_to_the_additional_examples_field() -> None:
+    defect = _omission_defect("additional_examples", ["example:007", "example:008"], [])
+    carriers = _carriers(defect)
+    assert carriers is not None
+    held, absent = carriers["items"]
+    assert held["plan_field"] == "additional_example_ids" and held["already_in_plan"] is True
+    assert absent["plan_field"] == "additional_example_ids" and absent["already_in_plan"] is False
+
+
+def test_omission_carriers_negative_controls() -> None:
+    assert _carriers(_omission_defect("api_reference", [], [])) is None
+    assert _carriers(_omission_defect("api_reference", ["example:008"], [], stage="S6")) is None
+    plain = Defect(
+        defect_fingerprint("review", "opening", "S5", "factuality", "|"),
+        "review",
+        "F01",
+        "opening",
+        "S5",
+        {"id": "F01"},
+    )
+    assert _carriers(plain) is None
+    # A CONTRADICTED fact is never a thing a plan may carry: it names no plan field.
+    contradicted = _omission_defect("api_reference", ["public_symbol:aspose_font.contradicted"], [])
+    (item,) = (_carriers(contradicted) or {"items": []})["items"]
+    assert item["fact_ids"] == [] and item["plan_field"] is None
+    # The packet for any other defect keeps the field, null.
+    other = repair_packet(ENTRY, plain, _CARRIER_PLAN, _CARRIER_FACTS, [], _PLAN_CONTRACT)
+    assert other["omission_carriers"] is None
+
+
+def test_a_fully_refuted_omission_finding_never_becomes_an_s5_repair() -> None:
+    """Nothing restorable remains after #253's refutation: the finding is dismissed (advisory
+    with a reason), so no defect, no S5 escalation and no packet is ever built for it."""
+    finding = {
+        "id": "F05",
+        "section_id": "api_reference",
+        "causal_stage": "S7",
+        "criterion": "presentation",
+        "omission": {
+            "kind": "omission",
+            "section_id": "api_reference",
+            "missing_ids": [],
+            "missing_quotes": ["a sentence neither the original README nor any fact contains"],
+        },
+    }
+    by_id = {fact.id: fact for fact in _CARRIER_FACTS.facts}
+    reason = omission_defect(
+        finding, "## API Reference\n\nSomething else.\n", by_id, evidence="the original text"
+    )
+    assert reason is not None and "nothing to restore" in reason
+
+
+def test_a_retained_unchanged_plan_with_a_false_change_claim_is_still_refused() -> None:
+    """The retained rejected reply: the whole plan returned unchanged with R01 claiming
+    deviations went from [] to a truncated repr. The verifier resolves the path correctly and
+    refuses it; widening the packet loosened no check. A really-changed value passes."""
+    defect = _omission_defect("additional_examples", ["example:008"], [])
+    claim = [
+        {
+            "id": "R01",
+            "path": "revised_output.deviations",
+            "before": "[]",
+            "after": "[  {    ",
+            "fact_ids": [],
+        }
+    ]
+    unchanged = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S5",
+        "revised_output": json.loads(json.dumps(_CARRIER_PLAN)),
+        "changes": claim,
+    }
+    errors = repair_checks(
+        unchanged, defect, {"type": "object"}, "selection_ids", FACTS, original=_CARRIER_PLAN
+    )
+    assert any("hold the identical value there" in error for error in errors)
+    changed = json.loads(json.dumps(unchanged))
+    changed["revised_output"]["deviations"] = []
+    assert not any(
+        "hold the identical value there" in error
+        for error in repair_checks(
+            changed, defect, {"type": "object"}, "selection_ids", FACTS, original=_CARRIER_PLAN
+        )
+    )
+
+
+def test_an_attempt_counts_only_under_the_repair_logic_it_was_made_under(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-05: a BC-07 repair attempted under
+    one set of repair code was recorded, and a later run with a corrected lever on the SAME facts
+    and prompts found the fingerprint already attempted and re-raised it without trying the fix.
+    The ledger is scoped to a composition, which carries no code; the attempt now carries the
+    repair logic version it was made under."""
+    path = tmp_path / "repairs.json"
+    defect = Defect("abc", "validation", "BC-07", None, "S5", {})
+    ledger = RepairLedger(path, composition="c" * 64)
+    ledger.record(defect, "repaired", None, [{"id": "R01"}])
+    assert ledger.attempts["abc"]["repair_logic_version"] == REPAIR_LOGIC_VERSION
+    # Negative control: the SAME repair logic still counts the attempt, in this ledger and after a
+    # reload, so the one-attempt rule is unchanged for unchanged code.
+    assert ledger.attempted("abc")
+    assert RepairLedger(path, composition="c" * 64).attempted("abc")
+    # Changed repair logic: the recorded attempt is not this logic's, so it gets its one attempt,
+    # and recording it replaces the stale entry under the new version.
+    monkeypatch.setattr(targeted, "REPAIR_LOGIC_VERSION", "next")
+    reloaded = RepairLedger(path, composition="c" * 64)
+    assert not reloaded.attempted("abc")
+    reloaded.record(defect, "repaired", None, [{"id": "R02"}])
+    assert reloaded.attempted("abc")
+    assert reloaded.attempts["abc"]["repair_logic_version"] == "next"
+    assert reloaded.attempts["abc"]["changes"] == [{"id": "R02"}]
+    # A different fingerprint recorded under the old logic is still stale under the new one.
+    assert not reloaded.attempted("never-recorded")
+
+
+def test_a_legacy_entry_without_a_logic_version_keeps_counting(tmp_path: Path) -> None:
+    """Every repairs.json sealed before this field carries no ``repair_logic_version``. Those
+    entries must count exactly as they always did, or a sealed bundle's replay would change."""
+    path = tmp_path / "repairs.json"
+    legacy = {
+        "schema_version": 1,
+        "composition": "c" * 64,
+        "attempts": {"abc": {"source": "validation", "label": "BC-07", "outcome": "repaired"}},
+    }
+    path.write_text(json.dumps(legacy, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    ledger = RepairLedger(path, composition="c" * 64)
+    assert ledger.attempted("abc")
+    assert "repair_logic_version" not in ledger.attempts["abc"]
+
+
+def test_every_sealed_bundles_repairs_json_is_read_unchanged_and_rewritten_byte_for_byte() -> None:
+    """BC-11 (fresh-process rerun is byte-identical): the ledger reads each sealed bundle's
+    repairs.json without changing what it counts, and writes a current-format one back without
+    changing a byte, so adding the logic-version field to NEW entries cannot disturb a sealed
+    bundle's replay. A file from before the ``composition`` key is only read, never rewritten
+    unless a new attempt is recorded."""
+    sealed = sorted((REPO_ROOT / "candidates").glob("*/*/repairs.json"))
+    assert len(sealed) >= 15, "the sealed fixtures this guards are missing"
+    current_format = 0
+    for stored in sealed:
+        original = stored.read_bytes()
+        document = json.loads(original)
+        ledger = RepairLedger(stored, composition=document.get("composition", ""))
+        assert ledger.attempts == document["attempts"], stored
+        for fingerprint in document["attempts"]:
+            assert ledger.attempted(fingerprint), (stored, fingerprint)
+        if "composition" not in document:
+            continue
+        current_format += 1
+        written = (
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "composition": ledger.composition,
+                    "attempts": ledger.attempts,
+                },
+                indent=2,
+                sort_keys=True,
+                ensure_ascii=False,
+            )
+            + "\n"
+        ).encode("utf-8")
+        assert written == original, stored
+    assert current_format >= 1

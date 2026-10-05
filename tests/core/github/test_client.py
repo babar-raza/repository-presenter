@@ -14,13 +14,17 @@ from repository_presenter.core.errors import RepositoryMetadataError
 from repository_presenter.core.github.client import (
     API_ROOT,
     ISSUE_LIST_MAX_PAGES,
+    PULLS_PAGE_SIZE,
     close_issue,
     create_issue,
     create_pull_request,
     create_ref,
     find_issue_with_marker,
     find_open_pull_request,
+    find_pull_requests,
     get_contents,
+    get_issue,
+    get_pull_request_app_id,
     get_ref,
     get_repository,
     put_contents,
@@ -767,3 +771,145 @@ def test_close_issue_raises_on_a_non_200_status() -> None:
     write = _RecordingWrite(status_code=404, body={"message": "Not Found"})
     with pytest.raises(RepositoryMetadataError):
         close_issue(OWNER, REPO, 42, state_reason="completed", token="ghp_w", write=write)
+
+
+# ---------------------------------------------------------------------------
+# find_pull_requests: every state, so a settled proposal is visible
+# ---------------------------------------------------------------------------
+
+
+def _pull(
+    number: int, *, state: str, merged_at: str | None = None, body: str = ""
+) -> dict[str, Any]:
+    return {
+        "number": number,
+        "html_url": f"https://github.com/x/y/pull/{number}",
+        "title": "Update README",
+        "body": body,
+        "state": state,
+        "merged_at": merged_at,
+    }
+
+
+def test_find_pull_requests_asks_for_every_state_not_only_open() -> None:
+    seen: list[str] = []
+
+    def fetch(url: str, token: str | None) -> tuple[int, object]:
+        seen.append(url)
+        return 200, []
+
+    assert (
+        find_pull_requests(OWNER, REPO, head_branch="presenter/x", token="ghs_w", fetch=fetch) == ()
+    )
+    assert "state=all" in seen[0]
+    assert "state=open" not in seen[0]
+    assert f"head={OWNER}:presenter/x" in seen[0]
+
+
+def test_find_pull_requests_classifies_open_closed_and_merged() -> None:
+    def fetch(url: str, token: str | None) -> tuple[int, object]:
+        return 200, [
+            _pull(12, state="open"),
+            _pull(11, state="closed", merged_at="2026-10-01T00:00:00Z", body="merged one"),
+            _pull(10, state="closed", merged_at=None, body="declined one"),
+        ]
+
+    found = find_pull_requests(OWNER, REPO, head_branch="b", token="ghs_w", fetch=fetch)
+    assert [(pr.number, pr.state) for pr in found] == [(12, "open"), (11, "merged"), (10, "closed")]
+    assert found[1].body == "merged one"
+
+
+def test_find_pull_requests_refuses_a_full_page_as_possibly_incomplete() -> None:
+    def fetch(url: str, token: str | None) -> tuple[int, object]:
+        return 200, [_pull(n, state="closed") for n in range(PULLS_PAGE_SIZE)]
+
+    with pytest.raises(RepositoryMetadataError, match="cannot be proven complete"):
+        find_pull_requests(OWNER, REPO, head_branch="b", token="ghs_w", fetch=fetch)
+
+
+def test_find_pull_requests_raises_on_unreachable_and_on_http_errors() -> None:
+    with pytest.raises(RepositoryMetadataError, match="unreachable"):
+        find_pull_requests(
+            OWNER, REPO, head_branch="b", token="t", fetch=lambda u, t: (-1, "ConnectError")
+        )
+    with pytest.raises(RepositoryMetadataError, match="HTTP 500"):
+        find_pull_requests(OWNER, REPO, head_branch="b", token="t", fetch=lambda u, t: (500, None))
+
+
+def test_get_pull_request_app_id_reads_performed_via_github_app() -> None:
+    seen: list[str] = []
+
+    def fetch(url: str, token: str | None) -> tuple[int, object]:
+        seen.append(url)
+        return 200, {"performed_via_github_app": {"id": 5092474, "slug": "repository-presenter"}}
+
+    assert get_pull_request_app_id(OWNER, REPO, 4, token="ghs_w", fetch=fetch) == 5092474
+    assert seen == [f"{API_ROOT}/repos/{OWNER}/{REPO}/issues/4"]
+
+
+def test_get_pull_request_app_id_is_none_without_an_app_and_raises_on_http_errors() -> None:
+    assert (
+        get_pull_request_app_id(
+            OWNER, REPO, 4, token="t", fetch=lambda u, t: (200, {"performed_via_github_app": None})
+        )
+        is None
+    )
+    with pytest.raises(RepositoryMetadataError, match="HTTP 404"):
+        get_pull_request_app_id(OWNER, REPO, 4, token="t", fetch=lambda u, t: (404, {}))
+    with pytest.raises(RepositoryMetadataError, match="unreachable"):
+        get_pull_request_app_id(OWNER, REPO, 4, token="t", fetch=lambda u, t: (-1, "x"))
+
+
+# ---------------------------------------------------------------------------
+# get_issue (the live read the gated close proves its target with)
+# ---------------------------------------------------------------------------
+
+
+def _single(status_code: int, body: object) -> object:
+    def fetch(url: str, token: str | None) -> tuple[int, object]:
+        assert url == f"{API_ROOT}/repos/{OWNER}/{REPO}/issues/42"
+        assert token == "ghp_r"
+        return status_code, body
+
+    return fetch
+
+
+def test_get_issue_reports_state_body_and_that_it_is_not_a_pull_request() -> None:
+    snapshot = get_issue(
+        OWNER,
+        REPO,
+        42,
+        token="ghp_r",
+        fetch=_single(200, {"number": 42, "state": "open", "body": f"x\n{MARKER}\n"}),
+    )
+    assert (snapshot.number, snapshot.state, snapshot.is_pull_request) == (42, "open", False)
+    assert MARKER in snapshot.body
+
+
+def test_get_issue_flags_a_pull_request() -> None:
+    snapshot = get_issue(
+        OWNER,
+        REPO,
+        42,
+        token="ghp_r",
+        fetch=_single(200, {"number": 42, "state": "open", "body": None, "pull_request": {}}),
+    )
+    assert snapshot.is_pull_request is True
+    assert snapshot.body == ""
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        (404, {"message": "Not Found"}),
+        (403, {"message": "rate limited"}),
+        (-1, "ConnectError"),
+        (200, []),
+        (200, {"number": 41, "state": "open", "body": ""}),
+        (200, {"number": 42, "body": ""}),
+    ],
+    ids=["404", "403", "unreachable", "not-a-dict", "other-number", "no-state"],
+)
+def test_get_issue_raises_rather_than_guessing(response: tuple[int, object]) -> None:
+    with pytest.raises(RepositoryMetadataError):
+        get_issue(OWNER, REPO, 42, token="ghp_r", fetch=_single(*response))

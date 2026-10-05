@@ -42,6 +42,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
 )
 from repository_presenter.core.facts import Evidence, Fact, fact_id, slug
+from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
 CPP = EcosystemSpec(
@@ -468,8 +469,6 @@ class CppPlugin:
         `Aspose::Pdf::Document` becomes one dotted symbol rather than a split identifier
         (loop-prompt §6 rule 8), then narrowed to the headers a consumer may include.
         """
-        from tree_sitter_language_pack import get_parser
-
         headers = self.include_root(root)
         symbols = public_symbols(
             surface_symbols(

@@ -4,7 +4,7 @@ writes nothing without the explicit authorization variable. No test here makes a
 
 from __future__ import annotations
 
-import shutil
+import json
 from pathlib import Path
 from typing import Any
 
@@ -29,7 +29,11 @@ README_TEXT = (
 @pytest.fixture
 def project_with_registry(project: Path) -> Path:
     (project / "data").mkdir()
-    shutil.copy(REPO_ROOT / "data" / "registry.json", project / "data" / "registry.json")
+    registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text(encoding="utf-8"))
+    for entry in registry["entries"]:
+        if entry["repository"] == "aspose-3d-foss/Aspose.3D-FOSS-for-Python":
+            entry["mode"] = "full"  # `--apply` is refused for any other mode (see the gate tests)
+    (project / "data" / "registry.json").write_text(json.dumps(registry), encoding="utf-8")
     return project
 
 
@@ -220,3 +224,51 @@ def test_apply_aborts_on_live_drift_since_capture(
     assert put.calls == []
     out = capsys.readouterr().out
     assert "changed since this diff was captured" in out
+
+
+def test_apply_keeps_strong_maintainer_metadata_and_merges_topics(
+    project_with_sealed_candidate: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    strong = _observed(
+        description="Reads, writes and converts STL, OBJ and glTF 3D scenes natively.",
+        homepage="https://docs.example-corp.io/stl/",
+        topics=("stl-parser", "my-custom-tag"),
+    )
+    monkeypatch.setattr(cli, "capture_repo_metadata", lambda entry, *, token: strong)
+    patch = _RecordingWrite()
+    put = _RecordingWrite()
+    monkeypatch.setattr(cli, "default_patch", patch)
+    monkeypatch.setattr(cli, "default_put", put)
+    monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
+    monkeypatch.setenv("GH_METADATA_WRITE_TOKEN", "fake-write-token-for-this-test-only")
+
+    exit_code = main(
+        [
+            "metadata",
+            "--repo",
+            "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+            "--root",
+            str(project_with_sealed_candidate),
+            "--apply",
+        ]
+    )
+
+    assert exit_code == EXIT_OK
+    assert patch.calls == []  # strong description and homepage preserved
+    assert len(put.calls) == 1
+    names = put.calls[0][2]["names"]
+    assert names[:2] == ["stl-parser", "my-custom-tag"]  # merged, not replaced
+    out = capsys.readouterr().out
+    assert "description kept, maintainer-authored" in out
+    assert "homepage kept, maintainer-authored" in out
+    record = (
+        project_with_sealed_candidate
+        / "runs"
+        / "metadata"
+        / REPOSITORY_DIR
+        / "repo_metadata_proposal.json"
+    )
+    assert record.is_file()
+    assert '"existing": [\n      "stl-parser",' in record.read_text(encoding="utf-8")

@@ -1,39 +1,83 @@
 {
+  "adopted": {
+    "adopted_at": "2026-10-04T19:37:10Z",
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "plan.json",
+      "raw_calls.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "presentation",
+    "earliest_affected_stage": "COMPOSING",
+    "previous_models_used": {
+      "qwen3-next": "qwen3-next"
+    },
+    "previous_proof": {
+      "byte_identical": true,
+      "fresh_process": true,
+      "proven_at": "2026-10-04T17:25:45Z",
+      "provider_calls": 0
+    },
+    "recorded_at": "2026-10-04T19:35:47Z"
+  },
   "call_variance": [
     {
-      "distinct_responses": 2,
+      "distinct_responses": 4,
       "job": "independent_review",
       "response_sha256s": [
-        "68cf5a91f282d4ca64100cdc3d8e16d18f579541581d17802104f380dcb41f20",
-        "814e8a317cefe3e67128af9ea4247902e360109a97605e010b6fd99521ccde6b"
+        "05e518d7153fc17e2e44a65efcabb79d164d96216c3a153586530bd5fc875a60",
+        "3faa7bd98202ab051aeec787b75973579036627789bb55b668592c6a3e1d48f3",
+        "4e774000e37285b288b865db2362e179578f19f2ca8d995f0c4681847489e022",
+        "711ec8c02a498129d2f694cd7531bdd782b07b7c1b7973af3f12d156d7472993"
+      ]
+    },
+    {
+      "distinct_responses": 5,
+      "job": "presentation_planning",
+      "response_sha256s": [
+        "146649c211d4b0b8cf0df72b7480654e262fa9866c3a9216912286d1348c88ea",
+        "400e3d87410757089f17488bd58dd8bbab3381f6e5b45dcad3bbabcb54666261",
+        "97d5d3c44235fc915de3e039b574796690b5dceb207faaf31836d712a5f658d2",
+        "e5bb633cb19de528aa7b90cc5d6c5d4b608d931584bd0b2612a43f2b36782f37",
+        "ef78b04e048639a0e22e65ad3575b5d9a79d6b28f9e6fa7f4d2209efbc8feb78"
       ]
     },
     {
       "distinct_responses": 2,
-      "job": "presentation_planning",
+      "job": "repository_investigation",
       "response_sha256s": [
-        "18daaa961d694396d3f3dd8098e349cdbf94613a190c8a413ae31232dbb9a258",
-        "c24966e5b3752f647f7fffe625cc8c6424d65f523ce1e1375ea4f5d026ab9b31"
+        "7f8cd72ea5c310305320d307f6a04df78fc7a80f4db5fa61ac54fe71229cca79",
+        "bc1ad37584dfb89b14b113c1476ad0b91d4b2fdfe57053a429fd75fbda79313a"
       ]
     },
     {
-      "distinct_responses": 9,
+      "distinct_responses": 7,
       "job": "section_authoring",
       "response_sha256s": [
-        "29750699cbafa456a57642a1bf2d4f228e6003537ad67528d562f2277fac250d",
-        "4e2783391236d448853f7588dfa3b59c5e011c2b9c35996a3cede4c599afc161",
-        "7966d35fc5d419f7e6bb6b4b29c4aebc03bb892241406b122de5745db5a53823",
-        "9211aed4a045ffb8f9b63da119d2bfc18a4bc1bf34b1879ecfef0a8030f6c19d",
-        "92c8372d2f416b1231462eaf90a60f982c7d1f08dadf156a091dfb0ec340a23f",
-        "9ae14a94ec4765df8fa605f32aeafa2294e6ee67ce1bfea0b47cef9a32b6d3ad",
-        "b2edff5d43247bc1f128c7d772a1bf3c31101c25ed40d5d631c7f66cb8a6238b",
-        "c339fb4b0cd2741991e34b3b8ae9338c57ee897522c7b7f1407b89a43ba54277",
-        "f9a5b5a15cda7a0c51ce64400f83885aa02092076c0fb10d99e532c6390b301d"
+        "3065d2423d6191c27e2606c63fa45789f5cf85a7407a55a11f849141a6498fe5",
+        "aec646e3d5ad0f325631353a232dca60ac12c2fa0f09d4d4ee233e4c8a1f5b4d",
+        "b228d99fa64d17b867073658683b8de2faa150fe118d7a7c3a19973c27770050",
+        "b754b6671f78ac0eeb2116475a5696e3ec8c225cddacf3ff5b3f9d7cfd8ac379",
+        "d1ea9474dbddd4ead509115185cd9ac473694956bdb5bbab6451d357676f1d58",
+        "d9e663b4fbbc60f01306a0e27f4252be2b0954a834de63d055b1ae1e8860d9e1",
+        "f13a1f98c2d783f3a178297408a3729a4494eadde3be2baf90b2ebeb69224f6d"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "167fd6cce18d285ee97a51183d29543b67ecf9cd6e7971350072eb2474b469aa",
+        "be2aef94c0c05f6b1add51a0546ed715040ba5d50b6342c755b593295126fe8b"
       ]
     }
   ],
   "composition": {
-    "advisories": 13,
+    "advisories": 15,
     "blocking_failures": [],
     "coverage_advisories": 0,
     "review_verdict": "ACCEPT",
@@ -41,24 +85,24 @@
   },
   "files": {
     "README.md": {
-      "bytes": 6926,
-      "sha256": "1054769386e94148d2a655aab8d480aefea0597c59523612c51437d58c175c4f"
+      "bytes": 6982,
+      "sha256": "775d25b7faa9d451745231dfbf0e7b4f1d15954145ddf71d3996971676ea0caa"
     },
     "README.patch": {
-      "bytes": 11075,
-      "sha256": "040c3c60c7f782b138ec1ebc3a07e49623bccc333551251069fd4b6c930be9ca"
+      "bytes": 11131,
+      "sha256": "106e9ef19bd1b0129e4037c8caa8c12eb4fcac9e4f57fec4df76dc7fbfb7f628"
     },
     "calls.jsonl": {
-      "bytes": 35579,
-      "sha256": "bcabe1aff0411441c296e1d9e07d71c96971f8fa02af66eb91b1ed095cdaecb6"
+      "bytes": 35937,
+      "sha256": "4abb2f6a6e59138de2e15cc8e3468d90517c4f006b0c66714026104d0bcbbcb8"
     },
     "content_units.json": {
-      "bytes": 8241,
-      "sha256": "ee558d66a517901f3c02b4ba7a0fef03ec0fb6f81166feb4f30b81eb4fc6537d"
+      "bytes": 8623,
+      "sha256": "0ebef533b7007f9c3d1cda8147e04e121623760b13a22d7ff22313ae73680c87"
     },
     "dependencies.json": {
       "bytes": 8911,
-      "sha256": "46a29c945f9afee09df3004939582f0b1c623d1383cfdb5a9818bbf4081e5092"
+      "sha256": "a50e4c47b11123ae1c170ef188999c67e7f51d66442a09b3809142747c2a20e7"
     },
     "dispositions.json": {
       "bytes": 7662,
@@ -77,24 +121,24 @@
       "sha256": "338569185151ef6d1ccd7dc5859f97542659cfd8240b8d4b806d0eb295d8c8a6"
     },
     "plan.json": {
-      "bytes": 7671,
-      "sha256": "d9a68b383fde5b9f89f69fcb1cd64ad0db30e8f7f9ab553a55b8ee17993c715d"
+      "bytes": 6667,
+      "sha256": "d7d4c344838192f8f7fa6b9ea05d6b84fa8fff94ee88576b24f0088291f67d5f"
     },
     "probes.json": {
-      "bytes": 1408,
-      "sha256": "c786fc2ab09304152b3ab48501c79a28ed02e9b843f92b1da318611a914112ae"
+      "bytes": 1407,
+      "sha256": "bcff01cc879277fee47762c473390e92f8e4a036e2f13709b96887b40953a236"
     },
     "raw_calls.json": {
-      "bytes": 23804,
-      "sha256": "954c81e6c39e2cfbfa514caffb12369c7dd4ca147220f90962fa3c362e29600a"
+      "bytes": 31856,
+      "sha256": "2894541e8f6110a899cf009f38b8aa4c2e014f313b3682252295603cd3e39a28"
     },
     "review.json": {
-      "bytes": 27148,
-      "sha256": "46de8696016e54892808b5fbff61fa8bbfdf4deb27feeed35bc29ed89d82db8b"
+      "bytes": 27196,
+      "sha256": "195184dafca81b279b013d282ae26823ec3baed3f1592fecb92264d2567ddec4"
     },
     "validation.json": {
       "bytes": 11034,
-      "sha256": "98dd4c52c656040474ddd2408b9e8ce2e5313f5f6db4b695ffef8b3ed8a1e4f4"
+      "sha256": "8909bf35e8fcbbe20cc438b2f0fb2387e6ef82d4f4765d25647d8744613dbbea"
     }
   },
   "models_used": {
@@ -103,13 +147,13 @@
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-10-04T17:25:45Z",
+    "proven_at": "2026-10-04T19:37:10Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
   "revision": "a7c7314b18e1a5bd209fab38c15e72574337366f",
   "schema_version": 1,
-  "sealed_at": "2026-10-04T17:25:45Z",
+  "sealed_at": "2026-10-04T19:37:10Z",
   "state": "READY_FOR_PROPOSAL"
 }

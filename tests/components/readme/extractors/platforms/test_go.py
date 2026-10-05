@@ -259,6 +259,44 @@ def test_an_unreadable_registry_leaves_the_install_claim_unresolved(
     assert probes and probes[0].outcome == "UNRESOLVED"
 
 
+def test_a_module_the_registry_does_not_carry_contradicts_the_install_claim(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    """A registry that answers conclusively "not published" contradicts the install claim.
+
+    The mirror of Rust's negative control: the unreadable-registry test above proves silence is
+    not absence; this proves a conclusive absence is not silence. README_CONTRACT section 2 row 8
+    requires an unpublished package to be stated plainly rather than shown with an install
+    command the registry contradicts, and BC-02 reads this polarity and the evidence wording.
+    """
+    tree = _repository(tmp_path)
+    manifest = go.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    facts = go.PLUGIN.manifest_facts(tmp_path, manifest, tree)
+
+    def absent(*args: Any, **kwargs: Any) -> Any:
+        from repository_presenter.components.readme.extractors.surface.registry import (
+            RegistryObservation,
+        )
+
+        return RegistryObservation(
+            "go_modules",
+            "module",
+            False,
+            False,
+            "https://proxy.golang.org/x/@v/list",
+            "go-proxy-api",
+            "live_probe",
+        )
+
+    monkeypatch.setattr(go, "observe", absent)
+    resolved, probes = go.PLUGIN.registry_facts(facts)
+    assert [fact.polarity for fact in resolved] == ["CONTRADICTED"]
+    assert resolved[0].confidence == 1.0
+    assert "distribution not found" in (resolved[0].evidence[-1].detail or "")
+    assert probes and probes[0].outcome == "CONTRADICTED"
+
+
 def test_a_published_module_supports_the_install_claim(monkeypatch: Any, tmp_path: Path) -> None:
     tree = _repository(tmp_path)
     manifest = go.PLUGIN.detect_manifest(tmp_path)
@@ -319,7 +357,6 @@ def test_the_plugin_imports_no_sibling_ecosystem() -> None:
                 "pathlib",
                 "typing",
                 "__future__",
-                "tree_sitter_language_pack",
                 "repository_presenter.components.readme.extractors.platforms.go",
             )
         )

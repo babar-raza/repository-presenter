@@ -46,6 +46,7 @@ from repository_presenter.core.examples import (
     MeasuredBuild,
 )
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id, slug
+from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
 TYPESCRIPT = EcosystemSpec(
@@ -71,6 +72,7 @@ TYPESCRIPT = EcosystemSpec(
     floor_fact_id="package:node_engine",
     floor_label="Node.js",
     floor_declaration="engines.node",
+    floor_is_minimum=True,
     manifest_globs=("package.json",),
     source_suffixes=frozenset({".ts", ".tsx"}),
 )
@@ -346,8 +348,6 @@ class TypeScriptPlugin:
         A repository whose entry point cannot be resolved has no evidence for what it publishes,
         so it publishes nothing here rather than every `export` in the tree.
         """
-        from tree_sitter_language_pack import get_parser
-
         manifest = self.detect_manifest(root)
         package = manifest.parent if manifest is not None else root
         barrel = entry_barrel(package)

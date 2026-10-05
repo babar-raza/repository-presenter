@@ -250,14 +250,11 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
     readme = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     lines = readme.splitlines()
     assert lines[0] == "# Aspose.3D FOSS for Python"
-    repo = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
     assert lines[2] == (
         "[![PyPI](https://img.shields.io/pypi/v/aspose-3d-foss.svg)]"
         "(https://pypi.org/project/aspose-3d-foss/) "
         "![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg) "
-        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) "
-        f"[![Contributors](https://img.shields.io/github/contributors/{repo})]"
-        f"(https://github.com/{repo}/graphs/contributors)"
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)"
     )
     assert lines[4] == (
         "Aspose.3D FOSS for Python builds scenes with `Scene` and saves them with `Scene.save`."
@@ -694,6 +691,7 @@ def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> 
         ENTRY, declared("UNCLASSIFIED", "UNRESOLVED"), PLAN, UNITS, DISPOSITIONS
     )
     assert "## License" not in unresolved.splitlines()
+    assert "- [License](#license)" not in unresolved.splitlines()
     # With a file, the sealed wording - the file linked - is untouched.
     assert (
         render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
@@ -701,6 +699,31 @@ def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> 
         .startswith(
             "This project is licensed under the [MIT License](LICENSE). The MIT License permits"
         )
+    )
+
+
+def test_navigation_links_only_the_headings_the_document_renders() -> None:
+    """Run 1 of the Aspose.GIS.FOSS for .Net seal (2026-10-04): the repository ships no license
+    file and no license fact, so the required License section renders no body and no heading,
+    yet Navigation still linked `(#license)`, failing BC-06 at COMPOSING (`#license: no heading
+    #license`). Navigation must derive from the same rendered-section truth render_readme uses.
+    Negative control: with the license fact present, the License link stays."""
+    no_license = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(f for f in FACTS.facts if not f.id.startswith("license:")),
+    )
+    readme = render_readme(ENTRY, no_license, PLAN, UNITS, DISPOSITIONS)
+    lines = readme.splitlines()
+    assert "## License" not in lines
+    assert "- [License](#license)" not in lines
+    headings = {line[3:] for line in lines if line.startswith("## ")}
+    links = [line.split("(#", 1)[1].rstrip(")") for line in lines if line.startswith("- [")]
+    # Every navigation entry that remains resolves to a heading this document renders.
+    assert links and all(any(anchor(heading) == link for heading in headings) for link in links)
+    assert (
+        "- [License](#license)"
+        in render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS).splitlines()
     )
 
 
@@ -1438,7 +1461,8 @@ def test_the_enterprise_paragraph_closes_scope_and_limitations_from_the_live_tar
     readme = render_readme(ENTRY, facts, plan, units, DISPOSITIONS)
     scope = readme.split("## Scope and Limitations\n\n", 1)[1].split("\n## ", 1)[0]
     assert scope.rstrip("\n").endswith(
-        "These limitations don't apply to [Aspose.3D for Python \u2014 Enterprise Edition]"
+        "These limitations don't apply to "
+        "[full-featured Aspose.3D for Python \u2014 Enterprise Edition]"
         "(https://products.aspose.com/3d/python-net/). It adds FBX export and rendering."
     )
     assert readme.count("Enterprise Edition") == 1
@@ -1457,7 +1481,7 @@ def test_the_enterprise_paragraph_closes_scope_and_limitations_from_the_live_tar
         ),
     )
     assert (
-        "[Aspose.3D \u2014 Enterprise Edition](https://products.aspose.com/3d/)"
+        "[full-featured Aspose.3D \u2014 Enterprise Edition](https://products.aspose.com/3d/)"
         in render_readme(ENTRY, family, plan, units, DISPOSITIONS)
     )
 
@@ -1715,3 +1739,129 @@ def test_an_additional_example_task_heading_is_title_cased_by_the_template() -> 
     readme = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     assert "### Print a Number" in readme.splitlines()
     assert "### Print a number" not in readme.splitlines()
+
+
+# --- the badge row: plans/idea.md "one compact badge row in a stable order: package or release,
+# platform/runtime, real build status, license, then contributors when those slots are supported"
+
+CI_URL = f"https://github.com/{ENTRY.repository}/actions/workflows/ci.yml"
+CONTRIBUTORS_URL = f"https://github.com/{ENTRY.repository}/graphs/contributors"
+
+
+def _ci_fact(branch: str | None = "main") -> Fact:
+    return Fact(
+        "link_target:badge.ci",
+        "link_target",
+        CI_URL,
+        (Evidence(".github/workflows/ci.yml", "triggers push on main; runs pytest"),),
+        attributes={"role": "build status badge", **({"branch": branch} if branch else {})},
+    )
+
+
+def _with(*extra: Fact, drop: tuple[str, ...] = ()) -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*(f for f in FACTS.facts if f.id not in drop), *extra),
+    )
+
+
+def _slots(facts: FactsDocument, entry: RegistryEntry = ENTRY) -> list[tuple[str, str]]:
+    from repository_presenter.components.readme.composition.renderer import badge_slots
+
+    return badge_slots(RenderContext(entry, facts, PLAN, UNITS, DISPOSITIONS))
+
+
+def test_the_badge_slots_come_in_the_stable_order_and_only_from_verified_facts() -> None:
+    # GitHub repository names are case-insensitive; the source README may spell them differently.
+    contributors = _fact(
+        "link_target:006",
+        "link_target",
+        CONTRIBUTORS_URL.replace(ENTRY.repository, ENTRY.repository.upper()),
+    )
+    slots = _slots(_with(_ci_fact(), contributors))
+    assert [slot for slot, _ in slots] == [
+        "package",
+        "runtime",
+        "build",
+        "license",
+        "contributors",
+    ]
+    build = dict(slots)["build"]
+    assert build == f"[![Build Status]({CI_URL}/badge.svg?branch=main)]({CI_URL})"
+
+
+def test_there_is_no_build_badge_without_a_verified_workflow_fact() -> None:
+    assert "build" not in [slot for slot, _ in _slots(FACTS)]
+    unverified = Fact(
+        "link_target:badge.ci",
+        "link_target",
+        CI_URL,
+        (Evidence("x", "not verified"),),
+        polarity="UNRESOLVED",
+    )
+    assert "build" not in [slot for slot, _ in _slots(_with(unverified))]
+
+
+def test_the_build_badge_names_a_branch_only_when_the_workflow_does() -> None:
+    plain = dict(_slots(_with(_ci_fact(branch=None))))["build"]
+    assert plain == f"[![Build Status]({CI_URL}/badge.svg)]({CI_URL})"
+
+
+def test_the_contributors_badge_needs_a_verified_contributors_target() -> None:
+    # The old renderer appended it unconditionally; with no verified target it is omitted.
+    assert "contributors" not in [slot for slot, _ in _slots(FACTS)]
+    other = _fact(
+        "link_target:006", "link_target", "https://github.com/someone/else/graphs/contributors"
+    )
+    assert "contributors" not in [slot for slot, _ in _slots(_with(other))]
+    unresolved = _fact("link_target:006", "link_target", CONTRIBUTORS_URL, polarity="UNRESOLVED")
+    assert "contributors" not in [slot for slot, _ in _slots(_with(unresolved))]
+    verified = _fact("link_target:006", "link_target", CONTRIBUTORS_URL)
+    assert dict(_slots(_with(verified)))["contributors"] == (
+        f"[![Contributors](https://img.shields.io/github/contributors/{ENTRY.repository})]"
+        f"({CONTRIBUTORS_URL})"
+    )
+
+
+def test_the_runtime_badge_reads_the_ecosystems_own_floor_not_a_python_constant() -> None:
+    net = ENTRY.model_copy(update={"ecosystem": "net"})
+    # The facts still hold a Python floor; a .NET repository must not borrow it.
+    foreign = _with(
+        _fact("install_command:dotnet", "install_command", "dotnet add package X"),
+        _fact("package:target_framework", "package", "net8.0"),
+    )
+    runtime = dict(_slots(foreign, net))["runtime"]
+    assert runtime == "![.NET](https://img.shields.io/badge/.net-net8.0-blue.svg)"
+    assert "python" not in runtime.lower()
+    # With no .NET floor fact there is no runtime badge, whatever else the facts hold.
+    bare = _with(_fact("install_command:dotnet", "install_command", "dotnet add package X"))
+    assert "runtime" not in [slot for slot, _ in _slots(bare, net)]
+
+
+def test_a_python_range_floor_is_its_lower_bound_not_the_whole_range() -> None:
+    ranged = _with(
+        _fact("package:python_requires", "package", ">=3.10,<3.13"),
+        drop=("package:python_requires",),
+    )
+    assert dict(_slots(ranged))["runtime"] == (
+        "![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)"
+    )
+
+
+def test_the_default_python_row_is_byte_stable_without_the_contributors_badge() -> None:
+    readme = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert readme.splitlines()[2] == (
+        "[![PyPI](https://img.shields.io/pypi/v/aspose-3d-foss.svg)]"
+        "(https://pypi.org/project/aspose-3d-foss/) "
+        "![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg) "
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)"
+    )
+
+
+def test_the_enterprise_anchor_opens_full_featured_and_ends_with_the_one_edition_name() -> None:
+    from repository_presenter.components.readme.composition.renderer import enterprise_anchor
+
+    assert enterprise_anchor("Aspose.3D for .NET") == (
+        "full-featured Aspose.3D for .NET — Enterprise Edition"
+    )
