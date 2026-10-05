@@ -7,10 +7,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
 from jsonschema import Draft202012Validator
 
+from repository_presenter.components.readme.repair import targeted
 from repository_presenter.components.readme.repair.targeted import (
     EVIDENCE_REASON,
+    REPAIR_LOGIC_VERSION,
     Defect,
     RepairLedger,
     SlotSetProbe,
@@ -501,6 +504,7 @@ def test_the_ledger_records_each_fingerprint_once_and_survives_reload(tmp_path: 
         "request_sha256": None,
         "changes": [],
         "misrouted": False,
+        "repair_logic_version": REPAIR_LOGIC_VERSION,
     }
     assert reloaded.summary() == "1 repaired (F01 S6 opening), 1 unrepairable recorded advisory"
     reloaded.note_re_raised(Defect("abc", "review", "F03", "opening", "S6", {"id": "F03"}))
@@ -1639,3 +1643,84 @@ def test_a_retained_unchanged_plan_with_a_false_change_claim_is_still_refused() 
             changed, defect, {"type": "object"}, "selection_ids", FACTS, original=_CARRIER_PLAN
         )
     )
+
+
+def test_an_attempt_counts_only_under_the_repair_logic_it_was_made_under(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-05: a BC-07 repair attempted under
+    one set of repair code was recorded, and a later run with a corrected lever on the SAME facts
+    and prompts found the fingerprint already attempted and re-raised it without trying the fix.
+    The ledger is scoped to a composition, which carries no code; the attempt now carries the
+    repair logic version it was made under."""
+    path = tmp_path / "repairs.json"
+    defect = Defect("abc", "validation", "BC-07", None, "S5", {})
+    ledger = RepairLedger(path, composition="c" * 64)
+    ledger.record(defect, "repaired", None, [{"id": "R01"}])
+    assert ledger.attempts["abc"]["repair_logic_version"] == REPAIR_LOGIC_VERSION
+    # Negative control: the SAME repair logic still counts the attempt, in this ledger and after a
+    # reload, so the one-attempt rule is unchanged for unchanged code.
+    assert ledger.attempted("abc")
+    assert RepairLedger(path, composition="c" * 64).attempted("abc")
+    # Changed repair logic: the recorded attempt is not this logic's, so it gets its one attempt,
+    # and recording it replaces the stale entry under the new version.
+    monkeypatch.setattr(targeted, "REPAIR_LOGIC_VERSION", "next")
+    reloaded = RepairLedger(path, composition="c" * 64)
+    assert not reloaded.attempted("abc")
+    reloaded.record(defect, "repaired", None, [{"id": "R02"}])
+    assert reloaded.attempted("abc")
+    assert reloaded.attempts["abc"]["repair_logic_version"] == "next"
+    assert reloaded.attempts["abc"]["changes"] == [{"id": "R02"}]
+    # A different fingerprint recorded under the old logic is still stale under the new one.
+    assert not reloaded.attempted("never-recorded")
+
+
+def test_a_legacy_entry_without_a_logic_version_keeps_counting(tmp_path: Path) -> None:
+    """Every repairs.json sealed before this field carries no ``repair_logic_version``. Those
+    entries must count exactly as they always did, or a sealed bundle's replay would change."""
+    path = tmp_path / "repairs.json"
+    legacy = {
+        "schema_version": 1,
+        "composition": "c" * 64,
+        "attempts": {"abc": {"source": "validation", "label": "BC-07", "outcome": "repaired"}},
+    }
+    path.write_text(json.dumps(legacy, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    ledger = RepairLedger(path, composition="c" * 64)
+    assert ledger.attempted("abc")
+    assert "repair_logic_version" not in ledger.attempts["abc"]
+
+
+def test_every_sealed_bundles_repairs_json_is_read_unchanged_and_rewritten_byte_for_byte() -> None:
+    """BC-11 (fresh-process rerun is byte-identical): the ledger reads each sealed bundle's
+    repairs.json without changing what it counts, and writes a current-format one back without
+    changing a byte, so adding the logic-version field to NEW entries cannot disturb a sealed
+    bundle's replay. A file from before the ``composition`` key is only read, never rewritten
+    unless a new attempt is recorded."""
+    sealed = sorted((REPO_ROOT / "candidates").glob("*/*/repairs.json"))
+    assert len(sealed) >= 15, "the sealed fixtures this guards are missing"
+    current_format = 0
+    for stored in sealed:
+        original = stored.read_bytes()
+        document = json.loads(original)
+        ledger = RepairLedger(stored, composition=document.get("composition", ""))
+        assert ledger.attempts == document["attempts"], stored
+        for fingerprint in document["attempts"]:
+            assert ledger.attempted(fingerprint), (stored, fingerprint)
+        if "composition" not in document:
+            continue
+        current_format += 1
+        written = (
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "composition": ledger.composition,
+                    "attempts": ledger.attempts,
+                },
+                indent=2,
+                sort_keys=True,
+                ensure_ascii=False,
+            )
+            + "\n"
+        ).encode("utf-8")
+        assert written == original, stored
+    assert current_format >= 1

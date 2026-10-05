@@ -53,10 +53,10 @@ MAX_APPROVAL_LIFETIME = timedelta(days=30)
 CLOCK_SKEW = timedelta(minutes=5)
 
 _REPOSITORY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9_.-]+$")
-_HANDOFF_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*__[A-Za-z0-9_.-]+__[0-9a-f]{64}$")
-_DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
+HANDOFF_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*__[A-Za-z0-9_.-]+__[0-9a-f]{64}$")
+DIGEST_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
 _REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_./-]*$")
-_BOT_MARKERS = ("[bot]", "github-actions")
+BOT_MARKERS = ("[bot]", "github-actions")
 _FIELDS = (
     "handoff_id",
     "repository",
@@ -126,7 +126,7 @@ class ApprovalRecord:
     expires_at: datetime
 
 
-def _timestamp(value: object, field: str) -> datetime:
+def parse_timestamp(value: object, field: str) -> datetime:
     if not isinstance(value, str):
         raise ApprovalError(f"{field} must be an ISO-8601 UTC timestamp string")
     try:
@@ -158,16 +158,16 @@ def parse_approval(text: str) -> ApprovalRecord:
         if not isinstance(value, str) or not value.strip():
             raise ApprovalError(f"{field} must be a non-empty string")
         strings[field] = value.strip()
-    if not _HANDOFF_ID.match(strings["handoff_id"]):
+    if not HANDOFF_ID_PATTERN.match(strings["handoff_id"]):
         raise ApprovalError("handoff_id is not <owner>__<name>__<64 hex>")
     if not is_valid_repository(strings["repository"]):
         raise ApprovalError("repository is not owner/name")
-    if not _DIGEST.match(strings["evidence_digest"]):
+    if not DIGEST_PATTERN.match(strings["evidence_digest"]):
         raise ApprovalError("evidence_digest is not sha256:<64 hex>")
-    if any(marker in strings["approver"].lower() for marker in _BOT_MARKERS):
+    if any(marker in strings["approver"].lower() for marker in BOT_MARKERS):
         raise ApprovalError("approver must be a person, not a bot or workflow identity")
-    approved_at = _timestamp(loaded["approved_at"], "approved_at")
-    expires_at = _timestamp(loaded["expires_at"], "expires_at")
+    approved_at = parse_timestamp(loaded["approved_at"], "approved_at")
+    expires_at = parse_timestamp(loaded["expires_at"], "expires_at")
     if expires_at <= approved_at:
         raise ApprovalError("expires_at must be after approved_at")
     if expires_at - approved_at > MAX_APPROVAL_LIFETIME:
@@ -256,11 +256,16 @@ class GitApprovalStore:
     whose introducing commit cannot be identified (shallow clone), is refused.
     """
 
-    def __init__(self, root: Path, ref: str = "HEAD") -> None:
+    def __init__(
+        self, root: Path, ref: str = "HEAD", *, directory: str = APPROVALS_RELATIVE_DIR
+    ) -> None:
         if not _REF.match(ref):
             raise ApprovalProvenanceError(f"unacceptable git ref {ref!r}")
+        if not _REF.match(directory) or ".." in directory:
+            raise ApprovalProvenanceError(f"unacceptable approvals directory {directory!r}")
         self._root = root
         self._ref = ref
+        self._directory = directory
 
     def _git(self, *args: str) -> str:
         completed = run_git(list(args), cwd=self._root, timeout=60)
@@ -269,9 +274,9 @@ class GitApprovalStore:
         return str(completed.stdout)
 
     def read(self, identifier: str) -> str | None:
-        if not _HANDOFF_ID.match(identifier):
+        if not HANDOFF_ID_PATTERN.match(identifier):
             raise ApprovalProvenanceError(f"unacceptable handoff id {identifier!r}")
-        path = approval_relative_path(identifier)
+        path = f"{self._directory}/{identifier}.json"
         if not self._git("ls-tree", "--name-only", self._ref, "--", path).strip():
             return None
         if self._git("rev-parse", "--is-shallow-repository").strip() == "true":
@@ -284,6 +289,6 @@ class GitApprovalStore:
         ).lower()
         if not identities.strip():
             raise ApprovalProvenanceError("no commit introduces the record")
-        if any(marker in identities for marker in _BOT_MARKERS):
+        if any(marker in identities for marker in BOT_MARKERS):
             raise ApprovalProvenanceError("the record was authored or committed by a bot identity")
         return self._git("show", f"{self._ref}:{path}")
