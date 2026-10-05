@@ -269,7 +269,7 @@ _TYPE_OBJECTIVE = (
 # unchanged. Measured on aspose-slides-foss/Aspose.Slides-FOSS-for-Java (2026-10-05): the model
 # wrote CommentAuthors in both attempts and the recover copy, and the bare rejection gave the one
 # re-ask nothing to correct toward (accepted: CommentAuthor, CommentAuthorCollection).
-NORMALISATION_VERSION = "23"
+NORMALISATION_VERSION = "24"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -478,7 +478,7 @@ class SectionTask:
     slot_render_lines: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
     # Inherited prose units reconciliation superseded into this section (carried_units): each must
     # be cited by a unit that states its substance, or listed in omitted with a reason
-    # (carried_unit_errors). Empty for every section but development_testing.
+    # (carried_unit_errors). Empty for every section but those in _CARRY_SECTIONS.
     must_carry: frozenset[str] = frozenset()
 
     @property
@@ -516,6 +516,14 @@ def _placed_units(dispositions: dict[str, Any], section: str) -> list[str]:
 # Prose-only inherited units: a command block is placed verbatim by the renderer, and a heading is
 # owned by the shell, so neither is a unit an authored section must carry.
 _CARRIABLE_SUFFIXES = (".paragraph", ".list")
+# The sections whose authored units owe every SUPERSEDE_REDUNDANT inherited prose unit that
+# reconciliation placed there an explicit disposition (carried_units). development_testing was the
+# first (BC-10 F08, 2026-10-04). scope_limitations joins it: S4 places a README's own limitation
+# list there, and an authored scope section that never cites or omits it silently drops a
+# documented defect (Slides-Java, 2026-10-05: master-cloning and save-format refusal, F04).
+# Measured over the sealed bundles: 19 of 23 with scope supersessions carry an uncarried unit under
+# this gate, so re-authoring those sections is the cost. Sealed bundles are not rewritten.
+_CARRY_SECTIONS = frozenset({"development_testing", "scope_limitations"})
 
 
 def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocument) -> list[str]:
@@ -527,10 +535,10 @@ def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocume
     an explicit disposition. Measured on aspose-slides-foss/Aspose.Slides-FOSS-for-Java (BC-10
     F08, 2026-10-04): the README's test-suite and conformance-rule paragraphs were superseded into
     development_testing, but the authoring call never received them, so the section could not
-    carry them. Scoped to development_testing, the diagnosed section; every other section returns
+    carry them. Applies to the sections in ``_CARRY_SECTIONS``; every other section returns
     nothing, so no other section's packet changes.
     """
-    if section != "development_testing":
+    if section not in _CARRY_SECTIONS:
         return []
     known = {fact.id for fact in facts.facts if fact.kind == "inherited_unit"}
     return [
