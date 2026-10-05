@@ -257,6 +257,43 @@ def test_no_job_in_the_scheduled_chain_can_commit_or_push() -> None:
             assert "commit" not in str(step.get("run", "")).lower().replace("committed", "")
 
 
+PAUSE_VARIABLE = "REPOSITORY_PRESENTER_SEALING_PAUSED"
+
+
+def test_the_owner_pause_switch_is_checked_in_the_plan_job_so_nothing_downstream_starts(
+    scheduled: dict[str, Any],
+) -> None:
+    """The variable reaches the plan step (which compares it to exactly "1" and reports
+    has_work=false), and every later job runs only on the plan's own outputs, so a paused plan
+    leaves no seal matrix and no propose leg. Unset keeps sealing on: nothing here defaults it."""
+    jobs = scheduled["jobs"]
+    plan_step = next(s for s in jobs["plan"]["steps"] if s.get("id") == "plan")
+    assert plan_step["env"] == {PAUSE_VARIABLE: "${{ vars.REPOSITORY_PRESENTER_SEALING_PAUSED }}"}
+    assert "sealing-plan" in plan_step["run"]
+    # No other job reads the variable or decides for itself: they key off the plan's outputs.
+    for name in ("seal", "propose"):
+        assert PAUSE_VARIABLE not in yaml.safe_dump(jobs[name])
+        assert jobs[name]["needs"] in ("plan", ["plan", "seal"])
+    assert jobs["seal"]["if"] == "${{ needs.plan.outputs.has_work == 'true' }}"
+    assert "needs.plan.outputs.has_publishable == 'true'" in jobs["propose"]["if"]
+    # Unset must mean enabled: the workflow never assigns the variable anywhere.
+    assert f"{PAUSE_VARIABLE}:" not in yaml.safe_dump(scheduled.get("env", {}))
+
+
+def test_the_pause_switch_is_documented_in_the_header_and_readme_with_the_owner_variables() -> None:
+    raw_header = SCHEDULED.read_text(encoding="utf-8").split("\nname:", 1)[0]
+    # The header is wrapped comment text: drop the markers and collapse the line breaks.
+    header = " ".join(raw_header.replace("#", " ").split())
+    assert PAUSE_VARIABLE in header and "sealing paused by owner variable" in header
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    assert PAUSE_VARIABLE in readme
+    assert (
+        readme.index(PAUSE_VARIABLE)
+        - readme.index("REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED")
+        < 2500
+    )
+
+
 def test_the_drift_contract_is_consumed_through_its_file_path_alone(
     scheduled: dict[str, Any],
 ) -> None:

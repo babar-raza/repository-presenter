@@ -2,7 +2,7 @@
 under which model. Read-only and deterministic; no provider call and no GitHub call.
 
 Input is the drift monitor's output through its file contract (``DRIFT_CONTRACT_VERSION``), never
-the monitor's code: the drift monitor (branch ``g7-w06-drift-monitor``) is not on main, so this
+the monitor's code: the drift monitor (``monitor.yml``) is a separate producer, so this
 module depends only on the JSON shape below. A record is one repository and one status; only
 ``DRIFTED`` records ever become work. Output is the matrix the scheduled workflow fans out over.
 
@@ -19,6 +19,12 @@ taken, the rest deferred to a later run.
 Sealing uses ``SEALING_MODEL`` alone (owner rule: never switch models). ``require_sealing_model``
 refuses a run whose prompt manifests route anywhere else or whose ``GPT_OSS_MODEL`` override names
 another model; the workflow never sets that override at all.
+
+Pause switch: the repository variable ``REPOSITORY_PRESENTER_SEALING_PAUSED`` exactly equal to
+``"1"`` plans nothing (``sealing_paused``). Unset, empty, or any other value leaves sealing
+enabled: the owner wants autonomy by default, and the per-run cap bounds the spend. The check
+runs in the plan job, before the drift file is read, so no seal or propose leg ever starts while
+paused.
 """
 
 from __future__ import annotations
@@ -39,6 +45,8 @@ DRIFTED = "DRIFTED"
 DRIFT_STATUSES = frozenset({DRIFTED, "CURRENT", "UNKNOWN"})
 MAX_REPOSITORIES_PER_RUN = 3
 SEALING_MODEL = "qwen3-next"
+SEALING_PAUSED_VARIABLE = "REPOSITORY_PRESENTER_SEALING_PAUSED"
+SEALING_PAUSED_NOTICE = "sealing paused by owner variable"
 
 
 @dataclass(frozen=True)
@@ -158,12 +166,23 @@ def plan_sealing_run(
     )
 
 
+def sealing_paused(environment: Mapping[str, str]) -> bool:
+    """True only when the owner pause variable is exactly ``"1"`` (never inferred from presence,
+    truthiness or case: ``"true"``, ``"0"``, ``" 1"`` and the empty string all leave sealing on)."""
+    return environment.get(SEALING_PAUSED_VARIABLE) == "1"
+
+
 def _matrix(repositories: Iterable[str]) -> str:
     targets = [
         {"repository": repository, "slug": repository.replace("/", "__")}
         for repository in repositories
     ]
     return json.dumps(targets, separators=(",", ":"), sort_keys=True)
+
+
+def empty_plan() -> SealingPlan:
+    """The plan of a paused run: nothing selected, nothing publishable, nothing deferred."""
+    return SealingPlan(selected=(), publishable=(), deferred=(), not_admitted=(), disabled=())
 
 
 def github_output_lines(plan: SealingPlan) -> list[str]:

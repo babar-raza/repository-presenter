@@ -284,10 +284,13 @@ from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.sealing_plan import (
     MAX_REPOSITORIES_PER_RUN,
     SEALING_MODEL,
+    SEALING_PAUSED_NOTICE,
+    empty_plan,
     github_output_lines,
     plan_sealing_run,
     read_drift_contract,
     require_sealing_model,
+    sealing_paused,
 )
 from repository_presenter.core.secrets import configured_secrets, find_secret_leaks, redact
 from repository_presenter.core.snapshot.capture import (
@@ -907,10 +910,23 @@ def run_sealing_plan(
 
     Refuses before selecting anything when a prompt manifest routes away from the sealing model or
     ``GPT_OSS_MODEL`` names another one. Makes no provider and no GitHub call.
+    A repository variable ``REPOSITORY_PRESENTER_SEALING_PAUSED`` of exactly "1" plans nothing.
     """
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
+    if sealing_paused(os.environ):
+        # The owner pause switch: checked before anything is read, so a paused run needs no drift
+        # file, selects nothing, and starts no seal or propose leg downstream.
+        print(f"sealing: {SEALING_PAUSED_NOTICE}; no repository is sealed in this run")
+        summary = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary:
+            with Path(summary).open("a", encoding="utf-8") as handle:
+                handle.write(f"### Sealing\n\n{SEALING_PAUSED_NOTICE}\n")
+        if github_output is not None:
+            with github_output.open("a", encoding="utf-8") as handle:
+                handle.write("\n".join(github_output_lines(empty_plan())) + "\n")
+        return EXIT_OK
     contract = drift_file if drift_file.is_absolute() else root / drift_file
     try:
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)

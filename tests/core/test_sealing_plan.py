@@ -19,12 +19,15 @@ from repository_presenter.core.sealing_plan import (
     DRIFTED,
     MAX_REPOSITORIES_PER_RUN,
     SEALING_MODEL,
+    SEALING_PAUSED_VARIABLE,
     DriftRecord,
+    empty_plan,
     github_output_lines,
     parse_drift_contract,
     plan_sealing_run,
     read_drift_contract,
     require_sealing_model,
+    sealing_paused,
 )
 from support import REPO_ROOT
 
@@ -248,3 +251,31 @@ def test_the_real_registry_loads_and_drifted_entries_resolve_against_it() -> Non
     assert listed, "the registry must list at least one enabled repository"
     plan = plan_sealing_run([DriftRecord(repo, DRIFTED) for repo in listed], registry)
     assert plan.selected == tuple(sorted(listed)[:MAX_REPOSITORIES_PER_RUN])
+
+
+# --- the owner pause switch: REPOSITORY_PRESENTER_SEALING_PAUSED, exactly "1" ------------------
+
+
+def test_the_pause_variable_pauses_sealing_only_when_exactly_one() -> None:
+    assert SEALING_PAUSED_VARIABLE == "REPOSITORY_PRESENTER_SEALING_PAUSED"
+    assert sealing_paused({SEALING_PAUSED_VARIABLE: "1"}) is True
+
+
+@pytest.mark.parametrize("value", ["", "0", "true", "TRUE", "yes", "on", " 1", "1 ", "11", "2"])
+def test_any_other_value_leaves_sealing_enabled(value: str) -> None:
+    """Negative controls: truthy-looking values, whitespace and case variants never pause."""
+    assert sealing_paused({SEALING_PAUSED_VARIABLE: value}) is False
+
+
+def test_an_unset_pause_variable_leaves_sealing_enabled() -> None:
+    assert sealing_paused({}) is False
+    assert sealing_paused({"GH_TOKEN": "x"}) is False
+
+
+def test_a_paused_run_reports_no_work_and_nothing_publishable() -> None:
+    assert github_output_lines(empty_plan()) == [
+        "repositories=[]",
+        "has_work=false",
+        "publishable=[]",
+        "has_publishable=false",
+    ]

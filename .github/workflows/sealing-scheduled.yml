@@ -5,6 +5,11 @@
 #          core/sealing_plan.py), keeps only DRIFTED, enabled, registry-listed repositories, sorts
 #          them, and takes at most three (MAX_REPOSITORIES_PER_RUN). Refuses any run whose prompt
 #          manifests or GPT_OSS_MODEL name a model other than qwen3-next.
+#          Pause switch: when the repository variable REPOSITORY_PRESENTER_SEALING_PAUSED is exactly
+#          "1", it reports has_work=false and has_publishable=false with the notice "sealing
+#          paused by owner variable" (also written to the step summary) before reading anything,
+#          so no seal or propose leg starts. Unset, empty or any other value leaves sealing
+#          enabled: autonomy by default, and the cap of three per run bounds the daily spend.
 #   seal   one matrix leg per planned repository, strictly one at a time (max-parallel 1), each
 #          calling present.yml via workflow_call - the one reusable pipeline, never a copy. Analysis
 #          there uses a read-only, repository-scoped App token. fail-fast is off: one repository's
@@ -82,6 +87,9 @@ jobs:
       # dependency note). It is read through its contract alone; the cap and ordering live in code.
       - name: Select this run's repositories from the drift monitor's output
         id: plan
+        env:
+          # The owner pause switch (see the header); the command compares it to exactly "1".
+          REPOSITORY_PRESENTER_SEALING_PAUSED: ${{ vars.REPOSITORY_PRESENTER_SEALING_PAUSED }}
         run: repository-presenter sealing-plan --drift-file drift/drift.json --github-output "$GITHUB_OUTPUT"
 
   seal:
