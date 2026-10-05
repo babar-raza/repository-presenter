@@ -12,6 +12,7 @@ cannot be satisfied by a stored reply, because nothing here calls a provider.
 
 from __future__ import annotations
 
+import datetime as dt
 import json
 from pathlib import Path
 from typing import Any
@@ -126,8 +127,17 @@ def test_there_is_at_least_one_sealed_bundle_to_hold_the_renderer_to() -> None:
 # Each record carries the debt's reason AND the reference owning its repayment (a work item,
 # taskcard, arrival item, or dated DECISION_LOG section 31 entry) - tests/test_debt_ledger.py
 # (PHASE1/F7) enforces both, so no entry can defer a re-seal to nobody again.
+# Each record also carries "since" (the date the bytes were first known to diverge) and "expires"
+# (an ISO date). The xfail applies only up to and
+# including "expires": the day after, the entry stops excusing the candidate and its test fails as
+# a plain assertion, so the debt has to be repaid by a real re-seal (through `present`) or
+# re-dated in a reviewed commit with the blocker re-checked - it can no longer age silently.
+# Re-checked 2026-10-05 against the current sealed bundles: all three still render different
+# bytes than they sealed with, so the blocker still holds.
 KNOWN_BLOCKED_STALE = {
     "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET": {
+        "since": "2026-09-11",
+        "expires": "2026-10-19",
         "reason": (
             "G4-W17 item 65's placement fix drops the orphaned lead-in 'Load a workbook with "
             "recovery diagnostics:' (inherited_unit:018.paragraph, sealed README line 155) whose "
@@ -183,6 +193,8 @@ KNOWN_BLOCKED_STALE = {
     # now come from current code, so a fresh render matches them again; leaving the entry would
     # XPASS(strict) forever, the same signal this file's own docstring says to act on.
     "aspose-3d-foss__Aspose.3D-FOSS-for-Python": {
+        "since": "2026-09-16",
+        "expires": "2026-10-19",
         "reason": (
             "item 69's cited_inherited_identifiers now wraps `NotImplementedError` (four "
             "occurrences, scope_limitations, citing an inherited limitations list that spells "
@@ -213,6 +225,8 @@ KNOWN_BLOCKED_STALE = {
     # item-69 diff is moot for the new bundle; leaving the entry would XPASS(strict) forever,
     # since `sealed_bundles()` now follows CURRENT to the new revision.
     "aspose-slides-foss__Aspose.Slides-FOSS-for-Python": {
+        "since": "2026-09-16",
+        "expires": "2026-10-19",
         "reason": (
             "item 69's cited_inherited_identifiers now wraps `PowerPoint`, `ValueError`, "
             "`SmartArt`, and `AttributeError` (scope_limitations scope, citing eight inherited "
@@ -232,12 +246,75 @@ KNOWN_BLOCKED_STALE = {
 }
 
 
+# plans/idea.md links, anchor, and badge rules (docs/DECISION_LOG.md section 31 2026-10-05, renderer
+# 27): the badge row is derived from verified facts per ecosystem in the stable order (a runtime
+# badge for .NET/Java/Go/C++/Rust/Node floors, not Python alone; the contributors badge only when
+# the source README's own target resolved; a build-status badge only for a verified workflow), and
+# the Enterprise Edition anchor reads "full-featured <product> - Enterprise Edition". Each bundle
+# below differs from a fresh render in exactly those spans (diff checked per bundle, not assumed).
+# A real, deliberate, correct rendering-behavior change; each needs a real re-seal through `present`
+# to pick it up, since validation/review were judged against the old bytes. `strict=True` as above.
+_LINKS_ANCHOR_BADGES_STALE = (
+    "aspose-3d-foss__Aspose.3D-FOSS-for-.NET",
+    "aspose-3d-foss__Aspose.3D-FOSS-for-Java",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Go",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript",
+    "aspose-email-foss__Aspose.Email-FOSS-for-.Net",
+    "aspose-email-foss__Aspose.Email-FOSS-for-Cpp",
+    "aspose-email-foss__Aspose.Email-FOSS-for-Python",
+    "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+    "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET",
+    "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+    "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+    "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go",
+    "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET",
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET",
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Java",
+    "aspose-words-foss__Aspose.Words-FOSS-for-.NET",
+    "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+)
+for _name in _LINKS_ANCHOR_BADGES_STALE:
+    KNOWN_BLOCKED_STALE.setdefault(
+        _name,
+        {
+            "since": "2026-10-05",
+            "expires": "2026-11-04",
+            "reason": (
+                "renderer 27: the badge row derives per ecosystem from verified facts in the "
+                "stable order (runtime badge, contributors only when verified) and the Enterprise "
+                "Edition anchor opens 'full-featured' - see comment above"
+            ),
+            "ref": (
+                "G4-W17 links, anchor and badges rules; docs/DECISION_LOG.md section 31 2026-10-05"
+            ),
+        },
+    )
+
+
+def block_is_live(record: dict[str, str], today: dt.date) -> bool:
+    """Whether a ledger record still excuses its candidate: true through its `expires` date."""
+    return today <= dt.date.fromisoformat(record["expires"])
+
+
 def _bundle_param(bundle: Path) -> Any:
     name = bundle.parent.name
     record = KNOWN_BLOCKED_STALE.get(name)
     marks = (
-        [pytest.mark.xfail(reason=f"{record['reason']} [{record['ref']}]", strict=True)]
-        if record
+        [
+            pytest.mark.xfail(
+                reason=f"{record['reason']} [{record['ref']}] (blocked since {record['since']}, "
+                f"expires {record['expires']})",
+                strict=True,
+            )
+        ]
+        if record and block_is_live(record, dt.date.today())
         else []
     )
     return pytest.param(bundle, marks=marks, id=name)
@@ -255,3 +332,19 @@ def test_a_sealed_candidate_renders_to_its_own_bytes(bundle: Path) -> None:
     )
     stored = (bundle / "README.md").read_text("utf-8")
     assert rendered == stored, f"{bundle.parent.name} no longer renders the bytes it sealed with"
+
+
+def test_every_blocked_entry_carries_a_bounded_dated_expiry() -> None:
+    """A recorded block names when it began and when it stops excusing the candidate."""
+    for name, record in KNOWN_BLOCKED_STALE.items():
+        since = dt.date.fromisoformat(record["since"])
+        expires = dt.date.fromisoformat(record["expires"])
+        assert since < expires <= since + dt.timedelta(days=60), (
+            f"{name}: expiry {expires} must fall after since {since} and within 60 days of it"
+        )
+
+
+def test_a_block_stops_excusing_its_candidate_the_day_after_it_expires() -> None:
+    record = {"expires": "2026-10-19"}
+    assert block_is_live(record, dt.date(2026, 10, 19))
+    assert not block_is_live(record, dt.date(2026, 10, 20))

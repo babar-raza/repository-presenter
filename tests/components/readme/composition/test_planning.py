@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import copy
+import functools
 import json
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import httpx
 import pytest
 from jsonschema import Draft202012Validator
 
@@ -15,6 +19,7 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.components.readme.composition.planning import (
     bound_visible_line_overage,
     citable_fact_ids,
+    citable_unit_ids,
     plan_checks,
     planning_packet,
     planning_schema,
@@ -26,6 +31,8 @@ from repository_presenter.components.readme.composition.planning import (
 )
 from repository_presenter.components.readme.composition.policy import PlanningPolicy
 from repository_presenter.components.readme.investigation.dossier import UNIT_CAP
+from repository_presenter.core.config import GatewayConfig
+from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import (
     FACT_KINDS,
     Evidence,
@@ -33,9 +40,11 @@ from repository_presenter.core.facts import (
     FactsDocument,
     bounded_records,
 )
+from repository_presenter.core.llm.jobs import CallStore, JobContext, JobResult, run_job
+from repository_presenter.core.llm.ledger import Ledger
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
-from support import REPO_ROOT, assert_no_empty_enums, empty_enum_paths
+from support import REPO_ROOT, assert_no_empty_enums, empty_enum_paths, mock_gateway
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -317,7 +326,6 @@ _FACT_ID_ARRAYS = (
     ("core_capabilities", "shared_fact_ids"),
     ("api_hubs", "fact_ids"),
     ("material_limitations", "fact_ids"),
-    ("material_limitations", "unit_ids"),  # G4-W17 arrival item 77
     ("deviations", "fact_ids"),
 )
 
@@ -342,7 +350,10 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
         "public_symbol:widget.scene",
     ]  # every SUPPORTED fact; never the UNRESOLVED format or the CONTRADICTED example and link
     assert citable_fact_ids(FACTS, {}, {}, MANIFEST) == citable
-    assert schema["$defs"] == {"citable_fact_id": {"type": "string", "enum": citable}}
+    assert schema["$defs"] == {
+        "citable_fact_id": {"type": "string", "enum": citable},
+        "citable_unit_id": {"type": "string", "enum": ["inherited_unit:001.paragraph"]},
+    }
     for array, field in _FACT_ID_ARRAYS:
         pinned = schema["properties"][array]["items"]["properties"][field]
         assert pinned["items"] == {"$ref": "#/$defs/citable_fact_id"}
@@ -374,17 +385,30 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
     assert refused(_plan(material_limitations=[limitation])) == [
         ("$.material_limitations[0].fact_ids[0]", "enum")
     ]
-    # G4-W17 arrival item 77 (lane F PROPOSAL F22, Email-.NET): unit_ids sits beside fact_ids in
-    # the same object and previously carried no enum at all - a well-formed fact id written there
-    # (the exact live shape: package:target_framework, a real fact, written into the unit array)
-    # was refused only by the binding after the call was spent.
+    # unit_ids sits beside fact_ids in the same object but holds a different ID space: only
+    # inherited_unit facts. An invented ID is refused at decode (G4-W17 arrival item 77) ...
     unit_limitation = {"fact_ids": [], "unit_ids": ["format:msg"]}
     assert refused(_plan(material_limitations=[unit_limitation])) == [
         ("$.material_limitations[0].unit_ids[0]", "enum")
     ]
-    # A real inherited_unit id is admitted - the same set fact_ids draws from, not a narrower one.
+    # ... and so is a REAL, citable fact ID of another kind - the live Slides-Java shape
+    # (2026-10-05): both S5 attempts filled unit_ids with identity:repository, which is in the
+    # fact enum but is not an inherited unit, so the binding refused it after the call was spent.
+    for fact_id in ("identity:repository", "example:001", "public_symbol:widget.scene"):
+        assert fact_id in citable
+        wrong_kind = {"fact_ids": [fact_id], "unit_ids": [fact_id]}
+        assert refused(_plan(material_limitations=[wrong_kind])) == [
+            ("$.material_limitations[0].unit_ids[0]", "enum")
+        ], fact_id
+    # Negative control: the same IDs remain valid where they belong, in fact_ids, and a real
+    # inherited_unit id is still admitted in unit_ids.
+    as_fact = {"fact_ids": ["identity:repository"], "unit_ids": []}
+    assert refused(_plan(material_limitations=[as_fact])) == []
     real_unit = {"fact_ids": [], "unit_ids": ["inherited_unit:001.paragraph"]}
     assert refused(_plan(material_limitations=[real_unit])) == []
+    unit_array = schema["properties"]["material_limitations"]["items"]["properties"]["unit_ids"]
+    assert unit_array["items"] == {"$ref": "#/$defs/citable_unit_id"}
+    assert unit_array["maxItems"] == 1
     deviation = {"section_id": "opening", "text": "t", "fact_ids": ["format:msg"]}
     assert refused(_plan(deviations=[deviation])) == [("$.deviations[0].fact_ids[0]", "enum")]
     # The bound: a citation list longer than the citable set can only be repeating itself.
@@ -402,6 +426,9 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
         if "items" in pinned:
             pinned = pinned["items"]["properties"][field]
         assert pinned == {"type": "array", "maxItems": 0}
+    # With no inherited unit shown the unit array is pinned empty too, never to an empty enum.
+    empty_units = empty["properties"]["material_limitations"]["items"]["properties"]["unit_ids"]
+    assert empty_units == {"type": "array", "maxItems": 0}
 
 
 def test_the_four_previously_unbounded_outer_arrays_now_refuse_past_their_ceiling() -> None:
@@ -508,10 +535,8 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
     direction the list is pinned empty rather than given an empty enum."""
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
     schema = planning_schema(loaded, FACTS, {}, {})
-    glance_variants = schema["properties"]["at_a_glance"]["oneOf"]
-    variants = [v for v in glance_variants if v.get("type") == "object"]
-    assert len(variants) == 1
-    glance = variants[0]["properties"]
+    # At a Glance is required here, so the decoder carries the object variant alone.
+    glance = schema["properties"]["at_a_glance"]["properties"]
     assert glance["output_format_ids"] == {
         "type": "array",
         "items": {"type": "string", "enum": ["format:output.stl"]},
@@ -533,11 +558,9 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
             "capability_titles": ["Build scenes", "Export STL", "Run examples"],
         }
     )
-    errors = [e for e in validator.iter_errors(wrong) if e.json_path == "$.at_a_glance"]
-    assert len(errors) == 1
-    assert "'public_symbol:widget.scene' is not one of ['format:output.stl']" in [
-        c.message for c in errors[0].context
-    ]
+    errors = [e for e in validator.iter_errors(wrong) if e.json_path.startswith("$.at_a_glance")]
+    assert [e.json_path for e in errors] == ["$.at_a_glance.output_format_ids[0]"]
+    assert "'public_symbol:widget.scene' is not one of ['format:output.stl']" in errors[0].message
     # With no verified input format the list is pinned empty, so the UNRESOLVED input format is
     # unwritable there too - refused by maxItems, not left to an empty enum nothing satisfies.
     unresolved = _plan(
@@ -547,12 +570,67 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
             "capability_titles": ["Build scenes", "Export STL", "Run examples"],
         }
     )
-    errors = [e for e in validator.iter_errors(unresolved) if e.json_path == "$.at_a_glance"]
+    errors = [
+        e
+        for e in validator.iter_errors(unresolved)
+        if e.json_path == "$.at_a_glance.input_format_ids"
+    ]
     assert len(errors) == 1
-    assert any(
-        c.validator == "maxItems" and c.json_path == "$.at_a_glance.input_format_ids"
-        for c in errors[0].context
+    assert errors[0].validator == "maxItems"
+
+
+def test_one_schema_is_object_only_for_at_a_glance_and_pins_fact_and_unit_ids() -> None:
+    """The two planning-schema narrowings hold on the same specialised schema: a required At a
+    Glance is object-only (a null is refused at decode), and the fact-ID arrays and the inherited
+    unit-ID arrays are pinned through their own ``$defs`` enums (#238). Neither pass may undo the
+    other, and a plan breaking all three at once is refused for all three."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS, {}, {})
+    assert schema["properties"]["at_a_glance"]["type"] == "object"
+    assert set(schema["$defs"]) == {"citable_fact_id", "citable_unit_id"}
+    limitations = schema["properties"]["material_limitations"]["items"]["properties"]
+    assert limitations["fact_ids"]["items"] == {"$ref": "#/$defs/citable_fact_id"}
+    assert limitations["unit_ids"]["items"] == {"$ref": "#/$defs/citable_unit_id"}
+    validator = Draft202012Validator(schema)
+    scoped = ("$.at_a_glance", "$.material_limitations")
+    assert [e for e in validator.iter_errors(_plan()) if e.json_path.startswith(scoped)] == []
+    broken = _plan(
+        at_a_glance=None,
+        material_limitations=[{"fact_ids": ["format:msg"], "unit_ids": ["format:msg"]}],
     )
+    refused_at = {error.json_path for error in validator.iter_errors(broken)}
+    assert {
+        "$.at_a_glance",
+        "$.material_limitations[0].fact_ids[0]",
+        "$.material_limitations[0].unit_ids[0]",
+    } <= refused_at
+
+
+def test_a_null_at_a_glance_is_not_decodable_while_the_required_section_holds() -> None:
+    """Aspose.3D for TypeScript, 2026-10-04: presentation_planning returned at_a_glance null twice
+    in one job. At a Glance is required, so section_conditions holds it, and plan_checks refuses a
+    null ("at_a_glance is included, so its formats and capabilities are given"). The decoder
+    admitted that null through the manifest's oneOf null variant, so the one re-ask was spent on a
+    reply the checks had already decided. The decoder now carries the same rule."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS, {}, {})
+    assert schema["properties"]["at_a_glance"]["type"] == "object"
+    validator = Draft202012Validator(schema)
+    assert [
+        e for e in validator.iter_errors(_plan()) if e.json_path.startswith("$.at_a_glance")
+    ] == []
+    nulled = [
+        e for e in validator.iter_errors(_plan(at_a_glance=None)) if e.json_path == "$.at_a_glance"
+    ]
+    assert len(nulled) == 1
+    # Negative control: the checker refuses the same null, so the decoder and checks agree.
+    assert "at_a_glance is included, so its formats and capabilities are given" in plan_checks(
+        _plan(at_a_glance=None), FACTS
+    )
+    # The manifest's own schema keeps its null variant: the specialisation is per call.
+    assert loaded.manifest.output.schema_["properties"]["at_a_glance"]["oneOf"][0] == {
+        "type": "null"
+    }
 
 
 def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
@@ -1162,6 +1240,216 @@ def test_recover_uncited_capability_titles_never_invents_a_citation_with_no_real
     assert recover_uncited_capability_titles(plan, FACTS) is None
     # A plan with nothing unsupported at all: also None, never a copy of a plan needing no fix.
     assert recover_uncited_capability_titles(_plan(), FACTS) is None
+
+
+def _link(target: str, section: str) -> dict[str, str]:
+    return {"link_fact_id": target, "section_id": section}
+
+
+def test_recover_duplicate_link_assignments_keeps_the_first_placement_and_drops_each_repeat() -> (
+    None
+):
+    """Last-resort correction for a plan that assigns one link target to several sections (a
+    degenerate reply measured on aspose-font-foss/Aspose.Font-FOSS-for-Python, presentation_planning
+    S5: the one re-ask repeated it, so the job failed with no deterministic last resort). The
+    duplicate check itself is never weakened: the repeat is the defect, and the correction removes
+    it. The first placement the model chose is kept; nothing is invented, re-sectioned or added."""
+    repeated = _plan(
+        links=[
+            _link("link_target:001", "license"),
+            _link("link_target:002", "documentation_resources"),
+            _link("link_target:002", "api_reference"),
+            _link("link_target:001", "scope_limitations"),
+            _link("link_target:002", "scope_limitations"),
+        ]
+    )
+    before = copy.deepcopy(repeated)
+    # Confirms the fixture reproduces the rejection, judged on a copy (plan_checks normalises).
+    rejected = plan_checks(copy.deepcopy(repeated), FACTS)
+    assert "link 'link_target:002' is assigned more than once; never the same target twice" in (
+        rejected
+    )
+    recovered = planning.recover_duplicate_link_assignments(repeated)
+    assert recovered is not None
+    assert recovered["links"] == [
+        _link("link_target:001", "license"),
+        _link("link_target:002", "documentation_resources"),
+    ]
+    # Never invents: every kept entry is one the model actually wrote, the rest of the plan is
+    # untouched, and the input is never mutated.
+    assert all(link in before["links"] for link in recovered["links"])
+    assert {k: v for k, v in recovered.items() if k != "links"} == {
+        k: v for k, v in before.items() if k != "links"
+    }
+    assert repeated == before
+    # Re-verified against the real rules, exactly as run_job does before ever accepting it.
+    assert plan_checks(copy.deepcopy(recovered), FACTS) == []
+
+
+def test_recover_duplicate_link_assignments_is_none_when_no_target_repeats() -> None:
+    """Mutation control: nothing to correct returns None, never a no-op copy of the plan."""
+    assert planning.recover_duplicate_link_assignments(_plan()) is None
+
+
+def test_recover_planning_output_applies_both_last_resorts_and_only_what_changed() -> None:
+    """The one ``recover=`` presentation_planning's run_job receives: both deterministic last
+    resorts in order (duplicate links, then uncited capability titles), each only when it changes
+    something. A plan with only one defect is corrected by that one alone."""
+    both = _plan(
+        core_capabilities=[
+            {"title": "Export STL files", "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
+            {"title": "Run examples", "fact_ids": ["example:002"]},
+        ],
+        links=[
+            _link("link_target:002", "documentation_resources"),
+            _link("link_target:002", "api_reference"),
+        ],
+    )
+    both["at_a_glance"] = {
+        "input_format_ids": [],
+        "output_format_ids": ["format:output.stl"],
+        "capability_titles": [item["title"] for item in both["core_capabilities"]],
+    }
+    assert plan_checks(copy.deepcopy(both), FACTS) != []
+    recovered = planning.recover_planning_output(copy.deepcopy(both), FACTS)
+    assert recovered is not None
+    assert recovered["links"] == [_link("link_target:002", "documentation_resources")]
+    assert recovered["core_capabilities"][0]["fact_ids"] == [
+        "format:output.stl",
+        "public_symbol:widget.scene",
+    ]
+    assert plan_checks(copy.deepcopy(recovered), FACTS) == []
+    only_links = _plan(links=[_link("link_target:002", "api_reference")] * 2)
+    assert planning.recover_planning_output(only_links, FACTS) == _plan(
+        links=[_link("link_target:002", "api_reference")]
+    )
+    assert planning.recover_planning_output(_plan(), FACTS) is None
+
+
+def _completion(content: dict[str, Any]) -> httpx.Response:
+    body = {
+        "id": "chatcmpl-1",
+        "object": "chat.completion",
+        "created": 1,
+        "model": "qwen3-next",
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": json.dumps(content)},
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 120},
+    }
+    return httpx.Response(200, json=body)
+
+
+def _run_planning(
+    directory: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    replies: list[dict[str, Any]],
+    recover: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None,
+) -> JobResult:
+    """The real presentation_planning job: the real manifest, the real schema and plan_checks,
+    and a scripted gateway serving ``replies`` in order - nothing else is faked."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    served = [_completion(reply) for reply in replies]
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url.path.endswith("/chat/completions")
+        return served.pop(0)
+
+    mock_gateway(monkeypatch, handler)
+    return run_job(
+        loaded,
+        planning_packet(ENTRY, FACTS, {}, {}, loaded.manifest),
+        config=GatewayConfig("https://gw.example/v1", "sk-test-key-0123456789"),
+        facts=FACTS,
+        ledger=Ledger(directory / "calls.jsonl"),
+        store=CallStore(directory / "calls"),
+        context=JobContext(ENTRY.repository, "a" * 40),
+        checks=functools.partial(plan_checks, facts=FACTS),
+        call_schema=planning_schema(loaded, FACTS, {}, {}),
+        recover=recover,
+    )
+
+
+def _duplicated_link_plan() -> dict[str, Any]:
+    """A schema-valid plan (the schema requires every key, nullable ones included) that assigns
+    one link target to three sections - the S5 shape measured on aspose-font-foss."""
+    return _plan(
+        second_quick_start_example_id=None,
+        flagship_example_id=None,
+        links=[
+            _link("link_target:002", "documentation_resources"),
+            _link("link_target:002", "api_reference"),
+            _link("link_target:002", "scope_limitations"),
+        ],
+    )
+
+
+def test_a_repeated_link_target_is_recovered_only_after_the_final_rejection(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Both live-shaped attempts repeat the same degenerate plan. Without a recovery the job fails
+    closed on the real duplicate check; with ``recover_planning_output`` the corrected plan is
+    re-validated through the real schema, binding and plan_checks, and accepted with no third
+    provider call."""
+    degenerate = _duplicated_link_plan()
+    with pytest.raises(JobError, match="assigned more than once"):
+        _run_planning(tmp_path / "bare", monkeypatch, [degenerate, degenerate])
+    result = _run_planning(
+        tmp_path / "fixed",
+        monkeypatch,
+        [degenerate, degenerate],
+        recover=functools.partial(planning.recover_planning_output, facts=FACTS),
+    )
+    assert (result.attempts, result.provider_calls) == (2, 2)
+    assert result.output["links"] == [_link("link_target:002", "documentation_resources")]
+    assert plan_checks(copy.deepcopy(result.output), FACTS) == []
+
+
+def test_a_correction_that_does_not_clear_every_repeat_changes_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mutation control: a recovery that clears only one of the repeats, or one that invents a
+    link fact the facts never verified, is re-validated from scratch and refused - the job fails
+    closed exactly as it would with no recovery at all. The duplicate check is never relaxed."""
+    degenerate = _duplicated_link_plan()
+
+    def half_fix(output: dict[str, Any]) -> dict[str, Any]:
+        return {**output, "links": output["links"][:2]}
+
+    def invented(output: dict[str, Any]) -> dict[str, Any]:
+        return {**output, "links": [*output["links"][:1], _link("link_target:999", "license")]}
+
+    for recover in (half_fix, invented):
+        with pytest.raises(JobError, match="output rejected twice"):
+            _run_planning(
+                tmp_path / recover.__name__,
+                monkeypatch,
+                [degenerate, degenerate],
+                recover=recover,
+            )
+
+
+def test_the_repeated_link_correction_is_byte_identical_on_every_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The same input always yields the same corrected plan, byte for byte, in a fresh store."""
+    degenerate = _duplicated_link_plan()
+    digests = []
+    for name in ("first", "second"):
+        result = _run_planning(
+            tmp_path / name,
+            monkeypatch,
+            [degenerate, degenerate],
+            recover=functools.partial(planning.recover_planning_output, facts=FACTS),
+        )
+        digests.append(write_plan(result.output, tmp_path / f"{name}.json"))
+    assert digests[0] == digests[1]
+    assert (tmp_path / "first.json").read_bytes() == (tmp_path / "second.json").read_bytes()
 
 
 def test_recover_visible_line_overage_clears_every_named_lever_and_records_the_truth() -> None:
@@ -1878,10 +2166,12 @@ def test_the_packets_facts_and_dispositions_share_one_inherited_unit_cap() -> No
     assert set(facts_units) == expected  # document order, the first UNIT_CAP units
     assert set(disposition_units) == expected  # the same set - one combined budget
 
-    # citable_fact_ids (material_limitations.unit_ids' own enum) never widens past what the
-    # packet's facts field actually shows (RESEARCH_AND_GUIDELINES.md section 27.2 RC1).
+    # citable_fact_ids never widens past what the packet's facts field actually shows
+    # (RESEARCH_AND_GUIDELINES.md section 27.2 RC1), and material_limitations.unit_ids' own enum
+    # is exactly that set's inherited units.
     citable = citable_fact_ids(many, {}, dispositions, MANIFEST)
     assert {i for i in citable if i.startswith("inherited_unit:")} == expected
+    assert set(citable_unit_ids(many, citable)) == expected
 
 
 _OPTIONAL_LEVER_PLAN: dict[str, Any] = {
@@ -1939,3 +2229,227 @@ def test_bound_visible_line_overage_is_none_without_an_overage_or_a_lever_to_cle
     assert bound_visible_line_overage(_OPTIONAL_LEVER_PLAN, overage=5, levers={}) is None
     cleared = {**_OPTIONAL_LEVER_PLAN, "flagship_example_id": None}
     assert bound_visible_line_overage(cleared, overage=5, levers=flagship) is None
+
+
+def _slot_facts(*urls: str) -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            *(_fact(f"link_target:9{n:02d}", "link_target", url) for n, url in enumerate(urls)),
+        ),
+    )
+
+
+def _link_plan(count: int) -> dict[str, Any]:
+    return _plan(
+        links=[
+            {"link_fact_id": f"link_target:9{n:02d}", "section_id": "documentation_resources"}
+            for n in range(count)
+        ]
+    )
+
+
+def _kept(plan: dict[str, Any]) -> list[str]:
+    return [link["link_fact_id"] for link in plan["links"]]
+
+
+def test_the_plan_trim_enforces_each_surface_slot_not_only_the_total() -> None:
+    """plans/idea.md: ceilings for `products`/`docs`/`kb`/`blog`/`reference` slots. Three docs
+    links fit the total of 4 but not the docs slot of 2 (negative control for the old single
+    constant, which admitted all three)."""
+    facts = _slot_facts(
+        "https://docs.aspose.org/widget/python/a/",
+        "https://docs.aspose.org/widget/python/b/",
+        "https://docs.aspose.org/widget/python/c/",
+        "https://kb.aspose.org/widget/python/",
+    )
+    plan = _link_plan(4)
+    assert plan_checks(plan, facts) == []
+    assert _kept(plan) == ["link_target:900", "link_target:901", "link_target:903"]
+
+
+def test_the_plan_trim_enforces_the_aspose_com_domain_slot() -> None:
+    facts = _slot_facts(
+        "https://docs.aspose.com/widget/a/",
+        "https://reference.aspose.com/widget/b/",
+        "https://kb.aspose.com/widget/c/",
+        "https://docs.aspose.org/widget/python/",
+    )
+    plan = _link_plan(4)
+    assert plan_checks(plan, facts) == []
+    # aspose.com may take at most half the total of 4.
+    assert _kept(plan) == ["link_target:900", "link_target:901", "link_target:903"]
+
+
+def test_a_configured_policy_replaces_the_plan_trim_ceilings() -> None:
+    from repository_presenter.components.readme.composition.link_budget import (
+        LinkAllocationPolicy,
+    )
+
+    facts = _slot_facts(
+        "https://docs.aspose.org/widget/python/a/",
+        "https://docs.aspose.org/widget/python/b/",
+        "https://docs.aspose.org/widget/python/c/",
+    )
+    roomy = PlanningPolicy(link_allocation=LinkAllocationPolicy(6, 6, 1, 1, 3, 1, 1, 1))
+    plan = _link_plan(3)
+    assert plan_checks(plan, facts, roomy) == []
+    assert len(_kept(plan)) == 3
+    tight = PlanningPolicy(link_allocation=LinkAllocationPolicy(1, 1, 1, 1, 1, 1, 1, 1))
+    plan = _link_plan(3)
+    assert plan_checks(plan, facts, tight) == []
+    assert _kept(plan) == ["link_target:900"]
+
+
+def test_the_shell_owned_ci_badge_target_is_never_a_plan_link() -> None:
+    ci = _fact(
+        "link_target:badge.ci", "link_target", "https://github.com/o/r/actions/workflows/ci.yml"
+    )
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, ci))
+    plan = _plan(
+        links=[{"link_fact_id": "link_target:badge.ci", "section_id": "documentation_resources"}]
+    )
+    errors = plan_checks(plan, facts)
+    assert any("link 'link_target:badge.ci' renders on its own" in error for error in errors)
+
+
+def test_the_schema_refuses_an_empty_api_hubs_list_while_api_reference_is_required() -> None:
+    """aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-04: with 1,151 hubbable symbols
+    and every README example UNRESOLVED, qwen3-next wrote ``api_hubs: []`` on both attempts
+    (byte-identical at temperature zero) and S5 died on "api_hubs are given exactly when
+    api_reference is included". api_reference is Required, so the schema must not admit the
+    empty list that plan_checks can never accept."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS, {}, {})
+    assert schema["properties"]["api_hubs"]["minItems"] == 1
+    validator = Draft202012Validator(schema)
+
+    def hub_errors(plan: dict[str, Any]) -> list[tuple[str, str]]:
+        return sorted(
+            (error.json_path, str(error.validator))
+            for error in validator.iter_errors(plan)
+            if error.json_path.startswith("$.api_hubs")
+        )
+
+    assert hub_errors(_plan(api_hubs=[])) == [("$.api_hubs", "minItems")]
+    assert hub_errors(_plan()) == []
+    # The downstream check is untouched: an empty list is still rejected after decoding.
+    assert "api_hubs are given exactly when api_reference is included" in plan_checks(
+        _plan(api_hubs=[]), FACTS
+    )
+    # Negative control: with nothing hubbable the list stays pinned empty, never forced non-empty
+    # (no value could satisfy both an empty enum and minItems 1).
+    bare = planning_schema(loaded, FactsDocument(ENTRY.repository, "a" * 40, ()), {}, {})
+    assert bare["properties"]["api_hubs"] == {"type": "array", "maxItems": 0}
+    # The manifest's own schema is not mutated: the specialisation is per call.
+    assert "minItems" not in loaded.manifest.output.schema_["properties"]["api_hubs"]
+
+
+def test_a_source_only_in_page_anchor_is_never_an_assignable_link() -> None:
+    """aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-04: the source README's
+    `[Redaction](#redaction)` is a SUPPORTED link_target (the heading exists in the SOURCE), the
+    plan assigned it to documentation_resources, and BC-06 failed "no heading #redaction" because
+    the re-composed candidate has no such heading. A fragment is assignable only when it names a
+    heading the shell itself renders."""
+    with_anchors = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("link_target:010", "link_target", "#installation"),  # a shell heading
+            _fact("link_target:011", "link_target", "#redaction"),  # source-only
+            _fact("link_target:012", "link_target", "#forms"),  # source-only
+        ),
+    )
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, with_anchors, {}, {})
+    enum = schema["properties"]["links"]["items"]["properties"]["link_fact_id"]["enum"]
+    assert "link_target:010" in enum  # the shell's own heading stays assignable
+    assert "link_target:011" not in enum and "link_target:012" not in enum
+    assert "link_target:002" in enum  # an ordinary external link is untouched
+
+    # The downstream check refuses it too, with its own message rather than "not verified".
+    plan = _plan(
+        links=[
+            {"link_fact_id": "link_target:002", "section_id": "documentation_resources"},
+            {"link_fact_id": "link_target:011", "section_id": "documentation_resources"},
+        ]
+    )
+    errors = plan_checks(plan, with_anchors)
+    assert any(
+        "'link_target:011' is an in-page anchor to a source README heading" in e for e in errors
+    ), errors
+    # Negative controls: the shell heading and the external link raise nothing of the kind.
+    ok = _plan(
+        links=[
+            {"link_fact_id": "link_target:002", "section_id": "documentation_resources"},
+            {"link_fact_id": "link_target:010", "section_id": "documentation_resources"},
+        ]
+    )
+    assert [e for e in plan_checks(ok, with_anchors) if "in-page anchor" in e] == []
+    # A disposition-required link is the plan's completeness obligation, not the model's choice:
+    # it is never refused here (BC-06 judges whether it resolves), so it cannot deadlock S5.
+    required = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:001.paragraph",
+                "disposition": "VERIFIED_REWRITE",
+                "destination_section": "documentation_resources",
+                "fact_ids": ["link_target:011"],
+            }
+        ]
+    }
+    assert [
+        e for e in plan_checks(plan, with_anchors, dispositions=required) if "in-page anchor" in e
+    ] == []
+    # Nothing assignable but source-only anchors pins the list empty, never an empty enum.
+    only_anchors = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (_fact("link_target:011", "link_target", "#redaction"),),
+    )
+    pinned = planning_schema(loaded, only_anchors, {}, {})["properties"]["links"]
+    assert pinned == {"type": "array", "maxItems": 0}
+
+
+def test_the_api_hubs_and_anchor_rules_still_fire_beside_the_unit_id_pin_and_link_budget() -> None:
+    """Merge guard: the api_hubs ``minItems`` and the source-only anchor ban live in the same
+    ``planning_schema`` and ``plan_checks`` that #238's ``unit_ids`` pin and #246's per-slot link
+    budget changed. One facts document, one merged schema: every rule must hold together."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("link_target:010", "link_target", "#installation"),  # a shell heading
+            _fact("link_target:011", "link_target", "#redaction"),  # source-only
+        ),
+    )
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, facts, {}, {})
+    properties = schema["properties"]
+    # This branch's rules.
+    assert properties["api_hubs"]["minItems"] == 1
+    enum = properties["links"]["items"]["properties"]["link_fact_id"]["enum"]
+    assert "link_target:010" in enum and "link_target:011" not in enum
+    # #238: the unit_ids pin is still applied beside them.
+    unit_ids = properties["material_limitations"]["items"]["properties"]["unit_ids"]
+    assert unit_ids["items"] == {"$ref": "#/$defs/citable_unit_id"}
+    assert "inherited_unit:001.paragraph" in schema["$defs"]["citable_unit_id"]["enum"]
+    # The checks (incl. #246's link budget) still run and still refuse both mistakes.
+    assert "api_hubs are given exactly when api_reference is included" in plan_checks(
+        _plan(api_hubs=[]), facts
+    )
+    anchored = _plan(
+        links=[
+            {"link_fact_id": "link_target:002", "section_id": "documentation_resources"},
+            {"link_fact_id": "link_target:011", "section_id": "documentation_resources"},
+        ]
+    )
+    assert any("in-page anchor" in e for e in plan_checks(anchored, facts))
+    # And a sound plan on the same facts raises neither.
+    assert [
+        e for e in plan_checks(_plan(), facts) if "in-page anchor" in e or "api_hubs" in e
+    ] == []

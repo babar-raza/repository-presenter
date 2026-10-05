@@ -126,16 +126,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Mint a read-only installation token, scoped to this owner's enabled repositories
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.GH_APP_ID }}
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-          owner: ${{ matrix.owner }}
-          repositories: ${{ matrix.repositories }}
-          permission-contents: read
-
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -147,9 +137,44 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements-lock.txt
           python -m pip install --disable-pip-version-check --no-deps -e .
 
+      # A failed mint is NOT presumed to be a missing installation: the action does not expose the
+      # HTTP status behind it, and a revoked key (401), a permission problem (403), an outage (5xx)
+      # or a network error fail the same way. The mint failure is absorbed only so the next step
+      # can ask GitHub directly (GET /repos/{owner}/{repo}/installation, as the App). Only a
+      # confirmed 404 there is a notice naming the missing install; every other answer fails this
+      # owner's leg with its error. The coverage job below is a second net: it turns the run red
+      # when no owner at all is observable.
+      - name: Mint a read-only installation token, scoped to this owner's enabled repositories
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ matrix.owner }}
+          repositories: ${{ matrix.repositories }}
+          permission-contents: read
+
+      - name: Record this owner's installation state (a notice only on a confirmed 404)
+        if: always()
+        env:
+          MINT_OUTCOME: ${{ steps.app-token.outcome }}
+          OWNER: ${{ matrix.owner }}
+          REPOSITORIES: ${{ matrix.repositories }}
+          # Used only to authenticate the installation lookup after a failed mint; never printed.
+          GH_APP_ID: ${{ secrets.GH_APP_ID }}
+          GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
+        run: |
+          mkdir -p runs/monitor
+          repository-presenter monitor-install-record --owner "$OWNER" \
+            --outcome "$MINT_OUTCOME" --repositories "$REPOSITORIES" \
+            --out "runs/monitor/install-$OWNER.json"
+
       - name: Observe each enabled repository's upstream head against its sealed bundle
-        # Only the read-only token is in this step's environment: no provider key, and no
-        # write-scoped token of any kind. A failed mint fails this leg, never a fallback credential.
+        # Runs only when this owner's token was minted. Only the read-only token is in this step's
+        # environment: no provider key, and no write-scoped token of any kind. A real error here
+        # (a repository unreachable, or the observation itself failing) still fails this leg.
+        if: steps.app-token.outcome == 'success'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           OWNER: ${{ matrix.owner }}
@@ -162,3 +187,36 @@ jobs:
           name: drift-${{ matrix.owner }}
           path: runs/monitor/
           if-no-files-found: warn
+
+  coverage:
+    # Red only when no owner could be observed at all (every token mint failed, so the App
+    # credentials are the likely cause, or no leg ran). Otherwise a missing installation is a
+    # visible notice and the run stays green. Real observation errors fail the drift leg itself.
+    name: Installation coverage (notices; red only if no owner is observable)
+    needs: [drift-plan, drift]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: drift-*
+          path: monitor
+          merge-multiple: true
+
+      - name: Summarize each owner's installation state
+        run: repository-presenter monitor-install-summary monitor --summary "$GITHUB_STEP_SUMMARY"

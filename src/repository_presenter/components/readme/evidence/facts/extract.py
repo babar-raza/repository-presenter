@@ -6,7 +6,10 @@ from collections.abc import Sequence
 from dataclasses import replace
 from pathlib import Path
 
-from repository_presenter.components.readme.evidence.facts.assets import asset_facts
+from repository_presenter.components.readme.evidence.facts.assets import (
+    asset_facts,
+    ci_badge_fact,
+)
 from repository_presenter.components.readme.evidence.facts.formats import format_facts
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
 from repository_presenter.components.readme.evidence.facts.license import license_facts
@@ -105,8 +108,9 @@ def _source_build_fact(
     # this fact is about to advertise as "verified against this revision".
     spec = spec_for(entry.ecosystem)
     name = entry.repository.split("/")[-1]
-    # The one rule for a .NET install claim the registry does not confirm (Imaging-FOSS for .NET
-    # and GIS, 2026-10-04): a package the registry lists as absent, or whose claim no manifest
+    # The one rule for a .NET or npm install claim the registry does not confirm (Imaging-FOSS for
+    # .NET and GIS, 2026-10-04; Aspose.PDF and Aspose.3D for TypeScript, 2026-10-04): a package
+    # the registry lists as absent, or whose claim no manifest
     # field produced, is advertised only as the source install the package's own build proved -
     # never as the registry command. A build that did not exit 0 admits nothing here. The
     # measured steps are the one command the proof ran; no example is needed for this proof, and
@@ -260,6 +264,10 @@ def extract_facts(
         )
     )
     facts.extend(asset_facts(tree_paths))
+    # plans/idea.md: a build-status badge only for a real workflow in the clone.
+    ci_badge = ci_badge_fact(entry.repository, clone_path, tree_paths)
+    if ci_badge is not None:
+        facts.append(ci_badge)
     facts.extend(product_page_facts(entry))
     if snapshot.readme_path is not None:
         readme_bytes = (clone_path / snapshot.readme_path).read_bytes()

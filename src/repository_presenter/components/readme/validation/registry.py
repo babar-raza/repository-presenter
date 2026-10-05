@@ -13,6 +13,7 @@ document records are context for the reviewer, never a verdict.
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import re
 from collections import Counter
@@ -39,6 +40,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     SEMANTIC_SHELL,
     SUBSECTION_HEADINGS,
 )
+from repository_presenter.components.readme.composition.link_budget import slot_violations
 from repository_presenter.components.readme.composition.placement import (
     Placement,
     placements,
@@ -48,7 +50,9 @@ from repository_presenter.components.readme.composition.policy import (
     PlanningPolicy,
 )
 from repository_presenter.components.readme.composition.renderer import (
+    RenderContext,
     api_reference_names,
+    badge_slots,
     line_counts,
 )
 from repository_presenter.components.readme.evidence.facts.links import (
@@ -57,7 +61,15 @@ from repository_presenter.components.readme.evidence.facts.links import (
     extract_links,
     heading_slugs,
 )
-from repository_presenter.components.readme.evidence.facts.product_pages import banner_target
+from repository_presenter.components.readme.evidence.facts.product_pages import (
+    banner_target,
+    enterprise_target,
+)
+from repository_presenter.components.readme.validation.links.rules import (
+    badge_problems,
+    enterprise_anchor_problems,
+    readme_link_budget,
+)
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
@@ -69,7 +81,10 @@ VALIDATION_FILENAME = "validation.json"
 # 6: BC-02 v4 refuses a SUPPORTED registry-kind install whose own reading found no distribution
 # (Imaging-FOSS for .NET and GIS, 2026-10-04). Both branches had taken "5" independently; the
 # merged validator means both changes, so it moves once more.
-VALIDATOR_VERSION = "6"
+# 7: BC-06 v5 judges Aspose links against the per-document, per-domain, per-surface ceilings
+# plans/idea.md describes and requires the "full-featured ... Enterprise Edition" anchor; BC-07 v8
+# checks the badge row's stable order and that every badge is one the verified facts support.
+VALIDATOR_VERSION = "7"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -198,7 +213,17 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # Closed at the same check that already judges "is what renders safe to follow": no such
         # construct may appear outside a fenced code block (code fences render as inert text, so
         # a documentation example quoting one is not this hazard).
-        "4",
+        # "5" (G8, BC-06 false positive on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript): the
+        # javascript:/vbscript: test read the words anywhere in prose, so "Document-level
+        # JavaScript: every entry" failed a candidate that carried no URL at all. The scheme is now
+        # judged only at a URL position (link/image destination, reference definition, autolink,
+        # URL-bearing attribute value), so a prose label passes and every real hazard still fails.
+        # "6" (links, anchor and badges rules): the Aspose ceiling is derived per rendered
+        # document - total, domain, and surface slots from visible words and verified examples,
+        # or configured - instead of a fixed 4 (plans/idea.md, composition/link_budget.py), and
+        # the Enterprise Edition link text must read "full-featured <product> - Enterprise
+        # Edition" when the plan includes the closing paragraph and the target is verified.
+        "6",
         "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the "
         "only edition name; no unsafe raw HTML (script/event-handler/dangerous-scheme) renders "
         "outside a fenced code block",
@@ -225,7 +250,10 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # right-side negative lookahead composition/renderer.py's own pattern already has, so a
         # word that STARTS a hyphenated compound (a module path's own trailing segment) is no
         # longer a false-positive bare-abbreviation match.
-        "7",
+        # "8" (links, anchor and badges rules): the badge row must keep plans/idea.md's stable
+        # order (package, runtime, build status, license, contributors), repeat no slot, and
+        # contain only badges the verified facts support (renderer.badge_slots).
+        "8",
         "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; "
         "At a Glance topology and column rules; no internal narration; within the length budget",
         ("structure",),
@@ -311,13 +339,47 @@ _BADGE_ROW = re.compile(rf"{_BADGE_TOKEN}(?: {_BADGE_TOKEN})*")
 _EDITION = re.compile(r"\b([A-Z][A-Za-z]+) Edition\b")
 # G7-W01 (docs/THREAT_MODEL.md area 3): the raw-HTML hazards no existing check reached - a
 # standalone or block-level tag that executes or navigates on its own, an inline event-handler
-# attribute (onerror=, onload=, ...), and a javascript:/vbscript: scheme wherever it appears, not
-# only inside an href `extract_links` would already have classified as "other" and failed on.
+# attribute (onerror=, onload=, ...), and a javascript:/vbscript: scheme where a URL is read.
 # Scanned outside fenced code blocks only: a fence renders as inert text on GitHub, so a
 # documentation example quoting one of these verbatim is not this hazard.
 _UNSAFE_HTML_TAG = re.compile(r"(?is)<\s*/?\s*(script|iframe|object|embed|meta|base)\b")
 _EVENT_HANDLER_ATTR = re.compile(r"(?is)\bon[a-z]+\s*=\s*[\"']")
-_DANGEROUS_SCHEME = re.compile(r"(?i)\b(?:javascript|vbscript):")
+# G8 (BC-06 false positive on aspose-pdf-foss, "Document-level JavaScript: every entry"): a scheme
+# is a hazard only at a position a URL is read, never wherever a word and a colon sit in prose. The
+# four URL positions are a markdown link or image destination `](...)`, a reference definition
+# `[label]: ...`, an autolink `<scheme:...>`, and the value of a URL-bearing attribute. The
+# attribute list includes SVG's values/to/from/by, which set an href through an animation
+# (`<animate attributeName="href" values="javascript:...">`). Each captures the URL as `url` (or
+# the quoted/bare attribute value) and is judged by `_is_dangerous_url`, never by its own shape.
+_URL_ATTRIBUTES = (
+    "href",
+    "src",
+    "action",
+    "formaction",
+    "data",
+    "poster",
+    "background",
+    "cite",
+    "codebase",
+    "longdesc",
+    "lowsrc",
+    "dynsrc",
+    "srcset",
+    "values",
+    "to",
+    "from",
+    "by",
+)
+_MD_DESTINATION = re.compile(r"\]\(\s*<?(?P<url>[^\s<>)]*)")
+_MD_REFERENCE_DEFINITION = re.compile(r"(?m)^[ ]{0,3}\[[^\]\n]+\]:[ \t]*<?(?P<url>[^\s<>]*)")
+_AUTOLINK = re.compile(r"<(?P<url>[^\s<>]*)")
+_HTML_URL_ATTRIBUTE = re.compile(
+    r"(?i)(?<![\w.:-])(?:[\w.-]+:)?(?:" + "|".join(_URL_ATTRIBUTES) + r")\s*=\s*"
+    r"""(?:"(?P<dq>[^"]*)"|'(?P<sq>[^']*)'|(?P<bare>[^\s"'>]+))"""
+)
+_DANGEROUS_SCHEME = re.compile(r"(?i)(?:javascript|vbscript):")
+_URL_CONTROLS = "".join(chr(code) for code in range(0x21))
+_URL_TAB_OR_NEWLINE = re.compile(r"[\t\n\r]")
 # A word after a dot is an extension spelling (.dae), not an abbreviation. G4-W17 arrival item
 # 103 (E21): a word immediately after a hyphen is a hyphen-continued name (aspose-html-foss),
 # not a bare abbreviation use either - the identical shape _COMMAND below is already hardened
@@ -884,6 +946,29 @@ def _renderer_owned(candidate: Candidate, href: str) -> bool:
     return href.rstrip("/") == target.rstrip("/")
 
 
+def _is_dangerous_url(value: str) -> bool:
+    """Whether a URL read at a URL position carries a javascript:/vbscript: scheme, judged the way
+    a renderer reads it: character references decode first (an HTML attribute value, and a
+    CommonMark link destination, both do), then a browser drops ASCII tab/newline anywhere and
+    leading C0 controls and spaces before it reads the scheme."""
+    url = _URL_TAB_OR_NEWLINE.sub("", html.unescape(value)).lstrip(_URL_CONTROLS)
+    return _DANGEROUS_SCHEME.match(url) is not None
+
+
+def _dangerous_url_spans(prose: str) -> list[tuple[int, str]]:
+    """Every (offset, span) where a javascript:/vbscript: scheme sits at a URL position in prose."""
+    found: list[tuple[int, str]] = []
+    for pattern in (_MD_DESTINATION, _MD_REFERENCE_DEFINITION, _AUTOLINK):
+        for match in pattern.finditer(prose):
+            if _is_dangerous_url(match.group("url")):
+                found.append((match.start(), match.group(0)))
+    for match in _HTML_URL_ATTRIBUTE.finditer(prose):
+        value = match.group("dq") or match.group("sq") or match.group("bare") or ""
+        if _is_dangerous_url(value):
+            found.append((match.start(), match.group(0)))
+    return found
+
+
 def _unsafe_html_failures(readme: str) -> list[Failure]:
     """G7-W01: every executing/navigating raw-HTML hazard outside a fenced code block.
 
@@ -891,20 +976,25 @@ def _unsafe_html_failures(readme: str) -> list[Failure]:
     raw `html_block` unit byte for byte like any other unit, and a reconciliation disposition may
     preserve it verbatim. `extract_links` (`evidence/facts/links.py`) only ever walks an `<a>`/
     `<img>` tag's own `href`/`src` - a standalone `<script>`, an `onerror=` handler on an
-    otherwise-ordinary tag, or a `javascript:`/`vbscript:` scheme anywhere else in the markup
-    never reached a check at all before this one. Each distinct offending span is named once, in
-    document order, so a repair has something concrete to remove.
+    otherwise-ordinary tag, or a `javascript:`/`vbscript:` scheme in a URL position elsewhere in
+    the markup never reached a check at all before this one. A scheme word in ordinary prose is
+    not a URL and is not named. Each distinct offending span is named once, in document order, so
+    a repair has something concrete to remove.
     """
-    failures: list[Failure] = []
     prose = "\n".join(_outside_fences(readme))
+    found = [
+        (match.start(), match.group(0))
+        for pattern in (_UNSAFE_HTML_TAG, _EVENT_HANDLER_ATTR)
+        for match in pattern.finditer(prose)
+    ]
+    found.extend(_dangerous_url_spans(prose))
+    failures: list[Failure] = []
     seen: set[str] = set()
-    for pattern in (_UNSAFE_HTML_TAG, _EVENT_HANDLER_ATTR, _DANGEROUS_SCHEME):
-        for match in pattern.finditer(prose):
-            span = match.group(0)
-            if span in seen:
-                continue
-            seen.add(span)
-            failures.append(Failure("COMPOSING", f"unsafe raw HTML in the candidate: {span!r}"))
+    for _, span in sorted(found):
+        if span in seen:
+            continue
+        seen.add(span)
+        failures.append(Failure("COMPOSING", f"unsafe raw HTML in the candidate: {span!r}"))
     return failures
 
 
@@ -921,7 +1011,7 @@ def _check_links(candidate: Candidate) -> list[Failure]:
         for fact in candidate.facts.by_kind("link_target")
         if fact.id.startswith("link_target:product.") and fact.polarity == "SUPPORTED"
     }
-    aspose = 0
+    aspose_hrefs: list[str] = []
     # G4-W17 arrival item 47 (lane D PROPOSAL P20, Aspose.PDF for Go, measured 2026-09-08). An
     # anchor to a heading the candidate does not render failed with no section, so
     # repair/targeted.py::validation_defects recorded it unrepairable - item 23's shape, one
@@ -941,7 +1031,7 @@ def _check_links(candidate: Candidate) -> list[Failure]:
         elif target.kind == "external":
             host = (urlsplit(target.href).hostname or "").lower()
             if _is_aspose(host) and target.href not in mandated:
-                aspose += 1
+                aspose_hrefs.append(target.href)
             fact = by_value.get(target.href)
             if fact is not None:
                 if fact.polarity != "SUPPORTED":
@@ -955,11 +1045,26 @@ def _check_links(candidate: Candidate) -> list[Failure]:
             failures.append(
                 Failure("COMPOSING", f"{target.href}: {target.kind} links are never rendered")
             )
-    ceiling = candidate.policy.aspose_links_max
-    if aspose > ceiling:
+    # plans/idea.md: ceilings derived per document from its visible size and verified examples
+    # (or configured), per total, per domain, and per surface slot.
+    budget = readme_link_budget(candidate.readme, candidate.facts, candidate.policy)
+    for problem in slot_violations(budget, aspose_hrefs):
         failures.append(
-            Failure("PLANNING", f"{aspose} Aspose links exceed the ceiling of {ceiling}")
+            Failure(
+                "PLANNING",
+                f"{problem} ({budget.mode} budget from {budget.measurement.visible_prose_words}"
+                f" visible words and {budget.measurement.verified_examples} verified examples)",
+            )
         )
+    enterprise = enterprise_target(candidate.facts.facts)
+    included = any(
+        entry.get("section_id") == "enterprise_relationship" and entry.get("include")
+        for entry in candidate.plan.get("sections", [])
+    )
+    for problem in enterprise_anchor_problems(
+        candidate.readme, enterprise.value if enterprise is not None else None, included
+    ):
+        failures.append(Failure("COMPOSING", problem, "enterprise_relationship"))
     for match in _EDITION.finditer(_prose(_outside_fences(candidate.readme))):
         if match.group(1) != "Enterprise":
             failures.append(Failure("COMPOSING", f"non-canonical edition name {match.group(0)!r}"))
@@ -1068,6 +1173,22 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
     ]
     if len(badge_rows) != 1:
         failures.append(Failure("COMPOSING", f"expected one badge row; found {len(badge_rows)}"))
+    else:
+        # plans/idea.md: stable order, each badge only when its claim is verified, none
+        # duplicated or fabricated. The expected row is what the renderer derives from the facts.
+        expected = badge_slots(
+            RenderContext(
+                candidate.entry,
+                candidate.facts,
+                candidate.plan,
+                candidate.units,
+                candidate.dispositions,
+            )
+        )
+        failures.extend(
+            Failure("COMPOSING", problem, "badges")
+            for problem in badge_problems(badge_rows[0].strip(), expected)
+        )
     # README_CONTRACT.md row 14: every verified public type exactly once, keyed by its canonical
     # defining location, and the Core API table lists those types and nothing else.
     types = [

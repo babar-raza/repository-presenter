@@ -24,8 +24,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.examples import RECEIPTS_FILENAME
+from repository_presenter.core.hashing import sha256_text
 
 CANDIDATES_DIRNAME = "candidates"
 BUNDLE_MANIFEST_NAME = "manifest.json"
@@ -185,6 +187,36 @@ def independently_accepted_candidates(root: Path, stale: Iterable[StaleCandidate
     return len(current_counted_repository_dirs(root) - {entry.repository_dir for entry in stale})
 
 
+def _verified_current(repository_dir: Path) -> tuple[str, dict[str, Any]] | None:
+    """``(revision, manifest)`` for the bundle ``CURRENT`` names under ``repository_dir``, verified
+    and self-consistent; None when the repository has no ``CURRENT`` at all. Raises
+    :class:`BundleError` for any ``CURRENT`` that does not name a verifiable bundle of its own."""
+    current = repository_dir / CURRENT_FILENAME
+    if not current.is_file():
+        return None
+    revision = current.read_text(encoding="utf-8").strip()
+    manifest = verify_bundle(repository_dir / revision)
+    if manifest is None:
+        raise BundleError(
+            f"{repository_dir.name}: CURRENT names revision {revision!r} with no sealed "
+            "bundle there"
+        )
+    if manifest.get("revision") != revision:
+        raise BundleError(
+            f"{repository_dir.name}: bundle manifest revision {manifest.get('revision')!r} "
+            f"does not match CURRENT {revision!r}"
+        )
+    # The inverse of seal.py's bundle_directory(): candidates/<owner>__<name>/<revision>,
+    # where owner and name are exactly repository.split("/") - so a manifest's own claimed
+    # repository must map back to the directory it was actually found under.
+    if str(manifest.get("repository", "")).replace("/", "__") != repository_dir.name:
+        raise BundleError(
+            f"{repository_dir.name}: bundle manifest repository "
+            f"{manifest.get('repository')!r} does not match its directory"
+        )
+    return revision, manifest
+
+
 def current_counted_repository_dirs(root: Path) -> set[str]:
     """The repository directories whose ``CURRENT`` bundle is sealed in a counted state - the
     set ``count_current_candidates`` counts, under that function's own raising contract."""
@@ -193,32 +225,23 @@ def current_counted_repository_dirs(root: Path) -> set[str]:
         return set()
     counted: set[str] = set()
     for repository_dir in sorted(p for p in candidates.iterdir() if p.is_dir()):
-        current = repository_dir / CURRENT_FILENAME
-        if not current.is_file():
-            continue
-        revision = current.read_text(encoding="utf-8").strip()
-        manifest = verify_bundle(repository_dir / revision)
-        if manifest is None:
-            raise BundleError(
-                f"{repository_dir.name}: CURRENT names revision {revision!r} with no sealed "
-                "bundle there"
-            )
-        if manifest.get("revision") != revision:
-            raise BundleError(
-                f"{repository_dir.name}: bundle manifest revision {manifest.get('revision')!r} "
-                f"does not match CURRENT {revision!r}"
-            )
-        # The inverse of seal.py's bundle_directory(): candidates/<owner>__<name>/<revision>,
-        # where owner and name are exactly repository.split("/") - so a manifest's own claimed
-        # repository must map back to the directory it was actually found under.
-        if str(manifest.get("repository", "")).replace("/", "__") != repository_dir.name:
-            raise BundleError(
-                f"{repository_dir.name}: bundle manifest repository "
-                f"{manifest.get('repository')!r} does not match its directory"
-            )
-        if manifest.get("state") in COUNTED_STATES:
+        verified = _verified_current(repository_dir)
+        if verified is not None and verified[1].get("state") in COUNTED_STATES:
             counted.add(repository_dir.name)
     return counted
+
+
+def ready_revision(root: Path, repository: str) -> str | None:
+    """The ``CURRENT`` revision of ``repository`` when that bundle verifies and is sealed
+    ``READY_FOR_PROPOSAL``; None otherwise. The one question a proposal asks before it may write:
+    a sealed-but-not-ready, superseded, or absent bundle is never proposed."""
+    repository_dir = root / CANDIDATES_DIRNAME / repository.replace("/", "__")
+    if not repository_dir.is_dir():
+        return None
+    verified = _verified_current(repository_dir)
+    if verified is None or verified[1].get("state") not in COUNTED_STATES:
+        return None
+    return verified[0]
 
 
 def examples_verification_summary(root: Path) -> tuple[int, int]:
@@ -359,3 +382,70 @@ def _read_state(manifest: Path) -> str:
     if not isinstance(state, str) or not state:
         raise BundleError(f"bundle manifest has no state: {manifest}")
     return state
+
+
+#: The bundle's candidate README (``components/readme/composition/renderer.py::README_FILENAME`` -
+#: duplicated, since ``core/`` may not import a ``components/readme/`` module).
+README_FILENAME = "README.md"
+
+
+@dataclass(frozen=True)
+class ProposableCandidate:
+    """The one candidate a proposal may carry: the README text of ``repository``'s ``CURRENT``
+    bundle, which is sealed, integrity-verified and ``READY_FOR_PROPOSAL``."""
+
+    repository: str
+    revision: str
+    readme_text: str
+    candidate_hash: str
+
+
+def load_proposable_candidate(root: Path, repository: str) -> ProposableCandidate:
+    """Load ``repository``'s candidate for proposal, or raise :class:`WriteRefusedError` (typed).
+
+    ``CURRENT`` may point at a revision that is no longer ``READY_FOR_PROPOSAL`` (for example
+    ``VALID_UPDATE_AVAILABLE`` after a component changed): such a bundle is not a final candidate
+    and is never proposed. The bundle's recorded revision is returned so the caller can compare it
+    with the target's live upstream revision."""
+    owner, name = repository.split("/", 1)
+    repository_dir = root / CANDIDATES_DIRNAME / f"{owner}__{name}"
+    current = repository_dir / CURRENT_FILENAME
+    if not current.is_file():
+        raise WriteRefusedError(
+            Refusal.BUNDLE_MISSING, f"no sealed CURRENT candidate for {repository}"
+        )
+    revision = current.read_text(encoding="utf-8").strip()
+    bundle = repository_dir / revision
+    try:
+        manifest = verify_bundle(bundle)
+    except BundleError as exc:
+        raise WriteRefusedError(Refusal.BUNDLE_INCONSISTENT, str(exc)) from exc
+    if manifest is None:
+        raise WriteRefusedError(
+            Refusal.BUNDLE_MISSING, f"CURRENT names revision {revision!r} with no sealed bundle"
+        )
+    if manifest.get("revision") != revision or manifest.get("repository") != repository:
+        raise WriteRefusedError(
+            Refusal.BUNDLE_INCONSISTENT,
+            f"bundle manifest ({manifest.get('repository')!r} @ {manifest.get('revision')!r}) "
+            f"does not match {repository} @ CURRENT {revision!r}",
+        )
+    state = manifest.get("state")
+    if state not in COUNTED_STATES:
+        raise WriteRefusedError(
+            Refusal.BUNDLE_NOT_READY,
+            f"{repository} @ {revision} is {state!r}, not READY_FOR_PROPOSAL - only a final, "
+            "no-op-proven candidate is proposed",
+        )
+    if README_FILENAME not in dict(manifest.get("files", {})):
+        raise WriteRefusedError(
+            Refusal.BUNDLE_INCONSISTENT, f"sealed bundle at {revision} lists no {README_FILENAME}"
+        )
+    # Bytes, not read_text(): no newline translation between the sealed bytes and what is proposed.
+    readme_text = (bundle / README_FILENAME).read_bytes().decode("utf-8")
+    return ProposableCandidate(
+        repository=repository,
+        revision=revision,
+        readme_text=readme_text,
+        candidate_hash=sha256_text(readme_text),
+    )

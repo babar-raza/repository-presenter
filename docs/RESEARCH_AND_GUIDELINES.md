@@ -3011,8 +3011,11 @@ sibling trees; negative controls per verifier; the execution boundary; the extra
    nothing imports a sibling path.
 7. Verifier controls per ecosystem: the negative control; toolchain absent → BLOCKED_TOOLCHAIN →
    UNRESOLVED; network off → registry UNRESOLVED, never CONTRADICTED; timeout → TIMED_OUT recorded.
-8. Grammar pinning: exact `tree-sitter`, `tree-sitter-language-pack`, `tree-sitter-c-sharp`
-   versions in the lock, and a parse-probe test per language that fails loudly on a node-type change.
+8. Grammar pinning: exact `tree-sitter` and one exact per-language wheel (`tree-sitter-c-sharp`,
+   `-cpp`, `-go`, `-java`, `-python`, `-rust`, `-typescript`) in the lock, loaded by `core/grammars.py`,
+   and a parse-probe test per language that fails loudly on a node-type change. No grammar is ever
+   downloaded at run time: `tree-sitter-language-pack` fetched each parser from a GitHub release on
+   first use and was removed after a release-host 500 failed a CI leg (2026-10-05).
 
 ### 29.8 Parallel building, assessed
 

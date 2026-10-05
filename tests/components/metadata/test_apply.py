@@ -5,10 +5,12 @@ drift must abort the whole write rather than partially applying a stale diff."""
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from repository_presenter.components.metadata.apply import (
     AUTHORIZATION_VARIABLE,
+    SHARED_GATE_NOT_WIRED_REASON,
     ApplyResult,
     FieldOutcome,
     apply_metadata_diff,
@@ -17,8 +19,14 @@ from repository_presenter.components.metadata.apply import (
 from repository_presenter.components.metadata.proposal import (
     ProposedRepoMetadata,
     RepoMetadataDiff,
+    diff_against_observed,
 )
 from repository_presenter.core.github.client import ObservedRepository
+
+
+def _allow(repository: str) -> None:
+    return None
+
 
 REPO = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
 
@@ -204,6 +212,8 @@ def test_authorized_write_patches_description_and_homepage_together_and_puts_top
         environment={AUTHORIZATION_VARIABLE: "1"},
         patch=patch,
         put=put,
+        refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert len(patch.calls) == 1
     url, token, payload = patch.calls[0]
@@ -234,6 +244,8 @@ def test_only_the_changed_fields_are_written_one_field_changed() -> None:
         environment={AUTHORIZATION_VARIABLE: "1"},
         patch=patch,
         put=put,
+        refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert len(patch.calls) == 1
     assert patch.calls[0][2] == {"description": "New description."}
@@ -255,6 +267,8 @@ def test_a_patch_failure_does_not_block_the_independent_topics_put() -> None:
         environment={AUTHORIZATION_VARIABLE: "1"},
         patch=patch,
         put=put,
+        refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert result.description.applied is False
     assert "422" in result.description.reason
@@ -275,6 +289,8 @@ def test_apply_never_raises_on_a_write_failure() -> None:
         environment={AUTHORIZATION_VARIABLE: "1"},
         patch=patch,
         put=put,
+        refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert result.wrote_anything is False
 
@@ -298,6 +314,7 @@ def test_live_drift_since_capture_aborts_the_whole_write_no_partial_apply() -> N
         patch=patch,
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert patch.calls == []
     assert put.calls == []
@@ -319,6 +336,7 @@ def test_no_drift_since_capture_proceeds_to_write() -> None:
         patch=patch,
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert result.wrote_anything is True
     assert len(patch.calls) == 1
@@ -343,6 +361,7 @@ def test_drift_check_ignores_a_field_the_diff_never_proposed_changing() -> None:
         patch=patch,
         put=put,
         refetch=lambda: live,
+        write_gate=_allow,
     )
     assert result.wrote_anything is True
     assert len(patch.calls) == 1
@@ -364,7 +383,322 @@ def test_apply_result_never_echoes_the_token() -> None:
         environment={AUTHORIZATION_VARIABLE: "1"},
         patch=patch,
         put=put,
+        refetch=lambda: _observed(),
+        write_gate=_allow,
     )
     assert isinstance(result, ApplyResult)
     dump = repr(result)
     assert "ghp_super_secret_write_token" not in dump
+
+
+# ---------------------------------------------------------------------------
+# maintainer-content preservation and compare-and-swap (defense in depth in apply)
+# ---------------------------------------------------------------------------
+
+_OWNER = "aspose-3d-foss"
+_NAME = "Aspose.3D-FOSS-for-Python"
+_ENV = {AUTHORIZATION_VARIABLE: "1"}
+_STRONG = "Reads, writes and converts STL, OBJ and glTF 3D scenes without native dependencies."
+
+
+def test_stale_capture_is_refused_for_every_written_field() -> None:
+    stale_lives = (
+        _observed(description="Someone rewrote this."),
+        _observed(homepage="https://someone-else.example.io/"),
+        _observed(topics=("added-after-capture",)),
+    )
+    for live in stale_lives:
+        patch = _RecordingWrite()
+        put = _RecordingWrite()
+        result = apply_metadata_diff(
+            _diff(),
+            _OWNER,
+            _NAME,
+            token="ghp_write",
+            environment=_ENV,
+            patch=patch,
+            put=put,
+            refetch=lambda live=live: live,
+            write_gate=_allow,
+        )
+        assert patch.calls == [] and put.calls == []
+        assert result.wrote_anything is False
+        assert "changed since this diff was captured" in result.topics.reason
+
+
+def test_missing_live_reread_refuses_the_write() -> None:
+    """Negative control: without a refetch there is no compare-and-swap, so nothing is written."""
+    patch = _RecordingWrite()
+    put = _RecordingWrite()
+    result = apply_metadata_diff(
+        _diff(),
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        write_gate=_allow,
+    )
+    assert patch.calls == [] and put.calls == []
+    assert "no live re-read" in result.description.reason
+
+
+def test_refetch_runs_once_immediately_before_the_writes() -> None:
+    order: list[str] = []
+
+    def refetch() -> ObservedRepository:
+        order.append("refetch")
+        return _observed()
+
+    def patch(url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
+        order.append("patch")
+        return 200, {}
+
+    def put(url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
+        order.append("put")
+        return 200, {}
+
+    apply_metadata_diff(
+        _diff(),
+        _OWNER,
+        _NAME,
+        token="t",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=refetch,
+        write_gate=_allow,
+    )
+    assert order == ["refetch", "patch", "put"]
+
+
+def test_a_hand_built_diff_cannot_overwrite_a_strong_live_description() -> None:
+    patch = _RecordingWrite()
+    put = _RecordingWrite()
+    live = _observed(description=_STRONG)
+    diff = _diff(observed_description=_STRONG, homepage_changed=False, topics_changed=False)
+    result = apply_metadata_diff(
+        diff,
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=lambda: live,
+        write_gate=_allow,
+    )
+    assert patch.calls == [] and put.calls == []
+    assert "maintainer-authored" in result.description.reason
+
+
+def test_a_hand_built_diff_cannot_overwrite_a_strong_live_homepage() -> None:
+    patch = _RecordingWrite()
+    live = _observed(homepage="https://docs.example-corp.io/")
+    diff = _diff(
+        description_changed=False,
+        topics_changed=False,
+        observed_homepage="https://docs.example-corp.io/",
+    )
+    result = apply_metadata_diff(
+        diff,
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=_RecordingWrite(),
+        refetch=lambda: live,
+        write_gate=_allow,
+    )
+    assert patch.calls == []
+    assert "homepage is maintainer-authored" in result.homepage.reason
+
+
+def test_a_strong_description_in_a_real_diff_is_never_written() -> None:
+    """End to end through diff_against_observed: the strong maintainer description survives."""
+    patch = _RecordingWrite()
+    put = _RecordingWrite()
+    live = _observed(description=_STRONG, homepage="https://docs.example-corp.io/", topics=("a",))
+    diff = diff_against_observed(
+        REPO, _proposed(), _STRONG, "https://docs.example-corp.io/", ("a",)
+    )
+    apply_metadata_diff(
+        diff,
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=lambda: live,
+        write_gate=_allow,
+    )
+    assert patch.calls == []  # description and homepage both kept
+    assert len(put.calls) == 1  # only the topic merge is written
+    assert put.calls[0][2]["names"][0] == "a"
+
+
+def test_topics_put_carries_the_merge_not_just_the_proposal() -> None:
+    patch = _RecordingWrite()
+    put = _RecordingWrite()
+    existing = ("stl-parser", "my-custom-tag")
+    diff = diff_against_observed(REPO, _proposed(), "Old description.", "https://old/", existing)
+    live = _observed(topics=existing)
+    result = apply_metadata_diff(
+        diff,
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=lambda: live,
+        write_gate=_allow,
+    )
+    assert result.topics.applied is True
+    names = put.calls[0][2]["names"]
+    assert names[:2] == ["stl-parser", "my-custom-tag"]
+    assert set(names) == {"stl-parser", "my-custom-tag", "python", "3d", "mit", "aspose", "foss"}
+
+
+def test_justified_removal_is_written_and_other_maintainer_topics_survive() -> None:
+    put = _RecordingWrite()
+    existing = ("java", "stl-parser")
+    proposed = replace(
+        _proposed(), verified_platform="python", verified_platform_fact="identity:platform"
+    )
+    diff = diff_against_observed(REPO, proposed, "Old description.", "https://old/", existing)
+    live = _observed(topics=existing)
+    apply_metadata_diff(
+        diff,
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=_RecordingWrite(),
+        put=put,
+        refetch=lambda: live,
+        write_gate=_allow,
+    )
+    names = put.calls[0][2]["names"]
+    assert "java" not in names
+    assert "stl-parser" in names
+
+
+def test_shared_write_gate_refusal_blocks_everything_before_any_live_call() -> None:
+    patch = _RecordingWrite()
+    put = _RecordingWrite()
+    fetched: list[int] = []
+
+    def refetch() -> ObservedRepository:
+        fetched.append(1)
+        return _observed()
+
+    result = apply_metadata_diff(
+        _diff(),
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=refetch,
+        write_gate=lambda repository: "registry mode is dry_run",
+    )
+    assert patch.calls == [] and put.calls == [] and fetched == []
+    assert "shared write gate" in result.description.reason
+    assert "dry_run" in result.description.reason
+
+
+def test_default_shared_write_gate_fails_closed_and_makes_no_http_call() -> None:
+    """The stub shipped until the registry write gate is installed refuses every write."""
+    patch = _RecordingWrite()
+    put = _RecordingWrite()
+    fetched: list[int] = []
+
+    def refetch() -> ObservedRepository:
+        fetched.append(1)
+        return _observed()
+
+    result = apply_metadata_diff(
+        _diff(),
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=refetch,
+    )
+    assert patch.calls == [] and put.calls == [] and fetched == []
+    assert result.wrote_anything is False
+    assert SHARED_GATE_NOT_WIRED_REASON in result.description.reason
+    assert "shared write gate not wired" in result.topics.reason
+
+
+# ---------------------------------------------------------------------------
+# the real registry write gate behind ``shared_write_gate`` (core/registry/write_gate.py)
+# ---------------------------------------------------------------------------
+
+
+def _apply_with(permit: Any, patch: _RecordingWrite, put: _RecordingWrite) -> ApplyResult:
+    return apply_metadata_diff(
+        _diff(),
+        _OWNER,
+        _NAME,
+        token="ghp_write",
+        environment=_ENV,
+        patch=patch,
+        put=put,
+        refetch=lambda: _observed(),
+        permit=permit,
+    )
+
+
+def test_the_real_gate_allows_a_full_mode_entry_with_its_permit() -> None:
+    from support import make_permit
+
+    patch, put = _RecordingWrite(), _RecordingWrite()
+    result = _apply_with(make_permit(REPO, effect="metadata_write"), patch, put)
+    assert result.wrote_anything is True
+    assert len(patch.calls) == 1 and len(put.calls) == 1
+
+
+def test_the_real_gate_refuses_a_dry_run_entry_because_no_permit_can_be_issued(
+    tmp_path: Any,
+) -> None:
+    """A ``dry_run`` entry never gets a permit from the registry gate, so the default gate - which
+    needs one - refuses and nothing reaches GitHub."""
+    import pytest
+
+    from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
+    from repository_presenter.core.registry.loader import load_registry
+    from repository_presenter.core.registry.write_gate import require_write_permitted
+    from support import monitor_registry_entry, write_registry_file
+
+    registry = load_registry(
+        write_registry_file(tmp_path, [monitor_registry_entry(REPO, mode="dry_run")])
+    )
+    with pytest.raises(WriteRefusedError) as info:
+        require_write_permitted(registry, REPO, "metadata_write")
+    assert info.value.code is Refusal.REGISTRY_DRY_RUN
+
+    patch, put = _RecordingWrite(), _RecordingWrite()
+    result = _apply_with(None, patch, put)
+    assert patch.calls == [] and put.calls == []
+    assert SHARED_GATE_NOT_WIRED_REASON in result.description.reason
+
+
+def test_the_real_gate_refuses_a_permit_for_another_repository_or_effect() -> None:
+    from support import make_permit
+
+    for permit in (
+        make_permit("aspose-words-foss/Aspose.Words-FOSS-for-Python", effect="metadata_write"),
+        make_permit(REPO, effect="issue_filing"),
+    ):
+        patch, put = _RecordingWrite(), _RecordingWrite()
+        result = _apply_with(permit, patch, put)
+        assert patch.calls == [] and put.calls == []
+        assert "registry write permit clears" in result.description.reason

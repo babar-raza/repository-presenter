@@ -300,3 +300,27 @@ def test_a_symbol_named_as_the_source_spells_it_binds_to_its_lowercased_fact() -
         "public_symbol:aspose.threed.shading.lambertmaterial",
         "public_symbol:aspose.threed.Missing",  # no fact carries it: still rejected
     ]
+
+
+def test_a_real_fact_written_into_a_unit_field_names_the_wrong_field_not_just_an_unknown_id() -> (
+    None
+):
+    """A plan's ``unit_ids`` filled with identity or package IDs (the same IDs as its
+    ``fact_ids``, measured on Slides-Java 2026-10-05) is refused as before, but the one re-ask is
+    told the ID is fine and the field is wrong - a bare "unknown inherited unit" gave it no way to
+    tell, and the identical reply came back twice."""
+    wrong_field = {
+        "limitations": [{"fact_ids": ["identity:repository"], "unit_ids": ["identity:repository"]}]
+    }
+    [message] = binding_errors(wrong_field, FACTS, "fact_ids")
+    assert message.startswith("unknown inherited unit identity:repository: ")
+    assert "fact of kind identity" in message
+    assert "cite this one in fact_ids" in message
+    # Negative control: an ID that names no fact at all keeps the bare message - there is nothing
+    # to say about its kind - and a real inherited unit is not an error.
+    missing = {"limitations": [{"unit_ids": ["inherited_unit:999.list"]}]}
+    assert binding_errors(missing, FACTS, "fact_ids") == [
+        "unknown inherited unit inherited_unit:999.list"
+    ]
+    real = {"limitations": [{"unit_ids": [unit.id for unit in FACTS.by_kind("inherited_unit")]}]}
+    assert binding_errors(real, FACTS, "fact_ids") == []

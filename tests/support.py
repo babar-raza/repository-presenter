@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import stat
 from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +17,12 @@ import httpx
 import pytest
 from openai import OpenAI
 
+from repository_presenter.components.issues.approval import (
+    approval_relative_path,
+    evidence_digest,
+    handoff_id,
+)
+from repository_presenter.components.issues.model import Handoff
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.git_safety.git import run_git
 from repository_presenter.core.github.read_client import DefaultBranchRead
@@ -303,3 +312,158 @@ class FakeDefaultBranchReader:
         if isinstance(outcome, DefaultBranchRead):
             return outcome
         return DefaultBranchRead(repository, sha=outcome, branch="main")
+
+
+def make_permit(repository: str, *, mode: str = "full", effect: str = "readme_proposal") -> Any:
+    """A ``WritePermit`` for a repository that is not a real Aspose FOSS name (the registry model
+    validates the name, ``model_construct`` does not) - the effect modules only read ``.effect``
+    and ``.entry.repository`` from it."""
+    from repository_presenter.core.registry.models import RegistryEntry
+    from repository_presenter.core.registry.write_gate import WritePermit
+
+    entry = RegistryEntry.model_construct(
+        repository=repository,
+        family="fixture",
+        platform="fixture",
+        ecosystem="fixture",
+        mode=mode,
+        policy_profile="fixture",
+        active=True,
+        provider_identity=None,
+    )
+    return WritePermit(effect=effect, entry=entry)  # type: ignore[arg-type]
+
+
+def write_registry_file(root: Path, entries: list[dict[str, Any]]) -> Path:
+    """``data/registry.json`` under a synthetic project root."""
+    path = root / "data" / "registry.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"schema_version": 1, "entries": entries}), encoding="utf-8")
+    return path
+
+
+def write_proposable_bundle(
+    root: Path,
+    repository: str,
+    revision: str,
+    readme_text: str,
+    *,
+    state: str = "READY_FOR_PROPOSAL",
+) -> Path:
+    """A sealed bundle with a real README and a manifest that verifies, plus ``CURRENT``."""
+    owner, name = repository.split("/", 1)
+    bundle = root / "candidates" / f"{owner}__{name}" / revision
+    bundle.mkdir(parents=True, exist_ok=True)
+    data = readme_text.encode("utf-8")
+    (bundle / "README.md").write_bytes(data)
+    (bundle / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "repository": repository,
+                "revision": revision,
+                "state": state,
+                "files": {
+                    "README.md": {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (bundle.parent / "CURRENT").write_text(f"{revision}\n", encoding="utf-8")
+    return bundle
+
+
+def merge_to_origin_main(root: Path, message: str = "merge") -> str:
+    """Commit everything under ``root`` (initialising a disposable repository on first use) and
+    point ``refs/remotes/origin/main`` at the new commit - the state of a control checkout whose
+    ``main`` already holds that content. Returns the commit."""
+    if not (root / ".git").exists():
+        init_git_repository(root, with_commit=False)
+    revision = commit_all(root, message)
+    assert run_git(["update-ref", "refs/remotes/origin/main", revision], cwd=root).returncode == 0
+    return revision
+
+
+def approval_text(
+    handoff: Handoff,
+    *,
+    digest: str | None = None,
+    repository: str | None = None,
+    approver: str = "owner-login",
+    approved_at: datetime | None = None,
+    expires_at: datetime | None = None,
+) -> str:
+    """An owner approval record (``ops/issue_approvals/<handoff-id>.json``) for ``handoff``,
+    valid now unless an argument overrides one field."""
+    approved = approved_at or datetime.now(UTC) - timedelta(hours=1)
+    expires = expires_at or approved + timedelta(days=7)
+    record = {
+        "handoff_id": handoff_id(handoff),
+        "repository": repository or handoff.repository,
+        "evidence_digest": digest or evidence_digest(handoff),
+        "approver": approver,
+        "approved_at": approved.isoformat(),
+        "expires_at": expires.isoformat(),
+    }
+    return json.dumps(record, indent=2) + chr(10)
+
+
+class MemoryApprovalStore:
+    """An in-memory approval store: ``records`` maps a handoff id to the record text."""
+
+    def __init__(self, records: dict[str, str] | None = None) -> None:
+        self.records = records or {}
+        self.reads: list[str] = []
+
+    def read(self, identifier: str) -> str | None:
+        self.reads.append(identifier)
+        return self.records.get(identifier)
+
+
+def approving_store(handoff: Handoff, **overrides: Any) -> MemoryApprovalStore:
+    """A store holding a valid owner approval for exactly ``handoff``."""
+    return MemoryApprovalStore({handoff_id(handoff): approval_text(handoff, **overrides)})
+
+
+def committed_approval_path(handoff: Handoff) -> str:
+    return approval_relative_path(handoff_id(handoff))
+
+
+def fake_npm(directory: Path, fail_run: bool = False) -> str:
+    """A stand-in `npm` that records its arguments and exits 0 - or 3 on `npm run ...` when asked.
+
+    The real one needs the network and a minute; what the verifier is tested on is what it does
+    with an exit code. Written per platform because `execute` runs argv[0] directly: a `.cmd`
+    where Windows resolves batch files, a `sh` script with its mode bit where the hosted runner
+    (ubuntu) does not.
+    """
+    directory.mkdir(parents=True, exist_ok=True)
+    if fail_run:
+        (directory / "fail_run").write_text("", encoding="utf-8")
+    if os.name == "nt":
+        path = directory / "npm.cmd"
+        path.write_text(
+            "@echo off\r\n"
+            'echo %*>>"%~dp0npm.log"\r\n'
+            'if "%1"=="run" if exist "%~dp0fail_run" exit /b 3\r\n'
+            "exit /b 0\r\n",
+            encoding="utf-8",
+        )
+    else:
+        path = directory / "npm"
+        path.write_text(
+            "#!/bin/sh\n"
+            'd=$(dirname "$0")\n'
+            'echo "$@" >> "$d/npm.log"\n'
+            'if [ "$1" = "run" ] && [ -f "$d/fail_run" ]; then exit 3; fi\n'
+            "exit 0\n",
+            encoding="utf-8",
+        )
+        path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    return str(path)
+
+
+def npm_calls(npm: str) -> list[str]:
+    log = Path(npm).parent / "npm.log"
+    return [line.strip() for line in log.read_text("utf-8").splitlines()] if log.is_file() else []

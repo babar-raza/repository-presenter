@@ -99,8 +99,19 @@ class SlotSetProbe:
     """
 
     required: frozenset[str]
+    # The fact-selection half of the same planning decision (2026-10-04, aspose-font-foss/
+    # Aspose.Font-FOSS-for-Python, S6 finding F05-F08): the plan binds each slot to a fact set,
+    # and a repair whose correct wording cites a SUPPORTED fact outside its slot's set cannot be
+    # fixed at S6 - the plan chose the slot's facts. ``fact_sets`` is the plan's own per-slot
+    # binding, ``fact_universe`` the SUPPORTED fact IDs, ``neutral_facts`` the identity/package
+    # facts that belong to no slot. Unknown or unsupported IDs are not a planning signal and
+    # stay plain rejections.
+    fact_sets: Mapping[str, Collection[str]] = field(default_factory=dict, repr=False)
+    fact_universe: frozenset[str] = field(default_factory=frozenset, repr=False)
+    neutral_facts: frozenset[str] = field(default_factory=frozenset, repr=False)
     _returned: frozenset[str] | None = field(default=None, repr=False)
     _conflicted: bool = field(default=False, repr=False)
+    _fact_refs: frozenset[str] = field(default_factory=frozenset, repr=False)
 
     @property
     def returned(self) -> frozenset[str] | None:
@@ -112,9 +123,36 @@ class SlotSetProbe:
         if value != self.required:
             self._conflicted = True
 
+    def observe_facts(self, units: Sequence[Any]) -> frozenset[str]:
+        """Latch every SUPPORTED, non-neutral fact a reply's unit cites outside its own slot's
+        planned set; returns this reply's offending IDs. An accepted revision can never carry
+        one (``unit_checks`` rejects it), so this only ever speaks to a repair that failed."""
+        if not self.fact_sets:
+            return frozenset()
+        outside: set[str] = set()
+        for unit in units:
+            if not isinstance(unit, dict):
+                continue
+            bound = self.fact_sets.get(str(unit.get("slot")))
+            if bound is None:
+                continue
+            for fact_id in unit.get("fact_ids") or []:
+                if (
+                    fact_id in self.fact_universe
+                    and fact_id not in self.neutral_facts
+                    and fact_id not in bound
+                ):
+                    outside.add(fact_id)
+        self._fact_refs = self._fact_refs | frozenset(outside)
+        return frozenset(outside)
+
+    @property
+    def fact_conflicts(self) -> frozenset[str]:
+        return self._fact_refs
+
     @property
     def conflicts(self) -> bool:
-        return self._conflicted
+        return self._conflicted or bool(self._fact_refs)
 
 
 def defect_fingerprint(
@@ -200,6 +238,12 @@ def review_defects(
         if remaining is not None:
             record["absent_as_returned"] = list(finding.get("absent", []))
             record["absent"] = list(remaining)
+        omitted = finding.get("omission_remaining")
+        if omitted is not None and isinstance(finding.get("omission"), dict):
+            # The typed omission claim, narrowed the same way: ids/phrases the section already
+            # renders (or that nothing may restore) are not handed to the repair as work.
+            record["omission_as_returned"] = dict(finding["omission"])
+            record["omission"] = {**finding["omission"], **omitted}
         defects.append(
             Defect(
                 defect_fingerprint("review", section, stage or named, criterion, context),
@@ -510,8 +554,138 @@ def repair_packet(
         "visible_line_budget": dict(visible_line_budget)
         if visible_line_budget is not None
         else None,
+        "omission_carriers": omission_carriers(defect, stage_output, facts, output_contract),
     }
     return packet
+
+
+# Which plan fields can carry content into which section, and the fact kind each takes. This is
+# the planning contract's own wiring (prompts/presentation_planning.yaml: additional_example_ids
+# exactly when additional_examples is included, api_hubs exactly when api_reference is, links to
+# the sections that list them) written once as a registry, so a new carrying field is a row here,
+# never a branch. A kind of ``None`` takes any SUPPORTED fact (a capability or limitation cites
+# whatever supports it).
+SECTION_PLAN_CARRIERS: Mapping[str, tuple[tuple[str, str | None], ...]] = {
+    "additional_examples": (("additional_example_ids", "example"),),
+    "quick_start": (
+        ("quick_start_example_id", "example"),
+        ("second_quick_start_example_id", "example"),
+    ),
+    "api_reference": (("api_hubs", "public_symbol"),),
+    "documentation_resources": (("links", "link_target"),),
+    "navigation": (("links", "link_target"),),
+    "key_capabilities": (("core_capabilities", None),),
+    "scope_limitations": (("material_limitations", None),),
+}
+_BACKTICKED = re.compile(r"`([^`\n]+)`")
+_MIN_QUOTE_LENGTH = 8
+_CARRIER_FACTS_PER_ITEM = 5
+_CARRIER_TEXT_BOUND = 200
+
+
+def omission_carriers(
+    defect: Defect,
+    stage_output: Mapping[str, Any],
+    facts: FactsDocument,
+    output_contract: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """For an upheld omission escalated to S5: what is missing and which plan fields can carry it.
+
+    Measured on Font-FOSS-for-Python (2026-10-05): the S5 repair of an upheld omission was handed
+    the missing phrases but not where a plan can put them, and returned the plan byte-identical
+    with a ledger entry claiming a change that never happened. Deterministic code answers the
+    mechanical half here - from the typed omission the review already narrowed to its remainder
+    (``omission_remaining``), the facts, and the planning contract - and the model still authors
+    the revised plan. Nothing is inserted into the plan, and no check is relaxed.
+
+    Each remaining id or phrase is resolved to the SUPPORTED facts it names (an exact id, a
+    backticked identifier that is a fact's value, or a phrase inside an inherited unit's text),
+    then to the one plan field of the finding's own section that takes that kind of fact, and
+    marked ``already_in_plan`` when the plan already holds it. A phrase that resolves only to
+    inherited text has no plan field: the reconciliation's disposition places it, and the packet
+    says so rather than inviting an invention. Returns ``None`` for any defect that is not an
+    S5 omission with something still missing.
+    """
+    omission = defect.record.get("omission")
+    if defect.stage != "S5" or not isinstance(omission, Mapping):
+        return None
+    ids = [str(item) for item in omission.get("missing_ids") or []]
+    quotes = [str(item) for item in omission.get("missing_quotes") or []]
+    section = str(omission.get("section_id") or defect.section_id or "")
+    if not section or not (ids or quotes):
+        return None
+    properties = output_contract.get("properties")
+    declared = set(properties) if isinstance(properties, Mapping) else None
+    carriers = [
+        (field_name, kind)
+        for field_name, kind in SECTION_PLAN_CARRIERS.get(section, ())
+        if declared is None or field_name in declared
+    ]
+    supported = {fact.id: fact for fact in facts.facts if fact.polarity == "SUPPORTED"}
+    by_value: dict[str, list[str]] = {}
+    inherited: list[tuple[str, str]] = []
+    for fact in supported.values():
+        if fact.kind == "inherited_unit":
+            inherited.append((fact.id, " ".join(fact.value.split())))
+        else:
+            by_value.setdefault(fact.value, []).append(fact.id)
+    items: list[dict[str, Any]] = []
+    for missing in [*ids, *quotes]:
+        names = _facts_named_by(missing, supported, by_value, inherited)
+        kinds = sorted({supported[name].kind for name in names})
+        field_name = next(
+            (
+                name
+                for name, kind in carriers
+                if any(
+                    supported[fact_id].kind != "inherited_unit"
+                    and (kind is None or supported[fact_id].kind == kind)
+                    for fact_id in names
+                )
+            ),
+            None,
+        )
+        held = json.dumps(stage_output.get(field_name)) if field_name else ""
+        items.append(
+            {
+                "missing": missing[:_CARRIER_TEXT_BOUND],
+                "fact_ids": names[:_CARRIER_FACTS_PER_ITEM],
+                "kinds": kinds,
+                "plan_field": field_name,
+                "already_in_plan": bool(names)
+                and field_name is not None
+                and all(f'"{fact_id}"' in held for fact_id in names[:_CARRIER_FACTS_PER_ITEM]),
+            }
+        )
+    return {
+        "section_id": section,
+        "plan_fields_for_section": [name for name, _ in carriers],
+        "upheld_missing": {
+            "ids": [item[:_CARRIER_TEXT_BOUND] for item in ids],
+            "quotes": [item[:_CARRIER_TEXT_BOUND] for item in quotes],
+        },
+        "items": items,
+    }
+
+
+def _facts_named_by(
+    missing: str,
+    supported: Mapping[str, Any],
+    by_value: Mapping[str, Sequence[str]],
+    inherited: Sequence[tuple[str, str]],
+) -> list[str]:
+    """The SUPPORTED fact IDs one missing id or phrase names, in a stable order."""
+    if missing in supported:
+        return [missing]
+    named: list[str] = []
+    for token in [missing.strip("` #"), *_BACKTICKED.findall(missing)]:
+        named.extend(by_value.get(token, ()))
+    if named:
+        return list(dict.fromkeys(named))
+    phrase = " ".join(missing.split())
+    if len(phrase) < _MIN_QUOTE_LENGTH:
+        return []
+    return [fact_id for fact_id, text in inherited if phrase in text]
 
 
 def _carried_inherited_units(
@@ -748,6 +922,13 @@ def repair_checks(
                 f"({', '.join(sorted(slots.required))}); a revision filling "
                 f"{', '.join(sorted(returned)) or 'none of them'} would add, drop, or "
                 "re-choose a slot, which is a planning decision, not an authoring one"
+            )
+        outside_facts = slots.observe_facts(revised.get("units", []))
+        if outside_facts:
+            errors.append(
+                "revised_output: a unit cites "
+                f"{', '.join(sorted(outside_facts))}, outside its slot's planned facts; "
+                "choosing which facts a slot may cite is a planning decision, not an authoring one"
             )
     if original is not None:
         errors.extend(_uncorroborated_changes(output.get("changes", []), original, revised))

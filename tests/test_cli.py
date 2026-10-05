@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,11 @@ from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.loader import load_registry
 from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.state.git_backend import GitStateBackend
+from repository_presenter.core.state.schema import (
+    FailureRecord,
+    RepositoryRecord,
+    TransitionReceipt,
+)
 from support import (
     REPO_ROOT,
     FakeDefaultBranchReader,
@@ -68,6 +74,96 @@ def test_status_reports_this_repository_cursor(
     )
     assert re.fullmatch(r"examples: \d+/\d+ verified across counted candidates", out[5])
     assert out[6] == "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+
+
+def test_status_reports_the_seven_separated_counts_and_the_denominator(
+    repo_root: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """plans/idea.md: portfolio reporting separates fact-valid, presentation-valid, independently
+    accepted, no-op-proven, source-fresh, publication-eligible and effect-authorized counts. The
+    block follows the existing ``canary:`` line, so every earlier line keeps its position."""
+    assert main(["status", "--root", str(repo_root)]) == EXIT_OK
+    out = capsys.readouterr().out
+    denominator = len(load_registry(REPO_ROOT / "data" / "registry.json").entries)
+    assert f"portfolio: {denominator} live registry entries" in out
+    for label in (
+        "fact-valid ",
+        "presentation-valid ",
+        "independently accepted ",
+        "no-op-proven ",
+        "source-fresh unobserved (no --drift)",
+        "publication-eligible ",
+        "effect-authorized ",
+        "ready but acceptance advisory",
+        "partition (each entry in exactly one)",
+    ):
+        assert label in out
+    assert out.index("canary:") < out.index("portfolio:")
+
+
+def test_status_json_is_machine_readable_and_matches_the_text_counts(
+    repo_root: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["status", "--root", str(repo_root), "--json"]) == EXIT_OK
+    document = json.loads(capsys.readouterr().out)
+    registry = load_registry(REPO_ROOT / "data" / "registry.json")
+    portfolio = document["portfolio"]
+    assert portfolio["denominator"] == len(registry.entries)
+    assert list(portfolio["counts"]) == [
+        "fact_valid",
+        "presentation_valid",
+        "independently_accepted",
+        "no_op_proven",
+        "source_fresh",
+        "publication_eligible",
+        "effect_authorized",
+    ]
+    assert sum(portfolio["buckets"].values()) == portfolio["denominator"]
+    assert portfolio["counts"]["source_fresh"] is None
+    assert portfolio["source_freshness_observed"] is False
+    assert document["candidates"]["current"] <= document["candidates"]["denominator"]
+    assert set(document["progress"]) == {
+        "ever_sealed",
+        "integrity_valid",
+        "current_code_reproducible",
+        "independently_accepted_stale_excluded",
+    }
+    assert document["canary"] == "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+
+
+def test_status_without_a_registry_has_no_portfolio_block(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["status", "--root", str(project)]) == EXIT_OK
+    assert "portfolio:" not in capsys.readouterr().out
+    assert main(["status", "--root", str(project), "--json"]) == EXIT_OK
+    assert json.loads(capsys.readouterr().out)["portfolio"] is None
+
+
+def test_status_takes_drift_and_authorization_evidence_without_guessing(
+    project_with_registry: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    drift = tmp_path / "drift.json"
+    drift.write_text(json.dumps({"repositories": []}), encoding="utf-8")
+    authorizations = tmp_path / "authorizations.json"
+    authorizations.write_text("[]", encoding="utf-8")
+    argv = ["status", "--root", str(project_with_registry), "--json"]
+    assert main([*argv, "--drift", str(drift), "--authorizations", str(authorizations)]) == EXIT_OK
+    portfolio = json.loads(capsys.readouterr().out)["portfolio"]
+    assert portfolio["source_freshness_observed"] is True
+    assert portfolio["authorizations_supplied"] is True
+    assert portfolio["counts"]["source_fresh"] == 0
+    assert portfolio["counts"]["effect_authorized"] == 0
+
+
+def test_status_rejects_malformed_drift_evidence(
+    project_with_registry: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    drift = tmp_path / "drift.json"
+    drift.write_text("{not json", encoding="utf-8")
+    argv = ["status", "--root", str(project_with_registry), "--drift", str(drift)]
+    assert main(argv) == EXIT_USAGE
+    assert "drift evidence is malformed" in capsys.readouterr().err
 
 
 def test_status_reports_examples_verified_across_sealed_bundles(
@@ -132,6 +228,65 @@ def test_status_ignores_unsealed_and_uncounted_bundles(
     write_bundle(project, "owner__delta", "ddd444", "INVALIDATED")
     assert main(["status", "--root", str(project)]) == EXIT_OK
     assert "candidates: 0/34" in capsys.readouterr().out
+
+
+def _set_manifest_fields(bundle: Path, **fields: Any) -> None:
+    path = bundle / "manifest.json"
+    path.write_text(json.dumps({**json.loads(path.read_text("utf-8")), **fields}), encoding="utf-8")
+
+
+def test_status_names_the_scope_that_triggered_each_held_update(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    held = write_bundle(project, "owner__alpha", "aaa111", "VALID_UPDATE_AVAILABLE")
+    _set_manifest_fields(
+        held, update={"triggering_scope": "reviewer", "earliest_affected_stage": "REVIEWING"}
+    )
+    invalidated = write_bundle(project, "owner__beta", "bbb222", "INVALIDATED")
+    _set_manifest_fields(invalidated, invalidated={"scope": "facts", "causal_stage": "EXTRACTING"})
+    write_bundle(project, "owner__gamma", "ccc333", "ACCEPTED")
+
+    assert main(["status", "--root", str(project)]) == EXIT_OK
+
+    out = capsys.readouterr().out
+    # Both numbers side by side, so a candidate waiting on an update never reads as invalid.
+    assert (
+        "candidate states: 0 READY_FOR_PROPOSAL (counted); "
+        "1 VALID_UPDATE_AVAILABLE (valid, update pending, not counted); "
+        "1 INVALIDATED (not valid, not counted)"
+    ) in out
+    assert "updates: 2 current candidate(s) hold an update -" in out
+    assert (
+        "owner__alpha @ aaa111: VALID_UPDATE_AVAILABLE (scope reviewer, re-enters REVIEWING)" in out
+    )
+    assert "owner__beta @ bbb222: INVALIDATED (scope facts, re-enters EXTRACTING)" in out
+    assert "owner__gamma" not in out.split("updates:")[1]
+
+
+def test_status_stale_dry_runs_the_routing_without_writing(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from repository_presenter.components.readme.bundle.seal import code_dependencies
+    from repository_presenter.core.llm.prompts import load_manifests
+
+    shutil.copytree(REPO_ROOT / "prompts", project / "prompts")
+    bundle = write_bundle(project, "owner__alpha", "aaa111", "READY_FOR_PROPOSAL")
+    sealed = code_dependencies(load_manifests(project / "prompts"))
+    sealed["components"] = {**sealed["components"], "renderer": "0"}
+    sealed["validator_version"] = "0"
+    (bundle / "dependencies.json").write_text(json.dumps(sealed), encoding="utf-8")
+    write_cursor(project, recorded_candidates=1)
+    before = {p: p.read_bytes() for p in (project / "candidates").rglob("*") if p.is_file()}
+
+    assert main(["status", "--stale", "--root", str(project)]) == EXIT_OK
+
+    out = capsys.readouterr().out
+    assert "routing: 1 current candidate(s) would change state (dry run, no writes) -" in out
+    assert (
+        "owner__alpha @ aaa111: READY_FOR_PROPOSAL -> VALID_UPDATE_AVAILABLE "
+        "(scope presentation; scopes presentation, validator; re-enters RECONCILING)"
+    ) in out
+    assert {p: p.read_bytes() for p in (project / "candidates").rglob("*") if p.is_file()} == before
 
 
 def test_status_flags_cursor_that_disagrees_with_disk(
@@ -899,9 +1054,9 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "6",
-        "renderer": "26",
-        "normalisation": "20",
-        "reviewer_logic": "14",
+        "renderer": "28",
+        "normalisation": "21",
+        "reviewer_logic": "15",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
@@ -1056,6 +1211,107 @@ def test_present_durable_state_commits_a_real_transition_across_two_hosted_runs(
         assert record.last_transition is not None
         assert record.last_transition.to_state == "READY_FOR_PROPOSAL"
 
+    # G7-W03: the real hosted present.yml wires health-check right after this same transaction -
+    # a genuinely healthy, freshly-proven, zero-call record produces no alert.
+    health_code = main(
+        [
+            "health-check",
+            "--repo",
+            CANARY,
+            "--root",
+            str(project_with_registry),
+            "--state-remote",
+            str(state_remote),
+            "--wall-clock-seconds",
+            "12.5",
+        ]
+    )
+    out = capsys.readouterr().out
+    assert health_code == EXIT_OK
+    assert "healthy" in out
+    assert "::error::" not in out
+
+
+def test_health_check_refuses_a_repository_outside_the_allow_list(
+    project_with_registry: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The same read gate every other subcommand uses (``require_listed``) - health-check never
+    even opens a connection to the state remote for a repository this project is not authorized to
+    touch."""
+    state_remote = init_git_repository(tmp_path / "state-remote")
+    code = main(
+        [
+            "health-check",
+            "--repo",
+            "not-aspose/not-registered",
+            "--root",
+            str(project_with_registry),
+            "--state-remote",
+            str(state_remote),
+        ]
+    )
+    assert code == EXIT_UNSAFE
+    assert "not in the registry allow-list" in capsys.readouterr().err
+
+
+def test_health_check_prints_a_named_alert_and_exits_non_zero_on_a_failed_record(
+    project_with_registry: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """G7-W03's own acceptance bar through the real CLI entry point ``present.yml`` invokes: a
+    repository whose durable record was left ``FAILED_INTERNAL`` by a prior transaction produces a
+    named, specific alert naming the repository and the failing stage, and the command exits
+    non-zero so the hosting Actions job itself goes red (``liveness.yml``'s own established
+    alerting contract)."""
+    state_remote = init_git_repository(tmp_path / "state-remote")
+    with GitStateBackend(remote=str(state_remote)) as backend:
+        backend.save(
+            CANARY,
+            RepositoryRecord(
+                repository=CANARY,
+                provider_repository_id=1,
+                state="FAILED_INTERNAL",
+                last_transition=TransitionReceipt(
+                    transition_id="t-1",
+                    transaction_id="tx-1",
+                    repository=CANARY,
+                    from_state="COMPOSING",
+                    to_state="FAILED_INTERNAL",
+                    event="seed",
+                    occurred_at=datetime.now(UTC).isoformat(),
+                    input_manifest="x",
+                    output_manifest="x",
+                    policy_version="v1",
+                    fencing_token=1,
+                ),
+                failure=FailureRecord(
+                    classification="validation_failed",
+                    detail="synthetic CLI-level exercise (G7-W03)",
+                    resume_state="COMPOSING",
+                    occurred_at=datetime.now(UTC).isoformat(),
+                ),
+            ),
+            expected_version=None,
+        )
+
+    code = main(
+        [
+            "health-check",
+            "--repo",
+            CANARY,
+            "--root",
+            str(project_with_registry),
+            "--state-remote",
+            str(state_remote),
+        ]
+    )
+    out = capsys.readouterr().out
+    assert code == EXIT_INCONSISTENT
+    assert "::error::" in out
+    assert f"repository={CANARY}" in out
+    assert "stage=COMPOSING" in out
+    assert "kind=transaction_failed" in out
+    assert "synthetic CLI-level exercise" in out
+
 
 def test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle(
     project_with_registry: Path,
@@ -1176,6 +1432,7 @@ def _rejection(label: str, quote: str = OPENING_QUOTE) -> dict[str, Any]:
                 "quote": quote,
                 "fact_ids": ["identity:repository"],
                 "absent": [],
+                "omission": None,
                 "repair": "Name the developers concretely.",
             }
         ],
@@ -1447,6 +1704,7 @@ def _scope_rejection(label: str = "F01") -> dict[str, Any]:
                 "quote": SCOPE_QUOTE,
                 "fact_ids": ["identity:repository"],
                 "absent": [],
+                "omission": None,
                 "repair": "Add a bullet for the GLB-only export limitation.",
             }
         ],
@@ -1514,6 +1772,7 @@ def _presentation_rejection(label: str = "F01") -> dict[str, Any]:
                 "quote": SCOPE_QUOTE,
                 "fact_ids": [],
                 "absent": [],
+                "omission": None,
                 "repair": "Restore the original level of detail.",
             }
         ],
@@ -1773,14 +2032,17 @@ def test_a_changed_prompt_reopens_only_its_stage_and_records_an_update(
         assert (transaction / name).read_bytes() == (bundle / name).read_bytes()
     # review.json names the authoring prompt's hash, so it changes with the prompt too.
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    assert "(state READY_FOR_PROPOSAL, 14 files, provider calls 8; " in bundle_line
+    # An authoring-prompt change is not a factual input: the proven candidate stays valid with an
+    # update available, and the manifest names the scope (docs/STATE_MACHINE.md section 9).
+    assert "(state VALID_UPDATE_AVAILABLE, 14 files, provider calls 8; " in bundle_line
     assert (
-        "valid update available (presentation): dependencies.json, raw_calls.json, "
+        "valid update available (authoring): dependencies.json, raw_calls.json, "
         "review.json changed at COMPOSING; the proven candidate stays valid and the update waits "
         "in the transaction)"
     ) in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
-    assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["update"]["triggering_scope"] == "authoring"
     assert manifest["update"]["changed"] == ["dependencies.json", "raw_calls.json", "review.json"]
     assert {name: (bundle / name).read_bytes() for name in before} == before
 
@@ -1929,18 +2191,23 @@ def test_a_corrupt_bundle_artifact_fails_closed_before_any_call(
     assert len(gateway_ready.requests) == requests_before
 
 
-def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
+def test_present_reports_a_readme_only_placeholder_as_non_processable(
     project_with_registry: Path,
     readme_only_upstream: Path,
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
+    """The placeholder is a typed, evidence-bound disposition, not a failure: a success exit, the
+    insufficient-evidence reason named, and no candidate bundle or provider call."""
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
 
     captured = capsys.readouterr()
     assert gateway_ready.requests == []
-    assert code == EXIT_INCONSISTENT
-    assert "insufficient_evidence: NO_IMPLEMENTATION_EVIDENCE for " + CANARY in captured.out
+    assert code == EXIT_OK
+    assert (
+        "NON_PROCESSABLE: insufficient_evidence (NO_IMPLEMENTATION_EVIDENCE) for " + CANARY
+        in captured.out
+    )
     assert "resume when a later default-branch revision adds a python manifest" in captured.out
     transaction = next(
         (project_with_registry / "runs" / "transactions").glob("aspose-3d-foss__*/*")
@@ -1949,7 +2216,46 @@ def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
     assert not (transaction / "facts.json").exists()
     document = json.loads((transaction / "disposition.json").read_text("utf-8"))
     assert document["evidence_paths_inspected"] == ["LICENSE", "README.md"]
+    assert not list((project_with_registry / "candidates").glob("*/CURRENT"))
     assert "not implemented" not in captured.err
+
+
+def test_present_durable_state_records_a_placeholder_as_non_processable_not_failed(
+    project_with_registry: Path,
+    readme_only_upstream: Path,
+    gateway_ready: _ChatGateway,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The hosted transaction maps the placeholder's disposition to the NON_PROCESSABLE outcome
+    (a committed transition from OBSERVED, no failure record), never to FAILED_INTERNAL."""
+    state_remote = init_git_repository(tmp_path / "state-remote")
+    monkeypatch.setenv("GITHUB_RUN_ID", "2000")
+    code = main(
+        [
+            "present",
+            "--repo",
+            CANARY,
+            "--root",
+            str(project_with_registry),
+            "--durable-state",
+            "--state-remote",
+            str(state_remote),
+        ]
+    )
+    capsys.readouterr()
+    assert code == EXIT_OK
+    assert gateway_ready.requests == []
+    with GitStateBackend(remote=str(state_remote)) as backend:
+        record = backend.load(CANARY)
+        assert record is not None
+        assert record.state == "NON_PROCESSABLE"
+        assert record.failure is None
+        assert record.lease is None
+        assert record.last_transition is not None
+        assert record.last_transition.from_state == "OBSERVED"
+        assert record.last_transition.to_state == "NON_PROCESSABLE"
 
 
 def test_present_refuses_a_repository_outside_the_allow_list_before_cloning(
@@ -2106,20 +2412,24 @@ def test_preflight_refusal_is_reported_by_status_with_nothing_else(
 
 
 def _assert_presentation_update(
-    out: str, bundle: Path, stage: str, changed: list[str], reused: tuple[str, ...]
+    out: str, bundle: Path, stage: str, changed: list[str], reused: tuple[str, ...], scope: str
 ) -> None:
+    """A non-factual scope: the proven candidate stays valid, an update is available, and the
+    manifest and the bundle line both name the scope that triggered it."""
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    assert "(state READY_FOR_PROPOSAL," in bundle_line
+    assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
+    assert f"valid update available ({scope}):" in bundle_line
     assert f"changed at {stage}; the proven candidate stays valid" in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
-    assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["update"]["triggering_scope"] == scope and "invalidated" not in manifest
     assert manifest["update"]["changed"] == changed
     for prefix in reused:
         line = next(line for line in out.splitlines() if line.startswith(prefix))
         assert "provider calls 0" in line, line
 
 
-def test_a_template_component_change_reopens_reconciling_and_records_a_factual_update(
+def test_a_template_component_change_reopens_reconciling_and_leaves_a_valid_update(
     project_with_registry: Path,
     sealed_canary: Path,
     local_canary: dict[str, Any],
@@ -2140,18 +2450,21 @@ def test_a_template_component_change_reopens_reconciling_and_records_a_factual_u
         "(earliest affected stage RECONCILING; 1 changes (components.renderer -> RECONCILING)"
     ) in out
     # dispositions.py's normalize()/placement_errors() consume shell, and RC-06's coverage logic
-    # lives in renderer.py - both are read starting at RECONCILING (EVAL-01), so a renderer bump
-    # is now a factual update, not the silently-reused presentation-only one it used to be: every
-    # stage is still seeded from the sealed bundle and reused byte-for-byte without a call, since
-    # nothing an LLM produced actually depends on the component version.
+    # lives in renderer.py - both are read starting at RECONCILING (EVAL-01). A template component
+    # is a presentation input, never a factual one, so the proven candidate stays valid with an
+    # update available (docs/STATE_MACHINE.md section 9; docs/DECISION_LOG.md 2026-09-06 07:45):
+    # every stage is still seeded from the sealed bundle and reused byte-for-byte without a call,
+    # since nothing an LLM produced actually depends on the component version.
     assert "seeded from sealed bundle: presentation_planning, repository_investigation, " in out
     assert len(gateway_ready.requests) == before
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
     assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
-    assert "valid update available (factual):" in bundle_line
-    assert "no longer counts as current until this is resolved or adopted" in bundle_line
+    assert "valid update available (presentation):" in bundle_line
+    assert "the proven candidate stays valid" in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["update"]["triggering_scope"] == "presentation"
+    assert manifest["update"]["classification"] == "presentation"
     assert manifest["update"]["changed"] == ["dependencies.json"]
     assert (bundle / "README.md").read_bytes() == readme_before
 
@@ -2180,6 +2493,7 @@ def test_a_shell_component_change_also_reopens_reconciling(
     assert len(gateway_ready.requests) == before
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["update"]["triggering_scope"] == "presentation"
 
 
 def test_a_validator_change_reopens_validating_and_rechecks_without_a_call(
@@ -2202,7 +2516,12 @@ def test_a_validator_change_reopens_validating_and_rechecks_without_a_call(
     assert len(gateway_ready.requests) == before
     # A validator change re-checks the accepted candidate; passing again, it stays valid.
     _assert_presentation_update(
-        out, bundle, "VALIDATING", ["dependencies.json"], ("plan: ", "units: ", "review: ")
+        out,
+        bundle,
+        "VALIDATING",
+        ["dependencies.json"],
+        ("plan: ", "units: ", "review: "),
+        "validator",
     )
 
 
@@ -2239,6 +2558,7 @@ def test_a_reviewer_rubric_change_reopens_reviewing_only(
         "REVIEWING",
         ["dependencies.json", "raw_calls.json", "review.json"],
         ("plan: ", "units: "),
+        "reviewer",
     )
 
 
@@ -2283,14 +2603,15 @@ def test_a_model_route_change_reopens_the_stage_that_used_it(
     # and the identical plan leaves every downstream artifact reused as well.
     assert len(gateway_ready.requests) == before + 1
     assert gateway_ready.requests[-1]["model"] == "other-route"
-    # A changed model is a changed candidate whatever plan it produces (fallback chains,
-    # models_used): the proven bundle moves to VALID_UPDATE_AVAILABLE and names the route.
+    # A changed model route is a prompt-class change (docs/DECISION_LOG.md 2026-09-06 07:45): the
+    # proven bundle stays valid with an update available, scoped by the prompt on that route.
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
     assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
-    assert "changed at PLANNING; the candidate no longer counts as current" in bundle_line
+    assert "valid update available (planning):" in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "VALID_UPDATE_AVAILABLE"
-    assert manifest["update"]["classification"] == "factual"
+    assert manifest["update"]["classification"] == "presentation"
+    assert manifest["update"]["triggering_scope"] == "planning"
     assert "models[other-route]: (none) -> other-route" in manifest["update"]["changed"]
     assert manifest["models_used"] == {"qwen3-next": "qwen3-next"}
     for prefix in ("investigation: ", "dispositions: ", "units: ", "review: "):
@@ -2318,7 +2639,7 @@ def test_a_planning_policy_change_reopens_planning(
     # The plan is asked again at most once; the stored downstream outputs are reused.
     assert len(gateway_ready.requests) - before <= 1
     _assert_presentation_update(
-        out, bundle, "PLANNING", ["dependencies.json"], ("units: ", "review: ")
+        out, bundle, "PLANNING", ["dependencies.json"], ("units: ", "review: "), "planning"
     )
 
 
@@ -2367,7 +2688,7 @@ def test_a_new_source_revision_reopens_extracting_and_supersedes_the_proven_bund
     assert sorted(states) == ["READY_FOR_PROPOSAL", "SUPERSEDED"]  # one current candidate
 
 
-def test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update(
+def test_a_changed_fact_record_reopens_extracting_and_invalidates_the_candidate(
     project_with_registry: Path,
     sealed_canary: Path,
     local_canary: dict[str, Any],
@@ -2394,14 +2715,16 @@ def test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update(
     # stored output is judged and reused without a call.
     assert len(gateway_ready.requests) == before
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    # A changed fact is a factual update: recorded, waiting, and the candidate previously proven
-    # no longer counts as current until the contradiction is resolved or adopted (TB-06, external
-    # review D6, 2026-09-08) - unlike a merely presentational update, which stays counted.
-    assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
-    assert "valid update available (factual):" in bundle_line
-    assert "no longer counts as current until this is resolved or adopted" in bundle_line
+    # A changed fact is a changed factual input the candidate consumed: it invalidates the
+    # candidate and re-enters at EXTRACTING (docs/STATE_MACHINE.md section 9). The update the
+    # re-entered pipeline produced is recorded and waits for a fresh zero-call process to adopt it.
+    assert "(state INVALIDATED," in bundle_line
+    assert "invalidated (facts):" in bundle_line
+    assert "no longer counts as current and re-enters at EXTRACTING" in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
-    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["state"] == "INVALIDATED" and manifest["update"]["available"]
+    assert manifest["invalidated"]["scope"] == "facts" and manifest["invalidated"]["check"] is None
+    assert manifest["update"]["triggering_scope"] == "facts"
     assert "facts.json" in manifest["update"]["changed"]
     assert "README.md" not in manifest["update"]["changed"]  # the same bytes render again
     assert (bundle / "README.md").read_bytes() == readme_before
@@ -2513,6 +2836,7 @@ def test_an_injected_preservation_defect_is_repaired_at_reconciling(
         "quote": OPENING_QUOTE,
         "fact_ids": ["inherited_unit:002.paragraph"],
         "absent": [],
+        "omission": None,
         "repair": "Preserve the inherited paragraph where a visitor finds it.",
     }
     restored = copy.deepcopy(LOCAL_DISPOSITIONS)
@@ -2602,6 +2926,7 @@ def test_an_s4_repair_may_declare_only_the_unit_its_own_change_touched(
         "quote": OPENING_QUOTE,
         "fact_ids": ["inherited_unit:002.paragraph"],
         "absent": [],
+        "omission": None,
         "repair": "Preserve the inherited paragraph where a visitor finds it.",
     }
     # Only the one changed disposition - the other three units of LOCAL_DISPOSITIONS are never
@@ -2916,3 +3241,186 @@ def test_monitor_refuses_an_owner_with_no_enabled_entry(
     assert code == EXIT_USAGE
     assert reader.calls == []
     assert "no enabled registry entries for owner aspose-nope-foss" in capsys.readouterr().err
+
+
+def _scheduled_project(root: Path) -> Path:
+    """A project root the scheduled sealing commands read: cursor, registry, prompt manifests."""
+    write_cursor(root)
+    (root / "data").mkdir()
+    shutil.copy(REPO_ROOT / "data" / "registry.json", root / "data" / "registry.json")
+    shutil.copytree(REPO_ROOT / "prompts", root / "prompts")
+    return root
+
+
+def test_sealing_plan_selects_the_first_three_drifted_enabled_repositories(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = _scheduled_project(tmp_path / "project")
+    enabled = sorted(
+        entry.repository
+        for entry in load_registry(root / "data" / "registry.json").entries
+        if entry.mode != "disabled"
+    )
+    contract = {
+        "schema_version": 1,
+        "repositories": [
+            {"repository": repository, "status": "DRIFTED"} for repository in reversed(enabled[:5])
+        ]
+        + [{"repository": enabled[5], "status": "CURRENT"}],
+    }
+    drift = root / "drift" / "drift.json"
+    drift.parent.mkdir()
+    drift.write_text(json.dumps(contract), encoding="utf-8")
+    output = tmp_path / "github_output"
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    assert [
+        line for line in capsys.readouterr().out.splitlines() if line.startswith("selected:")
+    ] == [f"selected: {repository}" for repository in enabled[:3]]
+    lines = output.read_text(encoding="utf-8").splitlines()
+    assert [line.split("=", 1)[0] for line in lines] == [
+        "repositories",
+        "has_work",
+        "publishable",
+        "has_publishable",
+    ]
+    assert lines[1] == "has_work=true"
+
+
+PAUSE_VARIABLE = "REPOSITORY_PRESENTER_SEALING_PAUSED"
+
+
+def _drifted_project(tmp_path: Path) -> Path:
+    """A scheduled project whose drift file reports five drifted, enabled repositories."""
+    root = _scheduled_project(tmp_path / "project")
+    enabled = sorted(
+        entry.repository
+        for entry in load_registry(root / "data" / "registry.json").entries
+        if entry.mode != "disabled"
+    )
+    drift = root / "drift" / "drift.json"
+    drift.parent.mkdir()
+    contract = {
+        "schema_version": 1,
+        "repositories": [{"repository": r, "status": "DRIFTED"} for r in enabled[:5]],
+    }
+    drift.write_text(json.dumps(contract), encoding="utf-8")
+    return root
+
+
+def _plan_outputs(output: Path) -> dict[str, str]:
+    return dict(line.split("=", 1) for line in output.read_text(encoding="utf-8").splitlines())
+
+
+def test_a_paused_sealing_plan_selects_nothing_and_says_why(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = _drifted_project(tmp_path)
+    output = tmp_path / "github_output"
+    summary = tmp_path / "step_summary"
+    monkeypatch.setenv(PAUSE_VARIABLE, "1")
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    assert _plan_outputs(output) == {
+        "repositories": "[]",
+        "has_work": "false",
+        "publishable": "[]",
+        "has_publishable": "false",
+    }
+    out = capsys.readouterr().out
+    assert "sealing paused by owner variable" in out
+    assert "selected:" not in out
+    assert "sealing paused by owner variable" in summary.read_text(encoding="utf-8")
+
+
+def test_a_paused_sealing_plan_needs_no_drift_file_and_reads_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The switch is checked first: a missing drift file is not an error while paused."""
+    root = _scheduled_project(tmp_path / "project")
+    output = tmp_path / "github_output"
+    monkeypatch.setenv(PAUSE_VARIABLE, "1")
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    assert _plan_outputs(output)["has_work"] == "false"
+    assert "drift monitor output not found" not in capsys.readouterr().err
+
+
+def test_an_unset_pause_variable_plans_the_seal_matrix_as_before(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _drifted_project(tmp_path)
+    output = tmp_path / "github_output"
+    monkeypatch.delenv(PAUSE_VARIABLE, raising=False)
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    outputs = _plan_outputs(output)
+    assert outputs["has_work"] == "true"
+    assert len(json.loads(outputs["repositories"])) == 3
+
+
+@pytest.mark.parametrize("value", ["", "0", "true", "yes", " 1", "1 ", "2"])
+def test_a_pause_value_other_than_one_does_not_pause(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value: str
+) -> None:
+    root = _drifted_project(tmp_path)
+    output = tmp_path / "github_output"
+    monkeypatch.setenv(PAUSE_VARIABLE, value)
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    outputs = _plan_outputs(output)
+    assert outputs["has_work"] == "true"
+    assert len(json.loads(outputs["repositories"])) == 3
+
+
+def test_sealing_plan_without_the_drift_monitor_output_is_a_named_usage_failure(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = _scheduled_project(tmp_path / "project")
+    code = main(["sealing-plan", "--root", str(root)])
+    captured = capsys.readouterr()
+    assert code == 2
+    assert captured.out == ""
+    assert "drift monitor output not found" in captured.err
+
+
+def test_sealing_plan_refuses_to_run_under_a_model_other_than_qwen3_next(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _scheduled_project(tmp_path / "project")
+    drift = root / "drift.json"
+    drift.write_text(json.dumps({"schema_version": 1, "repositories": []}), encoding="utf-8")
+    monkeypatch.setenv("GPT_OSS_MODEL", "gpt-oss")
+    code = main(["sealing-plan", "--root", str(root), "--drift-file", str(drift)])
+    captured = capsys.readouterr()
+    assert code == 2
+    assert "would switch the sealing model" in captured.err
+    assert "selected" not in captured.out and "sealing:" not in captured.out
+
+
+def test_sealed_ready_exits_zero_only_for_a_bundle_ready_for_proposal(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = _scheduled_project(tmp_path / "project")
+    repository = "aspose-x-foss/Aspose.X-FOSS-for-Python"
+    directory = "aspose-x-foss__Aspose.X-FOSS-for-Python"
+    write_bundle(root, directory, REVISION, "ACCEPTED")
+    assert main(["sealed-ready", "--repo", repository, "--root", str(root)]) == EXIT_INCONSISTENT
+    assert "no CURRENT bundle in READY_FOR_PROPOSAL" in capsys.readouterr().out
+    write_bundle(root, directory, REVISION, "READY_FOR_PROPOSAL")
+    assert main(["sealed-ready", "--repo", repository, "--root", str(root)]) == EXIT_OK
+    assert f"CURRENT {REVISION} is READY_FOR_PROPOSAL" in capsys.readouterr().out
