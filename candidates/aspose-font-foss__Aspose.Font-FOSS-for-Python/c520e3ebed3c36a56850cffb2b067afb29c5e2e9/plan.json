@@ -1,0 +1,400 @@
+{
+  "additional_example_ids": [
+    "example:004",
+    "example:005",
+    "example:006",
+    "example:007",
+    "example:008"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontloader",
+        "public_symbol:aspose_font.fontloader.open",
+        "public_symbol:aspose_font.fontloader.load"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.fontloader"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.smartinstancer",
+        "public_symbol:aspose_font.smartinstancer.instantiate",
+        "public_symbol:aspose_font.smartinstancer.resolve",
+        "public_symbol:aspose_font.smartinstancer.check_compatibility"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.smartinstancer"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontsubsetter",
+        "public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage",
+        "public_symbol:aspose_font.fontsubsetter.available_presets"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.fontsubsetter"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.webfontbuilder",
+        "public_symbol:aspose_font.webfontbuilder.build"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.webfontbuilder"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontqareporter",
+        "public_symbol:aspose_font.fontqareporter.build_package",
+        "public_symbol:aspose_font.fontqareporter.build"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.fontqareporter"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.deltainspector",
+        "public_symbol:aspose_font.deltainspector.compare_variable_glyph",
+        "public_symbol:aspose_font.deltainspector.inspect_variable_glyph"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.deltainspector"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.animationpreviewbuilder",
+        "public_symbol:aspose_font.animationpreviewbuilder.build_axis_sweep",
+        "public_symbol:aspose_font.animationpreviewbuilder.build_path"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.animationpreviewbuilder"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.mcp.main",
+        "public_symbol:aspose_font.mcp.font_subset",
+        "public_symbol:aspose_font.mcp.web_build"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.mcp.main"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontpreviewbuilder",
+        "public_symbol:aspose_font.fontpreviewbuilder.build"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.fontpreviewbuilder"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.fontcleaner",
+        "public_symbol:aspose_font.fontcleaner.clean_for_web"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.fontcleaner"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.ttffont",
+        "public_symbol:aspose_font.ttffont.axes",
+        "public_symbol:aspose_font.ttffont.named_instances",
+        "public_symbol:aspose_font.ttffont.smart_instancer"
+      ],
+      "symbol_fact_id": "public_symbol:aspose_font.ttffont"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Open and inspect multiple font formats",
+      "Instantiate and customize variable fonts",
+      "Subset fonts for web delivery",
+      "Generate visual and machine-readable review assets",
+      "Inspect variable-font interpolation and compatibility",
+      "Support CLI and MCP automation"
+    ],
+    "input_format_ids": [
+      "format:input.ttf"
+    ],
+    "output_format_ids": [
+      "format:output.html",
+      "format:output.png",
+      "format:output.svg"
+    ]
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "format:input.ttf",
+        "public_symbol:aspose_font.fontloader.open",
+        "public_symbol:aspose_font.ttffont.axes",
+        "public_symbol:aspose_font.ttffont.named_instances",
+        "public_symbol:aspose_font.ttffont.metrics"
+      ],
+      "shared_fact_ids": [],
+      "title": "Open and inspect multiple font formats"
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008",
+        "public_symbol:aspose_font.smartinstancer.instantiate",
+        "public_symbol:aspose_font.smartinstancer.preview_naming_policy"
+      ],
+      "shared_fact_ids": [
+        "example:008"
+      ],
+      "title": "Instantiate and customize variable fonts"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage",
+        "public_symbol:aspose_font.fontsubsetter.available_presets"
+      ],
+      "shared_fact_ids": [
+        "example:008"
+      ],
+      "title": "Subset fonts for web delivery"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "example:005",
+        "example:008",
+        "format:output.png",
+        "format:output.svg",
+        "format:output.html",
+        "public_symbol:aspose_font.fontqareport.write_html"
+      ],
+      "shared_fact_ids": [
+        "example:008"
+      ],
+      "title": "Generate visual and machine-readable review assets"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:008",
+        "public_symbol:aspose_font.deltainspector.compare_variable_glyph",
+        "public_symbol:aspose_font.compatibilitychecker.compare_variable_instances"
+      ],
+      "shared_fact_ids": [
+        "example:008"
+      ],
+      "title": "Inspect variable-font interpolation and compatibility"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.mcp.main",
+        "public_symbol:aspose_font.mcp.font_subset",
+        "public_symbol:aspose_font.mcp.web_build"
+      ],
+      "shared_fact_ids": [],
+      "title": "Support CLI and MCP automation"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "link_target:001"
+      ],
+      "section_id": "identity",
+      "text": "Repository link moved from inherited_unit:004.paragraph to identity section per disposition."
+    },
+    {
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "section_id": "installation",
+      "text": "Pip install command omitted in favor of verified git-clone-and-install command per disposition."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section_id": "additional_examples",
+      "text": "Static instance example from inherited_unit:018.paragraph and inherited_unit:019.code_block omitted as CONTRADICTED per disposition."
+    },
+    {
+      "fact_ids": [
+        "link_target:002"
+      ],
+      "section_id": "additional_examples",
+      "text": "QA report summary badge moved from inherited_unit:031.badge_row to additional_examples section per disposition."
+    },
+    {
+      "fact_ids": [
+        "link_target:003"
+      ],
+      "section_id": "additional_examples",
+      "text": "Family review board image moved from inherited_unit:035.badge_row to additional_examples section per disposition."
+    },
+    {
+      "fact_ids": [
+        "link_target:004"
+      ],
+      "section_id": "additional_examples",
+      "text": "Axis grid preview image moved from inherited_unit:039.badge_row to additional_examples section per disposition."
+    },
+    {
+      "fact_ids": [
+        "link_target:005"
+      ],
+      "section_id": "additional_examples",
+      "text": "Delta comparison image moved from inherited_unit:044.badge_row to additional_examples section per disposition."
+    },
+    {
+      "fact_ids": [
+        "link_target:006"
+      ],
+      "section_id": "additional_examples",
+      "text": "Animation sweep image moved from inherited_unit:048.badge_row to additional_examples section per disposition."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "public_symbol:aspose_font.fontloader.open"
+      ],
+      "section_id": "api_reference",
+      "text": "Variable Font Discovery section content moved to API Reference per disposition."
+    }
+  ],
+  "flagship_example_id": "example:008",
+  "links": [
+    {
+      "link_fact_id": "link_target:001",
+      "section_id": "identity"
+    },
+    {
+      "link_fact_id": "link_target:002",
+      "section_id": "additional_examples"
+    },
+    {
+      "link_fact_id": "link_target:003",
+      "section_id": "additional_examples"
+    },
+    {
+      "link_fact_id": "link_target:004",
+      "section_id": "additional_examples"
+    },
+    {
+      "link_fact_id": "link_target:005",
+      "section_id": "additional_examples"
+    },
+    {
+      "link_fact_id": "link_target:006",
+      "section_id": "additional_examples"
+    },
+    {
+      "link_fact_id": "link_target:007",
+      "section_id": "license"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "package:python_requires"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.converter.fontconverter"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "dependency:optional.mcp.mcp-1.0"
+      ],
+      "unit_ids": []
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

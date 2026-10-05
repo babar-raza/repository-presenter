@@ -21,13 +21,19 @@ neither of which needs a GitHub write scope:
 - `approval.py` — per-handoff owner approval: the committed record
   `ops/issue_approvals/<handoff-id>.json`, its evidence digest, and the git-ref store that
   verifies it (never the working tree, never a bot-authored file).
+- `close_approval.py` — per-issue owner approval for a close: the committed record
+  `ops/issue_close_approvals/<handoff-id>.json` names the exact issue number and the close reason,
+  expires, and is read by `approval.GitApprovalStore(directory=...)` as a filing approval is.
 - `file.py` — the gated write half: files a `HANDOFF_PENDING` handoff as a real
   `POST /repos/{owner}/{repo}/issues` call, and closes a `FILED` handoff whose check no longer
-  fires (`PATCH .../issues/{n}`). Filing needs all of: the owner-controlled kill-switch variable
-  (it can disable every write and never authorizes one), a write-scoped token distinct from the
-  read-only `GH_TOKEN`, and a valid, unexpired approval record for that exact handoff and its own
-  target repository. Filing also rechecks the defect and searches the target for the handoff's
-  fingerprint marker, so a fresh checkout cannot file a duplicate. It runs only from
+  fires (`PATCH .../issues/{n}`). A close needs the registry `issue_close` permit, the kill
+  switch, an installation token scoped to the target, its own close approval, and the system's
+  fingerprint marker on the live issue. Filing needs all of: the owner-controlled kill-switch
+  variable (it can disable every write and never authorizes one), a write-scoped token
+  distinct from the read-only `GH_TOKEN`, and a valid, unexpired approval record for that
+  exact handoff and its own target repository. Filing also rechecks the defect and searches
+  the target for the handoff's fingerprint marker, so a fresh checkout cannot file a
+  duplicate. It runs only from
   `.github/workflows/issues-scheduled.yml`'s gated write job.
 
 Every other module here (`model.py`, `ledger.py`, `redetect.py`, `draft.py`) stays read + local-

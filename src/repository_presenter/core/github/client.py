@@ -351,6 +351,48 @@ def find_issue_with_marker(
     )
 
 
+@dataclass(frozen=True)
+class IssueSnapshot:
+    """What a single ``GET .../issues/{number}`` says about one issue - only what the gated close
+    needs to prove it is closing the right thing."""
+
+    number: int
+    state: str
+    body: str
+    is_pull_request: bool
+
+
+def get_issue(
+    owner: str,
+    name: str,
+    number: int,
+    *,
+    token: str | None,
+    fetch: FetchFn = default_fetch,
+) -> IssueSnapshot:
+    """``GET /repos/{owner}/{repo}/issues/{number}`` - the issue's state and body as GitHub reports
+    them right now. Raises :class:`RepositoryMetadataError` on anything but a well-formed HTTP 200
+    for exactly that issue number: a close must never be decided on a partial or mismatched read."""
+    url = f"{API_ROOT}/repos/{owner}/{name}/issues/{number}"
+    status_code, body = fetch(url, token)
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200 or not isinstance(body, dict):
+        raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+    state = body.get("state")
+    if body.get("number") != number or not isinstance(state, str):
+        raise RepositoryMetadataError(
+            f"{owner}/{name}: GET {url} returned no usable issue #{number}"
+        )
+    text = body.get("body")
+    return IssueSnapshot(
+        number=number,
+        state=state,
+        body=text if isinstance(text, str) else "",
+        is_pull_request="pull_request" in body,
+    )
+
+
 def close_issue(
     owner: str,
     name: str,

@@ -1,0 +1,678 @@
+{
+  "acceptance_profile": {
+    "advisory": true,
+    "applicability_ratified": false,
+    "criteria": [
+      {
+        "evidence": [
+          "Aspose destination before the explanation: [5]"
+        ],
+        "id": "C01",
+        "points": null,
+        "status": "NOT_MET",
+        "title": "Product explained before promotion"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C02",
+        "points": null,
+        "status": "MET",
+        "title": "Visitor orientation"
+      },
+      {
+        "evidence": [
+          "BC-07 PASS"
+        ],
+        "id": "C03",
+        "points": null,
+        "status": "MET",
+        "title": "One H1 and one badge row"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C04",
+        "points": null,
+        "status": "MET",
+        "title": "Canonical product name"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C05",
+        "points": null,
+        "status": "MET",
+        "title": "Common visitor journey"
+      },
+      {
+        "evidence": [
+          "32 prose words outside links"
+        ],
+        "id": "C06",
+        "points": null,
+        "status": "MET",
+        "title": "License as prose"
+      },
+      {
+        "evidence": [
+          "no third-party notices heading"
+        ],
+        "id": "C07",
+        "points": null,
+        "status": "NOT_APPLICABLE",
+        "title": "Third-party notices link"
+      },
+      {
+        "evidence": [
+          "BC-07 PASS"
+        ],
+        "id": "C08",
+        "points": null,
+        "status": "MET",
+        "title": "Title case and canonical abbreviations"
+      },
+      {
+        "evidence": [
+          "BC-07 PASS"
+        ],
+        "id": "C09",
+        "points": null,
+        "status": "MET",
+        "title": "At a Glance topology"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C10",
+        "points": null,
+        "status": "MET",
+        "title": "Capability titles"
+      },
+      {
+        "evidence": [
+          "no required core section is collapsed"
+        ],
+        "id": "C11",
+        "points": null,
+        "status": "MET",
+        "title": "Core sections stay visible"
+      },
+      {
+        "evidence": [
+          "task-named examples, no verification commentary"
+        ],
+        "id": "C12",
+        "points": null,
+        "status": "MET",
+        "title": "Task-named additional examples"
+      },
+      {
+        "evidence": [
+          "repeated empty-line run ending at line 335"
+        ],
+        "id": "C13",
+        "points": null,
+        "status": "NOT_MET",
+        "title": "Fence languages and spacing"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C14",
+        "points": null,
+        "status": "MET",
+        "title": "Development and testing inventory"
+      },
+      {
+        "evidence": [
+          "no 'Other platforms' section"
+        ],
+        "id": "C15",
+        "points": null,
+        "status": "MET",
+        "title": "No Other Platforms section"
+      },
+      {
+        "evidence": [
+          "no assurance narration in the visitor text"
+        ],
+        "id": "C16",
+        "points": null,
+        "status": "MET",
+        "title": "No assurance narration"
+      },
+      {
+        "evidence": [
+          "non-canonical edition names: ['commercial edition']"
+        ],
+        "id": "C17",
+        "points": null,
+        "status": "NOT_MET",
+        "title": "Enterprise Edition name"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C18",
+        "points": null,
+        "status": "MET",
+        "title": "Contextual Aspose links"
+      },
+      {
+        "evidence": [
+          "BC-05 PASS"
+        ],
+        "id": "C19",
+        "points": null,
+        "status": "MET",
+        "title": "Every source unit dispositioned"
+      },
+      {
+        "evidence": [
+          "BC-08 PASS"
+        ],
+        "id": "C20",
+        "points": null,
+        "status": "MET",
+        "title": "Valuable inherited content preserved"
+      },
+      {
+        "evidence": [
+          "BC-01 PASS",
+          "BC-04 PASS"
+        ],
+        "id": "C21",
+        "points": null,
+        "status": "MET",
+        "title": "Public claims map to evidence"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C22",
+        "points": null,
+        "status": "MET",
+        "title": "Proven public consumer surface"
+      },
+      {
+        "evidence": [
+          "BC-03 PASS"
+        ],
+        "id": "C23",
+        "points": null,
+        "status": "MET",
+        "title": "Executed example"
+      },
+      {
+        "evidence": [
+          "BC-02 PASS"
+        ],
+        "id": "C24",
+        "points": null,
+        "status": "MET",
+        "title": "Verified installation"
+      },
+      {
+        "evidence": [
+          "BC-10 PASS"
+        ],
+        "id": "C25",
+        "points": null,
+        "status": "MET",
+        "title": "Independent review accepts"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C26",
+        "points": null,
+        "status": "MET",
+        "title": "Coherent developer journey"
+      }
+    ],
+    "disqualifiers": [
+      {
+        "evidence": [
+          "no assurance narration in the visitor text"
+        ],
+        "id": "D01",
+        "status": "NOT_TRIGGERED",
+        "title": "Assurance narration in the public README"
+      },
+      {
+        "evidence": [
+          "no implementation label"
+        ],
+        "id": "D02",
+        "status": "NOT_TRIGGERED",
+        "title": "Generic implementation label"
+      },
+      {
+        "evidence": [
+          "non-canonical edition names: ['commercial edition']"
+        ],
+        "id": "D03",
+        "status": "TRIGGERED",
+        "title": "Non-canonical edition name"
+      },
+      {
+        "evidence": [
+          "no 'Other platforms' section"
+        ],
+        "id": "D04",
+        "status": "NOT_TRIGGERED",
+        "title": "Other platforms or promotional section"
+      },
+      {
+        "evidence": [
+          "one H1 at line 1"
+        ],
+        "id": "D05",
+        "status": "NOT_TRIGGERED",
+        "title": "Not exactly one H1"
+      },
+      {
+        "evidence": [
+          "1 badge row(s), no duplicated badge"
+        ],
+        "id": "D06",
+        "status": "NOT_TRIGGERED",
+        "title": "Badge row duplicated or split"
+      },
+      {
+        "evidence": [
+          "BC-04 PASS"
+        ],
+        "id": "D07",
+        "status": "NOT_TRIGGERED",
+        "title": "Public claim without accepted evidence"
+      },
+      {
+        "evidence": [
+          "BC-05 PASS"
+        ],
+        "id": "D08",
+        "status": "NOT_TRIGGERED",
+        "title": "Source unit without one disposition"
+      },
+      {
+        "evidence": [
+          "BC-02 PASS",
+          "BC-03 PASS"
+        ],
+        "id": "D09",
+        "status": "NOT_TRIGGERED",
+        "title": "Unverified example or install command"
+      },
+      {
+        "evidence": [
+          "BC-08 PASS"
+        ],
+        "id": "D10",
+        "status": "NOT_TRIGGERED",
+        "title": "Valuable inherited content discarded"
+      },
+      {
+        "evidence": [
+          "BC-06 PASS"
+        ],
+        "id": "D11",
+        "status": "NOT_TRIGGERED",
+        "title": "Unverified or substitute link"
+      },
+      {
+        "evidence": [
+          "BC-10 PASS"
+        ],
+        "id": "D12",
+        "status": "NOT_TRIGGERED",
+        "title": "Independent review not accepted"
+      },
+      {
+        "evidence": [
+          "BC-09 PASS"
+        ],
+        "id": "D13",
+        "status": "NOT_TRIGGERED",
+        "title": "Secret in the candidate bundle"
+      },
+      {
+        "evidence": [
+          "no deterministic evaluator is ratified"
+        ],
+        "id": "D14",
+        "status": "UNEVALUATED",
+        "title": "Mechanical template filling"
+      }
+    ],
+    "outcome": "DISQUALIFIED",
+    "points_earned": null,
+    "points_possible": null,
+    "profile_version": "1",
+    "ratified": false,
+    "schema_version": 1,
+    "scorer_version": "1",
+    "source": "plans/idea.md",
+    "total_points": 30,
+    "triggered_disqualifiers": [
+      "D03"
+    ],
+    "unevaluated": {
+      "criteria": [],
+      "disqualifiers": [
+        "D14"
+      ]
+    }
+  },
+  "advisory": [
+    {
+      "absent": [
+        "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+        "aspose-font"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "package:name",
+        "link_target:product.homepage",
+        "link_target:product.banner"
+      ],
+      "id": "F01",
+      "omission": null,
+      "quote": "# Aspose.Font FOSS for Python",
+      "repair": "Change the H1 to 'aspose-font' to match the package name and repository identity, and remove the banner image line.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'aspose-font', 'aspose-font-foss/Aspose.Font-FOSS-for-Python', which the candidate contains",
+      "section_id": "identity",
+      "text": "The candidate opens with a product name 'Aspose.Font FOSS for Python' that does not match the repository name 'aspose-font-foss/Aspose.Font-FOSS-for-Python' or the package name 'aspose-font' from the facts, and uses a banner image URL that is not supported by any link_target fact."
+    },
+    {
+      "absent": [
+        "pip install aspose-font[mcp]"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:optional.mcp.mcp-1.0",
+        "install_command:pip"
+      ],
+      "id": "F02",
+      "omission": {
+        "kind": "omission",
+        "missing_ids": [
+          "dependency:optional.mcp.mcp-1.0"
+        ],
+        "missing_quotes": [
+          "pip install aspose-font[mcp]"
+        ],
+        "section_id": "installation"
+      },
+      "quote": "The package declares `python_requires` as `>=3.10`.",
+      "repair": "Add the optional MCP install command after the basic installation instructions.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The installation section omits the 'aspose-font[mcp]' optional install command that is explicitly supported by the facts and present in the original README."
+    },
+    {
+      "absent": [
+        "active_tuples"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_font.fontcleaner.clean_for_web",
+        "public_symbol:aspose_font.ttffont.ttf_tables"
+      ],
+      "id": "F04",
+      "omission": null,
+      "quote": "The `FontConverter` class exposes methods such as convert, build, and open to process font data, but does not support direct manipulation of internal structures like _raw or `active_tuples`.",
+      "repair": "Remove the unsupported claim about _raw and active_tuples, and clarify that the package supports internal table manipulation through supported public symbols.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'active_tuples', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The scope and limitations section incorrectly claims the package 'does not support direct manipulation of internal structures like _raw or active_tuples' while the facts show FontCleaner.clean_for_web and TtfFont.ttf_tables._raw are supported public symbols."
+    },
+    {
+      "absent": [
+        "aspose_font.cli",
+        "aspose_font.mcp"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_font.cli.main",
+        "public_symbol:aspose_font.mcp.main",
+        "public_symbol:aspose_font.mcp.font_subset",
+        "public_symbol:aspose_font.mcp.web_build"
+      ],
+      "id": "F05",
+      "omission": {
+        "kind": "omission",
+        "missing_ids": [
+          "public_symbol:aspose_font.cli.main",
+          "public_symbol:aspose_font.mcp.main",
+          "public_symbol:aspose_font.mcp.font_subset",
+          "public_symbol:aspose_font.mcp.web_build"
+        ],
+        "missing_quotes": [
+          "aspose_font.cli",
+          "aspose_font.mcp"
+        ],
+        "section_id": "api_reference"
+      },
+      "quote": "The verified public surface has 142 types.",
+      "repair": "Add CLI and MCP public symbols to the API reference section to match the verified public surface.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The API reference section omits the CLI public symbols (aspose_font.cli.main, aspose_font.mcp.*) that are explicitly listed in the facts and present in the original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "example:008"
+      ],
+      "id": "F06",
+      "omission": null,
+      "quote": "<details>",
+      "repair": "Remove the <details> wrapper and integrate the examples directly into the main body for better readability.",
+      "reviewer_scope_defect": "the quote is '<details>', the renderer's own collapsible-section chrome (its summary text or its <details>/</details> wrapper); no unit wrote it and none can change it",
+      "section_id": "additional_examples",
+      "text": "The additional examples section includes a 'View Additional Examples' collapsible that duplicates content already present in the main body, creating redundancy and poor information hierarchy."
+    },
+    {
+      "absent": [
+        "enterprise"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "id": "F07",
+      "omission": {
+        "kind": "omission",
+        "missing_ids": [
+          "link_target:product.enterprise"
+        ],
+        "missing_quotes": [
+          "enterprise"
+        ],
+        "section_id": "enterprise_relationship"
+      },
+      "quote": "## Scope and Limitations",
+      "repair": "Add an enterprise relationship section that references the commercial Aspose.Font product and explains the relationship between the FOSS and commercial editions.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'enterprise', which the candidate contains; the finding claims section enterprise_relationship omits 'link_target:product.enterprise', which it renders; the finding asks for 'enterprise', which is not a SUPPORTED fact or occurs in no original text: there is nothing to restore",
+      "section_id": "enterprise_relationship",
+      "text": "The enterprise relationship section is missing entirely, while the original README and facts clearly indicate a relationship with the commercial Aspose.Font product."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:name"
+      ],
+      "id": "F01",
+      "omission": null,
+      "quote": "# Aspose.Font FOSS for Python",
+      "reader": 2,
+      "repair": "Change the H1 heading to 'aspose-font' to match the package name and repository identity.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_font.font, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate opens with a product name 'Aspose.Font FOSS for Python' that does not match the repository identity 'aspose-font' and the package name 'aspose-font' as verified by the facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "format:input.ttf",
+        "format:output.html",
+        "format:output.png",
+        "format:output.svg"
+      ],
+      "id": "F02",
+      "omission": null,
+      "quote": "Aspose.Font FOSS for Python is a Python library that enables developers to open, inspect, subset, and convert variable and static OpenType fonts. It solves problems around font web optimization, variable font instantiation, and quality assurance by providing tools to build web font bundles, generate previews in `.png` and `.svg` formats, and produce HTML quality reports. The library is used by font engineers and web developers who need to prepare fonts for production use, inspect glyph-level... ",
+      "reader": 2,
+      "repair": "Rewrite the opening paragraph to accurately reflect the full scope of supported input formats and output artifacts as verified by the facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_font.font, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The candidate's opening paragraph describes the library as 'Aspose.Font FOSS for Python' and states it 'supports reading .ttf files and writing .png, .svg, and .html outputs', which is incomplete and contradicts the facts that the library supports multiple input formats (OTF, CFF, Type 1, WOFF, WOFF2, EOT) and produces additional outputs like WOFF2, CSS, JSON manifests, and QA reports."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_font.mcp.main",
+        "public_symbol:aspose_font.mcp.font_subset",
+        "public_symbol:aspose_font.mcp.web_build"
+      ],
+      "id": "F03",
+      "omission": null,
+      "quote": "- **Support CLI and MCP automation.** Support command-line and MCP automation through `aspose_font.mcp.main`, `aspose_font.mcp.font_subset`, and `aspose_font.mcp.web_build` entry points.",
+      "reader": 2,
+      "repair": "Expand the CLI and MCP automation capability description to include the specific entry points and workflows documented in the facts.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_font, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The candidate's Key Capabilities section omits the CLI and MCP automation capabilities that are explicitly supported by the facts and the original README, and instead includes a generic statement about 'Support CLI and MCP automation' without the specific entry points and workflows documented in the facts."
+    },
+    {
+      "absent": [
+        "pip install 'aspose-font[mcp]'"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:optional.mcp.mcp-1.0",
+        "install_command:pip"
+      ],
+      "id": "F04",
+      "omission": {
+        "kind": "omission",
+        "missing_ids": [
+          "dependency:optional.mcp.mcp-1.0"
+        ],
+        "missing_quotes": [
+          "pip install 'aspose-font[mcp]'"
+        ],
+        "section_id": "installation"
+      },
+      "quote": "The package declares `python_requires` as `>=3.10`.",
+      "reader": 2,
+      "repair": "Add the optional MCP dependency installation command to the installation section.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The candidate's installation section correctly describes the git-clone-and-install workflow but omits the explicit mention of the `aspose-font[mcp]` optional dependency installation command that is present in the original README and supported by the facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_font.converter.fontconverter"
+      ],
+      "id": "F05",
+      "omission": null,
+      "quote": "- The `FontConverter` class exposes methods such as convert, build, and open to process font data, but does not support direct manipulation of internal structures like _raw or `active_tuples`.",
+      "reader": 2,
+      "repair": "Remove the unsupported claim about FontConverter limitations and rephrase the scope and limitations section to accurately reflect the library's capabilities.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_font.converter.fontconverter, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate's Scope and Limitations section incorrectly states that 'The `FontConverter` class exposes methods such as convert, build, and open to process font data, but does not support direct manipulation of internal structures like _raw or `active_tuples`', which contradicts the facts that the library supports conversion and the internal structures are accessible through the public API."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose_font.smartinstancer.instantiate",
+        "public_symbol:aspose_font.webfontbuilder.build"
+      ],
+      "id": "F06",
+      "omission": null,
+      "quote": "The commercial Aspose.Font — commercial edition extends this open-source offering with additional capabilities for variable font manipulation and web optimization workflows.",
+      "reader": 2,
+      "repair": "Remove the misleading claim about commercial edition extensions and rephrase the enterprise relationship section to accurately reflect the open-source capabilities.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose_font.font, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate's Enterprise Relationship section incorrectly states that 'The commercial Aspose.Font — commercial edition extends this open-source offering with additional capabilities for variable font manipulation and web optimization workflows', which contradicts the facts that the open-source offering already includes comprehensive variable font manipulation and web optimization capabilities."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "a3b2066d504d61a8cb957068e38b2fd41af2ba26f7b8409e3f54e272b67403e6",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "b0a1e82d6146e3c126ff410c688581265b8467b7f82aa1b43a7aeb23911e740b",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "c53a3eb2e7b71d67c1c6b271d5d00b237dec53cdd90261d8b09ba3558c20e359",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
+      "573348ddd0e6b2ea5b590f8a",
+      "a3b6ba4d451861363f1cdb3d",
+      "ae6948684db4e2c953bd56e9",
+      "c1c129af498ea3f3a2298491",
+      "f30c64caa7ffb9e995f70222"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}
