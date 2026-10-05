@@ -98,7 +98,9 @@ Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UND
 product decisions are `owner_items` with an exact resume predicate and the gate or work item that
 consumes them. They hard-block only there, are re-checked every iteration, and a work item is
 `BLOCKED_EXTERNAL` only when it itself consumes an unmet owner item. Everything else proceeds. Prose-only predicates
-(G6's disposable target, the push policy, the outage policy; F11, F03, F26) are proposed as OWNER-11, -10, -12 (H-08, H-03, H-13).
+(G6's disposable target, the push policy, the outage policy; F11, F03, F26) are proposed as OWNER-11, -10, -12
+(H-08, H-03, H-13); the review rulings add OWNER-13 acceptance-profile ratification, -14 `DEFER_UNRESOLVED`, -15 second
+reviewer, -16 `RegistryRevisionV1`, -17 Releases audit and visuals (H-11, H-19, H-23).
 
 ## 6. Global execution loop
 
@@ -265,8 +267,8 @@ contract freezes against thirteen sealed products rather than one (§28.5).
 
 1. Python cohort: the twelve remaining Python registry entries through the existing pipeline, one
    transaction each; seal what passes all eleven checks; an evidence-bound disposition with a resume
-   predicate for the rest (PSD-Python `NON_PROCESSABLE`, persisted per `STATE_MACHINE.md` §6; its producer
-   does not exist yet, F06); fixes by failure class, a regression test each.
+   predicate for the rest (PSD-Python `NON_PROCESSABLE`, persisted per `STATE_MACHINE.md` §6; the producer
+   landed in #216, seven registry entries remain orphaned, REV-V3-06); fixes by failure class, a regression test each.
 2. Freeze acceptance contract v1: ratify the landed advisory 30-point scorer (`components/readme/review/acceptance/scorer.py`, commit 12eefef1, wired in `repair/rounds.py`; F05) with its hard disqualifiers, the blocking checks,
    and the advisory set, each versioned in every bundle's `dependencies.json`.
 
@@ -319,8 +321,8 @@ read-only transaction runs autonomously on GitHub-hosted runners (§27.5 D3, D4,
 2. Durable runtime (`STATE_MACHINE.md` §13-§15): repository record with CAS, leases and fencing, trigger
    deduplication, recovery before scheduling, transition receipts; pull and slim the legacy state modules
    named in the manifest.
-3. `monitor.yml` (schedule and manual dispatch, read-only) and `present.yml` (manual and
-   repository_dispatch, one isolated job per repository). `act` proves `ci.yml` locally (commit 6de6c159);
+3. `monitor.yml` (schedule and manual dispatch, read-only) and `present.yml` (manual, repository_dispatch and
+   workflow_call from `sealing-scheduled.yml`, one isolated job per repository). `act` proves `ci.yml` locally (commit 6de6c159);
    `present.yml` is hosted-only, so its proof is a hosted run on `main` with its run ID in the manifest
    (F12). Read-only App tokens; ambient tokens ignored; fail closed. Consumes OWNER-01 and OWNER-04.
 4. Authorized discovery and intake (new repositories disabled and read-only, exclusions explicit);
@@ -455,31 +457,24 @@ Method, severity scale, root causes RC-1 to RC-7, per-finding six-part causes, a
 
 | ID | Sev | § | Finding (evidence) | Heal |
 |---|---|---|---|---|
-| F01 | Critical | §3 | Competing plan channels: `plans/healing/*` (9 files, "supersedes nothing"), `plans/sprint/*` (deadline passed), three `project/loop-prompt-*` files, RESEARCH §27.9 queue; the healing and sprint lineage is undeclared; AGENTS forbids all of it. | §3 done; H-01 |
-| F02 | Critical | §5, §6 | Cursor vocabulary (COMPLETE, owner statuses, W-IDs) absent from revision 2; the cursor is 283 lines of prose with unenforced size (F14) and a "PRIORITY n" selection the plan never stated (F18). | §5, §6 done; H-02 |
+| F01, F17 | Critical | §3 | Competing plan channels: `plans/healing/*` (9 files, "supersedes nothing"), `plans/sprint/*` (deadline passed), three `project/loop-prompt-*` files, RESEARCH §27.9 queue; the healing and sprint lineage is undeclared; AGENTS forbids all of it; governance tests pin that prose (queue to RESEARCH §27.9, a test to the sprint plan, ESM residues as xfail, F17). | §3 done; H-01 |
+| F02, F14, F18 | Critical | §5, §6 | Cursor vocabulary (COMPLETE, owner statuses, W-IDs) absent from revision 2; the cursor is 283 lines of prose with unenforced size (F14) and a "PRIORITY n" selection the plan never stated (F18). | §5, §6 done; H-02 |
 | F03 | Critical | §6 | Publication contradiction: cursor `push: NEVER`; AGENTS allows a push after `ci_check`; revision 2 allowed direct `main` pushes; `main` protected since 2026-09-26. | §6 done; H-03 |
-| F04 | High | §1, §8, §12 | Restated counts (0/34, 1/34, 12/34, 36/36, "frozen at G4") while the cursor and registry are 36 (owner ruling 2026-09-30); `cli.py` docstring says N/34. | done; H-06 |
-| F05 | High | §8 G3, §12 | Scorer marked NOT IMPLEMENTED; it is wired (`repair/rounds.py`, `bundle/seal.py`) and advisory, unratified (commit 12eefef1). | done; H-11 |
-| F06 | High | §2, §8 | Placeholder outcome: STATE_MACHINE §6 `NON_PROCESSABLE` versus AGENTS and CLI `insufficient_evidence`; the persisted disposition has no producer (cursor-known gap). | §2 done; H-11 |
-| F07 | High | §8 G0 | Gateway names wrong: `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`; code and `.env.example` use `GPT_OSS_*`. | done |
+| F04, F05, F07, F16, F31 | High | §1, §2, §8, §12 | Stale facts in revision 2: restated counts (0/34, 1/34, 12/34, 36/36, "frozen at G4") against a live registry of 36 (F04); scorer "NOT IMPLEMENTED" though wired in `repair/rounds.py` and `bundle/seal.py`, advisory and unratified (F05); gateway names `LLM_*` against code's `GPT_OSS_*` (F07); "check 12" and "up to 4" workers (F16); contract freeze at G2 though G3 owns it (F31). | done; H-05, H-11 |
+| F06 | High | §2, §8 | Placeholder outcome: STATE_MACHINE §6 `NON_PROCESSABLE` versus AGENTS and CLI `insufficient_evidence`; the producer has since landed (#216), but seven registry entries stay orphaned (REV-V3-06). | §2 done; H-20 |
 | F08 | High | §4, §5, §9 | Build-ahead: state backend (G5-W04), G6 write paths, threat model, SBOM, and rotation runbook landed under G3; gate accounting inconsistent (accepted G0-G2, G3 and G4 manifests READY, G4 item active). | §4, §9 done; H-07 |
-| F10 | High | §8 G6 | No rollback, revert, or kill switch for hosted writes; "rollback" appeared only as a G7 bullet. | G6 item 4 done; H-09 |
-| F11 | High | §5, §8 G6 | G6 needs an owner-named disposable target (STATE_MACHINE §12.1); no owner item exists; the predicate lived in prose. OWNER-04 is 14 of 15 orgs installed and OPEN/SATISFIED cannot express partial satisfaction (F11 also covers it). | §5 done; H-08, H-14 |
-| F12 | High | §8 G5, §10 | Wiring claims wrong or overstated: `present.yml` "proven under act" (commit 6de6c159 records a hosted-only gap); monitor triggers listed that do not exist; "exercised for real" was unit-level; cursor said lockdrift and sbom do not gate (the CI Summary step fails the job on them). | done; H-05, H-10 |
-| F13 | High | §10 | No schema validates gate manifests; G3 and G4 manifests are stale. | §10 done; H-07 |
-| F16 | Medium | §8 G2, §12 | Exit cites "check 12", which §5 does not define (eleven rows); the cursor's "up to 4" workers conflicts with the plan's three. | done; H-05 |
-| F17 | Medium | §3 | Governance tests pin prose: cursor queue to RESEARCH §27.9, a test to the sprint plan, ESM residues recorded as xfail. | H-01, H-01 |
-| F20 | Medium | §14 | Taskcards required by the owner did not exist, and no status vocabulary was defined for them. | §14 done; H-00 |
-| F21 | Low | §7 | Reconciliation state `EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE` (33 records) was undocumented. | §7 done |
-| F23 | Medium | §8 G7 | `delivery_complete` and Level 7 and 8 used as gate terms without `plans/idea.md`'s definition; G7's automatic PR mode said "the Java cohort" while G6 admits any Cells candidate (F15). | G7 done |
-| F24 | Medium | §10, §8 G4, G7 | Hidden assumption: no-op and fresh-state proofs replay recorded responses, not regeneration; predicates such as "one daily cycle" and "parity recorded" name no artifact. | §10, G4, G7 done; H-16 |
+| F10, F11 | High | §8 G6, §5 | No rollback, revert, or kill switch for hosted writes (F10); G6 needs an owner-named disposable target (STATE_MACHINE §12.1) with no owner item, and OWNER-04 is 14 of 15 orgs installed, which OPEN/SATISFIED cannot express (F11). | G6 item 4, §5 done; H-08, H-09, H-14 |
+| F12 | High | §8 G5, §10 | Wiring claims wrong or overstated: `present.yml` "proven under act" (commit 6de6c159 records a hosted-only gap); monitor triggers listed that do not exist; "exercised for real" was unit-level; cursor said lockdrift and sbom do not gate (the CI Summary step fails the job on them). | done; H-05 |
+| F13, F24, F30 | High | §10, §8 G4, G7 | No schema validates gate manifests and the G3 and G4 manifests are stale (F13); no-op and fresh-state proofs replay recorded responses, and predicates like "one daily cycle" name no artifact (F24); G4's "2026-09-28 floor ruling" was not found by text search in the decision log (F30). | §10, G4, G7 done; H-07, H-16 |
+| F20, F21, F23, F25 | Medium | §7, §8 G7, §14 | Taskcards and statuses did not exist (F20); reconciliation state `EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE` (33 records) undocumented (F21); `delivery_complete` and Level 7 and 8 used without `plans/idea.md`'s definition, and "the Java cohort" against G6's Cells family (F23). | done; H-00 |
 | F26 | High | §5, §9 | One gateway model route; no declared outage behavior; repeated qwen3-next outages recorded in the cursor. | §5 done; H-13 |
-| F30 | Medium | §8 G4 | The "2026-09-28 floor ruling" the G4 exit cites was not located by text search in `docs/DECISION_LOG.md`. | H-16 |
-| F31 | Medium | §2, §8 G1 | Contract freeze stated at G2 exit (revision 2's principle 23, now 19) while G3 owns it. | done |
+| F32 | High | §14 | 39 reviewer ids (REV-V1-01..08, V2-01..11, V3-01..10, V4-01..10), logged in `docs/DECISION_LOG.md` and `docs/DEFECT_INDEX.md` (#231), were absent from this plan and the cursor, so invisible to the build order. | §14 done; H-17..H-24; cursor G6-W05, G3-W06, G5-W08, G5-W09, G7-W07, G4-W18, G7-W08 |
 
 ## 14. Taskcards (revision 3)
 
-Owner-brief statuses are a revision-3 snapshot; live status is the cursor's. OWNER-10 to -12 are proposed until H-02 records them.
+Owner-brief statuses are a revision-3 snapshot; live status is the cursor's. OWNER-10 to -17 are proposed until H-02 records them.
+H-17..H-24 own the 39 reviewer ids (`Vn-nn` = `REV-Vn-nn`; GitHub-verified 2026-10-05: 13 landed, 8 partial, 5 in flight, 6 not started, 7 owner
+decisions). Per-id work item and status sit on each `docs/DEFECT_INDEX.md` entry, all still open and awaiting independent reverification.
 
 | ID | Status | Objective (findings) | Validation and evidence | Rollback |
 |---|---|---|---|---|
@@ -487,13 +482,19 @@ Owner-brief statuses are a revision-3 snapshot; live status is the cursor's. OWN
 | H-01 | backlog | Retire `plans/healing/*`, `plans/sprint/*`, `project/loop-prompt-{phase0,sprint,lane-b}.md`; repoint the PHASE1 reference in `tests/test_governance_consistency.py`; rewrite the queue oracle to the cursor (`tests/test_queue_agreement.py`; F01, F17) | grep finds no authority reference; suite green | revert |
 | H-02 | backlog | Cursor to schema vocabulary, one-line entries, history moved to DECISION_LOG, size rule with a test (F02, F14, F18) | cursor and queue tests green | revert |
 | H-03 | blocked: OWNER-10 | Cursor `publication.control_repository` set to the owner's answer, matching AGENTS.md (F03) | schema and `test_cursor` | revert |
-| H-05 | backlog | Correct cursor claims: G7-W02 gating, present under `act`, G7-W05 wording, scorer, "check 12", "up to 4" (F12, F16, F16) | each claim cites a file or run | revert |
-| H-06 | backlog | `cli.py` N/34 docstring; test that status denominator equals registry entries (F04) | mutation: add an entry, test fails | revert |
+| H-05 | backlog | Correct cursor claims: G7-W02 gating, `present` under `act`, G7-W05 wording, the "no scorer in `src/`" line (~111), "check 12", "up to 4"; `monitor.yml` trigger text; `cli.py` N/34 docstring and a denominator test (F04, F12, F16; V4-09) | each claim cites a file or run; mutation: add a registry entry and the test fails | revert |
 | H-07 | backlog | `schemas/gate-manifest.schema.json`; gate-ahead register in cursor; G3 and G4 manifests refreshed (F08, F13) | CI validates every manifest | revert |
 | H-08 | blocked: OWNER-11 | Owner names the disposable G6 target; OWNER-11 SATISFIED (F11) | owner-item predicate | none |
 | H-09 | backlog, G6 | Rollback runbook and kill-switch tests: close PR, delete branch, unset variable, receipt (F10) | rollback exercised on the disposable target | the rollback itself |
-| H-10 | backlog | `monitor.yml` triggers: add `workflow_call` or correct the text; test asserts the trigger set and the CI Summary gating (F12) | test; hosted run | revert |
-| H-11 | backlog, G3 | NON_PROCESSABLE producer for a README-only fixture; ratify the scorer as contract v1 (F05, F06) | fixture yields `NON_PROCESSABLE`; v1 frozen | revert |
+| H-11 | blocked: OWNER-13 | Ratify the advisory 30-point scorer as contract v1, blocking only on the owner's ruling (F05; V2-02, V4-08). The doc claim is corrected here | v1 frozen in every `dependencies.json`; regression across candidates | revert |
 | H-13 | blocked: OWNER-12 | Gateway outage policy: fail closed, or a fallback route re-reviewed (F26) | G7 failure exercise expects the declared behavior | none |
 | H-14 | blocked: OWNER-04 | Install the App on `aspose-html-foss`; fresh audit shows 15 of 15 (F11) | audit workflow run | none |
 | H-16 | backlog | Measurement sources: G4 parity table, G7 cycle receipts, regeneration variance beside replay proofs (F24); the floor ruling text is located or G4's exit wording corrected (F30) | manifests carry the fields | revert |
+| H-17 | active | Write path (G6-W05). V1-01,02,04,08 landed #241; V1-03 landed #229; V1-06 landed #240; V1-05 partial (App id attested after the first write, #241); V1-07 partial (filing gate landed #237, close gate in flight #257) | #257 merged; independent reverification of each; hosted dispatch proof (H-08) | revert; H-09 |
+| H-18 | active | README contract (G3-W06). V2-05,06,07 landed #246; V2-01,04 in flight #251; V2-08,09 in flight #249 | a negative control per rule in each PR; sealed bundles re-check to `VALID_UPDATE_AVAILABLE`, never invalid; re-seal after the last version bump | revert |
+| H-19 | blocked: OWNER-14, -15 | Review policy (G3-W02). V2-03 `DEFER_UNRESOLVED` unit not flagged for review (OWNER-14); V2-10 second reviewer unconditional, three names hard-coded (OWNER-15) | owner ruling recorded; a mutation test per ruled behavior | none |
+| H-20 | backlog | Seal, state, status (G5-W08). V2-11 landed #254; V3-04 landed #243; V3-06 partial (#216 producer; seven registry entries orphaned); V3-10 not started (durable state beyond `present`); V4-10 partial (write functions wired, three states never assigned) | each state reached by a test and a real candidate; `monitor` and `propose` use durable state | revert |
+| H-21 | backlog | Autonomy and safeguards (G7-W07). V3-01 partial (chain wired #242, hosted scheduled proof pending); V3-02 partial (#228, scheduled-run confirmation pending, needs OWNER-04); V3-07 not started (drift beyond the commit SHA, bundle bytes); V3-09 partial (#239 dead-man for `present`, #229 `propose` concurrency; other concurrency, budget cap, lease heartbeat open) | a schedule-fired run on `main`, run ID in the manifest (F12); a synthetic drift reopens only its repository | `REPOSITORY_PRESENTER_SEALING_PAUSED=1` |
+| H-22 | active | No-op proof (G5-W09). V3-08 in flight #250 | `verify-noop-proof` counts ledger calls; a soft exit or unreconciled total fails | revert |
+| H-23 | backlog | Discovery and registry revision (G4-W18). V3-05, V4-10 discovery not started (no importer under `src/`); V4-01 not started (`community_paths` dead); V3-03 owner (OWNER-16); V4-02 owner (OWNER-17, Releases audit scope); V4-03 owner (OWNER-17, deferred by `plans/idea.md`) | discovery has a production importer and a CLI entry | revert |
+| H-24 | backlog | Hygiene and prompts (G7-W08). V4-06,07 landed #235 (`plans/idea.md` `data/products.json` stays an owner edit); V4-05 partial (#235: dated debt, Go/.NET controls; Java/TypeScript controls and three re-seals open); V4-04 not started (prompt owner and dependency hash, inline-prompt scan); V4-09 is H-05 | prompt-manifest schema change through a named item; an inline-prompt scan test | revert |
