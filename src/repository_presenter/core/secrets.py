@@ -9,6 +9,7 @@ The leak is reported by variable name and file path only; the value itself is ne
 from __future__ import annotations
 
 import re
+import shutil
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -105,3 +106,58 @@ def scan_for_secrets(directory: Path, secrets: Sequence[ConfiguredSecret]) -> li
 def find_secret_leaks(root: Path, secrets: Sequence[ConfiguredSecret]) -> list[SecretLeak]:
     """Return every (variable, file) pair where a secret appears under ``root/candidates``."""
     return scan_for_secrets(root / CANDIDATES_DIRNAME, secrets)
+
+
+CALL_STORE_DIRNAME = "calls"
+
+
+@dataclass(frozen=True)
+class StagedArtifact:
+    """What a transaction directory's staged, uploadable copy holds and what it left out."""
+
+    copied: tuple[Path, ...]
+    excluded: tuple[tuple[Path, str], ...]
+
+
+def stage_transaction_for_upload(
+    transaction: Path, staging: Path, secrets: Sequence[ConfiguredSecret]
+) -> StagedArtifact:
+    """Copy a transaction's output to ``staging``, leaving out everything that could carry a secret.
+
+    Excluded, each reported by relative path and reason (never a value):
+
+    - the ``calls/`` call store: its request bodies carry full prompts and its records carry raw
+      provider responses;
+    - any file where a configured secret's value appears verbatim (``configured_secrets``);
+    - any file holding a secret-shaped value (``redact`` changes it; ``core/secrets.py``'s own
+      pattern set, the same one the candidate-bundle canary and every persisted message use).
+
+    A missing ``transaction`` directory stages nothing. ``staging`` is emptied first, so a
+    previous run's leftovers can never be uploaded.
+    """
+    if staging.exists():
+        shutil.rmtree(staging)
+    staging.mkdir(parents=True)
+    copied: list[Path] = []
+    excluded: list[tuple[Path, str]] = []
+    if not transaction.is_dir():
+        return StagedArtifact((), ())
+    for path in sorted(p for p in transaction.rglob("*") if p.is_file()):
+        relative = path.relative_to(transaction)
+        if relative.parts[0] == CALL_STORE_DIRNAME:
+            excluded.append((relative, "call store (request bodies and raw responses)"))
+            continue
+        data = path.read_bytes()
+        leaked = [s.variable for s in secrets if s.value in data]
+        if leaked:
+            excluded.append((relative, f"contains the value of {', '.join(leaked)}"))
+            continue
+        text = data.decode("utf-8", errors="replace")
+        if redact(text) != text:
+            excluded.append((relative, "contains a secret-shaped value"))
+            continue
+        destination = staging / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(path, destination)
+        copied.append(relative)
+    return StagedArtifact(tuple(copied), tuple(excluded))

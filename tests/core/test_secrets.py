@@ -13,6 +13,7 @@ from repository_presenter.core.secrets import (
     SecretLeak,
     configured_secrets,
     find_secret_leaks,
+    stage_transaction_for_upload,
 )
 from support import REPO_ROOT, write_bundle, write_cursor
 
@@ -152,3 +153,53 @@ def test_redaction_masks_secret_shaped_and_live_values() -> None:
     assert result.count("[REDACTED]") == 5
     assert result.endswith("plain text")
     assert redact("nothing secret here") == "nothing secret here"
+
+
+def _transaction(root: Path) -> Path:
+    transaction = root / "runs" / "transactions" / "owner__repo" / "abc123"
+    (transaction / "source").mkdir(parents=True)
+    (transaction / "calls").mkdir()
+    (transaction / "source" / "README.md").write_text("# Public project\n", encoding="utf-8")
+    (transaction / "disposition.json").write_text('{"stage": "SNAPSHOTTING"}', encoding="utf-8")
+    (transaction / "calls" / "1a2b3c.json").write_text('{"prompt": "full body"}', encoding="utf-8")
+    (transaction / "leak.txt").write_text(f"gateway said {CANARY_KEY}", encoding="utf-8")
+    (transaction / "shaped.txt").write_text(
+        "retry with ghp_0123456789abcdefABCDEF", encoding="utf-8"
+    )
+    return transaction
+
+
+def test_staging_keeps_the_diagnosis_and_leaves_out_calls_and_every_secret_bearing_file(
+    tmp_path: Path,
+) -> None:
+    transaction = _transaction(tmp_path)
+    staging = tmp_path / "staging"
+    staged = stage_transaction_for_upload(
+        transaction, staging, configured_secrets({"GPT_OSS_API_KEY": CANARY_KEY})
+    )
+    assert sorted(p.as_posix() for p in staged.copied) == [
+        "disposition.json",
+        "source/README.md",
+    ]
+    assert (staging / "disposition.json").read_text(encoding="utf-8") == (
+        '{"stage": "SNAPSHOTTING"}'
+    )
+    assert not (staging / "calls").exists()
+    assert not (staging / "leak.txt").exists()
+    # The reason names the variable and the path, never the value.
+    reasons = {path.as_posix(): reason for path, reason in staged.excluded}
+    assert reasons["leak.txt"] == "contains the value of GPT_OSS_API_KEY"
+    assert reasons["shaped.txt"] == "contains a secret-shaped value"
+    assert reasons["calls/1a2b3c.json"].startswith("call store")
+    assert all(CANARY_KEY not in reason for reason in reasons.values())
+
+
+def test_staging_a_missing_transaction_stages_nothing_and_clears_old_leftovers(
+    tmp_path: Path,
+) -> None:
+    staging = tmp_path / "staging"
+    (staging).mkdir()
+    (staging / "stale.json").write_text("{}", encoding="utf-8")
+    staged = stage_transaction_for_upload(tmp_path / "absent", staging, ())
+    assert staged.copied == () and staged.excluded == ()
+    assert not (staging / "stale.json").exists()
