@@ -8,16 +8,29 @@ Every GitHub read is injected through ``FakeDefaultBranchReader``, a stand-in fo
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from repository_presenter.components.monitor.drift import (
+    MAX_DRIFT_AGE,
     RepositoryDrift,
+    Status,
+    assemble_drift_contract,
     drift_document,
     observe_drift,
+    write_drift_document,
 )
+from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.github.read_client import DefaultBranchRead
 from repository_presenter.core.registry.models import Registry, RegistryEntry
+from repository_presenter.core.sealing_plan import (
+    DRIFT_CONTRACT_VERSION,
+    plan_sealing_run,
+    read_drift_contract,
+)
 from support import FakeDefaultBranchReader, monitor_registry_entry, write_bundle
 
 TOKEN = "ghs_fixture_read_token_value_0123456789"
@@ -171,3 +184,105 @@ def test_the_document_counts_every_status_and_lists_repositories_in_order(tmp_pa
     # Sorted by repository name: "." (in ".NET") sorts before "J" (in "Java").
     assert [row["repository"] for row in document["repositories"]] == [NET, JAVA, PYTHON]
     assert document["repositories"][2]["status"] == "CURRENT"
+
+
+# The handoff (G7-W06): the monitor's per-owner evidence must become the one sealing contract the
+# scheduled plan reads. A monitor document is not that contract as written: it carries NO_BUNDLE and
+# UNREACHABLE, which the contract refuses, and it is one file per owner.
+
+NOW = datetime(2026, 10, 5, 12, 0, tzinfo=UTC)
+FRESH = (NOW - timedelta(hours=1)).isoformat(timespec="seconds")
+
+
+def _write_owner_evidence(
+    directory: Path, owner: str, rows: list[RepositoryDrift], *, observed_at: str = FRESH
+) -> None:
+    document = drift_document(rows, observed_at=observed_at, owner=owner)
+    write_drift_document(document, directory / f"drift-{owner}.json")
+
+
+def _row(repository: str, status: Status) -> RepositoryDrift:
+    return RepositoryDrift(repository, "full", status, None, "main", None, None)
+
+
+def test_every_owners_evidence_becomes_one_contract_the_sealing_plan_accepts(
+    tmp_path: Path,
+) -> None:
+    # Negative control: the monitor's raw NO_BUNDLE/UNREACHABLE rows must not reach the plan. Before
+    # the fix, the plan read the monitor document directly and refused the whole run on them.
+    _write_owner_evidence(
+        tmp_path,
+        "aspose-3d-foss",
+        [_row(JAVA, "DRIFTED"), _row(PYTHON, "NO_BUNDLE"), _row(NET, "UNREACHABLE")],
+    )
+    expected = {"aspose-3d-foss": frozenset({JAVA, PYTHON, NET})}
+
+    result = assemble_drift_contract(tmp_path, expected=expected, now=NOW)
+
+    assert result.notices == ()
+    assert result.document["schema_version"] == DRIFT_CONTRACT_VERSION
+    assert [(r["repository"], r["status"]) for r in result.document["repositories"]] == [
+        (NET, "UNKNOWN"),
+        (JAVA, "DRIFTED"),
+        (PYTHON, "UNKNOWN"),
+    ]
+    contract = tmp_path / "drift.json"
+    contract.write_text(json.dumps(result.document), encoding="utf-8")
+    records = read_drift_contract(contract)
+    plan = plan_sealing_run(records, _plan_registry(JAVA, PYTHON, NET))
+    assert plan.selected == (JAVA,)
+
+
+def test_an_owner_without_evidence_fails_closed_unless_its_app_is_recorded_not_installed(
+    tmp_path: Path,
+) -> None:
+    _write_owner_evidence(tmp_path, "aspose-3d-foss", [_row(JAVA, "CURRENT")])
+    expected = {
+        "aspose-3d-foss": frozenset({JAVA}),
+        "other-owner": frozenset({"other-owner/Thing"}),
+    }
+    with pytest.raises(ConfigError, match="no drift evidence for enabled owner other-owner"):
+        assemble_drift_contract(tmp_path, expected=expected, now=NOW)
+
+    # A confirmed NOT_INSTALLED owner is a notice, never zero drift and never a refusal.
+    (tmp_path / "install-other-owner.json").write_text(
+        json.dumps({"owner": "other-owner", "state": "NOT_INSTALLED", "repositories": ""}),
+        encoding="utf-8",
+    )
+    result = assemble_drift_contract(tmp_path, expected=expected, now=NOW)
+    assert [r["repository"] for r in result.document["repositories"]] == [JAVA]
+    assert any("other-owner" in notice for notice in result.notices)
+
+
+def test_evidence_that_omits_an_enabled_repository_fails_closed(tmp_path: Path) -> None:
+    _write_owner_evidence(tmp_path, "aspose-3d-foss", [_row(JAVA, "CURRENT")])
+    expected = {"aspose-3d-foss": frozenset({JAVA, PYTHON})}
+
+    with pytest.raises(ConfigError, match="omits enabled repositories"):
+        assemble_drift_contract(tmp_path, expected=expected, now=NOW)
+
+
+def test_stale_or_future_evidence_fails_closed(tmp_path: Path) -> None:
+    expected = {"aspose-3d-foss": frozenset({JAVA})}
+    stale = (NOW - MAX_DRIFT_AGE - timedelta(minutes=1)).isoformat(timespec="seconds")
+    _write_owner_evidence(tmp_path, "aspose-3d-foss", [_row(JAVA, "DRIFTED")], observed_at=stale)
+    with pytest.raises(ConfigError, match="stale or future-dated"):
+        assemble_drift_contract(tmp_path, expected=expected, now=NOW)
+
+    future = (NOW + timedelta(hours=1)).isoformat(timespec="seconds")
+    _write_owner_evidence(tmp_path, "aspose-3d-foss", [_row(JAVA, "DRIFTED")], observed_at=future)
+    with pytest.raises(ConfigError, match="stale or future-dated"):
+        assemble_drift_contract(tmp_path, expected=expected, now=NOW)
+
+
+def test_no_evidence_at_all_is_a_named_failure_never_zero_work(tmp_path: Path) -> None:
+    with pytest.raises(ConfigError):
+        assemble_drift_contract(tmp_path, expected={"aspose-3d-foss": frozenset({JAVA})}, now=NOW)
+
+
+def _plan_registry(*repositories: str) -> Registry:
+    raw = [
+        monitor_registry_entry(repository, mode="full", repository_id=index)
+        for index, repository in enumerate(repositories, start=1)
+    ]
+    return Registry.model_validate({"schema_version": 1, "entries": raw})

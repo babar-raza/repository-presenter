@@ -40,8 +40,12 @@
 # never set here.
 #
 # Dependency, stated plainly: this workflow depends on the drift monitor (monitor.yml, G7-W06) only
-# through its output file contract. Until a run writes drift/drift.json, the plan job fails
-# closed with an explicit "drift monitor output not found" error and makes no work - a missing input is never treated as zero drift or as all drift.
+# through its evidence, handed over as artifacts. A monitor run writes no file that outlives its own
+# run, so the plan job itself downloads the drift-* artifacts of the LATEST SUCCESSFUL monitor run on
+# main (gh run list/download, actions: read) and assembles them into the one sealing contract file,
+# drift/drift.json (repository-presenter monitor-drift-contract, components/monitor/drift.py). That
+# assembly fails closed on no evidence, partial evidence for an enabled owner or repository, or evidence
+# older than 12 hours; an owner recorded NOT_INSTALLED is a notice, never zero drift.
 #
 # Least privilege, per job: plan and propose hold contents: read at the job level; seal holds
 # contents: write only because present.yml's own durable-state refs live in this control repository
@@ -62,6 +66,10 @@ jobs:
   plan:
     name: Plan this run (drifted, enabled, capped, qwen3-next only)
     runs-on: ubuntu-latest
+    # actions: read only, so the plan job can download the monitor's evidence artifacts. No write.
+    permissions:
+      contents: read
+      actions: read
     outputs:
       repositories: ${{ steps.plan.outputs.repositories }}
       has_work: ${{ steps.plan.outputs.has_work }}
@@ -83,8 +91,25 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements-lock.txt
           python -m pip install --disable-pip-version-check --no-deps -e .
 
-      # The drift monitor's output must exist at drift/drift.json before this step (see the header's
-      # dependency note). It is read through its contract alone; the cap and ordering live in code.
+      # The latest successful monitor run's evidence, read-only. A run with no successful monitor, or
+      # no artifacts, fails here: there is then no evidence to plan from (see the header).
+      - name: Download the latest successful drift monitor run's evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow monitor.yml --branch main             --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
+            echo "::error::no successful drift monitor run on main; there is no drift evidence to plan from"
+            exit 1
+          fi
+          echo "drift monitor run: $run_id"
+          gh run download "$run_id" --repo "$GITHUB_REPOSITORY" --pattern 'drift-*' --dir monitor
+
+      # Assembles every owner's evidence into the contract; fails closed (exit 2) on any gap or staleness.
+      - name: Assemble the drift contract from the monitor's evidence
+        run: repository-presenter monitor-drift-contract monitor --out drift/drift.json
+
+      # The contract is read through its file alone; the cap and ordering live in code.
       - name: Select this run's repositories from the drift monitor's output
         id: plan
         env:

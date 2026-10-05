@@ -303,6 +303,7 @@ repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--f
 repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
 repository-presenter monitor-install-record --owner OWNER --outcome {success,failure} --repositories NAMES --out PATH
 repository-presenter monitor-install-summary DIR [--summary PATH]
+repository-presenter monitor-drift-contract DIR --out PATH
 repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remote REMOTE]
   [--wall-clock-seconds N] [--provider-calls N] [--max-wall-clock-seconds N]
   [--max-provider-calls N] [--stale-after-hours N]
@@ -358,6 +359,11 @@ repository-presenter sealed-ready --repo OWNER/NAME [--root PATH]
   owner's state file under `DIR`, prints a `::notice::` per missing installation plus a markdown
   table (appended to `--summary` when given), and exits 1 only when no owner at all was
   `INSTALLED`. No token or key is ever written to disk.
+- **`monitor-drift-contract DIR --out PATH`** — the handoff to the scheduled sealing run (G7-W06).
+  `sealing-scheduled.yml`'s plan job downloads the `drift-*` artifacts of the latest successful
+  `monitor.yml` run into `DIR` and merges them into the one sealing contract at `--out`. It refuses
+  (exit 2, writes nothing) when an enabled owner or repository has no evidence (unless its App is
+  `NOT_INSTALLED`, a notice) or when any evidence is older than 12 hours.
 - **`health-check`** — dead-man monitoring for one repository's durable-state record (G7-W03), run by
   `present.yml` after each transaction. It reads the record (and the sealed bundle's `calls.jsonl`
   unless `--provider-calls` is given) and applies the deterministic rules in
