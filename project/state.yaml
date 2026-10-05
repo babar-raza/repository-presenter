@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-10-04T18:27:00+05:00"
+updated_at: "2026-10-05T10:45:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -158,6 +158,46 @@ next_ready_items:
   status: COMPLETE
   owner: "COMPLETE, backed by the G3 manifest second_pass block (evidence/build/G3_PYTHON_COHORT/manifest.json). Not a priority item; it stays listed because tests/test_queue_agreement.py requires COMPLETE entries to remain visible."
   purpose: 'Python cohort, second pass (owner, 2026-09-06 07:45; section 28.12 revision; section 31). The ten dispositioned Python repositories re-run against everything that landed since 03:05, with the two blockers the first pass recorded removed: (1) prompt changes no longer cost a seal - dependency evaluation routes a prompt, template or model-route change to VALID_UPDATE_AVAILABLE (ESM G2 work item 2), so a sealed bundle stays current and counted and its re-seal is G5-W02''s; edit the composition prompts the dispositions of BarCode, Email and Note name, with the re-ask and rejection rates measured (27.10); (2) fact coverage: measure the vendored surface reader (G4-W09 facade) against the native Python reader on BarCode, Cells and PDF - public symbols found, and whether each identifier a rejected unit named appears; where the facade finds what the native reader missed, Python reads surface through the facade and parity becomes a recorded measurement. Then every failure class the re-run exposes is fixed in the same iteration it is found (loop-prompt section 6 rule 4 limits mechanism churn, not the number of deterministic fixes with a mutation test each). Yield order: Words, PDF, Cells, Note, Email, BarCode, Font, HTML, TeX, Page. Time box 3 hours from promotion; at the box, seal what passes, dispositions with the new failure class for the rest, accept. Acceptance: second-pass cohort report in the G3 gate manifest; status prints the sealed count; every sealed bundle zero-call proven; no check weakened; hosted CI green.'
+- id: G6-W05
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Write-path reviewer findings, remainder (docs/DEFECT_INDEX.md REV-V1-01 to REV-V1-08). Merged and verified on GitHub: REV-V1-01, 02, 04, 08 in #241, REV-V1-03 in #229, REV-V1-06 in #240, the filing half of REV-V1-07 in #237; REV-V1-05 is partial (the App id is attested on the PR only after the first write). Depends on: #257 (issue-close gate) merged; OWNER-11 for the live proof. Open: filing token provenance, a pre-write proof that the token is an App token if GitHub ever exposes one. Exit predicate: #257 merged; every REV-V1 entry independently reverified before it leaves the Open section; the disposable-target proof of G6-W02 shows the registry, authorization, token and PR-history gates refuse what they should."
+- id: G3-W06
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "README contract enforcement against plans/idea.md (REV-V2-01, 04, 05, 06, 07, 08, 09). Merged: REV-V2-05, 06, 07 in #246 (derived link ceilings, Enterprise anchor, verified badge row), REV-V2-01 and 04 in #251 (no generated edition substitute, BC-06 case-insensitive, BC-12 canonical name). Depends on: #249 (heading case, abbreviations, fences and spacing, visible sections, BC-07 version 8) merged; OWNER-15 for the second-reviewer trigger (REV-V2-10). Open: search-intent keyword lineage per title (REV-V2-09), recorded in #249 as a finding and not built; the typed second-reviewer trigger replacing the hard-coded MAJORITY_VOTE_REPOSITORIES (review/independent/review.py:325). Exit predicate: every rule has a negative control; sealed bundles re-check to VALID_UPDATE_AVAILABLE and are never blanket-invalidated; keyword lineage is either built with a check or ruled out by the owner."
+- id: G3-W07
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Code freeze and portfolio re-seal. Version-bumping changes make every sealed bundle stale: on origin/main 9a862f5b none is independently accepted on current code, 24 of 29 READY_FOR_PROPOSAL bundles carry readme-contract-v1-draft, and 17 sealed READMEs still contain 'commercial edition'. Depends on: #258, #260, #250, #248, #249, #257 merged in that order (each bumps shared version constants and re-derives from main), then no further version-bumping change. Work: compute the pinned version literals from one source so a bump cannot be missed or duplicated; freeze; re-seal the portfolio on the frozen code, preferably through the unattended hosted workflow; OWNER-13 decides whether READY_FOR_PROPOSAL requires an acceptance score. Exit predicate: every READY_FOR_PROPOSAL bundle is current on the frozen code (status --stale reports none); no sealed README contains a forbidden edition name; the contract version is not a draft; independently accepted count and the reason it is not larger are recorded."
+- id: G5-W08
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Seal routing, status counts, durable state and registry coverage (REV-V2-11, REV-V3-04, REV-V3-06, REV-V3-10, REV-V4-10). Merged: REV-V2-11 in #254 (typed invalidation scopes), REV-V3-04 in #243 (seven separated counts), the generic NON_PROCESSABLE producer of REV-V3-06 in #216. Depends on: OWNER-14 (DEFER_UNRESOLVED fail-closed, which would drop sealed candidates) and OWNER-19 (the two disabled PSD entries). Open: six registry entries with no current candidate (3D-TypeScript, GIS-.NET, PDF-TypeScript, TeX-Python, PSD-.NET, PSD-Python); durable state used only by present (monitor and propose do not use it); three states never assigned to a real candidate. Exit predicate: every registry entry ends in a counted state or a typed disposition with a resume predicate; monitor and propose read and write the durable record; each state is reached by a test and by one real candidate; the DEFER_UNRESOLVED rule the owner chose is enforced by validation, not only by prose."
+- id: G5-W09
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Measured zero-call no-op proof (REV-V3-08). Depends on: #250 merged (it counts the second invocation's provider calls from the ledger, derives fresh_process, retains unconsumed calls and reconciles ledger totals at verify time). Exit predicate: a soft exit, a literal fresh_process or an unreconciled total fails verify-noop-proof; present.yml runs it on a hosted rerun and the run ID is recorded in the gate manifest."
+- id: G7-W07
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Autonomy chain and operations safeguards (REV-V3-01, 02, 07, 09). Merged: REV-V3-01 wiring in #242 (sealing-scheduled.yml), REV-V3-02 in #228 (missing App installation is a notice), the dead-man check for present.yml in #239, propose.yml concurrency in #229. Depends on: OWNER-04 (App on aspose-html-foss), OWNER-12 (gateway outage policy). Open: a verified manual dispatch of sealing-scheduled.yml (it has never run) and then a schedule-fired run; a schedule-fired monitor run after #228; drift beyond the head SHA (README-content and protected-content drift, bundle-bytes verification; components/monitor/drift.py compares the SHA only); concurrency groups on monitor, present and sealing workflows; a cost budget cap beyond the three-repositories-per-run cap; wiring renew_lease (core/state/cas.py:168, no production caller) into long runs; a dead-man check for monitor.yml. Exit predicate: each open point has a test and, for a workflow claim, a run ID on main in the gate manifest."
+- id: G4-W18
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Discovery into src and unused inventory (REV-V3-05, REV-V4-01, REV-V4-10, REV-V3-03). Nothing started. Gate C0 discovery (tools/discovery/portfolio_discovery.py) lists public repositories only, has no observation taxonomy, has no importer under src and is wired to no workflow; FileInventory.community_paths has no reader. Depends on: OWNER-16 (RegistryRevisionV1 and the PR_ELIGIBLE and PORTFOLIO_* names: retire them in plans/idea.md or implement). Exit predicate: discovery runs through the official entry point and a workflow with new repositories disabled and read-only; community_paths is consumed or removed; the OWNER-16 ruling is recorded before the code it governs."
+- id: G4-W19
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Product-evidence surfaces, priority 2 (REV-V4-02, REV-V4-03). Nothing started: no GitHub Releases audit, no GitHub-generated statistics observation, no product-agent ingest contract (ProductFactsV2), no visual assets or social preview. Depends on: OWNER-17 (scope; visuals are deferrable by plans/idea.md). Exit predicate: each surface the owner admits has a read-only observation with a typed record in facts.json and a test; each deferred surface is recorded as deferred with its reason."
+- id: G7-W08
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Hygiene and prompt registry governance (REV-V4-04, REV-V4-05, REV-V4-06, REV-V4-07). Merged in #235: REV-V4-06, REV-V4-07 (docs paths) and the dated test debt and Go and .NET negative controls of REV-V4-05. Depends on: G3-W07 (the three stale-bundle entries clear only on re-seal). Open: Java and TypeScript negative controls; prompt owner and dependency-hash fields and an inline-prompt scan (REV-V4-04, a prompt-manifest schema change through a named item). Exit predicate: each open point has a test; the prompt-manifest schema changes only through this item with a section 31 entry."
+- id: G7-W09
+  status: PENDING
+  owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Documentation and cursor claim corrections (REV-V4-09, REV-V2-02 documentation half). The register PR corrected the plan's stale scorer row. Still stale: project/state.yaml G3-W02 text (line 111) and the G5-W04, G5-W05 and G7-W05 claims REV-V4-09 names, which only the cursor owner edits, and the plans/idea.md body naming data/products.json (OWNER-18). Depends on: OWNER-10 (push policy, cursor says NEVER while AGENTS.md permits a push after ci_check), OWNER-18. Exit predicate: no document claims the scorer is absent or a gate is accepted that is not; the cursor and AGENTS.md agree on the control-repository push policy; tests/test_register_integrity.py stays green."
 owner_items:
   - id: OWNER-01
     status: SATISFIED
@@ -225,6 +265,77 @@ owner_items:
     consumed_by: [NONE]
     recorded_at: "2026-09-25T00:00:00+05:00"
     note: "The repository's own name (Aspose.GIS.FOSS-for-.Net) uses a literal '.' before 'FOSS' where every other portfolio product uses '-' (Aspose.Words-FOSS-for-X, etc.) - a genuine upstream naming irregularity, confirmed by direct API read, not a transcription error. src/repository_presenter/core/registry/naming.py's _MANAGED_REPOSITORY_PATTERN widened narrowly to accept '.' or '-' before 'FOSS' (previously only '-'), documented inline and covered by a new positive test case; no other separator or shape accepted. Full evidence docs/DECISION_LOG.md this date."
+
+  - id: OWNER-10
+    status: OPEN
+    summary: "Control-repository push policy: the cursor's publication.control_repository.push is NEVER while AGENTS.md permits a push to this repository's origin after scripts/ci_check.sh passes. Which is correct?"
+    resume_predicate: "The owner names the policy; the cursor and AGENTS.md then agree, a test asserts it."
+    consumed_by: ["G7-W09"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
+  - id: OWNER-11
+    status: OPEN
+    summary: "Name the disposable target for the first live G6 proof (docs/STATE_MACHINE.md section 12.1: owner-selected, never agent-selected), and whether rollback is exercised on it."
+    resume_predicate: "An owner-named repository that is not an aspose product repository, with the App installed on it."
+    consumed_by: ["G6-W02"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
+  - id: OWNER-12
+    status: OPEN
+    summary: "Gateway outage policy: fail closed while the single qwen3-next route is down, or allow a fallback route whose output is re-reviewed."
+    resume_predicate: "The owner chooses; the G7 failure exercise then asserts exactly that behavior."
+    consumed_by: ["G7-W07"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
+  - id: OWNER-13
+    status: OPEN
+    summary: "Ratify the 30-point acceptance profile (profile.RATIFIED is False, so publication_eligible counts 0 and nothing blocks on the score) and decide whether READY_FOR_PROPOSAL may be set before any acceptance score exists (REV-V2-02, REV-V4-08)."
+    resume_predicate: "The owner ratifies, amends or rejects the profile; a ratification flips RATIFIED and bumps ACCEPTANCE_PROFILE_VERSION in one reviewed change with regression across every sealed bundle."
+    consumed_by: ["G3-W02", "G3-W07"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
+  - id: OWNER-14
+    status: OPEN
+    summary: "DEFER_UNRESOLVED must fail closed? Validation never reads the state, and 14 READY_FOR_PROPOSAL bundles carry 82 deferred units (85 across 15 with the VALID_UPDATE_AVAILABLE one); enforcing it drops or re-seals those candidates (REV-V2-03)."
+    resume_predicate: "The owner chooses block, flag-for-review, or accept-as-is; the rule is then enforced by a validation check with a negative control."
+    consumed_by: ["G5-W08"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
+  - id: OWNER-15
+    status: OPEN
+    summary: "Second reviewer: unconditional on every ACCEPT with three hard-coded repositories (MAJORITY_VOTE_REPOSITORIES, review/independent/review.py:325) versus the typed risk trigger plans/idea.md describes (REV-V2-10). Cost versus assurance."
+    resume_predicate: "The owner chooses the trigger set; the hard-coded set is removed in the same change."
+    consumed_by: ["G3-W06"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
+  - id: OWNER-16
+    status: OPEN
+    summary: "RegistryRevisionV1 and the names PR_ELIGIBLE, PORTFOLIO_AGENT_ACCEPTED and PORTFOLIO_PUBLICATION_READY_AWAITING_EFFECT_AUTHORIZATION appear nowhere in src (the seven separated counts replace them): retire the names in plans/idea.md, or implement the frozen type (REV-V3-03)."
+    resume_predicate: "The owner chooses retire or implement; the 2026-09-30 ruling that the denominator tracks the live registry stands until then."
+    consumed_by: ["G4-W18"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
+  - id: OWNER-17
+    status: OPEN
+    summary: "Scope of the GitHub Releases audit, GitHub-generated statistics observation, the product-agent ingest contract, and whether to un-defer visual assets and the social preview (REV-V4-02, REV-V4-03)."
+    resume_predicate: "The owner admits or defers each surface with a reason recorded."
+    consumed_by: ["G4-W19"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
+  - id: OWNER-18
+    status: OPEN
+    summary: "plans/idea.md body still names data/products.json as the hard execution allow-list; the live allow-list is data/registry.json. Edit the body, or keep the authority-note correction only (REV-V4-07)."
+    resume_predicate: "The owner edits plans/idea.md or records that the authority note stands."
+    consumed_by: ["G7-W09"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
+  - id: OWNER-19
+    status: OPEN
+    summary: "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET and -for-Python are disabled with no reason recorded in the decision log: record the reason, enable them, or keep them as typed NON_PROCESSABLE."
+    resume_predicate: "The owner states which, and the registry mode or the disposition follows."
+    consumed_by: ["G5-W08"]
+    recorded_at: "2026-10-05T10:45:00+05:00"
+    note: "Recorded by the register PR; the question is the owner's, not delegated."
 
 legacy_source:
   repository: babar-raza/foss-readme-optimizer
