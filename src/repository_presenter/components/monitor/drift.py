@@ -24,8 +24,9 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Literal
 
@@ -35,8 +36,10 @@ from repository_presenter.core.candidates import (
     BundleError,
     verify_bundle,
 )
+from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.github.read_client import DefaultBranchRead, fetch_default_branch_sha
 from repository_presenter.core.registry.models import RegistryEntry
+from repository_presenter.core.sealing_plan import DRIFT_CONTRACT_VERSION
 from repository_presenter.core.secrets import redact
 
 Status = Literal["CURRENT", "DRIFTED", "NO_BUNDLE", "UNREACHABLE"]
@@ -147,3 +150,100 @@ def write_drift_document(document: dict[str, Any], path: Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
     return path
+
+
+# The handoff to the scheduled sealing run (G7-W06). The monitor runs every 6 hours, so evidence
+# older than twice that cadence is refused rather than sealed from.
+MAX_DRIFT_AGE = timedelta(hours=12)
+_CLOCK_SKEW = timedelta(minutes=5)
+_CONTRACT_STATUS = {"CURRENT": "CURRENT", "DRIFTED": "DRIFTED"}
+
+
+@dataclass(frozen=True)
+class AssembledContract:
+    """The sealing contract built from every owner's evidence, plus one notice per owner whose
+    GitHub App is not installed (those repositories cannot be observed and are never sealed)."""
+
+    document: dict[str, Any]
+    notices: tuple[str, ...]
+
+
+def _owner_evidence(directory: Path) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
+    documents: dict[str, dict[str, Any]] = {}
+    for path in sorted(directory.rglob("drift-*.json")):
+        document = json.loads(path.read_text(encoding="utf-8"))
+        owner = document.get("owner") if isinstance(document, dict) else None
+        if not isinstance(owner, str) or document.get("schema_version") != SCHEMA_VERSION:
+            raise ConfigError(
+                f"drift evidence {path.name} is not a schema {SCHEMA_VERSION} document"
+            )
+        if owner in documents:
+            raise ConfigError(f"drift evidence names owner {owner} more than once")
+        documents[owner] = document
+    states: dict[str, str] = {}
+    for path in sorted(directory.rglob("install-*.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(record, dict) and isinstance(record.get("owner"), str):
+            states[record["owner"]] = str(record.get("state"))
+    return documents, states
+
+
+def assemble_drift_contract(
+    directory: Path,
+    *,
+    expected: Mapping[str, frozenset[str]],
+    now: datetime,
+    max_age: timedelta = MAX_DRIFT_AGE,
+) -> AssembledContract:
+    """Merge the per-owner drift evidence under ``directory`` into the one sealing contract.
+
+    ``expected`` maps each enabled registry owner to its enabled repositories. Fail closed
+    (ConfigError) when an owner has no evidence and its install record does not say
+    NOT_INSTALLED, when an owner's evidence omits one of its enabled repositories, or when any
+    evidence is older than ``max_age`` (or dated in the future). Owners recorded NOT_INSTALLED are
+    a notice, never zero drift.
+    """
+    documents, states = _owner_evidence(directory)
+    records: list[dict[str, str]] = []
+    notices: list[str] = []
+    observed: list[datetime] = []
+    for owner in sorted(expected):
+        if owner not in documents:
+            if states.get(owner) == "NOT_INSTALLED":
+                notices.append(f"drift: {owner} has no installed GitHub App; not observed")
+                continue
+            raise ConfigError(
+                f"no drift evidence for enabled owner {owner} (install state "
+                f"{states.get(owner, 'unrecorded')}); refusing to plan from partial evidence"
+            )
+        document = documents[owner]
+        try:
+            stamp = datetime.fromisoformat(str(document.get("observed_at")))
+        except ValueError as exc:
+            raise ConfigError(f"drift evidence for {owner} has no valid observed_at") from exc
+        if stamp.tzinfo is None:
+            raise ConfigError(f"drift evidence for {owner} observed_at has no timezone")
+        age = now - stamp
+        if age > max_age or age < -_CLOCK_SKEW:
+            raise ConfigError(
+                f"drift evidence for {owner} is stale or future-dated "
+                f"(observed {stamp.isoformat()}, age {age}); the limit is {max_age}"
+            )
+        observed.append(stamp)
+        rows = {row.get("repository"): row for row in document.get("repositories", [])}
+        missing = sorted(expected[owner] - set(rows))
+        if missing:
+            raise ConfigError(f"drift evidence for {owner} omits enabled repositories: {missing}")
+        for name in sorted(expected[owner]):
+            row = rows[name]
+            # NO_BUNDLE and UNREACHABLE are never work for a sealing run: they map to UNKNOWN.
+            status = _CONTRACT_STATUS.get(str(row.get("status")), "UNKNOWN")
+            records.append({"repository": name, "status": status})
+    if not observed:
+        raise ConfigError("no drift evidence was observed for any enabled owner; no work is made")
+    document = {
+        "schema_version": DRIFT_CONTRACT_VERSION,
+        "observed_at": min(observed).isoformat(timespec="seconds"),
+        "repositories": sorted(records, key=lambda record: record["repository"]),
+    }
+    return AssembledContract(document, tuple(notices))

@@ -18,7 +18,7 @@ import hashlib
 import json
 import os
 import re
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from types import MappingProxyType
@@ -276,7 +276,11 @@ _TYPE_OBJECTIVE = (
 # (components/terminology.py), gained "PS" and the mixed-case standards glTF and npm, and a
 # discovered format extension qualifies from two letters - so canonical_abbreviations() now raises
 # "ps" to "PS" and writes "glTF", not "GLTF", a real meaning change to rendered bytes.
-NORMALISATION_VERSION = "25"
+# "26": the S6 scope section's request names every must-carry unit by ID (unchanged) and an S6
+# repair names the must-carry units still uncited (uncarried_units, repair/targeted.py), so a repair
+# can state the missing substance. Slides-Java, 2026-10-05 (F04): the scope attempts never cited
+# the superseded limitation units; the repair saw only their facts.
+NORMALISATION_VERSION = "26"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -1934,6 +1938,15 @@ def carried_unit_errors(output: Mapping[str, Any], task: SectionTask) -> list[st
         for fact_id in sorted(task.must_carry)
         if fact_id not in cited and not omitted.get(fact_id)
     ]
+
+
+def uncarried_units(output: Mapping[str, Any], must_carry: Collection[str]) -> list[str]:
+    """The must-carry units a section output neither cites nor lists omitted, sorted - the same
+    test carried_unit_errors applies, exposed so a repair can name exactly what is still missing."""
+    cited, omitted = _carry_dispositions(output)
+    return sorted(
+        fact_id for fact_id in must_carry if fact_id not in cited and not omitted.get(fact_id)
+    )
 
 
 def recover_carried_units(output: dict[str, Any], must_carry: frozenset[str]) -> bool:

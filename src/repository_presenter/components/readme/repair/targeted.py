@@ -29,6 +29,7 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from repository_presenter.components.readme.composition.authoring import uncarried_units
 from repository_presenter.components.readme.composition.renderer import (
     example_block_visible_lines,
 )
@@ -564,9 +565,20 @@ def repair_packet(
         *_named_inherited_units(defect, facts),
         *_carried_inherited_units(facts, carried),
     ]
+    defect_record: dict[str, Any] = {
+        **defect.record,
+        "fingerprint": defect.fingerprint,
+        "source": defect.source,
+    }
+    # The must-carry units this section still neither cites nor omits, named by ID: a repair that
+    # only sees their facts can cite them without ever stating their substance. Present only when
+    # something is still missing, so every other repair packet is byte-identical.
+    still_missing = uncarried_units(stage_output, carried)
+    if still_missing:
+        defect_record["uncarried_superseded_units"] = still_missing
     packet: dict[str, Any] = {
         "repository": entry.repository,
-        "defect": {**defect.record, "fingerprint": defect.fingerprint, "source": defect.source},
+        "defect": defect_record,
         "causal_stage": defect.stage,
         "stage_output": stage_output,
         "facts": records,
