@@ -351,3 +351,31 @@ jobs:
             # rather than skip health entirely.
             repository-presenter health-check --repo "$TARGET_REPOSITORY"
           fi
+
+      # Diagnosis for a red seal. A failed seal used to upload no artifacts at all, so its reason
+      # (its transaction's own output under runs/transactions/) was unreadable from GitHub. Runs
+      # only on a red run. The staging step copies the transaction output and EXCLUDES the call
+      # store (calls/: full request bodies and raw responses) and every file holding a configured
+      # secret's value or a secret-shaped value (core/secrets.py::stage_transaction_for_upload);
+      # exclusions are printed by path and reason, never by value. Only the staged copy is uploaded,
+      # never the raw directory, and a failed staging step leaves nothing to upload.
+      - name: Stage this seal's transaction output for diagnosis (redacted)
+        if: ${{ failure() }}
+        env:
+          TRANSACTION: runs/transactions/${{ steps.target.outputs.owner }}__${{ steps.target.outputs.name }}
+          STAGING: ${{ runner.temp }}/transaction-artifact
+          # The same credentials this job's own steps hold, so the redaction scan sees every value
+          # this runner could have written to a file. Read only by the staging command; never printed.
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
+          REPOSITORY_PRESENTER_STATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: repository-presenter stage-transaction-artifact --transaction "$TRANSACTION" --staging "$STAGING"
+
+      - name: Upload this seal's redacted transaction output (failed runs only)
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: seal-transaction-${{ steps.target.outputs.owner }}__${{ steps.target.outputs.name }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/transaction-artifact
+          if-no-files-found: ignore
+          retention-days: 14
