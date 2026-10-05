@@ -187,6 +187,36 @@ def independently_accepted_candidates(root: Path, stale: Iterable[StaleCandidate
     return len(current_counted_repository_dirs(root) - {entry.repository_dir for entry in stale})
 
 
+def _verified_current(repository_dir: Path) -> tuple[str, dict[str, Any]] | None:
+    """``(revision, manifest)`` for the bundle ``CURRENT`` names under ``repository_dir``, verified
+    and self-consistent; None when the repository has no ``CURRENT`` at all. Raises
+    :class:`BundleError` for any ``CURRENT`` that does not name a verifiable bundle of its own."""
+    current = repository_dir / CURRENT_FILENAME
+    if not current.is_file():
+        return None
+    revision = current.read_text(encoding="utf-8").strip()
+    manifest = verify_bundle(repository_dir / revision)
+    if manifest is None:
+        raise BundleError(
+            f"{repository_dir.name}: CURRENT names revision {revision!r} with no sealed "
+            "bundle there"
+        )
+    if manifest.get("revision") != revision:
+        raise BundleError(
+            f"{repository_dir.name}: bundle manifest revision {manifest.get('revision')!r} "
+            f"does not match CURRENT {revision!r}"
+        )
+    # The inverse of seal.py's bundle_directory(): candidates/<owner>__<name>/<revision>,
+    # where owner and name are exactly repository.split("/") - so a manifest's own claimed
+    # repository must map back to the directory it was actually found under.
+    if str(manifest.get("repository", "")).replace("/", "__") != repository_dir.name:
+        raise BundleError(
+            f"{repository_dir.name}: bundle manifest repository "
+            f"{manifest.get('repository')!r} does not match its directory"
+        )
+    return revision, manifest
+
+
 def current_counted_repository_dirs(root: Path) -> set[str]:
     """The repository directories whose ``CURRENT`` bundle is sealed in a counted state - the
     set ``count_current_candidates`` counts, under that function's own raising contract."""
@@ -195,32 +225,23 @@ def current_counted_repository_dirs(root: Path) -> set[str]:
         return set()
     counted: set[str] = set()
     for repository_dir in sorted(p for p in candidates.iterdir() if p.is_dir()):
-        current = repository_dir / CURRENT_FILENAME
-        if not current.is_file():
-            continue
-        revision = current.read_text(encoding="utf-8").strip()
-        manifest = verify_bundle(repository_dir / revision)
-        if manifest is None:
-            raise BundleError(
-                f"{repository_dir.name}: CURRENT names revision {revision!r} with no sealed "
-                "bundle there"
-            )
-        if manifest.get("revision") != revision:
-            raise BundleError(
-                f"{repository_dir.name}: bundle manifest revision {manifest.get('revision')!r} "
-                f"does not match CURRENT {revision!r}"
-            )
-        # The inverse of seal.py's bundle_directory(): candidates/<owner>__<name>/<revision>,
-        # where owner and name are exactly repository.split("/") - so a manifest's own claimed
-        # repository must map back to the directory it was actually found under.
-        if str(manifest.get("repository", "")).replace("/", "__") != repository_dir.name:
-            raise BundleError(
-                f"{repository_dir.name}: bundle manifest repository "
-                f"{manifest.get('repository')!r} does not match its directory"
-            )
-        if manifest.get("state") in COUNTED_STATES:
+        verified = _verified_current(repository_dir)
+        if verified is not None and verified[1].get("state") in COUNTED_STATES:
             counted.add(repository_dir.name)
     return counted
+
+
+def ready_revision(root: Path, repository: str) -> str | None:
+    """The ``CURRENT`` revision of ``repository`` when that bundle verifies and is sealed
+    ``READY_FOR_PROPOSAL``; None otherwise. The one question a proposal asks before it may write:
+    a sealed-but-not-ready, superseded, or absent bundle is never proposed."""
+    repository_dir = root / CANDIDATES_DIRNAME / repository.replace("/", "__")
+    if not repository_dir.is_dir():
+        return None
+    verified = _verified_current(repository_dir)
+    if verified is None or verified[1].get("state") not in COUNTED_STATES:
+        return None
+    return verified[0]
 
 
 def examples_verification_summary(root: Path) -> tuple[int, int]:

@@ -3241,3 +3241,186 @@ def test_monitor_refuses_an_owner_with_no_enabled_entry(
     assert code == EXIT_USAGE
     assert reader.calls == []
     assert "no enabled registry entries for owner aspose-nope-foss" in capsys.readouterr().err
+
+
+def _scheduled_project(root: Path) -> Path:
+    """A project root the scheduled sealing commands read: cursor, registry, prompt manifests."""
+    write_cursor(root)
+    (root / "data").mkdir()
+    shutil.copy(REPO_ROOT / "data" / "registry.json", root / "data" / "registry.json")
+    shutil.copytree(REPO_ROOT / "prompts", root / "prompts")
+    return root
+
+
+def test_sealing_plan_selects_the_first_three_drifted_enabled_repositories(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = _scheduled_project(tmp_path / "project")
+    enabled = sorted(
+        entry.repository
+        for entry in load_registry(root / "data" / "registry.json").entries
+        if entry.mode != "disabled"
+    )
+    contract = {
+        "schema_version": 1,
+        "repositories": [
+            {"repository": repository, "status": "DRIFTED"} for repository in reversed(enabled[:5])
+        ]
+        + [{"repository": enabled[5], "status": "CURRENT"}],
+    }
+    drift = root / "drift" / "drift.json"
+    drift.parent.mkdir()
+    drift.write_text(json.dumps(contract), encoding="utf-8")
+    output = tmp_path / "github_output"
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    assert [
+        line for line in capsys.readouterr().out.splitlines() if line.startswith("selected:")
+    ] == [f"selected: {repository}" for repository in enabled[:3]]
+    lines = output.read_text(encoding="utf-8").splitlines()
+    assert [line.split("=", 1)[0] for line in lines] == [
+        "repositories",
+        "has_work",
+        "publishable",
+        "has_publishable",
+    ]
+    assert lines[1] == "has_work=true"
+
+
+PAUSE_VARIABLE = "REPOSITORY_PRESENTER_SEALING_PAUSED"
+
+
+def _drifted_project(tmp_path: Path) -> Path:
+    """A scheduled project whose drift file reports five drifted, enabled repositories."""
+    root = _scheduled_project(tmp_path / "project")
+    enabled = sorted(
+        entry.repository
+        for entry in load_registry(root / "data" / "registry.json").entries
+        if entry.mode != "disabled"
+    )
+    drift = root / "drift" / "drift.json"
+    drift.parent.mkdir()
+    contract = {
+        "schema_version": 1,
+        "repositories": [{"repository": r, "status": "DRIFTED"} for r in enabled[:5]],
+    }
+    drift.write_text(json.dumps(contract), encoding="utf-8")
+    return root
+
+
+def _plan_outputs(output: Path) -> dict[str, str]:
+    return dict(line.split("=", 1) for line in output.read_text(encoding="utf-8").splitlines())
+
+
+def test_a_paused_sealing_plan_selects_nothing_and_says_why(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = _drifted_project(tmp_path)
+    output = tmp_path / "github_output"
+    summary = tmp_path / "step_summary"
+    monkeypatch.setenv(PAUSE_VARIABLE, "1")
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    assert _plan_outputs(output) == {
+        "repositories": "[]",
+        "has_work": "false",
+        "publishable": "[]",
+        "has_publishable": "false",
+    }
+    out = capsys.readouterr().out
+    assert "sealing paused by owner variable" in out
+    assert "selected:" not in out
+    assert "sealing paused by owner variable" in summary.read_text(encoding="utf-8")
+
+
+def test_a_paused_sealing_plan_needs_no_drift_file_and_reads_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The switch is checked first: a missing drift file is not an error while paused."""
+    root = _scheduled_project(tmp_path / "project")
+    output = tmp_path / "github_output"
+    monkeypatch.setenv(PAUSE_VARIABLE, "1")
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    assert _plan_outputs(output)["has_work"] == "false"
+    assert "drift monitor output not found" not in capsys.readouterr().err
+
+
+def test_an_unset_pause_variable_plans_the_seal_matrix_as_before(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _drifted_project(tmp_path)
+    output = tmp_path / "github_output"
+    monkeypatch.delenv(PAUSE_VARIABLE, raising=False)
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    outputs = _plan_outputs(output)
+    assert outputs["has_work"] == "true"
+    assert len(json.loads(outputs["repositories"])) == 3
+
+
+@pytest.mark.parametrize("value", ["", "0", "true", "yes", " 1", "1 ", "2"])
+def test_a_pause_value_other_than_one_does_not_pause(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value: str
+) -> None:
+    root = _drifted_project(tmp_path)
+    output = tmp_path / "github_output"
+    monkeypatch.setenv(PAUSE_VARIABLE, value)
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    outputs = _plan_outputs(output)
+    assert outputs["has_work"] == "true"
+    assert len(json.loads(outputs["repositories"])) == 3
+
+
+def test_sealing_plan_without_the_drift_monitor_output_is_a_named_usage_failure(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = _scheduled_project(tmp_path / "project")
+    code = main(["sealing-plan", "--root", str(root)])
+    captured = capsys.readouterr()
+    assert code == 2
+    assert captured.out == ""
+    assert "drift monitor output not found" in captured.err
+
+
+def test_sealing_plan_refuses_to_run_under_a_model_other_than_qwen3_next(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _scheduled_project(tmp_path / "project")
+    drift = root / "drift.json"
+    drift.write_text(json.dumps({"schema_version": 1, "repositories": []}), encoding="utf-8")
+    monkeypatch.setenv("GPT_OSS_MODEL", "gpt-oss")
+    code = main(["sealing-plan", "--root", str(root), "--drift-file", str(drift)])
+    captured = capsys.readouterr()
+    assert code == 2
+    assert "would switch the sealing model" in captured.err
+    assert "selected" not in captured.out and "sealing:" not in captured.out
+
+
+def test_sealed_ready_exits_zero_only_for_a_bundle_ready_for_proposal(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = _scheduled_project(tmp_path / "project")
+    repository = "aspose-x-foss/Aspose.X-FOSS-for-Python"
+    directory = "aspose-x-foss__Aspose.X-FOSS-for-Python"
+    write_bundle(root, directory, REVISION, "ACCEPTED")
+    assert main(["sealed-ready", "--repo", repository, "--root", str(root)]) == EXIT_INCONSISTENT
+    assert "no CURRENT bundle in READY_FOR_PROPOSAL" in capsys.readouterr().out
+    write_bundle(root, directory, REVISION, "READY_FOR_PROPOSAL")
+    assert main(["sealed-ready", "--repo", repository, "--root", str(root)]) == EXIT_OK
+    assert f"CURRENT {REVISION} is READY_FOR_PROPOSAL" in capsys.readouterr().out

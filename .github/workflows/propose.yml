@@ -3,9 +3,15 @@
 # proposal pull request on a target repository. Separately authorized from `present.yml`/
 # `monitor.yml` in every way that matters:
 #
-#   - trigger: workflow_dispatch only, with required inputs naming the exact target - never a
-#     schedule, never implicit from another workflow's success (G7-W06 wires unattended proposing
-#     only after this mechanism is observed stable, per EXECUTION_STATE_MACHINE.md G7).
+#   - trigger: workflow_dispatch, with required inputs naming the exact target, or workflow_call
+#     from sealing-scheduled.yml (G7-W06 work item 3), the one unattended path. That caller job runs
+#     only when the owner variable REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED is exactly "1",
+#     and passes `candidate_artifact`: the bundle the same run just sealed and exported, which
+#     replaces candidates/<slug> on each job's checkout wholesale (never the committed CURRENT,
+#     which may be stale against the upstream head). The authorization record for that exact
+#     sealed candidate is located by its name (`record_filename`: repository and candidate hash),
+#     never created here; if no merged record exists for it, nothing is proposed and that is an
+#     ordinary outcome, not a failure. Everything below applies unchanged to both triggers.
 #   - two jobs, two trust levels (docs/STATE_MACHINE.md section 12: analysis and proposal
 #     execution are separate jobs):
 #       `dry-run`  validates every dispatch input, then reports the plan and whether the committed
@@ -72,6 +78,29 @@ on:
         required: false
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      repo:
+        description: "Target repository (OWNER/NAME), as listed in the registry; the scheduled sealing run's per-repository target"
+        required: true
+        type: string
+      base_branch:
+        description: "Override the target's default branch; read live from GitHub when left blank"
+        required: false
+        type: string
+      authorization_record:
+        description: "Path to the committed authorization record; leave blank to locate the record for exactly the sealed candidate"
+        required: false
+        type: string
+      do_propose:
+        description: "False is a dry run (writes nothing); true attempts the write"
+        required: false
+        type: boolean
+        default: false
+      candidate_artifact:
+        description: "Name of the sealed-bundle artifact this run exported (sealed-<owner>__<name>); blank for a manual dispatch"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -95,7 +124,11 @@ jobs:
       name: ${{ steps.validate.outputs.name }}
       repo: ${{ steps.validate.outputs.repo }}
       base_branch: ${{ steps.validate.outputs.base_branch }}
-      authorization_record: ${{ steps.validate.outputs.authorization_record }}
+      # The record the run proceeds with: the validated input, or (scheduled calls) the one located for
+      # exactly the sealed candidate; `proceed` is false when there is nothing to propose.
+      authorization_record: ${{ steps.record.outputs.authorization_record }}
+      proceed: ${{ steps.record.outputs.proceed }}
+      candidate_artifact: ${{ steps.validate.outputs.candidate_artifact }}
     steps:
       # First, before checkout or any install: nothing the dispatcher typed is used until it has
       # passed. Values arrive only through env: and are only ever expanded as quoted variables. The
@@ -107,6 +140,7 @@ jobs:
           INPUT_BASE_BRANCH: ${{ inputs.base_branch }}
           INPUT_AUTHORIZATION_RECORD: ${{ inputs.authorization_record }}
           INPUT_DO_PROPOSE: ${{ inputs.do_propose }}
+          INPUT_CANDIDATE_ARTIFACT: ${{ inputs.candidate_artifact }}
         run: |
           set -euo pipefail
           fail() {
@@ -147,8 +181,15 @@ jobs:
               || fail authorization_record "must be ops/proposal-authorizations/<name>.json"
             [ "${#INPUT_AUTHORIZATION_RECORD}" -le 200 ] \
               || fail authorization_record "is too long"
-          elif [ "$INPUT_DO_PROPOSE" = "true" ]; then
+          elif [ "$INPUT_DO_PROPOSE" = "true" ] && [ -z "$INPUT_CANDIDATE_ARTIFACT" ]; then
             fail authorization_record "is required when do_propose is checked"
+          fi
+
+          # candidate_artifact: only the sealed-bundle artifact a scheduled caller exported
+          # (sealed-<owner>__<name>), and only for the target named by repo.
+          if [ -n "$INPUT_CANDIDATE_ARTIFACT" ]; then
+            [ "$INPUT_CANDIDATE_ARTIFACT" = "sealed-${owner}__${name}" ] \
+              || fail candidate_artifact "must be sealed-<owner>__<name> of the target repo"
           fi
 
           {
@@ -157,6 +198,7 @@ jobs:
             echo "repo=$INPUT_REPO"
             echo "base_branch=$INPUT_BASE_BRANCH"
             echo "authorization_record=$INPUT_AUTHORIZATION_RECORD"
+            echo "candidate_artifact=$INPUT_CANDIDATE_ARTIFACT"
           } >> "$GITHUB_OUTPUT"
 
       # Full depth: the command reads the authorization record's merge provenance from git history.
@@ -186,10 +228,53 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements-lock.txt
           python -m pip install --disable-pip-version-check --no-deps -e .
 
+      # Scheduled proposals only (candidate_artifact set): the bundle this run sealed replaces this
+      # repository's candidates/ directory on the checkout, wholesale - never merged with the
+      # committed copy on main, which may be stale against the upstream head this run sealed. A
+      # manual dispatch (no artifact) runs none of these gate steps and changes nothing.
+      - name: Import the bundle this run sealed (scheduled proposals only)
+        id: import
+        if: ${{ steps.validate.outputs.candidate_artifact != '' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.validate.outputs.candidate_artifact }}
+          path: ${{ runner.temp }}/sealed-import
+
+      # Fail closed: a repository with no bundle exported by this run, or whose bundle is not
+      # READY_FOR_PROPOSAL, is not proposed. That is an ordinary outcome (nothing to propose), not a
+      # failed job, so the remaining repositories of a scheduled run are unaffected.
+      - name: Require a READY_FOR_PROPOSAL bundle from this run
+        id: ready
+        if: ${{ steps.validate.outputs.candidate_artifact != '' }}
+        env:
+          REPOSITORY: ${{ steps.validate.outputs.repo }}
+          IMPORT_OUTCOME: ${{ steps.import.outcome }}
+          IMPORT_DIR: ${{ runner.temp }}/sealed-import
+        run: |
+          set -eu
+          slug="${REPOSITORY%%/*}__${REPOSITORY#*/}"
+          if [ "$IMPORT_OUTCOME" != "success" ]; then
+            echo "no bundle was sealed and exported for $REPOSITORY in this run; nothing to propose"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          rm -rf "candidates/$slug"
+          mkdir -p "candidates/$slug"
+          cp -r "$IMPORT_DIR/." "candidates/$slug/"
+          if repository-presenter sealed-ready --repo "$REPOSITORY"; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "$REPOSITORY is not READY_FOR_PROPOSAL in this run; nothing to propose"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # Read-only, by explicit permission-* inputs: the dry run reads the target's current revision
-      # and writes nothing. Scoped to exactly the one target repository.
+      # and writes nothing. Scoped to exactly the one target repository. Skipped, for a scheduled
+      # call, when there is no READY_FOR_PROPOSAL bundle: nothing is read or proposed.
       - name: Mint a read-only installation token, scoped to this target repository alone
         id: read-token
+        if: ${{ steps.validate.outputs.candidate_artifact == '' || steps.ready.outputs.ready == 'true' }}
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.GH_APP_ID }}
@@ -199,12 +284,60 @@ jobs:
           permission-contents: read
           permission-metadata: read
 
+      # Decides which authorization record, if any, this run proceeds with. It reads no token and
+      # makes no GitHub call. A manual dispatch passes its validated input through. A scheduled call
+      # locates the record for exactly the sealed candidate by its canonical name (`record_filename`:
+      # owner__name__<first 12 of the candidate hash>.json), hashing the sealed README with the
+      # project's own `sha256_text`, so a record for any other text never matches. This step never
+      # creates or edits a record; whether the located record is genuine (merged to origin/main
+      # before the trigger commit) is the command's own verification, below and again in `write`.
+      # No record, or no READY bundle, is an ordinary "nothing to propose" outcome.
+      - name: Decide the authorization record for this run
+        id: record
+        env:
+          CANDIDATE_ARTIFACT: ${{ steps.validate.outputs.candidate_artifact }}
+          READY: ${{ steps.ready.outputs.ready }}
+          INPUT_RECORD: ${{ steps.validate.outputs.authorization_record }}
+          OWNER: ${{ steps.validate.outputs.owner }}
+          NAME: ${{ steps.validate.outputs.name }}
+        run: |
+          set -euo pipefail
+          emit() {
+            {
+              echo "authorization_record=$1"
+              echo "proceed=$2"
+            } >> "$GITHUB_OUTPUT"
+          }
+          if [ -z "$CANDIDATE_ARTIFACT" ]; then
+            emit "$INPUT_RECORD" true
+            exit 0
+          fi
+          if [ "$READY" != "true" ]; then
+            emit "" false
+            exit 0
+          fi
+          if [ -n "$INPUT_RECORD" ]; then
+            emit "$INPUT_RECORD" true
+            exit 0
+          fi
+          bundle_dir="candidates/${OWNER}__${NAME}"
+          revision=$(cat "$bundle_dir/CURRENT")
+          hash=$(python -c 'import pathlib, sys; from repository_presenter.core.hashing import sha256_text; print(sha256_text(pathlib.Path(sys.argv[1]).read_bytes().decode("utf-8")))' "$bundle_dir/$revision/README.md")
+          record="ops/proposal-authorizations/${OWNER}__${NAME}__${hash:0:12}.json"
+          if [ -f "$record" ] && [ ! -L "$record" ]; then
+            emit "$record" true
+          else
+            echo "no authorization record exists for this exact candidate; nothing to propose"
+            emit "" false
+          fi
+
       - name: Dry run - report the plan and the authorization decision, no write
+        if: ${{ steps.record.outputs.proceed == 'true' }}
         env:
           GH_TOKEN: ${{ steps.read-token.outputs.token }}
           REPO: ${{ steps.validate.outputs.repo }}
           BASE_BRANCH: ${{ steps.validate.outputs.base_branch }}
-          AUTHORIZATION_RECORD: ${{ steps.validate.outputs.authorization_record }}
+          AUTHORIZATION_RECORD: ${{ steps.record.outputs.authorization_record }}
           TRIGGER_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
@@ -228,7 +361,9 @@ jobs:
   write:
     name: Propose README to ${{ inputs.repo }}
     needs: dry-run
-    if: ${{ inputs.do_propose && needs.dry-run.result == 'success' }}
+    # Also requires `proceed`: the dry run found a READY bundle (scheduled) and an authorization
+    # record, or a manual dispatch passed one. Anything else writes nothing.
+    if: ${{ inputs.do_propose && needs.dry-run.result == 'success' && needs.dry-run.outputs.proceed == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # The checkout's own grant only; the write capability is the App installation token below.
@@ -252,6 +387,29 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check -r requirements-lock.txt
           python -m pip install --disable-pip-version-check --no-deps -e .
+
+      # Scheduled proposals: this job runs on its own runner, so it imports the same sealed bundle
+      # again and re-requires READY_FOR_PROPOSAL; a mismatch with `dry-run` is a defect, not a skip.
+      - name: Import the bundle this run sealed (scheduled proposals only)
+        id: import
+        if: ${{ needs.dry-run.outputs.candidate_artifact != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.dry-run.outputs.candidate_artifact }}
+          path: ${{ runner.temp }}/sealed-import
+
+      - name: Require the same READY_FOR_PROPOSAL bundle
+        if: ${{ needs.dry-run.outputs.candidate_artifact != '' }}
+        env:
+          REPOSITORY: ${{ needs.dry-run.outputs.repo }}
+          IMPORT_DIR: ${{ runner.temp }}/sealed-import
+        run: |
+          set -eu
+          slug="${REPOSITORY%%/*}__${REPOSITORY#*/}"
+          rm -rf "candidates/$slug"
+          mkdir -p "candidates/$slug"
+          cp -r "$IMPORT_DIR/." "candidates/$slug/"
+          repository-presenter sealed-ready --repo "$REPOSITORY"
 
       # Scoped to exactly the one target repository; never the whole App installation. The
       # permission-* inputs are the minimum the effect uses: contents write (branch refs and the
