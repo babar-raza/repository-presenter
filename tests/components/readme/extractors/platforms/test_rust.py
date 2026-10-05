@@ -402,7 +402,6 @@ def test_the_plugin_imports_no_sibling_ecosystem() -> None:
                 "pathlib",
                 "typing",
                 "__future__",
-                "tree_sitter_language_pack",
                 "repository_presenter.components.readme.extractors.platforms.rust",
             )
         )

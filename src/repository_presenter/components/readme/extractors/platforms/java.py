@@ -35,6 +35,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
 )
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
 JAVA: Final = EcosystemSpec(
@@ -460,8 +461,6 @@ class JavaPlugin:
         (`org.aspose.slides.foss.internal.*`) and its README mentions it nowhere - so parity holds
         with the exclusion on and the default stands for this cohort.
         """
-        from tree_sitter_language_pack import get_parser
-
         symbols = surface_symbols(
             get_parser(_PARSER_LANGUAGE),
             _PARSER_LANGUAGE,
