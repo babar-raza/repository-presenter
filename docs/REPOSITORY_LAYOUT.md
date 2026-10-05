@@ -53,7 +53,8 @@ src/repository_presenter/
       proposal.py              the persisted README-proposal authorization record (G6-W02): repository, candidate hash, source revision, base and presenter branch, approver, window, explicit re-proposal list; loaded from `ops/proposal-authorizations/` and re-validated against the candidate, never agent-produced
       record_provenance.py     proves a record was merged to origin/main before the commit the consuming run was triggered at, so a run cannot authorize itself
       refusals.py              the typed refusal codes (and WriteRefusedError) every write path reports
-    candidates.py            sealed-bundle counting (already built)
+    candidates.py            sealed-bundle counting (already built); ready_revision() is the one proposal-time question: is CURRENT a verified READY_FOR_PROPOSAL bundle
+    sealing_plan.py          the unattended sealing run's plan (G7-W06 work item 3): DRIFTED-only, enabled, registry-listed selection, cap 3, sorted; qwen3-next-only guard; reads the drift monitor's output through its file contract alone
     secrets.py               secret-canary scanning (already built)
   components/issues/         workstream 3 (docs/investigations/03-issue-tracking.md); tracks confirmed upstream defects and, per PRODUCTION_ROADMAP.md's WS2 ruling, missing community/contribution/licensing/security files as findings; never README-specific; read+local-JSON only except file.py's own gated write
     model.py                  the typed shape of one handoff artifact

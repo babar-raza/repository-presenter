@@ -145,6 +145,7 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled kill switch for the issue filing and closing writes (`file-upstream-defects --file`, `redetect-upstream-defects --close`): unset or not `1` disables every write; `1` never authorizes a filing by itself (that needs the handoff's own `ops/issue_approvals/` record), and a token's mere presence never implies it. In CI it is set only from the repository variable of the same name, on the gated write job |
 | `GH_PROPOSAL_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`/`GH_METADATA_WRITE_TOKEN`/`GH_ISSUES_WRITE_TOKEN`; only `propose --propose` reads it, and only after `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `propose --propose`'s write; a token's mere presence never implies this |
+| `REPOSITORY_PRESENTER_SEALING_PAUSED` | optional | Owner pause switch for the scheduled sealing run (`sealing-scheduled.yml`, a repository Actions variable): exactly `1` makes `sealing-plan` report `has_work=false` with the notice "sealing paused by owner variable" (also written to the step summary), so no seal or propose leg starts; unset or any other value leaves sealing enabled, bounded by the three-repositories-per-run cap |
 
 `GPT_OSS_ENDPOINT` and `GPT_OSS_API_KEY` are required even for `present --facts-only`: the gateway
 configuration loads before that flag's short-circuit.
@@ -174,6 +175,8 @@ repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
 repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
 repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N]
+repository-presenter sealing-plan [--root PATH] [--drift-file PATH] [--github-output PATH]
+repository-presenter sealed-ready --repo OWNER/NAME [--root PATH]
 ```
 
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
@@ -286,6 +289,16 @@ repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver N
   `ops/proposal-authorizations/` (`--expires-in-hours` sets its window, at most 168;
   `--supersedes-pr N` explicitly permits a re-proposal after that merged or closed PR). Drafting
   authorizes nothing: the record counts only once a person has merged it.
+- **`sealing-plan`** — the unattended sealing run's planner (G7-W06). Reads the drift monitor's
+  output file (`--drift-file`, default `drift/drift.json`, root-relative) and selects only `DRIFTED`
+  repositories that the registry lists and does not mark `disabled`, in sorted order, at most three
+  per run; the rest are deferred. Refuses to plan at all when a prompt manifest routes to any model
+  other than `qwen3-next` or `GPT_OSS_MODEL` names one. Makes no provider and no GitHub call.
+  `--github-output` appends the `repositories`, `has_work`, `publishable`, and `has_publishable` step
+  outputs that `.github/workflows/sealing-scheduled.yml` reads.
+- **`sealed-ready --repo OWNER/NAME`** — exits 0 only when the repository's `CURRENT` sealed bundle
+  verifies and is `READY_FOR_PROPOSAL`; exits 1 otherwise, naming why. The scheduled workflow uses
+  it to export a bundle for the gated proposal job and to refuse to propose anything else.
 - `--root PATH` — project root holding `project/state.yaml`; discovered from the working directory
   when omitted.
 
