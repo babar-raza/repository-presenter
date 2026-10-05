@@ -271,6 +271,8 @@ lie inside the new enum. Not yet confirmed on a live draw of sighting #3's repos
 
 **Id** REV-V1-01 · **Severity** Critical · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 1 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: grep shows `is_permitted` has a production caller in `run_propose` (and in the effect path) and a test that a `dry_run` and a `disabled` entry are each refused before any write call; `grep -rn is_permitted src/` returns more than the definition.
 
+**Work item** G6-W05 / H-17 · **Verified status 2026-10-05** LANDED: #241 (registry write gate `core/registry/write_gate.py`; propose, metadata apply and issue filing call it). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `propose.candidate_state_and_registry_not_checked` (REV-V1-02)
 
 `run_propose` reads `--readme-file` directly with no `load_registry` / `require_listed`; the default path consults the registry but only tests that `CURRENT` and `README.md` exist, never `manifest.json`'s `state`. `core/candidates.py` (`COUNTED_STATES = {READY_FOR_PROPOSAL}`) documents that `CURRENT` can point at a revision that is not `READY_FOR_PROPOSAL`. Reproduced on live data: `candidates/aspose-slides-foss__Aspose.Slides-FOSS-for-Java/CURRENT` is `620a2614...` whose manifest state is `VALID_UPDATE_AVAILABLE`, so the default path would propose that non-final candidate. `.github/workflows/propose.yml` takes `repo` and `readme_file` as free-text `workflow_dispatch` strings with no registry or state pre-check.
@@ -284,6 +286,8 @@ lie inside the new enum. Not yet confirmed on a live draw of sighting #3's repos
 
 **Id** REV-V1-02 · **Severity** Critical · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 2 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a test shows `run_propose` refuses a `CURRENT` whose manifest state is not `READY_FOR_PROPOSAL` (using the Slides-Java shape above), and refuses a `--readme-file` for a repository that is not a registry entry permitted by `is_permitted`; `grep -n READY_FOR_PROPOSAL src/repository_presenter/cli.py` finds the gate.
 
+**Work item** G6-W05 / H-17 · **Verified status 2026-10-05** LANDED: #241 (only a verified READY_FOR_PROPOSAL CURRENT bundle at the live revision; `--readme-file` replaced by the dry-run-only `--local-test-readme-file`); #229 (dispatch inputs validated). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `propose.workflow_shell_injection_and_shared_write_token_job` (REV-V1-03)
 
 `.github/workflows/propose.yml` substitutes `${{ inputs.repo }}`, `inputs.expires_in_minutes`, `inputs.readme_file`, `inputs.source_revision` and `inputs.base_branch` directly into `run:` script text before bash parses it (the standard GitHub Actions script-injection class; YAML-level quoting does not help). The file has one job, `propose`, which holds the untrusted-input steps, the dry run, and the write-scoped App token mint (`actions/create-github-app-token@v2`), so injected shell runs with the write token reachable in the same runner.
@@ -294,6 +298,8 @@ lie inside the new enum. Not yet confirmed on a live draw of sighting #3's repos
 | 2 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/propose.yml:70-71,117,134` (single `propose` job; token mint and `GH_PROPOSAL_WRITE_TOKEN` in the same job) |
 
 **Id** REV-V1-03 · **Severity** Critical · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 3 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -n 'inputs\.' .github/workflows/propose.yml` shows each input reaches `run:` only through an `env:` mapping (never inline), the dry run and the token-minting write step are separate jobs with the mint in the write job only, and a workflow-audit test in `tests/` asserts both.
+
+**Work item** G6-W05 / H-17 · **Verified status 2026-10-05** LANDED: #229 (dispatch inputs through `env:`, strict allow-patterns, a dry-run job and a separate write job). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `propose.authorization_self_minted_self_validated` (REV-V1-04)
 
@@ -307,6 +313,8 @@ lie inside the new enum. Not yet confirmed on a live draw of sighting #3's repos
 
 **Id** REV-V1-04 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 4 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `propose_candidate` accepts an authorization record loaded from a source the author path cannot write (a sealed-bundle approval or a separate approver artifact), a test shows a record whose `candidate_hash` was not independently approved is refused, and a test shows a record minted in the same process without that approval is refused.
 
+**Work item** G6-W05 / H-17 · **Verified status 2026-10-05** LANDED: #241 (reviewed record under `ops/proposal-authorizations/`, accepted only if merged before the trigger commit). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `propose.app_only_token_is_workflow_convention` (REV-V1-05)
 
 PARTIAL: the claim that the code accepts any `GH_TOKEN` is wrong. The write path reads only `GH_PROPOSAL_WRITE_TOKEN` and `effect.py` states it refuses `GH_TOKEN`. The surviving part is real: nothing in code checks that the value in `GH_PROPOSAL_WRITE_TOKEN` is a GitHub App installation token (`effect.py` documents App tokens only 'in principle'; there is no prefix or claims check in `core/github/client.py` or `effect.py`). The 'App only' guarantee therefore lives in the `propose.yml` mint step, so a local or differently authored run with a hand-set PAT is treated identically.
@@ -318,6 +326,8 @@ PARTIAL: the claim that the code accepts any `GH_TOKEN` is wrong. The write path
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/propose.yml:115-125` (the only enforcement) |
 
 **Id** REV-V1-05 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 5 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: either a runtime check that rejects a non-App-installation token before any write (a test with a PAT-shaped value is refused), or a documented decision that the YAML-only guarantee is accepted, with the audit test that pins the mint step; a grep of `src/repository_presenter/components/propose/` for the token-shape check shows which.
+
+**Work item** G6-W05 / H-17 · **Verified status 2026-10-05** PARTIAL: landed #241 (installation token scoped to the target; App id attested on the PR the token produces, after the first write); open: no pre-write proof that the token is an App token, which GitHub does not expose. Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `metadata.description_overwrite_and_topics_full_replace` (REV-V1-06)
 
@@ -331,6 +341,8 @@ PARTIAL: the claim that the code accepts any `GH_TOKEN` is wrong. The write path
 
 **Id** REV-V1-06 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 6 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a test shows an existing non-empty maintainer description is not overwritten without an explicit owner decision, and a test shows `apply` merges the observed topics into the proposed set (union) rather than replacing them; `grep -rn replace_topics src/` shows the caller passes a union.
 
+**Work item** G6-W05 / H-17 · **Verified status 2026-10-05** LANDED: #240 (description replaced only when weak; topics merged, never replaced; live re-read before write). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `issues.filing_global_gate_no_per_handoff_approval` (REV-V1-07)
 
 `issues-scheduled.yml`'s `file-and-close` job is gated only by `vars.REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED == '1'` and fans out over every repository with a `HANDOFF_PENDING` or `FILED` handoff (`_ACTIONABLE_STATES`). When omitted, `file-upstream-defects --repo` files every `HANDOFF_PENDING` handoff. Live data: the Aspose.HTML-FOSS-for-Python and Aspose.TeX-FOSS-for-Python handoffs are both `HANDOFF_PENDING` today, so one repository variable set to `1` would file both as real issues against real `aspose-*-foss` repositories in one scheduled run with no review of either body.
@@ -343,6 +355,8 @@ PARTIAL: the claim that the code accepts any `GH_TOKEN` is wrong. The write path
 
 **Id** REV-V1-07 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 7 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: filing requires a per-handoff approval recorded outside the filing job (a handoff-level field or approval artifact checked by `file-upstream-defects --file`), a test shows an unapproved `HANDOFF_PENDING` handoff is not filed when the global variable is `1`, and the workflow matrix is restricted to approved handoffs.
 
+**Work item** G6-W05 / H-17 · **Verified status 2026-10-05** PARTIAL: landed #237 (per-handoff owner approval for filing); in flight #257 (the `--close` gate); named follow-up in #257: filing token provenance, not started. Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `propose.pr_lookup_open_only_recreates_merged_pr` (REV-V1-08)
 
 `find_open_pull_request` queries `pulls?head=...&state=open`, and `propose_candidate` calls `create_pull_request` whenever no open PR is found, with no check of closed or merged PR history for the head branch. The presenter branch name is a constant (`presenter_branch_name()` returns `PRESENTER_BRANCH`), so after a presenter PR is merged or closed the next run that finds no open PR opens a duplicate PR for content already merged or declined upstream. `create_pull_request`'s own docstring treats 'none open' as 'never existed'.
@@ -353,6 +367,8 @@ PARTIAL: the claim that the code accepts any `GH_TOKEN` is wrong. The write path
 | 2 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/propose/effect.py:301-317` (create when `existing_pr is None`); `effect.py:97-102` (constant branch) |
 
 **Id** REV-V1-08 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V1 item 8 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05 and still holding. Fixes are tracked by the 'write-path hardening' work items; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a test shows that when a closed or merged PR exists for the presenter head branch, `propose_candidate` does not create a new PR and reports the prior outcome; `grep -n 'state=' src/repository_presenter/core/github/client.py` shows the lookup covers `state=all` (or a separate closed lookup) for the head branch.
+
+**Work item** G6-W05 / H-17 · **Verified status 2026-10-05** LANDED: #241 (`state=all` PR history before any write; a merged or closed PR is not recreated unless the record names it). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `snapshot.community_paths_dead_code` (REV-V4-01)
 
@@ -366,6 +382,8 @@ PARTIAL: the claim that the code accepts any `GH_TOKEN` is wrong. The write path
 
 **Id** REV-V4-01 · **Severity** Low · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 1 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -rn community_paths src/` shows a production reader outside `inventory.py` (for example the metadata or community-file component), or the field is removed with its test; either way a reviewer finds no write-only field.
 
+**Work item** G4-W18 / H-23 · **Verified status 2026-10-05** NOT-STARTED: no PR (`FileInventory.community_paths` has no reader). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `github.no_releases_audit_no_product_agent_ingest` (REV-V4-02)
 
 `core/github/client.py` and `read_client.py` enumerate every REST call the project makes (repos, topics, issues, git refs, contents, pulls, commits, trees); there is no `/releases` call and no stargazers, forks or watchers read anywhere in `src/`. `schemas/facts.schema.json` has no `release` field. `plans/idea.md` ('Product Agents', lines 466-478) says product agents supply release changes to the central agent and names `ProductFactsV2` as the mechanism, but `ProductFactsV2` has no implementation in `src/` or `schemas/`. The WS2 ruling (2026-09-17, `docs/DECISION_LOG.md:3681`) records the Releases and package-links audit as a priority 'not yet built' and GitHub-generated-metadata auditing as plan-only.
@@ -378,6 +396,8 @@ PARTIAL: the claim that the code accepts any `GH_TOKEN` is wrong. The write path
 
 **Id** REV-V4-02 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 2 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -rn '/releases' src/repository_presenter/core/github/` shows a read-only releases audit with a test, a `release` fact kind exists in `schemas/facts.schema.json` with an extractor, and `ProductFactsV2` has a schema and an ingest path or an owner decision withdrawing it is recorded in section 31.
 
+**Work item** G4-W18 / H-23 · **Verified status 2026-10-05** OWNER-DECISION: OWNER-17 (scope of the Releases audit and the product-agent ingest contract). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `assets.visual_assets_social_preview_deferred` (REV-V4-03)
 
 No `social_preview` or `visual_asset` code exists in `src/`. `plans/idea.md:513-522` ('Visual Assets and Social Preview') makes this part of the central agent's intended responsibility but not required for the initial pilot, treats the social preview as a manual-UI surface until GitHub documents a supported automation, and `plans/idea.md:535-536` places full delivery outside the README POC's required scope. The absence matches the authority's own deferral, so this is informational, logged so the intended-but-unbuilt capability stays visible.
@@ -388,6 +408,8 @@ No `social_preview` or `visual_asset` code exists in `src/`. `plans/idea.md:513-
 | 2 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:513-522,535-536` (deferral) |
 
 **Id** REV-V4-03 · **Severity** Low · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 3 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a reviewer confirms `plans/idea.md:513-536` still defers the capability (then this entry stays informational), or a component exists under `components/` registered in `docs/REPOSITORY_LAYOUT.md` with a test and a manual-UI step recorded for the social preview.
+
+**Work item** G4-W18 / H-23 · **Verified status 2026-10-05** OWNER-DECISION: OWNER-17 (visuals and social preview are deferred by `plans/idea.md`; un-defer is the owner's). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `prompts.registry_lacks_owner_dependency_hash_and_inline_scan` (REV-V4-04)
 
@@ -401,6 +423,8 @@ No `social_preview` or `visual_asset` code exists in `src/`. `plans/idea.md:513-
 
 **Id** REV-V4-04 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 4 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `schemas/prompt-manifest.schema.json` and `PromptManifest` both define `owner` and a dependency hash, every manifest under `prompts/` carries them, and a test fails when `src/` contains a prompt-like literal outside a manifest (a negative control that plants one).
 
+**Work item** G7-W08 / H-24 · **Verified status 2026-10-05** NOT-STARTED: no PR (prompt owner and dependency-hash fields, inline-prompt scan). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `tests.stale_known_blocked_entries_and_registry_contradiction_control_gap` (REV-V4-05)
 
 PARTIAL, recorded as the verifier narrowed it. EXACT: `tests/test_sealed_bytes.py:129-232` holds exactly three live `KNOWN_BLOCKED_STALE` entries, `aspose-cells-foss__Aspose.Cells-FOSS-for-.NET` (item 65, since 2026-09-11) and `aspose-3d-foss__Aspose.3D-FOSS-for-Python` and `aspose-slides-foss__Aspose.Slides-FOSS-for-Python` (item 69, since 2026-09-16); five sibling item-69 entries were removed on real re-seals between 2026-09-23 and 2026-10-01 and these three have not had that re-seal. OVERSTATED: the claim that Go, .NET and Rust lack negative controls is wrong for Rust, which has a contradiction control at `tests/components/readme/extractors/platforms/test_rust.py:308-342` (`test_a_crate_the_registry_does_not_carry_contradicts_the_install_claim`, asserting `polarity == "CONTRADICTED"`). The real gap is one specific case, a registry 'not found' observation that contradicts the install claim: `test_go.py` and `test_net.py` only assert the weaker 'unreadable registry is UNRESOLVED, never CONTRADICTED' shape (`test_go.py:240-305`, `test_net.py:256-292`), and the same gap exists for Java and TypeScript, so it is not unique to Go and .NET. Go and .NET still carry other negative controls (unreadable registry, missing manifest or toolchain, unparseable manifest).
@@ -413,6 +437,8 @@ PARTIAL, recorded as the verifier narrowed it. EXACT: `tests/test_sealed_bytes.p
 
 **Id** REV-V4-05 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 5 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `KNOWN_BLOCKED_STALE` in `tests/test_sealed_bytes.py` is empty or each remaining entry names a dated owner decision, and the Go, .NET, Java and TypeScript platform tests each contain a registry-'not found' case asserting `CONTRADICTED` (grep `CONTRADICTED` in each `test_<ecosystem>.py`).
 
+**Work item** G7-W08 / H-24 · **Verified status 2026-10-05** PARTIAL: landed #235 (dated test debt, Go and .NET negative controls); open: Java and TypeScript controls and the re-seal of the three stale repositories. Still open, awaiting independent reverification; nothing here is marked fixed.
+
 **Fix in flight or landed:** PR #235 (merged on GitHub 2026-10-04; dated test debt and Go/.NET negative controls) - not yet reverified.
 
 ### `issues.redetect_imports_python_ecosystem_extractor` (REV-V4-06)
@@ -424,6 +450,8 @@ PARTIAL, recorded as the verifier narrowed it. EXACT: `tests/test_sealed_bytes.p
 | 1 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/components/issues/redetect.py:58-61` (the import); self-documented at `redetect.py:17-20` |
 
 **Id** REV-V4-06 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 6 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -n 'extractors.platforms' src/repository_presenter/components/issues/redetect.py` returns nothing, registry observation goes through a registered per-ecosystem interface, and a test re-detects a non-Python handoff.
+
+**Work item** G7-W08 / H-24 · **Verified status 2026-10-05** LANDED: #235 (issues/extractor import boundary). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 **Fix in flight or landed:** PR #235 (merged on GitHub 2026-10-04; issues/extractor import boundary) - not yet reverified.
 
@@ -438,6 +466,8 @@ PARTIAL, recorded as the verifier narrowed it. EXACT: `tests/test_sealed_bytes.p
 
 **Id** REV-V4-07 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 7 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `grep -n 'repo_metadata\|upstream_defects/ledger' docs/PRODUCTION_ROADMAP.md` returns nothing, each cited path exists on disk, and `plans/idea.md` either maps `data/products.json` to `data/registry.json` in its authority note or no longer names it (owner decision, since `plans/idea.md` is the human authority).
 
+**Work item** G7-W08 / H-24 · **Verified status 2026-10-05** LANDED: #235 (`docs/PRODUCTION_ROADMAP.md` paths); the `plans/idea.md` `data/products.json` wording stays an owner edit. Still open, awaiting independent reverification; nothing here is marked fixed.
+
 **Fix in flight or landed:** PR #235 (merged on GitHub 2026-10-04; `docs/PRODUCTION_ROADMAP.md` path corrections only, `plans/idea.md` `data/products.json` left as an owner decision) - not yet reverified.
 
 ### `seal.ready_for_proposal_acceptance_profile_advisory` (REV-V4-08)
@@ -451,6 +481,8 @@ PARTIAL, recorded as the verifier narrowed it. EXACT: `tests/test_sealed_bytes.p
 
 **Id** REV-V4-08 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 8 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: either the owner ratifies the profile and a blocking check reads its score before `READY_FOR_PROPOSAL` (a test shows a below-threshold candidate is not sealed READY), or `docs/STATE_MACHINE.md` and the progress counter state that READY means 'blocking checks and no-op proof only'; the `seal.py` comment no longer says UNRATIFIED/ADVISORY without a matching doc statement.
 
+**Work item** G3-W02 / H-11 · **Verified status 2026-10-05** OWNER-DECISION: OWNER-13 (same ruling as REV-V2-02). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `status.docs_disagree_with_code` (REV-V4-09)
 
 Three concrete cases. (1) `project/state.yaml` G7-W05 (line 131): the 2026-10-01 claim that 'all six failure modes were exercised for real' was admitted overclaimed on 2026-10-04; the six exercises are unit-level only (`tests/core/state/test_recovery.py`, `tests/core/llm/test_jobs.py` via `httpx.MockTransport`) and no hosted run or live gateway exercise is recorded. (2) `project/state.yaml` G5-W04 (line 83): the purpose text says the durable-state backend is 'deliberately NOT wired' into `present`, and a 2026-10-04 correction (wiring audit, `origin/main` `ecdff0dc`) says that is stale because `present --durable-state` wraps one run and `.github/workflows/present.yml` sets the flag. (3) the stale paths in `docs/PRODUCTION_ROADMAP.md` (REV-V4-07). Items 1 and 2 are the project's own dated self-corrections, recorded here as evidence of the defect class; `project/state.yaml` is not edited by this entry.
@@ -462,6 +494,8 @@ Three concrete cases. (1) `project/state.yaml` G7-W05 (line 131): the 2026-10-01
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `docs/PRODUCTION_ROADMAP.md:30,31` (see REV-V4-07) |
 
 **Id** REV-V4-09 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 9 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `project/state.yaml` G5-W04's purpose text no longer says 'deliberately NOT wired', G7-W05's acceptance cites a hosted or live exercise for each of the six failure modes (or its status is lowered), and `docs/PRODUCTION_ROADMAP.md` cites only existing paths; a docs-vs-code audit (a test that every path named in the roadmap exists) passes.
+
+**Work item** H-05 (no cursor item) · **Verified status 2026-10-05** NOT-STARTED: no PR (cursor and status-claim corrections belong to the cursor owner). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `wiring.discovery_unreached_and_three_states_never_assigned` (REV-V4-10)
 
@@ -475,6 +509,8 @@ PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `tools/discovery/portf
 
 **Id** REV-V4-10 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V4 item 10 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05. Fixes are tracked by the owning work items named in the matching `docs/DECISION_LOG.md` entry (the 'write-path hardening' items for write-path findings); the fix PR will be named in a follow-up entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `portfolio_discovery` has a production importer (a CLI subcommand or workflow) with a test, or is removed per the reuse manifest; a real candidate manifest reaches `AWAITING_AUTHORIZATION`/`PROPOSING`/`MONITORING` through the effect path (a production-shaped proof against the disposable target), or the states are documented as reserved; the credential-gated write functions get their live proof under the active gate.
 
+**Work item** G4-W18 / H-23 · **Verified status 2026-10-05** PARTIAL: write functions wired (#241, #237, #240); open: discovery has no importer, three states are never assigned. Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `autonomy.drift_to_reseal_to_propose_chain_not_wired` (REV-V3-01)
 
 `.github/workflows/monitor.yml` triggers on `schedule` (every 6 hours) and `workflow_dispatch`, and its `drift` job's only effect is `actions/upload-artifact@v4` of `runs/monitor/`; it never calls `gh workflow run`, emits a `repository_dispatch`, or invokes `present.yml` or `propose.yml`. `present.yml` triggers on `workflow_dispatch` and `repository_dispatch` only (no `schedule:`), and `propose.yml` on `workflow_dispatch` only with a manual `repo` input. `plans/idea.md:317-319` (Gate B) requires 'reopen only drifted repositories at their earliest affected boundary, independently reseal every changed candidate'; the drift, reopen and reseal chain has no wiring.
@@ -486,6 +522,8 @@ PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `tools/discovery/portf
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:317-319` (Gate B) |
 
 **Id** REV-V3-01 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 1 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: G7-W06 (unattended scheduling) and the Gate B wiring; no separate work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `monitor.yml` (or a workflow it dispatches) triggers `present.yml` for each `DRIFTED` repository, a hosted run shows a drifted canary reopened and resealed without a manual dispatch, and `propose.yml` is still reachable only through the authorization gate.
+
+**Work item** G7-W07 / H-21 · **Verified status 2026-10-05** PARTIAL: landed #242 (`sealing-scheduled.yml`: drift to reseal to gated propose, owner pause variable); open: no schedule-fired hosted run yet shows a drifted canary resealed. Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `monitor.hosted_scheduled_run_red_app_installation_404` (REV-V3-02)
 
@@ -499,6 +537,8 @@ PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `tools/discovery/portf
 
 **Id** REV-V3-02 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 2 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: OWNER-04 (GitHub App installation across the registry organizations); the App must be installed for `aspose-html-foss`, or that owner's leg must be excluded or made non-fatal by an owner decision; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a scheduled `monitor.yml` run on `main` concludes `success` (or the `aspose-html-foss` leg is excluded by a recorded decision), checked with `gh run list --workflow=monitor.yml --event schedule`; and `gh api` for the App installation on `aspose-html-foss` returns 200.
 
+**Work item** G7-W07 / H-21 · **Verified status 2026-10-05** PARTIAL: landed #228 (missing App installation is a notice); open: the scheduled runs of 2026-10-04 predate it and failed, no schedule-fired run since; OWNER-04 still open. Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `registry.registry_revision_v1_absent_denominator_is_live_count` (REV-V3-03)
 
 `plans/idea.md:152` says `RegistryRevisionV1` supplies the campaign denominator and every observation's disposition. The type has no hits in `src/` (only `docs/investigations/11-idea-md-gap-analysis.md:92,210`). `project/state.yaml:17-19` sets `denominator: 36` with `denominator_status` stating it tracks `data/registry.json`'s live entry count (owner ruling 2026-09-30, reversing the 2026-09-23 freeze-at-G4 policy), and `data/registry.json` holds 36 entries. This is a deliberate, documented divergence rather than a hidden defect; the requirement in `idea.md` is nevertheless unmet.
@@ -511,6 +551,8 @@ PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `tools/discovery/portf
 
 **Id** REV-V3-03 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 3 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: owner decision (2026-09-30 ruling stands); a frozen-revision type is a proposal only the owner can admit; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: either a frozen `RegistryRevisionV1` schema and loader exist with the denominator derived from a named revision, or `plans/idea.md:152` and the authority note record the live-count ruling; `grep -rn RegistryRevisionV1 src schemas` shows which.
 
+**Work item** G4-W18 / H-23 · **Verified status 2026-10-05** OWNER-DECISION: OWNER-16 (admit a frozen `RegistryRevisionV1` type; the 2026-09-30 ruling stands until then). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `status.three_terminal_states_prose_only_four_counts_not_seven` (REV-V3-04)
 
 `PORTFOLIO_AGENT_ACCEPTED`, `PORTFOLIO_PUBLICATION_READY_AWAITING_EFFECT_AUTHORIZATION` and `PR_ELIGIBLE` have no hits in `src/` or `schemas/`; they appear in `plans/idea.md:16,199-200,318-319` and in docs that note the gap. `run_status` prints one `candidates: N/denominator` ratio and a `progress:` line with four counts (ever sealed, integrity-valid, current-code reproducible, independently accepted). `plans/idea.md:212-213` requires portfolio reporting to separate fact-valid, presentation-valid, independently accepted, no-op-proven, source-fresh, publication-eligible and effect-authorized counts.
@@ -521,6 +563,8 @@ PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `tools/discovery/portf
 | 2 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:16,199-200,212-213,318-319`; `docs/investigations/11-idea-md-gap-analysis.md:66-67`; `docs/DECISION_LOG.md:3670` |
 
 **Id** REV-V3-04 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 4 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: no work item yet; `AGENTS.md` says progress is counted in one unit only (N/34), so adding counts needs an owner decision; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `repository-presenter status` output includes the source-fresh, publication-eligible and effect-authorized counts (or an owner ruling drops them), and the three terminal state names have a schema or code home; `grep -rn PR_ELIGIBLE src schemas` shows it.
+
+**Work item** G5-W08 / H-20 · **Verified status 2026-10-05** LANDED: #243 (`status` reports the seven separated portfolio counts). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `discovery.gate_c0_not_part_of_the_product` (REV-V3-05)
 
@@ -534,6 +578,8 @@ PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `tools/discovery/portf
 
 **Id** REV-V3-05 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 5 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: no work item yet (discovery integration); see also REV-V4-10; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: discovery runs as a scheduled workflow through a CLI subcommand with authenticated all-visibility pagination, records all nine observation classes by stable provider identity, and a test covers private, archived and renamed repositories; `grep -rn portfolio_discovery src/` shows a production importer.
 
+**Work item** G4-W18 / H-23 · **Verified status 2026-10-05** NOT-STARTED: no PR; `tools/discovery/portfolio_discovery.py` still has no importer under `src/`. Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `present.non_processable_producer_missing_seven_registry_entries_orphaned` (REV-V3-06)
 
 The literal token `NON_PROCESSABLE_NO_IMPLEMENTATION` does not exist; the real tokens are the state `NON_PROCESSABLE` (`docs/STATE_MACHINE.md:126-127,174`, `core/state/schema.py`) and the reason code `NO_IMPLEMENTATION_EVIDENCE` (`components/readme/evidence/processability.py`). The local, non-durable `present` path prints a generic `insufficient_evidence: <reason_code> ...` line and returns `EXIT_INCONSISTENT` without surfacing a `NON_PROCESSABLE` transition. Seven registry entries have no directory under `candidates/` (29 exist) and no recorded disposition: `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript`, `aspose-font-foss/Aspose.Font-FOSS-for-Python`, `aspose-gis-foss/Aspose.GIS.FOSS-for-.Net`, `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript`, `aspose-tex-foss/Aspose.TeX-FOSS-for-Python`, `aspose-psd-foss/Aspose.PSD-FOSS-for-.NET`, `aspose-psd-foss/Aspose.PSD-FOSS-for-Python`, because `present` has evidently never been run against them. Verifier note: PR #216 ('feat(readme): NON_PROCESSABLE disposition for README-only placeholders') is OPEN and unmerged, and fixes only the generic durable-state mechanism; it does not run `present` against the seven orphaned entries, so they stay uncovered even if it merges.
@@ -545,6 +591,8 @@ The literal token `NON_PROCESSABLE_NO_IMPLEMENTATION` does not exist; the real t
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `ls candidates/` (29 directories, none for the seven); PR #216 state OPEN, `mergedAt` null (checked 2026-10-05) |
 
 **Id** REV-V3-06 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 6 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: PR #216 (generic durable-state mechanism, open); the seven orphaned entries have no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: PR #216 is merged and `present` has been run against each of the seven entries with a recorded outcome (a `NON_PROCESSABLE` or `insufficient_evidence` disposition, or a sealed candidate); `ls candidates/` or the durable-state records account for all 36 registry entries.
+
+**Work item** G5-W08 / H-20 · **Verified status 2026-10-05** PARTIAL: landed #216 (generic NON_PROCESSABLE producer); open: the seven orphaned registry entries have no work item PR. Still open, awaiting independent reverification; nothing here is marked fixed.
 
 **Fix in flight or landed:** PR #216 (merged on GitHub 2026-10-04; the generic NON_PROCESSABLE mechanism only, the seven orphaned registry entries are still uncovered) - not yet reverified.
 
@@ -560,6 +608,8 @@ PARTIAL, recorded as the verifier narrowed it. CONFIRMED: `components/monitor/dr
 
 **Id** REV-V3-07 · **Severity** Medium-High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 7 (PARTIAL), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: same Gate B wiring as REV-V3-01; bundle-bytes verification has no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a test shows a `DRIFTED` repository is reopened downstream, and a test shows a sealed bundle whose README bytes were altered with its manifest digest rewritten is detected against the recorded source revision; `drift.py` or `candidates.py` re-derives the README digest from the recorded source.
 
+**Work item** G7-W07 / H-21 · **Verified status 2026-10-05** NOT-STARTED: no PR (drift beyond the commit SHA; bundle bytes verified). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `noop_proof.soft_exit_code_literal_fresh_process_unreconciled_totals` (REV-V3-08)
 
 Four sub-claims, all confirmed. (1) The hosted `present.yml` no-op rerun checks only the exit code; `run_present_transaction` returns the process exit code unchanged regardless of `classify(exit_code)`, so a run landing at `ACCEPTED` (not proven) exits 0 like one at `READY_FOR_PROPOSAL`, and the workflow cannot tell them apart. (2) `"fresh_process": True` is a hard-coded literal in both proof dictionaries in `seal.py`, not computed or verified. (3) `composition_ledger` drops any `calls.jsonl` line whose `logical_call_id` is not in the composition's `consumed_calls`, so the sealed ledger is not a complete transcript of every attempt (a documented design choice, not a concealed one). (4) `provider_calls_made` is used once, to populate `inputs.provider_calls`; nothing sums provider calls across bundles or cross-checks totals against raw ledger records, which `plans/idea.md:347-352` requires ('per-README and portfolio totals must reconcile with the underlying call records').
@@ -571,6 +621,8 @@ Four sub-claims, all confirmed. (1) The hosted `present.yml` no-op rerun checks 
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `src/repository_presenter/cli.py:1631` (the only `provider_calls_made` use); `plans/idea.md:347-352` |
 
 **Id** REV-V3-08 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 8 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: no work item yet (no-op proof hardening, G5/G7); the zero-call no-op proof is a core `AGENTS.md` requirement; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: the hosted rerun step fails unless the second run's output reports zero provider calls and a byte-identical bundle (a workflow audit test asserts it), `fresh_process` is derived from a recorded process identity rather than a literal, and a test reconciles per-README call totals against the raw ledger.
+
+**Work item** G5-W09 / H-22 · **Verified status 2026-10-05** IN-FLIGHT: #250 (open: the zero-call proof is measured from the ledger). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `operations.missing_safeguards_concurrency_budget_deadman_lease_heartbeat` (REV-V3-09)
 
@@ -585,6 +637,8 @@ Four confirmed gaps. (1) `concurrency:` exists only in `ci.yml`, `issues-schedul
 
 **Id** REV-V3-09 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 9 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: G7 operations hardening; no work item yet for each of the four; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `present.yml`, `monitor.yml` and `propose.yml` each declare a `concurrency:` group, a per-transaction provider-call budget is enforced in code with a test that refuses over-budget runs, `liveness.yml` (or a sibling) alerts on a stale or failed `monitor.yml` run, and `grep -rn renew_lease src/` shows a production caller with a test.
 
+**Work item** G7-W07 / H-21 · **Verified status 2026-10-05** PARTIAL: landed #239 (dead-man monitoring for `present.yml`) and #229 (`propose.yml` concurrency); open: concurrency on the other workflows, a budget cap, lease heartbeat, dead-man for `monitor.yml`. Still open, awaiting independent reverification; nothing here is marked fixed.
+
 **Fix in flight or landed:** PR #239 (merged on GitHub 2026-10-04; G7-W03 dead-man health check for `present.yml` only, not for `monitor.yml`) - not yet reverified.
 
 ### `state.durable_state_used_only_by_present` (REV-V3-10)
@@ -597,6 +651,8 @@ Four confirmed gaps. (1) `concurrency:` exists only in `ci.yml`, `issues-schedul
 | 2 | `babar-raza/repository-presenter` | 2026-10-05 | `.github/workflows/monitor.yml:4` (header: this workflow does not use it); `.github/workflows/propose.yml` (no `--durable-state`) |
 
 **Id** REV-V3-10 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V3 item 10 (CONFIRMED), re-read directly against `origin/main` `ce355281` on 2026-10-05. Owning item: G7 wiring; no work item yet for monitor and propose durable-state use; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `monitor` and `propose` runs record their transitions through `GitStateBackend` (a test shows a `propose` effect advances `AWAITING_AUTHORIZATION` to `PROPOSING` in durable state), and the `monitor.yml` header comment no longer says it does not use the backend.
+
+**Work item** G5-W08 / H-20 · **Verified status 2026-10-05** NOT-STARTED: no PR (durable state used only by `present`). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `readme.forbidden_edition_name_generated_and_missed_by_bc06` (REV-V2-01)
 
@@ -611,6 +667,8 @@ Four confirmed gaps. (1) `concurrency:` exists only in `ci.yml`, `issues-schedul
 
 **Id** REV-V2-01 · **Severity** Critical · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 1 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: README composition and validation (authoring rewrite and BC-06); no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `authoring.py` no longer produces 'commercial edition' (a test feeds an 'Enterprise Edition' unit and asserts the output contains 'Enterprise Edition'), BC-06 or another blocking check rejects any case-insensitive forbidden edition substitute (a negative-control test with the lowercase string fails), and `grep -rli 'commercial edition' candidates --include=README.md` returns nothing after the affected candidates are resealed.
 
+**Work item** G3-W06 / H-18 · **Verified status 2026-10-05** LANDED: #251 (no generated edition substitute, BC-06 case-insensitive). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `acceptance.no_blocking_30_point_gate_and_docs_claim_no_scorer_is_false` (REV-V2-02)
 
 `plans/idea.md:118,177,318` require a native 30-point acceptance with zero hard disqualifiers and 30/30 for every processable repository. `review/acceptance/profile.py` states it is 'ADVISORY AND UNRATIFIED': `RATIFIED = False` (line 41), every `Criterion.points` is `None`, and the scorer records a score in `review.json` and blocks nothing. Only one sealed `review.json` carries an `acceptance_profile` block, `candidates/aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET/a7c7314b18e1a5bd209fab38c15e72574337366f/review.json`: outcome `UNSCORED`, `ratified` false, four criteria `NOT_MET` (C01, C02, C10, C22), while its verdict is `ACCEPT` and its manifest state `READY_FOR_PROPOSAL`. Verifier nuance: the doc claim at `docs/EXECUTION_STATE_MACHINE.md:491` and `project/state.yaml:111` (both dated 2026-10-04) that there is 'no scorer in `src/`' is itself false: `scorer.py`, `profile.py` and `text_checks.py` exist under `review/acceptance/`, added by commit `12eefef1` (#218) the same day. The docs' wider conclusion (non-blocking, unratified) is correct; the specific sentence is stale. Also, `status --stale` (`cli.py`, `core/candidates.py::stale_candidates`) compares components, validators and validator version only; `dependencies.json` records `contract_version` and `acceptance_profile_version` (`bundle/seal.py:233,242`) but neither is ever compared.
@@ -624,6 +682,8 @@ Four confirmed gaps. (1) `concurrency:` exists only in `ci.yml`, `issues-schedul
 
 **Id** REV-V2-02 · **Severity** Critical · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 2 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: G3-W02 (acceptance profile; advisory landed in #218) and the owner's ratification decision; the doc correction belongs to the cursor and EXECUTION_STATE_MACHINE owners. Overlaps REV-V4-08; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: the owner ratifies the profile and a blocking check reads its score before `READY_FOR_PROPOSAL` (a test shows a below-30 candidate is not sealed READY), `RATIFIED` is True with every `points` value set, `stale_candidates` compares `contract_version` and `acceptance_profile_version`, and the two docs no longer say 'no scorer in `src/`'; `grep -n 'no scorer' docs/EXECUTION_STATE_MACHINE.md project/state.yaml` returns nothing.
 
+**Work item** G3-W02 / H-11 · **Verified status 2026-10-05** OWNER-DECISION: OWNER-13 (ratify the 30-point profile as a blocking gate); the false "no scorer in `src/`" claim is corrected in `docs/EXECUTION_STATE_MACHINE.md` by #233 (open); `project/state.yaml` correction is H-05. Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `reconciliation.defer_unresolved_unit_not_flagged_for_review` (REV-V2-03)
 
 Counted across every sealed `dispositions.json` whose manifest state is `READY_FOR_PROPOSAL` (28 bundles): 82 `DEFER_UNRESOLVED` entries across 14 of the 28 bundles (13 in Words-FOSS-for-Python, 11 in Words-FOSS-for-.NET, 10 in Slides-FOSS-for-.NET, down to 1 in several). `validation/registry.py::_check_dispositions` (BC-05) checks only that each inherited unit has exactly one disposition and that a placed unit renders where planned; it never inspects which disposition a unit received, so `DEFER_UNRESOLVED` passes like any resolved one. No schema or manifest field surfaces a deferred count (`grep -rn 'DEFER_UNRESOLVED\|deferred' schemas/` returns nothing) and the seal summary carries no such counter. `plans/idea.md:110,463-464` require material detail with no safe destination to fail closed for upstream reconciliation and the gap to be flagged for review; the per-unit omission is correctly fail-closed, but the required flag-for-review visibility does not exist.
@@ -635,6 +695,8 @@ Counted across every sealed `dispositions.json` whose manifest state is `READY_F
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:110,463-464` |
 
 **Id** REV-V2-03 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 3 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: source reconciliation and bundle summary; no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: the sealed manifest or composition summary records a `deferred_units` count and ids, `repository-presenter status` or the PR body surfaces them for review, and a test shows a candidate with unflagged `DEFER_UNRESOLVED` units is not sealed READY (or is sealed with the flag visible).
+
+**Work item** H-19 (no cursor item) · **Verified status 2026-10-05** OWNER-DECISION: OWNER-14 (how a `DEFER_UNRESOLVED` unit reaches review). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `readme.canonical_name_enforced_only_in_renderer_slots` (REV-V2-04)
 
@@ -648,6 +710,8 @@ In `candidates/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/52b0f00ebf28a0b4173921725
 
 **Id** REV-V2-04 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 4 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: README validation (a canonical-name check for authored prose); no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: a blocking check rejects a shorthand product name in authored prose (a negative-control test with 'Aspose.3D.FOSS for .NET provides ...' fails), and the affected candidates are resealed so `grep -n 'Aspose.3D.FOSS ' candidates/*/*/README.md` finds no prose use.
 
+**Work item** G3-W06 / H-18 · **Verified status 2026-10-05** LANDED: #251 (BC-12 canonical product name). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `readme.link_ceiling_fixed_constant_not_derived` (REV-V2-05)
 
 `composition/policy.py` sets `aspose_links_max: int = 4`, one hard-coded default used identically by every candidate regardless of README length or verified example count, consumed unchanged in `composition/planning.py` and by the BC-06 ceiling check in `validation/registry.py`. `grep -rn 'products_max\|docs_max\|kb_max\|blog_max\|reference_max'` across `src/` and `docs/README_CONTRACT.md` returns nothing, so there is no per-slot products, docs, kb, blog or reference breakdown and no formula that derives a maximum from visible content size or verified examples. `plans/idea.md:61-64` allows repository policy to configure per-slot maxima and otherwise requires conservative maxima derived deterministically from visible content size and verified code examples.
@@ -659,6 +723,8 @@ In `candidates/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/52b0f00ebf28a0b4173921725
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `plans/idea.md:61-64` |
 
 **Id** REV-V2-05 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 5 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: README composition policy; no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `policy.py` derives the ceiling from visible content size and verified example count (or reads repository policy per slot), a test shows two READMEs of different size get different ceilings, and `grep -rn aspose_links_max src/` shows no bare constant used as the final ceiling.
+
+**Work item** G3-W06 / H-18 · **Verified status 2026-10-05** LANDED: #246 (link ceilings derived per document and slot, `composition/link_budget.py`). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `readme.full_featured_enterprise_edition_anchor_not_rendered` (REV-V2-06)
 
@@ -672,6 +738,8 @@ In `candidates/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/52b0f00ebf28a0b4173921725
 
 **Id** REV-V2-06 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 6 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: README contract and renderer; needs an owner decision on which wording governs, then a code or doc change; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: either the renderer emits an informative full-featured anchor and a test asserts it (with sealed candidates resealed), or `docs/EXECUTION_STATE_MACHINE.md:485` and `docs/README_CONTRACT.md:98` agree with a recorded owner ruling on `plans/idea.md:109`; `grep -n 'full-featured' docs/EXECUTION_STATE_MACHINE.md docs/README_CONTRACT.md` and the renderer agree.
 
+**Work item** G3-W06 / H-18 · **Verified status 2026-10-05** LANDED: #246 (Enterprise Edition anchor rendered). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `readme.badge_row_python_only_runtime_no_build_status_unconditional_contributors` (REV-V2-07)
 
 All four sub-claims confirmed. In `composition/renderer.py::_badges`: the package and license badges are fact-gated; the platform/runtime badge is hard-wired to `context.fact("package:python_requires")`, so no .NET, Java, Go, Rust, C++ or TypeScript equivalent exists; no build-status badge exists anywhere in the renderer; and the contributors badge is appended unconditionally, with no fact lookup or polarity check, unlike every other badge. Empirically, `candidates/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/.../README.md:3` renders only NuGet, License and Contributors. `review/acceptance/text_checks.py::single_badge_row` checks only one row and no duplicate URL, never order, and it is advisory only (REV-V2-09). `plans/idea.md:75-78` requires one compact badge row in the stable order package or release, platform/runtime, real build status, license, then contributors.
@@ -683,6 +751,8 @@ All four sub-claims confirmed. In `composition/renderer.py::_badges`: the packag
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `candidates/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/52b0f00ebf28a0b4173921725ff170685ec2c502/README.md:3`; `plans/idea.md:75-78` |
 
 **Id** REV-V2-07 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 7 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: README renderer badge slots; no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `_badges` derives a runtime badge per ecosystem from facts, emits a real build-status badge only from a verified workflow fact, emits the contributors badge only when supported, a blocking check asserts the stable order, and a test covers a .NET repository with and without a build workflow.
+
+**Work item** G3-W06 / H-18 · **Verified status 2026-10-05** LANDED: #246 (verified badge row). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `readme.abbreviation_set_fixed_headings_unchecked_deep_headings_skip_title_case` (REV-V2-08)
 
@@ -696,6 +766,8 @@ All three sub-claims confirmed. (1) `composition/authoring.py::ABBREVIATIONS` is
 
 **Id** REV-V2-08 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 8 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: README validation and authoring; no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: 'PS' is canonicalised (a test with a PostScript README asserts it), headings are included in the abbreviation scan, a title-case rule applies to all heading levels including task and topic names, and negative-control tests for each fail on a lowercase 'ps' or a non-title-case level-3 heading.
 
+**Work item** G3-W06 / H-18 · **Verified status 2026-10-05** IN-FLIGHT: #249 (open: heading case, abbreviations, BC-07 version 8). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `readme.advisory_only_clauses_and_keyword_lineage_absent` (REV-V2-09)
 
 `review/acceptance/text_checks.py` says its phrase lists and thresholds are proposals awaiting owner ratification; its only importers are `profile.py` and `scorer.py`, so every predicate it defines (`fences_and_spacing`, `visible_core_sections`, `assurance_narration`, `single_badge_row`, `edition_name`) feeds only the advisory, unratified scorer (REV-V2-02), never `validation/registry.py`'s blocking BC-01..BC-11. At-a-Glance wrapping and width: `registry.py::_topology_failures` enforces only a flat 28-character token cap, not deterministic wrapping and a common rendered-width policy. Keyword lineage: `grep -rln 'keyword.lineage\|output.lineage\|output_lineage' src/` returns zero files; the mechanism does not exist. Verifier nuance: no literal '10 phrases' threshold exists in code; `_NARRATION` in `text_checks.py` is a flat any-match pattern list with no count threshold. The 'advisory, not blocking' claim holds, the specific number is unconfirmed as a coded constant. `plans/idea.md:99,107,109` require wrapping and width policy, output lineage, and no internal assurance narration.
@@ -707,6 +779,8 @@ All three sub-claims confirmed. (1) `composition/authoring.py::ABBREVIATIONS` is
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `grep -rn 'output_lineage' src/` returns nothing; `plans/idea.md:99,107,109` |
 
 **Id** REV-V2-09 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 9 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: G3-W02 ratification (overlaps REV-V2-02) and README validation; keyword lineage has no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: the owner-ratified narration, fence and badge predicates are called from a blocking check in `registry.py` (a test fails a README containing assurance narration), At-a-Glance wrapping and width are policy-checked, and an output-lineage record exists with a test; `grep -rn text_checks src/` shows `registry.py` as an importer.
+
+**Work item** G3-W06 / H-18 · **Verified status 2026-10-05** IN-FLIGHT: #249 (open: advisory clauses decided; keyword lineage recorded there as a finding, not built). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ### `review.second_reviewer_unconditional_on_accept_hardcoded_three_names` (REV-V2-10)
 
@@ -720,6 +794,8 @@ All three sub-claims confirmed. (1) `composition/authoring.py::ABBREVIATIONS` is
 
 **Id** REV-V2-10 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 10 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: independent review (typed risk trigger); no work item yet. Reducing the ACCEPT second read is an owner decision because it trades cost against assurance; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `rounds.py` invokes the second reviewer only when a typed risk trigger fires (a test shows a clean first-reviewer ACCEPT makes no second call), and `MAJORITY_VOTE_REPOSITORIES` is replaced by a typed classification backed by a regression-corpus record.
 
+**Work item** H-19 (no cursor item) · **Verified status 2026-10-05** OWNER-DECISION: OWNER-15 (typed risk trigger for the second reviewer; cost versus assurance). Still open, awaiting independent reverification; nothing here is marked fixed.
+
 ### `seal.valid_update_available_routing_inverted_no_typed_invalidation_scopes` (REV-V2-11)
 
 Both sub-claims confirmed. In `bundle/seal.py`, `FACTUAL_ARTIFACTS = frozenset({"facts.json", "dispositions.json"})` and `factual = bool(FACTUAL_ARTIFACTS & set(differing)) or inputs.earliest_affected_stage in EARLY_STATES or bool(model_changes)`, then `state = STATE_UPDATE_AVAILABLE if factual else STATE_READY`: a factual change moves the bundle to `VALID_UPDATE_AVAILABLE`, while a non-factual (presentation-only) change stays `READY_FOR_PROPOSAL`, unmarked. `docs/STATE_MACHINE.md:322-324` (the runtime authority) states the opposite: factual, safety, protected-content or severe acceptance defects invalidate an accepted candidate, and non-critical presentation improvements create `VALID_UPDATE_AVAILABLE` without mislabeling the README as factually invalid (see also `STATE_MACHINE.md:168-170`). The code gives the VALID_UPDATE_AVAILABLE label to the factual case and no label to the non-critical case. Typed scopes: `grep -rniw 'cosmetic\|prose-policy\|fact-slot\|major-document'` across `src/`, `docs/STATE_MACHINE.md` and `docs/README_CONTRACT.md` returns zero hits; the only classification is the binary factual test above, not the distinct typed scopes `plans/idea.md:208-212` requires.
@@ -731,6 +807,8 @@ Both sub-claims confirmed. In `bundle/seal.py`, `FACTUAL_ARTIFACTS = frozenset({
 | 3 | `babar-raza/repository-presenter` | 2026-10-05 | `grep -rniw 'cosmetic\|prose-policy\|fact-slot\|major-document' src docs/STATE_MACHINE.md docs/README_CONTRACT.md` returns nothing; `plans/idea.md:208-212` |
 
 **Id** REV-V2-11 · **Severity** Critical · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 11 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: state machine and seal logic (G5 state routing); no work item yet. The seal comment cites TB-06 (2026-09-08) as a deliberate choice, so the owner must rule which mapping governs before code changes; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: the owner records which mapping governs (and `docs/STATE_MACHINE.md` or `seal.py` is changed to match), a test shows a non-critical presentation-only drift yields `VALID_UPDATE_AVAILABLE` and a factual or safety drift invalidates, and the typed invalidation scopes (cosmetic, structural, prose-policy, fact-slot, factuality/safety, major-document) exist with a test per scope.
+
+**Work item** G5-W08 / H-20 · **Verified status 2026-10-05** LANDED: #254 (typed invalidation scopes; `VALID_UPDATE_AVAILABLE` routing no longer inverted). Still open, awaiting independent reverification; nothing here is marked fixed.
 
 ## Resolved
 

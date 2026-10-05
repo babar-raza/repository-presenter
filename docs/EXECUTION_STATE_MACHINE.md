@@ -54,7 +54,7 @@ update a safe proposal; recover correctly after interruption or an uncertain rem
 
 Authority resolves by subject (AGENTS.md), not by rank. Sequence, gates, exit predicates, gate-ahead rule,
 taskcards: this document. Status (current gate, queue, owner items, publication policy):
-`project/state.yaml` only. Runtime states: `docs/STATE_MACHINE.md`. Candidate shape and the eleven
+`project/state.yaml` only. Runtime states: `docs/STATE_MACHINE.md`. Candidate shape and the
 blocking checks: `docs/README_CONTRACT.md`. File locations: `docs/REPOSITORY_LAYOUT.md`. Threats:
 `docs/THREAT_MODEL.md`. Legacy disposition: `migration/reuse-manifest.yaml`. Prompt manifests: `prompts/`
 (never planning authority). Executor, lane, and supervision machinery: `project/loop-prompt.md`,
@@ -210,7 +210,7 @@ leases, or hosted execution yet; those are G5.
    pipeline in its §3, and the agentic decisions in its §4. The LLM returns typed content units
    bound to fact IDs; the deterministic renderer emits the Markdown; one coherence pass may revise
    LLM-owned units only.
-5. **Blocking checks:** exactly the eleven in `docs/README_CONTRACT.md` §5. Everything else is
+5. **Blocking checks:** exactly those in `docs/README_CONTRACT.md` §5, which owns their count. Everything else is
    advisory until G3 freezes contract v1 (F31).
 6. **Independent review** per `docs/README_CONTRACT.md` §4 and §6: separate prompt and identity;
    findings name a section and a causal stage; one targeted repair per equivalent fingerprint;
@@ -226,7 +226,7 @@ leases, or hosted execution yet; those are G5.
 
 - A human can open the candidate at its stable path and it reads as a concise, product-first README
   for this repository, within budget, with every required section of the semantic shell present.
-- All eleven blocking checks pass; review verdict is `ACCEPT`; no-op is proven in a fresh process.
+- Every blocking check passes; review verdict is `ACCEPT`; no-op is proven in a fresh process.
 - Every pulled legacy file has a manifest record and ported tests; every new module has a production
   importer; provider calls reconcile with the ledger.
 - The PSD fixture yields `insufficient_evidence` with zero calls.
@@ -256,7 +256,7 @@ reached — and the first-candidate causes of drift (`RESEARCH_AND_GUIDELINES.md
 - On the canary: the sealed composition accepts with zero blocking findings and zero required-row
   advisories; every job holds the 85 first-attempt floor (per-job thresholds need three sealed
   compositions, §27.10); the coverage ledger is in the bundle. The coverage-ledger check is promoted only under
-  `README_CONTRACT.md`'s measured-defect rule; the blocking set is that contract's §5 rows, eleven (F16).
+  `README_CONTRACT.md`'s measured-defect rule; the blocking set is that contract's §5 rows (F16).
 
 ## G3 — Python Cohort and Contract Freeze
 
@@ -266,7 +266,7 @@ contract freezes against thirteen sealed products rather than one (§28.5).
 ### Work
 
 1. Python cohort: the twelve remaining Python registry entries through the existing pipeline, one
-   transaction each; seal what passes all eleven checks; an evidence-bound disposition with a resume
+   transaction each; seal what passes every blocking check; an evidence-bound disposition with a resume
    predicate for the rest (PSD-Python `NON_PROCESSABLE`, persisted per `STATE_MACHINE.md` §6; the producer
    landed in #216, seven registry entries remain orphaned, REV-V3-06); fixes by failure class, a regression test each.
 2. Freeze acceptance contract v1: ratify the landed advisory 30-point scorer (`components/readme/review/acceptance/scorer.py`, commit 12eefef1, wired in `repair/rounds.py`; F05) with its hard disqualifiers, the blocking checks,
@@ -473,7 +473,7 @@ Method, severity scale, root causes RC-1 to RC-7, per-finding six-part causes, a
 ## 14. Taskcards (revision 3)
 
 Owner-brief statuses are a revision-3 snapshot; live status is the cursor's. OWNER-10 to -17 are proposed until H-02 records them.
-H-17..H-24 own the 39 reviewer ids (`Vn-nn` = `REV-Vn-nn`; GitHub-verified 2026-10-05: 13 landed, 8 partial, 5 in flight, 6 not started, 7 owner
+H-17..H-24 own the 39 reviewer ids (`Vn-nn` = `REV-Vn-nn`; GitHub-verified 2026-10-05: 15 landed, 8 partial, 3 in flight, 6 not started, 7 owner
 decisions). Per-id work item and status sit on each `docs/DEFECT_INDEX.md` entry, all still open and awaiting independent reverification.
 
 | ID | Status | Objective (findings) | Validation and evidence | Rollback |
@@ -490,8 +490,8 @@ decisions). Per-id work item and status sit on each `docs/DEFECT_INDEX.md` entry
 | H-13 | blocked: OWNER-12 | Gateway outage policy: fail closed, or a fallback route re-reviewed (F26) | G7 failure exercise expects the declared behavior | none |
 | H-14 | blocked: OWNER-04 | Install the App on `aspose-html-foss`; fresh audit shows 15 of 15 (F11) | audit workflow run | none |
 | H-16 | backlog | Measurement sources: G4 parity table, G7 cycle receipts, regeneration variance beside replay proofs (F24); the floor ruling text is located or G4's exit wording corrected (F30) | manifests carry the fields | revert |
-| H-17 | active | Write path (G6-W05). V1-01,02,04,08 landed #241; V1-03 landed #229; V1-06 landed #240; V1-05 partial (App id attested after the first write, #241); V1-07 partial (filing gate landed #237, close gate in flight #257) | #257 merged; independent reverification of each; hosted dispatch proof (H-08) | revert; H-09 |
-| H-18 | active | README contract (G3-W06). V2-05,06,07 landed #246; V2-01,04 in flight #251; V2-08,09 in flight #249 | a negative control per rule in each PR; sealed bundles re-check to `VALID_UPDATE_AVAILABLE`, never invalid; re-seal after the last version bump | revert |
+| H-17 | active | Write path (G6-W05). V1-01,02,04,08 landed #241; V1-03 landed #229; V1-06 landed #240; V1-05 partial (App id attested after the first write, #241); V1-07 partial (filing approval landed #237, close gate in flight #257, filing token provenance open) | #257 merged; independent reverification of each; hosted dispatch proof (H-08) | revert; H-09 |
+| H-18 | active | README contract (G3-W06). V2-05,06,07 landed #246; V2-01,04 landed #251; V2-08,09 in flight #249 | a negative control per rule in each PR; sealed bundles re-check to `VALID_UPDATE_AVAILABLE`, never invalid; re-seal after the last version bump | revert |
 | H-19 | blocked: OWNER-14, -15 | Review policy (G3-W02). V2-03 `DEFER_UNRESOLVED` unit not flagged for review (OWNER-14); V2-10 second reviewer unconditional, three names hard-coded (OWNER-15) | owner ruling recorded; a mutation test per ruled behavior | none |
 | H-20 | backlog | Seal, state, status (G5-W08). V2-11 landed #254; V3-04 landed #243; V3-06 partial (#216 producer; seven registry entries orphaned); V3-10 not started (durable state beyond `present`); V4-10 partial (write functions wired, three states never assigned) | each state reached by a test and a real candidate; `monitor` and `propose` use durable state | revert |
 | H-21 | backlog | Autonomy and safeguards (G7-W07). V3-01 partial (chain wired #242, hosted scheduled proof pending); V3-02 partial (#228, scheduled-run confirmation pending, needs OWNER-04); V3-07 not started (drift beyond the commit SHA, bundle bytes); V3-09 partial (#239 dead-man for `present`, #229 `propose` concurrency; other concurrency, budget cap, lease heartbeat open) | a schedule-fired run on `main`, run ID in the manifest (F12); a synthetic drift reopens only its repository | `REPOSITORY_PRESENTER_SEALING_PAUSED=1` |
