@@ -21,6 +21,8 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_tasks,
     canonical_abbreviations,
     capability_titles,
+    carried_unit_errors,
+    carried_units,
     citable,
     cited_inherited_identifiers,
     command_block_tokens,
@@ -3250,3 +3252,80 @@ def test_nearest_accepted_identifiers_is_deterministic_bounded_and_single_token_
     assert "CommentAuthor" not in nearest_accepted_identifiers("CommentAuthor", accepted)
     assert nearest_accepted_identifiers("CommentAuthors()", accepted)[0] == "CommentAuthor"
     assert nearest_accepted_identifiers("Xy", accepted) == []
+
+
+def _scope_disposition(unit_id: str) -> dict[str, Any]:
+    return {
+        "unit_id": unit_id,
+        "disposition": "SUPERSEDE_REDUNDANT",
+        "destination_section": "scope_limitations",
+        "fact_ids": [],
+        "rationale": "r",
+    }
+
+
+def test_authoring_tasks_hands_scope_limitations_the_units_it_must_carry() -> None:
+    """Slides-Java, 2026-10-05 (F04): S4 superseded the README's own limitation list into
+    scope_limitations, but no obligation reached that section, so the authored scope units never
+    had to state the documented master-cloning defect or the save-format refusal. The scope section
+    now owes each such unit a cited or omitted disposition, exactly as development_testing does."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:088.list", "inherited_unit", "- A known defect: cloning a master."
+            ),
+        ),
+    )
+    dispositions = {"dispositions": [_scope_disposition("inherited_unit:088.list")]}
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, dispositions, PLAN)
+    }
+    assert tasks["scope_limitations"].must_carry == frozenset({"inherited_unit:088.list"})
+    assert "inherited_unit:088.list" in tasks["scope_limitations"].packet["objective"]
+    # Negative control: no other section picks the unit up - the gate names two sections, not all.
+    assert tasks["opening"].must_carry == frozenset()
+    assert tasks["development_testing"].must_carry == frozenset()
+
+
+def test_an_uncarried_scope_unit_fails_and_a_carried_or_omitted_one_passes() -> None:
+    """Negative control on the gate itself. A scope unit that is neither cited nor omitted is the
+    silent drop F04 names and must fail with the carry reason; citing the unit, or listing it
+    omitted with a reason, is the explicit disposition the gate asks for and passes. Whether a
+    cited unit's substance reaches the page stays the reviewer's judgment (carried_unit_errors'
+    own docstring), so a cited unit passes this check by design."""
+    dispositions = {"dispositions": [_scope_disposition("inherited_unit:088.list")]}
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:088.list", "inherited_unit", "- A known defect: cloning a master."
+            ),
+        ),
+    )
+    must_carry = frozenset(carried_units(dispositions, "scope_limitations", facts))
+    assert must_carry == frozenset({"inherited_unit:088.list"})
+    task = SectionTask(
+        "scope_limitations", {}, frozenset(), ("limitation:1",), must_carry=must_carry
+    )
+    silent = {"units": [{"slot": "limitation:1", "fact_ids": ["identity:repository"]}]}
+    assert carried_unit_errors(silent, task) == [
+        "inherited_unit:088.list: superseded into this section by reconciliation, so a unit must "
+        "cite it and state its substance, or omitted must list it with a reason"
+    ]
+    cited = {"units": [{"slot": "limitation:1", "fact_ids": ["inherited_unit:088.list"]}]}
+    assert carried_unit_errors(cited, task) == []
+    omitted = {
+        "units": [{"slot": "limitation:1", "fact_ids": ["identity:repository"]}],
+        "omitted": [{"fact_id": "inherited_unit:088.list", "reason": "covered by limitation:1"}],
+    }
+    assert carried_unit_errors(omitted, task) == []
+    # Negative control: a scope supersession never gives opening or development_testing an
+    # obligation through this path.
+    assert carried_units(dispositions, "opening", facts) == []
+    assert carried_units(dispositions, "development_testing", facts) == []
