@@ -195,6 +195,8 @@ supervisor runs five checks unconditionally, not only when a notification happen
    against its own evidence. An independent QA review caught it; a fresh re-audit confirmed the gap
    was still live at the moment of checking, not assumed closed by then.
 
+6. **Register integrity.** Read the register every sweep: `docs/DEFECT_INDEX.md` (every `REV-` entry's **Work item** line and the Register addendum) against `project/state.yaml` `next_ready_items` and `owner_items`. No session ends while a logged item is not exactly one of: FIXED(PR) with a merged pull request; PENDING with an owner lane (a `next_ready_items` entry whose owner begins `REGISTER:` or names its lane, with a depends-on and an exit predicate); or OWNER with an `owner_items` entry that carries a recorded question and resume predicate. An item in none of the three is a defect of the register itself: add the entry in the same session. `tests/test_register_integrity.py` enforces the mechanical half; the supervisor owns the judgment half (a status that is true on GitHub, re-read, not copied).
+
 A sweep with nothing new to report is recorded as such (one line, not a essay) and is not itself
 evidence the sweep was skippable next time.
 
