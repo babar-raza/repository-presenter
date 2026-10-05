@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from repository_presenter.components.readme.evidence.facts.inherited import inventory_units
 from repository_presenter.core.ecosystems import spec_for
-from repository_presenter.core.examples import ExampleCandidate
+from repository_presenter.core.examples import ExampleCandidate, collapse_blank_runs
 
 
 def _fence_parts(source: str) -> tuple[str, str] | None:
@@ -74,7 +74,7 @@ def select_examples(
             ExampleCandidate(
                 ordinal=len(candidates) + 1,
                 language=parts[0],
-                code=parts[1],
+                code=collapse_blank_runs(parts[1]),
                 source_path=readme_path,
                 start_line=unit.start_line,
                 end_line=unit.end_line,

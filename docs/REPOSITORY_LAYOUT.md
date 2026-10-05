@@ -76,6 +76,8 @@ src/repository_presenter/
       link_budget.py           Aspose-link ceilings derived per document, domain, and surface slot (plans/idea.md), or configured; the plan trim and BC-06 both read it
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
+      terminology.py           the governed technical-terminology registry and heading-case grammar: the one owner of canonical abbreviations (PS, PDF, glTF, npm) and title case
+      glance.py                the At a Glance label-geometry policy: one common wrap width, at most three lines
     validation/
       registry.py              versioned check registry
       links/                   link resolution
