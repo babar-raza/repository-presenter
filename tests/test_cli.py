@@ -1054,7 +1054,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "6",
-        "renderer": "27",
+        "renderer": "28",
         "normalisation": "22",
         "reviewer_logic": "15",
     }
