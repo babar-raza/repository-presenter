@@ -16,9 +16,13 @@
 #     (ops/issue_approvals/<handoff-id>.yaml; its target, evidence digest and expiry are verified
 #     by components/issues/approval.py, read from the commit this run was triggered on). The job
 #     counts such handoffs first and mints the issues-write token, scoped to that one repository,
-#     only when the count is nonzero. The token is handed only to the two gated steps below as
-#     GH_ISSUES_WRITE_TOKEN, and the literal switch value "1" is set on those same two steps and
-#     nowhere else, so the reviewer sees the switch and the GitHub-mutating step as one.
+#     only when the count is nonzero. Closing a filed issue needs its own, separate approval record
+#     (ops/issue_close_approvals/<handoff-id>.json: the exact issue number and the close reason,
+#     expiring), the registry entry in mode full, a write token verified to be an installation token
+#     scoped to that one repository, and the fingerprint marker on the live issue; the same count
+#     includes FILED handoffs only when such a close approval is on record. The token is handed only
+#     to the two gated steps below as GH_ISSUES_WRITE_TOKEN, and the literal switch value "1" is
+#     set on those same two steps and nowhere else, so the reviewer sees the switch and the GitHub-mutating step as one.
 #     No job holds contents: write and checkout persists no credential, so a run cannot commit
 #     the approval it would consume.
 #
@@ -131,7 +135,7 @@ jobs:
           report="$RUNNER_TEMP/issue-report.txt"
           rc=0
           repository-presenter file-upstream-defects --repo "$REPO" --approvals-ref "$APPROVALS_REF" > "$report" 2>&1 || rc=$?
-          repository-presenter redetect-upstream-defects --repo "$REPO" >> "$report" 2>&1 || rc=$?
+          repository-presenter redetect-upstream-defects --repo "$REPO" --approvals-ref "$APPROVALS_REF" >> "$report" 2>&1 || rc=$?
           cat "$report"
           {
             echo "### ${REPO} (dry run, read-only)"
@@ -223,11 +227,17 @@ jobs:
           APPROVALS_REF: ${{ github.sha }}
         run: repository-presenter file-upstream-defects --repo "$REPO" --file --approvals-ref "$APPROVALS_REF"
 
-      - name: "Close issues whose defect is proven resolved (gated: same kill switch, same token)"
+      # A close is a write to a product repository and is gated like a filing and more: the registry
+      # entry must be mode full, the owner must have committed a close approval naming this exact
+      # issue number and close reason (ops/issue_close_approvals/<handoff-id>.json), the write token
+      # is verified to be an installation token scoped to this one repository, and the live issue
+      # must carry this handoff's fingerprint marker. Any gate failing leaves the issue untouched.
+      - name: "Close approved issues whose defect is proven resolved (gated: kill switch, close approval, registry, token provenance)"
         if: ${{ steps.approvals.outputs.count != '0' }}
         env:
           REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED: "1"
           GH_TOKEN: ${{ steps.read-token.outputs.token }}
           GH_ISSUES_WRITE_TOKEN: ${{ steps.write-token.outputs.token }}
           REPO: ${{ matrix.target.repo }}
-        run: repository-presenter redetect-upstream-defects --repo "$REPO" --close
+          APPROVALS_REF: ${{ github.sha }}
+        run: repository-presenter redetect-upstream-defects --repo "$REPO" --close --approvals-ref "$APPROVALS_REF"

@@ -17,7 +17,7 @@ from repository_presenter.core.authorization.refusals import Refusal, WriteRefus
 from repository_presenter.core.registry.loader import find_entry, is_permitted
 from repository_presenter.core.registry.models import Registry, RegistryEntry
 
-WriteEffect = Literal["readme_proposal", "metadata_write", "issue_filing"]
+WriteEffect = Literal["readme_proposal", "metadata_write", "issue_filing", "issue_close"]
 
 
 @dataclass(frozen=True)

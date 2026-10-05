@@ -40,6 +40,7 @@ from repository_presenter.components.issues.redetect import RedetectionResult
 from repository_presenter.core.git_safety.git import run_git
 from support import (
     MemoryApprovalStore,
+    accepting_token_verifier,
     approval_text,
     approving_store,
     commit_all,
@@ -116,6 +117,7 @@ def _file(
         approvals=store,
         now=lambda: NOW,
         permit=make_permit(handoff.repository, effect="issue_filing"),
+        verify_token=accepting_token_verifier,
         **extra,
     )
 
@@ -379,6 +381,7 @@ def test_the_kill_switch_alone_never_authorizes_a_filing() -> None:
         environment=KILL_SWITCH_ON,
         create=create,
         permit=make_permit(REPO, effect="issue_filing"),
+        verify_token=accepting_token_verifier,
     )
     _refused(result, create, "no approval record source")
 
@@ -600,6 +603,7 @@ def test_end_to_end_a_committed_record_files_and_a_changed_handoff_does_not(tmp_
         now=lambda: NOW,
         expected_repository=REPO,
         permit=make_permit(REPO, effect="issue_filing"),
+        verify_token=accepting_token_verifier,
     )
     assert result.filed is True
     assert len(create.calls) == 1
@@ -614,6 +618,7 @@ def test_end_to_end_a_committed_record_files_and_a_changed_handoff_does_not(tmp_
         approvals=store,
         now=lambda: NOW,
         permit=make_permit(REPO, effect="issue_filing"),
+        verify_token=accepting_token_verifier,
     )
     assert refused.filed is False
     assert again.calls == []
