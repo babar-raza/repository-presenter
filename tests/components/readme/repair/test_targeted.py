@@ -1724,3 +1724,58 @@ def test_every_sealed_bundles_repairs_json_is_read_unchanged_and_rewritten_byte_
         ).encode("utf-8")
         assert written == original, stored
     assert current_format >= 1
+
+
+def test_the_repair_packet_names_the_must_carry_units_still_uncited() -> None:
+    """Slides-Java, 2026-10-05 (F04, then the rerun): the S6 scope section was asked to carry the
+    superseded limitation units, but its own repair saw only their facts and could cite them
+    without stating their substance. The repair now names, by ID, every must-carry unit the stage
+    output still neither cites nor omits, so the one repair call knows exactly what is missing."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                "inherited_unit:088.list", "inherited_unit", "- a limitation list", (Evidence("x"),)
+            ),
+            Fact(
+                "inherited_unit:089.paragraph", "inherited_unit", "A paragraph.", (Evidence("x"),)
+            ),
+            Fact(
+                "inherited_unit:090.paragraph",
+                "inherited_unit",
+                "Another paragraph.",
+                (Evidence("x"),),
+            ),
+        ),
+    )
+    carried = frozenset(
+        {"inherited_unit:088.list", "inherited_unit:089.paragraph", "inherited_unit:090.paragraph"}
+    )
+    defect = review_defects(
+        {"findings": [_finding("F04", "scope_limitations", "S6")]}, FACTS, LLM_SECTIONS
+    )[0]
+    stage_output = {
+        "units": [{"slot": "limitation:1", "fact_ids": ["inherited_unit:088.list"], "text": "x"}],
+        "omitted": [{"fact_id": "inherited_unit:089.paragraph", "reason": "covered elsewhere"}],
+    }
+    packet = repair_packet(
+        ENTRY, defect, stage_output, facts, [], {"type": "object"}, carried=carried
+    )
+    # Only the one still uncited and not omitted is named; the others are not.
+    assert packet["defect"]["uncarried_superseded_units"] == ["inherited_unit:090.paragraph"]
+    assert "inherited_unit:090.paragraph" in {record["id"] for record in packet["facts"]}
+    # Negative controls: once everything is cited or omitted, nothing is named; with no carried
+    # set, no key is invented; a defect that owes nothing keeps its packet exactly as before.
+    complete = {
+        **stage_output,
+        "units": [
+            *stage_output["units"],
+            {"slot": "limitation:2", "fact_ids": ["inherited_unit:090.paragraph"], "text": "y"},
+        ],
+    }
+    done = repair_packet(ENTRY, defect, complete, facts, [], {"type": "object"}, carried=carried)
+    assert "uncarried_superseded_units" not in done["defect"]
+    none_carried = repair_packet(ENTRY, defect, stage_output, facts, [], {"type": "object"})
+    assert "uncarried_superseded_units" not in none_carried["defect"]
