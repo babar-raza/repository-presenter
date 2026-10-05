@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "provider_repository_id": 1301410121,
+  "registry_revision": null,
+  "active_transaction_id": "e84c0b55491e44a59c6a22ed42670f34",
+  "state": "OBSERVED",
+  "source": null,
+  "surfaces": {},
+  "dependencies": {
+    "facts": null,
+    "prompts": null,
+    "models": null,
+    "presentation": null,
+    "validation": null
+  },
+  "accepted_artifact": null,
+  "proposal": null,
+  "failure": null,
+  "lease": {
+    "holder_id": "present.yml:37361313253",
+    "acquired_at": "2026-10-05T19:10:46.624567+00:00",
+    "heartbeat_at": "2026-10-05T19:10:46.624567+00:00",
+    "expires_at": "2026-10-05T19:25:46.624567+00:00",
+    "fencing_token": 1
+  },
+  "last_transition": null,
+  "state_version": 1,
+  "recent_trigger_dedup_keys": {
+    "run:37361313253:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "e84c0b55491e44a59c6a22ed42670f34"
+  },
+  "recovery_count": 0
+}
