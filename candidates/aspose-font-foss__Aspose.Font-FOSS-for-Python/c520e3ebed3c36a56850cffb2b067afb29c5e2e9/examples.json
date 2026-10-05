@@ -1,0 +1,171 @@
+[
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "Roboto-VariableFont_wdth,wght.ttf",
+        "produced_by": null,
+        "source_path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+      }
+    ],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": "static-subset-from-variable-default\r\n194\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "Roboto-VariableFont_wdth,wght.ttf",
+        "produced_by": null,
+        "source_path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+      }
+    ],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": "qa-package\\qa-report.json\r\nqa-package\\qa-report.html\r\nqa-package\\preview.png\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "ValueError",
+    "fixtures": [
+      {
+        "literal": "roboto-beta-bold.ttf",
+        "produced_by": null,
+        "source_path": "testdata/BadFonts/nonFontFile.ttf"
+      },
+      {
+        "literal": "Roboto-VariableFont_wdth,wght.ttf",
+        "produced_by": null,
+        "source_path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+      }
+    ],
+    "ordinal": 3,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "source_roots": [],
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_003\\example.py\", line 4, in <module>\r\n    instance = font.instantiate(\r\n        {\"wght\": \"Bold\", \"wdth\": \"Condensed\"},\r\n    ...<2 lines>...\r\n        stat_policy=\"static\",\r\n    )\r\n  File \"<workspace>\\site\\aspose_font\\ttf\\font.py\", line 596, in instantiate\r\n    return TtfInstancer.instantiate(\r\n           ~~~~~~~~~~~~~~~~~~~~~~~~^\r\n        self,\r\n        ^^^^^\r\n    ...<7 lines>...\r\n        stat_policy=stat_policy,\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\n  File \"<workspace>\\site\\aspose_font\\ttf\\instancer.py\", line 304, in instantiate\r\n    clamped_coordinates = cls._clamped_coordinates(font, coordinates)\r\n  File \"<workspace>\\site\\aspose_font\\ttf\\instancer.py\", line 581, in _clamped_coordinates\r\n    axis.tag: min(max(float(coordinates.get(axis.tag, axis.default_value)), axis.min_value), axis.max_value)\r\n                      ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nValueError: could not convert string to float: 'Bold'\r\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "roboto-family-review-board.png",
+        "produced_by": null,
+        "source_path": "website/generated/roboto-family-review-board.png"
+      },
+      {
+        "literal": "Roboto-VariableFont_wdth,wght.ttf",
+        "produced_by": null,
+        "source_path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+      }
+    ],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "roboto-axis-grid.png",
+        "produced_by": null,
+        "source_path": "website/generated/roboto-axis-grid.png"
+      },
+      {
+        "literal": "Roboto-VariableFont_wdth,wght.ttf",
+        "produced_by": null,
+        "source_path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+      }
+    ],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "Roboto-VariableFont_wdth,wght.ttf",
+        "produced_by": null,
+        "source_path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+      }
+    ],
+    "ordinal": 6,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": "True 8\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "Roboto-VariableFont_wdth,wght.ttf",
+        "produced_by": null,
+        "source_path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+      }
+    ],
+    "ordinal": 7,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": "True\r\n['wght', 'wdth']\r\n18\r\n700.0\r\nCondensed Bold\r\n[100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0]\r\nWeight\r\n100 -> 900 (default: Regular (400))\r\n('Width [wdth]=Condensed (75%)', 'Weight [wght]=Bold (700)')\r\n(('en', 'Weight'),)\r\n100 -> 900 (default: Regular (400))\r\n{'requested_language': 'fr-ca', 'display_label': 'Weight', 'resolved_language': 'en', 'fallback_reason': 'english-fallback', 'has_requested_language_label': False}\r\n"
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "preview.png",
+        "produced_by": null,
+        "source_path": "website/generated/roboto-delta-compare.png"
+      },
+      {
+        "literal": "preview.svg",
+        "produced_by": null,
+        "source_path": "website/generated/roboto-qa-report-summary.svg"
+      },
+      {
+        "literal": "Roboto-VariableFont_wdth,wght.ttf",
+        "produced_by": null,
+        "source_path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+      }
+    ],
+    "ordinal": 8,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "source_roots": [],
+    "stderr": "",
+    "stdout": "22, 64623, 64624, 64625, 64626, 64627, 64628, 64629, 64630, 64631, 64632, 64633, 64634, 64635, 64636, 64637, 64638, 64639, 64640, 64641, 64642, 64643, 64644, 64645, 64646, 64647, 64648, 64649, 64650, 64651, 64652, 64653, 64654, 64655, 64656, 64657, 64658, 64659, 64660, 64661, 64662, 64663, 64664, 64665, 64666, 64667, 64668, 64669, 64670, 64671, 64672, 64673, 64674, 64675, 64676, 64677, 64678, 64679, 64680, 64681, 64682, 64683, 64684, 64685, 64686, 64687, 64688, 64689, 64690, 64691, 64692, 64693, 64694, 64695, 64696, 64697, 64698, 64699, 64700, 64701, 64702, 64703, 64704, 64705, 64706, 64707, 64708, 64709, 64710, 64711, 64712, 64713, 64714, 64715, 64716, 64717, 64718, 64719, 64720, 64721, 64722, 64723, 64724, 64725, 64726, 64727, 64728, 64729, 64730, 64731, 64732, 64733, 64734, 64735, 64736, 64737, 64738, 64739, 64740, 64741, 64742, 64743, 64744, 64745, 64746, 64747, 64748, 64749, 64750, 64751, 64752, 64753, 64754, 64755, 64756, 64757, 64758, 64759, 64760, 64761, 64762, 64763, 64764, 64765, 64766, 64767, 64768, 64769, 64770, 64771, 64772, 64773, 64774, 64775, 64776, 64777, 64778, 64779, 64780, 64781, 64782, 64783, 64784, 64785, 64786, 64787, 64788, 64789, 64790, 64791, 64792, 64793, 64794, 64795, 64796, 64797, 64798, 64799, 64800, 64801, 64802, 64803, 64804, 64805, 64806, 64807, 64808, 64809, 64810, 64811, 64812, 64813, 64814, 64815, 64816, 64817, 64818, 64819, 64820, 64821, 64822, 64823, 64824, 64825, 64826, 64827, 64828, 64829, 64830, 64831, 64832, 64833, 64834, 64835, 64836, 64837, 64838, 64839, 64840, 64841, 64842, 64843, 64844, 64845, 64846, 64847, 64848, 64849, 64850, 64851, 64852, 64853, 64854, 64855, 64856, 64857, 64858, 64859, 64860, 64861, 64862, 64863, 64864, 64865, 64866, 64867, 64868, 64869, 64870, 64871, 64872, 64873, 64874, 64875, 64876, 64877, 64878, 64879, 64880, 64881, 64882, 64883, 64884, 64885, 64886, 64887, 64888, 64889, 64890, 64891, 64892, 64893, 64894, 64895, 64896, 64897, 64898, 64899, 64900, 64901, 64902, 64903, 64904, 64905, 64906, 64907, 64908, 64909, 64910, 64911, 64912, 64913, 64914, 64915, 64916, 64917, 64918, 64919, 64920, 64921, 64922, 64923, 64924, 64925, 64926, 64927, 64928, 64929, 64930, 64931, 64932, 64933, 64934, 64935, 64936, 64937, 64938, 64939, 64940, 64941, 64942, 64943, 64944, 64945, 64946, 64947, 64948, 64949, 64950, 64951, 64952, 64953, 64954, 64955, 64956, 64957, 64958, 64959, 64960, 64961, 64962, 64963, 64964, 64965, 64966, 64967, 64968, 64969, 64970, 64971, 64972, 64973, 64974, 64975, 64976, 64977, 64978, 64979, 64980, 64981, 64982, 64983, 64984, 64985, 64986, 64987, 64988, 64989, 64990, 64991, 64992, 64993, 64994, 64995, 64996, 64997, 64998, 64999, 65000, 65001, 65002, 65003, 65004, 65005, 65006, 65007, 65008, 65009, 65010, 65011, 65012, 65013, 65014, 65015, 65016, 65017, 65018, 65019, 65020, 65021, 65022, 65023, 65136, 65137, 65138, 65139, 65140, 65141, 65142, 65143, 65144, 65145, 65146, 65147, 65148, 65149, 65150, 65151, 65152, 65153, 65154, 65155, 65156, 65157, 65158, 65159, 65160, 65161, 65162, 65163, 65164, 65165, 65166, 65167, 65168, 65169, 65170, 65171, 65172, 65173, 65174, 65175, 65176, 65177, 65178, 65179, 65180, 65181, 65182, 65183, 65184, 65185, 65186, 65187, 65188, 65189, 65190, 65191, 65192, 65193, 65194, 65195, 65196, 65197, 65198, 65199, 65200, 65201, 65202, 65203, 65204, 65205, 65206, 65207, 65208, 65209, 65210, 65211, 65212, 65213, 65214, 65215, 65216, 65217, 65218, 65219, 65220, 65221, 65222, 65223, 65224, 65225, 65226, 65227, 65228, 65229, 65230, 65231, 65232, 65233, 65234, 65235, 65236, 65237, 65238, 65239, 65240, 65241, 65242, 65243, 65244, 65245, 65246, 65247, 65248, 65249, 65250, 65251, 65252, 65253, 65254, 65255, 65256, 65257, 65258, 65259, 65260, 65261, 65262, 65263, 65264, 65265, 65266, 65267, 65268, 65269, 65270, 65271, 65272, 65273, 65274, 65275, 65276, 65277, 65278)\r\nRoboto Beta Bold Condensed Bold\r\nAcme Sans Menu Acme Sans Pro\r\nTrue\r\n3\r\nFalse\r\nTrue 0\r\n6 1\r\n5 5\r\nstatic-subset-from-variable-default\r\n1293\r\nlive variable-live\r\nstatic\r\nwdth=100 wght=700\r\n"
+  }
+]
