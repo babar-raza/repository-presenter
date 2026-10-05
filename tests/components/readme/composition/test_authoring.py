@@ -51,6 +51,7 @@ from repository_presenter.components.readme.composition.authoring import (
     source_prose,
     surface_members,
     title_terms,
+    uncarried_units,
     undocumented_types,
     unit_checks,
     unit_example_action_mismatches,
@@ -3329,3 +3330,39 @@ def test_an_uncarried_scope_unit_fails_and_a_carried_or_omitted_one_passes() -> 
     # obligation through this path.
     assert carried_units(dispositions, "opening", facts) == []
     assert carried_units(dispositions, "development_testing", facts) == []
+
+
+def test_the_scope_request_names_every_must_carry_unit_by_id() -> None:
+    """Slides-Java, 2026-10-05: both S6 scope attempts were rejected for the superseded limitation
+    units they never cited or omitted. The request now names every must-carry unit of the section
+    by its ID, from the S4 dispositions, so none can be missed by omission from the packet."""
+    units = (
+        "inherited_unit:088.list",
+        "inherited_unit:089.paragraph",
+        "inherited_unit:090.paragraph",
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            *(_fact(unit, "inherited_unit", f"text of {unit}") for unit in units),
+        ),
+    )
+    dispositions = {"dispositions": [_scope_disposition(unit) for unit in units]}
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, dispositions, PLAN)
+    }
+    objective = tasks["scope_limitations"].packet["objective"]
+    assert tasks["scope_limitations"].must_carry == frozenset(units)
+    for unit in units:
+        assert unit in objective, unit
+    # Negative control: uncarried_units names exactly the still-missing units of a section output.
+    partial = {
+        "units": [{"slot": "limitation:1", "fact_ids": [units[0]], "text": "x"}],
+        "omitted": [{"fact_id": units[1], "reason": "covered elsewhere"}],
+    }
+    assert uncarried_units(partial, frozenset(units)) == [units[2]]
+    assert uncarried_units(partial, frozenset(units[:2])) == []
+    assert uncarried_units({"units": []}, frozenset()) == []
