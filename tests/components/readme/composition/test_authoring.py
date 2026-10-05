@@ -33,6 +33,7 @@ from repository_presenter.components.readme.composition.authoring import (
     mask_allowed_values,
     merge_repeated_slots,
     merge_units,
+    nearest_accepted_identifiers,
     proper_noun,
     prose_nouns,
     reconstructed_task_output,
@@ -3137,3 +3138,115 @@ def test_a_sentence_naming_an_allowed_path_verbatim_is_not_refused_for_its_fragm
     assert mask_allowed_values(f"a {path} b", {path}) == "a   b"
     assert mask_allowed_values("a verification.md b", {path}) == "a verification.md b"
     assert mask_allowed_values("plain word here", {"plain", "word here"}) == "plain word here"
+
+
+_COMMENT_FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (
+        _fact("identity:repository", "identity", ENTRY.repository),
+        _fact(
+            "public_symbol:org.aspose.slides.foss.commentauthor",
+            "public_symbol",
+            "org.aspose.slides.foss.CommentAuthor",
+        ),
+        _fact(
+            "public_symbol:org.aspose.slides.foss.commentauthorcollection",
+            "public_symbol",
+            "org.aspose.slides.foss.CommentAuthorCollection",
+        ),
+        _fact("public_symbol:org.aspose.slides.foss.notesslide", "public_symbol", "NotesSlide"),
+    ),
+)
+
+
+def _capability_unit(text: str) -> dict[str, Any]:
+    return {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": text,
+                "fact_ids": ["public_symbol:org.aspose.slides.foss.commentauthor"],
+            }
+        ],
+        "omitted": [],
+    }
+
+
+def test_a_rejected_identifier_names_the_nearest_accepted_spellings_without_accepting_it() -> None:
+    """Live shape (aspose-slides-foss/Aspose.Slides-FOSS-for-Java, 2026-10-05): the model wrote
+    ``CommentAuthors`` in both attempts and in the recover copy, because the bare rejection gave
+    its one re-ask nothing to correct toward. The rejection now names the accepted spellings it
+    most plausibly meant - feedback only: the identifier is still rejected, nothing is
+    substituted, and what is accepted does not change."""
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"public_symbol:org.aspose.slides.foss.commentauthor"}),
+        ("capability:1",),
+    )
+    errors = unit_checks(
+        _capability_unit("Manage comments through CommentAuthors per slide."),
+        task,
+        _COMMENT_FACTS,
+        "Aspose.Slides FOSS for Java",
+    )
+    assert errors == [
+        "unit capability:1: identifiers that are not accepted fact values: "
+        "CommentAuthors (nearest accepted: CommentAuthor, CommentAuthorCollection)"
+    ]
+    # Negative controls on the accepted set: the verbatim spellings the message points to still
+    # pass, and so does any other accepted value - the hint changed no verdict.
+    for accepted in ("CommentAuthor", "CommentAuthorCollection", "NotesSlide"):
+        assert (
+            unit_checks(
+                _capability_unit(f"Manage comments through {accepted} per slide."),
+                task,
+                _COMMENT_FACTS,
+                "Aspose.Slides FOSS for Java",
+            )
+            == []
+        ), accepted
+
+
+def test_an_identifier_with_no_near_accepted_spelling_gets_no_suggestion() -> None:
+    """Negative control: nothing close is not a reason to guess. The rejection is exactly the
+    message it was before the hint existed."""
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"public_symbol:org.aspose.slides.foss.commentauthor"}),
+        ("capability:1",),
+    )
+    errors = unit_checks(
+        _capability_unit("It also offers TelemetryUploader for each slide."),
+        task,
+        _COMMENT_FACTS,
+        "Aspose.Slides FOSS for Java",
+    )
+    assert errors == [
+        "unit capability:1: identifiers that are not accepted fact values: TelemetryUploader"
+    ]
+
+
+def test_nearest_accepted_identifiers_is_deterministic_bounded_and_single_token_only() -> None:
+    accepted = {
+        "CommentAuthor",
+        "CommentAuthorCollection",
+        "CommentAuthorKind",
+        "CommentAuthorList",
+        "CommentAuthorMap",
+        "Create a comment author",  # a sentence is not a name
+        "XY",
+    }
+    first = nearest_accepted_identifiers("CommentAuthors", accepted)
+    assert first == nearest_accepted_identifiers("CommentAuthors", reversed(sorted(accepted)))
+    assert first[0] == "CommentAuthor"  # closest spelling first
+    assert len(first) == 4  # a handful, never the whole family
+    assert "Create a comment author" not in first
+    # A call form keeps matching its bare name, a verbatim accepted value suggests nothing of
+    # itself, and a token too short to be meaningful suggests nothing at all.
+    assert "CommentAuthor" not in nearest_accepted_identifiers("CommentAuthor", accepted)
+    assert nearest_accepted_identifiers("CommentAuthors()", accepted)[0] == "CommentAuthor"
+    assert nearest_accepted_identifiers("Xy", accepted) == []
