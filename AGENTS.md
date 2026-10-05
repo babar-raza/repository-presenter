@@ -46,7 +46,7 @@ Never create a competing plan, roadmap, mission graph, task graph, or status aut
 ## Work Loop
 
 1. Read the current gate and active work item.
-2. Confirm prerequisites; inspect affected code, tests, history, and evidence.
+2. Start in a worktree from `scripts/new_worktree.sh`, never the main checkout (REPOSITORY_LAYOUT §6); confirm prerequisites; inspect code, tests, evidence.
 3. Select the smallest coherent change that closes a gate predicate.
 4. Implement code and focused tests together.
 5. Run focused checks, followed by the broader checks required by the gate.
