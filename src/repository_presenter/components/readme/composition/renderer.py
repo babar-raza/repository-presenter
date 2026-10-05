@@ -71,7 +71,10 @@ from repository_presenter.core.registry.models import RegistryEntry
 # (runtime badge from the ecosystem spec's floor fact, build status only from a verified push
 # workflow, contributors only when the source README's own target resolved), and the Enterprise
 # Edition anchor reads "full-featured <product> - Enterprise Edition".
-RENDERER_VERSION = "27"
+# 28: Navigation links only the sections whose body renders, so a required section with no
+# supporting fact (License in a repository with no license file) leaves no link to an omitted
+# heading (BC-06, aspose-gis-foss/Aspose.GIS.FOSS-for-.Net).
+RENDERER_VERSION = "28"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -139,6 +142,9 @@ class RenderContext:
                 for item in plan.get("sections", [])
             )
         ]
+        # The ids of the included sections whose body renders non-empty: exactly the sections
+        # render_readme emits a heading for. Computed lazily by _rendered_section_ids.
+        self.rendered_ids: frozenset[str] | None = None
         self.units: dict[tuple[str, str], str] = {
             (unit["section"], unit["slot"]): unit["text"] for unit in units.get("units", [])
         }
@@ -333,11 +339,28 @@ def _badges(context: RenderContext) -> list[str]:
     return [markdown for _slot, markdown in badge_slots(context)]
 
 
+def _rendered_section_ids(context: RenderContext) -> frozenset[str]:
+    """The included sections whose body renders non-empty - the exact set ``render_readme``
+    emits a heading for. Navigation is derived from this set, so it never links a heading the
+    document omits (a required section with no supporting fact, such as License in a repository
+    with no license file, renders no body and so no heading). Navigation's own body is not an
+    input here, so this cannot recurse."""
+    if context.rendered_ids is None:
+        context.rendered_ids = frozenset(
+            section.id
+            for section in context.included
+            if section.id != "navigation"
+            and any(line.strip() for line in _section_body(context, section))
+        )
+    return context.rendered_ids
+
+
 def _navigation(context: RenderContext) -> list[str]:
+    rendered = _rendered_section_ids(context)
     return [
         f"- [{section.heading}](#{anchor(section.heading)})"
         for section in context.included
-        if section.heading is not None and section.id != "navigation"
+        if section.heading is not None and section.id != "navigation" and section.id in rendered
     ]
 
 
