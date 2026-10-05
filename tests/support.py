@@ -508,3 +508,26 @@ def fake_npm(directory: Path, fail_run: bool = False) -> str:
 def npm_calls(npm: str) -> list[str]:
     log = Path(npm).parent / "npm.log"
     return [line.strip() for line in log.read_text("utf-8").splitlines()] if log.is_file() else []
+
+
+def distinct_process_identities(patch: pytest.MonkeyPatch) -> None:
+    """Make every ``Invocation.begin()`` under ``patch`` record a different process.
+
+    A test that calls ``main`` twice stands in for two fresh processes, and the no-op proof
+    refuses an invocation that shares a process with the one that sealed the bundle
+    (``core/noop_proof.py``) while one pytest worker is one process. The identity reading itself,
+    and a pair that really is one process, are tested in ``tests/core/test_noop_proof.py``.
+    """
+    from repository_presenter.core import noop_proof
+
+    real = noop_proof.current_process_identity
+    numbers = iter(range(1, 10**9))
+
+    def distinct() -> noop_proof.ProcessIdentity:
+        number = next(numbers)
+        base = real()
+        return noop_proof.ProcessIdentity(
+            base.pid, f"{base.started}#{number}", base.boot_id, f"{base.nonce}#{number}"
+        )
+
+    patch.setattr(noop_proof, "current_process_identity", distinct)

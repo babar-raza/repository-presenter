@@ -295,7 +295,12 @@ batch, a coherence batch, an independent_review read, and a batch section_author
 `runs/` directory can replay an unchanged revision with zero provider calls; a non-batch
 section_authoring task is reconstructed from `content_units.json` alone instead, and is not
 duplicated here. A transaction that composed without one seals without it; `probes.json` and
-`calls.jsonl` carry a clock, so neither is compared byte for byte in the no-op proof. The
+`calls.jsonl` carry a clock, so neither is compared byte for byte in the no-op proof.
+`calls.jsonl` keeps every attempt of the transaction: a line for a call the sealed composition did
+not consume carries `retained_reason` (audit only: replay seeding ignores it, and a measure of
+first-attempt acceptance filters on it). The manifest records `sealed_by` (the invocation and
+process that wrote the bundle) and `ledger_totals` (sums over `calls.jsonl`), and verification
+fails closed when they stop reconciling with the ledger. The
 manifest seals the
 bundle (`schemas/candidate-bundle.schema.json`); only `READY_FOR_PROPOSAL` counts toward N/34.
 The manifest also carries an optional `call_variance`: when a job's successful attempts across

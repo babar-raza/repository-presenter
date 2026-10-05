@@ -38,6 +38,7 @@ from support import (
     REPO_ROOT,
     FakeDefaultBranchReader,
     commit_all,
+    distinct_process_identities,
     init_git_repository,
     mock_gateway,
     monitor_registry_entry,
@@ -1055,7 +1056,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "independent_review",
         "targeted_repair",
     }
-    assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
+    assert dependencies["validators"]["BC-11"] == "2" and dependencies["components"] == {
         "shell": "6",
         "renderer": "29",
         "normalisation": "26",
@@ -1981,6 +1982,7 @@ def sealed_canary(canary_source: dict[str, Any], tmp_path_factory: pytest.TempPa
         patch.setenv("GPT_OSS_API_KEY", LIVE_KEY)
         _serve_canary(patch, canary_source["source"])
         mock_gateway(patch, _ChatGateway())
+        distinct_process_identities(patch)  # two runs here stand in for two fresh processes
         assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
         assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
     return project
@@ -3244,6 +3246,76 @@ def test_monitor_refuses_an_owner_with_no_enabled_entry(
     assert code == EXIT_USAGE
     assert reader.calls == []
     assert "no enabled registry entries for owner aspose-nope-foss" in capsys.readouterr().err
+
+
+def test_the_hosted_rerun_gate_reads_the_reruns_own_ledger_not_its_exit_code(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """present.yml's rerun used to pass on exit code 0 alone. A rerun that makes live calls exits
+    0 as well, so the gate is `verify-noop-proof`: it counts the second invocation's provider
+    calls from the ledger that invocation wrote, and needs a second, different process."""
+    monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+    root = str(project_with_registry)
+    records = tmp_path / "records"
+
+    def present(name: str, *extra: str) -> int:
+        return main(
+            [
+                "present",
+                "--repo",
+                CANARY,
+                "--root",
+                root,
+                "--invocation-record",
+                str(records / name),
+                *extra,
+            ]
+        )
+
+    def verify(first: str, second: str) -> int:
+        return main(
+            [
+                "verify-noop-proof",
+                "--first",
+                str(records / first),
+                "--second",
+                str(records / second),
+                "--root",
+                root,
+            ]
+        )
+
+    assert present("first.json") == EXIT_OK
+    assert present("second.json") == EXIT_OK
+    capsys.readouterr()
+    assert verify("first.json", "second.json") == EXIT_OK
+    assert "0 provider calls" in capsys.readouterr().out
+    bundle = next((project_with_registry / "candidates").glob("*/*/manifest.json")).parent
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "READY_FOR_PROPOSAL"
+    assert (
+        manifest["no_op_proof"]["rerun"]["invocation_id"]
+        == (json.loads((records / "second.json").read_text("utf-8"))["invocation_id"])
+    )
+    assert (
+        manifest["no_op_proof"]["first_run"]["invocation_id"]
+        == (json.loads((records / "first.json").read_text("utf-8"))["invocation_id"])
+    )
+
+    # A third run that makes live calls (--fresh) still exits 0 - the gate is what refuses it.
+    assert present("third.json", "--fresh") == EXIT_OK
+    capsys.readouterr()
+    assert verify("first.json", "third.json") == EXIT_INCONSISTENT
+    assert "[NONZERO_PROVIDER_CALLS]" in capsys.readouterr().err
+
+    # The same process claiming both invocations is refused whatever its ledger says.
+    assert verify("second.json", "second.json") == EXIT_INCONSISTENT
+    assert "[SAME_PROCESS]" in capsys.readouterr().err
 
 
 def _scheduled_project(root: Path) -> Path:

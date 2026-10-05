@@ -271,6 +271,7 @@ from repository_presenter.core.llm.fallback import describe, select_models
 from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, JobResult
 from repository_presenter.core.llm.ledger import LEDGER_FILENAME, Ledger
 from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME, load_manifests, validate_routes
+from repository_presenter.core.noop_proof import Invocation, NoOpProofError, verify_noop_pair
 from repository_presenter.core.preflight import (
     CATALOG_FILENAME,
     PREFLIGHT_DIRNAME,
@@ -447,6 +448,18 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "with --durable-state: the triggering workflow run's own identity, used as the "
             "trigger's dedup key; defaults to the GITHUB_RUN_ID environment variable"
+        ),
+    )
+    present.add_argument(
+        "--invocation-record",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "write this invocation's record (process id, process start time, boot marker, "
+            "invocation id, exit status, the call ledger it wrote to) to PATH when the run ends; "
+            "what `verify-noop-proof` reads to prove a rerun was a different process that made "
+            "zero provider calls"
         ),
     )
     present.add_argument(
@@ -684,6 +697,17 @@ def build_parser() -> argparse.ArgumentParser:
             "present - prints the diff and makes no write call when omitted"
         ),
     )
+    verify_noop = subcommands.add_parser(
+        "verify-noop-proof",
+        help=(
+            "prove from two `present --invocation-record` files that the second run was a "
+            "different process and made zero provider calls, counted from its own call ledger "
+            "(never from an exit code); fails with a typed reason otherwise"
+        ),
+    )
+    verify_noop.add_argument("--first", type=Path, required=True, metavar="PATH")
+    verify_noop.add_argument("--second", type=Path, required=True, metavar="PATH")
+    verify_noop.add_argument("--root", type=Path, default=None, help=root_help)
     propose = subcommands.add_parser(
         "propose",
         help=(
@@ -871,8 +895,17 @@ def main(argv: Sequence[str] | None = None) -> int:
                 workflow_run_id=args.workflow_run_id,
                 holder_id=args.holder_id,
                 state_remote=args.state_remote,
+                invocation_record=args.invocation_record,
             )
-        return run_present(args.repo, args.root, facts_only=args.facts_only, fresh=args.fresh)
+        return run_present(
+            args.repo,
+            args.root,
+            facts_only=args.facts_only,
+            fresh=args.fresh,
+            invocation_record=args.invocation_record,
+        )
+    if args.command == "verify-noop-proof":
+        return run_verify_noop_proof(args.first, args.second, args.root)
     if args.command == "preflight":
         return run_preflight(args.root)
     if args.command == "monitor":
@@ -2374,6 +2407,39 @@ def _report_facts_only(
     return EXIT_OK
 
 
+def run_verify_noop_proof(first: Path, second: Path, root_argument: Path | None) -> int:
+    """``verify-noop-proof``: the hosted gate on a no-op rerun.
+
+    Counts the second invocation's provider calls from the call ledger it wrote (not from its
+    exit status and not from its log), requires the two invocations to have been different
+    processes, and fails with the typed reason when either does not hold or the ledger is absent.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        verified = verify_noop_pair(first, second, root)
+    except NoOpProofError as exc:
+        _fail(f"no-op proof failed [{exc.reason}]: {exc.detail}")
+        return exc.exit_code
+    measurement = verified.measurement
+    if measurement is None:
+        print(
+            f"no-op proof not applicable: both runs ended in {verified.second.disposition} "
+            "(no candidate, so no ledger); the rerun is a different process "
+            f"(pid {verified.second.identity.pid} against {verified.first.identity.pid})"
+        )
+        return EXIT_OK
+    print(
+        f"no-op proof verified: rerun {verified.second.invocation_id} (pid "
+        f"{verified.second.identity.pid}) is a different process from "
+        f"{verified.first.invocation_id} (pid {verified.first.identity.pid}); "
+        f"{measurement.provider_calls} provider calls over {measurement.records} ledger records "
+        f"({measurement.cache_reuses} reuses)"
+    )
+    return EXIT_OK
+
+
 def run_present(
     repository: str,
     root_argument: Path | None,
@@ -2381,6 +2447,49 @@ def run_present(
     facts_only: bool = False,
     fresh: bool = False,
     on_disposition: Callable[[Path], None] | None = None,
+    invocation_record: Path | None = None,
+) -> int:
+    """Run one ``present`` invocation, recording it when ``invocation_record`` is given.
+
+    The record names this process (id, start time, boot marker), the invocation's id - stamped on
+    every ledger record it appends - and the ledger it wrote to, so ``verify-noop-proof`` can
+    count the rerun's provider calls from that ledger afterwards. It is written however the run
+    ends; a run that never reached its ledger records none, and the verifier fails on it. A run
+    that ends in a processability disposition (no candidate, so no ledger) records that instead.
+    """
+    try:
+        invocation = Invocation.begin()
+    except NoOpProofError as exc:
+        _fail(f"[{exc.reason}] {exc.detail}")
+        return exc.exit_code
+
+    def disposed(path: Path) -> None:
+        invocation.disposition = path.name
+        if on_disposition is not None:
+            on_disposition(path)
+
+    exit_code: int | None = None
+    try:
+        exit_code = _run_present(repository, root_argument, facts_only, fresh, invocation, disposed)
+        return exit_code
+    finally:
+        if invocation_record is not None:
+            root = (
+                root_argument.resolve()
+                if root_argument is not None
+                else find_project_root(Path.cwd())
+            )
+            if root is not None:
+                invocation.write(invocation_record, root, exit_code)
+
+
+def _run_present(
+    repository: str,
+    root_argument: Path | None,
+    facts_only: bool,
+    fresh: bool,
+    invocation: Invocation,
+    on_disposition: Callable[[Path], None] | None,
 ) -> int:
     """Admit ``repository`` from the registry, then run the transaction stages.
 
@@ -2554,7 +2663,8 @@ def run_present(
         # Stages S3 to S10 run as rounds: a blocking defect is repaired once at its causal
         # stage and the downstream stages re-run; a second equivalent failure is reported,
         # never retried.
-        ledger = Ledger(transaction / LEDGER_FILENAME)
+        ledger = Ledger(transaction / LEDGER_FILENAME, invocation_id=invocation.invocation_id)
+        invocation.attach_ledger(entry.repository, ledger.path)
         if fresh:
             # A prior local run of this exact repo+revision (runs/ is gitignored, ephemeral
             # working state, never the durable record) would otherwise still answer from its own
@@ -2661,6 +2771,7 @@ def run_present(
                 transaction=transaction,
                 candidates=root / CANDIDATES_DIRNAME,
                 provider_calls=ledger.provider_calls_made,
+                invocation=invocation,
                 consumed_calls=ledger.consumed_calls,
                 secrets=configured_secrets(os.environ),
                 earliest_affected_stage=evaluated["earliest_affected_stage"],
@@ -2779,6 +2890,7 @@ def run_present_hosted(
     workflow_run_id: str | None,
     holder_id: str | None,
     state_remote: str,
+    invocation_record: Path | None = None,
 ) -> int:
     """``present --durable-state`` (G5-W05): wire G5-W04's durable-state backend around one
     unmodified :func:`run_present` invocation - see
@@ -2830,6 +2942,7 @@ def run_present_hosted(
                 facts_only=facts_only,
                 fresh=fresh,
                 on_disposition=disposition_paths.append,
+                invocation_record=invocation_record,
             ),
             classify=lambda exit_code: classify_present_outcome(
                 root,

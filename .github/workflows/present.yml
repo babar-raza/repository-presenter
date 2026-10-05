@@ -252,9 +252,16 @@ jobs:
           # process rerun: zero new provider calls, the literal acceptance-bar proof. A distinct
           # --workflow-run-id for each keeps trigger.py's own dedup (section 3.2) from folding the
           # second call into the first's already-completed transaction and skipping it outright.
+          # Each invocation writes a record (--invocation-record) of its process and the call
+          # ledger it used; after the rerun, `verify-noop-proof` is what gates this step: it
+          # counts the rerun's provider calls from that ledger and requires the two runs to have
+          # been different processes. An exit code of 0 alone proves neither.
+          noop_dir="$RUNNER_TEMP/noop-proof"
+          mkdir -p "$noop_dir"
           if repository-presenter present \
             --repo "$TARGET_REPOSITORY" \
             --durable-state \
+            --invocation-record "$noop_dir/first.json" \
             --trigger-event-type "$TRIGGER_EVENT_TYPE" \
             --workflow-run-id "${{ github.run_id }}"; then
             first_exit=0
@@ -270,7 +277,14 @@ jobs:
             --repo "$TARGET_REPOSITORY" \
             --durable-state \
             --trigger-event-type "$TRIGGER_EVENT_TYPE" \
-            --workflow-run-id "${{ github.run_id }}-noop-proof"
+            --workflow-run-id "${{ github.run_id }}-noop-proof" \
+            --invocation-record "$noop_dir/second.json"
+          if ! repository-presenter verify-noop-proof \
+            --first "$noop_dir/first.json" \
+            --second "$noop_dir/second.json"; then
+            echo "::error::no-op proof failed: the rerun is not proven a different process making zero provider calls (typed reason on the line above)"
+            exit 1
+          fi
           echo "::endgroup::"
 
       # Hands the bundle this run just sealed to the gated propose job, and only when it is

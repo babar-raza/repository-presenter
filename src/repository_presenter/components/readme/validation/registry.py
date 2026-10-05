@@ -104,7 +104,12 @@ VALIDATION_FILENAME = "validation.json"
 # run, a visible section never sits in a collapsed block, narration covers the vocabulary idea.md
 # lists, and an At a Glance label wraps within three lines. A bundle sealed under 8 re-checks under
 # 9 and, where it newly fails, shows VALID_UPDATE_AVAILABLE on re-render, not invalidation.
-VALIDATOR_VERSION = "9"
+# 10: check 11 is judged from measured evidence (the G5 no-op proof hardening, core/noop_proof.py):
+# the rerun's provider calls counted from its own ledger, freshness derived from two recorded
+# process identities, and the bundle's recorded totals reconciled against its ledger. A bundle
+# sealed under 9 shows as stale and records a pending update; its proof is retained, not
+# invalidated.
+VALIDATOR_VERSION = "10"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -323,8 +328,10 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-11",
-        "1",
-        "Fresh-process rerun is byte-identical with zero provider calls",
+        "2",
+        "Fresh-process rerun, a different process by recorded identity, is byte-identical with "
+        "zero provider calls counted from its call ledger, and the bundle's totals reconcile "
+        "with that ledger",
         ("bundle",),
         "S12",
     ),
@@ -2098,8 +2105,8 @@ def record_replay_verdict(document: dict[str, Any]) -> dict[str, Any]:
             "verdict": "PASS",
             "causal_stage": None,
             "details": [
-                "judged by the fresh-process replay: every artifact byte-identical, zero "
-                "provider calls"
+                "judged by the fresh-process replay: a different process by recorded identity, "
+                "every artifact byte-identical, zero provider calls counted from the call ledger"
             ],
         }
         if check.get("id") == "BC-11"
