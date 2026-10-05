@@ -2232,6 +2232,25 @@ def test_bound_visible_line_overage_is_none_without_an_overage_or_a_lever_to_cle
     assert bound_visible_line_overage(cleared, overage=5, levers=flagship) is None
 
 
+def test_an_at_a_glance_title_that_wraps_past_three_lines_is_shortened_at_planning() -> None:
+    """README_CONTRACT.md section 2.1: "no label wrapping past three lines at Mermaid's default
+    node width - a longer title is shortened at planning, never clipped at render"."""
+    long_title = " ".join(["Export", "scenes"] * 10)
+    wide = _plan(
+        core_capabilities=[
+            {"title": long_title, "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+            {"title": "Run examples", "fact_ids": ["example:001"]},
+        ],
+        at_a_glance={
+            "input_format_ids": [],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": [long_title, "Export STL", "Run examples"],
+        },
+    )
+    assert any("wraps past 3 lines" in error for error in plan_checks(wide, FACTS))
+
+
 def _slot_facts(*urls: str) -> FactsDocument:
     return FactsDocument(
         ENTRY.repository,

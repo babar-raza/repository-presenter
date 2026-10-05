@@ -36,6 +36,9 @@ from repository_presenter.components.readme.composition.components.shell import 
     SEMANTIC_SHELL,
     section_ids,
 )
+from repository_presenter.components.readme.composition.components.terminology import (
+    canonical_forms,
+)
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.core.facts import Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.ledger import canonical_hash
@@ -269,7 +272,11 @@ _TYPE_OBJECTIVE = (
 # unchanged. Measured on aspose-slides-foss/Aspose.Slides-FOSS-for-Java (2026-10-05): the model
 # wrote CommentAuthors in both attempts and the recover copy, and the bare rejection gave the one
 # re-ask nothing to correct toward (accepted: CommentAuthor, CommentAuthorCollection).
-NORMALISATION_VERSION = "24"
+# "25" (verification V2 item 8): the abbreviation list moved into the one governed registry
+# (components/terminology.py), gained "PS" and the mixed-case standards glTF and npm, and a
+# discovered format extension qualifies from two letters - so canonical_abbreviations() now raises
+# "ps" to "PS" and writes "glTF", not "GLTF", a real meaning change to rendered bytes.
+NORMALISATION_VERSION = "25"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -290,36 +297,6 @@ def edition_substitutes(text: str) -> list[str]:
 # The words of a capability title, extensions included, so the concrete things a title names
 # can be looked for among the formats the facts record.
 _TITLE_WORD = re.compile(r"[A-Za-z0-9.]+")
-# Abbreviations the document always spells one way. The renderer normalises prose to these forms
-# and BC-07 judges the rendered document against the same set, so the two cannot drift
-# (docs/RESEARCH_AND_GUIDELINES.md section 27.10).
-ABBREVIATIONS = frozenset(
-    {
-        "PDF",
-        "XLSX",
-        "HTML",
-        "EPS",
-        "XPS",
-        "API",
-        "JSON",
-        "XML",
-        "CSV",
-        "SVG",
-        "URL",
-        "HTTP",
-        "SDK",
-        "CLI",
-    }
-)
-# Format extensions that are also ordinary words are never judged as abbreviations. G4-W17
-# arrival item 104: "one" (Microsoft OneNote's own format extension) was missing - measured on
-# Note-Python, canonical_abbreviations() added "one" -> "ONE" and BC-07 flagged the ordinary
-# pronoun "one" in unrelated prose ("The most illustrative one"), exactly the false-positive
-# class this set exists to prevent, simply not yet populated for a format this portfolio had
-# not drawn when the set was built.
-WORD_EXTENSIONS = frozenset(
-    {"max", "ply", "dat", "raw", "bin", "log", "map", "mat", "tag", "ini", "one"}
-)
 _FORBIDDEN = (
     ("```", "a code fence"),
     ("http://", "a URL"),
@@ -1295,8 +1272,9 @@ def source_prose(text: str) -> str:
 
 # A brand name whose own official spelling breaks the "every dotted segment capitalised" shape
 # below, the same shape a lowercase file extension has (CHANGELOG.md, config.js) - so the shape
-# rule alone cannot tell them apart. A short, curated exact-match set, mirroring ABBREVIATIONS
-# and WORD_EXTENSIONS above, not a broadened shape rule: widening the rule itself would also have
+# rule alone cannot tell them apart. A short, curated exact-match set, mirroring the terminology
+# registry's UPPERCASE_TERMS and WORD_EXTENSIONS tables (components/terminology.py), not a
+# broadened shape rule: widening the rule itself would also have
 # to admit a real file path of the identical shape (Program.cs, index.js) as a proper noun,
 # exactly the false-positive class those two existing sets, and
 # test_a_dotted_or_underscored_token_is_a_path_not_a_proper_noun's own CHANGELOG.md assertion,
@@ -1447,15 +1425,11 @@ def inherited_unit_named_symbols(facts: FactsDocument, value: str) -> frozenset[
 def canonical_abbreviations(facts: FactsDocument) -> dict[str, str]:
     """Lowercase spelling to canonical form, for every abbreviation this document owns.
 
-    The fixed set plus every format extension the facts record that is not an ordinary word, so a
-    repository whose formats are OBJ and GLB gets those too.
+    The governed terminology registry (``components/terminology.py``) plus every format extension
+    the facts record that is not an ordinary word, so a repository whose formats are OBJ and GLB
+    gets those too. The registry is the one owner of the list; this only reads the facts.
     """
-    forms = {abbreviation.lower(): abbreviation for abbreviation in ABBREVIATIONS}
-    for fact in facts.by_kind("format"):
-        extension = fact.value.lstrip(".").lower()
-        if len(extension) >= 3 and extension.isalpha() and extension not in WORD_EXTENSIONS:
-            forms[extension] = extension.upper()
-    return forms
+    return canonical_forms(fact.value for fact in facts.by_kind("format"))
 
 
 def forbidden_text_pattern(extra: Sequence[str] = ()) -> str:

@@ -25,6 +25,11 @@ from repository_presenter.components.readme.composition.authoring import (
     supporting_fact_ids,
     title_terms,
 )
+from repository_presenter.components.readme.composition.components.glance import (
+    GLANCE_LINE_CHARS,
+    GLANCE_MAX_LINES,
+    wrapped_lines,
+)
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
     Section,
@@ -1010,11 +1015,18 @@ def plan_checks(
             # Geometry-safe labels (README_CONTRACT.md section 2.1): a longer title is
             # shortened here at planning, never clipped at render.
             for token in title.split():
-                if len(token) > 28:
+                if len(token) > GLANCE_LINE_CHARS:
                     errors.append(
                         "at_a_glance capability title carries an unbroken token over 28 "
                         f"characters: {token!r}; shorten the title"
                     )
+            # ... and no label wraps past three lines at the one common node width (section 2.1);
+            # BC-07 judges the rendered label against the same function.
+            if len(wrapped_lines(title)) > GLANCE_MAX_LINES:
+                errors.append(
+                    f"at_a_glance capability title {title!r} wraps past {GLANCE_MAX_LINES} lines "
+                    f"at {GLANCE_LINE_CHARS} characters per line; shorten the title"
+                )
 
     examples = {i for i in supported if i.startswith("example:")}
     quick = output.get("quick_start_example_id")
