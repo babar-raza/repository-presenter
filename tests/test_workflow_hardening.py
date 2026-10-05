@@ -435,6 +435,7 @@ GOOD = {
     "INPUT_BASE_BRANCH": "",
     "INPUT_AUTHORIZATION_RECORD": "",
     "INPUT_DO_PROPOSE": "false",
+    "INPUT_CANDIDATE_ARTIFACT": "",
 }
 RECORD = "ops/proposal-authorizations/2026-10-05-acme-readme.json"
 
@@ -482,6 +483,7 @@ def test_a_valid_dry_run_dispatch_passes_and_publishes_the_split_target(tmp_path
         "repo": "acme-org/disposable-target",
         "base_branch": "",
         "authorization_record": "",
+        "candidate_artifact": "",
     }
 
 
@@ -545,6 +547,38 @@ def test_a_real_write_without_an_authorization_record_fails_closed(tmp_path: Pat
     result = _validate(tmp_path, do_propose="true")
     assert result.returncode != 0
     assert "authorization_record" in result.stdout
+
+
+def test_a_scheduled_write_may_omit_the_record_because_it_is_located_for_the_sealed_candidate(
+    tmp_path: Path,
+) -> None:
+    result = _validate(
+        tmp_path,
+        do_propose="true",
+        candidate_artifact="sealed-acme-org__disposable-target",
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    output = (tmp_path / "output").read_text(encoding="utf-8")
+    assert "candidate_artifact=sealed-acme-org__disposable-target" in output
+
+
+@pytest.mark.parametrize(
+    "artifact",
+    [
+        "sealed-other-org__other-repo",
+        "sealed-acme-org__disposable-target; echo pwned",
+        "../sealed-acme-org__disposable-target",
+        "sealed-acme-org__disposable-target\n::set-output name=x::y",
+        "$(id)",
+    ],
+)
+def test_a_candidate_artifact_naming_anything_but_the_targets_own_sealed_bundle_is_rejected(
+    tmp_path: Path, artifact: str
+) -> None:
+    result = _validate(tmp_path, candidate_artifact=artifact)
+    assert result.returncode != 0
+    assert "candidate_artifact" in result.stdout
+    assert artifact not in result.stdout
 
 
 # --- present.yml: the resolved target is validated before anything reaches $GITHUB_OUTPUT --------
