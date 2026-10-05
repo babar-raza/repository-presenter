@@ -5432,3 +5432,9 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   - **Verified on GitHub 2026-10-05.** Merged: #257 (gated issue close, token provenance), #258 (strays hint), #259 (Font-Python seal), #260 (repair ledger version), #261 (plan id list cap), #262 (register). Still open: #248 (second-read cause), #249 (README contract enforcement), #250 (measured no-op proof), #263 (workflow sync helpers, not a register item).
   - **Changed.** REV-V1-07 is FIXED by #237 and #257 (the entry stays open until reverified); G6-W05 no longer depends on #257; G3-W07's freeze now waits only on #250, #248 and #249; REG-14 restated to match.
   - **Reverse by:** `git revert` this commit; it changes records only.
+- **2026-10-05 · owner decisions recorded: second reviewer is a typed trigger (OWNER-15); deferrals are a per-class registry (OWNER-14); profile still open (OWNER-13); PR #192 closed (branch kept).** `project/state.yaml` `owner_items`, `docs/DEFECT_INDEX.md`, `docs/RESEARCH_AND_GUIDELINES.md` 27.9.
+  - **OWNER-15 SATISFIED.** The hard-coded `MAJORITY_VOTE_REPOSITORIES` set is replaced by a typed risk trigger; the work item is G3-W06 (REV-V2-10, now PENDING, not yet built).
+  - **OWNER-14 SATISFIED.** Deferred units are advisory and never public; a class blocks only where its registry entry says so. The per-class rules are `fix/deferral-policy-1007` (pending); enforcement is G5-W08 (REV-V2-03, now PENDING).
+  - **OWNER-13 remains OPEN.** The 30-point profile is not ratified; REV-V2-02, REV-V4-08 and REG-03 stay on it.
+  - **PR #192 CLOSED (branch kept).** It was the stale G5-W05 hosted-proof branch; nothing in the register depends on it.
+  - **Reverse by:** `git revert` this commit; it changes records only.
