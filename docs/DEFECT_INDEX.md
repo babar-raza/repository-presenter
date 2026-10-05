@@ -696,7 +696,7 @@ Counted across every sealed `dispositions.json` whose manifest state is `READY_F
 
 **Id** REV-V2-03 · **Severity** High · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 3 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: source reconciliation and bundle summary; no work item yet; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: the sealed manifest or composition summary records a `deferred_units` count and ids, `repository-presenter status` or the PR body surfaces them for review, and a test shows a candidate with unflagged `DEFER_UNRESOLVED` units is not sealed READY (or is sealed with the flag visible).
 
-**Work item** G5-W08 · **Register status** OWNER · OWNER-14; no reader of DEFER_UNRESOLVED under `validation/` or `bundle/`; 14 READY bundles, 82 units. The entry stays Open in this index, awaiting independent reverification; a FIXED status here names the merged fix, not a reverified one.
+**Work item** G5-W08 · **Register status** PENDING · OWNER-14 resolved as a per-class deferral registry (fix/deferral-policy-1007 pending); no reader of DEFER_UNRESOLVED under `validation/` or `bundle/` yet; 14 READY bundles, 82 units. The entry stays Open in this index, awaiting independent reverification; a FIXED status here names the merged fix, not a reverified one.
 
 ### `readme.canonical_name_enforced_only_in_renderer_slots` (REV-V2-04)
 
@@ -794,7 +794,7 @@ All three sub-claims confirmed. (1) `composition/authoring.py::ABBREVIATIONS` is
 
 **Id** REV-V2-10 · **Severity** Medium · **Status** Open, awaiting independent reverification. Source: independent reviewer finding, verification report V2 item 10 (CONFIRMED), re-read directly against `origin/main` `cdaf793d` on 2026-10-05. Owning item: independent review (typed risk trigger); no work item yet. Reducing the ACCEPT second read is an owner decision because it trades cost against assurance; the fix PR will be named in a follow-up `docs/DECISION_LOG.md` entry. Not fixed. Moves to Resolved only on a fix that an independent reviewer has re-verified by this predicate: `rounds.py` invokes the second reviewer only when a typed risk trigger fires (a test shows a clean first-reviewer ACCEPT makes no second call), and `MAJORITY_VOTE_REPOSITORIES` is replaced by a typed classification backed by a regression-corpus record.
 
-**Work item** G3-W06 · **Register status** OWNER · OWNER-15; `review/independent/review.py:325` `MAJORITY_VOTE_REPOSITORIES`, `repair/rounds.py:534`. The entry stays Open in this index, awaiting independent reverification; a FIXED status here names the merged fix, not a reverified one.
+**Work item** G3-W06 · **Register status** PENDING · OWNER-15 decided: a typed risk trigger replaces `MAJORITY_VOTE_REPOSITORIES` (`review/independent/review.py:325`, used at `repair/rounds.py:534`); the replacement is not built yet. The entry stays Open in this index, awaiting independent reverification; a FIXED status here names the merged fix, not a reverified one.
 
 ### `seal.valid_update_available_routing_inverted_no_typed_invalidation_scopes` (REV-V2-11)
 

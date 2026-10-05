@@ -5441,3 +5441,9 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   - **Versions.** `VALIDATOR_VERSION` 10 to 11; BC-05 check version 1 to 2. Sealed bundles re-check as stale, not invalid. REV-V2-03 stays Open until an independent reviewer re-verifies it.
   - **Evidence.** `tests/components/readme/validation/test_deferrals.py` (one fixture per class, paired controls, an unmatched-cause negative control, and an advisory-never-public placement test); `tests/components/readme/validation/test_registry.py` (BC-05 wiring: BLOCK fails at the class's stage, ADVISORY passes and is listed, unclassified blocks).
   - **Reverse by:** `git revert` the commit; it restores the count-only BC-05 and version 10.
+- **2026-10-05 · owner decisions recorded: second reviewer is a typed trigger (OWNER-15); deferrals are a per-class registry (OWNER-14); profile still open (OWNER-13); PR #192 closed (branch kept).** `project/state.yaml` `owner_items`, `docs/DEFECT_INDEX.md`, `docs/RESEARCH_AND_GUIDELINES.md` 27.9.
+  - **OWNER-15 SATISFIED.** The hard-coded `MAJORITY_VOTE_REPOSITORIES` set is replaced by a typed risk trigger; the work item is G3-W06 (REV-V2-10, now PENDING, not yet built).
+  - **OWNER-14 SATISFIED.** Deferred units are advisory and never public; a class blocks only where its registry entry says so. The per-class rules are `fix/deferral-policy-1007` (pending); enforcement is G5-W08 (REV-V2-03, now PENDING).
+  - **OWNER-13 remains OPEN.** The 30-point profile is not ratified; REV-V2-02, REV-V4-08 and REG-03 stay on it.
+  - **PR #192 CLOSED (branch kept).** It was the stale G5-W05 hosted-proof branch; nothing in the register depends on it.
+  - **Reverse by:** `git revert` this commit; it changes records only.
