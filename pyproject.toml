@@ -25,9 +25,17 @@ dependencies = [
     # The vendored surface extractor parses six languages through tree-sitter (section 29.6 E2).
     # Pinned exactly, not by floor: a grammar release changes node types, and a node type is what
     # a symbol_kind is read from, so an unpinned bump would move facts under a sealed candidate.
+    # One wheel per language, installed from the lock and loaded by core/grammars.py: the
+    # tree-sitter-language-pack these replaced downloaded each parser from a GitHub release at
+    # first use, so a release-host 500 failed CI and would have failed a hosted run.
     "tree-sitter==0.26.0",
     "tree-sitter-c-sharp==0.23.5",
-    "tree-sitter-language-pack==1.16.1",
+    "tree-sitter-cpp==0.23.4",
+    "tree-sitter-go==0.25.0",
+    "tree-sitter-java==0.23.5",
+    "tree-sitter-python==0.23.6",
+    "tree-sitter-rust==0.24.2",
+    "tree-sitter-typescript==0.23.2",
 ]
 
 [project.optional-dependencies]

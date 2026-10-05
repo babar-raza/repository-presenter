@@ -20,6 +20,7 @@ from repository_presenter.core.candidates import (
     integrity_valid_candidates,
     iter_sealed_bundles,
     load_proposable_candidate,
+    ready_revision,
     stale_candidates,
     verify_bundle,
 )
@@ -335,6 +336,35 @@ def test_integrity_valid_candidates_does_not_raise_on_a_current_naming_no_bundle
     repository.mkdir(parents=True)
     (repository / "CURRENT").write_text("rev1\n", encoding="utf-8")
     assert integrity_valid_candidates(tmp_path) == 0
+
+
+def test_ready_revision_names_the_current_revision_only_when_it_is_ready_for_proposal(
+    tmp_path: Path,
+) -> None:
+    write_bundle(tmp_path, "aspose-x-foss__Aspose.X-FOSS-for-Python", "rev1", "READY_FOR_PROPOSAL")
+    assert ready_revision(tmp_path, "aspose-x-foss/Aspose.X-FOSS-for-Python") == "rev1"
+
+
+def test_ready_revision_refuses_an_accepted_superseded_or_absent_bundle(tmp_path: Path) -> None:
+    repository = "aspose-x-foss/Aspose.X-FOSS-for-Python"
+    directory = "aspose-x-foss__Aspose.X-FOSS-for-Python"
+    assert ready_revision(tmp_path, repository) is None
+    write_bundle(tmp_path, directory, "rev1", "ACCEPTED")
+    assert ready_revision(tmp_path, repository) is None
+    write_bundle(tmp_path, directory, "rev2", "READY_FOR_PROPOSAL")
+    assert ready_revision(tmp_path, repository) == "rev2"
+    write_bundle(tmp_path, directory, "rev3", "SUPERSEDED")
+    assert ready_revision(tmp_path, repository) is None
+
+
+def test_ready_revision_fails_closed_on_a_corrupt_current_bundle(tmp_path: Path) -> None:
+    directory = "aspose-x-foss__Aspose.X-FOSS-for-Python"
+    write_bundle(tmp_path, directory, "rev1", "READY_FOR_PROPOSAL")
+    (tmp_path / "candidates" / directory / "rev1" / "README.md").write_text(
+        "tampered", encoding="utf-8"
+    )
+    with pytest.raises(BundleError, match="corrupt"):
+        ready_revision(tmp_path, "aspose-x-foss/Aspose.X-FOSS-for-Python")
 
 
 # ---------------------------------------------------------------------------

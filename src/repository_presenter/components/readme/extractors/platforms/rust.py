@@ -48,6 +48,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
 )
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
 RUST = EcosystemSpec(
@@ -341,8 +342,6 @@ class RustPlugin:
         own directory prefixed every name with `src` - `src::widget::Widget`, a path no consumer
         can write (measured 2026-09-06 against a two-module fixture).
         """
-        from tree_sitter_language_pack import get_parser
-
         manifest = self.detect_manifest(root)
         if manifest is None:
             return []
