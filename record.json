@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "provider_repository_id": 1245479016,
+  "registry_revision": null,
+  "active_transaction_id": "baebf33487ea448e8898cae246955717",
+  "state": "OBSERVED",
+  "source": null,
+  "surfaces": {},
+  "dependencies": {
+    "facts": null,
+    "prompts": null,
+    "models": null,
+    "presentation": null,
+    "validation": null
+  },
+  "accepted_artifact": null,
+  "proposal": null,
+  "failure": null,
+  "lease": {
+    "holder_id": "present.yml:37361313253",
+    "acquired_at": "2026-10-05T19:46:19.736683+00:00",
+    "heartbeat_at": "2026-10-05T19:46:19.736683+00:00",
+    "expires_at": "2026-10-05T20:01:19.736683+00:00",
+    "fencing_token": 1
+  },
+  "last_transition": null,
+  "state_version": 1,
+  "recent_trigger_dedup_keys": {
+    "run:37361313253:aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "baebf33487ea448e8898cae246955717"
+  },
+  "recovery_count": 0
+}
