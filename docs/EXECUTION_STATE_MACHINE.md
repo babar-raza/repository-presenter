@@ -72,11 +72,8 @@ earliest invalidated gate. Never create a competing plan.
 
 ## 4. Build-state overview
 
-Research may run ahead. Building a later gate's machinery is allowed only as a **gate-ahead item**:
-the cursor records it with its consuming gate, it counts toward no gate, and it is either wired to a
-production importer or held dormant with a resume predicate (§2 rules 12-13). Revision 2 forbade
-building ahead of the gate, and at least six landed items did so anyway (§13, F08); the gate-ahead
-entry is now their record.
+Research may run ahead. Building later machinery is allowed only as a **gate-ahead item** (cursor, with its
+consuming gate, counts toward no gate, wired to an importer or held dormant; §2 rules 12-13; F08).
 
 ## 5. Durable implementation cursor
 
@@ -93,6 +90,8 @@ prose; taskcard H-02). A gate-ahead item names its `consumed_by_gate`. At most o
 Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UNDER_CHANGE`,
 `G3_PYTHON_COHORT`, `G4_MULTI_LANGUAGE_COHORTS`, `G5_RERUN_DURABILITY_AND_HOSTED_OPERATION`,
 `G6_PROPOSAL_EFFECT_PROOF`, `G7_PRODUCTION_AND_CONTINUOUS_OPERATION`.
+
+**Register.** Work items whose `project/state.yaml` owner begins `REGISTER:` and `owner_items` OWNER-10 to OWNER-19 own every reviewer id in `docs/DEFECT_INDEX.md`: G6-W05 write path; G3-W06 README contract; G3-W07 code freeze and re-seal; G5-W08 seal routing, status, durable state, registry coverage; G5-W09 no-op proof; G7-W07 autonomy and safeguards; G4-W18 discovery into `src/`; G4-W19 product-evidence surfaces; G7-W08 hygiene and prompts; G7-W09 documentation claims. `tests/test_register_integrity.py` fails when an id loses its work item.
 
 **Owner-only predicates never live in a gate.** Branch protection, secrets, App installation, and
 product decisions are `owner_items` with an exact resume predicate and the gate or work item that
@@ -439,7 +438,7 @@ template selection is needed.
 | Exactly one disposition per material source unit; LLM reasoning mandatory; every call attributable; zero-call no-op; small governed prompt registry | G1 | Blocking checks, six prompt manifests, ledger, fresh-process replay. |
 | System decides product and platform; ecosystem truth includes the public consumer surface | G1 (Python), G2, G4 (all) | Plugin registry and platform verifiers with negative controls. |
 | Aspose.org and sibling assets are oracles, never runtime dependencies; benchmark quality profile met or exceeded (`BENCHMARK_REFRESH_AVAILABLE`) | G1 rule, G4 pull, G5 benchmark | Fixture-only, plus file pulls with records and tests in G4, never a runtime import; benchmark comparison is development-only. |
-| 30-point acceptance, zero hard disqualifiers, criterion-specific evidence | G3 | Advisory scorer landed and wired (`review/acceptance/scorer.py`; `repair/rounds.py`); unratified, so ratification is G3 item 2 (F05). |
+| 30-point acceptance, zero hard disqualifiers, criterion-specific evidence | G3 | Advisory scorer exists and is wired (`review/acceptance/scorer.py`, `repair/rounds.py`); `profile.RATIFIED` is False, so no check blocks on it. Ratification is OWNER-13 (G3-W02). |
 | Independent non-authoring review; second reviewer only on typed trigger | G1 | Hard invariant. |
 | Complete authorized discovery; hard allow-list; frozen registry revision; new repositories disabled and read-only; explicit exclusions | G4 registry freeze, G5 intake | Registry modules pulled and refactored. |
 | README-only placeholders end `insufficient_evidence` and persist `NON_PROCESSABLE` with resume predicates (§2 rule 6) | G1 fixture, G3 and G4 PSD | Zero LLM calls. |

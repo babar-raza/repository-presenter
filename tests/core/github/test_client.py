@@ -23,6 +23,7 @@ from repository_presenter.core.github.client import (
     find_open_pull_request,
     find_pull_requests,
     get_contents,
+    get_issue,
     get_pull_request_app_id,
     get_ref,
     get_repository,
@@ -857,3 +858,58 @@ def test_get_pull_request_app_id_is_none_without_an_app_and_raises_on_http_error
         get_pull_request_app_id(OWNER, REPO, 4, token="t", fetch=lambda u, t: (404, {}))
     with pytest.raises(RepositoryMetadataError, match="unreachable"):
         get_pull_request_app_id(OWNER, REPO, 4, token="t", fetch=lambda u, t: (-1, "x"))
+
+
+# ---------------------------------------------------------------------------
+# get_issue (the live read the gated close proves its target with)
+# ---------------------------------------------------------------------------
+
+
+def _single(status_code: int, body: object) -> object:
+    def fetch(url: str, token: str | None) -> tuple[int, object]:
+        assert url == f"{API_ROOT}/repos/{OWNER}/{REPO}/issues/42"
+        assert token == "ghp_r"
+        return status_code, body
+
+    return fetch
+
+
+def test_get_issue_reports_state_body_and_that_it_is_not_a_pull_request() -> None:
+    snapshot = get_issue(
+        OWNER,
+        REPO,
+        42,
+        token="ghp_r",
+        fetch=_single(200, {"number": 42, "state": "open", "body": f"x\n{MARKER}\n"}),
+    )
+    assert (snapshot.number, snapshot.state, snapshot.is_pull_request) == (42, "open", False)
+    assert MARKER in snapshot.body
+
+
+def test_get_issue_flags_a_pull_request() -> None:
+    snapshot = get_issue(
+        OWNER,
+        REPO,
+        42,
+        token="ghp_r",
+        fetch=_single(200, {"number": 42, "state": "open", "body": None, "pull_request": {}}),
+    )
+    assert snapshot.is_pull_request is True
+    assert snapshot.body == ""
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        (404, {"message": "Not Found"}),
+        (403, {"message": "rate limited"}),
+        (-1, "ConnectError"),
+        (200, []),
+        (200, {"number": 41, "state": "open", "body": ""}),
+        (200, {"number": 42, "body": ""}),
+    ],
+    ids=["404", "403", "unreachable", "not-a-dict", "other-number", "no-state"],
+)
+def test_get_issue_raises_rather_than_guessing(response: tuple[int, object]) -> None:
+    with pytest.raises(RepositoryMetadataError):
+        get_issue(OWNER, REPO, 42, token="ghp_r", fetch=_single(*response))

@@ -6,14 +6,18 @@ handoff must never reach ``create``."""
 from __future__ import annotations
 
 from dataclasses import replace
+from datetime import UTC, datetime, timedelta
 from typing import Any
+
+import pytest
 
 from repository_presenter.components.issues.file import (
     AUTHORIZATION_VARIABLE,
     FileResult,
-    close_handoff,
+    plan_close_gated,
     write_authorized,
 )
+from repository_presenter.components.issues.file import close_handoff as _close_handoff
 from repository_presenter.components.issues.file import file_handoff as _file_handoff
 from repository_presenter.components.issues.file import plan_filing as _plan_filing
 from repository_presenter.components.issues.model import (
@@ -23,8 +27,20 @@ from repository_presenter.components.issues.model import (
     TriggeringCheck,
 )
 from repository_presenter.components.issues.redetect import RedetectionResult
+from repository_presenter.core.authorization.refusals import Refusal
 from repository_presenter.core.errors import RepositoryMetadataError
-from support import approving_store, make_permit
+from repository_presenter.core.github.client import IssueSnapshot
+from repository_presenter.core.github.token_provenance import (
+    TokenDecision,
+    verify_installation_token,
+)
+from support import (
+    MemoryApprovalStore,
+    accepting_token_verifier,
+    approving_store,
+    closing_store,
+    make_permit,
+)
 
 REPO = "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
 REVISION = "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2"
@@ -67,6 +83,7 @@ def file_handoff(handoff: Handoff, **kwargs: Any) -> FileResult:
     the other gates; the approval gate's own refusals are in test_approval.py."""
     kwargs.setdefault("approvals", approving_store(handoff))
     kwargs.setdefault("permit", make_permit(handoff.repository, effect="issue_filing"))
+    kwargs.setdefault("verify_token", accepting_token_verifier)
     return _file_handoff(handoff, **kwargs)
 
 
@@ -382,7 +399,10 @@ def test_plan_filing_refuses_a_non_pending_handoff_without_any_lookup() -> None:
 
 
 # ---------------------------------------------------------------------------
-# close_handoff: the gated close of a FILED handoff that redetection proved resolved
+# close_handoff: the gated close of a FILED handoff that redetection proved resolved.
+# Closing is a write to a product repository, so it needs the registry permit, the kill switch, a
+# write token, the owner's per-issue close approval, a verified token and a live issue carrying
+# this handoff's marker. Each negative control below fails if exactly that gate is removed.
 # ---------------------------------------------------------------------------
 
 
@@ -405,97 +425,576 @@ def _resolved(
     )
 
 
+def _open_issue(
+    number: int = 7, *, body: str | None = None, state: str = "open", pull_request: bool = False
+) -> IssueSnapshot:
+    text = f"found a defect\n\n{MARKER}\n" if body is None else body
+    return IssueSnapshot(number=number, state=state, body=text, is_pull_request=pull_request)
+
+
+class _Spy:
+    """A fake that records that it was called; ``ok`` is the answer, ``error`` raises instead."""
+
+    def __init__(self, answer: Any, *, error: Exception | None = None) -> None:
+        self.answer = answer
+        self.error = error
+        self.calls = 0
+
+    def __call__(self, *args: Any) -> Any:
+        self.calls += 1
+        if self.error is not None:
+            raise self.error
+        return self.answer
+
+
+def _token_ok() -> _Spy:
+    return _Spy(TokenDecision(True))
+
+
+def close_handoff(handoff: Handoff, result: RedetectionResult, **kwargs: Any) -> Any:
+    """``close_handoff`` with every gate satisfied unless a keyword overrides it. The environment
+    and token are not defaulted: the kill switch and token tests state theirs."""
+    reason = {"completed": "completed", "not planned": "not_planned"}.get(
+        str(result.proposed_close_reason), "not_planned"
+    )
+    number = handoff.issue_ref.number if handoff.issue_ref is not None else 7
+    kwargs.setdefault("permit", make_permit(handoff.repository, effect="issue_close"))
+    if handoff.issue_ref is not None:
+        kwargs.setdefault("approvals", closing_store(handoff, close_reason=reason))
+    else:
+        kwargs.setdefault("approvals", None)
+    kwargs.setdefault("verify_token", _token_ok())
+    kwargs.setdefault("issue_lookup", _Spy(_open_issue(number)))
+    return _close_handoff(handoff, result, **kwargs)
+
+
+def _armed(**extra: Any) -> dict[str, Any]:
+    return {"token": "ghp_write", "environment": {AUTHORIZATION_VARIABLE: "1"}, **extra}
+
+
+def _filed(number: int = 7) -> Handoff:
+    return _handoff(status="FILED", issue_ref=_issue_ref(number))
+
+
 def test_close_is_refused_without_the_gate_and_makes_no_call() -> None:
     write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    verify, lookup = _token_ok(), _Spy(_open_issue())
     result = close_handoff(
-        _handoff(status="FILED", issue_ref=_issue_ref()),
+        _filed(),
         _resolved(),
         token="ghp_write",
         environment={},
         write=write,
+        verify_token=verify,
+        issue_lookup=lookup,
     )
     assert write.calls == []
+    assert (verify.calls, lookup.calls) == (0, 0)
     assert result.closed is False
     assert "kill switch engaged" in result.reason
 
 
 def test_a_resolved_filed_handoff_is_closed_with_its_close_reason_as_github_state_reason() -> None:
     write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    verify, lookup = _token_ok(), _Spy(_open_issue(7))
     result = close_handoff(
-        _handoff(status="FILED", issue_ref=_issue_ref(7)),
+        _filed(7),
         _resolved("not planned"),
-        token="ghp_write",
-        environment={AUTHORIZATION_VARIABLE: "1"},
-        write=write,
+        **_armed(write=write, verify_token=verify, issue_lookup=lookup),
     )
     assert len(write.calls) == 1
     url, token, payload = write.calls[0]
     assert url == f"https://api.github.com/repos/{REPO}/issues/7"
     assert token == "ghp_write"
     assert payload == {"state": "closed", "state_reason": "not_planned"}
+    assert (verify.calls, lookup.calls) == (1, 1)
     assert result.closed is True
     assert result.close_reason == "not planned"
 
 
 def test_a_completed_resolution_maps_to_github_completed() -> None:
     write = _RecordingCreate(status_code=200, body={"state": "closed"})
-    close_handoff(
-        _handoff(status="FILED", issue_ref=_issue_ref(7)),
-        _resolved("completed"),
-        token="ghp_write",
-        environment={AUTHORIZATION_VARIABLE: "1"},
-        write=write,
-    )
+    close_handoff(_filed(7), _resolved("completed"), **_armed(write=write))
     assert write.calls[0][2] == {"state": "closed", "state_reason": "completed"}
 
 
 def test_a_handoff_that_still_fires_is_never_closed() -> None:
     write = _RecordingCreate(status_code=200, body={"state": "closed"})
-    result = close_handoff(
-        _handoff(status="FILED", issue_ref=_issue_ref()),
-        _resolved(still_fires=True),
-        token="ghp_write",
-        environment={AUTHORIZATION_VARIABLE: "1"},
-        write=write,
-    )
+    result = close_handoff(_filed(), _resolved(still_fires=True), **_armed(write=write))
     assert write.calls == []
     assert result.closed is False
 
 
 def test_an_inconclusive_recheck_is_never_closed() -> None:
     write = _RecordingCreate(status_code=200, body={"state": "closed"})
-    result = close_handoff(
-        _handoff(status="FILED", issue_ref=_issue_ref()),
-        _resolved(still_fires=None),
-        token="ghp_write",
-        environment={AUTHORIZATION_VARIABLE: "1"},
-        write=write,
-    )
+    result = close_handoff(_filed(), _resolved(still_fires=None), **_armed(write=write))
     assert write.calls == []
     assert result.closed is False
 
 
 def test_a_pending_handoff_is_never_closed_because_it_was_never_filed() -> None:
     write = _RecordingCreate(status_code=200, body={"state": "closed"})
-    result = close_handoff(
-        _handoff(),
-        _resolved(),
-        token="ghp_write",
-        environment={AUTHORIZATION_VARIABLE: "1"},
-        write=write,
-    )
+    result = close_handoff(_handoff(), _resolved(), **_armed(write=write))
     assert write.calls == []
     assert result.closed is False
 
 
 def test_a_failed_close_is_reported_as_an_error_never_raised() -> None:
     write = _RecordingCreate(status_code=500, body={"message": "boom"})
-    result = close_handoff(
-        _handoff(status="FILED", issue_ref=_issue_ref()),
-        _resolved(),
-        token="ghp_write",
-        environment={AUTHORIZATION_VARIABLE: "1"},
-        write=write,
-    )
+    result = close_handoff(_filed(), _resolved(), **_armed(write=write))
     assert result.closed is False
     assert result.error is True
+
+
+def test_close_without_a_write_token_is_refused_and_makes_no_call() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    result = close_handoff(
+        _filed(), _resolved(), token=None, environment={AUTHORIZATION_VARIABLE: "1"}, write=write
+    )
+    assert write.calls == []
+    assert result.closed is False
+    assert "no write-scoped token" in result.reason
+
+
+# --- the registry permit ------------------------------------------------------------------------
+
+
+def test_close_cannot_be_called_without_a_permit() -> None:
+    with pytest.raises(TypeError, match="permit"):
+        _close_handoff(  # type: ignore[call-arg]
+            _filed(),
+            _resolved(),
+            **_armed(approvals=None, verify_token=_token_ok(), issue_lookup=_Spy(_open_issue())),
+        )
+
+
+def test_a_permit_for_another_effect_or_repository_is_refused_before_anything_else() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    for wrong in (
+        make_permit(REPO, effect="issue_filing"),
+        make_permit(REPO, effect="readme_proposal"),
+        make_permit("someone/else", effect="issue_close"),
+    ):
+        with pytest.raises(ValueError, match="permit"):
+            close_handoff(_filed(), _resolved(), **_armed(write=write, permit=wrong))
+    assert write.calls == []
+
+
+# --- the owner's per-issue close approval -------------------------------------------------------
+
+
+def _assert_refused_before_the_network(result: Any, write: _RecordingCreate, *spies: _Spy) -> None:
+    assert result.closed is False
+    assert result.error is False
+    assert write.calls == []
+    assert [spy.calls for spy in spies] == [0] * len(spies)
+
+
+def test_a_missing_close_approval_is_refused_before_any_network_call() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    verify, lookup = _token_ok(), _Spy(_open_issue())
+    result = close_handoff(
+        _filed(),
+        _resolved(),
+        **_armed(
+            write=write, approvals=MemoryApprovalStore(), verify_token=verify, issue_lookup=lookup
+        ),
+    )
+    _assert_refused_before_the_network(result, write, verify, lookup)
+    assert "no close approval record" in result.reason
+    assert "ops/issue_close_approvals/" in result.reason
+
+
+def test_no_approval_source_at_all_is_a_refusal() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    result = close_handoff(_filed(), _resolved(), **_armed(write=write, approvals=None))
+    _assert_refused_before_the_network(result, write)
+    assert "no close approval record source" in result.reason
+
+
+def test_a_filing_approval_does_not_authorize_a_close() -> None:
+    """Approving the *filing* of a handoff is a different act; it sits in another directory and is
+    never consulted for a close."""
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    handoff = _filed()
+    result = close_handoff(
+        handoff, _resolved(), **_armed(write=write, approvals=MemoryApprovalStore())
+    )
+    assert approving_store(handoff).records  # a filing approval exists...
+    _assert_refused_before_the_network(result, write)  # ...and changes nothing
+
+
+def test_an_expired_close_approval_is_refused() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    handoff = _filed()
+    long_ago = datetime.now(UTC) - timedelta(days=10)
+    store = closing_store(
+        handoff,
+        close_reason="not_planned",
+        approved_at=long_ago,
+        expires_at=long_ago + timedelta(days=1),
+    )
+    verify, lookup = _token_ok(), _Spy(_open_issue())
+    result = close_handoff(
+        handoff,
+        _resolved(),
+        **_armed(write=write, approvals=store, verify_token=verify, issue_lookup=lookup),
+    )
+    _assert_refused_before_the_network(result, write, verify, lookup)
+    assert "expired" in result.reason
+
+
+def test_a_close_approval_for_another_issue_number_is_refused() -> None:
+    """The owner approved closing #8; this handoff filed #7. The approval cannot be repointed."""
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    handoff = _filed(7)
+    verify, lookup = _token_ok(), _Spy(_open_issue(7))
+    result = close_handoff(
+        handoff,
+        _resolved(),
+        **_armed(
+            write=write,
+            approvals=closing_store(handoff, issue_number=8),
+            verify_token=verify,
+            issue_lookup=lookup,
+        ),
+    )
+    _assert_refused_before_the_network(result, write, verify, lookup)
+    assert "#8" in result.reason and "#7" in result.reason
+
+
+@pytest.mark.parametrize(
+    ("proved", "approved_for"),
+    [("not planned", "completed"), ("completed", "not_planned")],
+)
+def test_a_close_approval_for_the_other_reason_is_refused(proved: str, approved_for: str) -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    handoff = _filed()
+    verify, lookup = _token_ok(), _Spy(_open_issue())
+    result = close_handoff(
+        handoff,
+        _resolved(proved),
+        **_armed(
+            write=write,
+            approvals=closing_store(handoff, close_reason=approved_for),
+            verify_token=verify,
+            issue_lookup=lookup,
+        ),
+    )
+    _assert_refused_before_the_network(result, write, verify, lookup)
+    assert "reason" in result.reason
+
+
+def test_a_close_approval_whose_digest_no_longer_matches_the_handoff_is_refused() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    handoff = _filed()
+    store = closing_store(handoff, digest="sha256:" + "0" * 64)
+    result = close_handoff(handoff, _resolved(), **_armed(write=write, approvals=store))
+    _assert_refused_before_the_network(result, write)
+    assert "digest mismatch" in result.reason
+
+
+def test_a_close_approval_naming_another_repository_is_refused() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    handoff = _filed()
+    store = closing_store(handoff, repository="someone-else/other-repo")
+    result = close_handoff(handoff, _resolved(), **_armed(write=write, approvals=store))
+    _assert_refused_before_the_network(result, write)
+    assert "target mismatch" in result.reason
+
+
+def test_a_run_bound_to_another_target_does_not_close() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    result = close_handoff(
+        _filed(), _resolved(), **_armed(write=write, expected_repository="someone-else/other")
+    )
+    _assert_refused_before_the_network(result, write)
+    assert "target mismatch" in result.reason
+
+
+# --- write-token provenance ---------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "code",
+    [Refusal.TOKEN_NOT_INSTALLATION, Refusal.TOKEN_WRONG_SCOPE, Refusal.TOKEN_UNVERIFIABLE],
+)
+def test_an_unverified_write_token_is_refused_before_the_issue_is_read_or_written(
+    code: Refusal,
+) -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    verify = _Spy(TokenDecision(False, code, "not this one"))
+    lookup = _Spy(_open_issue())
+    result = close_handoff(
+        _filed(), _resolved(), **_armed(write=write, verify_token=verify, issue_lookup=lookup)
+    )
+    assert verify.calls == 1
+    assert lookup.calls == 0
+    assert write.calls == []
+    assert result.closed is False
+    assert str(code) in result.reason
+
+
+def test_the_token_is_verified_for_the_exact_token_that_would_write() -> None:
+    seen: list[str] = []
+
+    def verify(token: str) -> TokenDecision:
+        seen.append(token)
+        return TokenDecision(True)
+
+    close_handoff(
+        _filed(),
+        _resolved(),
+        **_armed(write=_RecordingCreate(status_code=200, body={}), verify_token=verify),
+    )
+    assert seen == ["ghp_write"]
+
+
+# --- the live issue must be one this system filed for this handoff ------------------------------
+
+
+def test_an_issue_without_the_systems_marker_is_never_closed() -> None:
+    """Issue #7 exists and is approved, but it is somebody else's: no fingerprint marker."""
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    lookup = _Spy(_open_issue(7, body="a human wrote this issue, nothing from this system\n"))
+    result = close_handoff(_filed(7), _resolved(), **_armed(write=write, issue_lookup=lookup))
+    assert lookup.calls == 1
+    assert write.calls == []
+    assert result.closed is False
+    assert "fingerprint marker" in result.reason
+
+
+def test_an_issue_carrying_another_defects_marker_is_never_closed() -> None:
+    other = "<!-- repository-presenter-defect: sha256:" + "d" * 64 + " -->"
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    lookup = _Spy(_open_issue(7, body=f"another defect\n\n{other}\n"))
+    result = close_handoff(_filed(7), _resolved(), **_armed(write=write, issue_lookup=lookup))
+    assert write.calls == []
+    assert "fingerprint marker" in result.reason
+
+
+def test_a_pull_request_is_never_closed_as_an_issue() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    lookup = _Spy(_open_issue(7, pull_request=True))
+    result = close_handoff(_filed(7), _resolved(), **_armed(write=write, issue_lookup=lookup))
+    assert write.calls == []
+    assert "pull request" in result.reason
+
+
+def test_an_already_closed_issue_is_left_alone() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    lookup = _Spy(_open_issue(7, state="closed"))
+    result = close_handoff(_filed(7), _resolved(), **_armed(write=write, issue_lookup=lookup))
+    assert write.calls == []
+    assert "already closed" in result.reason
+    assert result.error is False
+
+
+def test_an_issue_read_that_returns_a_different_number_is_refused() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    lookup = _Spy(_open_issue(9))
+    result = close_handoff(_filed(7), _resolved(), **_armed(write=write, issue_lookup=lookup))
+    assert write.calls == []
+    assert "#9" in result.reason
+
+
+def test_an_inconclusive_issue_read_is_refused_not_assumed_fine() -> None:
+    write = _RecordingCreate(status_code=200, body={"state": "closed"})
+    lookup = _Spy(None, error=RepositoryMetadataError("x/y: unreachable (timeout)"))
+    result = close_handoff(_filed(7), _resolved(), **_armed(write=write, issue_lookup=lookup))
+    assert write.calls == []
+    assert result.closed is False
+    assert "inconclusive" in result.reason
+
+
+# --- the dry-run plan (the same gates, no write) -----------------------------------------------
+
+
+def test_the_close_plan_reports_would_close_only_when_the_approval_verifies() -> None:
+    handoff = _filed(7)
+    ready = plan_close_gated(
+        handoff,
+        _resolved(),
+        approvals=closing_store(handoff, close_reason="not_planned"),
+        issue_lookup=_Spy(_open_issue(7)),
+    )
+    assert ready.ready and ready.verified
+    assert (ready.issue_number, ready.state_reason) == (7, "not_planned")
+    refused = plan_close_gated(
+        handoff, _resolved(), approvals=MemoryApprovalStore(), issue_lookup=_Spy(_open_issue(7))
+    )
+    assert not refused.ready
+    assert refused.refusal is not None and "no close approval record" in refused.refusal
+
+
+def test_the_close_plan_without_a_read_credential_is_ready_but_not_verified() -> None:
+    handoff = _filed(7)
+    plan = plan_close_gated(
+        handoff,
+        _resolved(),
+        approvals=closing_store(handoff, close_reason="not_planned"),
+        issue_lookup=None,
+    )
+    assert plan.ready
+    assert plan.verified is False
+
+
+# ---------------------------------------------------------------------------
+# file_handoff: write-token provenance (the same check the close path makes). The verifier is the
+# real ``verify_installation_token`` over a fake GitHub; only the transport is injected.
+# ---------------------------------------------------------------------------
+
+_INSTALLATION_TOKEN = "ghs_installation-token-for-this-test-only"
+
+
+def _github_listing(*repositories: str, total: int | None = None) -> Any:
+    """A fake ``GET /installation/repositories`` answering for a token reaching ``repositories``."""
+    calls: list[tuple[str, str | None]] = []
+
+    def fetch(url: str, token: str | None) -> tuple[int, Any]:
+        calls.append((url, token))
+        listed = [{"full_name": name} for name in repositories]
+        return 200, {"total_count": len(listed) if total is None else total, "repositories": listed}
+
+    fetch.calls = calls  # type: ignore[attr-defined]
+    return fetch
+
+
+def _real_verifier(fetch: Any) -> Any:
+    return lambda token: verify_installation_token(REPO, token, fetch=fetch)
+
+
+def _filing_with(token: str, fetch: Any, create: _RecordingCreate, lookups: list[str]) -> Any:
+    def existing() -> IssueRef | None:
+        lookups.append("existing")
+        return None
+
+    def recheck() -> RedetectionResult:
+        lookups.append("recheck")
+        return _fires(still_fires=True)
+
+    return file_handoff(
+        _handoff(),
+        token=token,
+        environment={AUTHORIZATION_VARIABLE: "1"},
+        create=create,
+        existing=existing,
+        recheck=recheck,
+        verify_token=_real_verifier(fetch),
+    )
+
+
+def test_a_valid_installation_token_scoped_to_exactly_the_target_files() -> None:
+    create, lookups = _RecordingCreate(), []
+    fetch = _github_listing(REPO)
+    result = _filing_with(_INSTALLATION_TOKEN, fetch, create, lookups)
+    assert result.filed is True
+    assert len(create.calls) == 1
+    assert create.calls[0][1] == _INSTALLATION_TOKEN
+    assert fetch.calls and fetch.calls[0][1] == _INSTALLATION_TOKEN
+
+
+def test_a_hand_set_personal_access_token_is_refused_before_any_request() -> None:
+    create, lookups = _RecordingCreate(), []
+    fetch = _github_listing(REPO)
+    result = _filing_with("ghp_hand-set-personal-access-token", fetch, create, lookups)
+    assert result.filed is False
+    assert result.error is False
+    assert str(Refusal.TOKEN_NOT_INSTALLATION) in result.reason
+    assert create.calls == [] and lookups == []
+    assert fetch.calls == []  # a PAT is never even sent to GitHub
+
+
+@pytest.mark.parametrize(
+    ("repositories", "total"),
+    [
+        ((REPO, "aspose-cells-foss/Another-Repo"), None),
+        (("aspose-cells-foss/Another-Repo",), None),
+        ((), None),
+    ],
+    ids=["wider-than-target", "other-repository-only", "reaches-nothing"],
+)
+def test_a_token_that_does_not_reach_exactly_the_target_is_refused(
+    repositories: tuple[str, ...], total: int | None
+) -> None:
+    create, lookups = _RecordingCreate(), []
+    result = _filing_with(
+        _INSTALLATION_TOKEN, _github_listing(*repositories, total=total), create, lookups
+    )
+    assert result.filed is False
+    assert str(Refusal.TOKEN_WRONG_SCOPE) in result.reason
+    assert create.calls == [] and lookups == []
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        (-1, "ConnectError: timed out"),
+        (500, {}),
+        (200, []),
+        (200, {"total_count": 3, "repositories": []}),
+    ],
+    ids=["unreachable", "http-500", "not-a-listing", "incomplete-listing"],
+)
+def test_an_unverifiable_token_is_refused(response: tuple[int, Any]) -> None:
+    create, lookups = _RecordingCreate(), []
+    result = _filing_with(_INSTALLATION_TOKEN, lambda url, token: response, create, lookups)
+    assert result.filed is False
+    assert str(Refusal.TOKEN_UNVERIFIABLE) in result.reason
+    assert create.calls == [] and lookups == []
+
+
+def test_a_github_refusal_of_the_token_is_a_refusal_not_a_filing() -> None:
+    create, lookups = _RecordingCreate(), []
+    result = _filing_with(_INSTALLATION_TOKEN, lambda url, token: (401, {}), create, lookups)
+    assert result.filed is False
+    assert str(Refusal.TOKEN_NOT_INSTALLATION) in result.reason
+    assert create.calls == []
+
+
+def test_token_provenance_is_checked_after_approval_and_before_any_upstream_lookup() -> None:
+    """No approval -> no network at all (the verifier is not even asked); approved -> the token is
+    verified before the marker search or recheck."""
+    verify = _Spy(TokenDecision(True))
+    create = _RecordingCreate()
+    unapproved = _file_handoff(
+        _handoff(),
+        token=_INSTALLATION_TOKEN,
+        environment={AUTHORIZATION_VARIABLE: "1"},
+        create=create,
+        approvals=MemoryApprovalStore(),
+        permit=make_permit(REPO, effect="issue_filing"),
+        verify_token=verify,
+    )
+    assert unapproved.filed is False
+    assert verify.calls == 0
+
+    order: list[str] = []
+    approved_verify = lambda token: (order.append("verify"), TokenDecision(True))[1]  # noqa: E731
+    _file_handoff(
+        _handoff(),
+        token=_INSTALLATION_TOKEN,
+        environment={AUTHORIZATION_VARIABLE: "1"},
+        create=create,
+        approvals=approving_store(_handoff()),
+        permit=make_permit(REPO, effect="issue_filing"),
+        verify_token=approved_verify,
+        existing=lambda: (order.append("existing"), None)[1],
+        recheck=lambda: (order.append("recheck"), _fires(still_fires=True))[1],
+    )
+    assert order == ["verify", "existing", "recheck"]
+
+
+def test_an_already_filed_upstream_issue_is_not_recorded_on_an_unverified_token() -> None:
+    create = _RecordingCreate()
+    verify = _Spy(TokenDecision(False, Refusal.TOKEN_WRONG_SCOPE, "too wide"))
+    result = file_handoff(
+        _handoff(),
+        token=_INSTALLATION_TOKEN,
+        environment={AUTHORIZATION_VARIABLE: "1"},
+        create=create,
+        existing=lambda: _issue_ref(7),
+        verify_token=verify,
+    )
+    assert result.issue_ref is None
+    assert create.calls == []
