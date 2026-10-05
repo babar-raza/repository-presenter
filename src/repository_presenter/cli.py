@@ -24,6 +24,11 @@ from repository_presenter.components.issues.approval import (
     approval_relative_path,
     verify_approval,
 )
+from repository_presenter.components.issues.close_approval import (
+    CLOSE_APPROVALS_RELATIVE_DIR,
+    close_approval_relative_path,
+    verify_close_approval,
+)
 from repository_presenter.components.issues.draft import (
     eligible_for_handoff,
     record_handoff_if_new,
@@ -230,6 +235,7 @@ from repository_presenter.core.github.client import (
     default_post,
     default_put,
     find_issue_with_marker,
+    get_issue,
 )
 from repository_presenter.core.github.client import (
     create_pull_request as default_create_pull_request,
@@ -278,7 +284,7 @@ from repository_presenter.core.registry.loader import (
     load_registry,
     require_listed,
 )
-from repository_presenter.core.registry.models import RegistryEntry
+from repository_presenter.core.registry.models import Registry, RegistryEntry
 from repository_presenter.core.registry.write_gate import require_write_permitted
 from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.sealing_plan import (
@@ -519,9 +525,23 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "attempt to close each FILED issue whose check the re-run proves resolved, with the "
-            "close reason it proves; refuses and explains why unless "
-            f"{issues_file.AUTHORIZATION_VARIABLE}=1 and a write-scoped GH_ISSUES_WRITE_TOKEN are "
-            "both present - reports what it would close and makes no call when omitted"
+            "close reason it proves (requires --repo). A close is gated like a filing and more: "
+            "the registry entry must be mode full; "
+            f"{issues_file.AUTHORIZATION_VARIABLE}=1; a write-scoped GH_ISSUES_WRITE_TOKEN that is "
+            "an installation token scoped to exactly the target; a committed, unexpired owner "
+            "close approval naming the exact issue number and close reason "
+            "(ops/issue_close_approvals/<handoff-id>.json); and the live issue must carry this "
+            "handoff's fingerprint marker. Reports would-close / would-not-close per handoff, "
+            "with the reason, and makes no write call when omitted"
+        ),
+    )
+    redetect_cmd.add_argument(
+        "--approvals-ref",
+        default="HEAD",
+        metavar="GIT_REF",
+        help=(
+            "git ref the owner close-approval records are read from (never the working tree); "
+            "the scheduled workflow passes the commit it was triggered on"
         ),
     )
     targets_cmd = subcommands.add_parser(
@@ -851,7 +871,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_monitor_install_summary(args.directory, summary=args.summary)
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(
-            args.root, repository=args.repo, apply=args.apply, close=args.close
+            args.root,
+            repository=args.repo,
+            apply=args.apply,
+            close=args.close,
+            approvals_ref=args.approvals_ref,
         )
     if args.command == "file-upstream-defects":
         return run_file_upstream_defects(
@@ -1127,24 +1151,38 @@ def run_redetect_upstream_defects(
     repository: str | None = None,
     apply: bool = False,
     close: bool = False,
+    approvals_ref: str = "HEAD",
 ) -> int:
     """Re-evaluate every (or one `--repo`) handoff's own `triggering_check` right now.
 
     Read-only by default: builds the dedup ledger from `evidence/upstream-defects/`, then for each
-    entry calls `issues.redetect.redetect` and prints whether the check still fires and what
-    `--close` would close. `--close` (gated by `components/issues/file.py`: the owner's
-    authorization variable and a write-scoped `GH_ISSUES_WRITE_TOKEN`) closes the issue a `FILED`
+    entry calls `issues.redetect.redetect` and reports whether the check still fires and, for a
+    `FILED` handoff, `would close #N (reason)` or `would not close: <why>`. The dry run applies
+    the same gates `--close` does (registry mode, the owner's close approval, the live issue's
+    fingerprint marker when a read credential is present) and makes no write call.
+
+    `--close` (requires `--repo`; gated by `components/issues/file.py`) closes the issue a `FILED`
     handoff points to, with the close reason the check proves, and records `RESOLVED_UPSTREAM` only
-    after GitHub confirmed the close. `--apply` writes that one local transition without any GitHub
-    call; it is never a way around the close gate.
+    after GitHub confirmed the close. It needs a registry `full` entry for the target (the
+    `issue_close` write permit), the kill switch, a write-scoped `GH_ISSUES_WRITE_TOKEN` that is an
+    installation token scoped to exactly the target, a committed unexpired owner close approval
+    naming that issue number and reason (read from `approvals_ref` in git), and a live issue that
+    carries this handoff's fingerprint marker. `--apply` writes that one local transition without
+    any GitHub call; it is never a way around the close gate.
     """
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
+    if close and repository is None:
+        _fail("redetect-upstream-defects --close requires --repo: a write is bound to one target")
+        return EXIT_USAGE
     known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
         ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
-    except HandoffError as exc:
+        close_approvals = GitApprovalStore(
+            root, approvals_ref, directory=CLOSE_APPROVALS_RELATIVE_DIR
+        )
+    except (HandoffError, ApprovalProvenanceError) as exc:
         _fail(str(exc))
         return EXIT_INCONSISTENT
     entries = [
@@ -1159,7 +1197,17 @@ def run_redetect_upstream_defects(
             else "redetect: no handoffs on record"
         )
         return EXIT_OK
+    read_token = os.environ.get("GH_TOKEN") or None
     write_token = os.environ.get("GH_ISSUES_WRITE_TOKEN") or None
+    registry = None
+    registry_error: str | None = None
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+    except PresenterError as exc:
+        if close:  # a write needs the registry; a dry run just reports it cannot say yes
+            _fail(str(exc))
+            return exc.exit_code
+        registry_error = str(exc)
     failures = 0
     for entry in entries:
         try:
@@ -1186,18 +1234,35 @@ def run_redetect_upstream_defects(
                 f"current default-branch head is {result.checked_at_revision}"
             )
         if result.proposed_status is None:
+            if handoff.status == "FILED" and not (close or apply):
+                print(f"  would not close: {issues_file.plan_close(handoff, result)} (dry run)")
             continue
         print(
             f"  proposed status: {handoff.status} -> {result.proposed_status} "
             f"(reason: {result.proposed_close_reason})"
         )
         if close:
+            assert registry is not None  # loaded above whenever `close` is set
+            try:
+                permit = require_write_permitted(registry, handoff.repository, "issue_close")
+            except WriteRefusedError as refusal:
+                print(f"  close not performed ({refusal.code}): {refusal}")
+                continue
+            owner, name = handoff.repository.split("/", 1)
+            issue_number = handoff.issue_ref.number if handoff.issue_ref is not None else 0
             outcome = issues_file.close_handoff(
                 handoff,
                 result,
                 token=write_token,
                 environment=os.environ,
+                permit=permit,
+                approvals=close_approvals,
+                verify_token=partial(default_verify_installation_token, handoff.repository),
+                issue_lookup=partial(
+                    get_issue, owner, name, issue_number, token=read_token or write_token
+                ),
                 write=default_patch,
+                expected_repository=repository,
             )
             if not outcome.closed:
                 print(f"  close not performed: {outcome.reason}")
@@ -1219,15 +1284,82 @@ def run_redetect_upstream_defects(
                 f"({updated.close_reason})"
             )
         else:
-            refusal = issues_file.plan_close(handoff, result)
-            if refusal is None and handoff.issue_ref is not None:
-                print(
-                    f"  would close #{handoff.issue_ref.number} ({result.proposed_close_reason}) "
-                    "(dry run; pass --close to attempt)"
+            print(
+                _describe_close_plan(
+                    _dry_run_close_plan(
+                        handoff,
+                        result,
+                        registry=registry,
+                        registry_error=registry_error,
+                        approvals=close_approvals,
+                        read_token=read_token,
+                        expected_repository=repository,
+                    )
                 )
-            else:
-                print(f"  would not close: {refusal} (dry run)")
+            )
     return EXIT_INCONSISTENT if failures else EXIT_OK
+
+
+def _dry_run_close_plan(
+    handoff: Handoff,
+    result: RedetectionResult,
+    *,
+    registry: Registry | None,
+    registry_error: str | None,
+    approvals: GitApprovalStore,
+    read_token: str | None,
+    expected_repository: str | None,
+) -> issues_file.ClosePlan:
+    """What `--close` would do for this handoff, by read-only means: the registry write gate, the
+    owner's close approval, and (only for an approved close, and only with a read credential) the
+    live issue's fingerprint marker. A registry that is not `full` for the target, or cannot be
+    loaded, is a would-not-close - the dry run never reports a close it could not perform."""
+    registry_refusal: str | None = None
+    if registry is None:
+        registry_refusal = (
+            f"registry unreadable ({registry_error}) - the issue_close gate cannot pass"
+        )
+    else:
+        try:
+            require_write_permitted(registry, handoff.repository, "issue_close")
+        except WriteRefusedError as refusal:
+            registry_refusal = f"{refusal.code}: {refusal.message}"
+    lookup = None
+    if read_token is not None and handoff.issue_ref is not None:
+        owner, name = handoff.repository.split("/", 1)
+        lookup = partial(get_issue, owner, name, handoff.issue_ref.number, token=read_token)
+    plan = issues_file.plan_close_gated(
+        handoff,
+        result,
+        approvals=approvals,
+        expected_repository=expected_repository,
+        issue_lookup=lookup,
+    )
+    if plan.refusal is None and registry_refusal is not None:
+        return replace(plan, refusal=registry_refusal)
+    return plan
+
+
+def _describe_close_plan(plan: issues_file.ClosePlan) -> str:
+    owner, name = plan.repository.split("/", 1)
+    identifier = f"{owner}__{name}__{plan.defect_fingerprint.removeprefix('sha256:')}"
+    if plan.refusal is not None:
+        line = f"  would not close: {plan.refusal} (dry run)"
+        if "no close approval record" in plan.refusal and plan.issue_number is not None:
+            line += (
+                f"\n  owner close approval: commit {close_approval_relative_path(identifier)} "
+                f"with handoff_id {identifier}, repository {plan.repository}, issue_number "
+                f"{plan.issue_number}, close_reason {plan.state_reason}, evidence_digest, "
+                "approver, approved_at, expires_at (see ops/issue_close_approvals/README.md)"
+            )
+        return line
+    suffix = (
+        "" if plan.verified else "; live issue not re-read (no read credential), marker unchecked"
+    )
+    return (
+        f"  would close #{plan.issue_number} ({plan.state_reason}){suffix} "
+        "(dry run; pass --close to attempt)"
+    )
 
 
 def run_issue_targets(root_argument: Path | None) -> int:
@@ -1314,6 +1446,9 @@ def run_file_upstream_defects(
         return EXIT_USAGE
     try:
         approvals = GitApprovalStore(root, approvals_ref)
+        close_approvals = GitApprovalStore(
+            root, approvals_ref, directory=CLOSE_APPROVALS_RELATIVE_DIR
+        )
         ledger = load_ledger(root / "evidence" / UPSTREAM_DEFECTS_DIRNAME)
     except (HandoffError, ApprovalProvenanceError) as exc:
         _fail(str(exc))
@@ -1341,7 +1476,10 @@ def run_file_upstream_defects(
             except HandoffError as exc:
                 _fail(str(exc))
                 return EXIT_INCONSISTENT
-            if handoff.status == "FILED" or (
+            if (
+                handoff.status == "FILED"
+                and verify_close_approval(handoff, close_approvals, close_reason=None).approved
+            ) or (
                 handoff.status == "HANDOFF_PENDING" and verify_approval(handoff, approvals).approved
             ):
                 writable += 1
@@ -1407,6 +1545,7 @@ def run_file_upstream_defects(
                 approvals=approvals,
                 expected_repository=repository,
                 permit=permit,
+                verify_token=partial(default_verify_installation_token, handoff.repository),
             )
         except Exception as exc:  # one handoff's failure never stops the others; reported below
             print(f"file: {handoff.repository} ERROR: {exc}")
