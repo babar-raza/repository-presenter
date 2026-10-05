@@ -399,6 +399,27 @@ _FACT_ID_ARRAYS = (
     ("deviations", "fact_ids"),
 )
 
+# Decoder caps on how many IDs one plan array may carry, applied in the per-call schema only.
+# The schema bound used to be len(citable) - over a thousand - and the constrained decoder has no
+# uniqueItems (the gateway answers HTTP 400 to it, probed live 2026-10-05), so a fresh planning
+# draw on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript repeated the same hub citations until
+# the 6000-token output budget cut the reply mid-array (481 ids, 323 distinct). The caps sit just
+# above what a plan needs: 12 for a capability's, hub's or deviation's citations, 4 shared per
+# capability, 6 per limitation (the PDF-TypeScript plan needed 5). A stored output is re-judged
+# under the manifest's own static schema and never this one (core/llm/jobs.py: "never
+# call_schema"), so a sealed plan citing more - one Aspose.PDF for Python hub cites 67 - still
+# replays untouched; across the 37 sealed plans 24 of 1,138 arrays are over a cap, and a new draw
+# simply cites fewer. With every array filled, a plan stays near the output budget instead of
+# several times over it.
+_FACT_ID_ARRAY_CAPS = {
+    ("core_capabilities", "fact_ids"): 12,
+    ("core_capabilities", "shared_fact_ids"): 4,
+    ("api_hubs", "fact_ids"): 12,
+    ("material_limitations", "fact_ids"): 6,
+    ("deviations", "fact_ids"): 12,
+}
+_UNIT_ID_ARRAY_CAPS = {("material_limitations", "unit_ids"): 6}
+
 # The inherited-unit ID arrays a plan writes, same path shape. G4-W17 arrival item 77 (lane F
 # PROPOSAL F22, Email-.NET) pinned ``material_limitations.unit_ids`` to the shared
 # ``citable_fact_id`` enum, but that enum holds every fact the planner can see - an identity,
@@ -475,7 +496,10 @@ def _pin_unit_id_arrays(schema: dict[str, Any], citable_units: list[str]) -> Non
             continue
         if citable_units:
             item_properties[field]["items"] = {"$ref": "#/$defs/citable_unit_id"}
-            item_properties[field]["maxItems"] = len(citable_units)
+            item_properties[field]["maxItems"] = min(
+                len(citable_units),
+                _UNIT_ID_ARRAY_CAPS.get((property_name, field), len(citable_units)),
+            )
         else:
             item_properties[field] = {"type": "array", "maxItems": 0}
 
@@ -498,7 +522,9 @@ def _pin_fact_id_arrays(schema: dict[str, Any], citable: list[str]) -> None:
             continue
         if citable:
             item_properties[field]["items"] = {"$ref": "#/$defs/citable_fact_id"}
-            item_properties[field]["maxItems"] = len(citable)
+            item_properties[field]["maxItems"] = min(
+                len(citable), _FACT_ID_ARRAY_CAPS.get((property_name, field), len(citable))
+            )
         else:
             item_properties[field] = {"type": "array", "maxItems": 0}
 
