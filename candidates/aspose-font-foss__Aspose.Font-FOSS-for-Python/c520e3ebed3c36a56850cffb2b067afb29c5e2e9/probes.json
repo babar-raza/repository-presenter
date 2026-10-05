@@ -1,0 +1,18 @@
+[
+  {
+    "elapsed_ms": 1549,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python"
+  },
+  {
+    "elapsed_ms": 1368,
+    "kind": "package_registry",
+    "observation": null,
+    "outcome": "NOT_FOUND",
+    "status": 404,
+    "target": "https://pypi.org/pypi/aspose-font/json"
+  }
+]

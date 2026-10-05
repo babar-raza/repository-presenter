@@ -15,7 +15,12 @@ from support import monitor_registry_entry, write_registry_file
 FULL = "aspose-cells-foss/Aspose.Cells-FOSS-for-Java"
 DRY = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
 OFF = "aspose-html-foss/Aspose.HTML-FOSS-for-Python"
-EFFECTS: tuple[WriteEffect, ...] = ("readme_proposal", "metadata_write", "issue_filing")
+EFFECTS: tuple[WriteEffect, ...] = (
+    "readme_proposal",
+    "metadata_write",
+    "issue_filing",
+    "issue_close",
+)
 
 
 def _registry(tmp_path: Path, *, inactive: bool = False) -> Any:

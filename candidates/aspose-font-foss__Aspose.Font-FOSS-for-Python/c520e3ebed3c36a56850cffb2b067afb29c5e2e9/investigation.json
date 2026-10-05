@@ -1,0 +1,215 @@
+{
+  "audience": {
+    "fact_ids": [
+      "install_command:pip",
+      "example:001",
+      "example:002",
+      "example:004",
+      "example:005",
+      "example:006",
+      "example:007",
+      "example:008"
+    ],
+    "text": "Font engineering teams, web developers, and CI/CD pipelines that need deployable web-font packages, visual review assets, variable-font instances, and QA evidence from scripts, CLI, or MCP workflows."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "format:input.ttf",
+        "public_symbol:aspose_font.fontloader.open",
+        "public_symbol:aspose_font.ttffont.axes",
+        "public_symbol:aspose_font.ttffont.named_instances",
+        "public_symbol:aspose_font.ttffont.metrics"
+      ],
+      "text": "Open TrueType, OpenType, CFF, Type 1, WOFF, WOFF2, and EOT fonts using `FontLoader.open()` and inspect axes, named instances, and metrics.",
+      "title": "Open and inspect multiple font formats"
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008",
+        "public_symbol:aspose_font.smartinstancer.instantiate",
+        "public_symbol:aspose_font.smartinstancer.preview_naming_policy"
+      ],
+      "text": "Instantiate variable fonts by axis coordinates or named instances using `SmartInstancer.instantiate()` with configurable naming strategies and STAT policy.",
+      "title": "Instantiate and customize variable fonts"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage",
+        "public_symbol:aspose_font.fontsubsetter.available_presets"
+      ],
+      "text": "Subset fonts for web delivery with coverage analysis using `FontSubsetter.subset_for_web_with_coverage()` and preset-based codepoint resolution.",
+      "title": "Subset fonts for web delivery"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "example:005",
+        "example:008",
+        "format:output.png",
+        "format:output.svg",
+        "format:output.html",
+        "public_symbol:aspose_font.fontqareport.write_html"
+      ],
+      "text": "Generate PNG, SVG, HTML, and JSON review assets including family review boards, axis grids, delta comparisons, and QA reports.",
+      "title": "Generate visual and machine-readable review assets"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:008",
+        "public_symbol:aspose_font.deltainspector.compare_variable_glyph",
+        "public_symbol:aspose_font.compatibilitychecker.compare_variable_instances"
+      ],
+      "text": "Inspect glyph and text deltas, active tuples, and interpolation issues between instances using `DeltaInspector` and `CompatibilityChecker`.",
+      "title": "Inspect variable-font interpolation and compatibility"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cli.main",
+        "public_symbol:aspose_font.mcp.main",
+        "public_symbol:aspose_font.mcp.font_subset",
+        "public_symbol:aspose_font.mcp.web_build"
+      ],
+      "text": "Support CLI workflows via `aspose_font.cli.main` and expose capabilities to AI clients via MCP server endpoints for font conversion, subsetting, and web export.",
+      "title": "Support CLI and MCP automation"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "package:python_requires"
+      ],
+      "text": "The package requires Python 3.10 or later, limiting use in older environments."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.converter.fontconverter"
+      ],
+      "text": "No evidence of support for font conversion between formats (e.g., TTF to WOFF2) beyond subsetting and packaging; conversion is limited to internal processing."
+    },
+    {
+      "fact_ids": [
+        "dependency:optional.mcp.mcp-1.0"
+      ],
+      "text": "MCP support is optional and requires installing the `mcp>=1.0` dependency separately."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008",
+        "public_symbol:aspose_font.smartinstancer.instantiate",
+        "public_symbol:aspose_font.smartinstancer.check_compatibility"
+      ],
+      "text": "Enables variable-font instance instantiation, axis inspection, and compatibility checking without native dependencies."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008",
+        "public_symbol:aspose_font.webfontbuilder.build",
+        "public_symbol:aspose_font.fontsubsetter.subset_for_web_with_coverage"
+      ],
+      "text": "Produces browser-ready web-font packages with coverage diagnostics, naming policies, and STAT support."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005",
+        "example:008",
+        "format:output.png",
+        "format:output.svg",
+        "format:output.html"
+      ],
+      "text": "Generates visual review assets such as PNG, SVG, HTML reports, and animation packages for variable-font validation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.cli.main",
+        "public_symbol:aspose_font.mcp.main",
+        "public_symbol:aspose_font.mcp.font_subset",
+        "public_symbol:aspose_font.mcp.web_build"
+      ],
+      "text": "Supports automation via CLI and MCP server for font conversion, subsetting, and web export in CI environments."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version"
+    ],
+    "text": "Aspose Font FOSS for Python is a pure-Python library for font workflow automation, enabling teams to prepare, review, package, and explain fonts without native runtime dependencies."
+  },
+  "uncertainties": [
+    "Whether the library supports OpenType CFF2 (variable fonts based on CFF2) is not explicitly stated in the fact dossier.",
+    "The exact set of supported input formats beyond .ttf is implied but not confirmed by format facts; evidence for .otf, .cff, .pfa, .woff, .woff2, .eot comes from public symbols and examples, not format facts.",
+    "The behavior of `FontLoader.load()` versus `FontLoader.open()` is not clarified beyond their existence as public symbols.",
+    "Whether the library supports font hinting or bytecode manipulation is not evident from the fact dossier."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008",
+        "public_symbol:aspose_font.webfontbuilder.build",
+        "public_symbol:aspose_font.webfontbundle.write_to"
+      ],
+      "name": "Web font packaging",
+      "text": "Build web handoff packages with `WebFontBuilder.build()` or `SmartInstancer.build_web_bundle()` to generate font files, manifest, and preview assets."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:008",
+        "public_symbol:aspose_font.fontqareporter.build_package",
+        "public_symbol:aspose_font.fontqareport.write_html"
+      ],
+      "name": "Variable-font QA reporting",
+      "text": "Generate QA evidence packages with `FontQaReporter.build_package()` to produce JSON, HTML, and preview PNG for font review."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose_font.smartinstancer.build_family_review_board",
+        "public_symbol:aspose_font.familyreviewexportpackage"
+      ],
+      "name": "Instance review boards",
+      "text": "Create visual comparison boards for named instances using `SmartInstancer.build_family_review_board()` to output PNG review sheets."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "public_symbol:aspose_font.smartinstancer.build_axis_grid_sheet"
+      ],
+      "name": "Axis grid proofing",
+      "text": "Generate axis-grid previews with `SmartInstancer.build_axis_grid_sheet()` to visualize variable-font behavior across weight and width."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:008",
+        "public_symbol:aspose_font.smartinstancer.compare_delta_glyph",
+        "public_symbol:aspose_font.compatibilitychecker.compare_variable_instances"
+      ],
+      "name": "Delta and compatibility inspection",
+      "text": "Inspect outline changes between instances using `SmartInstancer.compare_delta_glyph()` and `check_compatibility()` to detect interpolation issues."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_font.animationpreviewbuilder.build_axis_sweep",
+        "public_symbol:aspose_font.animationasset.write_to"
+      ],
+      "name": "Animation and showcase generation",
+      "text": "Produce APNG sweeps and showcase packages using `AnimationPreviewBuilder` for animated variable-font demonstrations."
+    }
+  ]
+}

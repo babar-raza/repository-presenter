@@ -6,6 +6,7 @@ a recheck confirming the defect still fires. No test here makes a live GitHub ca
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -14,9 +15,18 @@ import pytest
 from repository_presenter import cli
 from repository_presenter.cli import EXIT_OK, EXIT_USAGE, main
 from repository_presenter.components.issues.approval import handoff_id
+from repository_presenter.components.issues.close_approval import CLOSE_APPROVALS_RELATIVE_DIR
 from repository_presenter.components.issues.file import AUTHORIZATION_VARIABLE
 from repository_presenter.components.issues.model import load_handoff
-from support import approval_text, monitor_registry_entry, write_registry_file
+from repository_presenter.core.authorization.refusals import Refusal
+from repository_presenter.core.github.client import IssueSnapshot
+from repository_presenter.core.github.token_provenance import TokenDecision
+from support import (
+    approval_text,
+    close_approval_text,
+    monitor_registry_entry,
+    write_registry_file,
+)
 
 REPO_DIR = "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp"
 REPOSITORY = "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
@@ -48,6 +58,20 @@ def _no_live_github(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cli, "redetect", _fires_true)
     monkeypatch.setattr(cli, "default_patch", _RecordingCreate(status_code=200, body={}))
     monkeypatch.setattr(cli, "default_post", _RecordingCreate())
+    monkeypatch.setattr(cli, "get_issue", _live_issue)
+    monkeypatch.setattr(
+        cli, "default_verify_installation_token", lambda repository, token: TokenDecision(True)
+    )
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    monkeypatch.delenv("GH_ISSUES_WRITE_TOKEN", raising=False)
+
+
+def _live_issue(owner: str, name: str, number: int, **kwargs: Any) -> IssueSnapshot:
+    """The upstream issue as this system filed it: open, with the handoff's fingerprint marker."""
+    marker = f"<!-- repository-presenter-defect: sha256:{FINGERPRINT} -->"
+    return IssueSnapshot(
+        number=number, state="open", body=f"defect\n\n{marker}\n", is_pull_request=False
+    )
 
 
 class _CommittedApprovals:
@@ -69,12 +93,46 @@ class _CommittedApprovals:
         return None
 
 
+class _CommittedCloseApprovals:
+    """Stands in for the close-approval ``GitApprovalStore``: serves a close approval for each
+    FILED handoff whose repository is in ``approved``, with fields overridden per handoff id."""
+
+    def __init__(self, root: Path) -> None:
+        self.root = root
+        self.approved = {REPOSITORY}
+        self.overrides: dict[str, dict[str, Any]] = {}
+
+    def read(self, identifier: str) -> str | None:
+        for path in sorted((self.root / "evidence" / "upstream-defects").glob("*/*.json")):
+            handoff = load_handoff(path)
+            if (
+                handoff_id(handoff) == identifier
+                and handoff.repository in self.approved
+                and handoff.issue_ref is not None
+            ):
+                return close_approval_text(handoff, **self.overrides.get(identifier, {}))
+        return None
+
+
+@pytest.fixture
+def close_policy() -> dict[str, Any]:
+    """What the close-approval store serves; a test edits it before running the CLI."""
+    return {"approved": {REPOSITORY}, "overrides": {}}
+
+
 @pytest.fixture(autouse=True)
-def approvals(monkeypatch: pytest.MonkeyPatch) -> list[_CommittedApprovals]:
+def approvals(
+    monkeypatch: pytest.MonkeyPatch, close_policy: dict[str, Any]
+) -> list[_CommittedApprovals]:
     """The approval store the CLI builds; the single entry is the one it created."""
     created: list[_CommittedApprovals] = []
 
-    def factory(root: Path, ref: str = "HEAD") -> _CommittedApprovals:
+    def factory(root: Path, ref: str = "HEAD", *, directory: str = "ops/issue_approvals") -> Any:
+        if directory == CLOSE_APPROVALS_RELATIVE_DIR:
+            closing = _CommittedCloseApprovals(root)
+            closing.approved = set(close_policy["approved"])
+            closing.overrides = close_policy["overrides"]
+            return closing
         store = _CommittedApprovals(root)
         created.append(store)
         return store
@@ -408,8 +466,10 @@ def _approve(
     """Make the CLI's approval store approve exactly ``repositories``."""
     original_factory = cli.GitApprovalStore
 
-    def factory(root: Path, ref: str = "HEAD") -> _CommittedApprovals:
-        store = original_factory(root, ref)
+    def factory(root: Path, ref: str = "HEAD", **kwargs: Any) -> Any:
+        store = original_factory(root, ref, **kwargs)
+        if isinstance(store, _CommittedCloseApprovals):
+            return store
         store.approved = set(repositories)
         store.overrides = dict(overrides)
         return store
@@ -549,17 +609,39 @@ def test_count_writable_counts_only_approved_pending_handoffs(
     assert capsys.readouterr().out.strip() == "0"
 
 
-def test_a_resolved_filed_handoff_is_closed_with_its_close_reason(
-    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
-) -> None:
-    _write_filed_handoff(project_with_handoff)
-    patch = _RecordingCreate(status_code=200, body={"state": "closed"})
-    monkeypatch.setattr(cli, "default_patch", patch)
+def _close_args(project: Path, *extra: str) -> list[str]:
+    return [
+        "redetect-upstream-defects",
+        "--root",
+        str(project),
+        "--repo",
+        REPOSITORY,
+        "--close",
+        *extra,
+    ]
+
+
+def _arm_close(
+    monkeypatch: pytest.MonkeyPatch, project: Path, patch: _RecordingCreate | None = None
+) -> _RecordingCreate:
+    """A FILED handoff #7 whose check is proven resolved, every close gate open, and PATCH faked."""
+    _write_filed_handoff(project)
+    recorder = patch or _RecordingCreate(status_code=200, body={"state": "closed"})
+    monkeypatch.setattr(cli, "default_patch", recorder)
     monkeypatch.setattr(cli, "redetect", _resolved_not_planned)
     monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
     monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
+    return recorder
 
-    exit_code = main(["redetect-upstream-defects", "--root", str(project_with_handoff), "--close"])
+
+def test_a_resolved_filed_handoff_is_closed_with_its_close_reason(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Registry full + permit, kill switch, token (verified), a close approval for #7 and
+    ``not_planned``, and the marker on the live issue: exactly one PATCH, through the fake."""
+    patch = _arm_close(monkeypatch, project_with_handoff)
+
+    exit_code = main(_close_args(project_with_handoff))
 
     assert exit_code == EXIT_OK
     assert len(patch.calls) == 1
@@ -574,13 +656,23 @@ def test_a_resolved_filed_handoff_is_closed_with_its_close_reason(
     assert "fake-write-token-for-this-test-only" not in capsys.readouterr().out
 
 
+def test_close_requires_a_repo_binding_and_writes_nothing_without_one(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    patch = _arm_close(monkeypatch, project_with_handoff)
+
+    exit_code = main(["redetect-upstream-defects", "--root", str(project_with_handoff), "--close"])
+
+    assert exit_code == EXIT_USAGE
+    assert patch.calls == []
+
+
 def test_close_without_the_gate_makes_no_call_and_says_what_it_would_close(
     project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _write_filed_handoff(project_with_handoff)
+    _arm_close(monkeypatch, project_with_handoff)
     patch = _RecordingCreate(status_code=200, body={"state": "closed"})
     monkeypatch.setattr(cli, "default_patch", patch)
-    monkeypatch.setattr(cli, "redetect", _resolved_not_planned)
     monkeypatch.delenv(AUTHORIZATION_VARIABLE, raising=False)
 
     exit_code = main(["redetect-upstream-defects", "--root", str(project_with_handoff)])
@@ -588,8 +680,257 @@ def test_close_without_the_gate_makes_no_call_and_says_what_it_would_close(
     assert exit_code == EXIT_OK
     assert patch.calls == []
     out = capsys.readouterr().out
-    assert "would close #7" in out
+    assert "would close #7 (not_planned)" in out
     assert load_handoff(_handoff_path(project_with_handoff)).status == "FILED"
+
+
+# ---------------------------------------------------------------------------
+# The gates on the close path. Each test opens every gate but one, so removing exactly that gate
+# from the code makes exactly that test fail (a close is a write to a product repository).
+# ---------------------------------------------------------------------------
+
+
+def _assert_not_closed(project: Path, patch: _RecordingCreate) -> None:
+    assert patch.calls == []
+    assert load_handoff(_handoff_path(project)).status == "FILED"
+
+
+@pytest.mark.parametrize("mode", ["dry_run", "disabled"])
+def test_close_is_refused_when_the_registry_mode_is_not_full(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    mode: str,
+) -> None:
+    write_registry_file(project_with_handoff, [monitor_registry_entry(REPOSITORY, mode=mode)])
+    patch = _arm_close(monkeypatch, project_with_handoff)
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    assert "close not performed (registry_" in capsys.readouterr().out
+
+
+def test_close_is_refused_when_the_target_is_not_in_the_registry(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_registry_file(
+        project_with_handoff,
+        [monitor_registry_entry("aspose-3d-foss/Aspose.3D-FOSS-for-Python", mode="full")],
+    )
+    patch = _arm_close(monkeypatch, project_with_handoff)
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    assert "registry_not_listed" in capsys.readouterr().out
+
+
+def test_the_dry_run_reports_would_not_close_for_a_dry_run_registry_entry(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_registry_file(project_with_handoff, [monitor_registry_entry(REPOSITORY, mode="dry_run")])
+    patch = _arm_close(monkeypatch, project_with_handoff)
+
+    assert main(["redetect-upstream-defects", "--root", str(project_with_handoff)]) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    out = capsys.readouterr().out
+    assert "would not close: registry_dry_run" in out
+    assert "would close" not in out
+
+
+def test_close_is_refused_with_the_kill_switch_off(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    monkeypatch.delenv(AUTHORIZATION_VARIABLE)
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+
+
+def test_close_is_refused_without_a_write_token(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    monkeypatch.delenv("GH_ISSUES_WRITE_TOKEN")
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    assert "no write-scoped token" in capsys.readouterr().out
+
+
+def test_close_is_refused_without_a_close_approval(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    close_policy: dict[str, Any],
+) -> None:
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    close_policy["approved"] = set()
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    assert "no close approval record" in capsys.readouterr().out
+
+
+def test_a_filing_approval_alone_does_not_close(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    close_policy: dict[str, Any],
+) -> None:
+    """The handoff holds a valid *filing* approval (the autouse store), and still nothing closes."""
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    close_policy["approved"] = set()
+    _approve(monkeypatch, REPOSITORY)
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+
+
+@pytest.mark.parametrize(
+    ("override", "expected"),
+    [
+        ({"issue_number": 8}, "#8"),
+        ({"close_reason": "completed"}, "reason"),
+        ({"digest": "sha256:" + "0" * 64}, "digest mismatch"),
+        ({"repository": "someone-else/other-repo"}, "target mismatch"),
+        (
+            {
+                "approved_at": datetime.now(UTC) - timedelta(days=9),
+                "expires_at": datetime.now(UTC) - timedelta(days=2),
+            },
+            "expired",
+        ),
+    ],
+    ids=["wrong-issue-number", "wrong-reason", "stale-digest", "wrong-repository", "expired"],
+)
+def test_close_is_refused_for_a_mismatched_or_expired_approval(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    close_policy: dict[str, Any],
+    override: dict[str, Any],
+    expected: str,
+) -> None:
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    close_policy["overrides"] = {f"{REPO_DIR}__{FINGERPRINT}": override}
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    assert expected in capsys.readouterr().out
+
+
+def test_close_is_refused_when_the_issue_does_not_carry_the_systems_marker(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """#7 is approved and the check is resolved, but #7 is a human's issue: nothing is closed."""
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    monkeypatch.setattr(
+        cli,
+        "get_issue",
+        lambda owner, name, number, **k: IssueSnapshot(
+            number=number, state="open", body="a person wrote this", is_pull_request=False
+        ),
+    )
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    assert "fingerprint marker" in capsys.readouterr().out
+
+
+def test_close_is_refused_when_the_write_token_is_not_a_scoped_installation_token(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    reads: list[int] = []
+    monkeypatch.setattr(
+        cli,
+        "default_verify_installation_token",
+        lambda repository, token: TokenDecision(False, Refusal.TOKEN_WRONG_SCOPE, "too wide"),
+    )
+    monkeypatch.setattr(cli, "get_issue", lambda *a, **k: reads.append(1))
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    assert reads == []  # refused before the issue was even read
+    assert "token_wrong_scope" in capsys.readouterr().out
+
+
+def test_the_dry_run_reports_would_not_close_without_a_close_approval(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    close_policy: dict[str, Any],
+) -> None:
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    close_policy["approved"] = set()
+
+    assert main(["redetect-upstream-defects", "--root", str(project_with_handoff)]) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    out = capsys.readouterr().out
+    assert "would not close: no close approval record" in out
+    assert (
+        f"ops/issue_close_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__{FINGERPRINT}.json"
+        in out
+    )
+    assert "issue_number 7" in out and "close_reason not_planned" in out
+
+
+def test_the_dry_run_with_a_read_token_checks_the_marker_on_the_live_issue(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    monkeypatch.setenv("GH_TOKEN", "fake-read-token-for-this-test-only")
+    monkeypatch.setattr(
+        cli,
+        "get_issue",
+        lambda owner, name, number, **k: IssueSnapshot(
+            number=number, state="open", body="not ours", is_pull_request=False
+        ),
+    )
+
+    assert main(["redetect-upstream-defects", "--root", str(project_with_handoff)]) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    assert "would not close: #7 does not carry this handoff's fingerprint marker" in (
+        capsys.readouterr().out
+    )
+
+
+def test_the_dry_run_reports_why_a_still_firing_filed_handoff_is_not_closed(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    monkeypatch.setattr(cli, "redetect", _fires_true)
+
+    assert main(["redetect-upstream-defects", "--root", str(project_with_handoff)]) == EXIT_OK
+
+    _assert_not_closed(project_with_handoff, patch)
+    assert "would not close: the defect still fires" in capsys.readouterr().out
+
+
+def test_count_writable_counts_a_filed_handoff_only_with_a_close_approval(
+    project_with_handoff: Path,
+    capsys: pytest.CaptureFixture[str],
+    close_policy: dict[str, Any],
+) -> None:
+    _write_filed_handoff(project_with_handoff)
+    base = ["file-upstream-defects", "--root", str(project_with_handoff), "--count-writable"]
+    assert main([*base, "--repo", REPOSITORY]) == EXIT_OK
+    assert capsys.readouterr().out.strip() == "1"
+    close_policy["approved"] = set()
+    assert main([*base, "--repo", REPOSITORY]) == EXIT_OK
+    assert capsys.readouterr().out.strip() == "0"
 
 
 def test_the_dry_run_reports_each_handoff_with_its_verdict_and_reason(
@@ -755,5 +1096,38 @@ def test_the_filing_effect_cannot_be_reached_without_a_matching_permit(
     ):
         with pytest.raises(ValueError, match="permit"):
             file_handoff(
-                handoff, token="t", environment={AUTHORIZATION_VARIABLE: "1"}, permit=wrong
+                handoff,
+                token="t",
+                environment={AUTHORIZATION_VARIABLE: "1"},
+                permit=wrong,
+                verify_token=lambda token: TokenDecision(True),
             )
+
+
+@pytest.mark.parametrize(
+    "code", [Refusal.TOKEN_NOT_INSTALLATION, Refusal.TOKEN_WRONG_SCOPE, Refusal.TOKEN_UNVERIFIABLE]
+)
+def test_end_to_end_an_approved_handoff_is_not_filed_with_an_unverified_write_token(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    code: Refusal,
+) -> None:
+    """Registry full, approval verifying, kill switch on, token present - but the token is a PAT,
+    too wide, for another repository, or unverifiable: nothing is posted. Fails without it."""
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+    asked: list[tuple[str, str]] = []
+
+    def refuse(repository: str, token: str) -> TokenDecision:
+        asked.append((repository, token))
+        return TokenDecision(False, code, "not acceptable")
+
+    monkeypatch.setattr(cli, "default_verify_installation_token", refuse)
+
+    assert main(_file_args(project_with_handoff)) == EXIT_OK
+
+    assert create.calls == []
+    assert asked == [(REPOSITORY, "fake-write-token-for-this-test-only")]
+    assert load_handoff(_handoff_path(project_with_handoff)).status == "HANDOFF_PENDING"
+    assert str(code) in capsys.readouterr().out
