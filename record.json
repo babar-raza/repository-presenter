@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "provider_repository_id": 1137426093,
+  "registry_revision": null,
+  "active_transaction_id": "055726ed65944ed5925e44cba8903a2c",
+  "state": "OBSERVED",
+  "source": null,
+  "surfaces": {},
+  "dependencies": {
+    "facts": null,
+    "prompts": null,
+    "models": null,
+    "presentation": null,
+    "validation": null
+  },
+  "accepted_artifact": null,
+  "proposal": null,
+  "failure": null,
+  "lease": {
+    "holder_id": "present.yml:37361313253",
+    "acquired_at": "2026-10-05T19:29:13.512565+00:00",
+    "heartbeat_at": "2026-10-05T19:29:13.512565+00:00",
+    "expires_at": "2026-10-05T19:44:13.512565+00:00",
+    "fencing_token": 1
+  },
+  "last_transition": null,
+  "state_version": 1,
+  "recent_trigger_dedup_keys": {
+    "run:37361313253:aspose-note-foss/Aspose.Note-FOSS-for-Python": "055726ed65944ed5925e44cba8903a2c"
+  },
+  "recovery_count": 0
+}
