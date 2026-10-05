@@ -165,7 +165,7 @@ next_ready_items:
 - id: G3-W06
   status: PENDING
   owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
-  purpose: "README contract enforcement against plans/idea.md (REV-V2-01, 04, 05, 06, 07, 08, 09). Merged: REV-V2-05, 06, 07 in #246 (derived link ceilings, Enterprise anchor, verified badge row), REV-V2-01 and 04 in #251 (no generated edition substitute, BC-06 case-insensitive, BC-12 canonical name). Depends on: #249 (heading case, abbreviations, fences and spacing, visible sections, BC-07 version 8) merged; OWNER-15 for the second-reviewer trigger (REV-V2-10). Open: search-intent keyword lineage per title (REV-V2-09), recorded in #249 as a finding and not built; the typed second-reviewer trigger replacing the hard-coded MAJORITY_VOTE_REPOSITORIES (review/independent/review.py:325). Exit predicate: every rule has a negative control; sealed bundles re-check to VALID_UPDATE_AVAILABLE and are never blanket-invalidated; keyword lineage is either built with a check or ruled out by the owner."
+  purpose: "README contract enforcement against plans/idea.md (REV-V2-01, 04, 05, 06, 07, 08, 09). Merged: REV-V2-05, 06, 07 in #246 (derived link ceilings, Enterprise anchor, verified badge row), REV-V2-01 and 04 in #251 (no generated edition substitute, BC-06 case-insensitive, BC-12 canonical name). Depends on: #249 (heading case, abbreviations, fences and spacing, visible sections, BC-07 version 8) merged; a typed second-reviewer trigger replaces the hard-coded set (OWNER-15 decided; REV-V2-10). Open: search-intent keyword lineage per title (REV-V2-09), recorded in #249 as a finding and not built; the typed second-reviewer trigger replacing the hard-coded MAJORITY_VOTE_REPOSITORIES (review/independent/review.py:325). Exit predicate: every rule has a negative control; sealed bundles re-check to VALID_UPDATE_AVAILABLE and are never blanket-invalidated; keyword lineage is either built with a check or ruled out by the owner."
 - id: G3-W07
   status: PENDING
   owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
@@ -173,7 +173,7 @@ next_ready_items:
 - id: G5-W08
   status: PENDING
   owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
-  purpose: "Seal routing, status counts, durable state and registry coverage (REV-V2-11, REV-V3-04, REV-V3-06, REV-V3-10, REV-V4-10). Merged: REV-V2-11 in #254 (typed invalidation scopes), REV-V3-04 in #243 (seven separated counts), the generic NON_PROCESSABLE producer of REV-V3-06 in #216. Depends on: OWNER-14 (DEFER_UNRESOLVED fail-closed, which would drop sealed candidates) and OWNER-19 (the two disabled PSD entries). Open: six registry entries with no current candidate (3D-TypeScript, GIS-.NET, PDF-TypeScript, TeX-Python, PSD-.NET, PSD-Python); durable state used only by present (monitor and propose do not use it); three states never assigned to a real candidate. Exit predicate: every registry entry ends in a counted state or a typed disposition with a resume predicate; monitor and propose read and write the durable record; each state is reached by a test and by one real candidate; the DEFER_UNRESOLVED rule the owner chose is enforced by validation, not only by prose."
+  purpose: "Seal routing, status counts, durable state and registry coverage (REV-V2-11, REV-V3-04, REV-V3-06, REV-V3-10, REV-V4-10). Merged: REV-V2-11 in #254 (typed invalidation scopes), REV-V3-04 in #243 (seven separated counts), the generic NON_PROCESSABLE producer of REV-V3-06 in #216. Depends on: OWNER-14 (resolved as a per-class deferral registry; the per-class rules are fix/deferral-policy-1007, pending) and OWNER-19 (the two disabled PSD entries). Open: six registry entries with no current candidate (3D-TypeScript, GIS-.NET, PDF-TypeScript, TeX-Python, PSD-.NET, PSD-Python); durable state used only by present (monitor and propose do not use it); three states never assigned to a real candidate. Exit predicate: every registry entry ends in a counted state or a typed disposition with a resume predicate; monitor and propose read and write the durable record; each state is reached by a test and by one real candidate; the DEFER_UNRESOLVED rule the owner chose is enforced by validation, not only by prose."
 - id: G5-W09
   status: PENDING
   owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
@@ -295,16 +295,16 @@ owner_items:
     recorded_at: "2026-10-05T10:45:00+05:00"
     note: "Recorded by the register PR; the question is the owner's, not delegated."
   - id: OWNER-14
-    status: OPEN
+    status: SATISFIED
     summary: "DEFER_UNRESOLVED must fail closed? Validation never reads the state, and 14 READY_FOR_PROPOSAL bundles carry 82 deferred units (85 across 15 with the VALID_UPDATE_AVAILABLE one); enforcing it drops or re-seals those candidates (REV-V2-03)."
-    resume_predicate: "The owner chooses block, flag-for-review, or accept-as-is; the rule is then enforced by a validation check with a negative control."
+    resume_predicate: "Decided 2026-10-05 as a per-class registry: deferred units are advisory and never public; a class blocks only where its registry entry says so. The per-class rules are fix/deferral-policy-1007 (pending); enforcement is G5-W08."
     consumed_by: ["G5-W08"]
     recorded_at: "2026-10-05T10:45:00+05:00"
     note: "Recorded by the register PR; the question is the owner's, not delegated."
   - id: OWNER-15
-    status: OPEN
+    status: SATISFIED
     summary: "Second reviewer: unconditional on every ACCEPT with three hard-coded repositories (MAJORITY_VOTE_REPOSITORIES, review/independent/review.py:325) versus the typed risk trigger plans/idea.md describes (REV-V2-10). Cost versus assurance."
-    resume_predicate: "The owner chooses the trigger set; the hard-coded set is removed in the same change."
+    resume_predicate: "Decided 2026-10-05: a typed risk trigger replaces the hard-coded MAJORITY_VOTE_REPOSITORIES set. The work item that implements it is G3-W06 (REV-V2-10)."
     consumed_by: ["G3-W06"]
     recorded_at: "2026-10-05T10:45:00+05:00"
     note: "Recorded by the register PR; the question is the owner's, not delegated."
