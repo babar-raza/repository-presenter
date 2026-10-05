@@ -101,17 +101,9 @@ invalidated gate. It never creates a competing plan.
 
 ## 4. Build-state overview
 
-```mermaid
-stateDiagram-v2
-    [*] --> G0_Foundation
-    G0_Foundation --> G1_FirstValidCandidate: buildable, checkable, protected
-    G1_FirstValidCandidate --> G2_StabilityUnderChange: 1/34 accepted and no-op proven
-    G2_StabilityUnderChange --> G3_PythonCohort: invalidation proven, D1 D2 D5 D6 on the canary
-    G3_PythonCohort --> G4_MultiLanguageCohorts: Python cohort sealed, contract v1 frozen
-    G4_MultiLanguageCohorts --> G5_RerunDurabilityAndHosted: every enabled entry local, census recorded
-    G5_RerunDurabilityAndHosted --> G6_ProposalProof: fresh-state proofs, hosted run equal
-    G6_ProposalProof --> G7_ProductionAndOperation: disposable PR lifecycle proven
-```
+Gate transitions: G0 to G1 buildable, checkable, protected; G1 to G2 first candidate accepted and no-op proven; G2 to G3
+invalidation proven, D1 D2 D5 D6 on the canary; G3 to G4 Python cohort sealed, contract v1 frozen; G4 to G5 every enabled
+entry local, census recorded; G5 to G6 fresh-state proofs, hosted run equal; G6 to G7 disposable PR lifecycle proven.
 
 The agent may research ahead of the cursor but may not build or claim a later gate's machinery
 before its dependency gate passes.
@@ -129,6 +121,8 @@ item is `IN_PROGRESS`. A JSON Schema under `schemas/` validates the file in CI f
 Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UNDER_CHANGE`,
 `G3_PYTHON_COHORT`, `G4_MULTI_LANGUAGE_COHORTS`, `G5_RERUN_DURABILITY_AND_HOSTED_OPERATION`,
 `G6_PROPOSAL_EFFECT_PROOF`, `G7_PRODUCTION_AND_CONTINUOUS_OPERATION`.
+
+**Register.** Work items whose `project/state.yaml` owner begins `REGISTER:` and `owner_items` OWNER-10 to OWNER-19 own every reviewer id in `docs/DEFECT_INDEX.md`: G6-W05 write path; G3-W06 README contract; G3-W07 code freeze and re-seal; G5-W08 seal routing, status, durable state, registry coverage; G5-W09 no-op proof; G7-W07 autonomy and safeguards; G4-W18 discovery into `src/`; G4-W19 product-evidence surfaces; G7-W08 hygiene and prompts; G7-W09 documentation claims. `tests/test_register_integrity.py` fails when an id loses its work item.
 
 **Owner-only predicates never live in a gate.** Branch protection, secrets, App installation, and
 product decisions are `owner_items` with an exact resume predicate and the gate or work item that
@@ -488,7 +482,7 @@ behavior are proven; and the system operates without routine human initiation or
 | Exactly one disposition per material source unit; LLM reasoning mandatory; every call attributable; zero-call no-op; small governed prompt registry | G1 | Blocking checks, six prompt manifests, ledger, fresh-process replay. |
 | System decides product and platform; ecosystem truth includes the public consumer surface | G1 (Python), G2, G4 (all) | Plugin registry and platform verifiers with negative controls. |
 | Aspose.org and sibling assets are oracles, never runtime dependencies; benchmark quality profile met or exceeded (`BENCHMARK_REFRESH_AVAILABLE`) | G1 rule, G4 pull, G5 benchmark | Fixture-only, plus file pulls with records and tests in G4, never a runtime import; benchmark comparison is development-only. |
-| 30-point acceptance, zero hard disqualifiers, criterion-specific evidence | G3 | **NOT IMPLEMENTED** (2026-10-04 wiring audit: no scorer in `src/`; only `ACCEPTANCE_PROFILE_VERSION = "1"` exists, `bundle/seal.py`). Original note: frozen as contract v1 after the Python cohort. |
+| 30-point acceptance, zero hard disqualifiers, criterion-specific evidence | G3 | Advisory scorer exists and is wired (`review/acceptance/scorer.py`, `repair/rounds.py`); `profile.RATIFIED` is False, so no check blocks on it. Ratification is OWNER-13 (G3-W02). |
 | Independent non-authoring review; second reviewer only on typed trigger | G1 | Hard invariant. |
 | Complete authorized discovery; hard allow-list; frozen registry revision; new repositories disabled and read-only; explicit exclusions | G4 registry freeze, G5 intake | Registry modules pulled and refactored. |
 | README-only placeholders become non-processable with resume predicates | G1 fixture, G3 and G4 PSD | Zero LLM calls. |
