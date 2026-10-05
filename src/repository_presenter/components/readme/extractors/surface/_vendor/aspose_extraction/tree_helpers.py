@@ -193,21 +193,15 @@ _DOC_COMMENT_STYLES: dict[str, str] = {
 # Parser loading
 # ---------------------------------------------------------------------------
 
-_LANG_ALIASES: dict[str, str] = {"csharp": "_c_sharp_separate"}
-
-
 def get_parser(language: str):
-    """Return a tree-sitter Parser for *language*."""
-    resolved = _LANG_ALIASES.get(language, language)
-    if resolved == "_c_sharp_separate":
-        import tree_sitter_c_sharp as tsc
-        from tree_sitter import Language, Parser
-        lang_obj = Language(tsc.language())
-        parser = Parser(lang_obj)
-        return parser
-    else:
-        from tree_sitter_language_pack import get_parser as _get
-        return _get(resolved)
+    """Return a tree-sitter Parser for *language*, from its pinned grammar wheel.
+
+    Delegates to ``core.grammars``: no grammar is ever downloaded at run time, and a language with
+    no pinned wheel raises ``GrammarUnavailableError`` naming it.
+    """
+    from repository_presenter.core.grammars import get_parser as _get
+
+    return _get(language)
 
 
 # ---------------------------------------------------------------------------
