@@ -4,7 +4,7 @@
   "provider_repository_id": 1137426093,
   "registry_revision": null,
   "active_transaction_id": "055726ed65944ed5925e44cba8903a2c",
-  "state": "OBSERVED",
+  "state": "FAILED_INTERNAL",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -16,7 +16,14 @@
   },
   "accepted_artifact": null,
   "proposal": null,
-  "failure": null,
+  "failure": {
+    "classification": "validation_failed",
+    "detail": "present exited 1 (a blocking validation failure or another typed failure - see this transaction's own runs/ output for which)",
+    "resume_state": "SNAPSHOTTING",
+    "occurred_at": "2026-10-05T19:34:28.874618+00:00",
+    "resume_predicate": null,
+    "recovery_count": 0
+  },
   "lease": {
     "holder_id": "present.yml:37361313253",
     "acquired_at": "2026-10-05T19:29:13.512565+00:00",
@@ -24,8 +31,21 @@
     "expires_at": "2026-10-05T19:44:13.512565+00:00",
     "fencing_token": 1
   },
-  "last_transition": null,
-  "state_version": 1,
+  "last_transition": {
+    "transition_id": "9851f50978a646b084ad3c676e99bf46",
+    "transaction_id": "055726ed65944ed5925e44cba8903a2c",
+    "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+    "from_state": "OBSERVED",
+    "to_state": "FAILED_INTERNAL",
+    "event": "present.yml hosted transaction failed",
+    "occurred_at": "2026-10-05T19:34:28.439658+00:00",
+    "actor": "runtime",
+    "input_manifest": "registry:aspose-note-foss/Aspose.Note-FOSS-for-Python",
+    "output_manifest": "candidates/aspose-note-foss__Aspose.Note-FOSS-for-Python/CURRENT",
+    "policy_version": "readme-contract-v1-draft",
+    "fencing_token": 1
+  },
+  "state_version": 2,
   "recent_trigger_dedup_keys": {
     "run:37361313253:aspose-note-foss/Aspose.Note-FOSS-for-Python": "055726ed65944ed5925e44cba8903a2c"
   },
