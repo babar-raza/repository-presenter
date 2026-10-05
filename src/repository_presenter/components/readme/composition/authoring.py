@@ -13,8 +13,10 @@ from __future__ import annotations
 
 import ast
 import copy
+import difflib
 import hashlib
 import json
+import os
 import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
@@ -262,7 +264,12 @@ _TYPE_OBJECTIVE = (
 # every other substitute; the old rewrite generated the forbidden phrase into 19 sealed READMEs
 # while BC-06 only matched capitalised forms. The model now writes the context sentence with no
 # edition phrase at all (the renderer's shell sentence names the Enterprise Edition once).
-NORMALISATION_VERSION = "22"
+# "23": the strays rejection ("identifiers that are not accepted fact values") now names the
+# nearest accepted spellings (nearest_accepted_identifiers), feedback only - what is accepted is
+# unchanged. Measured on aspose-slides-foss/Aspose.Slides-FOSS-for-Java (2026-10-05): the model
+# wrote CommentAuthors in both attempts and the recover copy, and the bare rejection gave the one
+# re-ask nothing to correct toward (accepted: CommentAuthor, CommentAuthorCollection).
+NORMALISATION_VERSION = "23"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -1155,6 +1162,57 @@ def identifier_allowed(
     return False
 
 
+_SPELLABLE = re.compile(r"[A-Za-z_][\w.\-]*(?:\(\))?")
+_NEAREST_LIMIT = 4
+_NEAREST_RATIO = 0.8
+_NEAREST_PREFIX_SHARE = 0.75
+_NEAREST_MIN_PREFIX = 5
+
+
+def nearest_accepted_identifiers(
+    token: str, accepted: Iterable[str], limit: int = _NEAREST_LIMIT
+) -> list[str]:
+    """The few accepted spellings a rejected identifier most plausibly meant, best first.
+
+    Feedback only: this never changes what ``identifier_allowed`` accepts and never substitutes
+    one spelling for another. A spelling is near when it shares most of the token's leading
+    characters (``CommentAuthors`` and ``CommentAuthorCollection`` both open ``CommentAuthor``)
+    or the standard library's ``difflib`` ratio clears ``_NEAREST_RATIO``; ties break on the
+    spelling itself, so the same input always names the same candidates. Only single-token
+    spellings are offered - a fact value that is a sentence or a command line is not a name.
+    The one universal re-ask per job (core/llm/jobs.py) cannot ask a second question, so a bare
+    "not accepted" gave the model nothing to correct toward and it repeated the identifier
+    (aspose-slides-foss/Aspose.Slides-FOSS-for-Java 2026-10-05: ``CommentAuthors`` in both
+    attempts and the recover copy; accepted: ``CommentAuthor``, ``CommentAuthorCollection``).
+    """
+    bare = token[:-2] if token.endswith("()") else token
+    lowered = bare.lower()
+    if len(lowered) < _NEAREST_MIN_PREFIX:
+        return []
+    need = max(_NEAREST_MIN_PREFIX, int(_NEAREST_PREFIX_SHARE * len(lowered)))
+    scored: list[tuple[float, str]] = []
+    for candidate in set(accepted):
+        if candidate in (bare, token) or not _SPELLABLE.fullmatch(candidate):
+            continue
+        base = candidate[:-2] if candidate.endswith("()") else candidate
+        other = base.lower()
+        if abs(len(other) - len(lowered)) > max(len(lowered), len(other)) * 0.6:
+            continue
+        shared = len(os.path.commonprefix([lowered, other]))
+        matcher = difflib.SequenceMatcher(None, lowered, other)
+        ratio = matcher.ratio() if shared >= 2 else 0.0
+        if shared >= need or ratio >= _NEAREST_RATIO:
+            scored.append((ratio, base))
+    scored.sort(key=lambda pair: (-pair[0], pair[1]))
+    nearest: list[str] = []
+    for _, spelling in scored:
+        if spelling not in nearest:
+            nearest.append(spelling)
+        if len(nearest) == limit:
+            break
+    return nearest
+
+
 def identifier_tokens(text: str) -> set[str]:
     """Tokens the renderer would have to wrap in a code span: dotted, snake, CamelCase, calls,
     package coordinates, slash-delimited module paths."""
@@ -1831,8 +1889,15 @@ def unit_checks(
             and not (token.endswith(_EXCEPTION_SUFFIXES) and token in recorded)
         )
         if strays:
+            pool = (
+                allowed | members | frozenset(name for found in methods.values() for name in found)
+            )
+            shown = []
+            for token in strays:
+                near = nearest_accepted_identifiers(token, pool)
+                shown.append(f"{token} (nearest accepted: {', '.join(near)})" if near else token)
             errors.append(
-                f"unit {slot}: identifiers that are not accepted fact values: {', '.join(strays)}"
+                f"unit {slot}: identifiers that are not accepted fact values: {', '.join(shown)}"
             )
         outside = sorted(set(unit_fact_ids) - task.accepted_ids)
         if outside:
