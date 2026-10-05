@@ -127,7 +127,7 @@ tests/                       mirrors src/repository_presenter/ package for packa
   fixtures/oracles/           development-only fixtures and oracles (FIXTURE_OR_ORACLE_ONLY)
   fixtures/readme_only/      README-only placeholder repository (the non-processable negative control)
 .github/workflows/           ci.yml now; monitor.yml, present.yml, propose.yml from G4
-scripts/                     ci_check.sh (the local CI-equivalent; see its own header for exactly which ci.yml steps it mirrors and which it deliberately omits), ci_output_dir.sh (sourced by ci_check.sh: a private mktemp -d output directory per invocation, removed by an EXIT trap, so concurrent runs sharing one tools venv never overwrite each other's SBOM/audit files), check_import_root.py (ci_check.sh's preflight: fails when `import repository_presenter` resolves outside this checkout's src/, e.g. a worktree sharing a venv), check_lock_drift.sh (G7-W02: regenerates requirements-lock.txt in a scratch copy and diffs against the committed one, CI-only - needs network the same way ci.yml's own "Install from the lock" step does)
+scripts/                     ci_check.sh (the local CI-equivalent; see its own header for exactly which ci.yml steps it mirrors and which it deliberately omits), ci_output_dir.sh (sourced by ci_check.sh: a private mktemp -d output directory per invocation, removed by an EXIT trap, so concurrent runs sharing one tools venv never overwrite each other's SBOM/audit files), check_import_root.py (ci_check.sh's preflight: fails when `import repository_presenter` resolves outside this checkout's src/, e.g. a worktree sharing a venv), check_lock_drift.sh (G7-W02: regenerates requirements-lock.txt in a scratch copy and diffs against the committed one, CI-only - needs network the same way ci.yml's own "Install from the lock" step does), sync_main.sh (fast-forwards local main to origin/main only when safe; typed refusals), new_worktree.sh (the one way to start work: a worktree under runs/wt from a freshly fetched origin/main, shared .venv linked), check_staleness.sh (ci_check.sh's warn-only preflight: HEAD more than 20 commits behind origin/main); all three are described in section 6, and tests/test_worktree_scripts.py drives them against temporary git repositories
 tools/                        owner/reviewer tooling (tools/README.md) - supervises the loop and lanes from outside; never imported by src/, never touched by the loop or a lane, never read for an acceptance predicate
   reviewer/                   reviewer_check.py, stop_monitor.py, timestamp_monitor.py, unblock_monitor.py, research_edit.py (reusable governance-edit helpers), procedure.md; .local/ gitignored (state, never portfolio content)
   census/                     portfolio_census.py (planning-time only); .local/ gitignored (clone scratch space)
@@ -190,3 +190,39 @@ superseded document is replaced in place, its history is Git's job. No tracked c
 virtual-environment artifact — `.gitignore` already covers `__pycache__/`, `.pytest_cache/`,
 `.mypy_cache/`, `.ruff_cache/`, `.venv/`, `/build/`, `/dist/`, and `/runs/`; extend it in the same
 commit that introduces a new tool producing local artifacts, before those artifacts are ever staged.
+
+## 6. Branching and worktrees
+
+`origin/main` on GitHub is the only moving main: pushes and PR merges never update a local `main`,
+and the shared `.venv`'s editable install points at the main checkout's `src/`. Anything branched
+from a stale local `main`, or importing from the main checkout, runs stale code (observed
+2026-10-05: false version-mismatch test failures in a worktree). The workflow that prevents it:
+
+1. **Fetch first, branch from `origin/main`.** Start every piece of work with
+   `scripts/new_worktree.sh <name> <branch>`: it runs `git fetch origin`, then
+   `git worktree add -b <branch> runs/wt/<name> origin/main`, links the shared `.venv` (a directory
+   junction on Windows, a symlink elsewhere), and prints the three settings the shell needs:
+   `PYTHONPATH=<worktree>/src` (without it the shared venv imports the main checkout), `CI_TOOLS_VENV`
+   and Git for Windows' `bash` first on `PATH` (the WSL `bash.exe` in System32 fails here). It refuses
+   an existing branch, a taken path, an odd name, and a checkout on `C:` (override only for tests:
+   `NEW_WORKTREE_FORBIDDEN_DRIVES`).
+2. **Never work in the main checkout.** It exists to be fast-forwarded and to own `.git`; commits,
+   edits and test runs happen in a worktree. Remove a worktree's `.venv` junction with `rmdir`
+   before `git worktree remove`, never a recursive delete through it.
+3. **Keep local `main` current with `scripts/sync_main.sh`** (`--check` only reports). It runs
+   `git fetch origin --prune`, reports behind/ahead, and fast-forwards with `git merge --ff-only`
+   (`git fetch origin main:main` when main is checked out nowhere) only when safe. It refuses, with a
+   typed one-line reason and no change, on uncommitted tracked changes (`DIRTY`), local commits not
+   on `origin/main` (`DIVERGED`), a merge/rebase/cherry-pick/revert/bisect in progress
+   (`OP_IN_PROGRESS`) and untracked files the update would overwrite (`UNTRACKED_CLASH`). It cannot see
+   other processes: do not run it while something tests from the main checkout.
+4. **A stale base is warned about where every push passes.** `scripts/ci_check.sh` runs
+   `scripts/check_staleness.sh`, which prints a warning (never a failure) when `HEAD` is more than 20
+   commits behind `origin/main` (`RP_STALE_COMMITS` overrides; main took 59 commits on the busiest
+   recent day, so 20 is about a working session of other people's merges, and a lower bar would warn
+   on every long-lived branch). `scripts/check_import_root.py` still fails the run when the import
+   itself resolves outside the checkout.
+
+On Windows run the scripts with Git for Windows' bash, e.g.
+`& "C:\Program Files\Git\bin\bash.exe" scripts/new_worktree.sh <name> <branch>`; no PowerShell wrapper
+exists because a wrapper could only repeat that line.
