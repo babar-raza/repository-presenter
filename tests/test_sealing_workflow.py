@@ -56,7 +56,8 @@ def test_every_job_defaults_to_read_only_and_only_the_seal_job_asks_for_contents
     assert scheduled["permissions"] == {"contents": "read"}
     jobs = scheduled["jobs"]
     assert set(jobs) == {"plan", "seal", "propose"}
-    assert jobs["plan"].get("permissions") is None
+    # plan reads the monitor's evidence artifacts (actions: read) and writes nothing.
+    assert jobs["plan"]["permissions"] == {"contents": "read", "actions": "read"}
     assert jobs["seal"]["permissions"] == {"contents": "write"}
     assert jobs["propose"]["permissions"] == {"contents": "read"}
 
@@ -300,3 +301,32 @@ def test_the_drift_contract_is_consumed_through_its_file_path_alone(
     plan_run = next(s for s in scheduled["jobs"]["plan"]["steps"] if s.get("id") == "plan")
     assert "--drift-file drift/drift.json" in plan_run["run"]
     assert "uses" not in plan_run
+
+
+def test_the_plan_job_obtains_the_monitor_evidence_before_it_plans(
+    scheduled: dict[str, Any],
+) -> None:
+    """The handoff: the latest SUCCESSFUL monitor run's drift-* artifacts are downloaded in the
+    same run, assembled into drift/drift.json, and only then read by the planner. Before this
+    handoff existed, no step wrote that file, so the planner always failed closed."""
+    steps = scheduled["jobs"]["plan"]["steps"]
+    names = [str(step.get("name", "")) for step in steps]
+    download = next(i for i, s in enumerate(steps) if "gh run download" in s.get("run", ""))
+    assemble = next(
+        i
+        for i, s in enumerate(steps)
+        if "monitor-drift-contract monitor --out drift/drift.json" in s.get("run", "")
+    )
+    plan = next(i for i, s in enumerate(steps) if s.get("id") == "plan")
+    assert download < assemble < plan, names
+    fetch = steps[download]["run"]
+    assert "--workflow monitor.yml" in fetch
+    assert "--branch main" in fetch and "--status success" in fetch
+    assert "--pattern 'drift-*'" in fetch
+    assert "gh run download" in fetch and "--dir monitor" in fetch
+    assert steps[download]["env"] == {"GH_TOKEN": "${{ github.token }}"}
+    # Fail closed: no successful monitor run is an error, never an empty evidence set.
+    assert 'if [ -z "$run_id" ]' in fetch and "exit 1" in fetch
+    assert "monitor-drift-contract" not in fetch
+    # Nothing in the chain carries a write grant for the handoff.
+    assert "actions/create-github-app-token" not in SCHEDULED.read_text(encoding="utf-8")

@@ -65,6 +65,7 @@ from repository_presenter.components.metadata.proposal import (
     write_diff_record,
 )
 from repository_presenter.components.monitor.drift import (
+    assemble_drift_contract,
     drift_document,
     observe_drift,
     write_drift_document,
@@ -601,6 +602,17 @@ def build_parser() -> argparse.ArgumentParser:
     install_summary_cmd.add_argument(
         "--summary", type=Path, default=None, help="append the markdown summary to this file"
     )
+    drift_contract_cmd = subcommands.add_parser(
+        "monitor-drift-contract",
+        help=(
+            "merge every owner's drift evidence under DIR into the sealing contract file; fails "
+            "closed on missing, partial or stale evidence"
+        ),
+    )
+    drift_contract_cmd.add_argument("directory", type=Path, metavar="DIR")
+    drift_contract_cmd.add_argument(
+        "--out", type=Path, required=True, help="the sealing contract file to write"
+    )
     file_cmd = subcommands.add_parser(
         "file-upstream-defects",
         help=(
@@ -869,6 +881,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_monitor_install_record(args.owner, args.outcome, args.repositories, args.out)
     if args.command == "monitor-install-summary":
         return run_monitor_install_summary(args.directory, summary=args.summary)
+    if args.command == "monitor-drift-contract":
+        return run_monitor_drift_contract(args.root, args.directory, args.out)
     if args.command == "redetect-upstream-defects":
         return run_redetect_upstream_defects(
             args.root,
@@ -1128,6 +1142,36 @@ def run_monitor_install_record(
     if state.state == MINT_ERROR:
         _fail(state.detail or f"{owner}: token mint failed")
         return EXIT_INCONSISTENT
+    return EXIT_OK
+
+
+def run_monitor_drift_contract(root_argument: Path | None, directory: Path, out: Path) -> int:
+    """Assemble the sealing contract from the monitor's evidence, checked against the registry.
+
+    Read-only apart from ``out``. Every enabled owner and repository must be covered by fresh
+    evidence (or an installed-app NOT_INSTALLED notice for the owner), or nothing is written.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        expected: dict[str, set[str]] = {}
+        for entry in enabled_entries(registry):
+            expected.setdefault(entry.owner, set()).add(entry.repository)
+        result = assemble_drift_contract(
+            directory,
+            expected={owner: frozenset(names) for owner, names in expected.items()},
+            now=datetime.now(UTC),
+        )
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    for notice in result.notices:
+        print(f"::notice title=Drift observation skipped::{notice}")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result.document, indent=2) + "\n", encoding="utf-8")
+    print(f"drift contract: {len(result.document['repositories'])} repository row(s) -> {out}")
     return EXIT_OK
 
 
