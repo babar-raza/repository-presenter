@@ -48,6 +48,22 @@ def investigation_packet(
     }
 
 
+# Per-call caps on how many fact IDs one investigation array may carry. The schema bound was the
+# dossier's own size (hundreds to thousands), and the constrained decoder cannot enforce
+# uniqueness (the gateway answers HTTP 400 to uniqueItems, probed live 2026-10-05), so a live S3
+# draw on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript repeated example:005 about 171 times and
+# example:006 about 169 times inside `workflows` until the 3000-token budget cut the reply
+# (d929af221130.rejected-1.json). Each cap is the observed maximum across the 38 sealed
+# investigation.json files, so no sealed output is over one. The caps apply to this per-call
+# schema only: run_job re-judges a stored output under the manifest's static schema and never
+# call_schema (core/llm/jobs.py), so sealed replay is unchanged.
+_STATEMENT_FACT_ID_CAP = (
+    14  # product_summary, audience, problems_solved, limitations ($defs.statement)
+)
+_WORKFLOW_FACT_ID_CAP = 14
+_CAPABILITY_FACT_ID_CAP = 11
+
+
 def investigation_schema(loaded: LoadedManifest, facts: FactsDocument) -> dict[str, Any]:
     """The investigation schema specialised for this repository: every ``fact_ids`` array a
     statement, workflow, or capability writes is pinned to an enum of the packet's own
@@ -82,19 +98,25 @@ def investigation_schema(loaded: LoadedManifest, facts: FactsDocument) -> dict[s
     if dossier_ids:
         defs["citable_fact_id"] = {"type": "string", "enum": dossier_ids}
 
-    def _pin(field_properties: dict[str, Any]) -> None:
+    def _pin(field_properties: dict[str, Any], cap: int) -> None:
         if "fact_ids" not in field_properties:
             return
         if dossier_ids:
             field_properties["fact_ids"]["items"] = {"$ref": "#/$defs/citable_fact_id"}
-            field_properties["fact_ids"]["maxItems"] = len(dossier_ids)
+            field_properties["fact_ids"]["maxItems"] = min(len(dossier_ids), cap)
         else:
             field_properties["fact_ids"] = {"type": "array", "maxItems": 0}
 
-    _pin(defs.get("statement", {}).get("properties", {}))
+    _pin(defs.get("statement", {}).get("properties", {}), _STATEMENT_FACT_ID_CAP)
     properties = schema["properties"]
-    _pin(properties.get("workflows", {}).get("items", {}).get("properties", {}))
-    _pin(properties.get("capabilities", {}).get("items", {}).get("properties", {}))
+    _pin(
+        properties.get("workflows", {}).get("items", {}).get("properties", {}),
+        _WORKFLOW_FACT_ID_CAP,
+    )
+    _pin(
+        properties.get("capabilities", {}).get("items", {}).get("properties", {}),
+        _CAPABILITY_FACT_ID_CAP,
+    )
     return schema
 
 
