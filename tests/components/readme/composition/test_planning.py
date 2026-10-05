@@ -357,7 +357,8 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
     for array, field in _FACT_ID_ARRAYS:
         pinned = schema["properties"][array]["items"]["properties"][field]
         assert pinned["items"] == {"$ref": "#/$defs/citable_fact_id"}
-        assert pinned["maxItems"] == len(citable)
+        # The citable count still bounds it; so does the per-array decoder cap, whichever is less.
+        assert pinned["maxItems"] == min(len(citable), planning._FACT_ID_ARRAY_CAPS[(array, field)])
         # The manifest's own schema is untouched: the specialisation is per call.
         original = loaded.manifest.output.schema_["properties"][array]["items"]["properties"]
         assert original[field]["items"] == {"type": "string"}
@@ -2453,3 +2454,113 @@ def test_the_api_hubs_and_anchor_rules_still_fire_beside_the_unit_id_pin_and_lin
     assert [
         e for e in plan_checks(_plan(), facts) if "in-page anchor" in e or "api_hubs" in e
     ] == []
+
+
+def _many_citable_facts(symbols: int = 60, units: int = 12) -> FactsDocument:
+    """FACTS plus enough citable symbols and inherited units that no array is bounded by the
+    citable count alone, so the per-array decoder caps are what the schema shows."""
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            *(
+                _fact(f"public_symbol:widget.sym{index:03d}", "public_symbol", f"widget.Sym{index}")
+                for index in range(symbols)
+            ),
+            *(
+                _fact(f"inherited_unit:{index:03d}.paragraph", "inherited_unit", f"Unit {index}.")
+                for index in range(10, 10 + units)
+            ),
+        ),
+    )
+
+
+def test_the_planning_call_schema_caps_each_id_list_and_refuses_a_runaway_reply() -> None:
+    """aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-05: a fresh planning draw repeated
+    hub citations until the 6000-token budget cut the reply mid-array (481 ids, 323 distinct, the
+    retained b73c9ecc8ce6.rejected-1.json). The decoder has no uniqueItems (the gateway answers
+    HTTP 400), so each id list is bounded by a cap sized to what a plan needs instead of by the
+    citable count (over a thousand on a real repository)."""
+    facts = _many_citable_facts()
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, facts, {}, {})
+    props = schema["properties"]
+    citable = citable_fact_ids(facts, {}, {}, loaded.manifest)
+    assert len(citable) > 40, "the fixture must have more citable ids than any cap"
+    for (array, field), cap in planning._FACT_ID_ARRAY_CAPS.items():
+        assert props[array]["items"]["properties"][field]["maxItems"] == cap, (array, field)
+    assert props["material_limitations"]["items"]["properties"]["unit_ids"]["maxItems"] == 6
+    # Fewer citable ids than the cap: the citable count still bounds it, as before.
+    small = planning_schema(loaded, FACTS, {}, {})["properties"]
+    small_citable = citable_fact_ids(FACTS, {}, {}, loaded.manifest)
+    assert small["api_hubs"]["items"]["properties"]["fact_ids"]["maxItems"] == min(
+        12, len(small_citable)
+    )
+
+    validator = Draft202012Validator(schema)
+    symbols = [i for i in citable if i.startswith("public_symbol:widget.sym")]
+
+    def refused(plan: dict[str, Any]) -> list[tuple[str, str]]:
+        return sorted(
+            (error.json_path, str(error.validator))
+            for error in validator.iter_errors(plan)
+            if error.validator == "maxItems"
+        )
+
+    hub = {"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": symbols[:12]}
+    assert refused(_plan(api_hubs=[hub])) == []  # negative control: a list at its cap passes
+    over = {**hub, "fact_ids": symbols[:13]}
+    assert refused(_plan(api_hubs=[over])) == [("$.api_hubs[0].fact_ids", "maxItems")]
+    # The runaway shape: twelve hubs, each citing the same long list over and over.
+    runaway = [{**hub, "fact_ids": (symbols[:20] * 3)[:50]} for _ in range(12)]
+    assert refused(_plan(api_hubs=runaway)) == sorted(
+        (f"$.api_hubs[{index}].fact_ids", "maxItems") for index in range(12)
+    )
+    capability = {"title": "Build scenes", "fact_ids": symbols[:12]}
+    assert refused(_plan(core_capabilities=[capability])) == []
+    assert refused(_plan(core_capabilities=[{**capability, "fact_ids": symbols[:13]}])) == [
+        ("$.core_capabilities[0].fact_ids", "maxItems")
+    ]
+    assert refused(_plan(core_capabilities=[{**capability, "shared_fact_ids": symbols[:5]}])) == [
+        ("$.core_capabilities[0].shared_fact_ids", "maxItems")
+    ]
+    assert refused(
+        _plan(deviations=[{"section_id": "opening", "text": "t", "fact_ids": symbols[:13]}])
+    ) == [("$.deviations[0].fact_ids", "maxItems")]
+    assert refused(_plan(material_limitations=[{"fact_ids": symbols[:7], "unit_ids": []}])) == [
+        ("$.material_limitations[0].fact_ids", "maxItems")
+    ]
+    assert (
+        refused(_plan(material_limitations=[{"fact_ids": symbols[:6], "unit_ids": []}])) == []
+    )  # PDF-TypeScript's own limitation cited 5
+    units = [i for i in citable_unit_ids(facts, citable)]
+    assert refused(_plan(material_limitations=[{"fact_ids": [], "unit_ids": units[:7]}])) == [
+        ("$.material_limitations[0].unit_ids", "maxItems")
+    ]
+
+
+def test_a_sealed_plan_citing_more_than_a_cap_still_replays_under_the_static_schema() -> None:
+    """``run_job`` re-judges a stored output under the manifest's own static schema and never
+    ``call_schema`` ("never call_schema", core/llm/jobs.py), so the decoder caps cannot touch a
+    sealed plan's replay. Every sealed plan validates against it, including the ones that cite
+    more than a cap (one Aspose.PDF for Python hub cites 67)."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    static = Draft202012Validator(loaded.manifest.output.schema_)
+    plans = sorted((REPO_ROOT / "candidates").glob("*/*/plan.json"))
+    assert len(plans) >= 30, "the sealed fixtures this guards are missing"
+    over_a_cap = 0
+    for path in plans:
+        plan = json.loads(path.read_text(encoding="utf-8"))
+        errors = list(static.iter_errors(plan))
+        # A plan sealed before second_quick_start_example_id became required fails on that alone;
+        # no plan may fail on a list length, which is the only thing the decoder caps could add.
+        assert all(error.validator == "required" for error in errors), (path, errors[:1])
+        if errors:
+            continue
+        for (array, field), cap in {
+            **planning._FACT_ID_ARRAY_CAPS,
+            **planning._UNIT_ID_ARRAY_CAPS,
+        }.items():
+            over_a_cap += sum(len(item.get(field, [])) > cap for item in plan.get(array, []))
+    assert over_a_cap > 0, "no sealed plan exceeds a cap: this test would prove nothing"

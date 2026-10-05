@@ -210,3 +210,35 @@ def test_no_job_can_commit_an_approval_record() -> None:
             run = str(step.get("run", ""))
             for forbidden in ("git commit", "git push", "ops/issue_approvals", "git add"):
                 assert forbidden not in run, (name, forbidden)
+
+
+# ---------------------------------------------------------------------------
+# Closing an upstream issue is a write: its own approval, read from the trigger commit
+# ---------------------------------------------------------------------------
+
+
+def test_the_close_step_is_bound_to_one_target_and_reads_close_approvals_from_the_trigger() -> None:
+    closing = [
+        st
+        for st in _steps(_jobs()["file-and-close"])
+        if "redetect-upstream-defects" in str(st.get("run", "")) and "--close" in str(st["run"])
+    ]
+    assert len(closing) == 1
+    step = closing[0]
+    assert '--repo "$REPO"' in str(step["run"])
+    assert '--approvals-ref "$APPROVALS_REF"' in str(step["run"])
+    assert step["env"]["APPROVALS_REF"] == "${{ github.sha }}"
+    assert step.get("if") == HAS_APPROVAL
+    assert step["env"][GATE_VARIABLE] == "1"
+    assert WRITE_TOKEN in step["env"]
+
+
+def test_the_dry_run_redetection_reads_close_approvals_from_the_trigger_too() -> None:
+    dry = [
+        str(st["run"])
+        for st in _steps(_jobs()["analyse"])
+        if "redetect-upstream-defects" in str(st.get("run", ""))
+    ]
+    assert len(dry) == 1
+    assert '--approvals-ref "$APPROVALS_REF"' in dry[0]
+    assert "--close" not in dry[0]
