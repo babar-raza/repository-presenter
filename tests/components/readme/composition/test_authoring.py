@@ -12,6 +12,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.composition.authoring import (
+    _OBJECTIVES,
     AUTHORED_SECTIONS,
     SectionTask,
     _fact_direction,
@@ -20,16 +21,21 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_tasks,
     canonical_abbreviations,
     capability_titles,
+    carried_unit_errors,
+    carried_units,
     citable,
     cited_inherited_identifiers,
     command_block_tokens,
     command_lines,
+    edition_substitutes,
     forbidden_text_pattern,
     identifier_allowed,
     identifier_tokens,
     inherited_unit_named_symbols,
+    mask_allowed_values,
     merge_repeated_slots,
     merge_units,
+    nearest_accepted_identifiers,
     proper_noun,
     prose_nouns,
     reconstructed_task_output,
@@ -2168,15 +2174,16 @@ def test_a_slot_is_told_what_the_renderer_already_prints_beside_it() -> None:
     assert "renders" not in tasks["opening"].packet["objective"]
 
 
-def test_the_enterprise_context_never_repeats_the_edition_name() -> None:
-    # README_CONTRACT.md row 18: the shell names the Enterprise Edition exactly once.
+def test_the_enterprise_context_never_repeats_or_substitutes_the_edition_name() -> None:
+    # README_CONTRACT.md row 18: the shell names the Enterprise Edition exactly once; plans/
+    # idea.md L51-53: no other edition name exists. The code inserts no edition phrase at all.
     task = SectionTask(
         "enterprise_relationship", {}, frozenset({"identity:repository"}), ("context",)
     )
 
-    def unit(text: str) -> dict[str, object]:
+    def unit(text: str, section: str = "enterprise_relationship") -> dict[str, object]:
         return {
-            "section": "enterprise_relationship",
+            "section": section,
             "slot": "context",
             "text": text,
             "fact_ids": ["identity:repository"],
@@ -2188,27 +2195,43 @@ def test_the_enterprise_context_never_repeats_the_edition_name() -> None:
         )
         == []
     )
-    # The code owns the canonical form, so a repeat is normalised away rather than re-asked
-    # (RESEARCH_AND_GUIDELINES.md section 27.10); the sentence keeps its meaning and the shell
-    # still names the edition exactly once.
+    # A repeat of the name is rejected and left byte-for-byte as the model wrote it: the old
+    # rewrite into "commercial edition" generated the very phrase idea.md forbids.
     repeated = {"units": [unit("The Enterprise Edition adds FBX export.")], "omitted": []}
-    assert unit_checks(repeated, task, FACTS, NAME) == []
-    assert repeated["units"][0]["text"] == "The commercial edition adds FBX export."
-    # The normalisation is confined to the section whose shell sentence carries the name.
-    elsewhere = SectionTask("opening", {}, frozenset({"identity:repository"}), ("opening",))
-    other = {
-        "units": [
-            {
-                "section": "opening",
-                "slot": "opening",
-                "text": "The Enterprise Edition adds FBX export.",
-                "fact_ids": ["identity:repository"],
-            }
-        ],
-        "omitted": [],
-    }
+    errors = unit_checks(repeated, task, FACTS, NAME)
+    assert len(errors) == 1 and "names the Enterprise Edition" in errors[0]
+    assert repeated["units"][0]["text"] == "The Enterprise Edition adds FBX export."
+    # Negative control: the old rewrite's output now fails, in any letter case, in any section.
+    for text in (
+        "The commercial edition adds FBX export.",
+        "The Commercial Edition adds FBX export.",
+        "A paid version adds FBX export.",
+        "The on-premise edition adds FBX export.",
+        "The full\nversion adds FBX export.",
+    ):
+        for section, section_task in (
+            ("enterprise_relationship", task),
+            (
+                "opening",
+                SectionTask("opening", {}, frozenset({"identity:repository"}), ("context",)),
+            ),
+        ):
+            substituted = {"units": [unit(text, section)], "omitted": []}
+            errors = unit_checks(substituted, section_task, FACTS, NAME)
+            assert any("names the edition as" in error for error in errors), (text, section)
+            assert substituted["units"][0]["text"] == text
+    # Outside the Enterprise section the proper name is not this unit check's concern.
+    elsewhere = SectionTask("opening", {}, frozenset({"identity:repository"}), ("context",))
+    other = {"units": [unit("The Enterprise Edition adds FBX export.", "opening")], "omitted": []}
     assert unit_checks(other, elsewhere, FACTS, NAME) == []
-    assert other["units"][0]["text"] == "The Enterprise Edition adds FBX export."
+    # The objective given to the model asks for no edition phrase and uses none itself.
+    objective = authoring_tasks(ENTRY, FACTS, INVESTIGATION, DISPOSITIONS, PLAN)
+    for task_ in objective:
+        assert not edition_substitutes(str(task_.packet.get("objective", "")))
+    assert not edition_substitutes(_OBJECTIVES["enterprise_relationship"][0])
+    manifest = load_manifests(REPO_ROOT / "prompts")["section_authoring"].manifest
+    assert not edition_substitutes(manifest.system)
+    assert "Call the commercial product only" not in manifest.system
 
 
 def test_a_unit_never_restates_its_own_slots_title() -> None:
@@ -3052,3 +3075,257 @@ def test_authoring_tasks_hands_development_testing_the_units_it_must_carry() -> 
     assert "inherited_unit:092.paragraph" in objective
     assert "inherited_unit:093.paragraph" in objective
     assert tasks["opening"].must_carry == frozenset()
+
+
+def test_a_sentence_naming_an_allowed_path_verbatim_is_not_refused_for_its_fragment() -> None:
+    """aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-04: "The docs/epub-calibre-
+    verification.md file outlines ..." spells the SUPPORTED link_target value exactly, and was
+    refused twice (identical at temperature zero) for the hyphen-split fragment
+    "verification.md", which no fact records. The verbatim value is not a stray; everything
+    that is not that exact value still is."""
+    path = "docs/epub-calibre-verification.md"
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", ENTRY.repository),
+            _fact("link_target:028", "link_target", path),
+            _fact("inherited_unit:001.paragraph", "inherited_unit", "Original prose."),
+        ),
+    )
+    task = SectionTask(
+        "documentation_resources",
+        {},
+        frozenset({"link_target:028"}),
+        ("link:link_target:028",),
+        slot_facts={"link:link_target:028": frozenset({"link_target:028"})},
+        slot_titles={},
+    )
+
+    def strays(sentence: str) -> list[str]:
+        output = {
+            "units": [
+                {
+                    "section": "documentation_resources",
+                    "slot": "link:link_target:028",
+                    "text": sentence,
+                    "fact_ids": ["link_target:028"],
+                }
+            ],
+            "omitted": [],
+        }
+        return unit_checks(output, task, facts, NAME)
+
+    # The real shape: passes.
+    assert strays(f"The {path} file outlines the EPUB verification process.") == []
+    assert strays(f"See {path}.") == []  # sentence-final period is not an extension
+    # A genuinely unknown identifier still fails.
+    assert strays("The docs/other-notes.md file outlines it.") == [
+        "unit link:link_target:028: identifiers that are not accepted fact values: notes.md"
+    ]
+    # Near misses that are not the verbatim value still fail.
+    for near in (
+        "docs/epub-calibre-verification.mdx",
+        "docs/epub-calibre-verification2.md",
+        "docs/epub-calibre-verification.md.bak",
+        "mydocs/epub-calibre-verification.md",
+    ):
+        assert strays(f"The {near} file outlines it.") != [], near
+    # The fragment standing alone, outside the verbatim value, still fails even when the
+    # verbatim value is also present in the same unit.
+    assert strays(f"The {path} file, also called verification.md, outlines it.") == [
+        "unit link:link_target:028: identifiers that are not accepted fact values: verification.md"
+    ]
+    # The helper alone: only a whitespace-free composite allowed value is blanked.
+    assert mask_allowed_values(f"a {path} b", {path}) == "a   b"
+    assert mask_allowed_values("a verification.md b", {path}) == "a verification.md b"
+    assert mask_allowed_values("plain word here", {"plain", "word here"}) == "plain word here"
+
+
+_COMMENT_FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (
+        _fact("identity:repository", "identity", ENTRY.repository),
+        _fact(
+            "public_symbol:org.aspose.slides.foss.commentauthor",
+            "public_symbol",
+            "org.aspose.slides.foss.CommentAuthor",
+        ),
+        _fact(
+            "public_symbol:org.aspose.slides.foss.commentauthorcollection",
+            "public_symbol",
+            "org.aspose.slides.foss.CommentAuthorCollection",
+        ),
+        _fact("public_symbol:org.aspose.slides.foss.notesslide", "public_symbol", "NotesSlide"),
+    ),
+)
+
+
+def _capability_unit(text: str) -> dict[str, Any]:
+    return {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": text,
+                "fact_ids": ["public_symbol:org.aspose.slides.foss.commentauthor"],
+            }
+        ],
+        "omitted": [],
+    }
+
+
+def test_a_rejected_identifier_names_the_nearest_accepted_spellings_without_accepting_it() -> None:
+    """Live shape (aspose-slides-foss/Aspose.Slides-FOSS-for-Java, 2026-10-05): the model wrote
+    ``CommentAuthors`` in both attempts and in the recover copy, because the bare rejection gave
+    its one re-ask nothing to correct toward. The rejection now names the accepted spellings it
+    most plausibly meant - feedback only: the identifier is still rejected, nothing is
+    substituted, and what is accepted does not change."""
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"public_symbol:org.aspose.slides.foss.commentauthor"}),
+        ("capability:1",),
+    )
+    errors = unit_checks(
+        _capability_unit("Manage comments through CommentAuthors per slide."),
+        task,
+        _COMMENT_FACTS,
+        "Aspose.Slides FOSS for Java",
+    )
+    assert errors == [
+        "unit capability:1: identifiers that are not accepted fact values: "
+        "CommentAuthors (nearest accepted: CommentAuthor, CommentAuthorCollection)"
+    ]
+    # Negative controls on the accepted set: the verbatim spellings the message points to still
+    # pass, and so does any other accepted value - the hint changed no verdict.
+    for accepted in ("CommentAuthor", "CommentAuthorCollection", "NotesSlide"):
+        assert (
+            unit_checks(
+                _capability_unit(f"Manage comments through {accepted} per slide."),
+                task,
+                _COMMENT_FACTS,
+                "Aspose.Slides FOSS for Java",
+            )
+            == []
+        ), accepted
+
+
+def test_an_identifier_with_no_near_accepted_spelling_gets_no_suggestion() -> None:
+    """Negative control: nothing close is not a reason to guess. The rejection is exactly the
+    message it was before the hint existed."""
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"public_symbol:org.aspose.slides.foss.commentauthor"}),
+        ("capability:1",),
+    )
+    errors = unit_checks(
+        _capability_unit("It also offers TelemetryUploader for each slide."),
+        task,
+        _COMMENT_FACTS,
+        "Aspose.Slides FOSS for Java",
+    )
+    assert errors == [
+        "unit capability:1: identifiers that are not accepted fact values: TelemetryUploader"
+    ]
+
+
+def test_nearest_accepted_identifiers_is_deterministic_bounded_and_single_token_only() -> None:
+    accepted = {
+        "CommentAuthor",
+        "CommentAuthorCollection",
+        "CommentAuthorKind",
+        "CommentAuthorList",
+        "CommentAuthorMap",
+        "Create a comment author",  # a sentence is not a name
+        "XY",
+    }
+    first = nearest_accepted_identifiers("CommentAuthors", accepted)
+    assert first == nearest_accepted_identifiers("CommentAuthors", reversed(sorted(accepted)))
+    assert first[0] == "CommentAuthor"  # closest spelling first
+    assert len(first) == 4  # a handful, never the whole family
+    assert "Create a comment author" not in first
+    # A call form keeps matching its bare name, a verbatim accepted value suggests nothing of
+    # itself, and a token too short to be meaningful suggests nothing at all.
+    assert "CommentAuthor" not in nearest_accepted_identifiers("CommentAuthor", accepted)
+    assert nearest_accepted_identifiers("CommentAuthors()", accepted)[0] == "CommentAuthor"
+    assert nearest_accepted_identifiers("Xy", accepted) == []
+
+
+def _scope_disposition(unit_id: str) -> dict[str, Any]:
+    return {
+        "unit_id": unit_id,
+        "disposition": "SUPERSEDE_REDUNDANT",
+        "destination_section": "scope_limitations",
+        "fact_ids": [],
+        "rationale": "r",
+    }
+
+
+def test_authoring_tasks_hands_scope_limitations_the_units_it_must_carry() -> None:
+    """Slides-Java, 2026-10-05 (F04): S4 superseded the README's own limitation list into
+    scope_limitations, but no obligation reached that section, so the authored scope units never
+    had to state the documented master-cloning defect or the save-format refusal. The scope section
+    now owes each such unit a cited or omitted disposition, exactly as development_testing does."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:088.list", "inherited_unit", "- A known defect: cloning a master."
+            ),
+        ),
+    )
+    dispositions = {"dispositions": [_scope_disposition("inherited_unit:088.list")]}
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, dispositions, PLAN)
+    }
+    assert tasks["scope_limitations"].must_carry == frozenset({"inherited_unit:088.list"})
+    assert "inherited_unit:088.list" in tasks["scope_limitations"].packet["objective"]
+    # Negative control: no other section picks the unit up - the gate names two sections, not all.
+    assert tasks["opening"].must_carry == frozenset()
+    assert tasks["development_testing"].must_carry == frozenset()
+
+
+def test_an_uncarried_scope_unit_fails_and_a_carried_or_omitted_one_passes() -> None:
+    """Negative control on the gate itself. A scope unit that is neither cited nor omitted is the
+    silent drop F04 names and must fail with the carry reason; citing the unit, or listing it
+    omitted with a reason, is the explicit disposition the gate asks for and passes. Whether a
+    cited unit's substance reaches the page stays the reviewer's judgment (carried_unit_errors'
+    own docstring), so a cited unit passes this check by design."""
+    dispositions = {"dispositions": [_scope_disposition("inherited_unit:088.list")]}
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:088.list", "inherited_unit", "- A known defect: cloning a master."
+            ),
+        ),
+    )
+    must_carry = frozenset(carried_units(dispositions, "scope_limitations", facts))
+    assert must_carry == frozenset({"inherited_unit:088.list"})
+    task = SectionTask(
+        "scope_limitations", {}, frozenset(), ("limitation:1",), must_carry=must_carry
+    )
+    silent = {"units": [{"slot": "limitation:1", "fact_ids": ["identity:repository"]}]}
+    assert carried_unit_errors(silent, task) == [
+        "inherited_unit:088.list: superseded into this section by reconciliation, so a unit must "
+        "cite it and state its substance, or omitted must list it with a reason"
+    ]
+    cited = {"units": [{"slot": "limitation:1", "fact_ids": ["inherited_unit:088.list"]}]}
+    assert carried_unit_errors(cited, task) == []
+    omitted = {
+        "units": [{"slot": "limitation:1", "fact_ids": ["identity:repository"]}],
+        "omitted": [{"fact_id": "inherited_unit:088.list", "reason": "covered by limitation:1"}],
+    }
+    assert carried_unit_errors(omitted, task) == []
+    # Negative control: a scope supersession never gives opening or development_testing an
+    # obligation through this path.
+    assert carried_units(dispositions, "opening", facts) == []
+    assert carried_units(dispositions, "development_testing", facts) == []

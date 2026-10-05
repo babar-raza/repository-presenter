@@ -11,10 +11,16 @@ nothing. A run whose artifacts differ re-seals an unproven bundle at ACCEPTED an
 proof; on a proven bundle it records a valid update instead and touches no artifact
 (docs/STATE_MACHINE.md section 5), and a later fresh process that reproduces that exact update
 with zero provider calls proves it, so the bundle adopts it as its proven content and keeps the
-previous proof on the manifest for the record. A recorded update that contradicts sealed facts
-(not merely presentation) moves the manifest's own state to VALID_UPDATE_AVAILABLE, out of the
-counted READY_FOR_PROPOSAL state, until it is resolved or adopted (TB-06, external review D6,
-2026-09-08); a harmless presentation-only update stays counted, exactly as before.
+previous proof on the manifest for the record. Where a recorded update lands is decided by the
+typed invalidation scope of the input that changed (invalidation.py, docs/STATE_MACHINE.md
+section 9): a change to a factual input the candidate consumed - the source, the extraction
+environment, the fact records - is the ``facts`` scope and invalidates it (INVALIDATED, re-entering
+at EXTRACTING); a change to any other consumed input - a prompt or route, a template component,
+the validators, the reviewer, the policy - leaves the proven candidate valid and records
+VALID_UPDATE_AVAILABLE. Either way the update waits in the transaction until a fresh zero-call
+process adopts it, and the manifest names the scope that triggered it. Before 2026-10-04 this was
+inverted (TB-06 sent the factual case to VALID_UPDATE_AVAILABLE and left the presentation case
+unmarked at READY_FOR_PROPOSAL), against the text of docs/STATE_MACHINE.md section 9.
 
 Three files carry a clock by design and are exempt from the byte comparison: the ledger, the
 manifest itself, and the probe record. validation.json is compared with check 11 blanked, since
@@ -32,8 +38,8 @@ RESEARCH_AND_GUIDELINES.md 27.2 RC5/SW6).
 
 models_used maps each manifest route to the model the run answered it with (core/llm/fallback.py).
 It is provenance and a consumed input: a rerun whose effective model for any route differs from
-the sealed one is a recorded change, classified factual, that moves a proven bundle to
-VALID_UPDATE_AVAILABLE exactly as a contradicted fact does. Never a silent switch.
+the sealed one is a recorded change, scoped by the prompts that route answers (a model-route change
+is a prompt-class change, docs/DECISION_LOG.md 2026-09-06 07:45), never a silent switch.
 """
 
 from __future__ import annotations
@@ -50,6 +56,12 @@ from importlib.metadata import distributions
 from pathlib import Path
 from typing import Any, cast
 
+from repository_presenter.components.readme.bundle.invalidation import (
+    STATE_INVALIDATED,
+    STATE_UPDATE_AVAILABLE,
+    ScopeError,
+)
+from repository_presenter.components.readme.bundle.invalidation import route as route_scopes
 from repository_presenter.components.readme.composition.authoring import (
     NORMALISATION_VERSION,
     RAW_CALLS_FILENAME,
@@ -93,6 +105,7 @@ from repository_presenter.core.noop_proof import (
 )
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
+from repository_presenter.core.toolchains import toolchain_fingerprint
 
 DEPENDENCIES_FILENAME = "dependencies.json"
 CURRENT_FILENAME = "CURRENT"
@@ -132,11 +145,8 @@ OPTIONAL_ARTIFACTS = (
 REPLAY_EXEMPT = frozenset({"calls.jsonl", "probes.json", BUNDLE_MANIFEST_NAME})
 STATE_ACCEPTED = "ACCEPTED"
 STATE_READY = "READY_FOR_PROPOSAL"
-# docs/STATE_MACHINE.md sections 5 and 9 name this state for an update that is available but not
-# yet adopted; TB-06 (external review D6, 2026-09-08) is its first implementation - previously
-# every recorded update blanket-preserved STATE_READY regardless of whether the new evidence
-# merely improved presentation or actually contradicted what was sealed.
-STATE_UPDATE_AVAILABLE = "VALID_UPDATE_AVAILABLE"
+# STATE_UPDATE_AVAILABLE and STATE_INVALIDATED (imported from invalidation.py) are the two states
+# a recorded update can land in; the scope table, not this module, decides which.
 
 
 class SealError(PresenterError):
@@ -173,6 +183,9 @@ class SealInputs:
     # route -> the model this run answered it with. ``None`` means no fallback decision was made
     # and every route answered as its own primary, exactly as before chains existed.
     models_used: Mapping[str, str] | None = None
+    # The input classes evaluation.evaluate found changed (``Change.dependency``), e.g.
+    # "prompts.section_authoring" or "facts": what the typed invalidation scope is computed from.
+    changed_dependencies: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -199,13 +212,9 @@ def _presenter_site_manifest_hash() -> str:
 
     Kept, correctly scoped and honestly named: a change in *this* process's own dependencies can
     change extraction or rendering behavior in ways worth reopening for, exactly like
-    ``extractor_version``. It is deliberately not claimed to be more than that. A genuine
-    per-ecosystem *target* toolchain fingerprint (the C++ compiler and CMake versions, the JDK,
-    cargo/rustc, go, node/npm actually used to verify a candidate's own examples) needs new,
-    structured capture at extraction time threaded through to sealing - no such data exists
-    anywhere today to fold in cheaply, and building it under this deadline risks exactly the
-    rushed-heuristic mistake this project has already made and undone once (item 49). Tracked as
-    its own, separately-scoped follow-up, not attempted here.
+    ``extractor_version``. It is deliberately not claimed to be more than that. The target's own
+    verifier toolchains are a separate class, ``toolchain_fingerprint()`` (core/toolchains.py),
+    recorded under ``environment.toolchains`` by ``environment_dependencies`` (2026-10-04).
     """
     packages = sorted(f"{dist.name}=={dist.version}" for dist in distributions() if dist.name)
     return canonical_hash(packages)
@@ -215,31 +224,30 @@ def environment_dependencies() -> dict[str, Any]:
     """What answered this run's extraction, never a claim the repository itself makes (27.2
     RC7): the Python version the venv was cloned from, the OS, this codebase's own extractor and
     inherited-unit-inventory versions, and repository-presenter's own resolved package set (never
-    the target's - see ``_presenter_site_manifest_hash``). A change in any reopens EXTRACTING,
-    the same stage a source or fact change would - a fact SUPPORTED under one environment is not
-    trusted unchanged under a different one."""
+    the target's - see ``_presenter_site_manifest_hash``), and every machine toolchain a verifier
+    resolves, by its resolved version or ``absent`` (``toolchains``, 2026-10-04: a toolchain that
+    appears, disappears or changes version changed what the examples could have proven). A change
+    in any reopens EXTRACTING, the same stage a source or fact change would - a fact SUPPORTED
+    under one environment is not trusted unchanged under a different one."""
     return {
         "python_version": platform.python_version(),
         "os": platform.system(),
         "extractor_version": EXTRACTOR_VERSION,
         "inherited_units_version": INHERITED_UNITS_VERSION,
         "presenter_site_manifest": _presenter_site_manifest_hash(),
+        "toolchains": toolchain_fingerprint(),
     }
 
 
-def upstream_dependencies(
-    source_revision: str, tree_sha256: str, facts: FactsDocument, prompts: PromptRegistry
-) -> dict[str, Any]:
-    """The inputs a run consumes before any agentic stage, each by a hash that reopens a stage
-    when it changes (docs/STATE_MACHINE.md section 9): known before the first call, so an
-    evaluation can name the earliest affected stage without running anything."""
+def code_dependencies(prompts: PromptRegistry) -> dict[str, Any]:
+    """The consumed-input classes the running code itself owns - prompts, contract, template
+    components, checks, acceptance profile, policy and the extractor builds - with nothing read
+    from a repository. ``upstream_dependencies`` adds the source and the facts; the portfolio dry
+    run (portfolio.py) compares exactly these, so it never reports a change it cannot observe."""
     return {
-        "schema_version": 1,
-        "source": {"revision": source_revision, "tree_sha256": tree_sha256},
-        "environment": environment_dependencies(),
-        "facts": {
-            fact.id: canonical_hash(asdict(fact))
-            for fact in sorted(facts.facts, key=lambda fact: fact.id)
+        "environment": {
+            "extractor_version": EXTRACTOR_VERSION,
+            "inherited_units_version": INHERITED_UNITS_VERSION,
         },
         "prompts": {
             name: {
@@ -260,6 +268,31 @@ def upstream_dependencies(
         "validator_version": VALIDATOR_VERSION,
         "acceptance_profile_version": ACCEPTANCE_PROFILE_VERSION,
         "policy": {"version": POLICY_VERSION, "sha256": canonical_hash(policy_packet())},
+    }
+
+
+def upstream_dependencies(
+    source_revision: str, tree_sha256: str, facts: FactsDocument, prompts: PromptRegistry
+) -> dict[str, Any]:
+    """The inputs a run consumes before any agentic stage, each by a hash that reopens a stage
+    when it changes (docs/STATE_MACHINE.md section 9): known before the first call, so an
+    evaluation can name the earliest affected stage without running anything."""
+    code = code_dependencies(prompts)
+    return {
+        "schema_version": 1,
+        "source": {"revision": source_revision, "tree_sha256": tree_sha256},
+        "environment": environment_dependencies(),
+        "facts": {
+            fact.id: canonical_hash(asdict(fact))
+            for fact in sorted(facts.facts, key=lambda fact: fact.id)
+        },
+        "prompts": code["prompts"],
+        "contract_version": code["contract_version"],
+        "components": code["components"],
+        "validators": code["validators"],
+        "validator_version": code["validator_version"],
+        "acceptance_profile_version": code["acceptance_profile_version"],
+        "policy": code["policy"],
     }
 
 
@@ -440,13 +473,33 @@ def sealed_models(bundle: Path, manifest: Mapping[str, Any]) -> dict[str, str]:
     return {route: route for route in sorted(routes)}
 
 
+def _changed_routes(sealed: Mapping[str, str], current: Mapping[str, str]) -> list[str]:
+    """The routes whose effective model differs from the sealed one, in route order."""
+    return [
+        route
+        for route in sorted(set(sealed) | set(current))
+        if sealed.get(route) != current.get(route)
+    ]
+
+
 def _model_changes(sealed: Mapping[str, str], current: Mapping[str, str]) -> list[str]:
     """One line per route whose effective model differs from the sealed one, in route order."""
     return [
         f"models[{route}]: {sealed.get(route, '(none)')} -> {current.get(route, '(none)')}"
-        for route in sorted(set(sealed) | set(current))
-        if sealed.get(route) != current.get(route)
+        for route in _changed_routes(sealed, current)
     ]
+
+
+def _model_dependencies(inputs: SealInputs, routes: Sequence[str]) -> list[str]:
+    """The prompt input classes a changed model route lands on: a route is consumed through the
+    prompts it answers, so its scope is theirs. A route no prompt uses any more is attributed to
+    the generic prompt family, whose row in the scope table is the earliest agentic stage."""
+    answered = inputs.prompts.routes()
+    dependencies: list[str] = []
+    for changed in routes:
+        jobs = sorted(job for job, used in answered.items() if used == changed)
+        dependencies.extend(f"prompts.{job}" for job in jobs or [changed])
+    return dependencies
 
 
 def _write_bundle(
@@ -640,10 +693,6 @@ def seed_additional_calls(bundle: Path, store: CallStore) -> list[str]:
     return sorted(seeded)
 
 
-FACTUAL_ARTIFACTS = frozenset({"facts.json", "dispositions.json"})
-EARLY_STATES = frozenset({"EXTRACTING", "INVESTIGATING", "RECONCILING"})
-
-
 def _update_digests(staged: Mapping[str, bytes]) -> dict[str, str]:
     """The replay identity of the staged artifacts: every non-exempt file's digest, with check
     11 blanked in validation.json so a judged and an unjudged copy compare equal."""
@@ -661,50 +710,91 @@ def _record_update(
     staged: Mapping[str, bytes],
     inputs: SealInputs,
     model_changes: Sequence[str] = (),
+    changed_routes: Sequence[str] = (),
 ) -> SealResult:
-    # A model change is factual by construction: the same route answered by another model is a
-    # different candidate, whatever its bytes happen to say (fallback chains, models_used).
-    factual = (
-        bool(FACTUAL_ARTIFACTS & set(differing))
-        or inputs.earliest_affected_stage in EARLY_STATES
-        or bool(model_changes)
-    )
+    # The state follows the typed scope of what changed (invalidation.py), computed from the
+    # inputs the candidate consumed - the changed dependencies and any model route that moved -
+    # and from the differing artifacts only when no input explains the difference. A factual
+    # input (the facts scope) invalidates; every other scope leaves the proven candidate valid
+    # with an update available (docs/STATE_MACHINE.md section 9).
+    try:
+        routing = route_scopes(
+            [*inputs.changed_dependencies, *_model_dependencies(inputs, changed_routes)],
+            differing,
+        )
+    except ScopeError as exc:
+        raise SealError(f"seal: {exc}") from exc
+    if routing.state is None or routing.triggering_scope is None:
+        raise SealError("seal: a recorded update with no changed input and no differing artifact")
     differing = [*differing, *model_changes]
-    # A factual contradiction moves the bundle's own manifest state out of the counted
-    # READY_FOR_PROPOSAL, to VALID_UPDATE_AVAILABLE (docs/STATE_MACHINE.md sections 5, 9);
-    # genuinely harmless presentation drift stays READY_FOR_PROPOSAL, counted, exactly as before.
-    # Both were blanket-preserved as READY_FOR_PROPOSAL before this fix (TB-06, external review
-    # D6, 2026-09-08), which let a factually-contradicted bundle keep counting as current.
-    state = STATE_UPDATE_AVAILABLE if factual else STATE_READY
+    state = routing.state
+    scope = routing.triggering_scope
+    stage = inputs.earliest_affected_stage or routing.stage
     update = {
         "available": True,
-        "classification": "factual" if factual else "presentation",
-        "earliest_affected_stage": inputs.earliest_affected_stage,
+        "classification": "factual" if routing.invalidates else "presentation",
+        "scopes": list(routing.scopes),
+        "triggering_scope": scope,
+        "scope_basis": routing.basis,
+        "earliest_affected_stage": stage,
         "changed": differing,
         "transaction": inputs.transaction.name,
         "files": _update_digests(staged),
         "models_used": _current_models(inputs),
     }
+    invalidated = (
+        {
+            "check": None,
+            "scope": scope,
+            "causal_stage": stage,
+            "detail": f"{', '.join(differing)} changed",
+        }
+        if routing.invalidates
+        else None
+    )
     waiting = dict(manifest.get("update") or {})
     existing = {k: v for k, v in waiting.items() if k not in ("recorded_at", "recorded_by")}
     # The process that first recorded this update is the one a later run must differ from to adopt
     # it, so an unchanged update keeps its original recorder. An update recorded before processes
     # were identified has none and is recorded again, so the next fresh process can adopt it.
-    recorded = identity_of_run_ref(waiting.get("recorded_by")) is not None
+    already_recorded = identity_of_run_ref(waiting.get("recorded_by")) is not None
     new_update = existing != update
     recorder = (
-        waiting["recorded_by"] if recorded and not new_update else inputs.invocation.run_ref()
+        waiting["recorded_by"]
+        if already_recorded and not new_update
+        else inputs.invocation.run_ref()
     )
-    changed = new_update or manifest.get("state") != state or not recorded
+    existing_invalidated = (
+        {k: v for k, v in dict(manifest["invalidated"]).items() if k != "recorded_at"}
+        if manifest.get("invalidated")
+        else None
+    )
+    changed = (
+        new_update
+        or manifest.get("state") != state
+        or existing_invalidated != invalidated
+        or not already_recorded
+    )
     if changed:
-        (bundle / BUNDLE_MANIFEST_NAME).write_bytes(
-            _canonical_json(
-                {
-                    **manifest,
-                    "state": state,
-                    "update": {**update, "recorded_at": _now(), "recorded_by": recorder},
-                }
-            )
+        recorded = {k: v for k, v in manifest.items() if k != "invalidated"}
+        recorded.update(
+            state=state,
+            update={**update, "recorded_at": _now(), "recorded_by": recorder},
+        )
+        if invalidated is not None:
+            recorded["invalidated"] = {**invalidated, "recorded_at": _now()}
+        (bundle / BUNDLE_MANIFEST_NAME).write_bytes(_canonical_json(recorded))
+    where = stage or "an unknown stage"
+    if routing.invalidates:
+        note = (
+            f"invalidated ({scope}): {', '.join(differing)} changed at {where}; the candidate "
+            f"no longer counts as current and re-enters at {routing.stage}; this run's update "
+            "waits for a fresh zero-call rerun to adopt it"
+        )
+    else:
+        note = (
+            f"valid update available ({scope}): {', '.join(differing)} changed at {where}; "
+            "the proven candidate stays valid and the update waits in the transaction"
         )
     return SealResult(
         bundle,
@@ -712,13 +802,7 @@ def _record_update(
         dict(manifest.get("files", {})),
         manifest.get("no_op_proof"),
         changed,
-        f"valid update available ({update['classification']}): {', '.join(differing)} changed "
-        f"at {inputs.earliest_affected_stage or 'an unknown stage'}; "
-        + (
-            "the candidate no longer counts as current until this is resolved or adopted"
-            if factual
-            else "the proven candidate stays valid and the update waits in the transaction"
-        ),
+        note,
     )
 
 
@@ -771,7 +855,13 @@ def _adopt_update(
         "validation.json": _canonical_json(record_replay_verdict(inputs.validation)),
     }
     changed = [str(name) for name in waiting.get("changed", [])]
+    scoped = {
+        key: waiting[key]
+        for key in ("scopes", "triggering_scope", "scope_basis")
+        if waiting.get(key) is not None
+    }
     adopted = {
+        **scoped,
         "classification": waiting.get("classification"),
         "earliest_affected_stage": waiting.get("earliest_affected_stage"),
         "changed": changed,
@@ -795,7 +885,8 @@ def _adopt_update(
         files,
         proof,
         True,
-        f"update adopted ({waiting.get('classification')}): a fresh process reproduced the "
+        f"update adopted ({waiting.get('triggering_scope') or waiting.get('classification')}): "
+        "a fresh process reproduced the "
         f"waiting update byte for byte with zero provider calls; "
         f"{', '.join(changed)} replaced; check 11 judged",
     )
@@ -830,7 +921,7 @@ def invalidate_bundle(bundle: Path, check: Mapping[str, Any]) -> dict[str, Any] 
         "detail": "; ".join(str(detail) for detail in check.get("details", [])),
         "recorded_at": _now(),
     }
-    updated = {**manifest, "state": "INVALIDATED", "invalidated": record}
+    updated = {**manifest, "state": STATE_INVALIDATED, "invalidated": record}
     (bundle / BUNDLE_MANIFEST_NAME).write_bytes(_canonical_json(updated))
     return updated
 
@@ -897,20 +988,23 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             or not _identical(name, data, (bundle / name).read_bytes())
         )
     )
-    # A bundle already sitting at VALID_UPDATE_AVAILABLE (a previously recorded, not yet adopted,
-    # factual update - TB-06) is still a proven bundle with a waiting update: a rerun reproducing
+    # A bundle already sitting at VALID_UPDATE_AVAILABLE or INVALIDATED (a previously recorded,
+    # not yet adopted update) is still a proven bundle with a waiting update: a rerun reproducing
     # that exact update must still be able to adopt it, not fall through to the destructive
     # re-seal-as-ACCEPTED branch below just because the state moved off READY_FOR_PROPOSAL.
     # The models this run answered with, against the models the bundle was sealed with: a change
     # is a consumed input that moved, so it counts exactly like a changed artifact does here.
     current_models = _current_models(inputs)
     recorded_models = sealed_models(bundle, manifest)
+    changed_routes = _changed_routes(recorded_models, current_models)
     model_changes = _model_changes(recorded_models, current_models)
-    if (
-        (differing or model_changes)
-        and manifest.get("state") in (STATE_READY, STATE_UPDATE_AVAILABLE)
-        and manifest.get("no_op_proof")
-    ):
+    # A bundle INVALIDATED by a changed factual input carries the update that re-entered the
+    # pipeline and adopts it like any other waiting update; one INVALIDATED by a failing check
+    # carries none and is re-sealed below instead.
+    waiting_state = manifest.get("state") in (STATE_READY, STATE_UPDATE_AVAILABLE) or (
+        manifest.get("state") == STATE_INVALIDATED and bool(manifest.get("update"))
+    )
+    if (differing or model_changes) and waiting_state and manifest.get("no_op_proof"):
         waiting = dict(manifest.get("update") or {})
         # A waiting update made with the models this run now answers with, reproduced with zero
         # calls, is the same update: adopt it. Anything else replaces it as a new recorded update.
@@ -928,7 +1022,9 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             return _adopt_update(bundle, manifest, waiting, staged, inputs, measured)
         # The proven candidate stays valid; the run produced a valid update, recorded on the
         # manifest and left in the transaction (docs/STATE_MACHINE.md section 9).
-        return _record_update(bundle, manifest, differing, staged, inputs, model_changes)
+        return _record_update(
+            bundle, manifest, differing, staged, inputs, model_changes, changed_routes
+        )
     if differing or model_changes:
         files = _write_bundle(
             bundle,

@@ -9,6 +9,7 @@ import stat
 from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,12 @@ import httpx
 import pytest
 from openai import OpenAI
 
+from repository_presenter.components.issues.approval import (
+    approval_relative_path,
+    evidence_digest,
+    handoff_id,
+)
+from repository_presenter.components.issues.model import Handoff
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.git_safety.git import run_git
 from repository_presenter.core.github.read_client import DefaultBranchRead
@@ -305,6 +312,163 @@ class FakeDefaultBranchReader:
         if isinstance(outcome, DefaultBranchRead):
             return outcome
         return DefaultBranchRead(repository, sha=outcome, branch="main")
+
+
+def accepting_token_verifier(token: str) -> Any:
+    """A token verifier that accepts any token - for tests about the gates other than provenance."""
+    from repository_presenter.core.github.token_provenance import TokenDecision
+
+    return TokenDecision(True)
+
+
+def make_permit(repository: str, *, mode: str = "full", effect: str = "readme_proposal") -> Any:
+    """A ``WritePermit`` for a repository that is not a real Aspose FOSS name (the registry model
+    validates the name, ``model_construct`` does not) - the effect modules only read ``.effect``
+    and ``.entry.repository`` from it."""
+    from repository_presenter.core.registry.models import RegistryEntry
+    from repository_presenter.core.registry.write_gate import WritePermit
+
+    entry = RegistryEntry.model_construct(
+        repository=repository,
+        family="fixture",
+        platform="fixture",
+        ecosystem="fixture",
+        mode=mode,
+        policy_profile="fixture",
+        active=True,
+        provider_identity=None,
+    )
+    return WritePermit(effect=effect, entry=entry)  # type: ignore[arg-type]
+
+
+def write_registry_file(root: Path, entries: list[dict[str, Any]]) -> Path:
+    """``data/registry.json`` under a synthetic project root."""
+    path = root / "data" / "registry.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"schema_version": 1, "entries": entries}), encoding="utf-8")
+    return path
+
+
+def write_proposable_bundle(
+    root: Path,
+    repository: str,
+    revision: str,
+    readme_text: str,
+    *,
+    state: str = "READY_FOR_PROPOSAL",
+) -> Path:
+    """A sealed bundle with a real README and a manifest that verifies, plus ``CURRENT``."""
+    owner, name = repository.split("/", 1)
+    bundle = root / "candidates" / f"{owner}__{name}" / revision
+    bundle.mkdir(parents=True, exist_ok=True)
+    data = readme_text.encode("utf-8")
+    (bundle / "README.md").write_bytes(data)
+    (bundle / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "repository": repository,
+                "revision": revision,
+                "state": state,
+                "files": {
+                    "README.md": {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (bundle.parent / "CURRENT").write_text(f"{revision}\n", encoding="utf-8")
+    return bundle
+
+
+def merge_to_origin_main(root: Path, message: str = "merge") -> str:
+    """Commit everything under ``root`` (initialising a disposable repository on first use) and
+    point ``refs/remotes/origin/main`` at the new commit - the state of a control checkout whose
+    ``main`` already holds that content. Returns the commit."""
+    if not (root / ".git").exists():
+        init_git_repository(root, with_commit=False)
+    revision = commit_all(root, message)
+    assert run_git(["update-ref", "refs/remotes/origin/main", revision], cwd=root).returncode == 0
+    return revision
+
+
+def approval_text(
+    handoff: Handoff,
+    *,
+    digest: str | None = None,
+    repository: str | None = None,
+    approver: str = "owner-login",
+    approved_at: datetime | None = None,
+    expires_at: datetime | None = None,
+) -> str:
+    """An owner approval record (``ops/issue_approvals/<handoff-id>.json``) for ``handoff``,
+    valid now unless an argument overrides one field."""
+    approved = approved_at or datetime.now(UTC) - timedelta(hours=1)
+    expires = expires_at or approved + timedelta(days=7)
+    record = {
+        "handoff_id": handoff_id(handoff),
+        "repository": repository or handoff.repository,
+        "evidence_digest": digest or evidence_digest(handoff),
+        "approver": approver,
+        "approved_at": approved.isoformat(),
+        "expires_at": expires.isoformat(),
+    }
+    return json.dumps(record, indent=2) + chr(10)
+
+
+class MemoryApprovalStore:
+    """An in-memory approval store: ``records`` maps a handoff id to the record text."""
+
+    def __init__(self, records: dict[str, str] | None = None) -> None:
+        self.records = records or {}
+        self.reads: list[str] = []
+
+    def read(self, identifier: str) -> str | None:
+        self.reads.append(identifier)
+        return self.records.get(identifier)
+
+
+def approving_store(handoff: Handoff, **overrides: Any) -> MemoryApprovalStore:
+    """A store holding a valid owner approval for exactly ``handoff``."""
+    return MemoryApprovalStore({handoff_id(handoff): approval_text(handoff, **overrides)})
+
+
+def close_approval_text(
+    handoff: Handoff,
+    *,
+    issue_number: int | None = None,
+    close_reason: str = "not_planned",
+    digest: str | None = None,
+    repository: str | None = None,
+    approver: str = "owner-login",
+    approved_at: datetime | None = None,
+    expires_at: datetime | None = None,
+) -> str:
+    """An owner close-approval record (``ops/issue_close_approvals/<handoff-id>.json``) for the
+    issue ``handoff`` filed, valid now unless an argument overrides one field."""
+    approved = approved_at or datetime.now(UTC) - timedelta(hours=1)
+    expires = expires_at or approved + timedelta(days=7)
+    number = issue_number if issue_number is not None else handoff.issue_ref.number  # type: ignore[union-attr]
+    record = {
+        "handoff_id": handoff_id(handoff),
+        "repository": repository or handoff.repository,
+        "issue_number": number,
+        "close_reason": close_reason,
+        "evidence_digest": digest or evidence_digest(handoff),
+        "approver": approver,
+        "approved_at": approved.isoformat(),
+        "expires_at": expires.isoformat(),
+    }
+    return json.dumps(record, indent=2) + chr(10)
+
+
+def closing_store(handoff: Handoff, **overrides: Any) -> MemoryApprovalStore:
+    """A store holding a valid owner close approval for exactly ``handoff``'s filed issue."""
+    return MemoryApprovalStore({handoff_id(handoff): close_approval_text(handoff, **overrides)})
+
+
+def committed_approval_path(handoff: Handoff) -> str:
+    return approval_relative_path(handoff_id(handoff))
 
 
 def fake_npm(directory: Path, fail_run: bool = False) -> str:

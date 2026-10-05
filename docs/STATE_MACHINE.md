@@ -323,6 +323,30 @@ Factual, safety, protected-content, or severe acceptance defects invalidate an a
 Non-critical presentation improvements create `VALID_UPDATE_AVAILABLE` without mislabeling the
 published README as factually invalid.
 
+Each consumed input belongs to one typed invalidation scope (`components/readme/bundle/invalidation.py`,
+a table, not a branch). A scope names the stage a change re-enters and the state it produces; the
+manifest's `update.triggering_scope` (or `invalidated.scope`) records which one decided, and
+`status` prints it for every candidate holding an update.
+
+| Scope | Consumed inputs | Re-enters | Result |
+|---|---|---|---|
+| `facts` | source revision and tree, extraction environment, fact records | `EXTRACTING` | `INVALIDATED` |
+| `evidence` | investigation prompt, route, schema | `INVESTIGATING` | `VALID_UPDATE_AVAILABLE` |
+| `reconciliation` | reconciliation prompt, route, contract | `RECONCILING` | `VALID_UPDATE_AVAILABLE` |
+| `presentation` | template components (shell, renderer) | `RECONCILING` | `VALID_UPDATE_AVAILABLE` |
+| `planning` | planning prompt and route, composition policy | `PLANNING` | `VALID_UPDATE_AVAILABLE` |
+| `authoring` | section-authoring prompt and route, normalisation | `COMPOSING` | `VALID_UPDATE_AVAILABLE` |
+| `validator` | contract version, blocking checks, validator version | `VALIDATING` | `VALID_UPDATE_AVAILABLE` |
+| `reviewer` | review and repair prompts and routes, review logic, acceptance profile | `REVIEWING` | `VALID_UPDATE_AVAILABLE` |
+
+Only `facts` is itself a factual input, so only it invalidates. A model-route change is scoped by
+the prompts that route answers. An input class with no row raises rather than guessing a state. A
+factual, safety, or protected-content *failure* found while re-checking is a failing blocking check,
+not a scope, and invalidates through `seal.invalidates` as before. The recorded update of an
+`INVALIDATED` or `VALID_UPDATE_AVAILABLE` bundle waits in the transaction until a fresh zero-call
+process reproduces it and the bundle adopts it. `status --stale` prints the dry-run routing of every
+current candidate (no clone, no call, no write).
+
 ## 10. No-op proof
 
 No-op is a complete-transaction property, not merely “remote SHA unchanged.”
@@ -420,6 +444,14 @@ Authorization binds:
 Analysis uses a repository-scoped read-only GitHub App token. Proposal execution occurs in a
 separate job with a freshly minted repository-scoped contents/pull-request token. Ambient personal
 tokens are never fallback production credentials.
+
+Implemented as (2026-10-05, `docs/DECISION_LOG.md`): a write needs a registry entry that is listed,
+active and mode `full` (`core/registry/write_gate.py`); a candidate bundle that is
+`READY_FOR_PROPOSAL` at the target's live revision; and an authorization record under
+`ops/proposal-authorizations/` that was merged to `origin/main` before the commit the run was
+triggered at, so the run that consumes it can never have created it. The write token must be an
+installation token scoped to exactly the target, and a merged or closed presenter PR for the same
+candidate is not recreated unless the record names it.
 
 ### 12.1 First-live-exercise target selection (2026-09-28 owner-directed protocol)
 

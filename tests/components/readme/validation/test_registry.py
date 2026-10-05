@@ -1,4 +1,4 @@
-"""The eleven blocking checks: a sound candidate passes nine and pends two; each failure names
+"""The twelve blocking checks: a sound candidate passes ten and pends two; each failure names
 its causal stage; validation.json is deterministic."""
 
 from __future__ import annotations
@@ -8,13 +8,18 @@ import dataclasses
 import hashlib
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
+
+import pytest
 
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     slot_fact_sets,
 )
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
+from repository_presenter.components.readme.composition.link_budget import LinkAllocationPolicy
+from repository_presenter.components.readme.composition.policy import PlanningPolicy
 from repository_presenter.components.readme.composition.renderer import (
     api_reference_names,
     render_readme,
@@ -22,13 +27,16 @@ from repository_presenter.components.readme.composition.renderer import (
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
     Candidate,
+    _check_canonical_name,
     _check_examples,
     _check_install,
     _check_links,
     _check_structure,
+    _edition_substitute_failures,
     _fences,
     _renderer_owned,
     blocking_failures,
+    canonical_name_pattern,
     protected_fragments,
     summarize_validation,
     validate_candidate,
@@ -37,6 +45,7 @@ from repository_presenter.components.readme.validation.registry import (
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
+from support import REPO_ROOT
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -280,9 +289,10 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
         **{f"BC-{i:02d}": "PASS" for i in range(1, 10)},
         "BC-10": "PENDING",
         "BC-11": "PENDING",
+        "BC-12": "PASS",
     }
-    assert document["summary"] == {"pass": 9, "fail": 0, "pending": 2}
-    assert summarize_validation(document) == "pass 9, fail 0, pending 2"
+    assert document["summary"] == {"pass": 10, "fail": 0, "pending": 2}
+    assert summarize_validation(document) == "pass 10, fail 0, pending 2"
     assert document["checks"][9]["judged_at"] == "S10"
     assert document["checks"][10]["details"] == ["judged at S12"]
     assert all(check["causal_stage"] is None for check in document["checks"])
@@ -292,7 +302,10 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # VALIDATOR_VERSION 6 (BC-07 on main took 5; BC-02 v4 refuses a SUPPORTED registry install the
     # registry did not confirm, and lands on the same constant). The checks above pass under the
     # current validator, so only the pin needed to move.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "7"
+    # VALIDATOR_VERSION 9: BC-11 v2 is judged from measured evidence (core/noop_proof.py). The
+    # BC-06 v7 and BC-12 checks main added are unchanged on this candidate, which names no edition
+    # and spells its name whole.
+    assert document["source_revision"] == REVISION and document["validator_version"] == "9"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
@@ -1256,6 +1269,14 @@ def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
     assert links["causal_stage"] == "COMPOSING"
     assert links["details"] == ["non-canonical edition name 'Community Edition'"]
 
+    # plans/idea.md L51-53: the lowercase substitute the authoring code once generated fails too.
+    lowercase_edition = validate_candidate(
+        _candidate(readme + "\nThe commercial edition adds FBX export.\n"), tmp_path, ()
+    )
+    links = _failed(lowercase_edition, "BC-06")
+    assert links["causal_stage"] == "COMPOSING"
+    assert links["details"] == ["non-canonical edition name 'commercial edition'"]
+
     stray = validate_candidate(_candidate(readme.replace("`Scene`", "`Unknown`")), tmp_path, ())
     assert _failed(stray, "BC-04")["details"] == ["code span 'Unknown' is not a fact value"]
 
@@ -1481,31 +1502,204 @@ def test_example_headings_are_real_unique_task_names(tmp_path: Path) -> None:
     assert not any("Save a scene" in detail for detail in details)
 
 
+def _link_fact(name: str, url: str) -> Fact:
+    return Fact(f"link_target:{name}", "link_target", url, (Evidence(url, "HTTP 200"),))
+
+
+def _with_links(*extra: Fact) -> FactsDocument:
+    return FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, *extra))
+
+
 def test_the_aspose_ceiling_counts_contextual_links_not_the_mandated_rows() -> None:
     # README_CONTRACT.md row 15 bounds the contextual Aspose links; the banner (row 3) and the
     # Enterprise target (row 18) are mandated rows rendered from verified product facts.
-    def fact(name: str, url: str) -> Fact:
-        return Fact(f"link_target:{name}", "link_target", url, (Evidence(url, "HTTP 200"),))
-
-    docs = [fact(f"doc{n}", f"https://docs.aspose.org/3d/python/page-{n}/") for n in range(5)]
-    banner = fact("product.banner", "https://products.aspose.org/media/3d/python/banner-readme.png")
-    homepage = fact("product.homepage", "https://products.aspose.org/3d/python/")
-    enterprise = fact("product.enterprise", "https://products.aspose.com/3d/python-net/")
-    facts = FactsDocument(
-        FACTS.repository, FACTS.source_revision, (*FACTS.facts, *docs, banner, homepage, enterprise)
+    docs = [_link_fact(f"doc{n}", f"https://docs.aspose.org/3d/python/page-{n}/") for n in range(5)]
+    banner = _link_fact(
+        "product.banner", "https://products.aspose.org/media/3d/python/banner-readme.png"
     )
+    homepage = _link_fact("product.homepage", "https://products.aspose.org/3d/python/")
+    enterprise = _link_fact("product.enterprise", "https://products.aspose.com/3d/python-net/")
+    facts = _with_links(*docs, banner, homepage, enterprise)
     base = _candidate().readme
     nl = chr(10)
     mandated = (
         f"[![Aspose.3D FOSS for Python]({banner.value})]({homepage.value})"
-        f"{nl}{nl}[Enterprise Edition]({enterprise.value}){nl}"
+        f"{nl}{nl}[full-featured Aspose.3D for Python — Enterprise Edition]"
+        f"({enterprise.value}){nl}"
     )
-    four = " ".join(f"[page {n}]({docs[n].value})" for n in range(4))
-    within = _candidate(readme=nl.join([base, mandated, four, ""]), facts=facts)
-    assert not any("exceed the ceiling" in str(failure) for failure in _check_links(within))
-    five = f"{four} [page 4]({docs[4].value})"
-    over = _candidate(readme=nl.join([base, mandated, five, ""]), facts=facts)
-    assert any("5 Aspose links exceed the ceiling of 4" in str(f) for f in _check_links(over))
+    # Little visible prose: the derived total is 2, and only contextual links count against it.
+    two = " ".join(f"[page {n}]({docs[n].value})" for n in range(2))
+    within = _candidate(readme=nl.join([base, mandated, two, ""]), facts=facts)
+    assert not any("exceed" in str(failure) for failure in _check_links(within))
+    three = f"{two} [page 2]({docs[2].value})"
+    over = _candidate(readme=nl.join([base, mandated, three, ""]), facts=facts)
+    assert any("3 Aspose links exceed the ceiling of" in str(f) for f in _check_links(over))
+
+
+def test_the_ceiling_is_derived_from_this_documents_size_and_examples() -> None:
+    # Negative control for the old fixed constant of 4: a short README with no verified example
+    # earns a total of 2, so three contextual links fail even though 3 < 4.
+    links = [
+        _link_fact("d", "https://docs.aspose.org/3d/python/"),
+        _link_fact("k", "https://kb.aspose.org/3d/python/"),
+        _link_fact("r", "https://reference.aspose.org/3d/python/"),
+    ]
+    facts = _with_links(*links)
+    nl = chr(10)
+    row = " ".join(f"[{link.id[-1]}]({link.value})" for link in links)
+    short = _candidate(readme=nl.join(["# T", "", "A few words.", "", row, ""]), facts=facts)
+    failures = [str(f) for f in _check_links(short) if f.stage == "PLANNING"]
+    assert any("3 Aspose links exceed the ceiling of 2" in f for f in failures)
+    # The same three links in a document with enough visible prose are within a total of 4.
+    words = " ".join(["word"] * 1300)
+    long = _candidate(readme=nl.join(["# T", "", words, "", row, ""]), facts=facts)
+    assert not any("exceed" in str(f) for f in _check_links(long))
+
+
+def test_the_per_surface_and_per_domain_slots_are_enforced() -> None:
+    nl = chr(10)
+    words = " ".join(["word"] * 1300)
+    blogs = [_link_fact(f"b{n}", f"https://blog.aspose.org/post-{n}/") for n in range(2)]
+    coms = [_link_fact(f"c{n}", f"https://docs.aspose.com/page-{n}/") for n in range(3)]
+    facts = _with_links(*blogs, *coms)
+
+    def failures(selected: list[Fact]) -> list[str]:
+        row = " ".join(f"[x{n}]({f.value})" for n, f in enumerate(selected))
+        candidate = _candidate(readme=nl.join(["# T", "", words, "", row, ""]), facts=facts)
+        return [str(f) for f in _check_links(candidate) if f.stage == "PLANNING"]
+
+    assert any("2 blog links exceed the blog slot ceiling of 1" in f for f in failures(blogs))
+    assert any("3 aspose.com links exceed the aspose.com ceiling of 2" in f for f in failures(coms))
+    assert failures([blogs[0], coms[0], coms[1]]) == []
+
+
+def test_a_configured_link_policy_replaces_the_derived_ceilings() -> None:
+    links = [_link_fact(f"d{n}", f"https://docs.aspose.org/3d/python/p{n}/") for n in range(3)]
+    facts = _with_links(*links)
+    nl = chr(10)
+    row = " ".join(f"[x{n}]({f.value})" for n, f in enumerate(links))
+    readme = nl.join(["# T", "", "Short.", "", row, ""])
+    derived = _candidate(readme=readme, facts=facts)
+    assert any("exceed" in str(f) for f in _check_links(derived))
+    roomy = PlanningPolicy(link_allocation=LinkAllocationPolicy(5, 5, 1, 1, 5, 1, 1, 1))
+    configured = dataclasses.replace(derived, policy=roomy)
+    assert not any("exceed" in str(f) for f in _check_links(configured))
+    tight = PlanningPolicy(link_allocation=LinkAllocationPolicy(5, 5, 1, 1, 1, 1, 1, 1))
+    assert any(
+        "3 docs links exceed the docs slot ceiling of 1" in str(f)
+        for f in _check_links(dataclasses.replace(derived, policy=tight))
+    )
+
+
+ENTERPRISE_URL = "https://products.aspose.com/3d/python-net/"
+
+
+def _enterprise_candidate(anchor: str | None) -> Candidate:
+    enterprise = Fact(
+        "link_target:product.enterprise",
+        "link_target",
+        ENTERPRISE_URL,
+        (Evidence(ENTERPRISE_URL, "HTTP 200; enterprise target"),),
+        attributes={"role": "enterprise", "level": "platform", "platform": "python"},
+    )
+    plan = {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True}
+            if entry["section_id"] == "enterprise_relationship"
+            else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+    paragraph = "" if anchor is None else f"[{anchor}]({ENTERPRISE_URL}) adds more."
+    readme = _candidate().readme + "\n" + paragraph + "\n"
+    return _candidate(readme=readme, facts=_with_links(enterprise), plan=plan)
+
+
+def test_the_enterprise_anchor_must_be_full_featured_and_link_the_verified_target() -> None:
+    good = _enterprise_candidate("full-featured Aspose.3D for Python — Enterprise Edition")
+    assert not [f for f in _check_links(good) if f.section == "enterprise_relationship"]
+    for bad in (
+        "Aspose.3D for Python — Enterprise Edition",  # the pre-fix anchor: no full-featured
+        "full-featured Aspose.3D for Python",  # no edition name at the end
+        "click here",
+    ):
+        failures = [f for f in _check_links(_enterprise_candidate(bad)) if f.section]
+        assert any("full-featured <product>" in f.detail for f in failures), bad
+    missing = [f for f in _check_links(_enterprise_candidate(None)) if f.section]
+    assert any("is not linked from the document" in f.detail for f in missing)
+
+
+def test_without_a_verified_enterprise_target_no_anchor_is_required() -> None:
+    assert not [f for f in _check_links(_candidate()) if f.section == "enterprise_relationship"]
+
+
+def _row_candidate(row: str, extra: tuple[Fact, ...] = ()) -> Candidate:
+    floor = _fact("package:python_requires", "package", ">=3.7")
+    base = _candidate(facts=_with_links(floor, *extra))
+    lines = base.readme.splitlines()
+    index = next(i for i, line in enumerate(lines) if line.startswith("[![PyPI]"))
+    lines[index] = row
+    return dataclasses.replace(base, readme="\n".join(lines) + "\n")
+
+
+PYPI = (
+    "[![PyPI](https://img.shields.io/pypi/v/aspose-3d-foss.svg)]"
+    "(https://pypi.org/project/aspose-3d-foss/)"
+)
+RUNTIME = "![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)"
+LICENSE_BADGE = "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)"
+CI_FACT = Fact(
+    "link_target:badge.ci",
+    "link_target",
+    f"https://github.com/{ENTRY.repository}/actions/workflows/ci.yml",
+    (Evidence(".github/workflows/ci.yml", "triggers push on main; runs pytest"),),
+    attributes={"role": "build status badge", "branch": "main"},
+)
+CI_BADGE = f"[![Build Status]({CI_FACT.value}/badge.svg?branch=main)]({CI_FACT.value})"
+
+
+def _badge_failures(candidate: Candidate) -> list[str]:
+    return [f.detail for f in _check_structure(candidate) if f.section == "badges"]
+
+
+def test_the_renderers_own_badge_row_passes_the_badge_check() -> None:
+    assert _badge_failures(_candidate()) == []
+    full = _row_candidate(f"{PYPI} {RUNTIME} {CI_BADGE} {LICENSE_BADGE}", (CI_FACT,))
+    assert _badge_failures(full) == []
+
+
+def test_a_badge_row_out_of_the_stable_order_is_a_blocking_failure() -> None:
+    swapped = _row_candidate(f"{PYPI} {LICENSE_BADGE} {RUNTIME}")
+    details = _badge_failures(swapped)
+    assert any("breaks the stable order" in d for d in details), details
+    # Build status belongs between the runtime and the license, not after it.
+    late = _row_candidate(f"{PYPI} {RUNTIME} {LICENSE_BADGE} {CI_BADGE}", (CI_FACT,))
+    assert any("breaks the stable order" in d for d in _badge_failures(late))
+
+
+def test_a_duplicated_or_fabricated_badge_is_a_blocking_failure() -> None:
+    twice = _row_candidate(f"{PYPI} {RUNTIME} {RUNTIME} {LICENSE_BADGE}")
+    assert any("duplicate runtime badge" in d for d in _badge_failures(twice))
+    # A build badge with no verified workflow fact is fabricated, whatever its URL looks like.
+    forged = _row_candidate(f"{PYPI} {RUNTIME} {CI_BADGE} {LICENSE_BADGE}")
+    assert any("build badge is not supported" in d for d in _badge_failures(forged))
+    # So is a contributors badge the source README never carried.
+    contributors = (
+        f"[![Contributors](https://img.shields.io/github/contributors/{ENTRY.repository})]"
+        f"(https://github.com/{ENTRY.repository}/graphs/contributors)"
+    )
+    unconditional = _row_candidate(f"{PYPI} {RUNTIME} {LICENSE_BADGE} {contributors}")
+    assert any("contributors badge is not supported" in d for d in _badge_failures(unconditional))
+    # A runtime badge stating a floor the manifest does not declare differs from the fact.
+    other = "![Python](https://img.shields.io/badge/python-3.12%2B-blue.svg)"
+    wrong = _row_candidate(f"{PYPI} {other} {LICENSE_BADGE}")
+    assert any("runtime badge differs from the verified one" in d for d in _badge_failures(wrong))
+
+
+def test_an_omitted_badge_is_allowed() -> None:
+    assert _badge_failures(_row_candidate(LICENSE_BADGE)) == []
+    assert _badge_failures(_row_candidate(f"{PYPI} {LICENSE_BADGE}")) == []
 
 
 def test_check_four_blocks_a_unit_citing_another_slots_facts(tmp_path: Path) -> None:
@@ -1797,3 +1991,208 @@ def test_bc_02_accepts_a_source_checkout_fact_that_never_claims_a_verified_build
     # EXTRACTING's acceptance passed.
     missing_render = _check_install(_install_candidate(checkout, "nothing here"))
     assert missing_render and "does not render" in missing_render[0].detail
+
+
+EDITION_SUBSTITUTES = (
+    "commercial edition",
+    "Commercial Edition",
+    "COMMERCIAL EDITION",
+    "On-Premise edition",
+    "on-premises edition",
+    "paid version",
+    "full version",
+    "premium edition",
+    "commercial\nedition",
+)
+
+
+@pytest.mark.parametrize("phrase", EDITION_SUBSTITUTES)
+def test_bc06_fails_every_edition_substitute_in_any_letter_case(
+    phrase: str, tmp_path: Path
+) -> None:
+    sound = _candidate()
+    assert "edition" not in sound.readme.lower().replace("enterprise edition", "")
+    document = validate_candidate(
+        _candidate(sound.readme + f"\nThe {phrase} extends this with more formats.\n"),
+        tmp_path,
+        (),
+    )
+    failure = _failed(document, "BC-06")
+    assert failure["causal_stage"] == "COMPOSING"
+    assert len(failure["details"]) == 1
+    assert failure["details"][0].startswith("non-canonical edition name ")
+
+
+def test_bc06_names_the_section_a_lowercase_edition_substitute_renders_in(tmp_path: Path) -> None:
+    readme = _candidate().readme
+    heading = "## Scope and Limitations"
+    assert heading in readme
+    marked = readme.replace(heading, heading + "\n\nThe commercial edition adds more.", 1)
+    document = validate_candidate(_candidate(marked), tmp_path, ())
+    failures = _failed(document, "BC-06")["failures"]
+    assert [f["section_id"] for f in failures] == ["scope_limitations"]
+
+
+def test_bc06_passes_without_an_edition_phrase_and_ignores_code(tmp_path: Path) -> None:
+    sound = _candidate()
+    assert _verdicts(validate_candidate(sound, tmp_path, ()))["BC-06"] == "PASS"
+    # Enterprise Edition is the one permitted name; code spans and fences are not prose.
+    extra = (
+        "\nIt adds more. Read about the Enterprise Edition.\n"
+        "Run `commercial edition` and see the `full version` flag.\n"
+        "```text\nthe commercial edition and the paid version\n```\n"
+    )
+    document = validate_candidate(_candidate(sound.readme + extra), tmp_path, ())
+    assert _verdicts(document)["BC-06"] == "PASS"
+
+
+CANONICAL = "Aspose.3D FOSS for Python"
+
+
+def _bc12(readme: str, tmp_path: Path) -> list[str]:
+    document = validate_candidate(_candidate(readme), tmp_path, ())
+    check = next(c for c in document["checks"] if c["id"] == "BC-12")
+    return list(check["details"]) if check["verdict"] == "FAIL" else []
+
+
+@pytest.mark.parametrize(
+    "variant",
+    [
+        "Aspose.3D.FOSS for Python",
+        "Aspose.3D-FOSS for Python",
+        "Aspose.3D_FOSS for Python",
+        "Aspose 3D FOSS for Python",
+        "Aspose3D FOSS for Python",
+        "Aspose.3D.FOSS.for.Python",
+        "aspose.3d foss for python",
+        "ASPOSE.3D FOSS FOR PYTHON",
+        "Aspose.3D FOSS",
+        "Aspose.3D.FOSS",
+        "Aspose.3D FOSS for Java",
+    ],
+)
+def test_bc12_fails_a_product_name_variant_in_prose(variant: str, tmp_path: Path) -> None:
+    sound = _candidate().readme
+    assert _bc12(sound, tmp_path) == []
+    details = _bc12(sound + f"\n{variant} provides core scene management.\n", tmp_path)
+    assert len(details) == 1, details
+    assert f"is not the canonical name {CANONICAL!r}" in details[0]
+
+
+def test_bc12_passes_the_canonical_name_and_technical_identifiers(tmp_path: Path) -> None:
+    sound = _candidate().readme
+    assert CANONICAL in sound
+    spelled = (
+        f"\n{CANONICAL} provides core scene management.\n"
+        "The package is named aspose-3d-foss at version 26.1.0.\n"
+        "Install the aspose-3d-foss package or import `Aspose.3D.FOSS`.\n"
+        "The namespace Aspose.3D.FOSS exposes the scene types.\n"
+        "Built with Aspose.3D.FOSS version 26.1.0 for netstandard2.0.\n"
+        "```text\nAspose.3D.FOSS for Python and aspose_3d_foss\n```\n"
+        "See [the repository](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python).\n"
+        "Compare with Aspose.3D for Python, the product page's own name.\n"
+    )
+    assert _bc12(sound + spelled, tmp_path) == []
+
+
+def test_bc12_names_the_section_and_routes_to_composing(tmp_path: Path) -> None:
+    readme = _candidate().readme
+    heading = "## Scope and Limitations"
+    marked = readme.replace(heading, heading + "\n\nAspose.3D.FOSS opens every format.", 1)
+    document = validate_candidate(_candidate(marked), tmp_path, ())
+    failure = _failed(document, "BC-12")
+    assert failure["causal_stage"] == "COMPOSING"
+    assert [f["section_id"] for f in failure["failures"]] == ["scope_limitations"]
+
+
+def test_canonical_name_pattern_is_built_from_the_name_alone() -> None:
+    pattern = canonical_name_pattern("Aspose.Words FOSS for .NET")
+    found = [
+        m.group(0) for m in pattern.finditer("Aspose.Words.FOSS for .NET and aspose words-foss")
+    ]
+    assert found == ["Aspose.Words.FOSS for .NET", "aspose words-foss"]
+    # A name with no FOSS segment must match whole.
+    whole = canonical_name_pattern("Aspose.Page for Python")
+    assert [m.group(0) for m in whole.finditer("Aspose.Page for Python; Aspose.Page")] == [
+        "Aspose.Page for Python"
+    ]
+
+
+# The sealed README that carries the bad forms (docs/DECISION_LOG.md 2026-10-05, verification V2
+# items 1 and 4): lowercase "commercial edition" on line 550 and "Aspose.3D.FOSS" standing in for
+# the product name on lines 169, 550 and 554. The revision directory is immutable; the bundle is
+# read, never edited.
+SEALED_3D_NET = (
+    REPO_ROOT
+    / "candidates"
+    / "aspose-3d-foss__Aspose.3D-FOSS-for-.NET"
+    / "52b0f00ebf28a0b4173921725ff170685ec2c502"
+    / "README.md"
+)
+
+
+def test_the_real_sealed_readme_with_the_bad_forms_fails_bc06_and_bc12() -> None:
+    if not SEALED_3D_NET.is_file():
+        pytest.skip("the pinned sealed revision is not in this checkout")
+    readme = SEALED_3D_NET.read_text(encoding="utf-8")
+    registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text(encoding="utf-8"))
+    entry = RegistryEntry.model_validate(
+        next(e for e in registry["entries"] if e["repository"].endswith("Aspose.3D-FOSS-for-.NET"))
+    )
+    editions = [f.detail for f in _edition_substitute_failures(readme)]
+    assert editions == ["non-canonical edition name 'commercial edition'"]
+    names = [f.detail for f in _check_canonical_name(SimpleNamespace(entry=entry, readme=readme))]
+    canonical = "Aspose.3D FOSS for .NET"
+    assert {name.split(" is not")[0] for name in names} == {
+        "product name 'Aspose.3D.FOSS for .NET'",
+        "product name 'Aspose.3D.FOSS'",
+    }
+    assert all(name.endswith(f"canonical name {canonical!r}") for name in names)
+    # The H1 the renderer owns is the canonical name and is not itself flagged.
+    assert readme.splitlines()[0] == "# Aspose.3D FOSS for .NET"
+
+
+def test_bc06_holds_the_link_ceiling_the_anchor_rule_and_the_edition_rule_together() -> None:
+    # One README that breaks all three BC-06 rules reports each, and fixing one leaves the rest.
+    nl = chr(10)
+    links = [
+        _link_fact("d", "https://docs.aspose.org/3d/python/"),
+        _link_fact("k", "https://kb.aspose.org/3d/python/"),
+        _link_fact("r", "https://reference.aspose.org/3d/python/"),
+    ]
+    enterprise = Fact(
+        "link_target:product.enterprise",
+        "link_target",
+        ENTERPRISE_URL,
+        (Evidence(ENTERPRISE_URL, "HTTP 200; enterprise target"),),
+        attributes={"role": "enterprise", "level": "platform", "platform": "python"},
+    )
+    facts = _with_links(*links, enterprise)
+    plan = {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True}
+            if entry["section_id"] == "enterprise_relationship"
+            else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+    row = " ".join(f"[{link.id[-1]}]({link.value})" for link in links)
+
+    def details(anchor: str, sentence: str) -> list[str]:
+        readme = nl.join(
+            ["# T", "", "A few words.", "", row, "", f"[{anchor}]({ENTERPRISE_URL}) {sentence}", ""]
+        )
+        candidate = _candidate(readme=readme, facts=facts, plan=plan)
+        return [failure.detail for failure in _check_links(candidate)]
+
+    good_anchor = "full-featured Aspose.3D for Python — Enterprise Edition"
+    broken = details(
+        "Aspose.3D for Python — Enterprise Edition", "The commercial edition adds more."
+    )
+    assert any("exceed the ceiling" in d for d in broken)
+    assert any("full-featured <product>" in d for d in broken)
+    assert "non-canonical edition name 'commercial edition'" in broken
+    fixed_edition = details(good_anchor, "It adds more.")
+    assert any("exceed the ceiling" in d for d in fixed_edition)
+    assert not any("edition name" in d or "full-featured" in d for d in fixed_edition)

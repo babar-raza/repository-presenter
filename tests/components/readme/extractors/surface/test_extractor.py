@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from tree_sitter_language_pack import get_parser
 
 from repository_presenter.components.readme.extractors.surface._vendor.aspose_extraction import (
     api_surface,
@@ -17,6 +16,7 @@ from repository_presenter.components.readme.extractors.surface.extractor import 
     symbol_kind,
 )
 from repository_presenter.core.facts import slug
+from repository_presenter.core.grammars import get_parser
 
 CSHARP = """
 namespace Aspose.Widget

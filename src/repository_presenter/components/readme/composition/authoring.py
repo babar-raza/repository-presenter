@@ -13,8 +13,10 @@ from __future__ import annotations
 
 import ast
 import copy
+import difflib
 import hashlib
 import json
+import os
 import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
@@ -48,6 +50,9 @@ RAW_CALLS_FILENAME = "raw_calls.json"
 AUTHORED_SECTIONS: tuple[str, ...] = tuple(
     section.id for section in SEMANTIC_SHELL if section.owner != "D" and section.id != "at_a_glance"
 )
+# One whitespace-free token that is composite (a path, filename or coordinate), the only shape
+# mask_allowed_values blanks out of a unit before it is tokenized.
+_COMPOSITE_VALUE = re.compile(r"(?=\S+\Z)\S*[-/.]\S*")
 _DOTTED = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+\b")
 _SNAKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
 _CAMEL = re.compile(r"\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b")
@@ -248,11 +253,40 @@ _TYPE_OBJECTIVE = (
 # aspose-slides-foss/Aspose.Slides-FOSS-for-Java (BC-10 F08, 2026-10-04): the test-suite and
 # conformance-rule paragraphs were SUPERSEDE_REDUNDANT into this section, yet section_selections
 # gave the authoring call only the build_test_asset facts, so no unit could state them.
-NORMALISATION_VERSION = "20"
+# "21": the strays check no longer reads a fragment of an allowed fact value the text spells
+# verbatim (mask_allowed_values). Measured on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript
+# (2026-10-04): "The docs/epub-calibre-verification.md file outlines ..." names the SUPPORTED
+# link_target value exactly, and was refused twice, identically, for the hyphen-split fragment
+# "verification.md". A near miss and the fragment standing alone are still refused.
+# 22: the enterprise_relationship rewrite of "Enterprise Edition" into "commercial edition" is
+# gone, and an authored unit that names any edition substitute is rejected instead. plans/idea.md
+# L51-53 allows exactly one edition name (Enterprise Edition) and forbids "commercial edition" and
+# every other substitute; the old rewrite generated the forbidden phrase into 19 sealed READMEs
+# while BC-06 only matched capitalised forms. The model now writes the context sentence with no
+# edition phrase at all (the renderer's shell sentence names the Enterprise Edition once).
+# "23": the strays rejection ("identifiers that are not accepted fact values") now names the
+# nearest accepted spellings (nearest_accepted_identifiers), feedback only - what is accepted is
+# unchanged. Measured on aspose-slides-foss/Aspose.Slides-FOSS-for-Java (2026-10-05): the model
+# wrote CommentAuthors in both attempts and the recover copy, and the bare rejection gave the one
+# re-ask nothing to correct toward (accepted: CommentAuthor, CommentAuthorCollection).
+NORMALISATION_VERSION = "24"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
-# "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
-# proper name the shell already carries.
-_EDITION = re.compile(r"\bEnterprise Edition\b")
+# plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
+# "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
+# The substitutes are matched case-insensitively (the lowercase "commercial edition" is the form
+# the old code generated). Shared with validation/registry.py BC-06, so authoring rejects at the
+# earliest stage exactly what the blocking check would fail later.
+EDITION_SUBSTITUTE = re.compile(
+    r"(?i)\b(?:commercial|on[- ]?premises?|premium|paid|full|licensed|proprietary)[\s-]+"
+    r"(?:edition|version)s?\b"
+)
+
+
+def edition_substitutes(text: str) -> list[str]:
+    """The forbidden edition substitutes ``text`` names, each as written, in order."""
+    return [match.group(0) for match in EDITION_SUBSTITUTE.finditer(text)]
+
+
 # The words of a capability title, extensions included, so the concrete things a title names
 # can be looked for among the formats the facts record.
 _TITLE_WORD = re.compile(r"[A-Za-z0-9.]+")
@@ -408,9 +442,12 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one unit of two to four sentences",
     ),
     "enterprise_relationship": (
-        "At most one sentence on what the commercial edition adds beyond this package, only "
-        "from the accepted facts (the existing README's own statements); never the words "
-        "Enterprise Edition, which the renderer names exactly once; empty when no fact says.",
+        "At most one sentence on what the commercial product adds beyond this package, only "
+        "from the accepted facts (the existing README's own statements). The renderer prints a "
+        "sentence naming the Enterprise Edition directly before this one, so refer back to it "
+        "as 'it' or 'that product'; never write an edition or version label for it, "
+        "the proper name included, since the renderer prints the only permitted one; "
+        "empty when no fact says.",
         "one unit of at most one sentence",
     ),
 }
@@ -441,7 +478,7 @@ class SectionTask:
     slot_render_lines: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
     # Inherited prose units reconciliation superseded into this section (carried_units): each must
     # be cited by a unit that states its substance, or listed in omitted with a reason
-    # (carried_unit_errors). Empty for every section but development_testing.
+    # (carried_unit_errors). Empty for every section but those in _CARRY_SECTIONS.
     must_carry: frozenset[str] = frozenset()
 
     @property
@@ -479,6 +516,14 @@ def _placed_units(dispositions: dict[str, Any], section: str) -> list[str]:
 # Prose-only inherited units: a command block is placed verbatim by the renderer, and a heading is
 # owned by the shell, so neither is a unit an authored section must carry.
 _CARRIABLE_SUFFIXES = (".paragraph", ".list")
+# The sections whose authored units owe every SUPERSEDE_REDUNDANT inherited prose unit that
+# reconciliation placed there an explicit disposition (carried_units). development_testing was the
+# first (BC-10 F08, 2026-10-04). scope_limitations joins it: S4 places a README's own limitation
+# list there, and an authored scope section that never cites or omits it silently drops a
+# documented defect (Slides-Java, 2026-10-05: master-cloning and save-format refusal, F04).
+# Measured over the sealed bundles: 19 of 23 with scope supersessions carry an uncarried unit under
+# this gate, so re-authoring those sections is the cost. Sealed bundles are not rewritten.
+_CARRY_SECTIONS = frozenset({"development_testing", "scope_limitations"})
 
 
 def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocument) -> list[str]:
@@ -490,10 +535,10 @@ def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocume
     an explicit disposition. Measured on aspose-slides-foss/Aspose.Slides-FOSS-for-Java (BC-10
     F08, 2026-10-04): the README's test-suite and conformance-rule paragraphs were superseded into
     development_testing, but the authoring call never received them, so the section could not
-    carry them. Scoped to development_testing, the diagnosed section; every other section returns
+    carry them. Applies to the sections in ``_CARRY_SECTIONS``; every other section returns
     nothing, so no other section's packet changes.
     """
-    if section != "development_testing":
+    if section not in _CARRY_SECTIONS:
         return []
     known = {fact.id for fact in facts.facts if fact.kind == "inherited_unit"}
     return [
@@ -1125,6 +1170,57 @@ def identifier_allowed(
     return False
 
 
+_SPELLABLE = re.compile(r"[A-Za-z_][\w.\-]*(?:\(\))?")
+_NEAREST_LIMIT = 4
+_NEAREST_RATIO = 0.8
+_NEAREST_PREFIX_SHARE = 0.75
+_NEAREST_MIN_PREFIX = 5
+
+
+def nearest_accepted_identifiers(
+    token: str, accepted: Iterable[str], limit: int = _NEAREST_LIMIT
+) -> list[str]:
+    """The few accepted spellings a rejected identifier most plausibly meant, best first.
+
+    Feedback only: this never changes what ``identifier_allowed`` accepts and never substitutes
+    one spelling for another. A spelling is near when it shares most of the token's leading
+    characters (``CommentAuthors`` and ``CommentAuthorCollection`` both open ``CommentAuthor``)
+    or the standard library's ``difflib`` ratio clears ``_NEAREST_RATIO``; ties break on the
+    spelling itself, so the same input always names the same candidates. Only single-token
+    spellings are offered - a fact value that is a sentence or a command line is not a name.
+    The one universal re-ask per job (core/llm/jobs.py) cannot ask a second question, so a bare
+    "not accepted" gave the model nothing to correct toward and it repeated the identifier
+    (aspose-slides-foss/Aspose.Slides-FOSS-for-Java 2026-10-05: ``CommentAuthors`` in both
+    attempts and the recover copy; accepted: ``CommentAuthor``, ``CommentAuthorCollection``).
+    """
+    bare = token[:-2] if token.endswith("()") else token
+    lowered = bare.lower()
+    if len(lowered) < _NEAREST_MIN_PREFIX:
+        return []
+    need = max(_NEAREST_MIN_PREFIX, int(_NEAREST_PREFIX_SHARE * len(lowered)))
+    scored: list[tuple[float, str]] = []
+    for candidate in set(accepted):
+        if candidate in (bare, token) or not _SPELLABLE.fullmatch(candidate):
+            continue
+        base = candidate[:-2] if candidate.endswith("()") else candidate
+        other = base.lower()
+        if abs(len(other) - len(lowered)) > max(len(lowered), len(other)) * 0.6:
+            continue
+        shared = len(os.path.commonprefix([lowered, other]))
+        matcher = difflib.SequenceMatcher(None, lowered, other)
+        ratio = matcher.ratio() if shared >= 2 else 0.0
+        if shared >= need or ratio >= _NEAREST_RATIO:
+            scored.append((ratio, base))
+    scored.sort(key=lambda pair: (-pair[0], pair[1]))
+    nearest: list[str] = []
+    for _, spelling in scored:
+        if spelling not in nearest:
+            nearest.append(spelling)
+        if len(nearest) == limit:
+            break
+    return nearest
+
+
 def identifier_tokens(text: str) -> set[str]:
     """Tokens the renderer would have to wrap in a code span: dotted, snake, CamelCase, calls,
     package coordinates, slash-delimited module paths."""
@@ -1135,6 +1231,31 @@ def identifier_tokens(text: str) -> set[str]:
     # An all-capital token with digits (U3D, A3DW, 3MF) is a format acronym, spelled in prose
     # as the contract's canonical abbreviations are, never an identifier.
     return {token for token in found if not (token.isupper() and token.isalnum())}
+
+
+def mask_allowed_values(text: str, allowed: Iterable[str]) -> str:
+    """``text`` with each allowed single-token composite value it spells verbatim blanked out.
+
+    A path, filename or coordinate (``docs/epub-calibre-verification.md``) is one accepted fact
+    value, but ``identifier_tokens`` reads pieces of it: ``_DOTTED`` takes ``verification.md``
+    from behind a hyphen, a fragment no fact records. A sentence naming the value exactly was
+    refused twice on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript (2026-10-04, identical at
+    temperature zero) for the fragment of a value it spelled correctly. Only the verbatim
+    occurrence is blanked, and only when it is delimited as a whole token on both sides, so a
+    near miss (``...verification.mdx``, ``...verification2.md``), an extension continuing past it
+    (``....md.bak``) and the same fragment standing alone elsewhere in the text are all still
+    judged. Values are limited to one whitespace-free token containing ``-``, ``/`` or ``.``,
+    and never a URL (a literal URL has its own rule): prose, multi-line values and bare words
+    are untouched.
+    """
+    for value in sorted(
+        {v for v in allowed if len(v) >= 3 and "://" not in v and _COMPOSITE_VALUE.fullmatch(v)},
+        key=len,
+        reverse=True,
+    ):
+        if value in text:
+            text = re.sub(rf"(?<![\w/.-]){re.escape(value)}(?![\w/-]|\.\w)", " ", text)
+    return text
 
 
 def command_block_tokens(text: str) -> set[str]:
@@ -1592,20 +1713,22 @@ def unit_checks(
             f"got {', '.join(str(slot) for slot in slots_seen)}"
         )
     # README_CONTRACT.md row 18: the shell's closing sentence names the Enterprise Edition
-    # exactly once, so the authored context sentence never repeats the name. The code owns that
-    # canonical form, so it normalises the repeat away rather than re-asking the model and
-    # rejecting the reply (docs/RESEARCH_AND_GUIDELINES.md section 27.10); the check stays and
-    # still fails for a name the normalisation cannot reach.
-    if task.section_id == "enterprise_relationship":
-        for unit in output.get("units", []):
-            unit["text"] = _EDITION.sub("commercial edition", str(unit.get("text", "")))
+    # exactly once, so the authored context sentence never repeats the name. plans/idea.md
+    # L51-53 forbids every other edition name, so no unit of any section may name a substitute.
+    # Neither is rewritten here: the only wording the code could insert is a forbidden one, so
+    # the unit is rejected and the model re-asked (a code-inserted substitute is what put
+    # "commercial edition" into 19 sealed READMEs).
     for unit in output.get("units", []):
-        if task.section_id == "enterprise_relationship" and "Enterprise Edition" in str(
-            unit.get("text", "")
-        ):
+        text = str(unit.get("text", ""))
+        if task.section_id == "enterprise_relationship" and "Enterprise Edition" in text:
             errors.append(
                 f"unit {unit.get('slot')}: names the Enterprise Edition; the shell's closing "
                 "sentence names it exactly once"
+            )
+        for phrase in edition_substitutes(text):
+            errors.append(
+                f"unit {unit.get('slot')}: names the edition as {phrase!r}; Enterprise Edition is "
+                "the only edition name and the shell prints it, so name no edition"
             )
     # G4-W17 arrival item 99 (E19): a slot's title is printed immediately before its unit
     # (the packet's own title_rule already tells the model this), so a unit's own text
@@ -1767,15 +1890,22 @@ def unit_checks(
         )
         strays = sorted(
             token
-            for token in identifier_tokens(text)
+            for token in identifier_tokens(mask_allowed_values(text, allowed))
             if not identifier_allowed(token, allowed, members, methods)
             and token not in nouns
             and token not in cited_inherited
             and not (token.endswith(_EXCEPTION_SUFFIXES) and token in recorded)
         )
         if strays:
+            pool = (
+                allowed | members | frozenset(name for found in methods.values() for name in found)
+            )
+            shown = []
+            for token in strays:
+                near = nearest_accepted_identifiers(token, pool)
+                shown.append(f"{token} (nearest accepted: {', '.join(near)})" if near else token)
             errors.append(
-                f"unit {slot}: identifiers that are not accepted fact values: {', '.join(strays)}"
+                f"unit {slot}: identifiers that are not accepted fact values: {', '.join(shown)}"
             )
         outside = sorted(set(unit_fact_ids) - task.accepted_ids)
         if outside:

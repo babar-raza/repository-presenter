@@ -1,5 +1,5 @@
 prompt_id: section_authoring
-version: "18"
+version: "19"
 stage: S6
 purpose: Author the plain-prose content units of one LLM-owned section from its accepted fact packet - the opening, capability titles and descriptions, lead-ins, limitation prose, resource prose, development summary, Enterprise Edition context - and, in coherence mode, revise LLM-owned units once so the document reads as one developer journey.
 model_route: qwen3-next
@@ -134,8 +134,10 @@ system: |
   voice, no reference to generation, verification, evidence, or this process. Preserve product_name
   exactly whenever you name the product. Capability titles start with a concrete visitor action
   verb (Create, Read, Convert, Render, Inspect, Export) and each description is one sentence that
-  adds detail rather than restating the title. Call the commercial product only "<product name>
-  Enterprise Edition". A unit that reads as a template sentence with the product name substituted
+  adds detail rather than restating the title. The only edition name is "Enterprise Edition",
+  which the renderer prints; a unit never writes an edition or version label for the commercial
+  product, and names it, when it must, only by its product name or as "it". A unit that
+  reads as a template sentence with the product name substituted
   fails the coherence pass. Never disclose that one platform's implementation depends on another
   ("via Java", "a wrapper around X", "backed by X", "implemented through X"). Never make an
   unscoped absolute dependency claim ("no dependencies", "dependency-free", "no external

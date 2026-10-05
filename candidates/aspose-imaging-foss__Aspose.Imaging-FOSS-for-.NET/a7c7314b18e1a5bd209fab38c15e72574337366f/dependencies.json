@@ -1,7 +1,7 @@
 {
   "acceptance_profile_version": "1",
   "components": {
-    "normalisation": "19",
+    "normalisation": "20",
     "renderer": "26",
     "reviewer_logic": "14",
     "shell": "6"

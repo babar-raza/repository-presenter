@@ -238,6 +238,12 @@ def review_defects(
         if remaining is not None:
             record["absent_as_returned"] = list(finding.get("absent", []))
             record["absent"] = list(remaining)
+        omitted = finding.get("omission_remaining")
+        if omitted is not None and isinstance(finding.get("omission"), dict):
+            # The typed omission claim, narrowed the same way: ids/phrases the section already
+            # renders (or that nothing may restore) are not handed to the repair as work.
+            record["omission_as_returned"] = dict(finding["omission"])
+            record["omission"] = {**finding["omission"], **omitted}
         defects.append(
             Defect(
                 defect_fingerprint("review", section, stage or named, criterion, context),
@@ -339,6 +345,18 @@ def merge_equivalent(defects: Sequence[Defect]) -> list[Defect]:
     return list(merged.values())
 
 
+# The version of the repair behaviour a ledger entry was made under: which levers exist, what a
+# lever clears, how a replacement is judged. The ledger is scoped to a composition (revision,
+# facts, prompts) but code is not in that id, so a new or corrected repair lever on the same
+# facts and prompts found its defect already attempted and re-raised it without trying the fix
+# (aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-10-05). Bump this when repair behaviour
+# changes in a way that could resolve a defect an earlier version could not; an attempt recorded
+# under another value no longer counts, so the changed code gets its one attempt. "1": the first
+# version to record it; entries written before it carry no value and keep counting exactly as
+# they did, so a sealed bundle's repairs.json is read and rewritten byte for byte.
+REPAIR_LOGIC_VERSION = "1"
+
+
 @dataclass
 class RepairLedger:
     """repairs.json: every attempt by fingerprint; a second equivalent failure is never retried.
@@ -367,7 +385,16 @@ class RepairLedger:
         self.attempts = dict(stored.get("attempts", {}))
 
     def attempted(self, fingerprint: str) -> bool:
-        return fingerprint in self.attempts
+        """Whether this fingerprint's one attempt has been spent under the current repair logic.
+
+        An entry with no ``repair_logic_version`` is legacy and counts, as it always did. An entry
+        recorded under another version does not: the code that would repair it has changed.
+        """
+        entry = self.attempts.get(fingerprint)
+        if entry is None:
+            return False
+        recorded = entry.get("repair_logic_version")
+        return recorded is None or recorded == REPAIR_LOGIC_VERSION
 
     def record(
         self,
@@ -390,6 +417,7 @@ class RepairLedger:
             # reviewer's causal_stage guessed) is now correctly targeting instead (RC-04,
             # RESEARCH_AND_GUIDELINES.md 27.2 RC4/SW4, 2026-09-08). Absent or False otherwise.
             "misrouted": bool(defect.record.get("misrouted", False)),
+            "repair_logic_version": REPAIR_LOGIC_VERSION,
         }
         self.write()
 
@@ -548,8 +576,138 @@ def repair_packet(
         "visible_line_budget": dict(visible_line_budget)
         if visible_line_budget is not None
         else None,
+        "omission_carriers": omission_carriers(defect, stage_output, facts, output_contract),
     }
     return packet
+
+
+# Which plan fields can carry content into which section, and the fact kind each takes. This is
+# the planning contract's own wiring (prompts/presentation_planning.yaml: additional_example_ids
+# exactly when additional_examples is included, api_hubs exactly when api_reference is, links to
+# the sections that list them) written once as a registry, so a new carrying field is a row here,
+# never a branch. A kind of ``None`` takes any SUPPORTED fact (a capability or limitation cites
+# whatever supports it).
+SECTION_PLAN_CARRIERS: Mapping[str, tuple[tuple[str, str | None], ...]] = {
+    "additional_examples": (("additional_example_ids", "example"),),
+    "quick_start": (
+        ("quick_start_example_id", "example"),
+        ("second_quick_start_example_id", "example"),
+    ),
+    "api_reference": (("api_hubs", "public_symbol"),),
+    "documentation_resources": (("links", "link_target"),),
+    "navigation": (("links", "link_target"),),
+    "key_capabilities": (("core_capabilities", None),),
+    "scope_limitations": (("material_limitations", None),),
+}
+_BACKTICKED = re.compile(r"`([^`\n]+)`")
+_MIN_QUOTE_LENGTH = 8
+_CARRIER_FACTS_PER_ITEM = 5
+_CARRIER_TEXT_BOUND = 200
+
+
+def omission_carriers(
+    defect: Defect,
+    stage_output: Mapping[str, Any],
+    facts: FactsDocument,
+    output_contract: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """For an upheld omission escalated to S5: what is missing and which plan fields can carry it.
+
+    Measured on Font-FOSS-for-Python (2026-10-05): the S5 repair of an upheld omission was handed
+    the missing phrases but not where a plan can put them, and returned the plan byte-identical
+    with a ledger entry claiming a change that never happened. Deterministic code answers the
+    mechanical half here - from the typed omission the review already narrowed to its remainder
+    (``omission_remaining``), the facts, and the planning contract - and the model still authors
+    the revised plan. Nothing is inserted into the plan, and no check is relaxed.
+
+    Each remaining id or phrase is resolved to the SUPPORTED facts it names (an exact id, a
+    backticked identifier that is a fact's value, or a phrase inside an inherited unit's text),
+    then to the one plan field of the finding's own section that takes that kind of fact, and
+    marked ``already_in_plan`` when the plan already holds it. A phrase that resolves only to
+    inherited text has no plan field: the reconciliation's disposition places it, and the packet
+    says so rather than inviting an invention. Returns ``None`` for any defect that is not an
+    S5 omission with something still missing.
+    """
+    omission = defect.record.get("omission")
+    if defect.stage != "S5" or not isinstance(omission, Mapping):
+        return None
+    ids = [str(item) for item in omission.get("missing_ids") or []]
+    quotes = [str(item) for item in omission.get("missing_quotes") or []]
+    section = str(omission.get("section_id") or defect.section_id or "")
+    if not section or not (ids or quotes):
+        return None
+    properties = output_contract.get("properties")
+    declared = set(properties) if isinstance(properties, Mapping) else None
+    carriers = [
+        (field_name, kind)
+        for field_name, kind in SECTION_PLAN_CARRIERS.get(section, ())
+        if declared is None or field_name in declared
+    ]
+    supported = {fact.id: fact for fact in facts.facts if fact.polarity == "SUPPORTED"}
+    by_value: dict[str, list[str]] = {}
+    inherited: list[tuple[str, str]] = []
+    for fact in supported.values():
+        if fact.kind == "inherited_unit":
+            inherited.append((fact.id, " ".join(fact.value.split())))
+        else:
+            by_value.setdefault(fact.value, []).append(fact.id)
+    items: list[dict[str, Any]] = []
+    for missing in [*ids, *quotes]:
+        names = _facts_named_by(missing, supported, by_value, inherited)
+        kinds = sorted({supported[name].kind for name in names})
+        field_name = next(
+            (
+                name
+                for name, kind in carriers
+                if any(
+                    supported[fact_id].kind != "inherited_unit"
+                    and (kind is None or supported[fact_id].kind == kind)
+                    for fact_id in names
+                )
+            ),
+            None,
+        )
+        held = json.dumps(stage_output.get(field_name)) if field_name else ""
+        items.append(
+            {
+                "missing": missing[:_CARRIER_TEXT_BOUND],
+                "fact_ids": names[:_CARRIER_FACTS_PER_ITEM],
+                "kinds": kinds,
+                "plan_field": field_name,
+                "already_in_plan": bool(names)
+                and field_name is not None
+                and all(f'"{fact_id}"' in held for fact_id in names[:_CARRIER_FACTS_PER_ITEM]),
+            }
+        )
+    return {
+        "section_id": section,
+        "plan_fields_for_section": [name for name, _ in carriers],
+        "upheld_missing": {
+            "ids": [item[:_CARRIER_TEXT_BOUND] for item in ids],
+            "quotes": [item[:_CARRIER_TEXT_BOUND] for item in quotes],
+        },
+        "items": items,
+    }
+
+
+def _facts_named_by(
+    missing: str,
+    supported: Mapping[str, Any],
+    by_value: Mapping[str, Sequence[str]],
+    inherited: Sequence[tuple[str, str]],
+) -> list[str]:
+    """The SUPPORTED fact IDs one missing id or phrase names, in a stable order."""
+    if missing in supported:
+        return [missing]
+    named: list[str] = []
+    for token in [missing.strip("` #"), *_BACKTICKED.findall(missing)]:
+        named.extend(by_value.get(token, ()))
+    if named:
+        return list(dict.fromkeys(named))
+    phrase = " ".join(missing.split())
+    if len(phrase) < _MIN_QUOTE_LENGTH:
+        return []
+    return [fact_id for fact_id, text in inherited if phrase in text]
 
 
 def _carried_inherited_units(

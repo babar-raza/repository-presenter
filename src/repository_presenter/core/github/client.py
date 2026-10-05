@@ -26,7 +26,7 @@ write-scoped token, also distinct from ``GH_TOKEN`` (``GH_ISSUES_WRITE_TOKEN`` -
 ``core/secrets.py``) - the ``Issues: write`` scope this project's own ``GH_TOKEN`` does not have.
 
 The proposal-effect write half (``get_ref``/``create_ref``/``get_contents``/``put_contents``/
-``find_open_pull_request``/``create_pull_request``/``update_pull_request``) exists so
+``find_pull_requests``/``create_pull_request``/``update_pull_request``) exists so
 ``components/propose/effect.py`` (G6-W02, the gated README-proposal PR effect) has real functions to
 compose one idempotent "create or update a presenter branch and its PR" effect from. Same split
 again: no authorization check here, no other caller. Its own write-scoped token is
@@ -351,6 +351,48 @@ def find_issue_with_marker(
     )
 
 
+@dataclass(frozen=True)
+class IssueSnapshot:
+    """What a single ``GET .../issues/{number}`` says about one issue - only what the gated close
+    needs to prove it is closing the right thing."""
+
+    number: int
+    state: str
+    body: str
+    is_pull_request: bool
+
+
+def get_issue(
+    owner: str,
+    name: str,
+    number: int,
+    *,
+    token: str | None,
+    fetch: FetchFn = default_fetch,
+) -> IssueSnapshot:
+    """``GET /repos/{owner}/{repo}/issues/{number}`` - the issue's state and body as GitHub reports
+    them right now. Raises :class:`RepositoryMetadataError` on anything but a well-formed HTTP 200
+    for exactly that issue number: a close must never be decided on a partial or mismatched read."""
+    url = f"{API_ROOT}/repos/{owner}/{name}/issues/{number}"
+    status_code, body = fetch(url, token)
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200 or not isinstance(body, dict):
+        raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+    state = body.get("state")
+    if body.get("number") != number or not isinstance(state, str):
+        raise RepositoryMetadataError(
+            f"{owner}/{name}: GET {url} returned no usable issue #{number}"
+        )
+    text = body.get("body")
+    return IssueSnapshot(
+        number=number,
+        state=state,
+        body=text if isinstance(text, str) else "",
+        is_pull_request="pull_request" in body,
+    )
+
+
 def close_issue(
     owner: str,
     name: str,
@@ -527,6 +569,81 @@ class PullRequestRef:
     url: str
     title: str
     body: str
+    #: ``"open"``, ``"closed"`` (closed unmerged) or ``"merged"``.
+    state: str = "open"
+
+
+#: GitHub's list endpoint pages at this size; a full page means the history may be longer than what
+#: was read, which the caller must treat as unknown rather than as complete.
+PULLS_PAGE_SIZE = 100
+
+
+def _pull_request_state(item: dict[str, Any]) -> str:
+    if item.get("merged_at"):
+        return "merged"
+    return "open" if item.get("state") == "open" else "closed"
+
+
+def find_pull_requests(
+    owner: str,
+    name: str,
+    *,
+    head_branch: str,
+    token: str,
+    fetch: FetchFn = default_fetch,
+) -> tuple[PullRequestRef, ...]:
+    """``GET /repos/{owner}/{repo}/pulls?head={owner}:{head_branch}&state=all`` - every pull request
+    ever opened from the presenter branch, newest first, open, closed and merged alike. A lookup
+    that sees only open pull requests cannot tell "never proposed" from "proposed and merged or
+    declined", and would recreate a settled proposal. A full page is reported as an error, not as
+    a complete answer."""
+    url = (
+        f"{API_ROOT}/repos/{owner}/{name}/pulls?head={owner}:{head_branch}&state=all"
+        f"&sort=created&direction=desc&per_page={PULLS_PAGE_SIZE}"
+    )
+    status_code, body = fetch(url, token)
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200 or not isinstance(body, list):
+        raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+    if len(body) >= PULLS_PAGE_SIZE:
+        raise RepositoryMetadataError(
+            f"{owner}/{name}: {len(body)} pull requests from {head_branch!r} fill the page; the "
+            "history cannot be proven complete"
+        )
+    return tuple(
+        PullRequestRef(
+            number=int(item["number"]),
+            url=str(item["html_url"]),
+            title=str(item.get("title", "")),
+            body=str(item.get("body") or ""),
+            state=_pull_request_state(item),
+        )
+        for item in body
+    )
+
+
+def get_pull_request_app_id(
+    owner: str,
+    name: str,
+    number: int,
+    *,
+    token: str,
+    fetch: FetchFn = default_fetch,
+) -> int | None:
+    """``GET /repos/{owner}/{repo}/issues/{number}`` - the id of the GitHub App that performed the
+    pull request (``performed_via_github_app``), or ``None`` when it was not created by an App."""
+    url = f"{API_ROOT}/repos/{owner}/{name}/issues/{number}"
+    status_code, body = fetch(url, token)
+    if status_code == -1:
+        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+    if status_code != 200 or not isinstance(body, dict):
+        raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+    app = body.get("performed_via_github_app")
+    if not isinstance(app, dict):
+        return None
+    app_id = app.get("id")
+    return app_id if isinstance(app_id, int) else None
 
 
 def find_open_pull_request(
@@ -538,8 +655,10 @@ def find_open_pull_request(
     fetch: FetchFn = default_fetch,
 ) -> PullRequestRef | None:
     """``GET /repos/{owner}/{repo}/pulls?head={owner}:{head_branch}&state=open`` - the one open
-    presenter PR for this target, if any. This project keeps exactly one open PR per target, so the
-    first match is authoritative; an empty result means none exists yet."""
+    presenter PR for this target, if any. Open pull requests only: the propose effect uses
+    :func:`find_pull_requests`, which also sees merged and closed ones. This project keeps exactly
+    one open PR per target, so the first match is authoritative; an empty result means none exists
+    yet."""
     url = f"{API_ROOT}/repos/{owner}/{name}/pulls?head={owner}:{head_branch}&state=open"
     status_code, body = fetch(url, token)
     if status_code == -1:
@@ -569,7 +688,8 @@ def create_pull_request(
     write: WriteFn = default_post,
 ) -> PullRequestRef:
     """``POST /repos/{owner}/{repo}/pulls`` - opens the one presenter PR from ``head`` into
-    ``base``. Only ever called after :func:`find_open_pull_request` has confirmed none is open."""
+    ``base``. Only ever called after :func:`find_pull_requests` has confirmed none is open and none
+    for the same candidate was already settled."""
     if not token:
         raise RepositoryMetadataError(f"{owner}/{name}: POST refused - no write-scoped token")
     url = f"{API_ROOT}/repos/{owner}/{name}/pulls"

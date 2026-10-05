@@ -66,6 +66,8 @@ jobs:
       - name: Read-only proof - fetch the canary's own repo metadata with the minted token
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          OWNER: ${{ steps.canary.outputs.owner }}
+          REPO: ${{ steps.canary.outputs.repo }}
         run: |
-          gh api "repos/${{ steps.canary.outputs.owner }}/${{ steps.canary.outputs.repo }}" \
+          gh api "repos/$OWNER/$REPO" \
             --jq '"installation reaches " + .full_name + " (default branch: " + .default_branch + ")"'

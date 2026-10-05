@@ -12,12 +12,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tree_sitter_language_pack import get_parser
-
 from repository_presenter.components.readme.extractors.platforms.python_surface import (
     inspect_public_surface,
 )
 from repository_presenter.components.readme.extractors.surface.extractor import surface_symbols
+from repository_presenter.core.grammars import get_parser
 
 PACKAGE = '''
 """A small product package."""
