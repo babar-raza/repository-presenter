@@ -226,6 +226,27 @@ def test_a_failed_third_read_falls_back_to_the_single_confirming_rule() -> None:
     assert review["second_reader"]["read"] == 2
 
 
+def test_the_review_decision_cannot_depend_on_the_repository_identity() -> None:
+    """Restores the property the removed MAJORITY_VOTE_REPOSITORIES membership check enforced: no
+    repository is escalated by identity. The second read, the third read and the vote are decided
+    by the candidate's typed facts alone. `_read_review` takes no repository, entry or
+    repository-keyed set, so reintroducing an identity gate (a repository parameter) fails here;
+    a clean, untriggered accept makes no call for any repository, including the three repositories
+    the removed set named and the canary."""
+    import inspect
+
+    names = set(inspect.signature(_read_review).parameters)
+    assert not {n for n in names if "repo" in n or "entry" in n or "majority" in n}
+    for repository in (
+        "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+        "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+        "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    ):
+        review, calls = _judged_review(_CLEAN, [], second=_stub_job_result(_CLEAN), third=None)
+        assert calls == [] and review["second_reader"]["read"] == 1, repository
+
+
 def _stub_job_result(output: dict[str, Any]) -> JobResult:
     return JobResult(
         job="x",
