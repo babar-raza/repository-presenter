@@ -83,7 +83,11 @@ from repository_presenter.components.readme.validation.registry import (
     VALIDATOR_VERSION,
     record_replay_verdict,
 )
-from repository_presenter.core.candidates import BUNDLE_MANIFEST_NAME, verify_bundle
+from repository_presenter.core.candidates import (
+    BUNDLE_MANIFEST_NAME,
+    UPSTREAM_BLOBS_FIELD,
+    verify_bundle,
+)
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm.jobs import CallStore
@@ -105,6 +109,7 @@ from repository_presenter.core.noop_proof import (
 )
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
+from repository_presenter.core.snapshot.capture import SNAPSHOT_FILENAME, TREE_FILENAME
 from repository_presenter.core.toolchains import toolchain_fingerprint
 
 DEPENDENCIES_FILENAME = "dependencies.json"
@@ -200,6 +205,37 @@ class SealResult:
 
 def bundle_directory(candidates: Path, entry: RegistryEntry, revision: str) -> Path:
     return candidates / f"{entry.owner}__{entry.name}" / revision
+
+
+def record_upstream_blobs(transaction: Path, facts: FactsDocument) -> dict[str, str]:
+    """The git blob id, at the sealed revision, of each upstream file the candidate depends on.
+
+    The dependencies are the files the facts cite as evidence, plus the README, license and
+    notices paths the snapshot names. Blob ids come from the transaction's own tree listing
+    (``source/tree.txt``, written from the same revision), so nothing here reads the network or
+    the clone. A dependency absent from the listing (a directory, or no file at that path) is not
+    recorded. Returns ``{}`` when the snapshot or listing is missing, which the monitor then reports
+    as UNKNOWN rather than CURRENT.
+    """
+    source = transaction / "source"
+    tree = source / TREE_FILENAME
+    snapshot_file = source / SNAPSHOT_FILENAME
+    if not tree.is_file() or not snapshot_file.is_file():
+        return {}
+    blobs: dict[str, str] = {}
+    for line in tree.read_text(encoding="utf-8").splitlines():
+        meta, separator, path = line.partition("\t")
+        fields = meta.split()
+        if separator and len(fields) == 3 and fields[1] == "blob":
+            blobs[path] = fields[2]
+    snapshot = json.loads(snapshot_file.read_text(encoding="utf-8"))
+    dependencies = {evidence.path for fact in facts.facts for evidence in fact.evidence}
+    dependencies.update(
+        str(snapshot[key])
+        for key in ("readme_path", "license_path", "notices_path")
+        if snapshot.get(key)
+    )
+    return {path: blobs[path] for path in sorted(dependencies) if path in blobs}
 
 
 def _presenter_site_manifest_hash() -> str:
@@ -539,6 +575,9 @@ def _write_bundle(
         ),
         "composition": _composition(staged),
         "models_used": _current_models(inputs),
+        # The blob ids of the upstream files this candidate depends on, for the drift monitor's
+        # content check (core/candidates.py UPSTREAM_BLOBS_FIELD).
+        UPSTREAM_BLOBS_FIELD: record_upstream_blobs(inputs.transaction, inputs.facts),
         **({"call_variance": variance} if variance else {}),
         **dict(extra or {}),
     }
