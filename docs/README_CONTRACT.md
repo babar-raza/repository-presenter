@@ -178,9 +178,11 @@ with an unknown fact ID, a contradicted fact, or an unlisted identifier is rejec
 
 Inherited units at S7: `VERIFIED_PRESERVE`, `VERIFIED_REWRITE`, `VERIFIED_MOVE`, and
 `CORRECT_WITH_EVIDENCE` units are placed in their destination section; `SUPERSEDE_REDUNDANT` and
-`OMIT_UNSUPPORTED` carry evidence in the dispositions file; `DEFER_UNRESOLVED` units are listed for
-owner resolution and never rendered; `NON_CONTENT` is ignored. A material unit with no safe
-destination fails the transaction closed instead of being dumped.
+`OMIT_UNSUPPORTED` carry evidence in the dispositions file; `DEFER_UNRESOLVED` units are never
+rendered and are judged by cause in `validation/deferrals.py`: a BLOCK cause fails BC-05 at its
+causal stage, an ADVISORY cause is recorded in `validation.json`'s `advisory` list for reviewers,
+and a cause no registered class recognises blocks. `NON_CONTENT` is ignored. A material unit with
+no safe destination fails the transaction closed instead of being dumped.
 
 **Placement is exclusive, never additive, on fact-ID overlap (a real, confirmed defect: the G1
 canary's own `scope_limitations` rendered three `VERIFIED_PRESERVE`d inherited paragraphs in full

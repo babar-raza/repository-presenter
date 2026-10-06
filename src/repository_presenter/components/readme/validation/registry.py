@@ -76,6 +76,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
+from repository_presenter.components.readme.validation.deferrals import review_deferrals
 from repository_presenter.components.readme.validation.links.rules import (
     badge_problems,
     enterprise_anchor_problems,
@@ -109,7 +110,10 @@ VALIDATION_FILENAME = "validation.json"
 # process identities, and the bundle's recorded totals reconciled against its ledger. A bundle
 # sealed under 9 shows as stale and records a pending update; its proof is retained, not
 # invalidated.
-VALIDATOR_VERSION = "10"
+# 11: BC-05 v2 judges every DEFER_UNRESOLVED unit by its cause (validation/deferrals.py): a BLOCK
+# class fails the check, an ADVISORY class is recorded in validation.json's advisory list, and an
+# unclassified cause blocks. A bundle sealed under 10 re-checks under 11 and shows as pending.
+VALIDATOR_VERSION = "11"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -213,7 +217,8 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-05",
-        "1",
+        # "2" (deferral policy): each DEFER_UNRESOLVED unit is judged by its cause, not counted.
+        "2",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),
@@ -957,6 +962,16 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
         if unit_id not in inherited:
             failures.append(
                 Failure("RECONCILING", f"{unit_id} is not an inherited unit of this README")
+            )
+    # A deferred unit is never placed, so it cannot reach the public text; what its cause may do
+    # is fail the candidate (validation/deferrals.py). ADVISORY causes surface in advisory_notes.
+    for finding in review_deferrals(candidate.dispositions, candidate.facts, candidate.plan):
+        if finding.decision == "BLOCK":
+            failures.append(
+                Failure(
+                    finding.stage,
+                    f"{finding.unit_id} is deferred as {finding.class_id}: {finding.reason}",
+                )
             )
     headed = {section.id for section in SEMANTIC_SHELL if section.heading}
     texts = _section_texts(candidate.readme)
@@ -1833,9 +1848,15 @@ def _check_protected(candidate: Candidate) -> list[Failure]:
 
 
 def advisory_notes(candidate: Candidate) -> list[str]:
-    """Context for the reviewer that cannot block: technical terms a rewrite left out."""
+    """Context for the reviewer that cannot block: technical terms a rewrite left out, and each
+    ADVISORY deferral with its class (validation/deferrals.py)."""
     by_id = {fact.id: fact for fact in candidate.facts.by_kind("inherited_unit")}
-    notes: list[str] = []
+    notes: list[str] = [
+        f"{finding.unit_id}: deferred as {finding.class_id} (advisory, never published): "
+        f"{finding.reason}"
+        for finding in review_deferrals(candidate.dispositions, candidate.facts, candidate.plan)
+        if finding.decision == "ADVISORY"
+    ]
     for entry in candidate.dispositions.get("dispositions", []):
         unit_id = str(entry.get("unit_id", ""))
         if entry.get("disposition") != "VERIFIED_REWRITE" or unit_id not in by_id:
