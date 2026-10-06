@@ -302,10 +302,40 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     assert document["advisory"] == []
     # VALIDATOR_VERSION 8: BC-06 v7 fails the edition substitutes in any letter case and BC-12
     # (canonical product name) is new; VALIDATOR_VERSION 9: BC-07 v9 (verification V2 items 8 and
-    # 9); VALIDATOR_VERSION 10: BC-11 v2 is judged from measured evidence (core/noop_proof.py).
-    # VALIDATOR_VERSION 11: a refused ACCEPT names the corroborating second read that failed.
+    # 9); VALIDATOR_VERSION 10: BC-11 v2 is judged from measured evidence (core/noop_proof.py);
+    # VALIDATOR_VERSION 11: BC-05 v2 judges each deferral by its cause (validation/deferrals.py).
+    # VALIDATOR_VERSION 12: a refused ACCEPT names the corroborating second read that failed.
     # This candidate names no edition, spells its name whole, and passes all of them.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "11"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "12"
+
+
+def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The wiring from a deferral's class to the candidate: BLOCK fails BC-05 at the class's own
+    causal stage; ADVISORY leaves BC-05 passing and lands in validation.json's advisory list."""
+    from repository_presenter.components.readme.validation import registry
+    from repository_presenter.components.readme.validation.deferrals import DeferralFinding
+
+    unit = "inherited_unit:002.paragraph"
+    blocking = DeferralFinding(unit, "NOTICES_WITHOUT_RECORD", "BLOCK", "EXTRACTING", "why")
+    monkeypatch.setattr(registry, "review_deferrals", lambda *_args: [blocking])
+    failed = _failed(validate_candidate(_candidate(), tmp_path, ()), "BC-05")
+    assert failed["causal_stage"] == "EXTRACTING"
+    assert failed["details"] == [f"{unit} is deferred as NOTICES_WITHOUT_RECORD: why"]
+
+    advisory = DeferralFinding(unit, "SECTION_ABSENT", "ADVISORY", None, "kept off the page")
+    monkeypatch.setattr(registry, "review_deferrals", lambda *_args: [advisory])
+    document = validate_candidate(_candidate(), tmp_path, ())
+    assert _verdicts(document)["BC-05"] == "PASS"
+    assert document["advisory"] == [
+        f"{unit}: deferred as SECTION_ABSENT (advisory, never published): kept off the page"
+    ]
+
+    unclassified = DeferralFinding(unit, "UNCLASSIFIED", "BLOCK", "RECONCILING", "no class")
+    monkeypatch.setattr(registry, "review_deferrals", lambda *_args: [unclassified])
+    unknown = _failed(validate_candidate(_candidate(), tmp_path, ()), "BC-05")
+    assert unknown["causal_stage"] == "RECONCILING"
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
