@@ -24,13 +24,7 @@
     "resume_predicate": null,
     "recovery_count": 0
   },
-  "lease": {
-    "holder_id": "present.yml:37411705333",
-    "acquired_at": "2026-10-06T04:02:46.339792+00:00",
-    "heartbeat_at": "2026-10-06T04:02:46.339792+00:00",
-    "expires_at": "2026-10-06T04:17:46.339792+00:00",
-    "fencing_token": 1
-  },
+  "lease": null,
   "last_transition": {
     "transition_id": "edbf65d4ff724f29859d0c1e7004d758",
     "transaction_id": "e84c0b55491e44a59c6a22ed42670f34",
@@ -45,7 +39,7 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 4,
+  "state_version": 5,
   "recent_trigger_dedup_keys": {
     "run:37361313253:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "e84c0b55491e44a59c6a22ed42670f34",
     "run:37411705333:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "a287366556c74b89822582c09c670c50"
