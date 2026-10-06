@@ -338,6 +338,9 @@ class _Attempts:
                 f"{self.manifest.manifest.prompt_id}: request names {payload.get('model')!r} but "
                 f"this run decided {self.model!r}; a run never switches models mid-run"
             )
+        # The per-invocation spend ceiling (core/llm/ledger.py PROVIDER_CALL_BUDGET): refused here,
+        # before any request is sent, so exceeding it makes no further provider call.
+        self.ledger.reserve_provider_call()
         self.count += 1
         started_at = _now()
         started = time.monotonic()

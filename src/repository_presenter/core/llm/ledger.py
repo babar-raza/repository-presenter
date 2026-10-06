@@ -24,6 +24,8 @@ from dataclasses import MISSING, asdict, dataclass, fields, replace
 from pathlib import Path
 from typing import Any, Literal
 
+from repository_presenter.core.errors import ProviderCallBudgetError
+
 CallDisposition = Literal["provider_call", "cache_reuse", "cache_stale"]
 CallOutcome = Literal[
     "success",
@@ -35,6 +37,13 @@ CallOutcome = Literal[
     "cache_stale",
 ]
 LEDGER_FILENAME = "calls.jsonl"
+# The most provider calls one process may make: one `present` invocation, which a hosted job runs
+# as its own step, so a sealing run is bounded by this times its repository cap (3). The ceiling is
+# the single place the spend limit is set; it is enforced before each physical call by
+# ``Ledger.reserve_provider_call``, which counts requests actually sent (``physical_calls_made``).
+# Measured clean full draws ran 10 to 33 calls, so 100 leaves room for repair rounds and re-asks
+# while still bounding a runaway loop. Derived from DECISION_LOG measurements, not a policy term.
+PROVIDER_CALL_BUDGET = 100
 
 
 @dataclass(frozen=True)
@@ -111,6 +120,15 @@ class LedgerSummary:
     total_tokens: int | None
 
 
+def is_physical_attempt(record: CallRecord) -> bool:
+    """Whether ``record`` is a request actually sent to the gateway.
+
+    ``response_invalid`` marks an earlier attempt's reply as rejected (``_Attempts.record_invalid``)
+    and sends nothing, so it is never a provider call, even though its disposition says so.
+    """
+    return record.disposition == "provider_call" and record.outcome != "response_invalid"
+
+
 def canonical_hash(value: Any) -> str:
     """SHA-256 of a JSON-serialisable value in its canonical form."""
     raw = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
@@ -120,10 +138,17 @@ def canonical_hash(value: Any) -> str:
 class Ledger:
     """Append-only accounting for one transaction's provider calls."""
 
-    def __init__(self, path: Path, invocation_id: str | None = None) -> None:
+    def __init__(
+        self,
+        path: Path,
+        invocation_id: str | None = None,
+        call_budget: int = PROVIDER_CALL_BUDGET,
+    ) -> None:
         self.path = path
         # Stamped onto every record this ledger appends (see ``CallRecord.invocation_id``).
         self.invocation_id = invocation_id
+        # The most provider calls this ledger's process may make (see PROVIDER_CALL_BUDGET).
+        self.call_budget = call_budget
         # The records this process appended, so a run can account for its own calls without
         # re-reading a ledger that older runs may have written.
         self.appended: list[CallRecord] = []
@@ -140,6 +165,25 @@ class Ledger:
     def provider_calls_made(self) -> int:
         """Provider calls this process made, across every job of the transaction."""
         return sum(1 for record in self.appended if record.disposition == "provider_call")
+
+    @property
+    def physical_calls_made(self) -> int:
+        """Requests actually sent by this process: ``provider_calls_made`` less the
+        ``response_invalid`` markers, which record a rejected reply and send nothing. The budget
+        reads this count; the reported and sealed ``provider_calls`` keep their historical value."""
+        return sum(1 for record in self.appended if is_physical_attempt(record))
+
+    def reserve_provider_call(self) -> None:
+        """Refuse a physical provider call once this process has spent its budget.
+
+        Called before the request is sent, so the refused call never reaches the gateway. The
+        error is typed and is not retryable, so no retry policy can spend past the ceiling.
+        """
+        if self.physical_calls_made >= self.call_budget:
+            raise ProviderCallBudgetError(
+                f"provider-call budget of {self.call_budget} reached in this invocation; "
+                "no further calls are made and the run stops"
+            )
 
     @property
     def consumed_calls(self) -> frozenset[str]:
