@@ -3,7 +3,7 @@
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
   "provider_repository_id": 1301410121,
   "registry_revision": null,
-  "active_transaction_id": "e84c0b55491e44a59c6a22ed42670f34",
+  "active_transaction_id": "a287366556c74b89822582c09c670c50",
   "state": "FAILED_INTERNAL",
   "source": null,
   "surfaces": {},
@@ -24,7 +24,13 @@
     "resume_predicate": null,
     "recovery_count": 0
   },
-  "lease": null,
+  "lease": {
+    "holder_id": "present.yml:37411705333",
+    "acquired_at": "2026-10-06T04:02:46.339792+00:00",
+    "heartbeat_at": "2026-10-06T04:02:46.339792+00:00",
+    "expires_at": "2026-10-06T04:17:46.339792+00:00",
+    "fencing_token": 1
+  },
   "last_transition": {
     "transition_id": "edbf65d4ff724f29859d0c1e7004d758",
     "transaction_id": "e84c0b55491e44a59c6a22ed42670f34",
@@ -39,9 +45,10 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 3,
+  "state_version": 4,
   "recent_trigger_dedup_keys": {
-    "run:37361313253:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "e84c0b55491e44a59c6a22ed42670f34"
+    "run:37361313253:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "e84c0b55491e44a59c6a22ed42670f34",
+    "run:37411705333:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "a287366556c74b89822582c09c670c50"
   },
   "recovery_count": 0
 }
