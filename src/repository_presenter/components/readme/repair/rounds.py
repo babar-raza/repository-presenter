@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import copy
 import functools
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -101,16 +101,18 @@ from repository_presenter.components.readme.repair.targeted import (
 from repository_presenter.components.readme.review.acceptance.scorer import score_candidate
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
-    MAJORITY_VOTE_REPOSITORIES,
     REVIEW_FILENAME,
-    prose_judgment,
+    SecondReadDecision,
+    blocking,
     review_checks,
     review_document,
     review_packet,
+    second_read_decision,
     second_reader,
     third_reader,
     write_review,
 )
+from repository_presenter.components.readme.validation.deferrals import review_deferrals
 from repository_presenter.components.readme.validation.registry import (
     VALIDATION_FILENAME,
     Candidate,
@@ -263,6 +265,39 @@ def _round_raw_calls(
         }
     )
     return raw_calls
+
+
+def _read_review(
+    document: Callable[..., dict[str, Any]],
+    deferral_decisions: Collection[str],
+    second: Callable[[], JobResult | None],
+    third: Callable[[], JobResult | None],
+) -> tuple[dict[str, Any], SecondReadDecision, JobResult | None, JobResult | None]:
+    """The review of one candidate: the first read, then the typed second-reader trigger (OWNER-15).
+
+    A clean first ACCEPT whose trigger does not fire makes no second call and is recorded as a
+    single read (``second_reader.trigger.triggered`` false). A triggered second read that cannot
+    produce usable output (``None``, never ``{}`` - TB-04, external review D4, 2026-09-08) leaves
+    the first reader's review as the document of record with the trigger recorded, so check 10
+    fails it: losing verification never increases assurance. A third read (2-of-3, section 5.6) is
+    requested only when a triggered second read disagrees with a clean first read; a failed third
+    read falls back to the single-confirming-read rule, never to a looser one.
+    """
+    first = document()
+    decision = second_read_decision(first, deferral_decisions)
+    second_result = second() if decision.triggered else None
+    if second_result is None:
+        return document(trigger=decision), decision, None, None
+    disagrees = first.get("verdict") == ACCEPT and any(
+        blocking(dict(finding)) for finding in second_result.output.get("findings", [])
+    )
+    third_result = third() if disagrees else None
+    review = document(
+        second=second_result.output,
+        third=third_result.output if third_result is not None else None,
+        trigger=decision,
+    )
+    return review, decision, second_result, third_result
 
 
 def run_round(tx: TransactionInputs) -> Round:
@@ -507,42 +542,13 @@ def run_round(tx: TransactionInputs) -> Round:
         # already landed inert (c37791f) pending exactly this one line.
         dispositions=dispositions,
     )
-    review = document()
-    # Two triggers share the one corroborating read under a different seed. A prose judgment on
-    # a required row is read a second time before it holds the candidate unsealed (the owner's
-    # two-reader rule, section 27.8). And an ACCEPT - returned, or a rejection whose every
-    # finding folded to advisory, the class 8 of the 9 pre-sprint seals belong to - is read a
-    # second time before it seals the candidate (PHASE1/F6): check 10 now passes only a
-    # corroborated accept (second_reader.read >= 2), and on this path the second read's findings
-    # pass the same fold stack as the first read's, so a disagreement blocks and repairs through
-    # the normal rounds. A read that cannot produce usable output corroborates nothing and must
-    # leave `review` exactly as the first reader alone produced it (never `document(second={})` -
-    # TB-04, external review D4, 2026-09-08: an empty dict is not `None`, and review_document
-    # reads it as a *completed* reading that raised no findings, silently demoting the first
-    # reader's finding and flipping REJECT_PRESENTATION to ACCEPT while recording a reading that
-    # never happened). Losing verification must never increase assurance - which on the accept
-    # path now means the uncorroborated ACCEPT fails check 10 rather than sealing. A repository
-    # named in MAJORITY_VOTE_REPOSITORIES (section 5.6) escalates this to a 2-of-3 vote among
-    # three independent reads instead of one confirming read - see the branch just below.
-    second_result: JobResult | None = None
-    third_result: JobResult | None = None
-    if review["verdict"] == ACCEPT or any(
-        prose_judgment(finding) for finding in review["findings"]
-    ):
-        second_result = _second_opinion(loaded, packet, checks, common)
-        if second_result is not None:
-            if tx.entry.repository in MAJORITY_VOTE_REPOSITORIES:
-                # Section 5.6 escalation: this repository's own documented rerun history
-                # (docs/DECISION_LOG.md) already shows two or more distinct S10 findings across
-                # independent draws, so promoting to ACCEPT needs a 2-of-3 majority among three
-                # independent reads rather than one confirming read alone. A failed third read
-                # (JobError) falls back to the unescalated single-confirming-read rule below,
-                # never to a looser one - losing verification must never increase assurance.
-                third_result = _third_opinion(loaded, packet, checks, common)
-                third_output = third_result.output if third_result is not None else None
-                review = document(second=second_result.output, third=third_output)
-            else:
-                review = document(second=second_result.output)
+    # The second reader is requested only by the typed trigger (OWNER-15, second_read_decision).
+    review, _decision, second_result, third_result = _read_review(
+        document,
+        [finding.decision for finding in review_deferrals(dispositions, facts, planned.output)],
+        lambda: _second_opinion(loaded, packet, checks, common),
+        lambda: _third_opinion(loaded, packet, checks, common),
+    )
     validation = record_review_verdict(validation, review)
     # G3-W02 ADVISORY: the acceptance score is recorded with the review. No blocking check reads
     # it, and it is computed after check 10 so the record sees the same verdicts the bundle does.

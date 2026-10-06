@@ -5447,3 +5447,10 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   - **OWNER-13 remains OPEN.** The 30-point profile is not ratified; REV-V2-02, REV-V4-08 and REG-03 stay on it.
   - **PR #192 CLOSED (branch kept).** It was the stale G5-W05 hosted-proof branch; nothing in the register depends on it.
   - **Reverse by:** `git revert` this commit; it changes records only.
+- **2026-10-06 · `feat/second-reviewer-trigger-1008`: the second reviewer runs on a typed trigger, and the hard-coded repository set is removed (`docs/DEFECT_INDEX.md` REV-V2-10, OWNER-15, G3-W06).** `review/independent/review.py::second_read_decision`, `repair/rounds.py::_read_review`, `validation/registry.py` check 10 (BC-10 "5", VALIDATOR_VERSION "12", REVIEWER_LOGIC_VERSION "16").
+  - **Trigger (objective, from facts the candidate already has):** a second read runs only when the first read raised a prose judgment on a required row (`PROSE_JUDGMENT_ON_REQUIRED_ROW`), or the candidate carries an ADVISORY deferral (`ADVISORY_DEFERRAL`, from the deferral registry). A clean first ACCEPT with neither condition is one read.
+  - **Recorded:** `review.json` `second_reader.trigger` = `{triggered, reasons}` on every new review. Check 10 passes a single-read ACCEPT only when the trigger is recorded as not fired and no blocking finding stands; a fired trigger whose second read did not complete fails.
+  - **Third read (2-of-3):** replaces the three-repository escalation. It runs only when a triggered second read disagrees with a clean first read. This generalises the majority vote from three named repositories to any triggered candidate. It is the one policy point the owner should confirm; narrowing it is a one-line change in `_read_review`.
+  - **Sealed bundles:** not rewritten. They carry no trigger record, so they replay under the unchanged single-read rule; a test proves no sealed review gains a pass. They re-check to pending under the new versions.
+  - **REV-V2-10 stays Open** in `docs/DEFECT_INDEX.md` until an independent reviewer re-verifies it by the predicate there.
+  - **Reverse by:** `git revert` this commit; the sealed records are unchanged.

@@ -305,7 +305,7 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # 9); VALIDATOR_VERSION 10: BC-11 v2 is judged from measured evidence (core/noop_proof.py);
     # VALIDATOR_VERSION 11: BC-05 v2 judges each deferral by its cause (validation/deferrals.py).
     # This candidate names no edition, spells its name whole, and passes all of them.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "11"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "12"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(

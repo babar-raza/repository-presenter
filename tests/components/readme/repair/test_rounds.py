@@ -7,6 +7,7 @@ checks a genuine revision would have to pass.
 
 from __future__ import annotations
 
+import functools
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -20,6 +21,7 @@ from repository_presenter.components.readme.composition.authoring import (
 )
 from repository_presenter.components.readme.repair.rounds import (
     Round,
+    _read_review,
     _refuse_noop,
     _reject_insufficient_visible_line_overage,
     _round_raw_calls,
@@ -31,7 +33,7 @@ from repository_presenter.components.readme.repair.rounds import (
 )
 from repository_presenter.components.readme.repair.targeted import Defect
 from repository_presenter.components.readme.review.independent.review import (
-    MAJORITY_VOTE_REPOSITORIES,
+    review_document,
 )
 from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import FactsDocument
@@ -103,17 +105,125 @@ def test_a_successful_third_reader_job_returns_its_own_job_result() -> None:
         assert _third_opinion(LOADED, PACKET, None, COMMON) == result
 
 
-def test_the_escalation_set_is_exactly_the_three_documented_repositories() -> None:
-    """`run_round` gates the 2-of-3 escalation on `tx.entry.repository in
-    MAJORITY_VOTE_REPOSITORIES` alone (section 5.6) - a repository not named here takes the
-    unchanged single-confirming-read path no matter how this test module's own fixtures are set
-    up, since nothing else in `run_round` can trigger the third read."""
-    assert {
-        "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
-        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
-        "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
-    } == MAJORITY_VOTE_REPOSITORIES
-    assert "aspose-3d-foss/Aspose.3D-FOSS-for-Python" not in MAJORITY_VOTE_REPOSITORIES
+def _judged_review(
+    first: dict[str, Any], deferrals: list[str], second: JobResult | None, third: JobResult | None
+) -> tuple[dict[str, Any], list[str]]:
+    """Runs `_read_review` with stub reads, recording which reads were requested."""
+    calls: list[str] = []
+    document = functools.partial(review_document, first, LOADED, LOADED, "d" * 64)
+
+    def run_second() -> JobResult | None:
+        calls.append("second")
+        return second
+
+    def run_third() -> JobResult | None:
+        calls.append("third")
+        return third
+
+    review, _decision, _second, _third = _read_review(document, deferrals, run_second, run_third)
+    return review, calls
+
+
+_CLEAN = {"verdict": "ACCEPT", "findings": [], "preserve": []}
+_BLOCKING = {
+    "id": "F01",
+    "section_id": "key_capabilities",
+    "causal_stage": "S6",
+    "criterion": "factuality",
+    "text": "A claim is unsupported.",
+    "quote": "",
+    "fact_ids": [],
+    "absent": [],
+    "omission": None,
+    "repair": "Drop the claim.",
+}
+
+
+def test_a_clean_accept_with_no_trigger_makes_no_second_call() -> None:
+    """The unconditional second read on every ACCEPT is gone: a clean first ACCEPT whose trigger
+    does not fire is one read, and the record says so."""
+    review, calls = _judged_review(_CLEAN, [], second=_stub_job_result(_CLEAN), third=None)
+    assert calls == []
+    assert review["second_reader"]["read"] == 1
+    assert review["second_reader"]["trigger"] == {"triggered": False, "reasons": []}
+
+
+def test_a_blocking_deferral_alone_makes_no_second_call() -> None:
+    _review, calls = _judged_review(_CLEAN, ["BLOCK"], second=_stub_job_result(_CLEAN), third=None)
+    assert calls == []
+
+
+def test_an_advisory_deferral_requests_one_second_read_and_records_the_reason() -> None:
+    review, calls = _judged_review(
+        _CLEAN, ["ADVISORY"], second=_stub_job_result(_CLEAN), third=None
+    )
+    assert calls == ["second"]
+    assert review["second_reader"]["read"] == 2
+    assert review["second_reader"]["trigger"] == {
+        "triggered": True,
+        "reasons": ["ADVISORY_DEFERRAL"],
+    }
+
+
+def test_a_prose_judgment_on_a_required_row_requests_the_second_read() -> None:
+    judgment = {
+        **_BLOCKING,
+        "criterion": "presentation",
+        "fact_ids": [],
+        "section_id": "key_capabilities",
+    }
+    review, calls = _judged_review(
+        {"verdict": "REJECT_PRESENTATION", "findings": [judgment], "preserve": []},
+        [],
+        second=_stub_job_result(_CLEAN),
+        third=None,
+    )
+    assert calls == ["second"]
+    assert review["second_reader"]["trigger"]["reasons"] == ["PROSE_JUDGMENT_ON_REQUIRED_ROW"]
+
+
+def test_a_triggered_second_read_that_fails_leaves_the_trigger_unsatisfied() -> None:
+    """A failed triggered read is None, never {}: the first reader's review stands, one read, with
+    the trigger recorded as fired, so check 10 fails it (losing verification never raises
+    assurance)."""
+    review, calls = _judged_review(_CLEAN, ["ADVISORY"], second=None, third=None)
+    assert calls == ["second"]
+    assert review["second_reader"]["read"] == 1
+    assert review["second_reader"]["trigger"]["triggered"] is True
+
+
+def test_a_second_read_disagreeing_with_a_clean_first_read_requests_the_third() -> None:
+    disagreeing = {"verdict": "REJECT_FACTUAL", "findings": [_BLOCKING], "preserve": []}
+    review, calls = _judged_review(
+        _CLEAN,
+        ["ADVISORY"],
+        second=_stub_job_result(disagreeing),
+        third=_stub_job_result(disagreeing),
+    )
+    assert calls == ["second", "third"]
+    assert review["second_reader"]["read"] == 3
+    assert review["verdict"] == "REJECT_FACTUAL"
+
+
+def test_a_single_dissenting_extra_reader_is_tolerated_by_the_two_of_three_vote() -> None:
+    disagreeing = {"verdict": "REJECT_FACTUAL", "findings": [_BLOCKING], "preserve": []}
+    review, calls = _judged_review(
+        _CLEAN, ["ADVISORY"], second=_stub_job_result(disagreeing), third=_stub_job_result(_CLEAN)
+    )
+    assert calls == ["second", "third"]
+    assert review["verdict"] == "ACCEPT"
+
+
+def test_a_failed_third_read_falls_back_to_the_single_confirming_rule() -> None:
+    """Negative control: when the third read cannot complete, the second read's dissent blocks
+    exactly as the single-confirming-read rule always did - never a looser outcome."""
+    disagreeing = {"verdict": "REJECT_FACTUAL", "findings": [_BLOCKING], "preserve": []}
+    review, calls = _judged_review(
+        _CLEAN, ["ADVISORY"], second=_stub_job_result(disagreeing), third=None
+    )
+    assert calls == ["second", "third"]
+    assert review["verdict"] == "REJECT_FACTUAL"
+    assert review["second_reader"]["read"] == 2
 
 
 def _stub_job_result(output: dict[str, Any]) -> JobResult:
