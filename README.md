@@ -318,6 +318,7 @@ repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --s
 repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N]
 repository-presenter sealing-plan [--root PATH] [--drift-file PATH] [--github-output PATH]
 repository-presenter sealed-ready --repo OWNER/NAME [--root PATH]
+repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
 ```
 
 - **`status`** — prints the version, current gate, active work item, and candidate progress read
@@ -451,6 +452,10 @@ repository-presenter sealed-ready --repo OWNER/NAME [--root PATH]
 - **`sealed-ready --repo OWNER/NAME`** — exits 0 only when the repository's `CURRENT` sealed bundle
   verifies and is `READY_FOR_PROPOSAL`; exits 1 otherwise, naming why. The scheduled workflow uses
   it to export a bundle for the gated proposal job and to refuse to propose anything else.
+- **`stage-transaction-artifact --transaction DIR --staging DIR`** — copies a seal's transaction
+  output to a staging directory for the failed-run artifact that `present.yml` uploads. It
+  excludes the `calls/` call store and every file holding a configured secret's value or a
+  secret-shaped value, naming each exclusion by path and reason, never by value.
 - `--root PATH` — project root holding `project/state.yaml`; discovered from the working directory
   when omitted.
 

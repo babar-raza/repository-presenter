@@ -300,7 +300,12 @@ from repository_presenter.core.sealing_plan import (
     require_sealing_model,
     sealing_paused,
 )
-from repository_presenter.core.secrets import configured_secrets, find_secret_leaks, redact
+from repository_presenter.core.secrets import (
+    configured_secrets,
+    find_secret_leaks,
+    redact,
+    stage_transaction_for_upload,
+)
 from repository_presenter.core.snapshot.capture import (
     capture_snapshot,
     list_tree_paths,
@@ -506,6 +511,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     ready.add_argument("--repo", required=True, metavar="OWNER/NAME")
     ready.add_argument("--root", type=Path, default=None, help=root_help)
+    staged = subcommands.add_parser(
+        "stage-transaction-artifact",
+        help=(
+            "copy a transaction's output to a staging directory for a failed run's artifact, "
+            "excluding the call store and every file holding a configured or secret-shaped value"
+        ),
+    )
+    staged.add_argument("--transaction", required=True, type=Path)
+    staged.add_argument("--staging", required=True, type=Path)
     preflight = subcommands.add_parser(
         "preflight",
         help="reach the LLM gateway from the process environment and record its model catalog",
@@ -941,6 +955,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_sealing_plan(args.root, args.drift_file, args.github_output)
     if args.command == "sealed-ready":
         return run_sealed_ready(args.repo, args.root)
+    if args.command == "stage-transaction-artifact":
+        return run_stage_transaction_artifact(args.transaction, args.staging)
     if args.command == "propose":
         return run_propose(
             args.repo,
@@ -1027,6 +1043,17 @@ def run_sealing_plan(
         with github_output.open("a", encoding="utf-8") as handle:
             handle.write("\n".join(github_output_lines(plan)) + "\n")
     return EXIT_OK
+
+
+def run_stage_transaction_artifact(transaction: Path, staging: Path) -> int:
+    """Stage a failed seal's transaction output for upload; names each exclusion, never a value."""
+    staged = stage_transaction_for_upload(transaction, staging, configured_secrets(os.environ))
+    for relative, reason in staged.excluded:
+        print(f"excluded {relative.as_posix()}: {reason}")
+    if not staged.copied:
+        print(f"notice: nothing to stage under {transaction.as_posix()}")
+    print(f"staged {len(staged.copied)} file(s) from {transaction.as_posix()}")
+    return 0
 
 
 def run_sealed_ready(repository: str, root_argument: Path | None) -> int:

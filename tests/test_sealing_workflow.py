@@ -330,3 +330,43 @@ def test_the_plan_job_obtains_the_monitor_evidence_before_it_plans(
     assert "monitor-drift-contract" not in fetch
     # Nothing in the chain carries a write grant for the handoff.
     assert "actions/create-github-app-token" not in SCHEDULED.read_text(encoding="utf-8")
+
+
+PRESENT = WORKFLOWS / "present.yml"
+TRANSACTION_ARTIFACT_NAME = (
+    "seal-transaction-${{ steps.target.outputs.owner }}__${{ steps.target.outputs.name }}"
+    "-${{ github.run_attempt }}"
+)
+
+
+def test_a_failed_seal_keeps_its_redacted_transaction_output_as_a_short_lived_artifact() -> None:
+    # A seal leg is present.yml (sealing-scheduled.yml's seal job has no steps of its own), so the
+    # diagnostic upload lives in present.yml. A failed run uploads NO artifacts otherwise, which
+    # left a red seal (run 37361313253) with nothing to read the failing stage from.
+    steps = _load(PRESENT)["jobs"]["present"]["steps"]
+    stage_index, stage = next(
+        (i, s) for i, s in enumerate(steps) if "stage-transaction-artifact" in str(s.get("run", ""))
+    )
+    upload_index, upload = next(
+        (i, s)
+        for i, s in enumerate(steps)
+        if str(s.get("uses", "")).startswith("actions/upload-artifact")
+        and str(s.get("with", {}).get("name", "")).startswith("seal-transaction-")
+    )
+    # Both run only on a red run, and the staged copy (never the raw directory) is what uploads.
+    assert "failure()" in stage["if"] and "success()" not in stage["if"]
+    assert "failure()" in upload["if"] and "success()" not in upload["if"]
+    assert stage_index < upload_index
+    assert upload["with"]["name"] == TRANSACTION_ARTIFACT_NAME
+    assert upload["with"]["retention-days"] == 14
+    assert upload["with"]["if-no-files-found"] == "ignore"
+    staging = stage["env"]["STAGING"]
+    assert upload["with"]["path"] == staging
+    assert "runs/transactions/" in stage["env"]["TRANSACTION"]
+    assert (
+        "${{ steps.target.outputs.owner }}__${{ steps.target.outputs.name }}"
+        in (stage["env"]["TRANSACTION"])
+    )
+    # The secret-bearing values the redaction must see are the ones this runner holds.
+    for secret in ("GPT_OSS_API_KEY", "GH_TOKEN", "REPOSITORY_PRESENTER_STATE_TOKEN"):
+        assert secret in stage["env"], f"the staging step must scan with {secret} in its env"
