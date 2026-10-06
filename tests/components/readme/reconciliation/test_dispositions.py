@@ -2,8 +2,14 @@
 
 from __future__ import annotations
 
+import functools
 import json
 from pathlib import Path
+from typing import Any
+
+import httpx
+import pytest
+from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.evidence.facts.product_pages import BANNER_FACT_ID
 from repository_presenter.components.readme.reconciliation.dispositions import (
@@ -18,15 +24,20 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     reconciliation_batch_facts,
     reconciliation_batches,
     reconciliation_packet,
+    reconciliation_schema,
     rendering_fact_ids,
     summarize,
     write_dispositions,
 )
+from repository_presenter.core.config import GatewayConfig
+from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.binding import binding_errors
+from repository_presenter.core.llm.jobs import CallStore, JobContext, JobResult, run_job, schema_for
+from repository_presenter.core.llm.ledger import Ledger
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
-from support import REPO_ROOT
+from support import REPO_ROOT, mock_gateway
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -927,3 +938,191 @@ def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
     assert raw.endswith(b"}\n") and b"\r\n" not in raw
     assert json.loads(raw) == output
     assert write_dispositions(output, path) == digest
+
+
+def _prose_omit_facts() -> FactsDocument:
+    """FACTS, plus a second prose paragraph and an html block, for the uncited-omission rules."""
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:005.paragraph", "inherited_unit", "Second prose unit."),
+            _fact("inherited_unit:006.html_block", "inherited_unit", "<p>wrapper</p>"),
+        ),
+    )
+
+
+def test_an_uncited_prose_omit_is_refused_with_its_typed_reason() -> None:
+    facts = _prose_omit_facts()
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:002.paragraph", "OMIT_UNSUPPORTED", None),
+            _entry("inherited_unit:005.paragraph", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    errors = placement_errors(output, facts)
+    assert len(errors) == 2
+    assert errors[0].startswith("inherited_unit:002.paragraph: uncited_prose_omit: ")
+    assert errors[1].startswith("inherited_unit:005.paragraph: uncited_prose_omit: ")
+    # the repair message quotes the unit's exact text and asks for a citation or a placement
+    assert 'the unit\'s exact text is "Prose."' in errors[0]
+    assert "Cite the supporting fact IDs or place the unit" in errors[0]
+
+
+def test_a_cited_prose_omit_passes() -> None:
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:002.paragraph", "OMIT_UNSUPPORTED", None, "identity:repository"),
+        ]
+    }
+    assert placement_errors(output, _prose_omit_facts()) == []
+
+
+def test_an_uncited_heading_or_html_block_omit_is_not_refused_by_this_check() -> None:
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:001.heading", "OMIT_UNSUPPORTED", None),
+            _entry("inherited_unit:006.html_block", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    assert placement_errors(output, _prose_omit_facts()) == []
+
+
+def test_a_prose_omit_is_judged_on_the_folded_output_through_reconcile_checks() -> None:
+    """The repair path's checks are ``reconcile_checks``; the refusal reaches them unchanged."""
+    output = {"dispositions": [_entry("inherited_unit:002.paragraph", "OMIT_UNSUPPORTED", None)]}
+    errors = reconcile_checks(output, _prose_omit_facts())
+    assert errors and errors[0].startswith("inherited_unit:002.paragraph: uncited_prose_omit: ")
+
+
+def _reply(content: dict[str, object]) -> httpx.Response:
+    body = {
+        "id": "chatcmpl-1",
+        "object": "chat.completion",
+        "created": 1,
+        "model": "qwen3-next",
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": json.dumps(content)},
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 120},
+    }
+    return httpx.Response(200, json=body)
+
+
+def _s4_output(paragraph: dict[str, object]) -> dict[str, object]:
+    """A full batch reply covering every unit of _prose_omit_facts once; the caller supplies the
+    disposition of the paragraph under test (002), the rest are fixed and valid."""
+    return {
+        "dispositions": [
+            _entry(
+                "inherited_unit:001.heading", "SUPERSEDE_REDUNDANT", None, "identity:repository"
+            ),
+            {**paragraph, "unit_id": "inherited_unit:002.paragraph", "rationale": "because"},
+            _entry(
+                "inherited_unit:003.code_block", "VERIFIED_PRESERVE", "quick_start", "example:001"
+            ),
+            _entry("inherited_unit:004.code_block", "OMIT_UNSUPPORTED", None, "example:002"),
+            _entry(
+                "inherited_unit:005.paragraph", "VERIFIED_REWRITE", "opening", "identity:repository"
+            ),
+            _entry("inherited_unit:006.html_block", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+
+
+def _run_s4(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *replies: httpx.Response
+) -> tuple[JobResult, list[dict[str, Any]]]:
+    """The production S4 call: this batch's packet and schema, checked by reconcile_checks."""
+    seen: list[dict[str, object]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return replies[len(seen) - 1]
+
+    mock_gateway(monkeypatch, handler)
+    facts = _prose_omit_facts()
+    loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
+    units = facts.by_kind("inherited_unit")
+    result = run_job(
+        loaded,
+        reconciliation_packet(ENTRY, facts, {}, loaded.manifest, units),
+        config=GatewayConfig("https://gw.example/v1", "sk-test-key-0123456789"),
+        facts=facts,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=JobContext(ENTRY.repository, facts.source_revision),
+        checks=functools.partial(reconcile_checks, facts=facts),
+        call_schema=reconciliation_schema(loaded, units, facts, {}),
+    )
+    return result, seen
+
+
+def test_a_repair_re_asks_the_unit_once_and_accepts_its_cited_repair(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    uncited = {
+        "disposition": "OMIT_UNSUPPORTED",
+        "destination_section": None,
+        "fact_ids": [],
+        "rationale": "because",
+    }
+    cited = {
+        "disposition": "OMIT_UNSUPPORTED",
+        "destination_section": None,
+        "fact_ids": ["identity:repository"],
+        "rationale": "because",
+    }
+    result, seen = _run_s4(
+        tmp_path,
+        monkeypatch,
+        _reply(_s4_output(uncited)),
+        _reply(_s4_output(cited)),
+    )
+    assert result.attempts == 2
+    re_ask = json.dumps(seen[1], ensure_ascii=False)
+    assert "uncited_prose_omit" in re_ask
+    assert 'exact text is \\"Prose.\\"' in re_ask
+
+
+def test_a_second_uncited_prose_omit_fails_the_job_closed_naming_the_unit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    uncited = {
+        "disposition": "OMIT_UNSUPPORTED",
+        "destination_section": None,
+        "fact_ids": [],
+        "rationale": "because",
+    }
+    with pytest.raises(JobError) as caught:
+        _run_s4(tmp_path, monkeypatch, _reply(_s4_output(uncited)), _reply(_s4_output(uncited)))
+    message = str(caught.value)
+    assert "output rejected twice" in message
+    assert "inherited_unit:002.paragraph: uncited_prose_omit:" in message
+
+
+def test_a_sealed_shaped_dispositions_file_still_validates_under_the_static_schema() -> None:
+    """Replay of a sealed file is unchanged: the schema is not touched, so a sealed shape still
+    passes it, including a heading omitted with no citation (which this check never refuses)."""
+    sealed = {
+        "dispositions": [
+            _entry("inherited_unit:001.heading", "OMIT_UNSUPPORTED", None),
+            _entry(
+                "inherited_unit:002.paragraph", "VERIFIED_REWRITE", "opening", "identity:repository"
+            ),
+            _entry(
+                "inherited_unit:003.code_block", "VERIFIED_PRESERVE", "quick_start", "example:001"
+            ),
+            _entry("inherited_unit:004.code_block", "OMIT_UNSUPPORTED", None, "example:002"),
+        ]
+    }
+    validator = Draft202012Validator(
+        schema_for(load_manifests(REPO_ROOT / "prompts")["source_reconciliation"], None)
+    )
+    assert list(validator.iter_errors(sealed)) == []
+    assert placement_errors(sealed, _prose_omit_facts()) == []

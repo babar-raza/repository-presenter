@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import functools
 import json
 import re
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+import httpx
 import pytest
 from jsonschema import Draft202012Validator
 
@@ -21,6 +23,7 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_tasks,
     canonical_abbreviations,
     capability_titles,
+    carried_substance,
     carried_unit_errors,
     carried_units,
     citable,
@@ -59,11 +62,14 @@ from repository_presenter.components.readme.composition.authoring import (
     write_content_units,
     write_raw_calls,
 )
+from repository_presenter.core.config import GatewayConfig
+from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument, bounded_records
-from repository_presenter.core.llm.ledger import canonical_hash
+from repository_presenter.core.llm.jobs import CallStore, JobContext, run_job
+from repository_presenter.core.llm.ledger import Ledger, canonical_hash
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
-from support import REPO_ROOT
+from support import REPO_ROOT, mock_gateway
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -2955,6 +2961,7 @@ def _slides_task() -> SectionTask:
         slots,
         slot_facts={"summary": frozenset(ids)},
         must_carry=SLIDES_MUST_CARRY,
+        must_carry_text=carried_substance(SLIDES_MUST_CARRY, SLIDES_FACTS),
     )
 
 
@@ -3003,9 +3010,11 @@ def test_a_unit_set_that_drops_a_superseded_inherited_unit_is_rejected_before_re
     )
     assert dropped == [
         "inherited_unit:092.paragraph: superseded into this section by reconciliation, so a unit "
-        "must cite it and state its substance, or omitted must list it with a reason",
+        f"must cite it and state its substance, or omitted must list it with a reason. Substance "
+        f"to carry: {SLIDES_STRUCTURE}",
         "inherited_unit:093.paragraph: superseded into this section by reconciliation, so a unit "
-        "must cite it and state its substance, or omitted must list it with a reason",
+        f"must cite it and state its substance, or omitted must list it with a reason. Substance "
+        f"to carry: {SLIDES_REPRODUCIBLE}",
     ]
     explicit = unit_checks(
         _slides_output(
@@ -3026,38 +3035,166 @@ def test_a_unit_set_that_drops_a_superseded_inherited_unit_is_rejected_before_re
     assert explicit == []
 
 
-def test_recover_section_authoring_output_records_an_uncarried_superseded_unit() -> None:
-    """Last-resort recovery for the same shape: when the model's own re-ask still drops a
-    superseded unit, the recovery records each dropped unit as an explicit omission with a reason,
-    never invents content, and run_job's real unit_checks then accepts the output (the review
-    still judges whether the section states what it omitted). Mutation control: a section with
-    nothing to carry is untouched."""
+SLIDES_SECTION_PACKET = {
+    "repository": SLIDES_JAVA,
+    "product_name": SLIDES_JAVA_NAME,
+    "mode": "author",
+    "section_id": "development_testing",
+    "objective": "Fill the summary slot. Inherited units this section must carry.",
+    "slots": "summary",
+    "accepted_facts": "package:java_release, build_test_asset:tests, build_test_asset:ci",
+    "do_not_claim": "none",
+    "length_budget": "one short paragraph",
+    "rendered_document": "",
+    "existing_units": "",
+}
+SLIDES_UNITS_FIRST = "inherited_unit:092.paragraph"
+SLIDES_UNITS_SECOND = "inherited_unit:093.paragraph"
+
+
+def _slides_reply(cited: list[str], omitted: list[dict[str, str]] | None = None) -> str:
+    """One summary unit citing the toolchain facts plus the named inherited units."""
+    unit = {
+        "section": "development_testing",
+        "slot": "summary",
+        "text": SLIDES_TOOLCHAIN_ONLY,
+        "fact_ids": [*SLIDES_CITES, *cited],
+    }
+    return json.dumps({"units": [unit], "omitted": omitted or []})
+
+
+def _slides_gateway_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, replies: list[str]
+) -> tuple[list[dict[str, Any]], Any]:
+    """Runs section_authoring's own run_job for the Slides development_testing task, served the
+    given replies in order through the real gateway path, with the production unit_checks and the
+    production last-resort recovery. Returns the requests received and the run_job outcome."""
     task = _slides_task()
-    raw = _slides_output(
-        [
-            {
-                "section": "development_testing",
-                "slot": "summary",
-                "text": SLIDES_TOOLCHAIN_ONLY,
-                "fact_ids": SLIDES_CITES,
-            }
-        ],
-        [],
-    )
-    recovered = recover_section_authoring_output(
-        json.loads(json.dumps(raw)), slot_titles={}, must_carry=SLIDES_MUST_CARRY
-    )
-    assert recovered is not None
-    assert unit_checks(recovered, task, SLIDES_FACTS, SLIDES_JAVA_NAME) == []
-    assert {item["fact_id"] for item in recovered["omitted"]} == SLIDES_MUST_CARRY
-    assert all(item["reason"].strip() for item in recovered["omitted"])
-    assert recovered["units"] == raw["units"]
-    assert (
-        recover_section_authoring_output(
-            json.loads(json.dumps(raw)), slot_titles={}, must_carry=frozenset()
+    queue = [
+        httpx.Response(
+            200,
+            json={
+                "id": "c",
+                "object": "chat.completion",
+                "created": 1,
+                "model": "qwen3-next",
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {"role": "assistant", "content": content},
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+            },
         )
-        is None
+        for content in replies
+    ]
+    requests: list[dict[str, Any]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(json.loads(request.content))
+        return queue.pop(0)
+
+    mock_gateway(monkeypatch, handler)
+    manifest = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
+    store = CallStore(tmp_path / "calls")
+    try:
+        outcome: Any = run_job(
+            manifest,
+            SLIDES_SECTION_PACKET,
+            config=GatewayConfig("https://gw.example/v1", "sk-test-key-0123456789"),
+            facts=SLIDES_FACTS,
+            ledger=Ledger(tmp_path / "calls.jsonl"),
+            store=store,
+            context=JobContext(SLIDES_JAVA, "d" * 40),
+            checks=functools.partial(
+                unit_checks, task=task, facts=SLIDES_FACTS, name=SLIDES_JAVA_NAME
+            ),
+            recover=functools.partial(
+                recover_section_authoring_output, slot_titles=task.slot_titles
+            ),
+        )
+    except JobError as error:
+        outcome = error
+    return requests, outcome
+
+
+def _request_text(request: dict[str, Any]) -> str:
+    return "\n".join(str(message["content"]) for message in request["messages"])
+
+
+def test_a_refused_must_carry_unit_is_re_asked_with_its_substance(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Fails before the fix: the refusal named the unit ID only, so the re-ask never carried what
+    the unit says. The first reply cites the second unit and silently drops the first; the re-ask
+    must name the first unit AND quote its substance, and a reply that then cites it is accepted."""
+    requests, outcome = _slides_gateway_run(
+        tmp_path,
+        monkeypatch,
+        [
+            _slides_reply([SLIDES_UNITS_SECOND]),
+            _slides_reply([SLIDES_UNITS_FIRST, SLIDES_UNITS_SECOND]),
+        ],
     )
+    assert not isinstance(outcome, JobError), outcome
+    assert outcome.attempts == 2
+    re_ask = _request_text(requests[1])
+    assert f"{SLIDES_UNITS_FIRST}: superseded into this section" in re_ask
+    assert " ".join(SLIDES_STRUCTURE.split()) in re_ask
+    # Negative control: the unit the first reply already cited is not re-asked for.
+    assert f"{SLIDES_UNITS_SECOND}: superseded" not in re_ask
+
+
+def test_a_reply_that_cites_the_must_carry_units_passes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A unit that cites both superseded units on the first attempt is accepted with one call and
+    no re-ask: the explicit citation is the disposition the check asks for."""
+    requests, outcome = _slides_gateway_run(
+        tmp_path,
+        monkeypatch,
+        [_slides_reply([SLIDES_UNITS_FIRST, SLIDES_UNITS_SECOND])],
+    )
+    assert not isinstance(outcome, JobError), outcome
+    assert outcome.attempts == 1 and len(requests) == 1
+
+
+def test_two_refusals_stop_naming_the_unit_still_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Fails before the fix: the second refusal was converted into an omission the model never
+    gave, and the job was accepted. Now the second reply still drops the second unit, so the job
+    fails closed and names exactly that unit, and nothing is accepted."""
+    requests, outcome = _slides_gateway_run(
+        tmp_path,
+        monkeypatch,
+        [_slides_reply([SLIDES_UNITS_FIRST]), _slides_reply([SLIDES_UNITS_FIRST])],
+    )
+    assert isinstance(outcome, JobError), "a second refusal must fail closed"
+    assert len(requests) == 2
+    assert SLIDES_UNITS_SECOND in str(outcome)
+    # The first unit was cited on both attempts, so only the second is still missing.
+    assert SLIDES_UNITS_FIRST not in str(outcome)
+
+
+def test_a_reply_that_cites_nothing_still_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Fails before the fix: the last-resort recovery recorded both dropped units as omissions and
+    the corrected copy passed. A reply that neither cites nor omits a must-carry unit is refused
+    on both attempts, the recovery does not rescue it, and the output is never accepted."""
+    silent = _slides_reply([])
+    _requests, outcome = _slides_gateway_run(tmp_path, monkeypatch, [silent, silent])
+    assert isinstance(outcome, JobError), "a reply that cites nothing must fail closed"
+    assert SLIDES_UNITS_FIRST in str(outcome) and SLIDES_UNITS_SECOND in str(outcome)
+    task = _slides_task()
+    unrecovered = recover_section_authoring_output(json.loads(silent), slot_titles=task.slot_titles)
+    assert unrecovered is None
+    errors = unit_checks(json.loads(silent), task, SLIDES_FACTS, SLIDES_JAVA_NAME)
+    assert any(error.startswith(f"{SLIDES_UNITS_FIRST}:") for error in errors)
+    assert any(error.startswith(f"{SLIDES_UNITS_SECOND}:") for error in errors)
 
 
 def test_authoring_tasks_hands_development_testing_the_units_it_must_carry() -> None:
