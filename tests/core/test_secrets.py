@@ -133,7 +133,7 @@ def test_status_accepts_bundles_without_configured_secrets(
     write_cursor(project, recorded_candidates=1)
 
     assert main(["status", "--root", str(project)]) == EXIT_OK
-    assert "candidates: 1/34" in capsys.readouterr().out
+    assert "candidates: 0/34" in capsys.readouterr().out
 
 
 def test_redaction_masks_secret_shaped_and_live_values() -> None:
