@@ -121,6 +121,11 @@ jobs:
     name: Seal ${{ matrix.target.repository }} (qwen3-next)
     needs: plan
     if: ${{ needs.plan.outputs.has_work == 'true' }}
+    # Concurrency: one group per target repository, cancel-in-progress false so a seal is never
+    # cancelled mid-transaction; plan is not grouped because it spends no provider calls.
+    concurrency:
+      group: seal-${{ matrix.target.repository }}
+      cancel-in-progress: false
     strategy:
       fail-fast: false
       max-parallel: 1
