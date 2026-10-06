@@ -14,7 +14,7 @@ import pytest
 from repository_presenter.components.readme.bundle.seal import seed_call_store
 from repository_presenter.components.readme.composition.authoring import SectionTask, unit_checks
 from repository_presenter.core.config import GatewayConfig
-from repository_presenter.core.errors import ConfigError, JobError
+from repository_presenter.core.errors import ConfigError, JobError, ProviderCallBudgetError
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.jobs import (
     _PROMPT_ENUM_INLINE_LIMIT,
@@ -1071,3 +1071,50 @@ def test_the_seed_travels_with_every_request_and_two_identical_requests_agree() 
         ),
     )
     assert "seed" not in request_payload(seedless, messages)
+
+
+def test_a_run_that_reaches_the_call_budget_stops_before_the_next_call(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The first reply is schema-invalid, so the job wants its one re-ask; the budget of one call
+    # refuses that re-ask before it is sent, so the gateway sees exactly one request.
+    gateway = _Gateway(
+        monkeypatch, _completion({"not": "the schema"}), _completion(_investigation())
+    )
+    ledger = Ledger(tmp_path / "calls.jsonl", call_budget=1)
+    with pytest.raises(ProviderCallBudgetError, match="budget of 1 reached"):
+        run_job(
+            MANIFEST,
+            PACKET,
+            config=CONFIG,
+            facts=FACTS,
+            ledger=ledger,
+            store=CallStore(tmp_path / "calls"),
+            context=CONTEXT,
+        )
+    assert len(gateway.requests) == 1
+    assert (
+        ledger.physical_calls_made == 1
+    )  # the rejected reply is marked, but nothing was sent for it
+
+
+def test_a_run_under_the_call_budget_is_unaffected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Negative control: the same schema-invalid first reply, with headroom for its re-ask, is
+    # accepted exactly as it is without any budget.
+    gateway = _Gateway(
+        monkeypatch,
+        _completion({"not": "the schema"}),
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+    )
+    result = run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl", call_budget=2),
+        store=CallStore(tmp_path / "calls"),
+        context=CONTEXT,
+    )
+    assert result.attempts == 2 and len(gateway.requests) == 2
