@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from repository_presenter.core.errors import ProviderCallBudgetError
 from repository_presenter.core.llm.ledger import CallRecord, Ledger, canonical_hash, load_records
 from support import REPO_ROOT, call_statistics
 
@@ -183,3 +184,31 @@ def test_the_statistics_carry_why_each_job_re_asked(tmp_path: Path) -> None:
     assert call_statistics(path)["a"].rejections == (
         "fact example:008 is CONTRADICTED, not SUPPORTED",
     )
+
+
+def test_a_reserved_call_past_the_budget_is_refused_with_the_typed_error(tmp_path: Path) -> None:
+    ledger = Ledger(tmp_path / "calls.jsonl", call_budget=2)
+    ledger.append(_record("one", "provider_call", "success", 30))
+    ledger.reserve_provider_call()  # one call spent of two: still under budget
+    ledger.append(_record("two", "provider_call", "success", 30))
+    with pytest.raises(ProviderCallBudgetError, match="budget of 2 reached"):
+        ledger.reserve_provider_call()
+    # The refusal spends nothing: the counter the budget reads did not move.
+    assert ledger.provider_calls_made == 2
+
+
+def test_a_rejected_reply_marker_never_counts_against_the_budget(tmp_path: Path) -> None:
+    # ``response_invalid`` records a reply the job rejected; no request was sent for it.
+    ledger = Ledger(tmp_path / "calls.jsonl", call_budget=1)
+    ledger.append(_record("sent", "provider_call", "success", 30))
+    ledger.append(_record("rejected", "provider_call", "response_invalid", None))
+    assert ledger.physical_calls_made == 1
+    with pytest.raises(ProviderCallBudgetError):
+        ledger.reserve_provider_call()
+
+
+def test_cache_reuse_never_counts_against_the_budget(tmp_path: Path) -> None:
+    ledger = Ledger(tmp_path / "calls.jsonl", call_budget=1)
+    ledger.append(_record("reuse", "cache_reuse", "cache_reuse", None))
+    ledger.reserve_provider_call()  # zero provider calls so far: a call is still allowed
+    assert ledger.provider_calls_made == 0
