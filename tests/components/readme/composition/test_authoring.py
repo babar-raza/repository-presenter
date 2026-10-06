@@ -3190,9 +3190,7 @@ def test_a_reply_that_cites_nothing_still_fails_closed(
     assert isinstance(outcome, JobError), "a reply that cites nothing must fail closed"
     assert SLIDES_UNITS_FIRST in str(outcome) and SLIDES_UNITS_SECOND in str(outcome)
     task = _slides_task()
-    unrecovered = recover_section_authoring_output(
-        json.loads(silent), slot_titles=task.slot_titles
-    )
+    unrecovered = recover_section_authoring_output(json.loads(silent), slot_titles=task.slot_titles)
     assert unrecovered is None
     errors = unit_checks(json.loads(silent), task, SLIDES_FACTS, SLIDES_JAVA_NAME)
     assert any(error.startswith(f"{SLIDES_UNITS_FIRST}:") for error in errors)
