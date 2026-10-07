@@ -60,12 +60,15 @@ def observe_one(root: Path, repository: str, reader: FakeDefaultBranchReader) ->
     return observation
 
 
-def test_head_equal_to_the_bundle_revision_is_current(tmp_path: Path) -> None:
+def test_head_equal_to_a_bundle_without_recorded_hashes_is_unknown(tmp_path: Path) -> None:
+    # A bundle sealed before upstream blob ids were recorded: the head matches, but its
+    # dependencies cannot be judged, so it is UNKNOWN (never CURRENT) until it is re-sealed.
+    # The CURRENT path with recorded hashes is covered in test_drift_content.py.
     write_bundle(tmp_path, PYTHON_DIR, BUNDLED, "READY_FOR_PROPOSAL")
 
     observation = observe_one(tmp_path, PYTHON, FakeDefaultBranchReader({PYTHON: BUNDLED}))
 
-    assert observation.status == "CURRENT"
+    assert observation.status == "UNKNOWN"
     assert observation.head_revision == BUNDLED
     assert observation.bundle_revision == BUNDLED
 
@@ -137,7 +140,7 @@ def test_a_read_failure_is_unreachable_and_never_stops_the_other_repositories(
     assert [(o.repository, o.status) for o in observations] == [
         (JAVA, "UNREACHABLE"),
         (NET, "UNREACHABLE"),
-        (PYTHON, "CURRENT"),
+        (PYTHON, "UNKNOWN"),
     ]
     assert observations[0].detail == "ConnectionError: connection reset"
     assert observations[1].detail == "HTTP 503"
@@ -186,10 +189,16 @@ def test_the_document_counts_every_status_and_lists_repositories_in_order(tmp_pa
 
     assert document["schema_version"] == 1
     assert document["owner"] == "aspose-3d-foss"
-    assert document["summary"] == {"CURRENT": 1, "DRIFTED": 0, "NO_BUNDLE": 1, "UNREACHABLE": 1}
+    assert document["summary"] == {
+        "CURRENT": 0,
+        "DRIFTED": 0,
+        "UNKNOWN": 1,
+        "NO_BUNDLE": 1,
+        "UNREACHABLE": 1,
+    }
     # Sorted by repository name: "." (in ".NET") sorts before "J" (in "Java").
     assert [row["repository"] for row in document["repositories"]] == [NET, JAVA, PYTHON]
-    assert document["repositories"][2]["status"] == "CURRENT"
+    assert document["repositories"][2]["status"] == "UNKNOWN"
 
 
 # The handoff (G7-W06): the monitor's per-owner evidence must become the one sealing contract the
@@ -237,6 +246,32 @@ def test_every_owners_evidence_becomes_one_contract_the_sealing_plan_accepts(
     records = read_drift_contract(contract)
     plan = plan_sealing_run(records, _plan_registry(JAVA, PYTHON, NET))
     assert plan.selected == (JAVA,)
+
+
+def test_the_contract_carries_the_observed_head_as_source_revision(tmp_path: Path) -> None:
+    # G7-W06 #1009: the sealing plan's failure memory tells a new commit apart from the same
+    # stuck drift only by comparing source_revision, so the assembler must forward the observed
+    # head when the monitor recorded one (never for NO_BUNDLE/UNREACHABLE, which record no head).
+    revision = "c" * 40
+    _write_owner_evidence(
+        tmp_path,
+        "aspose-3d-foss",
+        [RepositoryDrift(JAVA, "full", "DRIFTED", revision, "main", "d" * 40, None)],
+    )
+    result = assemble_drift_contract(
+        tmp_path, expected={"aspose-3d-foss": frozenset({JAVA})}, now=NOW
+    )
+    [row] = result.document["repositories"]
+    assert row == {"repository": JAVA, "status": "DRIFTED", "source_revision": revision}
+
+
+def test_a_row_with_no_observed_head_carries_no_source_revision(tmp_path: Path) -> None:
+    _write_owner_evidence(tmp_path, "aspose-3d-foss", [_row(JAVA, "NO_BUNDLE")])
+    result = assemble_drift_contract(
+        tmp_path, expected={"aspose-3d-foss": frozenset({JAVA})}, now=NOW
+    )
+    [row] = result.document["repositories"]
+    assert row == {"repository": JAVA, "status": "UNKNOWN"}
 
 
 def test_an_owner_without_evidence_fails_closed_unless_its_app_is_recorded_not_installed(

@@ -20,8 +20,8 @@ from __future__ import annotations
 import base64
 import binascii
 import time
-from collections.abc import Callable
-from dataclasses import dataclass
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass, field
 
 import httpx
 
@@ -49,13 +49,18 @@ class FileRead:
 
 @dataclass(frozen=True)
 class TreeRead:
-    """Every blob path under a revision's tree, or why the listing could not be read."""
+    """Every blob path under a revision's tree, or why the listing could not be read.
+
+    ``blob_shas`` maps each blob path to git's blob object id: a content hash of that file at
+    the revision, so a caller can tell whether one file changed without fetching its content.
+    """
 
     repository: str
     revision: str
     paths: tuple[str, ...] = ()
     truncated: bool = False
     error: str | None = None
+    blob_shas: Mapping[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -166,10 +171,16 @@ def fetch_tree(
         payload = response.json()
         entries = payload["tree"]
         truncated = bool(payload.get("truncated", False))
+        blobs = {e["path"]: e["sha"] for e in entries if e.get("type") == "blob"}
     except (ValueError, KeyError, TypeError) as exc:
         return TreeRead(repository, revision, error=f"malformed tree response: {exc}")
-    paths = tuple(sorted(e["path"] for e in entries if e.get("type") == "blob"))
-    return TreeRead(repository, revision, paths=paths, truncated=truncated)
+    return TreeRead(
+        repository,
+        revision,
+        paths=tuple(sorted(blobs)),
+        truncated=truncated,
+        blob_shas=dict(sorted(blobs.items())),
+    )
 
 
 def fetch_default_branch_sha(
