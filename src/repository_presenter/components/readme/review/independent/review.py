@@ -15,7 +15,7 @@ import hashlib
 import json
 import re
 from collections.abc import Collection, Mapping, Sequence
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -147,7 +147,11 @@ ACCEPT = "ACCEPT"
 # the evidence is text nobody may restore, and any one that is truly absent upholds it. A typed
 # claim naming nothing checkable is advisory. ``absent`` is judged exactly as before; a finding
 # carrying both is dismissed only when both are settled. Changes which findings block.
-REVIEWER_LOGIC_VERSION = "15"
+# "16" (OWNER-15, REV-V2-10): the second read is requested only by second_read_decision's typed
+# trigger, and a third read only after a triggered second read disagrees with a clean first read.
+# The hard-coded MAJORITY_VOTE_REPOSITORIES set is removed. A clean ACCEPT whose trigger does not
+# fire is a single read, and review.json records that decision so check 10 can tell it apart.
+REVIEWER_LOGIC_VERSION = "16"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -306,29 +310,49 @@ PROSE_JUDGMENT = "presentation"
 SECOND_READER_SEED = 2
 THIRD_READER_SEED = 3
 
-# docs/investigations/12-supervisor-and-production-reassessment.md section 5.6: a repository whose
-# own draw history already shows two or more distinct S10/review findings across independent,
-# non-repeating draws needs its ACCEPT path to survive a 2-of-3 majority vote among three
-# independent reads, not just one confirming read - a single noisy extra reader on top of an
-# already-fragile repository can sink an otherwise-clean draw, the exact class-I provider sampling
-# nondeterminism docs/investigations/05-production-autonomy.md (class I) already documents as
-# provider-inherent and unfixable in this codebase. These three are the corroborated instances on
-# record (docs/DECISION_LOG.md, the 2026-09-24 "list-bundling hypothesis is REFUTED" correction
-# entry and the histories it cites): aspose-words-foss/Aspose.Words-FOSS-for-.NET (F05/F06, then
-# F03, then F04/F05 across three independent draws), aspose-slides-foss/Aspose.Slides-FOSS-for-Java
-# (docs/RESEARCH_LANE_C.md G4-W12-RERUN7 through RERUN13, a different finding nearly every rerun),
-# and aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript (docs/RESEARCH_LANE_B.md RERUN2 through RERUN11).
-# Every repository not named here keeps the single-confirming-read path exactly as it was (PHASE1/
-# F6, the 2026-09-06 guard) - this is a bounded, reversible escalation of that existing mechanism,
-# never a new one and never a change to what a review criterion itself judges: edit this set, never
-# the fold logic, to add or remove a repository once its own history warrants it.
-MAJORITY_VOTE_REPOSITORIES = frozenset(
-    {
-        "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
-        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
-        "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
-    }
-)
+# The second-reader trigger (OWNER-15, decided 2026-10-05; plans/idea.md Gate A item 4: "a second
+# reviewer runs only for a typed risk trigger"). It replaces the former hard-coded repository set
+# that escalated a fixed list of repositories to a 2-of-3 vote. Every condition below reads only
+# facts the candidate already has when review runs, so the same candidate always yields the same
+# decision. A condition that does not hold is never a reason to skip a clean-looking read by
+# judgment: the trigger decides only whether the second read runs at all.
+TRIGGER_PROSE_JUDGMENT = "PROSE_JUDGMENT_ON_REQUIRED_ROW"
+TRIGGER_ADVISORY_DEFERRAL = "ADVISORY_DEFERRAL"
+
+
+@dataclass(frozen=True)
+class SecondReadDecision:
+    """Whether a second independent read runs, and the typed conditions that made it run."""
+
+    triggered: bool
+    reasons: tuple[str, ...]
+
+    def as_record(self) -> dict[str, Any]:
+        """The decision as review.json records it (second_reader.trigger)."""
+        return {"triggered": self.triggered, "reasons": list(self.reasons)}
+
+
+def second_read_decision(
+    first: Mapping[str, Any], deferral_decisions: Collection[str]
+) -> SecondReadDecision:
+    """The typed second-reader trigger. Conditions, all objective:
+
+    - ``PROSE_JUDGMENT_ON_REQUIRED_ROW``: the first read raised a prose judgment (section 27.8)
+      on a required row; only a second read can show whether that judgment is one reader's taste.
+    - ``ADVISORY_DEFERRAL``: the candidate carries a DEFER_UNRESOLVED unit whose cause the deferral
+      registry classes as ADVISORY (validation/deferrals.py), so the reviewer is judging an
+      omission rather than checking text.
+
+    ``deferral_decisions`` is the ``decision`` of each deferral finding of this candidate (BLOCK or
+    ADVISORY), so this module needs no import of the deferral registry. A clean first ACCEPT with
+    neither condition makes no second call.
+    """
+    reasons: list[str] = []
+    if any(prose_judgment(finding) for finding in first.get("findings", [])):
+        reasons.append(TRIGGER_PROSE_JUDGMENT)
+    if any(decision == "ADVISORY" for decision in deferral_decisions):
+        reasons.append(TRIGGER_ADVISORY_DEFERRAL)
+    return SecondReadDecision(bool(reasons), tuple(reasons))
 
 
 def prose_judgment(finding: Mapping[str, Any]) -> bool:
@@ -370,7 +394,8 @@ def second_reader(manifest: LoadedManifest) -> LoadedManifest:
 def third_reader(manifest: LoadedManifest) -> LoadedManifest:
     """The same reviewer prompt, read a third time under a third, distinct seed.
 
-    Used only for a repository in ``MAJORITY_VOTE_REPOSITORIES`` (section 5.6): the prompt file
+    Used only when a triggered second read disagrees with a clean first read (section 5.6): the
+    prompt file
     and its hash are untouched here too, so this stays corroboration under the existing mechanism,
     never a third retry with different criteria. Mirrors ``second_reader`` exactly, offset by
     ``THIRD_READER_SEED`` instead of ``SECOND_READER_SEED`` so the three reads are three distinct
@@ -1764,6 +1789,7 @@ def review_document(
     third: Mapping[str, Any] | None = None,
     units: Mapping[str, Any] | None = None,
     dispositions: Mapping[str, Any] | None = None,
+    trigger: SecondReadDecision | Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """review.json: the verdict, blocking findings with their causal state, advisory findings,
     what a repair must preserve, and the two prompt identities.
@@ -1794,6 +1820,11 @@ def review_document(
     becomes the second read's returned one, so the disagreement repairs through the normal
     rounds; two reads that leave nothing blocking are two independent ACCEPTs. A prose judgment
     only the second reader raised is one reader's judgment, exactly as in the other direction.
+    ``trigger`` is the candidate's ``second_read_decision`` (a ``SecondReadDecision`` or its
+    record); when given, review.json records it under ``second_reader.trigger``, so check 10 can
+    tell a clean single-read ACCEPT (trigger not fired) from a triggered one whose second read never
+    completed.
+    Omitted, the record keeps its pre-16 shape and check 10 applies its single-read rule.
     ``second_reader.read`` records the count of completed reads (1 or 2) so check 10 can require
     a corroborated accept from the record alone.
 
@@ -1805,8 +1836,8 @@ def review_document(
     verification must never increase assurance; the caller (``repair/rounds.py``) is the one place
     that enforces this today, by simply never constructing ``second={}``.
 
-    ``third`` is a third independent read, given only for a repository in
-    ``MAJORITY_VOTE_REPOSITORIES`` (section 5.6) - a bounded, reversible escalation of the same
+    ``third`` is a third independent read, given only when a triggered second read disagrees with
+    a clean first read (section 5.6) - a bounded, reversible escalation of the same
     mechanism above, never a replacement for it. When ``third`` is ``None`` (every other
     repository), behavior is unchanged from the single-confirming-read rule above, byte for byte.
     When both ``second`` and ``third`` are given and the first read left nothing blocking, a
@@ -1867,9 +1898,9 @@ def review_document(
         # read's finding needs the OTHER extra read to raise the same class too before it blocks
         # - first-raised-nothing plus one extra reader is only 1 of 3, exactly the single noisy
         # reader this escalation exists to tolerate rather than let sink an otherwise-clean draw.
-        # Never applied unless the caller (repair/rounds.py) actually asked for a third read, which
-        # it only does for a repository named in MAJORITY_VOTE_REPOSITORIES - every other
-        # repository takes the elif branch below, byte for byte as before this escalation existed.
+        # Never applied unless the caller (repair/rounds.py) asked for a third read, which it does
+        # only after a triggered second read disagrees with a clean first read - every other
+        # candidate takes the elif branch below, byte for byte as before this escalation existed.
         second_raised = {finding_class(f) for f in second.get("findings", []) if blocking(dict(f))}
         third_raised = {finding_class(f) for f in third.get("findings", []) if blocking(dict(f))}
         majority = second_raised & third_raised
@@ -1957,7 +1988,7 @@ def review_document(
             # ACCEPT, exactly as a first-read ACCEPT with findings does today).
             second_returned = str(second.get("verdict"))
             verdict = second_returned if second_returned != ACCEPT else verdict
-    return {
+    record = {
         "schema_version": 1,
         "readme_sha256": readme_digest,
         "verdict": verdict,
@@ -1988,6 +2019,10 @@ def review_document(
         "identity_separate": reviewer.manifest.prompt_id != authoring.manifest.prompt_id
         and reviewer.sha256 != authoring.sha256,
     }
+    if trigger is not None:
+        decision = trigger.as_record() if isinstance(trigger, SecondReadDecision) else trigger
+        record["second_reader"]["trigger"] = dict(decision)
+    return record
 
 
 def summarize_review(document: dict[str, Any]) -> str:

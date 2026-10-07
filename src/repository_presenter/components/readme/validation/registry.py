@@ -113,7 +113,9 @@ VALIDATION_FILENAME = "validation.json"
 # 11: BC-05 v2 judges every DEFER_UNRESOLVED unit by its cause (validation/deferrals.py): a BLOCK
 # class fails the check, an ADVISORY class is recorded in validation.json's advisory list, and an
 # unclassified cause blocks. A bundle sealed under 10 re-checks under 11 and shows as pending.
-VALIDATOR_VERSION = "11"
+# 12: BC-10 v5 accepts a clean single-read ACCEPT whose second-reader trigger did not fire
+# (review.json second_reader.trigger, OWNER-15); a triggered ACCEPT still needs its second read.
+VALIDATOR_VERSION = "12"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -324,8 +326,11 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # "4" (PHASE1/F6, a meaning change per the increment rule): ACCEPT now additionally
         # requires a corroborating second independent read (second_reader.read >= 2); the 8
         # pre-sprint seals judged under "3" show as stale on this delta by design.
-        "4",
-        "Independent review returns ACCEPT corroborated by a second independent read, under a "
+        # "5" (OWNER-15): an ACCEPT whose typed second-reader trigger did not fire needs no second
+        # read, and is recorded as such; a triggered ACCEPT with no completed second read fails.
+        "5",
+        "Independent review returns ACCEPT corroborated by a second independent read when the "
+        "typed second-reader trigger fires (an untriggered clean ACCEPT needs none), under a "
         "reviewer identity separate from authoring, with no unrefuted advisory left on a "
         "required row",
         ("review",),
@@ -2053,12 +2058,21 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
     findings = list(review.get("findings", []))
     deferred = deferred_on_required_rows(review)
     states = [f.get("causal_state") for f in findings if f.get("causal_state") in STAGE_ORDER]
-    reads = int((review.get("second_reader") or {}).get("read") or 0)
+    second = review.get("second_reader") or {}
+    reads = int(second.get("read") or 0)
+    trigger = second.get("trigger")
+    fired = isinstance(trigger, Mapping) and trigger.get("triggered") is True
+    # OWNER-15: a clean single-read ACCEPT is corroborated by the absence of its trigger, recorded
+    # on the review; it is never corroborated by a missing record (legacy shape) or a fired trigger.
+    untriggered_clean = (
+        isinstance(trigger, Mapping) and trigger.get("triggered") is False and not findings
+    )
+    corroborated = reads >= 2 or untriggered_clean
     accepted = (
         review.get("verdict") == "ACCEPT"
         and bool(review.get("identity_separate"))
         and not deferred
-        and reads >= 2
+        and corroborated
     )
     if accepted:
         verdict, stage, details = "PASS", None, []
@@ -2068,7 +2082,13 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
         stage = min(states, key=STAGE_ORDER.index) if states else None
         if not review.get("identity_separate"):
             details = ["the reviewer identity is not separate from authoring"]
-        elif review.get("verdict") == "ACCEPT" and reads < 2:
+        elif review.get("verdict") == "ACCEPT" and fired and reads < 2:
+            reasons = ", ".join(map(str, (trigger or {}).get("reasons", [])))
+            details = [
+                "ACCEPT with a single read: the second read the trigger requires "
+                f"({reasons}) did not complete (second_reader.read >= 2)"
+            ]
+        elif review.get("verdict") == "ACCEPT" and not corroborated:
             details = [
                 "ACCEPT with a single read: an accept verdict requires a corroborating "
                 "second read (second_reader.read >= 2)"
