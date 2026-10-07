@@ -2175,6 +2175,8 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 
 **2026-10-05 - ten items admitted by the register PR (`docs/DEFECT_INDEX.md` work-item column), appended in this order after G3-W04:** G6-W05, G3-W06, G3-W07, G5-W08, G5-W09, G7-W07, G4-W18, G4-W19, G7-W08, G7-W09. They own the reviewer ids REV-V1 to REV-V4 and the register ids REG-01 to REG-15, so no logged defect is invisible to the build order. Each carries its depends-on and exit predicate; none outranks an open exit predicate of the current gate.
 
+**2026-10-07 - three items admitted by the register PR (`docs/DEFECT_INDEX.md` work-item column, REG-16 to REG-18), appended in this order after G7-W09:** G7-W10 (cursor-staleness guard: `updated_at` had gone stale with no mechanical check), G7-W11 (sealing-loop failure memory: a repeatedly-failing candidate retried identically with no recorded history; a claimed in-progress fix on branch `feat/sealing-failure-memory-1009` was re-checked live and found not to exist), G7-W12 (Cells-Go's `UNCLASSIFIED` deferral gap: a claimed in-flight root-cause investigation was likewise re-checked live and found not to exist). Each carries its depends-on and exit predicate; none outranks an open exit predicate of the current gate.
+
 ```yaml
 # G2 entries already in state.yaml (the active item is not repeated here); an entry is "absent" only
 # if it is in neither next_ready_items, active_work_item, nor the accepted evidence
@@ -2311,6 +2313,15 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 - id: G7-W09
   status: PENDING
   purpose: "Documentation and cursor claim corrections (REV-V4-09, REV-V2-02 documentation half). The register PR corrected the plan's stale scorer row. Still stale: project/state.yaml G3-W02 text (line 111) and the G5-W04, G5-W05 and G7-W05 claims REV-V4-09 names, which only the cursor owner edits, and the plans/idea.md body naming data/products.json (OWNER-18). Depends on: OWNER-10 (push policy, cursor says NEVER while AGENTS.md permits a push after ci_check), OWNER-18. Exit predicate: no document claims the scorer is absent or a gate is accepted that is not; the cursor and AGENTS.md agree on the control-repository push policy; tests/test_register_integrity.py stays green."
+- id: G7-W10
+  status: PENDING
+  purpose: "Cursor-staleness guard (2026-10-07 four-reviewer finding, re-verified directly: updated_at was still 2026-10-05T10:45:00+05:00 at this session's start, 2d380177/#281 and every merge since #271 landed with no refresh - a recurring process defect, not a one-time slip). Depends on: none. Add a lightweight test under tests/ that fails when project/state.yaml's updated_at is older than the most recent merge commit touching src/ by more than N days (N=3 proposed, tunable); this register PR's own updated_at bump is the first proof the check would currently pass. Exit predicate: the test exists, fails on a synthetic stale fixture, passes on the live cursor; AGENTS.md's 'update the cursor in the same commit' rule has a mechanical backstop instead of relying on a session noticing."
+- id: G7-W11
+  status: PENDING
+  purpose: "Sealing-loop failure memory (2026-10-07 four-reviewer finding): a candidate that fails sealing is retried identically on the next scheduled pass with no recorded history of the prior failure's cause, so a genuinely stuck candidate (e.g. an unresolved upstream defect) burns a fresh attempt every cycle rather than backing off or surfacing as a repeat. Depends on: a branch named feat/sealing-failure-memory-1009 was named this session as already in progress elsewhere; re-checked directly (git branch -a, git worktree list, gh pr list) and no such branch, worktree or open PR exists in this repository as of this check - this item registers the gap honestly as unowned rather than duplicating claimed-but-unverified work; whoever next picks it up should re-check first in case it has since appeared. Exit predicate: a repeated-failure record exists per candidate (cause, count, last-attempt revision), a test proves a backoff or surfaced-repeat behavior, hosted CI green."
+- id: G7-W12
+  status: PENDING
+  purpose: "Cells-Go UNCLASSIFIED deferral gap (2026-10-07 four-reviewer finding): validation/deferrals.py's UNCLASSIFIED fallback (no registered class matches the cause) fires on aspose-cells-foss' Go candidate with no class yet registered for its real cause. Depends on: a root-cause investigation was named as already in flight on this; re-checked this session and no branch, worktree or open PR matching the description was found - this item registers the gap, stated as unconfirmed cause, without asserting a cause itself. Exit predicate: a named cause, a registered DEFERRAL_CLASSES entry (or an explicit BLOCK ruling) covering it, and a test against the Go candidate's real finding."
 ```
 
 ### 27.10 Composition variance and the D3 question (2026-09-04, evening)
