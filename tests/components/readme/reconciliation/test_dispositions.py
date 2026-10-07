@@ -27,6 +27,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     reconciliation_schema,
     rendering_fact_ids,
     summarize,
+    uncited_omit_candidates,
     write_dispositions,
 )
 from repository_presenter.core.config import GatewayConfig
@@ -968,6 +969,128 @@ def test_an_uncited_prose_omit_is_refused_with_its_typed_reason() -> None:
     # the repair message quotes the unit's exact text and asks for a citation or a placement
     assert 'the unit\'s exact text is "Prose."' in errors[0]
     assert "Cite the supporting fact IDs or place the unit" in errors[0]
+    # No fact's identifier is spelled in "Prose.": the candidate-surfacing clause is absent, and
+    # the re-ask stays the plain, candidate-free form (#1008 repair round, no-overlap case).
+    assert "already spells these SUPPORTED facts" not in errors[0]
+
+
+def _pdf_typescript_omit_facts() -> FactsDocument:
+    """Reproduces the PDF-TypeScript diagnosis (#1008 repair round): two inherited units
+    (``014.list``, ``016.list``) each naming several public symbols verbatim in their own text,
+    every one of them SUPPORTED, that the sealed candidate's S4 run omitted with no citation at
+    all - the gap this round closes is that the re-ask never pointed back at this unused
+    evidence. Matches the diagnosis's own fact-ID list exactly: ``parsecontentstream``,
+    ``document.save``, ``savedocxfile``, ``parsehtml``, ``parsemarkdown``, and
+    ``saveoptions.compressed``/``encrypt``/``incremental``/``linearized``/``streamfilter``
+    (``_symbol()``'s own lowercasing of each path)."""
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:014.list",
+                "inherited_unit",
+                "Parse a document with ParseContentStream, then Document.Save, SaveDocxFile, "
+                "ParseHtml, and ParseMarkdown write it back out.",
+            ),
+            _fact(
+                "inherited_unit:016.list",
+                "inherited_unit",
+                "SaveOptions.Compressed, SaveOptions.Encrypt, SaveOptions.Incremental, "
+                "SaveOptions.Linearized, and SaveOptions.StreamFilter control how the document "
+                "is saved.",
+            ),
+            _symbol("ParseContentStream", "function"),
+            _symbol("Document.Save", "method"),
+            _symbol("SaveDocxFile", "function"),
+            _symbol("ParseHtml", "function"),
+            _symbol("ParseMarkdown", "function"),
+            _symbol("SaveOptions.Compressed", "property"),
+            _symbol("SaveOptions.Encrypt", "property"),
+            _symbol("SaveOptions.Incremental", "property"),
+            _symbol("SaveOptions.Linearized", "property"),
+            _symbol("SaveOptions.StreamFilter", "property"),
+        ),
+    )
+
+
+_PDFTS_CANDIDATES = [
+    "public_symbol:document.save",
+    "public_symbol:parsecontentstream",
+    "public_symbol:parsehtml",
+    "public_symbol:parsemarkdown",
+    "public_symbol:savedocxfile",
+]
+_PDFTS_CANDIDATES_016 = [
+    "public_symbol:saveoptions.compressed",
+    "public_symbol:saveoptions.encrypt",
+    "public_symbol:saveoptions.incremental",
+    "public_symbol:saveoptions.linearized",
+    "public_symbol:saveoptions.streamfilter",
+]
+
+
+def test_uncited_omit_candidates_finds_the_pdf_typescript_units_own_unused_evidence() -> None:
+    """Direct test of the matching function: a mutation removing or weakening the candidate
+    match (e.g. restricting it further, or returning nothing) fails this assertion directly,
+    since it pins the exact sorted fact-ID set each unit's own text already spells."""
+    facts = _pdf_typescript_omit_facts()
+    text_014 = (
+        "Parse a document with ParseContentStream, then Document.Save, SaveDocxFile, "
+        "ParseHtml, and ParseMarkdown write it back out."
+    )
+    text_016 = (
+        "SaveOptions.Compressed, SaveOptions.Encrypt, SaveOptions.Incremental, "
+        "SaveOptions.Linearized, and SaveOptions.StreamFilter control how the document is saved."
+    )
+    assert uncited_omit_candidates(text_014, facts) == _PDFTS_CANDIDATES
+    assert uncited_omit_candidates(text_016, facts) == _PDFTS_CANDIDATES_016
+
+
+def test_an_uncited_prose_omit_surfaces_the_units_own_textually_overlapping_facts() -> None:
+    """The re-ask for an uncited OMIT_UNSUPPORTED on PDF-TypeScript's own 014.list/016.list now
+    names the SUPPORTED facts the unit's text already spells, so the model has somewhere
+    concrete to look instead of only being told to try again (#1008 repair round). Removing the
+    candidate-surfacing call in ``placement_errors`` breaks this test: the sorted fact IDs below
+    would no longer appear in the message at all."""
+    facts = _pdf_typescript_omit_facts()
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:014.list", "OMIT_UNSUPPORTED", None),
+            _entry("inherited_unit:016.list", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    errors = placement_errors(output, facts)
+    assert len(errors) == 2
+    assert errors[0].startswith("inherited_unit:014.list: uncited_prose_omit: ")
+    assert "already spells these SUPPORTED facts" in errors[0]
+    for candidate in _PDFTS_CANDIDATES:
+        assert candidate in errors[0]
+    assert "SUPERSEDE_REDUNDANT or CORRECT_WITH_EVIDENCE" in errors[0]
+    assert "OMIT_UNSUPPORTED with a cited reason if none of them truly apply" in errors[0]
+    for candidate in _PDFTS_CANDIDATES_016:
+        assert candidate in errors[1]
+    # Never auto-assigned: the disposition on both units is still exactly what the model gave,
+    # OMIT_UNSUPPORTED - the candidate list is only named in the refusal text, never applied.
+    assert output["dispositions"][0]["disposition"] == "OMIT_UNSUPPORTED"
+    assert output["dispositions"][1]["disposition"] == "OMIT_UNSUPPORTED"
+
+
+def test_an_uncited_prose_omit_with_no_textual_overlap_gets_the_plain_reask() -> None:
+    """Mutation control for the no-overlap case: a unit whose text spells no fact's identifier
+    gets an empty candidate list and the unchanged, candidate-free re-ask - the new mechanism
+    does not invent a candidate where the diagnosis's own matching approach finds none."""
+    facts = _prose_omit_facts()
+    assert uncited_omit_candidates("Second prose unit.", facts) == []
+    output = {"dispositions": [_entry("inherited_unit:005.paragraph", "OMIT_UNSUPPORTED", None)]}
+    errors = placement_errors(output, facts)
+    assert len(errors) == 1
+    assert "already spells these SUPPORTED facts" not in errors[0]
+    assert errors[0].endswith(
+        'the unit\'s exact text is "Second prose unit.". Cite the supporting fact IDs or place '
+        "the unit; do not omit it without a cited reason"
+    )
 
 
 def test_a_cited_prose_omit_passes() -> None:
