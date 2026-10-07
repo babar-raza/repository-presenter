@@ -7,17 +7,25 @@ For each enabled registry entry it reads the repository's current default-branch
 compares it with the revision the repository's ``CURRENT`` sealed bundle names. Each repository
 receives exactly one status:
 
-- ``CURRENT``: the head equals the bundle's source revision.
-- ``DRIFTED``: the head differs, so the bundle is behind upstream and due a re-run.
+- ``CURRENT``: the head equals the bundle's source revision and every upstream file the candidate
+  depends on still has the blob id recorded at seal time.
+- ``DRIFTED``: the head differs, so the bundle is behind upstream and due a re-run; or the head
+  equals the bundle's revision but a recorded dependency's blob id changed (content drift).
+- ``UNKNOWN``: the head matches but content cannot be judged: the bundle records no upstream blob
+  ids (sealed before they were recorded, so it reads UNKNOWN until re-sealed), or the upstream
+  tree could not be read or is truncated. Fail closed: never CURRENT, never DRIFTED.
 - ``NO_BUNDLE``: no usable sealed bundle (none, a ``CURRENT`` that names none, or one failing
   integrity verification). ``detail`` says which.
 - ``UNREACHABLE``: the head could not be read. The failure is recorded and the run continues with
   the remaining repositories; one repository never aborts the others.
 
-The status is a deterministic fact about upstream and local disk, so no LLM is involved
-(``AGENTS.md``, Agentic and Deterministic Boundary). Nothing here writes to any repository, and the
-only credential is the read-only token the caller passes in. ``observe_drift`` takes its GitHub
-reader as an argument, so tests inject a fake and never reach the network.
+Content drift is computed only over the files the candidate's own facts cite (plus README, license
+and notices), from the git blob ids ``components/readme/bundle/seal.py`` recorded in the manifest.
+An unrelated file change never drifts a repository. The status is a deterministic fact about
+upstream and local disk, so no LLM is involved (``AGENTS.md``, Agentic and Deterministic Boundary).
+Nothing here writes to any repository, and the only credential is the read-only token the caller
+passes in. ``observe_drift`` takes its GitHub readers as arguments, so tests inject fakes and never
+reach the network.
 """
 
 from __future__ import annotations
@@ -33,21 +41,28 @@ from typing import Any, Literal
 from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
     CURRENT_FILENAME,
+    UPSTREAM_BLOBS_FIELD,
     BundleError,
     verify_bundle,
 )
 from repository_presenter.core.errors import ConfigError
-from repository_presenter.core.github.read_client import DefaultBranchRead, fetch_default_branch_sha
+from repository_presenter.core.github.read_client import (
+    DefaultBranchRead,
+    TreeRead,
+    fetch_default_branch_sha,
+    fetch_tree,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.sealing_plan import DRIFT_CONTRACT_VERSION
 from repository_presenter.core.secrets import redact
 
-Status = Literal["CURRENT", "DRIFTED", "NO_BUNDLE", "UNREACHABLE"]
-STATUSES: tuple[Status, ...] = ("CURRENT", "DRIFTED", "NO_BUNDLE", "UNREACHABLE")
+Status = Literal["CURRENT", "DRIFTED", "UNKNOWN", "NO_BUNDLE", "UNREACHABLE"]
+STATUSES: tuple[Status, ...] = ("CURRENT", "DRIFTED", "UNKNOWN", "NO_BUNDLE", "UNREACHABLE")
 SCHEMA_VERSION = 1
 _REVISION = re.compile(r"^[0-9a-f]{40}$")
 
 HeadReader = Callable[..., DefaultBranchRead]
+TreeReader = Callable[..., TreeRead]
 
 
 @dataclass(frozen=True)
@@ -69,13 +84,22 @@ def observe_drift(
     *,
     token: str,
     read_head: HeadReader = fetch_default_branch_sha,
+    read_tree: TreeReader = fetch_tree,
 ) -> list[RepositoryDrift]:
     """Observe each entry in order. A failure on one entry is recorded, never raised past it."""
-    return [observe_repository(root, entry, token=token, read_head=read_head) for entry in entries]
+    return [
+        observe_repository(root, entry, token=token, read_head=read_head, read_tree=read_tree)
+        for entry in entries
+    ]
 
 
 def observe_repository(
-    root: Path, entry: RegistryEntry, *, token: str, read_head: HeadReader
+    root: Path,
+    entry: RegistryEntry,
+    *,
+    token: str,
+    read_head: HeadReader,
+    read_tree: TreeReader = fetch_tree,
 ) -> RepositoryDrift:
     """Read one repository's head, then classify it against its ``CURRENT`` sealed bundle."""
     repository = entry.repository
@@ -89,43 +113,87 @@ def observe_repository(
         return RepositoryDrift(
             repository, entry.mode, "UNREACHABLE", None, read.branch, None, message
         )
-    bundle_revision, problem = current_bundle_revision(root, repository)
-    if bundle_revision is None:
+    bundle_revision, manifest, problem = current_bundle(root, repository)
+    if bundle_revision is None or manifest is None:
         return RepositoryDrift(
             repository, entry.mode, "NO_BUNDLE", read.sha, read.branch, None, problem
         )
-    status: Status = "CURRENT" if read.sha == bundle_revision else "DRIFTED"
+    if read.sha != bundle_revision:
+        return RepositoryDrift(
+            repository, entry.mode, "DRIFTED", read.sha, read.branch, bundle_revision, None
+        )
+    status, detail = _content_status(
+        repository, read.sha, manifest, token=token, read_tree=read_tree
+    )
     return RepositoryDrift(
-        repository, entry.mode, status, read.sha, read.branch, bundle_revision, None
+        repository, entry.mode, status, read.sha, read.branch, bundle_revision, detail
     )
 
 
-def current_bundle_revision(root: Path, repository: str) -> tuple[str | None, str | None]:
-    """The revision ``CURRENT`` names when it has a sealed, self-consistent bundle.
+def _content_status(
+    repository: str,
+    revision: str,
+    manifest: Mapping[str, Any],
+    *,
+    token: str,
+    read_tree: TreeReader,
+) -> tuple[Status, str | None]:
+    """Judge the dependencies of a bundle whose revision is still the head.
 
-    Returns ``(revision, None)`` on success and ``(None, reason)`` otherwise. Only the ``CURRENT``
-    pointer is consulted, the same rule ``core/candidates.py`` applies to progress counting, so a
-    superseded revision directory left behind can never stand in for the current bundle.
+    Compares each upstream blob id the manifest recorded at seal time with the same path's blob id
+    at ``revision``. Only recorded paths are compared, so an unrelated file change is never drift.
+    """
+    recorded = manifest.get(UPSTREAM_BLOBS_FIELD)
+    if (
+        not isinstance(recorded, dict)
+        or not recorded
+        or not all(isinstance(k, str) and isinstance(v, str) for k, v in recorded.items())
+    ):
+        return "UNKNOWN", "the sealed bundle records no upstream blob ids; re-seal to record them"
+    try:
+        tree = read_tree(repository, revision, token=token)
+    except Exception as exc:  # per-repository isolation, as for the head read
+        return "UNKNOWN", redact(f"upstream tree unreadable: {type(exc).__name__}: {exc}", [token])
+    if tree.error is not None:
+        return "UNKNOWN", redact(f"upstream tree unreadable: {tree.error}", [token])
+    if tree.truncated:
+        return "UNKNOWN", "upstream tree listing is truncated; dependency content cannot be judged"
+    changed = sorted(path for path, blob in recorded.items() if tree.blob_shas.get(path) != blob)
+    if changed:
+        return "DRIFTED", "upstream content changed at the head revision: " + ", ".join(changed)
+    return "CURRENT", None
+
+
+def current_bundle(
+    root: Path, repository: str
+) -> tuple[str | None, dict[str, Any] | None, str | None]:
+    """The revision ``CURRENT`` names and its verified manifest, when it has a sealed,
+    self-consistent bundle.
+
+    Returns ``(revision, manifest, None)`` on success and ``(None, None, reason)`` otherwise. Only
+    the ``CURRENT`` pointer is consulted, the same rule ``core/candidates.py`` applies to progress
+    counting, so a superseded revision directory left behind can never stand in for the current
+    bundle.
     """
     directory = root / CANDIDATES_DIRNAME / repository.replace("/", "__")
     pointer = directory / CURRENT_FILENAME
     if not pointer.is_file():
-        return None, "no CURRENT pointer"
+        return None, None, "no CURRENT pointer"
     try:
         revision = pointer.read_text(encoding="utf-8").strip()
     except (OSError, ValueError) as exc:
-        return None, f"CURRENT pointer is unreadable: {exc}"
+        return None, None, f"CURRENT pointer is unreadable: {exc}"
     if not _REVISION.fullmatch(revision):
-        return None, "CURRENT does not name a 40-character revision"
+        return None, None, "CURRENT does not name a 40-character revision"
     try:
         manifest = verify_bundle(directory / revision)
     except (BundleError, OSError) as exc:
-        return None, f"CURRENT bundle fails verification: {exc}"
+        return None, None, f"CURRENT bundle fails verification: {exc}"
     if manifest is None:
-        return None, f"CURRENT names {revision} with no sealed bundle"
+        return None, None, f"CURRENT names {revision} with no sealed bundle"
     if manifest.get("revision") != revision or manifest.get("repository") != repository:
-        return None, f"bundle manifest does not describe {repository} at {revision}"
-    return revision, None
+        return None, None, f"bundle manifest does not describe {repository} at {revision}"
+    return revision, manifest, None
 
 
 def drift_document(
