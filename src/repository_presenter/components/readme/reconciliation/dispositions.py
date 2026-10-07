@@ -841,11 +841,25 @@ def coordinate_neighbor_promises(
     return dispositions
 
 
+UNCITED_PROSE_OMIT = "uncited_prose_omit"
+# The unit kinds an uncited OMIT_UNSUPPORTED is refused for: prose. A heading, an HTML block, a
+# code block or a table is not refused by this check (it is shell-owned, command or markup).
+_PROSE_UNIT_KINDS = frozenset({"paragraph", "list"})
+
+
 def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
-    """Why the dispositions may not be used, beyond schema and binding; empty when they hold."""
+    """Why the dispositions may not be used, beyond schema and binding; empty when they hold.
+
+    An OMIT_UNSUPPORTED on a paragraph or list must cite at least one fact ID as its reason (the
+    facts that show the claim unsupported), or be placed instead. A prose omission with no citation
+    is the 15%-wrong omission class measured on the sealed candidates (2026-10-06): the reason is
+    what lets the decision be checked at all. Each refusal is typed (``uncited_prose_omit``) and
+    quotes the unit's exact text, so the one re-ask can act on it.
+    """
     placeable = placeable_section_ids()
     contradicted = contradicted_code_units(facts)
     commands = command_block_units(facts)
+    unit_text = {fact.id: fact.value for fact in facts.by_kind("inherited_unit")}
     build_facts = sorted(
         fact.id
         for fact in facts.facts
@@ -857,6 +871,19 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
         disposition = entry.get("disposition")
         destination = entry.get("destination_section")
         cited = entry.get("fact_ids") or []
+        if (
+            disposition == "OMIT_UNSUPPORTED"
+            and not cited
+            and unit.rsplit(".", 1)[-1] in _PROSE_UNIT_KINDS
+        ):
+            kind = unit.rsplit(".", 1)[-1]
+            text = json.dumps(unit_text.get(unit, "(text not in the facts)"), ensure_ascii=False)
+            errors.append(
+                f"{unit}: {UNCITED_PROSE_OMIT}: OMIT_UNSUPPORTED on a {kind} needs at least one "
+                "fact ID that shows the claim unsupported, or the unit must be placed in a section "
+                f"the shell can hold; the unit's exact text is {text}. Cite the supporting fact "
+                "IDs or place the unit; do not omit it without a cited reason"
+            )
         if disposition == "OMIT_UNSUPPORTED" and unit in commands and build_facts:
             # A command block is the maintainers' own build, test, or install command, not a
             # claim a fact could refute; with build or install facts recorded it is kept.
