@@ -192,6 +192,24 @@ moved to Resolved: the F08 class has not been observed blocking in a live draw s
 the candidate itself has not sealed. Other placeable sections with superseded inherited units
 (e.g. `scope_limitations`, `additional_examples`) are not covered by this scope yet.
 
+**New sighting, 2026-10-07** (`aspose-note-foss/Aspose.Note-FOSS-for-Python` and
+`aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`, two independent live transactions): when
+`_CARRY_SECTIONS` grew to include `scope_limitations` (Slides-Java F04, 2026-10-05, noted above),
+only half the original fix's pairing was repeated - `carried_units` was wired into `must_carry`
+(`authoring_tasks`'s direct call), but `section_selections`'s own `scope_limitations` branch was
+never given the matching `ids.extend(carried_units(...))` call `development_testing` already had.
+Reconciliation's enterprise-rewrite path (`reconciliation/dispositions.py` "PLACING and
+destination == enterprise_relationship") supersedes an Enterprise Edition relationship paragraph
+into `scope_limitations` with `destination_section` rewritten there; the carry gate then obliged
+the section to cite or omit `inherited_unit:084.paragraph`, but citing it (the carry rule's own
+first-named compliance: "state their substance in your units") was rejected by `unit_checks`'
+"cites facts outside this section's set" check on the identical ID in the identical call - a unit
+could neither cite the must-carry unit nor safely ignore the instruction to state its substance.
+Both transactions exhausted the one-reask budget (S6, #281) on this exact unit. Fixed by extending
+`scope_limitations`' own `ids` with `carried_units`, exactly mirroring `development_testing`
+(`composition/authoring.py::section_selections`); no change to `carried_unit_errors` or the
+binding check itself. `additional_examples` remains outside `_CARRY_SECTIONS` and is unaffected.
+
 ### `composition.coherence.inherited_diagram_content_loss`
 
 Independent review's presentation criterion can catch S7 authoring/coherence rewriting an
