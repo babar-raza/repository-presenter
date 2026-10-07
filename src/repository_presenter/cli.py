@@ -110,6 +110,7 @@ from repository_presenter.components.readme.bundle.portfolio import (
     DriftObservation,
     PortfolioReport,
     assess_portfolio,
+    current_reproducible_no_op_proven,
     load_authorizations,
     load_drift,
 )
@@ -117,7 +118,7 @@ from repository_presenter.components.readme.bundle.portfolio import (
     render_lines as render_portfolio_lines,
 )
 from repository_presenter.components.readme.bundle.reproducibility import (
-    reproducible_candidates,
+    reproducible_repositories,
 )
 from repository_presenter.components.readme.bundle.seal import (
     DEPENDENCIES_FILENAME,
@@ -358,7 +359,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     status = subcommands.add_parser(
         "status",
-        help="report the current gate and current reviewable no-op-proven candidates",
+        help="report the current gate and the honest count of current, reproducible, accepted, "
+        "no-op-proven candidates",
     )
     status.add_argument("--root", type=Path, default=None, help=root_help)
     status.add_argument(
@@ -2159,10 +2161,10 @@ def run_status(
     used to conflate: how many repositories have ever sealed anything at all, how many of those
     sealed bundles pass integrity verification, how many still render byte-identical to their own
     stored README under the code running right now, and how many are independently accepted under
-    the current contract with known-stale ones excluded. ``candidates:`` above and the consistency
-    check below are both left pointed at ``count_current_candidates`` exactly as before - that is
-    the number ``cursor.recorded_candidates`` has always meant, and this new line reports
-    alongside it rather than replacing it.
+    the current contract with known-stale ones excluded. ``candidates:`` above is the honest count
+    (``current_reproducible_no_op_proven``: current, reproducible, independently accepted and
+    no-op-proven). The consistency check below still compares ``cursor.recorded_candidates`` with
+    ``count_current_candidates`` (READY_FOR_PROPOSAL), shown on the ``candidate states:`` line.
 
     The ``portfolio:`` block (``components/readme/bundle/portfolio.py``, which defines each
     predicate) reports ``plans/idea.md``'s seven separated counts - fact-valid, presentation-valid,
@@ -2203,11 +2205,12 @@ def run_status(
         return EXIT_UNSAFE
     historical = len({bundle.repository_dir for bundle in iter_sealed_bundles(root)})
     integrity_valid = integrity_valid_candidates(root)
-    reproducible = reproducible_candidates(root)
+    reproducible = reproducible_repositories(root)
     accepted = independently_accepted_candidates(root, found)
     executed, example_total = examples_verification_summary(root)
     held = held_updates(root)
     portfolio = _portfolio_report(root, found, drift, authorizations)
+    headline = current_reproducible_no_op_proven(portfolio, reproducible)
     if as_json:
         print(
             json.dumps(
@@ -2222,11 +2225,15 @@ def run_status(
                         "id": cursor.active_work_item_id,
                         "status": cursor.active_work_item_status,
                     },
-                    "candidates": {"current": on_disk, "denominator": cursor.denominator},
+                    "candidates": {
+                        "current": headline,
+                        "ready_for_proposal": on_disk,
+                        "denominator": cursor.denominator,
+                    },
                     "progress": {
                         "ever_sealed": historical,
                         "integrity_valid": integrity_valid,
-                        "current_code_reproducible": reproducible,
+                        "current_code_reproducible": len(reproducible),
                         "independently_accepted_stale_excluded": accepted,
                     },
                     "examples": {"executed": executed, "total": example_total},
@@ -2259,10 +2266,13 @@ def run_status(
         print(f"{PROGRAM} {__version__}")
         print(f"gate: {cursor.current_gate_id} ({cursor.current_gate_status})")
         print(f"work item: {cursor.active_work_item_id} ({cursor.active_work_item_status})")
-        print(f"candidates: {on_disk}/{cursor.denominator} current reviewable no-op-proven")
+        print(
+            f"candidates: {headline}/{cursor.denominator} current-code reproducible, "
+            "independently accepted, no-op-proven"
+        )
         print(
             f"progress: {historical} ever sealed, {integrity_valid} integrity-valid, "
-            f"{reproducible} current-code reproducible, {accepted} independently accepted "
+            f"{len(reproducible)} current-code reproducible, {accepted} independently accepted "
             "(stale-excluded)"
         )
         print(f"examples: {executed}/{example_total} verified across counted candidates")

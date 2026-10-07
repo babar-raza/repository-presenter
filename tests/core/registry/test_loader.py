@@ -58,7 +58,6 @@ def test_real_registry_is_the_frozen_portfolio() -> None:
         (e.repository for e in registry.entries), key=str.casefold
     )
     assert all(e.active for e in registry.entries)
-    assert {e.mode for e in registry.entries} == {"full", "dry_run", "disabled"}
     # G4-W17 arrival item 31: aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript's `disabled` mode
     # was a stale flag, not a content defect - no clone had ever been attempted
     # (evidence/build/lanes/lane-b/G4-W14.json). Flipped to dry_run; the reachable ceiling moved
@@ -69,9 +68,16 @@ def test_real_registry_is_the_frozen_portfolio() -> None:
     # - both by explicit owner instruction, not auto-admission. Ceiling moves 32 to 34.
     # 2026-09-30 (owner ruling, docs/DECISION_LOG.md, this date): project/state.yaml's
     # `progress.denominator` no longer freezes at the 2026-09-01 legacy baseline - it now tracks
-    # `len(registry.entries)` live (36, not this function's own `enabled_entries` count of 34;
+    # `len(registry.entries)` live (36, not this function's own `enabled_entries` count, then 34;
     # see test_governance_consistency.py::test_the_cursor_denominator_matches_the_live_registry).
-    assert len(enabled_entries(registry)) == 34
+    # 2026-10-07 (owner ruling, docs/DECISION_LOG.md, this date): aspose-psd-foss's .NET and
+    # Python repositories - disabled since admission with no reason ever recorded (flagged as an
+    # open question by the 2026-09-30 retry-list entry above) - flipped `disabled` to `dry_run` on
+    # explicit owner instruction, matching the majority mode rather than the two `full` entries.
+    # No registry entry is now `disabled`; the mode set and the reachable ceiling both move to
+    # the full 36.
+    assert {e.mode for e in registry.entries} == {"full", "dry_run"}
+    assert len(enabled_entries(registry)) == 36
 
 
 def test_real_registry_admits_the_canary_read_only() -> None:
