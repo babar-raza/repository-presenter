@@ -847,6 +847,28 @@ UNCITED_PROSE_OMIT = "uncited_prose_omit"
 _PROSE_UNIT_KINDS = frozenset({"paragraph", "list"})
 
 
+def uncited_omit_candidates(unit_text: str, facts: FactsDocument) -> list[str]:
+    """SUPPORTED fact IDs the refused unit's own text already spells, sorted - a deterministic
+    candidate list the ``uncited_prose_omit`` re-ask can name, so the model has somewhere
+    concrete to look rather than only being told to "try harder" (#1008's repair round).
+
+    Diagnosis (PDF-TypeScript, ``inherited_unit:014.list``/``016.list``): the model omitted a
+    unit with no citation while real SUPPORTED facts it never cited were sitting in its own
+    sentence the whole time (``parsecontentstream``, ``document.save``,
+    ``saveoptions.compressed``/``encrypt``/``incremental``/``linearized``/``streamfilter``,
+    ``savedocxfile``, ``parsehtml``, ``parsemarkdown``). ``placement_errors`` correctly refused
+    the omission; the re-ask gave the model only the unit's text back, never pointing at its own
+    unused evidence. This reuses ``inherited_unit_named_symbols`` - the same verbatim-token match
+    ``coordinate_neighbor_promises``'s item-110 fold already applies to a *placed* unit's
+    citations - against the refused unit's text instead, conservatively: a ``public_symbol``/
+    ``import_path`` fact counts only when its own value is spelled, as a whole identifier-shaped
+    token, somewhere in the unit's running prose or an inline code span (no fuzzy or partial
+    matching). Returning no candidates is a true negative, not a failure: most uncited omissions
+    name nothing any fact spells, and those keep the plain, candidate-free re-ask unchanged.
+    """
+    return sorted(inherited_unit_named_symbols(facts, unit_text))
+
+
 def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
     """Why the dispositions may not be used, beyond schema and binding; empty when they hold.
 
@@ -854,7 +876,10 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
     facts that show the claim unsupported), or be placed instead. A prose omission with no citation
     is the 15%-wrong omission class measured on the sealed candidates (2026-10-06): the reason is
     what lets the decision be checked at all. Each refusal is typed (``uncited_prose_omit``) and
-    quotes the unit's exact text, so the one re-ask can act on it.
+    quotes the unit's exact text, so the one re-ask can act on it. When the unit's own text already
+    spells a SUPPORTED fact's identifier, the refusal also names that fact ID as a candidate
+    (``uncited_omit_candidates``) - the model still decides whether it truly supports the claim;
+    this never assigns a disposition on its own.
     """
     placeable = placeable_section_ids()
     contradicted = contradicted_code_units(facts)
@@ -877,12 +902,22 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
             and unit.rsplit(".", 1)[-1] in _PROSE_UNIT_KINDS
         ):
             kind = unit.rsplit(".", 1)[-1]
-            text = json.dumps(unit_text.get(unit, "(text not in the facts)"), ensure_ascii=False)
+            raw_text = unit_text.get(unit, "(text not in the facts)")
+            text = json.dumps(raw_text, ensure_ascii=False)
+            candidates = uncited_omit_candidates(raw_text, facts)
+            candidate_clause = (
+                " This unit's own text already spells these SUPPORTED facts: "
+                f"{', '.join(candidates)}. Cite whichever of them actually support the claim "
+                "(SUPERSEDE_REDUNDANT or CORRECT_WITH_EVIDENCE), or OMIT_UNSUPPORTED with a "
+                "cited reason if none of them truly apply."
+                if candidates
+                else ""
+            )
             errors.append(
                 f"{unit}: {UNCITED_PROSE_OMIT}: OMIT_UNSUPPORTED on a {kind} needs at least one "
                 "fact ID that shows the claim unsupported, or the unit must be placed in a section "
-                f"the shell can hold; the unit's exact text is {text}. Cite the supporting fact "
-                "IDs or place the unit; do not omit it without a cited reason"
+                f"the shell can hold; the unit's exact text is {text}.{candidate_clause} Cite the "
+                "supporting fact IDs or place the unit; do not omit it without a cited reason"
             )
         if disposition == "OMIT_UNSUPPORTED" and unit in commands and build_facts:
             # A command block is the maintainers' own build, test, or install command, not a
