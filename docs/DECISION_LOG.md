@@ -5469,3 +5469,24 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
 - **2026-10-07 · Owner admission: `schemas/candidate-bundle.schema.json` gains an optional `upstream_blobs` field (`feat/readme-content-drift-1008`, issue 1008).** AGENTS.md requires a named work item and owner admission before a schema change lands. This entry is that admission, made by the owner's delegated governing party (the owner's standing instruction: "you are the governing party... I do not need to ask me anything"). Admitted because the change is strictly additive and optional (a bundle without the field is unaffected; existing sealed bundles are not rewritten and read as `UNKNOWN` drift until re-sealed), it is consumed by exactly one reader (`components/monitor/drift.py`'s content-drift check) with its own tests (`tests/components/monitor/test_drift_content.py`, `tests/components/readme/bundle/test_upstream_blobs.py`), and `scripts/ci_check.sh` passed green twice on the branch before this admission. Scope: the field holds the git blob id of every upstream file a candidate's facts cite, plus README, LICENSE and notices paths, used only to detect content drift at an unchanged head commit; it grants no new authority and changes no validation, invalidation, or effect path. Reverse by: `git revert` the PR that adds the field; no sealed bundle depends on it existing.
 
 - **2026-10-07 · `feat/enable-psd-1009` · `data/registry.json`: both aspose-psd-foss entries (`.NET`, `Python`) enabled, `disabled` to `dry_run`** (owner decision). The 2026-09-30 retry-list entry had flagged PSD's `disabled` mode as a real, unresolved open question (no reason ever recorded for the original disablement); this entry closes it. Alternative rejected: `mode: full` (write-permitted) — the owner has not authorized PSD for writes, so it joins the registry's majority at `dry_run` (sealed, never proposed) instead of the two reserved `full` entries. Evidence: `schemas/registry.schema.json` already allows `dry_run` for this entry shape (no schema change made); the registry now carries zero `disabled` entries (34 `dry_run`, 2 `full`, 36 total); `tests/core/registry/test_loader.py::test_real_registry_is_the_frozen_portfolio` updated to the new mode set `{"full", "dry_run"}` and the `enabled_entries` ceiling 34 to 36. Reverse by: flip both entries back to `mode: disabled` and revert the test's mode-set and ceiling assertions.
+
+- **2026-10-06 · retire `RegistryRevisionV1`, `PR_ELIGIBLE`, and the `PORTFOLIO_*` terminal-state
+  names from `plans/idea.md` (recorded late, on 2026-10-07, in `docs/retire-portfolio-names-1009`)**
+  (owner decision, made 2026-10-06 in conversation and confirmed by the governing party; the
+  omission of this entry at the time is itself the defect this entry fixes). **Decision:**
+  `RegistryRevisionV1`, `PR_ELIGIBLE`, `PORTFOLIO_AGENT_ACCEPTED`, and
+  `PORTFOLIO_PUBLICATION_READY_AWAITING_EFFECT_AUTHORIZATION` are retired names in `plans/idea.md`.
+  They were never implemented as schemas, states, or code identifiers anywhere in `src/` or
+  `tests/`. The seven-count funnel (fact-valid, presentation-valid, independently accepted,
+  no-op-proven, source-fresh, publication-eligible, effect-authorized;
+  `src/repository_presenter/components/readme/bundle/portfolio.py`, `docs/STATE_MACHINE.md` §3.1),
+  shipped in #243, already does what these retired names would have done: it supplies the
+  campaign denominator, every observation's disposition, and the Gate-A/Gate-B terminal counts.
+  **Scope:** wording only. `plans/idea.md`'s standing product outcome and constraints (31/31
+  processable, Gates A/B/C, the 30-point rubric, the no-op-proof requirement, etc.) are unchanged;
+  only the four dead names are replaced with references to the funnel that supersedes them, at the
+  authority-note table (lines naming `PORTFOLIO_*`/`PR_ELIGIBLE` and `RegistryRevisionV1`) and in
+  the document body (the campaign-denominator sentence under "README POC Readiness and Ordered
+  Delivery Gates", the Gate-A terminal-state sentence, and Gate B's derivation sentence). No
+  schema, code, or test changed. **Reverse by:** `git revert` the commit that lands this entry and
+  the paired `plans/idea.md` wording change.
