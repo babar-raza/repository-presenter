@@ -139,12 +139,15 @@ def write_bundle(
     *,
     raw: str | None = None,
     current: bool = True,
+    upstream_blobs: dict[str, str] | None = None,
 ) -> Path:
     """Create a bundle directory; seal it with a manifest when ``state`` or ``raw`` is given.
 
     Writes ``CURRENT`` pointing at ``revision`` too (unless ``current=False``), matching what a
     real seal always does - ``count_current_candidates`` (TB-06) only ever resolves a repository
     through its own ``CURRENT`` file, never by scanning revision directories directly.
+    ``upstream_blobs`` is recorded on the manifest when given, as a seal records it; omitted, the
+    manifest carries no upstream blob ids (a bundle sealed before they were recorded).
     """
     bundle = root / "candidates" / repository_dir / revision
     bundle.mkdir(parents=True, exist_ok=True)
@@ -155,6 +158,7 @@ def write_bundle(
         readme = bundle / "README.md"
         readme.write_bytes(b"")
         digest = {"README.md": {"sha256": hashlib.sha256(b"").hexdigest(), "bytes": 0}}
+        recorded = {} if upstream_blobs is None else {"upstream_blobs": upstream_blobs}
         manifest.write_text(
             json.dumps(
                 {
@@ -163,6 +167,7 @@ def write_bundle(
                     "revision": revision,
                     "state": state,
                     "files": digest,
+                    **recorded,
                 }
             ),
             encoding="utf-8",

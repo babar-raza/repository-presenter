@@ -24,9 +24,9 @@ from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     authoring_schema,
     authoring_tasks,
+    carried_unit_errors,
     merge_units,
     reconstructed_task_output,
-    recover_carried_units,
     recover_section_authoring_output,
     recover_title_verbatim_opening,
     repair_title_verbatim_opening_errors,
@@ -779,26 +779,28 @@ def _stage_target(
     )
 
 
-def _with_carried_units(
-    recover: Callable[[dict[str, Any]], dict[str, Any] | None], must_carry: frozenset[str]
-) -> Callable[[dict[str, Any]], dict[str, Any] | None]:
-    """A repair's own last-resort recovery, extended with the must-carry omission record.
+def _reject_uncarried_units(
+    checks: Callable[[dict[str, Any]], list[str]] | None, task: SectionTask
+) -> Callable[[dict[str, Any]], list[str]]:
+    """Layer the carry rule onto an S6 repair's own stage_checks, the same rule a fresh
+    ``section_authoring`` draft is judged by (``unit_checks`` -> ``carried_unit_errors``).
 
-    A ``targeted_repair`` reply wraps its units in ``revised_output``, so the carry recovery runs
-    on that shape, after the title recovery; with nothing to carry the recovery is returned
-    unchanged. Each step is re-validated by the repair's real checks (unit_checks included)."""
-    if not must_carry:
-        return recover
+    Before this, a repair reply that still dropped a must-carry unit was never checked at all:
+    the repair's own last resort (``_with_carried_units``, removed) silently recorded the drop as
+    a generic omission and let the reply pass regardless of what the model wrote - the same
+    fabrication #281 removed from ``section_authoring``'s own last resort, left unfixed here and
+    flagged "out of scope" in that commit. ``carried_unit_errors`` quotes each still-uncarried
+    unit's own source text (``task.must_carry_text``), so the repair's one re-ask can carry it,
+    exactly as the initial authoring call's re-ask now does - the same function, not a copy."""
+    if not task.must_carry:
+        return checks if checks is not None else (lambda revised: [])
 
-    def recovered(output: dict[str, Any]) -> dict[str, Any] | None:
-        first = recover(output)
-        base = first if first is not None else output
-        revised = base.get("revised_output")
-        if isinstance(revised, dict) and recover_carried_units(revised, must_carry):
-            return base
-        return first
+    def guarded(revised: dict[str, Any]) -> list[str]:
+        errors = list(checks(revised)) if checks is not None else []
+        errors.extend(carried_unit_errors(revised, task))
+        return errors
 
-    return recovered
+    return guarded
 
 
 def repair_defect(
@@ -842,6 +844,7 @@ def repair_defect(
         )
     if section_task is not None:
         stage_checks = _reject_title_verbatim_opening(stage_checks, section_task)
+        stage_checks = _reject_uncarried_units(stage_checks, section_task)
     # G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): a BC-07
     # visible-line-budget defect always names causal stage S5 (the only Failure `_check_structure`
     # ever raises with `stage="PLANNING"` - validation/registry.py), so this is a structured,
@@ -886,9 +889,8 @@ def repair_defect(
                 return
     recover_fn: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None
     if section_task is not None:
-        recover_fn = _with_carried_units(
-            functools.partial(recover_title_verbatim_opening, slot_titles=section_task.slot_titles),
-            section_task.must_carry,
+        recover_fn = functools.partial(
+            recover_title_verbatim_opening, slot_titles=section_task.slot_titles
         )
     elif visible_line_hint is not None:
         recover_fn = functools.partial(

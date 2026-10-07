@@ -1067,7 +1067,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert dependencies["validators"]["BC-11"] == "2" and dependencies["components"] == {
         "shell": "6",
         "renderer": "29",
-        "normalisation": "27",
+        "normalisation": "28",
         "reviewer_logic": "15",
     }
     assert "install_command:pip" in dependencies["facts"]
@@ -3191,7 +3191,13 @@ def test_monitor_records_each_enabled_repository_and_exits_one_on_an_unreachable
     text = evidence.read_text(encoding="utf-8")
     document = json.loads(text)
     assert document["owner"] is None
-    assert document["summary"] == {"CURRENT": 0, "DRIFTED": 1, "NO_BUNDLE": 1, "UNREACHABLE": 1}
+    assert document["summary"] == {
+        "CURRENT": 0,
+        "DRIFTED": 1,
+        "UNKNOWN": 0,
+        "NO_BUNDLE": 1,
+        "UNREACHABLE": 1,
+    }
     statuses = {row["repository"]: row["status"] for row in document["repositories"]}
     assert statuses == {
         MONITOR_PYTHON: "DRIFTED",
@@ -3220,8 +3226,13 @@ def test_monitor_exits_zero_when_every_enabled_repository_is_observed(
     assert code == EXIT_OK
     captured = capsys.readouterr()
     assert captured.err == ""
-    assert "CURRENT" in captured.out
-    assert "monitor: 3 observed - CURRENT 1, DRIFTED 0, NO_BUNDLE 2, UNREACHABLE 0" in captured.out
+    # The monitor fixture's bundle was sealed without recorded upstream blob ids, so it is UNKNOWN
+    # until re-sealed - observed, so the run still exits zero.
+    assert "UNKNOWN" in captured.out
+    assert (
+        "monitor: 3 observed - CURRENT 0, DRIFTED 0, UNKNOWN 1, NO_BUNDLE 2, UNREACHABLE 0"
+        in captured.out
+    )
 
 
 def test_monitor_owner_filter_observes_only_that_owners_enabled_entries(
