@@ -3379,6 +3379,7 @@ def test_sealing_plan_selects_the_first_three_drifted_enabled_repositories(
         "has_work",
         "publishable",
         "has_publishable",
+        "skipped",
     ]
     assert lines[1] == "has_work=true"
 
@@ -3425,6 +3426,7 @@ def test_a_paused_sealing_plan_selects_nothing_and_says_why(
         "has_work": "false",
         "publishable": "[]",
         "has_publishable": "false",
+        "skipped": "[]",
     }
     out = capsys.readouterr().out
     assert "sealing paused by owner variable" in out
@@ -3477,6 +3479,51 @@ def test_a_pause_value_other_than_one_does_not_pause(
     outputs = _plan_outputs(output)
     assert outputs["has_work"] == "true"
     assert len(json.loads(outputs["repositories"])) == 3
+
+
+def test_sealing_plan_skips_a_repository_the_history_file_names_recently_failed(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """End-to-end CLI wiring for #1009 failure memory: a history file naming one of the drifted
+    repositories FAILED a minute ago withholds it from this run and says so in both the step
+    output and the printed log, without affecting the other four."""
+    root = _drifted_project(tmp_path)
+    enabled = sorted(
+        entry.repository
+        for entry in load_registry(root / "data" / "registry.json").entries
+        if entry.mode != "disabled"
+    )
+    failed_repository = enabled[0]
+    history_path = root / "sealing" / "history.json"
+    history_path.parent.mkdir()
+    observed_at = datetime.now(UTC).isoformat(timespec="seconds")
+    history_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "repositories": [
+                    {
+                        "repository": failed_repository,
+                        "outcome": "FAILED",
+                        "observed_at": observed_at,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    output = tmp_path / "github_output"
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    outputs = _plan_outputs(output)
+    assert failed_repository not in json.loads(outputs["repositories"])
+    skipped = json.loads(outputs["skipped"])
+    assert [row["repository"] for row in skipped] == [failed_repository]
+    assert "cooldown" in skipped[0]["reason"]
+    out = capsys.readouterr().out
+    assert f"skipped (failure memory): {failed_repository}:" in out
 
 
 def test_sealing_plan_without_the_drift_monitor_output_is_a_named_usage_failure(

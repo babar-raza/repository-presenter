@@ -2,9 +2,13 @@
 # docs/EXECUTION_STATE_MACHINE.md G7). One scheduled run:
 #
 #   plan   read-only. Reads the drift monitor's output file (drift/drift.json, the contract in
-#          core/sealing_plan.py), keeps only DRIFTED, enabled, registry-listed repositories, sorts
-#          them, and takes at most three (MAX_REPOSITORIES_PER_RUN). Refuses any run whose prompt
-#          manifests or GPT_OSS_MODEL name a model other than qwen3-next.
+#          core/sealing_plan.py), keeps only DRIFTED, enabled, registry-listed repositories, drops
+#          one whose sealing history (sealing/history.json, best-effort, assembled from this same
+#          workflow's recent runs - #1009 failure memory) shows it FAILED within the last 24h with
+#          no new commit since (never silently: each such skip is a typed reason in both the
+#          printed log and the `skipped` step output), sorts what remains, and takes at most three
+#          (MAX_REPOSITORIES_PER_RUN). Refuses any run whose prompt manifests or GPT_OSS_MODEL name
+#          a model other than qwen3-next.
 #          Pause switch: when the repository variable REPOSITORY_PRESENTER_SEALING_PAUSED is exactly
 #          "1", it reports has_work=false and has_publishable=false with the notice "sealing
 #          paused by owner variable" (also written to the step summary) before reading anything,
@@ -109,13 +113,57 @@ jobs:
       - name: Assemble the drift contract from the monitor's evidence
         run: repository-presenter monitor-drift-contract monitor --out drift/drift.json
 
+      # Failure memory (#1009): each repository's own most recent Seal-leg job conclusion from
+      # the last 10 completed runs of this same workflow, read straight from the Actions API - no
+      # artifact download, since a job's own name and conclusion already say everything core/
+      # sealing_plan.py's cooldown needs (repository, outcome, observed_at). source_revision is
+      # left null here (this job metadata carries no revision); plan_sealing_run.py's own "new
+      # commit bypasses the cooldown" rule simply never fires yet from this input alone, which is
+      # the conservative, safe default - never wrongly bypassing a cooldown. Deliberately never
+      # fails the run: a gap or glitch here degrades to "no repository is skipped this run",
+      # core/sealing_plan.py's own read_sealing_history_contract already treats a missing or
+      # unreadable file as empty history, never a failure (see that function's docstring).
+      - name: Assemble sealing history from this workflow's own recent runs (best-effort)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          mkdir -p sealing
+          runs=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow sealing-scheduled.yml --branch main \
+            --status completed --limit 10 --json databaseId --jq '.[].databaseId')
+          rows="[]"
+          for run_id in $runs; do
+            jobs=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/jobs" --paginate \
+              --jq '[.jobs[] | select(.name | startswith("Seal ")) |
+                     {name, conclusion, completed_at}]' 2>/dev/null) || continue
+            [ -z "$jobs" ] && continue
+            rows=$(jq -cn --argjson existing "$rows" --argjson jobs "$jobs" '
+              $existing + [
+                $jobs[] |
+                select(.conclusion == "success" or .conclusion == "failure") |
+                select(.completed_at != null) |
+                {
+                  repository: (.name | capture("^Seal (?<repo>.+) \\(qwen3-next\\)$").repo),
+                  outcome: (if .conclusion == "success" then "SEALED" else "FAILED" end),
+                  observed_at: .completed_at,
+                  source_revision: null
+                }
+              ]
+            ')
+          done
+          jq -n --argjson rows "$rows" '{schema_version: 1, repositories: $rows}' > sealing/history.json
+          echo "sealing history: $(jq '.repositories | length' sealing/history.json) record(s) from $(echo "$runs" | wc -w) run(s)"
+          set -e
+
       # The contract is read through its file alone; the cap and ordering live in code.
       - name: Select this run's repositories from the drift monitor's output
         id: plan
         env:
           # The owner pause switch (see the header); the command compares it to exactly "1".
           REPOSITORY_PRESENTER_SEALING_PAUSED: ${{ vars.REPOSITORY_PRESENTER_SEALING_PAUSED }}
-        run: repository-presenter sealing-plan --drift-file drift/drift.json --github-output "$GITHUB_OUTPUT"
+        run: |
+          repository-presenter sealing-plan --drift-file drift/drift.json \
+            --history-file sealing/history.json --github-output "$GITHUB_OUTPUT"
 
   seal:
     name: Seal ${{ matrix.target.repository }} (qwen3-next)

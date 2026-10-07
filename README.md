@@ -316,7 +316,7 @@ repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
 repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
 repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N]
-repository-presenter sealing-plan [--root PATH] [--drift-file PATH] [--github-output PATH]
+repository-presenter sealing-plan [--root PATH] [--drift-file PATH] [--history-file PATH] [--github-output PATH]
 repository-presenter sealed-ready --repo OWNER/NAME [--root PATH]
 repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
 ```
@@ -445,10 +445,17 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
 - **`sealing-plan`** — the unattended sealing run's planner (G7-W06). Reads the drift monitor's
   output file (`--drift-file`, default `drift/drift.json`, root-relative) and selects only `DRIFTED`
   repositories that the registry lists and does not mark `disabled`, in sorted order, at most three
-  per run; the rest are deferred. Refuses to plan at all when a prompt manifest routes to any model
-  other than `qwen3-next` or `GPT_OSS_MODEL` names one. Makes no provider and no GitHub call.
-  `--github-output` appends the `repositories`, `has_work`, `publishable`, and `has_publishable` step
-  outputs that `.github/workflows/sealing-scheduled.yml` reads.
+  per run; the rest are deferred. Also reads the sealing history file (`--history-file`, default
+  `sealing/history.json`, root-relative; #1009 failure memory): a repository whose most recent
+  recorded attempt there is `FAILED` is skipped for 24 hours unless the drift record shows a new
+  commit since, so a repository stuck on the same unfixed defect stops burning a full provider-call
+  budget every single run - each skip is a typed, logged reason, and the repository is retried
+  automatically once the cooldown elapses, never abandoned. A missing or unreadable history file is
+  never a failure; it just means nothing is skipped by it this run. Refuses to plan at all when a
+  prompt manifest routes to any model other than `qwen3-next` or `GPT_OSS_MODEL` names one. Makes no
+  provider and no GitHub call. `--github-output` appends the `repositories`, `has_work`,
+  `publishable`, `has_publishable`, and `skipped` step outputs that
+  `.github/workflows/sealing-scheduled.yml` reads.
 - **`sealed-ready --repo OWNER/NAME`** — exits 0 only when the repository's `CURRENT` sealed bundle
   verifies and is `READY_FOR_PROPOSAL`; exits 1 otherwise, naming why. The scheduled workflow uses
   it to export a bundle for the gated proposal job and to refuse to propose anything else.
