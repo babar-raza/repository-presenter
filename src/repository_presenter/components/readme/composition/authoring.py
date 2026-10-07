@@ -280,7 +280,13 @@ _TYPE_OBJECTIVE = (
 # repair names the must-carry units still uncited (uncarried_units, repair/targeted.py), so a repair
 # can state the missing substance. Slides-Java, 2026-10-05 (F04): the scope attempts never cited
 # the superseded limitation units; the repair saw only their facts.
-NORMALISATION_VERSION = "26"
+# "27": a refused must-carry unit is re-asked with its own substance (SectionTask.must_carry_text,
+# quoted in carried_unit_errors), and the last-resort recovery of section_authoring no longer
+# records an omission the model never made (recover_section_authoring_output). Before, the second
+# attempt's drop was converted into a generic omission and accepted, so the check passed without
+# the unit's substance ever reaching the page. The refusal itself is unchanged: a must-carry unit
+# still needs a citation or a reasoned omission, and a second refusal still fails closed.
+NORMALISATION_VERSION = "27"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -461,6 +467,10 @@ class SectionTask:
     # be cited by a unit that states its substance, or listed in omitted with a reason
     # (carried_unit_errors). Empty for every section but those in _CARRY_SECTIONS.
     must_carry: frozenset[str] = frozenset()
+    # The substance of each must-carry unit - its own inherited text, from the same fact the
+    # reconciliation disposition names. A refusal quotes it back, so the re-ask carries what the
+    # unit says, not only its ID (a bare ID let a second reply omit it unchanged).
+    must_carry_text: Mapping[str, str] = field(default_factory=dict)
 
     @property
     def label(self) -> str:
@@ -530,6 +540,19 @@ def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocume
         and entry.get("unit_id") in known
         and str(entry.get("unit_id")).endswith(_CARRIABLE_SUFFIXES)
     ]
+
+
+def carried_substance(must_carry: Iterable[str], facts: FactsDocument) -> dict[str, str]:
+    """The inherited text of each must-carry unit, keyed by its ID, in one line each: what the
+    unit says, quoted back on a refusal so the re-ask can carry it (SectionTask.must_carry_text).
+    A unit whose fact is absent is simply left out, and carried_unit_errors then names the ID
+    alone, exactly as before."""
+    wanted = set(must_carry)
+    return {
+        fact.id: " ".join(fact.value.split())
+        for fact in facts.facts
+        if fact.id in wanted and fact.value.strip()
+    }
 
 
 def capability_titles(plan: dict[str, Any]) -> dict[str, str]:
@@ -1067,6 +1090,7 @@ def authoring_tasks(
                 slot_titles=titles,
                 slot_render_lines=render_lines,
                 must_carry=must_carry,
+                must_carry_text=carried_substance(must_carry, facts),
             )
         )
         if section == "api_reference":
@@ -1933,11 +1957,16 @@ def carried_unit_errors(output: Mapping[str, Any], task: SectionTask) -> list[st
     if not task.must_carry:
         return []
     cited, omitted = _carry_dispositions(output)
-    return [
-        f"{fact_id}: {_CARRY_REASON_MISSING}"
-        for fact_id in sorted(task.must_carry)
-        if fact_id not in cited and not omitted.get(fact_id)
-    ]
+    errors: list[str] = []
+    for fact_id in sorted(task.must_carry):
+        if fact_id in cited or omitted.get(fact_id):
+            continue
+        # The refusal quotes the unit's own substance, so the re-ask carries what it says and a
+        # reply can cite that substance or omit the unit with a reason - not merely repeat the ID.
+        substance = task.must_carry_text.get(fact_id)
+        suffix = f". Substance to carry: {substance}" if substance else ""
+        errors.append(f"{fact_id}: {_CARRY_REASON_MISSING}{suffix}")
+    return errors
 
 
 def uncarried_units(output: Mapping[str, Any], must_carry: Collection[str]) -> list[str]:
@@ -2166,7 +2195,6 @@ def recover_section_authoring_output(
     output: dict[str, Any],
     *,
     slot_titles: Mapping[str, str],
-    must_carry: frozenset[str] = frozenset(),
 ) -> dict[str, Any] | None:
     """Last-resort correction for ``section_authoring``'s own INITIAL-DRAFT job (``recover=``,
     ``core/llm/jobs.py``, the first ``run_round``/``repair/rounds.py`` call - never a repair
@@ -2203,10 +2231,10 @@ def recover_section_authoring_output(
     units = output.get("units")
     if isinstance(units, list) and _strip_title_verbatim_opening_units(units, slot_titles):
         changed = True
-    # A superseded inherited unit the reply silently dropped is recorded as an explicit omission
-    # (recover_carried_units), never invented as content.
-    if recover_carried_units(output, must_carry):
-        changed = True
+    # A superseded inherited unit the reply still drops is NOT recovered here. Recording it as an
+    # omission would be a disposition the model never gave, and it passed the carry check with the
+    # unit's substance never on the page (NORMALISATION_VERSION "27"). The refusal stands and
+    # names the unit: a second refusal fails the job closed.
     return output if changed else None
 
 

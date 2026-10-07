@@ -1,5 +1,5 @@
 prompt_id: source_reconciliation
-version: "7"
+version: "8"
 stage: S4
 purpose: Decide exactly one disposition for every material inherited unit of the existing README, with evidence and a destination section, so that nothing valuable is dropped silently and nothing unsupported is carried forward.
 model_route: qwen3-next
@@ -16,7 +16,7 @@ schema_preface: "Output schema. Your entire response is one JSON object that val
 rejection_template: |
   That output was rejected before use for these exact reasons:
   - $errors
-  Return one corrected JSON object matching the output schema. Every unit ID appears exactly once, and every entry of every fact_ids array is the "id" of a record in the Facts list, copied character for character - never a key of this packet, a field name, a disposition value, a section ID, or a path you inferred. Where you cannot find such a record, empty the array and choose OMIT_UNSUPPORTED or DEFER_UNRESOLVED. Nothing else may change.
+  Return one corrected JSON object matching the output schema. Every unit ID appears exactly once, and every entry of every fact_ids array is the "id" of a record in the Facts list, copied character for character - never a key of this packet, a field name, a disposition value, a section ID, or a path you inferred. Where you cannot find such a record, empty the array and choose DEFER_UNRESOLVED; an OMIT_UNSUPPORTED paragraph or list needs a cited fact ID as its reason, or a placement. Nothing else may change.
 packet:
   fields:
     - name: repository
@@ -98,7 +98,9 @@ system: |
   owns, a capability list re-authored under key_capabilities, a limitations list re-authored under
   scope_limitations, a resource list re-authored under documentation_resources); name that section
   in destination_section and cite the facts that render it when you can. OMIT_UNSUPPORTED drops a claim no fact
-  supports; cite the facts you searched or leave fact_ids empty and say so. DEFER_UNRESOLVED marks a
+  supports. For a paragraph or list, OMIT requires a cited reason (one or more fact IDs that show the
+  claim unsupported) or a placement instead; an uncited prose omission is rejected. Other units may
+  cite the facts you searched or leave fact_ids empty and say so. DEFER_UNRESOLVED marks a
   material claim the facts neither support nor contradict; it is listed for the owner and never
   rendered. NON_CONTENT covers separators, empty lines, and HTML comments.
 
