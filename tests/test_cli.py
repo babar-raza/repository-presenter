@@ -872,7 +872,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         (project_with_registry / facts_dir / "investigation.json").read_text("utf-8")
     )
     assert written_investigation == LOCAL_INVESTIGATION
-    assert len(gateway_ready.requests) == 13
+    assert len(gateway_ready.requests) == 12
     request = gateway_ready.requests[0]
     assert request["model"] == "qwen3-next"
     assert request["response_format"]["type"] == "json_schema"
@@ -907,8 +907,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "source_reconciliation",
         "presentation_planning",
         *(["section_authoring"] * 8),
-        # The accept is corroborated by a second read under a different seed (PHASE1/F6).
-        "independent_review",
+        # A clean accept whose second-reader trigger did not fire is a single read (OWNER-15).
         "independent_review",
     ]
     shell_packet = json.loads(
@@ -922,7 +921,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         in gateway_ready.requests[1]["messages"][1]["content"]
     )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
-    assert len(ledger) == 13 and all('"disposition":"provider_call"' in line for line in ledger)
+    assert len(ledger) == 12 and all('"disposition":"provider_call"' in line for line in ledger)
     assert "coherence: 0 of 10 units revised; provider calls 1" in captured.out
     assert LIVE_KEY not in "".join(ledger)
     units_line = next(line for line in captured.out.splitlines() if line.startswith("units: "))
@@ -1024,13 +1023,13 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert code == EXIT_OK and captured.err == ""
     bundle_dir = f"candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/{revision}"
     assert (
-        f"bundle: {bundle_dir} (state ACCEPTED, 14 files, provider calls 13; sealed; "
+        f"bundle: {bundle_dir} (state ACCEPTED, 14 files, provider calls 12; sealed; "
         "the no-op proof needs a rerun in a fresh process)"
     ) in captured.out
     bundle = project_with_registry / bundle_dir
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "ACCEPTED" and manifest["no_op_proof"] is None
-    assert manifest["revision"] == revision and manifest["provider_calls"] == 13
+    assert manifest["revision"] == revision and manifest["provider_calls"] == 12
     assert sorted(manifest["files"]) == sorted(
         [
             "README.md",
@@ -1067,8 +1066,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert dependencies["validators"]["BC-11"] == "2" and dependencies["components"] == {
         "shell": "6",
         "renderer": "29",
-        "normalisation": "27",
-        "reviewer_logic": "16",
+        "normalisation": "28",
+        "reviewer_logic": "17",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
@@ -1125,15 +1124,15 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     # line (authoring, also multi-call) already does.
     assert first.count("provider calls 1, model qwen3-next") == 3
     assert second.count("provider calls 0, model stored output reused") == 3
-    # 13, not 12: the accept's corroborating second read is one more first-run call (PHASE1/F6).
-    assert len(gateway_ready.requests) == 13
+    # 12: the clean accept's trigger does not fire, so it is a single read (OWNER-15).
+    assert len(gateway_ready.requests) == 12
     assert "provider calls 7; digest" in first and "provider calls 0; digest" in second
     assert "coherence: 0 of 10 units revised; provider calls 0" in second
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
-    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 13 + [
+    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 12 + [
         "cache_reuse"
-    ] * 13
+    ] * 12
 
 
 def test_present_durable_state_requires_a_workflow_run_identity(
@@ -1503,11 +1502,11 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
         "repair: 1 repaired (F01+F02 S6 opening), 0 unrepairable recorded advisory; rounds 2"
     ) in captured.out
     names = [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests]
-    # Round 1's rejection earns no second read; round 2's accept is corroborated (PHASE1/F6).
+    # Round 1's rejection earns no second read; round 2's clean accept is a single read, since no
+    # second-reader trigger fired (OWNER-15).
     assert names[12:] == [
         "targeted_repair",
         "section_authoring",
-        "independent_review",
         "independent_review",
     ]
     repair_request = gateway_ready.requests[12]["messages"][1]["content"]
@@ -1557,20 +1556,20 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     bundle_validation = json.loads((bundle / "validation.json").read_text("utf-8"))
     assert bundle_validation["summary"] == {"pass": 12, "fail": 0, "pending": 0}
     assert (bundle / "README.md").read_bytes() == (transaction / "README.md").read_bytes()
-    assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 16
+    assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 15
     # repairs.json is the transaction's history: the rerun reports it and attempts nothing.
     assert (
         "repair: 1 repaired (F01+F02 S6 opening), 0 unrepairable recorded advisory; rounds 1"
     ) in rerun
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
     # Round one and the repair call the provider; round two reuses every unchanged stage and
-    # calls only coherence, the review, and the accept's corroborating second read (PHASE1/F6);
-    # the rerun reuses everything, the second read included.
+    # calls only coherence and the review (a clean accept's trigger does not fire, OWNER-15); the
+    # rerun reuses everything.
     dispositions = [json.loads(line)["disposition"] for line in ledger]
     assert dispositions[:12] == ["provider_call"] * 12
     assert dispositions[13:23] == ["cache_reuse"] * 10
-    assert dispositions[23:26] == ["provider_call"] * 3
-    assert dispositions[26:] == ["cache_reuse"] * 13
+    assert dispositions[23:25] == ["provider_call"] * 2
+    assert dispositions[25:] == ["cache_reuse"] * 12
 
 
 def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
@@ -1820,7 +1819,11 @@ def test_a_prose_judgment_one_reader_raised_is_read_again_before_it_holds_the_ca
     assert review["findings"] == []
     assert [f["id"] for f in review["advisory"]] == ["F01"]
     assert review["advisory"][0]["single_reader_advisory"] is True
-    assert review["second_reader"] == {"read": 2, "corroborated": []}
+    assert review["second_reader"] == {
+        "read": 2,
+        "corroborated": [],
+        "trigger": {"triggered": True, "reasons": ["PROSE_JUDGMENT_ON_REQUIRED_ROW"]},
+    }
     # It cost exactly one extra call, under the same prompt: two reads with different request
     # hashes and one prompt identity, so every dependency the candidate records is unchanged.
     calls = [
@@ -2557,12 +2560,10 @@ def test_a_reviewer_rubric_change_reopens_reviewing_only(
     assert (
         "(earliest affected stage REVIEWING; 1 changes (prompts.independent_review -> REVIEWING)"
     ) in out
-    # Only the review is asked again - both reads, since the accept needs its corroborating
-    # second read under the revised rubric too (PHASE1/F6); the plan and every authored unit
-    # are reused.
-    assert len(gateway_ready.requests) == before + 2
-    assert [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests[-2:]] == [
-        "independent_review",
+    # Only the review is asked again - one read, since the clean accept's trigger does not fire
+    # under the revised rubric either (OWNER-15); the plan and every authored unit are reused.
+    assert len(gateway_ready.requests) == before + 1
+    assert [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests[-1:]] == [
         "independent_review",
     ]
     _assert_presentation_update(
@@ -3379,6 +3380,7 @@ def test_sealing_plan_selects_the_first_three_drifted_enabled_repositories(
         "has_work",
         "publishable",
         "has_publishable",
+        "skipped",
     ]
     assert lines[1] == "has_work=true"
 
@@ -3425,6 +3427,7 @@ def test_a_paused_sealing_plan_selects_nothing_and_says_why(
         "has_work": "false",
         "publishable": "[]",
         "has_publishable": "false",
+        "skipped": "[]",
     }
     out = capsys.readouterr().out
     assert "sealing paused by owner variable" in out
@@ -3477,6 +3480,51 @@ def test_a_pause_value_other_than_one_does_not_pause(
     outputs = _plan_outputs(output)
     assert outputs["has_work"] == "true"
     assert len(json.loads(outputs["repositories"])) == 3
+
+
+def test_sealing_plan_skips_a_repository_the_history_file_names_recently_failed(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """End-to-end CLI wiring for #1009 failure memory: a history file naming one of the drifted
+    repositories FAILED a minute ago withholds it from this run and says so in both the step
+    output and the printed log, without affecting the other four."""
+    root = _drifted_project(tmp_path)
+    enabled = sorted(
+        entry.repository
+        for entry in load_registry(root / "data" / "registry.json").entries
+        if entry.mode != "disabled"
+    )
+    failed_repository = enabled[0]
+    history_path = root / "sealing" / "history.json"
+    history_path.parent.mkdir()
+    observed_at = datetime.now(UTC).isoformat(timespec="seconds")
+    history_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "repositories": [
+                    {
+                        "repository": failed_repository,
+                        "outcome": "FAILED",
+                        "observed_at": observed_at,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    output = tmp_path / "github_output"
+
+    code = main(["sealing-plan", "--root", str(root), "--github-output", str(output)])
+
+    assert code == EXIT_OK
+    outputs = _plan_outputs(output)
+    assert failed_repository not in json.loads(outputs["repositories"])
+    skipped = json.loads(outputs["skipped"])
+    assert [row["repository"] for row in skipped] == [failed_repository]
+    assert "cooldown" in skipped[0]["reason"]
+    out = capsys.readouterr().out
+    assert f"skipped (failure memory): {failed_repository}:" in out
 
 
 def test_sealing_plan_without_the_drift_monitor_output_is_a_named_usage_failure(

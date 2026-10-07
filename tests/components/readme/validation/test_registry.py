@@ -304,9 +304,10 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # (canonical product name) is new; VALIDATOR_VERSION 9: BC-07 v9 (verification V2 items 8 and
     # 9); VALIDATOR_VERSION 10: BC-11 v2 is judged from measured evidence (core/noop_proof.py);
     # VALIDATOR_VERSION 11: BC-05 v2 judges each deferral by its cause (validation/deferrals.py).
-    # VALIDATOR_VERSION 12: a refused ACCEPT names the corroborating second read that failed.
-    # This candidate names no edition, spells its name whole, and passes all of them.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "12"
+    # VALIDATOR_VERSION 12: BC-10 v5 accepts a clean single-read ACCEPT whose trigger did not
+    # fire; VALIDATOR_VERSION 13: a refused ACCEPT names the corroborating second read that
+    # failed. This candidate names no edition, spells its name whole, and passes all of them.
+    assert document["source_revision"] == REVISION and document["validator_version"] == "13"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(

@@ -248,6 +248,32 @@ def test_every_owners_evidence_becomes_one_contract_the_sealing_plan_accepts(
     assert plan.selected == (JAVA,)
 
 
+def test_the_contract_carries_the_observed_head_as_source_revision(tmp_path: Path) -> None:
+    # G7-W06 #1009: the sealing plan's failure memory tells a new commit apart from the same
+    # stuck drift only by comparing source_revision, so the assembler must forward the observed
+    # head when the monitor recorded one (never for NO_BUNDLE/UNREACHABLE, which record no head).
+    revision = "c" * 40
+    _write_owner_evidence(
+        tmp_path,
+        "aspose-3d-foss",
+        [RepositoryDrift(JAVA, "full", "DRIFTED", revision, "main", "d" * 40, None)],
+    )
+    result = assemble_drift_contract(
+        tmp_path, expected={"aspose-3d-foss": frozenset({JAVA})}, now=NOW
+    )
+    [row] = result.document["repositories"]
+    assert row == {"repository": JAVA, "status": "DRIFTED", "source_revision": revision}
+
+
+def test_a_row_with_no_observed_head_carries_no_source_revision(tmp_path: Path) -> None:
+    _write_owner_evidence(tmp_path, "aspose-3d-foss", [_row(JAVA, "NO_BUNDLE")])
+    result = assemble_drift_contract(
+        tmp_path, expected={"aspose-3d-foss": frozenset({JAVA})}, now=NOW
+    )
+    [row] = result.document["repositories"]
+    assert row == {"repository": JAVA, "status": "UNKNOWN"}
+
+
 def test_an_owner_without_evidence_fails_closed_unless_its_app_is_recorded_not_installed(
     tmp_path: Path,
 ) -> None:

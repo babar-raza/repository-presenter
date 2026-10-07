@@ -13,10 +13,10 @@
 > | `plans/master.md` (architecture, decisions, sequencing, rollout) | `docs/EXECUTION_STATE_MACHINE.md` (build) and `docs/STATE_MACHINE.md` (runtime) |
 > | `plans/GOVERNANCE.md` and `AGENTS.md` | `AGENTS.md` |
 > | Level-8 mission graph, mission `evaluate`/`status`, durable supervisor state, execution focus | Retired. `project/state.yaml` is the only build cursor; runtime state is the repository transaction record in `docs/STATE_MACHINE.md` §13 |
-> | Gates C0 / A / B / C, `PORTFOLIO_AGENT_ACCEPTED`, `PORTFOLIO_PUBLICATION_READY_AWAITING_EFFECT_AUTHORIZATION`, `PR_ELIGIBLE` | Gates G0–G7 in `docs/EXECUTION_STATE_MACHINE.md`; every obligation here is mapped in its §12 |
+> | Gates C0 / A / B / C, `PORTFOLIO_AGENT_ACCEPTED`, `PORTFOLIO_PUBLICATION_READY_AWAITING_EFFECT_AUTHORIZATION`, `PR_ELIGIBLE` | Gates G0–G7 in `docs/EXECUTION_STATE_MACHINE.md` (every obligation here is mapped in its §12); the three named terminal/eligibility states were never implemented and are retired — superseded by the seven-count funnel (fact-valid, presentation-valid, independently accepted, no-op-proven, source-fresh, publication-eligible, effect-authorized) in `docs/STATE_MACHINE.md` §3.1, shipped in #243 |
 > | Historical trusted lane (T0, TP, T0R, T1, T2, T3) | Forensic evidence only; `RETIRE` in `migration/reuse-manifest.yaml` |
 > | `repo-presenter-regen-full` corpus, `BenchmarkQualityProfileV1`, Aspose.org sibling checkout | Fixture and oracle assets, and since 2026-09-04 a second reuse source for its extraction engine and tests under the pull discipline (pinned revision, file records, ported tests, cut closure, typed façade); consumed at G4; never a runtime dependency |
-> | `ProductFactsV2`, `RegistryRevisionV1`, 30-point rubric | Reimplemented behind this project's typed contracts through the reuse manifest |
+> | `ProductFactsV2`, `RegistryRevisionV1`, 30-point rubric | Reimplemented behind this project's typed contracts through the reuse manifest; `RegistryRevisionV1` itself was never implemented and is retired — superseded by the seven-count funnel (fact-valid, presentation-valid, independently accepted, no-op-proven, source-fresh, publication-eligible, effect-authorized) in `docs/STATE_MACHINE.md` §3.1, shipped in #243 |
 > | Baseline figures (31/31 processable, 33 registry entries at `df864ffd`) | Dated observations. The registry held 34 entries at `a8a163f7`; the count is revalidated through G1–G3 and frozen as a registry revision at G4 |
 > | Upstream Defect Reporting's seed example (`CS1929`, `MultipartParser.SequenceEqualAscii`, Aspose.Email FOSS for .NET) | **Corrected 2026-09-17, owner-confirmed.** Independently re-verified live against the current default branch: `src/Aspose.Email.Foss/Msg/Mime/MultipartParser.cs` now defines `SequenceEqualAscii` as a `ReadOnlySpan<byte>` extension method and every call site (`line.SequenceEqualAscii(...)`) matches that type — the receiver-type mismatch this example describes no longer exists; the current sealed candidate's own build evidence independently shows 0 compiler errors. The defect was fixed upstream. The example still correctly illustrates the *class* of defect this component exists to catch; a future exercise of Upstream Defect Reporting needs a current, re-verified seed example, not this one. |
 | Gates A/B/C completion criteria (Gate A: "every entry in the current complete registry revision has an agent-approved, no-op-proven local candidate"; Gate B: "every processable repository remains 30/30"; Gate C: "not before every current registry repository has passed Gates A and B") | **Amended 2026-09-28, owner-directed ruling.** Full-registry completion is not reachable in a reasonable timeframe: this project's own `docs/DECISION_LOG.md` documents extensive, genuine, non-code-defect blockers across the registry — upstream gateway (`qwen3-next`) flapping, content/sampling non-determinism in composition and review, and per-repository upstream defects (e.g. Cells-Cpp's `-Werror=trigraphs` build failure) that cannot be closed by this project's own code changes alone. Gates A, B, and C are each now defined complete at a fixed floor of **20 current, reviewable, no-op-proven candidates** (out of the registry's current 36 entries), not 100% of the registry. This is a fixed count, not a percentage, and does not move automatically if the registry grows through future portfolio-discovery admissions — a future change to the floor itself needs its own owner ruling, recorded the same way. Gate C's first live pilot is also widened: rather than the Java-only cohort this document's body still names below, it may target **any sealed, currently-reproducible candidate from the Cells family**, any platform. Full rationale and evidence: `docs/DECISION_LOG.md`, 2026-09-28 entry. |
@@ -149,8 +149,10 @@ merely because its machinery, tests, or evidence exist.
 
 The POC is the full currently eligible, discoverable authorized portfolio, not a sample or stale
 checked-in count. `data/products.json` remains the hard execution allow-list, while a frozen
-`RegistryRevisionV1` supplies the campaign denominator and every observation's disposition.
-Pending intake, unexplained observations, source failures, and stale scans block portfolio closure
+registry revision supplies the campaign denominator, and the seven-count funnel (fact-valid,
+presentation-valid, independently accepted, no-op-proven, source-fresh, publication-eligible,
+effect-authorized; `docs/STATE_MACHINE.md` §3.1, shipped in #243) supplies every observation's
+disposition. Pending intake, unexplained observations, source failures, and stale scans block portfolio closure
 without stopping unrelated admitted work. New eligible repositories enter disabled and read-only;
 naming mismatches remain visible exclusions.
 
@@ -196,8 +198,11 @@ duplicate that cursor.
 
 At each boundary, terminology is fail-closed: one finalized repository is the **first verified README**; one accepted
 candidate per ecosystem is the **cross-ecosystem canary gate**; and every processable repository in the frozen registry
-revision is the **portfolio README proof**. Its Gate-A terminal state is `PORTFOLIO_AGENT_ACCEPTED`, not publication eligibility, production readiness, or umbrella-mission closure. The autonomous readiness stage that follows may reach
-`PORTFOLIO_PUBLICATION_READY_AWAITING_EFFECT_AUTHORIZATION`; that still grants no product effect.
+revision is the **portfolio README proof**. Its Gate-A terminal state is the portfolio report's
+no-op-proven count (the seven-count funnel's fourth stage; `docs/STATE_MACHINE.md` §3.1, shipped
+in #243), not publication eligibility, production readiness, or umbrella-mission closure. The
+autonomous readiness stage that follows may reach the funnel's publication-eligible count; that
+still grants no product effect.
 
 ### Agile operating model
 
@@ -315,8 +320,10 @@ on is actually accepted, not merely attempted:
    verified inherited claims, deterministic assessment, an empty-patch candidate, independent
    approval, and no-op proof.
 5. **Gate B — autonomous publication readiness follows Gate A.** Refetch every source read-only, reopen only drifted repositories at their earliest affected boundary, independently reseal every changed candidate, and derive
-   `PR_ELIGIBLE` only when every processable repository remains 30/30, no-op-proven, source-fresh, and bound to a validated proposal/rollback/authorization payload. Human content review is not required. Gate B stops at
-   `PORTFOLIO_PUBLICATION_READY_AWAITING_EFFECT_AUTHORIZATION` and performs no product write.
+   the seven-count funnel's publication-eligible count (`docs/STATE_MACHINE.md` §3.1, shipped in
+   #243) only when every processable repository remains 30/30, no-op-proven, source-fresh, and
+   bound to a validated proposal/rollback/authorization payload. Human content review is not
+   required. Gate B stops there and performs no product write.
 6. **Gate C — verified Java proposal proof follows autonomous Gate-B readiness and fresh effect
    authorization.** Historical
    trusted PRs do not satisfy this gate. Creating or updating verified proposals against the designated

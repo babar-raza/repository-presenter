@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import copy
 import functools
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -24,9 +24,9 @@ from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     authoring_schema,
     authoring_tasks,
+    carried_unit_errors,
     merge_units,
     reconstructed_task_output,
-    recover_carried_units,
     recover_section_authoring_output,
     recover_title_verbatim_opening,
     repair_title_verbatim_opening_errors,
@@ -101,16 +101,18 @@ from repository_presenter.components.readme.repair.targeted import (
 from repository_presenter.components.readme.review.acceptance.scorer import score_candidate
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
-    MAJORITY_VOTE_REPOSITORIES,
     REVIEW_FILENAME,
-    prose_judgment,
+    SecondReadDecision,
+    blocking,
     review_checks,
     review_document,
     review_packet,
+    second_read_decision,
     second_reader,
     third_reader,
     write_review,
 )
+from repository_presenter.components.readme.validation.deferrals import review_deferrals
 from repository_presenter.components.readme.validation.registry import (
     VALIDATION_FILENAME,
     Candidate,
@@ -278,6 +280,47 @@ def _round_raw_calls(
         }
     )
     return raw_calls
+
+
+def _read_review(
+    document: Callable[..., dict[str, Any]],
+    deferral_decisions: Collection[str],
+    second: Callable[[], JobResult | SecondReadFailure | None],
+    third: Callable[[], JobResult | None],
+) -> tuple[dict[str, Any], SecondReadDecision, JobResult | None, JobResult | None]:
+    """The review of one candidate: the first read, then the typed second-reader trigger (OWNER-15).
+
+    A clean first ACCEPT whose trigger does not fire makes no second call and is recorded as a
+    single read (``second_reader.trigger.triggered`` false). A triggered second read that raises
+    ``JobError`` returns a ``SecondReadFailure`` (never ``{}`` - TB-04, external review D4,
+    2026-09-08) naming its cause, recorded as ``second_reader.failed`` alongside the trigger, so
+    check 10 names why the single read it is left with never became a corroborated one; a bare
+    ``None`` (no cause available) leaves the trigger recorded with no ``failed`` detail, exactly
+    as before this cause was tracked. A third read (2-of-3, section 5.6) is requested only when a
+    triggered second read disagrees with a clean first read; a failed third read falls back to the
+    single-confirming-read rule, never to a looser one.
+    """
+    first = document()
+    decision = second_read_decision(first, deferral_decisions)
+    if not decision.triggered:
+        return document(trigger=decision), decision, None, None
+    attempt = second()
+    if isinstance(attempt, SecondReadFailure):
+        review = document(trigger=decision, second_failure=attempt.record())
+        return review, decision, None, None
+    second_result = attempt
+    if second_result is None:
+        return document(trigger=decision), decision, None, None
+    disagrees = first.get("verdict") == ACCEPT and any(
+        blocking(dict(finding)) for finding in second_result.output.get("findings", [])
+    )
+    third_result = third() if disagrees else None
+    review = document(
+        second=second_result.output,
+        third=third_result.output if third_result is not None else None,
+        trigger=decision,
+    )
+    return review, decision, second_result, third_result
 
 
 def run_round(tx: TransactionInputs) -> Round:
@@ -521,47 +564,16 @@ def run_round(tx: TransactionInputs) -> Round:
         # already landed inert (c37791f) pending exactly this one line.
         dispositions=dispositions,
     )
-    review = document()
-    # Two triggers share the one corroborating read under a different seed. A prose judgment on
-    # a required row is read a second time before it holds the candidate unsealed (the owner's
-    # two-reader rule, section 27.8). And an ACCEPT - returned, or a rejection whose every
-    # finding folded to advisory, the class 8 of the 9 pre-sprint seals belong to - is read a
-    # second time before it seals the candidate (PHASE1/F6): check 10 now passes only a
-    # corroborated accept (second_reader.read >= 2), and on this path the second read's findings
-    # pass the same fold stack as the first read's, so a disagreement blocks and repairs through
-    # the normal rounds. A read that cannot produce usable output corroborates nothing and must
-    # leave `review` exactly as the first reader alone produced it (never `document(second={})` -
-    # TB-04, external review D4, 2026-09-08: an empty dict is not `None`, and review_document
-    # reads it as a *completed* reading that raised no findings, silently demoting the first
-    # reader's finding and flipping REJECT_PRESENTATION to ACCEPT while recording a reading that
-    # never happened). Losing verification must never increase assurance - which on the accept
-    # path now means the uncorroborated ACCEPT fails check 10 rather than sealing. A repository
-    # named in MAJORITY_VOTE_REPOSITORIES (section 5.6) escalates this to a 2-of-3 vote among
-    # three independent reads instead of one confirming read - see the branch just below.
-    second_result: JobResult | None = None
-    third_result: JobResult | None = None
-    if review["verdict"] == ACCEPT or any(
-        prose_judgment(finding) for finding in review["findings"]
-    ):
-        attempt = _second_opinion(loaded, packet, checks, common)
-        if isinstance(attempt, SecondReadFailure):
-            # The failed read leaves the first reader's review as it was, plus its recorded cause.
-            review = document(second_failure=attempt.record())
-        else:
-            second_result = attempt
-        if second_result is not None:
-            if tx.entry.repository in MAJORITY_VOTE_REPOSITORIES:
-                # Section 5.6 escalation: this repository's own documented rerun history
-                # (docs/DECISION_LOG.md) already shows two or more distinct S10 findings across
-                # independent draws, so promoting to ACCEPT needs a 2-of-3 majority among three
-                # independent reads rather than one confirming read alone. A failed third read
-                # (JobError) falls back to the unescalated single-confirming-read rule below,
-                # never to a looser one - losing verification must never increase assurance.
-                third_result = _third_opinion(loaded, packet, checks, common)
-                third_output = third_result.output if third_result is not None else None
-                review = document(second=second_result.output, third=third_output)
-            else:
-                review = document(second=second_result.output)
+    # The second reader is requested only by the typed trigger (OWNER-15, second_read_decision).
+    # A JobError from that corroborating read is returned as a SecondReadFailure, never None, so
+    # review.json names its cause instead of reporting a bare single read (second_reader.failed;
+    # "review second-read cause").
+    review, _decision, second_result, third_result = _read_review(
+        document,
+        [finding.decision for finding in review_deferrals(dispositions, facts, planned.output)],
+        lambda: _second_opinion(loaded, packet, checks, common),
+        lambda: _third_opinion(loaded, packet, checks, common),
+    )
     validation = record_review_verdict(validation, review)
     # G3-W02 ADVISORY: the acceptance score is recorded with the review. No blocking check reads
     # it, and it is computed after check 10 so the record sees the same verdicts the bundle does.
@@ -799,26 +811,28 @@ def _stage_target(
     )
 
 
-def _with_carried_units(
-    recover: Callable[[dict[str, Any]], dict[str, Any] | None], must_carry: frozenset[str]
-) -> Callable[[dict[str, Any]], dict[str, Any] | None]:
-    """A repair's own last-resort recovery, extended with the must-carry omission record.
+def _reject_uncarried_units(
+    checks: Callable[[dict[str, Any]], list[str]] | None, task: SectionTask
+) -> Callable[[dict[str, Any]], list[str]]:
+    """Layer the carry rule onto an S6 repair's own stage_checks, the same rule a fresh
+    ``section_authoring`` draft is judged by (``unit_checks`` -> ``carried_unit_errors``).
 
-    A ``targeted_repair`` reply wraps its units in ``revised_output``, so the carry recovery runs
-    on that shape, after the title recovery; with nothing to carry the recovery is returned
-    unchanged. Each step is re-validated by the repair's real checks (unit_checks included)."""
-    if not must_carry:
-        return recover
+    Before this, a repair reply that still dropped a must-carry unit was never checked at all:
+    the repair's own last resort (``_with_carried_units``, removed) silently recorded the drop as
+    a generic omission and let the reply pass regardless of what the model wrote - the same
+    fabrication #281 removed from ``section_authoring``'s own last resort, left unfixed here and
+    flagged "out of scope" in that commit. ``carried_unit_errors`` quotes each still-uncarried
+    unit's own source text (``task.must_carry_text``), so the repair's one re-ask can carry it,
+    exactly as the initial authoring call's re-ask now does - the same function, not a copy."""
+    if not task.must_carry:
+        return checks if checks is not None else (lambda revised: [])
 
-    def recovered(output: dict[str, Any]) -> dict[str, Any] | None:
-        first = recover(output)
-        base = first if first is not None else output
-        revised = base.get("revised_output")
-        if isinstance(revised, dict) and recover_carried_units(revised, must_carry):
-            return base
-        return first
+    def guarded(revised: dict[str, Any]) -> list[str]:
+        errors = list(checks(revised)) if checks is not None else []
+        errors.extend(carried_unit_errors(revised, task))
+        return errors
 
-    return recovered
+    return guarded
 
 
 def repair_defect(
@@ -862,6 +876,7 @@ def repair_defect(
         )
     if section_task is not None:
         stage_checks = _reject_title_verbatim_opening(stage_checks, section_task)
+        stage_checks = _reject_uncarried_units(stage_checks, section_task)
     # G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): a BC-07
     # visible-line-budget defect always names causal stage S5 (the only Failure `_check_structure`
     # ever raises with `stage="PLANNING"` - validation/registry.py), so this is a structured,
@@ -906,9 +921,8 @@ def repair_defect(
                 return
     recover_fn: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None
     if section_task is not None:
-        recover_fn = _with_carried_units(
-            functools.partial(recover_title_verbatim_opening, slot_titles=section_task.slot_titles),
-            section_task.must_carry,
+        recover_fn = functools.partial(
+            recover_title_verbatim_opening, slot_titles=section_task.slot_titles
         )
     elif visible_line_hint is not None:
         recover_fn = functools.partial(

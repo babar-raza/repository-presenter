@@ -7,6 +7,7 @@ checks a genuine revision would have to pass.
 
 from __future__ import annotations
 
+import functools
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -16,23 +17,25 @@ from unittest.mock import Mock, patch
 from repository_presenter.components.readme.bundle.seal import seed_additional_calls
 from repository_presenter.components.readme.composition.authoring import (
     RAW_CALLS_FILENAME,
+    SectionTask,
     write_raw_calls,
 )
 from repository_presenter.components.readme.repair.rounds import (
     Round,
     SecondReadFailure,
+    _read_review,
     _refuse_noop,
     _reject_insufficient_visible_line_overage,
+    _reject_uncarried_units,
     _round_raw_calls,
     _second_opinion,
     _stage_target,
     _third_opinion,
-    _with_carried_units,
     repair_defect,
 )
 from repository_presenter.components.readme.repair.targeted import Defect
 from repository_presenter.components.readme.review.independent.review import (
-    MAJORITY_VOTE_REPOSITORIES,
+    review_document,
 )
 from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import FactsDocument
@@ -123,17 +126,167 @@ def test_a_successful_third_reader_job_returns_its_own_job_result() -> None:
         assert _third_opinion(LOADED, PACKET, None, COMMON) == result
 
 
-def test_the_escalation_set_is_exactly_the_three_documented_repositories() -> None:
-    """`run_round` gates the 2-of-3 escalation on `tx.entry.repository in
-    MAJORITY_VOTE_REPOSITORIES` alone (section 5.6) - a repository not named here takes the
-    unchanged single-confirming-read path no matter how this test module's own fixtures are set
-    up, since nothing else in `run_round` can trigger the third read."""
-    assert {
+def _judged_review(
+    first: dict[str, Any],
+    deferrals: list[str],
+    second: JobResult | SecondReadFailure | None,
+    third: JobResult | None,
+) -> tuple[dict[str, Any], list[str]]:
+    """Runs `_read_review` with stub reads, recording which reads were requested."""
+    calls: list[str] = []
+    document = functools.partial(review_document, first, LOADED, LOADED, "d" * 64)
+
+    def run_second() -> JobResult | SecondReadFailure | None:
+        calls.append("second")
+        return second
+
+    def run_third() -> JobResult | None:
+        calls.append("third")
+        return third
+
+    review, _decision, _second, _third = _read_review(document, deferrals, run_second, run_third)
+    return review, calls
+
+
+_CLEAN = {"verdict": "ACCEPT", "findings": [], "preserve": []}
+_BLOCKING = {
+    "id": "F01",
+    "section_id": "key_capabilities",
+    "causal_stage": "S6",
+    "criterion": "factuality",
+    "text": "A claim is unsupported.",
+    "quote": "",
+    "fact_ids": [],
+    "absent": [],
+    "omission": None,
+    "repair": "Drop the claim.",
+}
+
+
+def test_a_clean_accept_with_no_trigger_makes_no_second_call() -> None:
+    """The unconditional second read on every ACCEPT is gone: a clean first ACCEPT whose trigger
+    does not fire is one read, and the record says so."""
+    review, calls = _judged_review(_CLEAN, [], second=_stub_job_result(_CLEAN), third=None)
+    assert calls == []
+    assert review["second_reader"]["read"] == 1
+    assert review["second_reader"]["trigger"] == {"triggered": False, "reasons": []}
+
+
+def test_a_blocking_deferral_alone_makes_no_second_call() -> None:
+    _review, calls = _judged_review(_CLEAN, ["BLOCK"], second=_stub_job_result(_CLEAN), third=None)
+    assert calls == []
+
+
+def test_an_advisory_deferral_requests_one_second_read_and_records_the_reason() -> None:
+    review, calls = _judged_review(
+        _CLEAN, ["ADVISORY"], second=_stub_job_result(_CLEAN), third=None
+    )
+    assert calls == ["second"]
+    assert review["second_reader"]["read"] == 2
+    assert review["second_reader"]["trigger"] == {
+        "triggered": True,
+        "reasons": ["ADVISORY_DEFERRAL"],
+    }
+
+
+def test_a_prose_judgment_on_a_required_row_requests_the_second_read() -> None:
+    judgment = {
+        **_BLOCKING,
+        "criterion": "presentation",
+        "fact_ids": [],
+        "section_id": "key_capabilities",
+    }
+    review, calls = _judged_review(
+        {"verdict": "REJECT_PRESENTATION", "findings": [judgment], "preserve": []},
+        [],
+        second=_stub_job_result(_CLEAN),
+        third=None,
+    )
+    assert calls == ["second"]
+    assert review["second_reader"]["trigger"]["reasons"] == ["PROSE_JUDGMENT_ON_REQUIRED_ROW"]
+
+
+def test_a_triggered_second_read_that_fails_leaves_the_trigger_unsatisfied() -> None:
+    """A failed triggered read is None, never {}: the first reader's review stands, one read, with
+    the trigger recorded as fired, so check 10 fails it (losing verification never raises
+    assurance)."""
+    review, calls = _judged_review(_CLEAN, ["ADVISORY"], second=None, third=None)
+    assert calls == ["second"]
+    assert review["second_reader"]["read"] == 1
+    assert review["second_reader"]["trigger"]["triggered"] is True
+    assert "failed" not in review["second_reader"]
+
+
+def test_a_triggered_second_read_that_raises_jobs_error_names_the_cause() -> None:
+    """A triggered second read that raises (``_second_opinion`` returns a ``SecondReadFailure``,
+    never a bare ``None``) leaves the first reader's review as the record, one read, with the
+    trigger recorded as fired AND the failure's own cause recorded under
+    ``second_reader.failed`` - so check 10 names why, instead of reporting an indistinguishable
+    bare single read (the "review second-read cause" fix)."""
+    failure = SecondReadFailure(kind="JobError", reason="gateway unavailable")
+    review, calls = _judged_review(_CLEAN, ["ADVISORY"], second=failure, third=None)
+    assert calls == ["second"]
+    assert review["second_reader"]["read"] == 1
+    assert review["second_reader"]["trigger"]["triggered"] is True
+    assert review["second_reader"]["failed"] == {
+        "kind": "JobError",
+        "reason": "gateway unavailable",
+    }
+
+
+def test_a_second_read_disagreeing_with_a_clean_first_read_requests_the_third() -> None:
+    disagreeing = {"verdict": "REJECT_FACTUAL", "findings": [_BLOCKING], "preserve": []}
+    review, calls = _judged_review(
+        _CLEAN,
+        ["ADVISORY"],
+        second=_stub_job_result(disagreeing),
+        third=_stub_job_result(disagreeing),
+    )
+    assert calls == ["second", "third"]
+    assert review["second_reader"]["read"] == 3
+    assert review["verdict"] == "REJECT_FACTUAL"
+
+
+def test_a_single_dissenting_extra_reader_is_tolerated_by_the_two_of_three_vote() -> None:
+    disagreeing = {"verdict": "REJECT_FACTUAL", "findings": [_BLOCKING], "preserve": []}
+    review, calls = _judged_review(
+        _CLEAN, ["ADVISORY"], second=_stub_job_result(disagreeing), third=_stub_job_result(_CLEAN)
+    )
+    assert calls == ["second", "third"]
+    assert review["verdict"] == "ACCEPT"
+
+
+def test_a_failed_third_read_falls_back_to_the_single_confirming_rule() -> None:
+    """Negative control: when the third read cannot complete, the second read's dissent blocks
+    exactly as the single-confirming-read rule always did - never a looser outcome."""
+    disagreeing = {"verdict": "REJECT_FACTUAL", "findings": [_BLOCKING], "preserve": []}
+    review, calls = _judged_review(
+        _CLEAN, ["ADVISORY"], second=_stub_job_result(disagreeing), third=None
+    )
+    assert calls == ["second", "third"]
+    assert review["verdict"] == "REJECT_FACTUAL"
+    assert review["second_reader"]["read"] == 2
+
+
+def test_the_review_decision_cannot_depend_on_the_repository_identity() -> None:
+    """Restores the property the removed MAJORITY_VOTE_REPOSITORIES membership check enforced: no
+    repository is escalated by identity. The second read, the third read and the vote are decided
+    by the candidate's typed facts alone. `_read_review` takes no repository, entry or
+    repository-keyed set, so reintroducing an identity gate (a repository parameter) fails here;
+    a clean, untriggered accept makes no call for any repository, including the three repositories
+    the removed set named and the canary."""
+    import inspect
+
+    names = set(inspect.signature(_read_review).parameters)
+    assert not {n for n in names if "repo" in n or "entry" in n or "majority" in n}
+    for repository in (
         "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
         "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
         "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
-    } == MAJORITY_VOTE_REPOSITORIES
-    assert "aspose-3d-foss/Aspose.3D-FOSS-for-Python" not in MAJORITY_VOTE_REPOSITORIES
+        "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    ):
+        review, calls = _judged_review(_CLEAN, [], second=_stub_job_result(_CLEAN), third=None)
+        assert calls == [] and review["second_reader"]["read"] == 1, repository
 
 
 def _stub_job_result(output: dict[str, Any]) -> JobResult:
@@ -321,44 +474,62 @@ def test_every_reconciliation_batch_is_sealed_so_a_fresh_clone_replays_it_with_z
     assert store.get("c" * 64) == second.output
 
 
-def test_a_repair_recovery_records_an_uncarried_superseded_unit_inside_revised_output() -> None:
-    """Aspose.Slides for Java, development_testing (BC-10 F08): the S6 repair's last-resort
-    recovery must also cover the must-carry units, and only on the revised_output shape a
-    targeted_repair reply uses. With nothing to carry the recovery is returned unchanged, so no
-    other section's repair behaves differently."""
-    must_carry = frozenset({"inherited_unit:092.paragraph"})
+def test_a_repair_recovery_no_longer_fabricates_an_omission_for_a_dropped_unit() -> None:
+    """Confirmed 2026-10-07 on the Slides-Java release block: #281 removed this fabrication from
+    section_authoring's own last resort but left the S6 repair route doing it, flagged "out of
+    scope" in that commit. The repair's last resort is now just the title recovery; it never
+    touches omitted, so a reply that drops a must-carry unit stays dropped for the real check."""
+    from repository_presenter.components.readme.composition.authoring import (
+        recover_title_verbatim_opening,
+    )
 
-    def no_title_fix(output: dict[str, Any]) -> dict[str, Any] | None:
-        return None
-
-    assert _with_carried_units(no_title_fix, frozenset()) is no_title_fix
-    recover = _with_carried_units(no_title_fix, must_carry)
     reply: dict[str, Any] = {
         "revised_output": {
             "units": [{"section": "development_testing", "slot": "summary", "text": "x"}],
             "omitted": [],
         }
     }
-    recovered = recover(reply)
-    assert recovered is reply
-    assert [item["fact_id"] for item in reply["revised_output"]["omitted"]] == [
-        "inherited_unit:092.paragraph"
-    ]
-    # Mutation control: a reply already carrying the unit is left alone.
-    settled: dict[str, Any] = {
-        "revised_output": {
-            "units": [
-                {
-                    "section": "development_testing",
-                    "slot": "summary",
-                    "text": "x",
-                    "fact_ids": ["inherited_unit:092.paragraph"],
-                }
-            ],
-            "omitted": [],
-        }
+    recovered = recover_title_verbatim_opening(reply, slot_titles={})
+    assert recovered is None or recovered["revised_output"]["omitted"] == []
+
+
+def test_the_repair_stage_checks_refuse_a_dropped_must_carry_unit_with_its_source_text() -> None:
+    """_reject_uncarried_units layers carried_unit_errors onto the repair's own stage_checks, the
+    same function section_authoring's own unit_checks already calls - reused, not duplicated.
+    A dropped unit is refused with its source text; citing it, or omitting it with a reason,
+    passes; nothing to carry leaves an unset checks callable returning no errors."""
+    task = SectionTask(
+        "development_testing",
+        {},
+        frozenset(),
+        ("summary",),
+        must_carry=frozenset({"inherited_unit:092.paragraph"}),
+        must_carry_text={"inherited_unit:092.paragraph": "Build with Maven."},
+    )
+    guarded = _reject_uncarried_units(None, task)
+    dropped = {"units": [{"slot": "summary", "fact_ids": [], "text": "x"}], "omitted": []}
+    errors = guarded(dropped)
+    assert len(errors) == 1
+    assert "inherited_unit:092.paragraph" in errors[0]
+    assert "Build with Maven." in errors[0]
+    cited = {
+        "units": [{"slot": "summary", "fact_ids": ["inherited_unit:092.paragraph"], "text": "x"}],
+        "omitted": [],
     }
-    assert recover(settled) is None
+    assert guarded(cited) == []
+    omitted = {
+        "units": [{"slot": "summary", "fact_ids": [], "text": "x"}],
+        "omitted": [{"fact_id": "inherited_unit:092.paragraph", "reason": "stated elsewhere"}],
+    }
+    assert guarded(omitted) == []
+    # Negative control: a section with nothing to carry layers nothing extra onto its own checks.
+    no_carry_task = SectionTask("opening", {}, frozenset(), ("opening",))
+
+    def own_check(_: dict[str, Any]) -> list[str]:
+        return ["unrelated"]
+
+    assert _reject_uncarried_units(own_check, no_carry_task) is own_check
+    assert _reject_uncarried_units(None, no_carry_task)({"units": []}) == []
 
 
 class _RecordingStore:

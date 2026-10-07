@@ -16,7 +16,7 @@ from repository_presenter.components.readme.repair.targeted import review_defect
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
-    MAJORITY_VOTE_REPOSITORIES,
+    SecondReadDecision,
     _value_segments,
     absence_defect,
     absence_partition,
@@ -28,6 +28,7 @@ from repository_presenter.components.readme.review.independent.review import (
     review_document,
     review_packet,
     scope_defect,
+    second_read_decision,
     second_reader,
     summarize_review,
     third_reader,
@@ -2472,24 +2473,68 @@ def test_the_third_read_changes_the_seed_and_nothing_else() -> None:
     )
 
 
-def test_majority_vote_repositories_is_a_narrow_named_set() -> None:
-    """Section 5.6: only a repository with its own documented history of two or more distinct
-    S10 findings across independent draws (docs/DECISION_LOG.md) escalates to 2-of-3; every other
-    repository - including this module's own default ENTRY - keeps the single-confirming-read
-    path (PHASE1/F6, the 2026-09-06 guard) exactly as it always has."""
-    assert ENTRY.repository not in MAJORITY_VOTE_REPOSITORIES
-    assert {
-        "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
-        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
-        "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
-    } == MAJORITY_VOTE_REPOSITORIES
+def test_the_second_read_trigger_fires_on_a_prose_judgment_on_a_required_row() -> None:
+    first = {"verdict": "REJECT_PRESENTATION", "findings": [_judgment("P01", "key_capabilities")]}
+    decision = second_read_decision(first, [])
+    assert decision == SecondReadDecision(True, ("PROSE_JUDGMENT_ON_REQUIRED_ROW",))
+    assert decision.as_record() == {
+        "triggered": True,
+        "reasons": ["PROSE_JUDGMENT_ON_REQUIRED_ROW"],
+    }
 
 
-def test_an_unescalated_repository_is_unaffected_by_third_none() -> None:
-    """The normal, single-confirming-read path (every repository not in
-    MAJORITY_VOTE_REPOSITORIES) must be byte-for-byte unchanged by this escalation: omitting
-    ``third`` and passing ``third=None`` explicitly must produce identical documents, and must
-    match the pre-escalation single-second-reader behavior exactly."""
+def test_the_second_read_trigger_fires_on_an_advisory_deferral() -> None:
+    clean = {"verdict": "ACCEPT", "findings": []}
+    decision = second_read_decision(clean, ["BLOCK", "ADVISORY"])
+    assert decision == SecondReadDecision(True, ("ADVISORY_DEFERRAL",))
+
+
+def test_a_clean_accept_with_no_trigger_condition_makes_no_second_read() -> None:
+    """Negative control: a clean first ACCEPT, with no prose judgment and no advisory deferral,
+    is not triggered - the record says so and the reasons are empty (the owner's typed rule)."""
+    decision = second_read_decision({"verdict": "ACCEPT", "findings": []}, [])
+    assert decision == SecondReadDecision(False, ())
+    assert decision.as_record() == {"triggered": False, "reasons": []}
+
+
+def test_a_blocking_deferral_alone_does_not_trigger_a_second_read() -> None:
+    """Negative control: a BLOCK deferral never reaches review (BC-05 stops the round first), and
+    a candidate that somehow carries one is not a reason to add a reader."""
+    assert second_read_decision({"verdict": "ACCEPT", "findings": []}, ["BLOCK"]).triggered is False
+
+
+def test_a_prose_judgment_on_an_optional_section_does_not_trigger() -> None:
+    """Negative control: the prose trigger is scoped to required rows, exactly as the fold's own
+    prose-judgment rule is (prose_judgment)."""
+    first = {"verdict": "REJECT_PRESENTATION", "findings": [_judgment("P01", "zz_optional")]}
+    assert second_read_decision(first, []).triggered is False
+
+
+def test_a_non_prose_blocking_finding_alone_does_not_trigger_a_second_read() -> None:
+    """Negative control: a factuality finding is refuted or upheld deterministically; a second
+    reader cannot demote it, so it does not buy a second call."""
+    first = {"verdict": "REJECT_FACTUAL", "findings": [_finding("F01", "key_capabilities", "S6")]}
+    assert second_read_decision(first, []).triggered is False
+
+
+def test_review_document_records_the_trigger_decision_on_the_review() -> None:
+    accept = {"verdict": "ACCEPT", "findings": [], "preserve": []}
+    untriggered = review_document(
+        accept,
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        trigger=second_read_decision(accept, []),
+    )
+    assert untriggered["second_reader"]["trigger"] == {"triggered": False, "reasons": []}
+    assert untriggered["second_reader"]["read"] == 1
+    assert "trigger" not in review_document(accept, REVIEWER, AUTHORING, "d" * 64)["second_reader"]
+
+
+def test_a_single_confirming_read_is_unaffected_by_third_none() -> None:
+    """The single-confirming-read path (no third read requested) must be byte-for-byte unchanged:
+    omitting ``third`` and passing ``third=None`` explicitly must produce identical documents, and
+    must match the single-second-reader behavior exactly."""
     accept = {"verdict": "ACCEPT", "findings": [], "preserve": []}
     common: dict[str, Any] = {"candidate_readme": CANDIDATE, "facts": FACTS}
     standing = _finding("F02", "key_capabilities", "S6", "It writes `.glb` files.")
@@ -2836,3 +2881,97 @@ def test_the_review_schema_accepts_a_typed_omission_and_null_and_rejects_a_malfo
     no_field = reply(None)
     del no_field["findings"][0]["omission"]
     assert list(validator.iter_errors(no_field))  # null is the explicit "no omission claimed"
+
+
+def _triggered_accept(**extra: Any) -> dict[str, Any]:
+    return review_document(
+        {"verdict": "ACCEPT", "findings": [], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        trigger=SecondReadDecision(True, ("ADVISORY_DEFERRAL",)),
+        **extra,
+    )
+
+
+def test_an_untriggered_clean_accept_passes_check_ten_on_one_read() -> None:
+    """OWNER-15: a clean ACCEPT whose trigger did not fire needs no second read; the record says
+    so, and check 10 passes it."""
+    review = review_document(
+        {"verdict": "ACCEPT", "findings": [], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        trigger=second_read_decision({"verdict": "ACCEPT", "findings": []}, []),
+    )
+    assert record_review_verdict(VALIDATION, review)["checks"][1]["verdict"] == "PASS"
+
+
+def test_a_triggered_accept_with_no_completed_second_read_fails_check_ten() -> None:
+    """Negative control: the trigger fired and the second read never completed (the caller passes
+    no second reading). Losing verification never increases assurance, so check 10 fails and
+    names the trigger that was not satisfied."""
+    judged = record_review_verdict(VALIDATION, _triggered_accept())
+    assert judged["checks"][1]["verdict"] == "FAIL"
+    assert "ADVISORY_DEFERRAL" in judged["checks"][1]["details"][0]
+
+
+def test_a_triggered_accept_corroborated_by_its_second_read_passes_check_ten() -> None:
+    review = _triggered_accept(second={"verdict": "ACCEPT", "findings": [], "preserve": []})
+    assert record_review_verdict(VALIDATION, review)["checks"][1]["verdict"] == "PASS"
+
+
+def test_an_untriggered_accept_carrying_a_blocking_finding_fails_check_ten() -> None:
+    """Negative control: an untriggered ACCEPT is clean only when nothing blocks; a blocking
+    finding routes check 10 to its causal stage, never a silent pass."""
+    review = review_document(
+        {
+            "verdict": "ACCEPT",
+            "findings": [_finding("F01", "key_capabilities", "S6")],
+            "preserve": [],
+        },
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        trigger=SecondReadDecision(False, ()),
+    )
+    judged = record_review_verdict(VALIDATION, review)
+    assert judged["checks"][1]["verdict"] == "FAIL"
+    assert judged["checks"][1]["causal_stage"] == "COMPOSING"
+
+
+def test_a_legacy_single_read_accept_without_a_trigger_record_still_fails_check_ten() -> None:
+    """Sealed-replay guard: a review.json sealed before the trigger existed has no trigger record,
+    so its single-read ACCEPT keeps the pre-16 single-read rule and fails, as it always did."""
+    legacy = review_document(
+        {"verdict": "ACCEPT", "findings": [], "preserve": []}, REVIEWER, AUTHORING, "d" * 64
+    )
+    assert "trigger" not in legacy["second_reader"]
+    assert record_review_verdict(VALIDATION, legacy)["checks"][1]["verdict"] == "FAIL"
+
+
+def test_no_tracked_sealed_review_gains_a_pass_from_the_trigger() -> None:
+    """Sealed bundles are not rewritten and replay unaffected: every tracked sealed review.json
+    carries no trigger record, so it is judged under the unchanged single-read rule, and none
+    passes check 10 on fewer than two completed reads. The trigger can add a pass only to a new
+    review that records an untriggered clean ACCEPT; it never reaches a sealed one."""
+    bundles = sorted((REPO_ROOT / "candidates").glob("*/*/review.json"))
+    assert bundles, "the tracked sealed candidates are missing; the replay test went blind"
+    checked = 0
+    for review_path in bundles:
+        validation_path = review_path.with_name("validation.json")
+        if not validation_path.exists():
+            continue
+        checked += 1
+        sealed_validation = json.loads(validation_path.read_text("utf-8"))
+        review = json.loads(review_path.read_text("utf-8"))
+        second = review.get("second_reader") or {}
+        assert "trigger" not in second, review_path
+        judged = next(
+            c
+            for c in record_review_verdict(sealed_validation, review)["checks"]
+            if c["id"] == "BC-10"
+        )
+        if judged["verdict"] == "PASS":
+            assert int(second.get("read") or 0) >= 2, review_path
+    assert checked >= 1, "no sealed bundle was replayed; the replay test went blind"
