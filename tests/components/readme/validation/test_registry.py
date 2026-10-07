@@ -307,10 +307,12 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # VALIDATOR_VERSION 12: BC-10 v5 accepts a clean single-read ACCEPT with no second-reader
     # trigger (OWNER-15); VALIDATOR_VERSION 13: BC-07 v10 allows zero badges when zero
     # badge-worthy facts exist; VALIDATOR_VERSION 14: advisory_notes records BC-12's own
-    # docstring elisions. This candidate names no edition, spells its name whole, and passes all
-    # of them (it has badge-worthy facts and a rendered badge row, and no docstring eliciting an
-    # elision, so neither v13's nor v14's new allowance/note ever fires).
-    assert document["source_revision"] == REVISION and document["validator_version"] == "14"
+    # docstring elisions; VALIDATOR_VERSION 15: a refused ACCEPT names the corroborating second
+    # read that failed (second_reader.failed). This candidate names no edition, spells its name
+    # whole, and passes all of them (it has badge-worthy facts and a rendered badge row, no
+    # docstring eliciting an elision, and a clean single-read ACCEPT with no triggered second
+    # read, so v13's, v14's, and v15's own allowance/note/detail never fire).
+    assert document["source_revision"] == REVISION and document["validator_version"] == "15"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(

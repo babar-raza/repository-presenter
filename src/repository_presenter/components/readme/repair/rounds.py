@@ -192,19 +192,34 @@ class Round:
         return {task.section_id for task in self.tasks}
 
 
+@dataclass(frozen=True)
+class SecondReadFailure:
+    """Why the corroborating second read did not complete. It is recorded on review.json as
+    ``second_reader.failed``, so check 10 names the cause instead of reporting a bare single read
+    (a truncated reply at max_output_tokens is the case this exists for)."""
+
+    kind: str
+    reason: str
+
+    def record(self) -> dict[str, Any]:
+        return {"kind": self.kind, "reason": self.reason}
+
+
 def _second_opinion(
     loaded: LoadedManifest, packet: Mapping[str, Any], checks: Any, common: Mapping[str, Any]
-) -> JobResult | None:
-    """The second reader's own ``JobResult``, or ``None`` when the job raised ``JobError`` - never
-    an empty output, which ``review_document`` reads as a completed reading that corroborated
-    nothing (TB-04). Returns the whole ``JobResult``, not just ``.output`` (G5-W02): the caller
-    needs ``.request_sha256`` too, to seal this read's own raw output under its own call's own key
-    in ``raw_calls.json`` - ``review.json`` alone cannot always answer for it on a later replay
-    (a rejected first read never carries the second reader's own non-blocking findings forward)."""
+) -> JobResult | SecondReadFailure:
+    """The second reader's own ``JobResult``, or a ``SecondReadFailure`` naming why the job raised
+    ``JobError`` - never an empty output, which ``review_document`` reads as a completed reading
+    that corroborated nothing (TB-04). The failure is returned, not dropped, so review.json carries
+    its cause (a single read with no recorded cause is indistinguishable from an unrequested second
+    read). Returns the whole ``JobResult``, not just ``.output`` (G5-W02): the caller needs
+    ``.request_sha256`` too, to seal this read's own raw output under its own call's own key in
+    ``raw_calls.json`` - ``review.json`` alone cannot always answer for it on a later replay (a
+    rejected first read never carries the second reader's own non-blocking findings forward)."""
     try:
         return run_job(second_reader(loaded), packet, checks=checks, **common)
-    except JobError:
-        return None
+    except JobError as error:
+        return SecondReadFailure(kind="JobError", reason=str(error))
 
 
 def _third_opinion(
@@ -270,22 +285,30 @@ def _round_raw_calls(
 def _read_review(
     document: Callable[..., dict[str, Any]],
     deferral_decisions: Collection[str],
-    second: Callable[[], JobResult | None],
+    second: Callable[[], JobResult | SecondReadFailure | None],
     third: Callable[[], JobResult | None],
 ) -> tuple[dict[str, Any], SecondReadDecision, JobResult | None, JobResult | None]:
     """The review of one candidate: the first read, then the typed second-reader trigger (OWNER-15).
 
     A clean first ACCEPT whose trigger does not fire makes no second call and is recorded as a
-    single read (``second_reader.trigger.triggered`` false). A triggered second read that cannot
-    produce usable output (``None``, never ``{}`` - TB-04, external review D4, 2026-09-08) leaves
-    the first reader's review as the document of record with the trigger recorded, so check 10
-    fails it: losing verification never increases assurance. A third read (2-of-3, section 5.6) is
-    requested only when a triggered second read disagrees with a clean first read; a failed third
-    read falls back to the single-confirming-read rule, never to a looser one.
+    single read (``second_reader.trigger.triggered`` false). A triggered second read that raises
+    ``JobError`` returns a ``SecondReadFailure`` (never ``{}`` - TB-04, external review D4,
+    2026-09-08) naming its cause, recorded as ``second_reader.failed`` alongside the trigger, so
+    check 10 names why the single read it is left with never became a corroborated one; a bare
+    ``None`` (no cause available) leaves the trigger recorded with no ``failed`` detail, exactly
+    as before this cause was tracked. A third read (2-of-3, section 5.6) is requested only when a
+    triggered second read disagrees with a clean first read; a failed third read falls back to the
+    single-confirming-read rule, never to a looser one.
     """
     first = document()
     decision = second_read_decision(first, deferral_decisions)
-    second_result = second() if decision.triggered else None
+    if not decision.triggered:
+        return document(trigger=decision), decision, None, None
+    attempt = second()
+    if isinstance(attempt, SecondReadFailure):
+        review = document(trigger=decision, second_failure=attempt.record())
+        return review, decision, None, None
+    second_result = attempt
     if second_result is None:
         return document(trigger=decision), decision, None, None
     disagrees = first.get("verdict") == ACCEPT and any(
@@ -542,6 +565,9 @@ def run_round(tx: TransactionInputs) -> Round:
         dispositions=dispositions,
     )
     # The second reader is requested only by the typed trigger (OWNER-15, second_read_decision).
+    # A JobError from that corroborating read is returned as a SecondReadFailure, never None, so
+    # review.json names its cause instead of reporting a bare single read (second_reader.failed;
+    # "review second-read cause").
     review, _decision, second_result, third_result = _read_review(
         document,
         [finding.decision for finding in review_deferrals(dispositions, facts, planned.output)],

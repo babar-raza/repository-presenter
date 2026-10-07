@@ -151,7 +151,10 @@ ACCEPT = "ACCEPT"
 # trigger, and a third read only after a triggered second read disagrees with a clean first read.
 # The hard-coded MAJORITY_VOTE_REPOSITORIES set is removed. A clean ACCEPT whose trigger does not
 # fire is a single read, and review.json records that decision so check 10 can tell it apart.
-REVIEWER_LOGIC_VERSION = "16"
+# "17" (review second-read cause, landing PR #248/#275): a JobError from the corroborating second
+# read is returned as a SecondReadFailure and recorded on review.json as second_reader.failed, so
+# check 10 names the cause instead of reporting a bare single read.
+REVIEWER_LOGIC_VERSION = "17"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -1789,6 +1792,7 @@ def review_document(
     third: Mapping[str, Any] | None = None,
     units: Mapping[str, Any] | None = None,
     dispositions: Mapping[str, Any] | None = None,
+    second_failure: Mapping[str, Any] | None = None,
     trigger: SecondReadDecision | Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """review.json: the verdict, blocking findings with their causal state, advisory findings,
@@ -2003,6 +2007,10 @@ def review_document(
             # as before this escalation existed.
             "read": 3 if third is not None else (2 if second is not None else 1),
             "corroborated": sorted(corroborated),
+            # Why the corroborating read did not complete (its JobError kind and reason, for
+            # example a truncated reply at max_output_tokens). Present only when a second read was
+            # attempted and failed, so a successful review's record is byte-identical to before.
+            **({"failed": dict(second_failure)} if second_failure is not None else {}),
         },
         "preserve": list(output.get("preserve", [])),
         "reviewer": {
