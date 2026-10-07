@@ -1,6 +1,6 @@
 # Repository Presenter Implementation State Machine
 
-Status: authoritative build and delivery plan, revision 2 (2026-09-02)  
+Status: authoritative build and delivery plan, revision 3 (2026-10-04, plan forensics; §13-§14)  
 Audience: the coding agent responsible for implementing Repository Presenter  
 Companion authority: [`STATE_MACHINE.md`](STATE_MACHINE.md) defines the runtime target;
 [`../plans/idea.md`](../plans/idea.md) owns the product outcome; `migration/reuse-manifest.yaml`
@@ -8,8 +8,9 @@ owns legacy disposition; `project/state.yaml` is the only cursor
 Legacy source baseline: `babar-raza/foss-readme-optimizer` at
 `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`
 
-Revision 1 sequenced four infrastructure gates before the first README, the legacy failure mode;
-`RESEARCH_AND_GUIDELINES.md` §17 records why revision 2 replaced it. Cap: 500 lines, eight gates.
+This is the only active build plan. It supersedes nothing and is superseded by nothing; the competing
+plan channels found in revision 3 are retired by taskcard H-01 (§3). Revision 1's four-infrastructure-
+gate sequence was replaced per `RESEARCH_AND_GUIDELINES.md` §17. Cap: 500 lines, eight gates.
 
 ## 1. Mission
 
@@ -17,106 +18,74 @@ Build and deploy Repository Presenter as an autonomous GitHub-native system whos
 component keeps the README files of authorized repositories accurate, credible, repository-specific,
 and current, using a configurable custom LLM inside deterministic controls.
 
-Progress has exactly one unit: **current, reviewable, no-op-proven README candidates** against the
-registry's own entry count, both printed live by `status`, never restated here. Code volume, tests,
-evidence, schemas, transitions, and closed work items are not progress. The observable repository
-transaction is:
-
-1. inspect an immutable real repository revision;
-2. interpret the product agentically from repository-grounded evidence;
-3. reconcile the existing README without silently losing valuable content;
-4. plan and compose a concise repository-specific README;
-5. validate it deterministically with a small set of blocking checks;
-6. obtain one independent agentic approval;
-7. prove an unchanged rerun is byte-identical and makes zero provider calls;
-8. keep that candidate valid while the system changes around it;
-9. later, monitor drift on hosted runners and open or update a safe proposal; and
-10. recover correctly after interruption or an uncertain remote effect.
+Progress has one unit: **current, reviewable, no-op-proven README candidates**, counted as `READY_FOR_PROPOSAL`
+bundles and printed by `status` against the live registry count. This document never states a count.
+Code volume, tests, evidence, schemas, transitions, and closed items are not progress. The observable transaction:
+inspect an immutable real revision; interpret the product agentically from
+repository-grounded evidence; reconcile the existing README without losing valuable content; plan and
+compose a concise repository-specific README; validate it with a few blocking checks; obtain one
+independent agentic approval; prove an unchanged rerun is byte-identical with zero provider calls;
+keep the candidate valid as the system changes; later monitor drift on hosted runners and open or
+update a safe proposal; recover correctly after interruption or an uncertain remote effect.
 
 ## 2. Binding principles
 
-1. The system runs autonomously on GitHub-hosted runners on schedules and explicit triggers.
-2. The production LLM is a configurable OpenAI-compatible gateway supplied through GitHub secrets.
-3. Agentic reasoning is mandatory for interpretation, reconciliation, planning, composition,
-   independent review, and targeted repair.
-4. Deterministic code owns evidence, validation, state, transitions, safety, authorization,
-   idempotency, recovery, and GitHub effects.
-5. The portfolio presentation contract is a brand/assurance shell, not a universal prose template.
-6. Normal execution detects product, ecosystem, shape, sections, evidence, examples, and validation
-   paths without human template selection. Each platform extractor is independent of every other
-   and of every downstream stage, sharing only `facts.json` (`REPOSITORY_LAYOUT.md` §2.1).
-7. The exact immutable repository snapshot is factual authority.
-8. Existing README content is high-value evidence: validate, preserve, improve, correct, or
-   explicitly omit every material unit.
-9. Aspose.org and previously published candidates are development oracles, never runtime
-   dependencies. Legacy per-product profiles and catalogs hold the same status: pulled and
-   reviewed per repository or family as needed, never in bulk (`RESEARCH_AND_GUIDELINES.md` §7.2.1).
-10. A README-only placeholder receives a typed non-processable disposition, never invented content.
-11. An accepted unchanged transaction makes zero new provider calls.
-12. Analysis and write credentials are separately minted, repository-scoped, and short-lived.
-13. Initial publication is PR-only: opening or updating one, never a direct default-branch commit.
-14. A content candidate and permission to publish it are separate decisions.
-15. One repository failure never stops safe work on unrelated repositories.
-16. Research a battle-tested library or standard facility before writing a custom mechanism;
-    document a departure with the alternative considered. `RESEARCH_AND_GUIDELINES.md` §18 is the
-    registry. A pulled legacy module is judged by this rule too, not exempted by having run in
-    production.
-17. Do not import the legacy mission graph, trusted lane, or proof bureaucracy.
-18. **Infrastructure is just-in-time.** A mechanism enters only when the current or next gate's
-    end-to-end run consumes it. Leases, fencing, durable CAS state, hosted workflows, and
-    authorization machinery arrive at G5 and G6, not before.
-19. **Every work item ends with a run of the official entry point on the canary.** A module with no
-    production importer is a defect, not a deliverable.
-20. **A candidate is invalidated only by a change to an input it consumed.** Every bundle carries a
-    per-candidate dependency manifest; no global control-plane hash exists in the codebase.
-21. **Validators and reviewers re-check; they do not invalidate.** A validator or rubric change
-    re-runs against accepted candidates and produces "still valid", `VALID_UPDATE_AVAILABLE`, or a
-    typed factual, safety, or protected-content failure. Only the last invalidates.
-22. **Reviewer findings must be repairable.** A finding names a candidate section and a causal
-    stage from a fixed vocabulary; anything else is advisory and never blocks twice.
-23. **The acceptance contract freezes at G2 exit** as version 1 and changes only at declared
-    version boundaries with regression evaluation across every current candidate.
-24. **Governance stays compact.** `AGENTS.md` at most 200 lines, this document at most 500, at most
-    eight gates. When a new rule is needed, an old one is replaced.
+1. Autonomous on GitHub-hosted runners, on schedules and explicit triggers; the production LLM is a configurable OpenAI-compatible gateway supplied through GitHub secrets.
+2. Agentic reasoning is mandatory for interpretation, reconciliation, planning, composition, independent review, and targeted repair. Deterministic code owns evidence, validation, state, transitions, safety, authorization, idempotency, recovery, and GitHub effects.
+3. The presentation contract is a brand/assurance shell, not a universal prose template. Each platform extractor is independent of every other and of every downstream stage, sharing only `facts.json` (`REPOSITORY_LAYOUT.md` §2.1).
+4. The exact immutable snapshot is factual authority. Existing README content is high-value evidence: validate, preserve, improve, correct, or explicitly omit every material unit.
+5. Aspose.org and prior candidates are development oracles, never runtime dependencies. Legacy profiles and catalogs are pulled per repository or family, never in bulk (`RESEARCH_AND_GUIDELINES.md` §7.2.1).
+6. A README-only placeholder ends its run as `insufficient_evidence` (AGENTS.md) and persists a `NON_PROCESSABLE` disposition with a typed reason and resume predicate (`STATE_MACHINE.md` §6). Content is never invented (F06).
+7. An accepted unchanged transaction makes zero new provider calls.
+8. Analysis and write credentials are separate, repository-scoped, and short-lived.
+9. One repository failure never stops safe work on unrelated repositories.
+10. Research a battle-tested library or standard facility before a custom mechanism; a departure names the alternative considered (`RESEARCH_AND_GUIDELINES.md` §18). A pulled legacy module is judged by this rule too. The legacy mission graph, trusted lane, and proof bureaucracy are never imported.
+11. Initial publication is PR-only: opening or updating one, never a direct default-branch commit. Candidate acceptance and permission to publish are separate decisions.
+12. **Infrastructure is just-in-time.** A mechanism enters when the current or next gate's end-to-end run consumes it. Early machinery is a gate-ahead item (§4), never gate progress.
+13. **Every work item ends with a run of the official entry point on the canary.** A module with no production importer is a defect, not a deliverable.
+14. **A candidate is invalidated only by a change to an input it consumed.** Each bundle carries a per-candidate dependency manifest; no global control-plane hash exists.
+15. **Validators and reviewers re-check; they do not invalidate.** Only a typed factual, safety, or protected-content failure invalidates; otherwise the result is `VALID_UPDATE_AVAILABLE`.
+16. **Reviewer findings must be repairable.** A finding names a candidate section and a causal stage from a fixed vocabulary; anything else is advisory and never blocks twice.
+17. **Governance stays compact.** `AGENTS.md` at most 200 lines, this document at most 500, at most eight gates. A new rule replaces an old one.
+18. **One authority per fact.** Status lives only in `project/state.yaml`, sequence only here, the denominator only in the live registry. No other file holds a queue, plan, taskcard list, or status (AGENTS.md); a disagreement is a defect routed to the owning file.
+19. **The acceptance contract freezes at G3 exit** as version 1 (§8 G3; revision 2 said G2, which its own exit predicates never required, F31) and changes only at declared version boundaries.
 
 ## 3. Authority and conflict resolution
 
-The coding agent reads authority in this order:
+Authority resolves by subject (AGENTS.md), not by rank. Sequence, gates, exit predicates, gate-ahead rule,
+taskcards: this document. Status (current gate, queue, owner items, publication policy):
+`project/state.yaml` only. Runtime states: `docs/STATE_MACHINE.md`. Candidate shape and the
+blocking checks: `docs/README_CONTRACT.md`. File locations: `docs/REPOSITORY_LAYOUT.md`. Threats:
+`docs/THREAT_MODEL.md`. Legacy disposition: `migration/reuse-manifest.yaml`. Prompt manifests: `prompts/`
+(never planning authority). Executor, lane, and supervision machinery: `project/loop-prompt.md`,
+`project/loop-prompt-lane.md`, `tools/reviewer/procedure.md`, `docs/SUPERVISION.md`. Settled defect
+priority: `docs/DEFECT_INDEX.md`. Decisions since a document was written: `docs/DECISION_LOG.md` §31.
+Background, never a gate or queue: `docs/RESEARCH_AND_GUIDELINES.md` (its §27.9 queue text is pinned by
+`tests/test_queue_agreement.py` until H-01) and `docs/PRODUCTION_ROADMAP.md`. Retired by H-01:
+`plans/healing/*`, `plans/sprint/*` (PHASE1's deadline, 2026-09-15, is past), and
+`project/loop-prompt-{phase0,sprint,lane-b}.md`.
 
-1. This document owns implementation sequence, gates, deliverables, and the build cursor.
-2. `docs/STATE_MACHINE.md` owns the production runtime states and transitions;
-   `docs/README_CONTRACT.md` owns the candidate's shape, assembly, agentic decisions, and checks;
-   `docs/REPOSITORY_LAYOUT.md` owns where a file lives.
-3. Typed schemas and tests own implemented interface behavior after their gate is accepted.
-4. The reuse manifest owns the disposition of each legacy module and asset.
-5. Git history and committed evidence record what actually happened.
-
-`plans/idea.md` is the human product authority for outcomes and standing constraints. It does not
-own sequence or state. Section 12 maps every obligation it states to the gate that delivers it; an
-obligation without a gate is a defect in this document, not permission to skip the obligation.
-
-If implementation proves a design assumption wrong, the agent records evidence, updates the
-affected authoritative document and its tests in one coherent change, and resumes from the earliest
-invalidated gate. It never creates a competing plan.
+`plans/idea.md` is the human product authority for outcomes and constraints, and owns no sequence or state;
+§12 maps each of its obligations to a gate. If implementation proves a design assumption wrong, record
+evidence, update the affected authoritative document and its tests in one change, and resume from the
+earliest invalidated gate. Never create a competing plan.
 
 ## 4. Build-state overview
 
-Gate transitions: G0 to G1 buildable, checkable, protected; G1 to G2 first candidate accepted and no-op proven; G2 to G3
-invalidation proven, D1 D2 D5 D6 on the canary; G3 to G4 Python cohort sealed, contract v1 frozen; G4 to G5 every enabled
-entry local, census recorded; G5 to G6 fresh-state proofs, hosted run equal; G6 to G7 disposable PR lifecycle proven.
-
-The agent may research ahead of the cursor but may not build or claim a later gate's machinery
-before its dependency gate passes.
+Research may run ahead. Building later machinery is allowed only as a **gate-ahead item** (cursor, with its
+consuming gate, counts toward no gate, wired to an importer or held dormant; §2 rules 12-13; F08).
 
 ## 5. Durable implementation cursor
 
-`project/state.yaml` is updated in the same commit as every accepted transition. It is a concise
-cursor with a `progress` block (`current_candidates`, `denominator`, `canary`), the current gate,
-one active work item, queued items, `owner_items`, legacy-source verification, execution limits,
-the control-repository push policy, and the last transition. Allowed statuses for the current gate
-and the active work item are `READY`, `IN_PROGRESS`, `VERIFYING`, `ACCEPTED`, `BLOCKED_EXTERNAL`,
-and `FAILED_INTERNAL`. Queued entries use `PENDING` or `BLOCKED_BY_GATE`. At most one shared-code
-item is `IN_PROGRESS`. A JSON Schema under `schemas/` validates the file in CI from G0 onward.
+`project/state.yaml` is updated in the same commit as every accepted transition and is the only
+status authority. Its vocabulary is the schema's, and this document matches it: current gate and
+active item `READY | IN_PROGRESS | VERIFYING | ACCEPTED | BLOCKED_EXTERNAL | FAILED_INTERNAL`;
+queued items `PENDING | BLOCKED_BY_GATE | COMPLETE`; owner items `OPEN | SATISFIED | OVERRIDDEN |
+DEFAULT_APPLIED`. Work-item IDs (`G<n>-W<nn>`) are assigned by the cursor; this document never numbers
+work. Each queued entry is one line of status, a resume predicate, and a consuming gate; history lives
+in `docs/DECISION_LOG.md` §31 and gate manifests, not the cursor (revision 2's cursor was 283 lines of
+prose; taskcard H-02). A gate-ahead item names its `consumed_by_gate`. At most one shared-code item is
+`IN_PROGRESS`. A JSON Schema under `schemas/` validates the file in CI from G0 onward.
 
 Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UNDER_CHANGE`,
 `G3_PYTHON_COHORT`, `G4_MULTI_LANGUAGE_COHORTS`, `G5_RERUN_DURABILITY_AND_HOSTED_OPERATION`,
@@ -127,63 +96,50 @@ Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UND
 **Owner-only predicates never live in a gate.** Branch protection, secrets, App installation, and
 product decisions are `owner_items` with an exact resume predicate and the gate or work item that
 consumes them. They hard-block only there, are re-checked every iteration, and a work item is
-`BLOCKED_EXTERNAL` only when it itself consumes an unmet owner item. Everything else proceeds.
+`BLOCKED_EXTERNAL` only when it itself consumes an unmet owner item. Everything else proceeds. Prose-only predicates
+(G6's disposable target, the push policy, the outage policy; F11, F03, F26) and the review rulings are recorded as
+`owner_items` OWNER-10 to -19 by the register PR (13 profile ratification, 14 `DEFER_UNRESOLVED`, 15 second reviewer, 16
+`RegistryRevisionV1`, 17 Releases audit and visuals, 18 idea.md wording, 19 PSD; H-03, H-08, H-11, H-13, H-19, H-23).
 
 ## 6. Global execution loop
 
-```mermaid
-flowchart TD
-    O["Observe current gate"] --> R["Read relevant code and evidence"]
-    R --> P["Select smallest change that closes a predicate"]
-    P --> I["Implement with focused tests"]
-    I --> E["Run the official entry point on the canary"]
-    E --> D{"Claim production behavior?"}
-    D -->|Yes| S["Run production-shaped proof"]
-    D -->|No| C["Record evidence and commit"]
-    S --> C
-    C --> G{"Gate predicates pass?"}
-    G -->|No| X["Route defect to causal boundary"]
-    X --> R
-    G -->|Yes| N["Advance durable cursor"]
-```
+1. Observe the current gate; read the relevant code and evidence.
+2. Select the smallest change that closes a predicate; implement it with focused tests.
+3. Run the official entry point on the canary; if production behavior is claimed, run production-shaped proof.
+4. Record evidence and commit. If predicates pass, advance the cursor; otherwise route the defect to its causal boundary and return to step 1.
 
-Rules: inspect before replacing; change the smallest causal boundary; two equivalent failed attempts
-or 15 minutes without narrowing force a first-principles review and a changed mechanism; unit tests
-support a claim but do not prove hosted workflows, live gateways, Git safety, recovery, or GitHub
-effects; every commit leaves the repository consistent and names its gate and work item; never
-mutate a target repository while proving read-only behavior.
+Rules: inspect before replacing; change the smallest causal boundary; two equivalent failures or 15
+minutes without narrowing force a first-principles review; unit tests never prove hosted workflows, live
+gateways, Git safety, recovery, or GitHub effects; every commit names its gate and work item; never mutate
+a target repository while proving read-only behavior.
 
-Control-repository pushes: after the full local CI-equivalent passes, the agent pushes this
-repository to its own `origin` so hosted CI runs, directly to `main` while `main` is unprotected
-and by branch, PR, and auto-merge once protected (`publication.control_repository`). Never force,
-never a product repository. A red hosted run is `FAILED_INTERNAL` at the next iteration.
+Control-repository changes ship by branch and PR into `main`, protected since 2026-09-26 (OWNER-01: required
+checks Python 3.11-3.13; auto-merge on). Direct pushes are retired; the cursor's `push: NEVER` contradicts AGENTS.md
+and is open defect F03 until OWNER-10 is answered. `.githooks/pre-push` (needs `CI_TOOLS_VENV`) complements the
+required checks. Never force; never a product repository. A red hosted run is `FAILED_INTERNAL` at the next iteration.
+
+Next item, in order (F02): (1) a defect class with three independent sightings in `docs/DEFECT_INDEX.md`
+(settled priority); (2) an open exit predicate of the current gate; (3) the lowest-numbered cursor queue
+entry whose consumed owner items are satisfied. Gate-ahead items never outrank (1) or (2).
 
 ## 7. Legacy reuse protocol: pull-based
 
-The legacy repository holds 171,345 lines of first-party production Python at the frozen revision
-and its scheduled entry point imports 79% of it, so reuse by entry point is impossible and a
-census-first audit would become its own project. Reuse is **pull-based**: a legacy file enters this
-repository only when a gate's work needs it, with a manifest record, its tests, and a cut closure.
+The legacy repository holds 171,345 lines of production Python, and its entry point imports 79% of it, so reuse
+by entry point is impossible. A legacy file enters only when a gate needs it, with a manifest record, its tests,
+and a cut closure. Each pulled file gets one disposition (`PORT_NEARLY_INTACT`, `EXTRACT_AND_REFACTOR`,
+`ADAPT_AS_PLUGIN`, `FIXTURE_OR_ORACLE_ONLY`, `MIGRATION_READER_ONLY`); unpulled files are `RETIRE`. Dirty-tree
+exclusions use `EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE` (33 records; F21), a reconciliation state, not a
+disposition. Each record carries source path, SHA-256 at the frozen revision, disposition, destination, retained
+and removed behavior and coupling, tests, and acceptance.
 
-Every pulled file receives exactly one disposition: `PORT_NEARLY_INTACT`, `EXTRACT_AND_REFACTOR`,
-`ADAPT_AS_PLUGIN`, `FIXTURE_OR_ORACLE_ONLY`, or `MIGRATION_READER_ONLY`. Everything never pulled is
-`RETIRE` by default. Each record carries source path, SHA-256 at the frozen revision, disposition,
-destination, retained behavior, removed behavior and coupling, tests ported, and acceptance.
-
-Pull rules:
-
-- Compute the import closure at the source before pulling. A pull that drags a retired module or a
-  `supervisor`, `capabilities`, or `specialists` module fails; cut the chain first. The known chains
-  are recorded in the manifest as `CPL-01` to `CPL-08`.
-- Seam-cut order for the first pulls: shared identity types out of `capabilities/schema.py`;
-  `sha256_text` out of `readme/facts.py`; the validation ruleset version; then the `llm/*` modules.
-- Non-Python assets follow the same rule: prompt manifests, template and section registries, policy
-  files, registry and link data, the benchmark profile, the presentation standard, and the golden
-  sample are pulled per asset with a record. The manifest lists their expected dispositions.
-- The legacy suite is not green at the frozen revision (`RESEARCH_AND_GUIDELINES.md` §16.9); record
-  the Linux-runner baseline before the first pull so a failing ported test is attributable.
-- The G4 exit census records file and line totals by disposition. No reuse percentage is claimed
-  before it.
+Pull rules: compute the import closure before pulling; a pull that drags a retired module or a
+`supervisor`, `capabilities`, or `specialists` module fails until the chain is cut (known chains `CPL-01`
+to `CPL-08`). Seam-cut order: shared identity types out of `capabilities/schema.py`; `sha256_text` out of
+`readme/facts.py`; the validation ruleset version; then `llm/*`. Non-Python assets (prompt manifests,
+registries, policy files, link data, benchmark profile, presentation standard, golden sample) are pulled
+per asset with a record. The legacy suite is not green at the frozen revision (`RESEARCH_AND_GUIDELINES.md`
+§16.9); record the Linux baseline before the first pull. The G4 exit census records totals by disposition;
+no reuse percentage is claimed before it.
 
 ## 8. Gates
 
@@ -199,7 +155,8 @@ importing legacy runtime behavior or building speculative infrastructure.
 3. JSON Schemas under `schemas/` for `project/state.yaml`, the reuse manifest, and the candidate
    bundle; CI validates the first two now.
 4. Secret canary test proving configured secrets cannot enter a candidate bundle; `.env.example`
-   with `GH_TOKEN`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`.
+   names only (no `.env` is read): `GH_TOKEN`, `GPT_OSS_ENDPOINT`, `GPT_OSS_API_KEY`, `GPT_OSS_MODEL`
+   (OWNER-02; the names `LLM_BASE_URL` and the like were revision 2's error, F07).
 5. Path-budget test: no tracked path exceeds 200 characters.
 6. Record the owner items (branch protection, gateway credentials, dirty legacy tree, GitHub
    App) with exact resume predicates; apply the recorded default for the dirty tree.
@@ -210,10 +167,10 @@ the CLI needs, configuration precedence machinery, any legacy port.
 ### Exit predicates
 
 - Clean environment installs from the lock; lint, format, types, tests pass on Python 3.11-3.13.
-- CLI reports version, current gate, and `0/34` candidates.
+- CLI reports version, current gate, and the candidate count against the live denominator (§1).
 - Schemas validate the cursor and manifest; canary and path-budget tests pass.
-- The accepted commits are pushed to the control repository's `origin`; hosted CI is checked at the
-  next iteration.
+- The accepted commits reach `main` through a PR with required checks green (G0 was accepted by direct
+  push before OWNER-01; its manifest records that, and the predicate is now PR-only).
 - Owner items are recorded with exact resume predicates; none is consumed by G0.
 - No legacy production file has been copied.
 
@@ -243,36 +200,32 @@ leases, or hosted execution yet; those are G5.
    `source_reconciliation`, `presentation_planning`, `section_authoring`, `independent_review`, and
    `targeted_repair`, one file each under `prompts/`, plus a `preflight` command that reaches the
    gateway without leaking the key and lists its model catalog; each prompt manifest's `model_route`
-   is chosen from that catalog for job fit, never assumed (`RESEARCH_AND_GUIDELINES.md` §18.4). Build
-   the transport on the `openai` SDK per §18.2 rather than porting `call_transport.py`'s `requests`-
-   based protocol handling, unless evaluating the SDK against the actual gateway finds a documented
-   reason not to. Pull the call
-   ledger, call schema, prompt registry, and prompt hygiene after the `CPL-01` cut; the ledger and
-   schema are project-specific accounting the SDK does not replace. LLM prose may only express fact
-   IDs supplied in its packet; deterministic code renders commands, links, badges, Mermaid, example
-   code, and license identity.
+   is chosen from that catalog for job fit, never assumed (`RESEARCH_AND_GUIDELINES.md` §18.4). The
+   transport is the `openai` SDK (§18.2) unless the gateway test documents a reason not to. The call
+   ledger and schema (after the `CPL-01` cut) are project accounting the SDK does not replace. LLM prose
+   may only express fact IDs supplied in its packet; deterministic code renders commands, links,
+   badges, Mermaid, example code, and license identity.
 4. **Composition** to `docs/README_CONTRACT.md`: the semantic shell in its §2, the assembly
    pipeline in its §3, and the agentic decisions in its §4. The LLM returns typed content units
    bound to fact IDs; the deterministic renderer emits the Markdown; one coherence pass may revise
    LLM-owned units only.
-5. **Blocking checks:** exactly the eleven in `docs/README_CONTRACT.md` §5. Everything else is
-   advisory until G2 freezes contract v1.
+5. **Blocking checks:** exactly those in `docs/README_CONTRACT.md` §5, which owns their count. Everything else is
+   advisory until G3 freezes contract v1 (F31).
 6. **Independent review** per `docs/README_CONTRACT.md` §4 and §6: separate prompt and identity;
    findings name a section and a causal stage; one targeted repair per equivalent fingerprint;
    unrepairable findings are advisory.
-7. **Bundle.** `README.md`, `README.patch`, `facts.json`, `dispositions.json`, `plan.json`,
-   `validation.json`, `review.json`, `calls.jsonl`, `dependencies.json` (exact hashes of every
-   consumed input: source revision and relevant tree, fact records, prompt manifests, model route,
-   template component versions, validator IDs and versions, acceptance profile, protected-content
+7. **Bundle.** `README.md`, `README.patch`, `facts.json`, `dispositions.json`, `plan.json`, `validation.json`,
+   `review.json`, `calls.jsonl`, `dependencies.json` (exact hashes of every consumed input: source revision and
+   tree, fact records, prompts, model route, component and validator versions, acceptance profile, protected-content
    fingerprint, policy), and `manifest.json` with checksums.
 8. **No-op.** Fresh process, same inputs: same bytes, zero calls, ledger records cache reuse per job.
-9. `status` prints `1/34` from the bundles on disk.
+9. `status` prints the READY_FOR_PROPOSAL count against the live denominator (§1).
 
 ### Exit predicates
 
 - A human can open the candidate at its stable path and it reads as a concise, product-first README
   for this repository, within budget, with every required section of the semantic shell present.
-- All eleven blocking checks pass; review verdict is `ACCEPT`; no-op is proven in a fresh process.
+- Every blocking check passes; review verdict is `ACCEPT`; no-op is proven in a fresh process.
 - Every pulled legacy file has a manifest record and ported tests; every new module has a production
   importer; provider calls reconcile with the ledger.
 - The PSD fixture yields `insufficient_evidence` with zero calls.
@@ -301,7 +254,8 @@ reached — and the first-candidate causes of drift (`RESEARCH_AND_GUIDELINES.md
   injected defects are rejected and repaired at their causal stage.
 - On the canary: the sealed composition accepts with zero blocking findings and zero required-row
   advisories; every job holds the 85 first-attempt floor (per-job thresholds need three sealed
-  compositions, §27.10); the coverage ledger is in the bundle (check 12 waits for a sealed defect).
+  compositions, §27.10); the coverage ledger is in the bundle. The coverage-ledger check is promoted only under
+  `README_CONTRACT.md`'s measured-defect rule; the blocking set is that contract's §5 rows (F16).
 
 ## G3 — Python Cohort and Contract Freeze
 
@@ -311,50 +265,48 @@ contract freezes against thirteen sealed products rather than one (§28.5).
 ### Work
 
 1. Python cohort: the twelve remaining Python registry entries through the existing pipeline, one
-   transaction each; seal what passes all eleven checks; an evidence-bound disposition with a resume
-   predicate for the rest (PSD-Python `NON_PROCESSABLE`); fixes by failure class, a regression test each.
-2. Freeze acceptance contract v1: the 30-point profile with hard disqualifiers, the blocking checks,
+   transaction each; seal what passes every blocking check; an evidence-bound disposition with a resume
+   predicate for the rest (PSD-Python `NON_PROCESSABLE`, persisted per `STATE_MACHINE.md` §6; the producer
+   landed in #216, seven registry entries remain orphaned, REV-V3-06); fixes by failure class, a regression test each.
+2. Freeze acceptance contract v1: ratify the landed advisory 30-point scorer (`components/readme/review/acceptance/scorer.py`, commit 12eefef1, wired in `repair/rounds.py`; F05) with its hard disqualifiers, the blocking checks,
    and the advisory set, each versioned in every bundle's `dependencies.json`.
 
 ### Exit predicates
 
-- `status` prints the sealed count (up to 12/34); the gate manifest carries the cohort report by
+- `status` prints the sealed count against the live denominator; the gate manifest carries the cohort report by
   repository (sealed, disposition, failure class); every sealed bundle is zero-call proven; v1 frozen.
 
 ## G4 — Multi-Language Cohorts, Local
 
-Goal: a README for every enabled registry entry (`data/registry.json`, derived) and 36/36
-dispositions through one shared surface extractor and six thin plugins, before hosted machinery.
+Goal: a README for every enabled registry entry (`data/registry.json`, derived) and a disposition
+for every registry entry, through one shared surface extractor and six thin plugins, before hosted machinery.
 
-| Ecosystem | Mandatory truth |
-|---|---|
-| Python | Distribution name, import path, exported symbols, Python range, extras, executable example. |
-| .NET | NuGet identity, TFMs, namespaces, project references, native dependencies, compilable C# example. |
-| Java | Maven coordinates, repository availability, JDK level, packages, dependencies, compilable example. |
-| C++ | Compiler and standard, CMake or build files, includes, namespaces, linkage, compilable example. |
-| Go | Module and import path, Go version, exported API, dependencies, idiomatic compilable example. |
-| Rust | Crate identity, edition and MSRV, visibility and re-exports, features, safety claims, compilable example. |
-| TypeScript | npm identity, exports and types, runtime targets, ESM/CJS behavior, dependencies, compilable example. |
+Mandatory truth per ecosystem: Python, distribution name, import path, exported symbols, Python range, extras,
+executable example; .NET, NuGet identity, TFMs, namespaces, project references, native dependencies, compilable
+C# example; Java, Maven coordinates, repository availability, JDK level, packages, dependencies, compilable example;
+C++, compiler and standard, CMake or build files, includes, namespaces, linkage, compilable example; Go, module and
+import path, Go version, exported API, dependencies, compilable example; Rust, crate identity, edition and MSRV,
+visibility and re-exports, features, safety claims, compilable example; TypeScript, npm identity, exports and types,
+runtime targets, ESM/CJS behavior, dependencies, compilable example.
 
 ### Work
 
-1. Second reuse source (§29.6 E1–E2): `plans/idea.md` admits aspose.org's extraction engine and
-   tests under the pull discipline (pinned revision, file records, ported tests, minimal closure only,
-   never a runtime import); `sources` in the manifest schema; the engine under a `_vendor/` boundary
-   with confined `mypy`/`ruff` overrides, recorded patches, a typed `SurfaceExtractor` façade; census.
+1. Second reuse source (§29.6 E1–E2): aspose.org's extraction engine and tests, admitted under the pull discipline
+   (pinned revision, file records, ported tests, minimal closure, never a runtime import) behind a `_vendor/` boundary with
+   confined `mypy`/`ruff` overrides, recorded patches, and a typed `SurfaceExtractor` façade; census.
 2. Layered plugins (§29.6 E3–E5): `EcosystemSpec` + one thin verifier + one negative control each;
-   shared `RegistryProbe`; ecosystem-generic renderer, badges, Installation, fences, aliases, slugs.
-   Six items, one per ecosystem with its cohort — .NET (6), Java (4), C++ (4), TypeScript (2), Go
-   (2), Rust (1); fixes by failure class; evidence-bound dispositions (Email .NET `CS1929`, PSD-.NET).
+   shared `RegistryProbe`; ecosystem-generic renderer, badges, Installation, fences, aliases, slugs. One item
+   per ecosystem with its cohort: .NET (6), Java (4), C++ (4), TypeScript (2), Go (2), Rust (1); fixes by failure class.
 3. Extractor parity per repository against the live README's API rows (§24); a shortfall routes to
    EXTRACTING; compiler-emitted corroboration (E6) is admitted per ecosystem only when parity fails.
-4. Freeze one registry revision as the denominator; portfolio report with separated counts.
+4. Report separated counts against the live denominator. The registry revision in force at G4 exit is
+   recorded in the manifest, not frozen (owner ruling 2026-09-30 reversed the 2026-09-23 freeze).
 
 ### Exit predicates
 
 - `status` prints at least 20 current, reviewable, no-op-proven candidates sealed (2026-09-28 floor
   ruling, `docs/DECISION_LOG.md`); every verifier has a negative control; cohort reports and census
-  in the gate manifest; parity recorded per repository.
+  in the gate manifest; parity recorded per repository in the manifest's parity table (F24).
 
 ## G5 — Rerun Durability and Hosted Operation
 
@@ -365,12 +317,13 @@ read-only transaction runs autonomously on GitHub-hosted runners (§27.5 D3, D4,
 
 1. Anchored canonical plans (D3), portable reproducibility with the fresh-state proof (D4), bounded
    fan-out inside a candidate; every candidate re-sealed byte-identically or with its recorded delta.
-2. Durable runtime from `STATE_MACHINE.md`: repository record with CAS, leases and fencing, trigger
-   normalization and deduplication, recovery before scheduling, transition receipts; pull and slim
-   `state/git_backend.py`, `cas.py`, `trigger_v2.py`, `recovery.py`, `health.py`, `freshness_contract.py`.
-3. `monitor.yml` (schedule, manual, workflow-call, repository-dispatch) and `present.yml` (isolated
-   per-repository job); proven locally under `act` with `GH_TOKEN`, then hosted with a read-only App
-   token; ambient tokens ignored, fail closed. Consumes the branch-protection and App owner items.
+2. Durable runtime (`STATE_MACHINE.md` §13-§15): repository record with CAS, leases and fencing, trigger
+   deduplication, recovery before scheduling, transition receipts; pull and slim the legacy state modules
+   named in the manifest.
+3. `monitor.yml` (schedule and manual dispatch, read-only) and `present.yml` (manual, repository_dispatch and
+   workflow_call from `sealing-scheduled.yml`, one isolated job per repository). `act` proves `ci.yml` locally (commit 6de6c159);
+   `present.yml` is hosted-only, so its proof is a hosted run on `main` with its run ID in the manifest
+   (F12). Read-only App tokens; ambient tokens ignored; fail closed. Consumes OWNER-01 and OWNER-04.
 4. Authorized discovery and intake (new repositories disabled and read-only, exclusions explicit);
    changed-or-due matrix; TTL-governed package and release surfaces, caches never authoritative;
    isolated lanes with bounded concurrency; adversarial audit; `BenchmarkQualityProfileV1` comparison.
@@ -396,12 +349,15 @@ Java-only, 2026-09-28 — `docs/DECISION_LOG.md`).
    immediately before the effect; one stable presenter branch and PR per target.
 3. Update rather than duplicate; reconcile lost responses before retry; upstream README overlap
    returns to reconciliation; merged and closed-unmerged outcomes observed without recreation.
+4. Kill switch and rollback (F10): a write runs only while its `REPOSITORY_PRESENTER_*_WRITE_AUTHORIZED` is `1`.
+   Rollback closes the presenter PR, deletes its branch, and writes a receipt, under its own authorization (H-09).
 
 ### Exit predicates
 
 - Disposable PR created and updated with exact effect evidence; the analysis token cannot write;
   stale source blocks the effect; repeated invocation creates no duplicate; lost-response simulation
-  reconciles; no default-branch push exists.
+  reconciles; no default-branch push exists; rollback is exercised once on the disposable target that
+  OWNER-11 names (H-08).
 
 ## G7 — Production Readiness, Deployment, and Continuous Operation
 
@@ -410,30 +366,27 @@ then keep the system useful without weakening the README foundation.
 
 ### Work
 
-1. Threat model (credentials, prompt injection from repositories, malicious Markdown, unsafe links,
-   untrusted build files, evidence exfiltration; sandboxed per-ecosystem execution); failure
-   exercises (leases, crash recovery, duplicate triggers, corrupt state, gateway and GitHub outages,
-   rate limits, matrix partial failure); dependency locking, SBOM, vulnerability audit; budgets,
-   health, alerts naming the causal repository, dead-man monitoring; App permissions, rotation, rollback.
-2. Upstream-defect handoff for a confirmed product defect (seed: Email .NET `CS1929`),
-   evidence-backed and deduplicated, never a fabricated severity or unverified fix; later automated
-   behind its own authorization and deduplication ledger.
-3. Deploy: App and gateway secrets; scheduled monitor in read-only observation; hosted output
-   compared with accepted local bundles; automatic PR mode for the Java cohort with fresh effect
-   authorization, expanding only after observed stability.
-4. Operate: monitor quality, cost, repair rate, drift, proposal acceptance, time to update; refresh
-   prompts and routes only at declared version boundaries with regression across every candidate;
-   admit new repositories disabled and read-only (no plugin, stays non-processable until one lands —
-   one file, one test, one registry entry); add the other surfaces (description, topics, community
-   files, release links, visuals, social preview) as separate machines; Level 7 and 8 certifications.
+1. Threat model (`THREAT_MODEL.md`); failure exercises (leases, crash recovery, duplicate triggers,
+   corrupt state, gateway and GitHub outages, rate limits, matrix partial failure), each with a recorded
+   outcome labelled unit-level or hosted; dependency locking, SBOM, vulnerability audit; budgets, health,
+   alerts naming the causal repository, dead-man monitoring; App permissions, rotation, rollback.
+2. Upstream-defect handoff for a confirmed product defect (seed: Email .NET `CS1929`): evidence-backed,
+   deduplicated, never a fabricated severity; automated later behind its own authorization.
+3. Deploy: App and gateway secrets; scheduled monitor in read-only observation; hosted output compared
+   with accepted local bundles; automatic PR mode for the cohort G6 admitted (the Cells family, any
+   platform; F23), with fresh effect authorization, expanding only after observed stability.
+4. Operate: monitor quality, cost, repair rate, drift, proposal acceptance, and time to update; refresh
+   prompts and routes only at declared version boundaries; admit new repositories disabled and read-only
+   (one plugin, one test, one registry entry); add the other surfaces as separate machines; Level 7 and 8.
 
 ### Exit predicates
 
 - Security suite and failure exercises pass; no write credential in analysis jobs; state survives
   runner loss; hosted monitoring runs unattended; approved repositories receive safe proposals after
-  drift; unchanged repositories incur no LLM work; `delivery_complete` closes the gate and
-  `certification_complete` the background tracks. Operating objectives: drift to accepted proposal
-  within one daily cycle; no unsupported claim, inherited-content loss, duplicate PR, or halt.
+  drift; unchanged repositories incur no LLM work; `delivery_complete` (`plans/idea.md`: executable work
+  through deployable Level 6, F23) closes the gate and `certification_complete` the background tracks.
+  Operating objectives: drift to accepted proposal within 24 hours of `monitor.yml` observing it, from
+  its receipts (F24); no unsupported claim, inherited-content loss, duplicate PR, or halt.
 
 ## 9. Gate failure routing
 
@@ -441,11 +394,9 @@ then keep the system useful without weakening the README foundation.
 |---|---|
 | Pulled legacy code drags retired machinery | Cut the seam or reimplement the narrow contract; never widen the pull. |
 | Custom gateway malformed output | Tighten the typed job schema or prompt, or change the routed model; never weaken validation. |
-| Facts incomplete | Improve deterministic extraction or bounded evidence tools. |
-| Candidate generic or too long | Reopen investigation or planning; enforce the budget; never polish prose only. |
-| Candidate loses source material | Reopen reconciliation and disposition mapping. |
-| Example does not compile or run | Reopen example selection; never explain it away in README prose. |
-| Reviewer rejects | Route the typed defect to its causal stage; if the finding is unrepairable, make it advisory and fix reviewer scope. |
+| Facts incomplete, or candidate generic, too long, or missing source material | Improve deterministic extraction or evidence tools; reopen investigation, planning, or reconciliation and disposition mapping; enforce the budget; never polish prose only. |
+| Example does not compile or run | Reopen example selection; never explain it away in prose. |
+| Reviewer rejects | Route the typed defect to its causal stage; an unrepairable finding becomes advisory and reviewer scope is fixed. |
 | Candidate invalidated by a component it did not consume | Fix the dependency manifest; never widen invalidation. |
 | Validator change fails accepted candidates on presentation only | Emit `VALID_UPDATE_AVAILABLE`; never invalidate. |
 | No-op invokes the LLM | Fix dependency identity, cache, or state; never exempt the call. |
@@ -453,24 +404,29 @@ then keep the system useful without weakening the README foundation.
 | Hosted state missing, or GitHub effect uncertain | Fix the durable backend, caches cannot substitute; reconcile the remote branch and PR before retrying. |
 | Owner item unmet | Skip only the work items that consume it; record the exact action; never wait on anything else. |
 | Internal bug blocks progress | `FAILED_INTERNAL`; repair and resume; never acceptable completion. |
+| Machinery built ahead of its gate, or unwired | Record a gate-ahead item with `consumed_by_gate`; it counts for no gate; wire it or hold it dormant (F08). |
+| Hosted write must stop, or a PR is wrong | Unset its `WRITE_AUTHORIZED` variable; roll back per G6 item 4; write a receipt (F10). |
+| Two authorities disagree | The authority that owns the subject wins (§3); fix the other in the same commit; never pick silently (F01, F03). |
+| A count appears in prose | Delete it; counts come from the registry and the cursor (F04). |
 
 ## 10. Evidence
 
-Each accepted gate writes `evidence/build/<gate-id>/manifest.json`: control and legacy revisions,
-exact commands and exit statuses, test results, proof identity, artifact hashes, LLM call summary,
-predicate verdicts, next work item. For candidates the sealed bundle is the evidence; nothing is
-duplicated. Evidence is redacted, checksum-valid, and reproducible.
+Each accepted gate writes `evidence/build/<gate-id>/manifest.json` (revisions, exact commands and exit statuses,
+test results, proof identity, artifact hashes, LLM call summary, predicate verdicts, next work item). Candidates'
+sealed bundles are the evidence. Evidence is redacted, checksum-valid, and reproducible; no schema validates gate
+manifests yet (H-07, F13). A hosted claim cites a run ID on `main`; a wiring claim cites an assertion test; a
+unit-level exercise is labelled so (F12). No-op and fresh-state proofs show replay of recorded responses, not
+regeneration (F24).
 
 ## 11. Definition of done
 
-Repository Presenter is complete when: the repository is independent of the legacy and Aspose.org
-trees at runtime; scheduled hosted monitoring covers the admitted portfolio; every processable
-repository has a current independently accepted candidate; every unchanged accepted repository
-proves zero-call idempotency; upstream and due-surface changes reopen exactly the affected work;
-custom-LLM investigation, planning, composition, review, and repair are live and attributable;
-automatic PR creation and update work through the isolated App effect job; placeholders and
-unresolved facts fail honestly; recovery, concurrency, stale authorization, and lost-response
-behavior are proven; and the system operates without routine human initiation or template selection.
+Complete when: the repository is independent of the legacy and Aspose.org trees at runtime; scheduled hosted
+monitoring covers the admitted portfolio; every processable repository has a current independently accepted
+candidate; every unchanged accepted repository proves zero-call idempotency; changes reopen exactly the affected
+work; LLM investigation, planning, composition, review, and repair are live and attributable; PR creation and
+update run through the isolated App effect job; placeholders and unresolved facts fail honestly; recovery,
+concurrency, stale authorization, and lost-response behavior are proven; and no routine human initiation or
+template selection is needed.
 
 ## 12. Product-outcome coverage of `plans/idea.md`
 
@@ -485,10 +441,59 @@ behavior are proven; and the system operates without routine human initiation or
 | 30-point acceptance, zero hard disqualifiers, criterion-specific evidence | G3 | Advisory scorer exists and is wired (`review/acceptance/scorer.py`, `repair/rounds.py`); `profile.RATIFIED` is False, so no check blocks on it. Ratification is OWNER-13 (G3-W02). |
 | Independent non-authoring review; second reviewer only on typed trigger | G1 | Hard invariant. |
 | Complete authorized discovery; hard allow-list; frozen registry revision; new repositories disabled and read-only; explicit exclusions | G4 registry freeze, G5 intake | Registry modules pulled and refactored. |
-| README-only placeholders become non-processable with resume predicates | G1 fixture, G3 and G4 PSD | Zero LLM calls. |
+| README-only placeholders end `insufficient_evidence` and persist `NON_PROCESSABLE` with resume predicates (§2 rule 6) | G1 fixture, G3 and G4 PSD | Zero LLM calls. |
 | Versions freeze, design does not; component invalidation scopes; `VALID_UPDATE_AVAILABLE`; drift detection and protected content as a durable control; portfolio reporting with separated counts | G2, G4, G5 | Per-candidate dependency manifests; broader-than-SHA freshness; health report. |
 | Autonomous hosted operation with schedules, triggers, and recovery; `act` local testing with `GH_TOKEN`; GitHub App only in production, fail closed | G5 | Two workflows, `act` proof, token boundary. |
 | Separate analysis and write credentials; PR-only publication; recheck before effect; Cells-family repositories (any platform, widened from Java-only 2026-09-28) as the first verified-proposal cohort | G6, G7 | Disposable target; after disposable proof and fresh authorization. |
 | Other surfaces (description, topics, visuals, social preview, community files, release links); upstream defect reporting; Level 7 and 8 certification | G7 | Deferred by `plans/idea.md`; seed case `CS1929`; background tracks. |
-| Two-attempt rule; serial calibration with at most three disjoint workers; battle-tested libraries | `AGENTS.md`, `project/state.yaml`, principle 16 | Governance and execution limits. |
-| Baseline figures are dated observations | G4 | 34 entries at `a8a163f7`; frozen at G4. |
+| Two-attempt rule; serial calibration with at most three disjoint workers; battle-tested libraries | `AGENTS.md`, `project/state.yaml`, principle 10 | Governance and execution limits; at most three disjoint workers (the cursor's "up to 4" is corrected by H-05, F16). |
+| Baseline figures are dated observations | G4 | 34 entries at `a8a163f7` (a dated observation); the live denominator is the registry's own count (§1), not frozen. |
+
+## 13. Plan forensics, revision 3 (2026-10-04)
+
+Method, severity scale, root causes RC-1 to RC-7, per-finding six-part causes, and the verified-sound list are in
+`docs/DECISION_LOG.md` §31, entry 2026-10-04 (the 500-line cap leaves no room here).
+
+| ID | Sev | § | Finding (evidence) | Heal |
+|---|---|---|---|---|
+| F01, F17 | Critical | §3 | Competing plan channels: `plans/healing/*` (9 files, "supersedes nothing"), `plans/sprint/*` (deadline passed), three `project/loop-prompt-*` files, RESEARCH §27.9 queue; the healing and sprint lineage is undeclared; AGENTS forbids all of it; governance tests pin that prose (queue to RESEARCH §27.9, a test to the sprint plan, ESM residues as xfail, F17). | §3 done; H-01 |
+| F02, F14, F18 | Critical | §5, §6 | Cursor vocabulary (COMPLETE, owner statuses, W-IDs) absent from revision 2; the cursor is 283 lines of prose with unenforced size (F14) and a "PRIORITY n" selection the plan never stated (F18). | §5, §6 done; H-02 |
+| F03 | Critical | §6 | Publication contradiction: cursor `push: NEVER`; AGENTS allows a push after `ci_check`; revision 2 allowed direct `main` pushes; `main` protected since 2026-09-26. | §6 done; H-03 |
+| F04, F05, F07, F16, F31 | High | §1, §2, §8, §12 | Stale facts in revision 2: restated counts (0/34, 1/34, 12/34, 36/36, "frozen at G4") against a live registry of 36 (F04); scorer "NOT IMPLEMENTED" though wired in `repair/rounds.py` and `bundle/seal.py`, advisory and unratified (F05); gateway names `LLM_*` against code's `GPT_OSS_*` (F07); "check 12" and "up to 4" workers (F16); contract freeze at G2 though G3 owns it (F31). | done; H-05, H-11 |
+| F06 | High | §2, §8 | Placeholder outcome: STATE_MACHINE §6 `NON_PROCESSABLE` versus AGENTS and CLI `insufficient_evidence`; the producer has since landed (#216), but seven registry entries stay orphaned (REV-V3-06). | §2 done; H-20 |
+| F08 | High | §4, §5, §9 | Build-ahead: state backend (G5-W04), G6 write paths, threat model, SBOM, and rotation runbook landed under G3; gate accounting inconsistent (accepted G0-G2, G3 and G4 manifests READY, G4 item active). | §4, §9 done; H-07 |
+| F10, F11 | High | §8 G6, §5 | No rollback, revert, or kill switch for hosted writes (F10); G6 needs an owner-named disposable target (STATE_MACHINE §12.1) with no owner item, and OWNER-04 is 14 of 15 orgs installed, which OPEN/SATISFIED cannot express (F11). | G6 item 4, §5 done; H-08, H-09, H-14 |
+| F12 | High | §8 G5, §10 | Wiring claims wrong or overstated: `present.yml` "proven under act" (commit 6de6c159 records a hosted-only gap); monitor triggers listed that do not exist; "exercised for real" was unit-level; cursor said lockdrift and sbom do not gate (the CI Summary step fails the job on them). | done; H-05 |
+| F13, F24, F30 | High | §10, §8 G4, G7 | No schema validates gate manifests and the G3 and G4 manifests are stale (F13); no-op and fresh-state proofs replay recorded responses, and predicates like "one daily cycle" name no artifact (F24); G4's "2026-09-28 floor ruling" was not found by text search in the decision log (F30). | §10, G4, G7 done; H-07, H-16 |
+| F20, F21, F23, F25 | Medium | §7, §8 G7, §14 | Taskcards and statuses did not exist (F20); reconciliation state `EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE` (33 records) undocumented (F21); `delivery_complete` and Level 7 and 8 used without `plans/idea.md`'s definition, and "the Java cohort" against G6's Cells family (F23). | done; H-00 |
+| F26 | High | §5, §9 | One gateway model route; no declared outage behavior; repeated qwen3-next outages recorded in the cursor. | §5 done; H-13 |
+| F32 | High | §14 | 39 reviewer ids (REV-V1-01..08, V2-01..11, V3-01..10, V4-01..10), logged in `docs/DECISION_LOG.md` and `docs/DEFECT_INDEX.md` (#231), were absent from this plan and the cursor, so invisible to the build order. | §14 done; H-17..H-24; cursor G6-W05, G3-W06, G3-W07, G5-W08, G5-W09, G7-W07, G4-W18, G4-W19, G7-W08, G7-W09 |
+
+## 14. Taskcards (revision 3)
+
+Owner-brief statuses are a revision-3 snapshot; live status is the cursor's. OWNER-10 to -19 and the work items below are recorded by the register PR (`tests/test_register_integrity.py` guards them).
+H-17..H-24 own the 39 reviewer ids (`Vn-nn` = `REV-Vn-nn`; GitHub-verified 2026-10-05: 15 landed, 8 partial, 3 in flight, 6 not started, 7 owner
+decisions). Per-id work item and status sit on each `docs/DEFECT_INDEX.md` entry, all still open and awaiting independent reverification.
+
+| ID | Status | Objective (findings) | Validation and evidence | Rollback |
+|---|---|---|---|---|
+| H-00 | validation | Revision 3 of this document, within 500 lines; the budget note lives in DECISION_LOG (F20, F25) | governance budget test; PR checks on `main` | revert the PR |
+| H-01 | backlog | Retire `plans/healing/*`, `plans/sprint/*`, `project/loop-prompt-{phase0,sprint,lane-b}.md`; repoint the PHASE1 reference in `tests/test_governance_consistency.py`; rewrite the queue oracle to the cursor (`tests/test_queue_agreement.py`; F01, F17) | grep finds no authority reference; suite green | revert |
+| H-02 | backlog | Cursor to schema vocabulary, one-line entries, history moved to DECISION_LOG, size rule with a test (F02, F14, F18) | cursor and queue tests green | revert |
+| H-03 | blocked: OWNER-10 | Cursor `publication.control_repository` set to the owner's answer, matching AGENTS.md (F03) | schema and `test_cursor` | revert |
+| H-05 | backlog | Correct cursor claims: G7-W02 gating, `present` under `act`, G7-W05 wording, the "no scorer in `src/`" line (~111), "check 12", "up to 4"; `monitor.yml` trigger text; `cli.py` N/34 docstring and a denominator test (F04, F12, F16; V4-09; G7-W09) | each claim cites a file or run; mutation: add a registry entry and the test fails | revert |
+| H-07 | backlog | `schemas/gate-manifest.schema.json`; gate-ahead register in cursor; G3 and G4 manifests refreshed (F08, F13) | CI validates every manifest | revert |
+| H-08 | blocked: OWNER-11 | Owner names the disposable G6 target; OWNER-11 SATISFIED (F11) | owner-item predicate | none |
+| H-09 | backlog, G6 | Rollback runbook and kill-switch tests: close PR, delete branch, unset variable, receipt (F10) | rollback exercised on the disposable target | the rollback itself |
+| H-11 | blocked: OWNER-13 | Ratify the advisory 30-point scorer as contract v1, blocking only on the owner's ruling (F05; V2-02, V4-08). The doc claim is corrected here | v1 frozen in every `dependencies.json`; regression across candidates | revert |
+| H-13 | blocked: OWNER-12 | Gateway outage policy: fail closed, or a fallback route re-reviewed (F26) | G7 failure exercise expects the declared behavior | none |
+| H-14 | blocked: OWNER-04 | Install the App on `aspose-html-foss`; fresh audit shows 15 of 15 (F11) | audit workflow run | none |
+| H-16 | backlog | Measurement sources: G4 parity table, G7 cycle receipts, regeneration variance beside replay proofs (F24); the floor ruling text is located or G4's exit wording corrected (F30) | manifests carry the fields | revert |
+| H-17 | active | Write path (G6-W05). V1-01,02,04,08 landed #241; V1-03 landed #229; V1-06 landed #240; V1-05 partial (App id attested after the first write, #241); V1-07 partial (filing approval landed #237, close gate in flight #257, filing token provenance open) | #257 merged; independent reverification of each; hosted dispatch proof (H-08) | revert; H-09 |
+| H-18 | active | README contract (G3-W06). V2-05,06,07 landed #246; V2-01,04 landed #251; V2-08,09 in flight #249 | a negative control per rule in each PR; sealed bundles re-check to `VALID_UPDATE_AVAILABLE`, never invalid; code freeze and re-seal after the last version bump (G3-W07) | revert |
+| H-19 | blocked: OWNER-14, -15 | Review policy (G5-W08, G3-W06). V2-03 `DEFER_UNRESOLVED` unit not flagged for review (OWNER-14); V2-10 second reviewer unconditional, three names hard-coded (OWNER-15) | owner ruling recorded; a mutation test per ruled behavior | none |
+| H-20 | backlog | Seal, state, status (G5-W08). V2-11 landed #254; V3-04 landed #243; V3-06 partial (#216 producer; seven registry entries orphaned); V3-10 not started (durable state beyond `present`); V4-10 partial (write functions wired, three states never assigned) | each state reached by a test and a real candidate; `monitor` and `propose` use durable state | revert |
+| H-21 | backlog | Autonomy and safeguards (G7-W07). V3-01 partial (chain wired #242, hosted scheduled proof pending); V3-02 partial (#228, scheduled-run confirmation pending, needs OWNER-04); V3-07 not started (drift beyond the commit SHA, bundle bytes); V3-09 partial (#239 dead-man for `present`, #229 `propose` concurrency; other concurrency, budget cap, lease heartbeat open) | a schedule-fired run on `main`, run ID in the manifest (F12); a synthetic drift reopens only its repository | `REPOSITORY_PRESENTER_SEALING_PAUSED=1` |
+| H-22 | active | No-op proof (G5-W09). V3-08 in flight #250 | `verify-noop-proof` counts ledger calls; a soft exit or unreconciled total fails | revert |
+| H-23 | backlog | Discovery and registry revision (G4-W18). V3-05, V4-10 discovery not started (no importer under `src/`); V4-01 not started (`community_paths` dead); V3-03 owner (OWNER-16); V4-02, V4-03 owner (OWNER-17; Releases audit, visuals, G4-W19) | discovery has a production importer and a CLI entry | revert |
+| H-24 | backlog | Hygiene and prompts (G7-W08). V4-06,07 landed #235 (`plans/idea.md` `data/products.json` stays an owner edit); V4-05 partial (#235: dated debt, Go/.NET controls; Java/TypeScript controls and three re-seals open); V4-04 not started (prompt owner and dependency hash, inline-prompt scan); V4-09 is H-05 | prompt-manifest schema change through a named item; an inline-prompt scan test | revert |
