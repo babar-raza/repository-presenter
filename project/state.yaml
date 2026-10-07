@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-10-07T11:00:00+05:00"
+updated_at: "2026-10-07T16:30:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -210,6 +210,10 @@ next_ready_items:
   status: PENDING
   owner: "REGISTER: added 2026-10-07 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
   purpose: "Cells-Go UNCLASSIFIED deferral gap (2026-10-07 four-reviewer finding): validation/deferrals.py's UNCLASSIFIED fallback (no registered class matches the cause) fires on aspose-cells-foss' Go candidate with no class yet registered for its real cause. Depends on: a root-cause investigation was named as already in flight on this; re-checked this session and no branch, worktree or open PR matching the description was found - this item registers the gap, stated as unconfirmed cause, without asserting a cause itself. Exit predicate: a named cause, a registered DEFERRAL_CLASSES entry (or an explicit BLOCK ruling) covering it, and a test against the Go candidate's real finding."
+- id: G6-W06
+  status: PENDING
+  owner: "REGISTER: added 2026-10-07 by this session's write-scope-expansion investigation (owner question: does every registry entry need mode full for production? Answer verified against live code and data this session: no - data/registry.json has 36 active entries, 2 mode full (aspose-3d-foss/Aspose.3D-FOSS-for-Java, aspose-cells-foss/Aspose.Cells-FOSS-for-Java), 34 mode dry_run, 0 disabled; the owner's own standing decision this session to hold all writes until the portfolio is re-sealed and reviewed is unchanged and not reversed here). Depends on: OWNER-20 (the owner's per-repository go/no-go decision) and, per repository named full, the three prerequisites in this item's own exit predicate - none of which exists yet for any of the 34 dry_run entries: ops/proposal-authorizations/ does not exist as a directory in this checkout (confirmed: git ls-files and a direct path check both return nothing), so zero repositories currently have a committed authorization record of any kind."
+  purpose: "Write-scope expansion gate (EXECUTION_STATE_MACHINE.md G6 Work item 4, principle 25). core/registry/write_gate.py's require_write_permitted (actual path: src/repository_presenter/core/registry/write_gate.py) refuses any write effect unless the registry entry is listed, active and mode full; propose.yml's write job additionally requires REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED=1, a GH_PROPOSAL_WRITE_TOKEN, and a merged ops/proposal-authorizations/<repo>__<hash>.json record (core/authorization/proposal.py) whose bound fields (repository, candidate_hash, source_revision, branch, policy_version, window) are rechecked against the live candidate and a freshly rechecked source revision before any write. Flipping registry.json's mode field alone grants none of this and must never be done by an agent unilaterally. Depends on: OWNER-20. Exit predicate: for EACH repository moved from dry_run to full - (a) the owner's explicit per-repository authorization is recorded in docs/DECISION_LOG.md with a date; (b) a committed authorization record exists under ops/proposal-authorizations/ for that repository; (c) that repository's candidate is current-code reproducible, independently accepted, and no-op-proven (not stale, not VALID_UPDATE_AVAILABLE) at the time of the mode change. All three, every time - never a blanket 'make every entry full'."
 owner_items:
   - id: OWNER-01
     status: SATISFIED
@@ -348,6 +352,13 @@ owner_items:
     consumed_by: ["G5-W08"]
     recorded_at: "2026-10-05T10:45:00+05:00"
     note: "Recorded by the register PR; the question is the owner's, not delegated. 2026-10-07: owner's updated decision (enable) recorded above; supersedes the 2026-10-01 'stay disabled' ruling. Implementation tracked on branch feat/enable-psd-1009, not this PR."
+  - id: OWNER-20
+    status: OPEN
+    summary: "Per-repository go/no-go for write (full) mode. The owner asked whether every registry entry needs mode full for production; verified live this session: data/registry.json has 36 active entries, 2 full (aspose-3d-foss/Aspose.3D-FOSS-for-Java, aspose-cells-foss/Aspose.Cells-FOSS-for-Java) and 34 dry_run, 0 disabled. Decide, per repository (never as one blanket switch), which of the 36 should ever become eligible for full mode."
+    resume_predicate: "The owner names each repository's decision (full-eligible or stays dry_run) individually. For each repository the owner names full-eligible, the mode flip itself still waits on G6-W06's three prerequisites: a dated per-repository authorization in docs/DECISION_LOG.md, a committed record under ops/proposal-authorizations/ for that exact repository, and that repository's candidate being current-code reproducible, independently accepted, and no-op-proven (not stale) at the time of the change. This standing decision from earlier in this session is unchanged and not reversed by this item: hold all writes (no proposal to any Aspose repository) until the portfolio is re-sealed and reviewed."
+    consumed_by: ["G6-W06"]
+    recorded_at: "2026-10-07T00:00:00+05:00"
+    note: "Recorded by this session's write-scope-expansion investigation (admit-upstream-blobs-1009 worktree), prompted directly by the owner's question about mode full. No registry.json mode field was changed by this item - that edit is explicitly withheld pending this per-repository decision, per the owner's own instruction. ops/proposal-authorizations/ is confirmed empty (the directory does not exist in this checkout at all): no repository currently has a committed authorization record, so even an owner-approved full flip cannot yet complete a real write for any of the 36 entries."
 
 legacy_source:
   repository: babar-raza/foss-readme-optimizer
