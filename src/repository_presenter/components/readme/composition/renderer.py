@@ -31,6 +31,7 @@ from repository_presenter.components.readme.composition.components.ecosystems im
     host_names,
 )
 from repository_presenter.components.readme.composition.components.identity import (
+    elide_noncanonical,
     product_name,
     product_name_tokens,
 )
@@ -87,6 +88,12 @@ RENDERER_VERSION = "28"
 # normalisation of model-authored text: plans/idea.md requires "Every Markdown heading uses title
 # case" and "without repeated empty-line runs", and the authoring prompt never asks for either.
 RENDERER_VERSION = "29"
+# 30 (owner decision, aspose-psd-foss/Aspose.PSD-FOSS-for-Python): _symbol_description elides a
+# forbidden non-canonical product-name variant out of a verified type's own quoted docstring
+# before it enters the Core API table (identity.elide_noncanonical), rather than let a citation
+# carry it onto the page and fail BC-12 unrepairably; quoted_evidence_elisions recomputes the
+# same elisions for the advisory audit trail (validation/registry.py's advisory_notes).
+RENDERER_VERSION = "30"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -551,7 +558,15 @@ def _symbol_description(context: RenderContext, fact: Fact) -> str:
     signature in a bounded batch, else the verified signature; never an invented sentence.
     Table-safe: no pipes; a bare signature is rendered as one code span."""
     attributes = fact.attributes or {}
-    text = attributes.get("docstring") or ""
+    docstring = attributes.get("docstring") or ""
+    text = docstring
+    if docstring:
+        # BC-12 (aspose-psd-foss/Aspose.PSD-FOSS-for-Python): a verbatim-quoted upstream
+        # docstring is cited evidence the repair loop may never rewrite, so a forbidden
+        # non-canonical name variant inside it is elided here, before the quote ever enters the
+        # page, rather than let the citation carry it onto the page to fail BC-12 unrepairably.
+        # quoted_evidence_elisions below recomputes the same elision for the audit trail.
+        text, _ = elide_noncanonical(docstring, context.name)
     if not text:
         text = context.units.get(("api_reference", f"type:{fact.id}"), "")
     if not text and attributes.get("signature"):
@@ -567,6 +582,26 @@ def _symbol_description(context: RenderContext, fact: Fact) -> str:
     # LLM-owned section for the repair to route to (docs/RESEARCH_AND_GUIDELINES.md section 27.10,
     # owner decision 2(c) of 2026-09-04: normalise constructively, keep the check).
     return context.canonical(text.replace("|", "/").replace("`", ""))
+
+
+def quoted_evidence_elisions(context: RenderContext) -> list[tuple[str, str]]:
+    """Every forbidden non-canonical name variant ``_symbol_description`` elides from a verified
+    type's own docstring before placing it in the Core API table, as ``(type, variant elided)``.
+
+    A pure recomputation over the same facts and the same ``elide_noncanonical`` call
+    ``_symbol_description`` itself makes, so it always agrees with what the page actually
+    rendered. Exists so an elision is recorded for the reviewer, never silent (BC-12,
+    aspose-psd-foss/Aspose.PSD-FOSS-for-Python)."""
+    found: list[tuple[str, str]] = []
+    for fact in context.supported("public_symbol"):
+        if (fact.attributes or {}).get("symbol_kind") not in {"class", "enum"}:
+            continue
+        docstring = (fact.attributes or {}).get("docstring") or ""
+        if not docstring:
+            continue
+        _, variants = elide_noncanonical(docstring, context.name)
+        found.extend((fact.value, variant) for variant in variants)
+    return found
 
 
 def _table_names(values: list[str]) -> dict[str, str]:

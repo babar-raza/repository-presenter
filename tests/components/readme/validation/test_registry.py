@@ -303,9 +303,11 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # VALIDATOR_VERSION 8: BC-06 v7 fails the edition substitutes in any letter case and BC-12
     # (canonical product name) is new; VALIDATOR_VERSION 9: BC-07 v9 (verification V2 items 8 and
     # 9); VALIDATOR_VERSION 10: BC-11 v2 is judged from measured evidence (core/noop_proof.py);
-    # VALIDATOR_VERSION 11: BC-05 v2 judges each deferral by its cause (validation/deferrals.py).
-    # This candidate names no edition, spells its name whole, and passes all of them.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "11"
+    # VALIDATOR_VERSION 11: BC-05 v2 judges each deferral by its cause (validation/deferrals.py);
+    # VALIDATOR_VERSION 12: advisory_notes records BC-12's own docstring elisions.
+    # This candidate names no edition, spells its name whole, and passes all of them (it has no
+    # docstring eliciting an elision, so v12's new advisory note never fires).
+    assert document["source_revision"] == REVISION and document["validator_version"] == "12"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(
@@ -2382,6 +2384,45 @@ def test_bc12_names_the_section_and_routes_to_composing(tmp_path: Path) -> None:
     failure = _failed(document, "BC-12")
     assert failure["causal_stage"] == "COMPOSING"
     assert [f["section_id"] for f in failure["failures"]] == ["scope_limitations"]
+
+
+def _lens_fact(docstring: str) -> Fact:
+    return Fact(
+        "public_symbol:aspose.threed.lens",
+        "public_symbol",
+        "aspose.threed.Lens",
+        (Evidence("aspose/threed/lens.py", "line 1; class; public by name"),),
+        attributes={"symbol_kind": "class", "docstring": docstring},
+    )
+
+
+def test_bc12_elides_a_noncanonical_name_from_a_quoted_docstring(tmp_path: Path) -> None:
+    # aspose-psd-foss/Aspose.PSD-FOSS-for-Python: a verbatim-quoted upstream docstring named the
+    # product without its "for Python" tail. BC-12 correctly refuses to let the repair loop
+    # rewrite cited evidence, so the composer elides only the offending substring before the
+    # quote ever enters the page, keeping the rest of the quote's own words.
+    tainted = _lens_fact("Aspose.3D FOSS provides the lens projection for a camera.")
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, tainted))
+    candidate = _candidate(facts=facts)
+    assert "Aspose.3D FOSS provides the lens projection" not in candidate.readme
+    assert "… provides the lens projection for a camera." in candidate.readme
+    document = validate_candidate(candidate, tmp_path, ())
+    assert _verdicts(document)["BC-12"] == "PASS"
+    # The elision is recorded for the reviewer, never silent.
+    assert any(
+        "elided non-canonical name 'Aspose.3D FOSS'" in note and "aspose.threed.Lens" in note
+        for note in document["advisory"]
+    ), document["advisory"]
+
+
+def test_bc12_leaves_a_docstring_with_no_noncanonical_name_unchanged(tmp_path: Path) -> None:
+    plain = _lens_fact("A lens projection for a camera.")
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, plain))
+    candidate = _candidate(facts=facts)
+    assert "A lens projection for a camera." in candidate.readme
+    document = validate_candidate(candidate, tmp_path, ())
+    assert _verdicts(document)["BC-12"] == "PASS"
+    assert document["advisory"] == []
 
 
 def test_canonical_name_pattern_is_built_from_the_name_alone() -> None:
