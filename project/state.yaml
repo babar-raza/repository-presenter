@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-10-05T10:45:00+05:00"
+updated_at: "2026-10-07T11:00:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -198,6 +198,18 @@ next_ready_items:
   status: PENDING
   owner: "REGISTER: added 2026-10-05 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
   purpose: "Documentation and cursor claim corrections (REV-V4-09, REV-V2-02 documentation half). The register PR corrected the plan's stale scorer row. Still stale: project/state.yaml G3-W02 text (line 111) and the G5-W04, G5-W05 and G7-W05 claims REV-V4-09 names, which only the cursor owner edits, and the plans/idea.md body naming data/products.json (OWNER-18). Depends on: OWNER-10 (push policy, cursor says NEVER while AGENTS.md permits a push after ci_check), OWNER-18. Exit predicate: no document claims the scorer is absent or a gate is accepted that is not; the cursor and AGENTS.md agree on the control-repository push policy; tests/test_register_integrity.py stays green."
+- id: G7-W10
+  status: PENDING
+  owner: "REGISTER: added 2026-10-07 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Cursor-staleness guard (2026-10-07 four-reviewer finding, re-verified directly: updated_at was still 2026-10-05T10:45:00+05:00 at this session's start, 2d380177/#281 and every merge since #271 landed with no refresh - a recurring process defect, not a one-time slip). Depends on: none. Add a lightweight test under tests/ that fails when project/state.yaml's updated_at is older than the most recent merge commit touching src/ by more than N days (N=3 proposed, tunable); this register PR's own updated_at bump is the first proof the check would currently pass. Exit predicate: the test exists, fails on a synthetic stale fixture, passes on the live cursor; AGENTS.md's 'update the cursor in the same commit' rule has a mechanical backstop instead of relying on a session noticing."
+- id: G7-W11
+  status: PENDING
+  owner: "REGISTER: added 2026-10-07 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Sealing-loop failure memory (2026-10-07 four-reviewer finding): a candidate that fails sealing is retried identically on the next scheduled pass with no recorded history of the prior failure's cause, so a genuinely stuck candidate (e.g. an unresolved upstream defect) burns a fresh attempt every cycle rather than backing off or surfacing as a repeat. Depends on: a branch named feat/sealing-failure-memory-1009 was named this session as already in progress elsewhere; re-checked directly (git branch -a, git worktree list, gh pr list) and no such branch, worktree or open PR exists in this repository as of this check - this item registers the gap honestly as unowned rather than duplicating claimed-but-unverified work; whoever next picks it up should re-check first in case it has since appeared. Exit predicate: a repeated-failure record exists per candidate (cause, count, last-attempt revision), a test proves a backoff or surfaced-repeat behavior, hosted CI green."
+- id: G7-W12
+  status: PENDING
+  owner: "REGISTER: added 2026-10-07 by the register PR (docs/DEFECT_INDEX.md work-item column); runs after the items above it and never outranks an open exit predicate of the current gate."
+  purpose: "Cells-Go UNCLASSIFIED deferral gap (2026-10-07 four-reviewer finding): validation/deferrals.py's UNCLASSIFIED fallback (no registered class matches the cause) fires on aspose-cells-foss' Go candidate with no class yet registered for its real cause. Depends on: a root-cause investigation was named as already in flight on this; re-checked this session and no branch, worktree or open PR matching the description was found - this item registers the gap, stated as unconfirmed cause, without asserting a cause itself. Exit predicate: a named cause, a registered DEFERRAL_CLASSES entry (or an explicit BLOCK ruling) covering it, and a test against the Go candidate's real finding."
 owner_items:
   - id: OWNER-01
     status: SATISFIED
@@ -314,7 +326,7 @@ owner_items:
     resume_predicate: "The owner chooses retire or implement; the 2026-09-30 ruling that the denominator tracks the live registry stands until then."
     consumed_by: ["G4-W18"]
     recorded_at: "2026-10-05T10:45:00+05:00"
-    note: "Recorded by the register PR; the question is the owner's, not delegated."
+    note: "Recorded by the register PR; the question is the owner's, not delegated. 2026-10-07 reverification: a claim that the owner decided 2026-10-06 to retire these names in favour of the seven-count funnel was checked directly against docs/DECISION_LOG.md (full text search, 2026-10-06 and 2026-10-07 entries read) - no such ruling is recorded. Status stays OPEN; plans/idea.md is not edited by this PR. PENDING-OWNER."
   - id: OWNER-17
     status: OPEN
     summary: "Scope of the GitHub Releases audit, GitHub-generated statistics observation, the product-agent ingest contract, and whether to un-defer visual assets and the social preview (REV-V4-02, REV-V4-03)."
@@ -330,12 +342,12 @@ owner_items:
     recorded_at: "2026-10-05T10:45:00+05:00"
     note: "Recorded by the register PR; the question is the owner's, not delegated."
   - id: OWNER-19
-    status: OPEN
+    status: SATISFIED
     summary: "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET and -for-Python are disabled with no reason recorded in the decision log: record the reason, enable them, or keep them as typed NON_PROCESSABLE."
-    resume_predicate: "The owner states which, and the registry mode or the disposition follows."
+    resume_predicate: "The owner states which, and the registry mode or the disposition follows. Met 2026-10-07: the owner stated enable both entries, overriding the 2026-10-01 04:25 UTC ruling (docs/DECISION_LOG.md) that they 'cannot be processed, leave it' - a genuine, dated reversal, not a correction of that earlier entry. The registry-mode change itself is not yet landed here: a worktree for branch feat/enable-psd-1009 exists (runs/wt/enable-psd-1009), confirmed this session via git worktree list, with zero commits ahead of main - in progress elsewhere, not duplicated by this register pass. SATISFIED records the owner's decision; the mode flip and any resulting candidate draw stay PENDING under G5-W08 until that branch lands."
     consumed_by: ["G5-W08"]
     recorded_at: "2026-10-05T10:45:00+05:00"
-    note: "Recorded by the register PR; the question is the owner's, not delegated."
+    note: "Recorded by the register PR; the question is the owner's, not delegated. 2026-10-07: owner's updated decision (enable) recorded above; supersedes the 2026-10-01 'stay disabled' ruling. Implementation tracked on branch feat/enable-psd-1009, not this PR."
 
 legacy_source:
   repository: babar-raza/foss-readme-optimizer
