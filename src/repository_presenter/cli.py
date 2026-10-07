@@ -260,7 +260,7 @@ from repository_presenter.core.github.client import (
 from repository_presenter.core.github.client import (
     update_pull_request as default_update_pull_request,
 )
-from repository_presenter.core.github.read_client import fetch_default_branch_sha
+from repository_presenter.core.github.read_client import fetch_default_branch_sha, fetch_tree
 from repository_presenter.core.github.token_provenance import (
     verify_installation_token as default_verify_installation_token,
 )
@@ -298,6 +298,7 @@ from repository_presenter.core.sealing_plan import (
     github_output_lines,
     plan_sealing_run,
     read_drift_contract,
+    read_sealing_history_contract,
     require_sealing_model,
     sealing_paused,
 )
@@ -497,6 +498,17 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("drift/drift.json"),
         help="the drift monitor's output file (core/sealing_plan.py's contract), root-relative",
+    )
+    sealing.add_argument(
+        "--history-file",
+        type=Path,
+        default=Path("sealing/history.json"),
+        help=(
+            "the sealing history contract (core/sealing_plan.py's SealingAttempt contract), "
+            "root-relative; missing or unreadable is treated as no history, never a failure "
+            "(#1009 failure memory - a repository recently FAILED is skipped for a cooldown "
+            "unless a new commit landed)"
+        ),
     )
     sealing.add_argument(
         "--github-output",
@@ -954,7 +966,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "metadata":
         return run_metadata(args.repo, args.root, apply=args.apply)
     if args.command == "sealing-plan":
-        return run_sealing_plan(args.root, args.drift_file, args.github_output)
+        return run_sealing_plan(args.root, args.drift_file, args.history_file, args.github_output)
     if args.command == "sealed-ready":
         return run_sealed_ready(args.repo, args.root)
     if args.command == "stage-transaction-artifact":
@@ -994,13 +1006,20 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def run_sealing_plan(
-    root_argument: Path | None, drift_file: Path, github_output: Path | None
+    root_argument: Path | None,
+    drift_file: Path,
+    history_file: Path,
+    github_output: Path | None,
 ) -> int:
     """Plan one unattended sealing run from the drift monitor's contract file (core/sealing_plan).
 
     Refuses before selecting anything when a prompt manifest routes away from the sealing model or
     ``GPT_OSS_MODEL`` names another one. Makes no provider and no GitHub call.
     A repository variable ``REPOSITORY_PRESENTER_SEALING_PAUSED`` of exactly "1" plans nothing.
+
+    ``history_file`` is this run's failure memory (#1009): a repository the history names as
+    recently FAILED is skipped for a cooldown unless the drift record shows a new commit. Missing
+    or unreadable history is never a failure - it just means nothing is skipped by it this run.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -1018,6 +1037,7 @@ def run_sealing_plan(
                 handle.write("\n".join(github_output_lines(empty_plan())) + "\n")
         return EXIT_OK
     contract = drift_file if drift_file.is_absolute() else root / drift_file
+    history_path = history_file if history_file.is_absolute() else root / history_file
     try:
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)
         prompts = load_manifests(root / PROMPTS_DIRNAME)
@@ -1026,10 +1046,12 @@ def run_sealing_plan(
     except PresenterError as exc:
         _fail(str(exc))
         return exc.exit_code
-    plan = plan_sealing_run(records, registry)
+    history = read_sealing_history_contract(history_path)
+    plan = plan_sealing_run(records, registry, history)
     print(
         f"sealing: model {SEALING_MODEL} (prompt routes and {MODEL_VARIABLE} checked); "
-        f"{len(records)} drift record(s), cap {MAX_REPOSITORIES_PER_RUN}"
+        f"{len(records)} drift record(s), {len(history)} history record(s), "
+        f"cap {MAX_REPOSITORIES_PER_RUN}"
     )
     for repository in plan.selected:
         print(f"selected: {repository}")
@@ -1039,6 +1061,9 @@ def run_sealing_plan(
         print(f"skipped (not in the registry allow-list): {repository}")
     for repository in plan.disabled:
         print(f"skipped (registry mode disabled): {repository}")
+    for item in plan.skipped:
+        # Failure memory's own skip is always named and reasoned here, never silent (#1009).
+        print(f"skipped (failure memory): {item.repository}: {item.reason}")
     if not plan.selected:
         print("sealing: no drifted, enabled repository to seal in this run")
     if github_output is not None:
@@ -1136,7 +1161,13 @@ def run_monitor(
         scope = f" for owner {owner}" if owner else ""
         _fail(f"no enabled registry entries{scope}")
         return EXIT_USAGE
-    observations = observe_drift(root, entries, token=token, read_head=fetch_default_branch_sha)
+    observations = observe_drift(
+        root,
+        entries,
+        token=token,
+        read_head=fetch_default_branch_sha,
+        read_tree=fetch_tree,
+    )
     observed_at = datetime.now(UTC).isoformat(timespec="seconds")
     document = drift_document(observations, observed_at=observed_at, owner=owner)
     name = DRIFT_FILENAME if owner is None else f"drift-{owner}.json"

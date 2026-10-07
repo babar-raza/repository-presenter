@@ -286,7 +286,13 @@ _TYPE_OBJECTIVE = (
 # attempt's drop was converted into a generic omission and accepted, so the check passed without
 # the unit's substance ever reaching the page. The refusal itself is unchanged: a must-carry unit
 # still needs a citation or a reasoned omission, and a second refusal still fails closed.
-# "28": scope_limitations' own accepted facts now include every unit carried_units() obliges it to
+# "28": the S6 repair's own stage_checks now applies the carry rule too (_reject_uncarried_units,
+# repair/rounds.py, reusing carried_unit_errors), and the repair's last resort no longer fabricates
+# a generic omission for a still-dropped must-carry unit (recover_carried_units, removed) - the same
+# fail-closed fix #281 made for the initial authoring call, left unfixed in the repair route and
+# flagged "out of scope" in that commit. A repair reply that drops the unit twice is refused, naming
+# it with its own source text, exactly like the initial authoring call.
+# "29": scope_limitations' own accepted facts now include every unit carried_units() obliges it to
 # carry, exactly as development_testing's already did ("26" above gave must_carry the list but
 # never gave section_selections the matching ids). Measured on two independent live transactions
 # (Note-Python, PDF-Go, 2026-10-07): reconciliation's enterprise-rewrite path supersedes an
@@ -294,7 +300,7 @@ _TYPE_OBJECTIVE = (
 # citing it, as the carry rule's own objective text asks first ("state their substance in your
 # units") - was rejected right back by "cites facts outside this section's set" on the identical
 # ID in the identical call. Both transactions exhausted the one-reask budget ("27" above) on it.
-NORMALISATION_VERSION = "28"
+NORMALISATION_VERSION = "29"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -1945,12 +1951,6 @@ _CARRY_REASON_MISSING = (
     "superseded into this section by reconciliation, so a unit must cite it and state its "
     "substance, or omitted must list it with a reason"
 )
-# Recorded, never presented as content: the omission says the authoring call did not carry the
-# unit, and leaves whether the section still states it to independent review.
-CARRY_RECOVERY_REASON = (
-    "Not carried into a unit by the authoring call; independent review judges whether this "
-    "section still states it."
-)
 
 
 def _carry_dispositions(output: Mapping[str, Any]) -> tuple[set[str], dict[str, str]]:
@@ -1996,26 +1996,6 @@ def uncarried_units(output: Mapping[str, Any], must_carry: Collection[str]) -> l
     return sorted(
         fact_id for fact_id in must_carry if fact_id not in cited and not omitted.get(fact_id)
     )
-
-
-def recover_carried_units(output: dict[str, Any], must_carry: frozenset[str]) -> bool:
-    """Records each still-uncarried must-carry unit as an explicit omission (in place); True when
-    anything was recorded. Used only as a last resort, and only ever through run_job's real
-    unit_checks re-validation, so a recorded omission never bypasses review."""
-    if not must_carry:
-        return False
-    cited, omitted = _carry_dispositions(output)
-    missing = [
-        fact_id
-        for fact_id in sorted(must_carry)
-        if fact_id not in cited and not omitted.get(fact_id)
-    ]
-    if not missing:
-        return False
-    output.setdefault("omitted", []).extend(
-        {"fact_id": fact_id, "reason": CARRY_RECOVERY_REASON} for fact_id in missing
-    )
-    return True
 
 
 # _FORBIDDEN's two markers meaning "a command" - the only ones whose surrounding text a fixed

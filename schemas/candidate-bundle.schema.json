@@ -70,6 +70,11 @@
       "description": "route -> the model this run answered it with (core/llm/fallback.py); a consumed input, so a change is a recorded update scoped by the prompts that route answers.",
       "additionalProperties": { "type": "string", "minLength": 1 }
     },
+    "upstream_blobs": {
+      "type": "object",
+      "description": "Upstream path -> git blob id (content hash) at the sealed revision, for each file the candidate's facts cite plus the README, license and notices. Written at seal time from source/tree.txt; the drift monitor compares it with the same paths at the head (components/monitor/drift.py). Absent or empty on a bundle sealed before it was recorded: the monitor reports such a bundle UNKNOWN, never CURRENT.",
+      "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+    },
     "update": {
       "type": "object",
       "additionalProperties": false,

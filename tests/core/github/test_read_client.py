@@ -70,9 +70,9 @@ def test_fetch_file_reports_malformed_response() -> None:
 def test_fetch_tree_lists_only_blob_paths_and_reports_truncation() -> None:
     payload = {
         "tree": [
-            {"path": "src", "type": "tree"},
-            {"path": "src/a.py", "type": "blob"},
-            {"path": "src/b.py", "type": "blob"},
+            {"path": "src", "type": "tree", "sha": "t" * 40},
+            {"path": "src/a.py", "type": "blob", "sha": "a" * 40},
+            {"path": "src/b.py", "type": "blob", "sha": "b" * 40},
         ],
         "truncated": True,
     }
@@ -87,6 +87,21 @@ def test_fetch_tree_reports_http_error() -> None:
     _, fetch = _fetch_with([httpx.Response(404)])
     result = fetch_tree("o/r", "rev", fetch=fetch, sleep=lambda _s: None)
     assert result.paths == () and result.error == "HTTP 404"
+
+
+def test_fetch_tree_maps_each_blob_path_to_its_blob_id_and_skips_trees() -> None:
+    payload = {
+        "tree": [
+            {"path": "src", "type": "tree", "sha": "t" * 40},
+            {"path": "src/a.py", "type": "blob", "sha": "a" * 40},
+            {"path": "LICENSE", "type": "blob", "sha": "b" * 40},
+        ],
+        "truncated": False,
+    }
+    _, fetch = _fetch_with([httpx.Response(200, json=payload)])
+    result = fetch_tree("o/r", "rev", fetch=fetch)
+    assert dict(result.blob_shas) == {"LICENSE": "b" * 40, "src/a.py": "a" * 40}
+    assert result.paths == ("LICENSE", "src/a.py")
 
 
 def test_fetch_default_branch_sha_resolves_branch_then_commit() -> None:
