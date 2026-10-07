@@ -56,6 +56,13 @@ permissions:
   # App installation token below.
   contents: write
 
+# Concurrency: one group per target repository, cancel-in-progress false because a cancelled run can
+# stop between durable-state transitions; a second run for the same target queues behind the first.
+# Group names differ from sealing-scheduled.yml's own (seal-*), so the reusable call cannot deadlock.
+concurrency:
+  group: present-${{ inputs.repository || github.event.client_payload.repository || 'unknown' }}
+  cancel-in-progress: false
+
 jobs:
   present:
     name: Present one repository (durable-state-backed)

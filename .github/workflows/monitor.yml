@@ -32,6 +32,12 @@ on:
 permissions:
   contents: read
 
+# Concurrency: one group for the workflow, cancel-in-progress true because a run is read-only and
+# holds no durable state, so a newer schedule or dispatch run safely supersedes an older one.
+concurrency:
+  group: monitor
+  cancel-in-progress: true
+
 jobs:
   health-check:
     name: Gateway and canary reachability

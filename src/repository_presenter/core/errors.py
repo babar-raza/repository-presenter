@@ -28,6 +28,12 @@ class JobError(PresenterError):
     """A job's output was rejected after its one bounded re-ask, or the provider failed for good."""
 
 
+class ProviderCallBudgetError(GatewayError):
+    """This process reached its provider-call ceiling (``core/llm/ledger.py``'s
+    ``PROVIDER_CALL_BUDGET``); the refused call is never sent, so the run stops with no further
+    spend and fails closed."""
+
+
 class NotAllowlistedError(PresenterError):
     """The repository is not in the registry allow-list, so nothing is touched."""
 

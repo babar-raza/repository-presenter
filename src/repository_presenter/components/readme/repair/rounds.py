@@ -397,7 +397,6 @@ def run_round(tx: TransactionInputs) -> Round:
             recover=functools.partial(
                 recover_section_authoring_output,
                 slot_titles=task.slot_titles,
-                must_carry=task.must_carry,
             ),
             **common,
         )
