@@ -238,7 +238,15 @@ def assemble_drift_contract(
             row = rows[name]
             # NO_BUNDLE and UNREACHABLE are never work for a sealing run: they map to UNKNOWN.
             status = _CONTRACT_STATUS.get(str(row.get("status")), "UNKNOWN")
-            records.append({"repository": name, "status": status})
+            record: dict[str, Any] = {"repository": name, "status": status}
+            # The observed upstream head, when this run actually read one (G7-W06 #1009): lets
+            # the sealing plan's failure memory tell a fresh commit apart from the same stuck
+            # drift a past failure already recorded, instead of treating every DRIFTED repeat as
+            # new work to retry at full cost.
+            head_revision = row.get("head_revision")
+            if isinstance(head_revision, str):
+                record["source_revision"] = head_revision
+            records.append(record)
     if not observed:
         raise ConfigError("no drift evidence was observed for any enabled owner; no work is made")
     document = {
