@@ -384,7 +384,7 @@
       "family": "psd",
       "platform": "net",
       "ecosystem": "net",
-      "mode": "disabled",
+      "mode": "dry_run",
       "policy_profile": "aspose-psd-foss-net",
       "active": true,
       "provider_identity": {
@@ -398,7 +398,7 @@
       "family": "psd",
       "platform": "python",
       "ecosystem": "python",
-      "mode": "disabled",
+      "mode": "dry_run",
       "policy_profile": "aspose-psd-foss-python",
       "active": true,
       "provider_identity": {
