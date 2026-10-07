@@ -16,17 +16,18 @@ from unittest.mock import Mock, patch
 from repository_presenter.components.readme.bundle.seal import seed_additional_calls
 from repository_presenter.components.readme.composition.authoring import (
     RAW_CALLS_FILENAME,
+    SectionTask,
     write_raw_calls,
 )
 from repository_presenter.components.readme.repair.rounds import (
     Round,
     _refuse_noop,
     _reject_insufficient_visible_line_overage,
+    _reject_uncarried_units,
     _round_raw_calls,
     _second_opinion,
     _stage_target,
     _third_opinion,
-    _with_carried_units,
     repair_defect,
 )
 from repository_presenter.components.readme.repair.targeted import Defect
@@ -301,44 +302,62 @@ def test_every_reconciliation_batch_is_sealed_so_a_fresh_clone_replays_it_with_z
     assert store.get("c" * 64) == second.output
 
 
-def test_a_repair_recovery_records_an_uncarried_superseded_unit_inside_revised_output() -> None:
-    """Aspose.Slides for Java, development_testing (BC-10 F08): the S6 repair's last-resort
-    recovery must also cover the must-carry units, and only on the revised_output shape a
-    targeted_repair reply uses. With nothing to carry the recovery is returned unchanged, so no
-    other section's repair behaves differently."""
-    must_carry = frozenset({"inherited_unit:092.paragraph"})
+def test_a_repair_recovery_no_longer_fabricates_an_omission_for_a_dropped_unit() -> None:
+    """Confirmed 2026-10-07 on the Slides-Java release block: #281 removed this fabrication from
+    section_authoring's own last resort but left the S6 repair route doing it, flagged "out of
+    scope" in that commit. The repair's last resort is now just the title recovery; it never
+    touches omitted, so a reply that drops a must-carry unit stays dropped for the real check."""
+    from repository_presenter.components.readme.composition.authoring import (
+        recover_title_verbatim_opening,
+    )
 
-    def no_title_fix(output: dict[str, Any]) -> dict[str, Any] | None:
-        return None
-
-    assert _with_carried_units(no_title_fix, frozenset()) is no_title_fix
-    recover = _with_carried_units(no_title_fix, must_carry)
     reply: dict[str, Any] = {
         "revised_output": {
             "units": [{"section": "development_testing", "slot": "summary", "text": "x"}],
             "omitted": [],
         }
     }
-    recovered = recover(reply)
-    assert recovered is reply
-    assert [item["fact_id"] for item in reply["revised_output"]["omitted"]] == [
-        "inherited_unit:092.paragraph"
-    ]
-    # Mutation control: a reply already carrying the unit is left alone.
-    settled: dict[str, Any] = {
-        "revised_output": {
-            "units": [
-                {
-                    "section": "development_testing",
-                    "slot": "summary",
-                    "text": "x",
-                    "fact_ids": ["inherited_unit:092.paragraph"],
-                }
-            ],
-            "omitted": [],
-        }
+    recovered = recover_title_verbatim_opening(reply, slot_titles={})
+    assert recovered is None or recovered["revised_output"]["omitted"] == []
+
+
+def test_the_repair_stage_checks_refuse_a_dropped_must_carry_unit_with_its_source_text() -> None:
+    """_reject_uncarried_units layers carried_unit_errors onto the repair's own stage_checks, the
+    same function section_authoring's own unit_checks already calls - reused, not duplicated.
+    A dropped unit is refused with its source text; citing it, or omitting it with a reason,
+    passes; nothing to carry leaves an unset checks callable returning no errors."""
+    task = SectionTask(
+        "development_testing",
+        {},
+        frozenset(),
+        ("summary",),
+        must_carry=frozenset({"inherited_unit:092.paragraph"}),
+        must_carry_text={"inherited_unit:092.paragraph": "Build with Maven."},
+    )
+    guarded = _reject_uncarried_units(None, task)
+    dropped = {"units": [{"slot": "summary", "fact_ids": [], "text": "x"}], "omitted": []}
+    errors = guarded(dropped)
+    assert len(errors) == 1
+    assert "inherited_unit:092.paragraph" in errors[0]
+    assert "Build with Maven." in errors[0]
+    cited = {
+        "units": [{"slot": "summary", "fact_ids": ["inherited_unit:092.paragraph"], "text": "x"}],
+        "omitted": [],
     }
-    assert recover(settled) is None
+    assert guarded(cited) == []
+    omitted = {
+        "units": [{"slot": "summary", "fact_ids": [], "text": "x"}],
+        "omitted": [{"fact_id": "inherited_unit:092.paragraph", "reason": "stated elsewhere"}],
+    }
+    assert guarded(omitted) == []
+    # Negative control: a section with nothing to carry layers nothing extra onto its own checks.
+    no_carry_task = SectionTask("opening", {}, frozenset(), ("opening",))
+
+    def own_check(_: dict[str, Any]) -> list[str]:
+        return ["unrelated"]
+
+    assert _reject_uncarried_units(own_check, no_carry_task) is own_check
+    assert _reject_uncarried_units(None, no_carry_task)({"units": []}) == []
 
 
 class _RecordingStore:
