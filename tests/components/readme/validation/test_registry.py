@@ -303,9 +303,11 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # VALIDATOR_VERSION 8: BC-06 v7 fails the edition substitutes in any letter case and BC-12
     # (canonical product name) is new; VALIDATOR_VERSION 9: BC-07 v9 (verification V2 items 8 and
     # 9); VALIDATOR_VERSION 10: BC-11 v2 is judged from measured evidence (core/noop_proof.py);
-    # VALIDATOR_VERSION 11: BC-05 v2 judges each deferral by its cause (validation/deferrals.py).
-    # This candidate names no edition, spells its name whole, and passes all of them.
-    assert document["source_revision"] == REVISION and document["validator_version"] == "11"
+    # VALIDATOR_VERSION 11: BC-05 v2 judges each deferral by its cause (validation/deferrals.py);
+    # VALIDATOR_VERSION 12: BC-07 v10 allows zero badges when zero badge-worthy facts exist.
+    # This candidate names no edition, spells its name whole, and passes all of them (it has
+    # badge-worthy facts and a rendered badge row, so v10's new allowance never triggers).
+    assert document["source_revision"] == REVISION and document["validator_version"] == "12"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(
@@ -1979,6 +1981,40 @@ def test_a_duplicated_or_fabricated_badge_is_a_blocking_failure() -> None:
 def test_an_omitted_badge_is_allowed() -> None:
     assert _badge_failures(_row_candidate(LICENSE_BADGE)) == []
     assert _badge_failures(_row_candidate(f"{PYPI} {LICENSE_BADGE}")) == []
+
+
+def _without_badge_worthy_facts(*extra: Fact) -> FactsDocument:
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        tuple(f for f in FACTS.facts if f.kind not in ("package", "license")) + extra,
+    )
+
+
+def test_zero_badge_worthy_facts_needs_no_badge_row() -> None:
+    # aspose-psd-foss/Aspose.PSD-FOSS-for-Python: no packaging metadata exists at all (no
+    # package fact, no license fact, no other badge-source fact), so the renderer emits no
+    # badge; that absence is the correct render, not a BC-07 gap.
+    candidate = _candidate(facts=_without_badge_worthy_facts())
+    details = [f.detail for f in _check_structure(candidate)]
+    assert not any("expected one badge row" in d for d in details), details
+
+
+def test_a_badge_worthy_fact_with_no_rendered_badge_still_fails() -> None:
+    # Negative control, must not regress: a badge-worthy fact exists (a license claim), but it
+    # is incomplete (no license:file fact), so the renderer still emits no badge - and that is
+    # still a real gap, exactly as before the fix.
+    half_license = _without_badge_worthy_facts(_fact("license:spdx", "license", "MIT"))
+    candidate = _candidate(facts=half_license)
+    details = [f.detail for f in _check_structure(candidate)]
+    assert any("expected one badge row; found 0" in d for d in details), details
+
+
+def test_a_badge_worthy_fact_with_one_rendered_badge_passes() -> None:
+    # The ordinary case, unchanged: a badge-worthy fact exists and the renderer's own row covers
+    # it, so the check passes as it always did.
+    assert _badge_failures(_candidate()) == []
+    assert not any("expected one badge row" in f.detail for f in _check_structure(_candidate()))
 
 
 def test_check_four_blocks_a_unit_citing_another_slots_facts(tmp_path: Path) -> None:

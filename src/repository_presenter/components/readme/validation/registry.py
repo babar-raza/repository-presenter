@@ -64,8 +64,10 @@ from repository_presenter.components.readme.composition.renderer import (
     RenderContext,
     api_reference_names,
     badge_slots,
+    contributors_target,
     line_counts,
 )
+from repository_presenter.components.readme.evidence.facts.assets import CI_BADGE_FACT_ID
 from repository_presenter.components.readme.evidence.facts.links import (
     check_anchor,
     check_relative,
@@ -113,7 +115,12 @@ VALIDATION_FILENAME = "validation.json"
 # 11: BC-05 v2 judges every DEFER_UNRESOLVED unit by its cause (validation/deferrals.py): a BLOCK
 # class fails the check, an ADVISORY class is recorded in validation.json's advisory list, and an
 # unclassified cause blocks. A bundle sealed under 10 re-checks under 11 and shows as pending.
-VALIDATOR_VERSION = "11"
+# 12: BC-07 v10 (owner decision, aspose-psd-foss/Aspose.PSD-FOSS-for-Python): a candidate whose
+# evidence carries no badge-worthy fact at all (no package, license, or badge-specific
+# link_target fact - renderer.badge_worthy_facts) needs no badge row; zero badges is then the
+# correct, complete render, not a gap. A badge-worthy fact present with still no rendered row
+# fails exactly as before. A bundle sealed under 11 re-checks under 12 and shows as pending.
+VALIDATOR_VERSION = "12"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -298,7 +305,12 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # "8" (links, anchor and badges rules): the badge row must keep plans/idea.md's stable
         # order (package, runtime, build status, license, contributors), repeat no slot, and
         # contain only badges the verified facts support (renderer.badge_slots).
-        "9",
+        # "10" (owner decision, aspose-psd-foss/Aspose.PSD-FOSS-for-Python): "one badge row" is
+        # required only when a badge-worthy fact exists; a candidate with no package, license, or
+        # badge-specific link_target fact in its evidence at all needs no badge row, since no
+        # badge slot could ever render from it. Any badge-worthy fact present and still no
+        # rendered row is unchanged: that is a real composition defect.
+        "10",
         "Exactly one factual H1; one badge row in the stable order, each badge supported by a "
         "verified fact; title-case headings of every level; canonical abbreviations in prose and "
         "headings; At a Glance topology, column rules and label geometry; fence languages and "
@@ -1532,7 +1544,25 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
         line for line in outside if _BADGE_ROW.fullmatch(line.strip()) and line.strip() != banner
     ]
     if len(badge_rows) != 1:
-        failures.append(Failure("COMPOSING", f"expected one badge row; found {len(badge_rows)}"))
+        # aspose-psd-foss/Aspose.PSD-FOSS-for-Python: a repository with no packaging metadata at
+        # all carries no fact any badge slot could ever render from - no package fact, no
+        # license fact, and no link_target fact that is the CI badge's own fact or names this
+        # repository's contributors graph (badge_slots' own inputs). Zero badge-worthy evidence
+        # means zero badges is the correct, complete render, not a gap. Any badge-worthy fact
+        # present and still no rendered row is unchanged: that is a real composition defect.
+        contributors = contributors_target(candidate.entry.repository).casefold()
+        badge_worthy = any(
+            fact.kind in ("package", "license")
+            or (
+                fact.kind == "link_target"
+                and (fact.id == CI_BADGE_FACT_ID or fact.value.casefold() == contributors)
+            )
+            for fact in candidate.facts.facts
+        )
+        if badge_rows or badge_worthy:
+            failures.append(
+                Failure("COMPOSING", f"expected one badge row; found {len(badge_rows)}")
+            )
     else:
         # plans/idea.md: stable order, each badge only when its claim is verified, none
         # duplicated or fabricated. The expected row is what the renderer derives from the facts.
