@@ -7,7 +7,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from repository_presenter.components.readme.bundle.reproducibility import reproducible_candidates
+from repository_presenter.components.readme.bundle.reproducibility import (
+    reproducible_candidates,
+    reproducible_repositories,
+)
 from repository_presenter.components.readme.composition.renderer import render_readme
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
@@ -231,3 +234,13 @@ def test_reproducible_candidates_with_no_registry_file_is_zero_not_a_crash(tmp_p
         tmp_path, "aspose-3d-foss__Aspose.3D-FOSS-for-Python", "rev1", "READY_FOR_PROPOSAL"
     )
     assert reproducible_candidates(tmp_path) == 0
+
+
+def test_reproducible_repositories_names_the_directory_that_still_renders(tmp_path: Path) -> None:
+    bundle = _seed_bundle(tmp_path, "aspose-3d-foss__Aspose.3D-FOSS-for-Python", "rev1")
+    (bundle / "README.md").write_text(
+        render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS), encoding="utf-8"
+    )
+    assert reproducible_repositories(tmp_path) == {"aspose-3d-foss__Aspose.3D-FOSS-for-Python"}
+    (bundle / "README.md").write_text("drifted\n", encoding="utf-8")
+    assert reproducible_repositories(tmp_path) == set()
