@@ -56,26 +56,32 @@ def _read(bundle: Path, name: str) -> dict[str, Any]:
 
 def reproducible_candidates(root: Path) -> int:
     """How many `CURRENT`, counted-state candidates render byte-identical to their sealed
-    `README.md` under the code running right now.
+    `README.md` under the code running right now - the count of `reproducible_repositories`."""
+    return len(reproducible_repositories(root))
+
+
+def reproducible_repositories(root: Path) -> set[str]:
+    """The repository directory names (``owner__name``) whose `CURRENT`, counted-state candidate
+    renders byte-identical to its sealed `README.md` under the code running right now.
 
     A pure read: renders in memory, compares bytes, writes nothing. A bundle this cannot render
     at all (a missing artifact, an unlisted repository, a malformed document) does not count as
     reproducible - it is silently excluded here, not an error; `verify_bundle` already owns the
     integrity half of PA-03's four counts, and a candidate failing that check would fail this one
     too for the same underlying reason. A project with no registry at all (a minimal fixture, or
-    a checkout that has never configured one) can reproduce nothing - zero, not a crash; every
+    a checkout that has never configured one) can reproduce nothing - empty, not a crash; every
     other count in `run_status` degrades the same way rather than failing the whole command over
     a signal that is informational, never blocking.
     """
     known_ecosystems()
     candidates = root / CANDIDATES_DIRNAME
     if not candidates.is_dir():
-        return 0
+        return set()
     try:
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)
     except ConfigError:
-        return 0
-    reproducible = 0
+        return set()
+    reproducible: set[str] = set()
     for repository_dir in sorted(p for p in candidates.iterdir() if p.is_dir()):
         current = repository_dir / CURRENT_FILENAME
         if not current.is_file():
@@ -109,5 +115,5 @@ def reproducible_candidates(root: Path) -> int:
         except (OSError, ValueError, KeyError, TypeError):
             continue
         if rendered == readme_path.read_text(encoding="utf-8"):
-            reproducible += 1
+            reproducible.add(repository_dir.name)
     return reproducible

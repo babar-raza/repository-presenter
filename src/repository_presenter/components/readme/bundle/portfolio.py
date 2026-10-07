@@ -92,6 +92,8 @@ OFF_FUNNEL_BUCKETS: tuple[str, ...] = (
     "update_available",
 )
 BUCKETS: tuple[str, ...] = OFF_FUNNEL_BUCKETS + COUNT_NAMES
+# depth = how many cumulative counts an entry reached; no-op-proven is reached at depth 4.
+NO_OP_PROVEN_DEPTH = COUNT_NAMES.index("no_op_proven") + 1
 
 # docs/README_CONTRACT.md section 5's checks, split the way docs/STATE_MACHINE.md section 9 splits
 # defects: factual, safety and protected-content checks versus the presentation check. The docs do
@@ -212,6 +214,29 @@ def assess_portfolio(
         source_freshness_observed=drift is not None,
         authorizations_supplied=authorizations is not None,
         entries=tuple(assessments),
+    )
+
+
+def current_reproducible_no_op_proven(
+    report: PortfolioReport | None, reproducible: Collection[str]
+) -> int:
+    """The honest headline count: entries that reach the no-op-proven stage (depth 4, which already
+    requires a current, non-stale bundle, a valid fact and presentation check, an independent
+    ACCEPT and a zero-call byte-identical no-op proof) AND whose CURRENT bundle still renders
+    byte-identical under the running code (``reproducible``: repository directory names from
+    ``reproducibility.reproducible_repositories``).
+
+    None of the three is inferred from another: a stale bundle is never counted, a fact-valid bundle
+    that is not independently accepted is never counted, and an accepted bundle that no longer
+    reproduces is never counted. No report (no registry) counts nothing.
+    """
+    if report is None:
+        return 0
+    return sum(
+        1
+        for assessment in report.entries
+        if assessment.depth >= NO_OP_PROVEN_DEPTH
+        and assessment.repository.replace("/", "__") in reproducible
     )
 
 
