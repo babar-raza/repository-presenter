@@ -67,7 +67,11 @@ def test_status_reports_this_repository_cursor(
     assert re.fullmatch(rf"gate: G\d_[A-Z_]+ {STATUS}", out[1])
     assert re.fullmatch(rf"work item: G\d-W\d\d {STATUS}", out[2])
     denominator = len(load_registry(REPO_ROOT / "data" / "registry.json").entries)
-    assert re.fullmatch(rf"candidates: \d+/{denominator} current reviewable no-op-proven", out[3])
+    assert re.fullmatch(
+        rf"candidates: \d+/{denominator} current-code reproducible, independently accepted, "
+        r"no-op-proven",
+        out[3],
+    )
     assert re.fullmatch(
         r"progress: \d+ ever sealed, \d+ integrity-valid, \d+ current-code reproducible, "
         r"\d+ independently accepted \(stale-excluded\)",
@@ -196,7 +200,7 @@ def test_status_discovers_root_from_nested_working_directory(
     nested.mkdir(parents=True)
     monkeypatch.chdir(nested)
     assert main(["status"]) == EXIT_OK
-    assert "candidates: 0/34 current reviewable no-op-proven" in capsys.readouterr().out
+    assert "candidates: 0/34 current-code reproducible" in capsys.readouterr().out
 
 
 def test_status_without_cursor_is_a_usage_error(
@@ -217,7 +221,10 @@ def test_status_counts_each_repository_once(
     write_bundle(project, "owner__beta", "ccc333", "READY_FOR_PROPOSAL")
     write_cursor(project, recorded_candidates=2)
     assert main(["status", "--root", str(project)]) == EXIT_OK
-    assert "candidates: 2/34" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    # Two READY bundles are not two accepted candidates: no registry, so the headline is 0.
+    assert "candidates: 0/34" in out
+    assert "candidate states: 2 READY_FOR_PROPOSAL (counted)" in out
 
 
 def test_status_ignores_unsealed_and_uncounted_bundles(
@@ -296,7 +303,8 @@ def test_status_flags_cursor_that_disagrees_with_disk(
     write_bundle(project, "owner__alpha", "aaa111", "READY_FOR_PROPOSAL")
     assert main(["status", "--root", str(project)]) == EXIT_INCONSISTENT
     captured = capsys.readouterr()
-    assert "candidates: 1/34" in captured.out
+    assert "candidates: 0/34" in captured.out
+    assert "candidate states: 1 READY_FOR_PROPOSAL (counted)" in captured.out
     assert "cursor records 0 current candidates but 1 sealed on disk" in captured.err
 
 

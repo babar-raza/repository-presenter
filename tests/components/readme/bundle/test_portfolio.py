@@ -21,6 +21,7 @@ from repository_presenter.components.readme.bundle.portfolio import (
     REVIEW_CHECK,
     DriftObservation,
     assess_portfolio,
+    current_reproducible_no_op_proven,
     load_authorizations,
     load_drift,
     render_lines,
@@ -555,3 +556,87 @@ def test_load_authorizations_accepts_an_object_a_list_and_a_directory(tmp_path: 
     (tmp_path / "b.json").write_text(json.dumps([record, record]), encoding="utf-8")
     assert len(load_authorizations(tmp_path)[entry.repository]) == 3
     assert len(load_authorizations(tmp_path / "a.json")[entry.repository]) == 1
+
+
+def _headline_report(root: Path, entry: RegistryEntry, *, stale: tuple[str, ...] = ()):
+    return assess_portfolio(
+        root,
+        [entry],
+        stale_directories=stale,
+        expected_branch=BRANCH,
+        now=NOW,
+        drift=_current(entry),
+    )
+
+
+def test_headline_counts_a_current_accepted_no_op_proven_reproducible_bundle(
+    tmp_path: Path,
+) -> None:
+    entry = _entry("Python")
+    _seal(tmp_path, entry, acceptance=PASSING)
+    report = _headline_report(tmp_path, entry)
+    reproducible = {entry.repository.replace("/", "__")}
+    assert current_reproducible_no_op_proven(report, reproducible) == 1
+    # The funnel the headline sits above is the same report, read unchanged.
+    assert report.counts["independently_accepted"] == 1
+    assert report.counts["no_op_proven"] == 1
+
+
+def test_headline_does_not_count_a_bundle_behind_the_running_code(tmp_path: Path) -> None:
+    entry = _entry("Python")
+    _seal(tmp_path, entry, acceptance=PASSING)
+    directory = entry.repository.replace("/", "__")
+    report = _headline_report(tmp_path, entry, stale=(directory,))
+    assert current_reproducible_no_op_proven(report, {directory}) == 0
+    assert report.counts["no_op_proven"] == 0
+
+
+def test_headline_does_not_count_fact_valid_but_not_independently_accepted(
+    tmp_path: Path,
+) -> None:
+    entry = _entry("Python")
+    _seal(tmp_path, entry, review_verdict="REJECT_PRESENTATION", acceptance=PASSING)
+    report = _headline_report(tmp_path, entry)
+    directory = entry.repository.replace("/", "__")
+    assert report.counts["fact_valid"] == 1
+    assert report.counts["independently_accepted"] == 0
+    assert current_reproducible_no_op_proven(report, {directory}) == 0
+
+
+def test_headline_does_not_count_an_accepted_bundle_without_a_zero_call_proof(
+    tmp_path: Path,
+) -> None:
+    entry = _entry("Python")
+    _seal(
+        tmp_path, entry, no_op={"byte_identical": True, "fresh_process": True}, acceptance=PASSING
+    )
+    report = _headline_report(tmp_path, entry)
+    assert current_reproducible_no_op_proven(report, {entry.repository.replace("/", "__")}) == 0
+
+
+def test_headline_does_not_count_an_accepted_bundle_that_no_longer_reproduces(
+    tmp_path: Path,
+) -> None:
+    entry = _entry("Python")
+    _seal(tmp_path, entry, acceptance=PASSING)
+    report = _headline_report(tmp_path, entry)
+    assert report.counts["no_op_proven"] == 1
+    assert current_reproducible_no_op_proven(report, set()) == 0
+
+
+def test_headline_with_no_registry_counts_nothing() -> None:
+    assert current_reproducible_no_op_proven(None, {"owner__name"}) == 0
+
+
+def test_funnel_lines_are_printed_unchanged_by_the_headline(tmp_path: Path) -> None:
+    entry = _entry("Python")
+    _seal(tmp_path, entry, acceptance=PASSING)
+    report = _headline_report(tmp_path, entry)
+    current_reproducible_no_op_proven(report, {entry.repository.replace("/", "__")})
+    lines = render_lines(report)
+    assert lines[0] == "portfolio: 1 live registry entries"
+    assert lines[1] == (
+        "  counts (cumulative, each of the previous): fact-valid 1, presentation-valid 1, "
+        "independently accepted 1, no-op-proven 1, source-fresh 1, publication-eligible 0, "
+        "effect-authorized 0"
+    )
