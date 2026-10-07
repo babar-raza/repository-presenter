@@ -37,6 +37,11 @@ from repository_presenter.core.noop_proof import (
 CANDIDATES_DIRNAME = "candidates"
 BUNDLE_MANIFEST_NAME = "manifest.json"
 CURRENT_FILENAME = "CURRENT"
+# The manifest field recording, at seal time, the git blob id of each upstream file the candidate's
+# facts were drawn from (path -> blob id). The drift monitor compares these with the same files at
+# the repository's head. Written by components/readme/bundle/seal.py; absent on bundles sealed
+# before it existed, which the monitor reports as UNKNOWN until they are re-sealed.
+UPSTREAM_BLOBS_FIELD = "upstream_blobs"
 # Must match bundle/seal.py's own DEPENDENCIES_FILENAME - duplicated rather than imported, since
 # core/ may not import a components/readme/ module (this file's own docstring; see also
 # core/ecosystems.py's identical note).

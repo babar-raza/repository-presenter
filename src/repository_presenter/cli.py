@@ -260,7 +260,7 @@ from repository_presenter.core.github.client import (
 from repository_presenter.core.github.client import (
     update_pull_request as default_update_pull_request,
 )
-from repository_presenter.core.github.read_client import fetch_default_branch_sha
+from repository_presenter.core.github.read_client import fetch_default_branch_sha, fetch_tree
 from repository_presenter.core.github.token_provenance import (
     verify_installation_token as default_verify_installation_token,
 )
@@ -1136,7 +1136,13 @@ def run_monitor(
         scope = f" for owner {owner}" if owner else ""
         _fail(f"no enabled registry entries{scope}")
         return EXIT_USAGE
-    observations = observe_drift(root, entries, token=token, read_head=fetch_default_branch_sha)
+    observations = observe_drift(
+        root,
+        entries,
+        token=token,
+        read_head=fetch_default_branch_sha,
+        read_tree=fetch_tree,
+    )
     observed_at = datetime.now(UTC).isoformat(timespec="seconds")
     document = drift_document(observations, observed_at=observed_at, owner=owner)
     name = DRIFT_FILENAME if owner is None else f"drift-{owner}.json"
