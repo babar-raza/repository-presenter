@@ -3492,6 +3492,108 @@ def test_an_uncarried_scope_unit_fails_and_a_carried_or_omitted_one_passes() -> 
     assert carried_units(dispositions, "development_testing", facts) == []
 
 
+def test_a_must_carry_unit_can_actually_be_cited_without_a_binding_violation() -> None:
+    """Note-Python and PDF-Go, 2026-10-07 (both independent live transactions): reconciliation
+    supersedes an inherited Enterprise Edition relationship paragraph (084.paragraph-shaped) into
+    scope_limitations, so the carry gate (carried_unit_errors) obliges the section to cite it or
+    omit it with a reason. The carry_rule objective text names "state their substance in your
+    units" first, and the re-ask (S6, #281) hands the model that exact substance to use - but
+    section_selections never added a carried unit's own ID to scope_limitations' accepted facts
+    the way it already does for development_testing (the sibling _CARRY_SECTIONS member), so the
+    one compliant reply that cites the unit was rejected right back by "cites facts outside this
+    section's set" on the identical ID in the identical call. Two attempts, two shapes of the same
+    unsatisfiable pair, no model wording escapes it - that is what exhausted the one-reask budget
+    on the real transactions. Fixed by extending scope_limitations' own accepted ids with
+    carried_units, exactly mirroring development_testing's existing call."""
+    unit_id = "inherited_unit:084.paragraph"
+    facts = FactsDocument(
+        FACTS.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                unit_id,
+                "inherited_unit",
+                "These limitations don't apply to Enterprise Edition, the full-featured product.",
+            ),
+        ),
+    )
+    dispositions = {"dispositions": [_scope_disposition(unit_id)]}
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, dispositions, PLAN)
+    }
+    task = tasks["scope_limitations"]
+    assert task.must_carry == frozenset({unit_id})
+    # The contradiction's exact shape: the must-carry ID is now also a fact the section may cite.
+    assert unit_id in task.accepted_ids
+    cited_output = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": slot,
+                "text": (
+                    "These limitations don't apply to Enterprise Edition."
+                    if slot == "scope"
+                    else "x"
+                ),
+                "fact_ids": [unit_id] if slot == "scope" else ["identity:repository"],
+            }
+            for slot in task.slots
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(cited_output, task, facts, NAME) == []
+    # Negative control: the fix is not a blanket relaxation. A fact this section never earned -
+    # one belonging to no slot, carried by nothing, and not among scope_limitations' own ids -
+    # still fails exactly as before; only a real must-carry unit was admitted.
+    stray_output = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": slot,
+                "text": "It reads files." if slot == "scope" else "x",
+                "fact_ids": (
+                    ["public_symbol:aspose.threed.scene"]
+                    if slot == "scope"
+                    else ["identity:repository"]
+                ),
+            }
+            for slot in task.slots
+        ],
+        "omitted": [{"fact_id": unit_id, "reason": "covered by the scope unit"}],
+    }
+    assert unit_checks(stray_output, task, facts, NAME) == [
+        "unit scope: cites facts outside this section's set: public_symbol:aspose.threed.scene"
+    ]
+    # Negative control: a unit superseded into a different section never leaks into
+    # scope_limitations' accepted ids - carried_units stays scoped to its own destination.
+    other_unit_id = "inherited_unit:085.paragraph"
+    other_facts = FactsDocument(
+        FACTS.repository,
+        "a" * 40,
+        (*facts.facts, _fact(other_unit_id, "inherited_unit", "A build/test paragraph.")),
+    )
+    other_dispositions = {
+        "dispositions": [
+            _scope_disposition(unit_id),
+            {
+                "unit_id": other_unit_id,
+                "disposition": "SUPERSEDE_REDUNDANT",
+                "destination_section": "development_testing",
+                "fact_ids": [],
+                "rationale": "r",
+            },
+        ]
+    }
+    other_tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, other_facts, INVESTIGATION, other_dispositions, PLAN)
+    }
+    assert other_unit_id not in other_tasks["scope_limitations"].accepted_ids
+    assert other_unit_id in other_tasks["development_testing"].accepted_ids
+
+
 def test_the_scope_request_names_every_must_carry_unit_by_id() -> None:
     """Slides-Java, 2026-10-05: both S6 scope attempts were rejected for the superseded limitation
     units they never cited or omitted. The request now names every must-carry unit of the section

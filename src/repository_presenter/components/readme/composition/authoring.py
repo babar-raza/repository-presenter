@@ -286,7 +286,15 @@ _TYPE_OBJECTIVE = (
 # attempt's drop was converted into a generic omission and accepted, so the check passed without
 # the unit's substance ever reaching the page. The refusal itself is unchanged: a must-carry unit
 # still needs a citation or a reasoned omission, and a second refusal still fails closed.
-NORMALISATION_VERSION = "27"
+# "28": scope_limitations' own accepted facts now include every unit carried_units() obliges it to
+# carry, exactly as development_testing's already did ("26" above gave must_carry the list but
+# never gave section_selections the matching ids). Measured on two independent live transactions
+# (Note-Python, PDF-Go, 2026-10-07): reconciliation's enterprise-rewrite path supersedes an
+# Enterprise Edition relationship paragraph into scope_limitations, and the one compliant reply -
+# citing it, as the carry rule's own objective text asks first ("state their substance in your
+# units") - was rejected right back by "cites facts outside this section's set" on the identical
+# ID in the identical call. Both transactions exhausted the one-reask budget ("27" above) on it.
+NORMALISATION_VERSION = "28"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -808,6 +816,18 @@ def section_selections(
         count = max(len(material), len(found) if isinstance(found, list) else 0)
         slots.extend(f"limitation:{index}" for index in range(1, count + 1))
         ids.extend(_cited(investigation.get("limitations")))
+        # BC-10 F08 / Slides-Java F04's own fix (_CARRY_SECTIONS, carried_units above) obliges
+        # scope_limitations to cite or omit every unit reconciliation superseded into it, but
+        # never gave this section's own accepted-facts set that unit's ID - so a reply that
+        # complied by citing it (the carry_rule's own first-named option: "state their substance
+        # in your units") was then rejected by the "cites facts outside this section's set" check
+        # just below, on the identical unit, in the identical call: a unit could neither cite nor
+        # safely ignore it. Measured on two independent live transactions (Note-Python, PDF-Go,
+        # 2026-10-07): inherited_unit:084.paragraph (an Enterprise Edition relationship paragraph
+        # reconciliation supersedes into scope_limitations, docs/DECISION_LOG.md) exhausted the
+        # one-reask budget (S6, #281) both times. development_testing already had this call
+        # (line below); scope_limitations never did.
+        ids.extend(carried_units(dispositions, section, facts))
     elif section == "development_testing":
         ids.extend(fact.id for fact in facts.by_kind("build_test_asset"))
         ids.extend(carried_units(dispositions, section, facts))
