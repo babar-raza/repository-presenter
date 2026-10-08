@@ -152,28 +152,16 @@ never a product repository. A red hosted run is `FAILED_INTERNAL` at the next it
 
 ## 7. Legacy reuse protocol: pull-based
 
-The legacy repository holds 171,345 lines of first-party production Python at the frozen revision
-and its scheduled entry point imports 79% of it, so reuse by entry point is impossible and a
-census-first audit would become its own project. Reuse is **pull-based**: a legacy file enters this
-repository only when a gate's work needs it, with a manifest record, its tests, and a cut closure.
+The legacy repository holds 171,345 lines of first-party production Python at the frozen revision and its scheduled entry point imports 79% of it, so reuse by entry point is impossible and a census-first audit would become its own project. Reuse is **pull-based**: a legacy file enters this repository only when a gate's work needs it, with a manifest record, its tests, and a cut closure.
 
-Every pulled file receives exactly one disposition: `PORT_NEARLY_INTACT`, `EXTRACT_AND_REFACTOR`,
-`ADAPT_AS_PLUGIN`, `FIXTURE_OR_ORACLE_ONLY`, or `MIGRATION_READER_ONLY`. Everything never pulled is
-`RETIRE` by default. Each record carries source path, SHA-256 at the frozen revision, disposition,
-destination, retained behavior, removed behavior and coupling, tests ported, and acceptance.
+Every pulled file receives exactly one disposition: `PORT_NEARLY_INTACT`, `EXTRACT_AND_REFACTOR`, `ADAPT_AS_PLUGIN`, `FIXTURE_OR_ORACLE_ONLY`, or `MIGRATION_READER_ONLY`. Everything never pulled is `RETIRE` by default. Each record carries source path, SHA-256 at the frozen revision, disposition, destination, retained behavior, removed behavior and coupling, tests ported, and acceptance.
 
 Pull rules:
 
-- Compute the import closure at the source before pulling. A pull that drags a retired module or a
-  `supervisor`, `capabilities`, or `specialists` module fails; cut the chain first. The known chains
-  are recorded in the manifest as `CPL-01` to `CPL-08`.
-- Seam-cut order for the first pulls: shared identity types out of `capabilities/schema.py`;
-  `sha256_text` out of `readme/facts.py`; the validation ruleset version; then the `llm/*` modules.
-- Non-Python assets follow the same rule: prompt manifests, template and section registries, policy
-  files, registry and link data, the benchmark profile, the presentation standard, and the golden
-  sample are pulled per asset with a record. The manifest lists their expected dispositions.
-- The legacy suite is not green at the frozen revision (`RESEARCH_AND_GUIDELINES.md` §16.9); record
-  the Linux-runner baseline before the first pull so a failing ported test is attributable.
+- Compute the import closure at the source before pulling. A pull that drags a retired module or a `supervisor`, `capabilities`, or `specialists` module fails; cut the chain first. The known chains are recorded in the manifest as `CPL-01` to `CPL-08`.
+- Seam-cut order for the first pulls: shared identity types out of `capabilities/schema.py`; `sha256_text` out of `readme/facts.py`; the validation ruleset version; then the `llm/*` modules.
+- Non-Python assets follow the same rule: prompt manifests, template and section registries, policy files, registry and link data, the benchmark profile, the presentation standard, and the golden sample are pulled per asset with a record. The manifest lists their expected dispositions.
+- The legacy suite is not green at the frozen revision (`RESEARCH_AND_GUIDELINES.md` §16.9); record the Linux-runner baseline before the first pull so a failing ported test is attributable.
 - The G4 exit census records file and line totals by disposition. No reuse percentage is claimed
   before it.
 
@@ -425,7 +413,7 @@ then keep the system useful without weakening the README foundation.
    admit new repositories disabled and read-only (no plugin, stays non-processable until one lands —
    one file, one test, one registry entry); add the other surfaces (description, topics, community
    files, release links, visuals, social preview) as separate machines; Level 7 and 8 certifications.
-5. **Unattended sealing hosted pipeline proof (G7-W13), satisfied.** Hosted run `37712681751` (2026-10-08, dispatched on `main` after #285-#291 merged) carried `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` through `present --durable-state` to `READY_FOR_PROPOSAL`, review `ACCEPT` with zero findings, and a genuine fresh-process no-op proof — transaction `f7ac3f73da1b4c7090ed11f26e8bb267`, confirmed directly from the durable-state ref `refs/repository-presenter-state/records/aspose-cells-foss__Aspose.Cells-FOSS-for-Go` (`record.json`, `state_version` 24). First observed hosted success since `sealing-scheduled.yml` was wired (#242); six prior runs between 2026-10-05 and 2026-10-07 all failed (`docs/DEFECT_INDEX.md` REG-20, an open, unmerged PR's own audit).
+5. **Unattended sealing hosted proof (G7-W13).** Registered 2026-10-07 after a full-history audit of every `sealing-scheduled.yml` run since #242 wired it: six runs between 2026-10-05 and 2026-10-07 (`docs/DEFECT_INDEX.md` REG-20), zero of which ever sealed a repository — three plan-stage failures (a missing/malformed drift contract, and a newly-enabled owner with no drift evidence yet) and nine present-stage failures spread across the same three repositories (BC-05 UNCLASSIFIED, a hallucinated fact citation, uncited-unit and coherence-drop rejections, BC-10 `REJECT_PRESENTATION`). `core/sealing_plan.py` selects only `DRIFTED` registry entries, by design (Gate B). **SATISFIED, 2026-10-08:** hosted run `37712681751` (dispatched on `main` after #285-#291 merged) carried `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` through `present --durable-state` to `READY_FOR_PROPOSAL`, review `ACCEPT` with zero findings, and a genuine fresh-process no-op proof — durable-state transaction id `f7ac3f73da1b4c7090ed11f26e8bb267`, sealed candidate-revision hash `99c789e9175f2b12ad82bafeeba148ddcc1367fb` (both confirmed directly: the former from the durable-state ref's own `record.json`, the latter from the run's own downloaded sealed workflow artifact) — the first observed hosted success since the workflow was wired.
 6. **Hosted portfolio-currency durability (G7-W14), open.** Item 5's success is ephemeral beyond its durable-state ref receipt: `present.yml` exports the sealed bundle only as a 7-day-retention workflow artifact and writes no commit; confirmed directly (`git ls-remote origin` carries no branch or PR for this run's bundle, only the state-ref receipt) and by reading `present.yml`, `propose.yml`, and `sealing-scheduled.yml` end to end — no step in any of the three ever runs `git commit`/`git push` against this control repository's own `candidates/` tree, for any registry mode (`propose.yml`'s own header: a sealed bundle "replaces `candidates/<slug>` on each job's checkout wholesale", never the committed `CURRENT`). The committed `candidates/<slug>/` tree `status` reads is refreshed today only by a human or agent session opening a PR by hand (the pattern already used for #259); no authority document states this is an intentional design choice, so it is registered as an open gap, not an accepted one.
 
 ### Exit predicates
@@ -435,7 +423,12 @@ then keep the system useful without weakening the README foundation.
   drift; unchanged repositories incur no LLM work; `delivery_complete` closes the gate and
   `certification_complete` the background tracks. Operating objectives: drift to accepted proposal
   within one daily cycle; no unsupported claim, inherited-content loss, duplicate PR, or halt.
-- G7-W13 (unattended sealing hosted pipeline proof): satisfied by run `37712681751`, repository `aspose-cells-foss/Aspose.Cells-FOSS-for-Go`, transaction `f7ac3f73da1b4c7090ed11f26e8bb267` — recorded as evidence, never a merged fix alone.
+- G7-W13 (unattended sealing hosted proof): at least one scheduled or manually-dispatched
+  `sealing-scheduled.yml` run, on an unmodified frozen `main`, completes `present` through to
+  `READY_FOR_PROPOSAL` (or the no-op-proven/accepted funnel stage) for at least one repository, with
+  the run ID and repository recorded as evidence. A merged fix alone never satisfies this; only an
+  observed hosted success does. **Satisfied** by run `37712681751`, repository
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-Go`, transaction `f7ac3f73da1b4c7090ed11f26e8bb267`.
 - G7-W14 (hosted portfolio-currency durability): open. Either an observed hosted run whose own commit or PR (authored by the workflow itself, never an agent session) updates this repository's committed `candidates/<slug>/` bundle for at least one `dry_run` entry, with the run ID and the commit/PR it produced recorded as evidence; or a dated owner decision in `docs/DECISION_LOG.md` stating plainly that a human/agent commit step is required by design for `dry_run` entries, after which this predicate's status becomes `OWNER` rather than open.
 
 ## 9. Gate failure routing
