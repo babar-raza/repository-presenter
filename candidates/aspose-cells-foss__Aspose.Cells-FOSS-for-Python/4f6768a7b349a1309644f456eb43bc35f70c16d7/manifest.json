@@ -1,95 +1,104 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-25T09:00:27Z",
+    "adopted_at": "2026-10-08T06:43:38Z",
     "changed": [
       "README.md",
       "README.patch",
       "content_units.json",
       "dependencies.json",
       "dispositions.json",
-      "examples.json",
-      "facts.json",
       "investigation.json",
       "plan.json",
+      "raw_calls.json",
+      "repairs.json",
       "review.json",
       "validation.json"
     ],
     "classification": "factual",
     "earliest_affected_stage": "EXTRACTING",
+    "previous_models_used": {
+      "qwen3-next": "qwen3-next"
+    },
     "previous_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-16T10:56:11Z",
+      "proven_at": "2026-09-25T09:00:27Z",
       "provider_calls": 0
     },
-    "recorded_at": "2026-09-25T08:55:59Z"
+    "recorded_at": "2026-10-08T06:41:56Z",
+    "scope_basis": "inputs",
+    "scopes": [
+      "facts",
+      "reconciliation",
+      "presentation",
+      "authoring",
+      "validator",
+      "reviewer"
+    ],
+    "triggering_scope": "facts"
   },
   "call_variance": [
     {
-      "distinct_responses": 3,
-      "job": "independent_review",
-      "response_sha256s": [
-        "d945f4e57550c7b41e9eccd6e9e32a9e9b0bc8d7e4e5974dacef30b2bcc4f6fd",
-        "d9d078bd1c45fd1742c65b9bd0e19d4f2c6cc693cea74557c2d0e967664089b8",
-        "f222b151b60c8991efe7b055a5315005aff10f0c5f35abd58ff42099c9fff218"
-      ]
-    },
-    {
-      "distinct_responses": 10,
+      "distinct_responses": 15,
       "job": "section_authoring",
       "response_sha256s": [
-        "25ce824705d7cd77f636ae617f55a55297f923b3b5b86488ff2cf777d2be0244",
-        "562ca7bae0a210fc45aa21888170df7cf8b2dd92acdc92d43d2fb7db48a55cf6",
-        "58a625310d1e0709dc70892e5fff4bcb8f7378ead30c9295e5564e95e27cc2b1",
-        "5db98795599a477f93b8e8a01bd733bbfbfade7c47e1ee8bb89c0ad2c915b191",
-        "64718e5a3a2a788e4cd5b691b17f29ab623d99bb9348a53ad56b72efafa93fba",
+        "3e0bdac305fbd375951e70dffbd4e06007e1dc77bb15aa2d1cbaca7b3d24a105",
+        "42870f0dabe6cdd33e15eaa0167d97fe30bbece26f204504cb02b970ac2f6704",
+        "575ea65b400698b9310ce7af201efa94fa8983f8346501525a4ac22ccdd61636",
+        "5eb148ba006a4b359d18a8e4f26e8833dfc23a92a6630c1568e04639ce4a9bf1",
+        "65e85c3d1166b7d383cfef7d66fd57c730e921286bb4406eb98ee6242a3e637a",
         "67d6013075086a1b5787af1638b3bcf12d78a9b1e769411c66ceb0635367f2f4",
-        "83a0a7224f5abc0520b49fc3a79ca5a31b9f904e0ab6c41f06cdffa86cff457f",
-        "8564048a5095e87e3384d5404da8e7f828f38211161de708420153e30d7b1584",
-        "cebbfc3763d8e8ca30c3d47ccd0f9d59a395c7a0b4b40ed8add5176afff06c0e",
-        "e18bcaee1c0c193d6f5c5e12c2b4399fa65d097669e42090d34657a90ac87332"
+        "6cd6ed30f43128ac8b26c5e62a0d04c265a784533853df1a33c2c86d8f7be13c",
+        "70930667ff8843285f5cf6e758b5c7702f4ee5a1346ea1a0a4f7fb2c6f93d12e",
+        "7aca737475f84a7d0f9306a92423588cae39a2930e858c872bfefea7dcdf2c11",
+        "907178849547620d2a8515710f1a847b56da79216e9bd9f93ca6135b72436c11",
+        "9c4db185a6f0c2b3abd2d86f2d797f27fecd44df189cdb63caeb65fa109297e6",
+        "9c7100293a79a05a696236a5a1b1d0b23bdeba6382cce0751bb31390fb2891c8",
+        "a01b071fffab71e795c20676e488182ddde74d3991d237d09f096d12e223ebfb",
+        "b0a138e816e4094918144e62f4d77b34af65fc6ff8e57368d6e7ee5ad5d90671",
+        "b9e0dfc8280de188e31c8a0488a0d7e510df42b06a3037fb773dd5687fdbb746"
       ]
     },
     {
       "distinct_responses": 2,
       "job": "source_reconciliation",
       "response_sha256s": [
-        "54e85b824d7ec064a71ad783fdc1a26d2ea698883084877a615bf57d7ddfd2dd",
-        "ea93d3401d53897a16a90ed8b5822004ae1f1ff87f6746275212a3ebbaa86dd2"
+        "89e5fd294bd90a2253fee40254278c1c5941bcb50c802f79acaf645c1d946fb2",
+        "998a5dba7c4c879bb45fd6fce4fc65ee75f1c8dc8f5ed1b7d05bb9db138885c8"
       ]
     }
   ],
   "composition": {
-    "advisories": 15,
+    "advisories": 0,
     "blocking_failures": [],
-    "coverage_advisories": 0,
+    "coverage_advisories": 1,
     "review_verdict": "ACCEPT",
-    "review_verdict_as_returned": "REJECT_PRESENTATION"
+    "review_verdict_as_returned": "ACCEPT"
   },
   "files": {
     "README.md": {
-      "bytes": 36307,
-      "sha256": "bd1568d364082d388dfa92a3f2a5177c0a66dfdad943a6ca4cb2a9aa887d1eef"
+      "bytes": 34031,
+      "sha256": "8ad70ce87657a7c88847f891923067fc3dd8a1a666d321028b2c57230123bf82"
     },
     "README.patch": {
-      "bytes": 49352,
-      "sha256": "ff9e859a857aef090692512485ce51e055e520e01e7246c2c01e1822f7345045"
+      "bytes": 46979,
+      "sha256": "b80f1b7ea883b666599b775834442343c9e4c69945272777758a74a5e5b2d7a5"
     },
     "calls.jsonl": {
-      "bytes": 32899,
-      "sha256": "f87e32bf08bd622b55c82ff436f917abdfb5ab6e13819c846e26be71c9c8e4e8"
+      "bytes": 64341,
+      "sha256": "68dfd787b4f20811fcad3fa8ffb86c4004d906058034f0a0955145f972d993d5"
     },
     "content_units.json": {
-      "bytes": 27233,
-      "sha256": "7feabcafd8d13449fb5a8da720778f270e20bde09d6c0e98e5ba723d21a13d0b"
+      "bytes": 27575,
+      "sha256": "d6441164e2c8e1dd04f6280305c94c2dd1128c573b893fb34ec47ef1ef80c030"
     },
     "dependencies.json": {
-      "bytes": 152098,
-      "sha256": "59bdad783c2a6c6b8fc2d03808a8b71728e1d841e7affca68c53fec2647104ef"
+      "bytes": 152599,
+      "sha256": "18978bc1e05c547c678fddc451015843c208aa7c3c71c4195c397afb97ed4ecc"
     },
     "dispositions.json": {
-      "bytes": 22104,
-      "sha256": "fee3e9e5446ef47153836f79b0fcde7eacb5ace95c7db6977409ebedcfa20a59"
+      "bytes": 22431,
+      "sha256": "548de19b5c87155881617394d8774cfb183f28aa93aa8d2b3b2dd463fabd9ea3"
     },
     "examples.json": {
       "bytes": 2017,
@@ -100,36 +109,152 @@
       "sha256": "76ef31a6b51f9e196596489961692e642cf972392b74e5b614b52478af1dbbb6"
     },
     "investigation.json": {
-      "bytes": 8605,
-      "sha256": "69f0725f4a090dd4e6eecf7f2e8655547fd1d52d1e5a5f4fa21411bc0f804c14"
+      "bytes": 8612,
+      "sha256": "27dce82afe3dd8ef66d99a3a1bc3b2402836008fdde91620bf21432494ee0ff7"
     },
     "plan.json": {
-      "bytes": 10420,
-      "sha256": "2e11c4dc2a0cc44c55abdce176d2bc16913d074e001cc74bc772b8e015ecdb53"
+      "bytes": 10870,
+      "sha256": "7fad105a07e88c0a7aa180a8317b727b8f629c12d3f3b3e3e8fa172800665df4"
     },
     "probes.json": {
-      "bytes": 2757,
-      "sha256": "e0a52c8ba44aea44fab9aaa66cab28b79d15e4a709fa56788afa5c3aeefb73b6"
+      "bytes": 2753,
+      "sha256": "f3f979a34a7ba18392afcdd650443c58aaeb8a920c4bfb414de6c0426514b30e"
+    },
+    "raw_calls.json": {
+      "bytes": 49966,
+      "sha256": "7da415bd9383aa068684256fa2207675586dfe1ffec3acdf94fc3eb129d6ad08"
+    },
+    "repairs.json": {
+      "bytes": 1442,
+      "sha256": "5ca149d36b6409a4b1e8df887f3271c9a4a9782c6e88cfd18955f52525e02496"
     },
     "review.json": {
-      "bytes": 18222,
-      "sha256": "79debc52d4a6c76b06cbc1f349a312320e476834cca4d67d9527472898d9a5b4"
+      "bytes": 9505,
+      "sha256": "8ea0758faa7db6816a4a9ce423a8e1507a28205056a120b0679d9b546edb7d24"
     },
     "validation.json": {
-      "bytes": 10504,
-      "sha256": "a649b810dc3320f356eee6c81ee7b54b816eea5b7dfa55183247639fa5784cdd"
+      "bytes": 11800,
+      "sha256": "277bf3b7f1e89998138bf64bfb3a571efc7e2048fd94e67ab844df95f8f806e8"
     }
+  },
+  "ledger_totals": {
+    "audit_only": 4,
+    "cache_reuses": 31,
+    "provider_calls": 24,
+    "records": 55,
+    "total_tokens": null
+  },
+  "models_used": {
+    "qwen3-next": "qwen3-next"
   },
   "no_op_proof": {
     "byte_identical": true,
+    "first_run": {
+      "identity": {
+        "boot_id": "win:134358412045565949",
+        "nonce": "bb836f93e3ae4d70bbb5d0dcab56cc54",
+        "pid": 17676,
+        "started": "win:134359145711378173"
+      },
+      "invocation_id": "4b714845c27241478c1b5d0eb0c817ee",
+      "started_at": "2026-10-08T06:29:32Z"
+    },
     "fresh_process": true,
-    "proven_at": "2026-09-25T09:00:27Z",
-    "provider_calls": 0
+    "proven_at": "2026-10-08T06:43:38Z",
+    "provider_calls": 0,
+    "rerun": {
+      "cache_reuses": 18,
+      "identity": {
+        "boot_id": "win:134358412045565949",
+        "nonce": "62a9c9b702944153a028b57e72b13144",
+        "pid": 61068,
+        "started": "win:134359153469182235"
+      },
+      "invocation_id": "14819f1f51a048d6be3b171d7411198e",
+      "provider_calls": 0,
+      "records": 18,
+      "started_at": "2026-10-08T06:42:28Z"
+    }
   },
   "provider_calls": 0,
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
   "revision": "4f6768a7b349a1309644f456eb43bc35f70c16d7",
   "schema_version": 1,
-  "sealed_at": "2026-09-25T09:00:27Z",
-  "state": "READY_FOR_PROPOSAL"
+  "sealed_at": "2026-10-08T06:43:38Z",
+  "sealed_by": {
+    "identity": {
+      "boot_id": "win:134358412045565949",
+      "nonce": "62a9c9b702944153a028b57e72b13144",
+      "pid": 61068,
+      "started": "win:134359153469182235"
+    },
+    "invocation_id": "14819f1f51a048d6be3b171d7411198e",
+    "started_at": "2026-10-08T06:42:28Z"
+  },
+  "state": "READY_FOR_PROPOSAL",
+  "upstream_blobs": {
+    "License/LICENSE.txt": "0efd310a7051ba96b8fa3cd35e309a745cc4642a",
+    "README.md": "04cf60f42b7be0c88987b790293be0fc48dd2448",
+    "aspose/__init__.py": "99f133f5468bb5fb7b3ff1e0bdd572cc1bc258ec",
+    "aspose/cells_foss/__init__.py": "c2fa8a18ae7f9907d664ea033fb054c55f3d9677",
+    "aspose/cells_foss/auto_filter.py": "571cd331c0c4a8d0e7e07c652bf297b271bbd873",
+    "aspose/cells_foss/cell.py": "d50ed29726b8321926ea58b60f966e96d0336f13",
+    "aspose/cells_foss/cell_value_handler.py": "2dcddf7f518c34a9d8a08cd7f12663343f42532a",
+    "aspose/cells_foss/cells.py": "c5f0d8b3217ffa5db9c6b217da26153d4f0e658d",
+    "aspose/cells_foss/cfb_handler.py": "3845c18a6b11da05ce96b98561fe31ffc547bb40",
+    "aspose/cells_foss/cfb_writer.py": "64febc07e1db0963b23368d0527d89c111bd35ae",
+    "aspose/cells_foss/cfb_writer_minimal.py": "05c928bfcd71b25189c0193c795d3fbfa2047ef1",
+    "aspose/cells_foss/chart.py": "c42d8bb50956ac46e76ea56043634908ef02d3d7",
+    "aspose/cells_foss/comment_xml.py": "efc3cf2ce99e4a88bda5a9f42a988b4dc3ac91fc",
+    "aspose/cells_foss/conditional_format.py": "c3955a4c12b950668e7f409a5bb7970a776faf84",
+    "aspose/cells_foss/csv_handler.py": "7ef31a82c0fb34db45abd1cb446022e5c720c01f",
+    "aspose/cells_foss/data_validation.py": "4892290926d4d6e04c26a0a027a342a6e595b626",
+    "aspose/cells_foss/document_properties.py": "28ef4a3a55c023b0a066ca2850ab2c578f0e7987",
+    "aspose/cells_foss/encryption_crypto.py": "0f147d0e127a301d922fa2cf23d5f04cc9ad3e51",
+    "aspose/cells_foss/encryption_params.py": "ff90eea948737a6d5b2988d856d5e6c70fe2e622",
+    "aspose/cells_foss/formula_evaluator.py": "39c638868ac590c9219e878ad62a67c29b9070f3",
+    "aspose/cells_foss/hyperlink.py": "3d487e8c16b0d846f89ab1f70ad4b163b1bdc948",
+    "aspose/cells_foss/json_handler.py": "6186aa772239487961bdcb4909167ffacda4b6fb",
+    "aspose/cells_foss/markdown_handler.py": "d049e8cf84fd5e6b46c0470bb30057152eaae592",
+    "aspose/cells_foss/page_break.py": "8ebab0af01ac840ae8f061e7658a8064d32bbe98",
+    "aspose/cells_foss/picture.py": "fae7d6c9af504b87752e0ce33daf32fee14959f7",
+    "aspose/cells_foss/shape.py": "728b2092ba5f807321af377b7f4acdd3756d7e76",
+    "aspose/cells_foss/shared_strings.py": "e30ed6ccf48b6d72280afd20365f88e691a44aef",
+    "aspose/cells_foss/sparkline.py": "2d92f30c7f530355941300fa4865612cd1bc6b6d",
+    "aspose/cells_foss/style.py": "02220e65f0135278ea60f003738da816a5ad01bb",
+    "aspose/cells_foss/table.py": "ab6a54cc03e8b98fc25e2819ae4f7cf7398ef2f8",
+    "aspose/cells_foss/workbook.py": "156bcaf0a1ab186ed1cac5e9bfc37606e0e1cf87",
+    "aspose/cells_foss/workbook_hash_password.py": "9e689b15dfee0a32446c3085848a9e55299cd772",
+    "aspose/cells_foss/workbook_properties.py": "748ccbf5d1cec9ac6d6ac7fd4fafafaba4fdd51b",
+    "aspose/cells_foss/worksheet.py": "f0f8038e0c264716f898cd8d520c5dd37c756aea",
+    "aspose/cells_foss/worksheet_properties.py": "5d0016e689a49efb2663984343109f04310f790a",
+    "aspose/cells_foss/xlsx_encryptor.py": "802d524b6324b0faad9ba8089e1630cec5fa23ce",
+    "aspose/cells_foss/xml_autofilter_loader.py": "f6834243d7275375c6e3a415baa2c51a65df6bc5",
+    "aspose/cells_foss/xml_autofilter_saver.py": "5713bd542331db7297da817313e64b38f75a9bf5",
+    "aspose/cells_foss/xml_chart_loader.py": "cb47bc1f694026fd39a2b225fe9a77e444bef254",
+    "aspose/cells_foss/xml_chart_saver.py": "aac30a96c17564b77bbfc50d86b0d3c429e51818",
+    "aspose/cells_foss/xml_conditional_format_loader.py": "5861bfb6907ef2c6d7d430a0291db14a7d17ebc6",
+    "aspose/cells_foss/xml_conditional_format_saver.py": "734ba4ed3d61e8fc15b142ce66f2e167d2d303e2",
+    "aspose/cells_foss/xml_datavalidation_loader.py": "e4729916231c34ce5a7f7d6fbd128a33b4c98b13",
+    "aspose/cells_foss/xml_datavalidation_saver.py": "c1d23aec99c6f243f589e6baed1811186a4f1c61",
+    "aspose/cells_foss/xml_hyperlink_handler.py": "54ed9f69d95c01d7a39ae4c2516d0e7ab1137baf",
+    "aspose/cells_foss/xml_loader.py": "f54856ff4a98f3c1014f1576d0a304f48d221e3b",
+    "aspose/cells_foss/xml_picture_loader.py": "4f655630b85b542e6794c202fe9aa98e9977bd87",
+    "aspose/cells_foss/xml_picture_saver.py": "be944d65812e3dcb295e707b8a0394fedac68eea",
+    "aspose/cells_foss/xml_properties_loader.py": "e5d78def69e6e5c18b5846755f546f9023e8a0c4",
+    "aspose/cells_foss/xml_properties_saver.py": "e91fab447be4325c47a5ea506e3bd31c8e8d2180",
+    "aspose/cells_foss/xml_saver.py": "b116f76d6bc88f95378072d244513d5eee006eba",
+    "aspose/cells_foss/xml_shape_loader.py": "0dd29624a4b5bd39cb129400a01602883f0f9e05",
+    "aspose/cells_foss/xml_shape_saver.py": "2bfba14a05d982a0c610fca58fc5dff16e080d11",
+    "aspose/cells_foss/xml_sparkline_loader.py": "817c96c647c2b5d21a84163ff8915e6e338f5b14",
+    "aspose/cells_foss/xml_sparkline_saver.py": "3612bdaa7d4d1eeb5afd34cd243eaa146c603968",
+    "aspose/cells_foss/xml_table_loader.py": "56e46d3a3f9a2a493b83548f95781ccc77725d99",
+    "aspose/cells_foss/xml_table_saver.py": "d434f1b5537a0cd76479f44485218e7ab043fb3b",
+    "examples/__init__.py": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "examples/output_path_helper.py": "c064793a580bcdd4f38c9974974ce9c795f4f18e",
+    "examples/test_alignment_properties.py": "647ac37cb48bd0ae962905699272bae530c4ffd2",
+    "examples/test_auto_filter.py": "2e08200aca7f750958e6f1a61b8f5e0303a7a757",
+    "examples/test_border_settings.py": "1069685db596c77e119456c3d032b86130df5549",
+    "pyproject.toml": "a7577e9870ee329c704465002ebdd4f2fc42d92a"
+  }
 }

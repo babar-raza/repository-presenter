@@ -255,6 +255,13 @@ KNOWN_BLOCKED_STALE = {
 # newly fail it; re-rendering from the sealed artifacts passes it with zero provider calls. A real
 # re-seal (through `present`) picks the change up; that is separate, owner-sequenced work. The three
 # candidates that already carry an entry above stay as recorded: their earlier causes persist.
+#
+# aspose-cells-foss__Aspose.Cells-FOSS-for-Python's entry here is removed as of 2026-10-08: this
+# candidate had a real re-seal (through `present`, not a bare re-render), landing READY_FOR_PROPOSAL
+# with a fresh no-op proof (byte-identical, zero provider calls) and review verdict ACCEPT, 0
+# findings. The stored bytes now include the V2 items 8/9 fix, so a fresh render matches them
+# again; leaving the entry would XPASS(strict) forever, exactly the signal this file's own
+# docstring says to act on.
 def _merge_ledger(name: str, *, since: str, expires: str, reason: str, ref: str) -> None:
     """Record one bundle's block. Two blocks on the same bundle merge into one record: the later
     `since` and `expires` win, and both reasons and both references are kept, so no entry is
@@ -289,7 +296,6 @@ _V2_ITEM_8_9_NAMES = (
     "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
     "aspose-cells-foss__Aspose.Cells-FOSS-for-Go",
     "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
-    "aspose-cells-foss__Aspose.Cells-FOSS-for-Python",
     "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
     "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript",
     "aspose-email-foss__Aspose.Email-FOSS-for-.Net",
