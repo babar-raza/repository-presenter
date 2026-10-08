@@ -168,6 +168,14 @@ blocked on the unrelated `F08` finding above.
 
 **Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: not moved to Resolved. The three sub-shape fixes are in code (`composition/authoring.py`: `recover_forbidden_command_units` and `recover_section_authoring_output`; the title-restatement repair path via `recover_title_verbatim_opening`; the `recover=` call sites in `repair/rounds.py`) with mutation tests, but no listed sighting has been re-drawn with a fix observed firing. The Page-Python draw of 2026-09-25 cleared its first attempt without the forbidden-literal recovery. This entry keeps the bar its own 2026-09-27 status set: live measurement, not unit verification. Resume predicate: a live draw of one of the listed repositories in which a recovery fires and the candidate clears.
 
+**Cross-reference, 2026-10-08**: a new Slides-Java sighting (five must-carry superseded units -
+`081`/`083`/`085`/`089`/`095.paragraph` - dropped in one S6 packet spanning three sections,
+surviving #281/#286/#287/#289/#290 all landed on `main`) is mechanistically the `carried_unit_errors`
+cite-or-omit gap, not one of this entry's three title-restatement/forbidden-literal sub-shapes above.
+Recorded under `composition.authoring.superseded_unit_not_carried` below, not duplicated here, per
+this file's own one-mechanism-one-entry convention; see that entry's "New sighting, 2026-10-08" and
+`project/state.yaml`'s `G7-W15`.
+
 ### `composition.authoring.superseded_unit_not_carried`
 
 Reconciliation disposed an inherited prose unit `SUPERSEDE_REDUNDANT` into a placeable section
@@ -209,6 +217,56 @@ Both transactions exhausted the one-reask budget (S6, #281) on this exact unit. 
 `scope_limitations`' own `ids` with `carried_units`, exactly mirroring `development_testing`
 (`composition/authoring.py::section_selections`); no change to `carried_unit_errors` or the
 binding check itself. `additional_examples` remains outside `_CARRY_SECTIONS` and is unaffected.
+
+**New sighting, 2026-10-08** (`aspose-slides-foss/Aspose.Slides-FOSS-for-Java`, revision
+`620a2614418854b4a18966a361e6907ddc88c7cb` - directly verified by reading
+`calls/ba6a89dbe1f2.rejected-1.json`, `calls/ba6a89dbe1f2.rejected-2.json` and the matching
+`calls.jsonl` log lines (call id `ba6a89dbe1f2bd0a`) in the transaction directory under
+`runs/wt/slides-java-g7/runs/transactions/aspose-slides-foss__Aspose.Slides-FOSS-for-Java/620a2614418854b4a18966a361e6907ddc88c7cb/`,
+which still existed at verification time - not taken on the originating report's word alone): with
+#281, #286, #287 and #289 all on `main`, a fresh `present` on this exact repository still fails
+closed at S6 `section_authoring`, call `ba6a89dbe1f2`, rejected on both attempts for the identical
+five must-carry superseded units in ONE packet - `inherited_unit:081.paragraph`, `083.paragraph`,
+`085.paragraph` (destined for `scope_limitations`), `089.paragraph` (`enterprise_relationship`) and
+`095.paragraph` (`development_testing`) - spanning three different destination sections at once.
+Attempt 1's raw output cited none of the five and omitted none, reproducing `carried_unit_errors`'
+exact rejection text for all five. **Attempt 2 is a more precise finding than the handoff report
+first described, not a repeat of it**: its raw output DOES add all five to an `omitted` array,
+each with a reason string (e.g. claiming `081`'s four-editions overview is "covered by"
+`083`/`085`, which do not in fact state it - the reasons read as plausible-sounding but inaccurate
+cross-references, not a bare retry of attempt 1) - yet the logged rejection for attempt 2
+(`calls.jsonl`, `outcome: response_invalid`) is byte-for-byte identical to attempt 1's, naming the
+same five units as still uncited/unomitted. Read directly against this repository's current
+`carried_unit_errors` (`composition/authoring.py:1971`): the mechanical cite-or-omit-with-a-reason
+check, on its own wording (`omitted.get(fact_id)` truthy for any non-empty reason string,
+regardless of the reason's accuracy), should treat attempt 2's five non-empty omitted reasons as
+sufficient - so either the object actually validated at that call site differed from what
+`rejected-2.json`'s own `content` field shows (a possible logging/reconstruction mismatch), or a
+stricter, uninspected check fired instead. This discrepancy is recorded here exactly as found, not
+resolved - it needs a read of the live validation path at draw time, not an assumption from the
+static code alone. The job then failed closed (no `ba6a89dbe1f2.json` final success file - only
+the two `rejected-N.json` attempts).
+
+This is the third independently-sighted occurrence of this entry's own mechanism on
+`aspose-slides-foss/Aspose.Slides-FOSS-for-Java` specifically (after the original `092`-`094`
+sighting above and the `084` "New sighting, 2026-10-07" above, the latter fixed by #289) and,
+unlike those two, survives every one of #281, #286, #287, #289 and #290 already landed - meaning
+the already-landed fixes address granting a section's citable set the must-carry ids and
+re-asking with the unit's substance, but not a packet that bundles many cross-section must-carry
+obligations (five units, three sections) into one `section_authoring` call. Per `AGENTS.md`'s "a
+defect class independently sighted three times is settled priority for that slot," this crosses
+the threshold - registered as `G7-W15` (`project/state.yaml`, `docs/EXECUTION_STATE_MACHINE.md` G7
+Work item 7), not a repair this verification task was asked to implement.
+
+**Likely direction, not implemented** (recorded as the lead for whoever picks up `G7-W15`, needs
+its own investigation rather than reuse of either precedent): the S6 packet may be bundling too
+many cross-section must-carry obligations into one authoring call; a smaller-batch or per-section
+re-ask (similar in spirit to `reconciliation_batches`'s own fixed-size-batch precedent,
+`reconciliation/dispositions.py`, and the still-separate oversized-list-split fix in flight
+elsewhere for a related but distinct extraction-time issue) may be the right lever - but the two
+are not the same mechanism, and a fix must not be copy-pasted from one to the other without its
+own analysis of `section_authoring`'s own packet construction (`composition/authoring.py::section_selections`,
+`authoring_tasks`).
 
 ### `composition.coherence.inherited_diagram_content_loss`
 
@@ -939,3 +997,4 @@ Every row names its work item (`project/state.yaml` `next_ready_items` or `owner
 | REG-19 | Most registry entries lack write (`full`) mode; production publication beyond the N entries already `full` is not yet possible. Verified live, 2026-10-07: 36 active entries, 2 `full` (`aspose-3d-foss/Aspose.3D-FOSS-for-Java`, `aspose-cells-foss/Aspose.Cells-FOSS-for-Java`), 34 `dry_run`, 0 `disabled`; `ops/proposal-authorizations/` does not exist as a directory, so no repository has a committed authorization record of any kind | OWNER-20 | OWNER |
 | REG-20 | Full-history audit (2026-10-07) of every `sealing-scheduled.yml` run since #242 wired it: six runs, 2026-10-05 through 2026-10-07 (ids 37310360790, 37348251358, 37361313253, 37411705333, 37461500634, 37617610823) - **zero have ever sealed a repository**. Three failed closed at the plan stage (missing/malformed drift contract, pre-#267/#270; a newly-enabled owner `aspose-psd-foss` with no drift evidence yet, #282/#284, since self-resolved by the next monitor cycle). Three reached present and planned the same three repositories each time (`aspose-cells-foss/...-Go`, `aspose-note-foss/...-Python`, `aspose-pdf-foss/...-Go`, selected because `core/sealing_plan.py` only ever selects `DRIFTED` entries, by design) - nine present-stage failures, no two for the same reason: BC-10 `REJECT_PRESENTATION`; a hallucinated `fact_id` in `source_reconciliation`; an input/output format contradiction; two uncited-unit rejections (class fixed by #286); two coherence-drop rejections (class fixed by #289); and the BC-05 UNCLASSIFIED deferral REG-18 tracks (still open). Every content-authoring fix found (#285, #286, #287, #289, #290) merged 2026-10-07 **after** the last of the six runs (11:57 UTC, headSha `169ab46a`) - none has yet been hosted-verified. 2026-10-08 update: SATISFIED - hosted run `37712681751` cleared G7-W13's own exit predicate for `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` (`READY_FOR_PROPOSAL`, `ACCEPT`, zero-call no-op; durable-state transaction `f7ac3f73da1b4c7090ed11f26e8bb267`, sealed candidate-revision hash `99c789e9175f2b12ad82bafeeba148ddcc1367fb`) | G7-W13 | PENDING |
 | REG-21 | Hosted sealing (run `37712681751`, 2026-10-08) proved the pipeline itself works (`aspose-cells-foss/Aspose.Cells-FOSS-for-Go` reached `READY_FOR_PROPOSAL`, `ACCEPT`, zero-call no-op), but the success is ephemeral beyond its durable-state ref receipt: no workflow (`present.yml`, `propose.yml`, `sealing-scheduled.yml`) ever commits the sealed `candidates/<slug>/` bundle back to this control repository, for any registry mode - confirmed by `git ls-remote` (no branch/PR for this run's bundle) and by reading all three workflows' sources. `status`'s counts therefore go stale under the scheduled loop with no autonomous repair; today only a human/agent session committing a PR by hand (e.g. #259) refreshes them. Not stated as intentional anywhere in `docs/STATE_MACHINE.md`, `docs/EXECUTION_STATE_MACHINE.md`, or `AGENTS.md` | G7-W14 | OPEN |
+| REG-22 | Third sighting, this exact repository (`aspose-slides-foss/Aspose.Slides-FOSS-for-Java`): S6 `section_authoring` call `ba6a89dbe1f2` fails closed on 5 must-carry superseded units (`081`/`083`/`085`/`089`/`095.paragraph`) bundled across 3 sections in one packet, surviving #281/#286/#287/#289/#290 all landed. Directly verified against the stored transaction's own call files and `calls.jsonl`. Attempt 2's `omitted` dispositions named all five with reasons but the recorded rejection is unchanged from attempt 1's - mechanism not yet explained; see `composition.authoring.superseded_unit_not_carried`'s "New sighting, 2026-10-08" | G7-W15 | PENDING |
