@@ -300,7 +300,19 @@ _TYPE_OBJECTIVE = (
 # citing it, as the carry rule's own objective text asks first ("state their substance in your
 # units") - was rejected right back by "cites facts outside this section's set" on the identical
 # ID in the identical call. Both transactions exhausted the one-reask budget ("27" above) on it.
-NORMALISATION_VERSION = "29"
+# "30": carried_unit_errors (and unit_checks, which calls it) take an optional elsewhere_cited map
+# naming the section a missing must-carry unit was actually cited in, so coherence_checks (the one
+# caller whose single call sees every section's units at once) can name the real cause instead of
+# the generic "missing" message. Confirmed live, aspose-psd-foss/Aspose.PSD-FOSS-for-.NET
+# (2026-10-08): a batched authoring call carried inherited_unit:027/028.paragraph's substance into
+# enterprise_relationship's own "context" unit while scope_limitations - their disposed
+# destination_section - never cited or omitted them; scope_limitations failed this gate for a unit
+# that was never missing from the call, and enterprise_relationship simultaneously failed "cites
+# facts outside this section's set" for the same two units, with no section able to satisfy both
+# checks. destination_section stays binding (docs/README_CONTRACT.md "Placement is exclusive,
+# never additive"): the fix only makes the repair instruction name where the content actually went
+# and where it still must go, never accepts the wrong-section citation as carrying the obligation.
+NORMALISATION_VERSION = "30"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -1720,9 +1732,17 @@ def unit_example_action_mismatches(unit: Mapping[str, Any], facts: FactsDocument
 
 
 def unit_checks(
-    output: dict[str, Any], task: SectionTask, facts: FactsDocument, name: str
+    output: dict[str, Any],
+    task: SectionTask,
+    facts: FactsDocument,
+    name: str,
+    elsewhere_cited: Mapping[str, str] = MappingProxyType({}),
 ) -> list[str]:
-    """Why the section's units may not be used, beyond schema and binding; empty when they hold."""
+    """Why the section's units may not be used, beyond schema and binding; empty when they hold.
+
+    ``elsewhere_cited`` is forwarded to ``carried_unit_errors`` untouched (see its own docstring);
+    every call site but ``coherence_checks`` leaves it empty, so this task's own guard is unchanged
+    unless the caller can actually see another task's output."""
     errors: list[str] = []
     allowed = allowed_identifiers(facts, name)
     members = verified_members(facts)
@@ -1943,7 +1963,7 @@ def unit_checks(
         errors.extend(
             f"unit {slot}: {mismatch}" for mismatch in unit_example_action_mismatches(unit, facts)
         )
-    errors.extend(carried_unit_errors(output, task))
+    errors.extend(carried_unit_errors(output, task, elsewhere_cited))
     return errors
 
 
@@ -1968,12 +1988,33 @@ def _carry_dispositions(output: Mapping[str, Any]) -> tuple[set[str], dict[str, 
     return cited, omitted
 
 
-def carried_unit_errors(output: Mapping[str, Any], task: SectionTask) -> list[str]:
+def carried_unit_errors(
+    output: Mapping[str, Any],
+    task: SectionTask,
+    elsewhere_cited: Mapping[str, str] = MappingProxyType({}),
+) -> list[str]:
     """Each inherited unit the section must carry is cited by a unit or explicitly omitted with a
     reason - never silently absent (docs/RESEARCH_AND_GUIDELINES.md section 27; AGENTS.md "every
     material source README unit receives exactly one explicit disposition"). Whether a cited or
     omitted unit's substance really reaches the page is the independent review's judgment, never
-    this check's; this only forbids the silent drop the authoring call was never shown to avoid."""
+    this check's; this only forbids the silent drop the authoring call was never shown to avoid.
+
+    ``elsewhere_cited`` (fact_id -> the section a unit outside this call actually cited it in) lets
+    a caller that sees more than this one task's own output - today, ``coherence_checks``, whose
+    one call returns every section's units at once - name the real cause when a must-carry unit is
+    missing here but was written somewhere else: reconciliation's own ``destination_section`` is
+    binding (docs/README_CONTRACT.md "Placement is exclusive, never additive"; S7 alone owns a
+    placement conflict), so a unit the model moved to a different, even plausible, section is still
+    a silent drop *of this section's own obligation*, not a pass - but the repair this names needs
+    to say where the content actually is, not just that it is "missing" (confirmed live,
+    aspose-psd-foss/Aspose.PSD-FOSS-for-.NET, 2026-10-08: the same batched authoring call carried
+    inherited_unit:027/028.paragraph's substance into enterprise_relationship's own "context" unit
+    while scope_limitations - their disposed destination_section - never cited or omitted them;
+    scope_limitations failed this gate for a "missing" unit that was never missing from the call,
+    and enterprise_relationship simultaneously failed "cites facts outside this section's set" for
+    the identical two units, with no section able to satisfy both checks at once). Empty by default
+    for every caller with no cross-task view (S6's own per-task calls, S11's per-task repair),
+    which keeps their own behavior exactly as before."""
     if not task.must_carry:
         return []
     cited, omitted = _carry_dispositions(output)
@@ -1981,10 +2022,21 @@ def carried_unit_errors(output: Mapping[str, Any], task: SectionTask) -> list[st
     for fact_id in sorted(task.must_carry):
         if fact_id in cited or omitted.get(fact_id):
             continue
-        # The refusal quotes the unit's own substance, so the re-ask carries what it says and a
-        # reply can cite that substance or omit the unit with a reason - not merely repeat the ID.
         substance = task.must_carry_text.get(fact_id)
         suffix = f". Substance to carry: {substance}" if substance else ""
+        wrong_section = elsewhere_cited.get(fact_id)
+        if wrong_section and wrong_section != task.section_id:
+            errors.append(
+                f"{fact_id}: superseded into this section ({task.section_id}) by "
+                f"reconciliation, so a unit here must cite it and state its substance, or "
+                f"omitted must list it with a reason; it was instead cited in {wrong_section}, "
+                f"which does not carry it for {task.section_id} - move its substance into a "
+                f"unit here (or omit it here with a reason), rather than leaving it only in "
+                f"{wrong_section}{suffix}"
+            )
+            continue
+        # The refusal quotes the unit's own substance, so the re-ask carries what it says and a
+        # reply can cite that substance or omit the unit with a reason - not merely repeat the ID.
         errors.append(f"{fact_id}: {_CARRY_REASON_MISSING}{suffix}")
     return errors
 
