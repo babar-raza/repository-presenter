@@ -151,28 +151,16 @@ never a product repository. A red hosted run is `FAILED_INTERNAL` at the next it
 
 ## 7. Legacy reuse protocol: pull-based
 
-The legacy repository holds 171,345 lines of first-party production Python at the frozen revision
-and its scheduled entry point imports 79% of it, so reuse by entry point is impossible and a
-census-first audit would become its own project. Reuse is **pull-based**: a legacy file enters this
-repository only when a gate's work needs it, with a manifest record, its tests, and a cut closure.
+The legacy repository holds 171,345 lines of first-party production Python at the frozen revision and its scheduled entry point imports 79% of it, so reuse by entry point is impossible and a census-first audit would become its own project. Reuse is **pull-based**: a legacy file enters this repository only when a gate's work needs it, with a manifest record, its tests, and a cut closure.
 
-Every pulled file receives exactly one disposition: `PORT_NEARLY_INTACT`, `EXTRACT_AND_REFACTOR`,
-`ADAPT_AS_PLUGIN`, `FIXTURE_OR_ORACLE_ONLY`, or `MIGRATION_READER_ONLY`. Everything never pulled is
-`RETIRE` by default. Each record carries source path, SHA-256 at the frozen revision, disposition,
-destination, retained behavior, removed behavior and coupling, tests ported, and acceptance.
+Every pulled file receives exactly one disposition: `PORT_NEARLY_INTACT`, `EXTRACT_AND_REFACTOR`, `ADAPT_AS_PLUGIN`, `FIXTURE_OR_ORACLE_ONLY`, or `MIGRATION_READER_ONLY`. Everything never pulled is `RETIRE` by default. Each record carries source path, SHA-256 at the frozen revision, disposition, destination, retained behavior, removed behavior and coupling, tests ported, and acceptance.
 
 Pull rules:
 
-- Compute the import closure at the source before pulling. A pull that drags a retired module or a
-  `supervisor`, `capabilities`, or `specialists` module fails; cut the chain first. The known chains
-  are recorded in the manifest as `CPL-01` to `CPL-08`.
-- Seam-cut order for the first pulls: shared identity types out of `capabilities/schema.py`;
-  `sha256_text` out of `readme/facts.py`; the validation ruleset version; then the `llm/*` modules.
-- Non-Python assets follow the same rule: prompt manifests, template and section registries, policy
-  files, registry and link data, the benchmark profile, the presentation standard, and the golden
-  sample are pulled per asset with a record. The manifest lists their expected dispositions.
-- The legacy suite is not green at the frozen revision (`RESEARCH_AND_GUIDELINES.md` §16.9); record
-  the Linux-runner baseline before the first pull so a failing ported test is attributable.
+- Compute the import closure at the source before pulling. A pull that drags a retired module or a `supervisor`, `capabilities`, or `specialists` module fails; cut the chain first. The known chains are recorded in the manifest as `CPL-01` to `CPL-08`.
+- Seam-cut order for the first pulls: shared identity types out of `capabilities/schema.py`; `sha256_text` out of `readme/facts.py`; the validation ruleset version; then the `llm/*` modules.
+- Non-Python assets follow the same rule: prompt manifests, template and section registries, policy files, registry and link data, the benchmark profile, the presentation standard, and the golden sample are pulled per asset with a record. The manifest lists their expected dispositions.
+- The legacy suite is not green at the frozen revision (`RESEARCH_AND_GUIDELINES.md` §16.9); record the Linux-runner baseline before the first pull so a failing ported test is attributable.
 - The G4 exit census records file and line totals by disposition. No reuse percentage is claimed
   before it.
 
@@ -424,6 +412,15 @@ then keep the system useful without weakening the README foundation.
    admit new repositories disabled and read-only (no plugin, stays non-processable until one lands —
    one file, one test, one registry entry); add the other surfaces (description, topics, community
    files, release links, visuals, social preview) as separate machines; Level 7 and 8 certifications.
+5. **Unattended sealing hosted proof** (G7-W13, registered 2026-10-07 after a full-history audit of
+   every `sealing-scheduled.yml` run since #242 wired it): six runs between 2026-10-05 and 2026-10-07
+   (`docs/DEFECT_INDEX.md` REG-20), zero of which ever sealed a repository — three plan-stage
+   failures (a missing/malformed drift contract, and a newly-enabled owner with no drift evidence
+   yet) and nine present-stage failures spread across the same three repositories (BC-05
+   UNCLASSIFIED, a hallucinated fact citation, uncited-unit and coherence-drop rejections, BC-10
+   `REJECT_PRESENTATION`). `core/sealing_plan.py` selects only `DRIFTED` registry entries, by design
+   (Gate B); it is not widened to sweep every enabled repository, since right now the only drifted
+   entries are these same hard cases, so no easy-win repository is available to prove the loop.
 
 ### Exit predicates
 
@@ -432,6 +429,11 @@ then keep the system useful without weakening the README foundation.
   drift; unchanged repositories incur no LLM work; `delivery_complete` closes the gate and
   `certification_complete` the background tracks. Operating objectives: drift to accepted proposal
   within one daily cycle; no unsupported claim, inherited-content loss, duplicate PR, or halt.
+- G7-W13 (unattended sealing hosted proof): at least one scheduled or manually-dispatched
+  `sealing-scheduled.yml` run, on an unmodified frozen `main`, completes `present` through to
+  `READY_FOR_PROPOSAL` (or the no-op-proven/accepted funnel stage) for at least one repository, with
+  the run ID and repository recorded as evidence. A merged fix alone never satisfies this; only an
+  observed hosted success does.
 
 ## 9. Gate failure routing
 
