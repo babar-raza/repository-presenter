@@ -22,6 +22,31 @@ Aspose.Cells FOSS for C++'s "- Exceptions" heading a nested group of real except
 whole rather than guessed at, matching this project's own repeated finding that a heuristic which
 looks right on the one candidate that motivated it must be checked against the whole portfolio
 (and erring toward under-triggering) before it can be trusted.
+
+Owner ruling, docs/DECISION_LOG.md section 31 (this item): a second, independent split, for a
+plain list RC-06 leaves whole because it does not have the member-reference shape at all - a flat
+top-level list that simply bundles many unrelated capability claims into one block, the real,
+confirmed shape of aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript's own ``inherited_unit:014.list``
+(69-72 bullets, ~94,000-115,000 characters) and ``016.list`` (9 bullets, ~12,700-17,000 characters).
+Reconciliation refused both correctly (an uncited ``OMIT_UNSUPPORTED`` on the whole blob - see PR
+#1008's own `uncited_omit_candidates` fix for the symptom this traces to); the root cause is that
+one reconciliation disposition cannot speak for dozens of unrelated claims bundled into a single
+indivisible unit, and surfacing more candidate fact IDs into the re-ask cannot fix an input-grain
+problem. ``_split_oversized_list`` chunks such a list into fixed-size groups of consecutive
+top-level items (``LIST_SPLIT_CHUNK_SIZE``), each becoming its own ``sub_ordinal`` unit exactly
+like an RC-06 split - reconciliation then disposes each chunk's small, coherent claim set
+independently. The two splits never compete: RC-06's member-reference match is tried first, and
+only a list it leaves whole is considered for this one. Thresholds (``LIST_SPLIT_CHAR_THRESHOLD``,
+``LIST_SPLIT_ITEM_THRESHOLD``) are picked from a direct survey of 884 list units across 64 sealed
+or drawn repositories' own facts.json (reproducible via git log/grep, not estimated): the largest
+list this project intends to keep whole - Aspose.Cells FOSS for C++'s own ``050.list``, the
+"- Exceptions" category list named above - is 4,129 characters across 48 short bullets; the next
+largest ordinary list in the whole surveyed portfolio is under 2,300 characters. The smallest
+genuinely oversized list found (Aspose-PDF-FOSS-for-Go's ``011.list``, the same shape on a
+different repository) is 12,494-13,450 characters across 17 items. 6,000 characters sits strictly
+between every intentionally-whole list and every oversized one found; 60 items is set above the
+largest intentionally-whole list's own bullet count (48) as a second, independent trigger for a
+list that is long in item count without being long in characters.
 """
 
 from __future__ import annotations
@@ -69,7 +94,18 @@ _LEADING_IDENTIFIER = re.compile(r"^`([A-Za-z_][A-Za-z0-9_]*)`")
 # candidate from before this field existed (a missing key, never "1") correctly reopens
 # EXTRACTING the first time this ships, the same as any other environment field's change would
 # (docs/STATE_MACHINE.md section 9).
-INHERITED_UNITS_VERSION = "1"
+INHERITED_UNITS_VERSION = "2"
+
+# This change's own thresholds (module docstring has the full survey and justification): a plain
+# list that RC-06 leaves whole (no member-reference match) is still split into fixed-size chunks
+# of consecutive top-level items when its rendered size or item count signals it bundles many
+# unrelated claims into one reconciliation-indivisible blob. LIST_SPLIT_CHUNK_SIZE of 8 keeps each
+# resulting sub-unit's own claim set small enough for a single reconciliation disposition to speak
+# to (PDF-TypeScript's 69-72-item 014.list becomes 9 chunks of at most 8 items each, never 69
+# unrelated claims bound to one disposition).
+LIST_SPLIT_CHAR_THRESHOLD = 6000
+LIST_SPLIT_ITEM_THRESHOLD = 60
+LIST_SPLIT_CHUNK_SIZE = 8
 
 
 @dataclass(frozen=True)
@@ -174,11 +210,37 @@ def _split_member_reference_list(
     return spans
 
 
+def _split_oversized_list(
+    tokens: list[Token], list_open: int, list_close: int, lines: list[str], source: str
+) -> list[tuple[int, int]] | None:
+    """(start_line, end_line) 0-indexed span of each fixed-``LIST_SPLIT_CHUNK_SIZE`` group of
+    consecutive top-level items, when this list's own rendered length or item count crosses the
+    module's surveyed thresholds; ``None`` leaves the list whole (fewer than two items, or under
+    both thresholds - the common case for every ordinary list in the portfolio)."""
+    items = _list_items(tokens, list_open, list_close)
+    if len(items) < 2:
+        return None
+    if len(source) <= LIST_SPLIT_CHAR_THRESHOLD and len(items) <= LIST_SPLIT_ITEM_THRESHOLD:
+        return None
+    spans: list[tuple[int, int]] = []
+    for chunk_start in range(0, len(items), LIST_SPLIT_CHUNK_SIZE):
+        chunk = items[chunk_start : chunk_start + LIST_SPLIT_CHUNK_SIZE]
+        first_open, _ = chunk[0]
+        _, last_close = chunk[-1]
+        start, end = _item_line_range(tokens, first_open, last_close)
+        while end > start and not lines[end - 1].strip():
+            end -= 1
+        spans.append((start, end))
+    return spans
+
+
 def inventory_units(
     readme_text: str, known_class_enum_names: Iterable[str] = frozenset()
 ) -> list[InheritedUnit]:
     """Every top-level block of ``readme_text`` in document order, splitting a member-reference
-    list into one unit per bullet when every bullet names a known class/enum symbol (RC-06)."""
+    list into one unit per bullet when every bullet names a known class/enum symbol (RC-06), and
+    otherwise splitting a plain list into fixed-size item chunks once it crosses this module's
+    surveyed oversized-list thresholds (see module docstring)."""
     known = frozenset(known_class_enum_names)
     lines = readme_text.splitlines()
     tokens = _parser().parse(readme_text)
@@ -218,6 +280,8 @@ def inventory_units(
             if unit_type == "list" and known
             else None
         )
+        if split_spans is None and unit_type == "list":
+            split_spans = _split_oversized_list(tokens, index, end_index, lines, source)
         if split_spans is None:
             units.append(
                 InheritedUnit(

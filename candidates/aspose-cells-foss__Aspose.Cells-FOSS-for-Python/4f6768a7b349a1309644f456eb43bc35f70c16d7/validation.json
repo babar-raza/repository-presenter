@@ -1,5 +1,7 @@
 {
-  "advisory": [],
+  "advisory": [
+    "inherited_unit:049.paragraph: deferred as ENTERPRISE_NO_VERIFIED_TARGET (advisory, never published): The unit is Enterprise Edition relationship text, but no verified enterprise product target exists at this revision, so the relationship row cannot render and its link cannot be verified."
+  ],
   "checks": [
     {
       "causal_stage": null,
@@ -25,7 +27,7 @@
         "installation"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "4"
     },
     {
       "causal_stage": null,
@@ -70,7 +72,7 @@
         "all"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -78,14 +80,14 @@
       "failures": [],
       "id": "BC-06",
       "judged_at": "S9",
-      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name",
+      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name (no substitute in any letter case); no unsafe raw HTML (script/event-handler/dangerous-scheme) renders outside a fenced code block",
       "sections": [
         "documentation_resources",
         "enterprise_relationship",
         "badges"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "7"
     },
     {
       "causal_stage": null,
@@ -93,12 +95,12 @@
       "failures": [],
       "id": "BC-07",
       "judged_at": "S9",
-      "name": "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the length budget",
+      "name": "Exactly one factual H1; one badge row in the stable order, each badge supported by a verified fact; title-case headings of every level; canonical abbreviations in prose and headings; At a Glance topology, column rules and label geometry; fence languages and normalized spacing; visible sections never collapsed; no internal narration; within the length budget",
       "sections": [
         "structure"
       ],
       "verdict": "PASS",
-      "version": "7"
+      "version": "10"
     },
     {
       "causal_stage": null,
@@ -132,24 +134,37 @@
       "failures": [],
       "id": "BC-10",
       "judged_at": "S10",
-      "name": "Independent review returns ACCEPT corroborated by a second independent read, under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
+      "name": "Independent review returns ACCEPT corroborated by a second independent read when the typed second-reader trigger fires (an untriggered clean ACCEPT needs none), under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
       "review_verdict": "ACCEPT",
       "sections": [
         "review"
       ],
       "verdict": "PASS",
-      "version": "4"
+      "version": "5"
     },
     {
       "causal_stage": null,
       "details": [
-        "judged by the fresh-process replay: every artifact byte-identical, zero provider calls"
+        "judged by the fresh-process replay: a different process by recorded identity, every artifact byte-identical, zero provider calls counted from the call ledger"
       ],
       "id": "BC-11",
       "judged_at": "S12",
-      "name": "Fresh-process rerun is byte-identical with zero provider calls",
+      "name": "Fresh-process rerun, a different process by recorded identity, is byte-identical with zero provider calls counted from its call ledger, and the bundle's totals reconcile with that ledger",
       "sections": [
         "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "2"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-12",
+      "judged_at": "S9",
+      "name": "Every product-name position in the prose spells the registry's canonical product name exactly; no separator, case, or suffix variant of it (plans/idea.md L84-85)",
+      "sections": [
+        "all"
       ],
       "verdict": "PASS",
       "version": "1"
@@ -439,15 +454,15 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "2f1060cb7eb2868382295d3cd92274bb37f99fe5759cc1850467d55e12621ab9",
-  "readme_sha256": "bd1568d364082d388dfa92a3f2a5177c0a66dfdad943a6ca4cb2a9aa887d1eef",
+  "protected_content_fingerprint": "d34e4feefe20709cb8f0edfb224d62bbf69697381d8b6ae2e4ad105f6b6f81dc",
+  "readme_sha256": "8ad70ce87657a7c88847f891923067fc3dd8a1a666d321028b2c57230123bf82",
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "4f6768a7b349a1309644f456eb43bc35f70c16d7",
   "summary": {
     "fail": 0,
-    "pass": 11,
+    "pass": 12,
     "pending": 0
   },
-  "validator_version": "3"
+  "validator_version": "15"
 }

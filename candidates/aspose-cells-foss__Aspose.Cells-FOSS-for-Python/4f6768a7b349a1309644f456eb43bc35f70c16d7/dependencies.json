@@ -1,18 +1,31 @@
 {
-  "acceptance_profile_version": null,
+  "acceptance_profile_version": "1",
   "components": {
-    "normalisation": "12",
-    "renderer": "24",
-    "reviewer_logic": "12",
+    "normalisation": "29",
+    "renderer": "30",
+    "reviewer_logic": "17",
     "shell": "6"
   },
-  "contract_version": "readme-contract-v1-draft",
+  "contract_version": "readme-contract-v1",
   "environment": {
     "extractor_version": "1",
     "inherited_units_version": "1",
     "os": "Windows",
-    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
-    "python_version": "3.13.2"
+    "presenter_site_manifest": "500947393b51348a9651f137a18eebb1f79edbf6efc3b53b92da787f7c96db5e",
+    "python_version": "3.13.2",
+    "toolchains": {
+      "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+      "cmake": "cmake version 4.4.2",
+      "dotnet": "10.0.401",
+      "go": "go version go1.26.4 windows/amd64",
+      "gxx": "g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0",
+      "javac": "javac 21.0.11",
+      "mvn": "present (no version reported)",
+      "ninja": "1.13.2",
+      "node": "v24.13.1",
+      "npm": "absent",
+      "tsc": "present (no version reported)"
+    }
   },
   "facts": {
     "build_test_asset:examples": "13a10d702be735f1e8496fb60bdde8b676d3d276fe07b8bed1c17de1ee3ca2eb",
@@ -1123,8 +1136,8 @@
   "prompts": {
     "independent_review": {
       "model_route": "qwen3-next",
-      "sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
-      "version": "10"
+      "sha256": "c53a3eb2e7b71d67c1c6b271d5d00b237dec53cdd90261d8b09ba3558c20e359",
+      "version": "11"
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
@@ -1138,38 +1151,39 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
-      "version": "16"
+      "sha256": "828cf21b50b573102e3bda798f45a9de905b55f29841890fb8575e107e67be78",
+      "version": "19"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
-      "sha256": "5f9e0abfa3a29c248f2ca5841770675031bb5da5d90a8207bdd21dd617492760",
-      "version": "6"
+      "sha256": "bbc862f1dd08159b98d237c91aa4e5659aa67d097c8f32baf97c2ca01a6ea7d6",
+      "version": "8"
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "554832bbb64e95b9cce6c26926d875fc4100d99ffec3975cbbb236c56e4a49d3",
-      "version": "9"
+      "sha256": "3067169c998e03ec13ab64f36ad1cce9744c5a9cd6e1a9d2ea3e438ce9fbc98e",
+      "version": "11"
     }
   },
-  "protected_content_fingerprint": "2f1060cb7eb2868382295d3cd92274bb37f99fe5759cc1850467d55e12621ab9",
+  "protected_content_fingerprint": "d34e4feefe20709cb8f0edfb224d62bbf69697381d8b6ae2e4ad105f6b6f81dc",
   "schema_version": 1,
   "source": {
     "revision": "4f6768a7b349a1309644f456eb43bc35f70c16d7",
     "tree_sha256": "143926b5ad668a80df9564f6fd3ecd36c0b37ee757dfe3931e0f6b85c9b4f4a9"
   },
-  "validator_version": "3",
+  "validator_version": "15",
   "validators": {
     "BC-01": "1",
-    "BC-02": "3",
+    "BC-02": "4",
     "BC-03": "2",
     "BC-04": "2",
-    "BC-05": "1",
-    "BC-06": "3",
-    "BC-07": "7",
+    "BC-05": "2",
+    "BC-06": "7",
+    "BC-07": "10",
     "BC-08": "2",
     "BC-09": "1",
-    "BC-10": "4",
-    "BC-11": "1"
+    "BC-10": "5",
+    "BC-11": "2",
+    "BC-12": "1"
   }
 }

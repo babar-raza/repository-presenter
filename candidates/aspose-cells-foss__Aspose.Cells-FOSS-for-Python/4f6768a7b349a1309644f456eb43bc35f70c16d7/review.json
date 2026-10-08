@@ -1,292 +1,403 @@
 {
-  "advisory": [
-    {
-      "absent": [
-        "i2[...]"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F01",
-      "quote": "  subgraph StartingPoints[...]",
-      "repair": "Restore the CSV import starting point in the Mermaid diagram by adding `i2[...]",
-      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "at_a_glance",
-      "text": "The At a Glance Mermaid diagram in the candidate omits CSV import as a starting point and only lists 'An existing XLSX file', while the original includes both 'Existing .xlsx workbook' and 'CSV file (for CSV import)' and the facts support CSV import as a valid starting point."
-    },
-    {
-      "absent": [
-        "o2[...]",
-        "o3[...]",
-        "o4[...]"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F02",
-      "quote": "  subgraph Outputs[...]",
-      "repair": "Restore the complete output list (.xlsx, CSV, JSON, Markdown) in the Outputs subgraph.",
-      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "at_a_glance",
-      "text": "The At a Glance diagram's Outputs section only lists 'CSV or XLSX file', while the original explicitly lists all four outputs (.xlsx, CSV, JSON, Markdown) and the facts support all four as outputs."
-    },
-    {
-      "absent": [
-        "Cell values and formulas",
-        "AutoFilter",
-        "Charts (16 chart types)"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F03",
-      "quote": "- **Create and edit Excel workbooks.** Create new workbooks or load existing `.xlsx` files, then read or write cell values using the `aspose.cells_foss.Workbook`, `aspose.cells_foss.Worksheet`, and `aspose.cells_foss.Cell` classes, and save the result back to `.xlsx` format.",
-      "repair": "Replace generic capability descriptions with specific, fact-supported details from the original Key Capabilities list.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "key_capabilities",
-      "text": "The Key Capabilities section in the candidate uses generic, vague descriptions like 'Create and edit Excel workbooks' and 'Apply cell styling and formatting' without the specific, fact-supported details present in the original (e.g., 'Cell values and formulas', 'AutoFilter', 'Charts (16 chart types)') and the facts."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.encrypt_xlsx",
-        "public_symbol:aspose.cells_foss.decrypt_xlsx",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor"
-      ],
-      "id": "F04",
-      "quote": "- **Encrypt and decrypt workbooks.** Protect workbooks with a password using the `aspose.cells_foss.encrypt_xlsx` mechanism and open encrypted files by providing the password to the `aspose.cells_foss.decrypt_xlsx` operation via the `aspose.cells_foss.xlsx_encryptor` interface.",
-      "repair": "Correct the description to reflect that encryption/decryption is performed via `Workbook.save(password=...)` and `Workbook(path, password=...)` using the `XLSXEncryptor` and `XLSXDecryptor` classes internally.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "key_capabilities",
-      "text": "The candidate's 'Encrypt and decrypt workbooks' capability incorrectly describes the API as `aspose.cells_foss.encrypt_xlsx` and `aspose.cells_foss.decrypt_xlsx` operations via `aspose.cells_foss.xlsx_encryptor`, while the facts show the correct public symbols are `aspose.cells_foss.encrypt_xlsx`, `aspose.cells_foss.decrypt_xlsx`, and `aspose.cells_foss.xlsx_encryptor` are not a standalone API entry point but a class used internally."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F05",
-      "quote": "To work from a source checkout instead, install the clone with pip: ... Verify the install: ...",
-      "repair": "Remove the unsupported source checkout and verification steps, keeping only the `pip install aspose-cells-foss` command from the original.",
-      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "installation",
-      "text": "The installation section in the candidate adds an unsupported source checkout example and verification command not present in the original, which only provided the simple `pip install` command."
-    },
-    {
-      "absent": [
-        "The public entry point is the `aspose.cells_foss` package (import: `from aspose.cells_foss import Workbook`). The 130+",
-        "| Class | Description |",
-        "| Enumeration | Description |"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F06",
-      "quote": "The verified public surface has 130 types.",
-      "repair": "Restore the complete public API surface table with all 130 types and enumerations as in the original.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "api_reference",
-      "text": "The API Reference section in the candidate omits the full 130-type table and enumerations present in the original, and instead provides a truncated, incomplete list that does not match the original's scope and detail."
-    },
-    {
-      "absent": [
-        "Standard encryption (Section 3) is not yet supported for reading."
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F07",
-      "quote": "Aspose.Cells FOSS for Python provides a free, open-source Python library for creating, reading, and converting Excel workbooks in the `.xlsx` format, with additional support for exporting to `.csv`, while offering basic encryption operations and formula evaluation.",
-      "repair": "Restore the complete limitations list from the original, including the explicit statement about Standard encryption not being supported for reading.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.cells, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "scope_limitations",
-      "text": "The Scope and Limitations section in the candidate is significantly shortened and omits the explicit mention of Standard encryption not being supported for reading, which is present in the original and supported by facts."
-    },
-    {
-      "absent": [
-        "pip install -e '.[dev]'",
-        "pytest"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F08",
-      "quote": "The toolchain requires Python >=3.7 and uses the aspose-cells-foss package version 26.7.0 under the MIT license, with examples in the examples/ directory for building and testing.",
-      "repair": "Restore the exact `pip install -e '.[dev]'` and `pytest` commands from the original.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "development_testing",
-      "text": "The Development and Testing section in the candidate omits the `pip install -e '.[dev]'` command and instead provides a vague description of the toolchain, while the original provides the exact, fact-supported command."
-    },
-    {
-      "absent": [
-        "i2[...]"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.load_csv_workbook",
-        "public_symbol:aspose.cells_foss.csv_handler",
-        "public_symbol:aspose.cells_foss.csvloadoptions"
-      ],
-      "id": "F01",
-      "quote": "  subgraph StartingPoints[...]",
-      "reader": 2,
-      "repair": "Restore the CSV import starting point in the Mermaid diagram to match the original and the supported import capability.",
-      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "at_a_glance",
-      "text": "The At a Glance Mermaid diagram in the candidate omits CSV import as a starting point, while the original explicitly includes 'CSV file (for CSV import)' and the facts support CSV import via load_csv_workbook and CSVHandler."
-    },
-    {
-      "absent": [
-        "o2[...]",
-        "o3[...]",
-        "o4[...]"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "format:output.xlsx",
-        "format:output.csv",
-        "public_symbol:aspose.cells_foss.save_workbook_as_json",
-        "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
-      ],
-      "id": "F02",
-      "quote": "  subgraph Outputs[...]",
-      "reader": 2,
-      "repair": "Restore the JSON and Markdown output nodes in the Mermaid diagram to reflect the four supported output formats.",
-      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "at_a_glance",
-      "text": "The At a Glance diagram in the candidate lists only 'CSV or XLSX file' as output, while the original and facts support four distinct outputs: .xlsx, .csv, .json, and .markdown."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "example:001",
-        "example:002",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cell"
-      ],
-      "id": "F03",
-      "quote": "- **Create and edit Excel workbooks.** Create new workbooks or load existing `.xlsx` files...",
-      "reader": 2,
-      "repair": "Rewrite the Key Capabilities section to match the original's specific, fact-supported descriptions for each capability.",
-      "section_id": "key_capabilities",
-      "single_reader_advisory": true,
-      "text": "The Key Capabilities section in the candidate uses generic headings like 'Create and edit Excel workbooks' and 'Apply cell styling and formatting', while the original provides specific, fact-supported descriptions for each capability."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.conditional_format",
-        "public_symbol:aspose.cells_foss.conditional_format.conditionalformat"
-      ],
-      "id": "F04",
-      "quote": "Enforce data entry rules using `aspose.cells_foss.DataValidation` objects with types from `aspose.cells_foss.DataValidationType`, and apply conditional formatting rules via `aspose.cells_foss.conditional_format`.",
-      "reader": 2,
-      "repair": "Correct the reference to conditional formatting to use the proper public class `ConditionalFormat` or module `conditional_format` as intended, aligning with the public symbol facts.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "key_capabilities",
-      "text": "The candidate's 'Add data validation and conditional formatting' capability incorrectly references `aspose.cells_foss.conditional_format` as a class, while facts show it is a module and the public class is `ConditionalFormat`."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "example:006",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor"
-      ],
-      "id": "F05",
-      "quote": "Protect workbooks with a password using the `aspose.cells_foss.encrypt_xlsx` mechanism and open encrypted files by providing the password to the `aspose.cells_foss.decrypt_xlsx` operation via the `aspose.cells_foss.xlsx_encryptor` interface.",
-      "reader": 2,
-      "repair": "Rewrite the encryption capability to correctly describe the API as using `Workbook.save(password=...)` and `Workbook(path, password=...)` with `XLSXEncryptor`/`XLSXDecryptor` internally.",
-      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
-      "section_id": "key_capabilities",
-      "text": "The candidate's 'Encrypt and decrypt workbooks' capability incorrectly describes the API using `aspose.cells_foss.encrypt_xlsx`, `aspose.cells_foss.decrypt_xlsx`, and `aspose.cells_foss.xlsx_encryptor` as standalone mechanisms, while the original and facts show encryption is performed via `Workbook.save(password=...)` and `Workbook(path, password=...)` using `XLSXEncryptor`/`XLSXDecryptor` internally."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss"
-      ],
-      "id": "F06",
-      "quote": "| Class | Description |",
-      "reader": 2,
-      "repair": "Remove the duplicated class table and rely on the deterministic API Reference section to render the complete public surface.",
-      "section_id": "api_reference",
-      "single_reader_advisory": true,
-      "text": "The API Reference section in the candidate duplicates the full table of classes from the original, but the deterministic plan renders the complete public surface, making this duplication redundant and presentationally inconsistent."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "format:input.xlsx",
-        "format:output.csv",
-        "public_symbol:aspose.cells_foss.load_csv_workbook",
-        "public_symbol:aspose.cells_foss.save_workbook_as_csv"
-      ],
-      "id": "F07",
-      "quote": "- Native load and save operations support only the `.xlsx` format, while CSV, JSON, and Markdown are limited to export targets, with CSV also permitting import, and none serving as general spreadsheet formats.",
-      "reader": 2,
-      "repair": "Rewrite the limitation to correctly state that CSV supports both import and export, while JSON and Markdown are export-only.",
-      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact format:input.xlsx ('.xlsx'), which the finding itself cites as its evidence; literal fact text is supported whatever criterion the finding files itself under",
-      "section_id": "scope_limitations",
-      "text": "The Scope and Limitations section in the candidate incorrectly states 'CSV, JSON, and Markdown are limited to export targets, with CSV also permitting import', while the original and facts show CSV supports both import and export, and JSON/Markdown are export-only."
+  "acceptance_profile": {
+    "advisory": true,
+    "applicability_ratified": false,
+    "criteria": [
+      {
+        "evidence": [
+          "Aspose destination before the explanation: [5]"
+        ],
+        "id": "C01",
+        "points": null,
+        "status": "NOT_MET",
+        "title": "Product explained before promotion"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C02",
+        "points": null,
+        "status": "MET",
+        "title": "Visitor orientation"
+      },
+      {
+        "evidence": [
+          "BC-07 PASS"
+        ],
+        "id": "C03",
+        "points": null,
+        "status": "MET",
+        "title": "One H1 and one badge row"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C04",
+        "points": null,
+        "status": "MET",
+        "title": "Canonical product name"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C05",
+        "points": null,
+        "status": "MET",
+        "title": "Common visitor journey"
+      },
+      {
+        "evidence": [
+          "32 prose words outside links"
+        ],
+        "id": "C06",
+        "points": null,
+        "status": "MET",
+        "title": "License as prose"
+      },
+      {
+        "evidence": [
+          "no third-party notices heading"
+        ],
+        "id": "C07",
+        "points": null,
+        "status": "NOT_APPLICABLE",
+        "title": "Third-party notices link"
+      },
+      {
+        "evidence": [
+          "BC-07 PASS"
+        ],
+        "id": "C08",
+        "points": null,
+        "status": "MET",
+        "title": "Title case and canonical abbreviations"
+      },
+      {
+        "evidence": [
+          "BC-07 PASS"
+        ],
+        "id": "C09",
+        "points": null,
+        "status": "MET",
+        "title": "At a Glance topology"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C10",
+        "points": null,
+        "status": "MET",
+        "title": "Capability titles"
+      },
+      {
+        "evidence": [
+          "no required core section is collapsed"
+        ],
+        "id": "C11",
+        "points": null,
+        "status": "MET",
+        "title": "Core sections stay visible"
+      },
+      {
+        "evidence": [
+          "task-named examples, no verification commentary"
+        ],
+        "id": "C12",
+        "points": null,
+        "status": "MET",
+        "title": "Task-named additional examples"
+      },
+      {
+        "evidence": [
+          "every fence has a language; no repeated empty-line run"
+        ],
+        "id": "C13",
+        "points": null,
+        "status": "MET",
+        "title": "Fence languages and spacing"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C14",
+        "points": null,
+        "status": "MET",
+        "title": "Development and testing inventory"
+      },
+      {
+        "evidence": [
+          "no 'Other platforms' section"
+        ],
+        "id": "C15",
+        "points": null,
+        "status": "MET",
+        "title": "No Other Platforms section"
+      },
+      {
+        "evidence": [
+          "no assurance narration in the visitor text"
+        ],
+        "id": "C16",
+        "points": null,
+        "status": "MET",
+        "title": "No assurance narration"
+      },
+      {
+        "evidence": [
+          "Enterprise Edition is the only edition name"
+        ],
+        "id": "C17",
+        "points": null,
+        "status": "MET",
+        "title": "Enterprise Edition name"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C18",
+        "points": null,
+        "status": "MET",
+        "title": "Contextual Aspose links"
+      },
+      {
+        "evidence": [
+          "BC-05 PASS"
+        ],
+        "id": "C19",
+        "points": null,
+        "status": "MET",
+        "title": "Every source unit dispositioned"
+      },
+      {
+        "evidence": [
+          "BC-08 PASS"
+        ],
+        "id": "C20",
+        "points": null,
+        "status": "MET",
+        "title": "Valuable inherited content preserved"
+      },
+      {
+        "evidence": [
+          "BC-01 PASS",
+          "BC-04 PASS"
+        ],
+        "id": "C21",
+        "points": null,
+        "status": "MET",
+        "title": "Public claims map to evidence"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C22",
+        "points": null,
+        "status": "MET",
+        "title": "Proven public consumer surface"
+      },
+      {
+        "evidence": [
+          "BC-03 PASS"
+        ],
+        "id": "C23",
+        "points": null,
+        "status": "MET",
+        "title": "Executed example"
+      },
+      {
+        "evidence": [
+          "BC-02 PASS"
+        ],
+        "id": "C24",
+        "points": null,
+        "status": "MET",
+        "title": "Verified installation"
+      },
+      {
+        "evidence": [
+          "BC-10 PASS"
+        ],
+        "id": "C25",
+        "points": null,
+        "status": "MET",
+        "title": "Independent review accepts"
+      },
+      {
+        "evidence": [
+          "reviewer ACCEPT; no finding names these sections"
+        ],
+        "id": "C26",
+        "points": null,
+        "status": "MET",
+        "title": "Coherent developer journey"
+      }
+    ],
+    "disqualifiers": [
+      {
+        "evidence": [
+          "no assurance narration in the visitor text"
+        ],
+        "id": "D01",
+        "status": "NOT_TRIGGERED",
+        "title": "Assurance narration in the public README"
+      },
+      {
+        "evidence": [
+          "no implementation label"
+        ],
+        "id": "D02",
+        "status": "NOT_TRIGGERED",
+        "title": "Generic implementation label"
+      },
+      {
+        "evidence": [
+          "Enterprise Edition is the only edition name"
+        ],
+        "id": "D03",
+        "status": "NOT_TRIGGERED",
+        "title": "Non-canonical edition name"
+      },
+      {
+        "evidence": [
+          "no 'Other platforms' section"
+        ],
+        "id": "D04",
+        "status": "NOT_TRIGGERED",
+        "title": "Other platforms or promotional section"
+      },
+      {
+        "evidence": [
+          "one H1 at line 1"
+        ],
+        "id": "D05",
+        "status": "NOT_TRIGGERED",
+        "title": "Not exactly one H1"
+      },
+      {
+        "evidence": [
+          "1 badge row(s), no duplicated badge"
+        ],
+        "id": "D06",
+        "status": "NOT_TRIGGERED",
+        "title": "Badge row duplicated or split"
+      },
+      {
+        "evidence": [
+          "BC-04 PASS"
+        ],
+        "id": "D07",
+        "status": "NOT_TRIGGERED",
+        "title": "Public claim without accepted evidence"
+      },
+      {
+        "evidence": [
+          "BC-05 PASS"
+        ],
+        "id": "D08",
+        "status": "NOT_TRIGGERED",
+        "title": "Source unit without one disposition"
+      },
+      {
+        "evidence": [
+          "BC-02 PASS",
+          "BC-03 PASS"
+        ],
+        "id": "D09",
+        "status": "NOT_TRIGGERED",
+        "title": "Unverified example or install command"
+      },
+      {
+        "evidence": [
+          "BC-08 PASS"
+        ],
+        "id": "D10",
+        "status": "NOT_TRIGGERED",
+        "title": "Valuable inherited content discarded"
+      },
+      {
+        "evidence": [
+          "BC-06 PASS"
+        ],
+        "id": "D11",
+        "status": "NOT_TRIGGERED",
+        "title": "Unverified or substitute link"
+      },
+      {
+        "evidence": [
+          "BC-10 PASS"
+        ],
+        "id": "D12",
+        "status": "NOT_TRIGGERED",
+        "title": "Independent review not accepted"
+      },
+      {
+        "evidence": [
+          "BC-09 PASS"
+        ],
+        "id": "D13",
+        "status": "NOT_TRIGGERED",
+        "title": "Secret in the candidate bundle"
+      },
+      {
+        "evidence": [
+          "no deterministic evaluator is ratified"
+        ],
+        "id": "D14",
+        "status": "UNEVALUATED",
+        "title": "Mechanical template filling"
+      }
+    ],
+    "outcome": "UNSCORED",
+    "points_earned": null,
+    "points_possible": null,
+    "profile_version": "1",
+    "ratified": false,
+    "schema_version": 1,
+    "scorer_version": "1",
+    "source": "plans/idea.md",
+    "total_points": 30,
+    "triggered_disqualifiers": [],
+    "unevaluated": {
+      "criteria": [],
+      "disqualifiers": [
+        "D14"
+      ]
     }
-  ],
+  },
+  "advisory": [],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+    "prompt_sha256": "828cf21b50b573102e3bda798f45a9de905b55f29841890fb8575e107e67be78",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "bd1568d364082d388dfa92a3f2a5177c0a66dfdad943a6ca4cb2a9aa887d1eef",
+  "readme_sha256": "8ad70ce87657a7c88847f891923067fc3dd8a1a666d321028b2c57230123bf82",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
-    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "prompt_sha256": "c53a3eb2e7b71d67c1c6b271d5d00b237dec53cdd90261d8b09ba3558c20e359",
     "stage": "S10"
   },
   "schema_version": 1,
   "second_reader": {
-    "corroborated": [
-      "012d630ea87dd4b2ed3b6aaa",
-      "5b4af6802e28f2886ef081a2",
-      "75ce3972a5bdabd7147b459d",
-      "dcdff0a647163c5adef33c0b"
-    ],
-    "read": 2
+    "corroborated": [],
+    "read": 2,
+    "trigger": {
+      "reasons": [
+        "ADVISORY_DEFERRAL"
+      ],
+      "triggered": true
+    }
   },
   "verdict": "ACCEPT",
-  "verdict_as_returned": "REJECT_PRESENTATION"
+  "verdict_as_returned": "ACCEPT"
 }

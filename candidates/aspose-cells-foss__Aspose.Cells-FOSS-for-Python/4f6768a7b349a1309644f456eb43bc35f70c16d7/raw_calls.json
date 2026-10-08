@@ -1,0 +1,1158 @@
+{
+  "29534fed38b4fe675ececfc66a5cb766a33fa324db876a2eba6d6bacb70a1e06": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "link_target:021"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:021",
+          "text": "The getting started guide covers Python documentation for Aspose.Cells FOSS for Python, including workbook creation, cell operations, styling, and data validation."
+        },
+        {
+          "fact_ids": [
+            "link_target:022"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:022",
+          "text": "The how-to guides and FAQ provide Python knowledge base articles, step-by-step instructions, and troubleshooting resources for Aspose.Cells FOSS for Python."
+        },
+        {
+          "fact_ids": [
+            "link_target:023"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:023",
+          "text": "The full API reference offers a complete, browsable reference for all 130 public types in Aspose.Cells FOSS for Python."
+        },
+        {
+          "fact_ids": [
+            "link_target:024"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:024",
+          "text": "The examples directory contains additional sample code demonstrating workbook creation, cell manipulation, styling, and data validation workflows."
+        },
+        {
+          "fact_ids": [
+            "link_target:025"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:025",
+          "text": "The contributor guide documents architecture notes and development conventions for individuals contributing to Aspose.Cells FOSS for Python."
+        },
+        {
+          "fact_ids": [
+            "link_target:026"
+          ],
+          "section": "documentation_resources",
+          "slot": "link:link_target:026",
+          "text": "Found a bug or have a feature request? Open an issue on GitHub."
+        },
+        {
+          "fact_ids": [
+            "format:input.xlsx",
+            "format:output.csv",
+            "format:output.xlsx",
+            "inherited_unit:048.list",
+            "public_symbol:aspose.cells_foss.formula_evaluator",
+            "public_symbol:aspose.cells_foss.standardencryptionparameters",
+            "public_symbol:aspose.cells_foss.workbook"
+          ],
+          "section": "scope_limitations",
+          "slot": "scope",
+          "text": "Aspose.Cells FOSS for Python provides a free, open-source API for reading and writing Excel files in the .xlsx format, with additional export support for .csv, JSON, and Markdown, and basic formula evaluation for cells without cached values."
+        },
+        {
+          "fact_ids": [
+            "format:input.xlsx",
+            "format:output.csv",
+            "format:output.xlsx",
+            "inherited_unit:048.list"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:1",
+          "text": "Only .xlsx is supported for native load and save operations; CSV, JSON, and Markdown are additional text-format export targets (CSV also supports import), not general spreadsheet formats."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:048.list",
+            "public_symbol:aspose.cells_foss.standardencryptionparameters",
+            "public_symbol:aspose.cells_foss.workbook"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:2",
+          "text": "Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing password-protected workbooks; Standard encryption (Section 3) is not yet supported for reading."
+        },
+        {
+          "fact_ids": [
+            "inherited_unit:048.list",
+            "public_symbol:aspose.cells_foss.formula_evaluator"
+          ],
+          "section": "scope_limitations",
+          "slot": "limitation:3",
+          "text": "The formula_evaluator module provides a basic evaluator for cells without cached values and is not a full spreadsheet calculation engine."
+        },
+        {
+          "fact_ids": [
+            "identity:platform",
+            "package:python_requires",
+            "build_test_asset:examples"
+          ],
+          "section": "development_testing",
+          "slot": "summary",
+          "text": "The toolchain requires Python 3.7 or later and uses the standard Python packaging ecosystem. Development dependencies are installed via pip with the dev extra, and the test suite validates core workbook, worksheet, cell, and style operations including value assignment, formula calculation, formatting, and data validation."
+        }
+      ]
+    }
+  },
+  "4eeb3408bd7a6899f5c7bb8bb279584d603da495daf56f780daec0de83b66c33": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [
+        {
+          "fact_id": "inherited_unit:022.paragraph",
+          "reason": "Already rendered in the quick_start section as a heading; not used in the LLM-owned units to revise."
+        },
+        {
+          "fact_id": "inherited_unit:024.paragraph",
+          "reason": "Already rendered in the quick_start section as a heading; not used in the LLM-owned units to revise."
+        },
+        {
+          "fact_id": "inherited_unit:027.paragraph",
+          "reason": "Already rendered in the additional_examples section as a heading; not used in the LLM-owned units to revise."
+        },
+        {
+          "fact_id": "inherited_unit:030.heading",
+          "reason": "Already rendered in the additional_examples section as a heading; not used in the LLM-owned units to revise."
+        },
+        {
+          "fact_id": "inherited_unit:033.code_block",
+          "reason": "Already rendered in the additional_examples section as a code block; not used in the LLM-owned units to revise."
+        },
+        {
+          "fact_id": "inherited_unit:035.code_block",
+          "reason": "Already rendered in the additional_examples section as a code block; not used in the LLM-owned units to revise."
+        }
+      ],
+      "units": [
+        {
+          "fact_ids": [
+            "identity:repository",
+            "identity:platform",
+            "identity:ecosystem",
+            "package:name",
+            "package:version",
+            "package:python_requires",
+            "package:license",
+            "license:spdx",
+            "format:input.xlsx",
+            "format:output.xlsx",
+            "format:output.csv",
+            "public_symbol:aspose.cells_foss.workbook",
+            "public_symbol:aspose.cells_foss.cell",
+            "public_symbol:aspose.cells_foss.style",
+            "public_symbol:aspose.cells_foss.font",
+            "public_symbol:aspose.cells_foss.numberformat",
+            "public_symbol:aspose.cells_foss.datavalidationcollection",
+            "public_symbol:aspose.cells_foss.save_workbook_as_csv",
+            "public_symbol:aspose.cells_foss.save_workbook_as_json",
+            "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
+          ],
+          "section": "opening",
+          "slot": "opening",
+          "text": "Aspose.Cells FOSS for Python provides a free and open-source Python library for creating, reading, and converting Excel workbooks. It supports reading .xlsx files as input and writing .xlsx and .csv files as output, enabling users to process spreadsheet data without licensing restrictions. Developers use it to automate tasks such as styling cells, applying data validation, inserting charts, and protecting workbooks with encryption. The library exposes core functionality through classes like Workbook, Cell, Style, Font, NumberFormat, and DataValidationCollection, along with methods like save_as_csv, save_as_json, and save_as_markdown."
+        },
+        {
+          "fact_ids": [
+            "example:001",
+            "example:002",
+            "format:input.xlsx",
+            "format:output.xlsx",
+            "public_symbol:aspose.cells_foss.workbook"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:1",
+          "text": "Create new workbooks from scratch or load existing .xlsx files, edit worksheet content by adding, copying, or removing sheets, and save the result back to .xlsx format using the Workbook class."
+        },
+        {
+          "fact_ids": [
+            "example:001",
+            "public_symbol:aspose.cells_foss.cell",
+            "public_symbol:aspose.cells_foss.formula_evaluator"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:2",
+          "text": "Read and write cell values and formulas, inspect cell data types, and evaluate formulas programmatically using the Cell and formula_evaluator components."
+        },
+        {
+          "fact_ids": [
+            "example:003",
+            "public_symbol:aspose.cells_foss.font",
+            "public_symbol:aspose.cells_foss.numberformat",
+            "public_symbol:aspose.cells_foss.style"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:3",
+          "text": "Apply detailed styling to cells using Style, Font, and NumberFormat objects to control appearance such as bold text, colors, font size, and numeric formatting."
+        },
+        {
+          "fact_ids": [
+            "example:004",
+            "public_symbol:aspose.cells_foss.conditional_format",
+            "public_symbol:aspose.cells_foss.datavalidationcollection"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:4",
+          "text": "Enforce data entry rules with data validation lists and apply conditional formatting rules to highlight cells based on their values using the DataValidationCollection and conditional_format APIs."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.chartcollection",
+            "public_symbol:aspose.cells_foss.charttype",
+            "public_symbol:aspose.cells_foss.shapecollection",
+            "public_symbol:aspose.cells_foss.tablecollection"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:5",
+          "text": "Insert and configure charts, shapes, and tables within worksheets using the ChartCollection, ChartType, ShapeCollection, and TableCollection classes."
+        },
+        {
+          "fact_ids": [
+            "example:005",
+            "public_symbol:aspose.cells_foss.save_workbook_as_csv",
+            "public_symbol:aspose.cells_foss.save_workbook_as_json",
+            "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:6",
+          "text": "Export workbook content to text-based formats such as CSV, JSON, and Markdown using dedicated save methods on the Workbook class."
+        },
+        {
+          "fact_ids": [
+            "example:006",
+            "public_symbol:aspose.cells_foss.agileencryptionparameters",
+            "public_symbol:aspose.cells_foss.decrypt_xlsx",
+            "public_symbol:aspose.cells_foss.xlsx_encryptor"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:7",
+          "text": "Protect workbooks with password encryption using xlsx_encryptor and decrypt protected files using decrypt_xlsx with AgileEncryptionParameters support."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.auto_filter",
+            "public_symbol:aspose.cells_foss.horizontalpagebreakcollection",
+            "public_symbol:aspose.cells_foss.verticalpagebreakcollection"
+          ],
+          "section": "key_capabilities",
+          "slot": "capability:8",
+          "text": "Apply auto filters to data ranges and manage horizontal and vertical page breaks for print layout using the auto_filter, HorizontalPageBreakCollection, and VerticalPageBreakCollection APIs."
+        },
+        {
+          "fact_ids": [
+            "example:001"
+          ],
+          "section": "quick_start",
+          "slot": "lead_in",
+          "text": "Create a new workbook, populate cells with text and numbers, and save the file as output.xlsx using the aspose-cells-foss package."
+        },
+        {
+          "fact_ids": [
+            "example:002"
+          ],
+          "section": "quick_start",
+          "slot": "lead_in:2",
+          "text": "Open an existing Excel file, read the value from cell A1, and print it to the console using the aspose-cells-foss package."
+        },
+        {
+          "fact_ids": [
+            "example:003",
+            "example:004",
+            "example:005",
+            "example:006",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:license",
+            "package:name",
+            "package:python_requires",
+            "package:version"
+          ],
+          "section": "additional_examples",
+          "slot": "preview",
+          "text": "Create styled cells, add dropdown lists, convert to CSV, and protect workbooks with passwords using Aspose.Cells FOSS for Python."
+        },
+        {
+          "fact_ids": [
+            "example:003",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:license",
+            "package:name",
+            "package:python_requires",
+            "package:version"
+          ],
+          "section": "additional_examples",
+          "slot": "workflow:example:003",
+          "text": "Apply bold red font styling to a cell."
+        },
+        {
+          "fact_ids": [
+            "example:004",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:license",
+            "package:name",
+            "package:python_requires",
+            "package:version"
+          ],
+          "section": "additional_examples",
+          "slot": "workflow:example:004",
+          "text": "Create a dropdown list validation in cells A1 to A10."
+        },
+        {
+          "fact_ids": [
+            "example:005",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:license",
+            "package:name",
+            "package:python_requires",
+            "package:version"
+          ],
+          "section": "additional_examples",
+          "slot": "workflow:example:005",
+          "text": "Convert an Excel file to CSV format."
+        },
+        {
+          "fact_ids": [
+            "example:006",
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "package:license",
+            "package:name",
+            "package:python_requires",
+            "package:version"
+          ],
+          "section": "additional_examples",
+          "slot": "workflow:example:006",
+          "text": "Save and open a password-protected workbook."
+        }
+      ]
+    }
+  },
+  "527f32efc7720baa56dc9113e56443d42d48bbce495e3d28b38098555bebe99c": {
+    "job": "independent_review",
+    "output": {
+      "findings": [],
+      "preserve": [],
+      "verdict": "ACCEPT"
+    }
+  },
+  "71bc8f7a126531d1e2aec90f7ae3e5ee7508c245f7796ffab02a6dff35c39aa1": {
+    "job": "source_reconciliation",
+    "output": {
+      "dispositions": [
+        {
+          "destination_section": "identity",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "license:spdx",
+            "package:license",
+            "package:name",
+            "package:python_requires",
+            "package:version"
+          ],
+          "rationale": "The H1 product name is rendered deterministically from identity and package facts.",
+          "unit_id": "inherited_unit:001.heading"
+        },
+        {
+          "destination_section": "badges",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "link_target:001",
+            "link_target:002",
+            "link_target:003",
+            "link_target:004",
+            "link_target:005",
+            "link_target:006",
+            "link_target:007",
+            "link_target:008",
+            "link_target:009",
+            "link_target:010",
+            "link_target:011",
+            "link_target:012",
+            "link_target:013",
+            "link_target:014",
+            "link_target:015",
+            "link_target:016",
+            "link_target:017",
+            "link_target:018",
+            "link_target:019",
+            "link_target:020",
+            "link_target:021",
+            "link_target:022",
+            "link_target:023",
+            "link_target:024",
+            "link_target:025",
+            "link_target:026",
+            "link_target:027",
+            "link_target:product.banner",
+            "link_target:product.homepage"
+          ],
+          "rationale": "The badge row is rendered deterministically from verified badge link facts.",
+          "unit_id": "inherited_unit:002.badge_row"
+        },
+        {
+          "destination_section": "banner",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "link_target:008",
+            "link_target:009",
+            "link_target:product.banner",
+            "link_target:product.homepage"
+          ],
+          "rationale": "The banner image is rendered deterministically from verified image and homepage facts.",
+          "unit_id": "inherited_unit:003.badge_row"
+        },
+        {
+          "destination_section": "opening",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "identity:repository",
+            "identity:family",
+            "identity:platform",
+            "identity:ecosystem",
+            "package:name",
+            "package:version",
+            "package:license",
+            "license:spdx",
+            "package:python_requires",
+            "dependency:pycryptodome-3.15.0",
+            "dependency:olefile-0.46",
+            "example:001",
+            "example:002",
+            "example:003",
+            "example:004",
+            "example:005"
+          ],
+          "rationale": "The paragraph's substance is covered by the opening section; facts support its claims about purpose, users, and dependencies.",
+          "unit_id": "inherited_unit:004.paragraph"
+        },
+        {
+          "destination_section": "navigation",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision"
+          ],
+          "rationale": "The Navigation heading is rendered by the deterministic navigation section.",
+          "unit_id": "inherited_unit:005.heading"
+        },
+        {
+          "destination_section": "navigation",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "identity:ecosystem",
+            "identity:family",
+            "identity:platform",
+            "identity:repository",
+            "identity:revision",
+            "link_target:010",
+            "link_target:011",
+            "link_target:012",
+            "link_target:013",
+            "link_target:014",
+            "link_target:015",
+            "link_target:016",
+            "link_target:017",
+            "link_target:018",
+            "link_target:019",
+            "link_target:020"
+          ],
+          "rationale": "The navigation list is rendered deterministically from verified section link targets.",
+          "unit_id": "inherited_unit:006.list"
+        },
+        {
+          "destination_section": "at_a_glance",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [],
+          "rationale": "The At a Glance heading is rendered by the deterministic at_a_glance section.",
+          "unit_id": "inherited_unit:007.heading"
+        },
+        {
+          "destination_section": "at_a_glance",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "example:001",
+            "example:002",
+            "public_symbol:aspose.cells_foss.workbook",
+            "format:input.xlsx",
+            "format:output.xlsx",
+            "public_symbol:aspose.cells_foss.cell",
+            "public_symbol:aspose.cells_foss.formula_evaluator",
+            "public_symbol:aspose.cells_foss.style",
+            "public_symbol:aspose.cells_foss.font",
+            "public_symbol:aspose.cells_foss.numberformat",
+            "public_symbol:aspose.cells_foss.datavalidationcollection",
+            "public_symbol:aspose.cells_foss.conditional_format",
+            "public_symbol:aspose.cells_foss.chartcollection",
+            "public_symbol:aspose.cells_foss.charttype",
+            "public_symbol:aspose.cells_foss.shapecollection",
+            "public_symbol:aspose.cells_foss.tablecollection"
+          ],
+          "rationale": "The Mermaid diagram is rendered deterministically from verified capabilities and format facts.",
+          "unit_id": "inherited_unit:008.code_block"
+        },
+        {
+          "destination_section": "key_capabilities",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [],
+          "rationale": "The Key Capabilities heading is rendered by the deterministic key_capabilities section.",
+          "unit_id": "inherited_unit:009.heading"
+        },
+        {
+          "destination_section": "key_capabilities",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "example:001",
+            "example:002",
+            "example:003",
+            "example:004",
+            "example:005",
+            "example:006",
+            "public_symbol:aspose.cells_foss.workbook",
+            "public_symbol:aspose.cells_foss.cell",
+            "public_symbol:aspose.cells_foss.formula_evaluator",
+            "public_symbol:aspose.cells_foss.style",
+            "public_symbol:aspose.cells_foss.font",
+            "public_symbol:aspose.cells_foss.numberformat",
+            "public_symbol:aspose.cells_foss.datavalidationcollection",
+            "public_symbol:aspose.cells_foss.conditional_format",
+            "public_symbol:aspose.cells_foss.chartcollection",
+            "public_symbol:aspose.cells_foss.charttype"
+          ],
+          "rationale": "The Key Capabilities list is rendered deterministically from verified capabilities and public symbols.",
+          "unit_id": "inherited_unit:010.list"
+        },
+        {
+          "destination_section": "installation",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "install_command:pip"
+          ],
+          "rationale": "The Installation heading is rendered by the deterministic installation section.",
+          "unit_id": "inherited_unit:011.heading"
+        },
+        {
+          "destination_section": "installation",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "install_command:pip"
+          ],
+          "rationale": "The installation command is rendered deterministically from the verified pip install command fact.",
+          "unit_id": "inherited_unit:012.code_block"
+        },
+        {
+          "destination_section": "dependencies",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "dependency:development.dev.pytest-7.0.0",
+            "dependency:development.dev.pytest-cov-4.0.0",
+            "dependency:olefile-0.46",
+            "dependency:pycryptodome-3.15.0",
+            "package:python_requires"
+          ],
+          "rationale": "The paragraph's substance about Python version and dependencies is rendered in the dependencies section.",
+          "unit_id": "inherited_unit:013.paragraph"
+        },
+        {
+          "destination_section": "dependencies",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "dependency:development.dev.pytest-7.0.0",
+            "dependency:development.dev.pytest-cov-4.0.0",
+            "dependency:olefile-0.46",
+            "dependency:pycryptodome-3.15.0"
+          ],
+          "rationale": "The Dependencies heading is rendered by the deterministic dependencies section.",
+          "unit_id": "inherited_unit:014.heading"
+        },
+        {
+          "destination_section": "dependencies",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "dependency:development.dev.pytest-7.0.0",
+            "dependency:development.dev.pytest-cov-4.0.0",
+            "dependency:olefile-0.46",
+            "dependency:pycryptodome-3.15.0"
+          ],
+          "rationale": "The Required Package Dependencies subsection heading is rendered by the deterministic dependencies section.",
+          "unit_id": "inherited_unit:015.heading"
+        },
+        {
+          "destination_section": "dependencies",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "dependency:development.dev.pytest-7.0.0",
+            "dependency:development.dev.pytest-cov-4.0.0",
+            "dependency:olefile-0.46",
+            "dependency:pycryptodome-3.15.0"
+          ],
+          "rationale": "The required dependencies list is rendered deterministically from dependency facts.",
+          "unit_id": "inherited_unit:016.list"
+        },
+        {
+          "destination_section": "dependencies",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "dependency:development.dev.pytest-7.0.0",
+            "dependency:development.dev.pytest-cov-4.0.0",
+            "dependency:olefile-0.46",
+            "dependency:pycryptodome-3.15.0"
+          ],
+          "rationale": "The Native and System Requirements subsection heading is rendered by the deterministic dependencies section.",
+          "unit_id": "inherited_unit:017.heading"
+        },
+        {
+          "destination_section": "dependencies",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "dependency:development.dev.pytest-7.0.0",
+            "dependency:development.dev.pytest-cov-4.0.0",
+            "dependency:olefile-0.46",
+            "dependency:pycryptodome-3.15.0",
+            "package:python_requires"
+          ],
+          "rationale": "The Python version requirement is rendered deterministically from the package:python_requires fact.",
+          "unit_id": "inherited_unit:018.list"
+        },
+        {
+          "destination_section": "dependencies",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "dependency:development.dev.pytest-7.0.0",
+            "dependency:development.dev.pytest-cov-4.0.0",
+            "dependency:olefile-0.46",
+            "dependency:pycryptodome-3.15.0"
+          ],
+          "rationale": "The Development Dependencies subsection heading is rendered by the deterministic dependencies section.",
+          "unit_id": "inherited_unit:019.heading"
+        },
+        {
+          "destination_section": "dependencies",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "dependency:development.dev.pytest-7.0.0",
+            "dependency:development.dev.pytest-cov-4.0.0",
+            "dependency:olefile-0.46",
+            "dependency:pycryptodome-3.15.0"
+          ],
+          "rationale": "The development dependencies list is rendered deterministically from dependency facts.",
+          "unit_id": "inherited_unit:020.list"
+        },
+        {
+          "destination_section": "quick_start",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [],
+          "rationale": "The Quick Start heading is rendered by the deterministic quick_start section.",
+          "unit_id": "inherited_unit:021.heading"
+        },
+        {
+          "destination_section": "quick_start",
+          "disposition": "VERIFIED_MOVE",
+          "fact_ids": [
+            "example:001"
+          ],
+          "rationale": "The paragraph introducing the first example is supported by example:001 and fits the quick_start section.",
+          "unit_id": "inherited_unit:022.paragraph"
+        },
+        {
+          "destination_section": "quick_start",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "example:001"
+          ],
+          "rationale": "The first example code block is supported by example:001 and fits the quick_start section.",
+          "unit_id": "inherited_unit:023.code_block"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "VERIFIED_MOVE",
+          "fact_ids": [
+            "example:002"
+          ],
+          "rationale": "The paragraph introducing the second example is supported by example:002 and fits the additional_examples section.",
+          "unit_id": "inherited_unit:024.paragraph"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "example:002"
+          ],
+          "rationale": "The second example code block is supported by example:002 and fits the additional_examples section.",
+          "unit_id": "inherited_unit:025.code_block"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [],
+          "rationale": "The Additional Examples heading is rendered by the deterministic additional_examples section.",
+          "unit_id": "inherited_unit:026.heading"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "VERIFIED_MOVE",
+          "fact_ids": [
+            "example:003"
+          ],
+          "rationale": "The paragraph introducing the styling example is supported by example:003 and fits the additional_examples section.",
+          "unit_id": "inherited_unit:027.paragraph"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "example:003"
+          ],
+          "rationale": "The styling example code block is supported by example:003 and fits the additional_examples section.",
+          "unit_id": "inherited_unit:028.code_block"
+        },
+        {
+          "destination_section": null,
+          "disposition": "OMIT_UNSUPPORTED",
+          "fact_ids": [],
+          "rationale": "The HTML details block is unsupported by any fact and adds no verifiable content.",
+          "unit_id": "inherited_unit:029.html_block"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "VERIFIED_MOVE",
+          "fact_ids": [
+            "example:004",
+            "public_symbol:aspose.cells_foss.datavalidationtype"
+          ],
+          "rationale": "The data validation example heading is supported by example:004 and fits the additional_examples section.",
+          "unit_id": "inherited_unit:030.heading"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "example:004"
+          ],
+          "rationale": "The data validation example code block is supported by example:004 and fits the additional_examples section.",
+          "unit_id": "inherited_unit:031.code_block"
+        }
+      ]
+    }
+  },
+  "72cd2bde5887c4024f9c35e30077ad88ef850bcaf05e5ce6150e730d0593e876": {
+    "job": "source_reconciliation",
+    "output": {
+      "dispositions": [
+        {
+          "destination_section": "additional_examples",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [],
+          "rationale": "The 'Export to CSV' heading is superseded by the Additional Examples section, which is freshly authored from example facts.",
+          "unit_id": "inherited_unit:032.heading"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "VERIFIED_MOVE",
+          "fact_ids": [
+            "example:005",
+            "public_symbol:aspose.cells_foss.save_workbook_as_csv",
+            "format:output.csv"
+          ],
+          "rationale": "The code block matches example:005 and is moved to Additional Examples under a task-named heading.",
+          "unit_id": "inherited_unit:033.code_block"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [],
+          "rationale": "The 'Password-Protect a Workbook' heading is superseded by Additional Examples, which is freshly authored from example facts.",
+          "unit_id": "inherited_unit:034.heading"
+        },
+        {
+          "destination_section": "additional_examples",
+          "disposition": "VERIFIED_MOVE",
+          "fact_ids": [
+            "example:006",
+            "public_symbol:aspose.cells_foss.xlsx_encryptor",
+            "public_symbol:aspose.cells_foss.decrypt_xlsx"
+          ],
+          "rationale": "The code block matches example:006 and is moved to Additional Examples under a task-named heading.",
+          "unit_id": "inherited_unit:035.code_block"
+        },
+        {
+          "destination_section": null,
+          "disposition": "NON_CONTENT",
+          "fact_ids": [],
+          "rationale": "The closing </details> tag is non-content HTML used for collapsible sections.",
+          "unit_id": "inherited_unit:036.html_block"
+        },
+        {
+          "destination_section": "api_reference",
+          "disposition": "VERIFIED_PRESERVE",
+          "fact_ids": [],
+          "rationale": "The '## API Reference' heading is preserved as the section heading for the API Reference section.",
+          "unit_id": "inherited_unit:037.heading"
+        },
+        {
+          "destination_section": "api_reference",
+          "disposition": "VERIFIED_PRESERVE",
+          "fact_ids": [
+            "import_path:aspose.cells_foss",
+            "public_symbol:aspose.cells_foss"
+          ],
+          "rationale": "The paragraph introducing the public entry point and module count is supported by import_path and public_symbol facts.",
+          "unit_id": "inherited_unit:038.paragraph"
+        },
+        {
+          "destination_section": null,
+          "disposition": "NON_CONTENT",
+          "fact_ids": [],
+          "rationale": "The opening <details> tag is non-content HTML used for collapsible sections.",
+          "unit_id": "inherited_unit:039.html_block"
+        },
+        {
+          "destination_section": "api_reference",
+          "disposition": "VERIFIED_PRESERVE",
+          "fact_ids": [],
+          "rationale": "The '### Core API' heading is preserved as a subsection heading within the API Reference section.",
+          "unit_id": "inherited_unit:040.heading"
+        },
+        {
+          "destination_section": "api_reference",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [],
+          "rationale": "The table lists public types supported by public_symbol facts; the table structure and descriptions are preserved.",
+          "unit_id": "inherited_unit:041.table"
+        },
+        {
+          "destination_section": "api_reference",
+          "disposition": "VERIFIED_PRESERVE",
+          "fact_ids": [],
+          "rationale": "The '#### Enumerations' heading is preserved as a subsection heading within the API Reference section.",
+          "unit_id": "inherited_unit:042.heading"
+        },
+        {
+          "destination_section": "api_reference",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [],
+          "rationale": "The table lists enumerations supported by public_symbol facts; the table structure and descriptions are preserved.",
+          "unit_id": "inherited_unit:043.table"
+        },
+        {
+          "destination_section": null,
+          "disposition": "NON_CONTENT",
+          "fact_ids": [],
+          "rationale": "The closing </details> tag is non-content HTML used for collapsible sections.",
+          "unit_id": "inherited_unit:044.html_block"
+        },
+        {
+          "destination_section": "documentation_resources",
+          "disposition": "VERIFIED_PRESERVE",
+          "fact_ids": [],
+          "rationale": "The '## Documentation & Resources' heading is preserved as the section heading for the Documentation & Resources section.",
+          "unit_id": "inherited_unit:045.heading"
+        },
+        {
+          "destination_section": "documentation_resources",
+          "disposition": "VERIFIED_MOVE",
+          "fact_ids": [
+            "link_target:021",
+            "link_target:022",
+            "link_target:023",
+            "link_target:024",
+            "link_target:025",
+            "link_target:026"
+          ],
+          "rationale": "The list items are verified by link_target facts and moved to Documentation & Resources.",
+          "unit_id": "inherited_unit:046.list"
+        },
+        {
+          "destination_section": "scope_limitations",
+          "disposition": "VERIFIED_PRESERVE",
+          "fact_ids": [],
+          "rationale": "The '## Scope and Limitations' heading is preserved as the section heading for the Scope and Limitations section.",
+          "unit_id": "inherited_unit:047.heading"
+        },
+        {
+          "destination_section": "scope_limitations",
+          "disposition": "VERIFIED_PRESERVE",
+          "fact_ids": [
+            "format:input.xlsx",
+            "public_symbol:aspose.cells_foss.standardencryptionparameters",
+            "public_symbol:aspose.cells_foss.formula_evaluator"
+          ],
+          "rationale": "The list items match the limitations from evidence and are preserved in the Scope and Limitations section.",
+          "unit_id": "inherited_unit:048.list"
+        },
+        {
+          "destination_section": null,
+          "disposition": "DEFER_UNRESOLVED",
+          "fact_ids": [
+            "link_target:027",
+            "link_target:product.homepage"
+          ],
+          "rationale": "The paragraph about Enterprise Edition is supported by link_target:027 and moved to Enterprise Relationship.",
+          "unit_id": "inherited_unit:049.paragraph"
+        },
+        {
+          "destination_section": "development_testing",
+          "disposition": "VERIFIED_PRESERVE",
+          "fact_ids": [],
+          "rationale": "The '## Development and Testing' heading is preserved as the section heading for the Development and Testing section.",
+          "unit_id": "inherited_unit:050.heading"
+        },
+        {
+          "destination_section": "development_testing",
+          "disposition": "VERIFIED_PRESERVE",
+          "fact_ids": [],
+          "rationale": "The paragraph introducing the test setup is supported by dependency:development.dev facts.",
+          "unit_id": "inherited_unit:051.paragraph"
+        },
+        {
+          "destination_section": "development_testing",
+          "disposition": "VERIFIED_MOVE",
+          "fact_ids": [
+            "install_command:pip",
+            "dependency:development.dev.pytest-7.0.0",
+            "dependency:development.dev.pytest-cov-4.0.0"
+          ],
+          "rationale": "The code block matches the verified install and test commands and is moved to Development and Testing.",
+          "unit_id": "inherited_unit:052.code_block"
+        },
+        {
+          "destination_section": "license",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "license:file",
+            "license:spdx"
+          ],
+          "rationale": "The '## License' heading is preserved as the section heading for the License section.",
+          "unit_id": "inherited_unit:053.heading"
+        },
+        {
+          "destination_section": "license",
+          "disposition": "SUPERSEDE_REDUNDANT",
+          "fact_ids": [
+            "license:file",
+            "license:spdx"
+          ],
+          "rationale": "The paragraph matches the license fact and is preserved in the License section.",
+          "unit_id": "inherited_unit:054.paragraph"
+        }
+      ]
+    }
+  },
+  "746fca5f945cac2bb5f9d1080eb7d966951e79955782927e94961ae30f6e79e5": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.workbook",
+            "public_symbol:aspose.cells_foss.workbook-2",
+            "public_symbol:aspose.cells_foss.worksheet",
+            "public_symbol:aspose.cells_foss.worksheet-2"
+          ],
+          "section": "api_reference",
+          "slot": "intro",
+          "text": "The public entry point is the aspose.cells_foss package, where aspose.cells_foss.Workbook serves as the primary object for creating and manipulating spreadsheets, and aspose.cells_foss.Worksheet represents individual sheets within a workbook."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.workbook",
+            "public_symbol:aspose.cells_foss.workbook-2",
+            "public_symbol:aspose.cells_foss.workbook_properties"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.workbook",
+          "text": "The aspose.cells_foss.Workbook class provides methods to create, load, protect, and save workbooks, and exposes collections such as worksheets and document properties through its members."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.worksheet",
+            "public_symbol:aspose.cells_foss.worksheet-2",
+            "public_symbol:aspose.cells_foss.worksheet_properties"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.worksheet",
+          "text": "The aspose.cells_foss.Worksheet class represents a single worksheet and offers access to cells, charts, data validations, and formatting options, along with operations like copying, renaming, and protecting the sheet."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.cell",
+            "public_symbol:aspose.cells_foss.cell-2",
+            "public_symbol:aspose.cells_foss.cells",
+            "public_symbol:aspose.cells_foss.cells-2"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.cell",
+          "text": "The aspose.cells_foss.Cell class exposes individual cell data and formatting, and is accessed through the aspose.cells_foss.Cells collection on a worksheet."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.font",
+            "public_symbol:aspose.cells_foss.numberformat",
+            "public_symbol:aspose.cells_foss.style",
+            "public_symbol:aspose.cells_foss.style-2"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.style",
+          "text": "The aspose.cells_foss.Style class allows setting font, number format, and other formatting attributes, and can be applied to cells or ranges via the apply_style method."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.chart",
+            "public_symbol:aspose.cells_foss.chart-2",
+            "public_symbol:aspose.cells_foss.chartcollection",
+            "public_symbol:aspose.cells_foss.charttype"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.chartcollection",
+          "text": "The aspose.cells_foss.ChartCollection class manages chart objects on a worksheet and supports adding, removing, and iterating over charts of types defined by aspose.cells_foss.ChartType."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.conditional_format",
+            "public_symbol:aspose.cells_foss.datavalidation",
+            "public_symbol:aspose.cells_foss.datavalidationcollection",
+            "public_symbol:aspose.cells_foss.datavalidationtype"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.datavalidationcollection",
+          "text": "The aspose.cells_foss.DataValidationCollection class provides methods to add, remove, and manage data validation rules on a worksheet, with rule types defined by aspose.cells_foss.DataValidationType."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.csvhandler",
+            "public_symbol:aspose.cells_foss.csvloadoptions",
+            "public_symbol:aspose.cells_foss.csvsaveoptions",
+            "public_symbol:aspose.cells_foss.save_workbook_as_csv"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.save_workbook_as_csv",
+          "text": "The aspose.cells_foss.save_workbook_as_csv function enables saving a workbook to CSV format using options from aspose.cells_foss.CSVSaveOptions and handling via aspose.cells_foss.CSVHandler."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.jsonhandler",
+            "public_symbol:aspose.cells_foss.jsonsaveoptions",
+            "public_symbol:aspose.cells_foss.save_workbook_as_json"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.save_workbook_as_json",
+          "text": "The aspose.cells_foss.save_workbook_as_json function saves a workbook to JSON format using options from aspose.cells_foss.JsonSaveOptions and handling via aspose.cells_foss.JsonHandler."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.markdownhandler",
+            "public_symbol:aspose.cells_foss.markdownsaveoptions",
+            "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.save_workbook_as_markdown",
+          "text": "The aspose.cells_foss.save_workbook_as_markdown function exports a workbook to Markdown format using options from aspose.cells_foss.MarkdownSaveOptions and handling via aspose.cells_foss.MarkdownHandler."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.agileencryptionparameters",
+            "public_symbol:aspose.cells_foss.encrypt_xlsx",
+            "public_symbol:aspose.cells_foss.standardencryptionparameters",
+            "public_symbol:aspose.cells_foss.xlsx_encryptor"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.encrypt_xlsx",
+          "text": "The aspose.cells_foss.encrypt_xlsx function secures an XLSX file using either aspose.cells_foss.AgileEncryptionParameters or aspose.cells_foss.StandardEncryptionParameters through the aspose.cells_foss.xlsx_encryptor interface."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.agileencryptionparameters",
+            "public_symbol:aspose.cells_foss.decrypt_xlsx",
+            "public_symbol:aspose.cells_foss.xlsx_encryptor"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.decrypt_xlsx",
+          "text": "The aspose.cells_foss.decrypt_xlsx function removes encryption from an XLSX file using the same aspose.cells_foss.xlsx_encryptor interface and supports parameters from aspose.cells_foss.AgileEncryptionParameters."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.shapecollection",
+            "public_symbol:aspose.cells_foss.table",
+            "public_symbol:aspose.cells_foss.table-2",
+            "public_symbol:aspose.cells_foss.tablecollection"
+          ],
+          "section": "api_reference",
+          "slot": "hub:public_symbol:aspose.cells_foss.tablecollection",
+          "text": "The aspose.cells_foss.TableCollection class manages table objects on a worksheet, allowing creation, removal, and iteration over tables defined by aspose.cells_foss.Table."
+        }
+      ]
+    }
+  },
+  "b3916ff1acc4f733c4cd3132924aa3de44bc96e1339c867813767930a9534de7": {
+    "job": "independent_review",
+    "output": {
+      "findings": [],
+      "preserve": [],
+      "verdict": "ACCEPT"
+    }
+  },
+  "f924c5955ba5515b8f6b0d3c3a505557ee5aa62c1bb1eafde197886d539a7c1b": {
+    "job": "section_authoring",
+    "output": {
+      "omitted": [],
+      "units": [
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.sparklineemptycells"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.cells_foss.sparklineemptycells",
+          "text": "SparklineEmptyCells represents how empty cells are treated in a sparkline, with members defining behaviors such as connecting data points or leaving gaps."
+        },
+        {
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.sparklinetype"
+          ],
+          "section": "api_reference",
+          "slot": "type:public_symbol:aspose.cells_foss.sparklinetype",
+          "text": "SparklineType defines the visual style of a sparkline, such as line, column, or win/loss, by specifying the chart type used for rendering."
+        }
+      ]
+    }
+  }
+}
