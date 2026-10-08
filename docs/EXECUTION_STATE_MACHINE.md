@@ -113,7 +113,8 @@ Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UND
 
 **Register.** Work items whose `project/state.yaml` owner begins `REGISTER:` and `owner_items` OWNER-10 to OWNER-19 own every reviewer id in `docs/DEFECT_INDEX.md`: G6-W05 write path; G3-W06 README contract; G3-W07 code freeze and re-seal; G5-W08 seal routing, status, durable state, registry coverage; G5-W09 no-op proof; G7-W07 autonomy and safeguards; G4-W18 discovery into `src/`; G4-W19 product-evidence surfaces; G7-W08 hygiene and prompts; G7-W09 documentation claims; G7-W10
 cursor-staleness guard; G7-W11 sealing-loop failure memory; G7-W12 Cells-Go UNCLASSIFIED deferral
-investigation. `tests/test_register_integrity.py` fails when an id loses its work item.
+investigation; G7-W13 unattended sealing hosted pipeline proof; G7-W14 hosted portfolio-currency
+durability. `tests/test_register_integrity.py` fails when an id loses its work item.
 
 **Owner-only predicates never live in a gate.** Branch protection, secrets, App installation, and
 product decisions are `owner_items` with an exact resume predicate and the gate or work item that
@@ -412,15 +413,8 @@ then keep the system useful without weakening the README foundation.
    admit new repositories disabled and read-only (no plugin, stays non-processable until one lands —
    one file, one test, one registry entry); add the other surfaces (description, topics, community
    files, release links, visuals, social preview) as separate machines; Level 7 and 8 certifications.
-5. **Unattended sealing hosted proof** (G7-W13, registered 2026-10-07 after a full-history audit of
-   every `sealing-scheduled.yml` run since #242 wired it): six runs between 2026-10-05 and 2026-10-07
-   (`docs/DEFECT_INDEX.md` REG-20), zero of which ever sealed a repository — three plan-stage
-   failures (a missing/malformed drift contract, and a newly-enabled owner with no drift evidence
-   yet) and nine present-stage failures spread across the same three repositories (BC-05
-   UNCLASSIFIED, a hallucinated fact citation, uncited-unit and coherence-drop rejections, BC-10
-   `REJECT_PRESENTATION`). `core/sealing_plan.py` selects only `DRIFTED` registry entries, by design
-   (Gate B); it is not widened to sweep every enabled repository, since right now the only drifted
-   entries are these same hard cases, so no easy-win repository is available to prove the loop.
+5. **Unattended sealing hosted proof (G7-W13).** Registered 2026-10-07 after a full-history audit of every `sealing-scheduled.yml` run since #242 wired it: six runs between 2026-10-05 and 2026-10-07 (`docs/DEFECT_INDEX.md` REG-20), zero of which ever sealed a repository — three plan-stage failures (a missing/malformed drift contract, and a newly-enabled owner with no drift evidence yet) and nine present-stage failures spread across the same three repositories (BC-05 UNCLASSIFIED, a hallucinated fact citation, uncited-unit and coherence-drop rejections, BC-10 `REJECT_PRESENTATION`). `core/sealing_plan.py` selects only `DRIFTED` registry entries, by design (Gate B). **SATISFIED, 2026-10-08:** hosted run `37712681751` (dispatched on `main` after #285-#291 merged) carried `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` through `present --durable-state` to `READY_FOR_PROPOSAL`, review `ACCEPT` with zero findings, and a genuine fresh-process no-op proof — durable-state transaction id `f7ac3f73da1b4c7090ed11f26e8bb267`, sealed candidate-revision hash `99c789e9175f2b12ad82bafeeba148ddcc1367fb` (both confirmed directly: the former from the durable-state ref's own `record.json`, the latter from the run's own downloaded sealed workflow artifact) — the first observed hosted success since the workflow was wired.
+6. **Hosted portfolio-currency durability (G7-W14), open.** Item 5's success is ephemeral beyond its durable-state ref receipt: `present.yml` exports the sealed bundle only as a 7-day-retention workflow artifact and writes no commit; confirmed directly (`git ls-remote origin` carries no branch or PR for this run's bundle, only the state-ref receipt) and by reading `present.yml`, `propose.yml`, and `sealing-scheduled.yml` end to end — no step in any of the three ever runs `git commit`/`git push` against this control repository's own `candidates/` tree, for any registry mode (`propose.yml`'s own header: a sealed bundle "replaces `candidates/<slug>` on each job's checkout wholesale", never the committed `CURRENT`). The committed `candidates/<slug>/` tree `status` reads is refreshed today only by a human or agent session opening a PR by hand (the pattern already used for #259); no authority document states this is an intentional design choice, so it is registered as an open gap, not an accepted one.
 
 ### Exit predicates
 
@@ -433,7 +427,9 @@ then keep the system useful without weakening the README foundation.
   `sealing-scheduled.yml` run, on an unmodified frozen `main`, completes `present` through to
   `READY_FOR_PROPOSAL` (or the no-op-proven/accepted funnel stage) for at least one repository, with
   the run ID and repository recorded as evidence. A merged fix alone never satisfies this; only an
-  observed hosted success does.
+  observed hosted success does. **Satisfied** by run `37712681751`, repository
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-Go`, transaction `f7ac3f73da1b4c7090ed11f26e8bb267`.
+- G7-W14 (hosted portfolio-currency durability): open. Either an observed hosted run whose own commit or PR (authored by the workflow itself, never an agent session) updates this repository's committed `candidates/<slug>/` bundle for at least one `dry_run` entry, with the run ID and the commit/PR it produced recorded as evidence; or a dated owner decision in `docs/DECISION_LOG.md` stating plainly that a human/agent commit step is required by design for `dry_run` entries, after which this predicate's status becomes `OWNER` rather than open.
 
 ## 9. Gate failure routing
 
