@@ -338,6 +338,38 @@ honestly left here rather than moved to Resolved until a future draw confirms it
 
 **Status 2026-10-04 (wiring audit, `origin/main` `ecdff0dc`)**: still Open. `G3-W05` is COMPLETE, with its gate-manifest record (`evidence/build/G3_PYTHON_COHORT/manifest.json`, `g3_w05`). Two mutation tests reproduce both sightings' shapes (`tests/components/readme/composition/test_coherence.py`). The only live draw that reached S8 ran before the identity/package exclusion; the three draws after the refinement failed at earlier, unrelated stages. This entry's own bar, a live draw that re-exercises the refined check end to end, is not yet met. Moves to Resolved on that draw.
 
+### `composition.coherence.cited_symbol_silent_drop`
+
+Distinct from `composition.coherence.inherited_diagram_content_loss` above, not a duplicate of it:
+that entry is about S7/S8 coherence rewriting an inherited Mermaid diagram into a simplified form
+that drops structure or capabilities with no deterministic check at the time it was opened (since
+closed by `coherence_content_loss_errors`, G3-W05). This entry is about the *same* deterministic
+check - already live, not a gap - correctly firing on a *different* content shape: a coherence
+revision silently drops a previously-cited `public_symbol` fact from a prose unit's `fact_ids` with
+none of that symbol's own text (e.g. `Workbook.toCsv`) surviving in the revised sentence. The check
+is working as designed on both attempts (fails closed, not silently); the open question is upstream
+- why the coherence-revision model step drops cited prose content in the first place, which neither
+this entry nor `inherited_diagram_content_loss` has root-caused.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript` | 2026-10-08 | `runs/wt/reseal-cells-ts/runs/transactions/aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript/fc186507e5b7124f4664aa6035f25cfd3112367d/calls/620641b315e9.rejected-1.json` and `.rejected-2.json` (both attempts, identical rejection), `.rejected-2-fix.json` (the one `targeted_repair` round, which restores the four `public_symbol:workbook.to{csv,html,json,markdown}` fact_ids to `scope_limitations/limitation:2` but never restores their own text to that unit's prose, and the job still fails on an unrelated finding); `C:\Users\babar\AppData\Local\Temp\claude\reseal\cells-ts-run1.log`, line 11. |
+
+**Status 2026-10-08 (registration-only verification session)**: single sighting, directly verified
+against the primary evidence files above (not taken on the handoff report's word alone) - both
+rejections are byte-identical, naming the dropped `public_symbol:workbook.tocsv`/`tohtml`/`tojson`/
+`tomarkdown` citations from `scope_limitations/limitation:2`; the repair round restores the fact_ids
+but leaves the prose unchanged, so the check correctly re-fires on the first review pass after
+repair, and the job fails closed (no final accepted output for call `620641b315e9`). Below AGENTS.md's
+three-independent-sightings threshold: registered `PENDING` investigation, not settled priority.
+Registered as `G7-W16` (`project/state.yaml`, `docs/EXECUTION_STATE_MACHINE.md` G7 Work item 8,
+`docs/RESEARCH_AND_GUIDELINES.md` §27.9, REG-23 below). Separate, unrelated operational note from
+the same draw: example verification (`examples.json`) shows all 3 examples `NOT_VERIFIED`,
+`BLOCKED_TOOLCHAIN: tsc did not report a version` - not the cause of the rejection above, and
+consistent with this machine's already-documented global-vs-registry `tsc` `PATH` precedence issue
+(`docs/DECISION_LOG.md`, 2026-10-04 entry, "no PATH or profile edit" toolchain discussion); not
+registered as its own item unless it recurs on a different machine or environment.
+
 ### `composition.planning.unit_ids_decode_admits_fact_ids`
 
 S5 `presentation_planning` rejects a plan whose `material_limitations[].unit_ids` holds a real fact
@@ -1023,3 +1055,4 @@ Every row names its work item (`project/state.yaml` `next_ready_items` or `owner
 | REG-20 | Full-history audit (2026-10-07) of every `sealing-scheduled.yml` run since #242 wired it: six runs, 2026-10-05 through 2026-10-07 (ids 37310360790, 37348251358, 37361313253, 37411705333, 37461500634, 37617610823) - **zero have ever sealed a repository**. Three failed closed at the plan stage (missing/malformed drift contract, pre-#267/#270; a newly-enabled owner `aspose-psd-foss` with no drift evidence yet, #282/#284, since self-resolved by the next monitor cycle). Three reached present and planned the same three repositories each time (`aspose-cells-foss/...-Go`, `aspose-note-foss/...-Python`, `aspose-pdf-foss/...-Go`, selected because `core/sealing_plan.py` only ever selects `DRIFTED` entries, by design) - nine present-stage failures, no two for the same reason: BC-10 `REJECT_PRESENTATION`; a hallucinated `fact_id` in `source_reconciliation`; an input/output format contradiction; two uncited-unit rejections (class fixed by #286); two coherence-drop rejections (class fixed by #289); and the BC-05 UNCLASSIFIED deferral REG-18 tracks (still open). Every content-authoring fix found (#285, #286, #287, #289, #290) merged 2026-10-07 **after** the last of the six runs (11:57 UTC, headSha `169ab46a`) - none has yet been hosted-verified. 2026-10-08 update: SATISFIED - hosted run `37712681751` cleared G7-W13's own exit predicate for `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` (`READY_FOR_PROPOSAL`, `ACCEPT`, zero-call no-op; durable-state transaction `f7ac3f73da1b4c7090ed11f26e8bb267`, sealed candidate-revision hash `99c789e9175f2b12ad82bafeeba148ddcc1367fb`) | G7-W13 | PENDING |
 | REG-21 | Hosted sealing (run `37712681751`, 2026-10-08) proved the pipeline itself works (`aspose-cells-foss/Aspose.Cells-FOSS-for-Go` reached `READY_FOR_PROPOSAL`, `ACCEPT`, zero-call no-op), but the success is ephemeral beyond its durable-state ref receipt: no workflow (`present.yml`, `propose.yml`, `sealing-scheduled.yml`) ever commits the sealed `candidates/<slug>/` bundle back to this control repository, for any registry mode - confirmed by `git ls-remote` (no branch/PR for this run's bundle) and by reading all three workflows' sources. `status`'s counts therefore go stale under the scheduled loop with no autonomous repair; today only a human/agent session committing a PR by hand (e.g. #259) refreshes them. Not stated as intentional anywhere in `docs/STATE_MACHINE.md`, `docs/EXECUTION_STATE_MACHINE.md`, or `AGENTS.md` | G7-W14 | OPEN |
 | REG-22 | Third sighting, this exact repository (`aspose-slides-foss/Aspose.Slides-FOSS-for-Java`): S6 `section_authoring` call `ba6a89dbe1f2` fails closed on 5 must-carry superseded units (`081`/`083`/`085`/`089`/`095.paragraph`) bundled across 3 sections in one packet, surviving #281/#286/#287/#289/#290 all landed. Directly verified against the stored transaction's own call files and `calls.jsonl`. Attempt 2's `omitted` dispositions named all five with reasons but the recorded rejection is unchanged from attempt 1's - mechanism not yet explained; see `composition.authoring.superseded_unit_not_carried`'s "New sighting, 2026-10-08" | G7-W15 | PENDING |
+| REG-23 | Single sighting (`aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript`, 2026-10-08): S8 coherence revision silently drops four previously-cited `public_symbol:workbook.to{csv,html,json,markdown}` fact_ids from `scope_limitations/limitation:2`'s prose with none of their own text left, caught correctly by the existing `coherence_content_loss_errors` check on both attempts (fails closed); `targeted_repair` restores the fact_ids but not the prose. Directly verified against the stored transaction's own rejection files. Below the three-sighting threshold - `composition.coherence.cited_symbol_silent_drop` | G7-W16 | PENDING |
