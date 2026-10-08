@@ -113,7 +113,8 @@ Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UND
 
 **Register.** Work items whose `project/state.yaml` owner begins `REGISTER:` and `owner_items` OWNER-10 to OWNER-19 own every reviewer id in `docs/DEFECT_INDEX.md`: G6-W05 write path; G3-W06 README contract; G3-W07 code freeze and re-seal; G5-W08 seal routing, status, durable state, registry coverage; G5-W09 no-op proof; G7-W07 autonomy and safeguards; G4-W18 discovery into `src/`; G4-W19 product-evidence surfaces; G7-W08 hygiene and prompts; G7-W09 documentation claims; G7-W10
 cursor-staleness guard; G7-W11 sealing-loop failure memory; G7-W12 Cells-Go UNCLASSIFIED deferral
-investigation. `tests/test_register_integrity.py` fails when an id loses its work item.
+investigation; G7-W13 unattended sealing hosted pipeline proof; G7-W14 hosted portfolio-currency
+durability. `tests/test_register_integrity.py` fails when an id loses its work item.
 
 **Owner-only predicates never live in a gate.** Branch protection, secrets, App installation, and
 product decisions are `owner_items` with an exact resume predicate and the gate or work item that
@@ -424,6 +425,8 @@ then keep the system useful without weakening the README foundation.
    admit new repositories disabled and read-only (no plugin, stays non-processable until one lands —
    one file, one test, one registry entry); add the other surfaces (description, topics, community
    files, release links, visuals, social preview) as separate machines; Level 7 and 8 certifications.
+5. **Unattended sealing hosted pipeline proof (G7-W13), satisfied.** Hosted run `37712681751` (2026-10-08, dispatched on `main` after #285-#291 merged) carried `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` through `present --durable-state` to `READY_FOR_PROPOSAL`, review `ACCEPT` with zero findings, and a genuine fresh-process no-op proof — transaction `f7ac3f73da1b4c7090ed11f26e8bb267`, confirmed directly from the durable-state ref `refs/repository-presenter-state/records/aspose-cells-foss__Aspose.Cells-FOSS-for-Go` (`record.json`, `state_version` 24). First observed hosted success since `sealing-scheduled.yml` was wired (#242); six prior runs between 2026-10-05 and 2026-10-07 all failed (`docs/DEFECT_INDEX.md` REG-20, an open, unmerged PR's own audit).
+6. **Hosted portfolio-currency durability (G7-W14), open.** Item 5's success is ephemeral beyond its durable-state ref receipt: `present.yml` exports the sealed bundle only as a 7-day-retention workflow artifact and writes no commit; confirmed directly (`git ls-remote origin` carries no branch or PR for this run's bundle, only the state-ref receipt) and by reading `present.yml`, `propose.yml`, and `sealing-scheduled.yml` end to end — no step in any of the three ever runs `git commit`/`git push` against this control repository's own `candidates/` tree, for any registry mode (`propose.yml`'s own header: a sealed bundle "replaces `candidates/<slug>` on each job's checkout wholesale", never the committed `CURRENT`). The committed `candidates/<slug>/` tree `status` reads is refreshed today only by a human or agent session opening a PR by hand (the pattern already used for #259); no authority document states this is an intentional design choice, so it is registered as an open gap, not an accepted one.
 
 ### Exit predicates
 
@@ -432,6 +435,8 @@ then keep the system useful without weakening the README foundation.
   drift; unchanged repositories incur no LLM work; `delivery_complete` closes the gate and
   `certification_complete` the background tracks. Operating objectives: drift to accepted proposal
   within one daily cycle; no unsupported claim, inherited-content loss, duplicate PR, or halt.
+- G7-W13 (unattended sealing hosted pipeline proof): satisfied by run `37712681751`, repository `aspose-cells-foss/Aspose.Cells-FOSS-for-Go`, transaction `f7ac3f73da1b4c7090ed11f26e8bb267` — recorded as evidence, never a merged fix alone.
+- G7-W14 (hosted portfolio-currency durability): open. Either an observed hosted run whose own commit or PR (authored by the workflow itself, never an agent session) updates this repository's committed `candidates/<slug>/` bundle for at least one `dry_run` entry, with the run ID and the commit/PR it produced recorded as evidence; or a dated owner decision in `docs/DECISION_LOG.md` stating plainly that a human/agent commit step is required by design for `dry_run` entries, after which this predicate's status becomes `OWNER` rather than open.
 
 ## 9. Gate failure routing
 
