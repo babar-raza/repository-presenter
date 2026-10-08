@@ -38,6 +38,31 @@ characters-per-token floor (`output_chars_bound`). A truncated reply is kept bes
 evidence next time. Status: fixed on the branch; closes when the live proof on sighting 3 reaches
 past S4.
 
+### `readme.oversized_inherited_list_bundles_many_claims_into_one_disposition`
+
+A plain top-level list (no RC-06 member-reference shape) that bundles dozens of unrelated
+capability claims into one `inherited_unit` is reconciled as a single, indivisible disposition.
+`placement_errors`' `uncited_prose_omit` refusal is correct - the model omitted the unit with no
+citation while real SUPPORTED facts its own text already names sat uncited - but surfacing those
+candidate fact IDs in the re-ask (#1008/PR #286) cannot fix an input-grain problem: the model has
+the hint but cannot act on it inline across a candidate list bound to one giant unit, and both
+repair attempts are exhausted on the identical refusal.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` | 2026-10-07/08 | `inherited_unit:014.list` (69-72 items, ~94,000-115,000 characters) and `016.list` (9 items, ~12,700-17,000 characters) both refused as an uncited `OMIT_UNSUPPORTED` in both reconciliation reask attempts even with PR #286's candidate-surfacing fix live; `tests/components/readme/reconciliation/test_dispositions.py::test_uncited_omit_candidates_finds_the_pdf_typescript_units_own_unused_evidence` records the diagnosis's own fact-ID set |
+
+Fix (branch `wt/split-oversized-list-units`, `evidence/facts/inherited.py`): a plain list RC-06
+leaves whole is now split into fixed `LIST_SPLIT_CHUNK_SIZE=8`-item chunks, each its own
+`sub_ordinal` unit, once it crosses a surveyed threshold (`LIST_SPLIT_CHAR_THRESHOLD=6000`
+characters or `LIST_SPLIT_ITEM_THRESHOLD=60` items - `docs/DECISION_LOG.md` section 31, this date,
+has the full 884-list-unit survey). `INHERITED_UNITS_VERSION` "1" → "2" so only a repository's next
+extraction run sees the split; no sealed candidate's unit numbering changes retroactively. Status:
+fixed and unit-tested on the branch, including a direct (non-live) demonstration that
+`uncited_omit_candidates` on each resulting sub-unit stays at or under 8 candidates versus 69 for
+the unsplit text; closes when a live reconciliation re-draw of this exact repository reaches past
+S4 without the identical refusal (no live draw run by this change, per its own scope).
+
 ### `readme.bc07_visible_budget_repaired_by_model_only`
 
 Check 7's visible-line budget (`validation/registry.py`, `_check_structure`) measures the composed
