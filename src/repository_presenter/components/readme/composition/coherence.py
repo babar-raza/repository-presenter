@@ -241,9 +241,24 @@ def coherence_checks(
     known = {task.section_id for task in tasks}
     for section in sorted(set(by_section) - known):
         errors.append(f"units name a section the plan did not author: {section}")
+    # This one call returns every section's units at once, so a must-carry unit's own citation is
+    # visible here even when it landed in a different section than its disposition's own
+    # destination_section (authoring.py::carried_unit_errors' own docstring, confirmed live on
+    # aspose-psd-foss/Aspose.PSD-FOSS-for-.NET, 2026-10-08) - named by the first section found
+    # citing it, so the carry check below can tell a real cross-section move from a true silent
+    # drop and name exactly where the content went.
+    cited_elsewhere: dict[str, str] = {}
+    for section, section_units in by_section.items():
+        for unit in section_units:
+            for fact_id in unit.get("fact_ids", []):
+                cited_elsewhere.setdefault(fact_id, section)
     for task in tasks:
         owned = [u for u in by_section.get(task.section_id, []) if u.get("slot") in task.slots]
-        errors.extend(unit_checks({"units": owned, "omitted": []}, task, facts, name))
+        errors.extend(
+            unit_checks(
+                {"units": owned, "omitted": []}, task, facts, name, elsewhere_cited=cited_elsewhere
+            )
+        )
     if existing_units is not None:
         errors.extend(coherence_content_loss_errors(output.get("units", []), existing_units, facts))
     return errors

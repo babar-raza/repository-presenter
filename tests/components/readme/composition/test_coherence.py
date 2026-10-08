@@ -132,6 +132,170 @@ def test_checks_hold_every_returned_unit_to_its_sections_rules() -> None:
     ]
 
 
+def test_a_must_carry_unit_moved_to_another_section_names_the_real_cause() -> None:
+    """Confirmed live, aspose-psd-foss/Aspose.PSD-FOSS-for-.NET, 2026-10-08 (calls/
+    66d7c5310593.rejected-2.json): reconciliation disposed inherited_unit:027/028.paragraph into
+    scope_limitations, but the same batched call wrote their substance into
+    enterprise_relationship's own "context" unit - a reasonable semantic home, but not the
+    disposed destination_section. scope_limitations' own carried_unit_errors saw no citation in
+    its own output and failed "missing" while enterprise_relationship simultaneously failed "cites
+    facts outside this section's set" for the identical two units - no section could satisfy both
+    checks at once, and the generic message gave a repair nothing to move. coherence_checks' one
+    call sees every section's own output together, so it can now name the real cause."""
+    unit_id = "inherited_unit:027.paragraph"
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(
+                unit_id,
+                "inherited_unit",
+                "Choose FOSS for structural inspection.",
+                (Evidence("x"),),
+            ),
+        ),
+    )
+    moved_tasks = [
+        *TASKS,
+        SectionTask(
+            "scope_limitations",
+            {},
+            # section_selections extends scope_limitations' own accepted ids with every unit
+            # carried_units() obliges it to carry (NORMALISATION_VERSION "29"), so a reply that
+            # actually cites the unit in its own section is never itself a binding violation.
+            frozenset({"identity:repository", unit_id}),
+            ("scope",),
+            must_carry=frozenset({unit_id}),
+            must_carry_text={unit_id: "Choose FOSS for structural inspection."},
+        ),
+        SectionTask(
+            "enterprise_relationship", {}, frozenset({"identity:repository", unit_id}), ("context",)
+        ),
+    ]
+    moved_units = {
+        "units": [
+            *UNITS["units"],
+            {
+                "section": "scope_limitations",
+                "slot": "scope",
+                "text": "It inspects PSD structure.",
+                "fact_ids": ["identity:repository"],
+            },
+            {
+                "section": "enterprise_relationship",
+                "slot": "context",
+                "text": "Choose FOSS for structural inspection.",
+                "fact_ids": [unit_id],
+            },
+        ],
+        "omitted": [],
+    }
+    errors = coherence_checks(moved_units, moved_tasks, facts, NAME)
+    assert len(errors) == 1
+    assert f"{unit_id}: superseded into this section (scope_limitations)" in errors[0]
+    assert "cited in enterprise_relationship" in errors[0]
+    # Negative control: carrying it in its own disposed section - scope_limitations - passes with
+    # no carry error, whether or not another section also happens to cite it.
+    carried_units_doc = {
+        "units": [
+            *UNITS["units"],
+            {
+                "section": "scope_limitations",
+                "slot": "scope",
+                "text": "Choose FOSS for structural inspection.",
+                "fact_ids": [unit_id],
+            },
+            {
+                "section": "enterprise_relationship",
+                "slot": "context",
+                "text": "It targets .NET 10.",
+                "fact_ids": ["identity:repository"],
+            },
+        ],
+        "omitted": [],
+    }
+    assert coherence_checks(carried_units_doc, moved_tasks, facts, NAME) == []
+
+
+def test_a_must_carry_unit_moved_to_a_different_pair_of_sections_is_equally_named() -> None:
+    """Generality control (coordinator escalation, 2026-10-08, two further independent
+    live sightings of the identical scope_limitations/enterprise_relationship pair -
+    aspose-psd-foss/Aspose.PSD-FOSS-for-.NET, aspose-3d-foss/Aspose.3D-FOSS-for-.NET,
+    aspose-3d-foss/Aspose.3D-FOSS-for-Python, each confirmed by direct read of its own
+    dispositions.json and rejected call): the fix must not be a two-name special case for
+    scope_limitations/enterprise_relationship, since nothing in coherence_checks' own
+    cited_elsewhere construction or carried_unit_errors' own elsewhere_cited check names either
+    section - both read task.section_id and the map's own key dynamically. Proven here with a
+    deliberately different pair neither live sighting used: development_testing (the carry
+    obligation's destination) and key_capabilities (where the model actually cites it)."""
+    unit_id = "inherited_unit:041.paragraph"
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(unit_id, "inherited_unit", "Run the test suite with pytest.", (Evidence("x"),)),
+        ),
+    )
+    different_pair_tasks = [
+        SectionTask(
+            "development_testing",
+            {},
+            frozenset({"identity:repository", unit_id}),
+            ("summary",),
+            must_carry=frozenset({unit_id}),
+            must_carry_text={unit_id: "Run the test suite with pytest."},
+        ),
+        SectionTask(
+            "key_capabilities",
+            {},
+            frozenset({"identity:repository", unit_id}),
+            ("capability:1",),
+        ),
+    ]
+    moved = {
+        "units": [
+            {
+                "section": "development_testing",
+                "slot": "summary",
+                "text": "It builds with the .NET SDK.",
+                "fact_ids": ["identity:repository"],
+            },
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "Run the test suite with pytest.",
+                "fact_ids": [unit_id],
+            },
+        ],
+        "omitted": [],
+    }
+    errors = coherence_checks(moved, different_pair_tasks, facts, NAME)
+    assert len(errors) == 1
+    assert f"{unit_id}: superseded into this section (development_testing)" in errors[0]
+    assert "cited in key_capabilities" in errors[0]
+    # Negative control: carried in its own disposed section passes, same pair.
+    carried = {
+        "units": [
+            {
+                "section": "development_testing",
+                "slot": "summary",
+                "text": "Run the test suite with pytest.",
+                "fact_ids": [unit_id],
+            },
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "It constructs scenes.",
+                "fact_ids": ["identity:repository"],
+            },
+        ],
+        "omitted": [],
+    }
+    assert coherence_checks(carried, different_pair_tasks, facts, NAME) == []
+
+
 def test_apply_records_which_units_changed_and_keeps_the_rest() -> None:
     output = {
         "units": [

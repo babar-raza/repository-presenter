@@ -3492,6 +3492,62 @@ def test_an_uncarried_scope_unit_fails_and_a_carried_or_omitted_one_passes() -> 
     assert carried_units(dispositions, "development_testing", facts) == []
 
 
+def test_a_must_carry_unit_cited_in_the_wrong_section_names_that_section() -> None:
+    """Confirmed live, aspose-psd-foss/Aspose.PSD-FOSS-for-.NET, 2026-10-08 (calls/
+    66d7c5310593.rejected-2.json): reconciliation disposed inherited_unit:027/028.paragraph into
+    scope_limitations, but the same batched authoring call wrote their substance into
+    enterprise_relationship's own "context" unit instead - a reasonable semantic home, but not the
+    disposed destination_section. scope_limitations' own carry check (carried_unit_errors) saw no
+    citation in its own output and failed with the generic "missing" message, giving no repair any
+    way to tell a real cross-section move from a true silent drop. elsewhere_cited (threaded from
+    a caller that can see both sections' own output at once, today only coherence_checks) lets the
+    check name the real cause: cited in enterprise_relationship, must be in scope_limitations."""
+    dispositions = {"dispositions": [_scope_disposition("inherited_unit:088.list")]}
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:088.list", "inherited_unit", "- A known defect: cloning a master."
+            ),
+        ),
+    )
+    must_carry = frozenset(carried_units(dispositions, "scope_limitations", facts))
+    task = SectionTask(
+        "scope_limitations", {}, frozenset(), ("limitation:1",), must_carry=must_carry
+    )
+    moved = {"units": [{"slot": "limitation:1", "fact_ids": ["identity:repository"]}]}
+    assert carried_unit_errors(moved, task) == [
+        "inherited_unit:088.list: superseded into this section by reconciliation, so a unit must "
+        "cite it and state its substance, or omitted must list it with a reason"
+    ]
+    errors = carried_unit_errors(
+        moved, task, elsewhere_cited={"inherited_unit:088.list": "enterprise_relationship"}
+    )
+    assert len(errors) == 1
+    assert "cited in enterprise_relationship" in errors[0]
+    assert "scope_limitations" in errors[0]
+    assert "inherited_unit:088.list" in errors[0]
+    # Negative control: a correctly-placed carry (cited in its own section) still passes even when
+    # elsewhere_cited also names some other section for it - the real citation here wins.
+    carried = {"units": [{"slot": "limitation:1", "fact_ids": ["inherited_unit:088.list"]}]}
+    assert (
+        carried_unit_errors(
+            carried, task, elsewhere_cited={"inherited_unit:088.list": "scope_limitations"}
+        )
+        == []
+    )
+    # Negative control: elsewhere_cited naming this task's OWN section (no real move) changes
+    # nothing - the generic message stands, since there is nothing to redirect a repair toward.
+    assert carried_unit_errors(
+        moved, task, elsewhere_cited={"inherited_unit:088.list": "scope_limitations"}
+    ) == [
+        "inherited_unit:088.list: superseded into this section by reconciliation, so a unit must "
+        "cite it and state its substance, or omitted must list it with a reason"
+    ]
+
+
 def test_a_must_carry_unit_can_actually_be_cited_without_a_binding_violation() -> None:
     """Note-Python and PDF-Go, 2026-10-07 (both independent live transactions): reconciliation
     supersedes an inherited Enterprise Edition relationship paragraph (084.paragraph-shaped) into

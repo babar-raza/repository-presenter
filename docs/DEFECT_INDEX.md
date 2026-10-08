@@ -293,6 +293,101 @@ are not the same mechanism, and a fix must not be copy-pasted from one to the ot
 own analysis of `section_authoring`'s own packet construction (`composition/authoring.py::section_selections`,
 `authoring_tasks`).
 
+**A second, distinct sub-mechanism of this same entry, found and fixed the same day - not
+`G7-W15`, not claiming to resolve it.** `G7-W15` above is a packet-bundling/logging puzzle (many
+must-carry units across several destination sections in one call; attempt 1 is a true silent
+drop, attempt 2's own `omitted` reasons do not match its own logged rejection - unresolved).
+The sightings below are a different, fully-diagnosed mechanism: a must-carry unit's substance
+*is* written somewhere in the very same call, just not in its own `destination_section` - a
+cross-section move, not a drop - and the two sections involved fail in a way neither of this
+entry's two prior fixes (18->19, 29) could have caught, because both of those were about a unit
+missing from *every* section's output, never present in a *different* one.
+
+**New sighting, 2026-10-08** (`aspose-psd-foss/Aspose.PSD-FOSS-for-.NET`, live transaction
+`f4e1b261922d514591b898f01346af1c6bf59f92`, `calls/66d7c5310593.rejected-2.json`,
+`dispositions.json` lines 265-282): a cross-*section* gap distinct from the two prior fixes above
+(`NORMALISATION_VERSION` 19 and 29, both cross-*citability* gaps within one section) and from
+`G7-W15` just above (a packet-bundling/logging puzzle, not a cross-section move). Reconciliation
+disposed
+`inherited_unit:027/028.paragraph` (`SUPERSEDE_REDUNDANT`, `destination_section:
+scope_limitations`), but the same batched S8 coherence call wrote their substance into
+`enterprise_relationship`'s own `"context"` unit instead - a reasonable semantic home, but not the
+disposed `destination_section`. `scope_limitations`'s own `carried_unit_errors` saw no citation in
+its own output and failed "superseded into this section ... so a unit must cite it ... or omitted
+must list it" (the generic "missing" message), while `enterprise_relationship`'s own `unit_checks`
+simultaneously failed "cites facts outside this section's set" for the identical two units (its
+`accepted_ids` never included them, since they were disposed elsewhere) - no section could satisfy
+both checks at once, and the rejection gave the one re-ask nothing to move: it named a unit as
+"missing" that the call itself had not dropped. `carried_unit_errors`/`unit_checks` are scoped
+strictly to one task's own filtered output by construction (`coherence_checks`,
+`composition/coherence.py`, filters `by_section` per task before calling `unit_checks`), with no
+view across tasks - the asymmetry the two prior fixes above never exercised, because both were
+about a unit missing from every section's output, never present in a *different* one (and distinct
+from `G7-W15`'s own puzzle, which is about `omitted` reasons not matching their own logged
+rejection, not about where a citation actually landed). Fixed,
+`NORMALISATION_VERSION` 29 -> 30: `carried_unit_errors`/`unit_checks` take an optional
+`elsewhere_cited` map (fact_id -> the section that actually cited it), and `coherence_checks` - the
+one caller whose single call already sees every section's own output at once - builds and threads
+it, so the carry check can name the real cause ("cited in `enterprise_relationship`, must be in
+`scope_limitations`") instead of the generic message. `destination_section` stays binding
+(`docs/README_CONTRACT.md` "Placement is exclusive, never additive"; S7 alone owns a placement
+conflict): a unit cited in the wrong section still fails, with a specific, repairable instruction,
+never a pass. S6's own per-task calls and S11's per-task repair are schema-constrained to one
+section per call (`authoring_schema`'s `prefixItems`/`const`) and pass no `elsewhere_cited`, so
+their own behavior is unchanged. Mutation-tested
+(`tests/components/readme/composition/test_authoring.py::
+test_a_must_carry_unit_cited_in_the_wrong_section_names_that_section`,
+`tests/components/readme/composition/test_coherence.py::
+test_a_must_carry_unit_moved_to_another_section_names_the_real_cause`, the latter confirmed to
+fail on the pre-fix code and pass on the fix). Not yet live-verified against a fresh draw of the
+same repository; the fix changes only the rejection's own wording and the repair's targeting, not
+whether a reply is accepted, so no behavior change is expected for a reply that already carries
+correctly.
+
+**Second and third independent sightings of this cross-section-move sub-mechanism, same day
+(2026-10-08), confirmed by direct read of each transaction's own `dispositions.json` and rejected
+call, not taken on report**: `aspose-3d-foss/Aspose.3D-FOSS-for-.NET` (`runs/wt/reseal-3d-net`,
+transaction `52b0f00ebf28a0b4173921725ff170685ec2c502`, `inherited_unit:062.paragraph`,
+`calls/8a41abbad45f.rejected-2.json`) and `aspose-3d-foss/Aspose.3D-FOSS-for-Python` (`runs/wt/
+reseal-3d-python`, transaction `65b1f577c0f16d0d9112bb6c1153d3024543ac02`,
+`inherited_unit:068.paragraph`, `calls/5ede974ac08f.rejected-2.json`) each independently hit the
+identical mechanism, same section pair: an Enterprise Edition upsell paragraph disposed
+`SUPERSEDE_REDUNDANT`/`destination_section: scope_limitations`, written instead into
+`enterprise_relationship`'s own `"context"` unit by the same batched S8 coherence call, exhausting
+both attempts with the same two-sided rejection (`scope_limitations`: "superseded ... so a unit
+must cite it ... or omitted must list it"; `enterprise_relationship`: "cites facts outside this
+section's set"). Per AGENTS.md ("A defect class independently sighted three times is settled
+priority for that slot, not a judgment call"), this specific cross-section-move sub-mechanism is
+now **SETTLED** at three sightings across three repositories (`aspose-psd-foss/Aspose.PSD-FOSS-
+for-.NET`, `aspose-3d-foss` .NET and Python) - confirming, not altering, the fix landed just
+above, which already covers all three mechanically, since `elsewhere_cited` is built from every
+section's own output generically (`coherence_checks`, `composition/coherence.py`) and the repair
+message names whatever two section names actually apply - `scope_limitations`/
+`enterprise_relationship` in every sighting seen so far, but neither name is hardcoded in the
+check itself. A second, deliberately different section pair (`development_testing` moved into
+`key_capabilities`, neither name seen in any live sighting) is covered by its own mutation test
+(`test_coherence.py::test_a_must_carry_unit_moved_to_a_different_pair_of_sections_is_equally_named`)
+to prove the fix is general across section pairs, not a two-name special case. This settles only
+the cross-section-move sub-mechanism; `G7-W15`'s own packet-bundling/logging puzzle above is
+unrelated and remains open.
+
+**Fourth and fifth independent sightings of this same sub-mechanism, same day (2026-10-08),
+confirmed the same way**: `aspose-cells-foss/Aspose.Cells-FOSS-for-.NET` (`runs/wt/
+reseal-cells-dotnet`, transaction `941814fd138dc28cf47123d48194f329f283498d`,
+`inherited_unit:065.paragraph`, `calls/a4dfb38e02ff.rejected-2.json`) and `aspose-cells-foss/
+Aspose.Cells-FOSS-for-Cpp` (`runs/wt/reseal-cells-cpp`, transaction
+`9f852d0ff1cfdad2d661556d6b87a8eff8c063a2`, `inherited_unit:057.paragraph`,
+`calls/af27f27a5adc.rejected-2.json`) each hit the identical `scope_limitations` →
+`enterprise_relationship` mechanism again, same two-sided rejection. Five sightings across five
+repositories (`aspose-psd-foss`, `aspose-3d-foss` ×2, `aspose-cells-foss` ×2) now confirm this
+sub-mechanism well past AGENTS.md's three-sighting settle bar; none changes the fix, which remains
+general by construction (above). The Cells-C++ transaction's own rejected call carries a fourth,
+unrelated error on the same attempt - "coherence revision drops the previously-cited license
+`license:file` ... a named capability, format, or structural detail ... must not be silently
+dropped during coherence" - the already-registered, separately-fixed `composition.coherence.
+inherited_diagram_content_loss` check firing correctly on a genuinely different defect in the
+same call; not this entry's concern and not altered here.
+
 ### `composition.coherence.inherited_diagram_content_loss`
 
 Independent review's presentation criterion can catch S7 authoring/coherence rewriting an
