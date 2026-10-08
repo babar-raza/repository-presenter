@@ -11,7 +11,7 @@
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.workbook-2",
         "public_symbol:aspose.cells_foss.workbook_properties",
-        "public_symbol:aspose.cells_foss.workbook_hash_password"
+        "public_symbol:aspose.cells_foss.workbook_properties"
       ],
       "symbol_fact_id": "public_symbol:aspose.cells_foss.workbook"
     },
@@ -19,6 +19,7 @@
       "fact_ids": [
         "public_symbol:aspose.cells_foss.worksheet",
         "public_symbol:aspose.cells_foss.worksheet-2",
+        "public_symbol:aspose.cells_foss.worksheet_properties",
         "public_symbol:aspose.cells_foss.worksheet_properties"
       ],
       "symbol_fact_id": "public_symbol:aspose.cells_foss.worksheet"
@@ -43,85 +44,84 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.datavalidation",
-        "public_symbol:aspose.cells_foss.datavalidationcollection",
-        "public_symbol:aspose.cells_foss.datavalidationtype",
-        "public_symbol:aspose.cells_foss.datavalidationalertstyle"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.cells_foss.datavalidation"
-    },
-    {
-      "fact_ids": [
+        "public_symbol:aspose.cells_foss.chartcollection",
         "public_symbol:aspose.cells_foss.chart",
         "public_symbol:aspose.cells_foss.chart-2",
-        "public_symbol:aspose.cells_foss.chartcollection",
-        "public_symbol:aspose.cells_foss.chartaxis"
+        "public_symbol:aspose.cells_foss.charttype"
       ],
-      "symbol_fact_id": "public_symbol:aspose.cells_foss.chart"
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.chartcollection"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.shape",
-        "public_symbol:aspose.cells_foss.shape-2",
-        "public_symbol:aspose.cells_foss.shapecollection",
-        "public_symbol:aspose.cells_foss.msodrawingtype"
+        "public_symbol:aspose.cells_foss.datavalidationcollection",
+        "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.datavalidationtype",
+        "public_symbol:aspose.cells_foss.conditional_format"
       ],
-      "symbol_fact_id": "public_symbol:aspose.cells_foss.shape"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.table",
-        "public_symbol:aspose.cells_foss.table-2",
-        "public_symbol:aspose.cells_foss.tablecollection",
-        "public_symbol:aspose.cells_foss.tablecolumn"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.cells_foss.table"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.sparkline",
-        "public_symbol:aspose.cells_foss.sparkline-2",
-        "public_symbol:aspose.cells_foss.sparklinegroup",
-        "public_symbol:aspose.cells_foss.sparklinegroupcollection"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.cells_foss.sparkline"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.encrypt_xlsx",
-        "public_symbol:aspose.cells_foss.decrypt_xlsx",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor",
-        "public_symbol:aspose.cells_foss.agileencryptionparameters"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.cells_foss.encrypt_xlsx"
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.datavalidationcollection"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.cells_foss.save_workbook_as_csv",
-        "public_symbol:aspose.cells_foss.save_workbook_as_json",
-        "public_symbol:aspose.cells_foss.save_workbook_as_markdown",
-        "public_symbol:aspose.cells_foss.csvsaveoptions"
+        "public_symbol:aspose.cells_foss.csvsaveoptions",
+        "public_symbol:aspose.cells_foss.csvloadoptions",
+        "public_symbol:aspose.cells_foss.csvhandler"
       ],
       "symbol_fact_id": "public_symbol:aspose.cells_foss.save_workbook_as_csv"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.load_csv_workbook",
-        "public_symbol:aspose.cells_foss.csvloadoptions",
-        "public_symbol:aspose.cells_foss.csvhandler",
+        "public_symbol:aspose.cells_foss.save_workbook_as_json",
+        "public_symbol:aspose.cells_foss.jsonsaveoptions",
         "public_symbol:aspose.cells_foss.jsonhandler"
       ],
-      "symbol_fact_id": "public_symbol:aspose.cells_foss.load_csv_workbook"
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.save_workbook_as_json"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.save_workbook_as_markdown",
+        "public_symbol:aspose.cells_foss.markdownsaveoptions",
+        "public_symbol:aspose.cells_foss.markdownhandler"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters",
+        "public_symbol:aspose.cells_foss.standardencryptionparameters"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.encrypt_xlsx"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.decrypt_xlsx"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.tablecollection",
+        "public_symbol:aspose.cells_foss.table",
+        "public_symbol:aspose.cells_foss.table-2",
+        "public_symbol:aspose.cells_foss.shapecollection"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.tablecollection"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
       "Create and edit Excel workbooks",
-      "Apply cell styling and formatting",
-      "Add data validation and conditional formatting",
-      "Export to text formats",
-      "Support charts, shapes, and tables",
-      "Encrypt and decrypt workbooks"
+      "Cell value and formula handling",
+      "Styling and formatting",
+      "Data validation and conditional formatting",
+      "Charts, shapes, and tables",
+      "Export to text-based formats",
+      "Password protection and encryption",
+      "Auto filters and page layout"
     ],
     "input_format_ids": [
       "format:input.xlsx"
@@ -136,14 +136,25 @@
       "fact_ids": [
         "example:001",
         "example:002",
-        "format:input.xlsx",
-        "format:output.xlsx",
         "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cell"
+        "format:input.xlsx",
+        "format:output.xlsx"
       ],
-      "shared_fact_ids": [],
+      "shared_fact_ids": [
+        "example:001"
+      ],
       "title": "Create and edit Excel workbooks"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.formula_evaluator"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Cell value and formula handling"
     },
     {
       "fact_ids": [
@@ -153,57 +164,65 @@
         "public_symbol:aspose.cells_foss.numberformat"
       ],
       "shared_fact_ids": [],
-      "title": "Apply cell styling and formatting"
+      "title": "Styling and formatting"
     },
     {
       "fact_ids": [
         "example:004",
-        "public_symbol:aspose.cells_foss.datavalidation",
-        "public_symbol:aspose.cells_foss.datavalidationtype",
+        "public_symbol:aspose.cells_foss.datavalidationcollection",
         "public_symbol:aspose.cells_foss.conditional_format"
       ],
       "shared_fact_ids": [],
-      "title": "Add data validation and conditional formatting"
+      "title": "Data validation and conditional formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.chartcollection",
+        "public_symbol:aspose.cells_foss.charttype",
+        "public_symbol:aspose.cells_foss.shapecollection",
+        "public_symbol:aspose.cells_foss.tablecollection"
+      ],
+      "shared_fact_ids": [],
+      "title": "Charts, shapes, and tables"
     },
     {
       "fact_ids": [
         "example:005",
-        "format:output.csv",
         "public_symbol:aspose.cells_foss.save_workbook_as_csv",
         "public_symbol:aspose.cells_foss.save_workbook_as_json",
         "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
       ],
       "shared_fact_ids": [],
-      "title": "Export to text formats"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.shape",
-        "public_symbol:aspose.cells_foss.sparkline",
-        "public_symbol:aspose.cells_foss.table"
-      ],
-      "shared_fact_ids": [],
-      "title": "Support charts, shapes, and tables"
+      "title": "Export to text-based formats"
     },
     {
       "fact_ids": [
         "example:006",
-        "public_symbol:aspose.cells_foss.encrypt_xlsx",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
         "public_symbol:aspose.cells_foss.decrypt_xlsx",
-        "public_symbol:aspose.cells_foss.xlsx_encryptor"
+        "public_symbol:aspose.cells_foss.agileencryptionparameters"
       ],
       "shared_fact_ids": [],
-      "title": "Encrypt and decrypt workbooks"
+      "title": "Password protection and encryption"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.auto_filter",
+        "public_symbol:aspose.cells_foss.horizontalpagebreakcollection",
+        "public_symbol:aspose.cells_foss.verticalpagebreakcollection"
+      ],
+      "shared_fact_ids": [],
+      "title": "Auto filters and page layout"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "link_target:027"
+        "link_target:027",
+        "link_target:product.homepage"
       ],
       "section_id": "enterprise_relationship",
-      "text": "The Enterprise Edition link (link_target:027) is deferred to a below-the-fold section per the semantic shell."
+      "text": "The Enterprise Relationship section is omitted because the aspose.com product target (link_target:027) is not within policy."
     }
   ],
   "flagship_example_id": "example:003",
@@ -246,10 +265,8 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.agileencryptionparameters",
         "public_symbol:aspose.cells_foss.standardencryptionparameters",
-        "public_symbol:aspose.cells_foss.encrypt_xlsx",
-        "public_symbol:aspose.cells_foss.decrypt_xlsx"
+        "public_symbol:aspose.cells_foss.workbook"
       ],
       "unit_ids": [
         "inherited_unit:048.list"
