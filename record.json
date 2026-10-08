@@ -4,7 +4,7 @@
   "provider_repository_id": 1301410121,
   "registry_revision": null,
   "active_transaction_id": "f7ac3f73da1b4c7090ed11f26e8bb267",
-  "state": "RETRYABLE",
+  "state": "ACCEPTED",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -16,14 +16,7 @@
   },
   "accepted_artifact": null,
   "proposal": null,
-  "failure": {
-    "classification": "transient",
-    "detail": "recovery_sweep: nonterminal transaction had no valid lease",
-    "resume_state": "ACCEPTED",
-    "occurred_at": "2026-10-08T01:36:51.350681+00:00",
-    "resume_predicate": null,
-    "recovery_count": 1
-  },
+  "failure": null,
   "lease": {
     "holder_id": "present.yml:37712681751-noop-proof",
     "acquired_at": "2026-10-08T01:36:53.361612+00:00",
@@ -45,7 +38,7 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 20,
+  "state_version": 21,
   "recent_trigger_dedup_keys": {
     "run:37361313253:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "e84c0b55491e44a59c6a22ed42670f34",
     "run:37411705333:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "a287366556c74b89822582c09c670c50",
