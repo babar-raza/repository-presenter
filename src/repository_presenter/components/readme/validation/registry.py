@@ -66,6 +66,7 @@ from repository_presenter.components.readme.composition.renderer import (
     badge_slots,
     contributors_target,
     line_counts,
+    quoted_evidence_elisions,
 )
 from repository_presenter.components.readme.evidence.facts.assets import CI_BADGE_FACT_ID
 from repository_presenter.components.readme.evidence.facts.links import (
@@ -123,7 +124,14 @@ VALIDATION_FILENAME = "validation.json"
 # graph) needs no badge row; zero badges is then the correct, complete render, not a gap. A
 # badge-worthy fact present with still no rendered row fails exactly as before. A bundle sealed
 # under 12 re-checks under 13 and shows as pending.
-VALIDATOR_VERSION = "13"
+# 14 (owner decision, aspose-psd-foss/Aspose.PSD-FOSS-for-Python): advisory_notes additionally
+# records each non-canonical name variant the composer elided out of a quoted docstring before
+# it reached the Core API table (renderer.quoted_evidence_elisions), so BC-12's own elision is
+# auditable rather than silent. BC-12's own verdict logic (_check_canonical_name) is unchanged -
+# only the advisory list's content can differ. A bundle sealed under 13 re-checks under 14 and
+# shows as pending.
+# 15: a refused ACCEPT names the corroborating second read that failed (second_reader.failed).
+VALIDATOR_VERSION = "15"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -1884,8 +1892,11 @@ def _check_protected(candidate: Candidate) -> list[Failure]:
 
 
 def advisory_notes(candidate: Candidate) -> list[str]:
-    """Context for the reviewer that cannot block: technical terms a rewrite left out, and each
-    ADVISORY deferral with its class (validation/deferrals.py)."""
+    """Context for the reviewer that cannot block: technical terms a rewrite left out, each
+    ADVISORY deferral with its class (validation/deferrals.py), and each BC-12 name variant the
+    composer elided out of a quoted docstring before it reached the Core API table - so that
+    elision is recorded for the reviewer, never silent (aspose-psd-foss/Aspose.PSD-FOSS-for-Python).
+    """
     by_id = {fact.id: fact for fact in candidate.facts.by_kind("inherited_unit")}
     notes: list[str] = [
         f"{finding.unit_id}: deferred as {finding.class_id} (advisory, never published): "
@@ -1893,6 +1904,14 @@ def advisory_notes(candidate: Candidate) -> list[str]:
         for finding in review_deferrals(candidate.dispositions, candidate.facts, candidate.plan)
         if finding.decision == "ADVISORY"
     ]
+    context = RenderContext(
+        candidate.entry, candidate.facts, candidate.plan, candidate.units, candidate.dispositions
+    )
+    notes.extend(
+        f"api_reference: elided non-canonical name {variant!r} from {type_name}'s docstring "
+        "before composing the Core API table (BC-12)"
+        for type_name, variant in quoted_evidence_elisions(context)
+    )
     for entry in candidate.dispositions.get("dispositions", []):
         unit_id = str(entry.get("unit_id", ""))
         if entry.get("disposition") != "VERIFIED_REWRITE" or unit_id not in by_id:
@@ -2124,6 +2143,12 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
                 "ACCEPT with a single read: an accept verdict requires a corroborating "
                 "second read (second_reader.read >= 2)"
             ]
+            failed = (review.get("second_reader") or {}).get("failed")
+            if isinstance(failed, Mapping):
+                details.append(
+                    f"the corroborating second read did not complete: {failed.get('kind')}: "
+                    f"{failed.get('reason')}"
+                )
         else:
             details = [f"{review.get('verdict')}"] + [
                 f"{f.get('id')} {f.get('section_id')} ({f.get('causal_state')}): {f.get('text')}"

@@ -22,6 +22,7 @@ from repository_presenter.components.readme.composition.authoring import (
 )
 from repository_presenter.components.readme.repair.rounds import (
     Round,
+    SecondReadFailure,
     _read_review,
     _refuse_noop,
     _reject_insufficient_visible_line_overage,
@@ -48,17 +49,36 @@ PACKET: dict[str, Any] = {}
 COMMON: dict[str, Any] = {}
 
 
-def test_a_failed_second_reader_job_returns_none_not_an_empty_dict() -> None:
-    """TB-04, external review D4: review_document reads `second={}` as a *completed* reading
-    that corroborated nothing, silently demoting a real blocking finding to advisory and
-    flipping REJECT_PRESENTATION to ACCEPT. `_second_opinion` must return None on JobError -
-    the caller (rounds.py's run_round) then leaves the first reader's review untouched, exactly
-    as if no second reading had ever been attempted."""
+def test_a_failed_second_reader_job_is_a_recorded_failure_never_an_empty_dict() -> None:
+    """TB-04, external review D4: review_document reads `second={}` as a *completed* reading that
+    corroborated nothing, silently demoting a real blocking finding to advisory and flipping
+    REJECT_PRESENTATION to ACCEPT. `_second_opinion` must not return a completed-looking value on
+    JobError; it returns a SecondReadFailure carrying the error, which the caller records on
+    review.json while leaving the first reader's review otherwise untouched."""
     with patch(
         "repository_presenter.components.readme.repair.rounds.run_job",
         side_effect=JobError("gateway unavailable"),
     ):
-        assert _second_opinion(LOADED, PACKET, None, COMMON) is None
+        attempt = _second_opinion(LOADED, PACKET, None, COMMON)
+    assert isinstance(attempt, SecondReadFailure)
+    assert attempt.record() == {"kind": "JobError", "reason": "gateway unavailable"}
+
+
+def test_a_truncated_second_read_keeps_its_truncation_as_the_recorded_cause() -> None:
+    """The live failure this guards (2026-10-04 canary, native run): the second read reached
+    max_output_tokens and was rejected as TruncatedOutput. The cause must reach review.json, not
+    vanish into a bare single read."""
+    truncated = JobError(
+        "independent_review: output truncated at the manifest's max_output_tokens (6000); "
+        "raise the budget or bound the output, never retry"
+    )
+    with patch(
+        "repository_presenter.components.readme.repair.rounds.run_job",
+        side_effect=truncated,
+    ):
+        attempt = _second_opinion(LOADED, PACKET, None, COMMON)
+    assert isinstance(attempt, SecondReadFailure)
+    assert "truncated at the manifest's max_output_tokens (6000)" in attempt.reason
 
 
 def test_a_successful_second_reader_job_returns_its_own_job_result() -> None:
@@ -107,13 +127,16 @@ def test_a_successful_third_reader_job_returns_its_own_job_result() -> None:
 
 
 def _judged_review(
-    first: dict[str, Any], deferrals: list[str], second: JobResult | None, third: JobResult | None
+    first: dict[str, Any],
+    deferrals: list[str],
+    second: JobResult | SecondReadFailure | None,
+    third: JobResult | None,
 ) -> tuple[dict[str, Any], list[str]]:
     """Runs `_read_review` with stub reads, recording which reads were requested."""
     calls: list[str] = []
     document = functools.partial(review_document, first, LOADED, LOADED, "d" * 64)
 
-    def run_second() -> JobResult | None:
+    def run_second() -> JobResult | SecondReadFailure | None:
         calls.append("second")
         return second
 
@@ -191,6 +214,24 @@ def test_a_triggered_second_read_that_fails_leaves_the_trigger_unsatisfied() -> 
     assert calls == ["second"]
     assert review["second_reader"]["read"] == 1
     assert review["second_reader"]["trigger"]["triggered"] is True
+    assert "failed" not in review["second_reader"]
+
+
+def test_a_triggered_second_read_that_raises_jobs_error_names_the_cause() -> None:
+    """A triggered second read that raises (``_second_opinion`` returns a ``SecondReadFailure``,
+    never a bare ``None``) leaves the first reader's review as the record, one read, with the
+    trigger recorded as fired AND the failure's own cause recorded under
+    ``second_reader.failed`` - so check 10 names why, instead of reporting an indistinguishable
+    bare single read (the "review second-read cause" fix)."""
+    failure = SecondReadFailure(kind="JobError", reason="gateway unavailable")
+    review, calls = _judged_review(_CLEAN, ["ADVISORY"], second=failure, third=None)
+    assert calls == ["second"]
+    assert review["second_reader"]["read"] == 1
+    assert review["second_reader"]["trigger"]["triggered"] is True
+    assert review["second_reader"]["failed"] == {
+        "kind": "JobError",
+        "reason": "gateway unavailable",
+    }
 
 
 def test_a_second_read_disagreeing_with_a_clean_first_read_requests_the_third() -> None:

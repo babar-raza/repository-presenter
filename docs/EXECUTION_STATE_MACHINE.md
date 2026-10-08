@@ -57,27 +57,16 @@ transaction is:
 13. Initial publication is PR-only: opening or updating one, never a direct default-branch commit.
 14. A content candidate and permission to publish it are separate decisions.
 15. One repository failure never stops safe work on unrelated repositories.
-16. Research a battle-tested library or standard facility before writing a custom mechanism;
-    document a departure with the alternative considered. `RESEARCH_AND_GUIDELINES.md` §18 is the
-    registry. A pulled legacy module is judged by this rule too, not exempted by having run in
-    production.
+16. Research a battle-tested library or standard facility before writing a custom mechanism; document a departure with the alternative considered. `RESEARCH_AND_GUIDELINES.md` §18 is the registry. A pulled legacy module is judged by this rule too, not exempted by having run in production.
 17. Do not import the legacy mission graph, trusted lane, or proof bureaucracy.
-18. **Infrastructure is just-in-time.** A mechanism enters only when the current or next gate's
-    end-to-end run consumes it. Leases, fencing, durable CAS state, hosted workflows, and
-    authorization machinery arrive at G5 and G6, not before.
-19. **Every work item ends with a run of the official entry point on the canary.** A module with no
-    production importer is a defect, not a deliverable.
-20. **A candidate is invalidated only by a change to an input it consumed.** Every bundle carries a
-    per-candidate dependency manifest; no global control-plane hash exists in the codebase.
-21. **Validators and reviewers re-check; they do not invalidate.** A validator or rubric change
-    re-runs against accepted candidates and produces "still valid", `VALID_UPDATE_AVAILABLE`, or a
-    typed factual, safety, or protected-content failure. Only the last invalidates.
-22. **Reviewer findings must be repairable.** A finding names a candidate section and a causal
-    stage from a fixed vocabulary; anything else is advisory and never blocks twice.
-23. **The acceptance contract freezes at G2 exit** as version 1 and changes only at declared
-    version boundaries with regression evaluation across every current candidate.
-24. **Governance stays compact.** `AGENTS.md` at most 200 lines, this document at most 500, at most
-    eight gates. When a new rule is needed, an old one is replaced.
+18. **Infrastructure is just-in-time.** A mechanism enters only when the current or next gate's end-to-end run consumes it. Leases, fencing, durable CAS state, hosted workflows, and authorization machinery arrive at G5 and G6, not before.
+19. **Every work item ends with a run of the official entry point on the canary.** A module with no production importer is a defect, not a deliverable.
+20. **A candidate is invalidated only by a change to an input it consumed.** Every bundle carries a per-candidate dependency manifest; no global control-plane hash exists in the codebase.
+21. **Validators and reviewers re-check; they do not invalidate.** A validator or rubric change re-runs against accepted candidates and produces "still valid", `VALID_UPDATE_AVAILABLE`, or a typed factual, safety, or protected-content failure. Only the last invalidates.
+22. **Reviewer findings must be repairable.** A finding names a candidate section and a causal stage from a fixed vocabulary; anything else is advisory and never blocks twice.
+23. **The acceptance contract freezes at G2 exit** as version 1 and changes only at declared version boundaries with regression evaluation across every current candidate.
+24. **Governance stays compact.** `AGENTS.md` at most 200 lines, this document at most 500, at most eight gates. When a new rule is needed, an old one is replaced.
+25. **Write-scope expansion is gated, never a cursor-only edit (G6-W06).** Flipping a registry entry's `mode` from `dry_run` to `full` requires, per repository: an owner authorization dated in `docs/DECISION_LOG.md`; a committed record under `ops/proposal-authorizations/`; and that repository's candidate current-code reproducible, independently accepted, and no-op-proven. An agent never flips `mode` unilaterally absent all three (`OWNER-20`).
 
 ## 3. Authority and conflict resolution
 
@@ -386,12 +375,19 @@ Java-only, 2026-09-28 — `docs/DECISION_LOG.md`).
    immediately before the effect; one stable presenter branch and PR per target.
 3. Update rather than duplicate; reconcile lost responses before retry; upstream README overlap
    returns to reconciliation; merged and closed-unmerged outcomes observed without recreation.
+4. **Write-scope expansion gate (G6-W06, principle 25).** `data/registry.json` mode stays `dry_run`
+   by default; moving one entry to `full` is a per-repository, owner-gated change, never a blanket
+   switch and never an agent's own unilateral edit.
 
 ### Exit predicates
 
 - Disposable PR created and updated with exact effect evidence; the analysis token cannot write;
   stale source blocks the effect; repeated invocation creates no duplicate; lost-response simulation
   reconciles; no default-branch push exists.
+- A registry entry's `mode` becomes `full` only once, for that exact repository: an owner
+  authorization is dated in `docs/DECISION_LOG.md`; a record is committed under
+  `ops/proposal-authorizations/`; and its candidate is current-code reproducible, independently
+  accepted, and no-op-proven at that time (`OWNER-20`).
 
 ## G7 — Production Readiness, Deployment, and Continuous Operation
 
@@ -418,7 +414,7 @@ then keep the system useful without weakening the README foundation.
    files, release links, visuals, social preview) as separate machines; Level 7 and 8 certifications.
 5. **Unattended sealing hosted proof** (G7-W13, registered 2026-10-07 after a full-history audit of
    every `sealing-scheduled.yml` run since #242 wired it): six runs between 2026-10-05 and 2026-10-07
-   (`docs/DEFECT_INDEX.md` REG-19), zero of which ever sealed a repository — three plan-stage
+   (`docs/DEFECT_INDEX.md` REG-20), zero of which ever sealed a repository — three plan-stage
    failures (a missing/malformed drift contract, and a newly-enabled owner with no drift evidence
    yet) and nine present-stage failures spread across the same three repositories (BC-05
    UNCLASSIFIED, a hallucinated fact citation, uncited-unit and coherence-drop rejections, BC-10
