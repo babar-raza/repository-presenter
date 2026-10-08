@@ -4,7 +4,7 @@
   "provider_repository_id": 1301410121,
   "registry_revision": null,
   "active_transaction_id": "f7ac3f73da1b4c7090ed11f26e8bb267",
-  "state": "RECONCILING",
+  "state": "PLANNING",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -32,20 +32,20 @@
     "fencing_token": 1
   },
   "last_transition": {
-    "transition_id": "7a9cff960f424d3fad5a93995b33111f",
+    "transition_id": "0e8a5700f8054c1ca1d0a5e8c8a35505",
     "transaction_id": "f7ac3f73da1b4c7090ed11f26e8bb267",
     "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
-    "from_state": "INVESTIGATING",
-    "to_state": "RECONCILING",
+    "from_state": "RECONCILING",
+    "to_state": "PLANNING",
     "event": "present.yml hosted transaction completed (one coarse receipt spanning the local pipeline's own stages - see core/state/present_transaction.py's module docstring)",
-    "occurred_at": "2026-10-08T01:36:38.667377+00:00",
+    "occurred_at": "2026-10-08T01:36:40.421562+00:00",
     "actor": "runtime",
     "input_manifest": "registry:aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
     "output_manifest": "candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Go/CURRENT",
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 12,
+  "state_version": 13,
   "recent_trigger_dedup_keys": {
     "run:37361313253:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "e84c0b55491e44a59c6a22ed42670f34",
     "run:37411705333:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "a287366556c74b89822582c09c670c50",
