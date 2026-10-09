@@ -312,7 +312,18 @@ _TYPE_OBJECTIVE = (
 # checks. destination_section stays binding (docs/README_CONTRACT.md "Placement is exclusive,
 # never additive"): the fix only makes the repair instruction name where the content actually went
 # and where it still must go, never accepts the wrong-section citation as carrying the obligation.
-NORMALISATION_VERSION = "30"
+# "31": enterprise_relationship joins _CARRY_SECTIONS, and reconciliation (dispositions.normalize)
+# no longer rewrites an Enterprise paragraph's destination from enterprise_relationship to
+# scope_limitations. Measured on aspose-tex-foss/Aspose.TeX-FOSS-for-Python (call 186876a431bb),
+# Slides-Java, Cells-.NET, Cells-Rust, 3D-.NET and Email-.Net (2026-10-08/09): S4's own prompt sends
+# promotional/"other platforms" prose to enterprise_relationship, the old fold turned that into
+# SUPERSEDE_REDUNDANT/scope_limitations, and S6 then owed scope_limitations a unit whose substance
+# ("which adds ...") only enterprise_relationship's context sentence renders. The model cited the
+# paragraph from enterprise_relationship (outside its accepted set) and, when it did, copied the
+# edition name the shell prints once: three unsatisfiable checks, two exhausted attempts. The
+# section that renders the substance now owes the unit and may cite it; carried_unit_errors,
+# unit_checks and the exactly-once naming guard are unchanged.
+NORMALISATION_VERSION = "31"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -540,7 +551,10 @@ _CARRIABLE_SUFFIXES = (".paragraph", ".list")
 # documented defect (Slides-Java, 2026-10-05: master-cloning and save-format refusal, F04).
 # Measured over the sealed bundles: 19 of 23 with scope supersessions carry an uncarried unit under
 # this gate, so re-authoring those sections is the cost. Sealed bundles are not rewritten.
-_CARRY_SECTIONS = frozenset({"development_testing", "scope_limitations"})
+# enterprise_relationship joins them (G7-W15/G7-W18): reconciliation supersedes an inherited
+# Enterprise Edition paragraph into it, and its authored context sentence is the one place that
+# paragraph's "which adds ..." substance renders after the shell's own opening sentence.
+_CARRY_SECTIONS = frozenset({"development_testing", "scope_limitations", "enterprise_relationship"})
 
 
 def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocument) -> list[str]:
@@ -852,6 +866,10 @@ def section_selections(
         slots = ["summary"]
     elif section == "enterprise_relationship":
         slots = ["context"]
+        # The inherited Enterprise paragraph reconciliation superseded into this section is the
+        # only accepted statement of what the product adds; without it in the citable set the
+        # section could neither cite it nor be honestly asked to carry it (G7-W15/G7-W18).
+        ids.extend(carried_units(dispositions, section, facts))
     ids.extend(_placed_units(dispositions, section))
     supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}
     ordered = [fact_id for fact_id in dict.fromkeys(ids) if fact_id in supported]
@@ -1100,6 +1118,15 @@ def authoring_tasks(
             if must_carry
             else ""
         )
+        if must_carry and section == "enterprise_relationship":
+            # The inherited paragraph names the commercial product and links it, but the renderer
+            # prints that name and link itself in the sentence before this unit (exactly once,
+            # README_CONTRACT.md row 18), so the substance to state is only what it adds.
+            carry_rule += (
+                "Here the substance is what the commercial product adds: say it in this one "
+                "sentence as 'it adds ...', without the product or edition name, a label for "
+                "it, or its link, which the renderer prints in the sentence before yours. "
+            )
         packet = {
             "repository": entry.repository,
             "product_name": name,
@@ -1771,7 +1798,9 @@ def unit_checks(
         if task.section_id == "enterprise_relationship" and "Enterprise Edition" in text:
             errors.append(
                 f"unit {unit.get('slot')}: names the Enterprise Edition; the shell's closing "
-                "sentence names it exactly once"
+                "sentence names it exactly once. Drop the name and any 'see ...' or 'these "
+                "limitations don't apply to ...' clause and state only what the product adds, "
+                "beginning 'It adds ...'"
             )
         for phrase in edition_substitutes(text):
             errors.append(

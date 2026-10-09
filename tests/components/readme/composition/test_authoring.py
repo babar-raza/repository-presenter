@@ -3684,3 +3684,202 @@ def test_the_scope_request_names_every_must_carry_unit_by_id() -> None:
     assert uncarried_units(partial, frozenset(units)) == [units[2]]
     assert uncarried_units(partial, frozenset(units[:2])) == []
     assert uncarried_units({"units": []}, frozenset()) == []
+
+
+# G7-W15 / G7-W18 (docs/DEFECT_INDEX.md composition.authoring.superseded_unit_not_carried, the
+# S6 Enterprise Edition shape). Real data: aspose-tex-foss/Aspose.TeX-FOSS-for-Python, call
+# 186876a431bb (runs/wt/land-tex-python, rejected-1/-2.json) and the same shape on Slides-Java,
+# Cells-.NET, Cells-Rust, 3D-.NET and Email-.Net. The S4 prompt tells the reconciler to place
+# promotional/"other platforms" material in enterprise_relationship (VERIFIED_MOVE); the old
+# reconciliation fold rewrote that destination to scope_limitations, so S6 owed scope_limitations
+# a unit whose substance ("which adds ...") only enterprise_relationship's context sentence can
+# state - and that section was never allowed to cite it. Both replies below are the model's own.
+TEX_ENTERPRISE_UNIT = "inherited_unit:070.paragraph"
+TEX_ENTERPRISE_TEXT = (
+    "These limitations don't apply to [Aspose.TeX for Python - Enterprise Edition]"
+    "(https://products.aspose.com/tex/python-net/), which adds full feature completeness, "
+    "broader format coverage, and commercial support."
+)
+
+
+def _enterprise_disposition(unit_id: str, destination: str) -> dict[str, Any]:
+    return {
+        "unit_id": unit_id,
+        "disposition": "SUPERSEDE_REDUNDANT",
+        "destination_section": destination,
+        "fact_ids": ["link_target:product.enterprise"],
+        "rationale": "The Enterprise Edition paragraph is moved to the enterprise_relationship "
+        "section.",
+    }
+
+
+def _enterprise_plan() -> dict[str, Any]:
+    return {
+        **PLAN,
+        "sections": [
+            {**item, "include": True} if item["section_id"] == "enterprise_relationship" else item
+            for item in PLAN["sections"]
+        ],
+    }
+
+
+def _enterprise_facts(*extra: Fact) -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(TEX_ENTERPRISE_UNIT, "inherited_unit", TEX_ENTERPRISE_TEXT),
+            *extra,
+        ),
+    )
+
+
+def _enterprise_tasks(destination: str, *extra: Fact) -> dict[str, SectionTask]:
+    facts = _enterprise_facts(*extra)
+    dispositions = {"dispositions": [_enterprise_disposition(TEX_ENTERPRISE_UNIT, destination)]}
+    return {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, dispositions, _enterprise_plan())
+    }
+
+
+def _context_unit(text: str, fact_ids: list[str]) -> dict[str, Any]:
+    return {
+        "section": "enterprise_relationship",
+        "slot": "context",
+        "text": text,
+        "fact_ids": fact_ids,
+    }
+
+
+def test_an_enterprise_paragraph_superseded_into_its_own_section_is_carried_there() -> None:
+    """RED before the fix: enterprise_relationship was not a carry section, so the one section
+    whose context sentence renders "which adds ..." could neither cite the inherited paragraph
+    (outside its accepted set) nor owe it a disposition. It now owes it, and may cite it."""
+    tasks = _enterprise_tasks("enterprise_relationship")
+    task = tasks["enterprise_relationship"]
+    assert task.must_carry == frozenset({TEX_ENTERPRISE_UNIT})
+    assert TEX_ENTERPRISE_UNIT in task.accepted_ids
+    assert TEX_ENTERPRISE_UNIT in task.packet["objective"]
+    assert task.must_carry_text[TEX_ENTERPRISE_UNIT].startswith("These limitations don't apply")
+    # scope_limitations is not asked for it, and cannot cite it: placement is exclusive.
+    assert tasks["scope_limitations"].must_carry == frozenset()
+    assert TEX_ENTERPRISE_UNIT not in tasks["scope_limitations"].accepted_ids
+
+
+def test_the_real_tex_reply_citing_the_enterprise_paragraph_from_its_own_section_passes() -> None:
+    """The model's natural reply (rejected-2.json cited the unit from enterprise_relationship)
+    with the edition name left to the shell's sentence passes both gates at once."""
+    task = _enterprise_tasks("enterprise_relationship")["enterprise_relationship"]
+    reply = {
+        "units": [
+            _context_unit(
+                "It adds full feature completeness, broader format coverage, and commercial "
+                "support.",
+                [TEX_ENTERPRISE_UNIT],
+            )
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(reply, task, _enterprise_facts(), NAME) == []
+
+
+def test_naming_the_enterprise_edition_in_the_context_unit_is_still_refused() -> None:
+    """Negative control: the exactly-once naming rule is untouched. rejected-2.json's own unit
+    text copied the edition name; the carry now succeeds but the naming guard still fires."""
+    task = _enterprise_tasks("enterprise_relationship")["enterprise_relationship"]
+    reply = {
+        "units": [
+            _context_unit(
+                "These limitations don't apply to Aspose.TeX for Python Enterprise Edition, "
+                "which adds full feature completeness.",
+                [TEX_ENTERPRISE_UNIT],
+            )
+        ],
+        "omitted": [],
+    }
+    errors = unit_checks(reply, task, _enterprise_facts(), NAME)
+    assert len(errors) == 1
+    assert errors[0].startswith(
+        "unit context: names the Enterprise Edition; the shell's closing sentence names it "
+        "exactly once."
+    )
+    assert "It adds" in errors[0]  # the refusal says what to write, not only what is wrong
+
+
+def test_an_enterprise_paragraph_neither_cited_nor_omitted_still_fails_closed() -> None:
+    """Negative control (rejected-1.json): the model wrote an unrelated sentence citing identity
+    facts only. The unit is neither carried nor omitted, so the carry gate still refuses it,
+    quoting the unit's own substance - nothing is invented on the model's behalf."""
+    task = _enterprise_tasks("enterprise_relationship")["enterprise_relationship"]
+    reply = {
+        "units": [
+            _context_unit(
+                "It extends this package with additional output formats and batch processing.",
+                ["identity:repository", "package:name"],
+            )
+        ],
+        "omitted": [],
+    }
+    errors = unit_checks(reply, task, _enterprise_facts(), NAME)
+    assert len(errors) == 1
+    assert errors[0].startswith(f"{TEX_ENTERPRISE_UNIT}: superseded into this section")
+    assert "which adds full feature completeness" in errors[0]
+
+
+def test_an_enterprise_paragraph_may_be_omitted_with_a_reason_but_not_a_blank_one() -> None:
+    task = _enterprise_tasks("enterprise_relationship")["enterprise_relationship"]
+    blank = {
+        "units": [_context_unit("", ["identity:repository"])],
+        "omitted": [{"fact_id": TEX_ENTERPRISE_UNIT, "reason": "  "}],
+    }
+    assert unit_checks(blank, task, _enterprise_facts(), NAME) != []
+    reasoned = {
+        "units": [_context_unit("", ["identity:repository"])],
+        "omitted": [
+            {
+                "fact_id": TEX_ENTERPRISE_UNIT,
+                "reason": "The shell's closing sentence already states the relationship and "
+                "no accepted fact names what the product adds.",
+            }
+        ],
+    }
+    assert unit_checks(reasoned, task, _enterprise_facts(), NAME) == []
+
+
+def test_a_non_enterprise_paragraph_superseded_into_scope_is_still_enforced() -> None:
+    """Negative control: moving the Enterprise destination does not loosen any other carry. A
+    genuine limitation paragraph superseded into scope_limitations is still owed a citation or a
+    reasoned omission there, and enterprise_relationship owes nothing for it."""
+    limitation_id = "inherited_unit:071.paragraph"
+    limitation = _fact(
+        limitation_id, "inherited_unit", "Math-mode content is parsed but not laid out."
+    )
+    facts = _enterprise_facts(limitation)
+    dispositions = {
+        "dispositions": [
+            _enterprise_disposition(TEX_ENTERPRISE_UNIT, "enterprise_relationship"),
+            _scope_disposition(limitation_id),
+        ]
+    }
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, dispositions, _enterprise_plan())
+    }
+    assert tasks["scope_limitations"].must_carry == frozenset({limitation_id})
+    assert tasks["enterprise_relationship"].must_carry == frozenset({TEX_ENTERPRISE_UNIT})
+    silent = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": slot,
+                "text": "x",
+                "fact_ids": ["identity:repository"],
+            }
+            for slot in tasks["scope_limitations"].slots
+        ],
+        "omitted": [],
+    }
+    errors = carried_unit_errors(silent, tasks["scope_limitations"])
+    assert len(errors) == 1 and errors[0].startswith(f"{limitation_id}: superseded into this")

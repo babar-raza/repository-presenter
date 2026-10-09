@@ -1174,3 +1174,93 @@ def test_coherence_checks_includes_content_loss_errors_only_when_existing_units_
     errors = coherence_checks(bad, TASKS, FACTS, NAME, existing_units=existing)
     assert len(errors) == 1
     assert "format:output.glb" in errors[0]
+
+
+def test_a_batched_reply_carrying_the_enterprise_unit_in_its_own_section_passes_coherence() -> None:
+    """G7-W15/G7-W18: with the Enterprise paragraph superseded into enterprise_relationship (where
+    the reconciler placed it and where its "which adds ..." substance renders), the section owns
+    the obligation and may cite it, so the batched call that used to fail twice at once passes."""
+    tasks = [
+        SectionTask(
+            "scope_limitations",
+            {},
+            frozenset({"identity:repository"}),
+            ("scope", "limitation:1"),
+        ),
+        SectionTask(
+            "enterprise_relationship",
+            {},
+            frozenset({"identity:repository", ENTERPRISE_FACT_ID}),
+            ("context",),
+            must_carry=frozenset({ENTERPRISE_FACT_ID}),
+            must_carry_text={
+                ENTERPRISE_FACT_ID: "Advanced rendering requires the Enterprise Edition."
+            },
+        ),
+    ]
+    output = _enterprise_broken_output()
+    output["units"][1]["fact_ids"] = []
+    output["units"][2]["text"] = "It adds advanced rendering."
+    assert coherence_checks(output, tasks, ENTERPRISE_FACTS, "Aspose.3D") == []
+    # Negative control: the same reply with the unit dropped from the carrying section fails.
+    output["units"][2]["fact_ids"] = ["identity:repository"]
+    errors = coherence_checks(output, tasks, ENTERPRISE_FACTS, "Aspose.3D")
+    assert len(errors) == 1
+    assert errors[0].startswith(f"{ENTERPRISE_FACT_ID}: superseded into this section")
+
+
+def test_a_must_carry_unit_s6_validly_omitted_is_not_refused_again_by_coherence() -> None:
+    """G7-W15's unexplained discrepancy, root-caused: aspose-slides-foss/Aspose.Slides-FOSS-for-
+    Java, revision 620a2614, S6 accepted scope_limitations' omission of inherited_unit:035.list
+    ("Its content is fully covered in limitation:1, limitation:2, and limitation:3.") and the
+    enterprise_relationship omissions of 081/083/085 - then both coherence attempts were refused
+    for exactly those units, because coherence_checks judged every task with an empty omission
+    list while the coherence pass (which revises units only) has no omission channel of its own."""
+    unit_id = "inherited_unit:035.list"
+    facts = FactsDocument(
+        "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+        "a" * 40,
+        (
+            Fact("identity:repository", "identity", "x/y", (Evidence("x"),)),
+            Fact(unit_id, "inherited_unit", "- save throws IOException.", (Evidence("x"),)),
+        ),
+    )
+    task = SectionTask(
+        "scope_limitations",
+        {},
+        frozenset({"identity:repository", unit_id}),
+        ("scope", "limitation:1"),
+        must_carry=frozenset({unit_id}),
+        must_carry_text={unit_id: "- save throws IOException."},
+    )
+    output = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": slot,
+                "text": "Saving may fail.",
+                "fact_ids": ["identity:repository"],
+            }
+            for slot in task.slots
+        ],
+        "omitted": [{"fact_id": unit_id, "reason": "covered in the limitation units"}],
+    }
+    s6_omission = {
+        "section": "scope_limitations",
+        "fact_id": unit_id,
+        "reason": "Its content is fully covered in limitation:1, limitation:2, and limitation:3.",
+    }
+    # The pass's own omitted list never counted (no channel): without the S6 record it still fails.
+    assert len(coherence_checks(output, [task], facts, "Aspose.Slides")) == 1
+    # With the omission S6 accepted, the explicit disposition stands.
+    assert (
+        coherence_checks(output, [task], facts, "Aspose.Slides", prior_omitted=[s6_omission]) == []
+    )
+    # Negative controls: a blank reason, or an omission recorded for another section, is no
+    # disposition, and a citation-free reply with no omission at all still fails closed.
+    for bad in (
+        {**s6_omission, "reason": "  "},
+        {**s6_omission, "section": "development_testing"},
+    ):
+        errors = coherence_checks(output, [task], facts, "Aspose.Slides", prior_omitted=[bad])
+        assert len(errors) == 1 and errors[0].startswith(f"{unit_id}: superseded")
