@@ -1,18 +1,10 @@
 {
   "adopted": {
-    "adopted_at": "2026-10-08T06:43:38Z",
+    "adopted_at": "2026-10-09T15:27:35Z",
     "changed": [
-      "README.md",
-      "README.patch",
       "content_units.json",
       "dependencies.json",
-      "dispositions.json",
-      "investigation.json",
-      "plan.json",
-      "raw_calls.json",
-      "repairs.json",
-      "review.json",
-      "validation.json"
+      "raw_calls.json"
     ],
     "classification": "factual",
     "earliest_affected_stage": "EXTRACTING",
@@ -21,50 +13,50 @@
     },
     "previous_proof": {
       "byte_identical": true,
+      "first_run": {
+        "identity": {
+          "boot_id": "win:134358412045565949",
+          "nonce": "bb836f93e3ae4d70bbb5d0dcab56cc54",
+          "pid": 17676,
+          "started": "win:134359145711378173"
+        },
+        "invocation_id": "4b714845c27241478c1b5d0eb0c817ee",
+        "started_at": "2026-10-08T06:29:32Z"
+      },
       "fresh_process": true,
-      "proven_at": "2026-09-25T09:00:27Z",
-      "provider_calls": 0
+      "proven_at": "2026-10-08T06:43:38Z",
+      "provider_calls": 0,
+      "rerun": {
+        "cache_reuses": 18,
+        "identity": {
+          "boot_id": "win:134358412045565949",
+          "nonce": "62a9c9b702944153a028b57e72b13144",
+          "pid": 61068,
+          "started": "win:134359153469182235"
+        },
+        "invocation_id": "14819f1f51a048d6be3b171d7411198e",
+        "provider_calls": 0,
+        "records": 18,
+        "started_at": "2026-10-08T06:42:28Z"
+      }
     },
-    "recorded_at": "2026-10-08T06:41:56Z",
+    "recorded_at": "2026-10-09T15:26:53Z",
     "scope_basis": "inputs",
     "scopes": [
       "facts",
-      "reconciliation",
-      "presentation",
       "authoring",
-      "validator",
       "reviewer"
     ],
     "triggering_scope": "facts"
   },
   "call_variance": [
     {
-      "distinct_responses": 15,
+      "distinct_responses": 3,
       "job": "section_authoring",
       "response_sha256s": [
-        "3e0bdac305fbd375951e70dffbd4e06007e1dc77bb15aa2d1cbaca7b3d24a105",
-        "42870f0dabe6cdd33e15eaa0167d97fe30bbece26f204504cb02b970ac2f6704",
-        "575ea65b400698b9310ce7af201efa94fa8983f8346501525a4ac22ccdd61636",
-        "5eb148ba006a4b359d18a8e4f26e8833dfc23a92a6630c1568e04639ce4a9bf1",
-        "65e85c3d1166b7d383cfef7d66fd57c730e921286bb4406eb98ee6242a3e637a",
-        "67d6013075086a1b5787af1638b3bcf12d78a9b1e769411c66ceb0635367f2f4",
-        "6cd6ed30f43128ac8b26c5e62a0d04c265a784533853df1a33c2c86d8f7be13c",
-        "70930667ff8843285f5cf6e758b5c7702f4ee5a1346ea1a0a4f7fb2c6f93d12e",
-        "7aca737475f84a7d0f9306a92423588cae39a2930e858c872bfefea7dcdf2c11",
-        "907178849547620d2a8515710f1a847b56da79216e9bd9f93ca6135b72436c11",
-        "9c4db185a6f0c2b3abd2d86f2d797f27fecd44df189cdb63caeb65fa109297e6",
-        "9c7100293a79a05a696236a5a1b1d0b23bdeba6382cce0751bb31390fb2891c8",
         "a01b071fffab71e795c20676e488182ddde74d3991d237d09f096d12e223ebfb",
-        "b0a138e816e4094918144e62f4d77b34af65fc6ff8e57368d6e7ee5ad5d90671",
-        "b9e0dfc8280de188e31c8a0488a0d7e510df42b06a3037fb773dd5687fdbb746"
-      ]
-    },
-    {
-      "distinct_responses": 2,
-      "job": "source_reconciliation",
-      "response_sha256s": [
-        "89e5fd294bd90a2253fee40254278c1c5941bcb50c802f79acaf645c1d946fb2",
-        "998a5dba7c4c879bb45fd6fce4fc65ee75f1c8dc8f5ed1b7d05bb9db138885c8"
+        "b9e0dfc8280de188e31c8a0488a0d7e510df42b06a3037fb773dd5687fdbb746",
+        "d3aefa37370a20c3fe4f048f9a928700b546a049bfe70df96078007bac05073e"
       ]
     }
   ],
@@ -85,16 +77,16 @@
       "sha256": "b80f1b7ea883b666599b775834442343c9e4c69945272777758a74a5e5b2d7a5"
     },
     "calls.jsonl": {
-      "bytes": 64341,
-      "sha256": "68dfd787b4f20811fcad3fa8ffb86c4004d906058034f0a0955145f972d993d5"
+      "bytes": 41539,
+      "sha256": "99fc376b94cb3caceb00d94c53f5087993abdd3291ec98ad05c253b3c8c717da"
     },
     "content_units.json": {
-      "bytes": 27575,
-      "sha256": "d6441164e2c8e1dd04f6280305c94c2dd1128c573b893fb34ec47ef1ef80c030"
+      "bytes": 27517,
+      "sha256": "193c497d8d6eac008dc23187d155e920430eb943f15bbba15dd3dac2d69ea3f6"
     },
     "dependencies.json": {
       "bytes": 152599,
-      "sha256": "18978bc1e05c547c678fddc451015843c208aa7c3c71c4195c397afb97ed4ecc"
+      "sha256": "0cde5ad8f4c0567f49295427124c30b95f4fdc8d08e087d0efeaab70e5e836ed"
     },
     "dispositions.json": {
       "bytes": 22431,
@@ -117,16 +109,12 @@
       "sha256": "7fad105a07e88c0a7aa180a8317b727b8f629c12d3f3b3e3e8fa172800665df4"
     },
     "probes.json": {
-      "bytes": 2753,
-      "sha256": "f3f979a34a7ba18392afcdd650443c58aaeb8a920c4bfb414de6c0426514b30e"
+      "bytes": 2746,
+      "sha256": "e1a491d6eaa1b26ccb5c897ce2f6ba0f5af3496cac59dec56d586336a7d6d626"
     },
     "raw_calls.json": {
-      "bytes": 49966,
-      "sha256": "7da415bd9383aa068684256fa2207675586dfe1ffec3acdf94fc3eb129d6ad08"
-    },
-    "repairs.json": {
-      "bytes": 1442,
-      "sha256": "5ca149d36b6409a4b1e8df887f3271c9a4a9782c6e88cfd18955f52525e02496"
+      "bytes": 53238,
+      "sha256": "a0dff1fda679c0f7e035fad2b26f9a3b7d949a1da3daa778b398346bff576913"
     },
     "review.json": {
       "bytes": 9505,
@@ -138,11 +126,11 @@
     }
   },
   "ledger_totals": {
-    "audit_only": 4,
-    "cache_reuses": 31,
-    "provider_calls": 24,
-    "records": 55,
-    "total_tokens": null
+    "audit_only": 0,
+    "cache_reuses": 33,
+    "provider_calls": 3,
+    "records": 36,
+    "total_tokens": 59342
   },
   "models_used": {
     "qwen3-next": "qwen3-next"
@@ -151,45 +139,45 @@
     "byte_identical": true,
     "first_run": {
       "identity": {
-        "boot_id": "win:134358412045565949",
-        "nonce": "bb836f93e3ae4d70bbb5d0dcab56cc54",
-        "pid": 17676,
-        "started": "win:134359145711378173"
+        "boot_id": "win:134359858755000000",
+        "nonce": "3a805ad4212b4cb7980f083fc3c8834b",
+        "pid": 55764,
+        "started": "win:134360329971745514"
       },
-      "invocation_id": "4b714845c27241478c1b5d0eb0c817ee",
-      "started_at": "2026-10-08T06:29:32Z"
+      "invocation_id": "d01ced7ddda44c289bd3081d6d013747",
+      "started_at": "2026-10-09T15:23:20Z"
     },
     "fresh_process": true,
-    "proven_at": "2026-10-08T06:43:38Z",
+    "proven_at": "2026-10-09T15:27:35Z",
     "provider_calls": 0,
     "rerun": {
       "cache_reuses": 18,
       "identity": {
-        "boot_id": "win:134358412045565949",
-        "nonce": "62a9c9b702944153a028b57e72b13144",
-        "pid": 61068,
-        "started": "win:134359153469182235"
+        "boot_id": "win:134359858755000000",
+        "nonce": "2700455675274ac0a7b645e8a3dbdc89",
+        "pid": 43872,
+        "started": "win:134360332137590273"
       },
-      "invocation_id": "14819f1f51a048d6be3b171d7411198e",
+      "invocation_id": "95f840c99b234c2fb01672e9043b6083",
       "provider_calls": 0,
       "records": 18,
-      "started_at": "2026-10-08T06:42:28Z"
+      "started_at": "2026-10-09T15:26:54Z"
     }
   },
   "provider_calls": 0,
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
   "revision": "4f6768a7b349a1309644f456eb43bc35f70c16d7",
   "schema_version": 1,
-  "sealed_at": "2026-10-08T06:43:38Z",
+  "sealed_at": "2026-10-09T15:27:35Z",
   "sealed_by": {
     "identity": {
-      "boot_id": "win:134358412045565949",
-      "nonce": "62a9c9b702944153a028b57e72b13144",
-      "pid": 61068,
-      "started": "win:134359153469182235"
+      "boot_id": "win:134359858755000000",
+      "nonce": "2700455675274ac0a7b645e8a3dbdc89",
+      "pid": 43872,
+      "started": "win:134360332137590273"
     },
-    "invocation_id": "14819f1f51a048d6be3b171d7411198e",
-    "started_at": "2026-10-08T06:42:28Z"
+    "invocation_id": "95f840c99b234c2fb01672e9043b6083",
+    "started_at": "2026-10-09T15:26:54Z"
   },
   "state": "READY_FOR_PROPOSAL",
   "upstream_blobs": {
