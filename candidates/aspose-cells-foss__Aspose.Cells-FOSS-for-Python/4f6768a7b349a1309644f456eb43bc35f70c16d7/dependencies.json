@@ -1,15 +1,15 @@
 {
   "acceptance_profile_version": "1",
   "components": {
-    "normalisation": "29",
+    "normalisation": "30",
     "renderer": "30",
-    "reviewer_logic": "17",
+    "reviewer_logic": "18",
     "shell": "6"
   },
   "contract_version": "readme-contract-v1",
   "environment": {
     "extractor_version": "1",
-    "inherited_units_version": "1",
+    "inherited_units_version": "2",
     "os": "Windows",
     "presenter_site_manifest": "500947393b51348a9651f137a18eebb1f79edbf6efc3b53b92da787f7c96db5e",
     "python_version": "3.13.2",
