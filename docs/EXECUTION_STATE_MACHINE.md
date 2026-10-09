@@ -379,7 +379,7 @@ Java-only, 2026-09-28 — `docs/DECISION_LOG.md`).
    returns to reconciliation; merged and closed-unmerged outcomes observed without recreation.
 4. **Write-scope expansion gate (G6-W06, principle 25).** `data/registry.json` mode stays `dry_run`
    by default; moving one entry to `full` is a per-repository, owner-gated change, never a blanket
-   switch and never an agent's own unilateral edit.
+   switch and never an agent's own unilateral edit. A wave's flips, records and signature land in one reviewed PR (`docs/PROPOSAL_WAVE_RUNBOOK.md`).
 
 ### Exit predicates
 
