@@ -16,6 +16,44 @@ against at least one of its own listed sightings, not merely proposed.
 
 ## Open
 
+### `issues.redetect_bc02_pypi_only`
+
+`components/issues/redetect.py`'s sole registered `BC-02` redetector
+(`_redetect_install_command_defect`) replays only the PyPI-registry shape: it extracts
+`_pypi_package_names(handoff)` from the handoff's own evidence and, when that set has anything
+other than exactly one name, returns an inconclusive result (`still_fires=None`, note "cannot
+redetect: expected exactly one PyPI evidence URL ... found 0") rather than failing closed with
+`RedetectorNotRegisteredError`. `components/issues/draft.py`'s auto-draft hook and this project's
+own historical hand-filed handoffs both produce `BC-02` handoffs for *any* ecosystem whose
+`install_command` fact goes non-`SUPPORTED` - npm, cmake/no-registry, and nuget shapes, not only
+PyPI - so every non-Python `BC-02` handoff silently cannot be redetected: `redetect()` always
+returns inconclusive for it, never confirming it still fires and never proposing
+`RESOLVED_UPSTREAM` even when the committed evidence shows the check no longer fires. Found while
+verifying the 2026-10-09 owner decision to pull the bounded upstream-defect-handoff fallback into
+the current round (`plans/idea.md` "Upstream Defect Reporting"); not fixed under that task's own
+scope, since `idea.md`'s bounded-fallback requirement names only drafting, dedup, and no
+severity/fix fabrication - re-detection/closing is part of the fuller automated-filing lifecycle
+the owner decision explicitly left for later.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` | 2026-10-09 (verification session) | `evidence/upstream-defects/aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript/*.json`, evidence is an npm registry URL; `_pypi_package_names` finds none |
+| 2 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp` | 2026-10-09 (verification session) | same file's evidence names "no package registry" plus two `.cpp` paths; `_pypi_package_names` finds none |
+| 3 | `aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET` | 2026-10-09 (verification session) | same file's evidence is a set of NuGet URLs; `_pypi_package_names` finds none |
+| 4 | `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` | 2026-10-09 (verification session) | same file's evidence is an npm registry URL; `_pypi_package_names` finds none |
+
+**Status 2026-10-09 (verification session, `docs/DECISION_LOG.md` this date has the full writeup)**:
+registered, not fixed - four concurrent instances of the same root cause found in one session, but
+not escalated to a `next_ready_items`/`G7-W` work item: the gap sits entirely inside the
+not-yet-required fuller lifecycle (redetect/close), never the bounded human-handoff fallback
+`plans/idea.md` requires this round, and the live-wired `draft.py` hook this session verified
+(`src/repository_presenter/cli.py`, the `invalidate_bundle`/`eligible_for_handoff` call site) is
+unaffected - it never calls `redetect()`. The right fix is most likely a second, ecosystem-general
+redetector keyed off `triggering_check.id == "BC-02"` plus the evidence shape actually present
+(a registry probe when a URL is there, a source-build replay when it is not), mirroring
+`_redetect_not_processable_defect`'s own re-fetch-and-replay pattern rather than PyPI-specific
+logic - left for whoever next works the issues-lane redetect path, not invented here.
+
 ### `s4_reconciliation.output_runaway_past_budget`
 
 S4 `source_reconciliation` replies run to the manifest's `max_output_tokens` (`finish_reason
