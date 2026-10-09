@@ -114,7 +114,7 @@ Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UND
 **Register.** Work items whose `project/state.yaml` owner begins `REGISTER:` and `owner_items` OWNER-10 to OWNER-19 own every reviewer id in `docs/DEFECT_INDEX.md`: G6-W05 write path; G3-W06 README contract; G3-W07 code freeze and re-seal; G5-W08 seal routing, status, durable state, registry coverage; G5-W09 no-op proof; G7-W07 autonomy and safeguards; G4-W18 discovery into `src/`; G4-W19 product-evidence surfaces; G7-W08 hygiene and prompts; G7-W09 documentation claims; G7-W10
 cursor-staleness guard; G7-W11 sealing-loop failure memory; G7-W12 Cells-Go UNCLASSIFIED deferral
 investigation; G7-W13 unattended sealing hosted pipeline proof; G7-W14 hosted portfolio-currency
-durability; G7-W15 S6 must-carry packet-bundling gap (settled, third sighting); G7-W17 S8 coherence must-carry recovery gap (settled, seventh sighting); G7-W18 the same shape's S6 re-ask exhaustion (single sighting); G7-W19 absence-finding restated-claim fold gap (fixed). G7-W20 acceptance profile ratification (OWNER-13, owner-decided).
+durability; G7-W15 S6 must-carry packet-bundling gap (settled, third sighting); G7-W17 S8 coherence must-carry recovery gap (settled, seventh sighting); G7-W18 the same shape's S6 re-ask exhaustion (single sighting); G7-W19 absence-finding restated-claim fold gap (fixed). G7-W20 acceptance profile ratification (OWNER-13, owner-decided); G7-W21 Monday delivery plan and background-track schedule; G7-W22 candidate currency freeze and re-seal batching.
 `tests/test_register_integrity.py` fails when an id loses its work item.
 
 **Owner-only predicates never live in a gate.** Branch protection, secrets, App installation, and
@@ -379,7 +379,7 @@ Java-only, 2026-09-28 — `docs/DECISION_LOG.md`).
    returns to reconciliation; merged and closed-unmerged outcomes observed without recreation.
 4. **Write-scope expansion gate (G6-W06, principle 25).** `data/registry.json` mode stays `dry_run`
    by default; moving one entry to `full` is a per-repository, owner-gated change, never a blanket
-   switch and never an agent's own unilateral edit.
+   switch and never an agent's own unilateral edit. A wave's flips, records and signature land in one reviewed PR (`docs/PROPOSAL_WAVE_RUNBOOK.md`).
 
 ### Exit predicates
 
@@ -423,7 +423,7 @@ then keep the system useful without weakening the README foundation.
 - Security suite and failure exercises pass; no write credential in analysis jobs; state survives
   runner loss; hosted monitoring runs unattended; approved repositories receive safe proposals after
   drift; unchanged repositories incur no LLM work; `delivery_complete` closes the gate and
-  `certification_complete` the background tracks. Operating objectives: drift to accepted proposal
+  `certification_complete` the background tracks (G7-W21: the multi-day hosted observation and the Level 7 and 8 certification periods never block delivery, and G7-W01, W02, W03 and W05 run as parallel lanes; G7-W22: after the one portfolio re-seal, no governed-version bump until the first push wave completes, except for a safety or factual-accuracy defect or owner approval). Operating objectives: drift to accepted proposal
   within one daily cycle; no unsupported claim, inherited-content loss, duplicate PR, or halt.
 - G7-W13 (unattended sealing hosted proof): at least one scheduled or manually-dispatched
   `sealing-scheduled.yml` run, on an unmodified frozen `main`, completes `present` through to
