@@ -1,12 +1,12 @@
 {
  "control_revision": "10884a8bf31bea4c862e3f0093f6db8d5d7e618e",
  "files": {
-  "bump_cost.csv": "c0765d807e3ee9bb8f5ba2baa0997f81a6a70d0a98a75d35008d931a588a2214",
-  "bump_cost_per_bundle.csv": "039b04c3828e83ca25ab81cdefb689c118ca752bba0222080d5f14c3f6a54f0e",
-  "bump_timeline.csv": "077aee2f72f3717996a59735460206b3fcaf8fac8b75a7b77e8873d3399a61be",
-  "current_state_per_bundle.csv": "4edf6a95adcf29cbfc1d71a313cb074aeb90b9abc6a78cc9dd296f2924548083",
-  "recheck_probes.csv": "cfdfed6c951e5a12fceac8dbe6e3a60ef6e748039489cfad3e62b99722590f0f",
-  "status_series.csv": "2b0665089b6a55f2d2023b58357978643f6e0801ea86a0a1ef844540b8a94ad9"
+  "bump_cost.csv": "487271997bbe3baf08bfecba6f5725d93b99954d300c88899b4dfbe3ee2e5c09",
+  "bump_cost_per_bundle.csv": "8d2c25d5ca7c4564b64a7690bba4971f9b6d52bb7a1e772b24c966e9cf7ef257",
+  "bump_timeline.csv": "dd4d5dfc9f3d7bdde329838dcec9be1758f3704028a0e23364d20fb7f5554335",
+  "current_state_per_bundle.csv": "64a8e9c84643ccb80ffdc910cf23900823caf1b89a3c8fae296af2ee356d164b",
+  "recheck_probes.csv": "995007be38c1498d2b3c2027a5da9dea49193a88437e040cf4c485bac9175a13",
+  "status_series.csv": "98e1ddd26adf70238be716b9bf83cf1bb2b76c48ced8940ec4e20a43c26b341d"
  },
  "kind": "bump_cost_measurement",
  "recorded_at": "2026-10-10",

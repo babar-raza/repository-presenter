@@ -92,7 +92,7 @@ def pr_of(subject):
 
 # ---------- bump_timeline.csv
 with open(os.path.join(outdir, "bump_timeline.csv"), "w", newline="", encoding="utf-8") as f:
-    w = csv.writer(f)
+    w = csv.writer(f, lineterminator="\n")
     w.writerow(["date", "commit", "pr", "constant", "old", "new", "subject"])
     for d, H, k, o, n, s in timeline:
         w.writerow([d, H[:8], pr_of(s), k, o, n, s])
@@ -195,14 +195,14 @@ for H, g in groups.items():
     })
 rows.sort(key=lambda r: (r["date"], r["commit"]))
 with open(os.path.join(outdir, "bump_cost.csv"), "w", newline="", encoding="utf-8") as f:
-    w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+    w = csv.DictWriter(f, fieldnames=list(rows[0].keys()), lineterminator="\n")
     w.writeheader()
     w.writerows(rows)
 
 # ---------- bump_cost_per_bundle.csv (long form: only the cells that differ between the pre and post run;
 # every other measured bundle of a commit is unchanged, and bump_cost.csv counts them)
 with open(os.path.join(outdir, "bump_cost_per_bundle.csv"), "w", newline="", encoding="utf-8") as f:
-    w = csv.writer(f)
+    w = csv.writer(f, lineterminator="\n")
     w.writerow(["commit", "bundle", "manifest_state", "dimension", "pre", "post", "changed"])
     for H, res in sorted(results.items(), key=lambda kv: groups[kv[0]]["date"]):
         if not (res.get("pre") and res.get("post")):
@@ -227,7 +227,7 @@ with open(os.path.join(outdir, "bump_cost_per_bundle.csv"), "w", newline="", enc
 
 # ---------- status_series.csv
 with open(os.path.join(outdir, "status_series.csv"), "w", newline="", encoding="utf-8") as f:
-    w = csv.writer(f)
+    w = csv.writer(f, lineterminator="\n")
     w.writerow(["date", "commit", "bumps", "population_before", "ready_before", "stale_before", "stale_after_same_population", "newly_staled_by_bump", "population_after", "ready_after", "stale_after", "candidates_changed", "subject"])
     for r in hist:
         b = ";".join(f"{k.replace('_VERSION','').replace('Check:','')}:{v[0]}>{v[1]}" for k, v in r["bumps"].items())
@@ -269,13 +269,13 @@ for b, t in sorted(today["bundles"].items()):
         t["would_become"], " ".join(t["scopes"]), equal, n.get("render_diff_lines", 0), " ".join(sealed_fail), " ".join(rr_fail), klass,
     ])
 with open(os.path.join(outdir, "current_state_per_bundle.csv"), "w", newline="", encoding="utf-8") as f:
-    w = csv.writer(f)
+    w = csv.writer(f, lineterminator="\n")
     w.writerow(header)
     w.writerows(out_rows)
 
 # ---------- recheck_probes.csv (inherited units + reviewer replay, per bundle)
 with open(os.path.join(outdir, "recheck_probes.csv"), "w", newline="", encoding="utf-8") as f:
-    w = csv.writer(f)
+    w = csv.writer(f, lineterminator="\n")
     w.writerow(["bundle", "probe", "result", "detail"])
     for b in sorted(today["bundles"]):
         i = inh.get(b, {})
@@ -293,10 +293,12 @@ man = {
     "schema_version": 1,
     "kind": "bump_cost_measurement",
     "recorded_at": "2026-10-10",
-    "control_revision": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip(),
+    "control_revision": subprocess.run(["git", "merge-base", "HEAD", "origin/main"], capture_output=True, text=True).stdout.strip(),
     "window": "commits since 2026-09-19 on the first-parent history of main",
     "redaction": "no credentials, tokens or provider output; fields are version literals, commit ids, bundle directory names, counts and check verdicts",
     "files": {os.path.basename(p): hashlib.sha256(open(p, "rb").read()).hexdigest() for p in files},
 }
-json.dump(man, open(os.path.join(outdir, "manifest.json"), "w"), indent=1, sort_keys=True)
+with open(os.path.join(outdir, "manifest.json"), "w", newline="\n") as handle:
+    json.dump(man, handle, indent=1, sort_keys=True)
+    handle.write("\n")
 print("wrote", len(files), "csv;", len(rows), "bump rows")
