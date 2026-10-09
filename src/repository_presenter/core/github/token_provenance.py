@@ -115,3 +115,45 @@ def verify_pull_request_app(
             f"Presenter App {expected_app_id}",
         )
     return TokenDecision(True)
+
+
+def verify_repository_token(
+    repository: str, token: str, *, fetch: FetchFn = default_fetch
+) -> TokenDecision:
+    """Refuse unless ``token`` can read exactly ``repository`` - the control-repository write's
+    own provenance check (``components/candidates_publish/effect.py``, G7-W14).
+
+    Deliberately not :func:`verify_installation_token`: that check's ``GET
+    /installation/repositories`` call proves a *GitHub App* installation token's reach, but this
+    effect's write credential is the ambient per-job ``secrets.GITHUB_TOKEN`` GitHub Actions itself
+    mints (already scoped to exactly the one repository the workflow runs in - the control
+    repository, never a target product repository, per ``present.yml``'s own identical reasoning
+    for its state-ref token) - a different credential family the installation endpoint cannot be
+    assumed to answer for. This checks the one thing every GitHub REST credential can prove about
+    itself the same way: reading the repository it claims to reach resolves to exactly that
+    repository's own ``full_name``, never more, never less, and never merely because the token is
+    present."""
+    if not token:
+        return _refuse(Refusal.TOKEN_UNVERIFIABLE, "no write-scoped token available")
+    url = f"{API_ROOT}/repos/{repository}"
+    status_code, body = fetch(url, token)
+    if status_code == -1:
+        return _refuse(Refusal.TOKEN_UNVERIFIABLE, f"could not verify the write token: {body}")
+    if status_code in (401, 403):
+        return _refuse(
+            Refusal.TOKEN_UNVERIFIABLE,
+            f"GitHub refused the write token on {repository} (HTTP {status_code})",
+        )
+    if status_code != 200 or not isinstance(body, dict):
+        return _refuse(
+            Refusal.TOKEN_UNVERIFIABLE,
+            f"could not verify the write token: HTTP {status_code} from {url}",
+        )
+    full_name = str(body.get("full_name", ""))
+    if full_name.casefold() != repository.casefold():
+        return _refuse(
+            Refusal.TOKEN_WRONG_SCOPE,
+            f"the write token resolved {repository!r} to {full_name!r} - refusing a mismatched "
+            "repository identity",
+        )
+    return TokenDecision(True)

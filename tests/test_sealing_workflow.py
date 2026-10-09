@@ -1,10 +1,12 @@
 """The unattended sealing workflow's structure, parsed from the YAML itself (hosted YAML cannot run
 offline; tests/test_workflow_app_tokens.py takes the same approach).
 
-What these pin: the scheduled job reuses present.yml and propose.yml through workflow_call rather
-than copying them; the proposal leg is gated on the owner variable and nothing else; one
-repository's failed seal cannot stop the others; no job mints an App token of its own; and no model
-other than qwen3-next is ever configured.
+What these pin: the scheduled job reuses present.yml, candidates-publish.yml and propose.yml
+through workflow_call rather than copying them; the proposal leg is gated on the owner variable and
+nothing else; the candidates-publish leg (G7-W14) is gated on its own, separate owner variable and
+runs for every planned repository, not only the full-mode subset propose uses; one repository's
+failed seal cannot stop the others; no job mints an App token of its own; and no model other than
+qwen3-next is ever configured.
 """
 
 from __future__ import annotations
@@ -50,15 +52,25 @@ def test_the_scheduled_workflow_parses_and_is_triggered_by_schedule_and_dispatch
     assert "repository_dispatch" not in triggers
 
 
-def test_every_job_defaults_to_read_only_and_only_the_seal_job_asks_for_contents_write(
+def test_every_job_defaults_to_read_only_except_seal_and_publish_candidates(
     scheduled: dict[str, Any],
 ) -> None:
     assert scheduled["permissions"] == {"contents": "read"}
     jobs = scheduled["jobs"]
-    assert set(jobs) == {"plan", "seal", "propose"}
+    assert set(jobs) == {"plan", "seal", "publish-candidates", "propose"}
     # plan reads the monitor's evidence artifacts (actions: read) and writes nothing.
     assert jobs["plan"]["permissions"] == {"contents": "read", "actions": "read"}
     assert jobs["seal"]["permissions"] == {"contents": "write"}
+    # publish-candidates (G7-W14) holds contents:write and pull-requests:write against THIS
+    # repository, granted here because candidates-publish.yml's own write job uses this job's
+    # ambient GITHUB_TOKEN directly rather than minting a separate App installation token (a
+    # reusable workflow's effective permissions are capped by its caller's own grant).
+    assert jobs["publish-candidates"]["permissions"] == {
+        "contents": "write",
+        "pull-requests": "write",
+    }
+    # propose's own real write mints a separate App installation token instead, so this job
+    # needs no write permission of its own at all.
     assert jobs["propose"]["permissions"] == {"contents": "read"}
 
 

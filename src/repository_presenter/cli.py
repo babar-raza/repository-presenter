@@ -17,6 +17,16 @@ from pathlib import Path
 from typing import cast
 
 from repository_presenter import __version__
+from repository_presenter.components.candidates_publish import git_ops as candidates_git_ops
+from repository_presenter.components.candidates_publish.effect import (
+    AUTHORIZATION_VARIABLE as CANDIDATES_PUBLISH_AUTHORIZATION_VARIABLE,
+)
+from repository_presenter.components.candidates_publish.effect import (
+    branch_name as candidates_publish_branch_name,
+)
+from repository_presenter.components.candidates_publish.effect import (
+    publish_candidates,
+)
 from repository_presenter.components.issues import file as issues_file
 from repository_presenter.components.issues.approval import (
     ApprovalProvenanceError,
@@ -212,6 +222,7 @@ from repository_presenter.core.candidates import (
     iter_sealed_bundles,
     load_proposable_candidate,
     ready_revision,
+    ready_revision_at,
     stale_candidates,
     verify_bundle,
 )
@@ -266,6 +277,9 @@ from repository_presenter.core.github.token_provenance import (
 )
 from repository_presenter.core.github.token_provenance import (
     verify_pull_request_app as default_verify_pull_request_app,
+)
+from repository_presenter.core.github.token_provenance import (
+    verify_repository_token as default_verify_repository_token,
 )
 from repository_presenter.core.hashing import sha256_text
 from repository_presenter.core.llm.fallback import describe, select_models
@@ -808,6 +822,61 @@ def build_parser() -> argparse.ArgumentParser:
             "App installation token is present - prints the plan and makes no write when omitted"
         ),
     )
+    publish_candidates_parser = subcommands.add_parser(
+        "publish-candidates",
+        help=(
+            "commit --repo's sealed READY_FOR_PROPOSAL candidate to this control repository's "
+            "own committed candidates/<slug>/ tree, on a dedicated branch, and open or update "
+            "the one pull request that carries it (G7-W14) - dry-run by default; --publish "
+            "attempts the commit/push/PR calls, but only when the owner has explicitly "
+            "authorized it"
+        ),
+    )
+    publish_candidates_parser.add_argument(
+        "--repo",
+        required=True,
+        metavar="OWNER/NAME",
+        help="the external target repository whose sealed candidate this run just produced",
+    )
+    publish_candidates_parser.add_argument("--root", type=Path, default=None, help=root_help)
+    publish_candidates_parser.add_argument(
+        "--import-dir",
+        type=Path,
+        required=True,
+        metavar="PATH",
+        help=(
+            "the downloaded sealed-bundle artifact (CURRENT plus its revision directory) this "
+            "run exported for --repo; re-verified as READY_FOR_PROPOSAL for exactly --repo "
+            "before anything is trusted, exactly like propose.yml's own re-verification of the "
+            "same artifact"
+        ),
+    )
+    publish_candidates_parser.add_argument(
+        "--control-repo",
+        default=None,
+        metavar="OWNER/NAME",
+        help=(
+            "this control repository's own OWNER/NAME; defaults to $GITHUB_REPOSITORY (the "
+            "value GitHub Actions itself sets, never attacker-influenced)"
+        ),
+    )
+    publish_candidates_parser.add_argument(
+        "--base-branch",
+        default=None,
+        help="this control repository's own default branch; defaults to $GITHUB_REF_NAME",
+    )
+    publish_candidates_parser.add_argument(
+        "--publish",
+        dest="do_publish",
+        action="store_true",
+        help=(
+            f"attempt to commit, push, and open/update the pull request; refuses with a typed "
+            f"reason unless the bundle is READY_FOR_PROPOSAL, "
+            f"{CANDIDATES_PUBLISH_AUTHORIZATION_VARIABLE}=1, and a repository-scoped "
+            "GH_CANDIDATES_WRITE_TOKEN is present - prints the plan and makes no write when "
+            "omitted"
+        ),
+    )
     draft = subcommands.add_parser(
         "draft-proposal-authorization",
         help=(
@@ -981,6 +1050,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             authorization_record=args.authorization_record,
             trigger_sha=args.trigger_sha,
             propose=args.do_propose,
+        )
+    if args.command == "publish-candidates":
+        return run_publish_candidates(
+            args.repo,
+            args.root,
+            import_dir=args.import_dir,
+            control_repository=args.control_repo,
+            base_branch=args.base_branch,
+            publish=args.do_publish,
         )
     if args.command == "draft-proposal-authorization":
         return run_draft_proposal_authorization(
@@ -2087,6 +2165,126 @@ def run_propose(
         )
         if result.reason_code is not None:
             print(f"propose: refused ({result.reason_code})")
+        if result.pr_url is not None:
+            print(
+                f"  pr: {result.pr_url} (commit_written={result.commit_written} "
+                f"pr_created={result.pr_created} pr_updated={result.pr_updated})"
+            )
+        if not result.effected:
+            return EXIT_UNSAFE
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    return EXIT_OK
+
+
+def run_publish_candidates(
+    repository: str,
+    root_argument: Path | None,
+    *,
+    import_dir: Path,
+    control_repository: str | None,
+    base_branch: str | None,
+    publish: bool,
+) -> int:
+    """Commit ``repository``'s sealed ``READY_FOR_PROPOSAL`` candidate (downloaded to
+    ``import_dir``) to this control repository's own ``candidates/<slug>/`` tree, on a dedicated
+    branch, and open or update the one pull request that carries it (G7-W14;
+    ``components/candidates_publish/effect.py``).
+
+    Dry-run by default: verifies ``import_dir`` is genuinely a ``READY_FOR_PROPOSAL`` bundle for
+    exactly ``repository``, reports the revision and the branch this would publish to, and writes
+    nothing. ``--publish`` additionally requires, in order and each with a typed refusal: the
+    owner switch ``CANDIDATES_PUBLISH_AUTHORIZATION_VARIABLE``, a ``GH_CANDIDATES_WRITE_TOKEN``
+    that resolves to exactly ``--control-repo``, and (decided entirely inside the effect, past
+    both of those) an actual difference between what ``candidates/<slug>`` already carries on the
+    target branch and the revision about to be published - an unchanged candidate re-run commits
+    and proposes nothing.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    try:
+        control_repository = control_repository or os.environ.get("GITHUB_REPOSITORY") or ""
+        if "/" not in control_repository:
+            _fail(
+                "publish-candidates: --control-repo is required (or $GITHUB_REPOSITORY) as "
+                "OWNER/NAME"
+            )
+            return EXIT_USAGE
+        base_branch = base_branch or os.environ.get("GITHUB_REF_NAME") or ""
+        if not base_branch:
+            _fail("publish-candidates: --base-branch is required (or $GITHUB_REF_NAME)")
+            return EXIT_USAGE
+
+        revision = ready_revision_at(import_dir, repository)
+        if revision is None:
+            print(
+                f"publish-candidates: {import_dir} has no CURRENT bundle in READY_FOR_PROPOSAL "
+                f"for {repository}; nothing to publish"
+            )
+            return EXIT_INCONSISTENT
+
+        slug = repository.replace("/", "__")
+        current_path = f"{CANDIDATES_DIRNAME}/{slug}/{CURRENT_FILENAME}"
+        bundle_paths = (f"{CANDIDATES_DIRNAME}/{slug}",)
+        branch = candidates_publish_branch_name(repository)
+        print(
+            f"publish-candidates: {repository} revision={revision} branch={branch} "
+            f"control_repository={control_repository} base_branch={base_branch}"
+        )
+
+        if not publish:
+            print(
+                "publish-candidates: dry run (pass --publish to attempt a write; still gated on "
+                f"{CANDIDATES_PUBLISH_AUTHORIZATION_VARIABLE} and a repository-scoped "
+                "GH_CANDIDATES_WRITE_TOKEN)"
+            )
+            return EXIT_OK
+
+        token = os.environ.get("GH_CANDIDATES_WRITE_TOKEN") or None
+        pr_title = f"Update candidates/ for {repository}"
+        pr_body = (
+            "Automated candidates/ update from repository-presenter's own hosted sealing "
+            "pipeline (G7-W14) - never hand-authored, never agent-authored.\n\n"
+            f"- repository: {repository}\n"
+            f"revision: {revision}\n"
+        )
+
+        result = publish_candidates(
+            repository=repository,
+            control_repository=control_repository,
+            revision=revision,
+            base_branch=base_branch,
+            token=token,
+            environment=os.environ,
+            pr_title=pr_title,
+            pr_body=pr_body,
+            bundle_paths=bundle_paths,
+            current_path=current_path,
+            branch=branch,
+            remote_branch_sha=lambda b: candidates_git_ops.remote_branch_sha(root, b, token=token),
+            checkout=lambda b, start: candidates_git_ops.checkout_branch(
+                root, b, start, token=token
+            ),
+            read_committed=lambda p: candidates_git_ops.read_committed_file(root, p),
+            overlay=lambda: candidates_git_ops.overlay_bundle(root, slug, import_dir),
+            stage_and_commit=lambda paths, msg: candidates_git_ops.stage_and_commit(
+                root, paths, msg
+            ),
+            push=lambda b: candidates_git_ops.push_branch(root, b, token=token),
+            verify_token=default_verify_repository_token,
+            find_pull_requests=default_find_pull_requests,
+            create_pull_request=default_create_pull_request,
+            update_pull_request=default_update_pull_request,
+        )
+        print(
+            f"publish-candidates: {repository} authorized={result.authorized} "
+            f"effected={result.effected} - {result.reason}"
+        )
+        if result.reason_code is not None:
+            print(f"publish-candidates: refused ({result.reason_code})")
         if result.pr_url is not None:
             print(
                 f"  pr: {result.pr_url} (commit_written={result.commit_written} "
