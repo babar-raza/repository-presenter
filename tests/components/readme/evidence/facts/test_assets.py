@@ -43,6 +43,64 @@ def test_evidence_paths_are_bounded() -> None:
     assert facts[0].evidence[-1].detail == "20 files; test suite"
 
 
+# --- G7-W12 (REG-18): tests and samples that do not sit at the repository root. ---
+# Aspose.PSD-FOSS-for-.NET keeps its suite in src/Aspose.PSD.FOSS.Test/ and its samples in
+# samples/; Aspose.Cells-FOSS-for-Cpp keeps tests in Aspose.Cells.Foss.Cpp.Tests/ and
+# Aspose.Cells.Foss.Cpp/tests/. The root-only check recorded no build_test_asset for either, so
+# Development and Testing could not render and the candidate died at BC-05
+# (BUILD_TEST_PATH_UNRECORDED, an extractor gap).
+
+
+def test_a_dotnet_test_project_and_a_samples_directory_become_facts() -> None:
+    paths = [
+        "README.md",
+        "src/Aspose.PSD.FOSS/Psd.cs",
+        "src/Aspose.PSD.FOSS.Test/ReaderTests.cs",
+        "src/Aspose.PSD.FOSS.Test/WriterTests.cs",
+        "samples/Common/Helpers.cs",
+        "samples/Aspose.PSD.FOSS.Samples.Layers/Program.cs",
+    ]
+    by_id = {f.id: f for f in asset_facts(paths)}
+    assert by_id["build_test_asset:tests"].value == "src/Aspose.PSD.FOSS.Test/"
+    assert by_id["build_test_asset:tests"].evidence[-1].detail == "2 files; test suite"
+    assert by_id["build_test_asset:examples"].value == "samples/"
+    assert by_id["build_test_asset:examples"].evidence[-1].detail == "2 files; example directory"
+
+
+def test_the_nested_test_directory_with_the_most_files_is_the_suite() -> None:
+    paths = [
+        "Aspose.Cells.Foss.Cpp/tests/cell_value_test.cpp",
+        "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/a.cpp",
+        "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/b.cpp",
+        "Aspose.Cells.Foss.Cpp.Tests/CMakeLists.txt",
+    ]
+    (tests,) = asset_facts(paths)
+    assert (tests.id, tests.value) == (
+        "build_test_asset:tests",
+        "Aspose.Cells.Foss.Cpp.Tests/",
+    )
+
+
+def test_a_root_tests_directory_still_wins_over_a_nested_one() -> None:
+    paths = ["tests/test_a.py", "pkg/tests/test_b.py", "pkg/tests/test_c.py"]
+    (tests,) = asset_facts(paths)
+    assert tests.value == "tests/"
+
+
+def test_vendored_deep_and_lookalike_directories_are_not_a_test_suite() -> None:
+    """Negative controls: dependency trees, directories deeper than two levels, and names that
+    merely end in the letters (latest, contest) are not the repository's own suite."""
+    paths = [
+        "node_modules/leftpad/test/index.js",
+        "third_party/gtest/tests/a.cc",
+        "vendor/x/tests/b.go",
+        "a/b/c/tests/deep.py",
+        "latest/notes.md",
+        "src/contest/a.py",
+    ]
+    assert asset_facts(paths) == []
+
+
 # --- build-status badge target (plans/idea.md: "real build status ... may not be fabricated") ---
 
 REPO = "acme-foss/Acme-FOSS-for-Python"

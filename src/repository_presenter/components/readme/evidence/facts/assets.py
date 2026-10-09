@@ -176,12 +176,56 @@ def ci_badge_fact(repository: str, clone_path: Path, tree_paths: Sequence[str]) 
     )
 
 
+# A repository's own suite often sits a level or two below the root rather than in ``tests/``:
+# a .NET test project (``src/Aspose.PSD.FOSS.Test/``, ``Aspose.Words.Tests/``), a C++ project's
+# ``<name>.Tests/``, a Maven ``src/test/``. G7-W12 (REG-18): the root-only check recorded no
+# build_test_asset for those, so Development and Testing could not render. A directory counts
+# when its own name says so, within two levels, outside any dependency tree.
+_NESTED_DEPTH = 2
+_TEST_DIR_NAME = re.compile(r"(?i)^(?:tests?|__tests__|specs?)$|[._-]tests?$")
+# Only "samples": a nested "example(s)" is as often a package of the library (aspose/example).
+_SAMPLE_DIR_NAME = re.compile(r"(?i)^samples?$")
+_DEPENDENCY_DIRS = frozenset(
+    {"node_modules", "vendor", "third_party", "third-party", "external", "extern", "deps", ".git"}
+)
+
+
+def _nested_directory(paths: Sequence[str], name: re.Pattern[str]) -> str | None:
+    """The directory prefix, within ``_NESTED_DEPTH`` levels, whose name matches ``name`` and which
+    holds the most files; the shallowest, then the first by name, on a tie. ``None`` when none."""
+    counts: dict[str, int] = {}
+    for path in paths:
+        segments = path.split("/")[:-1]
+        if any(segment in _DEPENDENCY_DIRS for segment in segments):
+            continue
+        for depth in range(1, min(len(segments), _NESTED_DEPTH) + 1):
+            if name.search(segments[depth - 1]):
+                prefix = "/".join(segments[:depth]) + "/"
+                counts[prefix] = counts.get(prefix, 0) + 1
+    if not counts:
+        return None
+    return min(counts, key=lambda prefix: (-counts[prefix], prefix.count("/"), prefix))
+
+
+def _asset_directory(
+    name: str, root: str, pattern: re.Pattern[str], paths: Sequence[str], detail: str
+) -> Fact | None:
+    """The root directory's fact when it exists, else the best nested directory's."""
+    return _directory_fact(name, root, paths, detail) or (
+        _directory_fact(name, nested, paths, detail)
+        if (nested := _nested_directory(paths, pattern)) is not None
+        else None
+    )
+
+
 def asset_facts(tree_paths: Sequence[str]) -> list[Fact]:
     """One fact per asset class present in the tree, with the paths that prove it."""
     candidates = (
-        _directory_fact("tests", "tests/", tree_paths, "test suite"),
+        _asset_directory("tests", "tests/", _TEST_DIR_NAME, tree_paths, "test suite"),
         _directory_fact("ci", ".github/workflows/", tree_paths, "GitHub Actions workflows"),
         _directory_fact("docs", "docs/", tree_paths, "documentation directory"),
-        _directory_fact("examples", "examples/", tree_paths, "example directory"),
+        _asset_directory(
+            "examples", "examples/", _SAMPLE_DIR_NAME, tree_paths, "example directory"
+        ),
     )
     return [fact for fact in candidates if fact is not None]
