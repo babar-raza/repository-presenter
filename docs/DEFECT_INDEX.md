@@ -388,6 +388,78 @@ dropped during coherence" - the already-registered, separately-fixed `compositio
 inherited_diagram_content_loss` check firing correctly on a genuinely different defect in the
 same call; not this entry's concern and not altered here.
 
+**Sixth and seventh sightings, same day (2026-10-08), post-#298 - the message fix alone does not
+resolve the transaction.** The "SETTLED" note above (NORMALISATION_VERSION 29 -> 30, PR #298,
+commit `5cffa343`) explicitly recorded its own scope honestly: "the fix changes only the
+rejection's own wording and the repair's targeting, not whether a reply is accepted, so no
+behavior change is expected for a reply that already carries correctly." Two further live `present`
+dry runs after #298 merged confirm exactly that limit, not a regression: `aspose-3d-foss/
+Aspose.3D-FOSS-for-.NET` (`inherited_unit:062.paragraph`) and `aspose-email-foss/
+Aspose.Email-FOSS-for-.Net` (`inherited_unit:058.paragraph`) each failed closed with the identical
+two-sided rejection #298 can now name clearly but still cannot resolve - `coherence_checks`'
+"superseded into this section (`scope_limitations`) ... it was instead cited in
+`enterprise_relationship`" alongside `unit_checks`' "cites facts outside this section's set" on
+the `enterprise_relationship` unit itself. Independently reproduced here by direct call against the
+real `coherence_checks` (not the live transcript alone, since this session's own sandboxed replay
+harness does not expose a live, stochastic provider call and so could not force the exact failing
+completion on demand): both errors fire together, every time, for this shape
+(`tests/components/readme/composition/test_coherence.py::
+test_a_must_carry_unit_moved_into_a_section_never_granted_it_fails_both_checks_at_once`). Also
+relayed (second-hand, not independently re-verified by this session, but consistent with the same
+mechanism): `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` (`inherited_unit:075.paragraph`), the
+same section pair, same dual rejection.
+
+**Root cause, settled by direct execution of the real checks, not inference**: the two rejections
+are NOT a structural deadlock between the carry rule and any other rule - a compliant reply exists
+and passes `coherence_checks` cleanly (cite the fact in `scope_limitations`, drop it from
+`enterprise_relationship`'s own unit; verified directly). `enterprise_relationship`'s own
+Enterprise-Edition-naming guard (`unit_checks`, `authoring.py` ~line 1771) never even inspects
+`fact_ids` and so cannot conflict with the carry rule, which is purely ID-based. The real gap: S6's
+own `unit_checks` already guarantees every must-carry fact_id is cited-or-validly-omitted before
+S8 coherence ever runs (no `elsewhere_cited` at that stage), so `existing_units` entering coherence
+always carries correctly - but S8 coherence can still *break* that invariant (its own "no
+repetition across sections" objective pulls toward collapsing the Enterprise-Edition-upsell
+substance into whichever section's a purpose-built sentence for it), and unlike the sibling
+`composition.coherence.inherited_diagram_content_loss` gap (G3-W05), S8 had **no deterministic
+`recover=` path at all for this specific shape** - only #298's clearer rejection message. One
+universal re-ask (`core/llm/jobs.py`) does not reliably reach the compliant reply across a whole
+multi-section coherence batch, and when it fails, the whole batch fails closed with nothing to fall
+back on.
+
+**Fixed** (`composition/coherence.py`): `recover_coherence_carried_units`, a second deterministic
+last resort alongside `recover_coherence_content_loss`, scoped narrowly to must-carry fact ids -
+(1) restores the disposed section's own pre-coherence unit in full (text and fact_ids, matched by
+its unchanged slot, mirroring `recover_coherence_content_loss`'s own precedent exactly - never a
+rewrite); (2) strips the one over-claimed fact_id from whichever other unit cited it without its
+own task granting it (never its text, and never a fact_id with no must-carry obligation behind
+it - a genuinely wrong citation is still left for the model's own re-ask). `recover_coherence_
+regressions` composes both last resorts into the one `recover=` callable `repair/rounds.py`'s S8
+call site now passes (previously `recover_coherence_content_loss` alone). `run_job` only ever
+accepts the corrected output on its own re-validation against the unchanged real checks - neither
+`carried_unit_errors` nor `unit_checks`' "outside this section's set" check is weakened or bypassed;
+both still fire on the uncorrected output exactly as before, and `destination_section` stays binding
+exactly as #298 left it. No governed version constant moves: `coherence.py` is not a `GOVERNED`
+source in `tests/test_version_bump_discipline.py` (the identical precedent as #165/G3-W05, which
+added `recover_coherence_content_loss` itself without bumping `NORMALISATION_VERSION`), and neither
+`carried_unit_errors` nor `unit_checks` changed meaning. Mutation-tested
+(`tests/components/readme/composition/test_coherence.py`:
+`test_a_must_carry_unit_moved_into_a_section_never_granted_it_fails_both_checks_at_once` (RED,
+reproduces the dual rejection and confirms the existing G3-W05 recovery declines it),
+`test_recover_coherence_carried_units_restores_disposed_section_strips_stray_citation` (GREEN),
+`test_recover_coherence_regressions_composes_both_last_resorts`,
+`test_recover_coherence_carried_units_never_strips_a_citation_with_no_carry_obligation` (negative
+scope control)). Not yet live-verified against a fresh hosted draw of either originating
+repository: this session's own sandboxed `present --fresh` runs against both
+`aspose-3d-foss/Aspose.3D-FOSS-for-.NET` and `aspose-email-foss/Aspose.Email-FOSS-for-.Net`
+replayed each repository's own already-sealed, already-passing historical transaction byte-for-byte
+(confirmed directly: zero new provider calls, unchanged `calls.jsonl`, unchanged candidate output
+even with `--fresh`) rather than exercising a live stochastic completion that could land on the
+failing shape - this environment's own provider-call layer could not be made to produce the
+reported failing completion on demand, so the fix's deterministic correctness is proven directly
+against the real check functions (above) and by mutation test, not by a fresh live reproduction in
+this session. Registered as `G7-W17` (`project/state.yaml`,
+`docs/EXECUTION_STATE_MACHINE.md` G7 Work item 9).
+
 ### `composition.coherence.inherited_diagram_content_loss`
 
 Independent review's presentation criterion can catch S7 authoring/coherence rewriting an

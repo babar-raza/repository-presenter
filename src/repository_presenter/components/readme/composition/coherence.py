@@ -49,6 +49,7 @@ from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     section_spellings,
     slot_records,
+    uncarried_units,
     unit_checks,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
@@ -413,6 +414,155 @@ def recover_coherence_content_loss(
                 else unit.get("fact_ids", [])
             )
             changed = True
+    return output if changed else None
+
+
+# docs/DEFECT_INDEX.md composition.authoring.superseded_unit_not_carried: a second, narrower
+# recurrence after #298 (NORMALISATION_VERSION item 30, commit 5cffa343) - confirmed live,
+# aspose-3d-foss/Aspose.3D-FOSS-for-.NET and aspose-email-foss/Aspose.Email-FOSS-for-.Net,
+# 2026-10-08 (independently reproduced here by direct call against the real coherence_checks,
+# never the live transcript alone): #298 made coherence_checks *name* the real section a moved
+# must-carry unit landed in, but gave the S8 pass no deterministic way to *fix* it when the
+# model's own one-shot re-ask still fails to - and it reliably does, for this one shape. The
+# obligation moves TO scope_limitations while the model's prose keeps citing the identical
+# fact_id FROM enterprise_relationship - whose own task.accepted_ids never included it in the
+# first place (authoring.py's section_selections only ever grants scope_limitations/
+# development_testing the carried_units() a disposition supersedes into them; no section a unit
+# merely ends up quoted in gains the fact by that quoting alone). So a model that moves the
+# citation this way is rejected TWICE in the same call - carried_unit_errors' own "it was instead
+# cited in enterprise_relationship" (the gap #298 named) AND unit_checks' own "cites facts outside
+# this section's set" on the enterprise_relationship unit itself (confirmed directly: both errors
+# fire together, every time, for this exact shape - see test_coherence.py's own reproduction).
+# Both are satisfiable at once (a compliant reply exists and passes cleanly: cite the fact in
+# scope_limitations, drop it from enterprise_relationship's own unit) - this is not a structural
+# deadlock between the carry rule and any other rule (plans/idea.md's edition-naming rule
+# included: scope_limitations is free to name "Enterprise Edition" outright, and
+# enterprise_relationship's own duplicate-name guard never even inspects fact_ids) - but the one
+# universal re-ask does not reliably reach that compliant reply within its own budget, and S8 had
+# no deterministic last resort for this specific shape at all, unlike the sibling content-loss
+# gap G3-W05 already closed with recover_coherence_content_loss above.
+#
+# The fix is scoped to the earliest stage that can see the mistake deterministically: S8 coherence
+# is the only call site that can turn an already-correct S6 carry (S6's own unit_checks enforces
+# carried_unit_errors with no elsewhere_cited before coherence ever runs, so every must_carry
+# fact_id is guaranteed cited-or-validly-omitted in existing_units by construction) into a broken
+# one; reconciliation's own destination_section call is untouched (scope_limitations really is
+# this unit's disposed home; enterprise_relationship simply also finds the same substance
+# relevant, which coherence_checks' own docstring already treats as fine so long as the disposed
+# section still carries it) and the carry/outside-section checks themselves are untouched (neither
+# is wrong; the gap is a missing recovery, never a wrong gate).
+def recover_coherence_carried_units(
+    output: dict[str, Any], *, existing_units: list[dict[str, Any]], tasks: list[SectionTask]
+) -> dict[str, Any] | None:
+    """Last-resort correction for S8 coherence's own ``run_job`` call, alongside
+    ``recover_coherence_content_loss``: a must-carry fact_id (``SectionTask.must_carry``) that the
+    pre-coherence document already carried correctly in its own disposed section, but this
+    revision no longer carries there - because a unit elsewhere now cites it instead, which that
+    other section's own ``accepted_ids`` never granted it to begin with.
+
+    Two deterministic, "never invent" corrections, mirroring ``recover_coherence_content_loss``'s
+    own full-unit-revert precedent exactly:
+
+    1. The disposed section's own pre-coherence unit that carried the fact_id (matched by its
+       unchanged slot, the same key every coherence correction uses) is restored in full - its own
+       text and fact_ids, never a rewrite - undoing whatever this revision did to that one slot.
+    2. Every *other* unit that cites the same fact_id without its own task granting it (the
+       stray citation that caused the move in the first place) has that one id stripped from its
+       own fact_ids - never its text, which the model may still have revised legitimately; only
+       the over-claimed citation id is removed, the same narrow, mechanical strip
+       ``authoring.py``'s own ``_strip_echoed_fact_ids`` already applies for a different stray-
+       citation shape.
+
+    Scoped to must-carry fact ids only (never a blanket "any out-of-section citation is stripped"
+    rule, which could as easily hide an unrelated defect) - a fact_id only qualifies when some
+    *other* task's own ``must_carry`` names it, so a genuinely wrong citation with no must-carry
+    obligation behind it is left for the model's own re-ask to fix, exactly as before.
+
+    Returns ``None`` when nothing needed correcting.
+    """
+    units = output.get("units")
+    if not isinstance(units, list):
+        return None
+    by_section: dict[str, list[dict[str, Any]]] = {}
+    for unit in units:
+        if isinstance(unit, dict):
+            by_section.setdefault(str(unit.get("section", "")), []).append(unit)
+    existing_by_key = {
+        (str(unit.get("section")), str(unit.get("slot"))): unit for unit in existing_units
+    }
+    carry_owners: dict[str, str] = {}
+    for task in tasks:
+        for fact_id in task.must_carry:
+            carry_owners[fact_id] = task.section_id
+    changed = False
+    for task in tasks:
+        if not task.must_carry:
+            continue
+        owned = [u for u in by_section.get(task.section_id, []) if u.get("slot") in task.slots]
+        missing = uncarried_units({"units": owned, "omitted": []}, task.must_carry)
+        for fact_id in missing:
+            for unit in owned:
+                key = (task.section_id, str(unit.get("slot")))
+                existing = existing_by_key.get(key)
+                if existing is None or fact_id not in existing.get("fact_ids", []):
+                    continue
+                unit["text"] = existing.get("text", unit.get("text"))
+                existing_fact_ids = existing.get("fact_ids")
+                unit["fact_ids"] = (
+                    list(existing_fact_ids)
+                    if isinstance(existing_fact_ids, list)
+                    else unit.get("fact_ids", [])
+                )
+                changed = True
+    for task in tasks:
+        for unit in by_section.get(task.section_id, []):
+            if unit.get("slot") not in task.slots:
+                continue
+            fact_ids = unit.get("fact_ids")
+            if not isinstance(fact_ids, list):
+                continue
+            stray = [
+                fact_id
+                for fact_id in fact_ids
+                if fact_id not in task.accepted_ids
+                and carry_owners.get(fact_id) not in (None, task.section_id)
+            ]
+            if stray:
+                unit["fact_ids"] = [fact_id for fact_id in fact_ids if fact_id not in stray]
+                changed = True
+    return output if changed else None
+
+
+def recover_coherence_regressions(
+    output: dict[str, Any],
+    *,
+    existing_units: list[dict[str, Any]],
+    facts: FactsDocument,
+    tasks: list[SectionTask],
+) -> dict[str, Any] | None:
+    """The one ``recover=`` callable ``repair/rounds.py``'s S8 call site passes: both of S8
+    coherence's own last-resort corrections, composed - ``recover_coherence_content_loss`` first
+    (the generic dropped-fact-with-no-trace revert, G3-W05), then
+    ``recover_coherence_carried_units`` (the must-carry-specific revert and stray-citation strip,
+    above) against whatever the first pass left. Running the must-carry fix second means it always
+    judges the live, possibly-already-corrected output rather than a stale view. ``run_job`` only
+    ever accepts the result on its own re-validation against the real checks, never on either
+    function's say-so, so an incomplete correction here changes nothing: the job fails exactly as
+    it would have without this at all. Returns ``None`` only when neither correction found
+    anything to fix."""
+    changed = False
+    content_fixed = recover_coherence_content_loss(
+        output, existing_units=existing_units, facts=facts
+    )
+    if content_fixed is not None:
+        output = content_fixed
+        changed = True
+    carry_fixed = recover_coherence_carried_units(
+        output, existing_units=existing_units, tasks=tasks
+    )
+    if carry_fixed is not None:
+        output = carry_fixed
+        changed = True
     return output if changed else None
 
 
