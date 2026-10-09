@@ -358,7 +358,7 @@ ENTERPRISE_EXISTING: list[dict[str, Any]] = [
         "section": "enterprise_relationship",
         "slot": "context",
         "text": "It also offers advanced rendering.",
-        "fact_ids": [],
+        "fact_ids": ["identity:repository"],
     },
 ]
 
@@ -423,7 +423,13 @@ def test_recover_coherence_carried_units_restores_disposed_section_strips_stray_
     """GREEN: recover_coherence_carried_units closes the gap deterministically - never by
     rewriting prose, only by restoring the disposed section's own pre-coherence unit (text and
     fact_ids both, in full) and stripping the one over-claimed fact_id from the unit that was
-    never granted it. The corrected output clears both checks at once."""
+    never granted it. The corrected output clears both checks at once.
+
+    Here the stray unit's own fact_ids held more than just the one over-claimed id
+    (``identity:repository`` survives the strip alongside it) - stripping leaves a real, non-empty
+    citation set, the ordinary case. The zero-left-over case (stripping the stray would leave the
+    unit with none at all) is covered separately below - it is not safe to leave an empty
+    ``fact_ids`` behind, since the real coherence call's own schema requires at least one."""
     corrected = recover_coherence_carried_units(
         _enterprise_broken_output(), existing_units=ENTERPRISE_EXISTING, tasks=ENTERPRISE_TASKS
     )
@@ -433,7 +439,7 @@ def test_recover_coherence_carried_units_restores_disposed_section_strips_stray_
     assert restored["text"] == ENTERPRISE_EXISTING[1]["text"]
     assert restored["fact_ids"] == [ENTERPRISE_FACT_ID]
     stripped = by_key[("enterprise_relationship", "context")]
-    assert stripped["fact_ids"] == []
+    assert stripped["fact_ids"] == ["identity:repository"]
     # The text the model wrote for enterprise_relationship is left exactly as returned - only the
     # over-claimed citation id is removed, never a rewrite of its prose.
     assert stripped["text"] == "It also offers advanced rendering."
@@ -445,6 +451,119 @@ def test_recover_coherence_carried_units_restores_disposed_section_strips_stray_
         )
         is None
     )
+
+
+def test_recover_coherence_carried_units_reverts_a_unit_a_strip_would_empty() -> None:
+    """Live gap, G7-W17 follow-up (`aspose-email-foss/Aspose.Email-FOSS-for-.Net`, revision
+    `59125b47...`, 2026-10-09): the stray unit's ENTIRE citation set was the one over-claimed
+    must-carry id, so a bare strip leaves ``fact_ids: []`` - which the real coherence call's own
+    schema (`prompts/section_authoring.yaml`'s `fact_ids: {minItems: 1, ...}`, carried through by
+    `coherence_schema` unchanged for the normal citable-facts case) rejects outright: "recover's
+    correction was rejected too: $.units[12].fact_ids: [] should be non-empty" - the recovery's own
+    output never even reached `coherence_checks`. Fixed: when stripping every stray id would leave
+    a unit with none left, fall back to the same full pre-coherence revert the carrying section
+    above already uses (text and fact_ids both, matched by slot) - never a bare strip to empty."""
+    tasks = [
+        SectionTask(
+            "scope_limitations",
+            {},
+            frozenset({"identity:repository", ENTERPRISE_FACT_ID}),
+            ("limitation:1",),
+            must_carry=frozenset({ENTERPRISE_FACT_ID}),
+            must_carry_text={
+                ENTERPRISE_FACT_ID: "Advanced rendering needs the Enterprise Edition."
+            },
+        ),
+        SectionTask(
+            "enterprise_relationship", {}, frozenset({"identity:repository"}), ("context",)
+        ),
+    ]
+    existing_units = [
+        {
+            "section": "scope_limitations",
+            "slot": "limitation:1",
+            "text": "Advanced rendering needs the Enterprise Edition.",
+            "fact_ids": [ENTERPRISE_FACT_ID],
+        },
+        {
+            "section": "enterprise_relationship",
+            "slot": "context",
+            "text": "It also adds advanced rendering.",
+            "fact_ids": ["identity:repository"],
+        },
+    ]
+    output = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:1",
+                "text": "Some advanced features need the Enterprise Edition.",
+                "fact_ids": [],
+            },
+            {
+                # Attempt 2's own reply: the model moved the must-carry fact_id here and cited
+                # NOTHING else - the exact live shape, not a bare single-id-among-several case.
+                "section": "enterprise_relationship",
+                "slot": "context",
+                "text": "It also adds advanced rendering.",
+                "fact_ids": [ENTERPRISE_FACT_ID],
+            },
+        ],
+        "omitted": [],
+    }
+    corrected = recover_coherence_carried_units(output, existing_units=existing_units, tasks=tasks)
+    assert corrected is not None
+    by_key = {(u["section"], u["slot"]): u for u in corrected["units"]}
+    stripped = by_key[("enterprise_relationship", "context")]
+    # Never an empty array - reverted in full to the pre-coherence unit instead of a bare strip.
+    assert stripped["fact_ids"] == ["identity:repository"]
+    assert stripped["text"] == "It also adds advanced rendering."
+    assert all(unit["fact_ids"] for unit in corrected["units"]), "no unit is left with no citations"
+
+
+def test_recover_coherence_carried_units_declines_rather_than_emit_an_empty_fact_ids() -> None:
+    """Scope control for the fallback above: when the stray unit would empty AND no pre-coherence
+    record exists for that exact slot to revert to, the correction declines that unit entirely
+    (never invents a fact_id, never emits an empty array) - left for the model's own re-ask."""
+    tasks = [
+        SectionTask(
+            "scope_limitations",
+            {},
+            frozenset({"identity:repository", ENTERPRISE_FACT_ID}),
+            ("limitation:1",),
+            must_carry=frozenset({ENTERPRISE_FACT_ID}),
+            must_carry_text={
+                ENTERPRISE_FACT_ID: "Advanced rendering needs the Enterprise Edition."
+            },
+        ),
+        SectionTask(
+            "enterprise_relationship", {}, frozenset({"identity:repository"}), ("context",)
+        ),
+    ]
+    output = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:1",
+                "text": "Advanced rendering needs the Enterprise Edition.",
+                "fact_ids": [ENTERPRISE_FACT_ID],
+            },
+            {
+                "section": "enterprise_relationship",
+                "slot": "context",
+                "text": "It also adds advanced rendering.",
+                "fact_ids": [ENTERPRISE_FACT_ID],
+            },
+        ],
+        "omitted": [],
+    }
+    # No existing_units record at all for ("enterprise_relationship", "context") - nothing to
+    # revert to.
+    corrected = recover_coherence_carried_units(output, existing_units=[], tasks=tasks)
+    by_key = {(u["section"], u["slot"]): u for u in corrected["units"]} if corrected else {}
+    stripped = by_key.get(("enterprise_relationship", "context"))
+    if stripped is not None:
+        assert stripped["fact_ids"], "never leave a unit with an empty fact_ids array"
 
 
 def test_recover_coherence_regressions_composes_both_last_resorts() -> None:
