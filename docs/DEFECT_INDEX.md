@@ -350,6 +350,57 @@ are not the same mechanism, and a fix must not be copy-pasted from one to the ot
 own analysis of `section_authoring`'s own packet construction (`composition/authoring.py::section_selections`,
 `authoring_tasks`).
 
+**Root cause of the S6/S8/S9 Enterprise and omission sightings, found and fixed 2026-10-10
+(`G7-W15` and `G7-W18`, one fix; seven further sightings of the Enterprise shape - Slides-Java
+five units, TeX-Python `070`, Cells-.NET `065`, Cells-Rust `075`, 3D-.NET `062`, Email-.Net `058`,
+plus Cells-Java, PDF-Java, Slides-Cpp, Imaging-.NET and Page-Python reported - read from the
+stored transactions' `dispositions.json` and `calls/*.rejected-*.json`, not from reports).** The
+earlier "packet bundling" reading was wrong; there were three stacked defects at three stages,
+fixed earliest first, none by weakening `carried_unit_errors` or `unit_checks`:
+
+1. **S4 (`reconciliation/dispositions.py` `normalize`, the row-18 fold).** `prompts/
+   source_reconciliation.yaml` tells the reconciler to place promotional prose in
+   `enterprise_relationship`; the stored S4 outputs show it did so (rationale "moved to the
+   enterprise_relationship section") and the fold then rewrote the destination to
+   `scope_limitations` (on every Enterprise paragraph found in the stored transactions, over twenty
+   repositories). That was harmless until `scope_limitations` joined `_CARRY_SECTIONS`
+   (2026-10-05): S6 then owed `scope_limitations` a unit whose substance ("which adds ...") only
+   `enterprise_relationship`'s context sentence renders (README_CONTRACT row 18), and
+   `enterprise_relationship` had NO citable fact, so the model cited the paragraph from it
+   ("cites facts outside this section's set") or, on TeX attempt 1, invented the "adds" sentence
+   from identity facts ("batch processing, advanced typography"). The hypothesis that S4 should
+   OMIT the paragraph was rejected on the contract: that drops the only accepted statement of what
+   the product adds. Fix: the fold keeps `destination_section: enterprise_relationship`; that
+   section joins `_CARRY_SECTIONS`, gets the carried units in its accepted set, and its carry
+   rule says to state only what the product adds ("It adds ..."), never the edition name, so the
+   exactly-once naming rule holds (the guard's refusal now also says how to comply).
+   `NORMALISATION_VERSION` 30 -> 31.
+2. **S8 (`composition/coherence.py` `coherence_checks`).** It judged every task with
+   `"omitted": []`, and the coherence pass (units only) has no omission channel, so a must-carry
+   unit S6 had accepted as validly omitted was refused again as "missing". This is the explanation
+   of `G7-W15`'s recorded "attempt 2 omitted all five units with reasons but the rejection is
+   byte-identical" discrepancy: the reply's `omitted` array was never read. Slides-Java's S6 calls
+   `069ddafc8697` (081/083/085, enterprise_relationship), `f5efbcf17d93` (035), `d939e5267d4e`
+   (095) hold the accepted omissions. Fix: `prior_omitted` (the omissions S6 accepted) is passed
+   from `repair/rounds.py`; a blank reason or another section's omission still does not count.
+3. **S9 (`validation/registry.py` BC-04 `_check_units`).** The same empty list, so a validly
+   omitted unit failed BC-04 and S11 repair pasted the omitted edition paragraphs into the
+   Enterprise sentence. Fix: BC-04 reads the units document's recorded `omitted`.
+   `VALIDATOR_VERSION` 16 -> 17, BC-04 v2 -> v3.
+
+Mutation-tested (`tests/components/readme/composition/test_authoring.py` Enterprise block built
+from the real TeX `070` text and the two real replies; `test_coherence.py`; `validation/
+test_registry.py`; `reconciliation/test_normalization.py`), including negative controls: an
+uncarried unit still fails closed with its substance quoted, a blank or wrong-section omission
+does not count, a genuine limitation superseded into `scope_limitations` is still enforced,
+naming the edition in the context unit is still refused. Live (qwen3-next only, `--fresh`, empty
+`runs/`): TeX-Python, Email-.Net, 3D-.NET, Cells-.NET and Slides-Java all cleared S6 and S8;
+Slides-Java also cleared BC-04 after fix 3. Each is now blocked by a different, pre-existing gap
+(BC-05 deferral classes `UNCLASSIFIED`, `NOTICES_WITHOUT_RECORD`, `BUILD_TEST_PATH_UNRECORDED`,
+Slides-Java BC-04 HTML in `limitation:6` and BC-07 untagged fence on an earlier draw) - not S6.
+Status: fixed and live-verified at S6/S8/S9-BC-04; the entry moves to Resolved when a sealed
+candidate for one of these repositories shows it.
+
 **A second, distinct sub-mechanism of this same entry, found and fixed the same day - not
 `G7-W15`, not claiming to resolve it.** `G7-W15` above is a packet-bundling/logging puzzle (many
 must-carry units across several destination sections in one call; attempt 1 is a true silent
@@ -1309,7 +1360,7 @@ Every row names its work item (`project/state.yaml` `next_ready_items` or `owner
 | REG-15 | Gate C0 discovery is tools-only, public repositories only, no observation taxonomy, wired to no workflow | G4-W18 | PENDING |
 | REG-16 | `project/state.yaml`'s `updated_at` had not advanced since 2026-10-05 despite dozens of merges since (#249, #250, #257-#273, #277, #279-#281); no check fails on cursor staleness, so the gap recurred silently (2026-10-07 four-reviewer finding, confirmed live before this row was added) | G7-W10 | PENDING |
 | REG-17 | The sealing loop retries a repeatedly-failing candidate identically every cycle with no recorded failure history (2026-10-07 four-reviewer finding). 2026-10-07 update: the previously-doubted fix is now real and merged, PR #285 (`feat/sealing-failure-memory-1009`, `core/sealing_plan.py` cooldown/`SealingAttempt`), but no hosted sealing-scheduled.yml run has exercised it yet (every run this audit found predates it) | G7-W11 | FIXED(#285) |
-| REG-18 | `aspose-cells-foss`'s Go candidate hits `validation/deferrals.py`'s `UNCLASSIFIED` fallback (no registered class matches its real cause); a root-cause investigation was reported in flight elsewhere, re-checked this session with no matching branch, worktree or PR found. 2026-10-07 re-confirmed live, unchanged, in hosted run 37461500634: `BC-05 failed at EXTRACTING: inherited_unit:063.paragraph is deferred as UNCLASSIFIED` | G7-W12 | PENDING |
+| REG-18 | `aspose-cells-foss`'s Go candidate hits `validation/deferrals.py`'s `UNCLASSIFIED` fallback (no registered class matches its real cause); a root-cause investigation was reported in flight elsewhere, re-checked this session with no matching branch, worktree or PR found. 2026-10-07 re-confirmed live, unchanged, in hosted run 37461500634: `BC-05 failed at EXTRACTING: inherited_unit:063.paragraph is deferred as UNCLASSIFIED`. 2026-10-10 (G7-W12 session): the family is bigger than Cells-Go (that unit is no longer deferred) - 67 UNCLASSIFIED findings (64 distinct units) across 14 repositories, read from the 2026-10-09 re-seal transactions and the sealed bundles under `candidates/` re-reviewed with the current code, five causes, none one defect: (1) folds in `reconciliation/dispositions.py` rewrite a placement to DEFER and keep the model's stale rationale (Installation row empty when `install_command` is unverified, At a Glance with no citation, Enterprise row given a table); (2) the re-ask template sends the model to DEFER when it cannot cite and it relabels units the rejection never named (build commands, API lists, prose); (3) `NOTICES_WITHOUT_RECORD` matched the bare word "font" (a Mermaid label, an examples row, `FontScheme`); (4) `evidence/facts/assets.py` saw only a root `tests/` (PSD-.NET `src/Aspose.PSD.FOSS.Test/`, Cells-C++ `*.Tests/`), the `BUILD_TEST_PATH_UNRECORDED` family; (5) a command block deferred uncited is the S4 defect `placement_errors` already forbids for an OMIT. Landed: five classes (and a sibling signal for the Enterprise-table class), the notices matcher tightened, nested test/samples extraction, BC-05 v3 / VALIDATOR_VERSION 16. Open: the S4 fold (an uncited DEFER on a command block, and an uncited prose OMIT after the re-ask budget, fold like the omission they restate) in `dispositions.py`, held back while the S6 must-carry work owns that file; live re-runs of 3D-.NET, Slides-.NET, Slides-Python and PSD-.NET stopped at S6 or S4 before BC-05 | G7-W12 | PENDING |
 | REG-19 | Most registry entries lack write (`full`) mode; production publication beyond the N entries already `full` is not yet possible. Verified live, 2026-10-07: 36 active entries, 2 `full` (`aspose-3d-foss/Aspose.3D-FOSS-for-Java`, `aspose-cells-foss/Aspose.Cells-FOSS-for-Java`), 34 `dry_run`, 0 `disabled`; `ops/proposal-authorizations/` does not exist as a directory, so no repository has a committed authorization record of any kind | OWNER-20 | OWNER |
 | REG-20 | Full-history audit (2026-10-07) of every `sealing-scheduled.yml` run since #242 wired it: six runs, 2026-10-05 through 2026-10-07 (ids 37310360790, 37348251358, 37361313253, 37411705333, 37461500634, 37617610823) - **zero have ever sealed a repository**. Three failed closed at the plan stage (missing/malformed drift contract, pre-#267/#270; a newly-enabled owner `aspose-psd-foss` with no drift evidence yet, #282/#284, since self-resolved by the next monitor cycle). Three reached present and planned the same three repositories each time (`aspose-cells-foss/...-Go`, `aspose-note-foss/...-Python`, `aspose-pdf-foss/...-Go`, selected because `core/sealing_plan.py` only ever selects `DRIFTED` entries, by design) - nine present-stage failures, no two for the same reason: BC-10 `REJECT_PRESENTATION`; a hallucinated `fact_id` in `source_reconciliation`; an input/output format contradiction; two uncited-unit rejections (class fixed by #286); two coherence-drop rejections (class fixed by #289); and the BC-05 UNCLASSIFIED deferral REG-18 tracks (still open). Every content-authoring fix found (#285, #286, #287, #289, #290) merged 2026-10-07 **after** the last of the six runs (11:57 UTC, headSha `169ab46a`) - none has yet been hosted-verified. 2026-10-08 update: SATISFIED - hosted run `37712681751` cleared G7-W13's own exit predicate for `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` (`READY_FOR_PROPOSAL`, `ACCEPT`, zero-call no-op; durable-state transaction `f7ac3f73da1b4c7090ed11f26e8bb267`, sealed candidate-revision hash `99c789e9175f2b12ad82bafeeba148ddcc1367fb`) | G7-W13 | PENDING |
 | REG-21 | Hosted sealing (run `37712681751`, 2026-10-08) proved the pipeline itself works (`aspose-cells-foss/Aspose.Cells-FOSS-for-Go` reached `READY_FOR_PROPOSAL`, `ACCEPT`, zero-call no-op), but the success is ephemeral beyond its durable-state ref receipt: no workflow (`present.yml`, `propose.yml`, `sealing-scheduled.yml`) ever commits the sealed `candidates/<slug>/` bundle back to this control repository, for any registry mode - confirmed by `git ls-remote` (no branch/PR for this run's bundle) and by reading all three workflows' sources. `status`'s counts therefore go stale under the scheduled loop with no autonomous repair; today only a human/agent session committing a PR by hand (e.g. #259) refreshes them. Not stated as intentional anywhere in `docs/STATE_MACHINE.md`, `docs/EXECUTION_STATE_MACHINE.md`, or `AGENTS.md` | G7-W14 | OPEN |
