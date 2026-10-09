@@ -293,7 +293,6 @@ _V2_ITEM_8_9_NAMES = (
     "aspose-font-foss__Aspose.Font-FOSS-for-Python",
     "aspose-3d-foss__Aspose.3D-FOSS-for-.NET",
     "aspose-3d-foss__Aspose.3D-FOSS-for-Java",
-    "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
     "aspose-cells-foss__Aspose.Cells-FOSS-for-Go",
     "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
     "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",

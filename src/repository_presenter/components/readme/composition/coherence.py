@@ -527,8 +527,30 @@ def recover_coherence_carried_units(
                 if fact_id not in task.accepted_ids
                 and carry_owners.get(fact_id) not in (None, task.section_id)
             ]
-            if stray:
-                unit["fact_ids"] = [fact_id for fact_id in fact_ids if fact_id not in stray]
+            if not stray:
+                continue
+            remaining = [fact_id for fact_id in fact_ids if fact_id not in stray]
+            if remaining:
+                unit["fact_ids"] = remaining
+                changed = True
+                continue
+            # Stripping every stray id would leave this unit with none at all - the schema's own
+            # per-unit ``fact_ids`` bound requires at least one (G7-W17 live gap, aspose-email-foss/
+            # Aspose.Email-FOSS-for-.Net, revision 59125b47...: "$.units[12].fact_ids: [] should be
+            # non-empty" rejected the correction itself before coherence_checks ever saw it - this
+            # unit's entire citation set was the one over-claimed must-carry id, so stripping it
+            # bare is not a safe correction). Fall back to the same full-unit revert the carrying
+            # section above already uses: restore this unit's own pre-coherence text and fact_ids
+            # in full, never leaving an empty array. If no pre-coherence record exists for this
+            # exact slot, decline the strip entirely (never invent or emit an empty fact_ids) and
+            # leave it for the model's own re-ask, exactly as the no-carry-obligation scope control
+            # already does above.
+            key = (task.section_id, str(unit.get("slot")))
+            existing = existing_by_key.get(key)
+            existing_fact_ids = existing.get("fact_ids") if existing else None
+            if existing is not None and isinstance(existing_fact_ids, list) and existing_fact_ids:
+                unit["text"] = existing.get("text", unit.get("text"))
+                unit["fact_ids"] = list(existing_fact_ids)
                 changed = True
     return output if changed else None
 

@@ -1,5 +1,8 @@
 {
-  "advisory": [],
+  "advisory": [
+    "inherited_unit:053.paragraph: deferred as ENTERPRISE_NO_VERIFIED_TARGET (advisory, never published): The unit is Enterprise Edition relationship text, but no verified enterprise product target exists at this revision, so the relationship row cannot render and its link cannot be verified.",
+    "inherited_unit:010.list: the rewrite no longer names Barcode.render(), Code128Options.encode_mode, allow_check_digit_input, code39ext(), generate(symbology, data)"
+  ],
   "checks": [
     {
       "causal_stage": null,
@@ -25,7 +28,7 @@
         "installation"
       ],
       "verdict": "PASS",
-      "version": "3"
+      "version": "4"
     },
     {
       "causal_stage": null,
@@ -70,7 +73,7 @@
         "all"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -78,14 +81,14 @@
       "failures": [],
       "id": "BC-06",
       "judged_at": "S9",
-      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name; no unsafe raw HTML (script/event-handler/dangerous-scheme) renders outside a fenced code block",
+      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name (no substitute in any letter case); no unsafe raw HTML (script/event-handler/dangerous-scheme) renders outside a fenced code block",
       "sections": [
         "documentation_resources",
         "enterprise_relationship",
         "badges"
       ],
       "verdict": "PASS",
-      "version": "4"
+      "version": "7"
     },
     {
       "causal_stage": null,
@@ -93,12 +96,12 @@
       "failures": [],
       "id": "BC-07",
       "judged_at": "S9",
-      "name": "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the length budget",
+      "name": "Exactly one factual H1; one badge row in the stable order, each badge supported by a verified fact; title-case headings of every level; canonical abbreviations in prose and headings; At a Glance topology, column rules and label geometry; fence languages and normalized spacing; visible sections never collapsed; no internal narration; within the length budget",
       "sections": [
         "structure"
       ],
       "verdict": "PASS",
-      "version": "7"
+      "version": "10"
     },
     {
       "causal_stage": null,
@@ -132,24 +135,37 @@
       "failures": [],
       "id": "BC-10",
       "judged_at": "S10",
-      "name": "Independent review returns ACCEPT corroborated by a second independent read, under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
+      "name": "Independent review returns ACCEPT corroborated by a second independent read when the typed second-reader trigger fires (an untriggered clean ACCEPT needs none), under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
       "review_verdict": "ACCEPT",
       "sections": [
         "review"
       ],
       "verdict": "PASS",
-      "version": "4"
+      "version": "5"
     },
     {
       "causal_stage": null,
       "details": [
-        "judged by the fresh-process replay: every artifact byte-identical, zero provider calls"
+        "judged by the fresh-process replay: a different process by recorded identity, every artifact byte-identical, zero provider calls counted from the call ledger"
       ],
       "id": "BC-11",
       "judged_at": "S12",
-      "name": "Fresh-process rerun is byte-identical with zero provider calls",
+      "name": "Fresh-process rerun, a different process by recorded identity, is byte-identical with zero provider calls counted from its call ledger, and the bundle's totals reconcile with that ledger",
       "sections": [
         "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "2"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-12",
+      "judged_at": "S9",
+      "name": "Every product-name position in the prose spells the registry's canonical product name exactly; no separator, case, or suffix variant of it (plans/idea.md L84-85)",
+      "sections": [
+        "all"
       ],
       "verdict": "PASS",
       "version": "1"
@@ -440,14 +456,14 @@
     }
   ],
   "protected_content_fingerprint": "786262abb12c177308e17389a8a30defddbf2fe675c5d16049a3b228ee10fb07",
-  "readme_sha256": "19a239c551f38b18461d4aaf155c371d44b4c31ad98853ba16136c66c050aed5",
+  "readme_sha256": "a6ade8608345fcf90c056316c99e5970aec9d8a88a9c3667bba632ad3cca3ea2",
   "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
   "summary": {
     "fail": 0,
-    "pass": 11,
+    "pass": 12,
     "pending": 0
   },
-  "validator_version": "4"
+  "validator_version": "15"
 }
