@@ -283,7 +283,7 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled kill switch for the issue filing and closing writes (`file-upstream-defects --file`, `redetect-upstream-defects --close`): unset or not `1` disables every write; `1` never authorizes a filing by itself (that needs the handoff's own `ops/issue_approvals/` record), and a token's mere presence never implies it. In CI it is set only from the repository variable of the same name, on the gated write job |
 | `GH_PROPOSAL_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`/`GH_METADATA_WRITE_TOKEN`/`GH_ISSUES_WRITE_TOKEN`; only `propose --propose` reads it, and only after `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `propose --propose`'s write; a token's mere presence never implies this |
-| `GH_CANDIDATES_WRITE_TOKEN` | optional | Write-scoped, distinct from every token above; only `publish-candidates --publish` reads it, and only after `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` also authorizes a write. In CI it is the job's own ambient `GITHUB_TOKEN` (G7-W14: the write target is this control repository itself, so no GitHub App installation token is needed) |
+| `GH_CANDIDATES_WRITE_TOKEN` | optional | Write-scoped, distinct from every token above; only `publish-candidates --publish` reads it, and only after `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` also authorizes a write. In CI it is a short-lived GitHub App installation token scoped to this control repository alone (G7-W14; never the job's ambient `GITHUB_TOKEN`, which cannot open the pull request here and starts none of its required checks) |
 | `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `publish-candidates --publish`'s write; a token's mere presence never implies this |
 | `REPOSITORY_PRESENTER_SEALING_PAUSED` | optional | Owner pause switch for the scheduled sealing run (`sealing-scheduled.yml`, a repository Actions variable): exactly `1` makes `sealing-plan` report `has_work=false` with the notice "sealing paused by owner variable" (also written to the step summary), so no seal or propose leg starts; unset or any other value leaves sealing enabled, bounded by the three-repositories-per-run cap |
 
@@ -469,7 +469,8 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   by default: reports the revision and branch, and writes nothing. `--publish` attempts the
   commit/push/PR, but only past the owner switch
   `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` and a write-scoped `GH_CANDIDATES_WRITE_TOKEN`
-  that resolves to exactly `--control-repo` (default `$GITHUB_REPOSITORY`); idempotent by
+  (an App installation token reaching exactly `--control-repo`, default `$GITHUB_REPOSITORY`, whose
+  pull request is attributed to the Repository Presenter App); idempotent by
   construction, so an unchanged candidate re-run commits and proposes nothing.
 - **`stage-transaction-artifact --transaction DIR --staging DIR`** — copies a seal's transaction
   output to a staging directory for the failed-run artifact that `present.yml` uploads. It
