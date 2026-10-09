@@ -154,7 +154,21 @@ ACCEPT = "ACCEPT"
 # "17" (review second-read cause, landing PR #248/#275): a JobError from the corroborating second
 # read is returned as a SecondReadFailure and recorded on review.json as second_reader.failed, so
 # check 10 names the cause instead of reporting a bare single read.
-REVIEWER_LOGIC_VERSION = "17"
+# "18" (LANE-B-W14R8-F1, ported from the never-merged land/absence-refute-1008, 2026-10-09):
+# ``absence_partition``'s ``present`` fold only ever called ``quote_located``, a literal substring
+# check, so an ``absent`` claim the reviewer copies verbatim from the ORIGINAL README is never
+# recognized as present when the candidate correctly carries the same substance in different,
+# shorter wording. Measured live 2026-10-04 on Aspose.3D-FOSS-for-TypeScript (BC-10 F06): eight
+# claims, each the original's own bullet restated by the candidate ("top" for "very top", "not
+# functional" for "not implemented"), none refuted by literal lookup, so a finding the candidate
+# had already addressed blocked and was handed back every claim to repair, including the ones
+# already fixed. New ``absence_restated`` now also counts a claim present when one candidate
+# sentence carries a strong majority of the claim's own distinctive words
+# (``_ABSENCE_MIN_COVERAGE``), gated by a minimum distinctive-word count (``_ABSENCE_MIN_WORDS``)
+# so a short claim - one a candidate sentence could restate by coincidence - is refuted only by a
+# literal occurrence, exactly as before. ``invented``/``remaining`` and every other fold are
+# untouched.
+REVIEWER_LOGIC_VERSION = "18"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -971,12 +985,39 @@ def absence_defect(
     return "; ".join(parts)
 
 
+# An absence claim is copied from the ORIGINAL README (the prompt requires it), while the candidate
+# is a rewrite of that same material. Measured 2026-10-04 on Aspose.3D for TypeScript (BC-10 F06,
+# lane B LANE-B-W14R8-F1, docs/RESEARCH_LANE_B.md, docs/DECISION_LOG.md 2026-09-17 10:32 UTC): all
+# eight claims were the original's own bullets, and the candidate restated each limitation in
+# fewer words ("top" for "very top", "not functional" for "not implemented"), so a literal lookup
+# refuted none of them and a finding every one of whose claims the candidate already carried
+# blocked. A claim counts as present when ONE candidate sentence carries at least this share of
+# the claim's own distinctive words - the claim's meaning in the candidate's wording, never a
+# loose match across sentences or sections. Below the minimum word count a claim is too short to
+# restate by coincidence, so only a literal occurrence refutes it.
+_ABSENCE_MIN_WORDS = 4
+_ABSENCE_MIN_COVERAGE = 0.8
+_SENTENCE_BREAK = re.compile(r"[.;!?](?=\s|$)|\n")
+
+
+def absence_restated(claim: str, candidate_text: str) -> bool:
+    """Whether one sentence of ``candidate_text`` restates ``claim``'s distinctive content."""
+    wanted = _content_tokens(_normalized(claim))
+    if len(wanted) < _ABSENCE_MIN_WORDS:
+        return False
+    return any(
+        len(wanted & _content_tokens(_normalized(sentence))) / len(wanted) >= _ABSENCE_MIN_COVERAGE
+        for sentence in _SENTENCE_BREAK.split(candidate_text)
+    )
+
+
 def absence_partition(
     finding: Mapping[str, Any], candidate_readme: str, evidence: str = ""
 ) -> tuple[list[str], list[str], list[str]]:
     """A finding's ``absent`` claims sorted three ways: ``present`` (the candidate's own named
-    section contains them), ``invented`` (nowhere in the evidence, so there is nothing to
-    restore), and ``remaining`` (neither - the claims that still stand, in the order claimed).
+    section contains them, verbatim or restated in its own words - ``absence_restated``),
+    ``invented`` (nowhere in the evidence, so there is nothing to restore), and ``remaining``
+    (neither - the claims that still stand, in the order claimed).
 
     ``absence_defect`` dismisses a finding whose remainder is empty; ``review_document`` records
     the other two lists on a standing finding so ``repair/targeted.py`` hands the repair only the
@@ -986,7 +1027,13 @@ def absence_partition(
     claims = _claimed_absent(finding)
     section_id = str(finding.get("section_id") or "")
     haystack = _section_slice(section_id, candidate_readme)
-    present = sorted({claim for claim in claims if quote_located(claim, haystack)})
+    present = sorted(
+        {
+            claim
+            for claim in claims
+            if quote_located(claim, haystack) or absence_restated(claim, haystack)
+        }
+    )
     invented = (
         sorted(
             {
