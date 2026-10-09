@@ -36,6 +36,10 @@ def _always_ok_token(repository: str, token: str) -> TokenDecision:
     return TokenDecision(True)
 
 
+def _always_ok_attribution(owner: str, name: str, number: int, *, token: str) -> TokenDecision:
+    return TokenDecision(True)
+
+
 @dataclass
 class FakeControlGit:
     """An in-memory model of exactly the local git state this effect reads and writes: one
@@ -125,6 +129,7 @@ def _call(
     environment: dict[str, str] | None = None,
     token: str | None = TOKEN,
     verify_token=_always_ok_token,
+    verify_pull_request_app=_always_ok_attribution,
     revision: str = NEW_REVISION,
 ):
     return publish_candidates(
@@ -145,6 +150,7 @@ def _call(
         stage_and_commit=git.stage_and_commit,
         push=git.push,
         verify_token=verify_token,
+        verify_pull_request_app=verify_pull_request_app,
         find_pull_requests=hub.find_pull_requests,
         create_pull_request=hub.create_pull_request,
         update_pull_request=hub.update_pull_request,
@@ -312,3 +318,131 @@ def test_a_find_pull_requests_failure_before_any_write_is_reported() -> None:
     assert result.reason_code is Refusal.GITHUB_ERROR
     # Nothing was committed or pushed before this read failed.
     assert git.pushed == []
+
+
+# -- App provenance (the ambient GITHUB_TOKEN cannot open the PR or start its required checks on
+# this repository, so the write credential is an App installation token; its PR is attributed) ----
+
+
+def _attribution_spy() -> tuple[list[int], object]:
+    seen: list[int] = []
+
+    def verify(owner: str, name: str, number: int, *, token: str) -> TokenDecision:
+        assert (owner, name) == tuple(CONTROL_REPOSITORY.split("/"))
+        assert token == TOKEN
+        seen.append(number)
+        return TokenDecision(True)
+
+    return seen, verify
+
+
+def _foreign(owner: str, name: str, number: int, *, token: str) -> TokenDecision:
+    return TokenDecision(
+        False, Refusal.TOKEN_APP_MISMATCH, "pull request was performed by another GitHub App"
+    )
+
+
+def test_a_newly_opened_pr_is_attributed_to_the_app() -> None:
+    git = FakeControlGit(committed={BASE_BRANCH: OLD_REVISION})
+    hub = FakeGitHub()
+    seen, verify = _attribution_spy()
+    result = _call(git, hub, verify_pull_request_app=verify)
+    assert result.effected is True
+    assert seen == [500]
+
+
+def test_a_new_pr_not_attributed_to_the_app_is_reported_not_effected() -> None:
+    """The ambient GITHUB_TOKEN wired in by mistake is also a ``ghs_`` token: the push may have
+    happened, but the result must say so and must never report success."""
+    git = FakeControlGit(committed={BASE_BRANCH: OLD_REVISION})
+    hub = FakeGitHub()
+    result = _call(git, hub, verify_pull_request_app=_foreign)
+    assert result.effected is False
+    assert result.reason_code is Refusal.TOKEN_APP_MISMATCH
+    assert result.pr_number == 500
+    assert result.pr_created is True
+    assert result.commit_written is True
+    assert "review and close" in result.reason
+
+
+def test_an_existing_pr_not_attributed_to_the_app_stops_before_any_write() -> None:
+    """A hand-made or foreign PR on the reserved branch name: nothing is overlaid, committed,
+    pushed or edited."""
+    git = FakeControlGit(committed={BASE_BRANCH: OLD_REVISION, BRANCH: "c" * 40})
+    hub = FakeGitHub()
+    hub.prs[BRANCH] = PullRequestRef(
+        number=501, url="https://github.com/x/y/pull/501", title="t", body="revision: c\n"
+    )
+    result = _call(git, hub, verify_pull_request_app=_foreign)
+    assert result.effected is False
+    assert result.reason_code is Refusal.TOKEN_APP_MISMATCH
+    assert git.overlaid == []
+    assert git.committed_messages == []
+    assert git.pushed == []
+    assert hub.create_calls == 0
+    assert hub.update_calls == 0
+
+
+def test_an_unverifiable_existing_pr_attribution_stops_before_any_write() -> None:
+    git = FakeControlGit(committed={BASE_BRANCH: OLD_REVISION, BRANCH: "c" * 40})
+    hub = FakeGitHub()
+    hub.prs[BRANCH] = PullRequestRef(
+        number=501, url="https://github.com/x/y/pull/501", title="t", body="revision: c\n"
+    )
+
+    def unverifiable(owner: str, name: str, number: int, *, token: str) -> TokenDecision:
+        return TokenDecision(False, None, "could not attribute pull request")
+
+    result = _call(git, hub, verify_pull_request_app=unverifiable)
+    assert result.effected is False
+    assert result.reason_code is Refusal.TOKEN_UNVERIFIABLE
+    assert git.pushed == []
+
+
+def test_an_attributed_existing_pr_is_checked_before_the_push_then_updated() -> None:
+    git = FakeControlGit(committed={BASE_BRANCH: OLD_REVISION, BRANCH: "c" * 40})
+    hub = FakeGitHub()
+    hub.prs[BRANCH] = PullRequestRef(
+        number=501, url="https://github.com/x/y/pull/501", title="t", body="revision: c\n"
+    )
+    seen, verify = _attribution_spy()
+    result = _call(git, hub, verify_pull_request_app=verify)
+    assert result.effected is True
+    assert seen == [501]
+    assert result.pr_updated is True
+
+
+def test_the_kill_switch_and_token_gates_run_before_any_attribution_call() -> None:
+    calls: list[int] = []
+
+    def spy(owner: str, name: str, number: int, *, token: str) -> TokenDecision:
+        calls.append(number)
+        return TokenDecision(True)
+
+    git = FakeControlGit(committed={BASE_BRANCH: OLD_REVISION})
+    hub = FakeGitHub()
+    assert _call(git, hub, environment={}, verify_pull_request_app=spy).effected is False
+    assert _call(git, hub, token=None, verify_pull_request_app=spy).effected is False
+    assert calls == []
+    assert git.checked_out is None
+
+
+def test_an_already_current_candidate_makes_no_attribution_or_write_call() -> None:
+    git = FakeControlGit(committed={BASE_BRANCH: NEW_REVISION}, pending_revision=NEW_REVISION)
+    hub = FakeGitHub()
+    seen, verify = _attribution_spy()
+    result = _call(git, hub, verify_pull_request_app=verify)
+    assert result.effected is True
+    assert seen == []
+    assert git.pushed == []
+
+
+def test_only_the_reserved_candidates_update_branch_is_ever_pushed() -> None:
+    """Negative control: an unrelated branch (and above all the base branch) is never written."""
+    git = FakeControlGit(committed={BASE_BRANCH: OLD_REVISION})
+    result = _call(git, FakeGitHub())
+    assert result.effected is True
+    assert git.pushed == [BRANCH]
+    assert BASE_BRANCH not in git.pushed
+    prefix = "repository-presenter/candidates-update/"
+    assert all(branch.startswith(prefix) for branch in git.pushed)

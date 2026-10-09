@@ -10,13 +10,10 @@ from repository_presenter.core.github.token_provenance import (
     EXPECTED_APP_ID,
     verify_installation_token,
     verify_pull_request_app,
-    verify_repository_token,
 )
 
 TARGET = "aspose-cells-foss/Aspose.Cells-FOSS-for-Java"
 INSTALLATION_TOKEN = "ghs_installationtokenfortestsonly"
-CONTROL_REPOSITORY = "babar-raza/repository-presenter"
-ACTIONS_TOKEN = "ghs_actionsjobtokenfortestsonly"
 
 
 def _repos(*names: str) -> dict[str, Any]:
@@ -135,56 +132,3 @@ def test_an_unreadable_pull_request_is_unverifiable() -> None:
     )
     assert decision.ok is False
     assert decision.code is Refusal.TOKEN_UNVERIFIABLE
-
-
-# -- verify_repository_token (G7-W14: the control-repository write's own provenance check,
-# never an installation-token assumption that does not hold for an ambient Actions job token) ----
-
-
-def test_a_token_that_reads_exactly_the_control_repository_is_accepted() -> None:
-    seen: list[str] = []
-    decision = verify_repository_token(
-        CONTROL_REPOSITORY,
-        ACTIONS_TOKEN,
-        fetch=_fetch(200, {"full_name": CONTROL_REPOSITORY}, seen),
-    )
-    assert decision.ok is True
-    assert seen and seen[0].endswith(f"/repos/{CONTROL_REPOSITORY}")
-
-
-def test_the_full_name_comparison_ignores_case() -> None:
-    decision = verify_repository_token(
-        CONTROL_REPOSITORY,
-        ACTIONS_TOKEN,
-        fetch=_fetch(200, {"full_name": CONTROL_REPOSITORY.upper()}),
-    )
-    assert decision.ok is True
-
-
-def test_an_empty_token_is_refused_without_any_request() -> None:
-    seen: list[str] = []
-    decision = verify_repository_token(CONTROL_REPOSITORY, "", fetch=_fetch(200, {}, seen))
-    assert decision.ok is False
-    assert decision.code is Refusal.TOKEN_UNVERIFIABLE
-    assert seen == []
-
-
-def test_a_token_that_resolves_to_a_different_repository_is_refused() -> None:
-    decision = verify_repository_token(
-        CONTROL_REPOSITORY, ACTIONS_TOKEN, fetch=_fetch(200, {"full_name": "someone-else/other"})
-    )
-    assert decision.ok is False
-    assert decision.code is Refusal.TOKEN_WRONG_SCOPE
-
-
-def test_a_refused_or_unreachable_lookup_never_assumes_ok() -> None:
-    for fetch in (
-        _fetch(-1, "ConnectError"),
-        _fetch(401, {"message": "bad credentials"}),
-        _fetch(403, {"message": "forbidden"}),
-        _fetch(500, None),
-        _fetch(200, ["not", "a", "dict"]),
-    ):
-        decision = verify_repository_token(CONTROL_REPOSITORY, ACTIONS_TOKEN, fetch=fetch)
-        assert decision.ok is False
-        assert decision.code is Refusal.TOKEN_UNVERIFIABLE
