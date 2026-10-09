@@ -52,7 +52,7 @@ def test_the_scheduled_workflow_parses_and_is_triggered_by_schedule_and_dispatch
     assert "repository_dispatch" not in triggers
 
 
-def test_every_job_defaults_to_read_only_except_seal_and_publish_candidates(
+def test_every_job_defaults_to_read_only_except_seal(
     scheduled: dict[str, Any],
 ) -> None:
     assert scheduled["permissions"] == {"contents": "read"}
@@ -61,15 +61,11 @@ def test_every_job_defaults_to_read_only_except_seal_and_publish_candidates(
     # plan reads the monitor's evidence artifacts (actions: read) and writes nothing.
     assert jobs["plan"]["permissions"] == {"contents": "read", "actions": "read"}
     assert jobs["seal"]["permissions"] == {"contents": "write"}
-    # publish-candidates (G7-W14) holds contents:write and pull-requests:write against THIS
-    # repository, granted here because candidates-publish.yml's own write job uses this job's
-    # ambient GITHUB_TOKEN directly rather than minting a separate App installation token (a
-    # reusable workflow's effective permissions are capped by its caller's own grant).
-    assert jobs["publish-candidates"]["permissions"] == {
-        "contents": "write",
-        "pull-requests": "write",
-    }
-    # propose's own real write mints a separate App installation token instead, so this job
+    # publish-candidates (G7-W14) is read-only too: candidates-publish.yml's own write job
+    # mints a separate App installation token for its writes (the ambient GITHUB_TOKEN cannot open
+    # the PR here nor start its required checks), exactly like propose below.
+    assert jobs["publish-candidates"]["permissions"] == {"contents": "read"}
+    # propose's own real write mints a separate App installation token too, so this job
     # needs no write permission of its own at all.
     assert jobs["propose"]["permissions"] == {"contents": "read"}
 

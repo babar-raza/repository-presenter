@@ -21,13 +21,24 @@ requires still holds, in the same shape every other write path in this project u
    ``REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED``. Never inferred from a credential.
 2. A write-scoped token is supplied (``GH_CANDIDATES_WRITE_TOKEN`` - never ``GH_TOKEN``, and never
    ``REPOSITORY_PRESENTER_STATE_TOKEN``, ``present.yml``'s own distinctly-scoped state-ref
-   credential). It is the job's own ambient ``secrets.GITHUB_TOKEN`` (already scoped to exactly
-   this repository by GitHub Actions itself - no GitHub App installation is needed to write to
-   this project's own repository, only to an external target), exposed under this distinct name so
-   the gated step is the only place that name exists, exactly like every sibling effect.
-3. Token provenance (``core/github/token_provenance.py::verify_repository_token``): the token must
-   resolve to exactly the control repository before any write - never an installation-token
-   assumption that does not hold for an Actions job token.
+   credential). It is a short-lived Repository Presenter GitHub App installation token minted
+   inside the write job and scoped to this control repository alone - deliberately NOT the job's
+   own ambient ``secrets.GITHUB_TOKEN``. Two documented GitHub rules make the ambient token unable
+   to carry this effect on this repository (``docs/DECISION_LOG.md`` 2026-10-10): (a) the "Allow
+   GitHub Actions to create and approve pull requests" setting is off here, so a ``GITHUB_TOKEN``
+   cannot open the pull request at all; (b) events a ``GITHUB_TOKEN`` causes do not start
+   ``pull_request`` runs (or, on newer GitHub, start them only in an approval-required state),
+   so the required ``Python 3.11``/``3.12``/``3.13`` checks would never report on the branch's
+   own head commit. An App installation token has neither limit: its pull request is created, and
+   its ``pull_request`` checks run, as for any person's. Exposed under this distinct name so the
+   gated step is the only place that name exists, exactly like every sibling effect.
+3. Token provenance (``core/github/token_provenance.py``): ``verify_installation_token`` must show
+   the token is an installation token whose reach is exactly the control repository, before any
+   write; and ``verify_pull_request_app`` must attribute the pull request (an existing one before
+   anything is pushed, a new one immediately after it is opened) to the Repository Presenter App -
+   the one thing a bare installation token cannot prove about itself ahead of time, and the check
+   that catches the job's ambient ``GITHUB_TOKEN`` (also a ``ghs_`` installation token, of GitHub's
+   own Actions app) ever being wired in by mistake.
 
 Idempotent by construction, never by a separate check bolted on: ``candidates/<slug>/CURRENT`` is
 read at the exact commit this effect is about to build on (the branch's own remote tip when one
@@ -61,7 +72,10 @@ from repository_presenter.core.github.client import (
 )
 from repository_presenter.core.github.token_provenance import TokenDecision
 from repository_presenter.core.github.token_provenance import (
-    verify_repository_token as default_verify_repository_token,
+    verify_installation_token as default_verify_installation_token,
+)
+from repository_presenter.core.github.token_provenance import (
+    verify_pull_request_app as default_verify_pull_request_app,
 )
 
 AUTHORIZATION_VARIABLE = "REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED"
@@ -107,6 +121,7 @@ OverlayFn = Callable[[], None]
 StageAndCommitFn = Callable[["tuple[str, ...]", str], "str | None"]
 PushFn = Callable[[str], None]
 VerifyTokenFn = Callable[[str, str], TokenDecision]
+VerifyPullRequestAppFn = Callable[..., TokenDecision]
 FindPullRequestsFn = Callable[..., "tuple[PullRequestRef, ...]"]
 CreatePullRequestFn = Callable[..., PullRequestRef]
 UpdatePullRequestFn = Callable[..., PullRequestRef]
@@ -153,7 +168,8 @@ def publish_candidates(
     stage_and_commit: StageAndCommitFn,
     push: PushFn,
     branch: str | None = None,
-    verify_token: VerifyTokenFn = default_verify_repository_token,
+    verify_token: VerifyTokenFn = default_verify_installation_token,
+    verify_pull_request_app: VerifyPullRequestAppFn = default_verify_pull_request_app,
     find_pull_requests: FindPullRequestsFn = default_find_pull_requests,
     create_pull_request: CreatePullRequestFn = default_create_pull_request,
     update_pull_request: UpdatePullRequestFn = default_update_pull_request,
@@ -264,6 +280,12 @@ def publish_candidates(
     except RepositoryMetadataError as exc:
         return _github_error(f"could not list pull requests for {branch!r}: {exc}")
     existing_pr = next((pr for pr in prs if pr.state == "open"), None)
+    if existing_pr is not None:
+        # Before anything is staged or pushed: never add a commit to a pull request this App did
+        # not open (a foreign or hand-made PR on the reserved branch name is a stop, not a merge).
+        attribution = verify_pull_request_app(owner, name, existing_pr.number, token=token)
+        if not attribution.ok:
+            return _refuse(True, attribution.code or Refusal.TOKEN_UNVERIFIABLE, attribution.reason)
 
     try:
         overlay()
@@ -307,6 +329,23 @@ def publish_candidates(
         except RepositoryMetadataError as exc:
             return _github_error(f"could not open the candidates-update pull request: {exc}")
         pr_created = True
+        attribution = verify_pull_request_app(owner, name, pr_ref.number, token=token)
+        if not attribution.ok:
+            return PublishResult(
+                repository=repository,
+                control_repository=control_repository,
+                authorized=True,
+                effected=False,
+                branch=branch,
+                revision=revision,
+                pr_number=pr_ref.number,
+                pr_url=pr_ref.url,
+                commit_written=True,
+                pr_created=True,
+                pr_updated=False,
+                reason=f"{attribution.reason} - review and close {pr_ref.url} if it is not ours",
+                reason_code=attribution.code or Refusal.TOKEN_UNVERIFIABLE,
+            )
     else:
         pr_ref = existing_pr
         if existing_pr.title != pr_title or not _is_same_revision(existing_pr, revision):
