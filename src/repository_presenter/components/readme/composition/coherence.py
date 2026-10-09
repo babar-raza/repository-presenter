@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import copy
 import re
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 from repository_presenter.components.readme.composition.authoring import (
@@ -229,11 +230,20 @@ def coherence_checks(
     facts: FactsDocument,
     name: str,
     existing_units: list[dict[str, Any]] | None = None,
+    prior_omitted: Sequence[Mapping[str, Any]] = (),
 ) -> list[str]:
     """Every section's rules, applied to the units the pass returned for that section, plus
     (when ``existing_units`` - this batch's own pre-coherence units, G3-W05) a check that the
     revision did not silently drop named content the pre-coherence unit carried
-    (``coherence_content_loss_errors`` below)."""
+    (``coherence_content_loss_errors`` below).
+
+    ``prior_omitted`` is the explicit omissions S6 ``section_authoring`` already accepted
+    (``{"section", "fact_id", "reason"}`` each). This pass revises units only - it has no omission
+    channel of its own - so a must-carry unit S6 validly omitted with a reason (README_CONTRACT.md:
+    cite it or omit it with a reason) must still count as dispositioned here; judging coherence with
+    an empty omission list rejected every such unit as "missing", whatever the reply said
+    (aspose-slides-foss/Aspose.Slides-FOSS-for-Java, G7-W15: S6 omitted 035/081/083/085/095 with
+    reasons, then both coherence attempts were refused for exactly those five)."""
     errors: list[str] = []
     by_section: dict[str, list[dict[str, Any]]] = {}
     for unit in output.get("units", []):
@@ -255,9 +265,18 @@ def coherence_checks(
                 cited_elsewhere.setdefault(fact_id, section)
     for task in tasks:
         owned = [u for u in by_section.get(task.section_id, []) if u.get("slot") in task.slots]
+        omitted = [
+            item
+            for item in prior_omitted
+            if isinstance(item, Mapping) and item.get("section") == task.section_id
+        ]
         errors.extend(
             unit_checks(
-                {"units": owned, "omitted": []}, task, facts, name, elsewhere_cited=cited_elsewhere
+                {"units": owned, "omitted": omitted},
+                task,
+                facts,
+                name,
+                elsewhere_cited=cited_elsewhere,
             )
         )
     if existing_units is not None:

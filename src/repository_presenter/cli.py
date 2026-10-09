@@ -292,9 +292,6 @@ from repository_presenter.core.github.token_provenance import (
 from repository_presenter.core.github.token_provenance import (
     verify_pull_request_app as default_verify_pull_request_app,
 )
-from repository_presenter.core.github.token_provenance import (
-    verify_repository_token as default_verify_repository_token,
-)
 from repository_presenter.core.hashing import sha256_text
 from repository_presenter.core.llm.fallback import describe, select_models
 from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, JobResult
@@ -2462,10 +2459,11 @@ def run_publish_candidates(
     exactly ``repository``, reports the revision and the branch this would publish to, and writes
     nothing. ``--publish`` additionally requires, in order and each with a typed refusal: the
     owner switch ``CANDIDATES_PUBLISH_AUTHORIZATION_VARIABLE``, a ``GH_CANDIDATES_WRITE_TOKEN``
-    that resolves to exactly ``--control-repo``, and (decided entirely inside the effect, past
-    both of those) an actual difference between what ``candidates/<slug>`` already carries on the
-    target branch and the revision about to be published - an unchanged candidate re-run commits
-    and proposes nothing.
+    that is a GitHub App installation token reaching exactly ``--control-repo`` (and a pull
+    request attributed to the Repository Presenter App, checked in the effect), and (decided
+    entirely inside the effect, past both of those) an actual difference between what
+    ``candidates/<slug>`` already carries on the target branch and the revision about to be
+    published - an unchanged candidate re-run commits and proposes nothing.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -2540,7 +2538,8 @@ def run_publish_candidates(
                 root, paths, msg
             ),
             push=lambda b: candidates_git_ops.push_branch(root, b, token=token),
-            verify_token=default_verify_repository_token,
+            verify_token=default_verify_installation_token,
+            verify_pull_request_app=default_verify_pull_request_app,
             find_pull_requests=default_find_pull_requests,
             create_pull_request=default_create_pull_request,
             update_pull_request=default_update_pull_request,

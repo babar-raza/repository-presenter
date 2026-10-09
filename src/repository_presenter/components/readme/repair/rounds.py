@@ -475,6 +475,15 @@ def run_round(tx: TransactionInputs) -> Round:
                 # previously-cited fact's content is rejected here rather than left to whichever
                 # draw's independent-review sample happens to notice it.
                 existing_units=return_units,
+                # G7-W15: the omissions S6 already accepted for these tasks' must-carry units;
+                # this pass has no omission channel, so without them every validly omitted unit
+                # was refused again as "missing" (Slides-Java: five units, both attempts).
+                prior_omitted=[
+                    {**item, "section": task.section_id}
+                    for task in batch_tasks
+                    for item in authored[task.label].output.get("omitted", [])
+                    if isinstance(item, dict)
+                ],
             ),
             call_schema=coherence_schema(loaded, return_units, batch_tasks),
             # G3-W05: this call site had no recover= at all before this item - a final rejection

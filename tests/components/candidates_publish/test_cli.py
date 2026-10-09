@@ -254,7 +254,8 @@ def test_a_fully_authorized_publish_creates_a_branch_and_a_pull_request(
     monkeypatch.setattr(cli, "default_find_pull_requests", fake_find)
     monkeypatch.setattr(cli, "default_create_pull_request", fake_create)
     monkeypatch.setattr(cli, "default_update_pull_request", fake_update)
-    monkeypatch.setattr(cli, "default_verify_repository_token", fake_verify_token)
+    monkeypatch.setattr(cli, "default_verify_installation_token", fake_verify_token)
+    monkeypatch.setattr(cli, "default_verify_pull_request_app", lambda *a, **k: TokenDecision(True))
     monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
     monkeypatch.setenv("GH_CANDIDATES_WRITE_TOKEN", TOKEN)
 
@@ -299,8 +300,9 @@ def test_an_already_current_candidate_is_published_as_a_no_op(
     monkeypatch.setattr(cli, "default_find_pull_requests", lambda *a, **k: ())
     monkeypatch.setattr(cli, "default_create_pull_request", fail_create)
     monkeypatch.setattr(
-        cli, "default_verify_repository_token", lambda repository, token: TokenDecision(True)
+        cli, "default_verify_installation_token", lambda repository, token: TokenDecision(True)
     )
+    monkeypatch.setattr(cli, "default_verify_pull_request_app", lambda *a, **k: TokenDecision(True))
     monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
     monkeypatch.setenv("GH_CANDIDATES_WRITE_TOKEN", TOKEN)
 

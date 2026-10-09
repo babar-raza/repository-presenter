@@ -370,6 +370,57 @@ are not the same mechanism, and a fix must not be copy-pasted from one to the ot
 own analysis of `section_authoring`'s own packet construction (`composition/authoring.py::section_selections`,
 `authoring_tasks`).
 
+**Root cause of the S6/S8/S9 Enterprise and omission sightings, found and fixed 2026-10-10
+(`G7-W15` and `G7-W18`, one fix; seven further sightings of the Enterprise shape - Slides-Java
+five units, TeX-Python `070`, Cells-.NET `065`, Cells-Rust `075`, 3D-.NET `062`, Email-.Net `058`,
+plus Cells-Java, PDF-Java, Slides-Cpp, Imaging-.NET and Page-Python reported - read from the
+stored transactions' `dispositions.json` and `calls/*.rejected-*.json`, not from reports).** The
+earlier "packet bundling" reading was wrong; there were three stacked defects at three stages,
+fixed earliest first, none by weakening `carried_unit_errors` or `unit_checks`:
+
+1. **S4 (`reconciliation/dispositions.py` `normalize`, the row-18 fold).** `prompts/
+   source_reconciliation.yaml` tells the reconciler to place promotional prose in
+   `enterprise_relationship`; the stored S4 outputs show it did so (rationale "moved to the
+   enterprise_relationship section") and the fold then rewrote the destination to
+   `scope_limitations` (on every Enterprise paragraph found in the stored transactions, over twenty
+   repositories). That was harmless until `scope_limitations` joined `_CARRY_SECTIONS`
+   (2026-10-05): S6 then owed `scope_limitations` a unit whose substance ("which adds ...") only
+   `enterprise_relationship`'s context sentence renders (README_CONTRACT row 18), and
+   `enterprise_relationship` had NO citable fact, so the model cited the paragraph from it
+   ("cites facts outside this section's set") or, on TeX attempt 1, invented the "adds" sentence
+   from identity facts ("batch processing, advanced typography"). The hypothesis that S4 should
+   OMIT the paragraph was rejected on the contract: that drops the only accepted statement of what
+   the product adds. Fix: the fold keeps `destination_section: enterprise_relationship`; that
+   section joins `_CARRY_SECTIONS`, gets the carried units in its accepted set, and its carry
+   rule says to state only what the product adds ("It adds ..."), never the edition name, so the
+   exactly-once naming rule holds (the guard's refusal now also says how to comply).
+   `NORMALISATION_VERSION` 30 -> 31.
+2. **S8 (`composition/coherence.py` `coherence_checks`).** It judged every task with
+   `"omitted": []`, and the coherence pass (units only) has no omission channel, so a must-carry
+   unit S6 had accepted as validly omitted was refused again as "missing". This is the explanation
+   of `G7-W15`'s recorded "attempt 2 omitted all five units with reasons but the rejection is
+   byte-identical" discrepancy: the reply's `omitted` array was never read. Slides-Java's S6 calls
+   `069ddafc8697` (081/083/085, enterprise_relationship), `f5efbcf17d93` (035), `d939e5267d4e`
+   (095) hold the accepted omissions. Fix: `prior_omitted` (the omissions S6 accepted) is passed
+   from `repair/rounds.py`; a blank reason or another section's omission still does not count.
+3. **S9 (`validation/registry.py` BC-04 `_check_units`).** The same empty list, so a validly
+   omitted unit failed BC-04 and S11 repair pasted the omitted edition paragraphs into the
+   Enterprise sentence. Fix: BC-04 reads the units document's recorded `omitted`.
+   `VALIDATOR_VERSION` 16 -> 17, BC-04 v2 -> v3.
+
+Mutation-tested (`tests/components/readme/composition/test_authoring.py` Enterprise block built
+from the real TeX `070` text and the two real replies; `test_coherence.py`; `validation/
+test_registry.py`; `reconciliation/test_normalization.py`), including negative controls: an
+uncarried unit still fails closed with its substance quoted, a blank or wrong-section omission
+does not count, a genuine limitation superseded into `scope_limitations` is still enforced,
+naming the edition in the context unit is still refused. Live (qwen3-next only, `--fresh`, empty
+`runs/`): TeX-Python, Email-.Net, 3D-.NET, Cells-.NET and Slides-Java all cleared S6 and S8;
+Slides-Java also cleared BC-04 after fix 3. Each is now blocked by a different, pre-existing gap
+(BC-05 deferral classes `UNCLASSIFIED`, `NOTICES_WITHOUT_RECORD`, `BUILD_TEST_PATH_UNRECORDED`,
+Slides-Java BC-04 HTML in `limitation:6` and BC-07 untagged fence on an earlier draw) - not S6.
+Status: fixed and live-verified at S6/S8/S9-BC-04; the entry moves to Resolved when a sealed
+candidate for one of these repositories shows it.
+
 **A second, distinct sub-mechanism of this same entry, found and fixed the same day - not
 `G7-W15`, not claiming to resolve it.** `G7-W15` above is a packet-bundling/logging puzzle (many
 must-carry units across several destination sections in one call; attempt 1 is a true silent
