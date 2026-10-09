@@ -1,29 +1,42 @@
 {
   "acceptance_profile_version": "1",
   "components": {
-    "normalisation": "18",
-    "renderer": "25",
-    "reviewer_logic": "14",
+    "normalisation": "30",
+    "renderer": "30",
+    "reviewer_logic": "18",
     "shell": "6"
   },
   "contract_version": "readme-contract-v1",
   "environment": {
     "extractor_version": "1",
-    "inherited_units_version": "1",
+    "inherited_units_version": "2",
     "os": "Windows",
-    "presenter_site_manifest": "23d2a43bbb97c58c6f82c65b0c78a86aa06710793ea79c453a863e80e3089bf2",
-    "python_version": "3.13.2"
+    "presenter_site_manifest": "500947393b51348a9651f137a18eebb1f79edbf6efc3b53b92da787f7c96db5e",
+    "python_version": "3.13.2",
+    "toolchains": {
+      "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+      "cmake": "cmake version 4.4.2",
+      "dotnet": "10.0.401",
+      "go": "go version go1.26.4 windows/amd64",
+      "gxx": "g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0",
+      "javac": "javac 21.0.11",
+      "mvn": "present (no version reported)",
+      "ninja": "1.13.2",
+      "node": "v24.13.1",
+      "npm": "absent",
+      "tsc": "present (no version reported)"
+    }
   },
   "facts": {
     "build_test_asset:examples": "b8bcae16710da52f70384494ba2c97a22ea77a3f6083228441cabd06a01b8c99",
     "build_test_asset:tests": "7e7775c4d7383de2018c5ed7141a1d9bda4bf216d369ccb14b42437f956101a2",
     "dependency:pillow-10.1.0": "1f813d5f35a5cef21c42c572a4f419c0cffec52e5d36d201c9401c26bebb8adc",
-    "example:001": "769d8dad0445675ee516039a71b81762a2bc79dce65c239423aa25e4938cf891",
-    "example:002": "401c3eedf0bdaf3a6fc9765b1e2ce2b7d45d2d6361ddbe38f69b7e70f51c973c",
-    "example:003": "f14cbea62fb9edc662925a0df42ade3d2bc1f33da2ce81b9db19011070b284f4",
-    "example:004": "56a003f36eddf7910358b9bfd35d48ebeabc6549a4ff0f8968b8db5aa2cdf1b5",
-    "example:005": "34a6ede6442e3ff655ae75acca7c3638abf625a74931ae08eebacb881026fb57",
-    "example:006": "86f08e23cf73ffddb0c472545c664102aa9d807bdd66ee82fee235a0754ac42a",
+    "example:001": "7ab98f55842a8dc48c36ee9ee6df842493c891b79b4c9689a537830fbc820cb2",
+    "example:002": "f09a6ba3022de3104e39d51aaf2f381dfb968547689b9136eac11bd0f5eb5568",
+    "example:003": "95d343248c905a5059bb949057a5997c9c8a940a6b97382850035ae65a40c771",
+    "example:004": "a0d42c66597db5b2848764e078d3fe28253f85e051b43a414a1bc2770c745f72",
+    "example:005": "c9a4d2e216283c9d372163cf513f907a65ea4eba7892ddec407a81a11e906537",
+    "example:006": "a7b5c4ddbe4f3b2b25aaf789f8ed97070a96d159b9023c55db68a2eca9877dc8",
     "identity:ecosystem": "3d81bdbfc6aa95958c65dd386e88c2301c35db8419950e88c1ffbf21366d04f2",
     "identity:family": "695f3adc05663cbb42538f8ce6789ab1c02a9c950037e56ba4a5b4869b296a49",
     "identity:platform": "1c3f481995322c332689f177c16c48dc9d2900336b11144eb41e6155e944df23",
@@ -89,7 +102,7 @@
     "inherited_unit:057.paragraph": "5ac787c0d6da83c413ba5386243a57c91d508c6e59450d4bc4377dbf143633fb",
     "inherited_unit:058.heading": "ced0a0fa90756aac7ce3ce688e0a9655399ba8fd093eae962107a01a898bd370",
     "inherited_unit:059.paragraph": "07a181261dcc366f31205c9bea43ac9174119c5bb749dd7aba4d51ba9b607ced",
-    "install_command:pip": "a49607141ebc495baed8d02183c00976e0c5ed65278d3777fc2d18dd0c0ffea4",
+    "install_command:pip": "08a8794aebe7da158730f3c43003cf23d5bd6336b12ec9e2d0803f74db7b59fb",
     "license:file": "4d120bd6fe7ea62aad075b68f94315f2fab58d3a5bf8a6d63ea221334ac5e3ff",
     "license:spdx": "ceb6ce5bf3986503b24dc2912f86a900b6b2ff3631822ffd1d9233de7587f57e",
     "link_target:001": "136b641cdd76af4fba7c3b5da2f70bedb2600c52f2d3b07b89db2cc03d4fbf91",
@@ -201,8 +214,8 @@
   "prompts": {
     "independent_review": {
       "model_route": "qwen3-next",
-      "sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
-      "version": "10"
+      "sha256": "c53a3eb2e7b71d67c1c6b271d5d00b237dec53cdd90261d8b09ba3558c20e359",
+      "version": "11"
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
@@ -216,18 +229,18 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "a3b2066d504d61a8cb957068e38b2fd41af2ba26f7b8409e3f54e272b67403e6",
-      "version": "18"
+      "sha256": "828cf21b50b573102e3bda798f45a9de905b55f29841890fb8575e107e67be78",
+      "version": "19"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
-      "sha256": "5f9e0abfa3a29c248f2ca5841770675031bb5da5d90a8207bdd21dd617492760",
-      "version": "6"
+      "sha256": "bbc862f1dd08159b98d237c91aa4e5659aa67d097c8f32baf97c2ca01a6ea7d6",
+      "version": "8"
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "7bdddd8cdbc2c03dd9310d6dbba9efafc2f369559b9bfc4a84a020896f55209a",
-      "version": "10"
+      "sha256": "3067169c998e03ec13ab64f36ad1cce9744c5a9cd6e1a9d2ea3e438ce9fbc98e",
+      "version": "11"
     }
   },
   "protected_content_fingerprint": "786262abb12c177308e17389a8a30defddbf2fe675c5d16049a3b228ee10fb07",
@@ -236,18 +249,19 @@
     "revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
     "tree_sha256": "6bb9b0cbe309b6a1bc04cbaf32bc00093d5bf779ae296801d17afe69e9b3468e"
   },
-  "validator_version": "4",
+  "validator_version": "15",
   "validators": {
     "BC-01": "1",
-    "BC-02": "3",
+    "BC-02": "4",
     "BC-03": "2",
     "BC-04": "2",
-    "BC-05": "1",
-    "BC-06": "4",
-    "BC-07": "7",
+    "BC-05": "2",
+    "BC-06": "7",
+    "BC-07": "10",
     "BC-08": "2",
     "BC-09": "1",
-    "BC-10": "4",
-    "BC-11": "1"
+    "BC-10": "5",
+    "BC-11": "2",
+    "BC-12": "1"
   }
 }

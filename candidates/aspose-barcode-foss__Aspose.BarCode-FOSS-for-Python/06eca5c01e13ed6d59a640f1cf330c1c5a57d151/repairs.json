@@ -1,42 +1,72 @@
 {
   "attempts": {
-    "107ba5996aac4925dcc72f8a": {
+    "1c1306582a57653e5871b231": {
       "changes": [
         {
-          "after": "[]",
-          "before": "[  {   {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {    {  ",
+          "after": "The toolchain requires Python 3.12 or later and uses the repository's own test suite in tests/ to validate functionality. Contributors must ensure all tests pass before submitting changes, following the rules defined by the project's testing standards. Runnable example scripts and what each one demonstrates are listed in the examples/README.md file. The examples/ directory provides runnable samples that demonstrate member AUTO, member H, member data, member render, member to_png, and member to_svg usage. Running the test suite from the repository root verifies that the package behaves as expected across supported scenarios.",
+          "before": "The toolchain requires Python 3.12 or later and uses the repository's own test suite in tests/ to validate functionality. Contributors must ensure all tests pass before submitting changes, following the rules defined by the project's testing standards. The examples/ directory provides runnable samples that demonstrate member AUTO, member H, member data, member render, member to_png, and member to_svg usage. Running the test suite from the repository root verifies that the package behaves as expected across supported scenarios.",
           "fact_ids": [],
           "id": "R01",
-          "path": "revised_output.omitted"
+          "path": "units[0].text"
         }
       ],
-      "label": "F08",
+      "label": "F07",
       "misrouted": false,
       "outcome": "repaired",
-      "re_raised": [
-        "F08"
-      ],
       "reason": null,
-      "request_sha256": "8a25eae2e116b4fbf2b779d098ddf8e64fff606c232b049b1daa943959b53abd",
-      "section_id": "additional_examples",
+      "repair_logic_version": "1",
+      "request_sha256": "004551918d3942c3f63e6b4b5bb3763cd155edae9de1b9fd436dc9029a4e74a5",
+      "section_id": "development_testing",
       "source": "review",
       "stage": "S6"
     },
-    "9a08fbebb2e9a4afcc408cc1": {
+    "94e4b993e165b49006cc9476": {
+      "changes": [
+        {
+          "after": "The to_svg and to_png methods render barcodes to SVG and PNG formats, with rendering control via RenderOptions for scale, DPI, module dimensions, colors, and text display.",
+          "before": "Render barcodes to SVG and PNG formats using the to_svg and to_png methods, with rendering control via RenderOptions for scale, DPI, module dimensions, colors, and text display.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units[2].text"
+        },
+        {
+          "after": "Pass a Renderer subclass instance to the render method to support custom rendering, returning an artifact containing the rendered output data.",
+          "before": "Support custom rendering by passing a Renderer subclass instance to the render method, returning an artifact containing the rendered output data.",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "units[3].text"
+        },
+        {
+          "after": "BarcodeError, EncodingError, RenderingError, and SymbologyNotFoundError exception types provide structured error handling for distinct failure scenarios.",
+          "before": "Provide structured error handling through BarcodeError, EncodingError, RenderingError, and SymbologyNotFoundError exception types for distinct failure scenarios.",
+          "fact_ids": [],
+          "id": "R03",
+          "path": "units[4].text"
+        }
+      ],
+      "label": "F02",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "repair_logic_version": "1",
+      "request_sha256": "5f2c3095589f8cf2619b22cb28335e205f8552c104567b67632b30cc2f18615d",
+      "section_id": "key_capabilities",
+      "source": "review",
+      "stage": "S6"
+    },
+    "ee7aa0dbf081bc6163697d6b": {
       "changes": [],
-      "label": "F07",
+      "label": "F06",
       "misrouted": false,
       "outcome": "unrepairable",
-      "re_raised": [
-        "F07"
-      ],
-      "reason": "targeted_repair: output rejected twice; last rejection: revised_output: matches the causal stage's own output unchanged; a no-op cannot repair a defect this stage's content did not change",
+      "reason": "targeted_repair: output rejected twice; last rejection: revised_output: unit limitation:2: identifiers that are not accepted fact values: EciHelper.normalize, EciHelper.normalize/.validate, Gs1Helper.parse, Gs1Helper.parse/.validate, eci_assignment, gs1_enabled",
+      "repair_logic_version": "1",
       "request_sha256": null,
-      "section_id": "development_testing",
+      "section_id": "scope_limitations",
       "source": "review",
       "stage": "S6"
     }
   },
-  "composition": "4740ffdc9ae8d52f645fc596d5343bfd279ac3d0dc2cebc4cd3e0adde01b0e16",
+  "composition": "15e99fd9a01d8516e779f10e4a98794f16d991894d6a103b6091812a877f8c6a",
   "schema_version": 1
 }
