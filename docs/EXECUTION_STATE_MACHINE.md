@@ -112,8 +112,8 @@ Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UND
 `G6_PROPOSAL_EFFECT_PROOF`, `G7_PRODUCTION_AND_CONTINUOUS_OPERATION`.
 
 **Register.** Work items whose `project/state.yaml` owner begins `REGISTER:` and `owner_items` OWNER-10 to OWNER-19 own every reviewer id in `docs/DEFECT_INDEX.md`: G6-W05 write path; G3-W06 README contract; G3-W07 code freeze and re-seal; G5-W08 seal routing, status, durable state, registry coverage; G5-W09 no-op proof; G7-W07 autonomy and safeguards; G4-W18 discovery into `src/`; G4-W19 product-evidence surfaces; G7-W08 hygiene and prompts; G7-W09 documentation claims; G7-W10
-cursor-staleness guard; G7-W11 sealing-loop failure memory; G7-W12 Cells-Go UNCLASSIFIED deferral
-investigation; G7-W13 unattended sealing hosted pipeline proof; G7-W14 hosted portfolio-currency
+cursor-staleness guard; G7-W11 sealing-loop failure memory; G7-W12 UNCLASSIFIED deferral family (classes
+and nested-test extraction landed; S4 fold open); G7-W13 unattended sealing hosted pipeline proof; G7-W14 hosted portfolio-currency
 durability; G7-W15 S6 must-carry packet-bundling gap (settled, third sighting); G7-W17 S8 coherence must-carry recovery gap (settled, seventh sighting); G7-W18 the same shape's S6 re-ask exhaustion (single sighting); G7-W19 absence-finding restated-claim fold gap (fixed). G7-W20 acceptance profile ratification (OWNER-13, owner-decided); G7-W21 Monday delivery plan and background-track schedule; G7-W22 candidate currency freeze and re-seal batching.
 `tests/test_register_integrity.py` fails when an id loses its work item.
 
