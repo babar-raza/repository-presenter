@@ -10,41 +10,29 @@
   },
   "evidence": [
     {
-      "path": "src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj",
-      "detail": "install command for the package id declared by the manifest"
+      "path": "dotnet add package Aspose.Imaging.Foss",
+      "detail": "2026-10-09T21:36Z: error: There are no versions available for the package 'Aspose.Imaging.Foss'."
     },
     {
       "path": "https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json",
-      "detail": "package registry: distribution not found on nuget"
-    },
-    {
-      "path": "https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json",
-      "detail": "HTTP 404 on 2026-10-04 11:22Z (curl): no version index for the package id Aspose.Imaging.Foss."
-    },
-    {
-      "path": "https://api.nuget.org/v3/registration5-gz-semver2/aspose.imaging.foss/index.json",
-      "detail": "HTTP 404 on 2026-10-04 (curl): no registration for Aspose.Imaging.Foss."
-    },
-    {
-      "path": "https://azuresearch-usnc.nuget.org/query?q=packageid:Aspose.Imaging.Foss&prerelease=true",
-      "detail": "NuGet search: totalHits 0 on 2026-10-04 (curl)."
+      "detail": "HTTP 404 on 2026-10-09T21:36Z"
     },
     {
       "path": "https://www.nuget.org/packages/Aspose.Imaging.Foss",
-      "detail": "HTTP 404 on 2026-10-04 (the README's own NuGet badge target, link_target:004 CONTRADICTED)."
+      "detail": "HTTP 404 on 2026-10-09T21:36Z (the README's NuGet badge target)"
     },
     {
       "path": "https://api.nuget.org/v3-flatcontainer/aspose.imaging/index.json",
-      "detail": "Control: HTTP 200 on 2026-10-04, so the probe itself works; this is an unpublished distribution, not a checker defect."
+      "detail": "Control: HTTP 200, so the probe itself works"
     },
     {
       "path": "README.md",
-      "detail": "Separate upstream defect, not part of this claim: the csharp example at lines 68-78 does not compile on its own snippet (CS0103: \bytes does not exist in the current context, line 76 ImageProbe.DetectFormat(bytes)). The product's own dotnet build src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj exits 0 at revision a7c7314b, so the source install proof stands without the snippet; the snippet itself is excluded from the candidate (rule 16)."
+      "detail": "lines 4 and 62-64 (revision a7c7314b18e1a5bd209fab38c15e72574337366f; unchanged at the live head)"
     }
   ],
-  "claim": "At revision a7c7314b18e1a5bd209fab38c15e72574337366f, aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET's own install_command:dotnet is CONTRADICTED (package registry: distribution not found on nuget). The unpublished package is an upstream distribution fact (flat container, registration and search all negative; control aspose.imaging HTTP 200), so the source install is the honest path at this revision.",
-  "suggested_issue_title": "install_command:dotnet is CONTRADICTED at a7c7314b18e1",
-  "suggested_issue_body": "repository-presenter's validation pipeline (BC-02) found `install_command:dotnet` CONTRADICTED while re-verifying `aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET` at revision `a7c7314b18e1a5bd209fab38c15e72574337366f`.\n\n## Evidence\n\n- `src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj`: install command for the package id declared by the manifest\n- `https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json`: package registry: distribution not found on nuget\n\n<!-- repository-presenter-defect: sha256:2c99dc76f86474b8b3152f1ad3e03cb333a8ae65e7fae627a453af7cdfc0371a -->\n",
+  "claim": "At revision a7c7314b18e1a5bd209fab38c15e72574337366f, README.md documents `dotnet add package Aspose.Imaging.Foss` and a NuGet badge linking https://www.nuget.org/packages/Aspose.Imaging.Foss, and nuget.org has no package with that id (HTTP 404).",
+  "suggested_issue_title": "README install command and NuGet badge reference Aspose.Imaging.Foss, which does not exist on nuget.org",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-02) recorded this while re-verifying `aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET`; it was then reproduced independently against the live default-branch head `a7c7314b18e1a5bd209fab38c15e72574337366f` on 2026-10-09T21:36Z.\n\n## Summary\n\nThe Install section (README.md lines 62-64) says `dotnet add package Aspose.Imaging.Foss`, and the NuGet badge on line 4 links the package page. `src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj` declares `PackageId` `Aspose.Imaging.Foss`, but no such package is published on nuget.org, so the documented install fails.\n\n## Environment\n\n- Revision `a7c7314b18e1a5bd209fab38c15e72574337366f` (default branch `main`)\n- .NET SDK 10.0.401\n\n## Steps to reproduce\n\n```sh\ndotnet new console -n probe && cd probe\ndotnet add package Aspose.Imaging.Foss\ncurl -s -o /dev/null -w '%{http_code}\\n' https://www.nuget.org/packages/Aspose.Imaging.Foss\ncurl -s -o /dev/null -w '%{http_code}\\n' https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json\n```\n\n## Actual result\n\n```\nerror: There are no versions available for the package 'Aspose.Imaging.Foss'.\n404\n404\n```\nFor comparison `https://api.nuget.org/v3-flatcontainer/aspose.imaging/index.json` returns 200, and the NuGet pages of `Aspose.Words.FOSS` and `Aspose.Cells.FOSS` return 200.\n\n## Where in the repository\n\n- `README.md:4` (badge), `README.md:62-64` (install command)\n- `src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj:14` (`PackageId`)\n\n## Evidence\n\n- `dotnet add package Aspose.Imaging.Foss`: 2026-10-09T21:36Z: error: There are no versions available for the package 'Aspose.Imaging.Foss'.\n- `https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json`: HTTP 404 on 2026-10-09T21:36Z\n- `https://www.nuget.org/packages/Aspose.Imaging.Foss`: HTTP 404 on 2026-10-09T21:36Z (the README's NuGet badge target)\n- `https://api.nuget.org/v3-flatcontainer/aspose.imaging/index.json`: Control: HTTP 200, so the probe itself works\n- `README.md`: lines 4 and 62-64 (revision a7c7314b18e1a5bd209fab38c15e72574337366f; unchanged at the live head)\n\n<!-- repository-presenter-defect: sha256:2c99dc76f86474b8b3152f1ad3e03cb333a8ae65e7fae627a453af7cdfc0371a -->\n",
   "status": "HANDOFF_PENDING",
   "issue_ref": null,
   "close_reason": null

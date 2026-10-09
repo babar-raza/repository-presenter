@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "source_revision": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
+  "defect_fingerprint": "sha256:0dcf93042da33a32bf454f3be75f82733b2595926f376f4f0d987a8e3d2c3ec1",
+  "triggering_check": {
+    "id": "BC-06",
+    "version": "7",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "line 518: [One-Command Web Font Optimizer Guide](docs/one_command_web_optimizer.md) (revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6)"
+    },
+    {
+      "path": "gh api repos/aspose-font-foss/Aspose.Font-FOSS-for-Python/contents/docs",
+      "detail": "2026-10-09T21:36Z: HTTP 404 Not Found"
+    },
+    {
+      "path": "gh api repos/aspose-font-foss/Aspose.Font-FOSS-for-Python/git/trees/adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6?recursive=1",
+      "detail": "no path matching docs/ or one_command_web_optimizer.md"
+    }
+  ],
+  "claim": "At revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6, README.md line 518 links to docs/one_command_web_optimizer.md, and the repository tree contains no docs directory and no file of that name.",
+  "suggested_issue_title": "README links to docs/one_command_web_optimizer.md, which does not exist in the repository",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-06) recorded this while re-verifying `aspose-font-foss/Aspose.Font-FOSS-for-Python`; it was then reproduced independently against the live default-branch head `adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6` on 2026-10-09T21:36Z.\n\n## Summary\n\nThe CLI Usage section links `[One-Command Web Font Optimizer Guide](docs/one_command_web_optimizer.md)` (README.md line 518). The root of the repository contains `.gitignore CHANGELOG.md CODEOWNERS LICENSE.txt Makefile README.md SECURITY.md pyproject.toml setup.py src testdata tests uv.lock`; there is no `docs/` directory.\n\n## Environment\n\n- Revision `adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6` (default branch `main`)\n\n## Steps to reproduce\n\n```sh\ngh api repos/aspose-font-foss/Aspose.Font-FOSS-for-Python/contents/docs\ngh api 'repos/aspose-font-foss/Aspose.Font-FOSS-for-Python/git/trees/adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6?recursive=1' --jq '.tree[].path' | grep -i optimizer\n```\n\n## Actual result\n\nThe first call returns HTTP 404. The recursive tree lists `src/aspose_font/optimizer.py` and `tests/test_web_optimizer_*.py`, and no `docs/one_command_web_optimizer.md`.\n\n## Where in the repository\n\n- `README.md:518`\n\n## Evidence\n\n- `README.md`: line 518: [One-Command Web Font Optimizer Guide](docs/one_command_web_optimizer.md) (revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6)\n- `gh api repos/aspose-font-foss/Aspose.Font-FOSS-for-Python/contents/docs`: 2026-10-09T21:36Z: HTTP 404 Not Found\n- `gh api repos/aspose-font-foss/Aspose.Font-FOSS-for-Python/git/trees/adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6?recursive=1`: no path matching docs/ or one_command_web_optimizer.md\n\n<!-- repository-presenter-defect: sha256:0dcf93042da33a32bf454f3be75f82733b2595926f376f4f0d987a8e3d2c3ec1 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

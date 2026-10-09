@@ -28,6 +28,7 @@ from repository_presenter.components.candidates_publish.effect import (
     publish_candidates,
 )
 from repository_presenter.components.issues import file as issues_file
+from repository_presenter.components.issues import readiness as issues_readiness
 from repository_presenter.components.issues.approval import (
     ApprovalProvenanceError,
     GitApprovalStore,
@@ -715,6 +716,63 @@ def build_parser() -> argparse.ArgumentParser:
             "when this is nonzero"
         ),
     )
+    readiness_cmd = subcommands.add_parser(
+        "issue-readiness",
+        help=(
+            "list every upstream-defect handoff with what stands between it and a filing (registry "
+            "write gate, recheck replayability, independent re-verification, owner approval) - "
+            "read-only; --emit-approvals writes the owner's approval record files for a chosen "
+            "list of handoff ids into a scratch directory (never ops/, never committed)"
+        ),
+    )
+    readiness_cmd.add_argument("--root", type=Path, default=None, help=root_help)
+    readiness_cmd.add_argument(
+        "--repo", default=None, metavar="OWNER/NAME", help="only this repository's handoffs"
+    )
+    readiness_cmd.add_argument(
+        "--approvals-ref",
+        default="HEAD",
+        metavar="GIT_REF",
+        help="git ref the existing owner approval records are read from (never the working tree)",
+    )
+    readiness_cmd.add_argument("--json", action="store_true", help="machine-readable rows")
+    readiness_cmd.add_argument(
+        "--emit-approvals",
+        type=Path,
+        default=None,
+        metavar="SCRATCH_DIR",
+        help=(
+            "write ops/issue_approvals/<handoff-id>.json record files for the handoffs named by "
+            "--handoff-id / --handoff-ids-file into SCRATCH_DIR (refused inside ops/); all or "
+            "nothing; nothing unlisted is ever written; the owner commits them through a "
+            "reviewed pull request"
+        ),
+    )
+    readiness_cmd.add_argument(
+        "--handoff-id",
+        action="append",
+        default=[],
+        metavar="ID[@sha256:DIGEST]",
+        help=(
+            "a handoff the owner approves; with @digest the record is bound to the digest "
+            "the listing showed, and a handoff changed since is refused (repeatable)"
+        ),
+    )
+    readiness_cmd.add_argument(
+        "--handoff-ids-file",
+        type=Path,
+        default=None,
+        help="a file of handoff ids (one ID[@DIGEST] per line, # comments)",
+    )
+    readiness_cmd.add_argument(
+        "--approver", default=None, metavar="LOGIN", help="the owner's GitHub login (a person)"
+    )
+    readiness_cmd.add_argument(
+        "--valid-days",
+        type=int,
+        default=issues_readiness.DEFAULT_VALID_DAYS,
+        help="validity window of each emitted record in days (at most 30)",
+    )
     metadata = subcommands.add_parser(
         "metadata",
         help=(
@@ -1032,6 +1090,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
     if args.command == "issue-targets":
         return run_issue_targets(args.root)
+    if args.command == "issue-readiness":
+        return run_issue_readiness(
+            args.root,
+            repository=args.repo,
+            approvals_ref=args.approvals_ref,
+            as_json=args.json,
+            emit_dir=args.emit_approvals,
+            handoff_ids=args.handoff_id,
+            handoff_ids_file=args.handoff_ids_file,
+            approver=args.approver,
+            valid_days=args.valid_days,
+        )
     if args.command == "metadata":
         return run_metadata(args.repo, args.root, apply=args.apply)
     if args.command == "sealing-plan":
@@ -1597,6 +1667,112 @@ def run_issue_targets(root_argument: Path | None) -> int:
         for repo in repositories
     ]
     print(json.dumps(targets, separators=(",", ":")))
+    return EXIT_OK
+
+
+def run_issue_readiness(
+    root_argument: Path | None,
+    *,
+    repository: str | None = None,
+    approvals_ref: str = "HEAD",
+    as_json: bool = False,
+    emit_dir: Path | None = None,
+    handoff_ids: Sequence[str] = (),
+    handoff_ids_file: Path | None = None,
+    approver: str | None = None,
+    valid_days: int = issues_readiness.DEFAULT_VALID_DAYS,
+    now: Callable[[], datetime] | None = None,
+) -> int:
+    """List every handoff with its filing blockers; with ``emit_dir``, write the owner's approval
+    record files for the chosen ids (``components/issues/readiness.py``). Read-only toward GitHub
+    and toward the repository: the only files this writes are under the scratch ``emit_dir``."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    moment = (now or (lambda: datetime.now(UTC)))()
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        rows = issues_readiness.build_rows(
+            root / "evidence" / UPSTREAM_DEFECTS_DIRNAME,
+            registry=registry,
+            approvals=GitApprovalStore(root, approvals_ref),
+            reverifications=issues_readiness.load_reverifications(
+                root / issues_readiness.VERIFICATION_RELATIVE_PATH
+            ),
+            now=lambda: moment,
+            repository=repository,
+        )
+    except (HandoffError, issues_readiness.ReadinessError, PresenterError) as exc:
+        _fail(str(exc))
+        return EXIT_INCONSISTENT
+    if emit_dir is None:
+        if handoff_ids or handoff_ids_file is not None or approver is not None:
+            _fail("--handoff-id/--handoff-ids-file/--approver need --emit-approvals")
+            return EXIT_USAGE
+        if as_json:
+            print(
+                json.dumps(
+                    [
+                        {
+                            "handoff_id": r.handoff_id,
+                            "repository": r.repository,
+                            "status": r.handoff.status,
+                            "check": r.handoff.triggering_check.id,
+                            "title": r.handoff.suggested_issue_title,
+                            "evidence_digest": r.evidence_digest,
+                            "registry": r.registry_state,
+                            "reverification": r.reverification,
+                            "approvable": r.approvable,
+                            "fileable_now": r.fileable_now,
+                            "blockers": list(r.blockers),
+                        }
+                        for r in rows
+                    ],
+                    indent=2,
+                )
+            )
+        else:
+            print(
+                issues_readiness.render_listing(
+                    rows, kill_switch_on=issues_file.write_authorized(os.environ)
+                )
+            )
+        return EXIT_OK
+    if approver is None:
+        _fail("--emit-approvals requires --approver (the owner's GitHub login)")
+        return EXIT_USAGE
+    try:
+        requests = [issues_readiness.parse_request(token) for token in handoff_ids]
+        if handoff_ids_file is not None:
+            requests += issues_readiness.parse_requests(
+                handoff_ids_file.read_text(encoding="utf-8").splitlines()
+            )
+        outcome = issues_readiness.emit_approvals(
+            rows,
+            requests,
+            root=root,
+            out_dir=emit_dir,
+            approver=approver,
+            now=moment,
+            valid_days=valid_days,
+        )
+    except (OSError, issues_readiness.ReadinessError) as exc:
+        _fail(str(exc))
+        return EXIT_USAGE
+    for identifier, reason in outcome.refusals:
+        print(f"issue-readiness: REFUSED {identifier}: {reason}")
+    for notice in outcome.notices:
+        print(f"issue-readiness: note {notice}")
+    if outcome.refusals:
+        print("issue-readiness: nothing was written (all or nothing)")
+        return EXIT_USAGE
+    for path in outcome.written:
+        print(f"issue-readiness: wrote {path}")
+    print(
+        f"issue-readiness: {len(outcome.written)} approval record(s) in {emit_dir}. Review them, "
+        "then copy them to ops/issue_approvals/ in a pull request you author and merge; "
+        "this command committed and sent nothing."
+    )
     return EXIT_OK
 
 

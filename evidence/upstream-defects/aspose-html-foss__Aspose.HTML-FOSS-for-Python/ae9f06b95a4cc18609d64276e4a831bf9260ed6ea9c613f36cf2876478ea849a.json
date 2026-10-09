@@ -24,6 +24,14 @@
     {
       "path": "evidence/build/lanes/htmlpy/LANE-E-17.json",
       "detail": "validation.json: pass 8, fail 1 (BC-02); BC-02 detail 'install_command:pip is CONTRADICTED: package registry: distribution not found; no repair could act on it'; repair outcome 'unrepairable', reason 'EXTRACTING is not repairable by revision'. Four other sealed Python FOSS candidates (aspose-email-foss, aspose-3d-foss, aspose-cells-foss, aspose-slides-foss) carry install_command:pip SUPPORTED against genuinely published distributions of the same shape, ruling out a systemic extractor bug (docs/RESEARCH_LANE_E.md:2095-2100)."
+    },
+    {
+      "path": "pip install --target <dir> . (live head, fresh venv; pip 26.2.1, Python 3.13)",
+      "detail": "2026-10-09T20:50Z and 2026-10-09T21:36Z: pip._vendor.pyproject_hooks._impl.BackendUnavailable: Cannot import 'setuptools.backends.legacy' (pyproject.toml line 3: build-backend = \"setuptools.backends.legacy:build\")"
+    },
+    {
+      "path": "gh api repos/aspose-html-foss/Aspose.HTML-FOSS-for-Python/commits/main --jq .sha",
+      "detail": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11 at 2026-10-09T21:36Z (no revision drift since 2026-09-17)"
     }
   ],
   "claim": "At revision bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11, aspose-html-foss/Aspose.HTML-FOSS-for-Python is not published under the name \"aspose-html-foss\" on PyPI, and the repository's own pyproject.toml declares build-backend = \"setuptools.backends.legacy:build\", a module absent from every setuptools release, so a standard pip install of this exact source raises ModuleNotFoundError for any caller, independent of repository-presenter.",

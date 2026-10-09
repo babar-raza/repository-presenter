@@ -167,6 +167,35 @@ def redetect(handoff: Handoff, *, reads: RedetectionReads = DEFAULT_READS) -> Re
     return redetector(handoff, reads)
 
 
+def replay_gap(handoff: Handoff) -> str | None:
+    """Why ``redetect`` could not give ``handoff`` a conclusive reading, decided from the handoff
+    alone (no network), or ``None`` when its evidence has the shape its redetector replays.
+
+    Filing refuses an inconclusive recheck (``file.py``), so a handoff with a gap here can never be
+    filed through the gated path however complete its approval: ``issue-readiness`` reports it
+    before the owner signs anything. Kept beside the redetectors it mirrors."""
+    if handoff.triggering_check.id not in _REDETECTORS:
+        ids = ", ".join(registered_check_ids()) or "none"
+        return (
+            f"no redetector is registered for triggering_check.id={handoff.triggering_check.id!r} "
+            f"(registered: {ids}), so the recheck-before-filing is always inconclusive"
+        )
+    if handoff.triggering_check.id == "BC-02" and len(_pypi_package_names(handoff)) != 1:
+        return (
+            "the BC-02 redetector replays only a PyPI registry URL "
+            "(https://pypi.org/pypi/<name>/json) and this handoff's evidence has "
+            f"{len(_pypi_package_names(handoff))}, so the recheck-before-filing is inconclusive"
+        )
+    if handoff.triggering_check.id == "NOT_PROCESSABLE" and not any(
+        e.path.endswith(".py") for e in handoff.evidence
+    ):
+        return (
+            "the NOT_PROCESSABLE redetector re-parses named .py paths and this handoff's evidence "
+            "names none, so the recheck-before-filing is inconclusive"
+        )
+    return None
+
+
 def _now() -> str:
     return datetime.now(UTC).isoformat(timespec="seconds")
 

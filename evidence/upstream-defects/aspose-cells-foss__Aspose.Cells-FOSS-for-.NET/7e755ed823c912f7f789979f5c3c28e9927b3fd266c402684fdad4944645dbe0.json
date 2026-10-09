@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+  "source_revision": "941814fd138dc28cf47123d48194f329f283498d",
+  "defect_fingerprint": "sha256:7e755ed823c912f7f789979f5c3c28e9927b3fd266c402684fdad4944645dbe0",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 240-257, failing statement at line 254 (revision 941814fd138dc28cf47123d48194f329f283498d; unchanged at the live head)"
+    },
+    {
+      "path": "dotnet build of a console project containing README.md:242-256 verbatim",
+      "detail": "2026-10-09T21:15Z: error CS0200: Property or indexer 'Chart.Name' cannot be assigned to -- it is read only"
+    },
+    {
+      "path": "src/Aspose.Cells_FOSS/Chart.cs",
+      "detail": "line 47: public string Name => _model.Name;"
+    }
+  ],
+  "claim": "At revision 941814fd138dc28cf47123d48194f329f283498d, the README example statement chart.Name = \"Revenue\"; at line 254 fails to compile with CS0200 because Chart.Name is a get-only property.",
+  "suggested_issue_title": "README \"Create a Chart\" example assigns Chart.Name, which is read-only (CS0200)",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-03) recorded this while re-verifying `aspose-cells-foss/Aspose.Cells-FOSS-for-.NET`; it was then reproduced independently against the live default-branch head `941814fd138dc28cf47123d48194f329f283498d` on 2026-10-09T21:15Z.\n\n## Summary\n\n`src/Aspose.Cells_FOSS/Chart.cs:47` declares `public string Name => _model.Name;` (get-only). The README chart example assigns to it.\n\n## Environment\n\n- Revision `941814fd138dc28cf47123d48194f329f283498d` (default branch `master`)\n- .NET SDK 10.0.401, net10.0 console project referencing `src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj` (library builds with 0 warnings); `using Aspose.Cells_FOSS;` added as the README states\n\n## Steps to reproduce\n\n`Program.cs` = `using Aspose.Cells_FOSS;` plus README.md lines 242-256 verbatim, then `dotnet build`.\n\n## Actual result\n\n```\nProgram.cs(15,1): error CS0200: Property or indexer 'Chart.Name' cannot be assigned to -- it is read only\n```\n\n## Where in the repository\n\n- `README.md:254` (`chart.Name = \"Revenue\";`)\n- `src/Aspose.Cells_FOSS/Chart.cs:47`\n- The repository's own sample `samples/Aspose.Cells_FOSS.Samples.Charts/Program.cs:30,34` only reads `Name`\n\n## Evidence\n\n- `README.md`: lines 240-257, failing statement at line 254 (revision 941814fd138dc28cf47123d48194f329f283498d; unchanged at the live head)\n- `dotnet build of a console project containing README.md:242-256 verbatim`: 2026-10-09T21:15Z: error CS0200: Property or indexer 'Chart.Name' cannot be assigned to -- it is read only\n- `src/Aspose.Cells_FOSS/Chart.cs`: line 47: public string Name => _model.Name;\n\n<!-- repository-presenter-defect: sha256:7e755ed823c912f7f789979f5c3c28e9927b3fd266c402684fdad4944645dbe0 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

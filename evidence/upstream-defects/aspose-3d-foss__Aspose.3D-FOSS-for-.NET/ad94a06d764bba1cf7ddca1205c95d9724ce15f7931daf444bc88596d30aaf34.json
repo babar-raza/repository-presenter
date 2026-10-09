@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+  "source_revision": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+  "defect_fingerprint": "sha256:ad94a06d764bba1cf7ddca1205c95d9724ce15f7931daf444bc88596d30aaf34",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 166-172 (revision 52b0f00ebf28a0b4173921725ff170685ec2c502; unchanged at the live head)"
+    },
+    {
+      "path": "dotnet build of a console project containing README.md:166-172 verbatim",
+      "detail": "2026-10-09T21:15Z: Program.cs(3,41): error CS1503: Argument 2: cannot convert from 'Aspose.ThreeD.FileFormat' to 'System.Threading.CancellationToken'"
+    },
+    {
+      "path": "src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs",
+      "detail": "lines 314, 324, 334, 344: the four FromFile overloads; none is (string, FileFormat)"
+    }
+  ],
+  "claim": "At revision 52b0f00ebf28a0b4173921725ff170685ec2c502, the README example at line 168, Scene.FromFile(\"input.fbx\", FileFormat.FBX7400Binary), fails to compile with CS1503 because the only FromFile overloads that take a FileFormat also require a CancellationToken.",
+  "suggested_issue_title": "README \"Enumerate a Scene's Node Hierarchy\" calls Scene.FromFile(string, FileFormat), which has no such overload (CS1503)",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-03) recorded this while re-verifying `aspose-3d-foss/Aspose.3D-FOSS-for-.NET`; it was then reproduced independently against the live default-branch head `52b0f00ebf28a0b4173921725ff170685ec2c502` on 2026-10-09T21:15Z.\n\n## Summary\n\n`Scene.cs` declares four static `FromFile` overloads: `(string, FileFormat, CancellationToken)`, `(string, LoadOptions, CancellationToken)`, `(string)` and `(string, CancellationToken)`. There is no `(string, FileFormat)` overload, so the README call has no match.\n\n## Environment\n\n- Revision `52b0f00ebf28a0b4173921725ff170685ec2c502` (default branch `main`)\n- .NET SDK 10.0.401, console project on net10.0 with a `ProjectReference` to `src/main/Aspose.ThreeD/Aspose.ThreeD.csproj` (the library itself builds with 0 errors)\n\n## Steps to reproduce\n\nREADME.md lines 166-172 as `Program.cs`:\n\n```csharp\nusing Aspose.ThreeD;\nvar scene = Scene.FromFile(\"input.fbx\", FileFormat.FBX7400Binary);\nforeach (var node in scene.RootNode.ChildNodes) { System.Console.WriteLine(node.Name); }\n```\n\nthen `dotnet build`.\n\n## Actual result\n\n```\nProgram.cs(3,41): error CS1503: Argument 2: cannot convert from 'Aspose.ThreeD.FileFormat' to 'System.Threading.CancellationToken'\n```\n\n## Where in the repository\n\n- `README.md:168` (README.md:85 and :299 also describe `FileFormat` constants used with `FromFile`)\n- `src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs:314, 324, 334, 344` (the four `FromFile` overloads); instance `Open(string, FileFormat, CancellationToken)` at `:217` and `Save(string, FileFormat)` at `:425`\n\n## Evidence\n\n- `README.md`: lines 166-172 (revision 52b0f00ebf28a0b4173921725ff170685ec2c502; unchanged at the live head)\n- `dotnet build of a console project containing README.md:166-172 verbatim`: 2026-10-09T21:15Z: Program.cs(3,41): error CS1503: Argument 2: cannot convert from 'Aspose.ThreeD.FileFormat' to 'System.Threading.CancellationToken'\n- `src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs`: lines 314, 324, 334, 344: the four FromFile overloads; none is (string, FileFormat)\n\n<!-- repository-presenter-defect: sha256:ad94a06d764bba1cf7ddca1205c95d9724ce15f7931daf444bc88596d30aaf34 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

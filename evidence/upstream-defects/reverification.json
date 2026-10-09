@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "verified_at": "2026-10-09T21:35:00Z",
+      "evidence_digest": "sha256:5d5ddab5641cf9777b2406d6bc0de7461366936792dec12ce15d7c0b0b313727",
+      "method": "gh api commits/main; docker gcc:13/14/15 and silkeh/clang cmake+ninja build of Aspose.Cells.Foss.Cpp and of the README Tests path; 2026-10-09T21:35Z",
+      "note": "The first observation (2026-09-10) used WinLibs GCC 16.2; the project's later MSVC fallback makes its own install fact pass, which is why this handoff's earlier install_command wording was stale. The upstream build failure itself reproduces at the live head."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "verified_at": "2026-10-09T21:35:00Z",
+      "evidence_digest": "sha256:8c48775fee9dee36a6d5ae4a63c22d0256ca5cfa353f46da91ca49628d4d42eb",
+      "method": "gh api commits/main; source read of XlsxWorkbookSerializerCommon.cpp:29-37,965-968; docker gcc:13/14/15 and silkeh/clang cmake+ninja build; 2026-10-09T21:35Z",
+      "note": "Corrects the earlier handoff: the missing include also fails on GCC, not only Clang."
+    },
+    {
+      "handoff_id": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp__7f0f338845c043416a7a18a79c32d3d99d03378e63d02874a06777674c8031bf",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "c844a467cf7f2503819b655f4d6ceaef91056c40",
+      "verified_at": "2026-10-09T21:35:00Z",
+      "evidence_digest": "sha256:cf665056e8af418d2b6e588ce178c32f0126738ca439a7ef54033d7a5e93b628",
+      "method": "gh api commits/master; docker ubuntu:24.04 g++-12/13/14, gcc:14/15, clang 18/22 default cmake build; 2026-10-09T21:35Z",
+      "note": "Found by the C++ re-verification lane while building the library; not on the presenter's own candidate list."
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-Python__094c41630d8b8ea6ca8d886b2e354d5e6f84767ace53daf43142bf7bb068aca8",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+      "verified_at": "2026-10-09T21:10:00Z",
+      "evidence_digest": "sha256:de93098991bea4ecd63834301ddea852803be9d0abccdcaf2dd3b4e5746a2913",
+      "method": "gh api commits/master; fresh venv, README.md:274-286 verbatim; Python 3.13.15; 2026-10-09T21:10Z",
+      "note": "The presenter's own disposition text said NotImplementedError; the path form raises TypeError."
+    },
+    {
+      "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__dc90b68174c5172f097bdf4902f3e72b964ca2c0810fe4e395f91d3a871e40ad",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
+      "verified_at": "2026-10-09T21:10:00Z",
+      "evidence_digest": "sha256:1ff48b2bd8f77e04112ad1d8635bb6496d90d2e1561a3934b2e7b4b51b10eb4f",
+      "method": "gh api commits/main; fresh venv pip install .; README.md:128-141 verbatim; 2026-10-09T21:10Z",
+      "note": ""
+    },
+    {
+      "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__52ba0e1d48408fc60df34aac9ca19022a6ebb684f8df28370d4dc27ed859f555",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
+      "verified_at": "2026-10-09T21:10:00Z",
+      "evidence_digest": "sha256:cf9bb08c3005ce88481c038ffdee7a8ded6c6648f1163af99a56e198eaf36bf5",
+      "method": "gh api commits/main; fresh venv pip install .; README.md:295-418 verbatim plus probe; 2026-10-09T21:10Z",
+      "note": ""
+    },
+    {
+      "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__a241746e33239b027fb534be6ce8d6fb164a985028d3223bae1e467dc4d8f995",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
+      "verified_at": "2026-10-09T21:36:00Z",
+      "evidence_digest": "sha256:963d66f7d9937c09120376198d31a88ba9036e6e96eb2fdcd61bdd2aa625a7cb",
+      "method": "gh api commits/main; curl pypi json; pip download; README/pyproject read; 2026-10-09T21:36Z",
+      "note": "Matches the BC-02 CONTRADICTED install_command:pip the presenter recorded for this repository (2026-09, revision c4c453b8)."
+    },
+    {
+      "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__0dcf93042da33a32bf454f3be75f82733b2595926f376f4f0d987a8e3d2c3ec1",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
+      "verified_at": "2026-10-09T21:36:00Z",
+      "evidence_digest": "sha256:bef29396e2fb7f7ca8f37b3ddf249e84badaadd2a9640f57b746fcfb4aa91db0",
+      "method": "gh api commits/main; gh api contents/docs; recursive git tree listing; 2026-10-09T21:36Z",
+      "note": ""
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET__ad94a06d764bba1cf7ddca1205c95d9724ce15f7931daf444bc88596d30aaf34",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+      "verified_at": "2026-10-09T21:15:00Z",
+      "evidence_digest": "sha256:a527db22d546bfb921059c3f0675a17512d86cd0161c3aaebcdfcc0f30030fcc",
+      "method": "gh api commits/main; dotnet build of README snippet against the live-head library; .NET SDK 10.0.401; 2026-10-09T21:15Z",
+      "note": "A second README observation (Quick Start uses Vector3 from Aspose.ThreeD.Utilities, a namespace the README never names) was judged borderline and is not part of this handoff."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET__7e755ed823c912f7f789979f5c3c28e9927b3fd266c402684fdad4944645dbe0",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "941814fd138dc28cf47123d48194f329f283498d",
+      "verified_at": "2026-10-09T21:15:00Z",
+      "evidence_digest": "sha256:f50dd9695d5d029f14d0796959051045e3bec9dd919ab99510217feca61b939b",
+      "method": "gh api commits/master; dotnet build of README snippet against the live-head library; .NET SDK 10.0.401; 2026-10-09T21:15Z",
+      "note": "The presenter's six CS0246 'Workbook not found' failures for this repository were a missing using; they are not part of this handoff."
+    },
+    {
+      "handoff_id": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET__2c99dc76f86474b8b3152f1ad3e03cb333a8ae65e7fae627a453af7cdfc0371a",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "a7c7314b18e1a5bd209fab38c15e72574337366f",
+      "verified_at": "2026-10-09T21:36:00Z",
+      "evidence_digest": "sha256:9f7ac62bad3e03b5619717de3806f3c9c1bcd2eb9b0316b96bd51301ad035578",
+      "method": "gh api commits/main; dotnet add package; curl nuget flat container and package page; 2026-10-09T21:36Z",
+      "note": "Rewritten from the 2026-10-04 handoff: same defect and fingerprint; the earlier wording named the presenter's internal fact id. Maintainers may simply not have published yet."
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__9264bf053b4e2805a4c3638b3c8f7cca9774b697538428bc470cca3fc9389b00",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+      "verified_at": "2026-10-09T21:30:00Z",
+      "evidence_digest": "sha256:7871c23866e33eb198f59058ad95d47901813bf42061a13335c9f52af1c66b85",
+      "method": "gh api commits/master; docker node:22 npm install/build and tsc on the README snippet; 2026-10-09T21:30Z",
+      "note": "The earlier 3D-TS handoff about npm publication (BC-02) is a different, non-defect finding and is flagged separately."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript__c04f74bf0b3610a0f3c6d4b25a5c9c2fb9c3501df52aba71f356b6ccf2f0b55c",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+      "verified_at": "2026-10-09T21:30:00Z",
+      "evidence_digest": "sha256:791fce46b3bb6f63ca1bff81a0372df6d7c01a9319106b5a4ad1c1ca10dda386",
+      "method": "gh api commits/master; docker node:22 npm install and npx tsc --noEmit; 2026-10-09T21:30Z",
+      "note": "The presenter recorded 12 errors at this revision; only 3 reproduce with a fresh install (no lockfile), so dependency drift may account for the difference."
+    },
+    {
+      "handoff_id": "aspose-html-foss__Aspose.HTML-FOSS-for-Python__ae9f06b95a4cc18609d64276e4a831bf9260ed6ea9c613f36cf2876478ea849a",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11",
+      "verified_at": "2026-10-09T21:36:00Z",
+      "evidence_digest": "sha256:47a029780ce3ed004f3e7184875ad469cb6211f168a40ec1aa543354a5c47516",
+      "method": "gh api commits/main; pip install --target <dir> . in a fresh venv (pip 26.2.1, Python 3.13); curl pypi json; 2026-10-09T21:36Z",
+      "note": "Re-verified at the live head; the PyPI 404 is context only (the README documents a clone-and-PYTHONPATH install, not a PyPI install)."
+    },
+    {
+      "handoff_id": "aspose-tex-foss__Aspose.TeX-FOSS-for-Python__c00f9615a81bb9f3c77f45df5ded5036d8da0cce6d6dee01634a27b3f3659188",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c",
+      "verified_at": "2026-10-09T20:50:00Z",
+      "evidence_digest": "sha256:393e1c45d5810f8069169f7f67576ccf952f7659acde7a3404da6865897d3b17",
+      "method": "gh api commits/main; shallow clone and ast.parse of every .py under src/aspose_tex (Python 3.13.15); raw.githubusercontent.com cross-check; 2026-10-09T20:50Z",
+      "note": "Re-verified at the live head; count unchanged (35 of 45)."
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__a6f52c1a0cd2425fdc67e15964b43da031e2817dd111dd6ea706defcc9034d8d",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+      "verified_at": "2026-10-09T20:48:00Z",
+      "evidence_digest": "sha256:67f8ef2f115b51437902966a34f780e450b74175fb2cb2b2431fee14441d30ea",
+      "method": "live README read (gh api repos/<r>/readme) and registry probes (curl); 2026-10-09T20:48Z",
+      "note": "README.md lines 93-104 document 'Install from source' (git clone, npm install, npm run build) and never claim an npm registry install; the unpublished @aspose/3d name (registry.npmjs.org/@aspose%2f3d HTTP 404 at 2026-10-09T20:48Z) is a fact, not a defect, as the handoff's own claim concedes"
+    },
+    {
+      "handoff_id": "aspose-pdf-foss__Aspose.PDF-FOSS-for-TypeScript__ef667e7d94656f902b0f73fa8f9338d5bfc886e11d2a9cb00ff6f6f6e41cb1f2",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "c672b3918318ccd0c13bc9dc619620cac2674c9e",
+      "verified_at": "2026-10-09T20:48:00Z",
+      "evidence_digest": "sha256:a38610a97cb7450a37dc9ceba391acbe3f3be3e73a26c5948b1a1988863841d6",
+      "method": "live README read (gh api repos/<r>/readme) and registry probes (curl); 2026-10-09T20:48Z",
+      "note": "README documents a source install (git clone, npm install, npm run build; README lines 272-280) and never claims an npm registry install; the unpublished @asposefoss/pdf name (HTTP 404 at 2026-10-09T20:48Z) is a fact, not a defect; the live head has also moved from a8661f8b"
+    }
+  ]
+}

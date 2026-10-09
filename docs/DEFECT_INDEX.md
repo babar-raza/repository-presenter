@@ -54,6 +54,26 @@ redetector keyed off `triggering_check.id == "BC-02"` plus the evidence shape ac
 `_redetect_not_processable_defect`'s own re-fetch-and-replay pattern rather than PyPI-specific
 logic - left for whoever next works the issues-lane redetect path, not invented here.
 
+### `issues.redetect_only_pypi_and_unparseable`
+
+The recheck-before-filing (`components/issues/file.py`, `redetect.py`) can conclude only for two
+evidence shapes: `BC-02` with exactly one PyPI registry URL, and `NOT_PROCESSABLE` naming `.py` paths.
+Every other handoff reads as an inconclusive recheck and is refused, however complete its owner
+approval. The 2026-10-10 harvest produced 15 independently confirmed upstream defects; only 3 of them
+(HTML-Python, TeX-Python, Font-Python `pip install`) have a replayable recheck. The other 12 are README
+examples that do not compile or run (`BC-03` shape), a dead README link (`BC-06` shape), product builds
+that fail under GCC, Clang or `tsc` (`BC-02` source-build shape), and a NuGet install (`BC-02`, no
+PyPI URL, the already-registered `issues.redetect_bc02_pypi_only`). Separately, `draft.py`'s auto-draft
+hook is deliberately narrow (only `BC-02` `install_command` facts), so none of these shapes is drafted
+automatically: this harvest wrote them by hand from independent re-verification. Not widened here
+(the hook and the redetectors are shared pipeline code under the owner's freeze); `issue-readiness`
+reports each affected handoff as not replayable, and the owner can file those from the paste-ready
+`suggested_issue_body` by hand (the bounded fallback in `plans/idea.md`).
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | 12 handoffs with no replayable recheck | 2026-10-10 | `repository-presenter issue-readiness` blockers; `components/issues/redetect.py::replay_gap` |
+
 ### `s4_reconciliation.output_runaway_past_budget`
 
 S4 `source_reconciliation` replies run to the manifest's `max_output_tokens` (`finish_reason
