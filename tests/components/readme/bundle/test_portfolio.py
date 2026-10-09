@@ -20,11 +20,13 @@ from repository_presenter.components.readme.bundle.portfolio import (
     RERUN_CHECK,
     REVIEW_CHECK,
     DriftObservation,
-    assess_portfolio,
     current_reproducible_no_op_proven,
     load_authorizations,
     load_drift,
     render_lines,
+)
+from repository_presenter.components.readme.bundle.portfolio import (
+    assess_portfolio as assess_portfolio_live,
 )
 from repository_presenter.components.readme.review.acceptance.profile import RATIFIED
 from repository_presenter.components.readme.validation.registry import BLOCKING_CHECKS
@@ -41,6 +43,23 @@ LATER = "2026-10-06T12:00:00Z"
 EARLIER = "2026-10-04T12:00:00Z"
 README = "# Product\n\nA product.\n"
 ALL_CHECKS = (*FACT_CHECKS, *PRESENTATION_CHECKS, REVIEW_CHECK, RERUN_CHECK)
+
+
+def _stored_record(bundle: Path, directory: str) -> dict[str, Any]:
+    """A test double for the scorer: the verdict a test wrote into the bundle's review.json.
+
+    The funnel's mechanics (depth, bucket, advisory) are tested given a scorer verdict; whether
+    the real scorer reaches that verdict for a real README is tested separately below.
+    """
+    record = json.loads((bundle / "review.json").read_text(encoding="utf-8")).get(
+        "acceptance_profile"
+    )
+    return record if isinstance(record, dict) else {}
+
+
+def assess_portfolio(*args: Any, **kwargs: Any):
+    kwargs.setdefault("acceptance_scorer", _stored_record)
+    return assess_portfolio_live(*args, **kwargs)
 
 
 def _entry(name: str, *, mode: str = "full", identifier: int = 1) -> RegistryEntry:
@@ -63,16 +82,18 @@ def _seal(
     review_verdict: str = "ACCEPT",
     no_op: dict[str, Any] | None = None,
     acceptance: dict[str, Any] | None = None,
+    readme: str = README,
+    facts: bool = False,
 ) -> Path:
     """A real, integrity-valid bundle: every file listed in the manifest exists with its digest."""
     revision = _revision(entry)
     bundle = root / "candidates" / entry.repository.replace("/", "__") / revision
     bundle.mkdir(parents=True)
-    review: dict[str, Any] = {"verdict": review_verdict}
+    review: dict[str, Any] = {"verdict": review_verdict, "findings": [], "advisory": []}
     if acceptance is not None:
         review["acceptance_profile"] = acceptance
     files = {
-        "README.md": README.encode(),
+        "README.md": readme.encode(),
         "validation.json": json.dumps(
             {
                 "source_revision": revision,
@@ -84,6 +105,19 @@ def _seal(
         ).encode(),
         "review.json": json.dumps(review).encode(),
     }
+    if facts:
+        document = {
+            "repository": entry.repository,
+            "facts": [
+                {
+                    "id": "install_command:pip",
+                    "kind": "install_command",
+                    "polarity": "SUPPORTED",
+                    "value": f"pip install {entry.repository.rsplit('/', 1)[-1].lower()}",
+                }
+            ],
+        }
+        files["facts.json"] = json.dumps(document).encode()
     for name, data in files.items():
         (bundle / name).write_bytes(data)
     proof = (
@@ -478,7 +512,7 @@ def test_every_live_entry_is_in_exactly_one_bucket_and_counts_are_a_funnel(
 
 def test_real_registry_and_candidates_partition_into_exactly_the_live_entry_count() -> None:
     registry = load_registry(REPO_ROOT / "data" / "registry.json")
-    report = assess_portfolio(
+    report = assess_portfolio_live(
         REPO_ROOT,
         registry.entries,
         stale_directories=(),
@@ -488,10 +522,12 @@ def test_real_registry_and_candidates_partition_into_exactly_the_live_entry_coun
     assert report.denominator == len(registry.entries)
     assert sum(report.buckets.values()) == len(registry.entries)
     assert all(count >= 0 for count in report.buckets.values())
-    # Honest by construction: nothing is publication-eligible while the profile is unratified.
-    if not RATIFIED:
-        assert report.counts["publication_eligible"] == 0
-        assert report.counts["effect_authorized"] == 0
+    # Honest by construction: freshness is unobserved offline, so nothing is publication-eligible
+    # or effect-authorized, however the real READMEs score under the ratified profile.
+    assert RATIFIED is True
+    assert report.counts["source_fresh"] is None
+    assert report.counts["publication_eligible"] == 0
+    assert report.counts["effect_authorized"] == 0
     # Disabled entries never advance.
     disabled = [e for e in registry.entries if e.mode == "disabled"]
     assert report.buckets["disabled"] == len(disabled)
@@ -518,7 +554,7 @@ def test_report_serializes_and_renders_all_seven_counts_and_the_denominator(
         "publication-eligible",
         "effect-authorized",
         "1 live registry entries",
-        "1 ready but acceptance advisory",
+        "1 ready but below the full 30-point acceptance",
     ):
         assert label in text
 
@@ -558,6 +594,155 @@ def test_load_authorizations_accepts_an_object_a_list_and_a_directory(tmp_path: 
     assert len(load_authorizations(tmp_path / "a.json")[entry.repository]) == 1
 
 
+def _product(entry: RegistryEntry) -> str:
+    return " ".join(entry.repository.rsplit("/", 1)[-1].split("-"))
+
+
+def _scored_readme(entry: RegistryEntry, *, unique: bool = True, defect: str = "") -> str:
+    """A README that earns the full 30 under the ratified profile. With ``unique`` every section
+    names the entry's tag, so no section is shared with another repository's (D14); without it the
+    sections are identical across entries once the product name is masked. ``defect`` is appended
+    verbatim."""
+    name = _product(entry)
+    tag = entry.repository.rsplit("-for-", 1)[-1] if unique else ""
+    tail = f" for {tag}" if tag else ""
+    return f"""# {name}
+
+![Py](https://img.shields.io/badge/py-3) [![MIT](https://img.shields.io/badge/MIT)](LICENSE)
+
+{name} reads and writes demo files in applications{tail}.
+It serves developers{tail} who build reporting pipelines without a commercial runtime.
+
+## Navigation
+
+- [Installation](#installation)
+- [Scope and Limitations](#scope-and-limitations)
+- [License](#license){tail and f" ({tag})"}
+
+## Key Capabilities
+
+- **Write demo files**: builds a demo document with the runtime{tail}.
+
+## Installation
+
+```bash
+pip install aspose-demo{tag and f"-{tag.lower()}"}
+```
+
+## Scope and Limitations
+
+- Unsupported formats raise an error in the binding{tail}.
+
+## License
+
+This project is licensed under the [MIT](LICENSE) license{tail}, which permits use and
+distribution with the notice retained.
+{defect}"""
+
+
+def _scored_pair(root: Path, *, defect: str = "") -> tuple[RegistryEntry, RegistryEntry]:
+    """Two sealed bundles with real facts and READMEs, so each is the other's D14 corpus."""
+    first, second = _entry("Alpha"), _entry("Bravo", identifier=2)
+    _seal(root, first, readme=_scored_readme(first, defect=defect), facts=True)
+    _seal(root, second, readme=_scored_readme(second), facts=True)
+    return first, second
+
+
+def _live_buckets(root: Path, *entries: RegistryEntry) -> dict[str, str]:
+    drift = {entry.repository: DriftObservation("CURRENT", _revision(entry)) for entry in entries}
+    report = assess_portfolio_live(
+        root, entries, stale_directories=(), expected_branch=BRANCH, now=NOW, drift=drift
+    )
+    return {a.repository.rsplit("-for-", 1)[1]: a.bucket for a in report.entries}
+
+
+def test_a_full_score_with_no_disqualifier_is_publication_eligible_from_the_sealed_bundle(
+    tmp_path: Path,
+) -> None:
+    first, second = _scored_pair(tmp_path)
+    assert _live_buckets(tmp_path, first, second) == {
+        "Alpha": "publication_eligible",
+        "Bravo": "publication_eligible",
+    }
+
+
+def test_a_score_below_the_full_thirty_is_ready_but_not_publication_eligible(
+    tmp_path: Path,
+) -> None:
+    # Two blank lines in a row cost C13 one point and trigger no disqualifier.
+    first, second = _scored_pair(tmp_path, defect="\n\n\nTrailing text.\n")
+    drift = {e.repository: DriftObservation("CURRENT", _revision(e)) for e in (first, second)}
+    report = assess_portfolio_live(
+        tmp_path,
+        [first, second],
+        stale_directories=(),
+        expected_branch=BRANCH,
+        now=NOW,
+        drift=drift,
+    )
+    landed = {a.repository.rsplit("-for-", 1)[1]: a.bucket for a in report.entries}
+    assert landed == {"Alpha": "source_fresh", "Bravo": "publication_eligible"}
+    assert report.ready_acceptance_advisory == 1  # still READY_FOR_PROPOSAL, never gated on it
+    assert report.counts["source_fresh"] == 2
+    assert report.counts["publication_eligible"] == 1
+
+
+def test_a_hard_disqualifier_blocks_eligibility_whatever_the_score(tmp_path: Path) -> None:
+    first, second = _scored_pair(tmp_path, defect="\nA commercial edition is also sold.\n")
+    assert _live_buckets(tmp_path, first, second)["Alpha"] == "source_fresh"
+
+
+def test_d14_is_judged_against_the_other_bundles_and_a_templated_section_blocks_it(
+    tmp_path: Path,
+) -> None:
+    first, second = _entry("Alpha"), _entry("Bravo", identifier=2)
+    shared = _scored_readme(first, unique=False)
+    _seal(tmp_path, first, readme=shared, facts=True)
+    # The same README for another product: after masking the product, every section is identical.
+    _seal(tmp_path, second, readme=_scored_readme(second, unique=False), facts=True)
+    landed = _live_buckets(tmp_path, first, second)
+    assert landed == {"Alpha": "source_fresh", "Bravo": "source_fresh"}
+
+
+def test_a_lone_bundle_has_no_corpus_so_d14_is_unevaluated_and_it_is_not_eligible(
+    tmp_path: Path,
+) -> None:
+    entry = _entry("Alpha")
+    _seal(tmp_path, entry, readme=_scored_readme(entry), facts=True)
+    assert _live_buckets(tmp_path, entry) == {"Alpha": "source_fresh"}
+
+
+def test_a_bundle_without_readable_facts_cannot_be_judged_for_d14(tmp_path: Path) -> None:
+    first, second = _entry("Alpha"), _entry("Bravo", identifier=2)
+    _seal(tmp_path, first, readme=_scored_readme(first))  # no facts.json
+    _seal(tmp_path, second, readme=_scored_readme(second), facts=True)
+    assert _live_buckets(tmp_path, first, second)["Alpha"] == "source_fresh"
+
+
+def test_a_stored_pass_record_is_not_trusted_over_the_live_score(tmp_path: Path) -> None:
+    """A review.json written by an older seal, claiming PASS, does not make a poor README fit."""
+    entry = _entry("Alpha")
+    _seal(tmp_path, entry, acceptance={"ratified": True, "outcome": "PASS"})
+    assert _live_buckets(tmp_path, entry) == {"Alpha": "source_fresh"}
+
+
+def test_an_unratified_override_scores_nothing_and_leaves_ready_entries_advisory(
+    tmp_path: Path,
+) -> None:
+    first, second = _scored_pair(tmp_path)
+    report = assess_portfolio_live(
+        tmp_path,
+        [first, second],
+        stale_directories=(),
+        expected_branch=BRANCH,
+        now=NOW,
+        drift={e.repository: DriftObservation("CURRENT", _revision(e)) for e in (first, second)},
+        acceptance_ratified=False,
+    )
+    assert report.counts["publication_eligible"] == 0
+    assert report.ready_acceptance_advisory == 2
+
+
 def _headline_report(root: Path, entry: RegistryEntry, *, stale: tuple[str, ...] = ()):
     return assess_portfolio(
         root,
@@ -566,6 +751,7 @@ def _headline_report(root: Path, entry: RegistryEntry, *, stale: tuple[str, ...]
         expected_branch=BRANCH,
         now=NOW,
         drift=_current(entry),
+        acceptance_ratified=False,  # the headline reads the funnel above acceptance
     )
 
 

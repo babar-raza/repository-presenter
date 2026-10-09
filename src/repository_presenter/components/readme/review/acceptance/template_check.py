@@ -1,6 +1,6 @@
 """D14 (mechanical template filling): a deterministic, LLM-free checker over a candidate README.
 
-Rule (PROPOSAL, awaiting owner ratification with the rest of the profile; see ``profile.py``):
+Rule (ratified with the profile, G7-W20; see ``profile.py``):
 a prose section of the candidate is TEMPLATED when
 
 1. its body, with the product name and version replaced by placeholders and normalized for case
@@ -18,8 +18,9 @@ Verdicts:
   no usable fact token, when the template corpus is empty, or when no section has at least
   ``MIN_WORDS`` words. Missing input is never read as a pass.
 
-This module does not read ``RATIFIED``, does not change ``profile.py``, and is not wired into the
-scorer. Its inputs are supplied by the caller.
+This module does not read ``RATIFIED``. Its inputs are supplied by the caller: the scorer takes
+them as ``TemplateInputs`` for disqualifier D14, and ``sealed.py`` builds them from the sealed
+bundles of the portfolio.
 """
 
 from __future__ import annotations
@@ -68,6 +69,15 @@ class ReferenceSection:
 
 
 @dataclass(frozen=True)
+class TemplateInputs:
+    """What the D14 disqualifier needs beyond the README: this repository's evidence and the other
+    repositories' reference sections."""
+
+    evidence: Evidence
+    corpus: Sequence[ReferenceSection]
+
+
+@dataclass(frozen=True)
 class TemplateResult:
     verdict: Verdict
     evidence: tuple[str, ...]
@@ -96,7 +106,7 @@ def check_template_filling(
     judged = 0
     templated: list[str] = []
     exempt: list[str] = []
-    for heading, body in _sections(scan(readme)):
+    for heading, body in sections_of(readme):
         if len(_WORD.findall(body)) < MIN_WORDS:
             continue
         judged += 1
@@ -153,6 +163,11 @@ def _mask(text: str, product: str, version: str) -> str:
 
 def _normalize(text: str) -> str:
     return " ".join(text.lower().split())
+
+
+def sections_of(readme: str) -> list[tuple[str, str]]:
+    """A README's ``(heading, body)`` sections."""
+    return _sections(scan(readme))
 
 
 def _sections(lines: Sequence[Line]) -> list[tuple[str, str]]:

@@ -99,7 +99,7 @@ def test_status_reports_the_seven_separated_counts_and_the_denominator(
         "source-fresh unobserved (no --drift)",
         "publication-eligible ",
         "effect-authorized ",
-        "ready but acceptance advisory",
+        "ready but below the full 30-point acceptance",
         "partition (each entry in exactly one)",
     ):
         assert label in out

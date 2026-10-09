@@ -28,8 +28,12 @@ at a stage only when it counted at every stage before it, so the counts are a fu
    is a network fact this offline command cannot establish, so without a drift document the count is
    UNOBSERVED (``None``), never guessed, and the two counts after it are 0.
 6. ``publication_eligible``: source-fresh, registry mode ``full`` (``dry_run`` is analysis only),
-   the 30-point acceptance profile is RATIFIED and the bundle's recorded acceptance score is
-   ``PASS``, and the sealed README exists so the proposal payload's candidate hash is derivable.
+   the 30-point acceptance profile is RATIFIED and the sealed bundle scores the full 30 with no
+   disqualifier triggered or unevaluated (the outcome ``PASS``), and the sealed README exists so
+   the proposal payload's candidate hash is derivable. The score is recomputed here from the
+   sealed README, ``validation.json`` and ``review.json`` plus the other current bundles as D14's
+   template corpus (``review/acceptance/sealed.py``); a record stored in ``review.json`` by an
+   older seal is not read, so no bundle needs a re-seal for the profile to apply.
 7. ``effect_authorized``: publication-eligible, and a supplied authorization record for this
    repository passes ``validate_authorization`` against this exact bundle (candidate hash, source
    revision, presenter branch, unexpired). Records live under ``ops/proposal-authorizations/``;
@@ -42,9 +46,10 @@ entry: the first of ``disabled``, ``no_bundle``, ``bundle_corrupt``, ``state_not
 entry reached. Every live registry entry is in exactly one bucket, so the buckets sum to the live
 entry count (the denominator). Each count equals the number of entries whose depth reaches it.
 
-``ready_acceptance_advisory`` is reported on its own: entries that are READY and no-op-proven but
-whose acceptance score is not a ratified PASS. They are READY_FOR_PROPOSAL, never publication-ready
-(``review/acceptance/profile.py``: ``RATIFIED`` is False and the scorer is advisory).
+``ready_acceptance_advisory`` is reported on its own: entries that are READY_FOR_PROPOSAL but whose
+acceptance outcome is not a ratified PASS. READY_FOR_PROPOSAL is blocking checks BC-01..BC-11 plus
+the no-op proof and is deliberately NOT gated on the 30-point score (OWNER-13, part two, is
+unanswered), so such an entry stays READY and is never publication-eligible.
 
 Ambiguities resolved conservatively are listed in the pull request that introduced this module as
 owner questions; none changes a schema (``RegistryRevisionV1`` stays deferred).
@@ -53,12 +58,17 @@ owner questions; none changes a schema (``RegistryRevisionV1`` stays deferred).
 from __future__ import annotations
 
 import json
-from collections.abc import Collection, Iterable, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme.review.acceptance.profile import RATIFIED
+from repository_presenter.components.readme.review.acceptance.scorer import PASS
+from repository_presenter.components.readme.review.acceptance.sealed import (
+    load_current_readmes,
+    score_sealed_bundle,
+)
 from repository_presenter.core.authorization.proposal import (
     ProposalAuthorization,
     validate_authorization,
@@ -115,8 +125,22 @@ RERUN_CHECK = "BC-11"
 
 STATE_READY = "READY_FOR_PROPOSAL"
 STATE_UPDATE_AVAILABLE = "VALID_UPDATE_AVAILABLE"
-ACCEPTANCE_RECORD_KEY = "acceptance_profile"  # review.json key the advisory scorer writes
 CURRENT_DRIFT_STATUS = "CURRENT"  # components/monitor/drift.py Status
+
+# (sealed bundle path, repository directory name) -> an acceptance record (scorer.score_candidate).
+AcceptanceScorer = Callable[[Path, str], Mapping[str, Any]]
+
+
+def sealed_acceptance_scorer(root: Path) -> AcceptanceScorer:
+    """The production scorer: each bundle is scored live, with the other current bundles of
+    ``root`` as D14's template corpus."""
+    readmes = load_current_readmes(root)
+    by_directory = {readme.directory: readme for readme in readmes}
+
+    def score(bundle: Path, directory: str) -> Mapping[str, Any]:
+        return score_sealed_bundle(bundle, by_directory.get(directory), readmes)
+
+    return score
 
 
 @dataclass(frozen=True)
@@ -183,8 +207,11 @@ def assess_portfolio(
     drift: Mapping[str, DriftObservation] | None = None,
     authorizations: Mapping[str, Sequence[ProposalAuthorization]] | None = None,
     acceptance_ratified: bool = RATIFIED,
+    acceptance_scorer: AcceptanceScorer | None = None,
 ) -> PortfolioReport:
     """Assess every entry and total the seven counts and the partition."""
+    if acceptance_scorer is None and acceptance_ratified:
+        acceptance_scorer = sealed_acceptance_scorer(root)
     assessments = [
         _assess(
             root,
@@ -195,6 +222,7 @@ def assess_portfolio(
             drift=drift,
             authorizations=authorizations,
             acceptance_ratified=acceptance_ratified,
+            acceptance_scorer=acceptance_scorer,
         )
         for entry in entries
     ]
@@ -250,6 +278,7 @@ def _assess(
     drift: Mapping[str, DriftObservation] | None,
     authorizations: Mapping[str, Sequence[ProposalAuthorization]] | None,
     acceptance_ratified: bool,
+    acceptance_scorer: AcceptanceScorer | None,
 ) -> EntryAssessment:
     def stop(bucket: str, depth: int, reason: str, advisory: bool = False) -> EntryAssessment:
         return EntryAssessment(entry.repository, entry.mode, bucket, depth, reason, advisory)
@@ -281,9 +310,14 @@ def _assess(
         return stop("not_fact_valid", 0, "a factual/safety validation check is not PASS")
     depth = 1  # ``halt`` below reads the depth reached so far
     review = _read_object(bundle / "review.json")
-    acceptance_pass = acceptance_ratified and _acceptance_passed(review)
-    # READY_FOR_PROPOSAL without a ratified, scored 30/30 is "ready but acceptance advisory": it
-    # stays so whatever else holds (staleness, freshness, mode), and is never publication-ready.
+    acceptance_pass = (
+        acceptance_ratified
+        and acceptance_scorer is not None
+        and _acceptance_passed(acceptance_scorer(bundle, directory))
+    )
+    # READY_FOR_PROPOSAL without a ratified, scored full 30 is "ready but below the acceptance
+    # profile": it stays READY whatever else holds (staleness, freshness, mode), and is never
+    # publication-eligible.
     advisory = state == STATE_READY and not acceptance_pass
 
     def halt(bucket: str, reason: str) -> EntryAssessment:
@@ -312,7 +346,7 @@ def _assess(
     if entry.mode != "full":
         return halt("source_fresh", f"registry mode is {entry.mode}, not full")
     if not acceptance_pass:
-        return halt("source_fresh", "30-point acceptance is not ratified and scored PASS")
+        return halt("source_fresh", "the ratified 30-point acceptance is not scored PASS")
     try:
         candidate_hash = sha256_text(readme.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -367,13 +401,9 @@ def _no_op_proven(manifest: Mapping[str, Any]) -> bool:
     )
 
 
-def _acceptance_passed(review: Mapping[str, Any]) -> bool:
-    record = review.get(ACCEPTANCE_RECORD_KEY)
-    return (
-        isinstance(record, dict)
-        and record.get("ratified") is True
-        and (record.get("outcome") == "PASS")
-    )
+def _acceptance_passed(record: Mapping[str, Any]) -> bool:
+    """The full 30, with no disqualifier triggered or unevaluated: scorer outcome PASS."""
+    return record.get("ratified") is True and record.get("outcome") == PASS
 
 
 def load_drift(path: Path) -> dict[str, DriftObservation]:
@@ -433,8 +463,9 @@ def render_lines(report: PortfolioReport) -> list[str]:
         shown = "unobserved (no --drift)" if value is None else str(value)
         parts.append(f"{labels[name]} {shown}")
     advisory = (
-        f"{report.ready_acceptance_advisory} ready but acceptance advisory "
-        f"(30-point profile {'ratified' if report.acceptance_ratified else 'not ratified'})"
+        f"{report.ready_acceptance_advisory} ready but below the full 30-point acceptance "
+        f"(profile {'ratified' if report.acceptance_ratified else 'not ratified'}; "
+        "READY_FOR_PROPOSAL is not gated on it, publication eligibility is)"
     )
     buckets = ", ".join(f"{name} {report.buckets[name]}" for name in BUCKETS)
     return [

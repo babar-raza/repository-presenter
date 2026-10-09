@@ -72,6 +72,17 @@ accepted, no-op-proven, source-fresh, publication-eligible, and effect-authorize
 denominator is the frozen registry revision, and non-processable entries stay inside it with their
 dispositions.
 
+`READY_FOR_PROPOSAL` means exactly the blocking checks BC-01 to BC-11 pass and the zero-call
+byte-identical no-op proof holds. It is not gated on the 30-point acceptance score, and no state
+transition reads that score; whether it should be is the part of OWNER-13 the owner has not
+answered. The owner ratified the profile on 2026-10-10 (G7-W20), and the score gates one thing:
+`publication-eligible` additionally requires registry mode `full`, a source-fresh observation, and
+a recomputed acceptance outcome of `PASS` (all 26 criteria met or not applicable, the full 30
+points, and none of the 14 disqualifiers triggered or unevaluated). `status` recomputes the score
+from the sealed README, `validation.json` and `review.json`; it does not read a stored record.
+Disqualifier D14 (mechanical template filling) compares each section with the other current
+candidates' sections, so it is judged by the portfolio report, never by one repository's own seal.
+
 ### 3.2 Portfolio triggers
 
 | Trigger | Stable identity | Intended use |
@@ -137,7 +148,7 @@ stateDiagram-v2
 | `REPAIRING` | Mixed | Typed defects, causal stage, attempt fingerprint, retained accepted work and bounded repair plan. | Earliest affected active state or terminal failure states. |
 | `ACCEPTED` | Sealed | Candidate, diff, facts, dispositions, plan, validation, review, call ledger and dependency manifest. | `PROVING_NO_OP`, `INVALIDATED`. |
 | `PROVING_NO_OP` | Deterministic replay | Fresh process replay using the accepted source and dependency set. | `READY_FOR_PROPOSAL`, `INVALIDATED`, terminal failure states. |
-| `READY_FOR_PROPOSAL` | Terminal content state | Accepted artifact and proof that unchanged replay made zero provider calls and produced byte-identical output. | `AWAITING_AUTHORIZATION`, `MONITORING`, `INVALIDATED`. |
+| `READY_FOR_PROPOSAL` | Terminal content state | Accepted artifact and proof that unchanged replay made zero provider calls and produced byte-identical output. Not gated on the 30-point acceptance score (section 3.1). | `AWAITING_AUTHORIZATION`, `MONITORING`, `INVALIDATED`. |
 | `AWAITING_AUTHORIZATION` | Effect boundary | Exact effect request: candidate hash, target repository, branch, PR intent, authorization policy and expiry. | `PROPOSING`, `MONITORING`, `BLOCKED_EXTERNAL`. |
 | `PROPOSING` | Write-capable | Fresh source check, authorization receipt, effect identity and rollback plan. | `MONITORING`, `RETRYABLE`, `BLOCKED_EXTERNAL`, `FAILED_INTERNAL`. |
 | `MONITORING` | Quiescent | Current source/policy fingerprints and optional open-proposal identity. | `OBSERVED`, proposal substates. |
