@@ -101,6 +101,15 @@ from repository_presenter.components.propose.effect import (
 from repository_presenter.components.propose.effect import (
     write_authorized as propose_write_authorized,
 )
+from repository_presenter.components.propose.wave import (
+    LiveObservation,
+    WaveError,
+    assess_wave,
+    emit_records,
+    git_provenance,
+    parse_owner_entries,
+    render_table,
+)
 from repository_presenter.components.readme.bundle.dry_run import (
     HeldUpdate,
     held_updates,
@@ -272,7 +281,11 @@ from repository_presenter.core.github.client import (
 from repository_presenter.core.github.client import (
     update_pull_request as default_update_pull_request,
 )
-from repository_presenter.core.github.read_client import fetch_default_branch_sha, fetch_tree
+from repository_presenter.core.github.read_client import (
+    fetch_default_branch_sha,
+    fetch_file,
+    fetch_tree,
+)
 from repository_presenter.core.github.token_provenance import (
     verify_installation_token as default_verify_installation_token,
 )
@@ -967,6 +980,71 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="N",
         help="explicitly permit a re-proposal after this merged or closed presenter PR number",
     )
+    wave = subcommands.add_parser(
+        "wave-readiness",
+        help=(
+            "read-only readiness table for a README proposal wave (G6-W03): per sealed candidate, "
+            "the registry mode, candidate hash, whether its sealed revision is still the live "
+            "upstream head, the authorization record's state and the bundle's staleness; with "
+            "--emit-records, writes the owner-listed authorization records into a scratch "
+            "directory (never into ops/proposal-authorizations/) and writes nothing to GitHub"
+        ),
+    )
+    wave.add_argument("--root", type=Path, default=None, help=root_help)
+    wave.add_argument(
+        "--repo",
+        action="append",
+        default=None,
+        metavar="OWNER/NAME",
+        help="assess only this repository (repeatable); default: every "
+        "READY_FOR_PROPOSAL candidate",
+    )
+    wave.add_argument(
+        "--offline",
+        action="store_true",
+        help="skip the read-only live upstream reads; source freshness is then reported as unread "
+        "and --emit-records is refused",
+    )
+    wave.add_argument(
+        "--authorize",
+        action="append",
+        default=[],
+        metavar="OWNER/NAME@HASH",
+        help="with --emit-records: one repository the owner approved and the first 12 or more "
+        "characters of its candidate hash (repeatable)",
+    )
+    wave.add_argument(
+        "--authorize-file",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="with --emit-records: a file of OWNER/NAME@HASH lines (# comments allowed)",
+    )
+    wave.add_argument(
+        "--emit-records",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help="DRY RUN: write the records for the listed repositories, a registry.json with exactly "
+        "those entries at mode full, dispatch-plan.sh and wave-manifest.json into this scratch "
+        "directory; all-or-nothing, refused inside ops/proposal-authorizations/",
+    )
+    wave.add_argument(
+        "--approver", default="", help="with --emit-records: the person who signed the batch"
+    )
+    wave.add_argument(
+        "--issued-at",
+        default=None,
+        metavar="YYYY-MM-DDTHH:MM:SSZ",
+        help="with --emit-records: the signing instant (default: now, UTC)",
+    )
+    wave.add_argument(
+        "--expires-at",
+        default=None,
+        metavar="YYYY-MM-DDTHH:MM:SSZ",
+        help="with --emit-records: the end of the authorization window (at most 7 days after "
+        "issue, and in the future)",
+    )
     health = subcommands.add_parser(
         "health-check",
         help=(
@@ -1138,6 +1216,18 @@ def main(argv: Sequence[str] | None = None) -> int:
             base_branch=args.base_branch,
             expires_in_hours=args.expires_in_hours,
             supersedes_prs=tuple(args.supersedes_pr),
+        )
+    if args.command == "wave-readiness":
+        return run_wave_readiness(
+            args.root,
+            repositories=args.repo,
+            offline=args.offline,
+            authorize=tuple(args.authorize),
+            authorize_file=args.authorize_file,
+            emit_destination=args.emit_records,
+            approver=args.approver,
+            issued_at=args.issued_at,
+            expires_at=args.expires_at,
         )
     if args.command == "health-check":
         return run_health_check(
@@ -2543,6 +2633,115 @@ def run_draft_proposal_authorization(
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
+    return EXIT_OK
+
+
+def _parse_utc(value: str, flag: str) -> datetime:
+    try:
+        return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+    except ValueError as exc:
+        raise WaveError(f"{flag} must look like 2026-10-11T09:00:00Z (UTC)") from exc
+
+
+def run_wave_readiness(
+    root_argument: Path | None,
+    *,
+    repositories: list[str] | None,
+    offline: bool,
+    authorize: tuple[str, ...],
+    authorize_file: Path | None,
+    emit_destination: Path | None,
+    approver: str,
+    issued_at: str | None,
+    expires_at: str | None,
+) -> int:
+    """The proposal wave's operator view (``components/propose/wave.py``): a read-only readiness
+    table per sealed candidate and, with ``--emit-records``, a dry-run emitter for the records the
+    owner's one batch signature covers. It makes only unauthenticated-or-``GH_TOKEN`` read calls
+    (default-branch head and README presence), never writes to GitHub, never writes into
+    ``ops/proposal-authorizations/`` and never edits ``data/registry.json``."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    try:
+        emitting = emit_destination is not None
+        if not emitting and (authorize or authorize_file is not None):
+            raise WaveError("--authorize/--authorize-file only apply with --emit-records")
+        if emitting and offline:
+            raise WaveError("--emit-records needs the live upstream head: drop --offline")
+        owner_lines = list(authorize)
+        if authorize_file is not None:
+            owner_lines += authorize_file.read_text(encoding="utf-8").splitlines()
+        entries = parse_owner_entries(owner_lines) if emitting else []
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        current_components = {
+            "shell": SHELL_VERSION,
+            "renderer": RENDERER_VERSION,
+            "normalisation": NORMALISATION_VERSION,
+            "reviewer_logic": REVIEWER_LOGIC_VERSION,
+        }
+        current_validators = {check.id: check.version for check in BLOCKING_CHECKS}
+        stale = stale_candidates(root, current_components, current_validators, VALIDATOR_VERSION)
+        token = os.environ.get("GH_TOKEN") or None
+
+        def _live(repository: str) -> LiveObservation:
+            head = fetch_default_branch_sha(repository, token=token)
+            if head.error is not None or head.sha is None:
+                return LiveObservation(error=head.error or "no head")
+            readme = fetch_file(repository, head.sha, README_FILENAME, token=token)
+            return LiveObservation(
+                sha=head.sha,
+                branch=head.branch,
+                readme_found=readme.found if readme.error is None else None,
+            )
+
+        scope = list(repositories) if repositories else None
+        if scope is None and emitting:
+            scope = [entry.repository for entry in entries]
+        rows = assess_wave(
+            root,
+            registry,
+            repositories=scope,
+            live_read=None if offline else _live,
+            stale=stale,
+            provenance=git_provenance,
+        )
+        print(render_table(rows))
+        if not emitting:
+            return EXIT_OK
+        assert emit_destination is not None
+        if not expires_at:
+            raise WaveError("--emit-records requires --expires-at")
+        issued = _parse_utc(issued_at, "--issued-at") if issued_at else datetime.now(UTC)
+        result = emit_records(
+            root,
+            registry,
+            rows,
+            entries,
+            approver=approver,
+            issued_at=issued.replace(microsecond=0),
+            expires_at=_parse_utc(expires_at, "--expires-at"),
+            destination=emit_destination,
+        )
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    except OSError as exc:
+        _fail(f"wave-readiness: {exc}")
+        return EXIT_INCONSISTENT
+    if result.refusals:
+        for refusal in result.refusals:
+            _fail(f"wave-readiness: refused {refusal.repository}: {refusal.code}: {refusal.reason}")
+        print("wave-readiness: nothing was written (one refusal refuses the whole batch)")
+        return EXIT_UNSAFE
+    for path in result.written:
+        print(f"emitted: {path}")
+    print(
+        "wave-readiness: dry run complete - nothing was written to ops/proposal-authorizations/ or "
+        "to GitHub; the records authorize nothing until they are merged through the wave "
+        "pull request"
+    )
     return EXIT_OK
 
 

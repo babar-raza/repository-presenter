@@ -319,6 +319,7 @@ repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
 repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
 repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N]
+repository-presenter wave-readiness [--root PATH] [--repo OWNER/NAME] [--offline] [--authorize OWNER/NAME@HASH] [--authorize-file PATH] [--emit-records DIR --approver NAME --expires-at TIME [--issued-at TIME]]
 repository-presenter publish-candidates --repo OWNER/NAME --import-dir PATH [--root PATH] [--control-repo OWNER/NAME] [--base-branch NAME] [--publish]
 repository-presenter sealing-plan [--root PATH] [--drift-file PATH] [--history-file PATH] [--github-output PATH]
 repository-presenter sealed-ready --repo OWNER/NAME [--root PATH]
@@ -456,6 +457,16 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   `ops/proposal-authorizations/` (`--expires-in-hours` sets its window, at most 168;
   `--supersedes-pr N` explicitly permits a re-proposal after that merged or closed PR). Drafting
   authorizes nothing: the record counts only once a person has merged it.
+- **`wave-readiness`** — the operator view of a proposal wave (G6-W03,
+  `docs/PROPOSAL_WAVE_RUNBOOK.md`). Read-only: prints, per sealed `READY_FOR_PROPOSAL` candidate (or
+  each `--repo`), the registry mode, candidate hash, whether its sealed revision is still the live
+  default-branch head, whether that head has a `README.md`, the authorization record's state and
+  staleness; `--offline` skips the live reads. `--emit-records DIR` is a dry run: for the
+  `--authorize OWNER/NAME@HASH` (or `--authorize-file`) set the owner signed it writes the exact
+  records, a `registry.json` with only those entries at `full`, a paced `dispatch-plan.sh` and a
+  manifest into `DIR` (`--approver`, `--expires-at`, optional `--issued-at`). All or nothing; it
+  refuses an unlisted or blocked repository, a hash that changed, and an expired, empty or over-long
+  window, never writes inside `ops/proposal-authorizations/`, and never writes to GitHub.
 - **`sealing-plan`** — the unattended sealing run's planner (G7-W06). Reads the drift monitor's
   output file (`--drift-file`, default `drift/drift.json`, root-relative) and selects only `DRIFTED`
   repositories that the registry lists and does not mark `disabled`, in sorted order, at most three
