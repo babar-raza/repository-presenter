@@ -23,6 +23,7 @@ SECRET_VARIABLES = frozenset(
         "GH_METADATA_WRITE_TOKEN",
         "GH_ISSUES_WRITE_TOKEN",
         "GH_PROPOSAL_WRITE_TOKEN",
+        "GH_CANDIDATES_WRITE_TOKEN",
         # The GitHub App's own credentials (tools/github_app/register_exchange.py's SECRET_MAP;
         # docs/CREDENTIAL_ROTATION_RUNBOOK.md). GH_APP_CLIENT_SECRET and GH_APP_WEBHOOK_SECRET
         # already match SECRET_SUFFIXES' "_SECRET" ending, but GH_APP_PRIVATE_KEY (ends in "_KEY",
