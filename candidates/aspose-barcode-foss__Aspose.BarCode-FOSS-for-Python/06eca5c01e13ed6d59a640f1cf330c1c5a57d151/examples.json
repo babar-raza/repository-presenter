@@ -1,91 +1,73 @@
 [
   {
     "build_command": "",
-    "build_verified": false,
-    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "build_verified": true,
+    "detail": "exit 0",
     "fixtures": [],
     "ordinal": 1,
     "outcome": "EXECUTED",
     "return_code": 0,
-    "source_roots": [
-      "src",
-      "."
-    ],
+    "source_roots": [],
     "stderr": "",
     "stdout": ""
   },
   {
     "build_command": "",
-    "build_verified": false,
-    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "build_verified": true,
+    "detail": "exit 0",
     "fixtures": [],
     "ordinal": 2,
     "outcome": "EXECUTED",
     "return_code": 0,
-    "source_roots": [
-      "src",
-      "."
-    ],
+    "source_roots": [],
     "stderr": "",
     "stdout": ""
   },
   {
     "build_command": "",
-    "build_verified": false,
-    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "build_verified": true,
+    "detail": "exit 0",
     "fixtures": [],
     "ordinal": 3,
     "outcome": "EXECUTED",
     "return_code": 0,
-    "source_roots": [
-      "src",
-      "."
-    ],
+    "source_roots": [],
     "stderr": "",
     "stdout": ""
   },
   {
     "build_command": "",
-    "build_verified": false,
-    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "build_verified": true,
+    "detail": "exit 0",
     "fixtures": [],
     "ordinal": 4,
     "outcome": "EXECUTED",
     "return_code": 0,
-    "source_roots": [
-      "src",
-      "."
-    ],
+    "source_roots": [],
     "stderr": "",
     "stdout": ""
   },
   {
     "build_command": "",
-    "build_verified": false,
-    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "build_verified": true,
+    "detail": "exit 0",
     "fixtures": [],
     "ordinal": 5,
     "outcome": "EXECUTED",
     "return_code": 0,
-    "source_roots": [
-      "src",
-      "."
-    ],
+    "source_roots": [],
     "stderr": "",
     "stdout": ""
   },
   {
     "build_command": "",
-    "build_verified": false,
-    "detail": "exit 0; ran against the repository source tree; the package would not build",
+    "build_verified": true,
+    "detail": "exit 0",
     "fixtures": [],
     "ordinal": 6,
     "outcome": "EXECUTED",
     "return_code": 0,
-    "source_roots": [
-      "src",
-      "."
-    ],
+    "source_roots": [],
     "stderr": "",
     "stdout": ""
   }
