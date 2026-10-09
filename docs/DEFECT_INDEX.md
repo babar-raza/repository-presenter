@@ -1213,6 +1213,41 @@ admission: `composition`'s S7 authoring/coherence handling of `key_capabilities`
 does not reliably preserve every inherited capability/diagram element the original README carries,
 and independent review's presentation criterion can (not always) catch the gap.
 
+### `review.absence_claim_restated_not_recognized` (LANE-B-W14R8-F1)
+
+`absence_partition`'s `present` fold (`review/independent/review.py`) recognized a claim in the
+reviewer's `absent` list only through `quote_located`, a literal substring check against the
+candidate's own named section. A finding's `absent` claim is itself copied from the ORIGINAL
+README (the prompt requires it), while the candidate is a rewrite of that same material - so a
+claim the candidate genuinely already addresses, but in different, shorter wording, was never
+refuted and sat in `remaining` forever, blocking the whole finding and handing the repair claims
+that were already satisfied.
+
+Raised as PROPOSAL `LANE-B-W14R8-F1` on 2026-09-17 10:32 UTC (`docs/DECISION_LOG.md`, this
+timestamp; `docs/RESEARCH_LANE_B.md`), and left as `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript`'s
+own open resume predicate ("`LANE-B-W14R8-F1` landing") ever since - a diagnosed, built fix existed
+on a branch (`land/absence-refute-1008`) that was never merged, so the gap stood open for three
+weeks with a real fix stranded, not missing.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` | 2026-09-17 10:32 UTC (raised) / 2026-10-04 (re-measured live) | BC-10 F06: eight `absent` claims, each the original README's own bullet, each restated by the candidate's own Scope and Limitations section in fewer/different words ("top" for "very top", "not functional" for "not implemented") - none refuted by `quote_located`, confirmed by direct re-measurement before porting the fix (`docs/DECISION_LOG.md`, 2026-10-09) |
+
+**Fixed** 2026-10-09 (`G7-W18`, ported from `land/absence-refute-1008` onto current `main` rather
+than cherry-picked - that branch's base `REVIEWER_LOGIC_VERSION` was "15"/"16", three versions
+behind current `main`'s "17"). New `absence_restated` (`review/independent/review.py`) counts a
+claim present when one sentence of the candidate's own named-section text carries at least
+`_ABSENCE_MIN_COVERAGE` (0.8) of the claim's own distinctive words, gated by a minimum
+distinctive-word floor (`_ABSENCE_MIN_WORDS`, 4) so a claim too short to restate by coincidence is
+still refuted only by a literal `quote_located` occurrence, exactly as before; wired beside
+`quote_located` in `absence_partition`'s `present` fold. `invented`/`remaining` and every other
+fold are untouched. `REVIEWER_LOGIC_VERSION` "17" -> "18". Verified by a mutation test reproducing
+the exact live-measured shape (`tests/components/readme/review/test_independent.py`'s
+`test_quote_located_alone_does_not_refute_a_restated_absence_claim`,
+`test_absence_restated_recognizes_a_paraphrase_but_not_an_unrelated_or_a_short_claim` - the latter
+also a negative scope control and the minimum-word-floor case), not yet against a fresh live draw
+of the originating repository (this session had no live stochastic provider call available).
+
 ## Register addendum (items without a REV id, 2026-10-05)
 
 Every row names its work item (`project/state.yaml` `next_ready_items` or `owner_items`) and a status of OPEN, PENDING, OWNER, FIXED(PR) or WRONG. `tests/test_register_integrity.py` fails when a row loses either.

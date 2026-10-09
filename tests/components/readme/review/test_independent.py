@@ -17,9 +17,11 @@ from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
     SecondReadDecision,
+    _section_slice,
     _value_segments,
     absence_defect,
     absence_partition,
+    absence_restated,
     claim_evidence,
     finding_class,
     prose_judgment,
@@ -1087,6 +1089,73 @@ def test_a_partly_refuted_absence_finding_records_the_claims_that_still_stand() 
     )
     [record] = corroborating["findings"]
     assert record["reader"] == 2 and record["absent_remaining"] == ["src/public/", "src/internal/"]
+
+
+# BC-10 F06 on Aspose.3D for TypeScript, measured live 2026-10-04 (LANE-B-W14R8-F1,
+# docs/RESEARCH_LANE_B.md; docs/DECISION_LOG.md 2026-09-17 10:32 UTC): the candidate's own Scope
+# and Limitations text, and two of the reviewer's `absent` claims copied verbatim from the
+# ORIGINAL README's bullets - each restated by the candidate in fewer/different words ("top" for
+# "very top", "not functional" for "not implemented").
+_F06_SECTION = (
+    "## Scope and Limitations\n\n"
+    "OBJ export writes only the geometry attached to the top of the scene graph; geometry "
+    "attached through child nodes is omitted. Text watermarking is not functional in this "
+    "FOSS build.\n\n"
+    "## Development and Testing\n"
+)
+_F06_RESTATED_CLAIMS = [
+    "OBJ export only writes geometry attached at the very top of the scene graph",
+    "Text watermarking is not currently implemented in this FOSS build",
+]
+
+
+def _f06(absent: list[str]) -> dict[str, Any]:
+    return {
+        **_finding("F06", "scope_limitations", "S6"),
+        "criterion": "presentation",
+        "fact_ids": [],
+        "absent": absent,
+    }
+
+
+def test_quote_located_alone_does_not_refute_a_restated_absence_claim() -> None:
+    """RED, pre-fix shape (LANE-B-W14R8-F1, live-measured 2026-10-04 on Aspose.3D-FOSS-for-
+    TypeScript, BC-10 F06): confirms the actual gap that made `absence_restated` necessary. An
+    `absent` claim copied verbatim from the ORIGINAL README ("very top", "not implemented") is
+    never refuted by `quote_located` alone when the candidate correctly restates the same
+    substance in fewer or different words ("top", "not functional") - a literal substring check
+    cannot see a paraphrase, whatever the candidate actually says. Before `absence_restated` was
+    wired into `absence_partition`, this meant both claims fell through to `remaining` and the
+    whole finding blocked, even though the candidate already said the same thing. This invariant
+    - that `quote_located` by itself is literal-only - still holds after the fix: the next test
+    shows `absence_partition` now also tries `absence_restated` beside it."""
+    haystack = _section_slice("scope_limitations", _F06_SECTION)
+    assert not quote_located(_F06_RESTATED_CLAIMS[0], haystack)
+    assert not quote_located(_F06_RESTATED_CLAIMS[1], haystack)
+
+
+def test_absence_restated_recognizes_a_paraphrase_but_not_an_unrelated_or_a_short_claim() -> None:
+    """GREEN: wiring `absence_restated` into `absence_partition` recognizes both restated claims
+    above as present, while a genuine gap - a claim the candidate's own section never restates at
+    all - still stands (negative scope control: the fold must not become a blanket pass). A claim
+    under `_ABSENCE_MIN_WORDS` distinctive words ("very top") is excluded from the coverage match
+    entirely - a phrase that short could restate by coincidence, so only a literal `quote_located`
+    occurrence may refute it, and here there is none."""
+    gap_claim = "Rendering is not implemented in this FOSS build and Scene.render() throws"
+    finding = _f06([*_F06_RESTATED_CLAIMS, gap_claim])
+    assert absence_partition(finding, _F06_SECTION, "") == (
+        sorted(_F06_RESTATED_CLAIMS),
+        [],
+        [gap_claim],
+    )
+    assert absence_defect(_f06(_F06_RESTATED_CLAIMS), _F06_SECTION, "") is not None
+    assert absence_defect(finding, _F06_SECTION, "") is None  # the gap is a real remainder
+
+    short_claim = "very top"
+    assert not absence_restated(short_claim, _F06_SECTION)
+    assert absence_restated(_F06_RESTATED_CLAIMS[0], _F06_SECTION)
+    assert absence_restated(_F06_RESTATED_CLAIMS[1], _F06_SECTION)
+    assert not absence_restated(gap_claim, _F06_SECTION)
 
 
 def test_a_finding_against_a_sentence_the_renderer_wrote_is_out_of_scope() -> None:
