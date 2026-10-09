@@ -3,7 +3,7 @@
   "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
   "provider_repository_id": 1245479016,
   "registry_revision": null,
-  "active_transaction_id": "60199d7e5975404482fe0d7ba33102a7",
+  "active_transaction_id": "628e4b5a887e4210b49f4a3e4e7f174b",
   "state": "FAILED_INTERNAL",
   "source": null,
   "surfaces": {},
@@ -24,7 +24,13 @@
     "resume_predicate": null,
     "recovery_count": 0
   },
-  "lease": null,
+  "lease": {
+    "holder_id": "present.yml:37927602371",
+    "acquired_at": "2026-10-09T12:50:13.375262+00:00",
+    "heartbeat_at": "2026-10-09T12:50:13.375262+00:00",
+    "expires_at": "2026-10-09T13:05:13.375262+00:00",
+    "fencing_token": 1
+  },
   "last_transition": {
     "transition_id": "df85608d55da4f77a06f103433a5351a",
     "transaction_id": "baebf33487ea448e8898cae246955717",
@@ -39,13 +45,14 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 11,
+  "state_version": 12,
   "recent_trigger_dedup_keys": {
     "run:37361313253:aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "baebf33487ea448e8898cae246955717",
     "run:37411705333:aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "0136bbd5403e47df9695c38464771a51",
     "run:37461500634:aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "179be630e1f04a0ea8695c1c330ea221",
     "run:37712681751:aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "7e4efbc1d037438099871d719c99d19e",
-    "run:37775209113:aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "60199d7e5975404482fe0d7ba33102a7"
+    "run:37775209113:aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "60199d7e5975404482fe0d7ba33102a7",
+    "run:37927602371:aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "628e4b5a887e4210b49f4a3e4e7f174b"
   },
   "recovery_count": 0
 }
