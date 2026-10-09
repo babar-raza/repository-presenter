@@ -1,0 +1,16 @@
+{
+ "control_revision": "10884a8bf31bea4c862e3f0093f6db8d5d7e618e",
+ "files": {
+  "bump_cost.csv": "c0765d807e3ee9bb8f5ba2baa0997f81a6a70d0a98a75d35008d931a588a2214",
+  "bump_cost_per_bundle.csv": "039b04c3828e83ca25ab81cdefb689c118ca752bba0222080d5f14c3f6a54f0e",
+  "bump_timeline.csv": "077aee2f72f3717996a59735460206b3fcaf8fac8b75a7b77e8873d3399a61be",
+  "current_state_per_bundle.csv": "4edf6a95adcf29cbfc1d71a313cb074aeb90b9abc6a78cc9dd296f2924548083",
+  "recheck_probes.csv": "cfdfed6c951e5a12fceac8dbe6e3a60ef6e748039489cfad3e62b99722590f0f",
+  "status_series.csv": "2b0665089b6a55f2d2023b58357978643f6e0801ea86a0a1ef844540b8a94ad9"
+ },
+ "kind": "bump_cost_measurement",
+ "recorded_at": "2026-10-10",
+ "redaction": "no credentials, tokens or provider output; fields are version literals, commit ids, bundle directory names, counts and check verdicts",
+ "schema_version": 1,
+ "window": "commits since 2026-09-19 on the first-parent history of main"
+}
