@@ -274,6 +274,31 @@ def ready_revision(root: Path, repository: str) -> str | None:
     return verified[0]
 
 
+def ready_revision_at(bundle_dir: Path, repository: str) -> str | None:
+    """Like :func:`ready_revision`, generalized to any directory shaped like one repository's own
+    ``candidates/<slug>/`` (a ``CURRENT`` pointer beside sealed revision directories) rather than
+    always ``root/candidates/<repository's own slug>`` - the one extra thing
+    ``components/candidates_publish/effect.py`` (G7-W14) needs: verifying a *downloaded workflow
+    artifact* is genuinely ``READY_FOR_PROPOSAL`` for the repository it claims, before trusting it
+    enough to overlay onto this control repository's own committed tree. ``repository`` must equal
+    the verified manifest's own recorded ``repository`` field exactly (never merely assumed from
+    the artifact's name or path) - the same "it matches what it claims to be" assertion
+    :func:`_verified_current` already makes by directory-name, restated here against a directory
+    whose name carries no such convention."""
+    if not bundle_dir.is_dir():
+        return None
+    verified = _verified_current(bundle_dir)
+    if verified is None or verified[1].get("state") not in COUNTED_STATES:
+        return None
+    revision, manifest = verified
+    if manifest.get("repository") != repository:
+        raise BundleError(
+            f"{bundle_dir}: bundle manifest repository {manifest.get('repository')!r} does not "
+            f"match the expected {repository!r}"
+        )
+    return revision
+
+
 def examples_verification_summary(root: Path) -> tuple[int, int]:
     """``(executed, total)`` examples across every ``CURRENT`` bundle in a counted state, read
     from each bundle's own ``examples.json``.

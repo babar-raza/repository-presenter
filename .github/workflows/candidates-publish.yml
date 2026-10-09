@@ -1,0 +1,219 @@
+# G7-W14 (docs/EXECUTION_STATE_MACHINE.md G7 Work item 14; project/state.yaml): the missing
+# step that keeps this control repository's own committed `candidates/<slug>/` tree current after
+# a hosted `present.yml` run genuinely re-seals a repository to `READY_FOR_PROPOSAL`. Without this,
+# `present.yml` exports the sealed bundle only as a 7-day-retention workflow artifact and commits
+# nothing - the committed tree `repository-presenter status` reads stays stale until a human or
+# agent session notices and opens a PR by hand (the pattern used for #259).
+#
+# Separately authorized from every other write-capable workflow in this project, in the same
+# shape `propose.yml` already uses (components/candidates_publish/effect.py has the full design):
+#
+#   - two jobs, two trust levels: `plan` is read-only (no write credential at all - unlike
+#     `propose.yml`'s own dry run, this effect's target is THIS repository, never an external one,
+#     so there is nothing to mint a read token for); `write` runs only when `plan` found a
+#     genuinely READY_FOR_PROPOSAL bundle AND the dispatcher (or `sealing-scheduled.yml`) asked for
+#     a real publish, and is the only job that ever sees a write-scoped token.
+#   - the write-scoped credential is `GH_CANDIDATES_WRITE_TOKEN` - this job's own ambient
+#     `secrets.GITHUB_TOKEN`, exposed only under that distinct name and only in the one gated step.
+#     No GitHub App installation token is minted anywhere in this file: the write target is this
+#     control repository itself, which GitHub Actions already scopes the job's own token to alone
+#     (present.yml's own state-ref token makes the identical argument) - never an external product
+#     repository, so none of present.yml's/propose.yml's App-installation machinery is needed here.
+#   - `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED=1` is set in the one "Publish for real" step
+#     below only - never at the job or workflow level - exactly like `propose.yml`'s identical
+#     `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` placement: a reviewer of this file can see
+#     directly that the owner's go-ahead and the actual write step are the same step. For the one
+#     unattended path (`sealing-scheduled.yml` calling this workflow), the owner's real standing
+#     control is THAT workflow's own job-level check of the repository variable of the same name -
+#     this file's internal "1" only ever fires once that outer gate (or a dispatcher's own
+#     `do_publish` tick) already let the job run at all.
+#   - idempotent by construction (`effect.py`'s own docstring): an unchanged candidate re-run opens
+#     no duplicate pull request and pushes no empty commit - the `publish-candidates` command
+#     checks the target branch's own currently-committed revision before writing anything.
+#
+# `repository-presenter publish-candidates` (never this YAML) owns the git/GitHub mechanics: a
+# plain `git` branch/commit/push against this job's own checkout (a sealed bundle is ~14 files -
+# one working-tree commit, never per-file Contents-API calls) and the same
+# find/create/update-pull-request REST calls `propose.yml`'s own effect already uses, pointed at
+# this repository instead of an external target.
+name: Candidates Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "External target repository (OWNER/NAME) whose sealed candidate to publish"
+        required: true
+        type: string
+      candidate_artifact:
+        description: "The sealed-bundle workflow artifact to publish (sealed-<owner>__<name>), from a present.yml run still within its 7-day retention"
+        required: true
+        type: string
+      do_publish:
+        description: "Leave unchecked for a dry run (report the plan, write nothing). Check to attempt the real commit/push/PR."
+        required: false
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      repo:
+        description: "External target repository (OWNER/NAME), as listed in the registry"
+        required: true
+        type: string
+      candidate_artifact:
+        description: "The sealed-bundle artifact this run's own present.yml leg exported"
+        required: true
+        type: string
+      do_publish:
+        description: "False is a dry run (writes nothing); true attempts the write"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# One publish run per target repository at a time - the same reasoning propose.yml's own
+# concurrency group gives: a write interrupted mid-push should never race a second attempt for the
+# same candidates-update branch.
+concurrency:
+  group: candidates-publish-${{ inputs.repo }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan ${{ inputs.repo }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      repo: ${{ steps.validate.outputs.repo }}
+      candidate_artifact: ${{ steps.validate.outputs.candidate_artifact }}
+      ready: ${{ steps.plan.outputs.ready }}
+    steps:
+      # Untrusted dispatch input: reaches the script only as a quoted shell variable, never
+      # interpolated into run: text - the same pattern propose.yml's own validation step uses.
+      - name: Validate every dispatch input against a strict allow-pattern
+        id: validate
+        env:
+          INPUT_REPO: ${{ inputs.repo }}
+          INPUT_CANDIDATE_ARTIFACT: ${{ inputs.candidate_artifact }}
+        run: |
+          set -euo pipefail
+          fail() {
+            echo "::error::candidates-publish input '$1' rejected: $2"
+            exit 1
+          }
+          owner_re='^[A-Za-z0-9](-?[A-Za-z0-9]){0,38}$'
+          name_re='^[A-Za-z0-9._][A-Za-z0-9._-]{0,99}$'
+          [[ "$INPUT_REPO" == */* ]] || fail repo "must be OWNER/NAME"
+          owner="${INPUT_REPO%%/*}"
+          name="${INPUT_REPO#*/}"
+          [[ "$owner" =~ $owner_re ]] || fail repo "owner is not a valid GitHub owner name"
+          [[ "$name" =~ $name_re ]] || fail repo "name is not a valid GitHub repository name"
+          [ "$name" != "." ] && [ "$name" != ".." ] || fail repo "name is not a valid GitHub repository name"
+          [ "$INPUT_CANDIDATE_ARTIFACT" = "sealed-${owner}__${name}" ] \
+            || fail candidate_artifact "must be sealed-<owner>__<name> of the target repo"
+          {
+            echo "owner=$owner"
+            echo "name=$name"
+            echo "repo=$INPUT_REPO"
+            echo "candidate_artifact=$INPUT_CANDIDATE_ARTIFACT"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      - name: Download the sealed bundle this run (or the named present.yml run) exported
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.validate.outputs.candidate_artifact }}
+          path: ${{ runner.temp }}/candidates-import
+
+      # Read-only: verifies the downloaded artifact is genuinely READY_FOR_PROPOSAL for exactly
+      # this repository and reports the plan. Exit 1 (EXIT_INCONSISTENT, "not ready") is this
+      # command's ordinary "nothing to publish" outcome, never a hard failure - the write job
+      # below simply does not run.
+      - name: Plan - verify the bundle and report what this run would publish
+        id: plan
+        env:
+          REPO: ${{ steps.validate.outputs.repo }}
+          IMPORT_DIR: ${{ runner.temp }}/candidates-import
+          BASE_BRANCH: ${{ github.ref_name }}
+        run: |
+          set +e
+          repository-presenter publish-candidates \
+            --repo "$REPO" --import-dir "$IMPORT_DIR" --base-branch "$BASE_BRANCH"
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "candidates-publish: $REPO has no READY_FOR_PROPOSAL bundle in this artifact; nothing to publish"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  write:
+    name: Publish ${{ inputs.repo }}
+    needs: plan
+    # Also requires `ready`: the plan job found a genuine READY_FOR_PROPOSAL bundle for exactly
+    # this repository. Anything else writes nothing.
+    if: ${{ inputs.do_publish && needs.plan.result == 'success' && needs.plan.outputs.ready == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # The real write capability this job needs: this job's own ambient GITHUB_TOKEN, which
+    # GitHub Actions already scopes to exactly this repository (never an external product
+    # repository - present.yml's own state-ref token makes the identical argument), granted
+    # contents:write (the commit/push) and pull-requests:write (open/update the PR). No GitHub
+    # App installation token is minted anywhere in this file.
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      # Installed before the write token exists, so no dependency code ever runs with it.
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      # This job runs on its own runner, so it imports the same sealed bundle again - a mismatch
+      # with `plan` is a defect, not a skip.
+      - name: Download the sealed bundle again
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.plan.outputs.candidate_artifact }}
+          path: ${{ runner.temp }}/candidates-import
+
+      - name: "Publish for real (gated: REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED set only here)"
+        env:
+          REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED: "1"
+          GH_CANDIDATES_WRITE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ needs.plan.outputs.repo }}
+          IMPORT_DIR: ${{ runner.temp }}/candidates-import
+          BASE_BRANCH: ${{ github.ref_name }}
+        run: |
+          repository-presenter publish-candidates \
+            --repo "$REPO" --import-dir "$IMPORT_DIR" --base-branch "$BASE_BRANCH" --publish

@@ -21,6 +21,7 @@ from repository_presenter.core.candidates import (
     iter_sealed_bundles,
     load_proposable_candidate,
     ready_revision,
+    ready_revision_at,
     stale_candidates,
     verify_bundle,
 )
@@ -365,6 +366,50 @@ def test_ready_revision_fails_closed_on_a_corrupt_current_bundle(tmp_path: Path)
     )
     with pytest.raises(BundleError, match="corrupt"):
         ready_revision(tmp_path, "aspose-x-foss/Aspose.X-FOSS-for-Python")
+
+
+# ---------------------------------------------------------------------------
+# ready_revision_at: ready_revision generalized to an arbitrary directory (a downloaded sealed-
+# bundle artifact, G7-W14) - never assumed trustworthy merely because a workflow produced it.
+# ---------------------------------------------------------------------------
+
+
+def test_ready_revision_at_names_the_revision_for_a_matching_repository(tmp_path: Path) -> None:
+    directory = "aspose-x-foss__Aspose.X-FOSS-for-Python"
+    write_bundle(tmp_path, directory, "rev1", "READY_FOR_PROPOSAL")
+    bundle_dir = tmp_path / "candidates" / directory
+    assert ready_revision_at(bundle_dir, "aspose-x-foss/Aspose.X-FOSS-for-Python") == "rev1"
+
+
+def test_ready_revision_at_is_none_for_a_missing_or_not_ready_bundle(tmp_path: Path) -> None:
+    assert ready_revision_at(tmp_path / "nowhere", "aspose-x-foss/Aspose.X-FOSS-for-Python") is None
+    directory = "aspose-x-foss__Aspose.X-FOSS-for-Python"
+    write_bundle(tmp_path, directory, "rev1", "ACCEPTED")
+    bundle_dir = tmp_path / "candidates" / directory
+    assert ready_revision_at(bundle_dir, "aspose-x-foss/Aspose.X-FOSS-for-Python") is None
+
+
+def test_ready_revision_at_rejects_a_bundle_claiming_a_different_repository(tmp_path: Path) -> None:
+    """A downloaded artifact that genuinely verifies but for the wrong repository is never
+    silently trusted - this is the one check ready_revision (always keyed by its own directory
+    name) never needed, and ready_revision_at adds precisely because a downloaded artifact's
+    directory name carries no such guarantee."""
+    directory = "aspose-x-foss__Aspose.X-FOSS-for-Python"
+    write_bundle(tmp_path, directory, "rev1", "READY_FOR_PROPOSAL")
+    bundle_dir = tmp_path / "candidates" / directory
+    with pytest.raises(BundleError, match="does not match the expected"):
+        ready_revision_at(bundle_dir, "someone-else/Other-Repo")
+
+
+def test_ready_revision_at_fails_closed_on_a_corrupt_bundle(tmp_path: Path) -> None:
+    directory = "aspose-x-foss__Aspose.X-FOSS-for-Python"
+    write_bundle(tmp_path, directory, "rev1", "READY_FOR_PROPOSAL")
+    (tmp_path / "candidates" / directory / "rev1" / "README.md").write_text(
+        "tampered", encoding="utf-8"
+    )
+    bundle_dir = tmp_path / "candidates" / directory
+    with pytest.raises(BundleError, match="corrupt"):
+        ready_revision_at(bundle_dir, "aspose-x-foss/Aspose.X-FOSS-for-Python")
 
 
 # ---------------------------------------------------------------------------

@@ -283,6 +283,8 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled kill switch for the issue filing and closing writes (`file-upstream-defects --file`, `redetect-upstream-defects --close`): unset or not `1` disables every write; `1` never authorizes a filing by itself (that needs the handoff's own `ops/issue_approvals/` record), and a token's mere presence never implies it. In CI it is set only from the repository variable of the same name, on the gated write job |
 | `GH_PROPOSAL_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`/`GH_METADATA_WRITE_TOKEN`/`GH_ISSUES_WRITE_TOKEN`; only `propose --propose` reads it, and only after `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `propose --propose`'s write; a token's mere presence never implies this |
+| `GH_CANDIDATES_WRITE_TOKEN` | optional | Write-scoped, distinct from every token above; only `publish-candidates --publish` reads it, and only after `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` also authorizes a write. In CI it is the job's own ambient `GITHUB_TOKEN` (G7-W14: the write target is this control repository itself, so no GitHub App installation token is needed) |
+| `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `publish-candidates --publish`'s write; a token's mere presence never implies this |
 | `REPOSITORY_PRESENTER_SEALING_PAUSED` | optional | Owner pause switch for the scheduled sealing run (`sealing-scheduled.yml`, a repository Actions variable): exactly `1` makes `sealing-plan` report `has_work=false` with the notice "sealing paused by owner variable" (also written to the step summary), so no seal or propose leg starts; unset or any other value leaves sealing enabled, bounded by the three-repositories-per-run cap |
 
 `GPT_OSS_ENDPOINT` and `GPT_OSS_API_KEY` are required even for `present --facts-only`: the gateway
@@ -316,6 +318,7 @@ repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
 repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
 repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N]
+repository-presenter publish-candidates --repo OWNER/NAME --import-dir PATH [--root PATH] [--control-repo OWNER/NAME] [--base-branch NAME] [--publish]
 repository-presenter sealing-plan [--root PATH] [--drift-file PATH] [--history-file PATH] [--github-output PATH]
 repository-presenter sealed-ready --repo OWNER/NAME [--root PATH]
 repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
@@ -459,6 +462,15 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
 - **`sealed-ready --repo OWNER/NAME`** — exits 0 only when the repository's `CURRENT` sealed bundle
   verifies and is `READY_FOR_PROPOSAL`; exits 1 otherwise, naming why. The scheduled workflow uses
   it to export a bundle for the gated proposal job and to refuse to propose anything else.
+- **`publish-candidates --repo OWNER/NAME --import-dir PATH`** — commits the target repository's
+  sealed `READY_FOR_PROPOSAL` candidate (downloaded to `--import-dir`, a `present.yml`-exported
+  `sealed-<owner>__<name>` artifact) to this control repository's own `candidates/<slug>/` tree, on
+  a dedicated branch, and opens or updates the one pull request that carries it (G7-W14). Dry-run
+  by default: reports the revision and branch, and writes nothing. `--publish` attempts the
+  commit/push/PR, but only past the owner switch
+  `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` and a write-scoped `GH_CANDIDATES_WRITE_TOKEN`
+  that resolves to exactly `--control-repo` (default `$GITHUB_REPOSITORY`); idempotent by
+  construction, so an unchanged candidate re-run commits and proposes nothing.
 - **`stage-transaction-artifact --transaction DIR --staging DIR`** — copies a seal's transaction
   output to a staging directory for the failed-run artifact that `present.yml` uploads. It
   excludes the `calls/` call store and every file holding a configured secret's value or a
