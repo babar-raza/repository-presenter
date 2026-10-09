@@ -18,7 +18,9 @@ from repository_presenter.components.readme.composition.coherence import (
     coherence_content_loss_errors,
     coherence_packet,
     coherence_schema,
+    recover_coherence_carried_units,
     recover_coherence_content_loss,
+    recover_coherence_regressions,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.prompts import load_manifests
@@ -294,6 +296,209 @@ def test_a_must_carry_unit_moved_to_a_different_pair_of_sections_is_equally_name
         "omitted": [],
     }
     assert coherence_checks(carried, different_pair_tasks, facts, NAME) == []
+
+
+# docs/DEFECT_INDEX.md composition.authoring.superseded_unit_not_carried: a post-#298 (commit
+# 5cffa343) recurrence, confirmed live on aspose-3d-foss/Aspose.3D-FOSS-for-.NET and
+# aspose-email-foss/Aspose.Email-FOSS-for-.Net, 2026-10-08. Unlike the "different pair" generality
+# test above - which deliberately gives *both* sections the moved fact_id in their own
+# accepted_ids, so only the naming improvement is exercised - this reproduces the true,
+# asymmetric real-world shape: enterprise_relationship's own accepted_ids never include a fact
+# reconciliation superseded into scope_limitations (authoring.py's section_selections only ever
+# extends scope_limitations'/development_testing's own accepted ids with carried_units(); no
+# other section gains a fact merely by a unit quoting it). A unit that cites the fact from
+# enterprise_relationship is therefore rejected twice in the same call - the carry gap AND
+# "cites facts outside this section's set" - and the fix must resolve both at once.
+ENTERPRISE_FACT_ID = "inherited_unit:062.paragraph"
+ENTERPRISE_FACTS = FactsDocument(
+    "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+    "a" * 40,
+    (
+        Fact(
+            "identity:repository",
+            "identity",
+            "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+            (Evidence("x"),),
+        ),
+        Fact(
+            ENTERPRISE_FACT_ID,
+            "inherited_unit",
+            "Advanced rendering requires the Enterprise Edition.",
+            (Evidence("x"),),
+        ),
+    ),
+)
+ENTERPRISE_TASKS = [
+    SectionTask(
+        "scope_limitations",
+        {},
+        frozenset({"identity:repository", ENTERPRISE_FACT_ID}),
+        ("scope", "limitation:1"),
+        must_carry=frozenset({ENTERPRISE_FACT_ID}),
+        must_carry_text={ENTERPRISE_FACT_ID: "Advanced rendering requires the Enterprise Edition."},
+    ),
+    # The real shape: enterprise_relationship's own accepted_ids excludes the superseded fact -
+    # no carried_units() call ever grants it there, unlike scope_limitations' own task above.
+    SectionTask("enterprise_relationship", {}, frozenset({"identity:repository"}), ("context",)),
+]
+ENTERPRISE_EXISTING: list[dict[str, Any]] = [
+    {
+        "section": "scope_limitations",
+        "slot": "scope",
+        "text": "This package covers 3D import and export.",
+        "fact_ids": [],
+    },
+    {
+        "section": "scope_limitations",
+        "slot": "limitation:1",
+        "text": "Advanced rendering requires the Enterprise Edition.",
+        "fact_ids": [ENTERPRISE_FACT_ID],
+    },
+    {
+        "section": "enterprise_relationship",
+        "slot": "context",
+        "text": "It also offers advanced rendering.",
+        "fact_ids": [],
+    },
+]
+
+
+def _enterprise_broken_output() -> dict[str, Any]:
+    return {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "scope",
+                "text": "This package covers 3D import and export.",
+                "fact_ids": [],
+            },
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:1",
+                "text": "Some advanced features are not available in this edition.",
+                "fact_ids": [],
+            },
+            {
+                "section": "enterprise_relationship",
+                "slot": "context",
+                "text": "It also offers advanced rendering.",
+                "fact_ids": [ENTERPRISE_FACT_ID],
+            },
+        ],
+        "omitted": [],
+    }
+
+
+def test_a_must_carry_unit_moved_into_a_section_never_granted_it_fails_both_checks_at_once() -> (
+    None
+):
+    """RED: the exact dual-rejection shape #298 left unresolved. The carry gap on
+    scope_limitations (#298's own improvement names the real cause) fires alongside
+    unit_checks' own "cites facts outside this section's set" on enterprise_relationship, because
+    enterprise_relationship's accepted_ids never included this fact to begin with. Both fire in
+    the same call - this is the dual rejection the one universal re-ask must clear in one shot,
+    and reliably does not (live, both repositories above)."""
+    errors = coherence_checks(
+        _enterprise_broken_output(), ENTERPRISE_TASKS, ENTERPRISE_FACTS, "Aspose.3D"
+    )
+    assert len(errors) == 2
+    assert f"{ENTERPRISE_FACT_ID}: superseded into this section (scope_limitations)" in errors[0]
+    assert "cited in enterprise_relationship" in errors[0]
+    assert (
+        errors[1] == f"unit context: cites facts outside this section's set: {ENTERPRISE_FACT_ID}"
+    )
+    # The existing G3-W05 recovery is the wrong tool for this shape: nothing was dropped with no
+    # trace (the scope_limitations unit's revised text still reads as a limitation sentence, and
+    # the fact's own content is quoted verbatim elsewhere in the very same call), so it declines,
+    # leaving the transaction with no deterministic way to recover before this fix.
+    assert (
+        recover_coherence_content_loss(
+            _enterprise_broken_output(), existing_units=ENTERPRISE_EXISTING, facts=ENTERPRISE_FACTS
+        )
+        is None
+    )
+
+
+def test_recover_coherence_carried_units_restores_disposed_section_strips_stray_citation() -> None:
+    """GREEN: recover_coherence_carried_units closes the gap deterministically - never by
+    rewriting prose, only by restoring the disposed section's own pre-coherence unit (text and
+    fact_ids both, in full) and stripping the one over-claimed fact_id from the unit that was
+    never granted it. The corrected output clears both checks at once."""
+    corrected = recover_coherence_carried_units(
+        _enterprise_broken_output(), existing_units=ENTERPRISE_EXISTING, tasks=ENTERPRISE_TASKS
+    )
+    assert corrected is not None
+    by_key = {(u["section"], u["slot"]): u for u in corrected["units"]}
+    restored = by_key[("scope_limitations", "limitation:1")]
+    assert restored["text"] == ENTERPRISE_EXISTING[1]["text"]
+    assert restored["fact_ids"] == [ENTERPRISE_FACT_ID]
+    stripped = by_key[("enterprise_relationship", "context")]
+    assert stripped["fact_ids"] == []
+    # The text the model wrote for enterprise_relationship is left exactly as returned - only the
+    # over-claimed citation id is removed, never a rewrite of its prose.
+    assert stripped["text"] == "It also offers advanced rendering."
+    assert coherence_checks(corrected, ENTERPRISE_TASKS, ENTERPRISE_FACTS, "Aspose.3D") == []
+    # Idempotent / no-op on an already-clean document.
+    assert (
+        recover_coherence_carried_units(
+            corrected, existing_units=ENTERPRISE_EXISTING, tasks=ENTERPRISE_TASKS
+        )
+        is None
+    )
+
+
+def test_recover_coherence_regressions_composes_both_last_resorts() -> None:
+    """The one recover= callable repair/rounds.py's S8 call site now passes: both corrections in
+    one call, so a batch that happens to need the generic content-loss revert (G3-W05) and the
+    must-carry-specific one (this item) in the same reply gets both, and run_job's own
+    re-validation is what ultimately decides acceptance, not either function's say-so."""
+    corrected = recover_coherence_regressions(
+        _enterprise_broken_output(),
+        existing_units=ENTERPRISE_EXISTING,
+        facts=ENTERPRISE_FACTS,
+        tasks=ENTERPRISE_TASKS,
+    )
+    assert corrected is not None
+    assert coherence_checks(corrected, ENTERPRISE_TASKS, ENTERPRISE_FACTS, "Aspose.3D") == []
+    # Nothing to fix on an already-clean document: both halves decline, so the composite does too.
+    assert (
+        recover_coherence_regressions(
+            corrected,
+            existing_units=ENTERPRISE_EXISTING,
+            facts=ENTERPRISE_FACTS,
+            tasks=ENTERPRISE_TASKS,
+        )
+        is None
+    )
+
+
+def test_recover_coherence_carried_units_never_strips_a_citation_with_no_carry_obligation() -> None:
+    """Scope control: a fact_id cited outside its own section's accepted_ids is left for the
+    model's own re-ask when no *other* task's own must_carry names it - this correction is never
+    a blanket "any out-of-section citation is stripped" rule, only the narrow must-carry-moved
+    shape above."""
+    tasks = [
+        SectionTask("opening", {}, frozenset({"identity:repository"}), ("opening",)),
+        SectionTask("key_capabilities", {}, frozenset({"identity:repository"}), ("capability:1",)),
+    ]
+    output = {
+        "units": [
+            {
+                "section": "opening",
+                "slot": "opening",
+                "text": "x",
+                "fact_ids": ["identity:repository"],
+            },
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "y",
+                "fact_ids": ["format:output.glb"],  # outside its own set, but no must_carry owns it
+            },
+        ],
+        "omitted": [],
+    }
+    assert recover_coherence_carried_units(output, existing_units=[], tasks=tasks) is None
 
 
 def test_apply_records_which_units_changed_and_keeps_the_rest() -> None:

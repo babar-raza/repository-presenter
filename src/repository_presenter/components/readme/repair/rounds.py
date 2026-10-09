@@ -41,7 +41,7 @@ from repository_presenter.components.readme.composition.coherence import (
     coherence_checks,
     coherence_packet,
     coherence_schema,
-    recover_coherence_content_loss,
+    recover_coherence_regressions,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.placement import placed_texts, placements
@@ -481,8 +481,16 @@ def run_round(tx: TransactionInputs) -> Round:
             # always raised JobError outright. The one deterministic last resort available for the
             # content-loss shape above: revert exactly the unit(s) that dropped untraced content
             # to their own pre-coherence text/fact_ids, never the whole batch.
+            # docs/DEFECT_INDEX.md composition.authoring.superseded_unit_not_carried (post-#298
+            # recurrence): recover_coherence_regressions composes that content-loss revert with a
+            # second, must-carry-specific one - a must-carry unit this batch's own revision moved
+            # into a section never granted it had no deterministic recovery at all before this,
+            # only #298's own clearer rejection message.
             recover=functools.partial(
-                recover_coherence_content_loss, existing_units=return_units, facts=facts
+                recover_coherence_regressions,
+                existing_units=return_units,
+                facts=facts,
+                tasks=batch_tasks,
             ),
             **common,
         )
