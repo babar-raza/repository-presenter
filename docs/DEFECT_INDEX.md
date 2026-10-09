@@ -283,6 +283,25 @@ defect class independently sighted three times is settled priority for that slot
 the threshold - registered as `G7-W15` (`project/state.yaml`, `docs/EXECUTION_STATE_MACHINE.md` G7
 Work item 7), not a repair this verification task was asked to implement.
 
+**New sighting, 2026-10-09** (`aspose-tex-foss/Aspose.TeX-FOSS-for-Python`, a live `present` run
+against current `main` at `7a7195f1`, attempting a first-time seal in a fresh worktree): S6
+`section_authoring` exhausted its own two-attempt budget on `inherited_unit:070.paragraph` - the
+identical dual-violation shape #300 (`composition/coherence.py::recover_coherence_carried_units`/
+`recover_coherence_regressions`, G7-W17) diagnosed and fixed for S8 coherence. The fact is correctly
+owed to `scope_limitations` (accepted there, per the earlier `ids.extend(carried_units(...))` fix
+above) but the model's own reply kept citing it from `enterprise_relationship`, whose
+`accepted_ids` never granted it, so both attempts raised the carry-gap error alongside
+`unit_checks`' "cites facts outside this section's set" on the same call - byte-identical rejection
+text both times (`calls/186876a431bb.rejected-1.json`, `.rejected-2.json`). **This is a different
+causal stage than what #300 fixed**: #300's `recover=` runs only inside S8 coherence's own repair
+loop, which this transaction never reached - S6's own re-ask budget was exhausted first, so the job
+failed closed before S8 ever ran. The fix target is therefore S6's own re-ask (or a shared recovery
+S6 can call before giving up), not a widening of #300's S8-only mechanism. First sighting of this
+exact S6-level sub-case, below the three-sighting threshold - registered, not fixed. Not sealed:
+`candidates/aspose-tex-foss__Aspose.TeX-FOSS-for-Python/` does not exist, no candidate committed.
+Reproducible fresh (the repository's upstream content has not changed): `present --repo aspose-tex-
+foss/Aspose.TeX-FOSS-for-Python` from a clean worktree branched off current `main`.
+
 **Likely direction, not implemented** (recorded as the lead for whoever picks up `G7-W15`, needs
 its own investigation rather than reuse of either precedent): the S6 packet may be bundling too
 many cross-section must-carry obligations into one authoring call; a smaller-batch or per-section
