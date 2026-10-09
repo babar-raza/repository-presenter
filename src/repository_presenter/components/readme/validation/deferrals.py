@@ -13,6 +13,22 @@ its branches fired, so each class is matched from what the bundle does keep: the
 entry, the facts (UNRESOLVED examples, command blocks, which sections' conditions hold), the
 plan, the unit's own text, and the model's recorded rationale. Adding a class means adding one
 ``DeferralClass`` to ``DEFERRAL_CLASSES``; no caller changes.
+
+G7-W12 (REG-18) added five classes (and a second signal for ENTERPRISE_NON_PROSE) from the
+2026-10-09 re-seal pass's UNCLASSIFIED units. Two mechanisms made them unclassifiable, and both
+are why a class here matches on the unit's own source section, the facts and the sibling
+dispositions rather than on the rationale alone:
+
+* The deterministic folds in ``reconciliation/dispositions.py`` (a placement into an Installation
+  row that renders nothing, into At a Glance with no citation, into the Enterprise row as a table)
+  rewrite the disposition to DEFER_UNRESOLVED and clear the destination but keep the model's
+  rationale, which still describes the placement it proposed ("placed in the installation
+  section"). The route is gone; the unit's source section and the facts are not.
+* The re-ask template tells the model to answer DEFER_UNRESOLVED when it cannot cite a fact, and
+  the model applies that to units the rejection never named (a build command it first omitted, a
+  list its sibling batch superseded into api_reference). The rationale there IS the model's
+  statement of cause, so a class may read it, but only as an attestation the facts must not
+  contradict (``NO_EVIDENCE_EITHER_WAY``).
 """
 
 from __future__ import annotations
@@ -23,7 +39,10 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from repository_presenter.components.readme.composition.planning import section_conditions
-from repository_presenter.components.readme.evidence.facts.product_pages import enterprise_target
+from repository_presenter.components.readme.evidence.facts.product_pages import (
+    ENTERPRISE_FACT_ID,
+    enterprise_target,
+)
 from repository_presenter.components.readme.reconciliation.dispositions import (
     code_units_by_polarity,
     command_block_units,
@@ -35,10 +54,40 @@ Stage = Literal["EXTRACTING", "RECONCILING"]
 UNCLASSIFIED = "UNCLASSIFIED"
 # The rationale and text patterns below are matched case-insensitively where noted.
 _INTERNAL_FILE = re.compile(r"AGENTS\.md|CLAUDE\.md")
-_NOTICES = re.compile(r"third[ _-]?party|licen[cs]e|\bfonts?\b|SPDX|\bnotices?\b", re.IGNORECASE)
+# Licensing or attribution language. A bare "font" is not: it names a Mermaid label, an examples
+# row or an API member (``FontScheme``) as often as bundled font files, so a font counts only
+# when it is bundled, embedded or redistributed (G7-W12: three real units blocked on it wrongly).
+_NOTICES = re.compile(
+    r"third[ _-]?party|licen[cs]e|SPDX|\bnotices?\b"
+    r"|\b(?:bundled|embedded|redistributed|included)\s+fonts?\b",
+    re.IGNORECASE,
+)
 _ENTERPRISE = re.compile(r"enterprise", re.IGNORECASE)
 _EXAMPLES = re.compile(r"\bexamples?\b|\bbelow\b", re.IGNORECASE)
 _DEVELOPMENT = re.compile(r"development|testing|\btests?\b|\bbuild|\bsamples?\b", re.IGNORECASE)
+_AT_A_GLANCE = re.compile(r"\bat a glance\b")
+_INSTALLATION = re.compile(r"^install")
+_API_SECTION = re.compile(r"\bapi\b")
+# The model's own statement that it searched the facts and found nothing either way; the wording
+# the re-ask template ("Where you cannot find such a record, empty the array and choose
+# DEFER_UNRESOLVED") and the prompt's definition of DEFER_UNRESOLVED ("the facts neither support
+# nor contradict") produce.
+_NO_EVIDENCE = re.compile(
+    r"\bno fact\b|\bany fact\b|\bnot (?:supported|contradicted|verified)\b"
+    r"|lacks? supporting evidence|neither support",
+    re.IGNORECASE,
+)
+_CODE_SPAN = re.compile(r"`([^`\n]+)`")
+_DOTTED_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
+_MIN_SYMBOL_TAIL = 4
+
+
+def _section_parts(raw: str | None) -> tuple[str, ...]:
+    """A heading path ("Product > Installation > Requirements") as normalised lowercase parts."""
+    if not raw:
+        return ()
+    parts = (re.sub(r"[^a-z0-9]+", " ", part.lower()).strip() for part in raw.split(">"))
+    return tuple(part for part in parts if part)
 
 
 @dataclass(frozen=True)
@@ -53,6 +102,12 @@ class DeferralContext:
     enterprise: bool
     notices: bool
     examples_consumed: bool
+    sections: Mapping[str, tuple[str, ...]]
+    install_verified: bool
+    build_or_install: bool
+    symbols: frozenset[str]
+    symbol_tails: frozenset[str]
+    enterprise_sections: frozenset[tuple[str, ...]]
 
     @classmethod
     def build(
@@ -63,6 +118,18 @@ class DeferralContext:
     ) -> DeferralContext:
         conditions = section_conditions(facts)
         verified = {fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED"}
+        entries = {
+            str(entry.get("unit_id", "")): entry for entry in dispositions.get("dispositions", [])
+        }
+        sections = {
+            fact.id: _section_parts((fact.attributes or {}).get("section"))
+            for fact in facts.by_kind("inherited_unit")
+        }
+        symbols = frozenset(
+            fact.value
+            for fact in (*facts.by_kind("public_symbol"), *facts.by_kind("import_path"))
+            if fact.polarity == "SUPPORTED"
+        )
         starts = set()
         if plan is not None:
             starts = {
@@ -71,21 +138,74 @@ class DeferralContext:
             } - {None}
         return cls(
             units={fact.id: fact for fact in facts.by_kind("inherited_unit")},
-            entries={
-                str(entry.get("unit_id", "")): entry
-                for entry in dispositions.get("dispositions", [])
-            },
+            entries=entries,
             unresolved=frozenset(code_units_by_polarity(facts, "UNRESOLVED")),
             commands=frozenset(command_block_units(facts)),
             absent=frozenset(section for section, holds in conditions.items() if holds is False),
             enterprise=enterprise_target(facts.facts) is not None,
             notices=bool(facts.by_kind("third_party_notices")),
             examples_consumed=plan is not None and bool(verified) and not (verified - starts),
+            sections=sections,
+            install_verified=any(
+                fact.polarity == "SUPPORTED" for fact in facts.by_kind("install_command")
+            ),
+            build_or_install=any(
+                fact.polarity == "SUPPORTED"
+                for kind in ("install_command", "build_test_asset")
+                for fact in facts.by_kind(kind)
+            ),
+            symbols=symbols,
+            symbol_tails=frozenset(value.rsplit(".", 1)[-1] for value in symbols),
+            enterprise_sections=frozenset(
+                sections[unit_id]
+                for unit_id, entry in entries.items()
+                if entry.get("disposition") == "SUPERSEDE_REDUNDANT"
+                and ENTERPRISE_FACT_ID in (entry.get("fact_ids") or [])
+                and not unit_id.endswith(".heading")
+                and sections.get(unit_id)
+            ),
         )
 
     def text(self, unit_id: str) -> str:
         fact = self.units.get(unit_id)
         return fact.value if fact is not None else ""
+
+    def parts(self, unit_id: str) -> tuple[str, ...]:
+        """The unit's source heading path; a heading unit's own title counts as its last part
+        (the extractor records a heading's section as its parent's)."""
+        parts = self.sections.get(unit_id, ())
+        if _kind(unit_id) == "heading":
+            return (*parts, *_section_parts(self.text(unit_id).lstrip("# ").strip()))
+        return parts
+
+    def names_verified_symbol(self, unit_id: str, *, shape: str = "prose") -> bool:
+        """The unit's own code spans spell a SUPPORTED public symbol or import path.
+
+        ``shape`` says how much a spelling proves. A ``listing`` (a list or table of API members)
+        is about its first span, so a class-like tail of that one name (``Chart`` for
+        ``slides_foss.charts.Chart``) is evidence the facts hold what it lists. ``prose`` makes
+        a claim around its names, so only a whole symbol or import path (``widget.Scene``)
+        counts: a bare class name inside a sentence about slide-size constants verifies nothing
+        about the constants (Slides-.NET inherited_unit:028 mentions `Presentation`). A tail
+        counts only when it reads as a type or member name (capitalised, or snake_case) of at
+        least ``_MIN_SYMBOL_TAIL`` characters, so ordinary words in a code span never do."""
+        listing = shape == "listing"
+        spans = _CODE_SPAN.findall(self.text(unit_id))
+        for span in spans[:1] if listing else spans:
+            names = _DOTTED_NAME.findall(span)
+            for name in names[:1] if listing else names:
+                if name in self.symbols:
+                    return True
+                tail = name.rsplit(".", 1)[-1]
+                typed = tail[:1].isupper() or "_" in tail
+                if (
+                    listing
+                    and len(tail) >= _MIN_SYMBOL_TAIL
+                    and typed
+                    and tail in self.symbol_tails
+                ):
+                    return True
+        return False
 
     def neighbor_dropped(self, unit_id: str) -> bool:
         """The next block in document order is withheld: OMIT_UNSUPPORTED or DEFER_UNRESOLVED."""
@@ -130,8 +250,13 @@ def _internal(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> b
 
 
 def _build_path(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    """The upstream documents a build, test or sample path: a shell command, a rationale that
+    says so, or a unit under the upstream's own Development/Testing/Samples section (the
+    rationale of a unit a fold deferred often says only "retained as written")."""
     return "development_testing" in ctx.absent and (
-        unit_id in ctx.commands or bool(_DEVELOPMENT.search(_rationale(entry)))
+        unit_id in ctx.commands
+        or bool(_DEVELOPMENT.search(_rationale(entry)))
+        or any(_DEVELOPMENT.search(part) for part in ctx.parts(unit_id)[1:])
     )
 
 
@@ -148,11 +273,13 @@ def _enterprise_missing(unit_id: str, entry: Mapping[str, Any], ctx: DeferralCon
 
 
 def _enterprise_non_prose(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
-    return (
-        ctx.enterprise
-        and _kind(unit_id) in {"table", "list"}
-        and bool(_ENTERPRISE.search(_rationale(entry)))
-    )
+    """A table or list bound for the Enterprise row: the model said so, or its own neighbours in
+    the same source section were folded into that row (they cite the enterprise fact). The second
+    signal is what the fold leaves behind when the rationale talks about "editions"."""
+    if not ctx.enterprise or _kind(unit_id) not in {"table", "list"}:
+        return False
+    sibling = bool(ctx.sections.get(unit_id)) and ctx.sections[unit_id] in ctx.enterprise_sections
+    return sibling or bool(_ENTERPRISE.search(_rationale(entry)))
 
 
 def _excluded_by_plan(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
@@ -173,6 +300,43 @@ def _lead_in(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bo
         return True
     examples_absent = bool({"quick_start", "additional_examples"} & ctx.absent)
     return examples_absent and bool(_EXAMPLES.search(f"{ctx.text(unit_id)} {_rationale(entry)}"))
+
+
+def _uncited(entry: Mapping[str, Any]) -> bool:
+    return not entry.get("fact_ids")
+
+
+def _at_a_glance(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    return any(_AT_A_GLANCE.search(part) for part in ctx.parts(unit_id)[1:])
+
+
+def _install_steps(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    return not ctx.install_verified and any(
+        _INSTALLATION.match(part) for part in ctx.parts(unit_id)[1:]
+    )
+
+
+def _withheld_command(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    return unit_id in ctx.commands and _uncited(entry) and ctx.build_or_install
+
+
+def _api_listing(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    return (
+        _kind(unit_id) in {"list", "table"}
+        and _uncited(entry)
+        and any(_API_SECTION.search(part) for part in ctx.sections.get(unit_id, ())[1:])
+        and ctx.names_verified_symbol(unit_id, shape="listing")
+    )
+
+
+def _no_evidence(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    return (
+        _uncited(entry)
+        and bool(_NO_EVIDENCE.search(str(entry.get("rationale") or "")))
+        and not ctx.names_verified_symbol(
+            unit_id, shape="listing" if _kind(unit_id) in {"list", "table"} else "prose"
+        )
+    )
 
 
 # Precedence: the first matching class decides. Blocking causes that name a specific fix come
@@ -256,6 +420,26 @@ DEFERRAL_CLASSES: tuple[DeferralClass, ...] = (
         _section_absent,
     ),
     DeferralClass(
+        "AT_A_GLANCE_COVERED_BY_DIAGRAM",
+        "ADVISORY",
+        None,
+        "The unit came from the upstream's At a Glance section. The candidate's At a Glance is "
+        "exactly one Mermaid diagram the renderer draws from verified facts (README_CONTRACT.md "
+        "row 6), so a caption or inherited prose has no place in it and is withheld rather than "
+        "published beside it.",
+        _at_a_glance,
+    ),
+    DeferralClass(
+        "INSTALL_STEPS_UNVERIFIED",
+        "ADVISORY",
+        None,
+        "The unit is installation guidance, but no install_command is SUPPORTED at this "
+        "revision (the registry could not confirm it, or contradicted it), so the Installation "
+        "row states what is and is not verified and the upstream's own steps cannot be shown "
+        "as verified. They are withheld, never published; the reviewer sees the deferral.",
+        _install_steps,
+    ),
+    DeferralClass(
         "LEADIN_OF_WITHHELD_CONTENT",
         "ADVISORY",
         None,
@@ -263,6 +447,36 @@ DEFERRAL_CLASSES: tuple[DeferralClass, ...] = (
         "was withheld, or the examples it introduces are absent. It is withheld with them rather "
         "than promise what the candidate does not carry.",
         _lead_in,
+    ),
+    DeferralClass(
+        "COMMAND_BLOCK_WITHHELD",
+        "BLOCK",
+        "RECONCILING",
+        "A shell command block was deferred with no citation while the repository has a verified "
+        "install command or build and test asset. The maintainers' own command is kept where it "
+        "was or superseded by the Installation row, never withheld (the same rule that refuses "
+        "OMIT_UNSUPPORTED on it); reconciliation must fold an uncited DEFER_UNRESOLVED on a "
+        "command block like the omission it restates.",
+        _withheld_command,
+    ),
+    DeferralClass(
+        "API_LISTING_COVERED_BY_CORE_API",
+        "ADVISORY",
+        None,
+        "An inherited API listing under the upstream's API reference, naming symbols the facts "
+        "verify. The Core API section renders from the verified symbol facts (README_CONTRACT.md "
+        "row 14), so the listing is covered by it and is withheld rather than placed beside it.",
+        _api_listing,
+    ),
+    DeferralClass(
+        "NO_EVIDENCE_EITHER_WAY",
+        "ADVISORY",
+        None,
+        "The facts neither support nor contradict the unit's claim: the model searched them, "
+        "cited none and said so, and the unit spells no verified symbol that would falsify that. "
+        "This is DEFER_UNRESOLVED's own meaning: a claim withheld, listed for the owner, and "
+        "never published; public content must map to accepted evidence.",
+        _no_evidence,
     ),
 )
 
