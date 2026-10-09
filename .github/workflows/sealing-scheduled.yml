@@ -51,10 +51,11 @@
 # correspondingly simpler gate (G7-W14; components/candidates_publish/effect.py's own docstring):
 # no external-target authorization record is needed (there is no external target), only the
 # publish-candidates job's own owner variable above, a GH_CANDIDATES_WRITE_TOKEN
-# (candidates-publish.yml's own ambient GITHUB_TOKEN, exposed under that name only in its one
-# gated step - never a minted App installation token, since the write target is this repository
-# itself) and a provenance check that the token resolves to exactly this repository
-# (core/github/token_provenance.py::verify_repository_token). `git commit`/`git push` against this
+# (a repository-scoped App installation token candidates-publish.yml's own write job mints,
+# exposed under that name only in its one gated step - never the ambient GITHUB_TOKEN, which
+# cannot open the PR here and would start no required CI checks on it; docs/DECISION_LOG.md
+# 2026-10-10) and provenance checks (core/github/token_provenance.py::verify_installation_token,
+# then verify_pull_request_app on the PR it opens). `git commit`/`git push` against this
 # repository's own branches now happens in exactly one place: candidates-publish.yml's own `write`
 # job - not here, not in present.yml, and not in propose.yml.
 #
@@ -72,12 +73,11 @@
 #
 # Least privilege, per job: plan and propose hold contents: read at the job level; seal holds
 # contents: write only because present.yml's own durable-state refs live in this control repository
-# (its analysis token is minted there, read-only); publish-candidates holds contents: write and
-# pull-requests: write because candidates-publish.yml's own write job uses this job's own ambient
-# GITHUB_TOKEN directly for exactly those two scopes against this repository (a reusable workflow's
-# effective token permissions are capped by its caller's own grant, so they must be declared here,
-# not only in candidates-publish.yml itself). No job in this file mints a GitHub App token itself
-# (present.yml and propose.yml each mint their own, inside themselves).
+# (its analysis token is minted there, read-only); publish-candidates holds contents: read only, because
+# candidates-publish.yml's own write job writes with a separately minted App installation token
+# (a reusable workflow's effective GITHUB_TOKEN permissions are capped by its caller's grant, so
+# the ambient token can never write here). No job in this file mints a GitHub App token itself
+# (present.yml, propose.yml and candidates-publish.yml each mint their own, inside themselves).
 
 name: Sealing (scheduled)
 
@@ -227,15 +227,11 @@ jobs:
       max-parallel: 1
       matrix:
         target: ${{ fromJSON(needs.plan.outputs.repositories) }}
-    # candidates-publish.yml's own write job needs contents:write and pull-requests:write against
-    # THIS repository (never an external target - it mints no App token at all, unlike
-    # propose.yml); a reusable workflow's effective token permissions are capped by its caller's
-    # own grant here, so this job must already hold what that job needs, not merely `contents:
-    # read` (propose.yml never needs this granted here, since its own write mints a separate App
-    # installation token instead of using this job's GITHUB_TOKEN at all).
+    # candidates-publish.yml's own write job mints a separate App installation token for its
+    # writes (exactly like propose.yml), so this job's ambient GITHUB_TOKEN needs `contents: read`
+    # only - a reusable workflow's token permissions can never exceed its caller's grant.
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     uses: ./.github/workflows/candidates-publish.yml
     with:
       repo: ${{ matrix.target.repository }}

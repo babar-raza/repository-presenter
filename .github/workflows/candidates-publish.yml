@@ -13,12 +13,21 @@
 #     so there is nothing to mint a read token for); `write` runs only when `plan` found a
 #     genuinely READY_FOR_PROPOSAL bundle AND the dispatcher (or `sealing-scheduled.yml`) asked for
 #     a real publish, and is the only job that ever sees a write-scoped token.
-#   - the write-scoped credential is `GH_CANDIDATES_WRITE_TOKEN` - this job's own ambient
-#     `secrets.GITHUB_TOKEN`, exposed only under that distinct name and only in the one gated step.
-#     No GitHub App installation token is minted anywhere in this file: the write target is this
-#     control repository itself, which GitHub Actions already scopes the job's own token to alone
-#     (present.yml's own state-ref token makes the identical argument) - never an external product
-#     repository, so none of present.yml's/propose.yml's App-installation machinery is needed here.
+#   - the write-scoped credential is `GH_CANDIDATES_WRITE_TOKEN` - a repository-scoped GitHub App
+#     installation token minted fresh inside `write` (`actions/create-github-app-token@v2`, no
+#     `owner`/`repositories` input, which GitHub's action documents as "scoped to only the current
+#     repository" - this control repository), `contents: write` + `pull-requests: write` only, and
+#     exposed under that distinct name only in the one gated step. It is deliberately NOT this job's
+#     ambient `secrets.GITHUB_TOKEN`, for two documented GitHub reasons that would each leave this
+#     mechanism inert on this repository (docs/DECISION_LOG.md, 2026-10-10): (1) Settings > Actions
+#     > "Allow GitHub Actions to create and approve pull requests" is off here, so a GITHUB_TOKEN
+#     cannot open the pull request; (2) events caused by a GITHUB_TOKEN start no `pull_request`
+#     workflow run (GitHub docs, "Triggering a workflow": only workflow_dispatch/repository_dispatch
+#     are exempt; newer GitHub starts pull_request runs only in an approval-required state), so the
+#     branch-protection-required `Python 3.11`/`3.12`/`3.13` checks (ci.yml) would never report on
+#     the pull request's head commit without a person clicking "Approve workflows to run". An App
+#     installation token has neither limit, so the PR's checks run as for any person's PR. The
+#     job's own GITHUB_TOKEN is therefore reduced to `contents: read` (checkout only).
 #   - `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED=1` is set in the one "Publish for real" step
 #     below only - never at the job or workflow level - exactly like `propose.yml`'s identical
 #     `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` placement: a reviewer of this file can see
@@ -174,14 +183,10 @@ jobs:
     if: ${{ inputs.do_publish && needs.plan.result == 'success' && needs.plan.outputs.ready == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # The real write capability this job needs: this job's own ambient GITHUB_TOKEN, which
-    # GitHub Actions already scopes to exactly this repository (never an external product
-    # repository - present.yml's own state-ref token makes the identical argument), granted
-    # contents:write (the commit/push) and pull-requests:write (open/update the PR). No GitHub
-    # App installation token is minted anywhere in this file.
+    # The job's own GITHUB_TOKEN is read-only (checkout). The write capability is the separate
+    # App installation token minted below, so the ambient token can never push or open a PR here.
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     steps:
       - uses: actions/checkout@v5
         with:
@@ -207,10 +212,24 @@ jobs:
           name: ${{ needs.plan.outputs.candidate_artifact }}
           path: ${{ runner.temp }}/candidates-import
 
+      # No `owner` and no `repositories`: per the action's README that scopes the token to the
+      # current repository only (setting `owner` alone would widen it to every repository in the
+      # installation). The effect still verifies that reach (verify_installation_token) before any
+      # write, and attributes the pull request to this App afterwards (verify_pull_request_app).
+      - name: Mint a fresh installation token, scoped to this control repository alone
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-metadata: read
+          permission-pull-requests: write
+
       - name: "Publish for real (gated: REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED set only here)"
         env:
           REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED: "1"
-          GH_CANDIDATES_WRITE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_CANDIDATES_WRITE_TOKEN: ${{ steps.app-token.outputs.token }}
           REPO: ${{ needs.plan.outputs.repo }}
           IMPORT_DIR: ${{ runner.temp }}/candidates-import
           BASE_BRANCH: ${{ github.ref_name }}
