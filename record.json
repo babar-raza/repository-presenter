@@ -4,7 +4,7 @@
   "provider_repository_id": 1301410121,
   "registry_revision": null,
   "active_transaction_id": "c60418ea77c2428ebffbd7b71f71a7df",
-  "state": "INVALIDATED",
+  "state": "RETRYABLE",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -17,12 +17,12 @@
   "accepted_artifact": null,
   "proposal": null,
   "failure": {
-    "classification": "validation_failed",
-    "detail": "present exited 1 (a blocking validation failure or another typed failure - see this transaction's own runs/ output for which)",
-    "resume_state": "SNAPSHOTTING",
-    "occurred_at": "2026-10-08T12:23:35.871576+00:00",
+    "classification": "transient",
+    "detail": "recovery_sweep: nonterminal transaction had no valid lease",
+    "resume_state": "INVALIDATED",
+    "occurred_at": "2026-10-09T12:05:10.825650+00:00",
     "resume_predicate": null,
-    "recovery_count": 0
+    "recovery_count": 2
   },
   "lease": null,
   "last_transition": {
@@ -39,7 +39,7 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 27,
+  "state_version": 28,
   "recent_trigger_dedup_keys": {
     "run:37361313253:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "e84c0b55491e44a59c6a22ed42670f34",
     "run:37411705333:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "a287366556c74b89822582c09c670c50",
@@ -47,5 +47,5 @@
     "run:37712681751:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "f7ac3f73da1b4c7090ed11f26e8bb267",
     "run:37775209113:aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "c60418ea77c2428ebffbd7b71f71a7df"
   },
-  "recovery_count": 1
+  "recovery_count": 2
 }
