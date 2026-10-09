@@ -3,7 +3,7 @@
   "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
   "provider_repository_id": 1137426093,
   "registry_revision": null,
-  "active_transaction_id": "7c53647cd64141ec941159ff4a296b30",
+  "active_transaction_id": "988a9799daa14dd2b2a0ae4178c4e1bc",
   "state": "FAILED_INTERNAL",
   "source": null,
   "surfaces": {},
@@ -24,7 +24,13 @@
     "resume_predicate": null,
     "recovery_count": 0
   },
-  "lease": null,
+  "lease": {
+    "holder_id": "present.yml:37927602371",
+    "acquired_at": "2026-10-09T12:28:32.355384+00:00",
+    "heartbeat_at": "2026-10-09T12:28:32.355384+00:00",
+    "expires_at": "2026-10-09T12:43:32.355384+00:00",
+    "fencing_token": 1
+  },
   "last_transition": {
     "transition_id": "9851f50978a646b084ad3c676e99bf46",
     "transaction_id": "055726ed65944ed5925e44cba8903a2c",
@@ -39,13 +45,14 @@
     "policy_version": "readme-contract-v1-draft",
     "fencing_token": 1
   },
-  "state_version": 11,
+  "state_version": 12,
   "recent_trigger_dedup_keys": {
     "run:37361313253:aspose-note-foss/Aspose.Note-FOSS-for-Python": "055726ed65944ed5925e44cba8903a2c",
     "run:37411705333:aspose-note-foss/Aspose.Note-FOSS-for-Python": "fe9e6481abbd4c04bf4d75ec53b44546",
     "run:37461500634:aspose-note-foss/Aspose.Note-FOSS-for-Python": "e39f5f0357f4413880c2b03c22d2ca5f",
     "run:37712681751:aspose-note-foss/Aspose.Note-FOSS-for-Python": "67697f7d64a04fbc9fd486c59e0d7c9f",
-    "run:37775209113:aspose-note-foss/Aspose.Note-FOSS-for-Python": "7c53647cd64141ec941159ff4a296b30"
+    "run:37775209113:aspose-note-foss/Aspose.Note-FOSS-for-Python": "7c53647cd64141ec941159ff4a296b30",
+    "run:37927602371:aspose-note-foss/Aspose.Note-FOSS-for-Python": "988a9799daa14dd2b2a0ae4178c4e1bc"
   },
   "recovery_count": 0
 }
