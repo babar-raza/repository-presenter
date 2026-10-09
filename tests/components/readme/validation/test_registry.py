@@ -308,11 +308,12 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # trigger (OWNER-15); VALIDATOR_VERSION 13: BC-07 v10 allows zero badges when zero
     # badge-worthy facts exist; VALIDATOR_VERSION 14: advisory_notes records BC-12's own
     # docstring elisions; VALIDATOR_VERSION 15: a refused ACCEPT names the corroborating second
-    # read that failed (second_reader.failed). This candidate names no edition, spells its name
+    # read that failed (second_reader.failed); VALIDATOR_VERSION 16: BC-04 v3 honours the omissions
+    # S6 recorded (G7-W15). This candidate names no edition, spells its name
     # whole, and passes all of them (it has badge-worthy facts and a rendered badge row, no
     # docstring eliciting an elision, and a clean single-read ACCEPT with no triggered second
     # read, so v13's, v14's, and v15's own allowance/note/detail never fire).
-    assert document["source_revision"] == REVISION and document["validator_version"] == "15"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "16"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(
@@ -2555,3 +2556,33 @@ def test_bc06_holds_the_link_ceiling_the_anchor_rule_and_the_edition_rule_togeth
     fixed_edition = details(good_anchor, "It adds more.")
     assert any("exceed the ceiling" in d for d in fixed_edition)
     assert not any("edition name" in d or "full-featured" in d for d in fixed_edition)
+
+
+def test_check_four_honours_a_must_carry_omission_the_authoring_recorded(tmp_path: Path) -> None:
+    """G7-W15 (Slides-Java, 620a2614): S6 omitted superseded units 081/083/085 from
+    enterprise_relationship with reasons, yet BC-04 re-judged each section with an empty omission
+    list, failed them as "missing", and S11 repair pasted the omitted paragraphs back into the
+    Enterprise sentence. A recorded, reasoned omission is the explicit disposition; a unit neither
+    cited nor omitted - or omitted with a blank reason, or in another section - still fails."""
+    unit = "inherited_unit:002.paragraph"
+    carry = SectionTask(
+        "scope_limitations",
+        {},
+        ACCEPTED,
+        ("scope",),
+        must_carry=frozenset({unit}),
+        must_carry_text={unit: "Kept verbatim from the old README."},
+    )
+
+    def verdict(omitted: list[dict[str, str]]) -> list[str]:
+        units = {**copy.deepcopy(UNITS), "omitted": omitted}
+        candidate = dataclasses.replace(_candidate(units=units), tasks=[carry])
+        document = validate_candidate(candidate, tmp_path, ())
+        failures = {check["id"]: check for check in blocking_failures(document)}
+        return list(failures["BC-04"]["details"]) if "BC-04" in failures else []
+
+    reason = "Covered by the scope sentence."
+    assert verdict([]) != [] and unit in verdict([])[0]
+    assert verdict([{"section": "scope_limitations", "fact_id": unit, "reason": reason}]) == []
+    assert verdict([{"section": "scope_limitations", "fact_id": unit, "reason": " "}]) != []
+    assert verdict([{"section": "development_testing", "fact_id": unit, "reason": reason}]) != []
