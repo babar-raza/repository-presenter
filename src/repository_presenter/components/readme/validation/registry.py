@@ -131,7 +131,11 @@ VALIDATION_FILENAME = "validation.json"
 # only the advisory list's content can differ. A bundle sealed under 13 re-checks under 14 and
 # shows as pending.
 # 15: a refused ACCEPT names the corroborating second read that failed (second_reader.failed).
-VALIDATOR_VERSION = "15"
+# 16: BC-05 v3 (G7-W12, REG-18): five deferral classes cover the causes the 2026-10-09 re-seal pass
+# left UNCLASSIFIED (validation/deferrals.py) and the third-party-notices class no longer fires on
+# the bare word "font"; an unclassified cause still blocks. A bundle sealed under 15 re-checks
+# under 16 and shows as pending.
+VALIDATOR_VERSION = "16"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -236,7 +240,8 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     Check(
         "BC-05",
         # "2" (deferral policy): each DEFER_UNRESOLVED unit is judged by its cause, not counted.
-        "2",
+        # "3" (G7-W12): the cause registry covers the UNCLASSIFIED family; see VALIDATOR_VERSION 16.
+        "3",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),
