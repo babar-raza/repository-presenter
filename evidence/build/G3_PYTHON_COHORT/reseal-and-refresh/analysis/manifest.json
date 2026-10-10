@@ -1,0 +1,194 @@
+{
+ "control_revision": "7c5acbf74cc918ff28fa0a31db69027d21f0b718",
+ "files": {
+  "coverage-gap-table.csv": "25626909a87bca81729ed728300203f12bb4dbd2d45197198b65982bc9d3dc69",
+  "coverage-ranked-gaps.md": "96a2a84255b7e80115845864627391d1a2ef0a2294663546b06feba978dc1bc1",
+  "coverage-unit-table.csv": "8ab6e737b39488da3ef763e24ab1f068baaf2ec728e9fe238f11a7b802d7d1ee"
+ },
+ "kind": "clone_information_coverage",
+ "recorded_at": "2026-10-10",
+ "redaction": "no credentials, tokens or provider output; fields are repository paths, counts, unit names and revision ids",
+ "repositories": {
+  "aspose-3d-foss/Aspose.3D-FOSS-for-.NET": {
+   "bundle_source_revision": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+   "bundle_state": "current",
+   "live_head": "52b0f00ebf28a0b4173921725ff170685ec2c502"
+  },
+  "aspose-3d-foss/Aspose.3D-FOSS-for-Java": {
+   "bundle_source_revision": "3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3",
+   "bundle_state": "current",
+   "live_head": "3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3"
+  },
+  "aspose-3d-foss/Aspose.3D-FOSS-for-Python": {
+   "bundle_source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+   "bundle_state": "current",
+   "live_head": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+  },
+  "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": {
+   "bundle_source_revision": "",
+   "bundle_state": "NO_BUNDLE",
+   "live_head": "66cb26df3b031f0bf6976d4e88dc89721983afa4"
+  },
+  "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python": {
+   "bundle_source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+   "bundle_state": "current",
+   "live_head": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151"
+  },
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET": {
+   "bundle_source_revision": "941814fd138dc28cf47123d48194f329f283498d",
+   "bundle_state": "current",
+   "live_head": "941814fd138dc28cf47123d48194f329f283498d"
+  },
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp": {
+   "bundle_source_revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+   "bundle_state": "current",
+   "live_head": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2"
+  },
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-Go": {
+   "bundle_source_revision": "fa4e890e46c509efd22d09b97411202c2b0b8a67",
+   "bundle_state": "source_moved",
+   "live_head": "99c789e9175f2b12ad82bafeeba148ddcc1367fb"
+  },
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-Java": {
+   "bundle_source_revision": "c65329e7257b1311abb9686d7e4957a8cc002955",
+   "bundle_state": "current",
+   "live_head": "c65329e7257b1311abb9686d7e4957a8cc002955"
+  },
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-Python": {
+   "bundle_source_revision": "4f6768a7b349a1309644f456eb43bc35f70c16d7",
+   "bundle_state": "current",
+   "live_head": "4f6768a7b349a1309644f456eb43bc35f70c16d7"
+  },
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust": {
+   "bundle_source_revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+   "bundle_state": "current",
+   "live_head": "1a6004af47b1ef15385f9d36d381a8172428cc7e"
+  },
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript": {
+   "bundle_source_revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+   "bundle_state": "current",
+   "live_head": "fc186507e5b7124f4664aa6035f25cfd3112367d"
+  },
+  "aspose-email-foss/Aspose.Email-FOSS-for-.Net": {
+   "bundle_source_revision": "59125b4732df0eedbc4d4c2ab978698ed4348eb7",
+   "bundle_state": "current",
+   "live_head": "59125b4732df0eedbc4d4c2ab978698ed4348eb7"
+  },
+  "aspose-email-foss/Aspose.Email-FOSS-for-Cpp": {
+   "bundle_source_revision": "c844a467cf7f2503819b655f4d6ceaef91056c40",
+   "bundle_state": "current",
+   "live_head": "c844a467cf7f2503819b655f4d6ceaef91056c40"
+  },
+  "aspose-email-foss/Aspose.Email-FOSS-for-Python": {
+   "bundle_source_revision": "10a906b48c0c11005c4d93b524e4431901c9717c",
+   "bundle_state": "current",
+   "live_head": "10a906b48c0c11005c4d93b524e4431901c9717c"
+  },
+  "aspose-font-foss/Aspose.Font-FOSS-for-Python": {
+   "bundle_source_revision": "c520e3ebed3c36a56850cffb2b067afb29c5e2e9",
+   "bundle_state": "source_moved",
+   "live_head": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6"
+  },
+  "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net": {
+   "bundle_source_revision": "",
+   "bundle_state": "NO_BUNDLE",
+   "live_head": "b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4"
+  },
+  "aspose-html-foss/Aspose.HTML-FOSS-for-Python": {
+   "bundle_source_revision": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11",
+   "bundle_state": "current",
+   "live_head": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11"
+  },
+  "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET": {
+   "bundle_source_revision": "a7c7314b18e1a5bd209fab38c15e72574337366f",
+   "bundle_state": "source_moved",
+   "live_head": "6ebb2091ad016a46489bef65eaad0f1eb9843e1a"
+  },
+  "aspose-note-foss/Aspose.Note-FOSS-for-Python": {
+   "bundle_source_revision": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676",
+   "bundle_state": "source_moved",
+   "live_head": "17b5d7fe200297fdc135e6f95f4f16b82e8fc31c"
+  },
+  "aspose-page-foss/Aspose.Page-FOSS-for-Python": {
+   "bundle_source_revision": "43cef367cd0b2cf00cc03064ca9d29d1ff507967",
+   "bundle_state": "current",
+   "live_head": "43cef367cd0b2cf00cc03064ca9d29d1ff507967"
+  },
+  "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": {
+   "bundle_source_revision": "286484d235196d65c9a458c5eff3d3d6539216dc",
+   "bundle_state": "source_moved",
+   "live_head": "cdf43df10c8c565ecaa978428b1fe66ad6685f8d"
+  },
+  "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python": {
+   "bundle_source_revision": "580935ba0ffc558b9146ebd46ddbc6a37b7cf167",
+   "bundle_state": "source_moved",
+   "live_head": "8f0edbe6930f300088fc72f64711be3265a723d1"
+  },
+  "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET": {
+   "bundle_source_revision": "d10e2c829e1e41d3a9529057ad2ea7c7f53b1095",
+   "bundle_state": "source_moved",
+   "live_head": "10a363830fea952c29df20fdb37d35ad3a881433"
+  },
+  "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp": {
+   "bundle_source_revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+   "bundle_state": "source_moved",
+   "live_head": "4b83c9fec1e37fd205156770161f6843bac00ceb"
+  },
+  "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java": {
+   "bundle_source_revision": "db2d3f0622f035825419c6d46727022064f39f15",
+   "bundle_state": "source_moved",
+   "live_head": "736cedaa2922e4952f429364bdb9a4bbb1d97863"
+  },
+  "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript": {
+   "bundle_source_revision": "",
+   "bundle_state": "NO_BUNDLE",
+   "live_head": "c672b3918318ccd0c13bc9dc619620cac2674c9e"
+  },
+  "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET": {
+   "bundle_source_revision": "",
+   "bundle_state": "NO_BUNDLE",
+   "live_head": "f4e1b261922d514591b898f01346af1c6bf59f92"
+  },
+  "aspose-psd-foss/Aspose.PSD-FOSS-for-Python": {
+   "bundle_source_revision": "",
+   "bundle_state": "NO_BUNDLE",
+   "live_head": "664446b97952c063baf828f469995ad2a160bae7"
+  },
+  "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET": {
+   "bundle_source_revision": "86c441b5d81e707f2ea9e01b197dbb6ff7a3859b",
+   "bundle_state": "current",
+   "live_head": "86c441b5d81e707f2ea9e01b197dbb6ff7a3859b"
+  },
+  "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp": {
+   "bundle_source_revision": "c41f8dddc499fb0058fc9557cb364d70fbd3cef1",
+   "bundle_state": "source_moved",
+   "live_head": "469ce77a07b988c49deb930632b8276c89ec6b66"
+  },
+  "aspose-slides-foss/Aspose.Slides-FOSS-for-Java": {
+   "bundle_source_revision": "620a2614418854b4a18966a361e6907ddc88c7cb",
+   "bundle_state": "current",
+   "live_head": "620a2614418854b4a18966a361e6907ddc88c7cb"
+  },
+  "aspose-slides-foss/Aspose.Slides-FOSS-for-Python": {
+   "bundle_source_revision": "becd199a776682785768c60c778558d975b0c2f9",
+   "bundle_state": "source_moved",
+   "live_head": "4e63447ba79d1c27a5192844847d9f872c5b92ad"
+  },
+  "aspose-tex-foss/Aspose.TeX-FOSS-for-Python": {
+   "bundle_source_revision": "",
+   "bundle_state": "NO_BUNDLE",
+   "live_head": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c"
+  },
+  "aspose-words-foss/Aspose.Words-FOSS-for-.NET": {
+   "bundle_source_revision": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c",
+   "bundle_state": "current",
+   "live_head": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c"
+  },
+  "aspose-words-foss/Aspose.Words-FOSS-for-Python": {
+   "bundle_source_revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
+   "bundle_state": "current",
+   "live_head": "2d2efee2787cb9e56d071d17f8d7b740dce8b784"
+  }
+ },
+ "schema_version": 1
+}
