@@ -312,11 +312,12 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # read that failed (second_reader.failed); VALIDATOR_VERSION 16: BC-05 v3 (G7-W12) classifies
     # the UNCLASSIFIED deferral family; VALIDATOR_VERSION 17: BC-04 v3 honours the omissions S6
     # recorded (G7-W15); VALIDATOR_VERSION 18: BC-14 v1 (TC-CLM-01) holds version, install-package
-    # and publication statements to the facts. This candidate names no edition, spells its name
-    # whole, and passes all of them (it has badge-worthy facts and a rendered badge row, no
-    # docstring eliciting an elision, and a clean single-read ACCEPT with no triggered second
-    # read, so v13's, v14's, and v15's own allowance/note/detail never fire).
-    assert document["source_revision"] == REVISION and document["validator_version"] == "18"
+    # and publication statements to the facts; VALIDATOR_VERSION 19: BC-05 v4 classifies the typed
+    # "not provably carried" deferral ADVISORY (TC-DSP-01 companion). This candidate names no
+    # edition, spells its name whole, and passes all of them (it has badge-worthy facts and a
+    # rendered badge row, no docstring eliciting an elision, and a clean single-read ACCEPT with no
+    # triggered second read, so v13's, v14's, and v15's own allowance/note/detail never fire).
+    assert document["source_revision"] == REVISION and document["validator_version"] == "19"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(
@@ -346,6 +347,54 @@ def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_record
     monkeypatch.setattr(registry, "review_deferrals", lambda *_args: [unclassified])
     unknown = _failed(validate_candidate(_candidate(), tmp_path, ()), "BC-05")
     assert unknown["causal_stage"] == "RECONCILING"
+
+
+def test_the_reconcilers_not_carried_deferral_passes_bc05_as_advisory_and_a_look_alike_blocks(
+    tmp_path: Path,
+) -> None:
+    """TC-DSP-01 companion, through the real classification (nothing patched): a unit the
+    reconciler deferred because the named section cannot carry it is recorded, not failed; the
+    same words without the reconciler's typed prefix are an unclassified cause and block."""
+    from repository_presenter.components.readme.reconciliation.dispositions import (
+        RECOVERED_COVERAGE_RATIONALE,
+    )
+    from repository_presenter.components.readme.validation.deferrals import DEFERRAL_CLASSES
+
+    unit = "inherited_unit:002.paragraph"
+
+    def deferred(rationale: str) -> dict[str, Any]:
+        entries = [
+            {
+                **e,
+                "disposition": "DEFER_UNRESOLVED",
+                "destination_section": None,
+                "rationale": rationale,
+            }
+            if e["unit_id"] == unit
+            else e
+            for e in DISPOSITIONS["dispositions"]
+        ]
+        return {"dispositions": entries}
+
+    typed = validate_candidate(
+        _candidate(dispositions=deferred(RECOVERED_COVERAGE_RATIONALE + "Placed in scope.")),
+        tmp_path,
+        (),
+    )
+    assert _verdicts(typed)["BC-05"] == "PASS"
+    assert [note for note in typed["advisory"] if note.startswith(f"{unit}: deferred as ")] == [
+        f"{unit}: deferred as NOT_CARRIED_BY_NAMED_SECTION (advisory, never published): "
+        + next(c for c in DEFERRAL_CLASSES if c.id == "NOT_CARRIED_BY_NAMED_SECTION").reason
+    ]
+
+    look_alike = validate_candidate(
+        _candidate(dispositions=deferred("Not carried by the section named; held for the owner.")),
+        tmp_path,
+        (),
+    )
+    failed = _failed(look_alike, "BC-05")
+    assert failed["causal_stage"] == "RECONCILING"
+    assert any(f"{unit} is deferred as UNCLASSIFIED" in detail for detail in failed["details"])
 
 
 def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:

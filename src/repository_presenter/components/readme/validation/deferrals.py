@@ -29,6 +29,13 @@ dispositions rather than on the rationale alone:
   list its sibling batch superseded into api_reference). The rationale there IS the model's
   statement of cause, so a class may read it, but only as an attestation the facts must not
   contradict (``NO_EVIDENCE_EITHER_WAY``).
+
+TC-DSP-01 (G3-W08) stopped the reconciler from calling a unit "superseded" unless its destination
+provably carries it; on the last attempt it defers such a unit instead, with a typed rationale
+prefix (``RECOVERED_COVERAGE_RATIONALE``). ``NOT_CARRIED_BY_NAMED_SECTION`` classifies that one
+cause ADVISORY (OWNER-14: a deferred unit is never public, and blocks only in specific classes),
+matched on the typed prefix and never on free text, and last in precedence so every BLOCK class
+above still decides first.
 """
 
 from __future__ import annotations
@@ -44,8 +51,10 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     enterprise_target,
 )
 from repository_presenter.components.readme.reconciliation.dispositions import (
+    RECOVERED_COVERAGE_RATIONALE,
     code_units_by_polarity,
     command_block_units,
+    contradicted_code_units,
 )
 from repository_presenter.core.facts import Fact, FactsDocument
 
@@ -108,6 +117,7 @@ class DeferralContext:
     symbols: frozenset[str]
     symbol_tails: frozenset[str]
     enterprise_sections: frozenset[tuple[str, ...]]
+    contradicted: frozenset[str]
 
     @classmethod
     def build(
@@ -164,6 +174,7 @@ class DeferralContext:
                 and not unit_id.endswith(".heading")
                 and sections.get(unit_id)
             ),
+            contradicted=contradicted_code_units(facts),
         )
 
     def text(self, unit_id: str) -> str:
@@ -329,6 +340,18 @@ def _api_listing(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -
     )
 
 
+def _not_carried(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    """The reconciler's own last-attempt deferral of a disposition that claimed more than the
+    stage could prove (``dispositions._recover_uncovered``), read from the typed prefix it
+    writes: ``RECOVERED_COVERAGE_RATIONALE``, a constant the model's reply never carries because
+    the recovery runs after the reply and prepends it. A contradicted code block is excluded: it
+    belongs to the omission rule (OMIT_UNSUPPORTED on CONTRADICTED), so a deferral of it is not
+    this cause and stays unclassified."""
+    return unit_id not in ctx.contradicted and str(entry.get("rationale") or "").startswith(
+        RECOVERED_COVERAGE_RATIONALE.rstrip()
+    )
+
+
 def _no_evidence(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
     return (
         _uncited(entry)
@@ -477,6 +500,17 @@ DEFERRAL_CLASSES: tuple[DeferralClass, ...] = (
         "This is DEFER_UNRESOLVED's own meaning: a claim withheld, listed for the owner, and "
         "never published; public content must map to accepted evidence.",
         _no_evidence,
+    ),
+    DeferralClass(
+        "NOT_CARRIED_BY_NAMED_SECTION",
+        "ADVISORY",
+        None,
+        "The reconciler named a section as carrying this unit, but that section does not provably "
+        "render it (TC-DSP-01), so on the last attempt the supersession was withdrawn and the unit "
+        "deferred. Nothing is lost: the unit is listed for the owner and never published, and "
+        "its cited facts stay in the evidence. Last in precedence, so any cause that names a "
+        "specific fix (a missing Quick Start, an unrecorded build path) still decides first.",
+        _not_carried,
     ),
 )
 

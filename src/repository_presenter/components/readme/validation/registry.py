@@ -146,7 +146,10 @@ VALIDATION_FILENAME = "validation.json"
 # "not published" statement to the facts (validation/claims.py): a version must equal the
 # registry's current release (package:published_version) or, without that fact, the manifest's. A
 # bundle sealed under 17 re-checks under 18 and shows as pending.
-VALIDATOR_VERSION = "18"
+# 19: BC-05 v4 (TC-DSP-01 companion, G3-W08/G7-W12): the typed last-attempt deferral "not provably
+# carried by the section named" is an ADVISORY class (validation/deferrals.py) instead of
+# UNCLASSIFIED BLOCK. A bundle sealed under 18 re-checks under 19 and shows as pending.
+VALIDATOR_VERSION = "19"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -254,7 +257,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         "BC-05",
         # "2" (deferral policy): each DEFER_UNRESOLVED unit is judged by its cause, not counted.
         # "3" (G7-W12): the cause registry covers the UNCLASSIFIED family; see VALIDATOR_VERSION 16.
-        "3",
+        # "4" (TC-DSP-01 companion, G3-W08/G7-W12): a unit the reconciler deferred because the named
+        # section cannot carry it (dispositions.RECOVERED_COVERAGE_RATIONALE) is an ADVISORY class.
+        "4",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),
