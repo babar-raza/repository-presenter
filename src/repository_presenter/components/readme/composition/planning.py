@@ -36,6 +36,10 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
     shell_packet,
 )
+from repository_presenter.components.readme.composition.inherited_text import (
+    inherited_capability_bullets,
+    inherited_capability_count,
+)
 from repository_presenter.components.readme.composition.link_budget import (
     SlotCounter,
     plan_time_budget,
@@ -46,6 +50,7 @@ from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
     policy_packet,
+    with_inherited_capabilities,
 )
 from repository_presenter.components.readme.evidence.facts.assets import CI_BADGE_FACT_ID
 from repository_presenter.components.readme.evidence.facts.links import (
@@ -367,6 +372,7 @@ def planning_packet(
     it may select with what was withheld (``examples``) and which formats a title or At a Glance
     may name (``formats``; G4-W17 arrival items 41 and 42). A packet field the template never
     renders is invisible to the job, so both are named in the manifest's user template."""
+    policy = with_inherited_capabilities(policy, inherited_capability_count(facts))
     conditions = section_conditions(facts, policy)
     shell = [
         {**section, "condition_holds": conditions[section["id"]]} for section in shell_packet()
@@ -380,6 +386,10 @@ def planning_packet(
         "investigation": investigation,
         "dispositions": _selectable_dispositions(dispositions, facts),
         "shell": shell,
+        "inherited_capabilities": [
+            {"position": position, "text": text}
+            for position, text in enumerate(inherited_capability_bullets(facts), start=1)
+        ],
         "policy": policy_packet(policy),
     }
 
@@ -866,6 +876,7 @@ def plan_checks(
     here, one stage upstream of either).
     """
     errors: list[str] = []
+    policy = with_inherited_capabilities(policy, inherited_capability_count(facts))
     conditions = section_conditions(facts, policy)
     verified_examples = sorted(
         fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED"
@@ -930,6 +941,41 @@ def plan_checks(
             f"core_capabilities must number {policy.capabilities_min} to "
             f"{policy.capabilities_max}; got {len(capabilities)}"
         )
+    elif policy.capabilities_max > DEFAULT_POLICY.capabilities_max and len(capabilities) < min(
+        policy.capabilities_max, inherited_capability_count(facts)
+    ):
+        # README_CONTRACT.md row 7 (owner decision 2026-10-10): the existing README's own capability
+        # list is preserved, one capability per bullet, up to the ceiling - never merged to fit
+        # the default eight (cells/python: fourteen bullets planned as eight).
+        errors.append(
+            f"the existing README lists {inherited_capability_count(facts)} capabilities; "
+            "keep each "
+            f"as its own core capability, in its order, up to {policy.capabilities_max}; got "
+            f"{len(capabilities)}"
+        )
+    if policy.capabilities_max > DEFAULT_POLICY.capabilities_max:
+        listed = inherited_capability_count(facts)
+        chosen = [item.get("inherited_item") for item in capabilities]
+        if any(not isinstance(i, int) or not 1 <= i <= listed for i in chosen):
+            errors.append(
+                "each core capability sets inherited_item to the position (1 to "
+                f"{listed}) of the existing README's capability bullet it keeps"
+            )
+        else:
+            bullets = inherited_capability_bullets(facts)
+            unkept = [n for n in range(1, listed + 1) if n not in set(chosen)]
+            twice = sorted({n for n in chosen if chosen.count(n) > 1})
+            if twice:
+                errors.append(
+                    "one capability per bullet: kept by more than one capability: "
+                    + ", ".join(map(str, twice))
+                )
+            if unkept:
+                errors.append(
+                    "every bullet of the existing README's capability list is kept by a core "
+                    "capability (inherited_item); kept by none: "
+                    + "; ".join(f"{n} ({bullets[n - 1][:60]!r})" for n in unkept[:6])
+                )
     titles = [item.get("title", "").strip().lower() for item in capabilities]
     if len(set(titles)) != len(titles):
         errors.append("core_capabilities titles must be distinct")

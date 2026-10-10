@@ -122,3 +122,68 @@ def test_declarations_and_registrations_come_from_the_trees_with_stubs_registeri
 def test_a_tree_without_declarations_yields_nothing(tmp_path: Path) -> None:
     _write(tmp_path, "pkg/__init__.py", "class Scene:\n    pass\n")
     assert format_declarations(tmp_path, ["pkg/__init__.py", "README.md"]) == []
+
+
+# --- cells/python parity (2026-10-10): formats provided through named conversion methods ---
+
+
+def _workbook_product(tmp_path: Path) -> list[str]:
+    files = {
+        "pkg/__init__.py": "from .workbook import Workbook\n",
+        "pkg/workbook.py": (
+            "class Workbook:\n"
+            "    def save_as_csv(self, path):\n        return path\n"
+            "    def load_csv(self, path):\n        return path\n"
+            "    def save_as_json(self, path):\n        return path\n"
+            "    def save_as_markdown(self, path):\n        return path\n"
+            "    def save_as_xml(self, path):\n        raise NotImplementedError\n"
+            "    def save_as_html(self, path):\n        return path\n"
+            "    def _save_as_yaml(self, path):\n        return path\n"
+        ),
+        "pkg/options.py": (
+            "class CSVSaveOptions:\n    pass\n\n\n"
+            "class CSVLoadOptions:\n    pass\n\n\n"
+            "class JsonSaveOptions:\n    pass\n\n\n"
+            "class MarkdownSaveOptions:\n    pass\n\n\n"
+            "class XmlSaveOptions:\n    pass\n"
+        ),
+    }
+    for relative, text in files.items():
+        _write(tmp_path, relative, text)
+    return sorted(files)
+
+
+def test_a_save_as_method_and_the_class_that_states_its_format_declare_that_output(
+    tmp_path: Path,
+) -> None:
+    found = format_declarations(tmp_path, _workbook_product(tmp_path))
+    registrations = {(d.direction, d.extension) for d in found if d.kind == "registration"}
+    declarations = {d.extension for d in found if d.kind == "declaration"}
+    assert {
+        ("output", ".csv"),
+        ("input", ".csv"),
+        ("output", ".json"),
+        ("output", ".md"),
+    } <= registrations
+    assert {".csv", ".json", ".md"} <= declarations
+    detail = next(d for d in found if d.extension == ".md" and d.kind == "registration").detail
+    assert detail == "Workbook.save_as_markdown implements output .md"
+
+
+def test_a_method_alone_a_class_alone_a_stub_or_a_private_method_declares_nothing(
+    tmp_path: Path,
+) -> None:
+    found = format_declarations(tmp_path, _workbook_product(tmp_path))
+    registered = {d.extension for d in found if d.kind == "registration"}
+    # save_as_html has no class stating HTML; XmlSaveOptions exists but save_as_xml is a stub;
+    # _save_as_yaml is private and has no class either.
+    assert registered.isdisjoint({".html", ".xml", ".yaml"})
+    assert {d.extension for d in found if d.kind == "declaration"}.isdisjoint({".html", ".yaml"})
+    # The pair is what makes a fact SUPPORTED downstream (formats.format_facts): both present.
+    from repository_presenter.components.readme.evidence.facts.formats import format_facts
+
+    facts = {f.id: f for f in format_facts([], [], lambda _code: [], "examples.json", found)}
+    assert facts["format:output.json"].polarity == "SUPPORTED"
+    assert facts["format:input.csv"].polarity == "SUPPORTED"
+    assert facts["format:output.md"].polarity == "SUPPORTED"
+    assert "format:output.xml" not in facts

@@ -719,3 +719,154 @@ def test_a_preserved_code_blocks_own_anchor_looking_text_is_never_rewritten() ->
     placed = decisions["inherited_unit:098.code_block"]
     assert placed.outcome == "placed"
     assert placed.text == "```text\n[Encryption and Signing](#encryption-and-signing)\n```"
+
+
+# --- cells/python parity (owner instruction 2026-10-10): overlap compares text, not IDs ---
+
+_SCOPE_LIST = (
+    "- Only `.xlsx` is supported for native load/save; CSV, JSON, and Markdown are additional\n"
+    "  text-format export targets (CSV also supports import), not general spreadsheet formats.\n"
+    "- Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing\n"
+    "  password-protected workbooks; Standard encryption (Section 3) is not yet supported.\n"
+    "- `FormulaEvaluator` is a basic evaluator for cells without cached values."
+)
+
+
+def _scope_world(authored: list[tuple[str, str]]) -> tuple[Any, Any, Any, dict[str, Any]]:
+    facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("format:output.csv", "format", ".csv"),
+            _fact("inherited_unit:048.list", "inherited_unit", _SCOPE_LIST),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:048.list",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": ["format:output.csv"],
+                "rationale": "r",
+            }
+        ]
+    }
+    plan = _plan(
+        material_limitations=[{"fact_ids": ["format:output.csv"], "unit_ids": []}],
+    )
+    units = {
+        "units": [
+            {"section": "scope_limitations", "slot": slot, "text": text, "fact_ids": []}
+            for slot, text in authored
+        ],
+        "omitted": [],
+    }
+    return plan, dispositions, facts, units
+
+
+COVERED = [
+    (
+        "limitation:1",
+        "Only .xlsx is supported for native load/save; CSV, JSON, and Markdown are additional "
+        "text-format export targets (CSV also supports import), not general spreadsheet formats.",
+    ),
+    (
+        "limitation:2",
+        "Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing "
+        "password-protected workbooks; Standard encryption (Section 3) is not yet supported.",
+    ),
+    (
+        "limitation:3",
+        "FormulaEvaluator is a basic evaluator for cells without cached values.",
+    ),
+]
+
+
+def test_a_shared_fact_alone_no_longer_drops_a_preserved_unit_whose_text_the_author_lost() -> None:
+    """Live cells/python: the sealed limitation said "export targets, not general spreadsheet
+    formats" and lost "(CSV also supports import)". Both cited format:output.csv, so the fact-ID
+    rule called the maintainers' bullet covered."""
+    lost = [
+        (
+            "limitation:1",
+            "Only .xlsx is supported for native load and save, while CSV, JSON, and Markdown are "
+            "additional text-format export targets, not general spreadsheet formats.",
+        ),
+        *COVERED[1:],
+    ]
+    plan, dispositions, facts, units = _scope_world(lost)
+    before = placements(plan, dispositions, facts, "python")
+    assert before[0].outcome == "overlap"  # planning, with no authored text, keeps the old rule
+    (after,) = placements(plan, dispositions, facts, "python", units)
+    assert after.outcome == "placed"
+    assert after.text == (
+        "- Only `.xlsx` is supported for native load/save; CSV, JSON, and Markdown are additional "
+        "text-format export targets (CSV also supports import), not general spreadsheet formats."
+    )
+    # The authored limitation the maintainers' bullet contains is replaced by it, never printed
+    # beside it; the two limitations it does not touch stay.
+    assert after.replaces == (("scope_limitations", "limitation:1"),)
+
+
+def test_a_preserved_unit_the_author_carried_in_full_is_still_dropped() -> None:
+    plan, dispositions, facts, units = _scope_world(COVERED)
+    (decision,) = placements(plan, dispositions, facts, "python", units)
+    assert decision.outcome == "overlap" and decision.replaces == ()
+    assert placed_texts([decision]) == {}
+
+
+def test_an_item_with_no_authored_counterpart_is_placed_and_replaces_nothing() -> None:
+    """Slides-Java: a known defect the authored limitations never mentioned."""
+    plan, dispositions, facts, units = _scope_world(COVERED[:2])
+    (decision,) = placements(plan, dispositions, facts, "python", units)
+    assert decision.outcome == "placed" and decision.replaces == ()
+    assert decision.text == (
+        "- `FormulaEvaluator` is a basic evaluator for cells without cached values."
+    )
+
+
+def test_the_text_test_applies_only_to_the_sections_whose_carrier_is_authored_prose() -> None:
+    facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:020.list",
+                "inherited_unit",
+                "- A documentation link that has words nothing authored repeats at all.",
+            ),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:020.list",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "documentation_resources",
+                "fact_ids": ["link_target:002"],
+                "rationale": "r",
+            }
+        ]
+    }
+    plan = _plan(
+        links=[{"link_fact_id": "link_target:002", "section_id": "documentation_resources"}]
+    )
+    units = {"units": [], "omitted": []}
+    (decision,) = placements(plan, dispositions, facts, "python", units)
+    assert (
+        decision.outcome == "overlap"
+    )  # the fact-ID rule still stands where facts are the carrier
+
+
+def test_a_lead_in_to_a_block_the_renderer_places_is_not_an_uncovered_item() -> None:
+    from repository_presenter.components.readme.composition.placement import uncovered_items
+
+    kept, replaced = uncovered_items(
+        "inherited_unit:070.paragraph",
+        "Clone the repository and run the test suite:",
+        ["The toolchain uses the standard Python packaging ecosystem."],
+    )
+    assert kept == [] and replaced == []

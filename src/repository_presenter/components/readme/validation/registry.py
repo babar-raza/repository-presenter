@@ -57,6 +57,7 @@ from repository_presenter.components.readme.composition.placement import (
     placements,
 )
 from repository_presenter.components.readme.composition.policy import (
+    CAPABILITIES_CEILING,
     DEFAULT_POLICY,
     PlanningPolicy,
 )
@@ -80,6 +81,9 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     enterprise_target,
 )
 from repository_presenter.components.readme.validation.deferrals import review_deferrals
+from repository_presenter.components.readme.validation.dependency_claims import (
+    unscoped_dependency_claims,
+)
 from repository_presenter.components.readme.validation.links.rules import (
     badge_problems,
     enterprise_anchor_problems,
@@ -141,7 +145,19 @@ VALIDATION_FILENAME = "validation.json"
 # as "missing" and drove S11 repair to paste the omitted text back (Slides-Java, G7-W15). A unit
 # neither cited nor omitted still fails. A bundle sealed under 16 re-checks under 17 and shows as
 # pending.
-VALIDATOR_VERSION = "17"
+# 18: BC-07 v11 fails an unscoped absolute dependency claim ("no external dependencies",
+# "dependency-free") in an authored unit unless the dependency facts prove it (the verified-zero
+# marker and no required dependency), as README_CONTRACT.md section 2 always required
+# ("Never present"). cells/python sealed "requiring no external dependencies" for a library whose
+# manifest requires pycryptodome and olefile; the check was advisory-only until now. A bundle
+# sealed under 17 re-checks under 18 and shows as pending. The same bump carries BC-06 v8: the
+# Enterprise Edition anchor is the maintainers' plain "Aspose.<Family> for <Platform> - Enterprise
+# Edition" (owner decision 2026-10-10), no longer the "full-featured" form.
+# 19: the placement decision BC-05/BC-08 and the protected-content fingerprint read compares text,
+# not fact IDs, for a preserved unit bound for scope_limitations or development_testing
+# (composition/placement.py, owner instruction 2026-10-10): a bundle sealed under 18 re-checks
+# under 19 and shows as pending.
+VALIDATOR_VERSION = "19"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -289,7 +305,11 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # in any prose position, headings included, naming the section they render in. Earlier
         # versions matched only a capitalised "Xxx Edition", so the lowercase "commercial
         # edition" the authoring code itself once generated passed in 19 sealed READMEs.
-        "7",
+        # "8" (owner decision 2026-10-10, parity with the skill-generated README): the Enterprise
+        # Edition link text is the maintainers' plain label, "Aspose.<Family> for <Platform> -
+        # Enterprise Edition" (family target: "Aspose.<Family> - Enterprise Edition"); the
+        # "full-featured" prefix "6" required is no longer accepted.
+        "8",
         "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the "
         "only edition name (no substitute in any letter case); no unsafe raw HTML "
         "(script/event-handler/dangerous-scheme) renders outside a fenced code block",
@@ -334,7 +354,11 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # badge-specific link_target fact in its evidence at all needs no badge row, since no
         # badge slot could ever render from it. Any badge-worthy fact present and still no
         # rendered row is unchanged: that is a real composition defect.
-        "10",
+        # "11" (cells/python parity, 2026-10-10): an authored unit may not make an unscoped
+        # absolute dependency claim the dependency facts do not prove (README_CONTRACT.md section
+        # 2, "Never present"); the rule was prose-only until a sealed opening said "requiring no
+        # external dependencies" over a manifest that requires two packages.
+        "11",
         "Exactly one factual H1; one badge row in the stable order, each badge supported by a "
         "verified fact; title-case headings of every level; canonical abbreviations in prose and "
         "headings; At a Glance topology, column rules and label geometry; fence languages and "
@@ -712,7 +736,11 @@ def _example_for_unit(facts: FactsDocument, unit_id: str) -> Fact | None:
 
 def _placements(candidate: Candidate) -> list[Placement]:
     return placements(
-        candidate.plan, candidate.dispositions, candidate.facts, candidate.entry.ecosystem
+        candidate.plan,
+        candidate.dispositions,
+        candidate.facts,
+        candidate.entry.ecosystem,
+        candidate.units,
     )
 
 
@@ -1387,8 +1415,13 @@ def _topology_failures(body: str, has_inputs: bool) -> list[Failure]:
     count = len(_CAPABILITY_NODE.findall(body))
     columns = {name: _column_size(lines, name) for name in ("capl", "capr")}
     present = [name for name, size in columns.items() if size is not None]
-    if count > 8:
-        failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at most 8"))
+    if count > CAPABILITIES_CEILING:
+        failures.append(
+            Failure(
+                "PLANNING",
+                f"At a Glance shows {count} capabilities; at most {CAPABILITIES_CEILING}",
+            )
+        )
     elif count < 3:
         failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at least 3"))
     elif count <= 5 and present:
@@ -1804,6 +1837,7 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
                 (sid for sid, text in section_prose.items() if pattern.search(text)), None
             )
             failures.append(Failure("COMPOSING", f"internal narration {phrase!r}", located))
+    failures.extend(_unscoped_dependency_claims(candidate))
     visible, total = line_counts(candidate.readme)
     policy = candidate.policy
     # Check 7 judges the visible-length budget; collapsed content is unbounded (contract row 14).
@@ -1815,6 +1849,37 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
                 f"{policy.visible_lines_budget}",
             )
         )
+    return failures
+
+
+def _unscoped_dependency_claims(candidate: Candidate) -> list[Failure]:
+    """README_CONTRACT.md section 2 ("Never present"): an unscoped absolute dependency claim is
+    allowed only where the dependency facts prove it - the verified-zero marker and no required
+    dependency. Judged on the authored units (the only text a repair can revise), each located in
+    its section; a placed inherited unit is the maintainers' own words, checked by check 8."""
+    dependencies = [
+        fact for fact in candidate.facts.by_kind("dependency") if fact.polarity == "SUPPORTED"
+    ]
+    required = [
+        fact
+        for fact in dependencies
+        if fact.id != "dependency:none"
+        and not fact.id.startswith(("dependency:optional.", "dependency:development."))
+    ]
+    proven = not required and any(fact.id == "dependency:none" for fact in dependencies)
+    if proven:
+        return []
+    failures: list[Failure] = []
+    for unit in candidate.units.get("units", []):
+        for phrase in unscoped_dependency_claims(str(unit.get("text", ""))):
+            failures.append(
+                Failure(
+                    "COMPOSING",
+                    f"unscoped absolute dependency claim {phrase!r}: name the dependency class "
+                    "it excludes, or drop the claim - the dependency facts do not prove it",
+                    str(unit.get("section") or "") or None,
+                )
+            )
     return failures
 
 

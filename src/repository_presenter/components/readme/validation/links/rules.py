@@ -10,7 +10,9 @@ The rules, each with the ``plans/idea.md`` line it enforces:
   target" (``composition/link_budget.py`` derives them; ``readme_link_budget`` measures the
   rendered document).
 * Enterprise anchor: "Aspose.com product links use natural explanatory prose and an informative
-  full-featured ... Enterprise Edition anchor below the fold."
+  ... Enterprise Edition anchor below the fold" - the maintainers' plain label, owner decision
+  2026-10-10: ``Aspose.{Family} for {Platform} - Enterprise Edition`` (platform) or
+  ``Aspose.{Family} - Enterprise Edition`` (family), per the skill-generated README's contract.
 * Badge row: "one compact badge row in a stable order: package or release, platform/runtime, real
   build status, license, then contributors when those slots are supported. Badges may be omitted
   when their claims or targets are unavailable, but they may not be duplicated, split across
@@ -36,7 +38,7 @@ from repository_presenter.core.facts import FactsDocument
 EXECUTION_MARKERS = (": EXECUTED", ": COMPILED")
 _BADGE = re.compile(r"\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*\)")
 _IMAGE_URL = re.compile(r"!\[[^\]]*\]\(([^)\s]*)")
-_ANCHOR = re.compile(r"^full-featured \S.* — Enterprise Edition$")
+_ANCHOR = re.compile(r"^Aspose\.\S+(?: for \S.*)? — Enterprise Edition$")
 
 
 def verified_example_hashes(facts: FactsDocument) -> set[str]:
@@ -113,9 +115,10 @@ def badge_problems(row: str, expected: Sequence[tuple[str, str]]) -> list[str]:
 
 
 def enterprise_anchor_problems(readme: str, target: str | None, included: bool) -> list[str]:
-    """The Enterprise Edition anchor must open ``full-featured``, name the product, and end
-    ``Enterprise Edition``, and link the verified target; required whenever the plan includes
-    the section and the target is verified."""
+    """The Enterprise Edition anchor must read ``Aspose.{Family} for {Platform} - Enterprise
+    Edition`` (``Aspose.{Family} - Enterprise Edition`` for a family target), end ``Enterprise
+    Edition``, and link the verified target; required whenever the plan includes the section and
+    the target is verified."""
     if target is None or not included:
         return []
     anchors = [
@@ -125,7 +128,7 @@ def enterprise_anchor_problems(readme: str, target: str | None, included: bool) 
         return []
     if anchors:
         return [
-            "the Enterprise Edition link text must read 'full-featured <product> — "
+            "the Enterprise Edition link text must read 'Aspose.<Family> for <Platform> — "
             f"Enterprise Edition'; found {anchors[0]!r}"
         ]
     return [f"the verified Enterprise Edition target {target} is not linked from the document"]

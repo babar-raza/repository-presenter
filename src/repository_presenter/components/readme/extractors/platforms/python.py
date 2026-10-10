@@ -320,6 +320,18 @@ class PythonPlugin:
         add("package", "name", "name", "distribution name declared by the manifest")
         add("package", "version", "version", "version declared by the manifest")
         add("package", "python_requires", "requires_python", "python_requires declared")
+        if "requires_python" in merged and sources["requires_python"].endswith("pyproject.toml"):
+            # PEP 621 spells the floor `requires-python`; `python_requires` is setup.py's and
+            # setup.cfg's name. The README names the declaration where the reader will find it
+            # (the renderer reads this attribute, falling back to the ecosystem spec's).
+            floor = facts[-1]
+            facts[-1] = Fact(
+                floor.id,
+                floor.kind,
+                floor.value,
+                floor.evidence,
+                attributes={"floor_declaration": "requires-python"},
+            )
         add("package", "python_versions", "python_classifier_versions", "Python classifiers")
         add("package", "license", "license", "license declared by the manifest")
         # The dependency snapshot (README_CONTRACT.md section 2 row 9): every required

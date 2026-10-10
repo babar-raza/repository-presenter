@@ -43,6 +43,11 @@ from repository_presenter.components.readme.composition.components.terminology i
     LOWER_WORD,
     to_title_case,
 )
+from repository_presenter.components.readme.composition.inherited_text import (
+    dependency_name,
+    dependency_purposes,
+    inherited_example_heading,
+)
 from repository_presenter.components.readme.composition.placement import (
     api_reference_hub_methods,
     placed_texts,
@@ -94,6 +99,27 @@ RENDERER_VERSION = "29"
 # carry it onto the page and fail BC-12 unrepairably; quoted_evidence_elisions recomputes the
 # same elisions for the advisory audit trail (validation/registry.py's advisory_notes).
 RENDERER_VERSION = "30"
+# 31 (cells/python parity, owner instruction 2026-10-10 "nothing the maintainers have today may be
+# silently lost"): a Dependencies bullet carries the maintainers' own explanation of that
+# dependency when their list gave one and every identifier it names is verified
+# (inherited_text.dependency_purposes); an example heading is the maintainers' task heading over
+# that example's source code block when the README had one (inherited_text.inherited_example_
+# heading), not a model sentence; the Python floor is named where pyproject.toml declares it,
+# `requires-python`, not setup.py's `python_requires` (PEP 621); the Enterprise Edition anchor is
+# the maintainers' plain label, "Aspose.{Family} for {Platform} - Enterprise Edition" (owner
+# decision 2026-10-10, replacing the "full-featured" prefix), joined as ", which adds ..." when the
+# authored context begins "it adds"; and At a Glance shows each verified format in its own node
+# (up to six per group) and up to sixteen capabilities in two balanced columns (same decision).
+RENDERER_VERSION = "31"
+# 32 (the second commit of the same effort, owner decisions 2026-10-10): the working-tree bump
+# discipline asks each commit that changes this file's meaning to move the constant, so the
+# anchor/diagram/capability-ceiling changes above, made after 31 was committed, move it once more;
+# nothing else differs from 31 for a bundle: both are newer than every sealed bundle.
+RENDERER_VERSION = "32"
+# 33 (third commit of the same effort, owner instruction 2026-10-10 "fix both gaps now"): a placed
+# item of the maintainers' (placement.uncovered_items) replaces the authored limitation it
+# contains, so that bullet is not printed twice (cells/python: "(CSV also supports import)").
+RENDERER_VERSION = "33"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -175,14 +201,22 @@ class RenderContext:
         }
         # Placement follows the three rules of README_CONTRACT.md section 3, decided once in
         # placement.py so the validator judges exactly what the renderer did.
-        self.placements = placements(plan, dispositions, facts, entry.ecosystem)
+        self.placements = placements(plan, dispositions, facts, entry.ecosystem, units)
         self.placed: dict[str, list[str]] = placed_texts(self.placements)
+        # Authored slots a placed item of the maintainers' stands in for (uncovered_items).
+        self.replaced_slots: frozenset[tuple[str, str]] = frozenset(
+            slot
+            for placement in self.placements
+            if placement.outcome == "placed"
+            for slot in placement.replaces
+        )
         self.allowed = allowed_identifiers(facts, self.name)
         self.members = verified_members(facts)
         self.methods = surface_members(facts)
         self.name_tokens = product_name_tokens(self.name)
         self.hosts = host_names(fact.value for fact in facts.facts if fact.polarity == "SUPPORTED")
         self.abbreviations = canonical_abbreviations(facts)
+        self._example_headings: dict[str, str] | None = None
         self.symbol_names: frozenset[str] = frozenset(
             fact.value.rsplit(".", 1)[-1]
             for fact in facts.by_kind("public_symbol")
@@ -202,6 +236,27 @@ class RenderContext:
 
     def fact(self, fact_id: str) -> Fact | None:
         return self.by_id.get(fact_id)
+
+    def inherited_example_headings(self) -> dict[str, str]:
+        """Example ID -> the maintainers' heading over its source code block, in render order
+        (flagship first), each heading given to the first example that carries it: two
+        examples under one README heading never repeat it (a reused heading fails BC-07)."""
+        if self._example_headings is None:
+            ordered = [str(i) for i in self.plan.get("additional_example_ids", [])]
+            flagship = self.plan.get("flagship_example_id")
+            if isinstance(flagship, str) and flagship in ordered:
+                ordered.remove(flagship)
+                ordered.insert(0, flagship)
+            chosen: dict[str, str] = {}
+            taken: set[str] = set()
+            for example_id in ordered:
+                example = self.by_id.get(example_id)
+                heading = inherited_example_heading(self.facts, example) if example else None
+                if heading is not None and heading not in taken:
+                    taken.add(heading)
+                    chosen[example_id] = heading
+            self._example_headings = chosen
+        return self._example_headings
 
     def supported(self, kind: str) -> list[Fact]:
         return [f for f in self.facts.by_kind(kind) if f.polarity == "SUPPORTED"]  # type: ignore[arg-type]
@@ -383,10 +438,16 @@ def _navigation(context: RenderContext) -> list[str]:
     ]
 
 
-def _extra_bullet(fact: Fact) -> str:
+def _extra_bullet(fact: Fact, purposes: dict[str, str] | None = None) -> str:
     match = _EXTRA.search(fact.evidence[0].detail or "") if fact.evidence else None
     suffix = f" (extra `{match.group(1)}`)" if match else ""
-    return f"- `{fact.value}`{suffix}"
+    return f"- `{fact.value}`{suffix}{_purpose(fact, purposes)}"
+
+
+def _purpose(fact: Fact, purposes: dict[str, str] | None) -> str:
+    """The maintainers' explanation of a dependency, set off by an em dash, or nothing."""
+    text = (purposes or {}).get(dependency_name(fact.value))
+    return f" — {text}" if text else ""
 
 
 def _dependencies(context: RenderContext) -> list[str]:
@@ -397,6 +458,13 @@ def _dependencies(context: RenderContext) -> list[str]:
     Optional, Native and System, and Development omit silently when their bucket is empty.
     """
     facts = context.supported("dependency")
+    purposes = dependency_purposes(
+        context.facts,
+        lambda token: (
+            token in context.symbol_names
+            or identifier_allowed(token, context.allowed, context.members, context.methods)
+        ),
+    )
     marker = context.fact("dependency:none")
     required = [
         fact
@@ -409,7 +477,7 @@ def _dependencies(context: RenderContext) -> list[str]:
     lines: list[str] = []
     if required:
         lines.extend(["### Required Package Dependencies", ""])
-        lines.extend(f"- `{fact.value}`" for fact in required)
+        lines.extend(f"- `{fact.value}`{_purpose(fact, purposes)}" for fact in required)
     elif marker is not None and marker.polarity == "SUPPORTED" and marker.evidence:
         clause = marker.evidence[0].detail or "the manifest declares none"
         lines.extend(["### Required Package Dependencies", ""])
@@ -419,7 +487,7 @@ def _dependencies(context: RenderContext) -> list[str]:
         )
     if optional:
         lines.extend(["", "### Optional Dependencies", ""])
-        lines.extend(_extra_bullet(fact) for fact in optional)
+        lines.extend(_extra_bullet(fact, purposes) for fact in optional)
     # The floor is the ecosystem's to name (section 29.6 E4). Reading `package:python_requires`
     # here meant a .NET candidate never told a reader which framework it needs at all: the fact
     # is `package:target_framework` and no branch could see it (measured 2026-09-06).
@@ -444,7 +512,7 @@ def _dependencies(context: RenderContext) -> list[str]:
             )
     if development:
         lines.extend(["", "### Development Dependencies", ""])
-        lines.extend(_extra_bullet(fact) for fact in development)
+        lines.extend(_extra_bullet(fact, purposes) for fact in development)
     return lines[1:] if lines and lines[0] == "" else lines
 
 
@@ -688,13 +756,14 @@ def _api_reference(context: RenderContext) -> list[str]:
 def enterprise_anchor(name: str) -> str:
     """The Enterprise Edition anchor text for the product ``name``.
 
-    plans/idea.md: "Aspose.com product links use natural explanatory prose and an informative
-    **full-featured ... Enterprise Edition** anchor below the fold." The anchor opens with
-    "full-featured", names the product, and ends with the one permitted edition name; the
-    renderer composes it from the verified target's level and the canonical product name, never
-    from model prose.
+    The maintainers' own label and the skill's anchor contract (owner decision 2026-10-10, parity
+    with the skill-generated README): ``Aspose.{Family} for {Platform} - Enterprise Edition`` for a
+    platform-level target, ``Aspose.{Family} - Enterprise Edition`` for a family-level one. It
+    ends with the one permitted edition name and is composed here from the verified target's level
+    and the canonical product name, never from model prose. (plans/idea.md used to ask for a
+    "full-featured ..." prefix; the owner replaced it with this plain label.)
     """
-    return f"full-featured {name} — Enterprise Edition"
+    return f"{name} — Enterprise Edition"
 
 
 def _enterprise_paragraph(context: RenderContext) -> str:
@@ -710,8 +779,14 @@ def _enterprise_paragraph(context: RenderContext) -> str:
     name = context.name.replace(" FOSS", "")
     if level == "family":
         name = name.split(" for ", 1)[0]
-    sentence = f"These limitations don't apply to [{enterprise_anchor(name)}]({target.value})."
+    link = f"[{enterprise_anchor(name)}]({target.value})"
     adds = context.unit("enterprise_relationship", "context").strip()
+    # The maintainers' own shape is one sentence, "..., which adds ..."; the authored context is
+    # asked to begin "it adds", which reads as that clause.
+    clause = re.match(r"^it adds\s+(.+?)\.?$", adds, re.IGNORECASE | re.DOTALL)
+    if clause and ". " not in adds:
+        return f"These limitations don't apply to {link}, which adds {clause.group(1)}."
+    sentence = f"These limitations don't apply to {link}."
     return f"{sentence} {adds}" if adds else sentence
 
 
@@ -719,6 +794,12 @@ def _oxford(items: list[str]) -> str:
     if len(items) <= 2:
         return " and ".join(items)
     return ", ".join(items[:-1]) + f", and {items[-1]}"
+
+
+def _floor_name(requires: Fact) -> str:
+    """Where the floor is declared: the fact's own spelling (``requires-python`` in a
+    pyproject.toml), else ``python_requires``."""
+    return (requires.attributes or {}).get("floor_declaration") or "python_requires"
 
 
 def _installation(context: RenderContext) -> list[str]:
@@ -824,10 +905,10 @@ def _installation(context: RenderContext) -> list[str]:
         listed = _oxford([v.strip() for v in versions.value.split(",") if v.strip()])
         sentence = f"The package supports Python {listed}"
         if requires is not None and requires.polarity == "SUPPORTED":
-            sentence += f" and declares `python_requires` as `{requires.value}`"
+            sentence += f" and declares `{_floor_name(requires)}` as `{requires.value}`"
         sentence += "."
     elif requires is not None and requires.polarity == "SUPPORTED":
-        sentence = f"The package declares `python_requires` as `{requires.value}`."
+        sentence = f"The package declares `{_floor_name(requires)}` as `{requires.value}`."
     if sentence:
         lines.append("")
         lines.append(sentence)
@@ -865,7 +946,11 @@ FORMAT_NAMES: dict[str, str] = {
     "wrl": "VRML",
     "drc": "Draco",
     "x": "DirectX X",
+    "md": "Markdown",
 }
+# At a Glance names each verified format in its own node up to this many per group; a product with
+# more (3D: a dozen) keeps one node listing them, so the diagram stays readable.
+GLANCE_FORMAT_NODES_MAX = 6
 
 
 def format_name(value: str) -> str:
@@ -886,9 +971,10 @@ def _label(text: str) -> str:
 
 def _at_a_glance(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2.1: one chain, StartingPoints --> PRODUCT --> Capabilities
-    --> Outputs, each group a single listing node; Starting Points and Outputs are omitted with
-    their hop when nothing is verified; up to five capabilities form one column, six to eight
-    two balanced columns; the renderer owns every node, edge, and label."""
+    --> Outputs; Starting Points and Outputs are omitted with their hop when nothing is verified;
+    each verified format is its own node (the maintainers' diagram names them one by one) up to
+    ``GLANCE_FORMAT_NODES_MAX``, then one node lists them; up to five capabilities form one
+    column, six to sixteen two balanced columns; the renderer owns every node, edge, and label."""
     glance = context.plan.get("at_a_glance") or {}
     inputs = [
         format_name(fact.value)
@@ -906,7 +992,11 @@ def _at_a_glance(context: RenderContext) -> list[str]:
     if inputs:
         lines.append('  subgraph StartingPoints["Starting Points"]')
         lines.append("    direction LR")
-        lines.append(f'    i1["An existing {_or_list(inputs)} file"]')
+        if len(inputs) <= GLANCE_FORMAT_NODES_MAX:
+            for index, name in enumerate(inputs, start=1):
+                lines.append(f'    i{index}["An existing {name} file"]')
+        else:
+            lines.append(f'    i1["An existing {_or_list(inputs)} file"]')
         lines.append("  end")
         chain.append("StartingPoints")
     lines.append(f'  PRODUCT["{_label(context.name)}"]')
@@ -930,7 +1020,11 @@ def _at_a_glance(context: RenderContext) -> list[str]:
     if outputs:
         lines.append('  subgraph Outputs["Outputs"]')
         lines.append("    direction TB")
-        lines.append(f'    o1["{_or_list(outputs)} file"]')
+        if len(outputs) <= GLANCE_FORMAT_NODES_MAX:
+            for index, name in enumerate(outputs, start=1):
+                lines.append(f'    o{index}["{name} file"]')
+        else:
+            lines.append(f'    o1["{_or_list(outputs)} file"]')
         lines.append("  end")
         chain.append("Outputs")
     lines.append("  " + " --> ".join(chain))
@@ -946,6 +1040,8 @@ def _example_entry(context: RenderContext, sid: str, example_id: str) -> list[st
     # plans/idea.md: "Every Markdown heading uses title case." The unit is the model's sentence;
     # the heading it becomes is the template's, so capitalisation is applied here, not asked of
     # the model (verification V2 item 8: 20 of 29 sealed bundles carried sentence-case headings).
+    # The maintainers' own heading over this very code block stands in for the model's.
+    task = context.inherited_example_headings().get(example_id, task)
     heading = to_title_case(task, context.abbreviations)
     return ["", f"### {heading}", "", *_code_block(context.spec.fence, example.value)]
 
@@ -1028,7 +1124,10 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         slots = sorted(
             (int(slot.split(":", 1)[1]), slot)
             for (section, slot) in context.units
-            if section == sid and slot.startswith("limitation:") and slot[11:].isdigit()
+            if section == sid
+            and slot.startswith("limitation:")
+            and slot[11:].isdigit()
+            and (sid, slot) not in context.replaced_slots
         )
         if slots:
             lines.append("")
@@ -1069,7 +1168,9 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         lines.append(closing)
     else:
         for verbatim in placed:
-            lines.append("")
+            # A placed bullet continues the bullet list above it, not a second list.
+            if not (verbatim.startswith("- ") and lines and lines[-1].startswith("- ")):
+                lines.append("")
             lines.append(verbatim.rstrip("\n"))
     if sid == "scope_limitations":
         # Row 18: the Enterprise paragraph is the section's closing paragraph, after every

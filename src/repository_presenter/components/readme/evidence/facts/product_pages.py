@@ -3,8 +3,9 @@
 docs/RESEARCH_AND_GUIDELINES.md section 20 adopts the resolution shape, not the data: one live
 lookup per candidate, platform first (``products.aspose.com/{family}/{platform}/`` through the
 portfolio's known platform slugs) and the family page as the fallback, classified platform,
-family, or unresolved. Two live platform variants with no rule to pick between them are
-ambiguous and stay unresolved rather than silently chosen. README_CONTRACT.md row 3 needs a
+family, or unresolved. A curated override, then the product's own live slug, then one live
+variant; several distinct live platform pages with no rule to pick between them fall back to the
+family page rather than being silently chosen. README_CONTRACT.md row 3 needs a
 verified illustration and homepage for the banner, so the same lookup records the product
 homepage on products.aspose.org and its banner image, each SUPPORTED only on a live 200.
 Nothing here guesses: an unreachable page is recorded as unresolved with the status seen.
@@ -34,6 +35,18 @@ PLATFORM_SLUGS: dict[str, tuple[str, ...]] = {
     "rust": ("rust", "rust-cpp"),
     "node": ("nodejs", "nodejs-java", "nodejs-cpp"),
     "php": ("php", "php-java"),
+}
+
+# Curated Enterprise Edition platform pages, keyed (family, registry platform) -> slug. Ported
+# for the products in progress from aspose.org's data/backlinks/platform_canonical_overrides.yaml
+# (migration/reuse-manifest.yaml, record for that file): each is a designated canonical page,
+# HTTP-verified live by the source when curated and re-verified live at every run here - an
+# override whose page is not live at its own URL is ignored, never trusted. A row is added only
+# for a repository being processed, with the evidence in its reuse record.
+ENTERPRISE_OVERRIDES: dict[tuple[str, str], str] = {
+    ("cells", "python"): "python-net",
+    ("pdf", "python"): "python-net",
+    ("cells", "go"): "go-cpp",
 }
 
 
@@ -68,42 +81,77 @@ def _lookup(fact: str, url: str, role: str) -> Fact:
     )
 
 
+def _destination_slug(family: str, final: str) -> str | None:
+    """The platform slug a probed URL finally landed on, or None when it left the family tree."""
+    prefix = f"{ENTERPRISE_HOST}/{family}/"
+    if not final.startswith(prefix):
+        return None
+    slug = final[len(prefix) :].split("?", 1)[0].strip("/")
+    return slug if slug and "/" not in slug else None
+
+
 def enterprise_fact(entry: RegistryEntry) -> Fact:
-    """The Enterprise Edition target: the one live platform page, else the family page, else
-    unresolved; two live platform variants are ambiguous and unresolved."""
+    """The Enterprise Edition target, in the order the portfolio's own link policy resolves it.
+
+    1. A curated override (``ENTERPRISE_OVERRIDES``) whose page is live at its own URL: the
+       portfolio's designated Enterprise page for that product, picked over what a bare slug
+       redirects to.
+    2. The product's own platform slug, live: the URL it finally lands on is the target (a
+       slug that redirects to a bridge page such as ``go-cpp`` names that page, never a second
+       candidate).
+    3. Exactly one other live platform variant.
+    4. The family page: always the fallback, including when several distinct platform pages are
+       live and no rule picks between them (nothing is chosen, nothing is invented).
+    5. Unresolved, recording the status seen.
+    """
     slugs = PLATFORM_SLUGS.get(entry.platform, (entry.platform,))
-    live: list[tuple[str, str]] = []
+    probed: dict[str, tuple[int | None, str]] = {}
     seen: list[str] = []
     for slug in slugs:
-        url = f"{ENTERPRISE_HOST}/{entry.family}/{slug}/"
-        status, final = _status(url)
+        status, final = _status(f"{ENTERPRISE_HOST}/{entry.family}/{slug}/")
+        probed[slug] = (status, final)
         seen.append(f"{slug}: {status if status is not None else final}")
-        if status == 200:
-            live.append((slug, url))
-    if len(live) == 1:
-        slug, url = live[0]
+
+    def platform_level(url: str, how: str) -> Fact:
         return Fact(
             ENTERPRISE_FACT_ID,
             "link_target",
             url,
-            (Evidence(url, f"HTTP 200; enterprise target; platform level; slug {slug}"),),
+            (Evidence(url, f"HTTP 200; enterprise target; platform level; {how}"),),
             attributes={"role": "enterprise", "level": "platform", "platform": entry.platform},
         )
-    if len(live) > 1:
-        variants = ", ".join(slug for slug, _ in live)
-        url = f"{ENTERPRISE_HOST}/{entry.family}/"
-        return Fact(
-            ENTERPRISE_FACT_ID,
-            "link_target",
-            url,
-            (Evidence(url, f"ambiguous platform targets: {variants}; enterprise target"),),
-            polarity="UNRESOLVED",
-            confidence=0.5,
-            attributes={"role": "enterprise", "level": "ambiguous"},
+
+    override = ENTERPRISE_OVERRIDES.get((entry.family, entry.platform))
+    if override is not None:
+        status, final = probed.get(override, (None, ""))
+        if status == 200 and _destination_slug(entry.family, final) == override:
+            return platform_level(
+                f"{ENTERPRISE_HOST}/{entry.family}/{override}/",
+                f"slug {override}; curated override, live",
+            )
+    own_status, own_final = probed[slugs[0]]
+    if own_status == 200:
+        landed = _destination_slug(entry.family, own_final)
+        if landed is not None:
+            suffix = "" if landed == slugs[0] else f"; {slugs[0]} lands on it"
+            return platform_level(
+                f"{ENTERPRISE_HOST}/{entry.family}/{landed}/", f"slug {landed}{suffix}"
+            )
+    distinct = sorted(
+        {
+            landed
+            for status, final in probed.values()
+            if status == 200 and (landed := _destination_slug(entry.family, final)) is not None
+        }
+    )
+    if len(distinct) == 1:
+        return platform_level(
+            f"{ENTERPRISE_HOST}/{entry.family}/{distinct[0]}/", f"slug {distinct[0]}"
         )
     family_url = f"{ENTERPRISE_HOST}/{entry.family}/"
     status, final = _status(family_url)
     if status == 200:
+        ambiguity = f"; ambiguous platform pages {', '.join(distinct)}" if distinct else ""
         return Fact(
             ENTERPRISE_FACT_ID,
             "link_target",
@@ -111,7 +159,8 @@ def enterprise_fact(entry: RegistryEntry) -> Fact:
             (
                 Evidence(
                     family_url,
-                    f"HTTP 200; enterprise target; family level; platform pages {'; '.join(seen)}",
+                    f"HTTP 200; enterprise target; family level; platform pages "
+                    f"{'; '.join(seen)}{ambiguity}",
                 ),
             ),
             attributes={"role": "enterprise", "level": "family"},

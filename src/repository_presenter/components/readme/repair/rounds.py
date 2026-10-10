@@ -645,6 +645,7 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
                 current.dispositions,
                 tx.facts,
                 tx.entry.ecosystem,
+                current.units,
             )
         )
         defects.extend(

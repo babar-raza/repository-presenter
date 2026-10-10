@@ -2583,3 +2583,116 @@ def test_a_sealed_plan_citing_more_than_a_cap_still_replays_under_the_static_sch
         }.items():
             over_a_cap += sum(len(item.get(field, [])) > cap for item in plan.get(array, []))
     assert over_a_cap > 0, "no sealed plan exceeds a cap: this test would prove nothing"
+
+
+# --- cells/python parity (owner decision 2026-10-10): the capability list is preserved ---
+
+
+def _with_capability_list(count: int) -> FactsDocument:
+    bullets = "\n".join(f"- Capability number {n} with `Scene`." for n in range(1, count + 1))
+    listing = Fact(
+        "inherited_unit:010.list",
+        "inherited_unit",
+        bullets,
+        (Evidence("README.md", "lines 1-1"),),
+        attributes={"section": "Widget > Key Capabilities"},
+    )
+    return FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, listing))
+
+
+def _many_capabilities(count: int) -> dict[str, Any]:
+    titles = [f"Capability {n}" for n in range(1, count + 1)]
+    return _plan(
+        core_capabilities=[
+            {
+                "title": title,
+                "fact_ids": ["public_symbol:widget.scene"],
+                "shared_fact_ids": ["public_symbol:widget.scene"],
+                "inherited_item": number,
+            }
+            for number, title in enumerate(titles, start=1)
+        ],
+        at_a_glance={
+            "input_format_ids": [],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": titles,
+        },
+    )
+
+
+def test_the_capability_ceiling_follows_the_existing_readmes_own_list_up_to_sixteen() -> None:
+    facts = _with_capability_list(14)
+    assert not [e for e in plan_checks(_many_capabilities(14), facts) if "must number" in e]
+    # Negative controls: a README with no such list keeps three to eight; sixteen is the cap.
+    assert "core_capabilities must number 3 to 8; got 14" in plan_checks(
+        _many_capabilities(14), FACTS
+    )
+    assert "core_capabilities must number 3 to 14; got 15" in plan_checks(
+        _many_capabilities(15), facts
+    )
+    twenty = _with_capability_list(20)
+    assert "core_capabilities must number 3 to 16; got 17" in plan_checks(
+        _many_capabilities(17), twenty
+    )
+    assert not [e for e in plan_checks(_many_capabilities(16), twenty) if "must number" in e]
+
+
+def test_the_packet_shows_the_planner_the_raised_ceiling_only_when_a_list_exists() -> None:
+    raised = planning_packet(ENTRY, _with_capability_list(14), {}, {}, MANIFEST)
+    assert raised["policy"]["capabilities_max"] == 14
+    plain = planning_packet(ENTRY, FACTS, {}, {}, MANIFEST)
+    assert plain["policy"]["capabilities_max"] == 8
+    # A list under another heading is not a capability list.
+    other = Fact(
+        "inherited_unit:011.list",
+        "inherited_unit",
+        "\n".join(f"- item {n}" for n in range(12)),
+        (Evidence("README.md", "lines 1-1"),),
+        attributes={"section": "Widget > Requirements"},
+    )
+    unrelated = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, other))
+    assert planning_packet(ENTRY, unrelated, {}, {}, MANIFEST)["policy"]["capabilities_max"] == 8
+
+
+def test_an_inherited_capability_list_is_not_merged_down_to_eight() -> None:
+    facts = _with_capability_list(14)
+    assert (
+        "the existing README lists 14 capabilities; keep each as its own core capability, in its "
+        "order, up to 14; got 8"
+    ) in plan_checks(_many_capabilities(8), facts)
+    # Negative controls: a plan that keeps them all, a README whose list fits in eight (the plain
+    # three-to-eight rule), and a list longer than the cap (the cap is the requirement).
+    assert not [e for e in plan_checks(_many_capabilities(14), facts) if "existing README" in e]
+    assert not [
+        e for e in plan_checks(_many_capabilities(5), _with_capability_list(6)) if "existing" in e
+    ]
+    capped = plan_checks(_many_capabilities(10), _with_capability_list(20))
+    assert any("lists 20 capabilities" in e and "up to 16; got 10" in e for e in capped)
+
+
+def test_each_capability_names_the_inherited_bullet_it_keeps_once() -> None:
+    facts = _with_capability_list(10)
+    ok = _many_capabilities(10)
+    assert not [e for e in plan_checks(ok, facts) if "inherited_item" in e]
+    # Negative controls: a missing position, an out-of-range one, and a bullet kept twice.
+    missing = _many_capabilities(10)
+    del missing["core_capabilities"][0]["inherited_item"]
+    assert any(
+        "sets inherited_item to the position (1 to 10)" in e for e in plan_checks(missing, facts)
+    )
+    beyond = _many_capabilities(10)
+    beyond["core_capabilities"][0]["inherited_item"] = 11
+    assert any("sets inherited_item" in e for e in plan_checks(beyond, facts))
+    # A bullet kept by no capability is named with its start, and one kept twice is named too.
+    dropped = _many_capabilities(10)
+    dropped["core_capabilities"][1]["inherited_item"] = 1
+    found = plan_checks(dropped, facts)
+    assert any("kept by none: 2 ('Capability number 2 with `Scene`.')" in e for e in found)
+    assert "one capability per bullet: kept by more than one capability: 1" in found
+    # The planner is shown the bullets, numbered, so it can say which one each capability keeps.
+    packet = planning_packet(ENTRY, facts, {}, {}, MANIFEST)
+    assert [b["position"] for b in packet["inherited_capabilities"]] == list(range(1, 11))
+    assert packet["inherited_capabilities"][0]["text"].startswith("Capability number 1")
+    assert planning_packet(ENTRY, FACTS, {}, {}, MANIFEST)["inherited_capabilities"] == []
+    # A README with no capability list asks for no such field.
+    assert not [e for e in plan_checks(_plan(), FACTS) if "inherited_item" in e]

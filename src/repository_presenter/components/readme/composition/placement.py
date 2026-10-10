@@ -48,7 +48,7 @@ may edit only authored units, so an anchor left unresolved here can never be fix
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Literal
 from urllib.parse import unquote
@@ -73,6 +73,10 @@ class Placement:
     text: str
     outcome: Outcome
     overlap: tuple[str, ...] = ()
+    # Authored slots (section, slot) this placed text stands in for: an item of the maintainers'
+    # that carries everything an authored limitation says, and more, replaces it (see
+    # ``uncovered_items``), so the document never prints both.
+    replaces: tuple[tuple[str, str], ...] = ()
 
 
 def renders_verbatim(unit_id: str, value: str, ecosystem: str) -> bool:
@@ -436,10 +440,178 @@ def resolve_intra_document_anchors(text: str, planned_slugs: frozenset[str]) -> 
     return _INTRA_DOC_ANCHOR.sub(resolve, text)
 
 
+# Sections whose carrier is authored prose describing the same claims as the preserved unit, so a
+# shared fact ID proves nothing about the words: the fact-ID overlap rule alone dropped the
+# maintainers' limitation list and test-suite paragraphs of 20 of 30 sealed bundles, among them
+# "(CSV also supports import)" from Aspose.Cells for Python's first limitation. Elsewhere the
+# carrier is rendered from facts (links, examples, the symbol tables), where a shared fact ID is the
+# right test.
+TEXT_COVERED_SECTIONS = frozenset({"scope_limitations", "development_testing"})
+_STOPWORDS = frozenset(
+    [
+        "this",
+        "that",
+        "with",
+        "from",
+        "into",
+        "your",
+        "which",
+        "their",
+        "there",
+        "these",
+        "those",
+        "have",
+        "been",
+        "will",
+        "also",
+        "when",
+        "than",
+        "then",
+        "them",
+        "they",
+        "what",
+        "where",
+        "were",
+        "while",
+        "about",
+        "after",
+        "before",
+        "other",
+        "more",
+        "most",
+        "such",
+        "only",
+        "same",
+        "each",
+        "over",
+        "under",
+        "some",
+        "very",
+        "just",
+        "like",
+        "does",
+        "done",
+        "both",
+        "either",
+        "every",
+        "much",
+        "many",
+        "here",
+        "using",
+        "used",
+        "uses",
+        "can",
+        "may",
+        "should",
+        "would",
+        "could",
+        "must",
+        "need",
+        "needs",
+        "make",
+        "makes",
+        "made",
+        "for",
+        "and",
+        "the",
+        "are",
+        "not",
+        "but",
+        "its",
+        "has",
+        "had",
+        "you",
+        "our",
+        "any",
+        "all",
+        "one",
+        "two",
+        "use",
+        "via",
+        "per",
+    ]
+)
+_WORD = re.compile(r"[A-Za-z][A-Za-z0-9_]{2,}")
+_LINK_TARGET = re.compile(r"\]\([^)]*\)|https?://\S+")
+_CLAUSE_BOUNDARY = re.compile(r";\s|\s[\u2014\u2013-]\s|[()]|:\s|(?<=[.!?])\s")
+_BULLET = re.compile(r"^\s{0,3}(?:[-*+]|\d+\.)\s+")
+# A clause is carried when this share of its content words appear in the authored text; a clause
+# of fewer words than the floor is a lead-in, not a claim.
+_CLAUSE_CARRIED = 0.75
+_CLAUSE_FLOOR = 3
+# An authored unit is replaced by a maintainers' item that holds this share of its words.
+_REPLACED_SHARE = 0.7
+
+
+def _content_words(text: str) -> set[str]:
+    return {w.lower() for w in _WORD.findall(_LINK_TARGET.sub(" ", text))} - _STOPWORDS
+
+
+def _items(unit_id: str, value: str) -> list[str]:
+    """A unit's items: a list's bullets (continuation lines folded in), else its sentences."""
+    if unit_id.endswith(".list"):
+        found: list[str] = []
+        for line in value.splitlines():
+            if _BULLET.match(line):
+                found.append(_BULLET.sub("", line, count=1).strip())
+            elif found and line.strip():
+                found[-1] += " " + line.strip()
+        return found
+    return [part for part in re.split(r"(?<=[.!?:])\s+", " ".join(value.split())) if part]
+
+
+def uncovered_items(
+    unit_id: str, value: str, authored: Sequence[str]
+) -> tuple[list[str], list[int]]:
+    """The items of a preserved unit that carry a clause the authored text does not, with the
+    indexes of ``authored`` each such item replaces.
+
+    A clause is carried when ``_CLAUSE_CARRIED`` of its content words appear in the authored text
+    of the section (a clause under ``_CLAUSE_FLOOR`` words is a lead-in and never counts); an item
+    with any uncarried clause is returned whole, in the maintainers' words. An authored unit that
+    the item contains (``_REPLACED_SHARE`` of the unit's words are the item's) is replaced by it:
+    the maintainers' version is the fuller statement of the same thing.
+    """
+    carrier = _content_words(" ".join(authored))
+    kept: list[str] = []
+    for item in _items(unit_id, value):
+        if item.endswith(":"):
+            continue  # a lead-in to a block the renderer places itself
+        for clause in (c.strip() for c in _CLAUSE_BOUNDARY.split(item)):
+            words = _content_words(clause)
+            if len(words) >= _CLAUSE_FLOOR and len(words & carrier) / len(words) < _CLAUSE_CARRIED:
+                kept.append(item)
+                break
+    replaced: list[int] = []
+    for index, text in enumerate(authored):
+        words = _content_words(text)
+        if words and any(
+            len(words & _content_words(item)) / len(words) >= _REPLACED_SHARE for item in kept
+        ):
+            replaced.append(index)
+    return kept, replaced
+
+
+def _render_items(unit_id: str, items: list[str]) -> str:
+    if unit_id.endswith(".list"):
+        return chr(10).join(f"- {item}" for item in items)
+    return " ".join(items)
+
+
 def placements(
-    plan: dict[str, Any], dispositions: dict[str, Any], facts: FactsDocument, ecosystem: str
+    plan: dict[str, Any],
+    dispositions: dict[str, Any],
+    facts: FactsDocument,
+    ecosystem: str,
+    units: dict[str, Any] | None = None,
 ) -> list[Placement]:
-    """Every preserved or moved unit with the outcome the three rules give it."""
+    """Every preserved or moved unit with the outcome the three rules give it.
+
+    ``units`` is the authored content (``content_units.json``) when it exists. Given it, a unit
+    bound for a ``TEXT_COVERED_SECTIONS`` section that the fact-ID rule would drop is dropped only
+    if the authored text carries all of it; otherwise its uncarried items are placed in the
+    maintainers' words. Without it (planning, before anything is authored) the fact-ID rule stands.
+    """
     included = {
         str(entry.get("section_id")) for entry in plan.get("sections", []) if entry.get("include")
     }
@@ -485,13 +657,24 @@ def placements(
         )
         outcome: Outcome = "overlap" if overlap else "placed"
         text = unit.value
+        replaces: tuple[tuple[str, str], ...] = ()
+        if overlap and units is not None and destination in TEXT_COVERED_SECTIONS:
+            authored = [u for u in units.get("units", []) if u.get("section") == destination]
+            kept, replaced = uncovered_items(unit_id, unit.value, [u["text"] for u in authored])
+            if kept:
+                outcome, overlap, text = "placed", (), _render_items(unit_id, kept)
+                replaces = tuple(
+                    (destination, authored[i]["slot"])
+                    for i in replaced
+                    if str(authored[i]["slot"]).startswith("limitation:")
+                )
         # Item 114: resolved only for the text this candidate actually copies verbatim into the
         # document, never a code block - a fenced example's own bytes are content, not prose, and
         # "[...](#...)" inside one is source the unit must reproduce exactly, not a cross-reference
         # to rewrite.
         if outcome == "placed" and not unit_id.endswith(".code_block"):
             text = resolve_intra_document_anchors(text, planned_slugs)
-        result.append(Placement(unit_id, destination, text, outcome, overlap))
+        result.append(Placement(unit_id, destination, text, outcome, overlap, replaces))
     return result
 
 

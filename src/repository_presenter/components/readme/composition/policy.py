@@ -11,7 +11,7 @@ Aspose-link ceilings (plans/idea.md, "Aspose-link density must adapt to the READ
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from typing import Any
 
 from repository_presenter.components.readme.composition.link_budget import (
@@ -20,6 +20,10 @@ from repository_presenter.components.readme.composition.link_budget import (
 )
 
 POLICY_VERSION = "1"
+# The most capabilities a plan may carry when the existing README lists that many: an inherited
+# list is preserved up to its own count, never beyond this (owner decision 2026-10-10). A repository
+# whose README lists none keeps ``PlanningPolicy.capabilities_max``.
+CAPABILITIES_CEILING = 16
 
 
 @dataclass(frozen=True)
@@ -37,6 +41,13 @@ class PlanningPolicy:
 
 
 DEFAULT_POLICY = PlanningPolicy()
+
+
+def with_inherited_capabilities(policy: PlanningPolicy, inherited: int) -> PlanningPolicy:
+    """``policy`` with the capability ceiling raised to the existing README's own list, up to
+    ``CAPABILITIES_CEILING``; never lowered below the policy's own maximum."""
+    ceiling = max(policy.capabilities_max, min(CAPABILITIES_CEILING, inherited))
+    return replace(policy, capabilities_max=ceiling)
 
 
 def policy_packet(policy: PlanningPolicy = DEFAULT_POLICY) -> dict[str, Any]:

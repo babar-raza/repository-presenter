@@ -39,7 +39,7 @@ class PublicSymbol:
     line: int
     public_by: PublicBy
     reexported_from: str | None = None
-    docstring: str | None = None  # the first line of the symbol's own docstring
+    docstring: str | None = None  # the summary sentence of the symbol's own docstring
     signature: str | None = None  # the definition line as the source states it
 
 
@@ -51,8 +51,20 @@ def _first_docstring_line(node: ast.AST) -> str | None:
     )
     if not text:
         return None
-    first = text.strip().splitlines()[0].strip()
-    return first or None
+    lines = text.strip().splitlines()
+    summary = lines[0].strip()
+    # A summary that wraps ("... (rectangle, oval, text box, arrow, etc.) on" / "a worksheet.") is
+    # one sentence: follow its continuation lines until the sentence ends or the paragraph does,
+    # never into a list or a following paragraph. Cut at the physical line, aspose-cells-foss
+    # Shape described itself as "... arrow, etc.) on" in its sealed Core API table.
+    for line in lines[1:]:
+        nxt = line.strip()
+        if not summary or summary.endswith((".", "!", "?", ":")) or not nxt:
+            break
+        if nxt.startswith(("-", "*", "+", ">")) or nxt[:1].isdigit():
+            break
+        summary = f"{summary} {nxt}"
+    return summary or None
 
 
 def _signature(node: ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef) -> str:

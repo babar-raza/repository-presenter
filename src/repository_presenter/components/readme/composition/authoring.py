@@ -39,6 +39,12 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.components.readme.composition.components.terminology import (
     canonical_forms,
 )
+from repository_presenter.components.readme.composition.inherited_text import (
+    bullet_names,
+    inherited_capability_bullets,
+    inherited_capability_unit_ids,
+    names_in_text,
+)
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.core.facts import (
     REPOSITORY_FILES_ATTRIBUTE,
@@ -340,8 +346,27 @@ _TYPE_OBJECTIVE = (
 # cited inherited unit's own sibling shorthand "`EciHelper.normalize`/`.validate`" also spells
 # EciHelper.validate (aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python limitation:3, 2026-10-10,
 # refused as "EciHelper.validate" although the cited paragraph abbreviates exactly that name).
-NORMALISATION_VERSION = "32"
+# "33": opening joins _CARRY_SECTIONS. Reconciliation always superseded the maintainers' intro
+# paragraph into the opening ("the rewrite covers it") but the authoring call was never told to
+# carry it, so the sealed opening was a fresh paraphrase that lost what the maintainers stated and
+# added what they did not: aspose-cells-foss/Aspose.Cells-FOSS-for-Python (2026-10-10) lost "pure-
+# Python", "without requiring Microsoft Excel" and "depends only on pycryptodome and olefile", and
+# gained "requiring no external dependencies beyond the library itself" over a manifest that
+# requires both packages. The opening now cites or reasonedly omits that paragraph like every other
+# carried section, and its objective says to keep the specifics it states and claim nothing it
+# does not.
+# "34": the second commit of the same effort (owner decision 2026-10-10, README_CONTRACT row 7):
+# the existing README's own capability list is shown to the key_capabilities author with an
+# instruction to keep the specifics each bullet names, since the plan may now carry one capability
+# per inherited bullet (up to sixteen). The working-tree bump discipline moves the constant once
+# per committing delta, so this is a second step from "33" within one pull request.
+# "35": third commit of the same effort (owner instruction 2026-10-10): a capability that keeps an
+# inherited bullet (plan inherited_item) is shown that bullet as its slot's source and must name at
+# least a third of the verified classes and methods the bullet names (unit_checks), so a similarly
+# named function can no longer stand in for the method the maintainers name.
+NORMALISATION_VERSION = "35"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
+_TYPE_KINDS = frozenset({"class", "enum", "interface", "struct", "trait", "type"})
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
 # The substitutes are matched case-insensitively (the lowercase "commercial edition" is the form
@@ -525,6 +550,12 @@ class SectionTask:
     # reconciliation disposition names. A refusal quotes it back, so the re-ask carries what the
     # unit says, not only its ID (a bare ID let a second reply omit it unchanged).
     must_carry_text: Mapping[str, str] = field(default_factory=dict)
+    # A capability slot that keeps an inherited bullet: the verified classes it names (all of
+    # which the unit spells), its verified methods, and how many of those the unit must spell
+    # (capability_sources).
+    slot_sources: Mapping[str, tuple[tuple[str, ...], tuple[str, ...], int]] = field(
+        default_factory=dict
+    )
 
     @property
     def label(self) -> str:
@@ -571,7 +602,9 @@ _CARRIABLE_SUFFIXES = (".paragraph", ".list")
 # enterprise_relationship joins them (G7-W15/G7-W18): reconciliation supersedes an inherited
 # Enterprise Edition paragraph into it, and its authored context sentence is the one place that
 # paragraph's "which adds ..." substance renders after the shell's own opening sentence.
-_CARRY_SECTIONS = frozenset({"development_testing", "scope_limitations", "enterprise_relationship"})
+_CARRY_SECTIONS = frozenset(
+    {"opening", "development_testing", "scope_limitations", "enterprise_relationship"}
+)
 
 
 def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocument) -> list[str]:
@@ -621,11 +654,62 @@ def capability_titles(plan: dict[str, Any]) -> dict[str, str]:
     }
 
 
+def capability_sources(
+    plan: dict[str, Any], facts: FactsDocument, name: str
+) -> tuple[dict[str, str], dict[str, tuple[tuple[str, ...], tuple[str, ...], int]]]:
+    """For each capability slot that keeps an inherited bullet (``inherited_item``): the bullet's
+    text, and the identifiers it names that the facts verify - the classes (the unit spells all of
+    them) and the methods (it spells a third, at least one).
+
+    A bullet is the maintainers' statement of what a capability is; the unit that replaces it must
+    keep the API it names, not a similarly named function (cells/python: the unit cited
+    ``save_workbook_as_csv`` where the bullet names ``Workbook.save_as_csv()``, and a merged-cells
+    sentence dropped ``DefinedNameCollection``). More than six classes in one bullet is a catalogue:
+    two thirds of them are required then.
+    """
+    bullets = inherited_capability_bullets(facts)
+    allowed = allowed_identifiers(facts, name)
+    members = verified_members(facts)
+    methods = surface_members(facts)
+    kinds: dict[str, set[str]] = {}
+    for fact in facts.by_kind("public_symbol"):
+        if fact.polarity == "SUPPORTED":
+            kinds.setdefault(fact.value.rsplit(".", 1)[-1], set()).add(
+                str((fact.attributes or {}).get("symbol_kind", ""))
+            )
+
+    def verified(token: str) -> bool:
+        last = token.rsplit(".", 1)[-1]
+        return identifier_allowed(token, allowed, members, methods) or identifier_allowed(
+            last, allowed, members, methods
+        )
+
+    def class_like(token: str) -> bool:
+        return bool(kinds.get(token.rsplit(".", 1)[-1], set()) & _TYPE_KINDS)
+
+    texts: dict[str, str] = {}
+    required: dict[str, tuple[tuple[str, ...], tuple[str, ...], int]] = {}
+    for index, item in enumerate(plan.get("core_capabilities", []), start=1):
+        position = item.get("inherited_item")
+        if not isinstance(position, int) or not 1 <= position <= len(bullets):
+            continue
+        bullet = bullets[position - 1]
+        slot = f"capability:{index}"
+        texts[slot] = bullet
+        named = [token for token in bullet_names(bullet) if verified(token)]
+        types = tuple(token for token in named if class_like(token))
+        others = tuple(token for token in named if token not in types)
+        if types or others:
+            required[slot] = (types, others, -(-len(others) // 3))
+    return texts, required
+
+
 def slot_records(
     slots: Sequence[str],
     slot_facts: Mapping[str, frozenset[str]],
     titles: Mapping[str, str],
     renders: Mapping[str, str] = MappingProxyType({}),
+    sources: Mapping[str, str] = MappingProxyType({}),
 ) -> list[dict[str, Any]]:
     """Each slot as the author is shown it: its id, the subject the plan gave it, the only facts
     its unit may cite, and what the deterministic renderer already prints around it. The title
@@ -640,6 +724,8 @@ def slot_records(
             record["fact_ids"] = sorted(slot_facts[slot])
         if renders.get(slot):
             record["renders"] = renders[slot]
+        if sources.get(slot):
+            record["source"] = sources[slot]
         records.append(record)
     return records
 
@@ -825,11 +911,16 @@ def section_selections(
             ids.extend(_cited(investigation.get(key)))
         ids.extend(_cited(plan.get("core_capabilities")))
         ids.extend(fact.id for fact in facts.by_kind("format"))
+        ids.extend(carried_units(dispositions, section, facts))
         slots = ["opening"]
     elif section == "key_capabilities":
         for index, item in enumerate(plan.get("core_capabilities", []), start=1):
             ids.extend(item.get("fact_ids", []))
             slots.append(f"capability:{index}")
+        # The existing README's own capability list is shown to the author (not citable by a
+        # slot, which cites only its own facts), so each capability's sentence can keep the
+        # specifics the maintainers named.
+        ids.extend(inherited_capability_unit_ids(facts))
     elif section == "quick_start":
         ids.append(plan.get("quick_start_example_id", ""))
         slots = ["lead_in"]
@@ -1085,8 +1176,11 @@ def authoring_tasks(
         spellings = section_spellings(ids, facts)
         slot_facts = slot_fact_sets(section, plan)
         titles = capability_titles(plan) if section == "key_capabilities" else {}
+        source_texts, source_names = (
+            capability_sources(plan, facts, name) if section == "key_capabilities" else ({}, {})
+        )
         renders = slot_rendering(section, slots, facts, dispositions, slot_facts)
-        records = slot_records(slots, slot_facts, titles, renders)
+        records = slot_records(slots, slot_facts, titles, renders, source_texts)
         # G4-W17, Cells-Java authoring-hint duplication fix (docs/DECISION_LOG.md 2026-09-24):
         # development_testing's own placed command blocks, at line granularity, so unit_checks
         # can mechanically reject a unit that restates one - the same "restates its neighbour"
@@ -1135,6 +1229,26 @@ def authoring_tasks(
             if must_carry
             else ""
         )
+        if section == "key_capabilities" and inherited_capability_unit_ids(facts):
+            carry_rule += (
+                "The existing README lists these capabilities itself (the inherited list units "
+                "among the accepted facts). Where a capability matches one of its bullets, its "
+                "sentence states that bullet's specifics - the classes, methods, standards and "
+                "limits it names - keeping its wording where it is accurate; do not drop a "
+                "specific the bullet states. A slot's `source` is the bullet that slot keeps: its "
+                "sentence names at least a third of the classes and methods that bullet names, "
+                "written as the bullet writes them (the `Workbook` method it names, not a "
+                "package-level function of a similar name). "
+            )
+        if must_carry and section == "opening":
+            # The maintainers' own intro states what the product is, what it needs, and which
+            # packages it depends on; the opening keeps those specifics and adds none of its own
+            # (an invented "no external dependencies" over a manifest with two required packages).
+            carry_rule += (
+                "Keep every specific the inherited paragraph states (what the product is, what "
+                "it requires, which packages it depends on) in two to four sentences; never "
+                "claim it has no dependencies unless a cited dependency fact says none. "
+            )
         if must_carry and section == "enterprise_relationship":
             # The inherited paragraph names the commercial product and links it, but the renderer
             # prints that name and link itself in the sentence before this unit (exactly once,
@@ -1173,6 +1287,7 @@ def authoring_tasks(
                 slot_render_lines=render_lines,
                 must_carry=must_carry,
                 must_carry_text=carried_substance(must_carry, facts),
+                slot_sources=source_names,
             )
         )
         if section == "api_reference":
@@ -1873,6 +1988,29 @@ def unit_checks(
                 f"unit {unit.get('slot')}: restates its own title {title!r}; the title is "
                 "printed immediately before the unit, so its text adds what the title does "
                 "not already say"
+            )
+    # cells/python parity (2026-10-10): a capability that keeps an inherited bullet still names the
+    # API the bullet names. The sealed unit cited the package-level function save_workbook_as_csv
+    # (a verified public symbol, so BC-04 and the review rightly passed it) where the maintainers'
+    # bullet names Workbook.save_as_csv(), and a merged-cells bullet dropped Cells.merge() and
+    # DefinedNameCollection altogether; nothing compared the two. The pairing is the plan's own
+    # inherited_item, so the comparison is exact.
+    for unit in output.get("units", []):
+        wanted = task.slot_sources.get(str(unit.get("slot")))
+        if wanted is None:
+            continue
+        types, others, need = wanted
+        text = str(unit.get("text", ""))
+        need_types = len(types) if len(types) <= 6 else -(-2 * len(types) // 3)
+        missing_types = [t for t in types if not names_in_text([t], text)]
+        spelled = len(types) - len(missing_types)
+        kept = names_in_text(others, text)
+        if spelled < need_types or len(kept) < need:
+            errors.append(
+                f"unit {unit.get('slot')}: keeps an inherited bullet but does not name the API it "
+                f"names - spell {', '.join(types[:8]) or 'its classes'} (at least {need_types}) "
+                f"and at least {need} of {', '.join(others[:8]) or 'its methods'}, as the bullet "
+                "writes them (the method it names, not a similarly named function)"
             )
     # G4-W17, Cells-Java authoring-hint duplication fix (docs/DECISION_LOG.md 2026-09-24): the
     # same "restates its neighbour" defect as the title check just above, but for a placed
