@@ -15,6 +15,9 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt, model_validator
 from repository_presenter.core.registry.naming import validate_managed_repository_coordinates
 
 Mode = Literal["full", "dry_run", "disabled"]
+# How upstream-issue effects (issue_filing, issue_close) treat an entry, independent of ``mode``
+# (the README-proposal and metadata gate). ``file`` permits them; ``dry_run`` and ``off`` refuse.
+IssuesMode = Literal["off", "dry_run", "file"]
 REPOSITORY_PATTERN = r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
 
 
@@ -38,7 +41,8 @@ class ProviderIdentity(BaseModel):
 
 
 class RegistryEntry(BaseModel):
-    """One admitted repository. ``mode`` governs publication readiness, never read eligibility."""
+    """One admitted repository. ``mode`` governs publication readiness, never read eligibility;
+    the optional ``issues_mode`` governs upstream-issue effects only."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -47,6 +51,7 @@ class RegistryEntry(BaseModel):
     platform: str = Field(min_length=1)
     ecosystem: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
     mode: Mode
+    issues_mode: IssuesMode | None = None
     policy_profile: str = Field(min_length=1)
     active: bool
     provider_identity: ProviderIdentity
@@ -55,6 +60,15 @@ class RegistryEntry(BaseModel):
     def _name_matches_coordinates(self) -> RegistryEntry:
         validate_managed_repository_coordinates(self.name, self.family, self.platform)
         return self
+
+    @property
+    def effective_issues_mode(self) -> IssuesMode:
+        """The issue-effect mode: the explicit ``issues_mode``, else derived from ``mode`` so an
+        entry that does not set it behaves exactly as before (``full`` -> ``file``, else
+        ``dry_run``). A ``disabled`` entry is refused every effect regardless (write_gate.py)."""
+        if self.issues_mode is not None:
+            return self.issues_mode
+        return "file" if self.mode == "full" else "dry_run"
 
     @property
     def owner(self) -> str:

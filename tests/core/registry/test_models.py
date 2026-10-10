@@ -113,3 +113,24 @@ def test_registry_rejects_unknown_schema_versions_and_fields() -> None:
         Registry.model_validate({"schema_version": 2, "entries": []})
     with pytest.raises(ValidationError, match="extra"):
         Registry.model_validate({"schema_version": 1, "entries": [], "roadmap": []})
+
+
+@pytest.mark.parametrize("value", ["off", "dry_run", "file"])
+def test_issues_mode_accepts_its_three_values_and_round_trips(value: str) -> None:
+    parsed = RegistryEntry.model_validate(entry(issues_mode=value))
+    assert parsed.issues_mode == value and parsed.effective_issues_mode == value
+    assert RegistryEntry.model_validate(parsed.model_dump(mode="json")) == parsed
+
+
+@pytest.mark.parametrize("value", ["full", "disabled", "on", "", "FILE", 1, True])
+def test_issues_mode_rejects_anything_else(value: Any) -> None:
+    with pytest.raises(ValidationError, match="issues_mode"):
+        RegistryEntry.model_validate(entry(issues_mode=value))
+
+
+@pytest.mark.parametrize(
+    ("mode", "derived"), [("full", "file"), ("dry_run", "dry_run"), ("disabled", "dry_run")]
+)
+def test_an_absent_issues_mode_derives_from_mode(mode: str, derived: str) -> None:
+    parsed = RegistryEntry.model_validate(entry(mode=mode))
+    assert parsed.issues_mode is None and parsed.effective_issues_mode == derived
