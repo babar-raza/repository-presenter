@@ -10,6 +10,16 @@ code decides that deterministic content is rendered, never copied. A placing dis
 otherwise needs a placeable destination, a correction cites its evidence, a supersession names
 its section or cites facts, and a code block whose example is CONTRADICTED is never placed. A
 violation is quoted back once; a second one fails the transaction closed.
+
+A disposition may claim only what this stage can prove (TC-DSP-01, G3-W08). Reconciliation runs
+before planning, so SUPERSEDE_REDUNDANT - "something else carries this" - stands only where that
+is decidable from the facts: a shell-owned unit, a deterministic section whose rendering inputs
+hold everything the unit rests on, the Core API table for a listing of verified classes, the
+opening for the lead paragraph, a section that must cite or omit the unit (authoring.carried_units)
+or the diagram for a diagram. Anywhere else the unit stays a placement and placement, which holds
+the plan, decides. OMIT_UNSUPPORTED - "no fact supports this" - stands only after a failed support
+lookup. What cannot be folded to a truthful disposition is refused by ``placement_errors`` (typed,
+quoting the unit) and, on the last attempt, deferred by ``recover_uncited_prose_omits``.
 """
 
 from __future__ import annotations
@@ -19,11 +29,13 @@ import hashlib
 import json
 import re
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme.composition.authoring import (
+    _CARRY_SECTIONS,
     inherited_unit_named_symbols,
 )
 from repository_presenter.components.readme.composition.components.shell import (
@@ -31,6 +43,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
     shell_packet,
 )
+from repository_presenter.components.readme.composition.placement import renderer_fact_ids
 from repository_presenter.components.readme.composition.planning import section_conditions
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
@@ -44,6 +57,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
+from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.facts import (
     DECLARED_SYMBOL_KINDS,
@@ -506,6 +520,575 @@ def rendering_fact_ids(section: str, facts: FactsDocument) -> list[str]:
     )
 
 
+# ---------------------------------------------------------------------------------------------
+# TC-DSP-01 / G3-W08: a unit is dropped only when something true takes its place.
+#
+# Reconciliation runs before planning, so what it may claim is limited to what is decided before a
+# plan exists. A SUPERSEDE_REDUNDANT is a claim that the destination already carries the unit; it
+# stands only when that is provable here: the shell owns the unit's kind (a heading, a badge row,
+# an HTML structure block), the destination is a deterministic section whose rendering inputs hold
+# every fact the unit rests on, the destination is the Core API table and the unit lists only
+# verified classes and enums, the unit is the lead paragraph the opening replaces, the destination
+# owes an explicit disposition for it downstream (authoring.carried_units), or the destination is
+# the diagram and the unit is one. Anything else - a section whose content the plan chooses - is
+# not provable, so the unit stays a placing disposition and placement decides, with the plan in
+# hand, whether it overlaps (placement.placements). Measured on the 30 sealed bundles
+# (tests/components/readme/reconciliation/test_supersession_coverage.py): verified Quick Start,
+# Installation, Dependencies and Key Capabilities units were dropped as "redundant" while no
+# section carried them.
+#
+# OMIT_UNSUPPORTED is the other silent drop. It claims no fact supports the unit, so it fails when
+# the unit's own example is verified or unresolved (unresolved is a deferral, never an omission) or
+# when an uncited omission's text spells a SUPPORTED fact.
+# ---------------------------------------------------------------------------------------------
+# The unit kinds that carry content of their own. A heading, a badge row or an HTML structure block
+# is owned by the shell (placement.renders_verbatim): it renders whatever the plan says, so
+# superseding one never drops anything.
+_CONTENT_KINDS = frozenset({"paragraph", "list", "table", "code_block", "blockquote"})
+_NEUTRAL_FACT_KINDS = frozenset({"identity", "package", "inherited_unit"})
+# The unit kinds each deterministic section can render. A kind outside the set carries content the
+# section never prints, whatever facts the unit cites.
+_SECTION_RENDERS: dict[str, frozenset[str]] = {
+    "identity": frozenset({"heading"}),
+    "badges": frozenset({"badge_row"}),
+    "banner": frozenset({"badge_row"}),
+    "navigation": frozenset({"heading", "list"}),
+    "installation": frozenset({"heading", "paragraph", "list", "code_block", "blockquote"}),
+    "dependencies": frozenset({"heading", "paragraph", "list", "table", "code_block"}),
+    "third_party_notices": frozenset({"heading", "paragraph", "list"}),
+    "license": frozenset({"heading", "paragraph"}),
+}
+_NAVIGATION_ITEM = re.compile(r"^\s*[-*+]\s*\[[^\]]+\]\(#[^)\s]*\)\s*$")
+_CODE_SPAN = re.compile(r"`([^`\n]+)`")
+_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+_SYMBOL_SPAN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:(?:\.|::)[A-Za-z_][A-Za-z0-9_]*)*")
+_VERSION_PIN = re.compile(r"(?<=\S)(?:==|>=|<=|~=|!=|>|<)[^\s]+|\s--version\s+\S+")
+_PROMPT = re.compile(r"^\s*(?:[$>]\s+)")
+
+# Gap reasons. A reason names why a disposition does not stand; the code that folds and the
+# message the re-ask quotes are both keyed on it.
+UNRENDERED_FACTS = "unrendered_facts"
+UNRENDERED_COMMAND = "unrendered_command"
+SECTION_RENDERS_OTHER_KINDS = "section_renders_other_kinds"
+NOT_LEAD_PARAGRAPH = "not_lead_paragraph"
+PLAN_DEPENDENT = "plan_dependent"
+EXAMPLE_NOT_VERIFIED = "example_not_verified"
+NO_DESTINATION = "no_destination"
+API_MEMBERS = "api_members"
+NOT_AN_API_LISTING = "not_an_api_listing"
+NOT_A_DIAGRAM = "not_a_diagram"
+NOT_NAVIGATION = "not_navigation"
+OMIT_UNRESOLVED_EXAMPLE = "omit_unresolved_example"
+OMIT_VERIFIED_EXAMPLE = "omit_verified_example"
+OMIT_NAMES_SUPPORTED = "omit_names_supported"
+UNCOVERED_SUPERSESSION = "uncovered_supersession"
+SUPPORTED_OMISSION = "supported_omission"
+
+
+@dataclass(frozen=True)
+class CoverageGap:
+    """One disposition that claims more than reconciliation can prove, and why."""
+
+    unit_id: str
+    disposition: str
+    destination: str | None
+    reason: str
+    detail: str
+
+
+def _unit_kind(unit_id: str) -> str:
+    return unit_id.rsplit(".", 1)[-1]
+
+
+def _is_mermaid(text: str) -> bool:
+    first = text.splitlines()[0].strip().lower() if text.strip() else ""
+    return first.startswith("```") and first[3:].strip() == "mermaid"
+
+
+def _command_lines(text: str) -> list[str]:
+    """The comparable command lines of a fenced block: prompts, comments, fences and version pins
+    removed, whitespace collapsed, lower case - the form a rendered install command is held in."""
+    lines: list[str] = []
+    for raw in text.splitlines():
+        line = _PROMPT.sub("", raw).strip()
+        if not line or line.startswith(("```", "#", "//")):
+            continue
+        lines.append(" ".join(_VERSION_PIN.sub("", line).split()).lower())
+    return lines
+
+
+@dataclass(frozen=True)
+class _Coverage:
+    """What reconciliation can prove a destination carries: derived from the facts alone."""
+
+    facts: FactsDocument
+    units: Mapping[str, Fact]
+    kinds: Mapping[str, str]
+    deterministic: frozenset[str]
+    placeable: frozenset[str]
+    rendered: Mapping[str, frozenset[str]]
+    api_ids: frozenset[str]
+    api_names: frozenset[str]
+    namespaces: frozenset[str]
+    api_members: frozenset[str]
+    examples: Mapping[str, tuple[str, str]]
+    commands: frozenset[str]
+    lead: frozenset[str]
+    commands_blocks: frozenset[str]
+
+    def text(self, unit_id: str) -> str:
+        unit = self.units.get(unit_id)
+        return unit.value if unit is not None else ""
+
+    def named(self, unit_id: str) -> frozenset[str]:
+        return inherited_unit_named_symbols(self.facts, self.text(unit_id))
+
+
+def _example_status(facts: FactsDocument) -> dict[str, tuple[str, str]]:
+    """Each inherited code block's example fact: ``unit -> (polarity, example fact id)``."""
+    status: dict[str, tuple[str, str]] = {}
+    for fact in facts.by_kind("example"):
+        for evidence in fact.evidence:
+            match = _UNIT_REFERENCE.search(evidence.detail or "")
+            if match:
+                status[match.group(1)] = (fact.polarity, fact.id)
+    return status
+
+
+def _rendered_commands(facts: FactsDocument) -> frozenset[str]:
+    """The command lines the Installation row can print (renderer._installation): the verified
+    install command, and - when an example was executed - the ecosystem's clone-and-build lines
+    and the verify line for a module an executed example imports."""
+    lines: set[str] = set()
+    for fact in facts.by_kind("install_command"):
+        if fact.polarity == "SUPPORTED":
+            lines.update(_command_lines(fact.value))
+    ecosystem = next(
+        (f.value for f in facts.by_kind("identity") if f.id == "identity:ecosystem"), ""
+    )
+    repository = next(
+        (f.value for f in facts.by_kind("identity") if f.id == "identity:repository"), ""
+    )
+    try:
+        spec = spec_for(ecosystem)
+    except ConfigError:
+        return frozenset(lines)
+    executed = [fact for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED"]
+    install = next(
+        (f for f in facts.by_kind("install_command") if f.id == spec.install_fact_id), None
+    )
+    kind = (install.attributes or {}).get("install_kind") if install is not None else None
+    if executed and repository and kind not in {"source", "source_checkout"}:
+        lines.update(_command_lines(spec.clone_and_build(repository, repository.split("/")[-1])))
+    imported = [
+        fact.value
+        for fact in facts.by_kind("import_path")
+        if fact.polarity == "SUPPORTED"
+        and any(
+            re.search(spec.import_pattern.format(module=re.escape(fact.value)), example.value)
+            for example in executed
+        )
+    ]
+    if imported and spec.verify_command:
+        lines.update(_command_lines(spec.verify_command.format(module=max(imported, key=len))))
+    return frozenset(lines)
+
+
+def _lead_paragraphs(units: Sequence[Fact]) -> frozenset[str]:
+    """The README's lead paragraph: the first paragraph directly under the H1. It is the one the
+    opening replaces (README_CONTRACT.md row 4); a second paragraph carries claims of its own."""
+    ordered = sorted(
+        (u for u in units if _unit_kind(u.id) == "paragraph"),
+        key=lambda u: (_unit_ordinal(u.id) is None, _unit_ordinal(u.id) or 0, u.id),
+    )
+    for unit in ordered:
+        section = str((unit.attributes or {}).get("section") or "")
+        if ">" not in section:
+            return frozenset({unit.id})
+    return frozenset()
+
+
+def coverage_context(facts: FactsDocument) -> _Coverage:
+    deterministic = frozenset(set(section_ids()) - placeable_section_ids())
+    rendered = {section: frozenset(rendering_fact_ids(section, facts)) for section in deterministic}
+    # The Installation row also prints the verify line for an imported module.
+    rendered["installation"] = rendered["installation"] | frozenset(
+        f.id for f in facts.by_kind("import_path") if f.polarity == "SUPPORTED"
+    )
+    api_ids = renderer_fact_ids("api_reference", facts)
+    api_names: set[str] = set()
+    for fact in facts.by_kind("public_symbol"):
+        if fact.id in api_ids:
+            api_names.update({fact.value, fact.value.rsplit(".", 1)[-1]})
+    units = list(facts.by_kind("inherited_unit"))
+    return _Coverage(
+        facts=facts,
+        units={u.id: u for u in units},
+        kinds={f.id: f.kind for f in facts.facts},
+        deterministic=deterministic,
+        placeable=placeable_section_ids(),
+        rendered=rendered,
+        api_ids=api_ids,
+        api_names=frozenset(api_names),
+        namespaces=frozenset(
+            f.id
+            for f in facts.by_kind("public_symbol")
+            if (f.attributes or {}).get("symbol_kind") == "module"
+        ),
+        api_members=frozenset(
+            f.value.rsplit(".", 1)[-1]
+            for f in facts.by_kind("public_symbol")
+            if f.polarity == "SUPPORTED"
+            and f.id not in api_ids
+            and (f.attributes or {}).get("symbol_kind") != "module"
+        ),
+        examples=_example_status(facts),
+        commands=_rendered_commands(facts),
+        lead=_lead_paragraphs(units),
+        commands_blocks=frozenset(command_block_units(facts)),
+    )
+
+
+def _table_first_column(text: str) -> str:
+    """The first cell of each body row: what a table lists. The other cells describe it."""
+    cells: list[str] = []
+    for row in text.splitlines()[2:]:
+        parts = row.strip().strip("|").split("|")
+        if parts and parts[0].strip():
+            cells.append(parts[0])
+    return "\n".join(cells)
+
+
+def _uncovered_members(text: str, members: frozenset[str], names: frozenset[str]) -> list[str]:
+    """Verified members the unit spells in code spans that the Core API table does not print.
+
+    A table lists classes and enums; a method, a function or a property is verified content the
+    table omits, so a unit that spells one is not covered by it. A name no fact verifies is not
+    here: dropping it publishes nothing unverified. A table is judged by what it lists (its first
+    column), a list or a paragraph by every name it spells."""
+    found: list[str] = []
+    for span in _CODE_SPAN.findall(text):
+        for token in _IDENTIFIER.findall(span):
+            if token in members and token not in names and token not in found:
+                found.append(token)
+    return found
+
+
+def _supersession_gap(
+    unit_id: str, destination: str | None, cited: set[str], ctx: _Coverage
+) -> tuple[str, str] | None:
+    """Why ``destination`` cannot be shown to carry ``unit_id`` before a plan exists, or ``None``
+    when it provably does."""
+    kind = _unit_kind(unit_id)
+    if kind not in _CONTENT_KINDS:
+        return None
+    text = ctx.text(unit_id)
+    if kind == "code_block" and _is_mermaid(text):
+        return None  # the renderer owns the one diagram
+    status = ctx.examples.get(unit_id)
+    if status is not None and kind == "code_block":
+        polarity, example_id = status
+        if polarity != "SUPPORTED":
+            return (
+                EXAMPLE_NOT_VERIFIED,
+                f"its example {example_id} is {polarity}, so no section prints this block",
+            )
+        if destination in {"quick_start", "additional_examples"}:
+            return None  # the plan owns every verified example (placement.renders_verbatim)
+    if destination is None:
+        return (NO_DESTINATION, "it names no section that carries the unit")
+    if destination == "at_a_glance":
+        return (NOT_A_DIAGRAM, "At a Glance holds one diagram and nothing else")
+    named = ctx.named(unit_id)
+    # A namespace names no member, and identity and package facts are on nearly every unit.
+    content = sorted(
+        fact_id
+        for fact_id in cited | named
+        if ctx.kinds.get(fact_id) is not None
+        and ctx.kinds[fact_id] not in _NEUTRAL_FACT_KINDS
+        and fact_id not in ctx.namespaces
+    )
+    if destination in ctx.deterministic:
+        if kind not in _SECTION_RENDERS.get(destination, frozenset()):
+            return (
+                SECTION_RENDERS_OTHER_KINDS,
+                f"{destination} renders from facts and prints no {kind.replace('_', ' ')}",
+            )
+        if destination == "navigation" and not all(
+            _NAVIGATION_ITEM.match(line) for line in text.splitlines() if line.strip()
+        ):
+            return (NOT_NAVIGATION, "navigation lists the document's own sections only")
+        # The navigation list is the document's own sections, whatever the reply cited for it.
+        unrendered = (
+            []
+            if destination == "navigation"
+            else [fact_id for fact_id in content if fact_id not in ctx.rendered[destination]]
+        )
+        if unrendered:
+            return (
+                UNRENDERED_FACTS,
+                f"it rests on facts {destination} does not render: {', '.join(unrendered[:6])}",
+            )
+        if destination == "installation" and kind == "code_block":
+            lines = _command_lines(text)
+            missing = [line for line in lines if line not in ctx.commands]
+            if not lines or missing:
+                return (
+                    UNRENDERED_COMMAND,
+                    "installation prints the verified install command, not "
+                    f"{(missing or ['this block'])[0]!r}",
+                )
+        return None
+    if destination == "api_reference":
+        if kind not in {"table", "list"}:
+            # Only a listing is what the table prints. A paragraph states things (Cells-Rust
+            # Project Structure: where the sources live) and a code block shows things, neither
+            # of which the table carries, whatever classes they happen to cite.
+            return (
+                SECTION_RENDERS_OTHER_KINDS,
+                f"the Core API table lists classes and enums, not a {kind.replace('_', ' ')}",
+            )
+        # A namespace a group of classes sits under names no member the table could omit.
+        # A table is what its rows list; the facts it cites only group them.
+        unrendered = (
+            []
+            if kind == "table"
+            else [
+                fact_id
+                for fact_id in content
+                if fact_id not in ctx.api_ids and fact_id not in ctx.namespaces
+            ]
+        )
+        spelled = _table_first_column(text) if kind == "table" else text
+        spans = [span.strip() for span in _CODE_SPAN.findall(spelled)]
+        if not spans or not all(_SYMBOL_SPAN.fullmatch(span) for span in spans):
+            # A listing of classes writes names. A tree of paths, a command or a signature in a
+            # code span is something else (Cells-Rust Project Structure), not the table's content.
+            return (NOT_AN_API_LISTING, "it lists paths or code, not the classes the table prints")
+        unknown = _uncovered_members(spelled, ctx.api_members, ctx.api_names)
+        if unrendered or unknown:
+            what = unknown[:6] or unrendered[:6]
+            return (
+                API_MEMBERS,
+                "the Core API table lists verified classes and enums only, not " + ", ".join(what),
+            )
+        return None
+    if destination in _CARRY_SECTIONS and kind in {"paragraph", "list"}:
+        return None  # authoring.carried_units makes the section cite or explicitly omit it
+    if destination == "opening":
+        if unit_id in ctx.lead:
+            return None
+        return (NOT_LEAD_PARAGRAPH, "the opening replaces the lead paragraph only")
+    return (PLAN_DEPENDENT, f"what {destination} carries is chosen by the plan, after this stage")
+
+
+def _omission_gap(unit_id: str, entry: Mapping[str, Any], ctx: _Coverage) -> tuple[str, str] | None:
+    """Why an OMIT_UNSUPPORTED is not a failed support lookup, or ``None`` when it stands."""
+    kind = _unit_kind(unit_id)
+    if kind not in _CONTENT_KINDS or unit_id in ctx.commands_blocks:
+        return None
+    status = ctx.examples.get(unit_id)
+    if status is not None and kind == "code_block":
+        polarity, example_id = status
+        if polarity == "UNRESOLVED":
+            return (
+                OMIT_UNRESOLVED_EXAMPLE,
+                f"its example {example_id} is UNRESOLVED: facts neither support nor contradict "
+                "it, which is a deferral",
+            )
+        if polarity == "SUPPORTED":
+            return (OMIT_VERIFIED_EXAMPLE, f"its example {example_id} is verified")
+        return None
+    if entry.get("fact_ids") or kind in _PROSE_UNIT_KINDS:
+        # A cited reason stands; an uncited prose omission is placement_errors' own rule.
+        return None
+    named = sorted(ctx.named(unit_id))
+    if named:
+        return (OMIT_NAMES_SUPPORTED, "its text spells SUPPORTED facts: " + ", ".join(named[:6]))
+    return None
+
+
+def _narrow_citations(entry: Mapping[str, Any], ctx: _Coverage) -> list[str]:
+    """The facts a disposition cites that name something narrower than "this repository": an
+    identity or package citation is on nearly every unit and shows no shared subject."""
+    return sorted(
+        fact_id
+        for fact_id in entry.get("fact_ids") or []
+        if ctx.kinds.get(fact_id) not in {"identity", "package"}
+    )
+
+
+_WORD = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_./-]{2,}")
+_FILLER = frozenset(
+    {"the", "and", "for", "with", "this", "that", "are", "see", "from", "into", "use", "using"}
+    | {"can", "you", "your", "has", "have", "was", "will", "its", "also", "all", "not", "but"}
+)
+# Prose a placed unit renders verbatim and placement judges by overlap. A code block is content
+# nothing else renders (placement.placements never drops one as overlap), a heading is the
+# shell's: neither claims a subject nor is covered by another unit's claim.
+_RESTATABLE_KINDS = frozenset({"paragraph", "list", "table", "blockquote"})
+_RESTATED_SHARE = 0.8
+_RESTATED_MIN_WORDS = 3
+Claims = dict[tuple[str, str], set[str]]
+
+
+def _subject_words(text: str) -> set[str]:
+    """The words a unit's prose is about: lower case, filler dropped, paths and names whole."""
+    return {word.rstrip("./-").lower() for word in _WORD.findall(text)} - _FILLER
+
+
+def _restates(entry: Mapping[str, Any], destination: str, claims: Claims, ctx: _Coverage) -> bool:
+    """Whether the unit only repeats what placed units in ``destination`` already say.
+
+    A shared citation alone is not a shared subject: a reply that cites the same few symbols on
+    every unit of a section (Cells-Rust API Reference: five class symbols on all 28 units;
+    Slides-.NET: three namespace symbols on every one) made the first unit claim them and
+    superseded the rest, dropping a project-structure tree and a members list as "duplicates"
+    of a heading. A unit restates earlier ones when it shares a narrow citation with them and
+    at least ``_RESTATED_SHARE`` of its own prose vocabulary already appears in the units that
+    made those claims."""
+    unit = str(entry.get("unit_id", "?"))
+    if _unit_kind(unit) not in _RESTATABLE_KINDS:
+        return False
+    shared = [
+        claims[destination, fact_id]
+        for fact_id in _narrow_citations(entry, ctx)
+        if (destination, fact_id) in claims
+    ]
+    words = _subject_words(ctx.text(unit))
+    if not shared or len(words) < _RESTATED_MIN_WORDS:
+        return False
+    earlier = set().union(*shared)
+    return len(words - earlier) <= (1 - _RESTATED_SHARE) * len(words)
+
+
+def _claim(entry: Mapping[str, Any], destination: str, claims: Claims, ctx: _Coverage) -> None:
+    """Record that ``entry`` places its prose in ``destination`` for each narrow fact it cites."""
+    unit = str(entry.get("unit_id", "?"))
+    if _unit_kind(unit) not in _RESTATABLE_KINDS:
+        return
+    words = _subject_words(ctx.text(unit))
+    for fact_id in _narrow_citations(entry, ctx):
+        claims.setdefault((destination, fact_id), set()).update(words)
+
+
+def _judge(
+    output: Mapping[str, Any], ctx: _Coverage
+) -> Iterator[tuple[dict[str, Any], tuple[str, str] | None]]:
+    """Each disposition with why it claims more than the stage can prove, or ``None``.
+
+    A supersession, or a placement aimed at a section that renders from facts (and so can only
+    supersede), is judged by what its destination provably carries - or by an earlier placement
+    in the same section that already carries every fact it rests on. An omission is judged by
+    whether a support lookup failed. A consumer may rewrite the entry it was handed; the claims
+    later units are measured against follow the entry as it stands afterwards."""
+    claims: Claims = {}
+    for entry in output.get("dispositions", []):
+        unit = str(entry.get("unit_id", "?"))
+        disposition = entry.get("disposition")
+        destination = entry.get("destination_section")
+        cited = set(entry.get("fact_ids") or [])
+        gap: tuple[str, str] | None = None
+        if disposition == "SUPERSEDE_REDUNDANT" or (
+            disposition in PLACING and destination in ctx.deterministic
+        ):
+            gap = _supersession_gap(unit, destination, cited, ctx)
+            if (
+                gap is not None
+                and disposition == "SUPERSEDE_REDUNDANT"
+                and destination in ctx.placeable
+                and gap[0] in {PLAN_DEPENDENT, NOT_LEAD_PARAGRAPH, API_MEMBERS, UNRENDERED_FACTS}
+                and _restates(entry, destination, claims, ctx)
+            ):
+                gap = None
+        elif disposition == "OMIT_UNSUPPORTED":
+            gap = _omission_gap(unit, entry, ctx)
+        yield entry, gap
+        destination = entry.get("destination_section")
+        if entry.get("disposition") in PLACING and destination in ctx.placeable:
+            _claim(entry, destination, claims, ctx)
+
+
+def coverage_findings(output: Mapping[str, Any], facts: FactsDocument) -> list[CoverageGap]:
+    """Every disposition in ``output`` that claims more than reconciliation can prove.
+
+    Read-only; ``normalize`` folds what it can, ``placement_errors`` refuses the rest."""
+    return [
+        CoverageGap(
+            str(entry.get("unit_id", "?")),
+            str(entry.get("disposition")),
+            entry.get("destination_section"),
+            gap[0],
+            gap[1],
+        )
+        for entry, gap in _judge(output, coverage_context(facts))
+        if gap is not None
+    ]
+
+
+def _prune_incidental_coverage(output: dict[str, Any], ctx: _Coverage) -> None:
+    """Drop the class and enum citations that would make placement discard a unit as covered.
+
+    ``placement.placements`` drops a placed unit whose citations intersect what its section
+    renders - a drop, not a placement - and the Core API table renders every verified class and
+    enum. A reply that cites the same few class symbols on every API Reference unit (Cells-Rust:
+    Project Structure, whose text names none of them; the Detailed Member Reference lists, which
+    spell methods the table does not print) therefore loses those units while the table covers
+    nothing they say. A class the unit does not state is not evidence for it, so a placed API
+    Reference unit the Core API table does not cover keeps only the citations that carry it."""
+    for entry in output.get("dispositions", []):
+        if entry.get("disposition") not in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}:
+            continue
+        unit = str(entry.get("unit_id", "?"))
+        if entry.get("destination_section") != "api_reference" or _unit_kind(unit) not in {
+            "paragraph",
+            "list",
+            "table",
+        }:
+            continue
+        cited = set(entry.get("fact_ids") or [])
+        if not cited & ctx.api_ids:
+            continue
+        if _supersession_gap(unit, "api_reference", cited, ctx) is not None:
+            entry["fact_ids"] = sorted(cited - ctx.api_ids)
+
+
+def _fold_uncovered(output: dict[str, Any], facts: FactsDocument, ctx: _Coverage) -> None:
+    """Fold every disposition that claims more than reconciliation can prove into the one it can.
+
+    A supersession whose destination cannot be shown to carry the unit stays a placing
+    disposition at that destination when the shell can hold the unit there (the plan decides,
+    with the plan in hand, whether it overlaps what the section renders anyway). A supersession of
+    a code block whose example is not verified is the placing fold's own answer: deferred while
+    UNRESOLVED, omitted while CONTRADICTED. An omission of such a block while its example is
+    UNRESOLVED is a deferral, not an omission: the facts neither support nor contradict it.
+    Nothing here drops a unit; what cannot be folded is left for ``placement_errors``."""
+    for entry, gap in _judge(output, ctx):
+        if gap is None:
+            continue
+        unit = str(entry.get("unit_id", "?"))
+        cited = set(entry.get("fact_ids") or [])
+        if entry.get("disposition") == "OMIT_UNSUPPORTED":
+            if gap[0] == OMIT_UNRESOLVED_EXAMPLE:
+                entry["disposition"] = "DEFER_UNRESOLVED"
+                entry["destination_section"] = None
+                entry["fact_ids"] = sorted(cited | {ctx.examples[unit][1]})
+        elif gap[0] == NOT_A_DIAGRAM:
+            entry["disposition"] = "DEFER_UNRESOLVED"
+            entry["destination_section"] = None
+        elif gap[0] == EXAMPLE_NOT_VERIFIED:
+            polarity, example_id = ctx.examples[unit]
+            entry["disposition"] = (
+                "OMIT_UNSUPPORTED" if polarity == "CONTRADICTED" else "DEFER_UNRESOLVED"
+            )
+            entry["destination_section"] = None
+            entry["fact_ids"] = sorted(cited | {example_id})
+        elif entry.get("disposition") == "SUPERSEDE_REDUNDANT" and (
+            entry.get("destination_section") in ctx.placeable
+        ):
+            entry["disposition"] = "VERIFIED_PRESERVE"
+
+
 def normalize(
     output: dict[str, Any], facts: FactsDocument, policy: PlanningPolicy = DEFAULT_POLICY
 ) -> list[str]:
@@ -519,6 +1102,7 @@ def normalize(
     cannot be folded because the section renders nothing here.
     """
     deterministic = set(section_ids()) - placeable_section_ids()
+    coverage = coverage_context(facts)
     unresolved = code_units_by_polarity(facts, "UNRESOLVED")
     contradicted = code_units_by_polarity(facts, "CONTRADICTED")
     contradicted_links = contradicted_link_hrefs(facts)
@@ -532,6 +1116,9 @@ def normalize(
         section for section, holds in section_conditions(facts, policy).items() if holds is False
     }
     errors: list[str] = []
+    # First, so a supersession the stage cannot prove becomes the placement it should have been
+    # and then meets every placement rule below (a contradicted link, an absent section).
+    _fold_uncovered(output, facts, coverage)
     for entry in output.get("dispositions", []):
         unit = str(entry.get("unit_id", "?"))
         destination = entry.get("destination_section")
@@ -569,6 +1156,11 @@ def normalize(
             block = units_by_id[unit]
             heading = " ".join(e.detail or "" for e in block.evidence)
             installing = "> Installation" in heading or bool(_INSTALL_COMMAND.search(block.value))
+            # A block the Installation row prints may be superseded by it; any other command
+            # (a build from a clone, a second package manager) is content nothing else renders.
+            installing = installing and (
+                _supersession_gap(unit, "installation", cited, coverage) is None
+            )
             if installing and install_ids:
                 entry["disposition"] = "SUPERSEDE_REDUNDANT"
                 entry["destination_section"] = "installation"
@@ -622,10 +1214,13 @@ def normalize(
             if banner_target(facts.facts) is None:
                 entry["disposition"] = "DEFER_UNRESOLVED"
                 entry["destination_section"] = None
-            else:
+            elif unit.rsplit(".", 1)[-1] not in _CONTENT_KINDS:
                 entry["disposition"] = "SUPERSEDE_REDUNDANT"
                 entry["destination_section"] = "banner"
                 entry["fact_ids"] = sorted(cited | {BANNER_FACT_ID, HOMEPAGE_FACT_ID})
+            # The banner prints the verified illustration and homepage; any other unit placed
+            # there is content it never prints, so it is not called redundant (placement_errors
+            # then refuses a destination the shell cannot hold).
             continue
         if disposition in PLACING and destination == "enterprise_relationship":
             # Row 18 is the shell's closing paragraph of Scope and Limitations, rendered from
@@ -653,15 +1248,23 @@ def normalize(
             disposition in PLACING
             and destination == "opening"
             and unit.rsplit(".", 1)[-1] not in _SHELL_OWNED
+            and unit in coverage.lead
         ):
             # README_CONTRACT.md row 4: the opening is the one authored paragraph the plan and
             # investigation own, so an inherited paragraph placed there can only repeat it
             # (the re-asked reconciler preserved the old opening beside the new one); the
-            # rewrite covers it.
+            # rewrite covers it. Only the lead paragraph is that opening: a second paragraph
+            # states claims of its own (Slides-.NET 004: who the library is for), so it stays
+            # placed and placement overlap decides.
             entry["disposition"] = "SUPERSEDE_REDUNDANT"
             entry["destination_section"] = "opening"
             continue
-        if disposition in PLACING and destination == "api_reference" and unit.endswith(".table"):
+        if (
+            disposition in PLACING
+            and destination == "api_reference"
+            and unit.endswith(".table")
+            and _supersession_gap(unit, "api_reference", cited, coverage) is None
+        ):
             # README_CONTRACT.md row 14: the Core API table is deterministic from the verified
             # symbol facts, so an inherited API table placed here is covered by it, never
             # rendered beside it (the re-asked reconciler placed two such tables on the canary).
@@ -674,9 +1277,11 @@ def normalize(
             and unit.rsplit(".", 1)[-1] not in _SHELL_OWNED
         ):
             # README_CONTRACT.md row 6: the section is exactly one Mermaid fence and nothing
-            # else, so a unit placed there is covered by the diagram when it cites facts and
-            # deferred when it cites none.
-            entry["disposition"] = "SUPERSEDE_REDUNDANT" if cited else "DEFER_UNRESOLVED"
+            # else, so a diagram placed there is covered by the diagram when it cites facts. Any
+            # other content is not carried by a diagram, and an uncited unit has nothing to say
+            # it is: both are deferred for the owner.
+            covered = bool(cited) and _supersession_gap(unit, destination, cited, coverage) is None
+            entry["disposition"] = "SUPERSEDE_REDUNDANT" if covered else "DEFER_UNRESOLVED"
             entry["destination_section"] = None
             continue
         if (
@@ -718,6 +1323,11 @@ def normalize(
             entry["disposition"] = "DEFER_UNRESOLVED"
             entry["destination_section"] = None
             continue
+        if _supersession_gap(unit, destination, cited, coverage) is not None:
+            # The section renders from facts and does not render this unit's content: it is not
+            # redundant. Left as the reply wrote it, placement_errors names why (and the last
+            # attempt's recover defers it) instead of this fold dropping it.
+            continue
         entry["disposition"] = "SUPERSEDE_REDUNDANT"
         entry["fact_ids"] = sorted(cited | set(ids))
     # G4-W17 arrival item 98 (BCPY-02): a placeable section (never folded above - that branch
@@ -735,35 +1345,19 @@ def normalize(
     # such as the OMIT_UNSUPPORTED-command branch's VERIFIED_PRESERVE into development_testing
     # above), in document order, so the first PLACING claim on a (section, fact) pair always
     # wins and is never itself downgraded.
-    fact_kinds = {fact.id: fact.kind for fact in facts.facts}
-    claimed: dict[tuple[str, str], str] = {}
+    claims: Claims = {}
     for entry in output.get("dispositions", []):
         destination = entry.get("destination_section")
         if entry.get("disposition") not in PLACING or destination not in placeable_section_ids():
             continue
-        unit = str(entry.get("unit_id", "?"))
-        # identity/package facts are cited by nearly every unit (unit_checks' own `neutral`
-        # set treats them the same way) and would flag every co-located pair as duplicates;
-        # a shared citation is only evidence of real subject overlap when it names something
-        # narrower than "this is the same repository".
-        narrow_citations = sorted(
-            fact_id
-            for fact_id in entry.get("fact_ids") or []
-            if fact_kinds.get(fact_id) not in {"identity", "package"}
-        )
-        shared_with = next(
-            (
-                claimed[destination, fact_id]
-                for fact_id in narrow_citations
-                if (destination, fact_id) in claimed
-            ),
-            None,
-        )
-        if shared_with is not None:
+        # TC-DSP-01: identity/package citations are on nearly every unit (unit_checks' own
+        # `neutral` set treats them the same way), and a shared narrow citation alone is not a
+        # shared subject, so a later unit is superseded only when it restates what earlier placed
+        # units already say (_restates).
+        if _restates(entry, destination, claims, coverage):
             entry["disposition"] = "SUPERSEDE_REDUNDANT"
             continue
-        for fact_id in narrow_citations:
-            claimed.setdefault((destination, fact_id), unit)
+        _claim(entry, destination, claims, coverage)
     # G4-W17 arrival item 110 (LANE-B-W14R6-F1): a placed inherited_unit's own sentence can name
     # several symbols the S4 job's own sampled fact_ids never cited - measured on Aspose.3D for
     # TypeScript, where inherited_unit:077.list named a dozen not-implemented symbols in one
@@ -784,6 +1378,7 @@ def normalize(
         if not named:
             continue
         entry["fact_ids"] = sorted(set(entry.get("fact_ids") or []) | named)
+    _prune_incidental_coverage(output, coverage)
     return errors
 
 
@@ -892,6 +1487,46 @@ def uncited_omit_candidates(unit_text: str, facts: FactsDocument) -> list[str]:
     return sorted(inherited_unit_named_symbols(facts, unit_text))
 
 
+_OMISSION_ACTION = {
+    OMIT_UNRESOLVED_EXAMPLE: "Choose DEFER_UNRESOLVED: an example the facts neither support nor "
+    "contradict is withheld and listed, never called unsupported",
+    OMIT_VERIFIED_EXAMPLE: "Supersede it into quick_start or additional_examples (the plan "
+    "renders every verified example there) or place it; do not omit a verified example",
+    OMIT_NAMES_SUPPORTED: "Cite the facts that support it and place it, or choose "
+    "DEFER_UNRESOLVED if no fact settles its claim",
+}
+_QUOTE_LIMIT = 600
+
+
+def _coverage_errors(
+    gaps: Sequence[CoverageGap], unit_text: Mapping[str, str], placeable: frozenset[str]
+) -> list[str]:
+    """One typed, repairable refusal per disposition that claims more than the stage can prove,
+    quoting the unit's exact text (the one re-ask can only act on what it is shown)."""
+    errors: list[str] = []
+    for gap in gaps:
+        kind = _unit_kind(gap.unit_id).replace("_", " ")
+        text = json.dumps(unit_text.get(gap.unit_id, "(text not in the facts)"), ensure_ascii=False)
+        if len(text) > _QUOTE_LIMIT:
+            text = text[:_QUOTE_LIMIT] + "..."
+        if gap.disposition == "OMIT_UNSUPPORTED":
+            errors.append(
+                f"{gap.unit_id}: {SUPPORTED_OMISSION}: OMIT_UNSUPPORTED claims no fact supports "
+                f"this {kind}, but {gap.detail}. {_OMISSION_ACTION[gap.reason]}; the unit's exact "
+                f"text is {text}"
+            )
+            continue
+        errors.append(
+            f"{gap.unit_id}: {UNCOVERED_SUPERSESSION}: {gap.disposition} treats "
+            f"{gap.destination or 'no section'} as carrying this {kind}, but {gap.detail}. A unit "
+            "is superseded only when something that renders takes its place: place it "
+            "(VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold "
+            f"({', '.join(sorted(placeable))}) or choose DEFER_UNRESOLVED; the unit's exact text "
+            f"is {text}"
+        )
+    return errors
+
+
 def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
     """Why the dispositions may not be used, beyond schema and binding; empty when they hold.
 
@@ -972,6 +1607,16 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
             errors.append(f"{unit}: {disposition} takes no destination; got {destination!r}")
         if disposition == "CORRECT_WITH_EVIDENCE" and not cited:
             errors.append(f"{unit}: CORRECT_WITH_EVIDENCE needs at least one fact ID as evidence")
+    # What normalize folds on its own is not refused: a supersession into a section the shell can
+    # hold becomes a placement, and an omitted unresolved example a deferral. What is left is a
+    # claim only a different reply, or the last attempt's deferral, can correct.
+    unfolded = [
+        gap
+        for gap in coverage_findings(output, facts)
+        if not (gap.disposition == "SUPERSEDE_REDUNDANT" and gap.destination in placeable)
+        and gap.reason != OMIT_UNRESOLVED_EXAMPLE
+    ]
+    errors.extend(_coverage_errors(unfolded, unit_text, placeable))
     return errors
 
 
@@ -994,12 +1639,47 @@ def _uncited_prose_omit(entry: Mapping[str, Any]) -> bool:
     )
 
 
+RECOVERED_COVERAGE_RATIONALE = "Not provably carried by the section named; held for the owner. "
+
+
+def _recover_uncovered(output: dict[str, Any], facts: FactsDocument) -> bool:
+    """Fold, in place, every disposition still claiming more than the stage can prove into the
+    deferral that says so. Returns whether anything changed.
+
+    Only reached for a reply that survived the one re-ask with such a claim (``recover=`` runs on
+    the last attempt only). Deferring is the only fold that asserts nothing: the unit is listed
+    for the owner and never rendered, so the claim "something else carries this" is withdrawn
+    rather than repeated. A verified example the reply omitted is the one exception: the plan
+    renders every verified example, so it is superseded into Additional Examples citing it."""
+    ctx = coverage_context(facts)
+    changed = False
+    for entry, gap in _judge(output, ctx):
+        if gap is None:
+            continue
+        unit = str(entry.get("unit_id", "?"))
+        cited = set(entry.get("fact_ids") or [])
+        reason = RECOVERED_COVERAGE_RATIONALE + str(entry.get("rationale") or "").strip()
+        entry["rationale"] = reason[:_RATIONALE_LIMIT]
+        example = {ctx.examples[unit][1]} if unit in ctx.examples else set()
+        if gap[0] == OMIT_VERIFIED_EXAMPLE:
+            entry["disposition"] = "SUPERSEDE_REDUNDANT"
+            entry["destination_section"] = "additional_examples"
+        else:
+            entry["disposition"] = "DEFER_UNRESOLVED"
+            entry["destination_section"] = None
+        entry["fact_ids"] = sorted(cited | example)
+        changed = True
+    return changed
+
+
 def recover_uncited_prose_omits(
     output: dict[str, Any], facts: FactsDocument
 ) -> dict[str, Any] | None:
     """Last-resort correction for ``source_reconciliation``'s final rejected attempt only
     (``recover=``, ``core/llm/jobs.py``): a prose omission still uncited after the one re-ask
-    becomes an explicit ``DEFER_UNRESOLVED`` instead of failing the transaction.
+    becomes an explicit ``DEFER_UNRESOLVED`` instead of failing the transaction, and a
+    disposition still claiming more than the stage can prove (TC-DSP-01: a supersession no
+    rendering covers, an omission of a unit a fact supports) is deferred the same way.
 
     Diagnosis (G7-W12 follow-up, Aspose.PSD-FOSS-for-.NET ``inherited_unit:018.paragraph``, "the
     package is not published to NuGet yet", 2026-10-10): both attempts kept the unit as an
@@ -1025,8 +1705,6 @@ def recover_uncited_prose_omits(
     if not isinstance(entries, list):
         return None
     uncited = [entry for entry in entries if isinstance(entry, dict) and _uncited_prose_omit(entry)]
-    if not uncited:
-        return None
     unit_text = {fact.id: fact.value for fact in facts.by_kind("inherited_unit")}
     for entry in uncited:
         text = unit_text.get(str(entry.get("unit_id")))
@@ -1044,7 +1722,9 @@ def recover_uncited_prose_omits(
         entry["destination_section"] = None
         entry["fact_ids"] = []
         entry["rationale"] = RECOVERED_OMIT_RATIONALE + reason
-    return recovered
+    # An entry deferred above is no longer an omission, so the coverage fold sees what is left.
+    folded = _recover_uncovered(recovered, facts)
+    return recovered if uncited or folded else None
 
 
 def reconcile_checks(
