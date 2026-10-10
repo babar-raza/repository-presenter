@@ -79,6 +79,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
+from repository_presenter.components.readme.validation.claims import claim_findings, claim_notes
 from repository_presenter.components.readme.validation.deferrals import review_deferrals
 from repository_presenter.components.readme.validation.links.rules import (
     badge_problems,
@@ -141,7 +142,11 @@ VALIDATION_FILENAME = "validation.json"
 # as "missing" and drove S11 repair to paste the omitted text back (Slides-Java, G7-W15). A unit
 # neither cited nor omitted still fails. A bundle sealed under 16 re-checks under 17 and shows as
 # pending.
-VALIDATOR_VERSION = "17"
+# 18: the new BC-14 v1 (TC-CLM-01, G3-W08) holds a version, an install command's package, and a
+# "not published" statement to the facts (validation/claims.py): a version must equal the
+# registry's current release (package:published_version) or, without that fact, the manifest's. A
+# bundle sealed under 17 re-checks under 18 and shows as pending.
+VALIDATOR_VERSION = "18"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -384,6 +389,15 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         "1",
         "Every product-name position in the prose spells the registry's canonical product name "
         "exactly; no separator, case, or suffix variant of it (plans/idea.md L84-85)",
+        ("all",),
+        "S9",
+    ),
+    Check(
+        "BC-14",
+        "1",
+        "A package version, install command, or publication statement in the README equals what "
+        "the facts say: the registry's current release (or the manifest's version without that "
+        "reading), the package identity fact, and the install command's registry observation",
         ("all",),
         "S9",
     ),
@@ -838,6 +852,17 @@ def _check_install(candidate: Candidate) -> list[Failure]:
             failures.append(
                 Failure("COMPOSING", f"the Installation section does not render {fact.value!r}")
             )
+    return failures
+
+
+def _check_claims(candidate: Candidate) -> list[Failure]:
+    """BC-14: version, install-package, and publication statements agree with the facts."""
+    lines = _section_lines(candidate.readme)
+    failures: list[Failure] = []
+    for finding in claim_findings(candidate.readme, candidate.facts):
+        stage: CausalStage = "EXTRACTING" if finding.stage == "EXTRACTING" else "COMPOSING"
+        section = lines[finding.line] if finding.line < len(lines) else None
+        failures.append(Failure(stage, finding.detail, section))
     return failures
 
 
@@ -1930,6 +1955,7 @@ def advisory_notes(candidate: Candidate) -> list[str]:
         "before composing the Core API table (BC-12)"
         for type_name, variant in quoted_evidence_elisions(context)
     )
+    notes.extend(claim_notes(candidate.readme, candidate.facts))
     for entry in candidate.dispositions.get("dispositions", []):
         unit_id = str(entry.get("unit_id", ""))
         if entry.get("disposition") != "VERIFIED_REWRITE" or unit_id not in by_id:
@@ -2040,6 +2066,7 @@ def validate_candidate(
         "BC-08": _check_protected,
         "BC-09": check_secrets,
         "BC-12": _check_canonical_name,
+        "BC-14": _check_claims,
     }
     checks: list[dict[str, Any]] = []
     for check in BLOCKING_CHECKS:
