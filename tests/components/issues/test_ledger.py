@@ -69,10 +69,12 @@ def test_discover_and_load_the_real_backfilled_artifacts() -> None:
     # npm 404s of Aspose.3D and Aspose.PDF for TypeScript (the npm source-install fallback).
     # 2026-10-10: eleven more, harvested and independently re-verified against the live upstream
     # heads (docs/DECISION_LOG.md, this date; evidence/upstream-defects/reverification.json).
+    # 2026-10-10 (TC-ISS-01, G6-W01): six more, from the deduplicated review inventory, each
+    # re-verified by command at the live head (analysis/issue-inventory.md).
     paths = discover_handoff_paths(REAL_UPSTREAM_DEFECTS)
-    assert len(paths) == 18
+    assert len(paths) == 24
     ledger = load_ledger(REAL_UPSTREAM_DEFECTS)
-    assert len(ledger) == 18
+    assert len(ledger) == 24
     html = lookup(
         ledger,
         "aspose-html-foss/Aspose.HTML-FOSS-for-Python",

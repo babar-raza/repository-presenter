@@ -1,0 +1,32 @@
+# log: notests-Cells-Rust
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Rust
+# head: 1a6004af47b1ef15385f9d36d381a8172428cc7e
+# utc: 2026-10-10T15:27:21Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked tests/ directory files:'; git ls-files tests | wc -l; echo '--- #[test] / #[cfg(test)] occurrences in tracked files:'; git grep -c -E '#\[(test|cfg\(test\))' -- '*.rs' | wc -l; git grep -E '#\[(test|cfg\(test\))' -- '*.rs' | wc -l; echo '--- CI test and bench steps:'; grep -n 'cargo' .github/workflows/ci.yml; echo '--- bench targets:'; git ls-files | grep -i -E 'bench' | wc -l; grep -n '\[\[bench\]\]' Cargo.toml | wc -l; echo '--- stale README wording:'; grep -n -i 'once the repository is live' README.md
+# ---- output (capped at 60000 bytes) ----
+--- tracked tests/ directory files:
+0
+--- #[test] / #[cfg(test)] occurrences in tracked files:
+0
+0
+--- CI test and bench steps:
+23:      - run: cargo fmt --all --check
+50:      - name: cargo check
+51:        run: cargo check --all-targets
+53:      - name: cargo clippy
+54:        run: cargo clippy --all-targets
+56:      - name: cargo test
+57:        run: cargo test --all-targets
+61:        run: cargo run --bin sample_basic
+65:        run: cargo run --bin sample_loading
+69:        run: cargo run --bin sample_styles
+71:      - name: cargo bench
+72:        run: cargo bench
+--- bench targets:
+0
+0
+--- stale README wording:
+106:[Scope and Limitations](#scope-and-limitations)). Once the repository is live at its real
+
+# exit: 0

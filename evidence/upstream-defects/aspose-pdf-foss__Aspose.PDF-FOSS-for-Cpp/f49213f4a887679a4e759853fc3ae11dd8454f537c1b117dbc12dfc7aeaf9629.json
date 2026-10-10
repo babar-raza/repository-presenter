@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+  "source_revision": "4b83c9fec1e37fd205156770161f6843bac00ceb",
+  "defect_fingerprint": "sha256:f49213f4a887679a4e759853fc3ae11dd8454f537c1b117dbc12dfc7aeaf9629",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 359-378, the 'Render Every Page to a Multi-Page TIFF' code block (revision 4b83c9fec1e37fd205156770161f6843bac00ceb; unchanged at the live head)"
+    },
+    {
+      "path": "docker gcc:13 (g++ 13.5.0): g++ -std=c++20 -fsyntax-only -Iinclude tiff.cpp (README.md:360-377 wrapped in main())",
+      "detail": "2026-10-10T15:53Z: error: invalid use of incomplete type 'class Aspose::Pdf::PageCollection'; with #include <aspose/pdf/page_collection.hpp> added: exit 0"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/snippets-PDF-Cpp.txt",
+      "detail": "raw command output of the reproduction (also lists the other README blocks)"
+    }
+  ],
+  "claim": "At revision 4b83c9fec1e37fd205156770161f6843bac00ceb, the README 'Render Every Page to a Multi-Page TIFF' example at lines 360-377 fails to compile with g++ 13.5.0 (invalid use of incomplete type 'class Aspose::Pdf::PageCollection') because it calls doc.Pages().Count() without including page_collection.hpp.",
+  "suggested_issue_title": "Aspose.PDF FOSS for Cpp: README TIFF example does not compile, page_collection.hpp is not included",
+  "suggested_issue_body": "Reproduced independently against the current default-branch head `4b83c9fec1e37fd205156770161f6843bac00ceb` on 2026-10-10.\n\n## Summary\n\nThe README example \"Render Every Page to a Multi-Page TIFF\" (`README.md:359-378`) calls `doc.Pages().Count()` but includes only `document.hpp`, `tiff_device.hpp`, `tiff_settings.hpp`, `color_depth.hpp`, `resolution.hpp` and `<fstream>`. `PageCollection` is therefore an incomplete type at that point and the example does not compile.\n\n## Environment\n\n- Revision `4b83c9fec1e37fd205156770161f6843bac00ceb` (default branch `main`)\n- g++ 13.5.0 (Docker image `gcc:13`), `-std=c++20`\n\n## Steps to reproduce\n\nPut the code of that block (`README.md:360-377`) inside `int main() { ... }` in `tiff.cpp`, then:\n\n```sh\ng++ -std=c++20 -fsyntax-only -Iinclude tiff.cpp\n```\n\n## Expected\n\nThe README example compiles as written.\n\n## Actual result\n\n```\nerror: invalid use of incomplete type 'class Aspose::Pdf::PageCollection'\n```\n\nAdding `#include <aspose/pdf/page_collection.hpp>` makes the same file compile (exit 0).\n\n## Where in the repository\n\n- `README.md:359-378`\n\n## Suggested fix\n\nAdd `#include <aspose/pdf/page_collection.hpp>` to the example, or start the examples with the single-entry header `#include <aspose.pdf.foss.hpp>`.\n\n<!-- repository-presenter-defect: sha256:f49213f4a887679a4e759853fc3ae11dd8454f537c1b117dbc12dfc7aeaf9629 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

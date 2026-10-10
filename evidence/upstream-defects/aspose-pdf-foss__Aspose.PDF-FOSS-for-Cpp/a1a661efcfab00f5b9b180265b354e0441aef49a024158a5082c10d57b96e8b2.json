@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+  "source_revision": "4b83c9fec1e37fd205156770161f6843bac00ceb",
+  "defect_fingerprint": "sha256:a1a661efcfab00f5b9b180265b354e0441aef49a024158a5082c10d57b96e8b2",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 252-299, the 'create_features' showcase code block that builds a page with positioned text, a table, vector graphics and a watermark (revision 4b83c9fec1e37fd205156770161f6843bac00ceb; unchanged at the live head)"
+    },
+    {
+      "path": "docker gcc:13 (g++ 13.5.0): g++ -std=c++20 -fsyntax-only -Iinclude scratch.cpp (README.md:253 block wrapped in main())",
+      "detail": "2026-10-10T15:53Z: error: invalid use of incomplete type 'class Aspose::Pdf::Paragraphs' (page.Paragraphs().Add(...)) and 'class Aspose::Pdf::ArtifactCollection' (page.Artifacts().Add(...)); with #include <aspose.pdf.foss.hpp> added: exit 0"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/snippets-PDF-Cpp.txt",
+      "detail": "raw command output of the reproduction"
+    }
+  ],
+  "claim": "At revision 4b83c9fec1e37fd205156770161f6843bac00ceb, the README create-from-scratch example (code block starting at line 252) fails to compile with g++ 13.5.0 because page.Paragraphs() and page.Artifacts() return types (Aspose::Pdf::Paragraphs, Aspose::Pdf::ArtifactCollection) are incomplete: the block does not include their headers.",
+  "suggested_issue_title": "Aspose.PDF FOSS for Cpp: README create-from-scratch example does not compile, missing Paragraphs/Artifact headers",
+  "suggested_issue_body": "Reproduced independently against the current default-branch head `4b83c9fec1e37fd205156770161f6843bac00ceb` on 2026-10-10.\n\n## Summary\n\nThe README \"create from scratch\" showcase (the C++ block at `README.md:252-299`, introduced as the `12_create_features` illustration) builds a page with positioned text, a table, a graph and a watermark. It includes `document.hpp`, `page_collection.hpp`, `text_builder.hpp`, `text_fragment.hpp`, `font_repository.hpp`, `position.hpp`, `table.hpp`, `border_info.hpp`, `drawing/graph.hpp`, `drawing/circle.hpp` and `watermark_artifact.hpp`, but not the headers that define `Aspose::Pdf::Paragraphs` (returned by `page.Paragraphs()`) and `Aspose::Pdf::ArtifactCollection` (returned by `page.Artifacts()`). Both are incomplete types at the point of use.\n\n## Environment\n\n- Revision `4b83c9fec1e37fd205156770161f6843bac00ceb` (default branch `main`)\n- g++ 13.5.0 (Docker image `gcc:13`), `-std=c++20`\n\n## Steps to reproduce\n\nPut the block's code inside `int main() { ... }` in `scratch.cpp` (it already declares its `namespace` aliases), then:\n\n```sh\ng++ -std=c++20 -fsyntax-only -Iinclude scratch.cpp\n```\n\n## Expected\n\nThe README example compiles as written.\n\n## Actual result\n\n```\nerror: invalid use of incomplete type 'class Aspose::Pdf::Paragraphs'\nerror: invalid use of incomplete type 'class Aspose::Pdf::Paragraphs'\nerror: invalid use of incomplete type 'class Aspose::Pdf::ArtifactCollection'\n```\n\nAdding `#include <aspose.pdf.foss.hpp>` to the same file makes it compile (exit 0).\n\n## Where in the repository\n\n- `README.md:252` onward (the block)\n\n## Suggested fix\n\nStart the example with `#include <aspose.pdf.foss.hpp>` (the single-entry header), or add the headers that define `Paragraphs` and `ArtifactCollection`.\n\n<!-- repository-presenter-defect: sha256:a1a661efcfab00f5b9b180265b354e0441aef49a024158a5082c10d57b96e8b2 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

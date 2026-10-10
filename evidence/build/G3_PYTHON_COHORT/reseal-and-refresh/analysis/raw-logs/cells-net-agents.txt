@@ -1,0 +1,13 @@
+# log: cells-net-agents
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-.NET
+# head: 941814fd138dc28cf47123d48194f329f283498d
+# utc: 2026-10-10T15:34:41Z
+# cwd: shallow clone of the default branch
+# command: grep -n 'RELEASE_NOTES' agents.md | head -3; ls RELEASE_NOTES* 2>&1 | head -1; git ls-files | grep -i release_notes | head -1; grep -rn -m1 '<Version' --include=*.csproj . | head -2
+# ---- output (capped at 60000 bytes) ----
+18:- release notes for this checkout include `RELEASE_NOTES_V26.5.0.md` (dated `2026-05-20`)
+119:- when behavior changes, keep `RELEASE_NOTES_V26.5.0.md` synchronized with affected API and compatibility notes
+ls: cannot access 'RELEASE_NOTES*': No such file or directory
+./src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj:12:    <Version>26.9.0.0</Version>
+
+# exit: 0

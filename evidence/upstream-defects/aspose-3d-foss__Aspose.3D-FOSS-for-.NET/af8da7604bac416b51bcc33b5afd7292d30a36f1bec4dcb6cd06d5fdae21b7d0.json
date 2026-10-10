@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+  "source_revision": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+  "defect_fingerprint": "sha256:af8da7604bac416b51bcc33b5afd7292d30a36f1bec4dcb6cd06d5fdae21b7d0",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 129-144, the Quick Start code block; line 143 is scene.Save(\"output.fbx\", FileFormat.FBX7400Binary) (revision 52b0f00ebf28a0b4173921725ff170685ec2c502; unchanged at the live head)"
+    },
+    {
+      "path": "dotnet run of a net10.0 console project (ProjectReference to src/main/Aspose.ThreeD/Aspose.ThreeD.csproj) containing README.md:130-143 verbatim",
+      "detail": "2026-10-10T15:37Z: Unhandled exception. System.NotImplementedException: Save options not implemented for .fbx at Aspose.ThreeD.FileFormat.CreateSaveOptions() in FileFormat.cs:line 349 at Aspose.ThreeD.Scene.Save(String fileName, FileFormat format) in Scene.cs:line 427"
+    },
+    {
+      "path": "same project with the second argument removed: scene.Save(\"output.fbx\")",
+      "detail": "2026-10-10T15:52Z: prints 'saved' and writes output.fbx (2185 bytes)"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/quickstart-3D-NET.txt",
+      "detail": "raw command output of the reproduction"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/quickstart-3D-NET-without-format.txt",
+      "detail": "raw command output of the control run"
+    }
+  ],
+  "claim": "At revision 52b0f00ebf28a0b4173921725ff170685ec2c502, the README Quick Start statement scene.Save(\"output.fbx\", FileFormat.FBX7400Binary) at line 143 throws System.NotImplementedException (\"Save options not implemented for .fbx\") from FileFormat.CreateSaveOptions(), whereas scene.Save(\"output.fbx\") without a format argument succeeds.",
+  "suggested_issue_title": "Aspose.3D FOSS for .NET: README Quick Start throws NotImplementedException in Scene.Save(path, FBX7400Binary)",
+  "suggested_issue_body": "Reproduced independently against the current default-branch head `52b0f00ebf28a0b4173921725ff170685ec2c502` on 2026-10-10.\n\n## Summary\n\nThe README Quick Start ends with `scene.Save(\"output.fbx\", FileFormat.FBX7400Binary);` (`README.md:143`). That call throws `NotImplementedException: Save options not implemented for .fbx`: `Scene.Save(string, FileFormat)` asks the `FileFormat` object for its save options (`Scene.cs:427`) and `FileFormat.CreateSaveOptions()` (`FileFormat.cs:349`) throws for it. Saving without the format argument works.\n\n## Environment\n\n- Revision `52b0f00ebf28a0b4173921725ff170685ec2c502` (default branch `main`)\n- .NET SDK 10.0.401, a net10.0 console project with a `ProjectReference` to `src/main/Aspose.ThreeD/Aspose.ThreeD.csproj`\n\n## Steps to reproduce\n\n`Program.cs` is `README.md:130-143` verbatim (the three `using` lines, the `Scene`/`LambertMaterial`/`Box` code and the final `scene.Save(\"output.fbx\", FileFormat.FBX7400Binary);`), then `dotnet run`.\n\n## Expected\n\nThe Quick Start saves `output.fbx` as the README shows.\n\n## Actual result\n\n```\nUnhandled exception. System.NotImplementedException: Save options not implemented for .fbx\n   at Aspose.ThreeD.FileFormat.CreateSaveOptions() in .../FileFormat.cs:line 349\n   at Aspose.ThreeD.Scene.Save(String fileName, FileFormat format) in .../Scene.cs:line 427\n```\n\nChanging the last statement to `scene.Save(\"output.fbx\");` prints `saved` and writes a 2185-byte `output.fbx`.\n\n## Where in the repository\n\n- `README.md:143`\n- `src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs:349`\n- `src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs:427`\n\n## Suggested fix\n\nEither make the `FileFormat.FBX7400Binary` constant (and the other format constants the README uses) return working save options, or change the README example to `scene.Save(\"output.fbx\")`.\n\n<!-- repository-presenter-defect: sha256:af8da7604bac416b51bcc33b5afd7292d30a36f1bec4dcb6cd06d5fdae21b7d0 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

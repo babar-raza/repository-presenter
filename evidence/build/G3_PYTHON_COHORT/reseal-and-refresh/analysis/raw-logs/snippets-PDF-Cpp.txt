@@ -1,0 +1,34 @@
+# log: snippets-PDF-Cpp
+# repository: aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp
+# head: 4b83c9fec1e37fd205156770161f6843bac00ceb
+# utc: 2026-10-10T15:53:10Z
+# cwd: shallow clone of the default branch
+# command: ../../dn.sh gcc:13 aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp 'bash /p/c_pdfcpp.sh'
+# ---- output (capped at 60000 bytes) ----
+g++ (GCC) 13.5.0
+--- README code blocks wrapped in main(), g++ -std=c++20 -fsyntax-only -Iinclude (only blocks that are self-contained; the verdict lines below are per block):
+snippet_03_line253.cpp: exit=1 error: invalid use of incomplete type 'class Aspose::Pdf::Paragraphs'
+snippet_06_line360.cpp: exit=1 error: invalid use of incomplete type 'class Aspose::Pdf::PageCollection'
+--- TIFF block with #include <aspose/pdf/page_collection.hpp> added:
+exit=0
+--- full per-block table:
+snippet_01_line129.cpp: exit=0
+snippet_02_line205.cpp: exit=0
+snippet_03_line253.cpp: exit=1
+snippet_04_line325.cpp: exit=0
+snippet_05_line339.cpp: exit=0
+snippet_06_line360.cpp: exit=1
+snippet_07_line383.cpp: exit=0
+snippet_08_line401.cpp: exit=1
+snippet_09_line415.cpp: exit=1
+snippet_10_line430.cpp: exit=1
+snippet_11_line446.cpp: exit=1
+snippet_12_line461.cpp: exit=1
+--- create-from-scratch block (README.md:253) with #include <aspose.pdf.foss.hpp> added:
+exit=0
+--- snippet_03 error lines:
+/p/pdfcpp/snippet_03_line253.cpp:35:16: error: invalid use of incomplete type 'class Aspose::Pdf::Paragraphs'
+/p/pdfcpp/snippet_03_line253.cpp:41:16: error: invalid use of incomplete type 'class Aspose::Pdf::Paragraphs'
+/p/pdfcpp/snippet_03_line253.cpp:45:15: error: invalid use of incomplete type 'class Aspose::Pdf::ArtifactCollection'
+
+# exit: 0

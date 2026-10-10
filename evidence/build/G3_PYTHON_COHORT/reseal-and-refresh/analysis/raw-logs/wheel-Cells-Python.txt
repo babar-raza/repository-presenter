@@ -1,0 +1,25 @@
+# log: wheel-Cells-Python
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Python
+# head: 4f6768a7b349a1309644f456eb43bc35f70c16d7
+# utc: 2026-10-10T15:04:55Z
+# cwd: shallow clone of the default branch
+# command: sed -n 48,53p pyproject.toml; E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/cy/Scripts/python.exe -m pip wheel . --no-deps -q -w E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/whl 2>&1 | tail -3; E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/cy/Scripts/python.exe -I -c "
+import zipfile, glob, collections
+w = glob.glob(r'E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/whl/*.whl')
+print('wheel:', [x.split('/')[-1] for x in w])
+z = zipfile.ZipFile(w[0]); tops = collections.Counter(n.split('/')[0] for n in z.namelist())
+print('top-level entries in the wheel:', dict(tops))
+print('examples/ sample:', [n for n in z.namelist() if n.startswith('examples/')][:4])
+"
+# ---- output (capped at 60000 bytes) ----
+[tool.setuptools]
+packages = ["aspose", "aspose.cells_foss", "examples"]
+
+[tool.setuptools.package-data]
+"aspose.cells_foss" = ["*.py"]
+examples = ["*.py"]
+wheel: ['whl\\aspose_cells_foss-26.7.0-py3-none-any.whl']
+top-level entries in the wheel: {'aspose': 55, 'examples': 32, 'aspose_cells_foss-26.7.0.dist-info': 4}
+examples/ sample: ['examples/__init__.py', 'examples/output_path_helper.py', 'examples/test_alignment_properties.py', 'examples/test_auto_filter.py']
+
+# exit: 0

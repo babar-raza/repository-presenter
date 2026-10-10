@@ -1,0 +1,18 @@
+# log: tests-input-dir-Cells-Python
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Python
+# head: 4f6768a7b349a1309644f456eb43bc35f70c16d7
+# utc: 2026-10-10T15:05:36Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked input/ paths:'; git ls-files | grep -E '(^|/)input/' || echo NONE; PYTHONPATH=. E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/cy/Scripts/python.exe -m pytest -p no:cacheprovider -q examples/test_xlsx_to_json.py examples/test_xlsx_to_markdown.py 2>&1 | grep -E 'FAILED|passed|failed|does not exist|No XLSX' | head -8
+# ---- output (capped at 60000 bytes) ----
+--- tracked input/ paths:
+NONE
+                       f"Input file {input_path} does not exist")
+E       AssertionError: False is not true : Input file E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-cells-foss__Aspose.Cells-FOSS-for-Python\input/sales_report_comprehensive.xlsx does not exist
+>       self.assertGreater(len(xlsx_files), 0, "No XLSX files found in input directory")
+E       AssertionError: 0 not greater than 0 : No XLSX files found in input directory
+FAILED examples/test_xlsx_to_json.py::TestXLSXToJSONConversion::test_sales_report_to_json
+FAILED examples/test_xlsx_to_markdown.py::TestXLSXToMarkdownConversion::test_convert_all_xlsx_to_markdown
+2 failed, 19 passed in 0.36s
+
+# exit: 0

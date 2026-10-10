@@ -1,0 +1,24 @@
+# log: jar-stubs-3D-Java
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-Java
+# head: 3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3
+# utc: 2026-10-10T15:36:22Z
+# cwd: shallow clone of the default branch
+# command: curl -s -o E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/jar3d.jar https://repo1.maven.org/maven2/org/aspose/aspose-3d-foss/26.5.0/aspose-3d-foss-26.5.0.jar; curl -s https://repo1.maven.org/maven2/org/aspose/aspose-3d-foss/maven-metadata.xml | grep -E '<version>|<latest>'; python -I /e/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/scripts/jar_class_sizes.py E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/jar3d.jar; echo '--- HEAD source has working readers/writers:'; grep -n -E 'class (Obj|Gltf)(Reader|Writer)' src/main/java/org/aspose/threed/FileFormat.java 2>/dev/null || grep -rn -E 'class (ObjReader|GltfReader|GltfWriter)' src | head -4
+# ---- output (capped at 60000 bytes) ----
+    <latest>26.5.0</latest>
+      <version>26.5.0</version>
+    790 bytes  com/aspose/threed/FileFormat$FbxLoader.class
+    752 bytes  com/aspose/threed/FileFormat$FbxSaver.class
+    793 bytes  com/aspose/threed/FileFormat$GltfLoader.class
+    755 bytes  com/aspose/threed/FileFormat$GltfSaver.class
+    790 bytes  com/aspose/threed/FileFormat$ObjLoader.class
+    752 bytes  com/aspose/threed/FileFormat$ObjSaver.class
+   6046 bytes  com/aspose/threed/FileFormat$StlLoader.class
+   7176 bytes  com/aspose/threed/FileFormat$StlSaver.class
+entries with Reader/Writer in the name: ['com/aspose/threed/IOExtension$BinaryWriter.class']
+--- HEAD source has working readers/writers:
+src/main/java/com/aspose/threed/FileFormat.java:513:    private static class ObjReader {
+src/main/java/com/aspose/threed/FileFormat.java:604:    private static class GltfReader {
+src/main/java/com/aspose/threed/FileFormat.java:803:    private static class GltfWriter {
+
+# exit: 0

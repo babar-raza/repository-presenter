@@ -1,0 +1,21 @@
+# log: import-TeX-Python
+# repository: aspose-tex-foss/Aspose.TeX-FOSS-for-Python
+# head: 181015d2eee3e19f8af3d84e4a932ac84ad47c7c
+# utc: 2026-10-10T15:02:46Z
+# cwd: shallow clone of the default branch
+# command: PYTHONPATH=src python -I -c 'import sys; sys.path.insert(0, "src"); import aspose_tex'
+# ---- output (capped at 60000 bytes) ----
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0, "src"); import aspose_tex
+                                           ^^^^^^^^^^^^^^^^^
+  File "E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-tex-foss__Aspose.TeX-FOSS-for-Python\src\aspose_tex\__init__.py", line 7, in <module>
+    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource
+  File "E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-tex-foss__Aspose.TeX-FOSS-for-Python\src\aspose_tex\_input\__init__.py", line 3, in <module>
+    from aspose_tex._input.catcode import Catcode, CatcodeTable
+  File "E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-tex-foss__Aspose.TeX-FOSS-for-Python\src\aspose_tex\_input\catcode.py", line 66
+    table[c] = Catcode.LETTER
+    ^^^^^
+IndentationError: expected an indented block after 'for' statement on line 65
+
+# exit: 1

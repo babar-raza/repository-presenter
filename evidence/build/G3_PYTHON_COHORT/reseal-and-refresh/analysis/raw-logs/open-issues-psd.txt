@@ -1,0 +1,24 @@
+# log: open-issues-psd
+# repository: aspose-psd-foss/Aspose.PSD-FOSS-for-.NET
+# head: f4e1b261922d514591b898f01346af1c6bf59f92
+# utc: 2026-10-10T15:58:31Z
+# cwd: shallow clone of the default branch
+# command: echo '--- gh api GET (read-only): open and closed issues of both PSD repositories'; for r in aspose-psd-foss/Aspose.PSD-FOSS-for-.NET aspose-psd-foss/Aspose.PSD-FOSS-for-Python; do echo $r; gh api "repos/$r/issues?state=all&per_page=20" --jq '.[] | "#" + (.number|tostring) + " [" + .state + "] " + .title'; done
+# ---- output (capped at 60000 bytes) ----
+--- gh api GET (read-only): open and closed issues of both PSD repositories
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET
+#7 [closed] Refresh README: verified examples and documentation links
+#6 [closed] First implementation
+#5 [open] Add a LICENSE file and merge real source to main
+#4 [closed] CLA signing notification test
+#3 [closed] CLA signing notification test
+#2 [closed] Update README.md - CLA test
+#1 [closed] First solution
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python
+#5 [closed] Refresh README: verified examples and documentation links
+#4 [open] Add a LICENSE file and merge real source to main
+#3 [closed] Dmitriy.sorokin.psdnet 2880
+#2 [closed] CLA signing notification test
+#1 [open] Do you have an estimated timeline for when Aspose.PSD FOSS for Python will be fully open-sourced?
+
+# exit: 0

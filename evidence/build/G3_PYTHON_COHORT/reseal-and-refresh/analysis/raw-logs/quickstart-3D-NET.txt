@@ -1,0 +1,15 @@
+# log: quickstart-3D-NET
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-.NET
+# head: 52b0f00ebf28a0b4173921725ff170685ec2c502
+# utc: 2026-10-10T15:36:59Z
+# cwd: shallow clone of the default branch
+# command: dotnet --version; echo '--- README.md Quick Start (lines 126-144) saved verbatim as a net10.0 console app (copy: scripts/n3d_quickstart_Program.cs):'; cd ../../probes/n3d && dotnet run -c Debug 2>&1 | grep -v -E ': warning |^\s*$' | sed 's#E:.*repository-presenter.runs.wt.liss1.runs.iss01.##' | tail -8
+# ---- output (capped at 60000 bytes) ----
+10.0.401
+--- README.md Quick Start (lines 126-144) saved verbatim as a net10.0 console app (copy: scripts/n3d_quickstart_Program.cs):
+Unhandled exception. System.NotImplementedException: Save options not implemented for .fbx
+   at Aspose.ThreeD.FileFormat.CreateSaveOptions() in clones\aspose-3d-foss__Aspose.3D-FOSS-for-.NET\src\main\Aspose.ThreeD\Aspose\ThreeD\FileFormat.cs:line 349
+   at Aspose.ThreeD.Scene.Save(String fileName, FileFormat format) in clones\aspose-3d-foss__Aspose.3D-FOSS-for-.NET\src\main\Aspose.ThreeD\Aspose\ThreeD\Scene.cs:line 427
+   at Program.<Main>$(String[] args) in probes\n3d\Program.cs:line 15
+
+# exit: 0

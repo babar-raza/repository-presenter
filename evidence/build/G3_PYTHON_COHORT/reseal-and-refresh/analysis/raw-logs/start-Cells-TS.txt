@@ -1,0 +1,27 @@
+# log: start-Cells-TS
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript
+# head: fc186507e5b7124f4664aa6035f25cfd3112367d
+# utc: 2026-10-10T15:48:22Z
+# cwd: shallow clone of the default branch
+# command: ../../dn.sh node:22 aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript 'bash /p/c_cellsts.sh'; echo '--- README placeholder descriptions:'; grep -c 'Class in the Cells TYPESCRIPT API' README.md; grep -n -m3 'Class in the Cells TYPESCRIPT API' README.md | cut -c1-150; grep -n '"license"\|"description"\|"repository"\|"engines"' package.json || echo 'package.json has no license/description/repository/engines fields'
+# ---- output (capped at 60000 bytes) ----
+v22.23.3
+npm install exit: 0
+--- outputfiles/ before: ls: cannot access 'outputfiles': No such file or directory
+--- npm start (tsx index.ts), the repository's own entry point:
+
+> excel-cells@1.0.0 start
+> tsx index.ts
+
+Testing  export...
+Saved to outputfiles/test_export.xlsx
+npm start exit: 0
+--- outputfiles/ after: test_export.html test_export.xlsx test_export_files 
+--- README placeholder descriptions:
+24
+198:| `AllConnectorShapeInfo` | Class in the Cells TYPESCRIPT API. |
+199:| `AllShapeInfo` | Class in the Cells TYPESCRIPT API. |
+200:| `ArrowShapeType` | Class in the Cells TYPESCRIPT API. |
+package.json has no license/description/repository/engines fields
+
+# exit: 0
