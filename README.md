@@ -314,6 +314,7 @@ repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remot
 repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply] [--close]
 repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file] [--approvals-ref GIT_REF] [--count-writable]
 repository-presenter issue-targets [--root PATH]
+repository-presenter issue-readiness [--root PATH] [--repo OWNER/NAME] [--approvals-ref GIT_REF] [--json] [--emit-approvals SCRATCH_DIR --approver LOGIN (--handoff-id ID[@DIGEST] ... | --handoff-ids-file FILE) [--valid-days N]]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
 repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
@@ -405,6 +406,16 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   for the handoff's fingerprint marker (so a fresh checkout cannot file a duplicate), rechecks that
   the defect still fires, and refuses on any inconclusive result. A handoff whose status is not
   `HANDOFF_PENDING` is skipped outright.
+- **`issue-readiness`** — read-only report of every `evidence/upstream-defects/` handoff and what
+  stands between it and a filing: the registry write gate (`full` only), whether its recheck can
+  conclude (a redetector exists for its check and its evidence has the shape it replays), the
+  independent re-verification in `evidence/upstream-defects/reverification.json` (unverified, stale
+  or non-`CONFIRMED` handoffs are not approvable), and the committed owner approval. `--emit-approvals
+  SCRATCH_DIR` writes the `ops/issue_approvals/<handoff-id>.json` files for the ids given with
+  `--handoff-id` (optionally pinned `ID@sha256:DIGEST` to the digest the listing showed) or
+  `--handoff-ids-file`, all or nothing: an unlisted id, a stale digest, an unconfirmed handoff, a
+  window past now or beyond 30 days (`--valid-days`), a bot approver, or a directory inside `ops/`
+  is refused. It commits and sends nothing; the owner commits the files in a reviewed pull request.
 - **`issue-targets`** — prints, as compact JSON, the repositories with a pending or filed handoff.
   The scheduled `.github/workflows/issues-scheduled.yml` uses it as its matrix: a read-only analysis
   per repository always, and the gated write job only when the repository variable

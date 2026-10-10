@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+  "source_revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+  "defect_fingerprint": "sha256:c04f74bf0b3610a0f3c6d4b25a5c9c2fb9c3501df52aba71f356b6ccf2f0b55c",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "4",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 329-334: npm install, npx tsc --noEmit (revision fc186507e5b7124f4664aa6035f25cfd3112367d)"
+    },
+    {
+      "path": "docker node:22: npm install && npx tsc --noEmit",
+      "detail": "2026-10-09T21:30Z: 3 errors (chartLoader.ts(210,11) TS2345; html/htmlDocument.ts(92,54) TS7006; workbook.ts(482,63) TS2345); exit 2"
+    },
+    {
+      "path": "package.json",
+      "detail": "line 17 region: no build script declared; typescript ^5.9.3 resolved to 5.9.3"
+    }
+  ],
+  "claim": "At revision fc186507e5b7124f4664aa6035f25cfd3112367d, the README's documented `npm install` then `npx tsc --noEmit` exits 2 with three type errors (chartLoader.ts:210, html/htmlDocument.ts:92, workbook.ts:482) under TypeScript 5.9.3.",
+  "suggested_issue_title": "The documented type-check `npx tsc --noEmit` reports 3 type errors in chartLoader.ts, htmlDocument.ts and workbook.ts",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-02) recorded this while re-verifying `aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript`; it was then reproduced independently against the live default-branch head `fc186507e5b7124f4664aa6035f25cfd3112367d` on 2026-10-09T21:30Z.\n\n## Summary\n\n`package.json` defines no build script; the README (lines 329-334) documents `npm install` and `npx tsc --noEmit`. On a clean clone that command fails with three errors, all in repository sources.\n\n## Environment\n\n- Revision `fc186507e5b7124f4664aa6035f25cfd3112367d` (default branch `master`)\n- Docker `node:22` (Node v22.23.3, npm 10.9.9), typescript 5.9.3, @types/node 25.9.9, adm-zip 0.5.18 (no lockfile is committed, so dependency resolution may differ over time)\n\n## Steps to reproduce\n\n```sh\ngit clone --depth 1 https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript\ncd Aspose.Cells-FOSS-for-TypeScript\nnpm install\nnpx tsc --noEmit\n```\n\n## Actual result\n\n```\naspose_cells/chartLoader.ts(210,11): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string | undefined'.\naspose_cells/html/htmlDocument.ts(92,54): error TS7006: Parameter 'e' implicitly has an 'any' type.\naspose_cells/workbook.ts(482,63): error TS2345: Argument of type 'Buffer<ArrayBufferLike>' is not assignable to parameter of type 'string'.\n```\n(exit code 2)\n\n## Where in the repository\n\n- `aspose_cells/chartLoader.ts:210` and `:236`; `aspose_cells/util.ts:74-77` (`readZipEntry` returns `string | null`)\n- `aspose_cells/workbook.ts:482`; `aspose_cells/types.ts:406` (`ImageInfo.data` is a `Buffer`); `aspose_cells/util.ts:185` (`addZipEntry(content: string)`)\n- `aspose_cells/html/htmlDocument.ts:90,92` (`require('adm-zip')`; `@types/adm-zip` is not in devDependencies)\n`npm start` runs through `tsx`, which does not type-check, so runtime use is not affected by this.\n\n## Evidence\n\n- `README.md`: lines 329-334: npm install, npx tsc --noEmit (revision fc186507e5b7124f4664aa6035f25cfd3112367d)\n- `docker node:22: npm install && npx tsc --noEmit`: 2026-10-09T21:30Z: 3 errors (chartLoader.ts(210,11) TS2345; html/htmlDocument.ts(92,54) TS7006; workbook.ts(482,63) TS2345); exit 2\n- `package.json`: line 17 region: no build script declared; typescript ^5.9.3 resolved to 5.9.3\n\n<!-- repository-presenter-defect: sha256:c04f74bf0b3610a0f3c6d4b25a5c9c2fb9c3501df52aba71f356b6ccf2f0b55c -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

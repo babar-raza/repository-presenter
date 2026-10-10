@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "source_revision": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
+  "defect_fingerprint": "sha256:a241746e33239b027fb534be6ce8d6fb164a985028d3223bae1e467dc4d8f995",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "4",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "https://pypi.org/pypi/aspose-font/json",
+      "detail": "HTTP 404 on 2026-10-09T21:36Z (no distribution named aspose-font)"
+    },
+    {
+      "path": "pip download aspose-font --no-deps",
+      "detail": "2026-10-09T21:36Z: ERROR: No matching distribution found for aspose-font"
+    },
+    {
+      "path": "README.md",
+      "detail": "line 539: pip install \"aspose-font[mcp]\" (revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6)"
+    },
+    {
+      "path": "pyproject.toml",
+      "detail": "line 6: name = \"aspose-font\""
+    }
+  ],
+  "claim": "At revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6, README.md line 539 instructs `pip install \"aspose-font[mcp]\"` and pyproject.toml declares the project name aspose-font, but PyPI has no distribution of that name (HTTP 404 and pip: No matching distribution found).",
+  "suggested_issue_title": "README tells readers to run pip install \"aspose-font[mcp]\", but no distribution named aspose-font exists on PyPI",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-02) recorded this while re-verifying `aspose-font-foss/Aspose.Font-FOSS-for-Python`; it was then reproduced independently against the live default-branch head `adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6` on 2026-10-09T21:36Z.\n\n## Summary\n\nThe MCP Server section of the README (line 539) shows `pip install \"aspose-font[mcp]\"`. `pyproject.toml` declares `name = \"aspose-font\"`. PyPI has no such project, so the documented command fails. The README documents no other install path.\n\n## Environment\n\n- Revision `adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6` (default branch `main`)\n- pip 26.2.1, Python 3.13\n\n## Steps to reproduce\n\n```sh\ncurl -s -o /dev/null -w '%{http_code}\\n' https://pypi.org/pypi/aspose-font/json\npip download aspose-font --no-deps\n```\n\n## Actual result\n\n```\n404\nERROR: Could not find a version that satisfies the requirement aspose-font (from versions: none)\nERROR: No matching distribution found for aspose-font\n```\n\n## Where in the repository\n\n- `README.md:539`\n- `pyproject.toml` line 6 (`name = \"aspose-font\"`)\n\n## Evidence\n\n- `https://pypi.org/pypi/aspose-font/json`: HTTP 404 on 2026-10-09T21:36Z (no distribution named aspose-font)\n- `pip download aspose-font --no-deps`: 2026-10-09T21:36Z: ERROR: No matching distribution found for aspose-font\n- `README.md`: line 539: pip install \"aspose-font[mcp]\" (revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6)\n- `pyproject.toml`: line 6: name = \"aspose-font\"\n\n<!-- repository-presenter-defect: sha256:a241746e33239b027fb534be6ce8d6fb164a985028d3223bae1e467dc4d8f995 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}
