@@ -4018,3 +4018,340 @@ def test_the_sibling_shorthand_admits_only_the_head_it_follows() -> None:
     assert _eci_check("EciHelper.parse is not implemented.") != []
     bare = "- ECI validation (`.validate`) is not implemented."
     assert _eci_check("EciHelper.validate is not implemented.", bare) != []
+
+
+# ---------------------------------------------------------------------------------------------
+# TC-EXT-01 / G3-W08 cut 2, lane L-guards (baseline reseal of 7c5acbf7, 2026-10-10): the real
+# strings the nine `section_authoring: output rejected twice` failures rejected. Each fact value
+# below is the repository's own inherited_unit text from the archived facts.json.
+# ---------------------------------------------------------------------------------------------
+
+EMAIL_ENTERPRISE = (
+    "These limitations don't apply to\n"
+    "[Aspose.Email for .NET — Enterprise Edition](https://products.aspose.com/email/net/), "
+    "which adds\nbroader format and protocol coverage: direct IMAP/SMTP/POP3 mail-server "
+    "connectivity, TNEF\n(`winmail.dat`) support, calendar and appointment APIs, and classic .NET "
+    "Framework support\nalongside this edition's MSG, CFB, and EML processing."
+)
+HTML_SKIPS = (
+    "Without `quickjs` installed, `src/aspose_html/js/` is skipped automatically from "
+    "doctest\ncollection and the tests under `tests/test_js/` skip via "
+    '`pytest.importorskip("quickjs")`; the\nSkia rendering-backend smoke test '
+    "(`tests/test_render/test_skia_smoke.py`) is skipped the same way\nwhen `skia-python` is "
+    "unavailable."
+)
+HTML_LAYOUT = (
+    "Test coverage is organized by module: `test_html/`, `test_dom/`, `tokenizer/`, "
+    "`test_tree/`, `test_css/`, `test_cssom/`, `test_layout/`, `test_url/`, `encoding/`, "
+    "`test_js/`, `test_serialiser/`, `test_render/`, and `test_file_io.py`."
+)
+NOTE_GOLDEN_FAILURES = (
+    "On a mismatch, the generated PDFs and manifests are written to\n"
+    "`tests/out/pdf_golden_failures/` for inspection. If `PyMuPDF` is installed, the failing "
+    "test also\nrenders baseline/generated pages to PNG and writes visual diff artifacts into "
+    "the same output\ntree."
+)
+
+
+def _carried_check(
+    section: str,
+    slot: str,
+    text: str,
+    inherited: dict[str, str],
+    cited: list[str],
+    product: str,
+    must_carry: bool = True,
+) -> list[str]:
+    """unit_checks over one unit of ``section`` against a document holding ``inherited``; with
+    ``must_carry`` the task obliges the section to carry every inherited paragraph."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", ENTRY.repository),
+            *(_fact(fact_id, "inherited_unit", value) for fact_id, value in inherited.items()),
+        ),
+    )
+    task = SectionTask(
+        section,
+        {},
+        frozenset({"identity:repository", *inherited}),
+        (slot,),
+        slot_facts={slot: frozenset({"identity:repository", *inherited})},
+        slot_titles={},
+        must_carry=frozenset(inherited) if must_carry else frozenset(),
+    )
+    output = {
+        "units": [{"section": section, "slot": slot, "text": text, "fact_ids": cited}],
+        "omitted": [],
+    }
+    return unit_checks(output, task, facts, product)
+
+
+def test_the_enterprise_sentence_may_spell_what_the_paragraph_it_must_carry_spells() -> None:
+    """Email-.NET (7c5acbf7 reseal): enterprise_relationship `context` must carry
+    inherited_unit:058.paragraph (G7-W15) and was refused twice for `winmail.dat`, a name that
+    paragraph spells in its own code span: the obligation to state its substance and the refusal of
+    its names could not both be met. The cited-inherited pass existed for scope_limitations only."""
+    text = (
+        "it adds broader format and protocol coverage: direct IMAP, SMTP, and POP3 mail-server "
+        "connectivity, winmail.dat support, calendar and appointment APIs, and classic .NET "
+        "Framework support alongside this edition's MSG, CFB, and EML processing."
+    )
+    inherited = {"inherited_unit:058.paragraph": EMAIL_ENTERPRISE}
+    cited = ["inherited_unit:058.paragraph"]
+    product = "Aspose.Email FOSS for .NET"
+    assert (
+        _carried_check("enterprise_relationship", "context", text, inherited, cited, product) == []
+    )
+    # Negative controls: not citing the paragraph, a paragraph cited but not obliged to be carried
+    # (a mention, not a licence), a name the paragraph does not spell, and the same citation in a
+    # section that states what the product does.
+    assert any(
+        "winmail.dat" in error
+        for error in _carried_check(
+            "enterprise_relationship", "context", text, inherited, cited, product, must_carry=False
+        )
+    )
+    uncited = _carried_check("enterprise_relationship", "context", text, inherited, [], product)
+    assert any("winmail.dat" in error for error in uncited)
+    invented = text.replace("winmail.dat", "winmail.exe")
+    refused = _carried_check(
+        "enterprise_relationship", "context", invented, inherited, cited, product
+    )
+    assert any("winmail.exe" in error for error in refused)
+    # (key_capabilities and api_reference never carry a paragraph: their tasks have no must_carry.)
+    capability = _carried_check(
+        "key_capabilities", "capability:1", text, inherited, cited, product, must_carry=False
+    )
+    assert any("winmail.dat" in error for error in capability)
+    api = _carried_check(
+        "api_reference", "intro", text, inherited, cited, product, must_carry=False
+    )
+    assert any("winmail.dat" in error for error in api)
+
+
+def test_the_test_summary_may_spell_the_directories_and_calls_its_carried_paragraphs_spell() -> (
+    None
+):
+    """HTML-Python (7c5acbf7 reseal): development_testing `summary` must carry 096 and 097 and was
+    refused twice for `pytest.importorskip` and the ten `test_*` directory names those two
+    paragraphs spell in code spans."""
+    text = (
+        "The test suite is organized by module, covering test_html/, test_dom/, tokenizer/, "
+        "test_tree/, test_css/, test_cssom/, test_layout/, test_url/, encoding/, test_js/, "
+        "test_serialiser/, test_render/, and test_file_io.py. Without quickjs installed, the "
+        "tests under tests/test_js/ skip via pytest.importorskip(quickjs)."
+    )
+    inherited = {
+        "inherited_unit:096.paragraph": HTML_SKIPS,
+        "inherited_unit:097.paragraph": HTML_LAYOUT,
+    }
+    cited = list(inherited)
+    product = "Aspose.HTML FOSS for Python"
+    assert _carried_check("development_testing", "summary", text, inherited, cited, product) == []
+    # Negative controls: not obliged to carry, uncited, an invented directory, an invented call.
+    assert _carried_check(
+        "development_testing", "summary", text, inherited, cited, product, must_carry=False
+    )
+    refused = _carried_check("development_testing", "summary", text, inherited, [], product)
+    assert any("test_css" in error and "pytest.importorskip" in error for error in refused)
+    invented = text.replace("test_cssom/", "test_cssx/")
+    assert any(
+        "test_cssx" in error
+        for error in _carried_check(
+            "development_testing", "summary", invented, inherited, cited, product
+        )
+    )
+    assert any(
+        "pytest.skipall" in error
+        for error in _carried_check(
+            "development_testing",
+            "summary",
+            text.replace("pytest.importorskip", "pytest.skipall"),
+            inherited,
+            cited,
+            product,
+        )
+    )
+
+
+def test_the_test_summary_may_spell_an_output_directory_its_carried_paragraph_names() -> None:
+    """Note-Python (7c5acbf7 reseal, first attempt): `pdf_golden_failures` of
+    `tests/out/pdf_golden_failures/`, the directory inherited_unit:093.paragraph names."""
+    text = (
+        "On mismatch, generated PDFs and manifests are written to tests/out/pdf_golden_failures/ "
+        "for inspection."
+    )
+    inherited = {"inherited_unit:093.paragraph": NOTE_GOLDEN_FAILURES}
+    product = "Aspose.Note FOSS for Python"
+    cited = ["inherited_unit:093.paragraph"]
+    assert _carried_check("development_testing", "summary", text, inherited, cited, product) == []
+    refused = _carried_check("development_testing", "summary", text, inherited, [], product)
+    assert any("pdf_golden_failures" in error for error in refused)
+
+
+PDF_GO_SUMMARY = (
+    "Aspose PDF FOSS for Go requires Go 1.24 to build and test. The repository includes test "
+    "suites in examples_test.go that validate short API examples via Output comments, and "
+    "standalone runnable examples in _examples/<name>/main.go that are excluded from the default "
+    "build and test commands. Test PDF fixtures are stored directly under testdata/, and the CI "
+    "workflow definitions reside in .github/workflows/."
+)
+
+
+def _pdf_go_facts() -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", ENTRY.repository),
+            Fact(
+                "inherited_unit:087.paragraph",
+                "inherited_unit",
+                "Standalone runnable example programs live in `_examples/<name>/main.go` "
+                "(excluded from `go build ./...`/`go test ./...` by their leading underscore); "
+                "Short, focused API examples live as `ExampleXxx` functions in "
+                "`examples_test.go`.",
+                (Evidence("x"),),
+                attributes={"repository_files": "examples_test.go,main.go"},
+            ),
+        ),
+    )
+
+
+def _pdf_go_task() -> SectionTask:
+    return SectionTask(
+        "development_testing",
+        {},
+        frozenset({"identity:repository", "inherited_unit:087.paragraph"}),
+        ("summary",),
+        slot_facts={"summary": frozenset({"identity:repository", "inherited_unit:087.paragraph"})},
+        slot_titles={},
+    )
+
+
+def _angle_output(text: str) -> dict[str, Any]:
+    return {
+        "units": [
+            {
+                "section": "development_testing",
+                "slot": "summary",
+                "text": text,
+                "fact_ids": ["identity:repository", "inherited_unit:087.paragraph"],
+            }
+        ],
+        "omitted": [],
+    }
+
+
+def test_a_final_reply_that_still_names_a_placeholder_in_angle_brackets_is_rewritten() -> None:
+    """PDF-Go (7c5acbf7 reseal): the re-ask reproduced `_examples/<name>/main.go` in running
+    prose and the job failed on `text contains HTML ('<')`; the same shape cost HTML-Python's
+    HTMLxxxElement units (`<address>`, `<div>`), TeX-Python (`<path>`) and Slides-.NET (`<a:rPr>`)
+    a re-ask each. The README's own placeholder is a path template, not markup."""
+    facts, task = _pdf_go_facts(), _pdf_go_task()
+    name = "Aspose.PDF FOSS for Go"
+    assert unit_checks(_angle_output(PDF_GO_SUMMARY), task, facts, name) == [
+        "unit summary: text contains HTML ('<')"
+    ]
+    recovered = recover_section_authoring_output(_angle_output(PDF_GO_SUMMARY), slot_titles={})
+    assert recovered is not None
+    text = recovered["units"][0]["text"]
+    assert "_examples/{name}/main.go" in text and "<" not in text
+    assert unit_checks(recovered, task, facts, name) == []
+
+
+def test_an_element_named_in_angle_brackets_reads_as_its_name_once_rewritten() -> None:
+    cases = {
+        "HTMLAddressElement represents an HTML <address> element that holds contact details.": (
+            "HTMLAddressElement represents an HTML address element that holds contact details."
+        ),
+        "Embed glyph outlines as <path> elements in SvgDevice output.": (
+            "Embed glyph outlines as path elements in SvgDevice output."
+        ),
+        "It writes a <br/> for each line break.": "It writes a br for each line break.",
+    }
+    for before, after in cases.items():
+        recovered = recover_section_authoring_output(_angle_output(before), slot_titles={})
+        assert recovered is not None and recovered["units"][0]["text"] == after, before
+
+
+def test_the_angle_bracket_rewrite_leaves_real_markup_and_code_spans_alone() -> None:
+    """Negative controls: a closing tag or a tag with attributes is markup, not a mention; a
+    placeholder inside a code span is a protected command's own syntax (item 46); a comparison is
+    not a tag. None of them is rewritten, so the rejection stands rather than being hidden."""
+    for text in (
+        "Wrap it in <div class=x> and close with </div>.",
+        "Run <script>alert(1)</script> to see it.",
+        "Run `go run ./_examples/<name>` to try one.",
+        "The value is below 5 when a < b and above 2 when b > c.",
+    ):
+        assert recover_section_authoring_output(_angle_output(text), slot_titles={}) is None, text
+
+
+def test_the_angle_bracket_rewrite_never_accepts_a_unit_that_still_fails_another_check() -> None:
+    facts, task = _pdf_go_facts(), _pdf_go_task()
+    text = "Files saved by this library carry no <a:rPr> on portions never formatted."
+    recovered = recover_section_authoring_output(_angle_output(text), slot_titles={})
+    assert recovered is not None
+    errors = unit_checks(recovered, task, facts, "Aspose.PDF FOSS for Go")
+    assert errors and all("HTML" not in error for error in errors)
+    assert any("a:rPr" in error for error in errors)
+
+
+def test_a_repository_path_does_not_name_the_symbol_its_directory_segments_spell() -> None:
+    """Words-.NET (7c5acbf7 reseal): `Aspose.Words/Aspose.Words.csproj` is a path, but its
+    directory segment `Aspose.Words` is also the SUPPORTED module symbol public_symbol:
+    aspose.words, so the unit was read as naming a supported symbol. The omission recovery then
+    declined to defer it and the S4 job failed closed on a paragraph that says only 'add a
+    project reference'. Sighted before in 3D-.NET's `src/main/Aspose.ThreeD/...csproj`."""
+    facts = FactsDocument(
+        "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+        "a" * 40,
+        (
+            _fact("public_symbol:aspose.words", "public_symbol", "Aspose.Words"),
+            _fact(
+                "import_path:aspose-pdf-go",
+                "import_path",
+                "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go",
+            ),
+            _fact("public_symbol:document.save", "public_symbol", "Document.Save"),
+            # The extractor verified these paths against the pinned tree (G7-W23).
+            Fact(
+                "inherited_unit:020.paragraph",
+                "inherited_unit",
+                "Then add a project reference to `Aspose.Words/Aspose.Words.csproj` from your "
+                "application.",
+                (Evidence("x"),),
+                attributes={
+                    "repository_files": "Aspose.Words.csproj,Aspose.Words/Aspose.Words.csproj,"
+                    "src/main/Aspose.Words/Aspose.Words.csproj"
+                },
+            ),
+        ),
+    )
+    path_only = (
+        "Then add a project reference to `Aspose.Words/Aspose.Words.csproj` from your application."
+    )
+    assert inherited_unit_named_symbols(facts, path_only) == frozenset()
+    deeper = "The library (`src/main/Aspose.Words/Aspose.Words.csproj`) targets net8.0."
+    assert inherited_unit_named_symbols(facts, deeper) == frozenset()
+    # Negative controls: a path the tree does not hold is not blanked (no shape guessing), the
+    # same name spelled as a name still names the symbol, in prose or in a
+    # code span, also when a path sits beside it; a whole module path is still one token; and a
+    # slash that joins two member names is not a path.
+    named = {"public_symbol:aspose.words"}
+    unrecorded = "Add `Aspose.Words/Other.csproj` to your application."
+    assert inherited_unit_named_symbols(facts, unrecorded) == named
+    assert inherited_unit_named_symbols(facts, "Reference the Aspose.Words namespace.") == named
+    assert inherited_unit_named_symbols(facts, "Reference `Aspose.Words` from your code.") == named
+    assert (
+        inherited_unit_named_symbols(facts, f"{path_only} It adds the Aspose.Words namespace.")
+        == named
+    )
+    module = "Import `github.com/aspose-pdf-foss/aspose-pdf-foss-for-go` in your module."
+    assert inherited_unit_named_symbols(facts, module) == {"import_path:aspose-pdf-go"}
+    assert inherited_unit_named_symbols(facts, "Use `Document.Save/Document.Load` pairs.") == {
+        "public_symbol:document.save"
+    }

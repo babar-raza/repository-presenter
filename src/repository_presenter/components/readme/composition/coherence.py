@@ -48,6 +48,7 @@ from typing import Any
 
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
+    restates_own_title,
     section_spellings,
     slot_records,
     uncarried_units,
@@ -574,6 +575,59 @@ def recover_coherence_carried_units(
     return output if changed else None
 
 
+def recover_coherence_title_restatements(
+    output: dict[str, Any],
+    *,
+    existing_units: list[dict[str, Any]],
+    tasks: list[SectionTask],
+    facts: FactsDocument,
+) -> dict[str, Any] | None:
+    """Last-resort correction for S8 coherence's own ``run_job`` call, alongside
+    ``recover_coherence_content_loss``: a unit whose coherence revision now restates its own slot
+    title (``unit_checks`` item 99/106) while the unit S6 accepted did not is reverted, in full, to
+    the pre-coherence text and fact_ids - restoring exactly what already passed, never a rewrite.
+
+    Baseline reseal of 7c5acbf7 (2026-10-10): Slides-Java's S6 had repaired ``Embed images`` and
+    ``Apply visual effects`` off their titles, then S8 wrote both back as ``Embed images into
+    presentations ...`` on the first attempt and on the re-ask, and the transaction failed closed
+    (docs/RESEARCH notes already record Words-Python's coherence silently reverting six repaired
+    units the same way). The S6 call site has had a deterministic title recovery since NORMALISATION
+    "16"; this call site had only the content-loss and must-carry reverts.
+
+    A unit whose accepted text restated its title too has nothing sound to revert to and is left
+    for the model's re-ask; every unit whose revision does not restate its title keeps its
+    revision. ``run_job`` re-validates the result through the real checks before accepting it.
+
+    Returns ``None`` when nothing was reverted.
+    """
+    units = output.get("units")
+    if not isinstance(units, list):
+        return None
+    existing_by_key = {
+        (str(unit.get("section")), str(unit.get("slot"))): unit for unit in existing_units
+    }
+    changed = False
+    for task in tasks:
+        for unit in units:
+            if not isinstance(unit, dict) or unit.get("section") != task.section_id:
+                continue
+            slot = str(unit.get("slot"))
+            title = task.slot_titles.get(slot)
+            existing = existing_by_key.get((task.section_id, slot))
+            if not title or existing is None:
+                continue
+            if not restates_own_title(str(unit.get("text", "")), title, facts):
+                continue
+            if restates_own_title(str(existing.get("text", "")), title, facts):
+                continue
+            unit["text"] = existing.get("text", unit.get("text"))
+            existing_fact_ids = existing.get("fact_ids")
+            if isinstance(existing_fact_ids, list) and existing_fact_ids:
+                unit["fact_ids"] = list(existing_fact_ids)
+            changed = True
+    return output if changed else None
+
+
 def recover_coherence_regressions(
     output: dict[str, Any],
     *,
@@ -581,16 +635,17 @@ def recover_coherence_regressions(
     facts: FactsDocument,
     tasks: list[SectionTask],
 ) -> dict[str, Any] | None:
-    """The one ``recover=`` callable ``repair/rounds.py``'s S8 call site passes: both of S8
+    """The one ``recover=`` callable ``repair/rounds.py``'s S8 call site passes: all of S8
     coherence's own last-resort corrections, composed - ``recover_coherence_content_loss`` first
     (the generic dropped-fact-with-no-trace revert, G3-W05), then
     ``recover_coherence_carried_units`` (the must-carry-specific revert and stray-citation strip,
-    above) against whatever the first pass left. Running the must-carry fix second means it always
-    judges the live, possibly-already-corrected output rather than a stale view. ``run_job`` only
-    ever accepts the result on its own re-validation against the real checks, never on either
-    function's say-so, so an incomplete correction here changes nothing: the job fails exactly as
-    it would have without this at all. Returns ``None`` only when neither correction found
-    anything to fix."""
+    above) against whatever the first pass left, then ``recover_coherence_title_restatements``
+    (a revision that newly restates its own slot title reverts to the accepted unit). Each
+    correction judges the live, possibly-already-corrected output rather than a stale view.
+    ``run_job`` only ever accepts the result on its own re-validation against the real checks,
+    never on either function's say-so, so an incomplete correction here changes nothing: the job
+    fails exactly as it would have without this at all. Returns ``None`` only when no correction
+    found anything to fix."""
     changed = False
     content_fixed = recover_coherence_content_loss(
         output, existing_units=existing_units, facts=facts
@@ -603,6 +658,12 @@ def recover_coherence_regressions(
     )
     if carry_fixed is not None:
         output = carry_fixed
+        changed = True
+    title_fixed = recover_coherence_title_restatements(
+        output, existing_units=existing_units, tasks=tasks, facts=facts
+    )
+    if title_fixed is not None:
+        output = title_fixed
         changed = True
     return output if changed else None
 
