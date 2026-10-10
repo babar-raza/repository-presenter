@@ -133,21 +133,29 @@ def test_enterprise_prose_is_superseded_by_row_18_once_the_live_target_is_verifi
 
 def test_a_placement_into_at_a_glance_is_covered_by_the_diagram_or_deferred() -> None:
     # README_CONTRACT.md row 6: At a Glance is exactly one Mermaid fence and nothing else, so a
-    # paragraph placed there is superseded by the diagram when it cites facts and deferred when
-    # it cites none, while a heading, which the shell owns and never renders verbatim, stands.
+    # diagram placed there is superseded by the renderer's own when it cites facts, while a
+    # paragraph - which no diagram carries - is deferred for the owner whether or not it cites
+    # facts (TC-DSP-01), and a heading, which the shell owns and never renders verbatim, stands.
     output = {
         "dispositions": [
             _entry("inherited_unit:002.paragraph", "VERIFIED_PRESERVE", "at_a_glance"),
             _entry(
                 "inherited_unit:004.paragraph", "VERIFIED_MOVE", "at_a_glance", "format:output.stl"
             ),
+            _entry(
+                "inherited_unit:005.code_block",
+                "VERIFIED_PRESERVE",
+                "at_a_glance",
+                "format:output.glb",
+            ),
             _entry("inherited_unit:007.heading", "VERIFIED_PRESERVE", "at_a_glance"),
         ]
     }
     assert normalize(output, FACTS) == []
-    bare, cited, heading = output["dispositions"]
+    bare, cited, diagram, heading = output["dispositions"]
     assert (bare["disposition"], bare["destination_section"]) == ("DEFER_UNRESOLVED", None)
-    assert (cited["disposition"], cited["destination_section"]) == ("SUPERSEDE_REDUNDANT", None)
+    assert (cited["disposition"], cited["destination_section"]) == ("DEFER_UNRESOLVED", None)
+    assert (diagram["disposition"], diagram["destination_section"]) == ("SUPERSEDE_REDUNDANT", None)
     assert heading["disposition"] == "VERIFIED_PRESERVE"
 
 
@@ -180,11 +188,11 @@ def test_a_unit_may_be_superseded_by_a_planned_sections_own_content() -> None:
     output = {
         "dispositions": [
             _entry("inherited_unit:002.paragraph", "SUPERSEDE_REDUNDANT", "key_capabilities"),
-            _entry("inherited_unit:003.code_block", "SUPERSEDE_REDUNDANT", None),
+            _entry("inherited_unit:005.code_block", "SUPERSEDE_REDUNDANT", None),
         ]
     }
     assert placement_errors(output, FACTS) == [
-        "inherited_unit:003.code_block: SUPERSEDE_REDUNDANT names the section whose content "
+        "inherited_unit:005.code_block: SUPERSEDE_REDUNDANT names the section whose content "
         "renders or covers the unit in destination_section, or cites at least one fact ID"
     ]
 
@@ -386,13 +394,35 @@ def test_an_inherited_api_table_placed_into_the_reference_is_covered_by_the_veri
 ):
     # README_CONTRACT.md row 14: the Core API table is deterministic from the symbol facts, so
     # an inherited table placed into api_reference is superseded by it; prose placed there stays.
+    # TC-DSP-01: "covered" is checked against what the table lists, so the unit has to be a table
+    # of verified classes (a table of paths or members would not be).
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(
+                "public_symbol:widget.widget",
+                "public_symbol",
+                "widget.Widget",
+                (Evidence("src/widget.py", "line 1; class; public by name"),),
+                attributes={"symbol_kind": "class"},
+            ),
+            _fact(
+                "inherited_unit:060.table",
+                "inherited_unit",
+                "| Class | Description |\n|---|---|\n| `Widget` | Renders. |",
+            ),
+            _fact("inherited_unit:057.paragraph", "inherited_unit", "The primary entry point."),
+        ),
+    )
     output = {
         "dispositions": [
             _entry("inherited_unit:060.table", "VERIFIED_PRESERVE", "api_reference"),
             _entry("inherited_unit:057.paragraph", "VERIFIED_PRESERVE", "api_reference"),
         ]
     }
-    assert normalize(output, FACTS) == []
+    assert normalize(output, facts) == []
     table, prose = output["dispositions"]
     assert (table["disposition"], table["destination_section"]) == (
         "SUPERSEDE_REDUNDANT",
@@ -626,7 +656,11 @@ def test_the_folded_output_legitimately_exceeds_the_decoder_enum() -> None:
     facts = FactsDocument(
         FACTS.repository,
         FACTS.source_revision,
-        (*FACTS.facts, _fact("identity:revision", "identity", "b" * 40)),
+        (
+            *FACTS.facts,
+            _fact("identity:revision", "identity", "b" * 40),
+            _fact("inherited_unit:001.heading", "inherited_unit", "# Widget"),
+        ),
     )
     batch = list(facts.by_kind("inherited_unit"))
     schema = reconciliation_schema(loaded, batch, facts, {})
@@ -635,7 +669,8 @@ def test_the_folded_output_legitimately_exceeds_the_decoder_enum() -> None:
     )
     reply = {
         "dispositions": [
-            _entry("inherited_unit:002.paragraph", "VERIFIED_MOVE", "identity"),
+            _entry("inherited_unit:001.heading", "VERIFIED_MOVE", "identity"),
+            _entry("inherited_unit:002.paragraph", "VERIFIED_PRESERVE", "scope_limitations"),
             _entry("inherited_unit:003.code_block", "VERIFIED_PRESERVE", "quick_start"),
             _entry("inherited_unit:005.code_block", "VERIFIED_PRESERVE", "at_a_glance"),
             _entry("inherited_unit:006.code_block", "OMIT_UNSUPPORTED", None),
@@ -649,7 +684,7 @@ def test_the_folded_output_legitimately_exceeds_the_decoder_enum() -> None:
     assert not written <= enum  # the folded output is what the store holds
     assert [error.json_path for error in validator.iter_errors(reply)] == [
         "$.dispositions[0].fact_ids[1]",
-        "$.dispositions[1].fact_ids[0]",
+        "$.dispositions[2].fact_ids[0]",
     ]
 
 
@@ -766,11 +801,27 @@ def test_an_uncited_defer_on_a_build_command_is_kept_in_development_and_testing(
     assert entry["fact_ids"] == ["build_test_asset:docs"]
 
 
-def test_an_uncited_defer_on_an_installation_command_is_superseded_by_the_installation_row() -> (
-    None
-):
+def test_an_uncited_defer_on_a_clone_and_build_block_is_not_called_redundant() -> None:
+    """TC-DSP-01. Page-Python's `git clone ... python package.py build` sits under the upstream's
+    Installation heading, but the Installation row prints the verified install command, not the
+    maintainers' own build. Superseding it dropped the block while claiming the row carried it;
+    it now takes the build-command path (here deferred: no Development and Testing to hold it)."""
     output = {"dispositions": [_deferred_entry("inherited_unit:015.code_block")]}
     assert normalize(output, _command_facts(_CLONE, _DOTNET)) == []
+    entry = output["dispositions"][0]
+    assert (entry["disposition"], entry["destination_section"]) == ("DEFER_UNRESOLVED", None)
+
+
+def test_an_uncited_defer_on_the_verified_install_command_is_superseded_by_the_install_row() -> (
+    None
+):
+    install = _command_unit(
+        16,
+        "```bash\ndotnet add package Aspose.3D.FOSS --version 26.1.0\n```",
+        "Aspose.3D FOSS for .NET > Installation",
+    )
+    output = {"dispositions": [_deferred_entry("inherited_unit:016.code_block")]}
+    assert normalize(output, _command_facts(install, _DOTNET)) == []
     entry = output["dispositions"][0]
     assert (entry["disposition"], entry["destination_section"]) == (
         "SUPERSEDE_REDUNDANT",
