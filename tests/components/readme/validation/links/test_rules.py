@@ -86,14 +86,14 @@ def test_a_repeat_a_forgery_and_an_unrecognized_badge_are_each_named() -> None:
 
 def test_the_enterprise_anchor_rule() -> None:
     url = "https://products.aspose.com/3d/net/"
-    anchor = "full-featured Aspose.3D for .NET — Enterprise Edition"
+    anchor = "Aspose.3D for .NET — Enterprise Edition"
     good = f"These limitations don't apply to [{anchor}]({url})."
     assert enterprise_anchor_problems(good, url, True) == []
     # Not required without a verified target, or when the plan leaves the section out.
     assert enterprise_anchor_problems("nothing", None, True) == []
     assert enterprise_anchor_problems("nothing", url, False) == []
-    old = good.replace("full-featured ", "")
-    assert "full-featured <product>" in enterprise_anchor_problems(old, url, True)[0]
+    old = good.replace(anchor, "full-featured " + anchor)
+    assert "Aspose.<Family> for <Platform>" in enterprise_anchor_problems(old, url, True)[0]
     assert "not linked" in enterprise_anchor_problems("nothing", url, True)[0]
     other = good.replace(url, "https://products.aspose.com/3d/java/")
     assert "not linked" in enterprise_anchor_problems(other, url, True)[0]

@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "14"
+version: "15"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -69,7 +69,7 @@ output:
       core_capabilities:
         type: array
         minItems: 3
-        maxItems: 8
+        maxItems: 16
         items:
           type: object
           required: [title, fact_ids]
@@ -87,7 +87,7 @@ output:
             properties:
               input_format_ids: { type: array, items: { type: string } }
               output_format_ids: { type: array, items: { type: string } }
-              capability_titles: { type: array, minItems: 3, maxItems: 8, items: { type: string } }
+              capability_titles: { type: array, minItems: 3, maxItems: 16, items: { type: string } }
       # Null only when the examples field lists no verified ID at all: Quick Start is then omitted
       # (README_CONTRACT row 10, conditional on a verified example - G4-W17 arrival item 54).
       quick_start_example_id: { type: [string, "null"], minLength: 1 }
@@ -160,7 +160,10 @@ system: |
   that section is omitted.
 
   Core capabilities. Three to eight, each an action-led natural phrase grounded in the cited
-  facts, with no keyword repeated across titles. One capability inventory per document: the At a
+  facts, with no keyword repeated across titles. When policy.capabilities_max is above eight, the
+  existing README lists that many capabilities (its Key Capabilities or Features list among the
+  inherited units): keep each of its distinct capabilities as its own capability, in the
+  maintainers' order, up to policy.capabilities_max, and never merge two of them to fit eight. Each title is still your own short action-led phrase of at most eight words naming what that bullet lets a visitor do (for example "Merge cells and define names"), never the bullet's own sentence copied in; the bullet's classes and methods belong to the capability's fact_ids, not to its title. One capability inventory per document: the At a
   Glance capability titles are a subset of these titles, never a second list. Each capability's
   fact_ids are its own. When two capabilities genuinely rest on the same fact, each of them names
   that fact twice: once in its own fact_ids, which lists every fact that capability cites, and
@@ -176,7 +179,7 @@ system: |
   delivery methods. The section holds whenever the plan carries three or more core
   capabilities: input_format_ids lists the verified input formats and is empty when none is
   SUPPORTED (the diagram then shows no Starting Points), output_format_ids the verified output
-  formats, and capability_titles three to eight of the core capability titles, no word over 28
+  formats, and capability_titles three to policy.capabilities_max of the core capability titles (all of them when the plan carries nine or more), no word over 28
   characters. Both ID lists are chosen from the formats field - input_format_ids from its input
   list, output_format_ids from its output list - and a list is empty when that field's list is.
 

@@ -57,6 +57,7 @@ from repository_presenter.components.readme.composition.placement import (
     placements,
 )
 from repository_presenter.components.readme.composition.policy import (
+    CAPABILITIES_CEILING,
     DEFAULT_POLICY,
     PlanningPolicy,
 )
@@ -149,7 +150,9 @@ VALIDATION_FILENAME = "validation.json"
 # marker and no required dependency), as README_CONTRACT.md section 2 always required
 # ("Never present"). cells/python sealed "requiring no external dependencies" for a library whose
 # manifest requires pycryptodome and olefile; the check was advisory-only until now. A bundle
-# sealed under 17 re-checks under 18 and shows as pending.
+# sealed under 17 re-checks under 18 and shows as pending. The same bump carries BC-06 v8: the
+# Enterprise Edition anchor is the maintainers' plain "Aspose.<Family> for <Platform> - Enterprise
+# Edition" (owner decision 2026-10-10), no longer the "full-featured" form.
 VALIDATOR_VERSION = "18"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
@@ -298,7 +301,11 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # in any prose position, headings included, naming the section they render in. Earlier
         # versions matched only a capitalised "Xxx Edition", so the lowercase "commercial
         # edition" the authoring code itself once generated passed in 19 sealed READMEs.
-        "7",
+        # "8" (owner decision 2026-10-10, parity with the skill-generated README): the Enterprise
+        # Edition link text is the maintainers' plain label, "Aspose.<Family> for <Platform> -
+        # Enterprise Edition" (family target: "Aspose.<Family> - Enterprise Edition"); the
+        # "full-featured" prefix "6" required is no longer accepted.
+        "8",
         "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the "
         "only edition name (no substitute in any letter case); no unsafe raw HTML "
         "(script/event-handler/dangerous-scheme) renders outside a fenced code block",
@@ -1400,8 +1407,13 @@ def _topology_failures(body: str, has_inputs: bool) -> list[Failure]:
     count = len(_CAPABILITY_NODE.findall(body))
     columns = {name: _column_size(lines, name) for name in ("capl", "capr")}
     present = [name for name, size in columns.items() if size is not None]
-    if count > 8:
-        failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at most 8"))
+    if count > CAPABILITIES_CEILING:
+        failures.append(
+            Failure(
+                "PLANNING",
+                f"At a Glance shows {count} capabilities; at most {CAPABILITIES_CEILING}",
+            )
+        )
     elif count < 3:
         failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at least 3"))
     elif count <= 5 and present:

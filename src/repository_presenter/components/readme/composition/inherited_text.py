@@ -29,7 +29,7 @@ from repository_presenter.core.facts import Fact, FactsDocument
 _ITEM = re.compile(
     r"^`(?P<name>[A-Za-z0-9_.\-]+)(?:[<>=!~][^`]*)?`"
     r"(?:\s*(?:[<>=!~]=?|==)\s*[\w.*]+(?:\s*,\s*(?:[<>=!~]=?|==)\s*[\w.*]+)*)?"
-    r"\s+[—–-]\s+(?P<text>\S.*)$"
+    r"\s+[\u2014\u2013-]\s+(?P<text>\S.*)$"
 )
 _CODE_SPAN = re.compile(r"`([^`]+)`")
 _NAME = re.compile(r"[A-Za-z0-9_.\-]+")
@@ -58,9 +58,7 @@ def dependency_name(value: str) -> str:
     return (match.group(0) if match else value).lower().replace("_", "-")
 
 
-def dependency_purposes(
-    facts: FactsDocument, resolves: Callable[[str], bool]
-) -> dict[str, str]:
+def dependency_purposes(facts: FactsDocument, resolves: Callable[[str], bool]) -> dict[str, str]:
     """Package name -> the maintainers' explanation of it, from their own Dependencies lists.
 
     ``resolves`` says whether a code-span identifier in the explanation is a verified one; an
@@ -111,3 +109,26 @@ def inherited_example_heading(facts: FactsDocument, example: Fact) -> str | None
                 return title
         return None
     return None
+
+
+_CAPABILITY_HEADINGS = frozenset({"key capabilities", "capabilities", "key features", "features"})
+
+
+def inherited_capability_count(facts: FactsDocument) -> int:
+    """How many capabilities the existing README lists under its capabilities or features
+    heading: the items of its SUPPORTED list units there (a bullet is one capability)."""
+    by_id = {unit.id: unit for unit in facts.by_kind("inherited_unit")}
+    return sum(
+        len(_list_items(by_id[unit_id].value)) for unit_id in inherited_capability_unit_ids(facts)
+    )
+
+
+def inherited_capability_unit_ids(facts: FactsDocument) -> list[str]:
+    """The SUPPORTED list units of the existing README's capabilities or features section."""
+    return [
+        unit.id
+        for unit in facts.by_kind("inherited_unit")
+        if unit.polarity == "SUPPORTED"
+        and unit.id.endswith(".list")
+        and _section_path(unit)[-1].lower() in _CAPABILITY_HEADINGS
+    ]

@@ -76,12 +76,14 @@ src/repository_presenter/
       placement.py             where each inherited unit renders, under the three placement rules
       policy.py                the planning policy: capability, hub, line, and Aspose-link ceilings
       link_budget.py           Aspose-link ceilings derived per document, domain, and surface slot (plans/idea.md), or configured; the plan trim and BC-06 both read it
+      inherited_text.py        the maintainers' wording the deterministic renderer keeps: dependency purposes, example headings, the inherited capability list (G7-W24)
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
       terminology.py           the governed technical-terminology registry and heading-case grammar: the one owner of canonical abbreviations (PS, PDF, glTF, npm) and title case
       glance.py                the At a Glance label-geometry policy: one common wrap width, at most three lines
     validation/
       registry.py              versioned check registry
+      dependency_claims.py     the unscoped absolute dependency claim BC-07 refuses unless the dependency facts prove it (G7-W24)
       links/                   link resolution
         rules.py                the pure rules BC-06 and BC-07 call: derived link ceilings, the Enterprise Edition anchor, the badge row's order and support
     review/

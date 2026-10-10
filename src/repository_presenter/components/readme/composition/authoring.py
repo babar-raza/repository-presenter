@@ -39,6 +39,9 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.components.readme.composition.components.terminology import (
     canonical_forms,
 )
+from repository_presenter.components.readme.composition.inherited_text import (
+    inherited_capability_unit_ids,
+)
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.core.facts import (
     REPOSITORY_FILES_ATTRIBUTE,
@@ -349,7 +352,12 @@ _TYPE_OBJECTIVE = (
 # requires both packages. The opening now cites or reasonedly omits that paragraph like every other
 # carried section, and its objective says to keep the specifics it states and claim nothing it
 # does not.
-NORMALISATION_VERSION = "33"
+# "34": the second commit of the same effort (owner decision 2026-10-10, README_CONTRACT row 7):
+# the existing README's own capability list is shown to the key_capabilities author with an
+# instruction to keep the specifics each bullet names, since the plan may now carry one capability
+# per inherited bullet (up to sixteen). The working-tree bump discipline moves the constant once
+# per committing delta, so this is a second step from "33" within one pull request.
+NORMALISATION_VERSION = "34"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -842,6 +850,10 @@ def section_selections(
         for index, item in enumerate(plan.get("core_capabilities", []), start=1):
             ids.extend(item.get("fact_ids", []))
             slots.append(f"capability:{index}")
+        # The existing README's own capability list is shown to the author (not citable by a
+        # slot, which cites only its own facts), so each capability's sentence can keep the
+        # specifics the maintainers named.
+        ids.extend(inherited_capability_unit_ids(facts))
     elif section == "quick_start":
         ids.append(plan.get("quick_start_example_id", ""))
         slots = ["lead_in"]
@@ -1147,6 +1159,14 @@ def authoring_tasks(
             if must_carry
             else ""
         )
+        if section == "key_capabilities" and inherited_capability_unit_ids(facts):
+            carry_rule += (
+                "The existing README lists these capabilities itself (the inherited list units "
+                "among the accepted facts). Where a capability matches one of its bullets, its "
+                "sentence states that bullet's specifics - the classes, methods, standards and "
+                "limits it names - keeping its wording where it is accurate; do not drop a "
+                "specific the bullet states. "
+            )
         if must_carry and section == "opening":
             # The maintainers' own intro states what the product is, what it needs, and which
             # packages it depends on; the opening keeps those specifics and adds none of its own

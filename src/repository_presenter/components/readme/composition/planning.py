@@ -36,6 +36,9 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
     shell_packet,
 )
+from repository_presenter.components.readme.composition.inherited_text import (
+    inherited_capability_count,
+)
 from repository_presenter.components.readme.composition.link_budget import (
     SlotCounter,
     plan_time_budget,
@@ -46,6 +49,7 @@ from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
     policy_packet,
+    with_inherited_capabilities,
 )
 from repository_presenter.components.readme.evidence.facts.assets import CI_BADGE_FACT_ID
 from repository_presenter.components.readme.evidence.facts.links import (
@@ -367,6 +371,7 @@ def planning_packet(
     it may select with what was withheld (``examples``) and which formats a title or At a Glance
     may name (``formats``; G4-W17 arrival items 41 and 42). A packet field the template never
     renders is invisible to the job, so both are named in the manifest's user template."""
+    policy = with_inherited_capabilities(policy, inherited_capability_count(facts))
     conditions = section_conditions(facts, policy)
     shell = [
         {**section, "condition_holds": conditions[section["id"]]} for section in shell_packet()
@@ -866,6 +871,7 @@ def plan_checks(
     here, one stage upstream of either).
     """
     errors: list[str] = []
+    policy = with_inherited_capabilities(policy, inherited_capability_count(facts))
     conditions = section_conditions(facts, policy)
     verified_examples = sorted(
         fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED"
@@ -929,6 +935,18 @@ def plan_checks(
         errors.append(
             f"core_capabilities must number {policy.capabilities_min} to "
             f"{policy.capabilities_max}; got {len(capabilities)}"
+        )
+    elif policy.capabilities_max > DEFAULT_POLICY.capabilities_max and len(capabilities) < min(
+        policy.capabilities_max, inherited_capability_count(facts)
+    ):
+        # README_CONTRACT.md row 7 (owner decision 2026-10-10): the existing README's own capability
+        # list is preserved, one capability per bullet, up to the ceiling - never merged to fit
+        # the default eight (cells/python: fourteen bullets planned as eight).
+        errors.append(
+            f"the existing README lists {inherited_capability_count(facts)} capabilities; "
+            "keep each "
+            f"as its own core capability, in its order, up to {policy.capabilities_max}; got "
+            f"{len(capabilities)}"
         )
     titles = [item.get("title", "").strip().lower() for item in capabilities]
     if len(set(titles)) != len(titles):

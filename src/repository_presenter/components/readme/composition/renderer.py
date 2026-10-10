@@ -104,9 +104,18 @@ RENDERER_VERSION = "30"
 # dependency when their list gave one and every identifier it names is verified
 # (inherited_text.dependency_purposes); an example heading is the maintainers' task heading over
 # that example's source code block when the README had one (inherited_text.inherited_example_
-# heading), not a model sentence; and the Python floor is named where pyproject.toml declares it,
-# `requires-python`, not setup.py's `python_requires` (PEP 621).
+# heading), not a model sentence; the Python floor is named where pyproject.toml declares it,
+# `requires-python`, not setup.py's `python_requires` (PEP 621); the Enterprise Edition anchor is
+# the maintainers' plain label, "Aspose.{Family} for {Platform} - Enterprise Edition" (owner
+# decision 2026-10-10, replacing the "full-featured" prefix), joined as ", which adds ..." when the
+# authored context begins "it adds"; and At a Glance shows each verified format in its own node
+# (up to six per group) and up to sixteen capabilities in two balanced columns (same decision).
 RENDERER_VERSION = "31"
+# 32 (the second commit of the same effort, owner decisions 2026-10-10): the working-tree bump
+# discipline asks each commit that changes this file's meaning to move the constant, so the
+# anchor/diagram/capability-ceiling changes above, made after 31 was committed, move it once more;
+# nothing else differs from 31 for a bundle: both are newer than every sealed bundle.
+RENDERER_VERSION = "32"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -440,8 +449,10 @@ def _dependencies(context: RenderContext) -> list[str]:
     facts = context.supported("dependency")
     purposes = dependency_purposes(
         context.facts,
-        lambda token: token in context.symbol_names
-        or identifier_allowed(token, context.allowed, context.members, context.methods),
+        lambda token: (
+            token in context.symbol_names
+            or identifier_allowed(token, context.allowed, context.members, context.methods)
+        ),
     )
     marker = context.fact("dependency:none")
     required = [
@@ -734,13 +745,14 @@ def _api_reference(context: RenderContext) -> list[str]:
 def enterprise_anchor(name: str) -> str:
     """The Enterprise Edition anchor text for the product ``name``.
 
-    plans/idea.md: "Aspose.com product links use natural explanatory prose and an informative
-    **full-featured ... Enterprise Edition** anchor below the fold." The anchor opens with
-    "full-featured", names the product, and ends with the one permitted edition name; the
-    renderer composes it from the verified target's level and the canonical product name, never
-    from model prose.
+    The maintainers' own label and the skill's anchor contract (owner decision 2026-10-10, parity
+    with the skill-generated README): ``Aspose.{Family} for {Platform} - Enterprise Edition`` for a
+    platform-level target, ``Aspose.{Family} - Enterprise Edition`` for a family-level one. It
+    ends with the one permitted edition name and is composed here from the verified target's level
+    and the canonical product name, never from model prose. (plans/idea.md used to ask for a
+    "full-featured ..." prefix; the owner replaced it with this plain label.)
     """
-    return f"full-featured {name} — Enterprise Edition"
+    return f"{name} — Enterprise Edition"
 
 
 def _enterprise_paragraph(context: RenderContext) -> str:
@@ -756,8 +768,14 @@ def _enterprise_paragraph(context: RenderContext) -> str:
     name = context.name.replace(" FOSS", "")
     if level == "family":
         name = name.split(" for ", 1)[0]
-    sentence = f"These limitations don't apply to [{enterprise_anchor(name)}]({target.value})."
+    link = f"[{enterprise_anchor(name)}]({target.value})"
     adds = context.unit("enterprise_relationship", "context").strip()
+    # The maintainers' own shape is one sentence, "..., which adds ..."; the authored context is
+    # asked to begin "it adds", which reads as that clause.
+    clause = re.match(r"^it adds\s+(.+?)\.?$", adds, re.IGNORECASE | re.DOTALL)
+    if clause and ". " not in adds:
+        return f"These limitations don't apply to {link}, which adds {clause.group(1)}."
+    sentence = f"These limitations don't apply to {link}."
     return f"{sentence} {adds}" if adds else sentence
 
 
@@ -917,7 +935,11 @@ FORMAT_NAMES: dict[str, str] = {
     "wrl": "VRML",
     "drc": "Draco",
     "x": "DirectX X",
+    "md": "Markdown",
 }
+# At a Glance names each verified format in its own node up to this many per group; a product with
+# more (3D: a dozen) keeps one node listing them, so the diagram stays readable.
+GLANCE_FORMAT_NODES_MAX = 6
 
 
 def format_name(value: str) -> str:
@@ -938,9 +960,10 @@ def _label(text: str) -> str:
 
 def _at_a_glance(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2.1: one chain, StartingPoints --> PRODUCT --> Capabilities
-    --> Outputs, each group a single listing node; Starting Points and Outputs are omitted with
-    their hop when nothing is verified; up to five capabilities form one column, six to eight
-    two balanced columns; the renderer owns every node, edge, and label."""
+    --> Outputs; Starting Points and Outputs are omitted with their hop when nothing is verified;
+    each verified format is its own node (the maintainers' diagram names them one by one) up to
+    ``GLANCE_FORMAT_NODES_MAX``, then one node lists them; up to five capabilities form one
+    column, six to sixteen two balanced columns; the renderer owns every node, edge, and label."""
     glance = context.plan.get("at_a_glance") or {}
     inputs = [
         format_name(fact.value)
@@ -958,7 +981,11 @@ def _at_a_glance(context: RenderContext) -> list[str]:
     if inputs:
         lines.append('  subgraph StartingPoints["Starting Points"]')
         lines.append("    direction LR")
-        lines.append(f'    i1["An existing {_or_list(inputs)} file"]')
+        if len(inputs) <= GLANCE_FORMAT_NODES_MAX:
+            for index, name in enumerate(inputs, start=1):
+                lines.append(f'    i{index}["An existing {name} file"]')
+        else:
+            lines.append(f'    i1["An existing {_or_list(inputs)} file"]')
         lines.append("  end")
         chain.append("StartingPoints")
     lines.append(f'  PRODUCT["{_label(context.name)}"]')
@@ -982,7 +1009,11 @@ def _at_a_glance(context: RenderContext) -> list[str]:
     if outputs:
         lines.append('  subgraph Outputs["Outputs"]')
         lines.append("    direction TB")
-        lines.append(f'    o1["{_or_list(outputs)} file"]')
+        if len(outputs) <= GLANCE_FORMAT_NODES_MAX:
+            for index, name in enumerate(outputs, start=1):
+                lines.append(f'    o{index}["{name} file"]')
+        else:
+            lines.append(f'    o1["{_or_list(outputs)} file"]')
         lines.append("  end")
         chain.append("Outputs")
     lines.append("  " + " --> ".join(chain))

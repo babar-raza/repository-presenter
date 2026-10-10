@@ -364,6 +364,31 @@ for _name in _LINKS_ANCHOR_BADGES_STALE:
         ),
         ref="G4-W17 links, anchor and badges rules; docs/DECISION_LOG.md section 31 2026-10-05",
     )
+# G7-W24 (cells/python parity, owner instruction 2026-10-10), renderer 31 and 32: a Dependencies
+# bullet carries the maintainers' own explanation of that dependency when their list gave one
+# (composition/inherited_text.py), so a bundle sealed before that renders the bare bullet; the
+# Python floor reads `requires-python` for a pyproject.toml; and the Enterprise Edition anchor is
+# the plain label. Each bundle below differs from a fresh render in exactly those spans (diff
+# checked per bundle, not assumed: BarCode-Python gains "used only for PNG rendering; SVG output
+# has no third-party dependency" on its pillow bullet, Cells-Python its two package purposes).
+# A real, deliberate, correct rendering-behavior change; each needs a real re-seal through
+# `present`. `strict=True` as above.
+_G7_W24_STALE = (
+    "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Python",
+)
+for _name in _G7_W24_STALE:
+    _merge_ledger(
+        _name,
+        since="2026-10-10",
+        expires="2026-11-09",
+        reason=(
+            "renderer 31/32: a Dependencies bullet keeps the maintainers' own explanation of the "
+            "dependency, and the Python floor is named where the manifest declares it - see "
+            "comment above"
+        ),
+        ref="G7-W24 cells/python parity; docs/DECISION_LOG.md 2026-10-10",
+    )
 
 
 def block_is_live(record: dict[str, str], today: dt.date) -> bool:

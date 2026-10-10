@@ -310,7 +310,8 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # docstring elisions; VALIDATOR_VERSION 15: a refused ACCEPT names the corroborating second
     # read that failed (second_reader.failed); VALIDATOR_VERSION 16: BC-05 v3 (G7-W12) classifies
     # the UNCLASSIFIED deferral family; VALIDATOR_VERSION 17: BC-04 v3 honours the omissions S6
-    # recorded (G7-W15); VALIDATOR_VERSION 18: BC-07 v11 refuses an unscoped absolute dependency claim the facts do not prove. This candidate names no edition, spells its name
+    # recorded (G7-W15); VALIDATOR_VERSION 18: BC-07 v11 refuses an unscoped absolute
+    # dependency claim the facts do not prove. This candidate names no edition, spells its name
     # whole, and passes all of them (it has badge-worthy facts and a rendered badge row, no
     # docstring eliciting an elision, and a clean single-read ACCEPT with no triggered second
     # read, so v13's, v14's, and v15's own allowance/note/detail never fire).
@@ -1812,7 +1813,7 @@ def test_the_aspose_ceiling_counts_contextual_links_not_the_mandated_rows() -> N
     nl = chr(10)
     mandated = (
         f"[![Aspose.3D FOSS for Python]({banner.value})]({homepage.value})"
-        f"{nl}{nl}[full-featured Aspose.3D for Python — Enterprise Edition]"
+        f"{nl}{nl}[Aspose.3D for Python — Enterprise Edition]"
         f"({enterprise.value}){nl}"
     )
     # Little visible prose: the derived total is 2, and only contextual links count against it.
@@ -1904,16 +1905,20 @@ def _enterprise_candidate(anchor: str | None) -> Candidate:
     return _candidate(readme=readme, facts=_with_links(enterprise), plan=plan)
 
 
-def test_the_enterprise_anchor_must_be_full_featured_and_link_the_verified_target() -> None:
-    good = _enterprise_candidate("full-featured Aspose.3D for Python — Enterprise Edition")
+def test_the_enterprise_anchor_must_be_the_plain_product_label_and_link_the_verified_target() -> (
+    None
+):
+    good = _enterprise_candidate("Aspose.3D for Python — Enterprise Edition")
     assert not [f for f in _check_links(good) if f.section == "enterprise_relationship"]
+    family = _enterprise_candidate("Aspose.3D — Enterprise Edition")
+    assert not [f for f in _check_links(family) if f.section == "enterprise_relationship"]
     for bad in (
-        "Aspose.3D for Python — Enterprise Edition",  # the pre-fix anchor: no full-featured
-        "full-featured Aspose.3D for Python",  # no edition name at the end
+        "full-featured Aspose.3D for Python — Enterprise Edition",  # the retired prefix
+        "Aspose.3D for Python",  # no edition name at the end
         "click here",
     ):
         failures = [f for f in _check_links(_enterprise_candidate(bad)) if f.section]
-        assert any("full-featured <product>" in f.detail for f in failures), bad
+        assert any("Aspose.<Family> for <Platform>" in f.detail for f in failures), bad
     missing = [f for f in _check_links(_enterprise_candidate(None)) if f.section]
     assert any("is not linked from the document" in f.detail for f in missing)
 
@@ -2547,16 +2552,14 @@ def test_bc06_holds_the_link_ceiling_the_anchor_rule_and_the_edition_rule_togeth
         candidate = _candidate(readme=readme, facts=facts, plan=plan)
         return [failure.detail for failure in _check_links(candidate)]
 
-    good_anchor = "full-featured Aspose.3D for Python — Enterprise Edition"
-    broken = details(
-        "Aspose.3D for Python — Enterprise Edition", "The commercial edition adds more."
-    )
+    good_anchor = "Aspose.3D for Python — Enterprise Edition"
+    broken = details("click here", "The commercial edition adds more.")
     assert any("exceed the ceiling" in d for d in broken)
-    assert any("full-featured <product>" in d for d in broken)
+    assert any("Aspose.<Family> for <Platform>" in d for d in broken)
     assert "non-canonical edition name 'commercial edition'" in broken
     fixed_edition = details(good_anchor, "It adds more.")
     assert any("exceed the ceiling" in d for d in fixed_edition)
-    assert not any("edition name" in d or "full-featured" in d for d in fixed_edition)
+    assert not any("edition name" in d or "Aspose.<Family>" in d for d in fixed_edition)
 
 
 def test_check_four_honours_a_must_carry_omission_the_authoring_recorded(tmp_path: Path) -> None:
@@ -2666,5 +2669,63 @@ def test_a_scoped_clause_does_not_rescue_a_second_unscoped_one() -> None:
         "Requires Python 3.9; no external runtime or Microsoft Office installation is needed."
     ) == ["no external runtime"]
     assert unscoped_dependency_claims("It is dependency-free.") == ["dependency-free"]
-    assert unscoped_dependency_claims("It has no external dependencies on third-party packages.") == []
+    assert (
+        unscoped_dependency_claims("It has no external dependencies on third-party packages.") == []
+    )
     assert unscoped_dependency_claims("A self-contained example follows.") == []
+
+
+def _glance_body(capabilities: int, outputs: int = 4) -> str:
+    left = (capabilities + 1) // 2
+    nodes = [f'      c{n}["Capability {n}"]' for n in range(1, capabilities + 1)]
+    out = [f'    o{n}["Format {n} file"]' for n in range(1, outputs + 1)]
+    return "\n".join(
+        [
+            "flowchart TD",
+            '  subgraph StartingPoints["Starting Points"]',
+            "    direction LR",
+            '    i1["An existing XLSX file"]',
+            '    i2["An existing CSV file"]',
+            "  end",
+            '  PRODUCT["Aspose.3D FOSS for Python"]',
+            '  subgraph Capabilities["Core Capabilities"]',
+            "    direction LR",
+            '    subgraph capl[" "]',
+            "      direction TB",
+            *nodes[:left],
+            "    end",
+            '    subgraph capr[" "]',
+            "      direction TB",
+            *nodes[left:],
+            "    end",
+            "  end",
+            '  subgraph Outputs["Outputs"]',
+            "    direction TB",
+            *out,
+            "  end",
+            "  StartingPoints --> PRODUCT --> Capabilities --> Outputs",
+        ]
+    )
+
+
+def test_the_glance_admits_sixteen_capabilities_in_two_columns_and_several_format_nodes() -> None:
+    """README_CONTRACT.md section 2.1 (owner decision 2026-10-10): the diagram holds as many
+    capabilities as the maintainers' list names, up to sixteen, and a node per verified format."""
+    from repository_presenter.components.readme.validation.registry import _topology_failures
+
+    assert _topology_failures(_glance_body(14), True) == []
+    assert _topology_failures(_glance_body(16), True) == []
+    assert [f.detail for f in _topology_failures(_glance_body(17), True)] == [
+        "At a Glance shows 17 capabilities; at most 16"
+    ]
+    # Negative controls: the column rule still holds at the new size, and so does the chain.
+    unbalanced = (
+        _glance_body(14)
+        .replace('      c7["Capability 7"]\n', "")
+        .replace('      c8["Capability 8"]', '      c8["Capability 8"]\n      c7["Capability 7"]')
+    )
+    assert [f.detail for f in _topology_failures(unbalanced, True)] == [
+        "At a Glance: 14 capabilities form two balanced columns; found 6 and 8"
+    ]
+    one_edge_too_many = _glance_body(14) + "\n  PRODUCT --> Outputs"
+    assert any("one chain" in f.detail for f in _topology_failures(one_edge_too_many, True))

@@ -12,6 +12,7 @@ nothing for its direction, so a declared but unimplemented export never reads as
 from __future__ import annotations
 
 import ast
+import re
 from pathlib import Path
 
 from repository_presenter.core.examples import FormatDeclaration, FormatDirection
@@ -226,8 +227,97 @@ def _plugin_formats(
     return found
 
 
+_SAVE_METHOD = re.compile(r"^(?:save_as|export_to|export)_(?P<fmt>[a-z][a-z0-9]*)$")
+_LOAD_METHOD = re.compile(r"^(?:load|import_from|import)_(?P<fmt>[a-z][a-z0-9]*)$")
+# A class that states a format: ``CSVSaveOptions``, ``JsonHandler``, ``MarkdownLoadOptions``.
+_FORMAT_CLASS = re.compile(
+    r"^(?P<fmt>[A-Za-z][A-Za-z0-9]*?)(?:Save|Load|Export|Import)?(?:Options|Handler)$"
+)
+# A format whose usual extension is not its name.
+_NAMED_EXTENSIONS = {"markdown": ".md", "text": ".txt"}
+
+
+def _method_formats(index: _Index) -> list[FormatDeclaration]:
+    """Formats a product provides through named conversion methods, with two static sources.
+
+    ``Workbook.save_as_json`` (a non-stub method) is the registration of the JSON output
+    direction; a class the product defines for that format (``JsonSaveOptions``, ``JsonHandler``)
+    is the independent statement that the format exists. A method with no such class, or a class
+    with no such method, supports nothing alone (the same two-source rule as the plugin shape).
+    """
+    stated: dict[str, tuple[str, int, str]] = {}
+    for relative, tree in index.modules.items():
+        for name, node in _classes(tree).items():
+            found = _FORMAT_CLASS.match(name)
+            if found is not None:
+                stated.setdefault(found.group("fmt").lower(), (relative, node.lineno, name))
+    found_formats: list[FormatDeclaration] = []
+    for relative, tree in index.modules.items():
+        for class_name, class_def in _classes(tree).items():
+            for member in class_def.body:
+                if not isinstance(member, ast.FunctionDef) or member.name.startswith("_"):
+                    continue
+                method = member
+                direction: FormatDirection
+                match = _SAVE_METHOD.match(method.name)
+                if match is not None:
+                    direction = "output"
+                else:
+                    match = _LOAD_METHOD.match(method.name)
+                    direction = "input"
+                if match is None or _is_stub_function(method):
+                    continue
+                fmt = match.group("fmt")
+                statement = stated.get(fmt)
+                if statement is None:
+                    continue
+                extension = _NAMED_EXTENSIONS.get(fmt, f".{fmt}")
+                state_path, state_line, state_name = statement
+                found_formats.append(
+                    FormatDeclaration(
+                        extension,
+                        None,
+                        "declaration",
+                        state_path,
+                        state_line,
+                        f"{state_name} states {extension}",
+                    )
+                )
+                found_formats.append(
+                    FormatDeclaration(
+                        extension,
+                        direction,
+                        "registration",
+                        relative,
+                        method.lineno,
+                        f"{class_name}.{method.name} implements {direction} {extension}",
+                    )
+                )
+    return found_formats
+
+
+def _is_stub_function(function: ast.FunctionDef) -> bool:
+    """Whether the function only raises NotImplementedError (a docstring aside)."""
+    body = [
+        s
+        for s in function.body
+        if not (
+            isinstance(s, ast.Expr)
+            and isinstance(s.value, ast.Constant)
+            and isinstance(s.value.value, str)
+        )
+    ]
+    return bool(body) and all(
+        isinstance(s, ast.Raise)
+        and s.exc is not None
+        and "NotImplementedError" in ast.unparse(s.exc)
+        for s in body
+    )
+
+
 def format_declarations(root: Path, tree_paths: list[str]) -> list[FormatDeclaration]:
     """Declarations and registrations of the product's formats, in a stable order."""
     index = _Index(root, tree_paths)
-    found = _declarations(index) + _registrations(index)
+    found = _declarations(index) + _registrations(index) + _method_formats(index)
+    found = list(dict.fromkeys(found))
     return sorted(found, key=lambda d: (d.kind, d.direction or "", d.extension, d.source_path))

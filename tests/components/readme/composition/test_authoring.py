@@ -4076,3 +4076,48 @@ def test_the_opening_must_carry_the_intro_paragraph_reconciliation_superseded_in
         "omitted": [],
     }
     assert uncarried_units(cited, opening.must_carry) == []
+
+
+def test_the_key_capabilities_author_is_shown_the_existing_readmes_own_capability_list() -> None:
+    """cells/python parity: the live list's fourteen bullets name page setup, merged cells, defined
+    names, AutoFilter and more; a sentence per planned capability was written without seeing
+    them."""
+    listing = "inherited_unit:010.list"
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                listing,
+                "inherited_unit",
+                "- `Scene` creates scenes.\n- Merged cells (`Cells.merge()`) round-trip.",
+                (Evidence("README.md", "lines 1-1"),),
+                attributes={"section": "Widget > Key Capabilities"},
+            ),
+            Fact(
+                "inherited_unit:011.list",
+                "inherited_unit",
+                "- unrelated item",
+                (Evidence("README.md", "lines 1-1"),),
+                attributes={"section": "Widget > Requirements"},
+            ),
+        ),
+    )
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, {"dispositions": []}, PLAN)
+    }
+    capabilities = tasks["key_capabilities"]
+    assert listing in capabilities.accepted_ids
+    assert "inherited_unit:011.list" not in capabilities.accepted_ids
+    assert "do not drop a specific the bullet states" in capabilities.packet["objective"]
+    # Negative control: a README with no capability list adds neither the ids nor the sentence.
+    plain = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, FACTS, INVESTIGATION, {"dispositions": []}, PLAN)
+    }["key_capabilities"]
+    assert "do not drop a specific" not in plain.packet["objective"]
+    assert listing not in plain.accepted_ids
+    # And no other section is told about it.
+    assert "do not drop a specific" not in tasks["opening"].packet["objective"]

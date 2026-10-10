@@ -1290,6 +1290,56 @@ cited inherited unit's sibling shorthand) covers only a spelling the README itse
 
 **Work item** G7-W23 · **Register status** PENDING · logged, unfixed under the freeze; three sightings, so settled priority once the freeze lifts (AGENTS.md).
 
+### `readme.enterprise_target_refused_on_redirecting_slug`
+
+The Enterprise Edition link, which the maintainers' README carries and the skill-generated README guarantees, was dropped: `evidence/facts/product_pages.py::enterprise_fact` probed four Python slugs and counted `cells/python/` (which redirects to `python-java`), `python-net` and `python-java` as three live variants, refused to choose, and did not fall back to the family page either, so `link_target:product.enterprise` was UNRESOLVED and S4 deferred the inherited paragraph (`inherited_unit:049`); the maintainers' own link (`link_target:027`, HTTP 200) was never used. The skill's resolver, run offline, returns `python-net` from a curated override. Fix (G7-W24): a curated override live at its own URL (`cells/python` to `python-net`, `pdf/python` to `python-net`, `cells/go` to `go-cpp`, ported from aspose.org `platform_canonical_overrides.yaml` at 16d75e95 with a reuse-manifest record), then the product's own slug with its redirect followed, one other live variant, the family page; an override that is not live or redirects elsewhere is ignored. The anchor is the maintainers' plain `Aspose.{Family} for {Platform} — Enterprise Edition` (owner decision; BC-06 v8). Other repositories with several live bridge pages (every Python product of a family that publishes `python-net` and `python-java`) had the same loss.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | 2026-10-10 | baseline sealed from unmodified origin/main 7c5acbf7 (present --fresh, qwen3-next only), compared with the live upstream README at 4f6768a7; no Enterprise sentence, `check_scope_limitations_format` fails |
+
+**Work item** G7-W24 · **Register status** PENDING · single sighting (cells/python, the parity proving ground); fixed in the pull request that registers G7-W24, its generalization to other repositories is the point of the proving ground.
+
+### `readme.maintainer_wording_dropped_by_deterministic_sections`
+
+A deterministic section superseded an inherited unit although the unit said more than the facts it was superseded by: the Dependencies list (`inherited_unit:016`, `020`) explained what each package is for and the rendered bullets were bare; the maintainers' example headings (`030`, `032`, `034`) were replaced by model sentences; the intro (`004`) was superseded into the opening, which was never told to carry it, and the fresh paraphrase lost 'pure-Python', 'without requiring Microsoft Excel' and the two named packages. Fix (G7-W24): `composition/inherited_text.py` returns a dependency's explanation only when every identifier in it is a verified symbol and the example heading above an example's own source code block (each once); `opening` joins the carried sections (`NORMALISATION_VERSION` 33). Not closed: the placement 'overlap' rule still drops a placed unit whenever one of its cited facts overlaps the plan's own content (`composition/placement.py`), without comparing text; the Scope bullets and the Documentation and Resources descriptions are reworded by it. Wording, not facts, is lost there, so it stays recorded here for a decision on whether the maintainers' text should win.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | 2026-10-10 | baseline sealed from unmodified origin/main 7c5acbf7 (present --fresh, qwen3-next only), compared with the live upstream README at 4f6768a7; bare dependency bullets, three retitled example headings, intro paraphrase |
+
+**Work item** G7-W24 · **Register status** PENDING · single sighting (cells/python, the parity proving ground); fixed in the pull request that registers G7-W24, its generalization to other repositories is the point of the proving ground.
+
+### `readme.unscoped_dependency_claim_not_blocking`
+
+README_CONTRACT.md section 2 forbids an unscoped absolute dependency claim ('no dependencies', 'dependency-free', 'no external runtime') unless the dependency facts prove it, but the only check was advisory and named in section 5 as a candidate for blocking. A sealed opening said 'requiring no external dependencies beyond the library itself' for a library whose manifest requires `pycryptodome` and `olefile`; review ACCEPTed it. The skill's `check_unqualified_dependency_claims` flags it. Fix (G7-W24): BC-07 v11 refuses the claim in an authored unit unless the verified-zero marker is present and no required dependency exists (patterns and scope qualifiers ported with a reuse-manifest record; the skill's 'self-contained' and 'no third-party code' patterns are not ported). 9 of the 30 sealed bundles contain a phrase this check examines (3D-.NET, 3D-Python, Cells-Cpp, Cells-Go, Cells-Java, Email-Python, PDF-Java, Slides-.NET, Slides-Java); they are re-checked on the next present, not invalidated, and fail only where the dependency facts do not prove the claim.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | 2026-10-10 | baseline sealed from unmodified origin/main 7c5acbf7 (present --fresh, qwen3-next only), compared with the live upstream README at 4f6768a7; opening said 'requiring no external dependencies beyond the library itself' |
+
+**Work item** G7-W24 · **Register status** PENDING · single sighting (cells/python, the parity proving ground); fixed in the pull request that registers G7-W24, its generalization to other repositories is the point of the proving ground.
+
+### `readme.capability_list_merged_to_eight_and_diagram_names_no_formats`
+
+The maintainers' Key Capabilities list (12 bullets naming page setup, merged cells, defined names, AutoFilter, protection and more) was rewritten as eight generic bullets because README_CONTRACT row 7 said 'three to eight' and the planner schema capped at eight; the At a Glance diagram showed one start and one output node ('CSV or XLSX file') where the live diagram has two starts and four outputs including JSON and Markdown, because no format fact existed for `save_as_json`, `save_as_markdown` or `load_csv` (a format needed an executed example or a plugin declaration). Fix (G7-W24, owner decision 2026-10-10): the ceiling follows the inherited list up to its count and at most sixteen, with a plan check that each bullet keeps its own capability and the list shown to the author; `extractors/platforms/python_format_declarations.py` corroborates a non-stub `save_as_X` or `load_X` method with the options or handler class that states the format; the diagram names each verified format in its own node, up to six per group. A repository with no inherited list keeps three to eight.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | 2026-10-10 | baseline sealed from unmodified origin/main 7c5acbf7 (present --fresh, qwen3-next only), compared with the live upstream README at 4f6768a7; 8 capabilities for 12 bullets; diagram 10 nodes against 20 |
+
+**Work item** G7-W24 · **Register status** PENDING · single sighting (cells/python, the parity proving ground); fixed in the pull request that registers G7-W24, its generalization to other repositories is the point of the proving ground.
+
+### `extract.docstring_summary_cut_at_first_physical_line`
+
+`extractors/platforms/python_surface.py` took the first physical line of a docstring as its description, so a summary sentence wrapped over two lines rendered cut off in the Core API table ('Represents a drawing shape (rectangle, oval, text box, arrow, etc.) on'). Fixed in G7-W24: the summary follows its continuation lines until the sentence ends, never into a list or the next paragraph. The same extractor named a `pyproject.toml` floor `python_requires` (setup.py's spelling) where PEP 621 spells it `requires-python`; the fact now records the declaration. Both change facts, not a governed constant.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | 2026-10-10 | baseline sealed from unmodified origin/main 7c5acbf7 (present --fresh, qwen3-next only), compared with the live upstream README at 4f6768a7; `Shape` described as '... arrow, etc.) on'; floor named `python_requires` |
+
+**Work item** G7-W24 · **Register status** PENDING · single sighting (cells/python, the parity proving ground); fixed in the pull request that registers G7-W24, its generalization to other repositories is the point of the proving ground.
+
 ## Resolved
 
 ### `review.cited_paraphrase_whole_fact_dilution`
@@ -1439,3 +1489,4 @@ Every row names its work item (`project/state.yaml` `next_ready_items` or `owner
 | REG-22 | Third sighting, this exact repository (`aspose-slides-foss/Aspose.Slides-FOSS-for-Java`): S6 `section_authoring` call `ba6a89dbe1f2` fails closed on 5 must-carry superseded units (`081`/`083`/`085`/`089`/`095.paragraph`) bundled across 3 sections in one packet, surviving #281/#286/#287/#289/#290 all landed. Directly verified against the stored transaction's own call files and `calls.jsonl`. Attempt 2's `omitted` dispositions named all five with reasons but the recorded rejection is unchanged from attempt 1's - mechanism not yet explained; see `composition.authoring.superseded_unit_not_carried`'s "New sighting, 2026-10-08" | G7-W15 | PENDING |
 | REG-23 | Single sighting (`aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript`, 2026-10-08): S8 coherence revision silently drops four previously-cited `public_symbol:workbook.to{csv,html,json,markdown}` fact_ids from `scope_limitations/limitation:2`'s prose with none of their own text left, caught correctly by the existing `coherence_content_loss_errors` check on both attempts (fails closed); `targeted_repair` restores the fact_ids but not the prose. Directly verified against the stored transaction's own rejection files. Below the three-sighting threshold - `composition.coherence.cited_symbol_silent_drop` | G7-W16 | PENDING |
 | REG-24 | S6 dotted file name in prose: a unit repeating a file name the upstream README names and the pinned tree contains is refused as an unrecorded identifier (Slides-.NET, Cells-Rust, PDF-Go; Cells-TypeScript is the case-difference sibling). Fixed at the extractor in G7-W23 (see the Open entry `readme.dotted_file_name_in_prose_not_a_recorded_fact`) | G7-W23 | PENDING |
+| REG-25 | cells/python parity (owner instruction 2026-10-10): the baseline sealed from unmodified code lost the Enterprise paragraph, dependency purposes, example headings and the intro's specifics, merged twelve capabilities to eight, and showed a one-node diagram; fixed at the earliest stage of each (see the five Open entries opening `readme.enterprise_target_refused_on_redirecting_slug`) | G7-W24 | PENDING |

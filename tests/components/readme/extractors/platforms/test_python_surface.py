@@ -349,7 +349,8 @@ def test_a_wrapped_summary_sentence_is_one_description_not_its_first_physical_li
         "class Plain:\n"
         '    """One line."""\n\n\n'
         "class Para:\n"
-        '    """A summary that wraps\n    across two lines without a stop\n\n    Second paragraph.\n'
+        '    """A summary that wraps\n    across two lines without a stop\n\n'
+        "    Second paragraph.\n"
         '    """\n',
     )
     surface = inspect_public_surface(tmp_path, ["lib"])

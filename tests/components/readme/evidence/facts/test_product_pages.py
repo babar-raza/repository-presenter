@@ -84,7 +84,9 @@ def test_the_products_own_live_slug_wins_over_other_live_variants(
         {"https://products.aspose.com/3d/python/", "https://products.aspose.com/3d/python-net/"},
     )
     target = product_page_facts(ENTRY)[0]
-    assert target.polarity == "SUPPORTED" and target.value == "https://products.aspose.com/3d/python/"
+    assert (
+        target.polarity == "SUPPORTED" and target.value == "https://products.aspose.com/3d/python/"
+    )
     assert target.attributes is not None and target.attributes["level"] == "platform"
 
 
@@ -108,7 +110,11 @@ def test_an_override_whose_page_is_not_live_is_ignored_not_trusted(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     base = "https://products.aspose.com/cells"
-    _serve(monkeypatch, {f"{base}/python-java/", f"{base}/"}, {f"{base}/python/": f"{base}/python-java/"})
+    _serve(
+        monkeypatch,
+        {f"{base}/python-java/", f"{base}/"},
+        {f"{base}/python/": f"{base}/python-java/"},
+    )
     target = product_page_facts(_entry("cells", "python"))[0]
     assert target.value == f"{base}/python-java/"
     assert "curated override" not in (target.evidence[0].detail or "")
