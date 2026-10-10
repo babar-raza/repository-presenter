@@ -100,8 +100,9 @@ def test_each_registry_names_its_current_release_from_the_body_the_probe_read(
     assert reading.latest_version == expected
     # Nothing was asked of the registry beyond what the publication probe itself reads
     # (PyPI's details read is the probe's own second request).
-    assert set(calls) <= set(routes) | {"https://api.nuget.org/v3/registration5-semver1/"
-                                       "aspose.pdf.foss/index.json"}
+    assert set(calls) <= set(routes) | {
+        "https://api.nuget.org/v3/registration5-semver1/aspose.pdf.foss/index.json"
+    }
 
 
 def test_the_go_proxy_list_yields_its_highest_plain_release() -> None:
@@ -116,8 +117,12 @@ def test_the_go_proxy_list_yields_its_highest_plain_release() -> None:
 
 
 def test_a_prerelease_only_registry_yields_no_version() -> None:
-    _, fetch = _serving({MAVEN_URL: b"<metadata><versioning><release>1.0.0-rc1</release>"
-                         b"<versions><version>1.0.0-rc1</version></versions></versioning></metadata>"})
+    _, fetch = _serving(
+        {
+            MAVEN_URL: b"<metadata><versioning><release>1.0.0-rc1</release>"
+            b"<versions><version>1.0.0-rc1</version></versions></versioning></metadata>"
+        }
+    )
     reading = observe("java", "org.aspose:aspose-slides-foss", fetch=fetch, sleep=lambda _s: None)
     assert reading.published and reading.latest_version is None
 

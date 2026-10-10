@@ -16,7 +16,6 @@ from dataclasses import dataclass
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.probes import ProbeRecord
 
-
 # The fact that carries the registry's current stable release (evidence/facts/published_version.py
 # emits it; validation/claims.py holds a README's version statements to it). Named here, in `core/`,
 # because the validator that reads it must not import the extractor that emits it.

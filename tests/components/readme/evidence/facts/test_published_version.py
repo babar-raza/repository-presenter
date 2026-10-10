@@ -159,7 +159,7 @@ def test_extract_facts_emits_the_fact_beside_the_manifest_version(
 
 
 def test_the_fact_id_core_names_is_the_one_a_package_fact_slugs_to() -> None:
+    from repository_presenter.core import package_registry
     from repository_presenter.core.facts import fact_id
-    from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID as named
 
-    assert named == fact_id("package", "published_version")
+    assert fact_id("package", "published_version") == package_registry.PUBLISHED_VERSION_FACT_ID

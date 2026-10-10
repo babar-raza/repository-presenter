@@ -276,9 +276,8 @@ def _install_targets(command: str) -> list[str]:
                 targets.append("@" + name)
                 continue
             name = re.split(r"==|~=|>=|<=|!=|@|=|:(?=\d)|\[", token, maxsplit=1)[0]
-            if name and not name.startswith((".", "/")) and "/" not in name.replace("github.com", ""):
-                targets.append(name)
-            elif name.startswith(("github.com/", "golang.org/")):
+            module = name.startswith(("github.com/", "golang.org/"))
+            if module or (name and not name.startswith((".", "/")) and "/" not in name):
                 targets.append(name)
         return targets
     return []

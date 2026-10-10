@@ -84,7 +84,10 @@ def test_the_published_release_passes_and_so_does_the_manifest_without_a_registr
 
 
 def test_a_readme_stating_no_version_has_nothing_to_judge_and_no_note() -> None:
-    bare = "## Installation\n\n```bash\nmvn dependency:get -Dartifact=org.aspose:aspose-slides-foss\n```\n"
+    bare = (
+        "## Installation\n\n```bash\n"
+        "mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss\n```\n"
+    )
     assert claim_findings(bare, _facts(*JAVA, PUBLISHED_267)) == []
     assert claim_notes(bare, _facts(*JAVA)) == []
 

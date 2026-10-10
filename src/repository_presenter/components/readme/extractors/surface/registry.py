@@ -141,6 +141,7 @@ class _RegistryReads:
         if getattr(response, "status_code", None) == 200 and isinstance(body, bytes):
             self.bodies[url] = body
 
+
 _STABLE_VERSION = re.compile(r"^v?\d+(?:\.\d+)*$")
 _MAVEN_RELEASE = re.compile(r"<release>\s*([^<\s]+)\s*</release>")
 _MAVEN_LATEST = re.compile(r"<latest>\s*([^<\s]+)\s*</latest>")
