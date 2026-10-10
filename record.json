@@ -4,7 +4,7 @@
   "provider_repository_id": 1230713255,
   "registry_revision": null,
   "active_transaction_id": "0c8a259867b1409487f271949fa41c54",
-  "state": "OBSERVED",
+  "state": "FAILED_INTERNAL",
   "source": null,
   "surfaces": {},
   "dependencies": {
@@ -16,7 +16,14 @@
   },
   "accepted_artifact": null,
   "proposal": null,
-  "failure": null,
+  "failure": {
+    "classification": "validation_failed",
+    "detail": "present exited 1 (a blocking validation failure or another typed failure - see this transaction's own runs/ output for which)",
+    "resume_state": "SNAPSHOTTING",
+    "occurred_at": "2026-10-10T11:38:44.485310+00:00",
+    "resume_predicate": null,
+    "recovery_count": 0
+  },
   "lease": {
     "holder_id": "present.yml:38048037875",
     "acquired_at": "2026-10-10T11:37:10.384415+00:00",
@@ -24,8 +31,21 @@
     "expires_at": "2026-10-10T11:52:10.384415+00:00",
     "fencing_token": 1
   },
-  "last_transition": null,
-  "state_version": 1,
+  "last_transition": {
+    "transition_id": "25a0d70a1ab94e5289d5da8c901841ba",
+    "transaction_id": "0c8a259867b1409487f271949fa41c54",
+    "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+    "from_state": "OBSERVED",
+    "to_state": "FAILED_INTERNAL",
+    "event": "present.yml hosted transaction failed",
+    "occurred_at": "2026-10-10T11:38:44.051927+00:00",
+    "actor": "runtime",
+    "input_manifest": "registry:aspose-font-foss/Aspose.Font-FOSS-for-Python",
+    "output_manifest": "candidates/aspose-font-foss__Aspose.Font-FOSS-for-Python/CURRENT",
+    "policy_version": "readme-contract-v1-draft",
+    "fencing_token": 1
+  },
+  "state_version": 2,
   "recent_trigger_dedup_keys": {
     "run:38048037875:aspose-font-foss/Aspose.Font-FOSS-for-Python": "0c8a259867b1409487f271949fa41c54"
   },
