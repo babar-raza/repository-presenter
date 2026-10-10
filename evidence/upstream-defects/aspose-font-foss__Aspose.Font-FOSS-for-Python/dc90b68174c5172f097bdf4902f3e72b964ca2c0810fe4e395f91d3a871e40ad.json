@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "source_revision": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
+  "defect_fingerprint": "sha256:dc90b68174c5172f097bdf4902f3e72b964ca2c0810fe4e395f91d3a871e40ad",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 128-141 (revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6; unchanged at the live head)"
+    },
+    {
+      "path": "python ex.py (README.md:128-141 verbatim) in a fresh directory after pip install .",
+      "detail": "2026-10-09T21:10Z: TypeError: VariableInstanceBuilder.build_package() got an unexpected keyword argument 'instance_names'"
+    },
+    {
+      "path": "src/aspose_font/instances.py",
+      "detail": "line 136: def build_package(self, names=None, *, ...) - instance method, no output_dir parameter"
+    }
+  ],
+  "claim": "At revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6, the README Python example at lines 128-141 calls VariableInstanceBuilder.build_package(font, instance_names=..., output_dir=...) and raises \"TypeError: VariableInstanceBuilder.build_package() got an unexpected keyword argument 'instance_names'\".",
+  "suggested_issue_title": "README \"Release-Safe Variable Instance Packages\" example calls VariableInstanceBuilder.build_package with arguments it does not accept",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-03) recorded this while re-verifying `aspose-font-foss/Aspose.Font-FOSS-for-Python`; it was then reproduced independently against the live default-branch head `adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6` on 2026-10-09T21:10Z.\n\n## Summary\n\nThe README snippet calls `build_package` on the class with the font as first argument and passes `instance_names=` and `output_dir=`. In `src/aspose_font/instances.py`, `build_package` is an instance method of a builder constructed from a font, and its signature has `names=` and no `output_dir`.\n\n## Environment\n\n- Revision `adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6` (default branch `main`)\n- Windows 11, Python 3.13.15, `pip install .` in a fresh venv; input `testdata/Roboto-VariableFont_wdth,wght.ttf`\n\n## Steps to reproduce\n\nREADME.md lines 128-141 verbatim:\n\n```python\nfrom aspose_font import FontLoader, VariableInstanceBuilder\n\nfont = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")\npackage = VariableInstanceBuilder.build_package(\n    font,\n    instance_names=[\"Bold\"],\n    naming_strategy=\"ribbi-safe\",\n    family_suffix=\"Beta\",\n    stat_policy=\"static\",\n    preview_text=\"Review\",\n    output_dir=\"var-package-output\",\n)\n```\n\n## Actual result\n\n```\nTypeError: VariableInstanceBuilder.build_package() got an unexpected keyword argument 'instance_names'\n```\n\n## Where in the repository\n\n- `README.md:132`\n- `src/aspose_font/instances.py:117,120,136` (`VariableInstanceBuilder.__init__(self, font)`; `build_package(self, names=None, *, ...)`)\n- In-repo callers use `VariableInstanceBuilder(font).build_package(...)`: `src/aspose_font/cli.py:2505`, `src/aspose_font/batch_workflow.py:143`\n\n## Evidence\n\n- `README.md`: lines 128-141 (revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6; unchanged at the live head)\n- `python ex.py (README.md:128-141 verbatim) in a fresh directory after pip install .`: 2026-10-09T21:10Z: TypeError: VariableInstanceBuilder.build_package() got an unexpected keyword argument 'instance_names'\n- `src/aspose_font/instances.py`: line 136: def build_package(self, names=None, *, ...) - instance method, no output_dir parameter\n\n<!-- repository-presenter-defect: sha256:dc90b68174c5172f097bdf4902f3e72b964ca2c0810fe4e395f91d3a871e40ad -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

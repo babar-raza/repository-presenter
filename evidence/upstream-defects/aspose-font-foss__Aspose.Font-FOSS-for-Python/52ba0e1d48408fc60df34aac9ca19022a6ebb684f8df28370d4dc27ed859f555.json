@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "source_revision": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
+  "defect_fingerprint": "sha256:52ba0e1d48408fc60df34aac9ca19022a6ebb684f8df28370d4dc27ed859f555",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 295-418, failing lines 390, 397, 406 (revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6; unchanged at the live head)"
+    },
+    {
+      "path": "python ex.py (README.md:295-418 verbatim) and probe p.py",
+      "detail": "2026-10-09T21:10Z: KeyError: 'subset'; probe: ('subset' in b.manifest, 'subset' in b.bundle.manifest) = (False, True)"
+    },
+    {
+      "path": "src/aspose_font/web.py",
+      "detail": "package manifest built at :761 (kind web_optimizer_package); bundle manifest keys subset/requested_variable_mode/requested_stat_policy built near :2544-2573"
+    }
+  ],
+  "claim": "At revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6, the long README Python example at lines 295-418 raises KeyError: 'subset' at README line 390 because WebFontOptimizerPackage.manifest does not contain the keys that only package.bundle.manifest carries.",
+  "suggested_issue_title": "README web-optimizer example reads \"subset\", \"requested_variable_mode\" and \"requested_stat_policy\" from WebFontOptimizerPackage.manifest, which does not contain them",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-03) recorded this while re-verifying `aspose-font-foss/Aspose.Font-FOSS-for-Python`; it was then reproduced independently against the live default-branch head `adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6` on 2026-10-09T21:10Z.\n\n## Summary\n\nEverything in the README example before line 390 runs. Line 390 reads `subset_bundle.manifest[\"subset\"][\"coverage\"][\"missing_count\"]`; lines 397 and 406 read `requested_variable_mode` and `requested_stat_policy` from the same manifest. Those keys exist on `package.bundle.manifest`, not on `package.manifest`.\n\n## Environment\n\n- Revision `adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6` (default branch `main`)\n- Windows 11, Python 3.13.15, `pip install .`; input `testdata/Roboto-VariableFont_wdth,wght.ttf`\n\n## Steps to reproduce\n\nRun the python fence at README.md lines 295-418 verbatim, or this probe:\n\n```python\nfrom aspose_font import FontLoader, WebFontOptimizer\nfont = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")\nb = WebFontOptimizer.build(font, presets=(\"latin\",\"arabic\"), text=\"Aspose\", include_woff=False)\nprint(\"subset\" in b.manifest, \"subset\" in b.bundle.manifest)\nl = WebFontOptimizer.build(font, include_woff=False, variable_mode=\"live\")\nprint(\"requested_variable_mode\" in l.manifest, \"requested_variable_mode\" in l.bundle.manifest)\n```\n\n## Actual result\n\n```\n  File \"ex.py\", line 95, in <module>\n    print(subset_bundle.manifest[\"subset\"][\"coverage\"][\"missing_count\"])\nKeyError: 'subset'\n```\nThe probe prints `False True` and `False True`.\n\n## Where in the repository\n\n- `README.md:390`, `:397`, `:406`\n- `src/aspose_font/web.py:761,805` (the package manifest), `:2544-2573` (the bundle manifest that holds the keys); the library itself reads `package.bundle.manifest` at `web.py:1142`\n\n## Evidence\n\n- `README.md`: lines 295-418, failing lines 390, 397, 406 (revision adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6; unchanged at the live head)\n- `python ex.py (README.md:295-418 verbatim) and probe p.py`: 2026-10-09T21:10Z: KeyError: 'subset'; probe: ('subset' in b.manifest, 'subset' in b.bundle.manifest) = (False, True)\n- `src/aspose_font/web.py`: package manifest built at :761 (kind web_optimizer_package); bundle manifest keys subset/requested_variable_mode/requested_stat_policy built near :2544-2573\n\n<!-- repository-presenter-defect: sha256:52ba0e1d48408fc60df34aac9ca19022a6ebb684f8df28370d4dc27ed859f555 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}
