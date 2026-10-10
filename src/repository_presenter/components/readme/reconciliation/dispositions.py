@@ -542,7 +542,23 @@ def normalize(
             entry["destination_section"] = None
             entry["fact_ids"] = sorted(cited | {unresolved[unit]})
             continue
-        if disposition == "OMIT_UNSUPPORTED" and unit in commands and (install_ids or build_ids):
+        # G7-W12 follow-up (a): an uncited DEFER_UNRESOLVED on a command block is the same
+        # defect as its OMIT_UNSUPPORTED (the re-ask template sends the model to DEFER when it
+        # cannot cite, and it relabels units the rejection never named: 3D-.NET 067, Page-Python
+        # 015, PDF-.NET 018), so it folds by the same rule. Not a deferral that already has a
+        # reason: a citation, or an example that is UNRESOLVED or CONTRADICTED (BC-03 withholds
+        # an unexecuted block, and keeping it would publish it).
+        restated = (
+            disposition == "DEFER_UNRESOLVED"
+            and not cited
+            and unit not in unresolved
+            and unit not in contradicted
+        )
+        if (
+            (disposition == "OMIT_UNSUPPORTED" or restated)
+            and unit in commands
+            and (install_ids or build_ids)
+        ):
             # A command block is the maintainers' own command, not a claim: an install command
             # is rendered by the Installation row, any other block is kept where it was - but
             # only where Development and Testing actually renders. Measured 2026-09-06: Words
@@ -957,6 +973,78 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
         if disposition == "CORRECT_WITH_EVIDENCE" and not cited:
             errors.append(f"{unit}: CORRECT_WITH_EVIDENCE needs at least one fact ID as evidence")
     return errors
+
+
+# What a recovered omission says about itself. The cause is recorded in the rationale because the
+# disposition record has no other field (DispositionsV1 is closed: additionalProperties false, and
+# the manifest's schema is part of every S4 request digest). deferrals.py's NO_EVIDENCE_EITHER_WAY
+# reads the opening words and still checks the facts, so the statement is not taken on trust.
+RECOVERED_OMIT_RATIONALE = (
+    "No fact cited for this omission; held as unresolved for the owner. Reason given: "
+)
+_RATIONALE_LIMIT = _RATIONALE_MAX_CHARS
+
+
+def _uncited_prose_omit(entry: Mapping[str, Any]) -> bool:
+    """The exact shape ``placement_errors`` refuses as ``uncited_prose_omit``."""
+    return (
+        entry.get("disposition") == "OMIT_UNSUPPORTED"
+        and not entry.get("fact_ids")
+        and str(entry.get("unit_id", "?")).rsplit(".", 1)[-1] in _PROSE_UNIT_KINDS
+    )
+
+
+def recover_uncited_prose_omits(
+    output: dict[str, Any], facts: FactsDocument
+) -> dict[str, Any] | None:
+    """Last-resort correction for ``source_reconciliation``'s final rejected attempt only
+    (``recover=``, ``core/llm/jobs.py``): a prose omission still uncited after the one re-ask
+    becomes an explicit ``DEFER_UNRESOLVED`` instead of failing the transaction.
+
+    Diagnosis (G7-W12 follow-up, Aspose.PSD-FOSS-for-.NET ``inherited_unit:018.paragraph``, "the
+    package is not published to NuGet yet", 2026-10-10): both attempts kept the unit as an
+    uncited ``OMIT_UNSUPPORTED``, so the S4 job failed closed before BC-05 could judge anything.
+    The re-ask had already named the unit and its exact text; a model that will not cite is not
+    helped by a third ask. The one honest reading of "omitted, and no fact says why" is the
+    prompt's own definition of ``DEFER_UNRESOLVED``: a claim the facts neither support nor
+    contradict, listed for the owner and never rendered. Nothing is published either way; the
+    deferral is the version that stays visible.
+
+    Safe only when the deferral hides nothing the facts already cover. A unit whose own text spells
+    a SUPPORTED fact (``uncited_omit_candidates``) is not unresolved: the evidence is in its
+    sentence, so the omission should have cited it, and this declines. Declining is all or
+    nothing - one unsafe omission returns ``None`` rather than a partial fix the checks would
+    reject anyway - and so is a unit the facts do not hold (its text cannot be examined).
+
+    Never accepted on this function's say-so: ``run_job`` re-validates the returned copy through
+    the schema, the unit binding and ``reconcile_checks`` exactly as it does any reply, so a reply
+    with another defect is still rejected, and the model's own reply is never edited in place.
+    The model's stated reason is kept after the cause, within the rationale's length limit.
+    """
+    entries = output.get("dispositions")
+    if not isinstance(entries, list):
+        return None
+    uncited = [entry for entry in entries if isinstance(entry, dict) and _uncited_prose_omit(entry)]
+    if not uncited:
+        return None
+    unit_text = {fact.id: fact.value for fact in facts.by_kind("inherited_unit")}
+    for entry in uncited:
+        text = unit_text.get(str(entry.get("unit_id")))
+        if text is None or uncited_omit_candidates(text, facts):
+            return None
+    recovered = copy.deepcopy(output)
+    for entry in recovered["dispositions"]:
+        if not _uncited_prose_omit(entry):
+            continue
+        reason = str(entry.get("rationale") or "").strip()
+        room = _RATIONALE_LIMIT - len(RECOVERED_OMIT_RATIONALE)
+        if len(reason) > room:
+            reason = reason[: room - 3].rstrip() + "..."
+        entry["disposition"] = "DEFER_UNRESOLVED"
+        entry["destination_section"] = None
+        entry["fact_ids"] = []
+        entry["rationale"] = RECOVERED_OMIT_RATIONALE + reason
+    return recovered
 
 
 def reconcile_checks(
