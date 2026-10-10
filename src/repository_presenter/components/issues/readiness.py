@@ -50,6 +50,7 @@ from repository_presenter.components.issues.approval import (
 )
 from repository_presenter.components.issues.ledger import discover_handoff_paths
 from repository_presenter.components.issues.model import Handoff, load_handoff
+from repository_presenter.components.issues.quality import issue_quality_findings
 from repository_presenter.components.issues.redetect import replay_gap
 from repository_presenter.core.registry.loader import find_entry
 from repository_presenter.core.registry.models import Registry
@@ -152,6 +153,7 @@ class ReadinessRow:
     reverification: str
     reverified_ok: bool
     blockers: tuple[str, ...] = field(default_factory=tuple)
+    quality: tuple[str, ...] = field(default_factory=tuple)
 
     @property
     def repository(self) -> str:
@@ -164,9 +166,10 @@ class ReadinessRow:
     @property
     def approvable(self) -> bool:
         """May the owner's approval be emitted for it: pending, independently confirmed (and
-        unchanged since), and its recheck can actually conclude. The registry gate is deliberately
-        not part of this: flipping a registry entry to ``full`` is its own owner decision."""
-        return self.pending and self.reverified_ok and self.replay_gap is None
+        unchanged since), its recheck can actually conclude, and its issue text passes the
+        deterministic quality gate (``quality.py``). The registry gate is deliberately not part
+        of this: flipping a registry entry to ``full`` is its own owner decision."""
+        return self.pending and self.reverified_ok and self.replay_gap is None and not self.quality
 
     @property
     def fileable_now(self) -> bool:
@@ -220,6 +223,7 @@ def build_rows(
         digest = evidence_digest(handoff)
         registry_state, registry_ok = _registry_state(registry, handoff.repository)
         gap = replay_gap(handoff)
+        quality = tuple(str(finding) for finding in issue_quality_findings(handoff))
         if approvals is None:
             approval = ApprovalVerdict(False, "no approval source configured")
         else:
@@ -234,6 +238,12 @@ def build_rows(
             blockers.append(f"not independently confirmed: {reverification}")
         if gap is not None:
             blockers.append(gap)
+        if quality:
+            blockers.append(
+                f"issue text fails the quality gate ({len(quality)} finding(s)): "
+                + "; ".join(quality[:3])
+                + (" ..." if len(quality) > 3 else "")
+            )
         if not registry_ok:
             blockers.append(
                 f"registry write gate refuses issue_filing: {handoff.repository} is "
@@ -253,6 +263,7 @@ def build_rows(
                 reverification=reverification,
                 reverified_ok=reverified_ok,
                 blockers=tuple(blockers),
+                quality=quality,
             )
         )
     rows.sort(key=lambda r: (r.repository, r.handoff_id))
@@ -469,6 +480,8 @@ def render_listing(rows: list[ReadinessRow], *, kill_switch_on: bool) -> str:
             f"    evidence_digest: {row.evidence_digest}",
             f"    re-verification: {row.reverification}",
             f"    recheck: {'replayable' if row.replay_gap is None else 'NOT replayable'}",
+            "    issue text: "
+            + ("passes the quality gate" if not row.quality else "FAILS the quality gate"),
             f"    owner approval: {row.approval.reason}",
             f"    approvable: {'YES' if row.approvable else 'NO'}; "
             f"fileable now: {'YES' if row.fileable_now else 'NO'}",

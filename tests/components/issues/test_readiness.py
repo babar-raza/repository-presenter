@@ -64,10 +64,16 @@ def make_handoff(
         triggering_check=TriggeringCheck(id=check_id, version="2", causal_stage="EXTRACTING"),
         evidence=(EvidenceEntry(path=evidence_path, detail="HTTP 404"),),
         claim="A plain factual sentence.",
-        suggested_issue_title=title,
-        suggested_issue_body="Body.\n\n<!-- repository-presenter-defect: sha256:"
-        + fingerprint
-        + " -->\n",
+        # Text that passes the quality gate (quality.py), so a fixture's approvability depends only
+        # on the gate under test; test_quality.py holds the gate's own fixtures.
+        suggested_issue_title=f"{repository.split('/', 1)[1].replace('-', ' ')}: {title} fails",
+        suggested_issue_body=(
+            "## Summary\n\nThe documented step fails.\n\n"
+            f"## Environment\n\n- Revision: `{'c' * 40}` (verified against this revision)\n\n"
+            "## Steps to reproduce\n\n```\npip install .\n```\n\n"
+            "## Expected\n\nThe command succeeds.\n\n## Actual\n\nIt fails.\n\n"
+            f"<!-- repository-presenter-defect: sha256:{fingerprint} -->\n"
+        ),
         status=status,
         issue_ref=None,
         close_reason=None,
@@ -658,3 +664,59 @@ def test_a_malformed_reverification_record_stops_the_command(
     (world["root"] / readiness.VERIFICATION_RELATIVE_PATH).write_text("{not json", encoding="utf-8")
     assert main(["issue-readiness", "--root", cli_root(world)]) == EXIT_INCONSISTENT
     assert "cannot read/parse" in capsys.readouterr().err
+
+
+# --- the issue-text quality gate (TC-ISS-04) ----------------------------------------------------
+
+
+def _fails_the_gate(world: dict[str, Any]) -> Handoff:
+    """The html handoff, reworded to name this system's internals, rewritten and re-confirmed."""
+    html = world["html"]
+    worse = replace(
+        html,
+        suggested_issue_body=html.suggested_issue_body.replace(
+            "It fails.", "See upstream-issues.md. It fails."
+        ),
+    )
+    write_handoff(
+        worse, world["defects"] / "aspose-html-foss__Aspose.HTML-FOSS-for-Python" / "a.json"
+    )
+    write_reverifications(world, reverification_entry(worse), reverification_entry(world["tex"]))
+    return worse
+
+
+def test_text_that_fails_the_quality_gate_is_not_approvable(world: dict[str, Any]) -> None:
+    worse = _fails_the_gate(world)
+    row = row_of(rows_for(world), worse)
+    assert row.reverified_ok and row.replay_gap is None  # it is confirmed and replayable ...
+    assert not row.approvable  # ... and still cannot be approved
+    assert not row.fileable_now
+    assert any("quality gate" in b and "INTERNAL_NAME" in b for b in row.blockers)
+    assert any("INTERNAL_NAME" in finding for finding in row.quality)
+
+
+def test_text_that_passes_the_quality_gate_has_no_quality_blocker(world: dict[str, Any]) -> None:
+    confirm_all(world)
+    row = row_of(rows_for(world), world["html"])
+    assert row.quality == ()
+    assert not any("quality gate" in b for b in row.blockers)
+
+
+def test_emit_refuses_a_handoff_whose_text_fails_the_quality_gate(
+    world: dict[str, Any], tmp_path: Path
+) -> None:
+    worse = _fails_the_gate(world)
+    out = tmp_path / "scratch"
+    outcome = emit(world, [f"{handoff_id(worse)}@{evidence_digest(worse)}"], out)
+    assert outcome.written == ()
+    assert "not approvable" in outcome.refusals[0][1]
+    assert "quality gate" in outcome.refusals[0][1]
+    assert not out.exists()
+
+
+def test_the_listing_says_whether_the_text_passes(world: dict[str, Any]) -> None:
+    worse = _fails_the_gate(world)
+    listing = readiness.render_listing(rows_for(world), kill_switch_on=False)
+    assert "issue text: FAILS the quality gate" in listing
+    assert "issue text: passes the quality gate" in listing
+    assert worse.repository in listing
