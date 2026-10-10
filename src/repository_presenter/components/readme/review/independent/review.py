@@ -168,7 +168,18 @@ ACCEPT = "ACCEPT"
 # so a short claim - one a candidate sentence could restate by coincidence - is refuted only by a
 # literal occurrence, exactly as before. ``invented``/``remaining`` and every other fold are
 # untouched.
-REVIEWER_LOGIC_VERSION = "18"
+# "19" (TC-REV-01, G3-W08): a returned REJECT stands unless EVERY finding it rested on carries a
+# recorded deterministic refutation. Every scope rule is classed (DETERMINISTIC_RULES: the claimed
+# text is in the section or in no evidence, the quoted text is the renderer's, the cited evidence
+# is excluded by polarity or disposition, the quote literally contains a cited SUPPORTED value;
+# JUDGMENT_RULES: a symbol name in the quote, a similarity ratio, an uncheckable claim, one
+# reader's disagreement) and only a deterministic one folds a finding, recorded as
+# ``refuted_by: {rule, evidence}``. The review_document verdict line no longer converts a
+# rejection whose findings were folded by judgment into ACCEPT, a single-reader prose judgment no
+# longer folds a first-read rejection, a rejection returned with no finding stands, and a
+# rejection overturned deterministically needs a second read (``REJECTION_REFUTED``). Changes
+# which findings block and what the verdict is.
+REVIEWER_LOGIC_VERSION = "19"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -335,6 +346,9 @@ THIRD_READER_SEED = 3
 # judgment: the trigger decides only whether the second read runs at all.
 TRIGGER_PROSE_JUDGMENT = "PROSE_JUDGMENT_ON_REQUIRED_ROW"
 TRIGGER_ADVISORY_DEFERRAL = "ADVISORY_DEFERRAL"
+# TC-REV-01: an ACCEPT that exists only because deterministic refutations overturned a returned
+# rejection is a single read overruling itself, so a second read must corroborate it.
+TRIGGER_REJECTION_REFUTED = "REJECTION_REFUTED"
 
 
 @dataclass(frozen=True)
@@ -356,6 +370,9 @@ def second_read_decision(
 
     - ``PROSE_JUDGMENT_ON_REQUIRED_ROW``: the first read raised a prose judgment (section 27.8)
       on a required row; only a second read can show whether that judgment is one reader's taste.
+    - ``REJECTION_REFUTED``: the first read returned a rejection and every one of its findings was
+      refuted deterministically (``verdict_basis``), so the ACCEPT rests on code overruling the
+      reviewer and needs a second read to corroborate it (TC-REV-01).
     - ``ADVISORY_DEFERRAL``: the candidate carries a DEFER_UNRESOLVED unit whose cause the deferral
       registry classes as ADVISORY (validation/deferrals.py), so the reviewer is judging an
       omission rather than checking text.
@@ -369,6 +386,8 @@ def second_read_decision(
         reasons.append(TRIGGER_PROSE_JUDGMENT)
     if any(decision == "ADVISORY" for decision in deferral_decisions):
         reasons.append(TRIGGER_ADVISORY_DEFERRAL)
+    if first.get("verdict_basis") == "rejection_refuted_deterministically":
+        reasons.append(TRIGGER_REJECTION_REFUTED)
     return SecondReadDecision(bool(reasons), tuple(reasons))
 
 
@@ -430,13 +449,119 @@ def third_reader(manifest: LoadedManifest) -> LoadedManifest:
 
 REVIEWER_SCOPE_DEFECT = "reviewer-scope defect"
 
+# TC-REV-01 / G3-W08: what a demotion may rest on. README_CONTRACT section 6 lets a finding demote
+# only "when a deterministic check contradicts it or shows the section it names is outside
+# repair's scope". Every rule below that can fold a finding carries one of two classes:
+#
+# - DETERMINISTIC_RULES refute the finding from bytes the code can point at: the claimed-missing
+#   text is in the section, the claimed text is in no evidence, the quoted text is the renderer's
+#   own (a heading, chrome, a sentence it wrote, a deterministic section's presentation), the
+#   cited evidence is excluded by polarity or by a recorded disposition, or the quote literally
+#   contains the value of the SUPPORTED fact the finding cites. A finding so refuted is recorded
+#   advisory with ``refuted_by: {rule, evidence}`` and cannot carry a REJECT.
+# - Every other rule (JUDGMENT_RULES) is a heuristic - a name overlap, a similarity ratio, an
+#   uncheckable claim, one reader's disagreement. It may annotate a finding, never fold it: a
+#   returned REJECT whose finding only a judgment rule would fold STANDS, so the repair loop acts
+#   on the finding instead of an ACCEPT shipping the defect.
+DETERMINISTIC_RULES = frozenset(
+    {
+        "ABSENCE_PRESENT",
+        "ABSENCE_UNSUPPORTED",
+        "ABSENCE_SETTLED",
+        "OMISSION_PRESENT",
+        "OMISSION_UNRESTORABLE",
+        "OMISSION_SETTLED",
+        "EXCLUDED_EVIDENCE_QUOTE",
+        "EXCLUDED_EVIDENCE_CITED",
+        "EXCLUDED_DISPOSITION",
+        "RENDERER_SENTENCE",
+        "RENDERER_STRUCTURE",
+        "RENDERER_HEADING",
+        "RENDERER_CHROME",
+        "RENDERER_UNWRITTEN_FACT",
+        "RENDERER_SECTION",
+        "CITED_FACT_LITERAL",
+    }
+)
+JUDGMENT_RULES = frozenset(
+    {
+        "ABSENCE_RESTATED",
+        "OMISSION_UNCHECKABLE",
+        "OMISSION_SECTION_MISMATCH",
+        "VERIFIED_SYMBOL_NAMED",
+        "RENDERER_SECTION_FACTUAL",
+        "FACTUALITY_UNCHECKABLE",
+        "FACTUALITY_INHERITED_ONLY",
+        "CITED_FACT_PARAPHRASE",
+        "CITED_FACT_QUOTE_ONLY",
+        "CITED_SYMBOL_NAMED",
+        "RENDERER_OWNED_OMISSION_STANDS",
+        "RENDERER_UNWRITTEN_FACT_FACTUAL",
+        "SINGLE_READER_PROSE",
+    }
+)
+
+
+# A fact whose value is a bare identifier is mentioned, not asserted, by any sentence that names
+# it: a quote containing ``Aspose.Words.SaveFormat`` or ``cells`` says nothing about what the
+# sentence claims of it. Only a fact that states something (a version, a command, a count, a
+# sentence of maintainer text) is supported by a quote that carries its value.
+_NAME_ONLY_KINDS = frozenset({"public_symbol", "import_path", "identity", "format"})
+_ASSERTED_VALUE_LENGTH = 6
+
+
+def _literal_rule(fact: Fact) -> str:
+    """``CITED_FACT_LITERAL`` when the fact asserts something a quote carrying its value repeats;
+    ``CITED_SYMBOL_NAMED`` (a judgment) when the value is only a name."""
+    value = _normalized(fact.value)
+    name_only = (
+        fact.kind in _NAME_ONLY_KINDS
+        or fact.id == "package:name"
+        or (len(value) < _ASSERTED_VALUE_LENGTH and not any(ch.isdigit() for ch in value))
+    )
+    return "CITED_SYMBOL_NAMED" if name_only else "CITED_FACT_LITERAL"
+
+
+_REGISTERED_RULES = DETERMINISTIC_RULES | JUDGMENT_RULES
+
+
+class Ruling(str):
+    """A scope reason that also names the rule that produced it.
+
+    A ``str`` so every caller and test that reads a scope reason as text is unchanged; ``rule``
+    and ``evidence`` say which rule fired and on what, and ``deterministic`` whether that rule
+    refutes the finding (``DETERMINISTIC_RULES``) or only annotates it. Never serialised as such:
+    ``review.json`` records ``str(ruling)`` and the plain-data ``refuted_by`` record.
+    """
+
+    rule: str
+    evidence: dict[str, Any]
+
+    def __new__(
+        cls, reason: str, rule: str = "", evidence: Mapping[str, Any] | None = None
+    ) -> Ruling:
+        if rule and rule not in _REGISTERED_RULES:
+            raise ValueError(f"unregistered scope rule {rule!r}")
+        ruling = super().__new__(cls, reason)
+        ruling.rule = rule
+        ruling.evidence = dict(evidence or {})
+        return ruling
+
+    @property
+    def deterministic(self) -> bool:
+        return self.rule in DETERMINISTIC_RULES
+
+    def refuted_by(self) -> dict[str, Any]:
+        """The record ``review.json`` keeps on a finding this ruling refuted."""
+        return {"rule": self.rule, "evidence": dict(self.evidence)}
+
 
 def factuality_defect(
     finding: Mapping[str, Any],
     quote: str,
     by_id: Mapping[str, Fact],
     unit_fact_ids: Collection[str] = (),
-) -> str | None:
+) -> Ruling | None:
     """Why a factuality finding is the reviewer's own defect, or None when it may stand.
 
     A factuality finding cites a product fact that contradicts the quote or should have
@@ -473,17 +598,20 @@ def factuality_defect(
     cited = [by_id[i] for i in finding.get("fact_ids", []) if i in by_id]
     if not cited:
         if not _claimed_absent(finding):
-            return (
+            return Ruling(
                 "a factuality finding names neither a product fact_id to contradict the quote "
-                "nor an absent claim of missing text: nothing in evidence supports judging it"
+                "nor an absent claim of missing text: nothing in evidence supports judging it",
+                "FACTUALITY_UNCHECKABLE",
             )
         return None  # named as an absence instead; absence_defect already judges that shape
     product = [fact for fact in cited if fact.kind != "inherited_unit"]
     if not product:
-        return (
+        return Ruling(
             "a factuality finding cites at least one product fact that contradicts the quote "
             "or should have supported it; inherited README units are maintainer text, not "
-            "evidence"
+            "evidence",
+            "FACTUALITY_INHERITED_ONLY",
+            {"cited": [fact.id for fact in cited]},
         )
     # G4-W17 arrival item 91 (PDFPY-01): scoped to unit_fact_ids, the same source the
     # SUPPORTED-literal path two lines below already reads (item 83) - a CONTRADICTED fact the
@@ -500,14 +628,18 @@ def factuality_defect(
     if grounded is not None:
         fact, literal = grounded
         if literal:
-            return (
+            return Ruling(
                 f"the quote contains the literal value of SUPPORTED fact {fact.id} "
-                f"({fact.value!r}); literal fact text is supported"
+                f"({fact.value!r}); literal fact text is supported",
+                _literal_rule(fact),
+                {"fact": fact.id, "value": fact.value, "polarity": fact.polarity},
             )
-        return (
+        return Ruling(
             f"the quote substantially restates SUPPORTED fact {fact.id} ({fact.value!r}) in "
             "different words; a faithful paraphrase of cited evidence is supported exactly as "
-            "a literal quote is (G4-W17 item 116)"
+            "a literal quote is (G4-W17 item 116)",
+            "CITED_FACT_PARAPHRASE",
+            {"fact": fact.id},
         )
     return None
 
@@ -815,7 +947,7 @@ def cited_fact_defect(
     quote: str,
     by_id: Mapping[str, Fact],
     unit_fact_ids: Collection[str] = (),
-) -> str | None:
+) -> Ruling | None:
     """Why a presentation finding whose own citation verifies its quote is the reviewer's defect.
 
     G4-W17 arrival item 63 (lane B LANE-B-R3-F2, Aspose.PDF for C++). The literal-value rule
@@ -870,11 +1002,13 @@ def cited_fact_defect(
             return None
         fact, literal = grounded
         contains = "contains the literal value of" if literal else "substantially restates"
-        return (
+        return Ruling(
             "the finding names neither a fact_id nor an absent claim, and the quote "
             f"{contains} SUPPORTED fact {fact.id} ({fact.value!r}) which the "
             "reviewed unit cites as its own evidence: nothing in evidence supports judging it, "
-            "and what evidence exists contradicts it"
+            "and what evidence exists contradicts it",
+            _literal_rule(fact) if literal else "CITED_FACT_PARAPHRASE",
+            {"fact": fact.id, "value": fact.value, "source": "reviewed_unit"},
         )
     grounded = _cited_grounding([*product, *reviewed], quote)
     if grounded is None:
@@ -886,10 +1020,16 @@ def cited_fact_defect(
         source = "which the reviewed unit cites as its own evidence"  # item 83
     contains = "contains the literal value of" if literal else "substantially restates"
     supported = "literal fact text" if literal else "a faithful paraphrase (G4-W17 item 116)"
-    return (
+    return Ruling(
         f"the quote {contains} SUPPORTED fact {fact.id} "
         f"({fact.value!r}), {source}; {supported} is supported whatever criterion the "
-        "finding files itself under"
+        "finding files itself under",
+        _literal_rule(fact) if literal else "CITED_FACT_PARAPHRASE",
+        {
+            "fact": fact.id,
+            "value": fact.value,
+            "source": "finding" if fact.id in finding.get("fact_ids", []) else "reviewed_unit",
+        },
     )
 
 
@@ -934,7 +1074,7 @@ def _section_slice(section_id: str, candidate_readme: str) -> str:
 
 def absence_defect(
     finding: Mapping[str, Any], candidate_readme: str, evidence: str = ""
-) -> str | None:
+) -> Ruling | None:
     """Why a finding that alleges an absence is the reviewer's own defect, or None.
 
     An omission claim is checkable, so the reviewer states what it claims is missing as strings
@@ -982,7 +1122,25 @@ def absence_defect(
             f"the finding asks for {_named(invented)}, which occurs in no fact value and "
             "nowhere in the original README: there is nothing to restore"
         )
-    return "; ".join(parts)
+    haystack = _section_slice(str(finding.get("section_id") or ""), candidate_readme)
+    restated = [claim for claim in present if not quote_located(claim, haystack)]
+    if restated:
+        # Present only as a similarity match (``absence_restated``): a heuristic, not bytes.
+        rule = "ABSENCE_RESTATED"
+    elif present and invented:
+        rule = "ABSENCE_SETTLED"
+    else:
+        rule = "ABSENCE_PRESENT" if present else "ABSENCE_UNSUPPORTED"
+    return Ruling(
+        "; ".join(parts),
+        rule,
+        {
+            "section": str(finding.get("section_id") or ""),
+            "present_in_section": present,
+            "restated_not_literal": restated,
+            "in_no_evidence": invented,
+        },
+    )
 
 
 # An absence claim is copied from the ORIGINAL README (the prompt requires it), while the candidate
@@ -1164,7 +1322,7 @@ def omission_defect(
     by_id: Mapping[str, Fact],
     evidence: str = "",
     units: Mapping[str, Any] | None = None,
-) -> str | None:
+) -> Ruling | None:
     """Why a finding's typed omission claim is the reviewer's own defect, or None when it stands.
 
     The reviewer proposes what is missing; this decides. The claim is refuted when every id and
@@ -1182,14 +1340,17 @@ def omission_defect(
     routed = str(finding.get("section_id") or "")
     named = str((finding.get("omission") or {}).get("section_id") or routed)
     if named != routed:
-        return (
+        return Ruling(
             f"the omission claim names section {named!r} but the finding routes its repair to "
-            f"{routed!r}: no repair there could restore it"
+            f"{routed!r}: no repair there could restore it",
+            "OMISSION_SECTION_MISMATCH",
+            {"named": named, "routed": routed},
         )
     if not ids and not quotes:
-        return (
+        return Ruling(
             "the omission claim names no fact or example id and no exact phrase: nothing in it "
-            "can be checked, so it is a prose judgment no repair could act on"
+            "can be checked, so it is a prose judgment no repair could act on",
+            "OMISSION_UNCHECKABLE",
         )
     present, unrestorable, remaining = omission_partition(
         finding, candidate_readme, by_id, evidence, units
@@ -1206,7 +1367,13 @@ def omission_defect(
             f"the finding asks for {_named(unrestorable)}, which is not a SUPPORTED fact or "
             "occurs in no original text: there is nothing to restore"
         )
-    return "; ".join(parts)
+    return Ruling(
+        "; ".join(parts),
+        "OMISSION_SETTLED"
+        if present and unrestorable
+        else ("OMISSION_PRESENT" if present else "OMISSION_UNRESTORABLE"),
+        {"section": named, "rendered_by_section": present, "unrestorable": unrestorable},
+    )
 
 
 def _record_standing_partitions(
@@ -1265,7 +1432,7 @@ def renderer_owned_defect(
     finding: Mapping[str, Any],
     by_id: Mapping[str, Fact],
     unit_texts: Sequence[str] | None = None,
-) -> str | None:
+) -> Ruling | None:
     """Why a finding against content no unit wrote is the reviewer's own defect, or None.
 
     A deterministic section renders from facts under the contract's own checks (BC-02, BC-05,
@@ -1335,52 +1502,105 @@ def renderer_owned_defect(
     its route to that unit; with no units supplied the gate stays presentation-only, because
     "no unit carries it" is a measurement, never a default.
     """
+    rulings = renderer_owned_rulings(finding, by_id, unit_texts)
+    return rulings[0] if rulings else None
+
+
+def renderer_owned_rulings(
+    finding: Mapping[str, Any],
+    by_id: Mapping[str, Fact],
+    unit_texts: Sequence[str] | None = None,
+) -> list[Ruling]:
+    """Every renderer-owned rule that matches a finding, in ``renderer_owned_defect``'s order.
+
+    TC-REV-01: the first match was the only one ever reported, so a heuristic rule (a quote that
+    merely names a verified symbol) could mask a deterministic one behind it. Each match carries
+    its rule and whether it is a deterministic refutation; ``renderer_owned_defect`` still returns
+    the first reason, unchanged.
+    """
     criterion = finding.get("criterion")
     if criterion not in _RENDERER_OWNED_CRITERIA:
-        return None
+        return []
     presentation = criterion == "presentation"
     section = finding.get("section_id")
+    rulings: list[Ruling] = []
     if presentation and section in _STRUCTURAL_SECTIONS:
-        return (
-            "the semantic shell owns which sections exist, in what order, and under which "
-            "headings; it is evaluated from the facts, so no stage the loop can reopen would "
-            "add or remove one"
+        rulings.append(
+            Ruling(
+                "the semantic shell owns which sections exist, in what order, and under which "
+                "headings; it is evaluated from the facts, so no stage the loop can reopen "
+                "would add or remove one",
+                "RENDERER_STRUCTURE",
+                {"section": section},
+            )
         )
-    if _quoted_heading(finding):
-        return (
-            f"the quote is the heading {_quoted_heading(finding)!r}, which the renderer emits "
-            "because the contract's shell requires it; no unit wrote it and none can change it"
+    heading = _quoted_heading(finding)
+    if heading:
+        rulings.append(
+            Ruling(
+                f"the quote is the heading {heading!r}, which the renderer emits "
+                "because the contract's shell requires it; no unit wrote it and none can "
+                "change it",
+                "RENDERER_HEADING",
+                {"heading": heading},
+            )
         )
-    if _quoted_chrome(finding):
-        return (
-            f"the quote is {_quoted_chrome(finding)!r}, the renderer's own collapsible-section "
-            "chrome (its summary text or its <details>/</details> wrapper); no unit wrote it and "
-            "none can change it"
+    chrome = _quoted_chrome(finding)
+    if chrome:
+        rulings.append(
+            Ruling(
+                f"the quote is {chrome!r}, the renderer's own collapsible-section "
+                "chrome (its summary text or its <details>/</details> wrapper); no unit wrote "
+                "it and none can change it",
+                "RENDERER_CHROME",
+                {"chrome": chrome},
+            )
         )
     unwritten = unit_texts is not None and not _carried_by_units(
         str(finding.get("quote", "")), unit_texts
     )
     verified = _quoted_verified_fact(finding, by_id) if presentation or unwritten else None
-    if verified is not None and presentation:
-        return (
-            f"the quote names {verified.id}, a SUPPORTED fact BC-04 already verifies; the "
-            "candidate's own fact set is the standard of support, not the upstream README, and "
-            "loop-prompt.md rule 8 requires the complete verified surface - absence from the "
-            "original is never itself a presentation defect for content BC-04 already verified"
+    if verified is not None and unwritten:
+        # The quoted text is in no content unit: it is the renderer's own rendering of a verified
+        # fact. A measurement of where the text lives (item 62), not an inference from a name.
+        rulings.append(
+            Ruling(
+                f"the quote names {verified.id}, a SUPPORTED fact BC-04 already verifies, and "
+                "no content unit carries the quoted text: it is the renderer's own rendering "
+                "of that verified fact, which no unit wrote and no stage the loop can reopen "
+                "would rewrite",
+                # Who wrote the text settles whose WORDING it is, not whether a claim in it is
+                # true: a factuality finding about renderer text can still be right (a wrong
+                # version), and a symbol name in the quote is only a coincidence of spelling.
+                "RENDERER_UNWRITTEN_FACT" if presentation else "RENDERER_UNWRITTEN_FACT_FACTUAL",
+                {"fact": verified.id, "units_carrying_quote": 0},
+            )
         )
-    if verified is not None:
-        return (
-            f"the quote names {verified.id}, a SUPPORTED fact BC-04 already verifies, and no "
-            "content unit carries the quoted text: it is the renderer's own rendering of that "
-            "verified fact, which no unit wrote and no stage the loop can reopen would rewrite"
+    elif verified is not None and presentation:
+        # A content unit wrote this text and merely names a verified symbol. BC-04 verifies the
+        # identifier, never the sentence around it, so this refutes nothing the finding says.
+        rulings.append(
+            Ruling(
+                f"the quote names {verified.id}, a SUPPORTED fact BC-04 already verifies; the "
+                "candidate's own fact set is the standard of support, not the upstream README, "
+                "and loop-prompt.md rule 8 requires the complete verified surface - absence "
+                "from the original is never itself a presentation defect for content BC-04 "
+                "already verified",
+                "VERIFIED_SYMBOL_NAMED",
+                {"fact": verified.id},
+            )
         )
-    if section not in _DETERMINISTIC_SECTIONS:
-        return None
-    return (
-        f"section {section} renders from facts under the contract's own "
-        "checks; its presentation is the renderer's, and a factual error there is a "
-        "factuality finding"
-    )
+    if section in _DETERMINISTIC_SECTIONS:
+        rulings.append(
+            Ruling(
+                f"section {section} renders from facts under the contract's own "
+                "checks; its presentation is the renderer's, and a factual error there is a "
+                "factuality finding",
+                "RENDERER_SECTION" if presentation else "RENDERER_SECTION_FACTUAL",
+                {"section": section, "criterion": criterion},
+            )
+        )
+    return rulings
 
 
 def _quoted_heading(finding: Mapping[str, Any]) -> str | None:
@@ -1628,7 +1848,7 @@ def review_checks(
     return errors
 
 
-def rendered_defect(finding: Mapping[str, Any], rendered: Sequence[str]) -> str | None:
+def rendered_defect(finding: Mapping[str, Any], rendered: Sequence[str]) -> Ruling | None:
     """Why a finding against a sentence the renderer wrote is the reviewer's own defect.
 
     A deterministic section's presentation is the renderer's (``renderer_owned_defect``); so is a
@@ -1643,9 +1863,11 @@ def rendered_defect(finding: Mapping[str, Any], rendered: Sequence[str]) -> str 
     # so the quote is measured against them joined in the order the renderer wrote them.
     if quote not in _normalized(" ".join(rendered)):
         return None
-    return (
+    return Ruling(
         "the quoted sentence is the renderer's own, written from the facts beside a unit that "
-        "did not write it; no revision of that unit can change it"
+        "did not write it; no revision of that unit can change it",
+        "RENDERER_SENTENCE",
+        {"renderer_sentences": len(rendered)},
     )
 
 
@@ -1654,7 +1876,9 @@ def rendered_defect(finding: Mapping[str, Any], rendered: Sequence[str]) -> str 
 _EXCLUDED_QUOTE_LENGTH = 40
 
 
-def excluded_evidence_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -> str | None:
+def excluded_evidence_defect(
+    finding: Mapping[str, Any], by_id: Mapping[str, Fact]
+) -> Ruling | None:
     """Why a finding quoting or citing evidence the facts exclude is the reviewer's own defect.
 
     A finding may quote candidate text or text it says should be there. When the quote is the
@@ -1681,19 +1905,23 @@ def excluded_evidence_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fac
     if len(quote) >= _EXCLUDED_QUOTE_LENGTH:
         for fact in by_id.values():
             if fact.polarity != "SUPPORTED" and quote in _normalized(fact.value):
-                return (
+                return Ruling(
                     f"the quote is {fact.id}, which is {fact.polarity}: the contract admits it "
                     "only once the evidence supports it, so no stage the loop can reopen would "
-                    "write it"
+                    "write it",
+                    "EXCLUDED_EVIDENCE_QUOTE",
+                    {"fact": fact.id, "polarity": fact.polarity},
                 )
     if _claimed_absent(finding):
         for fact_id in finding.get("fact_ids", []):
             cited = by_id.get(fact_id)
             if cited is not None and cited.polarity != "SUPPORTED":
-                return (
+                return Ruling(
                     f"the omission it names is backed by {cited.id}, which is {cited.polarity}: "
                     "the contract admits it only once the evidence supports it, so no stage the "
-                    "loop can reopen would write it"
+                    "loop can reopen would write it",
+                    "EXCLUDED_EVIDENCE_CITED",
+                    {"fact": cited.id, "polarity": cited.polarity},
                 )
     return None
 
@@ -1702,7 +1930,7 @@ def excluded_disposition_defect(
     finding: Mapping[str, Any],
     by_id: Mapping[str, Fact],
     dispositions: Mapping[str, Any] | None,
-) -> str | None:
+) -> Ruling | None:
     """Why a finding demanding restoration of an inherited_unit reconciliation deliberately
     marked ``OMIT_UNSUPPORTED`` is the reviewer's own defect - the disposition-aware sibling of
     ``excluded_evidence_defect``, which reads only a fact's polarity.
@@ -1741,10 +1969,12 @@ def excluded_disposition_defect(
     if len(quote) >= _EXCLUDED_QUOTE_LENGTH:
         for fact in excluded_facts:
             if quote in _normalized(fact.value):
-                return (
+                return Ruling(
                     f"the quote is {fact.id}'s own text, which reconciliation excluded "
                     "(OMIT_UNSUPPORTED, not composed): the contract admits it only once "
-                    "verified, so no stage the loop can reopen would restore it"
+                    "verified, so no stage the loop can reopen would restore it",
+                    "EXCLUDED_DISPOSITION",
+                    {"fact": fact.id, "disposition": "OMIT_UNSUPPORTED", "via": "quote"},
                 )
     for claim in _claimed_absent(finding):
         claimed = _normalized(claim)
@@ -1752,10 +1982,12 @@ def excluded_disposition_defect(
             continue
         for fact in excluded_facts:
             if claimed in _normalized(fact.value):
-                return (
+                return Ruling(
                     f"the omission it names is {fact.id}'s own text, which reconciliation "
                     "excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only "
-                    "once verified, so no stage the loop can reopen would restore it"
+                    "once verified, so no stage the loop can reopen would restore it",
+                    "EXCLUDED_DISPOSITION",
+                    {"fact": fact.id, "disposition": "OMIT_UNSUPPORTED", "via": "absent"},
                 )
     return None
 
@@ -1769,7 +2001,7 @@ def scope_defect(
     unit_texts: Sequence[str] | None = None,
     units: Mapping[str, Any] | None = None,
     dispositions: Mapping[str, Any] | None = None,
-) -> str | None:
+) -> Ruling | None:
     """Why a finding is the reviewer's own defect, or None when it may stand.
 
     Judged from the reviewer's raw reply every time the document is built, so the answer is a
@@ -1796,34 +2028,181 @@ def scope_defect(
     ``dispositions.json``, is ``None`` until its one call site threads it through (item 86); the
     new disposition-aware exclusion is then inert, exactly as today.
     """
+    rulings = scope_rulings(
+        finding, candidate_readme, by_id, evidence, rendered, unit_texts, units, dispositions
+    )
+    return rulings[0] if rulings else None
+
+
+def _standing_claims(
+    finding: Mapping[str, Any],
+    candidate_readme: str,
+    by_id: Mapping[str, Fact],
+    evidence: str,
+    units: Mapping[str, Any] | None,
+) -> bool:
+    """Whether the finding makes an absence or omission claim code could not settle: something it
+    says is missing that is neither in the section nor beyond restoring. Its quote is then only
+    the place it points at, so the quote being true refutes nothing it says."""
+    if _claimed_absent(finding) and absence_partition(finding, candidate_readme, evidence)[2]:
+        return True
+    claim = omission_claim(finding)
+    if claim is not None and (claim[0] or claim[1]):
+        return bool(omission_partition(finding, candidate_readme, by_id, evidence, units)[2])
+    return False
+
+
+def scope_rulings(
+    finding: Mapping[str, Any],
+    candidate_readme: str,
+    by_id: Mapping[str, Fact],
+    evidence: str = "",
+    rendered: Sequence[str] = (),
+    unit_texts: Sequence[str] | None = None,
+    units: Mapping[str, Any] | None = None,
+    dispositions: Mapping[str, Any] | None = None,
+) -> list[Ruling]:
+    """Every scope rule that matches a finding, in ``scope_defect``'s order (TC-REV-01).
+
+    ``scope_defect`` reports the first match. A first match that is a heuristic must not hide a
+    deterministic refutation behind it, and a deterministic refutation must be recorded with its
+    rule - so the whole stack is evaluated and the caller picks (``refutation``).
+    """
+    rulings: list[Ruling] = []
     # A finding may state what it says is missing as ``absent`` strings, as a typed ``omission``
     # claim, or both; it is the reviewer's own defect once every claim it makes is settled.
-    settled: list[str] = []
+    settled: list[Ruling | None] = []
+    # A string the finding's own quote contains is not a claim of absence: the reviewer points at
+    # it as present. Measured on the sealed reviews: Words-.NET F03/F04/F05/F07/F08 list in
+    # ``absent`` the very text they call wrong ('618', 'document signing', 'RTF') and quote it, so
+    # "the candidate contains it" would refute a finding that agrees it does; Words-Python F01 does
+    # the same with the promotional sentences it quotes. A reviewer whose ``absent`` list points
+    # into its own quote is not claiming an absence, so its list refutes nothing.
+    quoted = _normalized(str(finding.get("quote", "")))
+    points_at_quote = any(_normalized(claim) in quoted for claim in _claimed_absent(finding))
     if _claimed_absent(finding):
-        settled.append(absence_defect(finding, candidate_readme, evidence) or "")
+        settled.append(
+            None if points_at_quote else absence_defect(finding, candidate_readme, evidence)
+        )
     if omission_claim(finding) is not None:
-        settled.append(omission_defect(finding, candidate_readme, by_id, evidence, units) or "")
+        settled.append(omission_defect(finding, candidate_readme, by_id, evidence, units))
     if settled and all(settled):
-        return "; ".join(settled)
-    excluded = excluded_evidence_defect(finding, by_id)
-    if excluded is not None:
-        return excluded
-    excluded_by_disposition = excluded_disposition_defect(finding, by_id, dispositions)
-    if excluded_by_disposition is not None:
-        return excluded_by_disposition
-    written = rendered_defect(finding, rendered)
-    if written is not None:
-        return written
-    owned = renderer_owned_defect(finding, by_id, unit_texts)
-    if owned is not None:
-        return owned
+        parts = [part for part in settled if part is not None]
+        if len(parts) == 1:
+            rulings.append(parts[0])
+        else:
+            deterministic = all(part.deterministic for part in parts)
+            rulings.append(
+                Ruling(
+                    "; ".join(parts),
+                    "ABSENCE_SETTLED"
+                    if deterministic
+                    else next(part.rule for part in parts if not part.deterministic),
+                    {"claims": [part.refuted_by() for part in parts]},
+                )
+            )
+    for ruling in (
+        excluded_evidence_defect(finding, by_id),
+        excluded_disposition_defect(finding, by_id, dispositions),
+        rendered_defect(finding, rendered),
+    ):
+        if ruling is not None:
+            rulings.append(ruling)
+    owned = renderer_owned_rulings(finding, by_id, unit_texts)
+    if _standing_claims(finding, candidate_readme, by_id, evidence, units):
+        # The quote is only where the reviewer points: it says something is MISSING that code
+        # could neither find in the section nor prove unrestorable. That the quoted wording is
+        # the renderer's refutes the wording complaint, not the omission.
+        owned = [
+            Ruling(str(ruling), "RENDERER_OWNED_OMISSION_STANDS", ruling.evidence)
+            if ruling.rule in ("RENDERER_UNWRITTEN_FACT", "RENDERER_SECTION")
+            else ruling
+            for ruling in owned
+        ]
+    rulings.extend(owned)
     quote = str(finding.get("quote", ""))
     unit_fact_ids = _reviewed_unit_fact_ids(quote, units)
+    grounded: Ruling | None = None
     if finding.get("criterion") == "factuality":
-        return factuality_defect(finding, quote, by_id, unit_fact_ids)
-    if finding.get("criterion") == PROSE_JUDGMENT:
-        return cited_fact_defect(finding, quote, by_id, unit_fact_ids)
-    return None
+        grounded = factuality_defect(finding, quote, by_id, unit_fact_ids)
+    elif finding.get("criterion") == PROSE_JUDGMENT:
+        grounded = cited_fact_defect(finding, quote, by_id, unit_fact_ids)
+    if grounded is not None:
+        if grounded.rule == "CITED_FACT_LITERAL" and _standing_claims(
+            finding, candidate_readme, by_id, evidence, units
+        ):
+            # The quote is true, but the finding says something is MISSING from the section and
+            # code could not settle that: a true quote does not refute an absence.
+            grounded = Ruling(str(grounded), "CITED_FACT_QUOTE_ONLY", grounded.evidence)
+        rulings.append(grounded)
+    return rulings
+
+
+def refutation(rulings: Sequence[Ruling]) -> Ruling | None:
+    """The deterministic refutation among a finding's scope rulings, or None when the finding
+    is refuted by nothing but heuristics (it then stands)."""
+    return next((ruling for ruling in rulings if ruling.deterministic), None)
+
+
+class _Scope:
+    """The inputs of the scope fold, bound once, applied to each finding of each read."""
+
+    def __init__(
+        self,
+        candidate_readme: str,
+        by_id: Mapping[str, Fact],
+        evidence: str,
+        rendered: Sequence[str],
+        texts: Sequence[str] | None,
+        units: Mapping[str, Any] | None,
+        dispositions: Mapping[str, Any] | None,
+        facts: FactsDocument | None,
+    ) -> None:
+        self.candidate_readme = candidate_readme
+        self.by_id = by_id
+        self.evidence = evidence
+        self.rendered = rendered
+        self.texts = texts
+        self.units = units
+        self.dispositions = dispositions
+        self.facts = facts
+
+    def apply(self, record: dict[str, Any], finding: Mapping[str, Any]) -> Ruling | None:
+        """Record on ``record`` what the scope rules made of ``finding``; return the
+        deterministic refutation, or None when the finding stands.
+
+        A refutation is recorded as ``reviewer_scope_defect`` (its reason, as before) and
+        ``refuted_by`` (its rule and evidence). A heuristic that matched but refutes nothing is
+        recorded under ``unrefuted_scope_rules`` and does not fold the finding.
+        """
+        rulings = (
+            scope_rulings(
+                finding,
+                self.candidate_readme,
+                self.by_id,
+                self.evidence,
+                self.rendered,
+                self.texts,
+                self.units,
+                self.dispositions,
+            )
+            if self.facts is not None
+            else []
+        )
+        refuted = refutation(rulings)
+        if refuted is not None:
+            record["reviewer_scope_defect"] = str(refuted)
+            record["refuted_by"] = refuted.refuted_by()
+            return refuted
+        if rulings:
+            record["unrefuted_scope_rules"] = [
+                {"rule": ruling.rule, "reason": str(ruling), "evidence": dict(ruling.evidence)}
+                for ruling in rulings
+            ]
+        _record_standing_partitions(
+            record, finding, self.candidate_readme, self.evidence, self.by_id, self.units
+        )
+        return None
 
 
 def review_document(
@@ -1914,36 +2293,57 @@ def review_document(
     by_id = {fact.id: fact for fact in facts.facts} if facts is not None else {}
     evidence = claim_evidence(original_readme, facts) if original_readme else ""
     texts = unit_texts(units)
+    returned = str(output.get("verdict"))
+    # TC-REV-01 / G3-W08: a returned REJECT is never turned into an ACCEPT by a judgment. Only a
+    # deterministic refutation (``refuted_by``) takes a finding out of the way of one, so on a
+    # rejection the single-reader rule below no longer demotes: the finding stands, the verdict
+    # stays, and the repair loop acts on it.
+    rejected = returned != ACCEPT
+    unrefuted_advisory = 0
+    scoped = _Scope(candidate_readme, by_id, evidence, rendered, texts, units, dispositions, facts)
     for finding in output.get("findings", []):
         record = dict(finding)
-        reason = (
-            scope_defect(
-                finding, candidate_readme, by_id, evidence, rendered, texts, units, dispositions
-            )
-            if facts is not None
-            else None
-        )
-        if reason is not None:
-            record["reviewer_scope_defect"] = reason
-        else:
-            _record_standing_partitions(record, finding, candidate_readme, evidence, by_id, units)
-        alone = (
+        refuted = scoped.apply(record, finding)
+        uncorroborated = (
             second is not None
             and prose_judgment(finding)
             and finding_class(finding) not in corroborated
         )
-        if reason is None and blocking(finding) and not alone:
+        alone = uncorroborated and not rejected
+        if uncorroborated and rejected and refuted is None:
+            record.setdefault("unrefuted_scope_rules", []).append(
+                {
+                    "rule": "SINGLE_READER_PROSE",
+                    "reason": "no second read raised an equivalent finding; on a returned "
+                    "rejection that does not refute it",
+                    "evidence": {},
+                }
+            )
+        if refuted is None and blocking(finding) and not alone:
             record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
             findings.append(record)
         else:
             record["causal_state"] = None
-            if alone and reason is None:
+            if alone and refuted is None:
                 record["single_reader_advisory"] = True
+            elif refuted is None:
+                # Names no section or a stage the loop cannot reopen: nothing can repair it, but
+                # nothing refuted it either, so it cannot clear a rejection.
+                record["unrepairable"] = (
+                    "the finding names no candidate section or a causal stage the repair loop "
+                    "cannot reopen"
+                )
+                unrefuted_advisory += 1
             advisory.append(record)
-    returned = str(output.get("verdict"))
-    # A rejection rests on its blocking findings; one whose findings are all advisory has
-    # nothing the loop can act on and, by section 6 of the contract, does not block.
-    verdict = returned if findings or returned == ACCEPT else ACCEPT
+    # A rejection stands unless EVERY finding it rested on carries a recorded deterministic
+    # refutation. A rejection returned with no finding at all has none to refute it.
+    if returned == ACCEPT:
+        verdict, basis = ACCEPT, "accepted_as_returned"
+    elif findings or unrefuted_advisory or not output.get("findings"):
+        verdict, basis = returned, "rejection_stands"
+    else:
+        verdict, basis = ACCEPT, "rejection_refuted_deterministically"
+    first_verdict = verdict
     if third is not None and second is not None and not findings:
         # 2-of-3 majority vote (section 5.6): the first read left nothing blocking, so an extra
         # read's finding needs the OTHER extra read to raise the same class too before it blocks
@@ -1959,33 +2359,14 @@ def review_document(
         for reader_num, reader_output in ((2, second), (3, third)):
             for finding in reader_output.get("findings", []):
                 record = {**dict(finding), "reader": reader_num}
-                reason = (
-                    scope_defect(
-                        finding,
-                        candidate_readme,
-                        by_id,
-                        evidence,
-                        rendered,
-                        texts,
-                        units,
-                        dispositions,
-                    )
-                    if facts is not None
-                    else None
-                )
-                if reason is not None:
-                    record["reviewer_scope_defect"] = reason
-                else:
-                    _record_standing_partitions(
-                        record, finding, candidate_readme, evidence, by_id, units
-                    )
-                in_majority = reason is None and finding_class(finding) in majority
+                refuted = scoped.apply(record, finding)
+                in_majority = refuted is None and finding_class(finding) in majority
                 if in_majority and blocking(finding):
                     record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
                     survivors.append(record)
                 else:
                     record["causal_state"] = None
-                    if reason is None and blocking(finding):
+                    if refuted is None and blocking(finding):
                         record["single_reader_advisory"] = True
                     advisory.append(record)
         if survivors:
@@ -2003,33 +2384,14 @@ def review_document(
         survivors = []
         for finding in second.get("findings", []):
             record = {**dict(finding), "reader": 2}
-            reason = (
-                scope_defect(
-                    finding,
-                    candidate_readme,
-                    by_id,
-                    evidence,
-                    rendered,
-                    texts,
-                    units,
-                    dispositions,
-                )
-                if facts is not None
-                else None
-            )
-            if reason is not None:
-                record["reviewer_scope_defect"] = reason
-            else:
-                _record_standing_partitions(
-                    record, finding, candidate_readme, evidence, by_id, units
-                )
+            refuted = scoped.apply(record, finding)
             alone = prose_judgment(finding) and finding_class(finding) not in first_raised
-            if reason is None and blocking(finding) and not alone:
+            if refuted is None and blocking(finding) and not alone:
                 record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
                 survivors.append(record)
             else:
                 record["causal_state"] = None
-                if alone and reason is None:
+                if alone and refuted is None:
                     record["single_reader_advisory"] = True
                 advisory.append(record)
         if survivors:
@@ -2044,6 +2406,10 @@ def review_document(
         "readme_sha256": readme_digest,
         "verdict": verdict,
         "verdict_as_returned": returned,
+        # Why the verdict is what it is (TC-REV-01): ``rejection_stands`` or
+        # ``rejection_refuted_deterministically`` for a returned rejection; when an extra read
+        # changed it, ``extra_read_verdict``.
+        "verdict_basis": basis if verdict == first_verdict else "extra_read_verdict",
         "findings": findings,
         "advisory": advisory,
         "second_reader": {

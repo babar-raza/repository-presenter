@@ -289,7 +289,7 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
         "shell": "6",
         "renderer": "30",
         "normalisation": "32",
-        "reviewer_logic": "18",
+        "reviewer_logic": "19",
     }
     assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 12
     assert document["acceptance_profile_version"] == "1"
