@@ -55,7 +55,11 @@ from repository_presenter.components.issues.model import (
     TriggeringCheck,
     write_handoff,
 )
-from repository_presenter.core.facts import FactKind, FactsDocument
+from repository_presenter.components.issues.quality import (
+    HandoffQualityError,
+    require_issue_quality,
+)
+from repository_presenter.core.facts import Fact, FactKind, FactsDocument
 
 # The only triggering_check.id this hook drafts automatically. Matches redetect.py's own
 # registered, bundle-scoped shape exactly - a defect this hook creates is always one a later
@@ -84,6 +88,64 @@ def _fingerprint(repository: str, check_id: str, signature: str) -> str:
     return f"sha256:{digest}"
 
 
+def _fence(text: str) -> str:
+    """``text`` as a fenced block whose fence cannot be closed by the text itself."""
+    fence = "```"
+    while fence in text:
+        fence += "`"
+    return f"{fence}\n{text.rstrip()}\n{fence}"
+
+
+def _issue_text(
+    *,
+    repository: str,
+    source_revision: str,
+    fact: Fact,
+    evidence: tuple[EvidenceEntry, ...],
+    last_detail: str,
+    fingerprint: str,
+) -> tuple[str, str]:
+    """The title and body a maintainer reads: one install route, how to reproduce it, what was
+    expected and what happened, in the maintainers' words rather than this system's (the
+    quality gate rejects the latter). A ``CONTRADICTED`` fact is a failure; any other polarity is
+    only ever reported as unverified, never as a failure nobody observed."""
+    route = fact.id.split(":", 1)[-1]
+    product = repository.split("/", 1)[-1].replace("-", " ")
+    outcome = "fails verification" if fact.polarity == "CONTRADICTED" else "could not be verified"
+    commands = [fact.value]
+    commands.extend(
+        f"curl -s -o /dev/null -w '%{{http_code}}' {e.path}"
+        for e in evidence
+        if e.path.startswith("https://")
+    )
+    lines = [
+        "## Summary",
+        "",
+        f"At revision `{source_revision}`, the documented `{route}` install route for "
+        f"`{repository}` {outcome}: {last_detail}.",
+        "",
+        "## Environment",
+        "",
+        f"- Repository: {repository}",
+        f"- Revision: `{source_revision}` (the upstream revision this report was verified against)",
+        "",
+        "## Steps to reproduce",
+        "",
+        _fence("\n".join(commands)),
+        "",
+        "## Expected",
+        "",
+        "The command above completes without error.",
+        "",
+        "## Actual",
+        "",
+        *(f"- `{e.path}`: {e.detail}" for e in evidence),
+        "",
+        f"<!-- repository-presenter-defect: {fingerprint} -->",
+    ]
+    return f"{product}: the documented {route} install route {outcome}", "\n".join(lines) + "\n"
+
+
 def draft_handoff(
     *,
     repository: str,
@@ -94,7 +156,10 @@ def draft_handoff(
     """Build one `Handoff` for a check that is auto-draft-eligible and genuinely backed by the
     current run's own facts, or `None` when either bar is not met - fails closed, never guessed
     (`AGENTS.md`: "Preserve uncertainty when evidence cannot resolve it; never invent a
-    resolution")."""
+    resolution").
+
+    Raises ``HandoffQualityError`` (typed findings) when the drafted issue text fails
+    ``quality.issue_quality_findings`` - a handoff that fails the gate is never produced."""
     if not eligible_for_handoff(check):
         return None
     kind = _FACT_KIND_FOR_CHECK.get(str(check.get("id")))
@@ -122,18 +187,15 @@ def draft_handoff(
         f"At revision {source_revision}, {repository}'s own {fact.id} is {fact.polarity} "
         f"({last_detail})."
     )
-    title = f"{fact.id} is {fact.polarity} at {source_revision[:12]}"
-    body_lines = [
-        f"repository-presenter's validation pipeline ({check['id']}) found `{fact.id}` "
-        f"{fact.polarity} while re-verifying `{repository}` at revision `{source_revision}`.",
-        "",
-        "## Evidence",
-        "",
-        *(f"- `{e.path}`: {e.detail}" for e in evidence),
-        "",
-        f"<!-- repository-presenter-defect: {fingerprint} -->",
-    ]
-    return Handoff(
+    title, body = _issue_text(
+        repository=repository,
+        source_revision=source_revision,
+        fact=fact,
+        evidence=evidence,
+        last_detail=last_detail,
+        fingerprint=fingerprint,
+    )
+    handoff = Handoff(
         schema_version=1,
         repository=repository,
         source_revision=source_revision,
@@ -144,11 +206,15 @@ def draft_handoff(
         evidence=evidence,
         claim=claim,
         suggested_issue_title=title,
-        suggested_issue_body="\n".join(body_lines) + "\n",
+        suggested_issue_body=body,
         status="HANDOFF_PENDING",
         issue_ref=None,
         close_reason=None,
     )
+    # The quality gate (quality.py) is the last step: text a maintainer could not act on is never
+    # drafted, so it can never reach an approval. The typed refusal carries every finding.
+    require_issue_quality(handoff)
+    return handoff
 
 
 def handoff_path(upstream_defects_root: Path, handoff: Handoff) -> Path:
@@ -169,15 +235,22 @@ def record_handoff_if_new(
 ) -> Path | None:
     """The full automatic path: draft, then dedup against the ledger before ever writing.
 
-    Returns the path written, or `None` when nothing qualified (`draft_handoff` above) or the
-    defect is already on record - dedup by `{repository, defect_fingerprint}`
+    Returns the path written, or `None` when nothing qualified (`draft_handoff` above), its text
+    failed the quality gate, or the defect is already on record - dedup by
+    `{repository, defect_fingerprint}`
     (`ledger.py::lookup`), the same key a manual filer would check by hand, so redrawing an
     identical defect on a later re-seal attempt never creates a duplicate artifact regardless of
     the handoff's current `status`.
     """
-    handoff = draft_handoff(
-        repository=repository, source_revision=source_revision, check=check, facts=facts
-    )
+    try:
+        handoff = draft_handoff(
+            repository=repository, source_revision=source_revision, check=check, facts=facts
+        )
+    except HandoffQualityError:
+        # present must never fail on this: text that fails the gate is simply not recorded. The
+        # defect is still a defect; it is drafted again on a later run once its evidence reads
+        # cleanly, or written by hand and held to the same gate before approval.
+        return None
     if handoff is None:
         return None
     ledger = load_ledger(upstream_defects_root)
