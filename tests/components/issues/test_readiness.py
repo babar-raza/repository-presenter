@@ -238,19 +238,19 @@ def test_a_recheck_that_cannot_conclude_is_a_blocker_and_unapprovable(
     world: dict[str, Any],
 ) -> None:
     gappy = make_handoff(
-        HTML, fingerprint="e" * 64, evidence_path="https://registry.npmjs.org/x", title="npm"
+        HTML, fingerprint="e" * 64, evidence_path="docker run gcc:14 cmake --build", title="build"
     )
     write_handoff(
         gappy, world["defects"] / "aspose-html-foss__Aspose.HTML-FOSS-for-Python" / "e.json"
     )
     write_reverifications(world, reverification_entry(gappy))
     row = row_of(rows_for(world), gappy)
-    assert row.replay_gap is not None and "PyPI" in row.replay_gap
+    assert row.replay_gap is not None and "toolchain finding" in row.replay_gap
     assert not row.approvable
 
 
 def test_an_unknown_check_id_has_no_redetector_gap(world: dict[str, Any]) -> None:
-    other = make_handoff(HTML, fingerprint="f" * 64, check_id="BC-03", title="example")
+    other = make_handoff(HTML, fingerprint="f" * 64, check_id="BC-99", title="example")
     write_handoff(
         other, world["defects"] / "aspose-html-foss__Aspose.HTML-FOSS-for-Python" / "f.json"
     )
@@ -457,7 +457,9 @@ def test_an_unconfirmed_handoff_cannot_be_approved(world: dict[str, Any], tmp_pa
 def test_a_handoff_whose_recheck_cannot_conclude_cannot_be_approved(
     world: dict[str, Any], tmp_path: Path
 ) -> None:
-    gappy = make_handoff(HTML, fingerprint="e" * 64, evidence_path="https://registry.npmjs.org/x")
+    gappy = make_handoff(
+        HTML, fingerprint="e" * 64, evidence_path="docker run gcc:14 cmake --build"
+    )
     write_handoff(
         gappy, world["defects"] / "aspose-html-foss__Aspose.HTML-FOSS-for-Python" / "e.json"
     )
