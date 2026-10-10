@@ -42,8 +42,8 @@ TEX_PYTHON_HANDOFF = (
 )
 
 
-def test_registered_check_ids_cover_both_backfilled_shapes() -> None:
-    assert registered_check_ids() == ("BC-02", "NOT_PROCESSABLE")
+def test_registered_check_ids_cover_every_shape_the_harvest_produced() -> None:
+    assert registered_check_ids() == ("BC-02", "BC-03", "BC-06", "NOT_PROCESSABLE")
 
 
 def test_unregistered_check_id_fails_closed() -> None:
