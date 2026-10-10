@@ -679,4 +679,6 @@ def test_the_source_reconciliation_call_passes_its_last_resort_recovery() -> Non
     from repository_presenter.components.readme.repair import rounds
 
     source = inspect.getsource(rounds.run_round)
-    assert "recover=functools.partial(recover_uncited_prose_omits, facts=batch_facts)" in source
+    assert "recover_uncited_prose_omits," in source and "facts=batch_facts," in source
+    # the recovery may cite only what this batch's decoder enum offers (PDF-TypeScript 356)
+    assert "citable=frozenset(" in source and "citable_fact_ids(" in source

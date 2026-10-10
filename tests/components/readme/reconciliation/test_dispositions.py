@@ -13,6 +13,9 @@ from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.evidence.facts.product_pages import BANNER_FACT_ID
 from repository_presenter.components.readme.reconciliation.dispositions import (
+    RECONCILIATION_FACT_IDS_PER_DISPOSITION,
+    RECOVERED_COVERAGE_RATIONALE,
+    citable_fact_ids,
     contradicted_code_units,
     contradicted_embedded_links,
     contradicted_link_hrefs,
@@ -1365,19 +1368,144 @@ def test_recover_truncates_a_long_reason_inside_the_rationale_limit() -> None:
     assert len(folded["rationale"]) == 160 and folded["rationale"].endswith("...")
 
 
-def test_recover_declines_when_the_units_own_text_spells_a_verified_symbol() -> None:
-    """The unit is not unresolved: a verified fact is already in its sentence, so deferring it
-    would hide evidence the omission should have cited. It fails closed as it always did."""
+def _folded(recovered: dict[str, Any] | None, unit: str = "018.paragraph") -> dict[str, Any]:
+    assert recovered is not None
+    return next(e for e in recovered["dispositions"] if e["unit_id"].endswith(unit))
+
+
+def test_recover_defers_a_unit_whose_own_text_spells_a_verified_symbol_citing_it() -> None:
+    """TC-DSP-01 follow-up (G3-W08, G7-W12 REG-18). The unit is not "unresolved" - a verified fact
+    is in its sentence - so it is deferred on the truthful typed footing and the fact stays
+    attached, rather than the whole transaction failing with nothing repaired. It is never
+    silently dropped: the entry stays, as a listed deferral, and is not an OMIT_UNSUPPORTED."""
     spelled = _psd_facts(_symbol("Aspose.PSD.FOSS", "namespace"))
-    assert recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), spelled) is None
+    folded = _folded(recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), spelled))
+    assert (folded["disposition"], folded["destination_section"]) == ("DEFER_UNRESOLVED", None)
+    assert folded["fact_ids"] == ["public_symbol:aspose.psd.foss"]
+    assert folded["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
+    assert "spells SUPPORTED facts" in folded["rationale"]
+    assert "not published to NuGet" in folded["rationale"]  # the model's reason survives
+    assert len(folded["rationale"]) <= 160
+
+
+# Words-.NET inherited_unit:020.paragraph (2026-10-11 archive): the only fact the text spells is
+# the product's own root namespace, inside a project path. The recovery once declined on it.
+_WORDS_TEXT = (
+    "Then add a project reference to `Aspose.Words/Aspose.Words.csproj` from your application."
+)
+
+
+def _words_facts(*extra: Fact) -> FactsDocument:
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *_prose_omit_facts().facts,
+            _fact("inherited_unit:020.paragraph", "inherited_unit", _WORDS_TEXT),
+            _symbol("Aspose.Words", "namespace"),
+            *extra,
+        ),
+    )
+
+
+def _words_reply() -> dict[str, Any]:
+    reply = _s4_output(
+        {
+            "disposition": "VERIFIED_REWRITE",
+            "destination_section": "opening",
+            "fact_ids": ["identity:repository"],
+        }
+    )
+    reply["dispositions"].append(  # type: ignore[union-attr]
+        {**_UNCITED_OMIT, "unit_id": "inherited_unit:020.paragraph"}
+    )
+    return reply  # type: ignore[return-value]
+
+
+def test_recover_does_not_decline_for_the_products_own_namespace_in_a_path() -> None:
+    facts = _words_facts()
+    assert uncited_omit_candidates(_WORDS_TEXT, facts) == ["public_symbol:aspose.words"]
+    folded = _folded(recover_uncited_prose_omits(_words_reply(), facts), "020.paragraph")
+    assert folded["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["fact_ids"] == ["public_symbol:aspose.words"]
+
+
+def test_the_recovered_symbol_deferral_is_advisory_never_unclassified() -> None:
+    """NO_EVIDENCE_EITHER_WAY is falsified by a spelled symbol (it would block at BC-05), so the
+    deferral must carry the typed prefix and classify as NOT_CARRIED_BY_NAMED_SECTION."""
+    from repository_presenter.components.readme.validation.deferrals import review_deferrals
+
+    facts = _words_facts()
+    folded = _folded(recover_uncited_prose_omits(_words_reply(), facts), "020.paragraph")
+    findings = review_deferrals({"dispositions": [folded]}, facts)
+    assert [(f.unit_id, f.class_id, f.decision) for f in findings] == [
+        ("inherited_unit:020.paragraph", "NOT_CARRIED_BY_NAMED_SECTION", "ADVISORY")
+    ]
+
+
+# PDF-TypeScript inherited_unit:356.paragraph spells `Attachment.SetField`, a verified symbol the
+# batch's decoder enum does not offer, so no schema-valid citation of it exists.
+def test_recover_cites_only_what_the_batch_may_cite() -> None:
+    folded = _folded(
+        recover_uncited_prose_omits(
+            _words_reply(), _words_facts(), citable={"identity:repository"}
+        ),
+        "020.paragraph",
+    )
+    assert folded["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["fact_ids"] == []  # still deferred and still typed; nothing uncitable cited
+    assert folded["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
+
+
+def test_recover_caps_the_citations_at_the_per_disposition_limit() -> None:
+    names = [f"Widget{i:02d}" for i in range(RECONCILIATION_FACT_IDS_PER_DISPOSITION + 4)]
+    text = "Uses " + ", ".join(f"`{name}.run`" for name in names) + "."
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *_prose_omit_facts().facts,
+            _fact("inherited_unit:020.paragraph", "inherited_unit", text),
+            *(_symbol(f"{name}.run", "function") for name in names),
+        ),
+    )
+    folded = _folded(recover_uncited_prose_omits(_words_reply(), facts), "020.paragraph")
+    assert len(folded["fact_ids"]) == RECONCILIATION_FACT_IDS_PER_DISPOSITION
+    assert folded["fact_ids"] == sorted(folded["fact_ids"])
+
+
+def test_an_omission_with_no_spelled_fact_is_still_deferred_the_original_way() -> None:
+    """Negative control: with nothing in the unit's text for a fact to support, the original
+    no-evidence deferral (wording and all) is what is written, and no fact is invented."""
+    facts = _words_facts()
+    bare = FactsDocument(
+        facts.repository,
+        facts.source_revision,
+        tuple(f for f in facts.facts if f.kind != "public_symbol"),
+    )
+    folded = _folded(recover_uncited_prose_omits(_words_reply(), bare), "020.paragraph")
+    assert folded["fact_ids"] == [] and folded["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["rationale"].startswith("No fact cited for this omission")
+
+
+def test_a_cited_omission_is_left_exactly_alone_beside_a_recovered_one() -> None:
+    """A cited OMIT_UNSUPPORTED (the model said which fact shows the claim unsupported) is the
+    legitimate omission and must survive the recovery of its uncited neighbour untouched."""
+    reply = _words_reply()
+    cited = _entry("inherited_unit:002.paragraph", "OMIT_UNSUPPORTED", None, "identity:repository")
+    reply["dispositions"][1] = cited
+    recovered = recover_uncited_prose_omits(reply, _words_facts())
+    assert recovered is not None
+    assert recovered["dispositions"][1] == cited
+    assert placement_errors(recovered, _words_facts()) == []
 
 
 def test_recover_declines_when_any_uncited_omit_is_unsafe_even_if_another_is_safe() -> None:
-    """All or nothing: a partial fix would be accepted only to fail the same checks."""
-    facts = _psd_facts(_symbol("Aspose.PSD.FOSS", "namespace"))
+    """All or nothing: a unit the facts do not hold cannot be examined, and a partial fix would be
+    accepted only to fail the same checks."""
     reply = _psd_reply(_UNCITED_OMIT)
-    reply["dispositions"][1] = _entry("inherited_unit:002.paragraph", "OMIT_UNSUPPORTED", None)
-    assert recover_uncited_prose_omits(reply, facts) is None
+    reply["dispositions"][1] = _entry("inherited_unit:099.paragraph", "OMIT_UNSUPPORTED", None)
+    assert recover_uncited_prose_omits(reply, _psd_facts()) is None
 
 
 def test_recover_leaves_cited_omits_and_non_prose_omits_alone() -> None:
@@ -1420,7 +1548,11 @@ def _run_s4_psd(
         context=JobContext(ENTRY.repository, facts.source_revision),
         checks=functools.partial(reconcile_checks, facts=facts),
         call_schema=reconciliation_schema(loaded, units, facts, {}),
-        recover=functools.partial(recover_uncited_prose_omits, facts=facts),
+        recover=functools.partial(
+            recover_uncited_prose_omits,
+            facts=facts,
+            citable=frozenset(citable_fact_ids(facts, loaded.manifest, units, {})),
+        ),
     )
 
 
@@ -1455,19 +1587,22 @@ def test_a_recovered_reply_is_judged_by_the_real_checks_and_fails_closed_when_it
     assert "recover's correction was rejected too" in str(caught.value)
 
 
-def test_a_spelled_symbol_omit_still_fails_the_job_closed_after_recover(
+def test_a_spelled_symbol_omit_is_recovered_by_the_real_job_and_stays_advisory(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    """The production S4 path end to end (Words-.NET shape): both attempts keep the uncited omit,
+    recover defers it citing the symbol, the corrected copy passes the schema and every check."""
+    from repository_presenter.components.readme.validation.deferrals import review_deferrals
+
+    facts = _psd_facts(_symbol("Aspose.PSD.FOSS", "namespace"))
     reply = _reply(_psd_reply(_UNCITED_OMIT))
-    with pytest.raises(JobError) as caught:
-        _run_s4_psd(
-            tmp_path,
-            monkeypatch,
-            reply,
-            reply,
-            facts=_psd_facts(_symbol("Aspose.PSD.FOSS", "namespace")),
-        )
-    message = str(caught.value)
-    assert "output rejected twice" in message
-    assert "inherited_unit:018.paragraph: uncited_prose_omit:" in message
-    assert "recover's correction" not in message  # declined, not attempted
+    result = _run_s4_psd(tmp_path, monkeypatch, reply, reply, facts=facts)
+    assert result.attempts == 2
+    folded = _folded(result.output)
+    # the symbol is not in this batch's decoder enum, so it is deferred without citing it (a
+    # citation outside the enum would fail the corrected copy's schema)
+    assert (folded["disposition"], folded["fact_ids"]) == ("DEFER_UNRESOLVED", [])
+    findings = review_deferrals(result.output, facts)
+    assert [(f.unit_id, f.class_id, f.decision) for f in findings] == [
+        ("inherited_unit:018.paragraph", "NOT_CARRIED_BY_NAMED_SECTION", "ADVISORY")
+    ]
