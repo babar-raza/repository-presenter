@@ -1,0 +1,61 @@
+bundle,probe,result,detail
+aspose-3d-foss__Aspose.3D-FOSS-for-.NET,inherited_units_regeneration,identical,sealed=70 regenerated=70 added=0 removed=0 altered=0
+aspose-3d-foss__Aspose.3D-FOSS-for-.NET,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-3d-foss__Aspose.3D-FOSS-for-Java,inherited_units_regeneration,identical,sealed=94 regenerated=94 added=0 removed=0 altered=0
+aspose-3d-foss__Aspose.3D-FOSS-for-Java,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-3d-foss__Aspose.3D-FOSS-for-Python,inherited_units_regeneration,identical,sealed=77 regenerated=77 added=0 removed=0 altered=0
+aspose-3d-foss__Aspose.3D-FOSS-for-Python,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python,inherited_units_regeneration,identical,sealed=59 regenerated=59 added=0 removed=0 altered=0
+aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python,reviewer_replay,identical,sealed_logic=18 replay_logic=18 reads=2
+aspose-cells-foss__Aspose.Cells-FOSS-for-.NET,inherited_units_regeneration,differs,sealed=78 regenerated=94 added=21 removed=5 altered=0
+aspose-cells-foss__Aspose.Cells-FOSS-for-.NET,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp,inherited_units_regeneration,identical,sealed=65 regenerated=65 added=0 removed=0 altered=0
+aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-cells-foss__Aspose.Cells-FOSS-for-Go,inherited_units_regeneration,identical,sealed=71 regenerated=71 added=0 removed=0 altered=0
+aspose-cells-foss__Aspose.Cells-FOSS-for-Go,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-cells-foss__Aspose.Cells-FOSS-for-Java,inherited_units_regeneration,identical,sealed=57 regenerated=57 added=0 removed=0 altered=0
+aspose-cells-foss__Aspose.Cells-FOSS-for-Java,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-cells-foss__Aspose.Cells-FOSS-for-Python,inherited_units_regeneration,identical,sealed=54 regenerated=54 added=0 removed=0 altered=0
+aspose-cells-foss__Aspose.Cells-FOSS-for-Python,reviewer_replay,identical,sealed_logic=18 replay_logic=18 reads=2
+aspose-cells-foss__Aspose.Cells-FOSS-for-Rust,inherited_units_regeneration,differs,sealed=81 regenerated=91 added=16 removed=6 altered=0
+aspose-cells-foss__Aspose.Cells-FOSS-for-Rust,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript,inherited_units_regeneration,identical,sealed=49 regenerated=49 added=0 removed=0 altered=0
+aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-email-foss__Aspose.Email-FOSS-for-.Net,inherited_units_regeneration,identical,sealed=72 regenerated=72 added=0 removed=0 altered=0
+aspose-email-foss__Aspose.Email-FOSS-for-.Net,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-email-foss__Aspose.Email-FOSS-for-Cpp,inherited_units_regeneration,identical,sealed=80 regenerated=80 added=0 removed=0 altered=0
+aspose-email-foss__Aspose.Email-FOSS-for-Cpp,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-email-foss__Aspose.Email-FOSS-for-Python,inherited_units_regeneration,identical,sealed=94 regenerated=94 added=0 removed=0 altered=0
+aspose-email-foss__Aspose.Email-FOSS-for-Python,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-font-foss__Aspose.Font-FOSS-for-Python,inherited_units_regeneration,identical,sealed=70 regenerated=70 added=0 removed=0 altered=0
+aspose-font-foss__Aspose.Font-FOSS-for-Python,reviewer_replay,identical,sealed_logic=15 replay_logic=18 reads=2
+aspose-html-foss__Aspose.HTML-FOSS-for-Python,inherited_units_regeneration,identical,sealed=103 regenerated=103 added=0 removed=0 altered=0
+aspose-html-foss__Aspose.HTML-FOSS-for-Python,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET,inherited_units_regeneration,identical,sealed=23 regenerated=23 added=0 removed=0 altered=0
+aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET,reviewer_replay,identical,sealed_logic=14 replay_logic=18 reads=2
+aspose-note-foss__Aspose.Note-FOSS-for-Python,inherited_units_regeneration,identical,sealed=113 regenerated=113 added=0 removed=0 altered=0
+aspose-note-foss__Aspose.Note-FOSS-for-Python,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-page-foss__Aspose.Page-FOSS-for-Python,inherited_units_regeneration,identical,sealed=107 regenerated=107 added=0 removed=0 altered=0
+aspose-page-foss__Aspose.Page-FOSS-for-Python,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-pdf-foss__Aspose-PDF-FOSS-for-Go,inherited_units_regeneration,differs,sealed=92 regenerated=94 added=3 removed=1 altered=0
+aspose-pdf-foss__Aspose-PDF-FOSS-for-Go,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-pdf-foss__Aspose-PDF-FOSS-for-Python,inherited_units_regeneration,differs,sealed=117 regenerated=119 added=3 removed=1 altered=0
+aspose-pdf-foss__Aspose-PDF-FOSS-for-Python,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET,inherited_units_regeneration,identical,sealed=239 regenerated=239 added=0 removed=0 altered=0
+aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp,inherited_units_regeneration,identical,sealed=124 regenerated=124 added=0 removed=0 altered=0
+aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-pdf-foss__Aspose.PDF-FOSS-for-Java,inherited_units_regeneration,identical,sealed=152 regenerated=152 added=0 removed=0 altered=0
+aspose-pdf-foss__Aspose.PDF-FOSS-for-Java,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-slides-foss__Aspose.Slides-FOSS-for-.NET,inherited_units_regeneration,identical,sealed=95 regenerated=95 added=0 removed=0 altered=0
+aspose-slides-foss__Aspose.Slides-FOSS-for-.NET,reviewer_replay,identical,sealed_logic=14 replay_logic=18 reads=2
+aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp,inherited_units_regeneration,identical,sealed=127 regenerated=127 added=0 removed=0 altered=0
+aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp,reviewer_replay,identical,sealed_logic=14 replay_logic=18 reads=2
+aspose-slides-foss__Aspose.Slides-FOSS-for-Java,inherited_units_regeneration,identical,sealed=113 regenerated=113 added=0 removed=0 altered=0
+aspose-slides-foss__Aspose.Slides-FOSS-for-Java,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-slides-foss__Aspose.Slides-FOSS-for-Python,inherited_units_regeneration,identical,sealed=62 regenerated=62 added=0 removed=0 altered=0
+aspose-slides-foss__Aspose.Slides-FOSS-for-Python,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-words-foss__Aspose.Words-FOSS-for-.NET,inherited_units_regeneration,identical,sealed=104 regenerated=104 added=0 removed=0 altered=0
+aspose-words-foss__Aspose.Words-FOSS-for-.NET,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
+aspose-words-foss__Aspose.Words-FOSS-for-Python,inherited_units_regeneration,identical,sealed=119 regenerated=119 added=0 removed=0 altered=0
+aspose-words-foss__Aspose.Words-FOSS-for-Python,reviewer_replay,not_replayable,no raw independent_review reads in the bundle
