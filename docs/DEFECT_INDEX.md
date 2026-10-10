@@ -74,6 +74,19 @@ reports each affected handoff as not replayable, and the owner can file those fr
 |---|---|---|---|
 | 1 | 12 handoffs with no replayable recheck | 2026-10-10 | `repository-presenter issue-readiness` blockers; `components/issues/redetect.py::replay_gap` |
 
+**Status 2026-10-10 (TC-ISS-02, G6-W07)**: fixed in code, awaiting the merge before it moves to
+Resolved. `issue-readiness --json` reported 14 of 18 handoffs (12 of the 15 CONFIRMED) with a replay
+gap before and 0 after; a read-only `redetect-upstream-defects` run against the live registries and
+repositories then gave every handoff a conclusive reading. What replays, and how honestly:
+registry URLs for PyPI, npm, NuGet, Maven Central, crates.io and the Go proxy are re-probed (one
+observer per registry behind `RedetectionReads`, reusing the vendored publication probe through
+`core/package_registry.py`); `BC-06` re-reads the README and the tree; `NOT_PROCESSABLE` parses any
+language through the pinned grammars. The toolchain shapes (`BC-03` and the `BC-02` source builds: 6
+and 4 of the 12) are **not re-executed** - a sandbox and each SDK would be needed - so their redetector
+reports "still fires" only while the repository is byte-identical to the revision the finding was made
+against, and is inconclusive (never resolved) once it moves; it never proposes `RESOLVED_UPSTREAM`.
+Closing a filed toolchain issue therefore stays a manual decision. `draft.py` is still not widened.
+
 ### `s4_reconciliation.output_runaway_past_budget`
 
 S4 `source_reconciliation` replies run to the manifest's `max_output_tokens` (`finish_reason

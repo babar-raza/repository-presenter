@@ -42,8 +42,8 @@ Agentic/Deterministic Boundary).
 
 from __future__ import annotations
 
-import ast
 import os
+import posixpath
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, replace
@@ -51,30 +51,37 @@ from datetime import UTC, datetime
 from functools import partial
 from typing import Any
 
+from repository_presenter.components.issues import source_parse
 from repository_presenter.components.issues.model import (
     CloseReason,
     EvidenceEntry,
     Handoff,
     Status,
 )
+from repository_presenter.components.issues.registry_evidence import (
+    RegistryIdentity,
+    registry_identities,
+)
 from repository_presenter.components.readme.validation.registry import BLOCKING_CHECKS
 from repository_presenter.core.github.read_client import (
     DefaultBranchRead,
     FileRead,
+    TreeRead,
     fetch_default_branch_sha,
     fetch_file,
+    fetch_tree,
 )
 from repository_presenter.core.package_registry import (
     RegistryObservation,
     observe_distribution,
 )
 
-# The one registry shape a BC-02 handoff's evidence records today is a PyPI JSON URL, so the
-# replay asks the "python" observer for it; core/package_registry.py resolves that name
-# without this module importing any ecosystem's extractor.
-_REGISTRY_ECOSYSTEM = "python"
-_observe_registry = partial(observe_distribution, _REGISTRY_ECOSYSTEM)
-_PYPI_EVIDENCE_URL = re.compile(r"^https://pypi\.org/pypi/(?P<name>[^/]+)/json$")
+# A BC-02 handoff about a missing distribution records the registry URL it probed; the replay asks
+# the observer registered for that URL's ecosystem (`registry_evidence.py` names it).
+# core/package_registry.py resolves the observer by name without this module importing any
+# ecosystem's extractor. PyPI keeps its own `observe_pypi` read (the one existing tests inject).
+_PYTHON_ECOSYSTEM = "python"
+_observe_pypi = partial(observe_distribution, _PYTHON_ECOSYSTEM)
 _STATUS_THAT_CAN_RESOLVE: frozenset[Status] = frozenset({"FILED"})
 
 # The repository-level disposition shape (`NOT_PROCESSABLE`) carries no independent versioning of
@@ -107,13 +114,19 @@ class RedetectionReads:
 
     fetch_default_branch_sha: Callable[..., DefaultBranchRead] = fetch_default_branch_sha
     fetch_file: Callable[..., FileRead] = fetch_file
-    observe_pypi: Callable[..., RegistryObservation] = _observe_registry
+    fetch_tree: Callable[..., TreeRead] = fetch_tree
+    observe_pypi: Callable[..., RegistryObservation] = _observe_pypi
+    # (ecosystem, name, manifest_version) -> the registry's reading, for every ecosystem but
+    # Python; `core/package_registry.py` answers by the ecosystem name each platform registered.
+    observe_registry: Callable[..., RegistryObservation] = observe_distribution
 
 
 DEFAULT_READS = RedetectionReads(
     fetch_default_branch_sha=_with_env_token(fetch_default_branch_sha),
     fetch_file=_with_env_token(fetch_file),
-    observe_pypi=_observe_registry,
+    fetch_tree=_with_env_token(fetch_tree),
+    observe_pypi=_observe_pypi,
+    observe_registry=observe_distribution,
 )
 
 
@@ -139,12 +152,19 @@ class RedetectionResult:
 
 
 Redetector = Callable[[Handoff, RedetectionReads], RedetectionResult]
+# A redetector's companion: why a handoff's own evidence has not the shape that redetector replays,
+# decided from the handoff alone (no network), or None. It is registered with the redetector so the
+# two cannot drift apart - `replay_gap` and `redetect` read the same classification.
+GapCheck = Callable[[Handoff], str | None]
 _REDETECTORS: dict[str, Redetector] = {}
+_GAP_CHECKS: dict[str, GapCheck] = {}
 
 
-def register(check_id: str) -> Callable[[Redetector], Redetector]:
+def register(check_id: str, *, gap: GapCheck | None = None) -> Callable[[Redetector], Redetector]:
     def _decorator(fn: Redetector) -> Redetector:
         _REDETECTORS[check_id] = fn
+        if gap is not None:
+            _GAP_CHECKS[check_id] = gap
         return fn
 
     return _decorator
@@ -180,20 +200,8 @@ def replay_gap(handoff: Handoff) -> str | None:
             f"no redetector is registered for triggering_check.id={handoff.triggering_check.id!r} "
             f"(registered: {ids}), so the recheck-before-filing is always inconclusive"
         )
-    if handoff.triggering_check.id == "BC-02" and len(_pypi_package_names(handoff)) != 1:
-        return (
-            "the BC-02 redetector replays only a PyPI registry URL "
-            "(https://pypi.org/pypi/<name>/json) and this handoff's evidence has "
-            f"{len(_pypi_package_names(handoff))}, so the recheck-before-filing is inconclusive"
-        )
-    if handoff.triggering_check.id == "NOT_PROCESSABLE" and not any(
-        e.path.endswith(".py") for e in handoff.evidence
-    ):
-        return (
-            "the NOT_PROCESSABLE redetector re-parses named .py paths and this handoff's evidence "
-            "names none, so the recheck-before-filing is inconclusive"
-        )
-    return None
+    gap = _GAP_CHECKS.get(handoff.triggering_check.id)
+    return gap(handoff) if gap is not None else None
 
 
 def _now() -> str:
@@ -269,86 +277,17 @@ def apply_redetection(handoff: Handoff, result: RedetectionResult) -> Handoff:
     )
 
 
-def _pypi_package_names(handoff: Handoff) -> frozenset[str]:
-    return frozenset(
-        match.group("name")
-        for entry in handoff.evidence
-        if (match := _PYPI_EVIDENCE_URL.match(entry.path)) is not None
-    )
-
-
-@register("BC-02")
-def _redetect_install_command_defect(
-    handoff: Handoff, reads: RedetectionReads
+def _result(
+    handoff: Handoff,
+    *,
+    revision: str | None,
+    drifted: bool,
+    still_fires: bool | None,
+    note: str,
+    fresh: tuple[EvidenceEntry, ...] = (),
 ) -> RedetectionResult:
-    """BC-02 (`validation/registry.py::_check_install`): re-probe the exact package-registry URL
-    this handoff's own evidence already recorded, at the repository's current default-branch
-    revision. Only the manifest-published-distribution half is replayed - the primary, mechanical
-    signal `_check_install` actually keys `install_command`'s polarity on for this shape
-    (a CONTRADICTED fact's own evidence detail: "package registry: distribution not found").
-    """
-    names = _pypi_package_names(handoff)
-    branch = reads.fetch_default_branch_sha(handoff.repository)
-    revision = branch.sha or handoff.source_revision
-    drifted = branch.sha is not None and branch.sha != handoff.source_revision
-
-    if len(names) != 1:
-        return RedetectionResult(
-            repository=handoff.repository,
-            defect_fingerprint=handoff.defect_fingerprint,
-            triggering_check_id=handoff.triggering_check.id,
-            checked_at=_now(),
-            checked_at_revision=revision,
-            revision_drifted=drifted,
-            still_fires=None,
-            note=(
-                "cannot redetect: expected exactly one PyPI evidence URL "
-                f"(https://pypi.org/pypi/<name>/json) in this handoff's own evidence, found "
-                f"{len(names)}"
-            ),
-            fresh_evidence=(),
-            proposed_status=None,
-        )
-    name = next(iter(names))
-    observation = reads.observe_pypi(name, None)
-    fresh: tuple[EvidenceEntry, ...] = (
-        EvidenceEntry(path=observation.url, detail=observation.summary),
-    )
-
-    manifest_entry = next((e for e in handoff.evidence if e.path.endswith("pyproject.toml")), None)
-    if manifest_entry is not None and branch.sha is not None:
-        file_read = reads.fetch_file(handoff.repository, revision, "pyproject.toml")
-        if file_read.found and file_read.content is not None:
-            build_backend = next(
-                (
-                    line.strip()
-                    for line in file_read.content.splitlines()
-                    if line.strip().startswith("build-backend")
-                ),
-                "(no build-backend line found)",
-            )
-            fresh = (*fresh, EvidenceEntry(path="pyproject.toml", detail=build_backend))
-
-    if observation.error is not None:
-        return RedetectionResult(
-            repository=handoff.repository,
-            defect_fingerprint=handoff.defect_fingerprint,
-            triggering_check_id=handoff.triggering_check.id,
-            checked_at=_now(),
-            checked_at_revision=revision,
-            revision_drifted=drifted,
-            still_fires=None,
-            note=f"inconclusive: package registry probe failed: {observation.error}",
-            fresh_evidence=fresh,
-            proposed_status=None,
-        )
-
-    still_fires = not observation.found
-    note = (
-        f"still fires: package registry still has no distribution named {name!r}"
-        if still_fires
-        else f"no longer fires: package registry now lists a distribution named {name!r}"
-    )
+    """One `RedetectionResult`, its proposed status and close reason decided by the shared rules
+    (``still_fires`` of ``None`` never proposes anything)."""
     proposed_status = _propose_status(handoff, still_fires=still_fires)
     return RedetectionResult(
         repository=handoff.repository,
@@ -369,49 +308,411 @@ def _redetect_install_command_defect(
     )
 
 
-@register("NOT_PROCESSABLE")
+# An evidence `path` that names a file in the repository (as opposed to a command line, a URL, or
+# prose like "live run"): no whitespace, no scheme, and a dotted file name.
+_REPO_PATH = re.compile(r"^(?!https?:)[A-Za-z0-9_@+\-./]*[A-Za-z0-9_@+\-]\.[A-Za-z0-9]+$")
+
+
+def _repo_paths(handoff: Handoff) -> tuple[str, ...]:
+    return tuple(dict.fromkeys(e.path for e in handoff.evidence if _REPO_PATH.match(e.path)))
+
+
+def _read_head(handoff: Handoff, reads: RedetectionReads) -> tuple[str | None, bool, str | None]:
+    """The repository's current default-branch head, whether it moved since ``handoff`` was
+    written, and the read error (the head is ``None`` exactly when there is one)."""
+    branch = reads.fetch_default_branch_sha(handoff.repository)
+    if branch.sha is None:
+        return None, False, branch.error or "no default-branch head returned"
+    return branch.sha, branch.sha != handoff.source_revision, None
+
+
+# --- BC-02 / BC-03 / BC-06: which replay a handoff's evidence supports ----------------------------
+
+
+def _bc02_gap(handoff: Handoff) -> str | None:
+    identities = registry_identities(handoff.evidence)
+    if len(identities) > 1:
+        names = ", ".join(sorted(f"{i.ecosystem}:{i.name}" for i in identities))
+        return (
+            "the BC-02 redetector replays one package-registry URL and this handoff's evidence "
+            f"names {len(identities)} packages ({names}), so the recheck-before-filing is "
+            "inconclusive"
+        )
+    if not identities:
+        return _toolchain_gap(handoff)
+    return None
+
+
+def _toolchain_gap(handoff: Handoff) -> str | None:
+    if _repo_paths(handoff):
+        return None
+    return (
+        f"the {handoff.triggering_check.id} redetector replays a recorded toolchain finding "
+        "against the repository files its evidence cites, and this handoff's evidence cites no "
+        "repository file path nor a registry URL, so the recheck-before-filing is inconclusive"
+    )
+
+
+@register("BC-02", gap=_bc02_gap)
+def _redetect_install_command_defect(
+    handoff: Handoff, reads: RedetectionReads
+) -> RedetectionResult:
+    """BC-02 (`validation/registry.py::_check_install`). Two evidence shapes, told apart by the
+    evidence alone: a package-registry URL (the install command names a distribution the registry
+    does not have) is re-probed at the same registry; with no registry URL the finding is a
+    toolchain failure (a source build the README documents) and is carried by
+    :func:`_redetect_toolchain_defect`. More than one distinct package is refused, not guessed."""
+    identities = registry_identities(handoff.evidence)
+    if not identities:
+        return _redetect_toolchain_defect(handoff, reads)
+    if len(identities) != 1:
+        head, drifted, _ = _read_head(handoff, reads)
+        return _result(
+            handoff,
+            revision=head or handoff.source_revision,
+            drifted=drifted,
+            still_fires=None,
+            note=(
+                "cannot redetect: expected exactly one package-registry identity in this "
+                f"handoff's own evidence, found {len(identities)}"
+            ),
+        )
+    return _redetect_registry_defect(handoff, reads, next(iter(identities)))
+
+
+def _redetect_registry_defect(
+    handoff: Handoff, reads: RedetectionReads, identity: RegistryIdentity
+) -> RedetectionResult:
+    """Re-probe the exact package this handoff's own evidence recorded, at the repository's
+    current default-branch revision. Only the manifest-published-distribution half is replayed -
+    the primary, mechanical signal `_check_install` actually keys `install_command`'s polarity on
+    for this shape (a CONTRADICTED fact's own evidence detail: "package registry: distribution not
+    found")."""
+    name = identity.name
+    head, drifted, _ = _read_head(handoff, reads)
+    revision = head or handoff.source_revision
+    if identity.ecosystem == _PYTHON_ECOSYSTEM:
+        observation = reads.observe_pypi(name, None)
+    else:
+        observation = reads.observe_registry(identity.ecosystem, name, None)
+    fresh: tuple[EvidenceEntry, ...] = (
+        EvidenceEntry(path=observation.url, detail=observation.summary),
+    )
+
+    manifest_entry = next((e for e in handoff.evidence if e.path.endswith("pyproject.toml")), None)
+    if identity.ecosystem == _PYTHON_ECOSYSTEM and manifest_entry is not None and head is not None:
+        file_read = reads.fetch_file(handoff.repository, revision, "pyproject.toml")
+        if file_read.found and file_read.content is not None:
+            build_backend = next(
+                (
+                    line.strip()
+                    for line in file_read.content.splitlines()
+                    if line.strip().startswith("build-backend")
+                ),
+                "(no build-backend line found)",
+            )
+            fresh = (*fresh, EvidenceEntry(path="pyproject.toml", detail=build_backend))
+
+    if observation.error is not None:
+        return _result(
+            handoff,
+            revision=revision,
+            drifted=drifted,
+            still_fires=None,
+            note=f"inconclusive: package registry probe failed: {observation.error}",
+            fresh=fresh,
+        )
+
+    still_fires = not observation.found
+    note = (
+        f"still fires: package registry still has no distribution named {name!r}"
+        if still_fires
+        else f"no longer fires: package registry now lists a distribution named {name!r}"
+    )
+    return _result(
+        handoff,
+        revision=revision,
+        drifted=drifted,
+        still_fires=still_fires,
+        note=note,
+        fresh=fresh,
+    )
+
+
+@register("BC-03", gap=_toolchain_gap)
+def _redetect_example_defect(handoff: Handoff, reads: RedetectionReads) -> RedetectionResult:
+    """BC-03 (a README example that does not build or run): the finding is a toolchain run, so it
+    is carried by :func:`_redetect_toolchain_defect`."""
+    return _redetect_toolchain_defect(handoff, reads)
+
+
+def _changed_blobs(old: TreeRead, new: TreeRead) -> list[str]:
+    paths = old.blob_shas.keys() | new.blob_shas.keys()
+    return sorted(p for p in paths if old.blob_shas.get(p) != new.blob_shas.get(p))
+
+
+def _redetect_toolchain_defect(handoff: Handoff, reads: RedetectionReads) -> RedetectionResult:
+    """A finding whose reproduction is a toolchain run recorded in the handoff's evidence (a
+    ``dotnet build``, ``tsc``, ``cmake``/``gcc``, or a Python example run) - not a read this
+    process can repeat, because it needs a sandbox and the language's SDK.
+
+    What this process *can* establish deterministically is whether any input of that run changed.
+    Unchanged inputs give the unchanged outcome, so the defect is carried forward as still present
+    when the default branch is still at the revision the finding was made against, or when the
+    revision moved but the whole tree's git blob ids are identical. Anything else is
+    **inconclusive, never resolved**: a changed tree may or may not have fixed the defect, and only
+    re-running the recorded command can say, so ``still_fires`` stays ``None`` and the filing
+    path's recheck refuses until the handoff is re-verified at the new revision. This redetector
+    therefore never proposes ``RESOLVED_UPSTREAM`` - a fix is recognised only by a re-run.
+    """
+    cited = _repo_paths(handoff)
+    head, drifted, error = _read_head(handoff, reads)
+    if not cited:
+        return _result(
+            handoff,
+            revision=head or handoff.source_revision,
+            drifted=drifted,
+            still_fires=None,
+            note=(
+                "cannot redetect: this handoff's evidence cites no repository file path nor a "
+                "package-registry URL"
+            ),
+        )
+    if head is None:
+        return _result(
+            handoff,
+            revision=None,
+            drifted=False,
+            still_fires=None,
+            note=f"inconclusive: cannot resolve current default-branch revision: {error}",
+        )
+    short = handoff.source_revision[:12]
+    if not drifted:
+        return _result(
+            handoff,
+            revision=head,
+            drifted=False,
+            still_fires=True,
+            note=(
+                f"still fires: the default branch is still at {short}, the revision this finding "
+                "was made against, so none of the inputs of the recorded toolchain run changed "
+                "(the run itself is not re-executed here)"
+            ),
+            fresh=(EvidenceEntry(path="default branch head", detail=f"{head} (unchanged)"),),
+        )
+    old = reads.fetch_tree(handoff.repository, handoff.source_revision)
+    new = reads.fetch_tree(handoff.repository, head)
+    unreadable = next((t for t in (old, new) if t.error or t.truncated), None)
+    if unreadable is not None:
+        why = unreadable.error or "listing truncated"
+        return _result(
+            handoff,
+            revision=head,
+            drifted=True,
+            still_fires=None,
+            note=(
+                f"inconclusive: the default branch moved from {short} to {head[:12]} and the "
+                f"trees could not be compared ({why}); re-run the recorded toolchain command"
+            ),
+        )
+    changed = _changed_blobs(old, new)
+    if not changed:
+        return _result(
+            handoff,
+            revision=head,
+            drifted=True,
+            still_fires=True,
+            note=(
+                f"still fires: the default branch moved from {short} to {head[:12]} but every "
+                "file's content is identical, so the recorded toolchain run's inputs are unchanged"
+            ),
+            fresh=(EvidenceEntry(path="repository tree", detail="no file differs"),),
+        )
+    cited_changed = [p for p in cited if p in changed]
+    fresh = tuple(
+        EvidenceEntry(path=p, detail="changed since the finding" if p in changed else "unchanged")
+        for p in cited
+    )
+    return _result(
+        handoff,
+        revision=head,
+        drifted=True,
+        still_fires=None,
+        note=(
+            f"inconclusive: the default branch moved from {short} to {head[:12]} and "
+            f"{len(changed)} file(s) differ ({len(cited_changed)} of the {len(cited)} this "
+            "handoff cites); the finding is a toolchain run, so re-run the recorded command at "
+            "the new revision before relying on it"
+        ),
+        fresh=fresh,
+    )
+
+
+# A Markdown inline link target in an evidence detail: `[text](docs/guide.md)`. Only a relative
+# path is checkable against the tree; a URL, an anchor and a mail link are not.
+_MD_LINK = re.compile(r"\]\((?P<target>[^)\s]+)\)")
+_NOT_RELATIVE = re.compile(r"^(?:[A-Za-z][A-Za-z0-9+.\-]*:|#|/)")
+
+
+def _broken_links(handoff: Handoff) -> tuple[tuple[str, str], ...]:
+    """The ``(document, relative target)`` pairs this handoff's evidence says are broken: an
+    evidence entry for a Markdown document whose detail quotes an inline link to a repository
+    path."""
+    pairs: list[tuple[str, str]] = []
+    for entry in handoff.evidence:
+        if not entry.path.lower().endswith(".md") or entry.detail is None:
+            continue
+        for match in _MD_LINK.finditer(entry.detail):
+            raw = match.group("target")
+            target = raw.split("#", 1)[0].split("?", 1)[0]
+            if target and not _NOT_RELATIVE.match(raw):
+                pairs.append((entry.path, target))
+    return tuple(dict.fromkeys(pairs))
+
+
+def _link_gap(handoff: Handoff) -> str | None:
+    if _broken_links(handoff):
+        return None
+    return (
+        "the BC-06 redetector re-checks a Markdown link to a repository path and this handoff's "
+        "evidence quotes none (a `[text](relative/path)` in a .md entry's detail), so the "
+        "recheck-before-filing is inconclusive"
+    )
+
+
+def _exists(tree: TreeRead, path: str) -> bool:
+    return path in tree.blob_shas or any(p.startswith(f"{path}/") for p in tree.paths)
+
+
+@register("BC-06", gap=_link_gap)
+def _redetect_link_defect(handoff: Handoff, reads: RedetectionReads) -> RedetectionResult:
+    """BC-06 (a README link to a repository path that does not exist): re-read the document and
+    the tree at the repository's current revision. The defect still fires while the document still
+    carries the link and the tree still lacks its target; it is gone when the link was removed or
+    the target now exists. Anything unreadable is inconclusive, never a resolution."""
+    links = _broken_links(handoff)
+    head, drifted, error = _read_head(handoff, reads)
+    if not links:
+        return _result(
+            handoff,
+            revision=head or handoff.source_revision,
+            drifted=drifted,
+            still_fires=None,
+            note="cannot redetect: no Markdown link to a repository path in this handoff's "
+            "evidence",
+        )
+    if head is None:
+        return _result(
+            handoff,
+            revision=None,
+            drifted=False,
+            still_fires=None,
+            note=f"inconclusive: cannot resolve current default-branch revision: {error}",
+        )
+    tree = reads.fetch_tree(handoff.repository, head)
+    if tree.error is not None or tree.truncated:
+        return _result(
+            handoff,
+            revision=head,
+            drifted=drifted,
+            still_fires=None,
+            note=f"inconclusive: cannot list the repository tree: {tree.error or 'truncated'}",
+        )
+    fresh: list[EvidenceEntry] = []
+    still_broken: list[str] = []
+    for document, target in links:
+        read = reads.fetch_file(handoff.repository, head, document)
+        if not read.found or read.content is None:
+            reason = read.error or "not found"
+            fresh.append(EvidenceEntry(path=document, detail=f"could not re-fetch: {reason}"))
+            return _result(
+                handoff,
+                revision=head,
+                drifted=drifted,
+                still_fires=None,
+                note=f"inconclusive: could not re-read {document}: {reason}",
+                fresh=tuple(fresh),
+            )
+        resolved = posixpath.normpath(posixpath.join(posixpath.dirname(document), target))
+        present = f"]({target}" in read.content
+        exists = _exists(tree, resolved)
+        fresh.append(
+            EvidenceEntry(
+                path=document,
+                detail=f"link to {target} {'still present' if present else 'no longer present'}",
+            )
+        )
+        fresh.append(EvidenceEntry(path=resolved, detail="in tree" if exists else "not in tree"))
+        if present and not exists:
+            still_broken.append(target)
+    still_fires = bool(still_broken)
+    note = (
+        f"still fires: {', '.join(still_broken)} is still linked and still absent from the tree"
+        if still_fires
+        else "no longer fires: every recorded link was removed or now resolves to a repository path"
+    )
+    return _result(
+        handoff,
+        revision=head,
+        drifted=drifted,
+        still_fires=still_fires,
+        note=note,
+        fresh=tuple(fresh),
+    )
+
+
+# --- NOT_PROCESSABLE: a repository whose own source does not parse --------------------------------
+
+
+def _unparseable_paths(handoff: Handoff) -> tuple[str, ...]:
+    """The source paths the evidence names that a registered parser can check."""
+    return tuple(sorted({p for p in _repo_paths(handoff) if source_parse.supported(p)}))
+
+
+def _not_processable_gap(handoff: Handoff) -> str | None:
+    if _unparseable_paths(handoff):
+        return None
+    return (
+        "the NOT_PROCESSABLE redetector re-parses named source paths (Python through ast, every "
+        "other language through its pinned tree-sitter grammar) and this handoff's evidence names "
+        "none, so the recheck-before-filing is inconclusive"
+    )
+
+
+@register("NOT_PROCESSABLE", gap=_not_processable_gap)
 def _redetect_not_processable_defect(
     handoff: Handoff, reads: RedetectionReads
 ) -> RedetectionResult:
-    """A repository-level `NOT_PROCESSABLE` disposition whose evidence names one or more `.py`
-    source paths that failed `ast.parse` (the unparseable-source shape, distinct from
+    """A repository-level `NOT_PROCESSABLE` disposition whose evidence names one or more source
+    paths that failed to parse (the unparseable-source shape, distinct from
     `evidence/facts/processability.py::NO_IMPLEMENTATION_EVIDENCE`, which has no source to parse
     at all). Re-fetches exactly those named paths at the repository's current revision and
-    re-parses them - the same `ast.parse` reproduction this handoff's own evidence already used,
+    re-parses them with `source_parse` - Python through the same ``ast.parse`` the finding was
+    made with, any other language through its pinned tree-sitter grammar (`core/grammars.py`) -
     replayed fresh rather than assumed unchanged. Scope note: this checks the specific path(s) the
     evidence names, not a full repository-wide rescan; a broader corroborating scan is a natural
     future extension once a handoff's evidence typically names more than one representative file.
     """
-    named_paths = tuple(sorted({e.path for e in handoff.evidence if e.path.endswith(".py")}))
-    branch = reads.fetch_default_branch_sha(handoff.repository)
-    revision = branch.sha or handoff.source_revision
-    drifted = branch.sha is not None and branch.sha != handoff.source_revision
+    named_paths = _unparseable_paths(handoff)
+    head, drifted, error = _read_head(handoff, reads)
+    revision = head or handoff.source_revision
 
     if not named_paths:
-        return RedetectionResult(
-            repository=handoff.repository,
-            defect_fingerprint=handoff.defect_fingerprint,
-            triggering_check_id=handoff.triggering_check.id,
-            checked_at=_now(),
-            checked_at_revision=revision,
-            revision_drifted=drifted,
+        return _result(
+            handoff,
+            revision=revision,
+            drifted=drifted,
             still_fires=None,
-            note="cannot redetect: no .py source path recorded in this handoff's own evidence",
-            fresh_evidence=(),
-            proposed_status=None,
+            note="cannot redetect: no parseable source path recorded in this handoff's own "
+            "evidence",
         )
-    if branch.error is not None:
-        return RedetectionResult(
-            repository=handoff.repository,
-            defect_fingerprint=handoff.defect_fingerprint,
-            triggering_check_id=handoff.triggering_check.id,
-            checked_at=_now(),
-            checked_at_revision=None,
-            revision_drifted=False,
+    if head is None:
+        return _result(
+            handoff,
+            revision=None,
+            drifted=False,
             still_fires=None,
-            note=f"inconclusive: cannot resolve current default-branch revision: {branch.error}",
-            fresh_evidence=(),
-            proposed_status=None,
+            note=f"inconclusive: cannot resolve current default-branch revision: {error}",
         )
 
     fresh: list[EvidenceEntry] = []
@@ -425,49 +726,39 @@ def _redetect_not_processable_defect(
             fresh.append(EvidenceEntry(path=path, detail=f"could not re-fetch: {reason}"))
             continue
         try:
-            ast.parse(file_read.content)
-            fresh.append(EvidenceEntry(path=path, detail="ast.parse: OK"))
-        except SyntaxError as exc:
+            problem = source_parse.syntax_error(path, file_read.content)
+        except source_parse.GrammarUnavailableError as exc:
+            inconclusive = True
+            fresh.append(EvidenceEntry(path=path, detail=f"cannot parse: {exc}"))
+            continue
+        if problem is None:
+            fresh.append(EvidenceEntry(path=path, detail=f"{source_parse.parser_name(path)}: OK"))
+        else:
             failing.append(path)
-            fresh.append(EvidenceEntry(path=path, detail=f"ast.parse: {type(exc).__name__}: {exc}"))
+            fresh.append(EvidenceEntry(path=path, detail=problem))
 
     if inconclusive and not failing:
-        return RedetectionResult(
-            repository=handoff.repository,
-            defect_fingerprint=handoff.defect_fingerprint,
-            triggering_check_id=handoff.triggering_check.id,
-            checked_at=_now(),
-            checked_at_revision=revision,
-            revision_drifted=drifted,
+        return _result(
+            handoff,
+            revision=revision,
+            drifted=drifted,
             still_fires=None,
-            note=(
-                "inconclusive: could not re-fetch one or more of this handoff's named source paths"
-            ),
-            fresh_evidence=tuple(fresh),
-            proposed_status=None,
+            note="inconclusive: could not re-fetch or parse one or more of this handoff's named "
+            "source paths",
+            fresh=tuple(fresh),
         )
 
     still_fires = bool(failing)
     note = (
-        f"still fires: {len(failing)}/{len(named_paths)} named source path(s) still fail ast.parse"
+        f"still fires: {len(failing)}/{len(named_paths)} named source path(s) still fail to parse"
         if still_fires
         else f"no longer fires: all {len(named_paths)} named source path(s) now parse cleanly"
     )
-    proposed_status = _propose_status(handoff, still_fires=still_fires)
-    return RedetectionResult(
-        repository=handoff.repository,
-        defect_fingerprint=handoff.defect_fingerprint,
-        triggering_check_id=handoff.triggering_check.id,
-        checked_at=_now(),
-        checked_at_revision=revision,
-        revision_drifted=drifted,
+    return _result(
+        handoff,
+        revision=revision,
+        drifted=drifted,
         still_fires=still_fires,
         note=note,
-        fresh_evidence=tuple(fresh),
-        proposed_status=proposed_status,
-        proposed_close_reason=(
-            _propose_close_reason(handoff, revision_drifted=drifted)
-            if proposed_status == "RESOLVED_UPSTREAM"
-            else None
-        ),
+        fresh=tuple(fresh),
     )
