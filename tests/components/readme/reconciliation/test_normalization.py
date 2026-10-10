@@ -708,3 +708,158 @@ def test_fact_ids_array_itself_is_bounded_so_repeating_valid_ids_cannot_run_away
     # validates clean - the bound never rejects a legitimate reply.
     assert list(validator.iter_errors(_cite(citable[0]))) == []
     assert list(validator.iter_errors(_cite(*citable))) == []
+
+
+# G7-W12 follow-up (a): an uncited DEFER_UNRESOLVED on a shell command block restates the
+# OMIT_UNSUPPORTED the branch above already folds. Real shapes, read from the 2026-10-09 re-seal
+# transactions: 3D-.NET inherited_unit:067 (a build command under Development and Testing),
+# Page-Python 015 and PDF-.NET 018 (a clone-and-build block under Installation), each deferred by
+# the model with no citation and a rationale of "no fact supports or contradicts this".
+def _command_unit(number: int, text: str, section: str) -> Fact:
+    return Fact(
+        f"inherited_unit:{number:03d}.code_block",
+        "inherited_unit",
+        text,
+        (Evidence("README.md", f"lines 1-3; code_block; under {section}"),),
+        attributes={"section": section},
+    )
+
+
+def _deferred_entry(unit: str, *fact_ids: str) -> dict[str, object]:
+    entry = _entry(unit, "DEFER_UNRESOLVED", None, *fact_ids)
+    entry["rationale"] = "No fact supports or contradicts the build command."
+    return entry
+
+
+def _command_facts(*extra: Fact) -> FactsDocument:
+    return FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, *extra))
+
+
+_BUILD = _command_unit(
+    67,
+    "```bash\ndotnet build src/converter/Converter.csproj\n```",
+    "Aspose.3D FOSS for .NET > Development and Testing",
+)
+_CLONE = _command_unit(
+    15,
+    "```bash\ngit clone https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python.git\n"
+    "cd Aspose.Page-FOSS-for-Python\npython package.py build\npython package.py verify\n```",
+    "Aspose.Page FOSS for Python > Installation",
+)
+_DOCS = Fact("build_test_asset:docs", "build_test_asset", "docs/", (Evidence("docs/"),))
+_DOTNET = Fact(
+    "install_command:dotnet",
+    "install_command",
+    "dotnet add package Aspose.3D.FOSS",
+    (Evidence("Converter.csproj", "manifest"), Evidence("nuget", "package registry: found")),
+)
+
+
+def test_an_uncited_defer_on_a_build_command_is_kept_in_development_and_testing() -> None:
+    output = {"dispositions": [_deferred_entry("inherited_unit:067.code_block")]}
+    assert normalize(output, _command_facts(_BUILD, _DOCS, _DOTNET)) == []
+    entry = output["dispositions"][0]
+    assert (entry["disposition"], entry["destination_section"]) == (
+        "VERIFIED_PRESERVE",
+        "development_testing",
+    )
+    assert entry["fact_ids"] == ["build_test_asset:docs"]
+
+
+def test_an_uncited_defer_on_an_installation_command_is_superseded_by_the_installation_row() -> (
+    None
+):
+    output = {"dispositions": [_deferred_entry("inherited_unit:015.code_block")]}
+    assert normalize(output, _command_facts(_CLONE, _DOTNET)) == []
+    entry = output["dispositions"][0]
+    assert (entry["disposition"], entry["destination_section"]) == (
+        "SUPERSEDE_REDUNDANT",
+        "installation",
+    )
+    assert entry["fact_ids"] == ["install_command:dotnet"]
+
+
+def test_the_folded_defer_matches_the_fold_of_the_omission_it_restates() -> None:
+    facts = _command_facts(_BUILD, _CLONE, _DOCS, _DOTNET)
+    omitted = {
+        "dispositions": [
+            _entry("inherited_unit:067.code_block", "OMIT_UNSUPPORTED", None),
+            _entry("inherited_unit:015.code_block", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    deferred = {
+        "dispositions": [
+            _deferred_entry("inherited_unit:067.code_block"),
+            _deferred_entry("inherited_unit:015.code_block"),
+        ]
+    }
+    normalize(omitted, facts)
+    normalize(deferred, facts)
+    for left, right in zip(omitted["dispositions"], deferred["dispositions"], strict=True):
+        assert {k: v for k, v in left.items() if k != "rationale"} == {
+            k: v for k, v in right.items() if k != "rationale"
+        }
+
+
+def test_a_cited_defer_on_a_command_block_is_left_alone() -> None:
+    output = {
+        "dispositions": [_deferred_entry("inherited_unit:067.code_block", "build_test_asset:docs")]
+    }
+    assert normalize(output, _command_facts(_BUILD, _DOCS, _DOTNET)) == []
+    assert output["dispositions"][0]["disposition"] == "DEFER_UNRESOLVED"
+
+
+def test_an_uncited_defer_on_a_non_command_unit_is_left_alone() -> None:
+    prose = _command_unit(70, "Run the converter to build.", "X > Development and Testing")
+    mermaid = _command_unit(71, "```mermaid\ngraph LR\n```", "X > Development and Testing")
+    output = {
+        "dispositions": [
+            _deferred_entry("inherited_unit:070.code_block"),
+            _deferred_entry("inherited_unit:071.code_block"),
+        ]
+    }
+    assert normalize(output, _command_facts(prose, mermaid, _DOCS, _DOTNET)) == []
+    assert [e["disposition"] for e in output["dispositions"]] == ["DEFER_UNRESOLVED"] * 2
+
+
+def test_an_uncited_defer_on_a_command_stays_deferred_with_no_build_or_install_fact() -> None:
+    output = {"dispositions": [_deferred_entry("inherited_unit:067.code_block")]}
+    assert normalize(output, _command_facts(_BUILD)) == []
+    assert output["dispositions"][0]["disposition"] == "DEFER_UNRESOLVED"
+
+
+def test_an_uncited_defer_on_a_command_stays_deferred_where_development_and_testing_is_absent() -> (
+    None
+):
+    """An install fact alone does not make Development and Testing render (the Words/Cells .NET
+    measurement above): the non-install command has nowhere to go and stays an explicit deferral."""
+    output = {"dispositions": [_deferred_entry("inherited_unit:067.code_block")]}
+    assert normalize(output, _command_facts(_BUILD, _DOTNET)) == []
+    entry = output["dispositions"][0]
+    assert (entry["disposition"], entry["destination_section"]) == ("DEFER_UNRESOLVED", None)
+
+
+def test_a_command_block_deferred_because_its_example_is_unverified_is_not_folded() -> None:
+    """A deferral with an UNRESOLVED or CONTRADICTED example behind it is the BC-03 withholding
+    of an unexecuted example, not a restated omission: folding it would publish that block."""
+    for polarity in ("UNRESOLVED", "CONTRADICTED"):
+        shown = Fact(
+            "example:009",
+            "example",
+            "dotnet build",
+            (Evidence("README.md", "lines 1-3; bash fence; unit inherited_unit:067.code_block"),),
+            polarity=polarity,  # type: ignore[arg-type]
+        )
+        output = {"dispositions": [_deferred_entry("inherited_unit:067.code_block")]}
+        assert normalize(output, _command_facts(_BUILD, shown, _DOCS, _DOTNET)) == []
+        assert output["dispositions"][0]["disposition"] == "DEFER_UNRESOLVED"
+
+
+def test_a_folded_command_defer_is_no_longer_a_withheld_command_for_bc_05() -> None:
+    from repository_presenter.components.readme.validation.deferrals import review_deferrals
+
+    facts = _command_facts(_BUILD, _DOCS, _DOTNET)
+    output = {"dispositions": [_deferred_entry("inherited_unit:067.code_block")]}
+    assert [f.class_id for f in review_deferrals(output, facts)] == ["COMMAND_BLOCK_WITHHELD"]
+    normalize(output, facts)
+    assert review_deferrals(output, facts) == []

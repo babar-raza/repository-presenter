@@ -669,3 +669,14 @@ def test_a_bc07_overage_the_levers_cannot_provably_close_still_goes_to_the_model
     assert model.call_count == 1
     assert store.puts == []
     assert ledger.records[0][0] == "unrepairable"
+
+
+def test_the_source_reconciliation_call_passes_its_last_resort_recovery() -> None:
+    """A recover= nothing passes is a module with no production importer (AGENTS.md). run_round
+    builds the S4 call per batch; the recovery must be the one defined beside its checks."""
+    import inspect
+
+    from repository_presenter.components.readme.repair import rounds
+
+    source = inspect.getsource(rounds.run_round)
+    assert "recover=functools.partial(recover_uncited_prose_omits, facts=batch_facts)" in source

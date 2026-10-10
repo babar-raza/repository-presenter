@@ -25,6 +25,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     reconciliation_batches,
     reconciliation_packet,
     reconciliation_schema,
+    recover_uncited_prose_omits,
     rendering_fact_ids,
     summarize,
     uncited_omit_candidates,
@@ -1249,3 +1250,184 @@ def test_a_sealed_shaped_dispositions_file_still_validates_under_the_static_sche
     )
     assert list(validator.iter_errors(sealed)) == []
     assert placement_errors(sealed, _prose_omit_facts()) == []
+
+
+# G7-W12 follow-up (b): the last-resort recover= for source_reconciliation. Real shape: Aspose.PSD
+# FOSS for .NET inherited_unit:018.paragraph, "... is not published to NuGet yet", which the model
+# omitted with no citation on both attempts of the 2026-10-10 live run, so the transaction failed
+# closed at S4 before BC-05 could classify anything.
+_PSD_TEXT = (
+    "The package metadata is defined in this repository, but `Aspose.PSD.FOSS` is not "
+    "published to NuGet yet."
+)
+
+
+def _psd_facts(*extra: Fact) -> FactsDocument:
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *_prose_omit_facts().facts,
+            _fact("inherited_unit:018.paragraph", "inherited_unit", _PSD_TEXT),
+            *extra,
+        ),
+    )
+
+
+def _psd_reply(unit_018: dict[str, object]) -> dict[str, object]:
+    """A full reply over _psd_facts(): every other unit validly disposed, 018 as supplied."""
+    reply = _s4_output(
+        {
+            "disposition": "VERIFIED_REWRITE",
+            "destination_section": "opening",
+            "fact_ids": ["identity:repository"],
+        }
+    )
+    reply["dispositions"].append({**unit_018, "unit_id": "inherited_unit:018.paragraph"})  # type: ignore[union-attr]
+    return reply
+
+
+_UNCITED_OMIT = {
+    "disposition": "OMIT_UNSUPPORTED",
+    "destination_section": None,
+    "fact_ids": [],
+    "rationale": "The package is not published to NuGet yet.",
+}
+
+
+def test_recover_folds_an_uncited_prose_omit_into_an_explicit_deferral() -> None:
+    reply = _psd_reply(_UNCITED_OMIT)
+    before = json.dumps(reply)
+    recovered = recover_uncited_prose_omits(reply, _psd_facts())
+    assert recovered is not None
+    assert json.dumps(reply) == before  # the model's own reply is never edited in place
+    folded = next(e for e in recovered["dispositions"] if e["unit_id"].endswith("018.paragraph"))
+    assert (folded["disposition"], folded["destination_section"], folded["fact_ids"]) == (
+        "DEFER_UNRESOLVED",
+        None,
+        [],
+    )
+    # the model's own reason survives, after a statement that the omission cited nothing
+    assert folded["rationale"].startswith("No fact cited for this omission")
+    assert "not published to NuGet yet" in folded["rationale"]
+    assert len(folded["rationale"]) <= 160
+    others = [e for e in recovered["dispositions"] if e is not folded]
+    assert others == [
+        e for e in reply["dispositions"] if not e["unit_id"].endswith("018.paragraph")
+    ]
+
+
+def test_recover_truncates_a_long_reason_inside_the_rationale_limit() -> None:
+    long_reason = {**_UNCITED_OMIT, "rationale": "x" * 160}
+    recovered = recover_uncited_prose_omits(_psd_reply(long_reason), _psd_facts())
+    assert recovered is not None
+    folded = recovered["dispositions"][-1]
+    assert len(folded["rationale"]) == 160 and folded["rationale"].endswith("...")
+
+
+def test_recover_declines_when_the_units_own_text_spells_a_verified_symbol() -> None:
+    """The unit is not unresolved: a verified fact is already in its sentence, so deferring it
+    would hide evidence the omission should have cited. It fails closed as it always did."""
+    spelled = _psd_facts(_symbol("Aspose.PSD.FOSS", "namespace"))
+    assert recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), spelled) is None
+
+
+def test_recover_declines_when_any_uncited_omit_is_unsafe_even_if_another_is_safe() -> None:
+    """All or nothing: a partial fix would be accepted only to fail the same checks."""
+    facts = _psd_facts(_symbol("Aspose.PSD.FOSS", "namespace"))
+    reply = _psd_reply(_UNCITED_OMIT)
+    reply["dispositions"][1] = _entry("inherited_unit:002.paragraph", "OMIT_UNSUPPORTED", None)
+    assert recover_uncited_prose_omits(reply, facts) is None
+
+
+def test_recover_leaves_cited_omits_and_non_prose_omits_alone() -> None:
+    reply = _psd_reply({**_UNCITED_OMIT, "fact_ids": ["identity:repository"]})
+    assert recover_uncited_prose_omits(reply, _psd_facts()) is None  # nothing to fold
+    reply = _psd_reply({**_UNCITED_OMIT, "disposition": "DEFER_UNRESOLVED"})
+    assert recover_uncited_prose_omits(reply, _psd_facts()) is None
+
+
+def test_recover_declines_a_unit_the_facts_do_not_hold() -> None:
+    reply = _psd_reply(_UNCITED_OMIT)
+    reply["dispositions"][-1]["unit_id"] = "inherited_unit:099.paragraph"
+    assert recover_uncited_prose_omits(reply, _psd_facts()) is None
+
+
+def _run_s4_psd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *replies: httpx.Response,
+    facts: FactsDocument | None = None,
+) -> JobResult:
+    """The production S4 call, with the recover= rounds.py passes."""
+    seen: list[dict[str, object]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return replies[len(seen) - 1]
+
+    mock_gateway(monkeypatch, handler)
+    facts = facts or _psd_facts()
+    loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
+    units = facts.by_kind("inherited_unit")
+    return run_job(
+        loaded,
+        reconciliation_packet(ENTRY, facts, {}, loaded.manifest, units),
+        config=GatewayConfig("https://gw.example/v1", "sk-test-key-0123456789"),
+        facts=facts,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=JobContext(ENTRY.repository, facts.source_revision),
+        checks=functools.partial(reconcile_checks, facts=facts),
+        call_schema=reconciliation_schema(loaded, units, facts, {}),
+        recover=functools.partial(recover_uncited_prose_omits, facts=facts),
+    )
+
+
+def test_two_uncited_omits_are_recovered_once_and_the_deferral_is_advisory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from repository_presenter.components.readme.validation.deferrals import review_deferrals
+
+    reply = _reply(_psd_reply(_UNCITED_OMIT))
+    result = _run_s4_psd(tmp_path, monkeypatch, reply, reply)
+    assert result.attempts == 2  # the model's own re-ask ran first; recover is the last resort
+    folded = next(
+        e for e in result.output["dispositions"] if e["unit_id"].endswith("018.paragraph")
+    )
+    assert folded["disposition"] == "DEFER_UNRESOLVED"
+    findings = review_deferrals(result.output, _psd_facts())
+    assert [(f.unit_id, f.class_id, f.decision) for f in findings] == [
+        ("inherited_unit:018.paragraph", "NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+    ]
+
+
+def test_a_recovered_reply_is_judged_by_the_real_checks_and_fails_closed_when_it_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The correction passes through the same schema, binding and checks as any reply: a reply that
+    also has a placement violation is not rescued by folding the omit."""
+    bad = _psd_reply(_UNCITED_OMIT)
+    bad["dispositions"][2] = _entry("inherited_unit:003.code_block", "VERIFIED_PRESERVE", "heading")
+    reply = _reply(bad)
+    with pytest.raises(JobError) as caught:
+        _run_s4_psd(tmp_path, monkeypatch, reply, reply)
+    assert "recover's correction was rejected too" in str(caught.value)
+
+
+def test_a_spelled_symbol_omit_still_fails_the_job_closed_after_recover(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    reply = _reply(_psd_reply(_UNCITED_OMIT))
+    with pytest.raises(JobError) as caught:
+        _run_s4_psd(
+            tmp_path,
+            monkeypatch,
+            reply,
+            reply,
+            facts=_psd_facts(_symbol("Aspose.PSD.FOSS", "namespace")),
+        )
+    message = str(caught.value)
+    assert "output rejected twice" in message
+    assert "inherited_unit:018.paragraph: uncited_prose_omit:" in message
+    assert "recover's correction" not in message  # declined, not attempted
