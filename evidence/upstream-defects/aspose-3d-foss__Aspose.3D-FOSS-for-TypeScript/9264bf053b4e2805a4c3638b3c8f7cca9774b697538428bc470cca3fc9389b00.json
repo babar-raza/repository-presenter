@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:9264bf053b4e2805a4c3638b3c8f7cca9774b697538428bc470cca3fc9389b00",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 143-155, failing line 152 (revision 66cb26df3b031f0bf6976d4e88dc89721983afa4; unchanged at the live head)"
+    },
+    {
+      "path": "docker node:22: npx tsc --noEmit ... ex2.ts (typescript 5.9.3)",
+      "detail": "2026-10-09T21:30Z: ex2.ts(9,54): error TS2339: Property 'controlPoints' does not exist on type 'Entity'."
+    },
+    {
+      "path": "src/aspose/threed/Node.ts",
+      "detail": "line 62: entity typed Entity | undefined; controlPoints declared at entities/Geometry.ts:51"
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, the README example at lines 143-155 reads node.entity.controlPoints and fails with TS2339 under the package's declared TypeScript 5.9.3, because Node.entity is typed Entity | undefined and controlPoints is declared on Geometry.",
+  "suggested_issue_title": "README scene-enumeration example fails to type-check: Property 'controlPoints' does not exist on type 'Entity' (TS2339)",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-03) recorded this while re-verifying `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript`; it was then reproduced independently against the live default-branch head `66cb26df3b031f0bf6976d4e88dc89721983afa4` on 2026-10-09T21:30Z.\n\n## Summary\n\n`README.md:152` is ``console.log(`  Control points: ${node.entity.controlPoints.length}`);``. `Node.entity` is typed `Entity | undefined` (`src/aspose/threed/Node.ts:62`); `controlPoints` is declared on `Geometry` (`src/aspose/threed/entities/Geometry.ts:51`), not on `Entity`. The snippet has no cast or narrowing.\n\n## Environment\n\n- Revision `66cb26df3b031f0bf6976d4e88dc89721983afa4` (default branch `master`)\n- Docker `node:22` (Node v22.23.3, npm 10.9.9); `npm install && npm run build` as the README Installation section passes with typescript 5.9.3 (package pins ^5.8.3)\n\n## Steps to reproduce\n\nSave README.md lines 144-154 (import path `./dist/aspose/threed`) as `ex2.ts`, then:\n\n```sh\nnpx tsc --noEmit --strict --esModuleInterop --moduleResolution node --module commonjs --target ES2020 --types node ex2.ts\n```\n\n## Actual result\n\n```\nex2.ts(9,54): error TS2339: Property 'controlPoints' does not exist on type 'Entity'.\n```\nThe other three TypeScript fences in the README compile.\n\n## Where in the repository\n\n- `README.md:152`; README.md:68 and :224 describe `controlPoints` as Mesh/Geometry members\n- `src/aspose/threed/Node.ts:62`, `src/aspose/threed/Entity.ts:5`, `src/aspose/threed/entities/Geometry.ts:51`, `src/aspose/threed/entities/Mesh.ts:3`\n\n## Evidence\n\n- `README.md`: lines 143-155, failing line 152 (revision 66cb26df3b031f0bf6976d4e88dc89721983afa4; unchanged at the live head)\n- `docker node:22: npx tsc --noEmit ... ex2.ts (typescript 5.9.3)`: 2026-10-09T21:30Z: ex2.ts(9,54): error TS2339: Property 'controlPoints' does not exist on type 'Entity'.\n- `src/aspose/threed/Node.ts`: line 62: entity typed Entity | undefined; controlPoints declared at entities/Geometry.ts:51\n\n<!-- repository-presenter-defect: sha256:9264bf053b4e2805a4c3638b3c8f7cca9774b697538428bc470cca3fc9389b00 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

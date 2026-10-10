@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+  "defect_fingerprint": "sha256:094c41630d8b8ea6ca8d886b2e354d5e6f84767ace53daf43142bf7bb068aca8",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 274-286: scene.save(\"post.obj\") (revision 65b1f577c0f16d0d9112bb6c1153d3024543ac02; README unchanged at the live head)"
+    },
+    {
+      "path": "python ex.py (README.md:274-286 verbatim) in a fresh directory after pip install -e .",
+      "detail": "2026-10-09T21:10Z: TypeError: a bytes-like object is required, not 'str' at ObjExporter.py:50"
+    },
+    {
+      "path": "aspose/threed/Scene.py:169; aspose/threed/formats/obj/ObjExporter.py:47,50",
+      "detail": "open(file_name, 'wb') then stream.write(content) with content a str"
+    }
+  ],
+  "claim": "At revision 65b1f577c0f16d0d9112bb6c1153d3024543ac02, Scene.save(\"post.obj\") in the README 'Position a Node With Transform' example raises \"TypeError: a bytes-like object is required, not 'str'\" because Scene.save opens the target in binary mode and ObjExporter writes a str.",
+  "suggested_issue_title": "Scene.save() to an .obj path raises TypeError (ObjExporter writes str to a binary file)",
+  "suggested_issue_body": "repository-presenter's validation pipeline (BC-03) recorded this while re-verifying `aspose-3d-foss/Aspose.3D-FOSS-for-Python`; it was then reproduced independently against the live default-branch head `65b1f577c0f16d0d9112bb6c1153d3024543ac02` on 2026-10-09T21:10Z.\n\n## Summary\n\nThe README example \"Position a Node With Transform\" (README.md lines 274-286) ends with `scene.save(\"post.obj\")`. Saving any scene to an `.obj` path raises `TypeError`. The STL example in the same README works.\n\n## Environment\n\n- Revision `65b1f577c0f16d0d9112bb6c1153d3024543ac02` (default branch `master`)\n- Windows 11, Python 3.13.15, `pip install -e .` in a fresh venv\n\n## Steps to reproduce\n\n```python\nfrom aspose.threed import Scene\nfrom aspose.threed.entities import Cylinder\nfrom aspose.threed.utilities import Vector3\n\nscene = Scene()\ncylinder = Cylinder()\nnode = scene.root_node.create_child_node(\"Post\", entity=cylinder.to_mesh())\nnode.transform.translation = Vector3(0.0, 1.0, 0.0)\nnode.transform.scaling = Vector3(0.5, 2.0, 0.5)\n\nscene.save(\"post.obj\")\n```\n\n## Actual result\n\n```\n  File \"aspose/threed/Scene.py\", line 181, in save\n    exporter.export(self, stream, options)\n  File \"aspose/threed/formats/obj/ObjExporter.py\", line 25, in export\n    self._write_obj(scene, stream, options)\n  File \"aspose/threed/formats/obj/ObjExporter.py\", line 50, in _write_obj\n    stream.write(content)\nTypeError: a bytes-like object is required, not 'str'\n```\nA Box mesh saved with `scene.save(\"o.obj\")` and with `scene.save(\"o2.obj\", ObjSaveOptions())` fails identically. Saving OBJ to an in-memory stream instead raises `NotImplementedError: supports_format is not implemented` (`formats/Exporter.py:14`).\n\n## Where in the repository\n\n- `aspose/threed/Scene.py:169` opens the target file with `open(file_name, 'wb')`\n- `aspose/threed/formats/obj/ObjExporter.py:47` builds `content` as a `str`; `:50` calls `stream.write(content)`\n- README.md lines 8-9, 40, 61-65 and 285 describe OBJ export\n\n## Evidence\n\n- `README.md`: lines 274-286: scene.save(\"post.obj\") (revision 65b1f577c0f16d0d9112bb6c1153d3024543ac02; README unchanged at the live head)\n- `python ex.py (README.md:274-286 verbatim) in a fresh directory after pip install -e .`: 2026-10-09T21:10Z: TypeError: a bytes-like object is required, not 'str' at ObjExporter.py:50\n- `aspose/threed/Scene.py:169; aspose/threed/formats/obj/ObjExporter.py:47,50`: open(file_name, 'wb') then stream.write(content) with content a str\n\n<!-- repository-presenter-defect: sha256:094c41630d8b8ea6ca8d886b2e354d5e6f84767ace53daf43142bf7bb068aca8 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

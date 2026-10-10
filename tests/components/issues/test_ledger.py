@@ -67,10 +67,12 @@ def test_discover_and_load_the_real_backfilled_artifacts() -> None:
     # 2026-10-04: a fifth artifact is Aspose.Imaging-FOSS-for-.NET's NuGet 404 (the source-install
     # fallback's own evidence, carried by the .NET install fix), and the sixth and seventh are the
     # npm 404s of Aspose.3D and Aspose.PDF for TypeScript (the npm source-install fallback).
+    # 2026-10-10: eleven more, harvested and independently re-verified against the live upstream
+    # heads (docs/DECISION_LOG.md, this date; evidence/upstream-defects/reverification.json).
     paths = discover_handoff_paths(REAL_UPSTREAM_DEFECTS)
-    assert len(paths) == 7
+    assert len(paths) == 18
     ledger = load_ledger(REAL_UPSTREAM_DEFECTS)
-    assert len(ledger) == 7
+    assert len(ledger) == 18
     html = lookup(
         ledger,
         "aspose-html-foss/Aspose.HTML-FOSS-for-Python",

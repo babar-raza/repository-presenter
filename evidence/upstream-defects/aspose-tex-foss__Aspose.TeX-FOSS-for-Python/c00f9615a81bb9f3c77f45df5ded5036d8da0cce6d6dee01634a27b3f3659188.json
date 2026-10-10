@@ -20,6 +20,14 @@
     {
       "path": "repos/aspose-tex-foss/Aspose.TeX-FOSS-for-Python (default branch HEAD)",
       "detail": "gh api confirms default branch HEAD is still 181015d2eee3e19f8af3d84e4a932ac84ad47c7c as of 2026-09-17 (pushed_at 2026-09-02T10:10:31Z) - no revision drift since the original finding; this handoff's re-verification is against the identical revision docs/DECISION_LOG.md and RESEARCH_LANE_E.md already recorded (RESEARCH_LANE_E.md:1233-1234: 'aspose-tex-foss is NOT_PROCESSABLE')."
+    },
+    {
+      "path": "python ast.parse over every .py file under src/aspose_tex (shallow clone at the live head, Python 3.13.15)",
+      "detail": "2026-10-09T20:50Z: 45 files, 35 IndentationError, 10 parse OK (first: src/aspose_tex/_engine/box_builder.py line 63 'expected an indented block after for statement on line 62')"
+    },
+    {
+      "path": "gh api repos/aspose-tex-foss/Aspose.TeX-FOSS-for-Python/commits/main --jq .sha",
+      "detail": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c at 2026-10-09T20:50Z (no revision drift since 2026-09-17; the raw blob also carries one-space indentation)"
     }
   ],
   "claim": "At revision 181015d2eee3e19f8af3d84e4a932ac84ad47c7c, 35 of the 45 Python files under aspose-tex-foss/Aspose.TeX-FOSS-for-Python's own src/aspose_tex/ tree, including src/aspose_tex/presentation/__init__.py (the module the repository's own docstring calls the user-facing entry point), raise IndentationError under Python's standard ast.parse, because the source's indentation is collapsed to one space per level throughout the affected files.",
