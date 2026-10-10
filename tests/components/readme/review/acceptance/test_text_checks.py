@@ -34,9 +34,7 @@ def test_single_h1(readme: str, expected: Outcome) -> None:
 
 _BADGE = "![Python](https://img.shields.io/badge/python-3.12-blue.svg)"
 _BADGE2 = "![MIT](https://img.shields.io/badge/license-MIT-blue.svg)"
-_BANNER = (
-    "[![Demo](https://products.aspose.org/media/banner.png)](https://products.aspose.org/demo/)"
-)
+_BANNER = "[![Demo](https://products.aspose.org/media/banner.png)](https://products.aspose.org/demo/python/)"
 
 
 @pytest.mark.parametrize(
@@ -116,7 +114,26 @@ _OPENING = "Demo reads and writes files in Python applications for data teams."
         (f"# Demo\n\n{_OPENING}\n\nSee https://products.aspose.com/x\n", PASS),
         (f"# Demo\n\n{_OPENING} See https://products.aspose.com/x\n", PASS),
         ("# Demo\n\nDemo at https://products.aspose.com/x reads files.\n", FAIL),
-        (f"# Demo\n\n{_BANNER}\n\n{_OPENING}\n", FAIL),
+        (f"# Demo\n\n{_BANNER}\n\n{_OPENING}\n", PASS),
+        (f"# Demo\n\n[Aspose](https://www.aspose.com/)\n\n{_OPENING}\n", FAIL),
+        (
+            f"# Demo\n\n[![x](https://products.aspose.org/m.png)](https://products.aspose.com/d/)"
+            f"\n\n{_OPENING}\n",
+            FAIL,
+        ),
+        (f"# Demo\n\n[Docs](https://docs.aspose.org/demo/)\n\n{_OPENING}\n", FAIL),
+        # Only the exact banner shape is exempt: products.aspose.org/{family}/{platform}/.
+        (f"# Demo\n\n[Aspose](https://products.aspose.org/demo/)\n\n{_OPENING}\n", FAIL),
+        (
+            f"# Demo\n\n[![x](https://products.aspose.org/media/demo/b.png)]"
+            f"(https://products.aspose.org/demo/python/extra)\n\n{_OPENING}\n",
+            FAIL,
+        ),
+        (
+            f"# Demo\n\n[![x](https://products.aspose.org/media/demo/b.png)]"
+            f"(https://products.aspose.org/demo/python/)\n\n{_OPENING}\n",
+            PASS,
+        ),
         ("# Demo\n\n## Navigation\n\n- [A](#a)\n", NA),
         ("## No H1 here\n\n" + _OPENING + "\n", NA),
     ],

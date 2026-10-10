@@ -45,6 +45,14 @@ _IMAGE = re.compile(r"!\[([^\]]*)\]\(([^)\s]+)")
 _LINK = re.compile(r"\[([^\]]*)\]\(([^)]*)\)")
 _BADGE_HINTS = ("shields.io", "badge")
 _ASPOSE = re.compile(r"aspose\.(?:com|org)", re.IGNORECASE)
+# Owner ruling 2026-10-10: the banner stays - an image under products.aspose.org/media/ linking to
+# https://products.aspose.org/{family}/{platform}/ - and no link to aspose.com (or any other Aspose
+# destination) may stand above the opening paragraph's explanation. Only that exact shape is exempt.
+_PRODUCT_BANNER = re.compile(
+    r"\[!\[[^\]]*\]\(https://products\.aspose\.org/media/[^)\s]+\)\]"
+    r"\(https://products\.aspose\.org/[A-Za-z0-9._+-]+/[A-Za-z0-9._+-]+/?\)",
+    re.IGNORECASE,
+)
 _BANNED_EDITIONS = re.compile(
     r"commercial edition|on-?premises?\s+edition|paid version|full version", re.IGNORECASE
 )
@@ -195,8 +203,10 @@ def other_platforms_section(lines: Sequence[Line]) -> TextResult:
 
 def promotion_after_product(lines: Sequence[Line]) -> TextResult:
     """The FOSS explanation comes first: no Aspose destination may appear between the H1 and the
-    opening paragraph (a banner link counts - a ratification point), nor inside the opening
-    paragraph's first sentence. A link later in the opening paragraph follows the explanation."""
+    opening paragraph, nor inside the opening paragraph's first sentence. The one exception is
+    the renderer's own banner, an image linking to products.aspose.org/{family}/{platform}/
+    (owner ruling 2026-10-10: it stays); a link to aspose.com, or to any other Aspose
+    destination, still fails. A link later in the opening paragraph follows the explanation."""
     prose = _prose(lines)
     h1_index = next((i for i, line in enumerate(prose) if _is_h1(line.text)), None)
     if h1_index is None:
@@ -211,7 +221,11 @@ def promotion_after_product(lines: Sequence[Line]) -> TextResult:
         end += 1
     opening = " ".join(line.text for line in prose[start:end])
     first_sentence = re.split(r"(?<=[.!?])\s", opening, maxsplit=1)[0]
-    hits = [line.number for line in prose[h1_index:start] if _ASPOSE.search(line.text)]
+    hits = [
+        line.number
+        for line in prose[h1_index:start]
+        if _ASPOSE.search(_PRODUCT_BANNER.sub("", line.text))
+    ]
     if _ASPOSE.search(first_sentence):
         hits.append(prose[start].number)
     if hits:
