@@ -1,4 +1,5 @@
-"""The acceptance profile is internally consistent, unratified, and cites plans/idea.md."""
+"""The acceptance profile is internally consistent, ratified with the owner's 2026-10-10 weights
+(G7-W20, OWNER-13), and cites plans/idea.md."""
 
 from __future__ import annotations
 
@@ -28,10 +29,56 @@ def test_the_production_profile_is_internally_valid() -> None:
     validate_profile(acceptance.PROFILE)
 
 
-def test_it_is_unratified_and_carries_no_point_weight() -> None:
-    assert acceptance.RATIFIED is False
-    assert acceptance.PROFILE.ratified is False
-    assert all(criterion.points is None for criterion in acceptance.CRITERIA)
+# docs/DECISION_LOG.md, 2026-10-10: four criteria carry two points, the other twenty-two one.
+RATIFIED_WEIGHTS = {"C01": 2, "C02": 2, "C21": 2, "C24": 2}
+
+
+def test_it_is_ratified_with_the_owners_weights() -> None:
+    assert acceptance.RATIFIED is True
+    assert acceptance.PROFILE.ratified is True
+    assert len(acceptance.CRITERIA) == 26
+    for criterion in acceptance.CRITERIA:
+        assert criterion.points == RATIFIED_WEIGHTS.get(criterion.id, 1), criterion.id
+
+
+def test_the_ratified_points_sum_to_the_stated_thirty() -> None:
+    assert sum(criterion.points or 0 for criterion in acceptance.CRITERIA) == 30
+    assert acceptance.TOTAL_POINTS == 30
+
+
+def test_d14_is_judged_by_the_template_checker_not_left_unevaluated() -> None:
+    d14 = next(d for d in acceptance.DISQUALIFIERS if d.id == "D14")
+    assert d14.evaluator.kind == "template"
+    assert all(d.evaluator.kind != "unevaluated" for d in acceptance.DISQUALIFIERS)
+
+
+@pytest.mark.parametrize(
+    "points",
+    [
+        [None, *([1] * 25)],  # a missing weight
+        [*([1] * 25), 3],  # sums to 28
+        [*([1] * 25), 6],  # sums to 31
+        [-1, *([1] * 24), 7],  # a negative weight that still totals 30
+    ],
+)
+def test_a_ratified_profile_with_missing_or_wrong_points_fails_loudly(
+    points: list[int | None],
+) -> None:
+    criteria = tuple(
+        replace(criterion, points=weight)
+        for criterion, weight in zip(acceptance.CRITERIA, points, strict=True)
+    )
+    with pytest.raises(acceptance.ProfileError):
+        replace(acceptance.PROFILE, criteria=criteria, ratified=True)
+
+
+def test_an_unratified_profile_may_still_be_a_draft_without_points() -> None:
+    draft = replace(
+        acceptance.PROFILE,
+        criteria=tuple(replace(c, points=None) for c in acceptance.CRITERIA),
+        ratified=False,
+    )
+    validate_profile(draft)
 
 
 def test_the_total_is_the_thirty_points_the_source_states() -> None:
@@ -58,9 +105,17 @@ def test_identifiers_are_unique_across_criteria_and_disqualifiers() -> None:
     assert len(ids) == len(set(ids))
 
 
-def test_the_recorded_profile_version_is_the_frozen_value() -> None:
-    assert acceptance.PROFILE_VERSION == "1"
-    assert ACCEPTANCE_PROFILE_VERSION == acceptance.PROFILE_VERSION
+def test_the_profile_version_moved_at_ratification() -> None:
+    assert acceptance.PROFILE_VERSION == "2"
+
+
+def test_ratification_did_not_move_the_version_a_sealed_review_consumed() -> None:
+    """dependencies.json records the profile a bundle's review consumed. Ratification changes only
+    the funnel's live score, so moving this value would mark every sealed candidate stale
+    (REVIEWING re-entry) and drop the current ones from the headline count for no change in
+    content (G7-W20). Move it only with a change to what the independent review reads or decides."""
+    assert ACCEPTANCE_PROFILE_VERSION == "1"
+    assert ACCEPTANCE_PROFILE_VERSION != acceptance.PROFILE_VERSION
 
 
 def _with_weights(weights: list[int | None]) -> acceptance.Profile:
@@ -68,7 +123,7 @@ def _with_weights(weights: list[int | None]) -> acceptance.Profile:
         replace(criterion, points=weight)
         for criterion, weight in zip(acceptance.CRITERIA, weights, strict=True)
     )
-    return replace(acceptance.PROFILE, criteria=criteria)
+    return replace(acceptance.PROFILE, criteria=criteria, ratified=False)
 
 
 def _weights(total: int) -> list[int | None]:
@@ -89,7 +144,23 @@ def _weights(total: int) -> list[int | None]:
         ),
         (
             "ratified without every weight",
-            lambda: replace(acceptance.PROFILE, ratified=True),
+            lambda: replace(
+                acceptance.PROFILE,
+                criteria=tuple(replace(c, points=None) for c in acceptance.CRITERIA),
+            ),
+        ),
+        (
+            "template evaluator carrying a reference",
+            lambda: replace(
+                acceptance.PROFILE,
+                disqualifiers=(
+                    *acceptance.DISQUALIFIERS[:-1],
+                    replace(
+                        acceptance.DISQUALIFIERS[-1],
+                        evaluator=acceptance.Evaluator("template", ("x",)),
+                    ),
+                ),
+            ),
         ),
         ("total not 30", lambda: replace(acceptance.PROFILE, total_points=29)),
         (

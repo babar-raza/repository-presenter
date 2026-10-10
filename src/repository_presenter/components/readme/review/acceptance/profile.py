@@ -1,10 +1,18 @@
 """The acceptance profile of a candidate README: criteria, points, and hard disqualifiers.
 
-ADVISORY AND UNRATIFIED. ``RATIFIED`` is ``False`` and every ``Criterion.points`` is ``None``.
-The scorer in ``scorer.py`` records a score in ``review.json`` and blocks nothing. Making it a
-blocking check requires the owner to ratify the criteria, the point weights, and the disqualifier
-set in one commit that sets ``RATIFIED`` and every ``points`` value, and records that decision in
-``docs/DECISION_LOG.md``.
+RATIFIED (G7-W20, OWNER-13, 2026-10-10). The owner ratified the 26 criteria, their point weights,
+and the 14 disqualifiers: C01, C02, C21 and C24 carry two points and every other criterion one,
+which makes the stated 30 (``docs/DECISION_LOG.md``, 2026-10-10). Three sub-decisions were
+confirmed with the weights: a criterion whose condition does not apply (no third-party notices
+file, no examples, no H1) is credited as met; a banner link to an Aspose destination above the
+opening paragraph fails C01; and D14 is judged by ``template_check.py``.
+
+What the score gates. A candidate is publication-eligible only when it scores the full
+``TOTAL_POINTS`` with no disqualifier triggered and none left unevaluated (the portfolio funnel,
+``bundle/portfolio.py``). The score does NOT gate ``READY_FOR_PROPOSAL``, which stays blocking
+checks BC-01..BC-11 plus no-op proof; whether it should is the part of OWNER-13 the owner has not
+answered. Constructing a ratified ``Profile`` whose points are missing or do not total
+``TOTAL_POINTS`` raises ``ProfileError``, so a broken ratification fails at import.
 
 Source: ``plans/idea.md`` (cited as ``L<first>-<last>``, 1-based lines of that file). The file
 states the 30-point rubric and the hard-disqualifier requirement only in aggregate:
@@ -15,19 +23,19 @@ states the 30-point rubric and the hard-disqualifier requirement only in aggrega
   zero hard disqualifiers".
 - ``L318``: every processable repository must remain "30/30".
 
-It does not list the criteria, give points per criterion, or label any requirement a hard
-disqualifier. The criteria and disqualifiers below are therefore PROPOSALS: each is a normative
-sentence of ``plans/idea.md`` restated as a checkable entry, cited beside it. The grouping into
-criteria is this module's own and needs ratification. No point value is invented: ``TOTAL_POINTS``
-(30) is the only number the source states.
+It does not list the criteria or label any requirement a hard disqualifier. Each entry below is a
+normative sentence of ``plans/idea.md`` restated as a checkable entry, cited beside it; the
+grouping into criteria is this module's own, ratified with the weights.
 
 Evaluator kinds:
 
 - ``check``: judged by the named blocking checks in ``validation.json`` (read, never changed).
 - ``text``: a deterministic predicate over the README text, in ``text_checks.py``.
 - ``review``: judged from ``review.json`` findings naming the criterion's sections.
-- ``unevaluated``: no deterministic evaluator is proposed. The entry stays unevaluated until one
-  is ratified, so it can never count as passed.
+- ``template``: the deterministic D14 checker in ``template_check.py``, which needs the
+  repository's evidence and a corpus of other repositories' READMEs; without them it is
+  unevaluated and can never count as passed.
+- ``unevaluated``: no evaluator exists. The entry stays unevaluated, so it can never pass.
 """
 
 from __future__ import annotations
@@ -35,12 +43,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-PROFILE_VERSION = "1"
+PROFILE_VERSION = "2"  # "1" was the unratified, unweighted draft.
 SOURCE_DOCUMENT = "plans/idea.md"
 TOTAL_POINTS = 30  # plans/idea.md L177 and L318: "30 rubric points", "30/30".
-RATIFIED = False
+RATIFIED = True
 
-EvaluatorKind = Literal["check", "text", "review", "unevaluated"]
+EvaluatorKind = Literal["check", "text", "review", "template", "unevaluated"]
+
+
+class ProfileError(ValueError):
+    """The acceptance profile is internally inconsistent; the scorer refuses to run on it."""
 
 
 @dataclass(frozen=True)
@@ -54,7 +66,7 @@ class Evaluator:
 
 @dataclass(frozen=True)
 class Criterion:
-    """A point-bearing criterion. ``points`` stays ``None`` until the owner ratifies it."""
+    """A point-bearing criterion. ``points`` is ``None`` only in an unratified profile."""
 
     id: str
     title: str
@@ -84,6 +96,22 @@ class Profile:
     total_points: int = TOTAL_POINTS
     ratified: bool = RATIFIED
 
+    def __post_init__(self) -> None:
+        """A ratified profile states every point and they total ``total_points``; anything else
+        is a broken ratification and fails loudly where the profile is built."""
+        if not self.ratified:
+            return
+        weights = [criterion.points for criterion in self.criteria]
+        if any(weight is None for weight in weights):
+            raise ProfileError("a ratified profile must carry a point weight on every criterion")
+        if any(not isinstance(weight, int) or weight < 0 for weight in weights):
+            raise ProfileError("a ratified profile's point weights must be non-negative integers")
+        total = sum(weight for weight in weights if weight is not None)
+        if total != self.total_points or self.total_points != TOTAL_POINTS:
+            raise ProfileError(
+                f"a ratified profile's points total {total}, not the stated {TOTAL_POINTS}"
+            )
+
 
 CRITERIA: tuple[Criterion, ...] = (
     # idea.md L37-43 ("product should come first") and L78-79 ("the opening explains the FOSS
@@ -96,6 +124,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L37-43", "L78-79"),
         evaluator=Evaluator("text", ("promotion_after_product",)),
         sections=("opening",),
+        points=2,
     ),
     # idea.md L42-48: what it does, problems it solves, features and formats, install and use,
     # and whether it is actively maintained.
@@ -107,6 +136,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L42-48",),
         evaluator=Evaluator("review"),
         sections=("opening", "key_capabilities", "installation", "badges"),
+        points=2,
     ),
     # idea.md L75-78: one factual H1 and one compact badge row, not duplicated, split, or
     # fabricated. Validated by BC-07, which owns structure.
@@ -117,6 +147,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L75-78",),
         evaluator=Evaluator("check", ("BC-07",)),
         sections=("identity", "badges"),
+        points=1,
     ),
     # idea.md L81-85: the complete canonical product name at every product-identity position.
     Criterion(
@@ -127,6 +158,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L81-85",),
         evaluator=Evaluator("review"),
         sections=("identity", "opening", "at_a_glance", "enterprise_relationship"),
+        points=1,
     ),
     # idea.md L87-89: the common visitor journey, including compact list-based navigation.
     Criterion(
@@ -136,6 +168,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L87-89",),
         evaluator=Evaluator("review"),
         sections=("navigation", "structure"),
+        points=1,
     ),
     # idea.md L92-94: a prose license declaration with practical permissions and the notice
     # condition; the license is never a bare link.
@@ -146,6 +179,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L92-94",),
         evaluator=Evaluator("text", ("license_prose",)),
         sections=("license",),
+        points=1,
     ),
     # idea.md L90-92: a third-party notices file gets its own heading and a repository-relative
     # link with normal link text. Applies only when the file exists.
@@ -156,6 +190,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L90-92",),
         evaluator=Evaluator("text", ("third_party_notices",)),
         sections=("third_party_notices",),
+        points=1,
     ),
     # idea.md L98: title-case headings and canonical technical abbreviations. BC-07 owns both.
     Criterion(
@@ -165,6 +200,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L98",),
         evaluator=Evaluator("check", ("BC-07",)),
         sections=("structure",),
+        points=1,
     ),
     # idea.md L99: At a Glance as a typed semantic graph with topology and column rules. BC-07.
     Criterion(
@@ -174,6 +210,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L99",),
         evaluator=Evaluator("check", ("BC-07",)),
         sections=("at_a_glance",),
+        points=1,
     ),
     # idea.md L107: action-led, fact-grounded key-capability titles, without keyword stuffing.
     Criterion(
@@ -183,6 +220,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L107",),
         evaluator=Evaluator("review"),
         sections=("key_capabilities",),
+        points=1,
     ),
     # idea.md L101-106: installation, the minimal example, core capabilities, material
     # limitations, and the development and testing summary stay visible. Only secondary material
@@ -195,6 +233,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L101-106",),
         evaluator=Evaluator("text", ("visible_core_sections",)),
         sections=("installation", "key_capabilities", "scope_limitations", "development_testing"),
+        points=1,
     ),
     # idea.md L107: additional-example headings name tasks, and their preview prose exposes no
     # internal inventory, source-revision, syntax-check, static-API-check, or non-execution text.
@@ -205,6 +244,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L107",),
         evaluator=Evaluator("text", ("example_headings",)),
         sections=("additional_examples",),
+        points=1,
     ),
     # idea.md L107: source fences carry a language identifier, use normalized spacing, and have no
     # repeated empty-line runs. The predicate checks presence and runs, not language validity.
@@ -216,6 +256,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L107",),
         evaluator=Evaluator("text", ("fences_and_spacing",)),
         sections=("quick_start", "additional_examples", "installation"),
+        points=1,
     ),
     # idea.md L103-104: representative assets shown openly, with a complete-inventory link when
     # items are omitted.
@@ -227,6 +268,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L103-104",),
         evaluator=Evaluator("review"),
         sections=("development_testing",),
+        points=1,
     ),
     # idea.md L108: no redundant "Other platforms" or promotional section. The repeated-inventory
     # half of L109 is judged by the reviewer only and is not measured here.
@@ -237,6 +279,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L108",),
         evaluator=Evaluator("text", ("other_platforms_section",)),
         sections=("structure",),
+        points=1,
     ),
     # idea.md L109: internal assurance narration never appears in the public README.
     Criterion(
@@ -246,6 +289,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L109",),
         evaluator=Evaluator("text", ("assurance_narration",)),
         sections=("structure",),
+        points=1,
     ),
     # idea.md L51-53 (the only edition name is Enterprise Edition) and L109 (the anchor).
     Criterion(
@@ -255,6 +299,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L51-53", "L109"),
         evaluator=Evaluator("text", ("edition_name",)),
         sections=("enterprise_relationship", "documentation_resources"),
+        points=1,
     ),
     # idea.md L56-58 and L60-66: contextual Aspose links, within ceilings, never a generic
     # substitute for an exact article. L489-490: relevant, naturally placed, not overly promotional.
@@ -265,6 +310,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L56-58", "L60-66", "L489-490"),
         evaluator=Evaluator("review"),
         sections=("documentation_resources", "enterprise_relationship"),
+        points=1,
     ),
     # idea.md L110: every material source README unit maps exactly once to a destination, an
     # evidence-backed correction, or a justified omission. BC-05 owns that.
@@ -275,6 +321,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L110",),
         evaluator=Evaluator("check", ("BC-05",)),
         sections=("structure",),
+        points=1,
     ),
     # idea.md L110 and L331-340: valuable maintainer content is preserved or improved in its
     # canonical section. BC-08 owns protected content.
@@ -285,6 +332,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L110", "L331-340"),
         evaluator=Evaluator("check", ("BC-08",)),
         sections=("structure",),
+        points=1,
     ),
     # idea.md L175-178 (independent factual review and the evidence-bound milestone) and
     # L455-464 (unsupported content is corrected or removed, never invented). BC-01 and BC-04.
@@ -296,6 +344,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L175-178", "L455-464"),
         evaluator=Evaluator("check", ("BC-01", "BC-04")),
         sections=("structure",),
+        points=2,
     ),
     # idea.md L361-368: examples and capability claims rest on the proven public consumer surface.
     Criterion(
@@ -305,6 +354,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L361-368",),
         evaluator=Evaluator("review"),
         sections=("api_reference", "key_capabilities"),
+        points=1,
     ),
     # idea.md L120-122: the composer's journey includes "acquisition, executed example".
     # BC-03 owns example execution.
@@ -315,6 +365,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L120-122",),
         evaluator=Evaluator("check", ("BC-03",)),
         sections=("quick_start", "additional_examples"),
+        points=1,
     ),
     # idea.md L47 (how to install) and L120-122 (acquisition). BC-02 owns install verification.
     Criterion(
@@ -324,6 +375,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L47", "L120-122"),
         evaluator=Evaluator("check", ("BC-02",)),
         sections=("installation",),
+        points=2,
     ),
     # idea.md L175-177: "independent factual and visitor review". BC-10 owns the verdict.
     Criterion(
@@ -333,6 +385,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L175-177",),
         evaluator=Evaluator("check", ("BC-10",)),
         sections=("structure",),
+        points=1,
     ),
     # idea.md L120-122: a coherent developer journey, not a fact inventory; review rejects
     # unhelpful presentation.
@@ -343,6 +396,7 @@ CRITERIA: tuple[Criterion, ...] = (
         source=("L120-122",),
         evaluator=Evaluator("review"),
         sections=("structure",),
+        points=1,
     ),
 )
 
@@ -461,14 +515,15 @@ DISQUALIFIERS: tuple[Disqualifier, ...] = (
         evaluator=Evaluator("check", ("BC-09",)),
     ),
     # idea.md L344-346: phrase-matching or template-filling alone does not satisfy the standard.
-    # No deterministic evaluator is proposed, so this stays unevaluated and cannot pass silently.
+    # Judged by template_check.py against the other repositories' READMEs; with no evidence or no
+    # corpus it is unevaluated, so a score never passes it silently.
     Disqualifier(
         id="D14",
         title="Mechanical template filling",
         statement="The candidate is produced by phrase-matching or template-filling, with no "
         "interpretive reasoning behind it.",
         source=("L344-346",),
-        evaluator=Evaluator("unevaluated"),
+        evaluator=Evaluator("template"),
     ),
 )
 
