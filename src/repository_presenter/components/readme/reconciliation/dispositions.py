@@ -614,7 +614,14 @@ def normalize(
         if disposition in PLACING and destination == "enterprise_relationship":
             # Row 18 is the shell's closing paragraph of Scope and Limitations, rendered from
             # the live target; inherited Enterprise prose is superseded by it, and anything
-            # else placed there (a banner row, an image) has no row yet and is deferred.
+            # else placed there (a banner row, an image) has no row yet and is deferred. The
+            # destination stays enterprise_relationship, the reconciler's own choice: the shell
+            # prints "These limitations don't apply to [...]" itself, and the authored context
+            # sentence of that section is the only place the paragraph's "which adds ..."
+            # substance can render, so it is the section that owes the unit a citation or a
+            # reasoned omission (authoring.carried_units). Rewriting it to scope_limitations
+            # (the pre-G7-W15 fold) made S6 owe the unit to a section that may not name the
+            # Enterprise Edition and may not cite what only the other section can state.
             if enterprise_target(facts.facts) is None or unit.rsplit(".", 1)[-1] not in {
                 "paragraph",
                 "heading",
@@ -623,7 +630,7 @@ def normalize(
                 entry["destination_section"] = None
             else:
                 entry["disposition"] = "SUPERSEDE_REDUNDANT"
-                entry["destination_section"] = "scope_limitations"
+                entry["destination_section"] = "enterprise_relationship"
                 entry["fact_ids"] = sorted(cited | {ENTERPRISE_FACT_ID})
             continue
         if (

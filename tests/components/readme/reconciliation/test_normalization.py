@@ -98,7 +98,11 @@ def test_unrenderable_placements_are_deferred_or_superseded() -> None:
 def test_enterprise_prose_is_superseded_by_row_18_once_the_live_target_is_verified() -> None:
     # Row 18 is the shell's closing paragraph of Scope and Limitations: inherited Enterprise
     # prose placed there is superseded by it citing the target, and a banner row placed there
-    # has no row yet at this revision, so it is deferred rather than rendered headless.
+    # has no row yet at this revision, so it is deferred rather than rendered headless. The
+    # supersession keeps the destination the reconciler chose, enterprise_relationship: that
+    # section's authored context sentence is the only place the paragraph's "which adds ..."
+    # substance renders (G7-W15/G7-W18) - rewriting it to scope_limitations made S6 owe a unit
+    # to a section that cannot name the Enterprise Edition and cannot cite the paragraph.
     output = {
         "dispositions": [
             _entry(
@@ -121,7 +125,7 @@ def test_enterprise_prose_is_superseded_by_row_18_once_the_live_target_is_verifi
     assert normalize(output, facts) == []
     prose, banner = output["dispositions"]
     assert prose["disposition"] == "SUPERSEDE_REDUNDANT"
-    assert prose["destination_section"] == "scope_limitations"
+    assert prose["destination_section"] == "enterprise_relationship"
     assert prose["fact_ids"] == ["link_target:001", "link_target:product.enterprise"]
     assert banner["disposition"] == "DEFER_UNRESOLVED"
     assert banner["destination_section"] is None

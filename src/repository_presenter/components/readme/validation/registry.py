@@ -135,7 +135,13 @@ VALIDATION_FILENAME = "validation.json"
 # left UNCLASSIFIED (validation/deferrals.py) and the third-party-notices class no longer fires on
 # the bare word "font"; an unclassified cause still blocks. A bundle sealed under 15 re-checks
 # under 16 and shows as pending.
-VALIDATOR_VERSION = "16"
+# 17: BC-04 v3 honours the explicit omissions S6 recorded in content_units.json. Its per-section
+# unit_checks pass was handed an empty omission list, so a must-carry superseded unit a section
+# validly omitted with a reason (README_CONTRACT.md: cite it or omit it with a reason) failed here
+# as "missing" and drove S11 repair to paste the omitted text back (Slides-Java, G7-W15). A unit
+# neither cited nor omitted still fails. A bundle sealed under 16 re-checks under 17 and shows as
+# pending.
+VALIDATOR_VERSION = "17"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -224,7 +230,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # 2 (G4-W17 arrival item 69): an identifier spelled verbatim inside a SUPPORTED
         # inherited_unit fact some unit in the candidate cites is a fact value too, not only a
         # fact's own literal value, example identifier, or command-fence token.
-        "2",
+        # 3 (G7-W15): a must-carry unit the section's authoring recorded as omitted with a reason
+        # is dispositioned (units document `omitted`), exactly as the authoring call judged it.
+        "3",
         "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact "
         "value in a code span",
         (
@@ -912,7 +920,12 @@ def _check_units(candidate: Candidate) -> list[Failure]:
                 )
     for task in candidate.tasks:
         owned = [u for u in by_section.get(task.section_id, []) if u.get("slot") in task.slots]
-        partial = {"units": owned, "omitted": []}
+        recorded = [
+            item
+            for item in candidate.units.get("omitted", [])
+            if isinstance(item, dict) and item.get("section") == task.section_id
+        ]
+        partial = {"units": owned, "omitted": recorded}
         failures.extend(
             Failure("COMPOSING", f"{task.section_id}: {error}", task.section_id)
             for error in unit_checks(partial, task, facts, name)
