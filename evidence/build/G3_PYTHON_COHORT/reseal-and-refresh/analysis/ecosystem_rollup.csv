@@ -1,0 +1,11 @@
+# authoritative_plan: plans/reseal-and-refresh/PLAN.md
+# artifact_role: analysis_or_evidence_only
+# execution_authority: false
+ecosystem,repos,processable,executed,failed,not_verified,needs_input,blocked_toolchain
+cpp,4,4,10,11,11,0,0
+go,2,2,0,15,1,0,0
+java,4,4,30,0,2,0,0
+net,9,9,41,11,0,0,0
+python,13,13,75,26,12,6,0
+rust,1,1,1,0,6,0,0
+typescript,3,3,19,105,0,0,0

@@ -1,0 +1,40 @@
+# authoritative_plan: plans/reseal-and-refresh/PLAN.md
+# artifact_role: analysis_or_evidence_only
+# execution_authority: false
+repository,revision_relation,sealed_revision,live_head,sealed_executed/failed/not_verified/needs_input,now_executed/failed/not_verified/needs_input,comparison
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,same revision,52b0f00ebf28,52b0f00ebf28,6/1/0/0,6/1/0/0,MATCH
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,same revision,3d2ed6be91f5,3d2ed6be91f5,0/0/7/0,6/0/1/0,DIFFERS
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,same revision,65b1f577c0f1,65b1f577c0f1,7/1/0/4,7/1/0/4,MATCH
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,no sealed bundle,,,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,same revision,06eca5c01e13,06eca5c01e13,6/0/0/0,6/0/0/0,MATCH
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,same revision,941814fd138d,941814fd138d,3/6/0/0,8/1/0/0,DIFFERS
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,same revision,9f852d0ff1cf,9f852d0ff1cf,1/1/5/0,1/1/5/0,MATCH
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,sealed revision differs from live head,fa4e890e46c5,99c789e9175f,8/1/1/0,0/9/1/0,n/a (different revision)
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,same revision,c65329e7257b,c65329e7257b,3/0/0/0,3/0/0/0,MATCH
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,same revision,4f6768a7b349,4f6768a7b349,6/0/0/0,6/0/0/0,MATCH
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,same revision,1a6004af47b1,1a6004af47b1,1/0/6/0,1/0/6/0,MATCH
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,same revision,fc186507e5b7,fc186507e5b7,3/0/0/0,3/0/0/0,MATCH
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,same revision,59125b4732df,59125b4732df,4/0/0/0,4/0/0/0,MATCH
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,same revision,c844a467cf7f,c844a467cf7f,2/2/0/0,2/2/0/0,MATCH
+aspose-email-foss/Aspose.Email-FOSS-for-Python,same revision,10a906b48c0c,10a906b48c0c,5/1/0/0,5/1/0/0,MATCH
+aspose-font-foss/Aspose.Font-FOSS-for-Python,sealed revision differs from live head,c520e3ebed3c,adf4885a3a5d,7/1/0/0,3/2/0/0,n/a (different revision)
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,no sealed bundle,,,,,
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,same revision,bf0f1e7a6d29,bf0f1e7a6d29,6/1/0/0,6/1/0/0,MATCH
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,sealed revision differs from live head,a7c7314b18e1,6ebb2091ad01,0/1/0/0,1/3/0/0,n/a (different revision)
+aspose-note-foss/Aspose.Note-FOSS-for-Python,sealed revision differs from live head,41de2e8ab478,17b5d7fe2002,11/1/0/0,11/1/0/0,n/a (different revision)
+aspose-page-foss/Aspose.Page-FOSS-for-Python,same revision,43cef367cd0b,43cef367cd0b,7/1/0/0,7/1/0/0,MATCH
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,sealed revision differs from live head,286484d23519,cdf43df10c8c,5/0/1/0,0/6/0/0,n/a (different revision)
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,sealed revision differs from live head,580935ba0ffc,8f0edbe6930f,8/4/0/2,9/9/0/2,n/a (different revision)
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,sealed revision differs from live head,d10e2c829e1e,10a363830fea,11/1/0/0,12/0/0/0,n/a (different revision)
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,sealed revision differs from live head,888700a8e361,4b83c9fec1e3,4/2/5/0,5/2/5/0,n/a (different revision)
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,sealed revision differs from live head,db2d3f0622f0,736cedaa2922,9/0/0/0,9/0/0/0,n/a (different revision)
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,no sealed bundle,,,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,no sealed bundle,,,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,no sealed bundle,,,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,same revision,86c441b5d81e,86c441b5d81e,0/0/9/0,8/1/0/0,DIFFERS
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,sealed revision differs from live head,c41f8dddc499,469ce77a07b9,2/6/1/0,2/6/1/0,n/a (different revision)
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,same revision,620a26144188,620a26144188,12/0/1/0,12/0/1/0,MATCH
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,sealed revision differs from live head,becd199a7766,4e63447ba79d,14/1/0/0,14/1/0/0,n/a (different revision)
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,no sealed bundle,,,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,same revision,0d3f1add920f,0d3f1add920f,0/0/5/0,0/5/0/0,DIFFERS
+aspose-words-foss/Aspose.Words-FOSS-for-Python,same revision,2d2efee2787c,2d2efee2787c,0/0/12/0,0/0/12/0,MATCH

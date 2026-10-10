@@ -1,0 +1,19 @@
+"""Run `present --facts-only` for one repo in-process with logging capture, to count gateway calls."""
+import logging, sys, time, io, json, re
+buf = io.StringIO()
+class H(logging.Handler):
+    def emit(self, rec):
+        buf.write(rec.name + " " + rec.getMessage() + "\n")
+h = H(); h.setLevel(logging.INFO)
+root = logging.getLogger(); root.setLevel(logging.INFO); root.addHandler(h)
+from repository_presenter.cli import main
+repo, out = sys.argv[1], sys.argv[2]
+t = time.time()
+rc = main(["present", "--facts-only", "--repo", repo])
+secs = time.time() - t
+reqs = [l for l in buf.getvalue().splitlines() if "HTTP Request" in l]
+json.dump({"repo": repo, "rc": rc, "seconds": round(secs, 1), "http_requests_logged": len(reqs),
+           "chat_completion_posts": sum(1 for l in reqs if "chat/completions" in l),
+           "request_lines": [re.sub(r"https?://[^/]+", "<gateway>", l)[:200] for l in reqs]},
+          open(out, "w"))
+sys.exit(rc)

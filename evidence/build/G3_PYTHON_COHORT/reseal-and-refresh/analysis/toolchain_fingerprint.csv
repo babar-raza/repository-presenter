@@ -1,0 +1,15 @@
+# authoritative_plan: plans/reseal-and-refresh/PLAN.md
+# artifact_role: analysis_or_evidence_only
+# execution_authority: false
+tool,default_environment,with_nodejs_prepended_to_subprocess_path
+cargo,cargo 1.98.1 (797e8a9bc 2026-08-05),cargo 1.98.1 (797e8a9bc 2026-08-05)
+cmake,cmake version 4.4.2,cmake version 4.4.2
+dotnet,10.0.401,10.0.401
+go,go version go1.26.4 windows/amd64,go version go1.26.4 windows/amd64
+gxx,"g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0","g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0"
+javac,javac 21.0.11,javac 21.0.11
+mvn,present (no version reported),present (no version reported)
+ninja,1.13.2,1.13.2
+node,v24.13.1,v24.13.1
+npm,absent,11.8.0
+tsc,present (no version reported),Version 5.9.3

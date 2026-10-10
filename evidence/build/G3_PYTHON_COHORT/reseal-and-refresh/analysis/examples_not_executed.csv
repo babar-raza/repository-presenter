@@ -1,0 +1,210 @@
+# authoritative_plan: plans/reseal-and-refresh/PLAN.md
+# artifact_role: analysis_or_evidence_only
+# execution_authority: false
+repository,ordinal,outcome,detail
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,3,FAILED,"Program.cs(3,41): error CS1503: Argument 2: cannot convert from 'Aspose.ThreeD.FileFormat' to 'System.Threading.CancellationToken'"
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,7,NOT_VERIFIED,the fence uses `scene` without binding it; the README establishes it in an earlier section
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,1,NEEDS_INPUT,FileNotFoundError: the example opens an input the repository does not provide
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,3,NEEDS_INPUT,FileNotFoundError: the example opens an input the repository does not provide
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,6,NEEDS_INPUT,FileNotFoundError: the example opens an input the repository does not provide
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,8,FAILED,TypeError
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,11,NEEDS_INPUT,FileNotFoundError: the example opens an input the repository does not provide
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,2,FAILED,"example_002.ts(9,54): error TS2339: Property 'controlPoints' does not exist on type 'Entity'."
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,8,FAILED,"Program.cs(14,1): error CS0200: Property or indexer 'Chart.Name' cannot be assigned to -- it is read only"
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,2,FAILED,example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,3,NOT_VERIFIED,"the fence uses `sheet`, `CellArea`, `FormatConditionType`, `OperatorType`, `Style`, `style`, `FillPattern`, `Color` without binding it; the README establishes i"
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,4,NOT_VERIFIED,"the fence uses `sheet`, `CellArea`, `ValidationType`, `OperatorType` without binding it; the README establishes it in an earlier section"
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,5,NOT_VERIFIED,the fence uses `sheet` without binding it; the README establishes it in an earlier section
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,6,NOT_VERIFIED,"the fence uses `PageSetup`, `pageSetup`, `sheet`, `PageOrientationType`, `PaperSizeType` without binding it; the README establishes it in an earlier section"
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,7,NOT_VERIFIED,"the fence uses `workbook`, `DefinedName`, `priceRange` without binding it; the README establishes it in an earlier section"
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,1,NOT_VERIFIED,the fence declares an import and no statement; there is nothing to compile
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,2,FAILED,the build failed without naming a diagnostic
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,3,FAILED,the build failed without naming a diagnostic
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,4,FAILED,the build failed without naming a diagnostic
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,5,FAILED,the build failed without naming a diagnostic
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,6,FAILED,the build failed without naming a diagnostic
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,7,FAILED,the build failed without naming a diagnostic
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,8,FAILED,the build failed without naming a diagnostic
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,9,FAILED,the build failed without naming a diagnostic
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,10,FAILED,the build failed without naming a diagnostic
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,2,NOT_VERIFIED,the fence uses `valid_path` without binding it; the README establishes it in an earlier section
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,3,NOT_VERIFIED,the fence uses `sheet` without binding it; the README establishes it in an earlier section
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,4,NOT_VERIFIED,the fence uses `sheet` without binding it; the README establishes it in an earlier section
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,5,NOT_VERIFIED,the fence uses `sheet` without binding it; the README establishes it in an earlier section
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,6,NOT_VERIFIED,the fence uses `sheet` without binding it; the README establishes it in an earlier section
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,7,NOT_VERIFIED,"the fence uses `links_sheet`, `workbook` without binding it; the README establishes it in an earlier section"
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,3,FAILED,example_003.cpp:3:27: error: 'read_option' was not declared in this scope
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,4,FAILED,example_004.cpp:5:14: error: 'cerr' is not a member of 'std'
+aspose-email-foss/Aspose.Email-FOSS-for-Python,5,FAILED,NameError
+aspose-font-foss/Aspose.Font-FOSS-for-Python,3,FAILED,TypeError
+aspose-font-foss/Aspose.Font-FOSS-for-Python,5,FAILED,KeyError
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,6,FAILED,"ImportError; ran against the repository source tree; the package would not build; retried after installing declared extra providing 'quickjs' (quickjs>=1.19,<2)"
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,1,FAILED,"Program.cs(8,38): error CS0103: The name 'bytes' does not exist in the current context"
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,2,FAILED,"Program.cs(3,58): error CS0103: The name 'cancellationToken' does not exist in the current context"
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,4,FAILED,"Program.cs(3,27): error CS0103: The name 'GetUploadStream' does not exist in the current context"
+aspose-note-foss/Aspose.Note-FOSS-for-Python,1,FAILED,AttributeError
+aspose-page-foss/Aspose.Page-FOSS-for-Python,8,FAILED,ImportError; ran against the repository source tree; the package would not build
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,1,FAILED,the build failed without naming a diagnostic
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,2,FAILED,the build failed without naming a diagnostic
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,3,FAILED,the build failed without naming a diagnostic
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,4,FAILED,the build failed without naming a diagnostic
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,5,FAILED,the build failed without naming a diagnostic
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,6,FAILED,the build failed without naming a diagnostic
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,1,FAILED,FileExistsError
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,2,FAILED,FileExistsError
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,5,NEEDS_INPUT,FileNotFoundError: the example opens an input the repository does not provide
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,6,NEEDS_INPUT,FileNotFoundError: the example opens an input the repository does not provide
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,7,FAILED,NameError
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,8,FAILED,FileExistsError
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,10,FAILED,FileExistsError
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,11,FAILED,FileExistsError
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,14,FAILED,FileExistsError
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,15,FAILED,NameError
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,16,FAILED,aspose_pdf.exceptions.FontEmbeddingException
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,3,FAILED,example_003.cpp:36:20: error: invalid use of incomplete type 'class Aspose::Pdf::Paragraphs'
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,6,FAILED,example_006.cpp:15:52: error: invalid use of incomplete type 'class Aspose::Pdf::PageCollection'
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,8,NOT_VERIFIED,"BLOCKED_TOOLCHAIN: no diagnostic in the example itself; a header it includes stopped g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,9,NOT_VERIFIED,"the fence uses `page`, `pdf` without binding it; the README establishes it in an earlier section"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,10,NOT_VERIFIED,"the fence uses `doc`, `pdf` without binding it; the README establishes it in an earlier section"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,11,NOT_VERIFIED,"the fence uses `doc`, `pdf`, `item`, `ann`, `page` without binding it; the README establishes it in an earlier section"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,12,NOT_VERIFIED,"BLOCKED_TOOLCHAIN: no diagnostic in the example itself; a header it includes stopped g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,7,FAILED,"example_007.ts(1,22): error TS2339: Property 'OpenFile' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,8,FAILED,"example_008.ts(4,15): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,9,FAILED,"example_009.ts(1,15): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,10,FAILED,"example_010.ts(3,32): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,11,FAILED,"example_011.ts(1,22): error TS2339: Property 'OpenFile' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,12,FAILED,"example_012.ts(1,14): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,13,FAILED,"example_013.ts(1,14): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,14,FAILED,"example_014.ts(1,1): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,15,FAILED,"example_015.ts(1,1): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,16,FAILED,"example_016.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,17,FAILED,"example_017.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,18,FAILED,"example_018.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,19,FAILED,"example_019.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,20,FAILED,"example_020.ts(3,27): error TS2304: Cannot find name 'bytes'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,21,FAILED,"example_021.ts(1,11): error TS2304: Cannot find name 'createTable'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,22,FAILED,"example_022.ts(1,11): error TS2304: Cannot find name 'createTable'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,23,FAILED,"example_023.ts(1,11): error TS2304: Cannot find name 'createTable'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,24,FAILED,"example_024.ts(1,1): error TS2304: Cannot find name 't'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,25,FAILED,"example_025.ts(1,11): error TS2304: Cannot find name 'createTable'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,26,FAILED,"example_026.ts(1,12): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,27,FAILED,"example_027.ts(1,25): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,28,FAILED,"example_028.ts(1,11): error TS2304: Cannot find name 'createTable'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,29,FAILED,"example_029.ts(1,23): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,30,FAILED,"example_030.ts(1,11): error TS2304: Cannot find name 'createTable'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,31,FAILED,"example_031.ts(3,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,32,FAILED,"example_032.ts(3,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,33,FAILED,"example_033.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,34,FAILED,"example_034.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,35,FAILED,"example_035.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,36,FAILED,"example_036.ts(2,32): error TS1002: Unterminated string literal."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,37,FAILED,"example_037.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,38,FAILED,"example_038.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,40,FAILED,"example_040.ts(1,11): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,41,FAILED,"example_041.ts(1,1): error TS2304: Cannot find name 'g'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,42,FAILED,"example_042.ts(1,1): error TS2304: Cannot find name 'g'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,43,FAILED,"example_043.ts(1,1): error TS2304: Cannot find name 'g'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,44,FAILED,"example_044.ts(1,15): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,45,FAILED,"example_045.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,46,FAILED,"example_046.ts(1,13): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,47,FAILED,"example_047.ts(4,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,48,FAILED,"example_048.ts(1,1): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,49,FAILED,"example_049.ts(1,12): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,50,FAILED,"example_050.ts(2,1): error TS2304: Cannot find name 'draft'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,51,FAILED,"example_051.ts(1,1): error TS2304: Cannot find name 'oc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,52,FAILED,"example_052.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,53,FAILED,"example_053.ts(1,22): error TS2339: Property 'Open' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document; }'"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,54,FAILED,"example_054.ts(1,17): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,55,FAILED,"example_055.ts(1,21): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,56,FAILED,"example_056.ts(1,22): error TS2339: Property 'Open' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document; }'"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,57,FAILED,"example_057.ts(1,22): error TS2339: Property 'Open' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document; }'"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,58,FAILED,"example_058.ts(1,17): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,59,FAILED,"example_059.ts(1,14): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,60,FAILED,"example_060.ts(1,17): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,61,FAILED,"example_061.ts(1,22): error TS2339: Property 'Open' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document; }'"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,62,FAILED,"example_062.ts(1,25): error TS2339: Property 'Open' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document; }'"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,63,FAILED,"example_063.ts(1,22): error TS2339: Property 'Open' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document; }'"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,64,FAILED,"example_064.ts(2,1): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,65,FAILED,"example_065.ts(1,22): error TS2339: Property 'Open' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document; }'"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,66,FAILED,"example_066.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,67,FAILED,"example_067.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,68,FAILED,"example_068.ts(1,15): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,69,FAILED,"example_069.ts(1,16): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,70,FAILED,"example_070.ts(1,15): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,71,FAILED,"example_071.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,72,FAILED,"example_072.ts(1,1): error TS2304: Cannot find name 'country'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,73,FAILED,"example_073.ts(1,16): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,74,FAILED,"example_074.ts(1,1): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,75,FAILED,"example_075.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,76,FAILED,"example_076.ts(2,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,77,FAILED,"example_077.ts(1,22): error TS2339: Property 'Open' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document; }'"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,79,FAILED,"example_079.ts(1,22): error TS2339: Property 'OpenFile' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,80,FAILED,"example_080.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,81,FAILED,"example_081.ts(1,17): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,82,FAILED,"example_082.ts(1,16): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,83,FAILED,"example_083.ts(1,15): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,84,FAILED,"example_084.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,85,FAILED,"example_085.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,86,FAILED,"example_086.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,87,FAILED,"example_087.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,88,FAILED,"example_088.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,89,FAILED,"example_089.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,90,FAILED,"example_090.ts(2,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,91,FAILED,"example_091.ts(2,11): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,92,FAILED,"example_092.ts(1,13): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,93,FAILED,"example_093.ts(2,16): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,94,FAILED,"example_094.ts(2,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,95,FAILED,"example_095.ts(1,16): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,96,FAILED,"example_096.ts(1,19): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,97,FAILED,"example_097.ts(3,19): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,98,FAILED,"example_098.ts(1,13): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,99,FAILED,"example_099.ts(15,18): error TS2451: Cannot redeclare block-scoped variable 'skipped'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,101,FAILED,"example_101.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,102,FAILED,"example_102.ts(1,16): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,103,FAILED,"example_103.ts(1,16): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,104,FAILED,"example_104.ts(3,16): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,106,FAILED,"example_106.ts(3,27): error TS2304: Cannot find name 'scanBytes'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,107,FAILED,"example_107.ts(5,25): error TS2552: Cannot find name 'myTesseract'. Did you mean 'tesseract'?"
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,108,FAILED,"example_108.ts(4,27): error TS2304: Cannot find name 'bytes'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,112,FAILED,"example_112.ts(4,44): error TS2304: Cannot find name 'source'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,113,FAILED,"example_113.ts(1,14): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,114,FAILED,"example_114.ts(1,35): error TS2304: Cannot find name 'page'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,115,FAILED,"example_115.ts(1,22): error TS2339: Property 'New' does not exist on type '{ new (): Document; prototype: Document; parseHTMLUnsafe(html: string): Document; }'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,116,FAILED,"example_116.ts(1,19): error TS2304: Cannot find name 'doc'."
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,117,FAILED,"example_117.ts(1,1): error TS2304: Cannot find name 'doc'."
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,2,FAILED,CSC : error CS5001: Program does not contain a static 'Main' method suitable for an entry point
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,1,FAILED,example_001.cpp:14:19: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,2,NOT_VERIFIED,"the fence uses `Presentation`, `existing`, `ShapeType`, `SaveFormat` without binding it; the README establishes it in an earlier section"
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,3,FAILED,example_003.cpp:15:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,4,FAILED,example_004.cpp:15:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,5,FAILED,example_005.cpp:13:18: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,6,FAILED,example_006.cpp:13:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,7,FAILED,example_007.cpp:12:35: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,7,NOT_VERIFIED,the fence uses `imageBytes` without binding it; the README establishes it in an earlier section
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,15,FAILED,ValueError
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,1,FAILED,IndentationError
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,2,FAILED,IndentationError
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,3,FAILED,IndentationError
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,4,FAILED,IndentationError
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,5,FAILED,IndentationError
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,6,FAILED,IndentationError
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,7,FAILED,IndentationError
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,8,FAILED,IndentationError
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,9,FAILED,IndentationError
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,1,FAILED,E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\lpre2\runs\clones\aspose-words-foss__Aspose.Words-FOSS-for-.NET\Aspose.Foundation\Aspose.F
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,2,FAILED,E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\lpre2\runs\clones\aspose-words-foss__Aspose.Words-FOSS-for-.NET\Aspose.Foundation\Aspose.F
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,3,FAILED,E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\lpre2\runs\clones\aspose-words-foss__Aspose.Words-FOSS-for-.NET\Aspose.Foundation\Aspose.F
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,4,FAILED,E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\lpre2\runs\clones\aspose-words-foss__Aspose.Words-FOSS-for-.NET\Aspose.Foundation\Aspose.F
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,5,FAILED,E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\lpre2\runs\clones\aspose-words-foss__Aspose.Words-FOSS-for-.NET\Aspose.Foundation\Aspose.F
+aspose-words-foss/Aspose.Words-FOSS-for-Python,1,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,2,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,3,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,4,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,5,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,6,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,7,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,8,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,9,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,10,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,11,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
+aspose-words-foss/Aspose.Words-FOSS-for-Python,12,NOT_VERIFIED,"no interpreter satisfies requires-python '>=3.10,<3.13': the presenter runs Python 3.13.2 and the pinned toolchains offer none"
