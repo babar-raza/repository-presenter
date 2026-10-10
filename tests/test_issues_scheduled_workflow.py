@@ -242,3 +242,12 @@ def test_the_dry_run_redetection_reads_close_approvals_from_the_trigger_too() ->
     assert len(dry) == 1
     assert '--approvals-ref "$APPROVALS_REF"' in dry[0]
     assert "--close" not in dry[0]
+
+
+def test_the_header_names_json_approval_records_and_the_issues_mode_gate() -> None:
+    header = "\n".join(
+        line for line in WORKFLOW.read_text(encoding="utf-8").splitlines() if line.startswith("#")
+    )
+    assert "ops/issue_approvals/<handoff-id>.json" in header
+    assert ".yaml" not in header
+    assert "issues_mode" in header

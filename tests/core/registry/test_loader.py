@@ -137,3 +137,34 @@ def test_gates_distinguish_presence_from_permission(tmp_path: Path) -> None:
     with pytest.raises(NotAllowlistedError, match="not in the registry allow-list") as info:
         require_listed(registry, "some-org/not-listed")
     assert info.value.exit_code == 3
+
+
+def _schema_errors(entries: list[dict[str, Any]]) -> list[Any]:
+    schema = json.loads((REPO_ROOT / "schemas" / "registry.schema.json").read_text("utf-8"))
+    document = {"schema_version": 1, "entries": entries}
+    return list(Draft202012Validator(schema).iter_errors(document))
+
+
+@pytest.mark.parametrize("value", ["off", "dry_run", "file"])
+def test_loader_and_schema_accept_each_issues_mode(tmp_path: Path, value: str) -> None:
+    entries = [{**disabled_widget(), "issues_mode": value}]
+    assert _schema_errors(entries) == []
+    loaded = load_registry(write_registry(tmp_path / "data" / "registry.json", entries))
+    assert loaded.entries[0].issues_mode == value
+
+
+@pytest.mark.parametrize("value", ["full", "on", 1])
+def test_loader_and_schema_reject_a_bad_issues_mode(tmp_path: Path, value: Any) -> None:
+    entries = [{**disabled_widget(), "issues_mode": value}]
+    assert _schema_errors(entries) != []
+    with pytest.raises(ConfigError):
+        load_registry(write_registry(tmp_path / "data" / "registry.json", entries))
+
+
+def test_a_null_issues_mode_from_a_model_dump_loads_as_absent(tmp_path: Path) -> None:
+    """``RegistryEntry.model_dump()`` emits ``issues_mode: null``; the loader treats it as unset
+    (the schema file shape omits the key)."""
+    entries = [{**disabled_widget(), "issues_mode": None}]
+    loaded = load_registry(write_registry(tmp_path / "data" / "registry.json", entries))
+    assert loaded.entries[0].issues_mode is None
+    assert loaded.entries[0].effective_issues_mode == "dry_run"
