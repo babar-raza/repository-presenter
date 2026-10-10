@@ -789,3 +789,31 @@ def test_an_unverified_npm_build_admits_nothing_and_the_404_stands(
     refused = _source_build_fact(install, TS_ENTRY, [], not_built)
     assert refused.polarity == "CONTRADICTED"
     assert refused.value == "npm install @aspose/widget"
+
+
+def test_a_file_the_readme_names_and_the_clone_contains_is_recorded_on_its_unit(
+    tmp_path: Path,
+) -> None:
+    """G7-W23 (#1010) end to end: extract_facts hands the real tree inventory to the inherited
+    units, so CONTRIBUTING.md (in the tree) is recorded and HACKING.md (not in it) is not."""
+    source = init_git_repository(tmp_path / "upstream", with_commit=False)
+    (source / "README.md").write_text(
+        "# Example\n\nRead CONTRIBUTING.md and HACKING.md before you open a pull request.\n",
+        encoding="utf-8",
+    )
+    (source / "CONTRIBUTING.md").write_text("# Contributing\n", encoding="utf-8")
+    (source / "pkg").mkdir()
+    (source / "pkg" / "__init__.py").write_text("", encoding="utf-8")
+    commit_all(source, "seed")
+    clone = pinned_read_only_clone(str(source), tmp_path / "clone")
+    snapshot = capture_snapshot(ENTRY.repository, clone)
+
+    document, _ = extract_facts(
+        ENTRY, snapshot, clone.path, list_tree_paths(clone.path), plugin_for("python"), None
+    )
+
+    units = {fact.id: fact for fact in document.by_kind("inherited_unit")}
+    assert (units["inherited_unit:002.paragraph"].attributes or {})["repository_files"] == (
+        "CONTRIBUTING.md"
+    )
+    assert "repository_files" not in (units["inherited_unit:001.heading"].attributes or {})

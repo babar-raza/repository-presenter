@@ -36,6 +36,9 @@ Polarity = Literal["SUPPORTED", "CONTRADICTED", "UNRESOLVED"]
 FACT_KINDS: tuple[str, ...] = get_args(FactKind)
 POLARITIES: tuple[str, ...] = get_args(Polarity)
 FACTS_FILENAME = "facts.json"
+# The attribute an ``inherited_unit`` fact carries: comma-joined repository file names its text
+# spells that the pinned tree contains (evidence/facts/repository_files.py). Prose may spell them.
+REPOSITORY_FILES_ATTRIBUTE = "repository_files"
 
 _SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:[._-][a-z0-9]+)*$")
 _UNSAFE = re.compile(r"[^a-z0-9._-]+")

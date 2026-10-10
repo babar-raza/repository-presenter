@@ -272,7 +272,11 @@ def extract_facts(
     if snapshot.readme_path is not None:
         readme_bytes = (clone_path / snapshot.readme_path).read_bytes()
         public_symbol_facts = tuple(f for f in facts if f.kind == "public_symbol")
-        facts.extend(inherited_unit_facts(snapshot.readme_path, readme_bytes, public_symbol_facts))
+        facts.extend(
+            inherited_unit_facts(
+                snapshot.readme_path, readme_bytes, public_symbol_facts, tree_paths
+            )
+        )
         link_records, link_probes = link_facts(snapshot.readme_path, readme_bytes, tree_paths)
         facts.extend(link_records)
         probes.extend(link_probes)
