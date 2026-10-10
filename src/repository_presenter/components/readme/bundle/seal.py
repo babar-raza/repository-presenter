@@ -936,8 +936,8 @@ def _adopt_update(
 
 
 INVALIDATING_CHECKS = frozenset(
-    {"BC-01", "BC-02", "BC-03", "BC-04", "BC-05", "BC-06", "BC-08", "BC-09"}
-)
+    {"BC-01", "BC-02", "BC-03", "BC-04", "BC-05", "BC-06", "BC-08", "BC-09", "BC-14"}
+)  # BC-14 (TC-CLM-01): a false version, install package, or publication claim is a factual failure
 INVALIDATING_VERDICTS = frozenset({"REJECT_FACTUAL", "REJECT_PRESERVATION"})
 
 
