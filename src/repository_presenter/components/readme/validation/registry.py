@@ -153,8 +153,9 @@ VALIDATION_FILENAME = "validation.json"
 # rationales are classified from the unit's own source section and the model's attestation, never
 # by loosening the fail-closed default: "unsupported by facts" / "uncertain" read as the
 # NO_EVIDENCE_EITHER_WAY attestation (the facts still veto it), and a unit from the examples section
-# the plan excludes is EXCLUDED_BY_PLAN. A bundle sealed under 19 re-checks under 20 and shows as
-# pending.
+# the plan excludes is EXCLUDED_BY_PLAN; a PDF name literal in a code span ("/Root /Metadata") no
+# longer reads as the public symbol of the same letters (PDF-TypeScript 359). A bundle sealed
+# under 19 re-checks under 20 and shows as pending.
 VALIDATOR_VERSION = "20"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).

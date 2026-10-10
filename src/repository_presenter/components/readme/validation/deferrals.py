@@ -102,6 +102,8 @@ _NO_EVIDENCE = re.compile(
 # A source heading that is an examples section ("Additional Examples", "Examples").
 _EXAMPLES_SECTION = re.compile(r"\bexamples?\b")
 _CODE_SPAN = re.compile(r"`([^`\n]+)`")
+# A PDF name literal: a slash opening a token (not the slash inside a path "src/Foo"), then a name.
+_PDF_NAME = re.compile(r"(?<![\w.)\]/])/[A-Za-z_]\w*")
 _DOTTED_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
 _MIN_SYMBOL_TAIL = 4
 
@@ -216,7 +218,12 @@ class DeferralContext:
         counts only when it reads as a type or member name (capitalised, or snake_case) of at
         least ``_MIN_SYMBOL_TAIL`` characters, so ordinary words in a code span never do."""
         listing = shape == "listing"
-        spans = _CODE_SPAN.findall(self.text(unit_id))
+        # A PDF name literal ("/Root /Metadata", "/Perms") is a dictionary key of the file format,
+        # not the API symbol of the same letters (PDF-TypeScript 359 reads `/Metadata` beside a
+        # public class Metadata): the slash-led tokens are removed before names are read.
+        spans = [
+            _PDF_NAME.sub(" ", span).strip() for span in _CODE_SPAN.findall(self.text(unit_id))
+        ]
         for span in spans[:1] if listing else spans:
             names = _DOTTED_NAME.findall(span)
             for name in names[:1] if listing else names:

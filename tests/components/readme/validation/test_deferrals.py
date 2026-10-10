@@ -25,6 +25,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
 )
 from repository_presenter.components.readme.validation.deferrals import (
     DEFERRAL_CLASSES,
+    DeferralContext,
     review_deferrals,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
@@ -985,3 +986,60 @@ def test_an_excluded_examples_unit_that_spells_a_verified_symbol_still_blocks() 
     deferred = _deferred("inherited_unit:032.paragraph", "No section is available to place it.")
     findings = review_deferrals({"dispositions": [deferred]}, facts, _TWO_STARTS)
     assert _only(findings).decision == "BLOCK"
+
+
+# CUT-2 (S4 lane, PDF-TypeScript inherited_unit:359.paragraph): a code span that spells a PDF name
+# literal ("/Root /Metadata", "/Perms", "/Type") is a dictionary key of the file format, not the
+# API symbol of the same letters. `Metadata` is a SUPPORTED public symbol of the package; the
+# upstream sentence about XMP never names it.
+
+_XMP = (
+    "`GetXmp()` parses the `/Root /Metadata` packet (Dublin Core, XMP basic, and PDF\n"
+    "schemas) leniently - malformed packets never throw, and the original text is\n"
+    "returned in `raw`. Shared fields auto-mirror with `/Info` in both directions\n"
+    "(`SetMetadata` -> XMP, `SetXmp` -> `/Info`)."
+)
+
+
+def _pdf_ts_facts(text: str) -> FactsDocument:
+    return _facts(
+        _fact("public_symbol", "metadata", "Metadata"),
+        _fact("public_symbol", "perms", "Perms"),
+        _fact("build_test_asset", "tests", "tests/"),
+        _unit(359, "paragraph", text, "Aspose.PDF FOSS for TypeScript > Additional Examples"),
+    )
+
+
+def test_pdf_typescript_a_pdf_name_literal_is_not_the_symbol_of_the_same_letters() -> None:
+    deferred = _deferred(
+        "inherited_unit:359.paragraph", "No fact confirms the XMP packet behaviour described."
+    )
+    finding = _classify(_pdf_ts_facts(_XMP), deferred)
+    assert (finding.class_id, finding.decision) == ("NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+
+
+@pytest.mark.parametrize("name", ["/Metadata", "/Perms", "/Root /Metadata", "/Info /Perms"])
+def test_a_slash_led_pdf_name_never_names_a_verified_symbol(name: str) -> None:
+    facts = _pdf_ts_facts(f"The catalog key `{name}` holds it.")
+    assert not DeferralContext.build({"dispositions": []}, facts).names_verified_symbol(
+        "inherited_unit:359.paragraph"
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The `Metadata` class holds the packet.",
+        "Read `/Root /Metadata` through `Metadata` first.",
+        "Set `/Perms` with `Perms`.",
+    ],
+)
+def test_a_real_symbol_in_a_code_span_still_names_a_verified_symbol(text: str) -> None:
+    """Negative control: the PDF-name rule removes only the slash-led literal; the symbol itself,
+    spelled without a slash, is still evidence the facts hold what the unit claims."""
+    facts = _pdf_ts_facts(text)
+    assert DeferralContext.build({"dispositions": []}, facts).names_verified_symbol(
+        "inherited_unit:359.paragraph"
+    )
+    deferred = _deferred("inherited_unit:359.paragraph", "No fact confirms the behaviour.")
+    assert _classify(facts, deferred).decision == "BLOCK"
