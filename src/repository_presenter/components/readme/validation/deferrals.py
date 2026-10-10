@@ -36,6 +36,15 @@ prefix (``RECOVERED_COVERAGE_RATIONALE``). ``NOT_CARRIED_BY_NAMED_SECTION`` clas
 cause ADVISORY (OWNER-14: a deferred unit is never public, and blocks only in specific classes),
 matched on the typed prefix and never on free text, and last in precedence so every BLOCK class
 above still decides first.
+
+CUT-2 (G3-W08/G7-W12) read the three free-text rationales the 2026-10-10 baseline left UNCLASSIFIED
+(3D-.NET 066, Page-Python 014/016/038/040, Email-Cpp 032) and added no class: two existing classes
+learned the cause. ``NO_EVIDENCE_EITHER_WAY`` accepts the model's other words for the same
+attestation ("unsupported by facts", "uncertain", "cannot be verified") and still vetoes it on the
+facts (a cited fact, a spelled verified symbol); ``EXCLUDED_BY_PLAN`` also reads the unit's own
+source heading, so an examples-section unit the plan excludes needs no "additional" in the
+rationale. A rationale that says only "supported, no section" with the source section included
+still blocks: that is a lost placement, not an unresolved claim.
 """
 
 from __future__ import annotations
@@ -83,9 +92,15 @@ _API_SECTION = re.compile(r"\bapi\b")
 # nor contradict") produce.
 _NO_EVIDENCE = re.compile(
     r"\bno fact\b|\bany fact\b|\bnot (?:supported|contradicted|verified)\b"
-    r"|lacks? supporting evidence|neither support",
+    r"|lacks? supporting evidence|neither support"
+    # CUT-2: the same attestation in the model's other words ("unsupported by facts", "its public
+    # use is uncertain", "cannot be verified"), read from the 2026-10-10 baseline's rationales.
+    r"|\bunsupported\b|\bunverified\b|\buncertain(?:ty|ties)?\b|\bunresolved\b"
+    r"|\bno evidence\b|\bcannot be (?:confirmed|verified)\b",
     re.IGNORECASE,
 )
+# A source heading that is an examples section ("Additional Examples", "Examples").
+_EXAMPLES_SECTION = re.compile(r"\bexamples?\b")
 _CODE_SPAN = re.compile(r"`([^`\n]+)`")
 _DOTTED_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
 _MIN_SYMBOL_TAIL = 4
@@ -294,7 +309,18 @@ def _enterprise_non_prose(unit_id: str, entry: Mapping[str, Any], ctx: DeferralC
 
 
 def _excluded_by_plan(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
-    return ctx.examples_consumed and "additional" in _rationale(entry)
+    """The plan's quick starts consume every verified example, so Additional Examples is excluded.
+    A unit is deferred for that when its rationale says "additional", or (CUT-2, Email-Cpp 032:
+    "no section is available") when its own source section is an examples section, read from the
+    recorded heading path as the At a Glance and Installation classes read theirs. Prose in that
+    section that spells a verified symbol is a claim about the API, not example scaffolding, so it
+    is not withheld on this ground."""
+    if not ctx.examples_consumed:
+        return False
+    if "additional" in _rationale(entry):
+        return True
+    in_examples_section = any(_EXAMPLES_SECTION.search(part) for part in ctx.parts(unit_id)[1:])
+    return in_examples_section and not ctx.names_verified_symbol(unit_id)
 
 
 def _section_absent(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
@@ -431,7 +457,8 @@ DEFERRAL_CLASSES: tuple[DeferralClass, ...] = (
         "ADVISORY",
         None,
         "The plan's quick starts already consume every verified example, so Additional Examples "
-        "is excluded at this plan. The examples themselves are shown in Quick Start.",
+        "is excluded at this plan. The examples themselves are shown in Quick Start, and prose "
+        "from the upstream's examples section has no public home beside them.",
         _excluded_by_plan,
     ),
     DeferralClass(

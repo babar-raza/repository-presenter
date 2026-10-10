@@ -313,11 +313,13 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # the UNCLASSIFIED deferral family; VALIDATOR_VERSION 17: BC-04 v3 honours the omissions S6
     # recorded (G7-W15); VALIDATOR_VERSION 18: BC-14 v1 (TC-CLM-01) holds version, install-package
     # and publication statements to the facts; VALIDATOR_VERSION 19: BC-05 v4 classifies the typed
-    # "not provably carried" deferral ADVISORY (TC-DSP-01 companion). This candidate names no
+    # "not provably carried" deferral ADVISORY (TC-DSP-01 companion); VALIDATOR_VERSION 20: BC-05
+    # v5 reads "unsupported"/"uncertain" attestations and an excluded examples section (CUT-2).
+    # This candidate names no
     # edition, spells its name whole, and passes all of them (it has badge-worthy facts and a
     # rendered badge row, no docstring eliciting an elision, and a clean single-read ACCEPT with no
     # triggered second read, so v13's, v14's, and v15's own allowance/note/detail never fire).
-    assert document["source_revision"] == REVISION and document["validator_version"] == "19"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "20"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(

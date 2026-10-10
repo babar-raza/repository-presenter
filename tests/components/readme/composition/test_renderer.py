@@ -1865,3 +1865,36 @@ def test_the_enterprise_anchor_opens_full_featured_and_ends_with_the_one_edition
     assert enterprise_anchor("Aspose.3D for .NET") == (
         "full-featured Aspose.3D for .NET — Enterprise Edition"
     )
+
+
+def test_prose_wraps_a_recorded_project_name_and_bc12_then_passes_the_sentence() -> None:
+    """CUT-2 (BC-12), PDF-.NET: the test project's name is recorded from the tree, so the renderer
+    wraps it in a code span (which BC-12 does not judge) and the sentence no longer carries a bare
+    ``Aspose.Pdf.Foss`` head that BC-12 reads as a short spelling of the product. Without the
+    record it renders bare, exactly as before."""
+    from repository_presenter.components.readme.evidence.facts.inherited import (
+        inherited_unit_facts,
+    )
+    from repository_presenter.components.readme.validation.registry import canonical_name_pattern
+
+    entry = ENTRY.model_copy(
+        update={"repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET", "ecosystem": "net"}
+    )
+    readme = (
+        b"# Aspose.PDF FOSS for .NET\n\nThe test project (`Aspose.Pdf.Foss.Tests`) is a suite.\n"
+    )
+    tree = ["tests/Aspose.Pdf.Foss.Tests.csproj", "src/Aspose.Pdf.Foss.csproj"]
+    sentence = "The test project Aspose.Pdf.Foss.Tests is an xUnit suite."
+
+    def context(units_tree: list[str]) -> RenderContext:
+        units = inherited_unit_facts("README.md", readme, (), units_tree)
+        facts = FactsDocument(entry.repository, "a" * 40, (*FACTS.facts, *units))
+        return RenderContext(entry, facts, PLAN, UNITS, DISPOSITIONS)
+
+    wrapped = context(tree).prose(sentence)
+    assert wrapped == "The test project `Aspose.Pdf.Foss.Tests` is an xUnit suite."
+    assert context(["README.md"]).prose(sentence) == sentence
+    # What BC-12 sees: it matches the bare sentence and finds nothing once code spans are gone.
+    pattern = canonical_name_pattern("Aspose.PDF FOSS for .NET")
+    assert pattern.search(sentence)
+    assert not pattern.search(wrapped.replace("`Aspose.Pdf.Foss.Tests`", ""))

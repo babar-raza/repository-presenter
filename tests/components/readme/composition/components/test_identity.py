@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from repository_presenter.components.readme.composition.components.identity import (
+    canonicalise_name_variants,
     product_name,
     product_name_tokens,
 )
@@ -37,3 +38,52 @@ def test_hyphens_become_spaces_and_dots_stay() -> None:
         "for",
         "Python",
     }
+
+
+# CUT-2 (BC-12, G3-W08): the deterministic rewrite of a product-name variant in authored prose.
+# The first two strings are the real ones from the 2026-10-10 baseline (3D-.NET limitation:6,
+# PSD-Python's TestAsposeCompatibility row): the model shortened the name, three BC-12 repairs
+# did not converge, and the rewrite is a function of the registry name alone.
+
+NET = "Aspose.3D FOSS for .NET"
+
+
+def test_a_shortened_name_becomes_the_canonical_name() -> None:
+    text = "Their members do not affect licensing or usage in Aspose.3D FOSS."
+    assert canonicalise_name_variants(text, NET) == (
+        "Their members do not affect licensing or usage in Aspose.3D FOSS for .NET."
+    )
+    psd = "verifies compatibility between Aspose.PSD FOSS and the original Aspose.PSD API."
+    assert canonicalise_name_variants(psd, "Aspose.PSD FOSS for Python") == (
+        "verifies compatibility between Aspose.PSD FOSS for Python and the original Aspose.PSD API."
+    )
+
+
+def test_separator_and_case_variants_become_the_canonical_name() -> None:
+    for variant in ("aspose.3d foss", "Aspose 3D FOSS", "ASPOSE.3D FOSS for .net"):
+        assert canonicalise_name_variants(f"Use {variant} today.", NET) == f"Use {NET} today."
+
+
+def test_the_canonical_name_is_left_as_it_is() -> None:
+    text = f"{NET} reads scenes; {NET} writes them."
+    assert canonicalise_name_variants(text, NET) == text
+
+
+def test_a_technical_identifier_is_not_a_spelling_of_the_name() -> None:
+    """Negative controls: each of these is judged by BC-12 as it was before and none is rewritten
+    (a hyphen or underscore slug, a cue word, a longer dotted identifier, a path, a name a code
+    span or a fence holds, a 'for <platform>' tail the name does not have)."""
+    for text in (
+        "The package aspose-3d-foss ships it.",
+        "The Aspose.3D.FOSS namespace holds it.",
+        "The Aspose.3D.FOSS.Tests project covers it.",
+        "Open src/Aspose.3D.FOSS/Scene.cs next.",
+        "Install `Aspose.3D FOSS` as written.",
+        "```text\nAspose.3D FOSS\n```",
+        "Aspose.3D FOSS for Java is another product.",
+    ):
+        assert canonicalise_name_variants(text, NET) == text, text
+
+
+def test_a_name_without_a_foss_segment_is_not_rewritten_by_its_head() -> None:
+    assert canonicalise_name_variants("Aspose.3D reads scenes.", NET) == "Aspose.3D reads scenes."

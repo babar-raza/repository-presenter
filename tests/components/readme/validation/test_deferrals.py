@@ -796,3 +796,192 @@ def test_a_specific_blocking_cause_still_decides_before_the_not_carried_class() 
     entry = _deferred("inherited_unit:001.code_block", RECOVERED_COVERAGE_RATIONALE + "Held.")
     finding = _only(review_deferrals({"dispositions": [entry]}, facts))
     assert (finding.class_id, finding.decision) == ("NO_VERIFIED_QUICK_START", "BLOCK")
+
+
+# CUT-2 (G3-W08 / G7-W12): the three free-text rationales the 2026-10-10 baseline left as
+# UNCLASSIFIED. The strings below are the real units and rationales read from the archived
+# transactions of Aspose.3D-FOSS-for-.NET, Aspose.Page-FOSS-for-Python and
+# Aspose.Email-FOSS-for-Cpp; the facts are reduced to what the class reads.
+
+_TWO_STARTS = {
+    "quick_start_example_id": "example:001",
+    "second_quick_start_example_id": "example:002",
+}
+
+
+def test_3d_net_a_lead_in_the_model_calls_uncertain_is_a_no_evidence_deferral() -> None:
+    """3D-.NET inherited_unit:066: the model's investigation records 'whether the console converter
+    tool is intended for public use' as an uncertainty, cites no fact, and says so in its own
+    words ("uncertain"). That is DEFER_UNRESOLVED's definition; the facts hold no converter."""
+    facts = _facts(
+        _fact("public_symbol", "aspose.threed.scene", "Aspose.ThreeD.Scene"),
+        _fact("build_test_asset", "tests", "src/test/Aspose.ThreeD.Tests/"),
+        _unit(
+            66,
+            "paragraph",
+            "The console converter tool builds separately as a project reference to the library:",
+            "Aspose.3D FOSS for .NET > Development and Testing",
+        ),
+    )
+    deferred = _deferred(
+        "inherited_unit:066.paragraph",
+        "The paragraph mentions a console converter tool, but its public use is uncertain per "
+        "uncertainties.",
+    )
+    finding = _classify(facts, deferred)
+    assert (finding.class_id, finding.decision) == ("NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+
+
+@pytest.mark.parametrize(
+    ("number", "text", "rationale"),
+    [
+        (
+            14,
+            "To build and verify a wheel from a clone of the repository instead, install `uv`, "
+            "`setuptools`,\nand `wheel`, then run:",
+            "The build/verify workflow is unsupported by facts; the claim is material and cannot "
+            "be placed or omitted with evidence.",
+        ),
+        (
+            16,
+            "The wheel version comes from `local/Version.txt`. To upload the built wheel, use\n"
+            "`python package.py publish-test` for TestPyPI or `python package.py publish` for "
+            "PyPI.",
+            "The wheel versioning and publishing workflow is unsupported by facts; the claim is "
+            "material and cannot be placed or omitted with evidence.",
+        ),
+        (
+            38,
+            "XPS-to-PDF-to-PNG conversion:",
+            "The XPS-to-PDF-to-PNG conversion description is unsupported by facts; the claim is "
+            "material and cannot be placed or omitted with evidence.",
+        ),
+    ],
+)
+def test_page_python_a_claim_the_model_calls_unsupported_by_facts_is_a_no_evidence_deferral(
+    number: int, text: str, rationale: str
+) -> None:
+    """Page-Python 014/016/038/040: the upstream's build-from-clone, publishing and result-caption
+    claims. Its facts hold `install_command:pip` and `tests/` and no `package.py` or wheel, so the
+    model's "unsupported by facts" holds; "unsupported" is the same attestation as "no fact"."""
+    facts = _facts(
+        _fact("public_symbol", "aspose.page.xpsdocument", "aspose.page.XpsDocument"),
+        _fact("install_command", "pip", "pip install aspose-page-foss"),
+        _fact("build_test_asset", "tests", "tests/"),
+        _unit(number, "paragraph", text, "Aspose.Page FOSS for Python > Installation"),
+    )
+    finding = _classify(facts, _deferred(f"inherited_unit:{number:03d}.paragraph", rationale))
+    assert (finding.class_id, finding.decision) == ("NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+
+
+def test_an_unsupported_attestation_is_refused_when_the_unit_spells_a_verified_symbol() -> None:
+    """Negative control: "unsupported by facts" is false for a unit that spells a SUPPORTED public
+    symbol, so a lost fact stays a blocking, unclassified cause."""
+    facts = _facts(
+        _fact("public_symbol", "aspose.page.xpsdocument", "aspose.page.XpsDocument"),
+        _unit(
+            14,
+            "paragraph",
+            "Open a file with `aspose.page.XpsDocument` before you convert it.",
+            "Aspose.Page FOSS for Python > Usage",
+        ),
+    )
+    deferred = _deferred(
+        "inherited_unit:014.paragraph", "The workflow is unsupported by facts and uncertain."
+    )
+    assert _classify(facts, deferred).decision == "BLOCK"
+
+
+def test_a_deferral_that_only_says_the_unit_is_supported_and_unplaceable_still_blocks() -> None:
+    """Negative control: a rationale that says the facts support the unit, with nowhere to put
+    it, signals a lost fact, not an unresolved claim; with no excluded source section it blocks."""
+    facts = _facts(
+        _fact("link_target", "021", "examples/"),
+        _unit(
+            32,
+            "paragraph",
+            "Runnable CLI examples live in the [`examples/`](examples/) directory.",
+            "Aspose.Email FOSS for C++ > Development and Testing",
+        ),
+    )
+    deferred = _deferred(
+        "inherited_unit:032.paragraph",
+        "The paragraph describes the examples directory and is supported by the link facts; no "
+        "section is available to place it.",
+    )
+    deferred["fact_ids"] = ["link_target:021"]
+    assert _classify(facts, deferred).decision == "BLOCK"
+
+
+_EMAIL_032 = (
+    "Runnable CLI examples live in the [`examples/`](examples/) directory - turn on\n"
+    "`ASPOSE_EMAIL_FOSS_BUILD_EXAMPLES` to build them (see\n"
+    "[Development and Testing](#development-and-testing)); [`examples/README.md`]"
+    "(examples/README.md)\nmaps each one to the specific API calls it exercises."
+)
+_EMAIL_032_RATIONALE = (
+    "The paragraph describes the examples directory and is supported by the link facts; no "
+    "section is available to place it."
+)
+_ADDITIONAL = "Aspose.Email FOSS for C++ > Additional Examples"
+
+
+def _email_facts(section: str = _ADDITIONAL) -> FactsDocument:
+    return _facts(
+        _fact("public_symbol", "aspose.email.mapi_message", "aspose.email.MapiMessage"),
+        _fact("link_target", "021", "examples/"),
+        _fact("link_target", "022", "examples/README.md"),
+        _example(1, "SUPPORTED", unit=2),
+        _example(2, "SUPPORTED", unit=3),
+        _unit(32, "paragraph", _EMAIL_032, section),
+    )
+
+
+def _email_032() -> dict[str, Any]:
+    deferred = _deferred("inherited_unit:032.paragraph", _EMAIL_032_RATIONALE)
+    deferred["fact_ids"] = ["link_target:021", "link_target:022"]
+    return deferred
+
+
+def test_email_cpp_a_unit_from_the_additional_examples_the_plan_excludes_is_advisory() -> None:
+    """Email-Cpp inherited_unit:032: its own source section is Additional Examples, which the plan
+    excludes because the quick starts consume every verified example (so 'no section is
+    available'). The rationale names neither 'additional' nor a section, so it is read from the
+    unit's source section, as the At a Glance and Installation classes are."""
+    findings = review_deferrals({"dispositions": [_email_032()]}, _email_facts(), _TWO_STARTS)
+    finding = _only(findings)
+    assert (finding.class_id, finding.decision) == ("EXCLUDED_BY_PLAN", "ADVISORY")
+
+
+def test_a_unit_from_an_examples_section_the_plan_includes_still_blocks() -> None:
+    """Negative control: when a verified example is left over the plan includes Additional
+    Examples, so a deferral for 'no section' has a real home and is a lost placement."""
+    plan = {"quick_start_example_id": "example:001", "second_quick_start_example_id": None}
+    findings = review_deferrals({"dispositions": [_email_032()]}, _email_facts(), plan)
+    assert _only(findings).decision == "BLOCK"
+
+
+def test_a_unit_from_another_section_is_not_excluded_by_the_examples_plan() -> None:
+    """Negative control: the same deferral from a section that is not about examples."""
+    facts = _email_facts("Aspose.Email FOSS for C++ > Development and Testing")
+    findings = review_deferrals({"dispositions": [_email_032()]}, facts, _TWO_STARTS)
+    assert _only(findings).decision == "BLOCK"
+
+
+def test_an_excluded_examples_unit_that_spells_a_verified_symbol_still_blocks() -> None:
+    """Negative control: prose in the excluded section that makes a claim about a verified API
+    member is a lost fact, not withheld example scaffolding."""
+    facts = _facts(
+        _fact("public_symbol", "aspose.email.mapi_message", "aspose.email.MapiMessage"),
+        _example(1, "SUPPORTED", unit=2),
+        _example(2, "SUPPORTED", unit=3),
+        _unit(
+            32,
+            "paragraph",
+            "Use `aspose.email.MapiMessage` to read a message.",
+            _ADDITIONAL,
+        ),
+    )
+    deferred = _deferred("inherited_unit:032.paragraph", "No section is available to place it.")
+    findings = review_deferrals({"dispositions": [deferred]}, facts, _TWO_STARTS)
+    assert _only(findings).decision == "BLOCK"

@@ -4018,3 +4018,57 @@ def test_the_sibling_shorthand_admits_only_the_head_it_follows() -> None:
     assert _eci_check("EciHelper.parse is not implemented.") != []
     bare = "- ECI validation (`.validate`) is not implemented."
     assert _eci_check("EciHelper.validate is not implemented.", bare) != []
+
+
+# CUT-2 (BC-12, G3-W08): a product-name variant the model authored is rewritten to the canonical
+# name in place (the strings are the real ones from the 2026-10-10 baseline: 3D-.NET
+# limitation:6 and PSD-Python's TestAsposeCompatibility row), like the code span and the echoed
+# citation above, instead of being left for BC-12 to fail and a repair that does not converge.
+
+
+def _name_output(text: str, section: str = "scope_limitations", slot: str = "limitation:1") -> Any:
+    return {
+        "units": [
+            {
+                "section": section,
+                "slot": slot,
+                "text": text,
+                "fact_ids": ["public_symbol:aspose.threed.scene"],
+            }
+        ],
+        "omitted": [],
+    }
+
+
+def _name_task(section: str = "scope_limitations", slot: str = "limitation:1") -> SectionTask:
+    return SectionTask(section, {}, frozenset({"public_symbol:aspose.threed.scene"}), (slot,))
+
+
+def test_a_shortened_product_name_in_authored_prose_is_rewritten_to_the_canonical_name() -> None:
+    output = _name_output("The Scene class does not affect licensing or usage in Aspose.3D FOSS.")
+    assert unit_checks(output, _name_task(), FACTS, NAME) == []
+    assert output["units"][0]["text"] == (
+        "The Scene class does not affect licensing or usage in Aspose.3D FOSS for Python."
+    )
+
+
+def test_the_canonical_name_and_a_name_inside_a_code_span_are_left_alone() -> None:
+    canonical = _name_output("Aspose.3D FOSS for Python reads scenes with the Scene class.")
+    assert unit_checks(canonical, _name_task(), FACTS, NAME) == []
+    assert canonical["units"][0]["text"].startswith("Aspose.3D FOSS for Python reads")
+    fenced = _name_output("Run it as follows.\n```text\nAspose.3D FOSS\n```")
+    unit_checks(fenced, _name_task(), FACTS, NAME)
+    assert "```text\nAspose.3D FOSS\n```" in fenced["units"][0]["text"]
+
+
+def test_a_technical_identifier_that_starts_with_the_family_name_is_not_rewritten() -> None:
+    """Negative controls: the package slug, a namespace named as such, and a longer dotted
+    identifier (a project or type name) are not spellings of the product name."""
+    for text in (
+        "The Scene class ships in the package aspose-3d-foss.",
+        "The Scene class lives in the Aspose.3D.FOSS namespace.",
+        "The Scene class is tested by Aspose.3D.FOSS.Tests, which is a project.",
+    ):
+        output = _name_output(text)
+        unit_checks(output, _name_task(), FACTS, NAME)
+        assert output["units"][0]["text"] == text, text

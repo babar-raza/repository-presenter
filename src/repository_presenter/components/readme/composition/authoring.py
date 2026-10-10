@@ -29,8 +29,10 @@ from repository_presenter.components.readme.composition.components.ecosystems im
     host_names,
 )
 from repository_presenter.components.readme.composition.components.identity import (
+    canonicalise_name_variants,
     product_name,
     product_name_tokens,
+    spells_the_product,
 )
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
@@ -340,7 +342,17 @@ _TYPE_OBJECTIVE = (
 # cited inherited unit's own sibling shorthand "`EciHelper.normalize`/`.validate`" also spells
 # EciHelper.validate (aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python limitation:3, 2026-10-10,
 # refused as "EciHelper.validate" although the cited paragraph abbreviates exactly that name).
-NORMALISATION_VERSION = "32"
+# "33" (CUT-2, BC-12, G3-W08): unit_checks rewrites a shortened, re-cased or re-separated spelling
+# of the product name in a unit's running prose to the canonical name, in place, like the code
+# span and the echoed citation (identity.canonicalise_name_variants). Measured on the 2026-10-10
+# baseline: 3D-.NET limitation:6 ("... usage in Aspose.3D FOSS.") and PSD-Python's
+# TestAsposeCompatibility row ("... between Aspose.PSD FOSS and the original ...") failed BC-12 and
+# three repairs did not converge. A technical identifier, a name beside a package/namespace cue, a
+# longer dotted identifier (Aspose.Pdf.Foss.Tests), a "for <another platform>" name and anything in
+# a code span or fence are not rewritten. allowed_identifiers additionally keeps a recorded project
+# or directory name that is itself a spelling of the product unspellable (the extractor now records
+# project names, INHERITED_UNITS_VERSION "4"); BC-12 itself is unchanged.
+NORMALISATION_VERSION = "33"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -1598,10 +1610,13 @@ def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
         allowed.update(command_block_tokens(fact.value))
         # A file name the upstream README spells and the pinned tree contains (G7-W23): the
         # extractor checked it against the tree, so it is as spellable as a fact value.
+        # A project or directory name that is itself a spelling of the product ("Aspose.Pdf.Foss"
+        # for "Aspose.PDF FOSS for .NET") stays unspellable: wrapped in a code span it would put a
+        # short name for the product into running prose where BC-12 does not look.
         allowed.update(
-            name
-            for name in (fact.attributes or {}).get(REPOSITORY_FILES_ATTRIBUTE, "").split(",")
-            if name
+            file_name
+            for file_name in (fact.attributes or {}).get(REPOSITORY_FILES_ATTRIBUTE, "").split(",")
+            if file_name and not spells_the_product(file_name, name)
         )
         if fact.kind in {"public_symbol", "import_path"}:
             spellings = [fact.value]
@@ -1975,6 +1990,13 @@ def unit_checks(
         unstripped = _strip_echoed_fact_ids(text, unit.get("fact_ids", []))
         if unstripped is not None:
             text = unstripped
+            unit["text"] = text
+        # BC-12: a shortened or re-cased product name in running prose is the code's to spell,
+        # like a code span, not the model's to be re-asked for (the repair loop's rewrites of it
+        # did not converge, 3D-.NET and PSD-Python, 2026-10-10 baseline).
+        canonicalised = canonicalise_name_variants(text, name)
+        if canonicalised != text:
+            text = canonicalised
             unit["text"] = text
         for marker, meaning in _FORBIDDEN:
             if marker == "<":
