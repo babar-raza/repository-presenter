@@ -1,0 +1,15 @@
+import subprocess, sys, json, time, os
+from pathlib import Path
+base = Path("runs/pre"); out = base / "pf"; out.mkdir(exist_ok=True)
+py = sys.executable
+levels = [int(x) for x in sys.argv[1].split(",")]; rounds = int(sys.argv[2])
+for lvl in levels:
+    for rd in range(1, rounds + 1):
+        procs = []
+        for w in range(1, lvl + 1):
+            f = out / f"c{lvl}_r{rd}_w{w}.json"
+            procs.append(subprocess.Popen([py, str(base / "pf_child.py"), str(base / "proot" / f"w{w}"), str(f)],
+                                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
+        for p in procs: p.wait()
+        print(f"level {lvl} round {rd} done", flush=True)
+        time.sleep(2)

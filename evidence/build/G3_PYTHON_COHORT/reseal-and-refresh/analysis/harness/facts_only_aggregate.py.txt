@@ -1,0 +1,56 @@
+import json, glob, os, re, csv, collections
+WT = "E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt"
+reg = json.load(open("data/registry.json"))["entries"]
+nobundle = {"aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript", "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net",
+            "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript", "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET",
+            "aspose-psd-foss/Aspose.PSD-FOSS-for-Python", "aspose-tex-foss/Aspose.TeX-FOSS-for-Python"}
+prog = {}
+for l in open("runs/pre/fo3/_progress.txt"):
+    m = re.match(r"(\S+) rc=(\d+) secs=(\d+)", l)
+    if m: prog[m[1]] = (int(m[2]), int(m[3]))
+rows = []; kinds_all = set(); detail = []
+for e in reg:
+    r = e["repository"]; n = r.replace("/", "__")
+    log = open(f"runs/pre/fo3/{n}.log", encoding="utf-8", errors="replace").read() if os.path.exists(f"runs/pre/fo3/{n}.log") else ""
+    js = json.load(open(f"runs/pre/fo3/{n}.json")) if os.path.exists(f"runs/pre/fo3/{n}.json") else {}
+    rc, secs = prog.get(r, (None, None))
+    row = {"repository": r, "ecosystem": e["ecosystem"], "registry_mode": e["mode"], "registry_active": e["active"],
+           "bundle": "NO_BUNDLE" if r in nobundle else "SEALED", "rc": rc, "minutes": None if secs is None else round(secs / 60, 1),
+           "admitted": "admitted:" in log}
+    pf = glob.glob(f"{WT}/lpre*/runs/transactions/{n}/*/preflight.json")
+    ex = glob.glob(f"{WT}/lpre*/runs/transactions/{n}/*/examples.json")
+    if pf:
+        d = json.load(open(pf[0]))
+        row["processable"] = d["processable"]; row["revision"] = d["source_revision"][:12]
+        row["facts_total"] = d["facts"]["total"]
+        row["facts_by_kind"] = "; ".join(f"{k}={v['extracted']}" for k, v in sorted(d["facts"]["by_kind"].items()))
+        row["unresolved"] = sum(v.get("extracted", 0) - v.get("supported", 0) for v in d["facts"]["by_kind"].values())
+        row["polarity"] = "; ".join(f"{k}={v}" for k, v in sorted(d["facts"]["by_polarity"].items()))
+        row["required_rows_without_evidence"] = ",".join(d["required_rows_without_evidence"]) or "none"
+    else:
+        row["processable"] = None
+        row["note"] = log.strip().splitlines()[-1][:200] if log.strip() else "no log"
+    oc = collections.Counter()
+    if ex:
+        for x in json.load(open(ex[0])):
+            oc[x["outcome"]] += 1
+            if x["outcome"] not in ("EXECUTED",):
+                detail.append({"repository": r, "ordinal": x["ordinal"], "outcome": x["outcome"], "detail": (x.get("detail") or "")[:160].replace("\n", " ")})
+    row["examples_total"] = sum(oc.values())
+    for k in ("EXECUTED", "FAILED", "NOT_VERIFIED", "NEEDS_INPUT", "BLOCKED_TOOLCHAIN"):
+        row[f"ex_{k.lower()}"] = oc.get(k, 0)
+    row["ex_other"] = sum(v for k, v in oc.items() if k not in ("EXECUTED", "FAILED", "NOT_VERIFIED", "NEEDS_INPUT", "BLOCKED_TOOLCHAIN"))
+    row["provider_chat_posts"] = js.get("chat_completion_posts")
+    row["gateway_v1_requests"] = sum(1 for l in js.get("request_lines", []) if "<gateway>/v1/" in l)
+    row["http_requests_logged"] = js.get("http_requests_logged")
+    m = re.search(r"preflight: .*?\(([^)]*)\)", log); row["preflight_line"] = m[1] if m else ""
+    m = re.search(r"evaluation: .*?\(([^)]{0,120})", log); row["evaluation_head"] = m[1] if m else ""
+    rows.append(row)
+fields = ["repository", "ecosystem", "registry_mode", "registry_active", "bundle", "admitted", "processable", "rc", "minutes", "revision",
+          "facts_total", "facts_by_kind", "unresolved", "polarity", "required_rows_without_evidence", "examples_total", "ex_executed", "ex_failed",
+          "ex_not_verified", "ex_needs_input", "ex_blocked_toolchain", "ex_other", "provider_chat_posts", "gateway_v1_requests", "http_requests_logged",
+          "preflight_line", "evaluation_head", "note"]
+w = csv.DictWriter(open("runs/pre/factsonly_36.csv", "w", newline="", encoding="utf-8"), fieldnames=fields, extrasaction="ignore"); w.writeheader(); w.writerows(rows)
+w = csv.DictWriter(open("runs/pre/examples_nonexecuted.csv", "w", newline="", encoding="utf-8"), fieldnames=["repository", "ordinal", "outcome", "detail"]); w.writeheader(); w.writerows(detail)
+print(len(rows), "rows;", sum(1 for r in rows if r["processable"] is True), "processable;", sum(1 for r in rows if r["processable"] is False), "not;", sum(1 for r in rows if r["processable"] is None), "none")
+for r in rows: print(r["repository"].split("/")[1][:38].ljust(38), r["bundle"][:3], r["processable"], r.get("facts_total"), r["ex_executed"], r["ex_failed"], r["ex_not_verified"], r["ex_needs_input"], r["ex_blocked_toolchain"], r["minutes"], r["provider_chat_posts"], r["gateway_v1_requests"], r["required_rows_without_evidence"] if r.get("required_rows_without_evidence") else "")

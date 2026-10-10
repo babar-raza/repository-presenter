@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+W=$1; shift
+ROOT=/e/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt
+cd $ROOT/$W
+export PYTHONPATH="E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/$W/src"
+export CI_TOOLS_VENV='C:\dev-tools\rp-ci-tools'
+export PATH="/d/Program Files/nodejs:/bin:$PATH"
+export GH_TOKEN="$(gh auth token)"
+mkdir -p $ROOT/lpre/runs/pre/fo3
+for r in "$@"; do
+  n=${r//\//__}
+  s=$(date +%s)
+  .venv/Scripts/python.exe runs/fo.py "$r" $ROOT/lpre/runs/pre/fo3/$n.json > $ROOT/lpre/runs/pre/fo3/$n.log 2>&1
+  echo "$r rc=$? secs=$(( $(date +%s)-s ))" >> $ROOT/lpre/runs/pre/fo3/_progress.txt
+done
+echo "BATCH $W DONE" >> $ROOT/lpre/runs/pre/fo3/_progress.txt

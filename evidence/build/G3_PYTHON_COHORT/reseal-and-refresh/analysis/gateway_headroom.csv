@@ -1,0 +1,9 @@
+# authoritative_plan: plans/reseal-and-refresh/PLAN.md
+# artifact_role: analysis_or_evidence_only
+# execution_authority: false
+concurrency,processes,http_requests,status_distribution,429_or_5xx,process_failures,request_latency_p50_s,request_latency_p95_s,preflight_wall_p50_s,preflight_wall_p95_s
+1,5,25,200:25,0,0,1.15,2.54,5.91,7.78
+2,10,50,200:50,0,0,1.11,2.02,5.9,7.37
+4,20,100,200:100,0,0,1.15,1.92,6.05,7.31
+6,30,150,200:150,0,0,1.14,1.93,5.92,7.02
+8,40,200,200:200,0,0,1.21,1.84,6.09,7.05
