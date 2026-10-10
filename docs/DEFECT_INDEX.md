@@ -87,6 +87,23 @@ reports "still fires" only while the repository is byte-identical to the revisio
 against, and is inconclusive (never resolved) once it moves; it never proposes `RESOLVED_UPSTREAM`.
 Closing a filed toolchain issue therefore stays a manual decision. `draft.py` is still not widened.
 
+**Status 2026-10-11 (TC-ISS-03, G6-W07)**: `draft.py` is widened for the defect kinds that need no
+measured build. `components/issues/classes.py` holds a registry of defect classes (detector,
+redetector, issue template, severity, fingerprint basis), and the handoff schema gained an optional,
+back-compatible `defect_class` field (the admission is the DECISION_LOG entry "supervisor decisions
+D-OWN-1 to D-OWN-7 ..."; every committed handoff stays valid unchanged). Four classes have pure
+detectors over the file listing and the root README, root license and manifests: `LICENSE_MISSING_ROOT`
+(the `License/` directory in Cells Cpp, Java and Python; no license in 3D TypeScript and GIS .NET),
+`LICENSE_MISMATCH`, `MANIFEST_PLACEHOLDER_METADATA` (PSD .NET's `yourorg` URLs and author `SID`) and
+`README_MISSING_OR_PLACEHOLDER` (PSD Python's 69-byte README, GIS .NET's missing one), each with a
+failing and a passing fixture, a shared redetector registered under the class id, and the issue
+quality gate on every drafted text. `SOURCE_UNPARSEABLE`, `BUILD_OR_TESTS_FAIL`, `EXAMPLE_FAILS` and
+`INSTALL_FAILS` are declared and mapped to the existing `NOT_PROCESSABLE`, `BC-02` and `BC-03` handoffs
+and redetectors, because their evidence needs a source parse or a measured run. The `BC-02`
+auto-draft is unchanged. The call from `present`'s facts-only path
+(`draft.record_class_handoffs_if_new` with `classes.observation_from_clone`) is the one remaining
+step, in `cli.py`, outside this item's paths.
+
 ### `s4_reconciliation.output_runaway_past_budget`
 
 S4 `source_reconciliation` replies run to the manifest's `max_output_tokens` (`finish_reason

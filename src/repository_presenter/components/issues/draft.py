@@ -33,6 +33,13 @@ target repository"). Requiring both the stage and a real, non-`SUPPORTED` fact o
 `BC-02` judges keeps this hook from ever drafting off a check failure that turns out to be
 internal, an environment gap, or a toolchain problem here rather than in the target repository.
 
+Defect classes (G6-W07, TC-ISS-03): the repository defects no validation check names - a license
+missing from the root, a license that contradicts the manifest, placeholder manifest metadata, a
+missing or placeholder README - are found by the pure detectors registered in ``classes.py`` over
+an ``Observation`` the facts stage already has the inputs for, so ``draft_class_handoffs`` /
+``record_class_handoffs_if_new`` produce their handoffs from a facts-only extraction, with no
+provider call and no network. They go through the same quality gate and the same dedup ledger.
+
 This module never authorizes a GitHub write and never calls ``gh``: it writes only the same
 ``evidence/upstream-defects/<owner>__<name>/<fingerprint>.json`` artifact a human could otherwise
 draft by hand (`model.py::write_handoff`), always at `status: HANDOFF_PENDING` - a human (or a
@@ -43,11 +50,17 @@ defect on a later run never creates a duplicate artifact.
 
 from __future__ import annotations
 
-import hashlib
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.issues.classes import (
+    REGISTRY,
+    DefectFinding,
+    Observation,
+    detect_all,
+    fingerprint,
+)
 from repository_presenter.components.issues.ledger import load_ledger, lookup
 from repository_presenter.components.issues.model import (
     EvidenceEntry,
@@ -84,8 +97,7 @@ def _fingerprint(repository: str, check_id: str, signature: str) -> str:
     investigation section 4 point 1) - the stable dedup key, independent of wording, so an
     unrelated prose edit to a fact's evidence detail never mints a spurious second handoff for the
     same underlying defect."""
-    digest = hashlib.sha256(f"{repository}\n{check_id}\n{signature}".encode()).hexdigest()
-    return f"sha256:{digest}"
+    return fingerprint(repository, check_id, signature)
 
 
 def _fence(text: str) -> str:
@@ -259,3 +271,117 @@ def record_handoff_if_new(
     path = handoff_path(upstream_defects_root, handoff)
     write_handoff(handoff, path)
     return path
+
+
+# --- defect classes (G6-W07) ---------------------------------------------------------------------
+
+
+def eligible_defect_classes(observation: Observation) -> tuple[str, ...]:
+    """The class ids whose registered detector reports at least one defect for ``observation``:
+    the eligibility gate for the class path, decided from the observation alone."""
+    return tuple(dict.fromkeys(finding.defect_class for finding in detect_all(observation)))
+
+
+def render_class_issue(
+    finding: DefectFinding, *, repository: str, source_revision: str, defect_fingerprint: str
+) -> tuple[str, str]:
+    """The title and body for ``finding``: its class's template filled with the finding's
+    fields, in the maintainers' words, ending in the dedup marker."""
+    template = REGISTRY[finding.defect_class].template
+    if template is None:  # a mapped class has no detector, so never reaches here
+        raise ValueError(f"defect class {finding.defect_class} has no issue template")
+    product = repository.split("/", 1)[-1].replace("-", " ")
+    context = {
+        **finding.fields,
+        "repository": repository,
+        "revision": source_revision,
+        "product": product,
+    }
+    lines = [
+        "## Summary",
+        "",
+        template.summary.format_map(context),
+        "",
+        "## Environment",
+        "",
+        f"- Repository: {repository}",
+        f"- Revision: `{source_revision}` (the upstream revision this report was verified against)",
+        "",
+        "## Steps to reproduce",
+        "",
+        _fence(template.steps.format_map(context)),
+        "",
+        "## Expected",
+        "",
+        template.expected.format_map(context),
+        "",
+        "## Actual",
+        "",
+        template.actual.format_map(context),
+        "",
+        f"<!-- repository-presenter-defect: {defect_fingerprint} -->",
+    ]
+    return f"{product}: {finding.statement}", "\n".join(lines) + "\n"
+
+
+def draft_class_handoff(finding: DefectFinding, *, observation: Observation) -> Handoff:
+    """One ``HANDOFF_PENDING`` handoff for a detector's ``finding``.
+
+    Raises ``HandoffQualityError`` (typed findings) when the rendered text fails the quality gate:
+    a handoff that fails the gate is never produced."""
+    check_id = finding.defect_class
+    defect_fingerprint = fingerprint(observation.repository, check_id, finding.signature)
+    title, body = render_class_issue(
+        finding,
+        repository=observation.repository,
+        source_revision=observation.source_revision,
+        defect_fingerprint=defect_fingerprint,
+    )
+    handoff = Handoff(
+        schema_version=1,
+        repository=observation.repository,
+        source_revision=observation.source_revision,
+        defect_fingerprint=defect_fingerprint,
+        triggering_check=TriggeringCheck(id=check_id, version="1", causal_stage="EXTRACTING"),
+        evidence=finding.evidence,
+        claim=finding.claim,
+        suggested_issue_title=title,
+        suggested_issue_body=body,
+        status="HANDOFF_PENDING",
+        issue_ref=None,
+        close_reason=None,
+        defect_class=check_id,
+    )
+    require_issue_quality(handoff)
+    return handoff
+
+
+def draft_class_handoffs(observation: Observation) -> list[Handoff]:
+    """Every handoff the registered detectors support for ``observation``, in detection order. A
+    finding whose text fails the quality gate is left out, never weakened to pass."""
+    handoffs = []
+    for finding in detect_all(observation):
+        try:
+            handoffs.append(draft_class_handoff(finding, observation=observation))
+        except HandoffQualityError:
+            continue
+    return handoffs
+
+
+def record_class_handoffs_if_new(
+    upstream_defects_root: Path, *, observation: Observation
+) -> list[Path]:
+    """The class path of ``record_handoff_if_new``: draft, dedup against the ledger by
+    ``{repository, defect_fingerprint}``, and write only what is new. Returns the paths written."""
+    handoffs = draft_class_handoffs(observation)
+    if not handoffs:
+        return []
+    ledger = load_ledger(upstream_defects_root)
+    written = []
+    for handoff in handoffs:
+        if lookup(ledger, handoff.repository, handoff.defect_fingerprint) is not None:
+            continue
+        path = handoff_path(upstream_defects_root, handoff)
+        write_handoff(handoff, path)
+        written.append(path)
+    return written
