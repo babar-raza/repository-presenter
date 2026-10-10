@@ -2243,6 +2243,43 @@ file_records:
     work_item: G4-W17
     provenance: "Studied read-only at the frozen revision a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815 (git show a8a163f7:src/readme_agent/links/allocation.py, 179 lines, sha256 above); the sibling checkout is never imported."
 
+  - source_id: aspose-org
+    source_path: data/backlinks/platform_canonical_overrides.yaml
+    sha256: 5ebe48168e0065a605976172237f6cae2ae1eedfbb7a2944931a102c1a41bbd3
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/components/readme/evidence/facts/product_pages.py
+    retained_behavior:
+      - "The curated Enterprise Edition platform choice for a product whose bare platform slug is not the designated page: cells/python -> python-net (HTTP 200 verified by the source on 2026-07-03; the bare cells/python/ page lands on python-java), pdf/python -> python-net (verified 2026-08-18; the bare slug redirects there), and cells/go -> go-cpp (not a row of the source file: cells/go/ redirects to products.aspose.com/cells/go-cpp/, HTTP 200, measured 2026-10-10, and the owner directed the row). Only these three rows are ported; the other six are pulled when their own repository is processed (AGENTS.md, no bulk pull)."
+      - "The resolution order of backlink_targets.resolve_backlink read at the same revision (scripts/pipeline/lib/backlink_targets.py, sha256 692b90d56b09b06b7b58e871942a1ceda953eaceae93a435679379e981c1e403, studied not copied): curated override that is live, else the product's own platform slug, else the family page."
+    removed_behavior:
+      - "The YAML file, its http_verified/verification_date bookkeeping, and the source_subdomains scoping: the override is a code registry keyed (family, platform), and every run re-verifies the page live at its own URL, ignoring an override that is not live or that redirects elsewhere, so a recorded verification date is not trusted."
+      - "backlink_targets.py's cached aspose_com_targets.json target map and its page-type, slot, and anchor machinery: this project resolves one live lookup per candidate."
+    tests_ported:
+      - "tests/components/readme/evidence/facts/test_product_pages.py: the override beats a redirecting slug (cells/python), an override that is not live or redirects elsewhere is ignored, a redirecting slug names its destination, ambiguity falls back to the family page, and the override rows name only the products in progress."
+    acceptance: "present on aspose-cells-foss/Aspose.Cells-FOSS-for-Python resolves link_target:product.enterprise to https://products.aspose.com/cells/python-net/ (SUPPORTED, platform level) where the pre-port code left it UNRESOLVED and the inherited Enterprise paragraph deferred; the skill's own check_enterprise_edition_link_resolves, naming, and anchor checks pass on the result."
+    import_closure: []
+    pulled_at: "2026-10-10"
+    work_item: G4-W17
+    provenance: "Read with git show 16d75e95d4:data/backlinks/platform_canonical_overrides.yaml (163 lines, sha256 above), never the dirty working tree; the sibling checkout is never imported."
+
+  - source_id: aspose-org
+    source_path: scripts/pipeline/commands/foss/readme_refresh_checks.py
+    sha256: 93f542cf90829447c1d34c9d7579e5842925ca5d6e51dd6dac49e3aaaa868695
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/components/readme/validation/dependency_claims.py
+    retained_behavior:
+      - "check_unqualified_dependency_claims and its helper _unqualified_dependency_claim_findings: the absolute dependency-absence claim patterns (no external dependencies, dependency-free, no dependencies required, completely standalone, zero dependencies, no dependencies of any kind, no external runtime/installation/software), the dependency-class scope qualifiers (third-party crates/packages/libraries, native system libraries, proprietary Aspose runtime, Microsoft Office, commercial runtime), and the clause narrowing that stops one scoped clause rescuing a second, unscoped one."
+    removed_behavior:
+      - "The self-contained and no third-party code patterns: they flag ordinary prose (a self-contained example) that the dependency facts say nothing about; 12 of 30 sealed candidates would have carried a finding for them."
+      - "The skill's hard-gate wiring (its factpack and run harness): the claim is judged inside BC-07 on the authored units only, and allowed where the dependency facts prove zero required dependencies (the verified-zero marker and no required dependency), which is the contract wording."
+    tests_ported:
+      - "tests/components/readme/validation/test_registry.py: refused over a manifest requiring packages (the live cells/python opening), allowed where the facts prove zero, a scoped claim passes, a scoped clause does not rescue a second unscoped one, self-contained prose is not a claim."
+    acceptance: "The aspose-cells-foss/Aspose.Cells-FOSS-for-Python opening that said 'requiring no external dependencies beyond the library itself' over a manifest requiring pycryptodome and olefile fails BC-07 at COMPOSING in section opening; the live re-draw carries the maintainers' own sentence naming both packages and passes."
+    import_closure: []
+    pulled_at: "2026-10-10"
+    work_item: G4-W17
+    provenance: "Read with git show 16d75e95d4:scripts/pipeline/commands/foss/readme_refresh_checks.py (sha256 above), never the dirty working tree; the sibling checkout is never imported."
+
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward
   census_gate: G4_MULTI_LANGUAGE_COHORTS

@@ -4018,3 +4018,61 @@ def test_the_sibling_shorthand_admits_only_the_head_it_follows() -> None:
     assert _eci_check("EciHelper.parse is not implemented.") != []
     bare = "- ECI validation (`.validate`) is not implemented."
     assert _eci_check("EciHelper.validate is not implemented.", bare) != []
+
+
+def test_the_opening_must_carry_the_intro_paragraph_reconciliation_superseded_into_it() -> None:
+    """cells/python parity (2026-10-10): S4 supersedes the maintainers' intro into the opening
+    ("the rewrite covers it"), but the authoring call was never told to carry it, so the sealed
+    opening lost "pure-Python", "without requiring Microsoft Excel" and the two named packages
+    and added "requiring no external dependencies beyond the library itself"."""
+    intro = "inherited_unit:004.paragraph"
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                intro,
+                "inherited_unit",
+                "A free, pure-Python library that depends only on pycryptodome and olefile.",
+            ),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": intro,
+                "disposition": "SUPERSEDE_REDUNDANT",
+                "destination_section": "opening",
+                "fact_ids": [],
+                "rationale": "r",
+            }
+        ]
+    }
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, dispositions, PLAN)
+    }
+    opening = tasks["opening"]
+    assert opening.must_carry == frozenset({intro})
+    assert intro in opening.accepted_ids  # citable, so a compliant reply is not refused
+    objective = opening.packet["objective"]
+    assert intro in objective and "Keep every specific" in objective
+    assert "never claim it has no dependencies" in objective
+    # Negative control: the other sections are not handed a unit destined to the opening.
+    assert tasks["scope_limitations"].must_carry == frozenset()
+    # Uncited and unomitted, the opening fails; cited, it passes.
+    uncarried = {"units": [], "omitted": []}
+    assert uncarried_units(uncarried, opening.must_carry) == [intro]
+    cited = {
+        "units": [
+            {
+                "section": "opening",
+                "slot": "opening",
+                "text": "It needs pycryptodome and olefile.",
+                "fact_ids": [intro],
+            }
+        ],
+        "omitted": [],
+    }
+    assert uncarried_units(cited, opening.must_carry) == []

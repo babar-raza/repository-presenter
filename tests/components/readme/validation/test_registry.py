@@ -310,11 +310,11 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # docstring elisions; VALIDATOR_VERSION 15: a refused ACCEPT names the corroborating second
     # read that failed (second_reader.failed); VALIDATOR_VERSION 16: BC-05 v3 (G7-W12) classifies
     # the UNCLASSIFIED deferral family; VALIDATOR_VERSION 17: BC-04 v3 honours the omissions S6
-    # recorded (G7-W15). This candidate names no edition, spells its name
+    # recorded (G7-W15); VALIDATOR_VERSION 18: BC-07 v11 refuses an unscoped absolute dependency claim the facts do not prove. This candidate names no edition, spells its name
     # whole, and passes all of them (it has badge-worthy facts and a rendered badge row, no
     # docstring eliciting an elision, and a clean single-read ACCEPT with no triggered second
     # read, so v13's, v14's, and v15's own allowance/note/detail never fire).
-    assert document["source_revision"] == REVISION and document["validator_version"] == "17"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "18"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(
@@ -2587,3 +2587,84 @@ def test_check_four_honours_a_must_carry_omission_the_authoring_recorded(tmp_pat
     assert verdict([{"section": "scope_limitations", "fact_id": unit, "reason": reason}]) == []
     assert verdict([{"section": "scope_limitations", "fact_id": unit, "reason": " "}]) != []
     assert verdict([{"section": "development_testing", "fact_id": unit, "reason": reason}]) != []
+
+
+# --- cells/python parity (2026-10-10): the unscoped absolute dependency claim ---
+
+
+def _with_opening(text: str) -> dict[str, Any]:
+    return {
+        **UNITS,
+        "units": [
+            {**unit, "text": text} if unit["section"] == "opening" else unit
+            for unit in UNITS["units"]
+        ],
+    }
+
+
+def _dependency(fact_id: str, value: str) -> Fact:
+    return Fact(fact_id, "dependency", value, (Evidence("pyproject.toml", "declared"),))
+
+
+def test_an_unscoped_dependency_claim_is_refused_when_the_manifest_requires_packages(
+    tmp_path: Path,
+) -> None:
+    """Live cells/python opening: "...requiring no external dependencies beyond the library
+    itself", over a manifest requiring pycryptodome and olefile."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        (*FACTS.facts, _dependency("dependency:olefile-0.46", "olefile>=0.46")),
+    )
+    units = _with_opening(
+        "Aspose.3D FOSS for Python builds scenes in applications requiring no external "
+        "dependencies beyond the library itself."
+    )
+    document = validate_candidate(_candidate(facts=facts, units=units), tmp_path, ())
+    structure = _failed(document, "BC-07")
+    failure = next(
+        f for f in structure["failures"] if "unscoped absolute dependency claim" in f["detail"]
+    )
+    assert "'no external dependencies'" in failure["detail"]
+    assert failure["section_id"] == "opening" and failure["causal_stage"] == "COMPOSING"
+
+
+def test_the_claim_is_allowed_where_the_facts_prove_zero_required_dependencies(
+    tmp_path: Path,
+) -> None:
+    proof = Fact(
+        "dependency:none",
+        "dependency",
+        "none",
+        (Evidence("pyproject.toml", "the dependencies list is empty"),),
+    )
+    facts = FactsDocument(ENTRY.repository, REVISION, (*FACTS.facts, proof))
+    units = _with_opening("Aspose.3D FOSS for Python builds scenes with no external dependencies.")
+    document = validate_candidate(_candidate(facts=facts, units=units), tmp_path, ())
+    assert _verdicts(document)["BC-07"] == "PASS"
+
+
+def test_a_claim_naming_its_dependency_class_is_scoped_not_refused(tmp_path: Path) -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        (*FACTS.facts, _dependency("dependency:olefile-0.46", "olefile>=0.46")),
+    )
+    units = _with_opening(
+        "Aspose.3D FOSS for Python builds scenes and needs no native system libraries."
+    )
+    document = validate_candidate(_candidate(facts=facts, units=units), tmp_path, ())
+    assert _verdicts(document)["BC-07"] == "PASS"
+
+
+def test_a_scoped_clause_does_not_rescue_a_second_unscoped_one() -> None:
+    from repository_presenter.components.readme.validation.dependency_claims import (
+        unscoped_dependency_claims,
+    )
+
+    assert unscoped_dependency_claims(
+        "Requires Python 3.9; no external runtime or Microsoft Office installation is needed."
+    ) == ["no external runtime"]
+    assert unscoped_dependency_claims("It is dependency-free.") == ["dependency-free"]
+    assert unscoped_dependency_claims("It has no external dependencies on third-party packages.") == []
+    assert unscoped_dependency_claims("A self-contained example follows.") == []

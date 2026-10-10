@@ -1865,3 +1865,177 @@ def test_the_enterprise_anchor_opens_full_featured_and_ends_with_the_one_edition
     assert enterprise_anchor("Aspose.3D for .NET") == (
         "full-featured Aspose.3D for .NET — Enterprise Edition"
     )
+
+
+# --- cells/python parity (owner instruction 2026-10-10): maintainer wording the facts alone drop ---
+
+_DEPS_PATH = "Aspose.Cells FOSS for Python > Dependencies > Required Package Dependencies"
+_EM = "—"
+
+
+def _unit_fact(unit_id: str, value: str, section: str) -> Fact:
+    return Fact(
+        unit_id,
+        "inherited_unit",
+        value,
+        (Evidence("README.md", "lines 1-1"),),
+        attributes={"section": section},
+    )
+
+
+def _parity_facts(*extra: Fact, requires: Fact | None = None) -> FactsDocument:
+    base = [f for f in FACTS.facts if f.id != "package:python_requires"]
+    if requires is not None:
+        base.append(requires)
+    return FactsDocument(ENTRY.repository, "a" * 40, (*base, *extra))
+
+
+def _dependency_plan() -> dict[str, Any]:
+    return {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True} if entry["section_id"] == "dependencies" else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+
+
+def _dependencies_section(facts: FactsDocument) -> str:
+    readme = render_readme(ENTRY, facts, _dependency_plan(), UNITS, DISPOSITIONS)
+    return readme.split("## Dependencies\n\n", 1)[1].split("\n## ", 1)[0]
+
+
+def _crypto() -> Fact:
+    return Fact(
+        "dependency:pycryptodome-3.15.0",
+        "dependency",
+        "pycryptodome>=3.15.0",
+        (Evidence("pyproject.toml", "install requirement declared"),),
+    )
+
+
+def test_a_dependency_carries_the_maintainers_explanation_when_its_identifiers_are_verified() -> None:
+    """Live cells/python: "- `pycryptodome` >=3.15.0 - AES ... used by `Scene`" was superseded by
+    a bare bullet. The explanation survives, with the package named as the manifest spells it."""
+    pytest_dev = Fact(
+        "dependency:development.dev.pytest-7.0.0",
+        "dependency",
+        "pytest>=7.0.0",
+        (Evidence("pyproject.toml", "extra 'dev' declared"),),
+    )
+    listing = (
+        f"- `pycryptodome` >=3.15.0 {_EM} AES encryption used by `Scene` for\n"
+        "  encrypted workbooks.\n"
+        f"- `pytest` >=7.0.0 {_EM} test runner for the project's test suite."
+    )
+    facts = _parity_facts(_crypto(), pytest_dev, _unit_fact("inherited_unit:016.list", listing, _DEPS_PATH))
+    section = _dependencies_section(facts)
+    assert f"- `pycryptodome>=3.15.0` {_EM} AES encryption used by `Scene` for encrypted workbooks." in section
+    assert f"- `pytest>=7.0.0` (extra `dev`) {_EM} test runner for the project's test suite." in section
+
+
+def test_an_explanation_naming_an_unverified_identifier_is_dropped_whole() -> None:
+    listing = f"- `pycryptodome` >=3.15.0 {_EM} AES used by `NoSuchEncryptor`."
+    facts = _parity_facts(_crypto(), _unit_fact("inherited_unit:016.list", listing, _DEPS_PATH))
+    section = _dependencies_section(facts)
+    assert "- `pycryptodome>=3.15.0`" in section and "NoSuchEncryptor" not in section
+
+
+def test_a_list_outside_the_dependencies_section_explains_nothing() -> None:
+    listing = f"- `pycryptodome` {_EM} mentioned in passing in Key Capabilities."
+    facts = _parity_facts(
+        _crypto(),
+        _unit_fact("inherited_unit:010.list", listing, "Aspose.Cells FOSS for Python > Key Capabilities"),
+    )
+    assert "mentioned in passing" not in _dependencies_section(facts)
+
+
+def test_the_floor_is_named_where_pyproject_declares_it() -> None:
+    """PEP 621 spells it `requires-python`; `python_requires` is setup.py's name (live cells/python
+    says `requires-python = ">=3.7"` in `pyproject.toml`)."""
+    requires = Fact(
+        "package:python_requires",
+        "package",
+        ">=3.7",
+        (Evidence("pyproject.toml", "python_requires declared"),),
+        attributes={"floor_declaration": "requires-python"},
+    )
+    facts = _parity_facts(requires=requires)
+    readme = render_readme(ENTRY, facts, _dependency_plan(), UNITS, DISPOSITIONS)
+    assert '`requires-python=">=3.7"` in `pyproject.toml`' in readme
+    assert "declares `requires-python` as `>=3.7`" in readme
+    assert "python_requires" not in readme
+
+
+def _example(number: int, unit: str) -> Fact:
+    return Fact(
+        f"example:00{number}",
+        "example",
+        f"print({number})\n",
+        (
+            Evidence("README.md", f"lines 1-2; python fence; unit {unit}"),
+            Evidence("examples.json", f"example {number}: EXECUTED; exit 0"),
+        ),
+    )
+
+
+def _facts_with_examples(*extra: Fact, drop: tuple[str, ...] = ("example:002",)) -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository, "a" * 40, (*(f for f in FACTS.facts if f.id not in drop), *extra)
+    )
+
+
+def test_an_example_takes_the_maintainers_heading_over_its_own_code_block() -> None:
+    """Live cells/python: "### Add Data Validation (Dropdown List)" over its example; the model
+    sentence "Print a number" only stands in when the README had no such heading."""
+    path = "Aspose.Cells FOSS for Python > Additional Examples"
+    facts = _facts_with_examples(
+        _example(2, "inherited_unit:031.code_block"),
+        _unit_fact("inherited_unit:030.heading", "### Add Data Validation (Dropdown List)", path),
+        _unit_fact(
+            "inherited_unit:031.code_block",
+            "```python\nprint(2)\n```",
+            f"{path} > Add Data Validation (Dropdown List)",
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "### Add Data Validation (Dropdown List)\n\n```python\nprint(2)" in readme
+    assert "Print A Number" not in readme and "Print a Number" not in readme
+
+
+def test_a_shell_section_heading_is_never_an_example_heading() -> None:
+    facts = _facts_with_examples(
+        _example(2, "inherited_unit:031.code_block"),
+        _unit_fact("inherited_unit:030.heading", "## Additional Examples", "Aspose.Cells FOSS for Python"),
+        _unit_fact(
+            "inherited_unit:031.code_block",
+            "```python\nprint(2)\n```",
+            "Aspose.Cells FOSS for Python > Additional Examples",
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "### Print A Number" in readme or "### Print a Number" in readme
+
+
+def test_two_examples_under_one_maintainer_heading_do_not_reuse_it() -> None:
+    path = "Aspose.Cells FOSS for Python > Additional Examples > Shared Heading"
+    facts = _facts_with_examples(
+        _example(1, "inherited_unit:031.code_block"),
+        _example(2, "inherited_unit:032.code_block"),
+        _unit_fact(
+            "inherited_unit:030.heading", "### Shared Heading", "Aspose.Cells FOSS for Python > Additional Examples"
+        ),
+        _unit_fact("inherited_unit:031.code_block", "```python\nprint(1)\n```", path),
+        _unit_fact("inherited_unit:032.code_block", "```python\nprint(2)\n```", path),
+        drop=("example:001", "example:002"),
+    )
+    plan = {**PLAN, "additional_example_ids": ["example:001", "example:002"]}
+    units = {
+        "units": [
+            *UNITS["units"],
+            _unit("additional_examples", "workflow:example:001", "Print one"),
+        ],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, plan, units, DISPOSITIONS)
+    assert readme.count("### Shared Heading") == 1

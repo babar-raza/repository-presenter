@@ -29,15 +29,23 @@ ENTRY = RegistryEntry.model_validate(
 )
 
 
-def _serve(monkeypatch: pytest.MonkeyPatch, live: set[str]) -> list[str]:
+def _serve(
+    monkeypatch: pytest.MonkeyPatch, live: set[str], redirects: dict[str, str] | None = None
+) -> list[str]:
     asked: list[str] = []
+    moved = redirects or {}
 
     def fetch(url: str) -> tuple[int, str]:
         asked.append(url)
-        return (200, url) if url in live else (404, url)
+        final = moved.get(url, url)
+        return (200, final) if (url in live or url in moved) else (404, url)
 
     monkeypatch.setattr(links, "fetch_status", fetch)
     return asked
+
+
+def _entry(family: str, platform: str) -> RegistryEntry:
+    return ENTRY.model_copy(update={"family": family, "platform": platform})
 
 
 def test_a_single_live_platform_page_is_the_platform_level_target(
@@ -68,7 +76,7 @@ def test_a_single_live_platform_page_is_the_platform_level_target(
     ]
 
 
-def test_two_live_platform_variants_are_ambiguous_and_stay_unresolved(
+def test_the_products_own_live_slug_wins_over_other_live_variants(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _serve(
@@ -76,10 +84,95 @@ def test_two_live_platform_variants_are_ambiguous_and_stay_unresolved(
         {"https://products.aspose.com/3d/python/", "https://products.aspose.com/3d/python-net/"},
     )
     target = product_page_facts(ENTRY)[0]
-    assert target.polarity == "UNRESOLVED" and target.attributes is not None
-    assert target.attributes["level"] == "ambiguous"
-    assert "python, python-net" in (target.evidence[0].detail or "")
-    assert enterprise_target([target]) is None
+    assert target.polarity == "SUPPORTED" and target.value == "https://products.aspose.com/3d/python/"
+    assert target.attributes is not None and target.attributes["level"] == "platform"
+
+
+def test_a_curated_override_beats_the_slug_that_redirects_elsewhere(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Measured live 2026-10-10: cells/python/ lands on python-java, python-net is also 200."""
+    base = "https://products.aspose.com/cells"
+    _serve(
+        monkeypatch,
+        {f"{base}/python-net/", f"{base}/python-java/", f"{base}/"},
+        {f"{base}/python/": f"{base}/python-java/"},
+    )
+    target = product_page_facts(_entry("cells", "python"))[0]
+    assert target.polarity == "SUPPORTED" and target.value == f"{base}/python-net/"
+    assert target.attributes == {"role": "enterprise", "level": "platform", "platform": "python"}
+    assert "curated override" in (target.evidence[0].detail or "")
+
+
+def test_an_override_whose_page_is_not_live_is_ignored_not_trusted(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    base = "https://products.aspose.com/cells"
+    _serve(monkeypatch, {f"{base}/python-java/", f"{base}/"}, {f"{base}/python/": f"{base}/python-java/"})
+    target = product_page_facts(_entry("cells", "python"))[0]
+    assert target.value == f"{base}/python-java/"
+    assert "curated override" not in (target.evidence[0].detail or "")
+
+
+def test_an_override_that_itself_redirects_elsewhere_is_ignored(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    base = "https://products.aspose.com/cells"
+    _serve(
+        monkeypatch,
+        {f"{base}/python/", f"{base}/"},
+        {f"{base}/python-net/": f"{base}/python-java/"},
+    )
+    target = product_page_facts(_entry("cells", "python"))[0]
+    assert target.value == f"{base}/python/"
+
+
+def test_a_slug_that_redirects_names_its_destination_not_a_second_candidate(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """cells/go redirects to go-cpp; the override agrees, and an unknown product follows the
+    redirect rather than seeing two live pages."""
+    base = "https://products.aspose.com/zeta"
+    _serve(monkeypatch, {f"{base}/go-cpp/", f"{base}/"}, {f"{base}/go/": f"{base}/go-cpp/"})
+    target = product_page_facts(_entry("zeta", "go"))[0]
+    assert target.value == f"{base}/go-cpp/"
+    assert "go lands on it" in (target.evidence[0].detail or "")
+
+
+def test_several_distinct_platform_pages_without_a_rule_fall_back_to_the_family_page(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    base = "https://products.aspose.com/zeta"
+    _serve(monkeypatch, {f"{base}/python-net/", f"{base}/python-java/", f"{base}/"})
+    target = product_page_facts(_entry("zeta", "python"))[0]
+    assert target.polarity == "SUPPORTED" and target.value == f"{base}/"
+    assert target.attributes is not None and target.attributes["level"] == "family"
+    assert "ambiguous platform pages python-java, python-net" in (target.evidence[0].detail or "")
+
+
+def test_a_redirect_out_of_the_family_tree_is_not_a_platform_page(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    base = "https://products.aspose.com/zeta"
+    _serve(monkeypatch, {f"{base}/"}, {f"{base}/python/": "https://example.com/elsewhere/"})
+    target = product_page_facts(_entry("zeta", "python"))[0]
+    assert target.value == f"{base}/" and target.attributes is not None
+    assert target.attributes["level"] == "family"
+
+
+def test_override_rows_name_only_the_products_in_progress_with_live_evidence() -> None:
+    from repository_presenter.components.readme.evidence.facts.product_pages import (
+        ENTERPRISE_OVERRIDES,
+        PLATFORM_SLUGS,
+    )
+
+    assert ENTERPRISE_OVERRIDES == {
+        ("cells", "python"): "python-net",
+        ("pdf", "python"): "python-net",
+        ("cells", "go"): "go-cpp",
+    }
+    for (_family, platform), slug in ENTERPRISE_OVERRIDES.items():
+        assert slug in PLATFORM_SLUGS[platform]
 
 
 def test_the_family_page_is_the_fallback_and_nothing_live_stays_unresolved(

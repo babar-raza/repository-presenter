@@ -408,7 +408,15 @@ def _serve_canary(
             200, json={"info": {"version": "26.1.0"}, "releases": {"26.1.0": []}}
         ),
     )
-    monkeypatch.setattr(links, "fetch_status", lambda url: (200, url))
+    # No Enterprise Edition page exists for the canary's family: with every URL answering 200 the
+    # product's own platform slug now resolves a target (product_pages.enterprise_fact), where the
+    # old "several live variants are ambiguous" rule left it unresolved, and the canary would grow
+    # an Enterprise section none of these tests script.
+    monkeypatch.setattr(
+        links,
+        "fetch_status",
+        lambda url: (404, url) if url.startswith("https://products.aspose.com/") else (200, url),
+    )
 
 
 @pytest.fixture
@@ -704,7 +712,17 @@ class _ChatGateway:
                         }
                     )
                 else:
-                    content = json.dumps(LOCAL_UNITS[section])
+                    reply = copy.deepcopy(LOCAL_UNITS[section])
+                    # The opening carries the inherited units reconciliation superseded into it
+                    # (NORMALISATION_VERSION 33, authoring._CARRY_SECTIONS): cite whichever the
+                    # request names, so a reconciliation repair that moves one away is honoured.
+                    carried = user.split("must carry (", 1)[1] if "must carry (" in user else ""
+                    if section == "opening" and carried:
+                        carried = carried.split("Identifiers the prose may spell", 1)[0]
+                        reply["units"][0]["fact_ids"] += re.findall(
+                            r"inherited_unit:\d{3}(?:\.\d{3})?\.[a-z_]+", carried
+                        )
+                    content = json.dumps(reply)
         else:
             content = json.dumps(SCRIPTED_OUTPUTS[job])
         body = {
@@ -1065,8 +1083,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "2" and dependencies["components"] == {
         "shell": "6",
-        "renderer": "30",
-        "normalisation": "32",
+        "renderer": "31",
+        "normalisation": "33",
         "reviewer_logic": "18",
     }
     assert "install_command:pip" in dependencies["facts"]
@@ -1463,6 +1481,7 @@ def _opening_repair() -> dict[str, Any]:
                     REVISED_OPENING,
                     "identity:repository",
                     "format:output.glb",
+                    "inherited_unit:002.paragraph",
                 )
             ],
             "omitted": [],
@@ -2717,7 +2736,13 @@ def test_a_changed_fact_record_reopens_extracting_and_invalidates_the_candidate(
     # The extractor now sees the banner illustration resolve elsewhere: the fact keeps its
     # value and polarity, its evidence detail changes, and so does its record's digest.
     monkeypatch.setattr(
-        links, "fetch_status", lambda url: (200, url + "?v=2" if url == banner else url)
+        links,
+        "fetch_status",
+        lambda url: (
+            (404, url)
+            if url.startswith("https://products.aspose.com/")
+            else (200, url + "?v=2" if url == banner else url)
+        ),
     )
     before = len(gateway_ready.requests)
 

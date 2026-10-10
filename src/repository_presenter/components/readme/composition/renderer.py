@@ -43,6 +43,11 @@ from repository_presenter.components.readme.composition.components.terminology i
     LOWER_WORD,
     to_title_case,
 )
+from repository_presenter.components.readme.composition.inherited_text import (
+    dependency_name,
+    dependency_purposes,
+    inherited_example_heading,
+)
 from repository_presenter.components.readme.composition.placement import (
     api_reference_hub_methods,
     placed_texts,
@@ -94,6 +99,14 @@ RENDERER_VERSION = "29"
 # carry it onto the page and fail BC-12 unrepairably; quoted_evidence_elisions recomputes the
 # same elisions for the advisory audit trail (validation/registry.py's advisory_notes).
 RENDERER_VERSION = "30"
+# 31 (cells/python parity, owner instruction 2026-10-10 "nothing the maintainers have today may be
+# silently lost"): a Dependencies bullet carries the maintainers' own explanation of that
+# dependency when their list gave one and every identifier it names is verified
+# (inherited_text.dependency_purposes); an example heading is the maintainers' task heading over
+# that example's source code block when the README had one (inherited_text.inherited_example_
+# heading), not a model sentence; and the Python floor is named where pyproject.toml declares it,
+# `requires-python`, not setup.py's `python_requires` (PEP 621).
+RENDERER_VERSION = "31"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -183,6 +196,7 @@ class RenderContext:
         self.name_tokens = product_name_tokens(self.name)
         self.hosts = host_names(fact.value for fact in facts.facts if fact.polarity == "SUPPORTED")
         self.abbreviations = canonical_abbreviations(facts)
+        self._example_headings: dict[str, str] | None = None
         self.symbol_names: frozenset[str] = frozenset(
             fact.value.rsplit(".", 1)[-1]
             for fact in facts.by_kind("public_symbol")
@@ -202,6 +216,27 @@ class RenderContext:
 
     def fact(self, fact_id: str) -> Fact | None:
         return self.by_id.get(fact_id)
+
+    def inherited_example_headings(self) -> dict[str, str]:
+        """Example ID -> the maintainers' heading over its source code block, in render order
+        (flagship first), each heading given to the first example that carries it: two
+        examples under one README heading never repeat it (a reused heading fails BC-07)."""
+        if self._example_headings is None:
+            ordered = [str(i) for i in self.plan.get("additional_example_ids", [])]
+            flagship = self.plan.get("flagship_example_id")
+            if isinstance(flagship, str) and flagship in ordered:
+                ordered.remove(flagship)
+                ordered.insert(0, flagship)
+            chosen: dict[str, str] = {}
+            taken: set[str] = set()
+            for example_id in ordered:
+                example = self.by_id.get(example_id)
+                heading = inherited_example_heading(self.facts, example) if example else None
+                if heading is not None and heading not in taken:
+                    taken.add(heading)
+                    chosen[example_id] = heading
+            self._example_headings = chosen
+        return self._example_headings
 
     def supported(self, kind: str) -> list[Fact]:
         return [f for f in self.facts.by_kind(kind) if f.polarity == "SUPPORTED"]  # type: ignore[arg-type]
@@ -383,10 +418,16 @@ def _navigation(context: RenderContext) -> list[str]:
     ]
 
 
-def _extra_bullet(fact: Fact) -> str:
+def _extra_bullet(fact: Fact, purposes: dict[str, str] | None = None) -> str:
     match = _EXTRA.search(fact.evidence[0].detail or "") if fact.evidence else None
     suffix = f" (extra `{match.group(1)}`)" if match else ""
-    return f"- `{fact.value}`{suffix}"
+    return f"- `{fact.value}`{suffix}{_purpose(fact, purposes)}"
+
+
+def _purpose(fact: Fact, purposes: dict[str, str] | None) -> str:
+    """The maintainers' explanation of a dependency, set off by an em dash, or nothing."""
+    text = (purposes or {}).get(dependency_name(fact.value))
+    return f" — {text}" if text else ""
 
 
 def _dependencies(context: RenderContext) -> list[str]:
@@ -397,6 +438,11 @@ def _dependencies(context: RenderContext) -> list[str]:
     Optional, Native and System, and Development omit silently when their bucket is empty.
     """
     facts = context.supported("dependency")
+    purposes = dependency_purposes(
+        context.facts,
+        lambda token: token in context.symbol_names
+        or identifier_allowed(token, context.allowed, context.members, context.methods),
+    )
     marker = context.fact("dependency:none")
     required = [
         fact
@@ -409,7 +455,7 @@ def _dependencies(context: RenderContext) -> list[str]:
     lines: list[str] = []
     if required:
         lines.extend(["### Required Package Dependencies", ""])
-        lines.extend(f"- `{fact.value}`" for fact in required)
+        lines.extend(f"- `{fact.value}`{_purpose(fact, purposes)}" for fact in required)
     elif marker is not None and marker.polarity == "SUPPORTED" and marker.evidence:
         clause = marker.evidence[0].detail or "the manifest declares none"
         lines.extend(["### Required Package Dependencies", ""])
@@ -419,7 +465,7 @@ def _dependencies(context: RenderContext) -> list[str]:
         )
     if optional:
         lines.extend(["", "### Optional Dependencies", ""])
-        lines.extend(_extra_bullet(fact) for fact in optional)
+        lines.extend(_extra_bullet(fact, purposes) for fact in optional)
     # The floor is the ecosystem's to name (section 29.6 E4). Reading `package:python_requires`
     # here meant a .NET candidate never told a reader which framework it needs at all: the fact
     # is `package:target_framework` and no branch could see it (measured 2026-09-06).
@@ -444,7 +490,7 @@ def _dependencies(context: RenderContext) -> list[str]:
             )
     if development:
         lines.extend(["", "### Development Dependencies", ""])
-        lines.extend(_extra_bullet(fact) for fact in development)
+        lines.extend(_extra_bullet(fact, purposes) for fact in development)
     return lines[1:] if lines and lines[0] == "" else lines
 
 
@@ -721,6 +767,12 @@ def _oxford(items: list[str]) -> str:
     return ", ".join(items[:-1]) + f", and {items[-1]}"
 
 
+def _floor_name(requires: Fact) -> str:
+    """Where the floor is declared: the fact's own spelling (``requires-python`` in a
+    pyproject.toml), else ``python_requires``."""
+    return (requires.attributes or {}).get("floor_declaration") or "python_requires"
+
+
 def _installation(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2 row 8, every command verified at this revision.
 
@@ -824,10 +876,10 @@ def _installation(context: RenderContext) -> list[str]:
         listed = _oxford([v.strip() for v in versions.value.split(",") if v.strip()])
         sentence = f"The package supports Python {listed}"
         if requires is not None and requires.polarity == "SUPPORTED":
-            sentence += f" and declares `python_requires` as `{requires.value}`"
+            sentence += f" and declares `{_floor_name(requires)}` as `{requires.value}`"
         sentence += "."
     elif requires is not None and requires.polarity == "SUPPORTED":
-        sentence = f"The package declares `python_requires` as `{requires.value}`."
+        sentence = f"The package declares `{_floor_name(requires)}` as `{requires.value}`."
     if sentence:
         lines.append("")
         lines.append(sentence)
@@ -946,6 +998,8 @@ def _example_entry(context: RenderContext, sid: str, example_id: str) -> list[st
     # plans/idea.md: "Every Markdown heading uses title case." The unit is the model's sentence;
     # the heading it becomes is the template's, so capitalisation is applied here, not asked of
     # the model (verification V2 item 8: 20 of 29 sealed bundles carried sentence-case headings).
+    # The maintainers' own heading over this very code block stands in for the model's.
+    task = context.inherited_example_headings().get(example_id, task)
     heading = to_title_case(task, context.abbreviations)
     return ["", f"### {heading}", "", *_code_block(context.spec.fence, example.value)]
 

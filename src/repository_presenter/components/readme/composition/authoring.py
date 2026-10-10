@@ -340,7 +340,16 @@ _TYPE_OBJECTIVE = (
 # cited inherited unit's own sibling shorthand "`EciHelper.normalize`/`.validate`" also spells
 # EciHelper.validate (aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python limitation:3, 2026-10-10,
 # refused as "EciHelper.validate" although the cited paragraph abbreviates exactly that name).
-NORMALISATION_VERSION = "32"
+# "33": opening joins _CARRY_SECTIONS. Reconciliation always superseded the maintainers' intro
+# paragraph into the opening ("the rewrite covers it") but the authoring call was never told to
+# carry it, so the sealed opening was a fresh paraphrase that lost what the maintainers stated and
+# added what they did not: aspose-cells-foss/Aspose.Cells-FOSS-for-Python (2026-10-10) lost "pure-
+# Python", "without requiring Microsoft Excel" and "depends only on pycryptodome and olefile", and
+# gained "requiring no external dependencies beyond the library itself" over a manifest that
+# requires both packages. The opening now cites or reasonedly omits that paragraph like every other
+# carried section, and its objective says to keep the specifics it states and claim nothing it
+# does not.
+NORMALISATION_VERSION = "33"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -571,7 +580,9 @@ _CARRIABLE_SUFFIXES = (".paragraph", ".list")
 # enterprise_relationship joins them (G7-W15/G7-W18): reconciliation supersedes an inherited
 # Enterprise Edition paragraph into it, and its authored context sentence is the one place that
 # paragraph's "which adds ..." substance renders after the shell's own opening sentence.
-_CARRY_SECTIONS = frozenset({"development_testing", "scope_limitations", "enterprise_relationship"})
+_CARRY_SECTIONS = frozenset(
+    {"opening", "development_testing", "scope_limitations", "enterprise_relationship"}
+)
 
 
 def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocument) -> list[str]:
@@ -825,6 +836,7 @@ def section_selections(
             ids.extend(_cited(investigation.get(key)))
         ids.extend(_cited(plan.get("core_capabilities")))
         ids.extend(fact.id for fact in facts.by_kind("format"))
+        ids.extend(carried_units(dispositions, section, facts))
         slots = ["opening"]
     elif section == "key_capabilities":
         for index, item in enumerate(plan.get("core_capabilities", []), start=1):
@@ -1135,6 +1147,15 @@ def authoring_tasks(
             if must_carry
             else ""
         )
+        if must_carry and section == "opening":
+            # The maintainers' own intro states what the product is, what it needs, and which
+            # packages it depends on; the opening keeps those specifics and adds none of its own
+            # (an invented "no external dependencies" over a manifest with two required packages).
+            carry_rule += (
+                "Keep every specific the inherited paragraph states (what the product is, what "
+                "it requires, which packages it depends on) in two to four sentences; never "
+                "claim it has no dependencies unless a cited dependency fact says none. "
+            )
         if must_carry and section == "enterprise_relationship":
             # The inherited paragraph names the commercial product and links it, but the renderer
             # prints that name and link itself in the sentence before this unit (exactly once,

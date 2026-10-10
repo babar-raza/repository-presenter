@@ -329,3 +329,36 @@ def test_a_package_that_reexports_a_submodule_of_its_own_name_stays_a_module(
     assert by_name["pkg.cfb"].reexported_from == "pkg.cfb"
     assert by_name["pkg.cfb"].kind == "module"
     assert not [note for note in surface.unresolved if "unresolved-reexport" in note]
+
+
+def test_a_wrapped_summary_sentence_is_one_description_not_its_first_physical_line(
+    tmp_path: Path,
+) -> None:
+    """aspose-cells-foss Shape: "Represents a drawing shape (rectangle, oval, text box, arrow,
+    etc.) on" / "a worksheet." sealed into the Core API table cut off mid-sentence."""
+    _write(tmp_path, "lib/__init__.py", "from .shapes import Shape, Saver, Plain, Para\n")
+    _write(
+        tmp_path,
+        "lib/shapes.py",
+        "class Shape:\n"
+        '    """\n    Represents a drawing shape (rectangle, oval, text box, arrow, etc.) on\n'
+        '    a worksheet.\n\n    Attributes:\n        name (str): Name.\n    """\n\n\n'
+        "class Saver:\n"
+        '    """Handles writing chart-related parts:\n    - xl/charts/chart1.xml\n    - drawings\n'
+        '    """\n\n\n'
+        "class Plain:\n"
+        '    """One line."""\n\n\n'
+        "class Para:\n"
+        '    """A summary that wraps\n    across two lines without a stop\n\n    Second paragraph.\n'
+        '    """\n',
+    )
+    surface = inspect_public_surface(tmp_path, ["lib"])
+    docs = {s.qualified_name: s.docstring for s in surface.symbols}
+    assert docs["lib.shapes.Shape"] == (
+        "Represents a drawing shape (rectangle, oval, text box, arrow, etc.) on a worksheet."
+    )
+    # Negative controls: a colon ends the summary before a list, a one-liner is untouched, and
+    # the summary never runs into the next paragraph.
+    assert docs["lib.shapes.Saver"] == "Handles writing chart-related parts:"
+    assert docs["lib.shapes.Plain"] == "One line."
+    assert docs["lib.shapes.Para"] == "A summary that wraps across two lines without a stop"
