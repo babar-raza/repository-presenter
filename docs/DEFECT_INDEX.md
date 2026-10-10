@@ -61,8 +61,11 @@ bare. BC-04 judges spans only, so nothing fails; wrapping them moves `RENDERER_V
 `VALIDATOR_VERSION` and is left for the owner's second-cut decision. Directory names such as
 `test_html/` are README claims no extractor verifies against the tree (`repository_files` checks
 file-like tokens only); verifying them there is the earlier-stage alternative and is an
-extractor-version change. This reverses the G7-W23 note that `winmail.dat` stays refused, for a
-paragraph the pipeline itself obliged the section to carry; the owner should confirm that reading.
+extractor-version change. This reverses the G7-W23 note (under `readme.dotted_file_name_in_prose_not_a_recorded_fact`)
+that `winmail.dat` stays refused, for a paragraph the pipeline itself obliged the section to carry;
+confirmed by the supervisor on the owner's delegation, 2026-10-11, and recorded in `docs/DECISION_LOG.md`
+(2026-10-11, TC-EXT-01 cut 2). Provenance in a carried unit is the ground: the name is the maintainers' own
+text. A name only in README text with no cited carried paragraph, and any invented name, stay refused.
 
 ### `section_authoring.angle_bracket_mention_not_recovered`
 
@@ -117,9 +120,13 @@ guess, so `Document.Save/Document.Load` still names `Document.Save`.
   `validation/deferrals.py` `NO_EVIDENCE_EITHER_WAY` refuses a deferral whose unit names a verified
   symbol (it would be UNCLASSIFIED and BLOCK at BC-05). Deferring anyway only moves the failure.
   Owner decision: whether a paragraph that merely names a verified symbol may be deferred ADVISORY.
+  Belongs to the S4 lane (`wt/ls4-s401`, `reconciliation/dispositions.py`); not touched here.
 * **A stdlib or platform type inferred from a symbol name** (3D-Java `ArrayList`): an unevidenced
-  claim, refused by design (`readme.dotted_file_name_in_prose_not_a_recorded_fact`). One bad description takes the whole `api_reference` type batch down. Owner decision: let a
-  type-description unit be dropped (the symbol row renders without it) instead of failing the batch.
+  claim, refused by design (`readme.dotted_file_name_in_prose_not_a_recorded_fact`); the guard stays.
+  One bad description used to take the whole `api_reference` type batch down. Fixed on the supervisor's
+  instruction (2026-10-11): on the final attempt a `type:` unit refused only for stray identifiers takes
+  the verified summary README_CONTRACT row 14 prescribes (`Public class.`, or `Defined as <signature>.`),
+  `composition/type_fallback.py`, no governed constant moved. Any other defect still fails the batch.
 * **A fact id read aloud** (Note-Python `python_requires`): one sighting, sampling variance.
 * **An omission list rewritten across the re-ask** (Slides-.NET `068`): attempt 2 kept only the
   omissions the rejection named. One more sighting of `composition.authoring.superseded_unit_not_carried`;
