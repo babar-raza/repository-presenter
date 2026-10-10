@@ -1,0 +1,26 @@
+"""One CLI preflight, in-process, with httpx request lines captured (status + per-request latency)."""
+import logging, sys, time, io, json, re, contextlib, os
+from pathlib import Path
+buf = io.StringIO()
+class H(logging.Handler):
+    def emit(self, rec):
+        buf.write(f"{time.time():.3f} {rec.getMessage()}\n")
+h = H(); h.setLevel(logging.INFO)
+root = logging.getLogger(); root.setLevel(logging.INFO); root.addHandler(h)
+from repository_presenter.cli import main
+root, out = sys.argv[1], sys.argv[2]
+so = io.StringIO()
+t0 = time.time()
+with contextlib.redirect_stdout(so), contextlib.redirect_stderr(so):
+    rc = main(["preflight", "--root", root])
+t1 = time.time()
+reqs = []
+for l in buf.getvalue().splitlines():
+    m = re.match(r"(\S+) HTTP Request: (\S+) (\S+) \"HTTP/\S+ (\d+) (.*)\"", l)
+    if m: reqs.append({"t": float(m[1]), "method": m[2], "path": re.sub(r"https?://[^/]+", "", m[3]), "status": int(m[4])})
+# redact any secret-ish text from output
+text = so.getvalue()
+for k in ("GPT_OSS_API_KEY", "GPT_OSS_ENDPOINT", "GH_TOKEN"):
+    v = os.environ.get(k)
+    if v: text = text.replace(v, f"<{k}>")
+json.dump({"rc": rc, "start": t0, "wall_s": round(t1 - t0, 3), "requests": reqs, "output_tail": text[-600:]}, open(out, "w"))

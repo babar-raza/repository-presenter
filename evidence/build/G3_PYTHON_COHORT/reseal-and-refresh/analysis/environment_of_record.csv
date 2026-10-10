@@ -1,0 +1,34 @@
+# authoritative_plan: plans/reseal-and-refresh/PLAN.md
+# artifact_role: analysis_or_evidence_only
+# execution_authority: false
+candidate,current_revision,os,python_version,other_environment_keys
+aspose-3d-foss__Aspose.3D-FOSS-for-.NET,52b0f00ebf28a0b4173921725ff170685ec2c502,Windows,3.13.2,
+aspose-3d-foss__Aspose.3D-FOSS-for-Java,3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3,Windows,3.13.2,
+aspose-3d-foss__Aspose.3D-FOSS-for-Python,65b1f577c0f16d0d9112bb6c1153d3024543ac02,Windows,3.13.2,
+aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python,06eca5c01e13ed6d59a640f1cf330c1c5a57d151,Windows,3.13.2,toolchains
+aspose-cells-foss__Aspose.Cells-FOSS-for-.NET,941814fd138dc28cf47123d48194f329f283498d,Windows,3.13.2,
+aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp,9f852d0ff1cfdad2d661556d6b87a8eff8c063a2,Windows,3.13.2,
+aspose-cells-foss__Aspose.Cells-FOSS-for-Go,fa4e890e46c509efd22d09b97411202c2b0b8a67,Windows,3.13.2,
+aspose-cells-foss__Aspose.Cells-FOSS-for-Java,c65329e7257b1311abb9686d7e4957a8cc002955,Windows,3.13.2,
+aspose-cells-foss__Aspose.Cells-FOSS-for-Python,4f6768a7b349a1309644f456eb43bc35f70c16d7,Windows,3.13.2,toolchains
+aspose-cells-foss__Aspose.Cells-FOSS-for-Rust,1a6004af47b1ef15385f9d36d381a8172428cc7e,,,
+aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript,fc186507e5b7124f4664aa6035f25cfd3112367d,Windows,3.13.2,
+aspose-email-foss__Aspose.Email-FOSS-for-.Net,59125b4732df0eedbc4d4c2ab978698ed4348eb7,Windows,3.13.2,
+aspose-email-foss__Aspose.Email-FOSS-for-Cpp,c844a467cf7f2503819b655f4d6ceaef91056c40,Windows,3.13.2,
+aspose-email-foss__Aspose.Email-FOSS-for-Python,10a906b48c0c11005c4d93b524e4431901c9717c,Windows,3.13.2,
+aspose-font-foss__Aspose.Font-FOSS-for-Python,c520e3ebed3c36a56850cffb2b067afb29c5e2e9,Windows,3.13.2,toolchains
+aspose-html-foss__Aspose.HTML-FOSS-for-Python,bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11,Windows,3.13.2,
+aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET,a7c7314b18e1a5bd209fab38c15e72574337366f,Windows,3.13.2,
+aspose-note-foss__Aspose.Note-FOSS-for-Python,41de2e8ab478b5aeff3663f7f7cbf83b19fdf676,Windows,3.13.2,
+aspose-page-foss__Aspose.Page-FOSS-for-Python,43cef367cd0b2cf00cc03064ca9d29d1ff507967,Windows,3.13.2,
+aspose-pdf-foss__Aspose-PDF-FOSS-for-Go,286484d235196d65c9a458c5eff3d3d6539216dc,Windows,3.13.2,
+aspose-pdf-foss__Aspose-PDF-FOSS-for-Python,580935ba0ffc558b9146ebd46ddbc6a37b7cf167,Windows,3.13.2,
+aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET,d10e2c829e1e41d3a9529057ad2ea7c7f53b1095,Windows,3.13.2,
+aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp,888700a8e361d32df21d0810c2eb939345e0603e,Windows,3.13.2,
+aspose-pdf-foss__Aspose.PDF-FOSS-for-Java,db2d3f0622f035825419c6d46727022064f39f15,Windows,3.13.2,
+aspose-slides-foss__Aspose.Slides-FOSS-for-.NET,86c441b5d81e707f2ea9e01b197dbb6ff7a3859b,Windows,3.13.2,
+aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp,c41f8dddc499fb0058fc9557cb364d70fbd3cef1,Windows,3.13.2,
+aspose-slides-foss__Aspose.Slides-FOSS-for-Java,620a2614418854b4a18966a361e6907ddc88c7cb,Windows,3.13.2,
+aspose-slides-foss__Aspose.Slides-FOSS-for-Python,becd199a776682785768c60c778558d975b0c2f9,Windows,3.13.2,
+aspose-words-foss__Aspose.Words-FOSS-for-.NET,0d3f1add920f5294d726b4f286c2d6ba7c3ae22c,Windows,3.13.2,
+aspose-words-foss__Aspose.Words-FOSS-for-Python,2d2efee2787cb9e56d071d17f8d7b740dce8b784,Windows,3.13.2,
