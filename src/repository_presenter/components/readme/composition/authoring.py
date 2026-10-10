@@ -40,7 +40,12 @@ from repository_presenter.components.readme.composition.components.terminology i
     canonical_forms,
 )
 from repository_presenter.components.readme.evidence.facts.links import link_text
-from repository_presenter.core.facts import Fact, FactsDocument, bounded_records
+from repository_presenter.core.facts import (
+    REPOSITORY_FILES_ATTRIBUTE,
+    Fact,
+    FactsDocument,
+    bounded_records,
+)
 from repository_presenter.core.llm.ledger import canonical_hash
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -323,7 +328,19 @@ _TYPE_OBJECTIVE = (
 # edition name the shell prints once: three unsatisfiable checks, two exhausted attempts. The
 # section that renders the substance now owes the unit and may cite it; carried_unit_errors,
 # unit_checks and the exactly-once naming guard are unchanged.
-NORMALISATION_VERSION = "31"
+# "32": allowed_identifiers also admits the file names an inherited_unit fact records in
+# attributes["repository_files"] (evidence/facts/repository_files.py: spelled by the upstream README
+# and present in the pinned tree). Measured on aspose-slides-foss/Aspose.Slides-FOSS-for-.NET
+# (re-seal 2026-10-09, again in the G7-W12 live run 2026-10-10): a Development and Testing sentence
+# repeating the README's own "see CONTRIBUTING.md" / "SECURITY.md" was refused ("identifiers that
+# are not accepted fact values") in both attempts and S6 stopped; the Rust samples/*.rs list and
+# the Go examples_test.go / main.go sentence stopped the same way. The guard, the renderer's code
+# spans and BC-04 share this set, so the one change moves all three. A name the tree lacks, or
+# spells in another case, is still refused. The same bump carries one more narrow admission: a
+# cited inherited unit's own sibling shorthand "`EciHelper.normalize`/`.validate`" also spells
+# EciHelper.validate (aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python limitation:3, 2026-10-10,
+# refused as "EciHelper.validate" although the cited paragraph abbreviates exactly that name).
+NORMALISATION_VERSION = "32"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -1434,6 +1451,13 @@ def prose_nouns(facts: FactsDocument, name: str) -> frozenset[str]:
     )
 
 
+# ``Head.first`` then ``/`` then ``.second``, each optionally in backticks: the README's own
+# shorthand for ``Head.first`` and ``Head.second`` (``Head`` may itself be dotted).
+_SIBLING_SHORTHAND = re.compile(
+    r"`?([A-Za-z_][\w]*(?:\.[A-Za-z_]\w*)*)\.[A-Za-z_]\w*(?:\(\))?`?\s*/\s*`?\.([A-Za-z_]\w*)"
+)
+
+
 def _inherited_unit_tokens(value: str) -> set[str]:
     """Identifier-shaped tokens an inherited unit's own value spells: its running prose (fenced
     blocks and links stripped, per ``source_prose``) and each inline code span - the fence
@@ -1445,6 +1469,9 @@ def _inherited_unit_tokens(value: str) -> set[str]:
     without_fences = _NOT_PROSE[0].sub(" ", value)
     for span in _CODE_SPAN.finditer(without_fences):
         found.update(identifier_tokens(span.group(1)))
+    # A README abbreviates a pair of siblings: "`EciHelper.normalize`/`.validate`". The second
+    # name is spelled in full by the author's own shorthand, so it is as spelled as the first.
+    found.update(f"{head}.{second}" for head, second in _SIBLING_SHORTHAND.findall(without_fences))
     return found
 
 
@@ -1569,6 +1596,13 @@ def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
         # of Maven, npm or cargo commands - spells paths, tools and output files, never a product
         # claim, so its identifiers are spellable too (G4-W17 arrival item 44).
         allowed.update(command_block_tokens(fact.value))
+        # A file name the upstream README spells and the pinned tree contains (G7-W23): the
+        # extractor checked it against the tree, so it is as spellable as a fact value.
+        allowed.update(
+            name
+            for name in (fact.attributes or {}).get(REPOSITORY_FILES_ATTRIBUTE, "").split(",")
+            if name
+        )
         if fact.kind in {"public_symbol", "import_path"}:
             spellings = [fact.value]
             attributes = fact.attributes or {}

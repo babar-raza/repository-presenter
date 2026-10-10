@@ -59,7 +59,11 @@ from typing import Literal
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
-from repository_presenter.core.facts import Evidence, Fact, fact_id
+from repository_presenter.components.readme.evidence.facts.repository_files import (
+    repository_files,
+    tree_index,
+)
+from repository_presenter.core.facts import REPOSITORY_FILES_ATTRIBUTE, Evidence, Fact, fact_id
 
 UnitType = Literal[
     "heading",
@@ -94,7 +98,12 @@ _LEADING_IDENTIFIER = re.compile(r"^`([A-Za-z_][A-Za-z0-9_]*)`")
 # candidate from before this field existed (a missing key, never "1") correctly reopens
 # EXTRACTING the first time this ships, the same as any other environment field's change would
 # (docs/STATE_MACHINE.md section 9).
-INHERITED_UNITS_VERSION = "2"
+#
+# "2" -> "3" (G7-W23, #1010): an inherited_unit fact now records, in attributes["repository_files"],
+# the file names its text spells that the pinned tree contains (repository_files.py), so a unit
+# that repeats the upstream's "see CONTRIBUTING.md" is spellable in prose. A fact's content
+# changed, hence this constant and not a comment: facts regenerated under "2" lack the attribute.
+INHERITED_UNITS_VERSION = "3"
 
 # This change's own thresholds (module docstring has the full survey and justification): a plain
 # list that RC-06 leaves whole (no member-reference match) is still split into fixed-size chunks
@@ -321,12 +330,30 @@ def _known_class_enum_names(public_symbol_facts: Sequence[Fact]) -> frozenset[st
     )
 
 
+def _unit_attributes(section: str, files: Sequence[str]) -> dict[str, str] | None:
+    attributes: dict[str, str] = {}
+    if section:
+        attributes["section"] = section
+    if files:
+        attributes[REPOSITORY_FILES_ATTRIBUTE] = ",".join(files)
+    return attributes or None
+
+
 def inherited_unit_facts(
-    readme_path: str, readme_bytes: bytes, public_symbol_facts: Sequence[Fact] = ()
+    readme_path: str,
+    readme_bytes: bytes,
+    public_symbol_facts: Sequence[Fact] = (),
+    tree_paths: Sequence[str] = (),
 ) -> list[Fact]:
-    """One fact per inherited unit of the README at ``readme_path``."""
+    """One fact per inherited unit of the README at ``readme_path``.
+
+    ``tree_paths`` is the pinned revision's tree inventory: a unit that spells a file the tree
+    contains records it in ``attributes["repository_files"]`` (repository_files.py), so prose that
+    repeats the upstream's own file reference is not refused as an unrecorded identifier.
+    """
     text = readme_bytes.decode("utf-8", errors="replace")
     known = _known_class_enum_names(public_symbol_facts)
+    index = tree_index(tree_paths)
     facts = []
     for unit in inventory_units(text, known):
         where = f"lines {unit.start_line}-{unit.end_line}; {unit.unit_type}"
@@ -349,7 +376,7 @@ def inherited_unit_facts(
                 # read. Empty string is never a valid attributes value (core/facts.py's own
                 # Fact.__post_init__), matching the same `if unit.section:` guard already used
                 # for the evidence string two lines above.
-                attributes={"section": unit.section} if unit.section else None,
+                attributes=_unit_attributes(unit.section, repository_files(unit.source, index)),
             )
         )
     return facts

@@ -1238,6 +1238,58 @@ Both sub-claims confirmed. In `bundle/seal.py`, `FACTUAL_ARTIFACTS = frozenset({
 
 **Work item** G5-W08 · **Register status** FIXED(#254) · typed invalidation scopes, `bundle/invalidation.py`. The entry stays Open in this index, awaiting independent reverification; a FIXED status here names the merged fix, not a reverified one.
 
+### `readme.dotted_file_name_in_prose_not_a_recorded_fact`
+
+An authored unit that repeats a file name the upstream README itself names (`CONTRIBUTING.md`,
+`SECURITY.md`, `basic.rs`, `examples_test.go`, `main.go`) is refused by `authoring.unit_checks`
+("identifiers that are not accepted fact values") because the identifier rule accepts only fact
+values and no fact recorded the file, although the pinned tree contains it. The faithful sentence
+is rejected on both S6 attempts and the section stops before BC-04, BC-05 or review. Cause at the
+earliest stage: extraction held the tree inventory but recorded no fact for a file a unit spells.
+Fix (G7-W23): `evidence/facts/repository_files.py` checks each file-like token an inherited unit
+spells against the tree (exact, case-sensitive, directory-boundary paths, URLs ignored) and the
+unit's fact records the hits in `attributes["repository_files"]`; `allowed_identifiers` admits them
+from SUPPORTED facts. The identifier rule itself is unchanged: an invented name, a name absent from
+the tree, a name differing in case (`agents.md` is not `AGENTS.md`) and a CONTRADICTED fact's record
+stay refused. One narrow admission rides the same bump: a cited inherited unit's sibling shorthand
+(`EciHelper.normalize`/`.validate`) also spells `EciHelper.validate`. `INHERITED_UNITS_VERSION` 2 to
+3, `NORMALISATION_VERSION` 31 to 32. Not covered, correctly refused or another mechanism: a standard
+library type inferred from a symbol name with no evidence (`ArrayList` beside `ArrayListAdapter`,
+3D-Java); a file name that is external knowledge and absent from the tree (`winmail.dat`,
+Email-.NET; the re-ask drops it); a real field or enum member no fact records (next entry); other
+dotted names (`email.message.EmailMessage`, `coverlet.collector`, `a:rPr`).
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` | 2026-10-09 | revision `86c441b5`, call `108c56477d7d.rejected-1.json`: `CONTRIBUTING.md`, `SECURITY.md`; sighted again in the G7-W12 live run, 2026-10-10 |
+| 2 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` | 2026-10-09 | revision `1a6004af`, call `bbe3fc7bf76d.rejected-1.json`: thirteen `samples/*.rs` names |
+| 3 | `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` | 2026-10-09 | revision `cdf43df1`, call `743e9fe2941c.rejected-1.json`: `examples_test.go`, `main.go` |
+| 4 | `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` | 2026-10-10 (probe) | call `608eefc3af6e.rejected-1`: `EciHelper.validate`, the cited paragraph's shorthand `EciHelper.normalize`/`.validate` |
+| 5 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` | 2026-10-10 (probe) | call `04e28305a229`: `pages.yml` beside the sample names |
+| 6 | `aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript` | 2026-10-09 | revision `fc186507`, call `fc4b0d5bafbe.rejected-1.json`: `AGENTS.md` (the tree holds `agents.md`; the case-difference sibling, still refused by design) |
+
+**Work item** G7-W23 · **Register status** PENDING · three settled sightings of the file-name shape (a fourth, the case variant, is refused deliberately); the live result is in the cursor note.
+
+### `surface.members_the_source_defines_are_not_recorded_as_facts`
+
+Authored prose that names a real field or enum member of a public type is refused as "identifiers
+that are not accepted fact values" because the surface extractors record classes, functions and
+methods but not dataclass or option fields or enum members, so no fact carries the name. The
+verifier is right to refuse an unevidenced name; the gap is upstream, at S2 surface extraction.
+Found by the coordinator's read-only portfolio probe (2026-10-10) and confirmed against the source
+of each clone. Not fixed under G7-W23: recording members changes the `public_symbol` population of
+every repository of the ecosystem (EXTRACTOR_VERSION, the API tables and the member listings move),
+which the G7-W22 freeze forbids without owner approval. The narrow admission that rides G7-W23 (a
+cited inherited unit's sibling shorthand) covers only a spelling the README itself abbreviates.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` | 2026-10-10 | probe call `b3be9573f882.rejected-1/2`: `allow_check_digit_input`, a field of `Ean13Options` in `options.py`; also `eci_assignment_number`, `gs1_enabled` (`options.py:51-52`; call `f56938829fcc.rejected-2`, where the unit had dropped the inherited citation) |
+| 2 | `aspose-cells-foss/Aspose.Cells-FOSS-for-.NET` | 2026-10-10 | probe call `6d0d69d84dc9.rejected-1`: `ValidationType.List`, `WholeNumber`, `FormatConditionType.CellValue`, members defined in `ValidationType.cs` |
+| 3 | `aspose-tex-foss/Aspose.TeX-FOSS-for-Python` | 2026-10-09 | `extra_format_paths`, `TeXJob.messages` in the re-seal transactions |
+
+**Work item** G7-W23 · **Register status** PENDING · logged, unfixed under the freeze; three sightings, so settled priority once the freeze lifts (AGENTS.md).
+
 ## Resolved
 
 ### `review.cited_paraphrase_whole_fact_dilution`
@@ -1386,3 +1438,4 @@ Every row names its work item (`project/state.yaml` `next_ready_items` or `owner
 | REG-21 | Hosted sealing (run `37712681751`, 2026-10-08) proved the pipeline itself works (`aspose-cells-foss/Aspose.Cells-FOSS-for-Go` reached `READY_FOR_PROPOSAL`, `ACCEPT`, zero-call no-op), but the success is ephemeral beyond its durable-state ref receipt: no workflow (`present.yml`, `propose.yml`, `sealing-scheduled.yml`) ever commits the sealed `candidates/<slug>/` bundle back to this control repository, for any registry mode - confirmed by `git ls-remote` (no branch/PR for this run's bundle) and by reading all three workflows' sources. `status`'s counts therefore go stale under the scheduled loop with no autonomous repair; today only a human/agent session committing a PR by hand (e.g. #259) refreshes them. Not stated as intentional anywhere in `docs/STATE_MACHINE.md`, `docs/EXECUTION_STATE_MACHINE.md`, or `AGENTS.md` | G7-W14 | OPEN |
 | REG-22 | Third sighting, this exact repository (`aspose-slides-foss/Aspose.Slides-FOSS-for-Java`): S6 `section_authoring` call `ba6a89dbe1f2` fails closed on 5 must-carry superseded units (`081`/`083`/`085`/`089`/`095.paragraph`) bundled across 3 sections in one packet, surviving #281/#286/#287/#289/#290 all landed. Directly verified against the stored transaction's own call files and `calls.jsonl`. Attempt 2's `omitted` dispositions named all five with reasons but the recorded rejection is unchanged from attempt 1's - mechanism not yet explained; see `composition.authoring.superseded_unit_not_carried`'s "New sighting, 2026-10-08" | G7-W15 | PENDING |
 | REG-23 | Single sighting (`aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript`, 2026-10-08): S8 coherence revision silently drops four previously-cited `public_symbol:workbook.to{csv,html,json,markdown}` fact_ids from `scope_limitations/limitation:2`'s prose with none of their own text left, caught correctly by the existing `coherence_content_loss_errors` check on both attempts (fails closed); `targeted_repair` restores the fact_ids but not the prose. Directly verified against the stored transaction's own rejection files. Below the three-sighting threshold - `composition.coherence.cited_symbol_silent_drop` | G7-W16 | PENDING |
+| REG-24 | S6 dotted file name in prose: a unit repeating a file name the upstream README names and the pinned tree contains is refused as an unrecorded identifier (Slides-.NET, Cells-Rust, PDF-Go; Cells-TypeScript is the case-difference sibling). Fixed at the extractor in G7-W23 (see the Open entry `readme.dotted_file_name_in_prose_not_a_recorded_fact`) | G7-W23 | PENDING |

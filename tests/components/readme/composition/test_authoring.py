@@ -3883,3 +3883,138 @@ def test_a_non_enterprise_paragraph_superseded_into_scope_is_still_enforced() ->
     }
     errors = carried_unit_errors(silent, tasks["scope_limitations"])
     assert len(errors) == 1 and errors[0].startswith(f"{limitation_id}: superseded into this")
+
+
+# G7-W23 (#1010): the real Slides-.NET development_testing sentence the 2026-10-09 re-seal was
+# refused on - "identifiers that are not accepted fact values: CONTRIBUTING.md, SECURITY.md".
+_SLIDES_NET = "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET"
+_SLIDES_NET_NAME = "Aspose.Slides FOSS for .NET"
+_SLIDES_NET_SENTENCE = (
+    "Contributors must follow the rules in CONTRIBUTING.md, including the project-specific "
+    "requirement that a writer fix ships with a test. Security vulnerabilities must be reported "
+    "privately per the instructions in SECURITY.md."
+)
+
+
+def _slides_net_facts(
+    contributing_files: str | None = "CONTRIBUTING.md,SECURITY.md", polarity: str = "SUPPORTED"
+) -> FactsDocument:
+    unit = Fact(
+        "inherited_unit:090.paragraph",
+        "inherited_unit",
+        "Read\n[CONTRIBUTING.md](https://github.com/o/r/blob/main/CONTRIBUTING.md)\nfirst.",
+        (Evidence("README.md"),),
+        polarity=polarity,  # type: ignore[arg-type]
+        attributes={"repository_files": contributing_files} if contributing_files else None,
+    )
+    return FactsDocument(
+        _SLIDES_NET,
+        "s" * 40,
+        (_fact("identity:repository", "identity", _SLIDES_NET), unit),
+    )
+
+
+def _slides_net_check(text: str, facts: FactsDocument) -> list[str]:
+    task = SectionTask(
+        "development_testing",
+        {},
+        frozenset({"inherited_unit:090.paragraph"}),
+        ("summary",),
+        slot_facts={"summary": frozenset({"inherited_unit:090.paragraph"})},
+        slot_titles={},
+    )
+    output = {
+        "units": [
+            {
+                "section": "development_testing",
+                "slot": "summary",
+                "text": text,
+                "fact_ids": ["inherited_unit:090.paragraph"],
+            }
+        ],
+        "omitted": [],
+    }
+    return unit_checks(output, task, facts, _SLIDES_NET_NAME)
+
+
+def test_a_file_the_extractor_recorded_from_the_tree_may_be_spelled_in_prose() -> None:
+    facts = _slides_net_facts()
+    assert {"CONTRIBUTING.md", "SECURITY.md"} <= allowed_identifiers(facts, _SLIDES_NET_NAME)
+    assert _slides_net_check(_SLIDES_NET_SENTENCE, facts) == []
+
+
+def test_the_same_sentence_is_still_refused_when_the_extractor_recorded_no_file() -> None:
+    """The negative control that keeps the downstream rule strict: the spellings come only from
+    the extractor's tree check, never from the README text alone."""
+    facts = _slides_net_facts(contributing_files=None)
+    assert _slides_net_check(_SLIDES_NET_SENTENCE, facts) == [
+        "unit summary: identifiers that are not accepted fact values: CONTRIBUTING.md, SECURITY.md"
+    ]
+
+
+def test_an_invented_file_name_or_one_differing_in_case_is_still_refused() -> None:
+    facts = _slides_net_facts(contributing_files="CONTRIBUTING.md")
+    invented = "Read CONTRIBUTING.md, then HACKING.md, then contributing.md."
+    assert _slides_net_check(invented, facts) == [
+        "unit summary: identifiers that are not accepted fact values: HACKING.md, "
+        "contributing.md (nearest accepted: CONTRIBUTING.md)"
+    ]
+
+
+def test_a_contradicted_inherited_unit_licenses_none_of_its_recorded_files() -> None:
+    facts = _slides_net_facts(polarity="CONTRADICTED")
+    assert "CONTRIBUTING.md" not in allowed_identifiers(facts, _SLIDES_NET_NAME)
+
+
+# The real BarCode-Python scope_limitations unit (call 608eefc3af6e, 2026-10-10): the cited
+# paragraph writes "`EciHelper.normalize`/`.validate`" and the unit spelled EciHelper.validate.
+_BARCODE = "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python"
+_ECI_PARAGRAPH = (
+    "- ECI normalization and validation (`EciHelper.normalize`/\n"
+    "  `.validate`) are not implemented in this FOSS build."
+)
+
+
+def _eci_check(text: str, paragraph: str = _ECI_PARAGRAPH) -> list[str]:
+    facts = FactsDocument(
+        _BARCODE,
+        "b" * 40,
+        (
+            _fact("identity:repository", "identity", _BARCODE),
+            _fact("inherited_unit:052.list", "inherited_unit", paragraph),
+        ),
+    )
+    task = SectionTask(
+        "scope_limitations",
+        {},
+        frozenset({"inherited_unit:052.list"}),
+        ("limitation:3",),
+        slot_facts={"limitation:3": frozenset({"inherited_unit:052.list"})},
+        slot_titles={},
+    )
+    output = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:3",
+                "text": text,
+                "fact_ids": ["inherited_unit:052.list"],
+            }
+        ],
+        "omitted": [],
+    }
+    return unit_checks(output, task, facts, "Aspose.BarCode FOSS for Python")
+
+
+def test_a_limitation_may_spell_both_names_of_the_cited_paragraphs_sibling_shorthand() -> None:
+    text = "EciHelper.normalize and EciHelper.validate are not implemented."
+    assert _eci_check(text) == []
+
+
+def test_the_sibling_shorthand_admits_only_the_head_it_follows() -> None:
+    # Negative controls: another head, a method the shorthand never names, and a paragraph
+    # that carries the second name with no head before it.
+    assert _eci_check("Gs1Helper.validate is not implemented.") != []
+    assert _eci_check("EciHelper.parse is not implemented.") != []
+    bare = "- ECI validation (`.validate`) is not implemented."
+    assert _eci_check("EciHelper.validate is not implemented.", bare) != []
