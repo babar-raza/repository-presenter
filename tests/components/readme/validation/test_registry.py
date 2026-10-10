@@ -291,9 +291,10 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
         "BC-10": "PENDING",
         "BC-11": "PENDING",
         "BC-12": "PASS",
+        "BC-14": "PASS",
     }
-    assert document["summary"] == {"pass": 10, "fail": 0, "pending": 2}
-    assert summarize_validation(document) == "pass 10, fail 0, pending 2"
+    assert document["summary"] == {"pass": 11, "fail": 0, "pending": 2}
+    assert summarize_validation(document) == "pass 11, fail 0, pending 2"
     assert document["checks"][9]["judged_at"] == "S10"
     assert document["checks"][10]["details"] == ["judged at S12"]
     assert all(check["causal_stage"] is None for check in document["checks"])
@@ -310,11 +311,12 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # docstring elisions; VALIDATOR_VERSION 15: a refused ACCEPT names the corroborating second
     # read that failed (second_reader.failed); VALIDATOR_VERSION 16: BC-05 v3 (G7-W12) classifies
     # the UNCLASSIFIED deferral family; VALIDATOR_VERSION 17: BC-04 v3 honours the omissions S6
-    # recorded (G7-W15). This candidate names no edition, spells its name
+    # recorded (G7-W15); VALIDATOR_VERSION 18: BC-14 v1 (TC-CLM-01) holds version, install-package
+    # and publication statements to the facts. This candidate names no edition, spells its name
     # whole, and passes all of them (it has badge-worthy facts and a rendered badge row, no
     # docstring eliciting an elision, and a clean single-read ACCEPT with no triggered second
     # read, so v13's, v14's, and v15's own allowance/note/detail never fire).
-    assert document["source_revision"] == REVISION and document["validator_version"] == "17"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "18"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(

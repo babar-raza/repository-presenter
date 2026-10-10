@@ -996,13 +996,14 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         line for line in captured.out.splitlines() if line.startswith("validation: ")
     )
     assert validation_line.startswith(
-        f"validation: {facts_dir}/validation.json (pass 11, fail 0, pending 1; digest "
+        f"validation: {facts_dir}/validation.json (pass 12, fail 0, pending 1; digest "
     )
     written_validation = json.loads(
         (project_with_registry / facts_dir / "validation.json").read_text("utf-8")
     )
     assert [c["verdict"] for c in written_validation["checks"]] == ["PASS"] * 10 + [
         "PENDING",
+        "PASS",
         "PASS",
     ]
     assert written_validation["advisory"] == []
@@ -1520,7 +1521,7 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     review = json.loads((transaction / "review.json").read_text("utf-8"))
     assert review["verdict"] == "ACCEPT"
     validation = json.loads((transaction / "validation.json").read_text("utf-8"))
-    assert validation["summary"] == {"pass": 11, "fail": 0, "pending": 1}
+    assert validation["summary"] == {"pass": 12, "fail": 0, "pending": 1}
     repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
     attempt = repairs["attempts"][OPENING_FINGERPRINT]
     assert attempt["outcome"] == "repaired" and attempt["changes"][0]["id"] == "R01"
@@ -1554,7 +1555,7 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     assert manifest["state"] == "READY_FOR_PROPOSAL"
     assert manifest["no_op_proof"]["provider_calls"] == 0 and manifest["provider_calls"] == 0
     bundle_validation = json.loads((bundle / "validation.json").read_text("utf-8"))
-    assert bundle_validation["summary"] == {"pass": 12, "fail": 0, "pending": 0}
+    assert bundle_validation["summary"] == {"pass": 13, "fail": 0, "pending": 0}
     assert (bundle / "README.md").read_bytes() == (transaction / "README.md").read_bytes()
     assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 15
     # repairs.json is the transaction's history: the rerun reports it and attempts nothing.
@@ -1607,7 +1608,7 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     assert review["findings"][0]["causal_stage"] == "S6"
     assert review["advisory"] == []
     validation = json.loads((transaction / "validation.json").read_text("utf-8"))
-    assert validation["summary"] == {"pass": 10, "fail": 1, "pending": 1}
+    assert validation["summary"] == {"pass": 11, "fail": 1, "pending": 1}
     repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
     assert repairs["attempts"][OPENING_FINGERPRINT]["outcome"] == "repaired"
     assert repairs["attempts"][OPENING_FINGERPRINT]["re_raised"] == ["F02"]

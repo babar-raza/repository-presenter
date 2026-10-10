@@ -8,8 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from repository_presenter.components.readme.evidence.facts import links
+from repository_presenter.components.readme.evidence.facts import links, published_version
 from repository_presenter.components.readme.extractors.platforms import python_registry
+from repository_presenter.components.readme.extractors.surface.registry import observe
 from repository_presenter.core.llm import transport
 from support import REPO_ROOT, distinct_process_identities, write_cursor
 
@@ -39,6 +40,22 @@ def isolate_ambient_credentials_for_the_whole_session() -> Iterator[None]:
     with pytest.MonkeyPatch.context() as patch:
         for name in AMBIENT_CREDENTIALS:
             patch.delenv(name, raising=False)
+        yield
+
+
+@pytest.fixture(scope="session", autouse=True)
+def read_no_registry_for_the_published_version() -> Iterator[None]:
+    """The published-version fact (TC-CLM-01) asks every registry through
+    `surface.registry.observe`. Session scope, because a session fixture such as ``sealed_canary``
+    runs ``present`` before any per-test patch applies: a real answer there would put a
+    `package:published_version` fact in the sealed bundle that no later offline run reproduces.
+    Offline, the reading is "could not read" without a request, so no fact is emitted."""
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(
+            published_version,
+            "_observe",
+            lambda ecosystem, name: observe(ecosystem, name, offline=True),
+        )
         yield
 
 
