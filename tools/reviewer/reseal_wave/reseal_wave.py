@@ -300,6 +300,12 @@ def parse_noop_output(exit_code: int | None, stdout: str, stderr: str) -> str:
     return f"FAILED:{m.group(1)}" if m else f"FAILED:exit{exit_code}"
 
 
+def failure_text(out: str, err: str) -> str:
+    """What classification reads: the error stream; stdout only when stderr said nothing
+    (stdout carries routine words such as "toolchain" on every healthy run)."""
+    return err if err.strip() else out[-800:]
+
+
 _TOOLCHAIN = re.compile(
     r"BLOCKED_TOOLCHAIN|toolchain|not found on PATH|FileNotFoundError|WinError 2\b|"
     r"'(javac|dotnet|npm|node|go|cargo|mvn|cmake|g\+\+|tsc)' is not recognized",
@@ -310,6 +316,7 @@ _GATEWAY = re.compile(
     r"connection (reset|refused|aborted)|catalog|no model|unavailable",
     re.I,
 )
+_MODEL_OUTPUT = re.compile(r"output rejected|not accepted fact values|schema-invalid", re.I)
 _CLONE = re.compile(r"git ls-remote|clone|authentication failed|repository not found", re.I)
 
 
@@ -326,7 +333,11 @@ def classify_failure(
     tail = text.strip()[-400:]
     if phase == "preflight":
         return "gateway", None, tail
-    for label, pattern in (("toolchain", _TOOLCHAIN), ("gateway", _GATEWAY), ("clone", _CLONE)):
+    for label, pattern in (
+        ("model_output", _MODEL_OUTPUT),
+        ("toolchain", _TOOLCHAIN), ("gateway", _GATEWAY),
+        ("clone", _CLONE),
+    ):
         if pattern.search(text):
             return label, None, tail
     return "unknown", None, tail
@@ -590,7 +601,7 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
         code, timed_out, out, err = phase("preflight", ["preflight"])
         row["exit_preflight"] = code
         if code != 0:
-            raise PhaseFailure("preflight", code, timed_out, {}, out + "\n" + err)
+            raise PhaseFailure("preflight", code, timed_out, {}, failure_text(out, err))
 
         record1, record2 = logs / "invocation-1.json", logs / "invocation-2.json"
         repo = entry.repository
@@ -601,7 +612,7 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
         parsed1 = parse_present_output(out, err)
         row["provider_calls_run1"] = ledger_calls(workdir, record1)  # spend counts on failure too
         if code != 0 or timed_out:
-            raise PhaseFailure("present-1", code, timed_out, parsed1, out + "\n" + err)
+            raise PhaseFailure("present-1", code, timed_out, parsed1, failure_text(out, err))
 
         if parsed1.get("stage_reached") != "NON_PROCESSABLE":
             code, timed_out, out, err = phase(
@@ -611,7 +622,7 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
             parsed2 = parse_present_output(out, err)
             row["provider_calls_run2"] = ledger_calls(workdir, record2)
             if code != 0 or timed_out:
-                raise PhaseFailure("present-2", code, timed_out, parsed2, out + "\n" + err)
+                raise PhaseFailure("present-2", code, timed_out, parsed2, failure_text(out, err))
 
         if parsed1.get("stage_reached") == "NON_PROCESSABLE":
             row["noop_proof"] = "NOT_APPLICABLE"  # no candidate, so no second run and no ledger
@@ -622,7 +633,7 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
             row["exit_noop"] = code
             row["noop_proof"] = "TIMEOUT" if timed_out else parse_noop_output(code, out, err)
             if timed_out or row["noop_proof"].startswith("FAILED"):
-                raise PhaseFailure("noop", code, timed_out, {}, out + "\n" + err)
+                raise PhaseFailure("noop", code, timed_out, {}, failure_text(out, err))
     except PhaseFailure as failure:
         timed_out = failure.timed_out
         parsed = failure.parsed

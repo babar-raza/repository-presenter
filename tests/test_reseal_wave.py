@@ -420,3 +420,14 @@ def test_create_workdir_makes_a_plain_detached_clone_without_a_remote(tmp_path) 
     assert git("rev-parse", "HEAD", cwd=path) == cut
     assert (path / ".git").is_dir()  # a plain clone, not a worktree's .git file
     assert git("remote", cwd=path) == ""
+
+
+def test_classification_reads_stderr_not_routine_stdout_words() -> None:
+    out = "build: toolchain ok\nrouting: gateway fine"
+    err = "repository-presenter: section_authoring: output rejected twice; last rejection: unit x"
+    assert rw.failure_text(out, err) == err
+    assert rw.failure_text(out, "  \n") == out
+    assert (
+        rw.classify_failure("present-1", 1, False, {}, rw.failure_text(out, err))[0]
+        == "model_output"
+    )
