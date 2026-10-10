@@ -1,0 +1,40 @@
+diff --git a/tests/components/readme/review/test_independent.py b/tests/components/readme/review/test_independent.py
+index be051722..812315d3 100644
+--- a/tests/components/readme/review/test_independent.py
++++ b/tests/components/readme/review/test_independent.py
+@@ -2950,11 +2950,15 @@ def test_a_legacy_single_read_accept_without_a_trigger_record_still_fails_check_
+     assert record_review_verdict(VALIDATION, legacy)["checks"][1]["verdict"] == "FAIL"
+ 
+ 
+-def test_no_tracked_sealed_review_gains_a_pass_from_the_trigger() -> None:
+-    """Sealed bundles are not rewritten and replay unaffected: every tracked sealed review.json
+-    carries no trigger record, so it is judged under the unchanged single-read rule, and none
+-    passes check 10 on fewer than two completed reads. The trigger can add a pass only to a new
+-    review that records an untriggered clean ACCEPT; it never reaches a sealed one."""
++def test_no_tracked_sealed_review_gains_an_uncorroborated_pass_from_the_trigger() -> None:
++    """Sealed bundles are not rewritten and replay unaffected: a sealed review.json may now
++    legitimately carry a trigger record (OWNER-15, PR #278), once a real reseal has exercised the
++    typed-trigger path against tracked code. Replay must still enforce the one real invariant the
++    trigger adds: a PASS on a GENUINELY TRIGGERED record (``trigger.triggered`` true) requires two
++    completed reads - the corroboration the trigger exists to require. A record with no trigger
++    key (legacy, pre-16) or an explicitly untriggered one is judged under the unchanged
++    single-read rule and is unaffected (`test_an_untriggered_clean_accept_passes_check_ten_on_one_read`
++    above already proves a clean untriggered ACCEPT passes on one read)."""
+     bundles = sorted((REPO_ROOT / "candidates").glob("*/*/review.json"))
+     assert bundles, "the tracked sealed candidates are missing; the replay test went blind"
+     checked = 0
+@@ -2966,12 +2970,12 @@ def test_no_tracked_sealed_review_gains_a_pass_from_the_trigger() -> None:
+         sealed_validation = json.loads(validation_path.read_text("utf-8"))
+         review = json.loads(review_path.read_text("utf-8"))
+         second = review.get("second_reader") or {}
+-        assert "trigger" not in second, review_path
++        trigger = second.get("trigger") or {}
+         judged = next(
+             c
+             for c in record_review_verdict(sealed_validation, review)["checks"]
+             if c["id"] == "BC-10"
+         )
+-        if judged["verdict"] == "PASS":
++        if judged["verdict"] == "PASS" and trigger.get("triggered"):
+             assert int(second.get("read") or 0) >= 2, review_path
+     assert checked >= 1, "no sealed bundle was replayed; the replay test went blind"
