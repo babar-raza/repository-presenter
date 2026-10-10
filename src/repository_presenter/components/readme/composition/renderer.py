@@ -116,6 +116,10 @@ RENDERER_VERSION = "31"
 # anchor/diagram/capability-ceiling changes above, made after 31 was committed, move it once more;
 # nothing else differs from 31 for a bundle: both are newer than every sealed bundle.
 RENDERER_VERSION = "32"
+# 33 (third commit of the same effort, owner instruction 2026-10-10 "fix both gaps now"): a placed
+# item of the maintainers' (placement.uncovered_items) replaces the authored limitation it
+# contains, so that bullet is not printed twice (cells/python: "(CSV also supports import)").
+RENDERER_VERSION = "33"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -197,8 +201,15 @@ class RenderContext:
         }
         # Placement follows the three rules of README_CONTRACT.md section 3, decided once in
         # placement.py so the validator judges exactly what the renderer did.
-        self.placements = placements(plan, dispositions, facts, entry.ecosystem)
+        self.placements = placements(plan, dispositions, facts, entry.ecosystem, units)
         self.placed: dict[str, list[str]] = placed_texts(self.placements)
+        # Authored slots a placed item of the maintainers' stands in for (uncovered_items).
+        self.replaced_slots: frozenset[tuple[str, str]] = frozenset(
+            slot
+            for placement in self.placements
+            if placement.outcome == "placed"
+            for slot in placement.replaces
+        )
         self.allowed = allowed_identifiers(facts, self.name)
         self.members = verified_members(facts)
         self.methods = surface_members(facts)
@@ -1113,7 +1124,10 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         slots = sorted(
             (int(slot.split(":", 1)[1]), slot)
             for (section, slot) in context.units
-            if section == sid and slot.startswith("limitation:") and slot[11:].isdigit()
+            if section == sid
+            and slot.startswith("limitation:")
+            and slot[11:].isdigit()
+            and (sid, slot) not in context.replaced_slots
         )
         if slots:
             lines.append("")
@@ -1154,7 +1168,9 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         lines.append(closing)
     else:
         for verbatim in placed:
-            lines.append("")
+            # A placed bullet continues the bullet list above it, not a second list.
+            if not (verbatim.startswith("- ") and lines and lines[-1].startswith("- ")):
+                lines.append("")
             lines.append(verbatim.rstrip("\n"))
     if sid == "scope_limitations":
         # Row 18: the Enterprise paragraph is the section's closing paragraph, after every

@@ -37,6 +37,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     shell_packet,
 )
 from repository_presenter.components.readme.composition.inherited_text import (
+    inherited_capability_bullets,
     inherited_capability_count,
 )
 from repository_presenter.components.readme.composition.link_budget import (
@@ -385,6 +386,10 @@ def planning_packet(
         "investigation": investigation,
         "dispositions": _selectable_dispositions(dispositions, facts),
         "shell": shell,
+        "inherited_capabilities": [
+            {"position": position, "text": text}
+            for position, text in enumerate(inherited_capability_bullets(facts), start=1)
+        ],
         "policy": policy_packet(policy),
     }
 
@@ -948,6 +953,29 @@ def plan_checks(
             f"as its own core capability, in its order, up to {policy.capabilities_max}; got "
             f"{len(capabilities)}"
         )
+    if policy.capabilities_max > DEFAULT_POLICY.capabilities_max:
+        listed = inherited_capability_count(facts)
+        chosen = [item.get("inherited_item") for item in capabilities]
+        if any(not isinstance(i, int) or not 1 <= i <= listed for i in chosen):
+            errors.append(
+                "each core capability sets inherited_item to the position (1 to "
+                f"{listed}) of the existing README's capability bullet it keeps"
+            )
+        else:
+            bullets = inherited_capability_bullets(facts)
+            unkept = [n for n in range(1, listed + 1) if n not in set(chosen)]
+            twice = sorted({n for n in chosen if chosen.count(n) > 1})
+            if twice:
+                errors.append(
+                    "one capability per bullet: kept by more than one capability: "
+                    + ", ".join(map(str, twice))
+                )
+            if unkept:
+                errors.append(
+                    "every bullet of the existing README's capability list is kept by a core "
+                    "capability (inherited_item); kept by none: "
+                    + "; ".join(f"{n} ({bullets[n - 1][:60]!r})" for n in unkept[:6])
+                )
     titles = [item.get("title", "").strip().lower() for item in capabilities]
     if len(set(titles)) != len(titles):
         errors.append("core_capabilities titles must be distinct")

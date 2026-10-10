@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "15"
+version: "16"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -42,6 +42,9 @@ packet:
     - name: shell
       type: json
       description: The semantic shell's sections with id, heading, required flag, owner, condition, and condition_holds - the inclusion decision deterministic code already made from the facts; a section with condition_holds false does not appear in this candidate.
+    - name: inherited_capabilities
+      type: json
+      description: The existing README's own capability bullets as {position, text}, numbered from 1 in document order; empty unless it lists capabilities. A capability that keeps one sets inherited_item to its position, once each.
     - name: policy
       type: json
       description: Ceilings and budgets - capability count, hub API count, link ceilings, length budget - as numbers.
@@ -78,6 +81,10 @@ output:
             title: { type: string, minLength: 1 }
             fact_ids: { type: array, minItems: 1, items: { type: string } }
             shared_fact_ids: { type: array, items: { type: string } }
+            # The 1-based position of the existing README's capability bullet this capability
+            # keeps; given exactly when policy.capabilities_max is above eight (README_CONTRACT
+            # row 7), so no inherited bullet is dropped without anyone having chosen to.
+            inherited_item: { type: integer, minimum: 1, maximum: 16 }
       at_a_glance:
         oneOf:
           - { type: "null" }
@@ -163,7 +170,7 @@ system: |
   facts, with no keyword repeated across titles. When policy.capabilities_max is above eight, the
   existing README lists that many capabilities (its Key Capabilities or Features list among the
   inherited units): keep each of its distinct capabilities as its own capability, in the
-  maintainers' order, up to policy.capabilities_max, and never merge two of them to fit eight. Each title is still your own short action-led phrase of at most eight words naming what that bullet lets a visitor do (for example "Merge cells and define names"), never the bullet's own sentence copied in; the bullet's classes and methods belong to the capability's fact_ids, not to its title. One capability inventory per document: the At a
+  maintainers' order, up to policy.capabilities_max, and never merge two of them to fit eight. Each title is still your own short action-led phrase of at most eight words naming what that bullet lets a visitor do (for example "Merge cells and define names"), never the bullet's own sentence copied in; set inherited_item to the 1-based position of the bullet the capability keeps (the numbered bullets you were given), every bullet kept by exactly one capability (never two capabilities for one bullet, never a bullet left out), and cite in the capability's fact_ids the facts for the classes and methods that bullet names (the Workbook method it names, not a package-level function of similar name); the bullet's classes and methods belong to the capability's fact_ids, not to its title. One capability inventory per document: the At a
   Glance capability titles are a subset of these titles, never a second list. Each capability's
   fact_ids are its own. When two capabilities genuinely rest on the same fact, each of them names
   that fact twice: once in its own fact_ids, which lists every fact that capability cites, and
@@ -229,6 +236,10 @@ user_template: |
 
   Semantic shell:
   $shell
+
+  The existing README's capability bullets (position, text; keep each as its own capability when
+  policy.capabilities_max is above eight):
+  $inherited_capabilities
 
   Policy ceilings and budgets:
   $policy

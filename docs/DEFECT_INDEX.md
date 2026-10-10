@@ -1302,13 +1302,13 @@ The Enterprise Edition link, which the maintainers' README carries and the skill
 
 ### `readme.maintainer_wording_dropped_by_deterministic_sections`
 
-A deterministic section superseded an inherited unit although the unit said more than the facts it was superseded by: the Dependencies list (`inherited_unit:016`, `020`) explained what each package is for and the rendered bullets were bare; the maintainers' example headings (`030`, `032`, `034`) were replaced by model sentences; the intro (`004`) was superseded into the opening, which was never told to carry it, and the fresh paraphrase lost 'pure-Python', 'without requiring Microsoft Excel' and the two named packages. Fix (G7-W24): `composition/inherited_text.py` returns a dependency's explanation only when every identifier in it is a verified symbol and the example heading above an example's own source code block (each once); `opening` joins the carried sections (`NORMALISATION_VERSION` 33). Not closed: the placement 'overlap' rule still drops a placed unit whenever one of its cited facts overlaps the plan's own content (`composition/placement.py`), without comparing text; the Scope bullets and the Documentation and Resources descriptions are reworded by it. Wording, not facts, is lost there, so it stays recorded here for a decision on whether the maintainers' text should win.
+A deterministic section superseded an inherited unit although the unit said more than the facts it was superseded by: the Dependencies list (`inherited_unit:016`, `020`) explained what each package is for and the rendered bullets were bare; the maintainers' example headings (`030`, `032`, `034`) were replaced by model sentences; the intro (`004`) was superseded into the opening, which was never told to carry it, and the fresh paraphrase lost 'pure-Python', 'without requiring Microsoft Excel' and the two named packages. Fix (G7-W24): `composition/inherited_text.py` returns a dependency's explanation only when every identifier in it is a verified symbol and the example heading above an example's own source code block (each once); `opening` joins the carried sections (`NORMALISATION_VERSION` 33). Closed in the third commit: `composition/placement.py` dropped a preserved unit whenever one of its cited facts overlapped the plan's own content, without comparing text, so '(CSV also supports import)' (Cells-Python) and the maintainers' limitation lists and test-suite paragraphs of 20 of 30 sealed bundles were lost. For a unit bound for `scope_limitations` or `development_testing` the rule now compares text: an item with a clause the authored units do not carry is placed in the maintainers' words and replaces the authored limitation it contains (`uncovered_items`). Offline over the 30 sealed bundles on main and the 30 of the probe worktree: 88 overlap units bound for those two sections, 72 newly placed (34 in 20 main bundles, 37 in 23 probe bundles), 51 authored limitations replaced, none of the other 11 destinations changed. Documentation and Resources, Quick Start, Additional Examples and API Reference keep the fact-ID rule (their carrier is rendered from facts).
 
 | # | Repository | Date | Evidence |
 |---|---|---|---|
 | 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | 2026-10-10 | baseline sealed from unmodified origin/main 7c5acbf7 (present --fresh, qwen3-next only), compared with the live upstream README at 4f6768a7; bare dependency bullets, three retitled example headings, intro paraphrase |
 
-**Work item** G7-W24 · **Register status** PENDING · single sighting (cells/python, the parity proving ground); fixed in the pull request that registers G7-W24, its generalization to other repositories is the point of the proving ground.
+**Work item** G7-W24 · **Register status** FIXED(#317) · single sighting (cells/python, the parity proving ground); fixed in the pull request that registers G7-W24, its generalization to other repositories is the point of the proving ground.
 
 ### `readme.unscoped_dependency_claim_not_blocking`
 
@@ -1339,6 +1339,32 @@ The maintainers' Key Capabilities list (12 bullets naming page setup, merged cel
 | 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | 2026-10-10 | baseline sealed from unmodified origin/main 7c5acbf7 (present --fresh, qwen3-next only), compared with the live upstream README at 4f6768a7; `Shape` described as '... arrow, etc.) on'; floor named `python_requires` |
 
 **Work item** G7-W24 · **Register status** PENDING · single sighting (cells/python, the parity proving ground); fixed in the pull request that registers G7-W24, its generalization to other repositories is the point of the proving ground.
+
+### `readme.capability_sentence_drops_the_api_its_inherited_bullet_names`
+
+A Key Capabilities sentence that replaces a maintainers' bullet need not name the API the bullet
+names, and nothing noticed. Cells-Python (sealed 2026-10-10): the export capability cited the
+package-level function `save_workbook_as_csv` (a verified public symbol, so BC-04 rightly accepted
+it and the review rightly passed it: the candidate's own fact set is the standard of support) where
+the bullet names `Workbook.save_as_csv()`, `load_csv()`, `save_as_json()` and
+`save_as_markdown()`; the merged-cells sentence dropped `Cells.merge()`, `merge_range()` and
+`DefinedNameCollection` altogether. The existing advisory note ('the rewrite no longer names ...')
+listed both and was not acted on. Measured first, offline, over every sealed bundle: a
+section-level rule (every identifier a bullet names must appear in Key Capabilities) flags 421 of
+518 bullets in 34 of 49 bundles that carry a capability list, so it cannot block; a bare-method
+ownership rule (a method name in prose must be owned by a cited fact) flags 78 tokens in 6,156
+units, nearly all ambiguous names an example fact legitimately covers. Fix (G7-W24, third
+commit): the plan now declares which bullet each capability keeps (`inherited_item`, the bullets
+shown numbered in the planner packet), and the author is shown that bullet as the slot's `source`;
+`unit_checks` refuses a unit that spells fewer than a third of the verified classes and methods
+its source bullet names. Because the pairing is declared, the check is exact; its false-positive
+rate is measured on live draws, not on history.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | 2026-10-10 | sealed `final2`: capability 6 cites `save_workbook_as_csv`, capability 11 names no merge or defined-name API; `validation.json` advisory lists both |
+
+**Work item** G7-W24 · **Register status** FIXED(#317) · single sighting (cells/python); closed by the pairing and the unit check, live-cleared on the same repository.
 
 ## Resolved
 

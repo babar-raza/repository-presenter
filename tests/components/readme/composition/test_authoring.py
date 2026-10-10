@@ -4121,3 +4121,143 @@ def test_the_key_capabilities_author_is_shown_the_existing_readmes_own_capabilit
     assert listing not in plain.accepted_ids
     # And no other section is told about it.
     assert "do not drop a specific" not in tasks["opening"].packet["objective"]
+
+
+def _symbol(value: str, kind: str) -> Fact:
+    slug = value.lower().replace("_", "-")
+    return Fact(
+        f"public_symbol:{slug}",
+        "public_symbol",
+        value,
+        (Evidence("x", f"line 1; {kind}; public by name"),),
+        attributes={"symbol_kind": kind},
+    )
+
+
+_EXPORT_BULLET = (
+    "`Workbook.save_as_csv()`/`load_csv()`, `save_as_json()`, and `save_as_markdown()` "
+    "export/import workbook data in CSV, JSON, and Markdown text formats."
+)
+_MERGE_BULLET = (
+    "Merged cells (`Cells.merge()`/`merge_range()`), defined names (`DefinedNameCollection`), "
+    "and hyperlinks (`Hyperlinks`) round-trip through load and save."
+)
+_PLAIN_BULLET = "Filtering a worksheet range down to matching rows is handled by something."
+
+
+def _sources_world() -> tuple[FactsDocument, dict[str, Any]]:
+    """cells/python's real shape: the package also exports a function with a similar name."""
+    listing = Fact(
+        "inherited_unit:010.list",
+        "inherited_unit",
+        "\n".join(f"- {b}" for b in (_EXPORT_BULLET, _MERGE_BULLET, _PLAIN_BULLET)),
+        (Evidence("README.md", "lines 1-1"),),
+        attributes={"section": "Widget > Key Capabilities"},
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            listing,
+            _symbol("widget.Workbook", "class"),
+            _symbol("widget.Workbook.save_as_csv", "method"),
+            _symbol("widget.Workbook.load_csv", "method"),
+            _symbol("widget.Workbook.save_as_json", "method"),
+            _symbol("widget.Workbook.save_as_markdown", "method"),
+            _symbol("widget.save_workbook_as_csv", "function"),
+            _symbol("widget.Cells.merge", "method"),
+            _symbol("widget.Cells.merge_range", "method"),
+            _symbol("widget.DefinedNameCollection", "class"),
+        ),
+    )
+    plan = {
+        **PLAN,
+        "core_capabilities": [
+            {
+                "title": "Export to text formats",
+                "fact_ids": ["public_symbol:widget-workbook-save-as-csv"],
+                "inherited_item": 1,
+            },
+            {
+                "title": "Merge cells and define names",
+                "fact_ids": ["public_symbol:widget-cells-merge"],
+                "inherited_item": 2,
+            },
+            {"title": "Filter rows", "fact_ids": ["example:001"], "inherited_item": 3},
+        ],
+    }
+    return facts, plan
+
+
+def test_a_capability_that_keeps_an_inherited_bullet_must_name_the_api_the_bullet_names() -> None:
+    """cells/python: the sealed unit cited the package-level function save_workbook_as_csv, a real
+    public symbol BC-04 rightly accepted, where the bullet names Workbook.save_as_csv();
+    the merged-cells unit dropped Cells.merge() and DefinedNameCollection."""
+    facts, plan = _sources_world()
+    tasks = {
+        t.section_id: t
+        for t in authoring_tasks(ENTRY, facts, INVESTIGATION, {"dispositions": []}, plan)
+    }
+    task = tasks["key_capabilities"]
+    # The author is shown each slot's source bullet; a bullet with no verified name asks for none.
+    sources = {r["slot"]: r.get("source") for r in task.packet["slots"]}
+    assert sources["capability:1"] == _EXPORT_BULLET and sources["capability:3"] == _PLAIN_BULLET
+    assert "capability:3" not in task.slot_sources
+    types, others, need = task.slot_sources["capability:1"]
+    assert types == () and others[0] == "Workbook.save_as_csv" and need == 2
+    types, others, need = task.slot_sources["capability:2"]
+    assert types == ("DefinedNameCollection",) and need == 1
+
+    def reply(first: str, second: str) -> dict[str, Any]:
+        return {
+            "units": [
+                {
+                    "section": "key_capabilities",
+                    "slot": "capability:1",
+                    "text": first,
+                    "fact_ids": ["public_symbol:widget-workbook-save-as-csv"],
+                },
+                {
+                    "section": "key_capabilities",
+                    "slot": "capability:2",
+                    "text": second,
+                    "fact_ids": ["public_symbol:widget-cells-merge"],
+                },
+                {
+                    "section": "key_capabilities",
+                    "slot": "capability:3",
+                    "text": "Rows are filtered by criteria.",
+                    "fact_ids": ["example:001"],
+                },
+            ],
+            "omitted": [],
+        }
+
+    similar = reply(
+        "Export data by calling save_workbook_as_csv to produce a CSV file.",
+        "Merge cell ranges into single cells.",
+    )
+    errors = unit_checks(similar, task, facts, NAME)
+    assert any(e.startswith("unit capability:1: keeps an inherited bullet") for e in errors)
+    assert any(e.startswith("unit capability:2: keeps an inherited bullet") for e in errors)
+    # The method the bullet names, in the bullet's form or by its last segment, satisfies it.
+    kept = reply(
+        "Call Workbook.save_as_csv or save_as_json to write the data out.",
+        "Merge ranges with Cells.merge and merge_range, and manage DefinedNameCollection.",
+    )
+    assert not [e for e in unit_checks(kept, task, facts, NAME) if "inherited bullet" in e]
+    # A class the bullet names must be named too: the methods alone are not enough.
+    no_class = reply(
+        "Call Workbook.save_as_csv or save_as_json to write the data out.",
+        "Merge ranges with Cells.merge and merge_range.",
+    )
+    only = [e for e in unit_checks(no_class, task, facts, NAME) if "inherited bullet" in e]
+    assert len(only) == 1 and only[0].startswith("unit capability:2:")
+    assert "DefinedNameCollection" in only[0]
+    # A README with no capability list never asks.
+    plain = {
+        t.section_id: t
+        for t in authoring_tasks(ENTRY, FACTS, INVESTIGATION, {"dispositions": []}, PLAN)
+    }
+    assert plain["key_capabilities"].slot_sources == {}

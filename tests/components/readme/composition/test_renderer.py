@@ -2115,3 +2115,57 @@ def test_more_than_six_formats_keep_one_listing_node() -> None:
     assert diagram.count(' file"]') == 2 and 'o1["OBJ, STL, FBX' in diagram and "o2[" not in diagram
     # Six or fewer: a node each.
     assert 'o3["FBX file"]' in _glance_readme(many[:6], many[:6], 3)
+
+
+def test_the_maintainers_limitation_replaces_the_authored_one_it_contains() -> None:
+    """cells/python: '(CSV also supports import)' was lost by the fact-ID overlap rule; the
+    maintainers' bullet now stands in for the authored limitation, and nothing is printed twice."""
+    maintainers = "OBJ import is unverified, although partial OBJ import (mesh only) exists."
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("inherited_unit:020.list", "inherited_unit", f"- {maintainers}")),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:020.list",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": ["format:input.obj"],
+                "rationale": "r",
+            }
+        ]
+    }
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, dispositions)
+    scope = readme.split("## Scope and Limitations\n\n", 1)[1].split("\n## ", 1)[0]
+    assert f"- {maintainers}" in scope
+    assert "- OBJ import is unverified.\n" not in scope + "\n"
+    assert scope.count("OBJ import is unverified") == 1
+
+
+def test_a_placed_bullet_continues_the_authored_bullet_list_above_it() -> None:
+    maintainers = "OBJ import is unverified, although partial OBJ import (mesh only) exists."
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("inherited_unit:020.list", "inherited_unit", f"- {maintainers}")),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:020.list",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": ["format:input.obj"],
+                "rationale": "r",
+            }
+        ]
+    }
+    units = {
+        "units": [*UNITS["units"], _unit("scope_limitations", "limitation:2", "STL is verified.")],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, PLAN, units, dispositions)
+    scope = readme.split("## Scope and Limitations\n\n", 1)[1].split("\n## ", 1)[0]
+    assert f"- STL is verified.\n- {maintainers}" in scope

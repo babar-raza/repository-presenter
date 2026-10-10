@@ -2608,8 +2608,9 @@ def _many_capabilities(count: int) -> dict[str, Any]:
                 "title": title,
                 "fact_ids": ["public_symbol:widget.scene"],
                 "shared_fact_ids": ["public_symbol:widget.scene"],
+                "inherited_item": number,
             }
-            for title in titles
+            for number, title in enumerate(titles, start=1)
         ],
         at_a_glance={
             "input_format_ids": [],
@@ -2667,3 +2668,31 @@ def test_an_inherited_capability_list_is_not_merged_down_to_eight() -> None:
     ]
     capped = plan_checks(_many_capabilities(10), _with_capability_list(20))
     assert any("lists 20 capabilities" in e and "up to 16; got 10" in e for e in capped)
+
+
+def test_each_capability_names_the_inherited_bullet_it_keeps_once() -> None:
+    facts = _with_capability_list(10)
+    ok = _many_capabilities(10)
+    assert not [e for e in plan_checks(ok, facts) if "inherited_item" in e]
+    # Negative controls: a missing position, an out-of-range one, and a bullet kept twice.
+    missing = _many_capabilities(10)
+    del missing["core_capabilities"][0]["inherited_item"]
+    assert any(
+        "sets inherited_item to the position (1 to 10)" in e for e in plan_checks(missing, facts)
+    )
+    beyond = _many_capabilities(10)
+    beyond["core_capabilities"][0]["inherited_item"] = 11
+    assert any("sets inherited_item" in e for e in plan_checks(beyond, facts))
+    # A bullet kept by no capability is named with its start, and one kept twice is named too.
+    dropped = _many_capabilities(10)
+    dropped["core_capabilities"][1]["inherited_item"] = 1
+    found = plan_checks(dropped, facts)
+    assert any("kept by none: 2 ('Capability number 2 with `Scene`.')" in e for e in found)
+    assert "one capability per bullet: kept by more than one capability: 1" in found
+    # The planner is shown the bullets, numbered, so it can say which one each capability keeps.
+    packet = planning_packet(ENTRY, facts, {}, {}, MANIFEST)
+    assert [b["position"] for b in packet["inherited_capabilities"]] == list(range(1, 11))
+    assert packet["inherited_capabilities"][0]["text"].startswith("Capability number 1")
+    assert planning_packet(ENTRY, FACTS, {}, {}, MANIFEST)["inherited_capabilities"] == []
+    # A README with no capability list asks for no such field.
+    assert not [e for e in plan_checks(_plan(), FACTS) if "inherited_item" in e]

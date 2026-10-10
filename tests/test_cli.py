@@ -931,7 +931,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     shell_packet = json.loads(
         gateway_ready.requests[2]["messages"][1]["content"]
         .split("Semantic shell:\n", 1)[1]
-        .split("\n\nPolicy ceilings", 1)[0]
+        .split("\n\nThe existing README's capability bullets", 1)[0]
     )
     assert {s["id"]: s["condition_holds"] for s in shell_packet}["at_a_glance"] is True
     assert (
@@ -1083,8 +1083,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "2" and dependencies["components"] == {
         "shell": "6",
-        "renderer": "32",
-        "normalisation": "34",
+        "renderer": "33",
+        "normalisation": "35",
         "reviewer_logic": "18",
     }
     assert "install_command:pip" in dependencies["facts"]

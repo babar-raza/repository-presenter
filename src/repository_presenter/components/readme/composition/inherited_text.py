@@ -19,7 +19,7 @@ Both read only SUPPORTED ``inherited_unit`` facts and are pure functions of the 
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 
 from repository_presenter.core.facts import Fact, FactsDocument
 
@@ -132,3 +132,36 @@ def inherited_capability_unit_ids(facts: FactsDocument) -> list[str]:
         and unit.id.endswith(".list")
         and _section_path(unit)[-1].lower() in _CAPABILITY_HEADINGS
     ]
+
+
+def inherited_capability_bullets(facts: FactsDocument) -> list[str]:
+    """The existing README's capability bullets, in document order, one string each."""
+    by_id = {unit.id: unit for unit in facts.by_kind("inherited_unit")}
+    return [
+        " ".join(item.split())
+        for unit_id in inherited_capability_unit_ids(facts)
+        for item in _list_items(by_id[unit_id].value)
+    ]
+
+
+def bullet_names(bullet: str) -> list[str]:
+    """The identifiers a bullet spells in code spans, as written without call arguments
+    (``Workbook.save_as_csv()`` gives ``Workbook.save_as_csv``), in order, each once."""
+    found: list[str] = []
+    for span in _CODE_SPAN.findall(bullet):
+        for piece in re.split(r"[/,\s]+", span.split("(", 1)[0]):
+            name = piece.strip(".")
+            if re.fullmatch(r"[A-Za-z_][\w.]*", name):
+                found.append(name)
+    return list(dict.fromkeys(found))
+
+
+def names_in_text(names: Iterable[str], text: str) -> list[str]:
+    """Those of ``names`` the text spells: the dotted name as written, or its last segment as a
+    whole word (prose that names ``save_as_csv`` keeps ``Workbook.save_as_csv``)."""
+    kept = []
+    for name in names:
+        last = name.rsplit(".", 1)[-1]
+        if name in text or re.search(rf"(?<![\w.]){re.escape(last)}(?![\w])", text):
+            kept.append(name)
+    return kept
