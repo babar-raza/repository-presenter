@@ -13,6 +13,13 @@ artifact_role: execution_control_layer
 execution_authority: only through the registered items it names; none of its own
 home: plans/reseal-and-refresh/PLAN.md   # sprint/healing precedent: static plan + loop-status.jsonl + loop-instructions.jsonl
 base_commit: origin/main 7c5acbf7 (2026-10-10)
+serialised_paths:   # hot files: one writer at a time, serialised by the supervisor (section 7 path ownership)
+  - project/state.yaml
+  - docs/DECISION_LOG.md
+  - docs/EXECUTION_STATE_MACHINE.md
+  - docs/RESEARCH_AND_GUIDELINES.md
+  - plans/reseal-and-refresh/
+  - evidence/build/G3_PYTHON_COHORT/
 authored: 2026-10-10 (Saturday); Monday delivery target is 2026-10-12
 placed: 2026-10-10 by TC-GOV-01 (lane L-gov); card statuses printed here are initial, the live fold is loop-status.jsonl
 ```
@@ -634,7 +641,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-ISS-03]
   item: G6-W07
   lane: L-issues
-  depends: [TC-ISS-02]
+  depends: [TC-ISS-02, TC-ISS-05]
   governed: false
   paths: {write: [src/repository_presenter/components/issues/, schemas/upstream-defect-handoff.schema.json, tests/components/issues/, docs/DEFECT_INDEX.md]}
   outcome: license, build, unparseable-source, own-example and metadata-placeholder defects become handoffs automatically, with a class registry instead of an if/elif chain
@@ -682,7 +689,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   lane: L-core
   depends: []
   governed: false
-  paths: {write: [src/repository_presenter/core/registry/, src/repository_presenter/components/issues/file.py, schemas/, data/registry.json (not before owner approval), docs/PROPOSAL_WAVE_RUNBOOK.md, .github/workflows/issues-scheduled.yml, tests/core/registry/]}
+  paths: {write: [src/repository_presenter/core/registry/, src/repository_presenter/components/issues/file.py, schemas/registry.schema.json, data/registry.json, docs/PROPOSAL_WAVE_RUNBOOK.md, .github/workflows/issues-scheduled.yml, tests/core/registry/]}
   outcome: an entry can be issue-eligible while PR-ineligible
   accept: ["negative control: issues_mode=file with mode=dry_run files issues but propose is refused", "the .yaml vs .json approval-record wording mismatch in issues-scheduled.yml's header is corrected"]
   children:
@@ -774,9 +781,9 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-ISS-09]
   item: G6-W01
   lane: L-hosted
-  depends: [TC-ISS-08]
+  depends: [TC-ISS-08, TC-ISS-02, TC-ISS-03]
   governed: false
-  paths: {write: [.github/workflows/issues-scheduled.yml, src/repository_presenter/components/issues/file.py, tests/]}
+  paths: {write: [.github/workflows/issues-scheduled.yml, src/repository_presenter/components/issues/file.py, tests/components/issues/]}
   outcome: all approved handoffs filed once
   accept: ["per-repository daily cap and pacing", "lost-response reconciliation proven by test (search by fingerprint marker before retry)", "every FILED handoff has its URL"]
   children:
@@ -787,13 +794,13 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
         - "validate | a simulated lost response (fake transport) is reconciled, not duplicated | test green"
 
 - id: TC-ISS-10
-  title: Lifecycle: redetect, update, close, resume
+  title: "Lifecycle: redetect, update, close, resume"
   reqs: [REQ-ISS-10]
   item: G6-W01
   lane: L-issues
   depends: [TC-ISS-09, TC-ISS-02]
   governed: false
-  paths: {write: [src/repository_presenter/components/issues/, src/repository_presenter/core/sealing_plan.py, .github/workflows/issues-scheduled.yml, tests/]}
+  paths: {write: [src/repository_presenter/components/issues/, src/repository_presenter/core/sealing_plan.py, .github/workflows/issues-scheduled.yml, tests/components/issues/]}
   outcome: a fixed upstream defect is noticed, closed with an approval, and its blocked candidate becomes eligible to seal
   accept: ["synthetic upstream fix is detected within one scheduled cycle", "close needs ops/issue_close_approvals", "BLOCKED_UPSTREAM resume predicate feeds sealing_plan"]
   children:
@@ -808,7 +815,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-ISS-11]
   item: G6-W07
   lane: L-hosted
-  depends: [TC-ISS-09]
+  depends: [TC-ISS-09, TC-ISS-10, TC-ISS-02, TC-ISS-03]
   governed: false
   paths: {write: [.github/workflows/issues-scheduled.yml, src/repository_presenter/components/issues/, src/repository_presenter/cli.py]}
   outcome: bounded, observable, pausable
@@ -889,7 +896,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-DSP-01]
   item: G3-W08
   lane: L-disp
-  depends: [TC-R2-00, TC-RSL-03]
+  depends: [TC-R2-00, TC-RSL-03, TC-VER-01]
   cut: "2 (lands after wave 1's reseal)"
   governed: true
   ground: "factual-accuracy (valuable verified content dropped as 'redundant'/'unsupported') plus owner approval D-OWN-2"
@@ -913,7 +920,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
         - "edit | _check_dispositions reports the new failures with a causal stage of RECONCILING | test"
 
 - id: TC-DSP-02
-  title: Live-README floor (starts as an investigation: how much of it must-carry already covers)
+  title: "Live-README floor (starts as an investigation: how much of it must-carry already covers)"
   reqs: [REQ-DSP-02]
   item: G3-W08
   lane: L-disp
@@ -936,7 +943,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
         - "edit | README_CONTRACT section 5 row and Check entry with version, judge in the judges dict, INVALIDATING decision in bundle/seal.py | contract parity test green"
 
 - id: TC-CLM-01
-  title: Claim support: versions, install, publication, capability claims
+  title: "Claim support: versions, install, publication, capability claims"
   reqs: [REQ-CLM-01, REQ-CLM-02]
   item: G3-W08
   lane: L-disp
@@ -944,7 +951,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   cut: "1-if-ready (Sunday 22:00 rule, TC-CUT-02), else 2"
   governed: true
   ground: "factual-accuracy (false install version, 'not published', invented capabilities in sealed READMEs) plus owner approval D-OWN-2"
-  paths: {write: [src/repository_presenter/components/readme/validation/, src/repository_presenter/components/readme/evidence/facts/, src/repository_presenter/core/facts.py, tests/]}
+  paths: {write: [src/repository_presenter/components/readme/validation/, src/repository_presenter/components/readme/evidence/facts/, src/repository_presenter/core/facts.py, tests/components/readme/validation/, tests/components/readme/evidence/facts/, tests/core/test_facts.py]}
   outcome: a version, install command or publication statement in the README equals a manifest or live-registry fact
   accept: ["BC-14 fails Slides-Java 26.8.0, Note-Python 'pip install aspose-note', Cells-Cpp 'not published', PDF-Java and PDF-.NET stale versions", "published_version is consumed only by version statements"]
   children:
@@ -967,7 +974,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   cut: "thin slice 1-if-ready: only kinds whose information an existing template section already renders (decided from TC-COV-01-02's ranked gaps); remaining kinds 2"
   governed: true
   ground: "owner approval D-OWN-2 (owner goal: all clone information in one README); extractor registry, no if/elif"
-  paths: {write: [src/repository_presenter/core/facts.py, src/repository_presenter/components/readme/evidence/facts/, src/repository_presenter/components/readme/extractors/, tests/]}
+  paths: {write: [src/repository_presenter/core/facts.py, src/repository_presenter/components/readme/evidence/facts/, src/repository_presenter/components/readme/extractors/, tests/components/readme/evidence/facts/, tests/components/readme/extractors/, tests/core/test_facts.py]}
   outcome: repo_doc, changelog, community, cli, framework_matrix facts and a producer for capability, each with a disposition path
   accept: ["each kind has a fixture from a real repository and a focused test", "one-line change per kind in FactKind, extract_facts, ROW_FACT_KINDS (validation) and RENDERING_FACT_KINDS (reconciliation)", "scope limited to the top gaps of TC-COV-01-02"]
   children:
@@ -998,7 +1005,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-COV-01, REQ-CTR-01]
   item: G3-W08
   lane: L-compose
-  depends: [TC-COV-02]
+  depends: [TC-COV-02, TC-VER-01, TC-DSP-02]
   governed: true
   ground: "owner approval D-OWN-2"
   paths: {write: [src/repository_presenter/components/readme/composition/, docs/README_CONTRACT.md, tests/components/readme/composition/]}
@@ -1016,7 +1023,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-EXT-01]
   item: G3-W08
   lane: L-extract
-  depends: [TC-R2-00, TC-RSL-03]
+  depends: [TC-R2-00, TC-RSL-03, TC-VER-01]
   cut: "2 (lands after wave 1's reseal)"
   governed: true
   ground: "factual-accuracy (wrong dependencies, lost manifests, wrong import paths) plus owner approval D-OWN-2"
@@ -1048,7 +1055,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   depends: [TC-COV-02]
   governed: false
   owner_gate: D-OWN-4
-  paths: {write: [src/repository_presenter/components/readme/bundle/, tests/components/readme/bundle/, schemas/ (dependencies shape, via the named item)]}
+  paths: {write: [src/repository_presenter/components/readme/bundle/, tests/components/readme/bundle/, schemas/candidate-bundle.schema.json]}
   outcome: adding a fact kind or changing an unconsumed fact reopens nothing
   accept: ["dependencies.json records consumed fact ids (additive)", "evaluate() compares only those", "negative controls both directions"]
   children:
@@ -1063,10 +1070,10 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-INV-02]
   item: G7-W25
   lane: L-extract
-  depends: [TC-INV-01]
+  depends: [TC-INV-01, TC-VER-01]
   governed: true
   ground: "owner approval D-OWN-2"
-  paths: {write: [src/repository_presenter/components/readme/evidence/facts/links.py, src/repository_presenter/components/readme/evidence/facts/product_pages.py, tests/]}
+  paths: {write: [src/repository_presenter/components/readme/evidence/facts/links.py, src/repository_presenter/components/readme/evidence/facts/product_pages.py, tests/components/readme/evidence/facts/]}
   outcome: HTTP codes, redirects and timings live in ProbeRecord; evidence keeps only RESOLVED/BROKEN
   accept: ["a changed HTTP status with the same verdict invalidates nothing", "a broken link still fails BC-06"]
   children:
@@ -1080,10 +1087,10 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-CUR-01]
   item: G7-W25
   lane: L-core
-  depends: [TC-INV-01]
+  depends: [TC-INV-01, TC-ISS-11]
   governed: false
   owner_gate: D-OWN-4
-  paths: {write: [src/repository_presenter/components/readme/bundle/recheck.py, src/repository_presenter/components/readme/bundle/portfolio.py, src/repository_presenter/components/readme/bundle/dry_run.py, src/repository_presenter/core/candidates.py, src/repository_presenter/cli.py, tests/, docs/STATE_MACHINE.md]}
+  paths: {write: [src/repository_presenter/components/readme/bundle/recheck.py, src/repository_presenter/components/readme/bundle/portfolio.py, src/repository_presenter/components/readme/bundle/dry_run.py, src/repository_presenter/core/candidates.py, src/repository_presenter/cli.py, tests/components/readme/bundle/, tests/core/test_candidates.py, tests/test_cli.py, docs/STATE_MACHINE.md]}
   outcome: a bundle sealed on frozen code stays counted across bumps that change nothing it consumed; stale-and-failing is reported separately
   accept: ["doc 13 section 6.6 tests all present", "day-one numbers equal doc 13 section 4 (2 current, 2 rerender_only, 26 recompose)", "environment.*_version no longer routes 24 bundles to INVALIDATED"]
   children:
@@ -1113,7 +1120,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   lane: L-core
   depends: [TC-INV-01]
   governed: false
-  paths: {write: [src/repository_presenter/components/readme/bundle/, src/repository_presenter/core/candidates.py, src/repository_presenter/core/llm/, tests/]}
+  paths: {write: [src/repository_presenter/components/readme/bundle/, src/repository_presenter/core/candidates.py, src/repository_presenter/core/llm/, tests/components/readme/bundle/, tests/core/test_candidates.py, tests/core/llm/]}
   outcome: any bundle written by the second cut is fully replayable and tamper-evident enough to trust
   accept: ["raw_calls.json always written", "model-availability probes appear in the ledger totals", "original README recoverable (doc 13: reverse-apply README.patch) or stored", "manifest/CURRENT tamper evidence decided and recorded"]
   children:
@@ -1131,7 +1138,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-CTR-01]
   item: G3-W08
   lane: L-compose
-  depends: [TC-COV-03]
+  depends: [TC-COV-03, TC-REV-01]
   governed: true
   ground: "owner approval D-OWN-2"
   paths: {write: [src/repository_presenter/components/readme/composition/, src/repository_presenter/components/readme/review/acceptance/, docs/README_CONTRACT.md]}
@@ -1149,7 +1156,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-PRP-01]
   item: G6-W03
   lane: L-hosted
-  depends: [TC-REV-01, TC-CUR-01]
+  depends: [TC-REV-01, TC-CUR-01, TC-BND-01]
   governed: false
   paths: {write: [src/repository_presenter/components/propose/, src/repository_presenter/core/candidates.py, tests/components/propose/]}
   outcome: propose refuses stale/unproven candidates and every PR tells a maintainer what changed
@@ -1262,9 +1269,9 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-REF-01]
   item: G7-W06
   lane: L-hosted
-  depends: [TC-INV-01, TC-RSL-02]
+  depends: [TC-INV-01, TC-RSL-02, TC-ISS-10]
   governed: false
-  paths: {write: [src/repository_presenter/components/monitor/, .github/workflows/monitor.yml, src/repository_presenter/core/sealing_plan.py, tests/]}
+  paths: {write: [src/repository_presenter/components/monitor/, .github/workflows/monitor.yml, src/repository_presenter/core/sealing_plan.py, tests/components/monitor/, tests/core/test_sealing_plan.py]}
   outcome: each cycle classifies NO_CHANGE / IRRELEVANT_CHANGE / RELEVANT_CHANGE / UNREACHABLE and records a zero-LLM freshness check every 30 days
   accept: ["a version-bump-only upstream commit (e.g. PDF-Java release chore) is IRRELEVANT unless the README states that version", "a changed consumed fact or maintainer README edit is RELEVANT", "a schedule-fired run (not workflow_dispatch) is observed and reconciled with local state"]
   children:
@@ -1314,7 +1321,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   depends: [TC-WAV-01]
   governed: false
   owner_gate: D-OWN-7
-  paths: {write: [src/repository_presenter/core/authorization/, schemas/, ops/, tests/]}
+  paths: {write: [src/repository_presenter/core/authorization/, schemas/proposal-standing-record.schema.json, ops/proposal-standing-records/, tests/core/authorization/]}
   outcome: a per-repository policy record (README-only scope, branch convention, minimum PR interval, expiry <=90 days, revocable) lets the system open or update its one PR when a gated candidate exists; every run still writes an effect receipt bound to the candidate hash
   accept: ["schema through a named item with owner admission", "revocation by reverting one file", "AGENTS.md 'candidate acceptance never implies publication authorization' still holds: the record is the owner act"]
   children:
@@ -1350,14 +1357,14 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
         - "run | runbook sections 3 to 5 against the throwaway target | all four proofs observed"
 
 - id: TC-REF-05
-  title: Refresh policy: when to open, update, or stay silent
+  title: "Refresh policy: when to open, update, or stay silent"
   reqs: [REQ-REF-05]
   item: G7-W06
   lane: L-hosted
-  depends: [TC-REF-01]
+  depends: [TC-REF-01, TC-CUR-01]
   governed: false
-  paths: {write: [src/repository_presenter/core/, docs/STATE_MACHINE.md, tests/]}
-  outcome: three tested tiers: factual/security fix now; consumed-fact change within the interval; cosmetic or our-own-improvement never opens a PR (effect-report path)
+  paths: {write: [src/repository_presenter/core/refresh_policy.py, docs/STATE_MACHINE.md, tests/core/test_refresh_policy.py]}
+  outcome: "three tested tiers: factual/security fix now; consumed-fact change within the interval; cosmetic or our-own-improvement never opens a PR (effect-report path)"
   accept: ["minimum PR interval per repository enforced", "our own component improvements never open PRs by themselves", "documented in STATE_MACHINE section on refresh"]
   children:
     - id: TC-REF-05-01
@@ -1370,10 +1377,10 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-REF-06]
   item: G7-W07
   lane: L-hosted
-  depends: [TC-REF-02]
+  depends: [TC-REF-02, TC-ISS-11, TC-BND-01]
   governed: false
   owner_gate: OWNER-12
-  paths: {write: [src/repository_presenter/core/state/, src/repository_presenter/core/llm/, .github/workflows/, tests/]}
+  paths: {write: [src/repository_presenter/core/state/, src/repository_presenter/core/llm/, .github/workflows/, tests/core/state/, tests/core/llm/]}
   outcome: a gateway outage is BLOCKED_EXTERNAL and retried next cycle without spending the budget; long runs renew leases; kill-mid-transaction recovers hosted
   accept: ["OWNER-12 (gateway outage policy) decided and asserted by test", "renew_lease has a production caller", "hosted kill and stale-lease rehearsals pass (G7-W05)"]
   children:
@@ -1391,7 +1398,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   lane: L-hosted
   depends: [TC-REF-02]
   governed: false
-  paths: {write: [.github/workflows/liveness.yml, src/repository_presenter/cli.py, src/repository_presenter/core/state/health.py, tests/]}
+  paths: {write: [.github/workflows/liveness.yml, src/repository_presenter/cli.py, src/repository_presenter/core/state/health.py, tests/core/state/, tests/test_cli.py]}
   outcome: every run emits a funnel summary, per-candidate freshness age, cost; the dead-man covers monitor, sealing, publish and issues
   accept: ["a stalled schedule alerts within the dead-man interval", "status prints freshness age and the issue funnel"]
   children:
@@ -1405,9 +1412,9 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-REF-08]
   item: G7-W01
   lane: L-hosted
-  depends: [TC-REF-02]
+  depends: [TC-REF-02, TC-ISS-11]
   governed: false
-  paths: {write: [docs/THREAT_MODEL.md, .github/workflows/, tests/]}
+  paths: {write: [docs/THREAT_MODEL.md, .github/workflows/, tests/test_threat_model.py]}
   outcome: threat model deltas for commit-back, standing authorization and issue filing; residual example-execution risk addressed or recorded
   accept: ["analysis tokens read-only; write tokens minted only inside the effect job", "no credential in any artifact (grep test over a sample run)", "network-egress plan for example execution recorded (execution is secret-stripped but not network-sandboxed)"]
   children:
