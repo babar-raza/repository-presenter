@@ -35,6 +35,7 @@ from repository_presenter.components.issues.approval import (
     approval_relative_path,
     verify_approval,
 )
+from repository_presenter.components.issues.classes import observation_from_clone
 from repository_presenter.components.issues.close_approval import (
     CLOSE_APPROVALS_RELATIVE_DIR,
     close_approval_relative_path,
@@ -42,10 +43,12 @@ from repository_presenter.components.issues.close_approval import (
 )
 from repository_presenter.components.issues.draft import (
     eligible_for_handoff,
+    record_class_handoffs_if_new,
     record_handoff_if_new,
 )
 from repository_presenter.components.issues.ledger import (
     UPSTREAM_DEFECTS_DIRNAME,
+    LedgerError,
     load_ledger,
 )
 from repository_presenter.components.issues.model import (
@@ -2999,6 +3002,33 @@ def _portfolio_report(
 PREFLIGHT_FILENAME = "preflight.json"
 
 
+def _record_defect_class_handoffs(
+    root: Path,
+    entry: RegistryEntry,
+    revision: str,
+    clone_path: Path,
+    tree_paths: list[str],
+    manifest: Path | None,
+) -> None:
+    """G6-W07: run the defect-class detectors (`components/issues/classes.py`) over the verified
+    clone and record each new finding as a `HANDOFF_PENDING` artifact under
+    `evidence/upstream-defects/` - deterministic, no provider call, no GitHub write. Nothing
+    firing, a finding that fails the issue quality gate, and one already in the ledger all record
+    nothing; none of them can change the run's exit code."""
+    observation = observation_from_clone(
+        entry.repository, revision, clone_path, tuple(tree_paths), manifest=manifest
+    )
+    try:
+        written = record_class_handoffs_if_new(
+            root / "evidence" / UPSTREAM_DEFECTS_DIRNAME, observation=observation
+        )
+    except (OSError, LedgerError, HandoffError) as exc:
+        print(f"upstream-defect handoffs: not recorded ({exc})")
+        return
+    for path in written:
+        print(f"upstream-defect handoff: {path.relative_to(root).as_posix()} (HANDOFF_PENDING)")
+
+
 def _report_facts_only(
     root: Path,
     entry: RegistryEntry,
@@ -3282,6 +3312,7 @@ def _run_present(
             f"evaluation: {(transaction / EVALUATION_FILENAME).relative_to(root).as_posix()} "
             f"({summarize_evaluation(evaluated)}; digest {evaluation_digest})"
         )
+        _record_defect_class_handoffs(root, entry, clone.revision, clone.path, tree_paths, manifest)
         if facts_only:
             return _report_facts_only(root, entry, clone.revision, document, transaction)
         # Fallback chains (core/llm/fallback.py), decided once at run start before any content
