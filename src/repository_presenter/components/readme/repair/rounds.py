@@ -80,6 +80,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     reconciliation_batches,
     reconciliation_packet,
     reconciliation_schema,
+    recover_uncited_prose_omits,
     write_dispositions,
 )
 from repository_presenter.components.readme.repair.targeted import (
@@ -375,6 +376,9 @@ def run_round(tx: TransactionInputs) -> Round:
             call_schema=reconciliation_schema(
                 loaded, batch_units, batch_facts, investigation.output
             ),
+            # G7-W12 follow-up (b): a prose omission still uncited after the one re-ask becomes
+            # an explicit deferral (PSD-.NET 018.paragraph), re-validated by reconcile_checks.
+            recover=functools.partial(recover_uncited_prose_omits, facts=batch_facts),
             **{**common, "facts": batch_facts},
         )
     dispositions = merge_dispositions([result.output for result in reconciled.values()])
