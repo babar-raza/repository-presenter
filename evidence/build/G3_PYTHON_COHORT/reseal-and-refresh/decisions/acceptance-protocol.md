@@ -312,6 +312,7 @@ and the clone, and with `--net` issues GET requests for the links it finds.
 # mech.py - mechanical README checks for the acceptance review. Read-only.
 # usage: python -I mech.py README.md [--clone DIR] [--net]
 import re, sys, os, json, urllib.request, urllib.error
+
 sys.stdout.reconfigure(encoding="utf-8")
 args = sys.argv[1:]
 readme = args[0]
@@ -327,9 +328,11 @@ for i, l in enumerate(lines):
     m = re.match(r"^\s*(```+|~~~+)\s*([\w+#.-]*)", l)
     if m:
         if not infence:
-            infence, fence_lang = True, m.group(2); fences.append([i + 1, fence_lang, None])
+            infence, fence_lang = True, m.group(2)
+            fences.append([i + 1, fence_lang, None])
         else:
-            infence = False; fences[-1][2] = i + 1
+            infence = False
+            fences[-1][2] = i + 1
         inside[i] = True
         continue
     inside[i] = infence
@@ -337,12 +340,37 @@ print("== HEADINGS")
 h1 = [(i + 1, l) for i, l in enumerate(lines) if re.match(r"^# ", l) and not inside[i]]
 h2 = [(i + 1, l[3:].strip()) for i, l in enumerate(lines) if re.match(r"^## ", l) and not inside[i]]
 print("H1 count:", len(h1), [x[1] for x in h1])
-for n, t in h2: print(f"  L{n}: ## {t}")
-order = ["Navigation","At a Glance","Key Capabilities","Installation","Dependencies","Quick Start","Additional Examples","API Reference","Documentation & Resources","Scope and Limitations","Development and Testing","License"]
-required = {"Navigation","Key Capabilities","Installation","Dependencies","API Reference","Scope and Limitations","License"}
+for n, t in h2:
+    print(f"  L{n}: ## {t}")
+order = [
+    "Navigation",
+    "At a Glance",
+    "Key Capabilities",
+    "Installation",
+    "Dependencies",
+    "Quick Start",
+    "Additional Examples",
+    "API Reference",
+    "Documentation & Resources",
+    "Scope and Limitations",
+    "Development and Testing",
+    "License",
+]
+required = {
+    "Navigation",
+    "Key Capabilities",
+    "Installation",
+    "Dependencies",
+    "API Reference",
+    "Scope and Limitations",
+    "License",
+}
 have = [t for _, t in h2]
 print("missing required:", sorted(required - set(have)))
-print("missing standard (conditional; judge against live/clone):", [t for t in order if t not in have and t not in required])
+print(
+    "missing standard (conditional; judge against live/clone):",
+    [t for t in order if t not in have and t not in required],
+)
 print("extra sections:", [t for t in have if t not in order])
 idx = [order.index(t) for t in have if t in order]
 print("standard-section order ok:", idx == sorted(idx))
@@ -352,85 +380,142 @@ print("mermaid fences in document:", sum(1 for f in fences if f[1] == "mermaid")
 try:
     s = next(n for n, t in h2 if t == "At a Glance")
     e = next((n for n, t in h2 if n > s), len(lines) + 1)
-    body = [l for l in lines[s:e - 1] if l.strip()]
-    ok = body and body[0].lstrip().startswith("```mermaid") and body[-1].strip().startswith("```") and sum(1 for l in body if l.lstrip().startswith("```")) == 2
+    body = [l for l in lines[s : e - 1] if l.strip()]
+    ok = (
+        body
+        and body[0].lstrip().startswith("```mermaid")
+        and body[-1].strip().startswith("```")
+        and sum(1 for l in body if l.lstrip().startswith("```")) == 2
+    )
     print("At a Glance is exactly one mermaid fence and nothing else:", bool(ok))
 except StopIteration:
     print("At a Glance: absent")
 
 print("== FENCES without a language")
 for st, lang, en in fences:
-    if not lang: print(f"  fence at L{st} has no language")
-    if en is None: print(f"  fence at L{st} is never closed")
+    if not lang:
+        print(f"  fence at L{st} has no language")
+    if en is None:
+        print(f"  fence at L{st} is never closed")
 
 print("== FORBIDDEN / SUSPECT WORDING (outside code fences)")
 pats = [
- (r"commercial edition", "FORBIDDEN"), (r"paid version", "FORBIDDEN"), (r"full version", "FORBIDDEN"),
- (r"on-?premise edition", "FORBIDDEN"), (r"forum\.aspose\.com", "FORBIDDEN"),
- (r"\bvia (Java|\.NET|C\+\+|Python|Node|JNI|COM)\b", "FORBIDDEN bridge"), (r"\bwrapper\b", "FORBIDDEN bridge"),
- (r"\b(backed by|implemented through|built on top of|binding(s)? (to|for))\b", "bridge?"),
- (r"\bcommercial (Aspose|product|offering|edition|version|license)\b", "suspect"),
- (r"\b(FOSS|Free|Community|Standard|Professional|Premium|Pro|Paid|Commercial|Open[- ]source)\s+(Edition|edition)\b", "edition name"),
- (r"\b[A-Z][A-Za-z]+ Edition\b", "edition name?"),
- (r"Preserved repository details|Other platforms", "FORBIDDEN section label"),
- (r"\bmember (`|[A-Z][A-Z_0-9]*)\b", "garble member"), (r"\bclasses like [A-Z_]{1,6}\b", "garble"),
+    (r"commercial edition", "FORBIDDEN"),
+    (r"paid version", "FORBIDDEN"),
+    (r"full version", "FORBIDDEN"),
+    (r"on-?premise edition", "FORBIDDEN"),
+    (r"forum\.aspose\.com", "FORBIDDEN"),
+    (r"\bvia (Java|\.NET|C\+\+|Python|Node|JNI|COM)\b", "FORBIDDEN bridge"),
+    (r"\bwrapper\b", "FORBIDDEN bridge"),
+    (r"\b(backed by|implemented through|built on top of|binding(s)? (to|for))\b", "bridge?"),
+    (r"\bcommercial (Aspose|product|offering|edition|version|license)\b", "suspect"),
+    (
+        r"\b(FOSS|Free|Community|Standard|Professional|Premium|Pro|Paid|Commercial|Open[- ]source)\s+(Edition|edition)\b",
+        "edition name",
+    ),
+    (r"\b[A-Z][A-Za-z]+ Edition\b", "edition name?"),
+    (r"Preserved repository details|Other platforms", "FORBIDDEN section label"),
+    (r"\bmember (`|[A-Z][A-Z_0-9]*)\b", "garble member"),
+    (r"\bclasses like [A-Z_]{1,6}\b", "garble"),
 ]
 hits = 0
 for i, l in enumerate(lines):
-    if inside[i]: continue
+    if inside[i]:
+        continue
     for p, tag in pats:
-        for m in re.finditer(p, l, flags=re.I if tag.startswith(("FORBIDDEN","suspect","bridge")) else 0):
-            if "Enterprise Edition" in m.group(0): continue
-            hits += 1; print(f"  L{i+1} [{tag}] {m.group(0)!r}: {l.strip()[:140]}")
+        for m in re.finditer(
+            p, l, flags=re.I if tag.startswith(("FORBIDDEN", "suspect", "bridge")) else 0
+        ):
+            if "Enterprise Edition" in m.group(0):
+                continue
+            hits += 1
+            print(f"  L{i + 1} [{tag}] {m.group(0)!r}: {l.strip()[:140]}")
 print("total hits:", hits)
-print("'Enterprise Edition' occurrences:", len(re.findall(r"Enterprise Edition", text)), "| anchor shape ok:", bool(re.search(r"\[full-featured [^\]]*— Enterprise Edition\]\(", text)))
+print(
+    "'Enterprise Edition' occurrences:",
+    len(re.findall(r"Enterprise Edition", text)),
+    "| anchor shape ok:",
+    bool(re.search(r"\[full-featured [^\]]*— Enterprise Edition\]\(", text)),
+)
 
 print("== DANGLING / FRAGMENT SENTENCES")
 for i, l in enumerate(lines):
-    if inside[i] or not l.rstrip().endswith(":"): continue
+    if inside[i] or not l.rstrip().endswith(":"):
+        continue
     nxt = next((lines[j] for j in range(i + 1, len(lines)) if lines[j].strip()), "")
     if not re.match(r"^\s*(```|~~~|[-*] |\d+\. |\||<|!\[)", nxt):
-        print(f"  L{i+1} ends with ':' but is followed by non-block text: {l.strip()[:100]!r} -> {nxt.strip()[:60]!r}")
-    elif nxt.startswith("#"): print(f"  L{i+1} dangling before heading")
+        print(
+            f"  L{i + 1} ends with ':' but is followed by non-block text: {l.strip()[:100]!r} -> {nxt.strip()[:60]!r}"
+        )
+    elif nxt.startswith("#"):
+        print(f"  L{i + 1} dangling before heading")
 for i, l in enumerate(lines):
     if not inside[i] and re.match(r"^\s*(Run|Install|Execute|Use|Build)[^.`]*:\s*$", l):
         nxt = next((lines[j] for j in range(i + 1, len(lines)) if lines[j].strip()), "")
-        if not nxt.lstrip().startswith(("```", "~~~")): print(f"  L{i+1} lead-in with no code block: {l.strip()!r}")
+        if not nxt.lstrip().startswith(("```", "~~~")):
+            print(f"  L{i + 1} lead-in with no code block: {l.strip()!r}")
 
 print("== NUMBERS AND VERSION-LIKE TOKENS IN PROSE (verify each)")
 for i, l in enumerate(lines):
-    if inside[i]: continue
-    for m in re.finditer(r"\b(\d+\s+(test files?|tests?|types?|classes|methods|examples?|symbologies|formats)|v?\d+\.\d+(\.\d+)?(\.\d+)?)\b", l):
-        print(f"  L{i+1}: {m.group(0)!r}  | {l.strip()[:110]}")
+    if inside[i]:
+        continue
+    for m in re.finditer(
+        r"\b(\d+\s+(test files?|tests?|types?|classes|methods|examples?|symbologies|formats)|v?\d+\.\d+(\.\d+)?(\.\d+)?)\b",
+        l,
+    ):
+        print(f"  L{i + 1}: {m.group(0)!r}  | {l.strip()[:110]}")
 
 print("== INSTALL / SHELL COMMANDS IN FENCES (verify each)")
 for st, lang, en in fences:
-    if lang in ("bash", "sh", "shell", "console", "powershell", "cmd", "xml", "groovy", "kotlin", "toml"):
-        print(f"  [{lang}] L{st}-{en}: " + " | ".join(x.strip() for x in lines[st:(en or st) - 1] if x.strip())[:200])
+    if lang in (
+        "bash",
+        "sh",
+        "shell",
+        "console",
+        "powershell",
+        "cmd",
+        "xml",
+        "groovy",
+        "kotlin",
+        "toml",
+    ):
+        print(
+            f"  [{lang}] L{st}-{en}: "
+            + " | ".join(x.strip() for x in lines[st : (en or st) - 1] if x.strip())[:200]
+        )
 
 print("== LINKS")
 links = []
 for i, l in enumerate(lines):
-    if inside[i]: continue
-    for m in re.finditer(r"\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)", l): links.append((i + 1, m.group(1)))
-    for m in re.finditer(r'<(?:a|img)[^>]+(?:href|src)="([^"]+)"', l): links.append((i + 1, m.group(1)))
+    if inside[i]:
+        continue
+    for m in re.finditer(r"\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)", l):
+        links.append((i + 1, m.group(1)))
+    for m in re.finditer(r'<(?:a|img)[^>]+(?:href|src)="([^"]+)"', l):
+        links.append((i + 1, m.group(1)))
 seen = set()
 for n, u in links:
-    if u in seen: print(f"  L{n} duplicate target: {u}")
+    if u in seen:
+        print(f"  L{n} duplicate target: {u}")
     seen.add(u)
     if u.startswith("#"):
         anchors = {re.sub(r"[^\w\- ]", "", t.lower()).replace(" ", "-") for _, t in h2}
-        if u[1:] not in anchors: print(f"  L{n} in-page anchor not found: {u}")
+        if u[1:] not in anchors:
+            print(f"  L{n} in-page anchor not found: {u}")
     elif not re.match(r"^[a-z]+:", u):
         p = u.split("#")[0].split("?")[0]
-        if clone and p and not os.path.exists(os.path.join(clone, p)): print(f"  L{n} RELATIVE LINK MISSING in clone: {u}")
+        if clone and p and not os.path.exists(os.path.join(clone, p)):
+            print(f"  L{n} RELATIVE LINK MISSING in clone: {u}")
     elif net and u.startswith("http"):
         try:
             req = urllib.request.Request(u, headers={"User-Agent": "rp-acceptance-review/1"})
             code = urllib.request.urlopen(req, timeout=20).status
-        except urllib.error.HTTPError as ex: code = ex.code
-        except Exception as ex: code = type(ex).__name__
-        if code != 200: print(f"  L{n} {code} {u}")
+        except urllib.error.HTTPError as ex:
+            code = ex.code
+        except Exception as ex:
+            code = type(ex).__name__
+        if code != 200:
+            print(f"  L{n} {code} {u}")
 print("links total:", len(links), "unique:", len(seen))
 ````
 
