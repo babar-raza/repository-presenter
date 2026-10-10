@@ -1,6 +1,6 @@
 # Part of TC-COV-01 (plans: reseal-and-refresh). Owner/reviewer measurement tooling (tools/README.md):
 # read-only, no provider call, writes only the files it is told to. Not imported by src/.
-"""Enumerate the information units a cloned repository holds, per spec.md.
+"""Enumerate the information units a cloned repository holds, per SPEC.md.
 
 Each ``extract_*`` function reads files of a checked-out clone and returns ``Unit`` objects
 (see matching.py); none of them writes, executes, or fetches anything.
