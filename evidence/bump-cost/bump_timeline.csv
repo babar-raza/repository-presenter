@@ -1,0 +1,62 @@
+date,commit,pr,constant,old,new,subject
+2026-09-24,9596a923,,REVIEWER_LOGIC_VERSION,11,12,fix(review): scope _cited_paraphrase's overlap ratio to the bullet a quote restates
+2026-09-24,ef2ee5e1,,NORMALISATION_VERSION,11,12,fix(composition): reject a development_testing unit that duplicates a placed command block (G4-W17 item 4)
+2026-09-25,84546aa0,,NORMALISATION_VERSION,12,13,fix(repair): recover= for section_authoring; seal Page-Python (G4-W17)
+2026-09-25,fadb0017,,NORMALISATION_VERSION,13,14,fix(repair): deterministic backstop for review's stricter title-restatement standard (G4-W17)
+2026-09-26,0f523a34,124,REVIEWER_LOGIC_VERSION,12,13,feat(review): 2-of-3 majority-vote escalation for the second-reader ACCEPT guard (G4-W17) (#124)
+2026-09-26,d8b3a9de,125,NORMALISATION_VERSION,14,15,"fix(composition): admit ""Node.js"" as a curated proper-noun exception (G4-W17) (#125)"
+2026-09-27,a14a22fe,146,NORMALISATION_VERSION,16,17,fix(composition): surface a format fact's own read/write direction (G4-W17) (#146)
+2026-09-27,ffb1476f,143,NORMALISATION_VERSION,15,16,fix(composition): recover= for section_authoring's initial-draft title-restatement regression (G4-W17) (#143)
+2026-09-28,03110a4b,153,RENDERER_VERSION,24,25,fix(repair): give a BC-07 visible-line-budget repair a real lever to pull (G4-W17) (#153)
+2026-10-01,ae6c4373,164,REVIEWER_LOGIC_VERSION,13,14,"fix(review): symmetric paraphrase ratio and segment-aware literal match (G4-W17, F04) (#164)"
+2026-10-01,af08a2ea,182,ACCEPTANCE_PROFILE_VERSION,None,1,fix(contract): freeze README contract v1 (G3-W02) (#182)
+2026-10-01,af08a2ea,182,CONTRACT_VERSION,readme-contract-v1-draft,readme-contract-v1,fix(contract): freeze README contract v1 (G3-W02) (#182)
+2026-10-01,d842b7b0,169,Check:BC-06,3,4,Threat model and credential/prompt-injection hardening (G7-W01) (#169)
+2026-10-01,d842b7b0,169,VALIDATOR_VERSION,3,4,Threat model and credential/prompt-injection hardening (G7-W01) (#169)
+2026-10-04,12eefef1,218,ACCEPTANCE_PROFILE_VERSION,1,,"feat(acceptance): G3-W02 advisory 30-point profile and scorer, unratified (#218)"
+2026-10-04,12eefef1,218,PROFILE_VERSION,,1,"feat(acceptance): G3-W02 advisory 30-point profile and scorer, unratified (#218)"
+2026-10-04,1c188006,258,NORMALISATION_VERSION,22,23,fix(authoring): the strays rejection names the nearest accepted identifiers (S6) (#258)
+2026-10-04,268faac3,230,RENDERER_VERSION,27,28,fix(readme): Navigation links only sections the document renders (BC-06) (#230)
+2026-10-04,2dba63e8,221,NORMALISATION_VERSION,18,19,fix(authoring): planning and direction fixes for Font-Python section_authoring (#221)
+2026-10-04,48201b67,251,NORMALISATION_VERSION,21,22,"fix(readme): no generated edition substitute, BC-06 case-insensitive, BC-12 canonical product name (#251)"
+2026-10-04,48201b67,251,Check:BC-06,6,7,"fix(readme): no generated edition substitute, BC-06 case-insensitive, BC-12 canonical product name (#251)"
+2026-10-04,48201b67,251,Check:BC-12,,1,"fix(readme): no generated edition substitute, BC-06 case-insensitive, BC-12 canonical product name (#251)"
+2026-10-04,48201b67,251,VALIDATOR_VERSION,7,8,"fix(readme): no generated edition substitute, BC-06 case-insensitive, BC-12 canonical product name (#251)"
+2026-10-04,599659d2,195,NORMALISATION_VERSION,17,18,fix(planning): never emit an empty enum in a composition schema (S5 HTTP 500/502) (#195)
+2026-10-04,761f3b30,246,RENDERER_VERSION,26,27,"fix(readme): derive Aspose-link ceilings, render the Enterprise anchor, and verify the badge row (G4-W17, V2 items 5-7) (#246)"
+2026-10-04,761f3b30,246,Check:BC-06,5,6,"fix(readme): derive Aspose-link ceilings, render the Enterprise anchor, and verify the badge row (G4-W17, V2 items 5-7) (#246)"
+2026-10-04,761f3b30,246,Check:BC-07,7,8,"fix(readme): derive Aspose-link ceilings, render the Enterprise anchor, and verify the badge row (G4-W17, V2 items 5-7) (#246)"
+2026-10-04,761f3b30,246,VALIDATOR_VERSION,6,7,"fix(readme): derive Aspose-link ceilings, render the Enterprise anchor, and verify the badge row (G4-W17, V2 items 5-7) (#246)"
+2026-10-04,7e567085,253,REVIEWER_LOGIC_VERSION,14,15,"feat(review): typed omission findings, refuted or upheld by deterministic code (G5 independent review) (#253)"
+2026-10-04,7e56716e,209,RENDERER_VERSION,25,26,fix(readme): BC-07 abbreviation and visible-budget repair (aspose-pdf-foss TypeScript) (#209)
+2026-10-04,7e56716e,209,VALIDATOR_VERSION,4,5,fix(readme): BC-07 abbreviation and visible-budget repair (aspose-pdf-foss TypeScript) (#209)
+2026-10-04,8f30d5d5,201,Check:BC-02,3,4,fix(readme): .NET install fallback to measured source build (install fix only) (#201)
+2026-10-04,8f30d5d5,201,VALIDATOR_VERSION,5,6,fix(readme): .NET install fallback to measured source build (install fix only) (#201)
+2026-10-04,a47336f6,255,NORMALISATION_VERSION,20,21,fix(authoring): the strays check does not read fragments of a verbatim allowed value (#255)
+2026-10-04,cdaf793d,202,Check:BC-06,4,5,fix(readme): BC-06 judges a javascript:/vbscript: scheme only at a URL position (#202)
+2026-10-04,ce355281,211,NORMALISATION_VERSION,19,20,fix(composition): carry superseded inherited units in development_testing (F08) (#211)
+2026-10-05,38defe4f,265,NORMALISATION_VERSION,23,24,fix(authoring): the scope_limitations section carries the units reconciliation superseded into it (S6) (#265)
+2026-10-05,65b96971,272,Check:BC-05,1,2,"fix(readme): judge each DEFER_UNRESOLVED unit by its cause, not by count (REV-V2-03) (#272)"
+2026-10-05,65b96971,272,VALIDATOR_VERSION,10,11,"fix(readme): judge each DEFER_UNRESOLVED unit by its cause, not by count (REV-V2-03) (#272)"
+2026-10-05,75b5cf73,249,RENDERER_VERSION,28,29,"fix(readme-contract): enforce heading case, abbreviations, fence/spacing, visible sections, narration and glance geometry in BC-07 v8 (V2 items 8, 9) (#249)"
+2026-10-05,75b5cf73,249,NORMALISATION_VERSION,24,25,"fix(readme-contract): enforce heading case, abbreviations, fence/spacing, visible sections, narration and glance geometry in BC-07 v8 (V2 items 8, 9) (#249)"
+2026-10-05,75b5cf73,249,Check:BC-07,8,9,"fix(readme-contract): enforce heading case, abbreviations, fence/spacing, visible sections, narration and glance geometry in BC-07 v8 (V2 items 8, 9) (#249)"
+2026-10-05,75b5cf73,249,VALIDATOR_VERSION,8,9,"fix(readme-contract): enforce heading case, abbreviations, fence/spacing, visible sections, narration and glance geometry in BC-07 v8 (V2 items 8, 9) (#249)"
+2026-10-05,89c9f2af,250,Check:BC-11,1,2,fix(noop-proof): measure the zero-call no-op proof instead of asserting it (#250)
+2026-10-05,89c9f2af,250,VALIDATOR_VERSION,9,10,fix(noop-proof): measure the zero-call no-op proof instead of asserting it (#250)
+2026-10-05,9cc25fc0,268,NORMALISATION_VERSION,25,26,fix(repair): the S6 repair names the must-carry units a section still neither cites nor omits (S6) (#268)
+2026-10-06,2d380177,281,NORMALISATION_VERSION,26,27,"fix(authoring): re-ask a refused must-carry unit with its substance (S6, #1008) (#281)"
+2026-10-07,5e5cb3c7,291,RENDERER_VERSION,29,30,"fix(readme): elide a non-canonical name variant out of quoted evidence (BC-12, #1009) (#291)"
+2026-10-07,5e5cb3c7,291,VALIDATOR_VERSION,13,14,"fix(readme): elide a non-canonical name variant out of quoted evidence (BC-12, #1009) (#291)"
+2026-10-07,99320d8a,275,REVIEWER_LOGIC_VERSION,16,17,"fix(review): record a failed second read's cause, so BC-10 names it (#275)"
+2026-10-07,99320d8a,275,VALIDATOR_VERSION,14,15,"fix(review): record a failed second read's cause, so BC-10 names it (#275)"
+2026-10-07,a1e6f797,290,Check:BC-07,9,10,"fix(readme): allow zero badges when zero badge-worthy facts exist (BC-07, #1009) (#290)"
+2026-10-07,a1e6f797,290,VALIDATOR_VERSION,12,13,"fix(readme): allow zero badges when zero badge-worthy facts exist (BC-07, #1009) (#290)"
+2026-10-07,ae8620a4,289,NORMALISATION_VERSION,28,29,"fix(readme): give scope_limitations its must-carry units' own citable ids (S6, #1008) (#289)"
+2026-10-07,cc5a4e9e,287,NORMALISATION_VERSION,27,28,"fix(repair): the S6 repair route carries a dropped must-carry unit's source text, not a fabricated omission (#287)"
+2026-10-07,feab4437,278,REVIEWER_LOGIC_VERSION,15,16,"feat(review): second reader runs on a typed trigger (G3-W06, REV-V2-10, OWNER-15) (#278)"
+2026-10-07,feab4437,278,Check:BC-10,4,5,"feat(review): second reader runs on a typed trigger (G3-W06, REV-V2-10, OWNER-15) (#278)"
+2026-10-07,feab4437,278,VALIDATOR_VERSION,11,12,"feat(review): second reader runs on a typed trigger (G3-W06, REV-V2-10, OWNER-15) (#278)"
+2026-10-08,5cffa343,298,NORMALISATION_VERSION,29,30,fix(composition): name the real section when a must-carry unit moves (#1009) (#298)
+2026-10-08,8faea803,297,INHERITED_UNITS_VERSION,1,2,fix(readme): split an oversized inherited list into fixed-size chunks (#1009) (#297)
+2026-10-09,14cdd181,302,REVIEWER_LOGIC_VERSION,17,18,"fix(review): recognize a restated absence claim, not only a literal one (BC-10, #1009) (#302)"

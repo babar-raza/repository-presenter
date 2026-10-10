@@ -1,0 +1,74 @@
+date,commit,bumps,population_before,ready_before,stale_before,stale_after_same_population,newly_staled_by_bump,population_after,ready_after,stale_after,candidates_changed,subject
+2026-09-23,f155c299,,21,21,21,21,0,21,21,20,1,fix(candidates): reseal aspose-3d-foss/Aspose.3D-FOSS-for-.NET
+2026-09-23,93c8d276,,21,21,20,20,0,21,20,19,1,fix(state): honest re-seal attempt for Cells-Cpp reproduces the known BC-02 trigraph blocker
+2026-09-23,5423c3e4,,21,20,19,19,0,21,20,18,1,feat(candidates): reseal Aspose.BarCode-FOSS-for-Python past the 2026-09-17 batch of shared-code fixes
+2026-09-23,741b0a30,,21,20,18,18,0,21,20,17,1,fix(candidates): reseal aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET (G4-W17)
+2026-09-23,2719437d,,21,20,17,17,0,21,20,16,1,fix(candidates): reseal aspose-email-foss/Aspose.Email-FOSS-for-Cpp
+2026-09-23,6ae100de,,21,20,16,16,0,21,20,15,1,fix(candidates): reseal aspose-pdf-foss/Aspose.PDF-FOSS-for-Java (G4-W17)
+2026-09-23,7cbdb5ff,,21,20,15,15,0,21,20,14,1,fix(candidates): reseal aspose-pdf-foss/Aspose-PDF-FOSS-for-Go (G4-W17)
+2026-09-23,cd28df84,,21,20,14,14,0,21,20,13,1,fix(candidates): reseal aspose-slides-foss/Aspose.Slides-FOSS-for-Java (G4-W17)
+2026-09-24,9596a923,REVIEWER_LOGIC:11>12,21,20,13,20,7,21,20,20,0,fix(review): scope _cited_paraphrase's overlap ratio to the bullet a quote restates
+2026-09-24,272e3f28,,21,20,20,20,0,21,20,19,1,fix(candidates): reseal aspose-email-foss/Aspose.Email-FOSS-for-Python
+2026-09-24,da72ef7b,,21,20,19,19,0,22,21,19,1,feat(candidates): seal aspose-words-foss/Aspose.Words-FOSS-for-Python for the first time (G4-W17)
+2026-09-24,ef2ee5e1,NORMALISATION:11>12,22,21,19,21,2,22,21,21,0,fix(composition): reject a development_testing unit that duplicates a placed command block (G4-W17 item 4)
+2026-09-24,8d99b4ac,,22,21,21,21,0,22,21,20,1,fix(candidates): reseal aspose-cells-foss/Aspose.Cells-FOSS-for-Java
+2026-09-24,31df5736,,22,21,20,20,0,22,21,20,1,fix(candidates): reseal aspose-3d-foss/Aspose.3D-FOSS-for-.NET (G4-W17)
+2026-09-24,4a1f2222,,22,21,20,20,0,22,21,20,1,fix(candidates): reseal aspose-email-foss/Aspose.Email-FOSS-for-Cpp (G4-W17)
+2026-09-24,a5ca76d7,,22,21,20,20,0,23,22,21,1,feat(candidates): seal aspose-html-foss/Aspose.HTML-FOSS-for-Python for the first time (G4-W17)
+2026-09-24,2b90bcd4,,23,22,21,21,0,24,23,22,1,feat(candidates): seal aspose-pdf-foss/Aspose-PDF-FOSS-for-Python for the first time (G4-W17)
+2026-09-25,e005e48f,,24,23,22,22,0,24,23,21,1,fix(candidates): reseal aspose-email-foss/Aspose.Email-FOSS-for-Cpp (G4-W17)
+2026-09-25,5556ac5e,,24,23,21,21,0,24,23,20,1,fix(candidates): reseal aspose-3d-foss/Aspose.3D-FOSS-for-.NET (G4-W17)
+2026-09-25,7ac12955,,24,23,20,20,0,24,23,19,1,fix(candidates): reseal aspose-words-foss/Aspose.Words-FOSS-for-Python (G4-W17)
+2026-09-25,286200db,,24,23,19,19,0,24,23,18,1,fix(candidates): reseal aspose-pdf-foss/Aspose-PDF-FOSS-for-Python (G4-W17)
+2026-09-25,579be89c,,24,23,18,18,0,24,23,17,1,fix(candidates): reseal aspose-cells-foss/Aspose.Cells-FOSS-for-Go (G4-W17)
+2026-09-25,f32ca319,,24,23,17,17,0,24,23,16,1,fix(candidates): reseal aspose-email-foss/Aspose.Email-FOSS-for-Python (G4-W17)
+2026-09-25,74eab9a8,,24,23,16,16,0,24,23,15,1,fix(candidates): reseal aspose-pdf-foss/Aspose.PDF-FOSS-for-Java (G4-W17)
+2026-09-25,0bf5c28d,,24,23,15,15,0,24,23,14,1,fix(candidates): reseal aspose-3d-foss/Aspose.3D-FOSS-for-Java (G4-W17)
+2026-09-25,29bc7092,,24,23,14,14,0,24,23,13,1,fix(candidates): reseal aspose-cells-foss/Aspose.Cells-FOSS-for-Python (G4-W17)
+2026-09-25,84546aa0,NORMALISATION:12>13,24,23,13,23,10,25,24,23,1,fix(repair): recover= for section_authoring; seal Page-Python (G4-W17)
+2026-09-25,fadb0017,NORMALISATION:13>14,25,24,23,24,1,25,24,24,0,fix(repair): deterministic backstop for review's stricter title-restatement standard (G4-W17)
+2026-09-26,d8b3a9de,NORMALISATION:14>15,25,24,24,24,0,25,24,24,0,"fix(composition): admit ""Node.js"" as a curated proper-noun exception (G4-W17) (#125)"
+2026-09-26,0f523a34,REVIEWER_LOGIC:12>13,25,24,24,24,0,25,24,24,0,feat(review): 2-of-3 majority-vote escalation for the second-reader ACCEPT guard (G4-W17) (#124)
+2026-09-27,ffb1476f,NORMALISATION:15>16,25,24,24,24,0,25,24,24,0,fix(composition): recover= for section_authoring's initial-draft title-restatement regression (G4-W17) (#143)
+2026-09-27,a14a22fe,NORMALISATION:16>17,25,24,24,24,0,25,24,24,0,fix(composition): surface a format fact's own read/write direction (G4-W17) (#146)
+2026-09-28,f5a9b27c,,25,24,24,24,0,25,23,23,1,fix(examples): OneDrive workspace-lock in python_examples.py; BarCode-Python reseal attempt (G4-W17) (#145)
+2026-09-28,03110a4b,RENDERER:24>25,25,23,23,23,0,25,23,23,0,fix(repair): give a BC-07 visible-line-budget repair a real lever to pull (G4-W17) (#153)
+2026-09-28,0e4faafa,,25,23,23,23,0,26,24,24,1,fix(reconciliation): investigate BC-11 dispositions-merge nondeterminism; seal Words-.NET (G4-W17) (#154)
+2026-10-01,ae6c4373,REVIEWER_LOGIC:13>14,26,24,24,24,0,26,24,24,0,"fix(review): symmetric paraphrase ratio and segment-aware literal match (G4-W17, F04) (#164)"
+2026-10-01,7d5778b3,,26,24,24,24,0,26,23,23,1,fix(composition): S8 coherence recover= and content-loss check (G3-W05) (#165)
+2026-10-01,9ab20988,,26,23,23,23,0,26,24,24,1,fix(extractors): MSVC fallback for C++ builds; reseal Cells-Cpp trigraph block (G4-W17) (#166)
+2026-10-01,d842b7b0,BC-06:3>4;VALIDATOR:3>4,26,24,24,24,0,26,24,24,0,Threat model and credential/prompt-injection hardening (G7-W01) (#169)
+2026-10-04,599659d2,NORMALISATION:17>18,26,24,24,24,0,26,24,24,0,fix(planning): never emit an empty enum in a composition schema (S5 HTTP 500/502) (#195)
+2026-10-04,fe10307a,,26,24,24,24,0,27,25,25,1,seal: aspose-slides-foss/Aspose.Slides-FOSS-for-.NET READY_FOR_PROPOSAL (#196)
+2026-10-04,7763a361,,27,25,25,25,0,27,26,25,1,fix(repair): resolve dotted-index and $.revised_output change-claim paths (G4-W17) (#198)
+2026-10-04,7e56716e,RENDERER:25>26;VALIDATOR:4>5,27,26,25,26,1,27,26,26,0,fix(readme): BC-07 abbreviation and visible-budget repair (aspose-pdf-foss TypeScript) (#209)
+2026-10-04,8f30d5d5,BC-02:3>4;VALIDATOR:5>6,27,26,26,26,0,27,26,26,0,fix(readme): .NET install fallback to measured source build (install fix only) (#201)
+2026-10-04,7a7379d3,,27,26,26,26,0,28,27,27,1,seal: aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp READY_FOR_PROPOSAL (#204)
+2026-10-04,2dba63e8,NORMALISATION:18>19,28,27,27,27,0,28,27,27,0,fix(authoring): planning and direction fixes for Font-Python section_authoring (#221)
+2026-10-04,e249cf90,,28,27,27,27,0,29,28,27,1,seal: aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET READY_FOR_PROPOSAL (re-draw on origin/main 2dba63e8) (#224)
+2026-10-04,ce355281,NORMALISATION:19>20,29,28,27,28,1,29,28,28,0,fix(composition): carry superseded inherited units in development_testing (F08) (#211)
+2026-10-04,cdaf793d,BC-06:4>5,29,28,28,28,0,29,28,28,0,fix(readme): BC-06 judges a javascript:/vbscript: scheme only at a URL position (#202)
+2026-10-04,18a9dbd6,,29,28,28,28,0,29,28,28,1,seal: aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET re-sealed on origin/main ef7102b8 with source_reconciliation batches (G5-W05) (#234)
+2026-10-04,761f3b30,BC-06:5>6;BC-07:7>8;RENDERER:26>27;VALIDATOR:6>7,29,28,28,28,0,29,28,28,0,"fix(readme): derive Aspose-link ceilings, render the Enterprise anchor, and verify the badge row (G4-W17, V2 items 5-7) (#246)"
+2026-10-04,7e567085,REVIEWER_LOGIC:14>15,29,28,28,28,0,29,28,28,0,"feat(review): typed omission findings, refuted or upheld by deterministic code (G5 independent review) (#253)"
+2026-10-04,a47336f6,NORMALISATION:20>21,29,28,28,28,0,29,28,28,0,fix(authoring): the strays check does not read fragments of a verbatim allowed value (#255)
+2026-10-04,268faac3,RENDERER:27>28,29,28,28,28,0,29,28,28,0,fix(readme): Navigation links only sections the document renders (BC-06) (#230)
+2026-10-04,48201b67,BC-06:6>7;BC-12:None>1;NORMALISATION:21>22;VALIDATOR:7>8,29,28,28,28,0,29,28,28,0,"fix(readme): no generated edition substitute, BC-06 case-insensitive, BC-12 canonical product name (#251)"
+2026-10-04,9a862f5b,,29,28,28,28,0,30,29,29,1,seal: aspose-font-foss/Aspose.Font-FOSS-for-Python READY_FOR_PROPOSAL (#259)
+2026-10-04,1c188006,NORMALISATION:22>23,30,29,29,29,0,30,29,29,0,fix(authoring): the strays rejection names the nearest accepted identifiers (S6) (#258)
+2026-10-05,38defe4f,NORMALISATION:23>24,30,29,29,29,0,30,29,29,0,fix(authoring): the scope_limitations section carries the units reconciliation superseded into it (S6) (#265)
+2026-10-05,75b5cf73,BC-07:8>9;NORMALISATION:24>25;RENDERER:28>29;VALIDATOR:8>9,30,29,29,29,0,30,29,29,0,"fix(readme-contract): enforce heading case, abbreviations, fence/spacing, visible sections, narration and glance geometry in BC-07 v8 (V2 items 8, 9) (#249)"
+2026-10-05,9cc25fc0,NORMALISATION:25>26,30,29,29,29,0,30,29,29,0,fix(repair): the S6 repair names the must-carry units a section still neither cites nor omits (S6) (#268)
+2026-10-05,89c9f2af,BC-11:1>2;VALIDATOR:9>10,30,29,29,29,0,30,29,29,0,fix(noop-proof): measure the zero-call no-op proof instead of asserting it (#250)
+2026-10-05,65b96971,BC-05:1>2;VALIDATOR:10>11,30,29,29,29,0,30,29,29,0,"fix(readme): judge each DEFER_UNRESOLVED unit by its cause, not by count (REV-V2-03) (#272)"
+2026-10-06,2d380177,NORMALISATION:26>27,30,29,29,29,0,30,29,29,0,"fix(authoring): re-ask a refused must-carry unit with its substance (S6, #1008) (#281)"
+2026-10-07,cc5a4e9e,NORMALISATION:27>28,30,29,29,29,0,30,29,29,0,"fix(repair): the S6 repair route carries a dropped must-carry unit's source text, not a fabricated omission (#287)"
+2026-10-07,feab4437,BC-10:4>5;REVIEWER_LOGIC:15>16;VALIDATOR:11>12,30,29,29,29,0,30,29,29,0,"feat(review): second reader runs on a typed trigger (G3-W06, REV-V2-10, OWNER-15) (#278)"
+2026-10-07,a1e6f797,BC-07:9>10;VALIDATOR:12>13,30,29,29,29,0,30,29,29,0,"fix(readme): allow zero badges when zero badge-worthy facts exist (BC-07, #1009) (#290)"
+2026-10-07,ae8620a4,NORMALISATION:28>29,30,29,29,29,0,30,29,29,0,"fix(readme): give scope_limitations its must-carry units' own citable ids (S6, #1008) (#289)"
+2026-10-07,5e5cb3c7,RENDERER:29>30;VALIDATOR:13>14,30,29,29,29,0,30,29,29,0,"fix(readme): elide a non-canonical name variant out of quoted evidence (BC-12, #1009) (#291)"
+2026-10-07,99320d8a,REVIEWER_LOGIC:16>17;VALIDATOR:14>15,30,29,29,29,0,30,29,29,0,"fix(review): record a failed second read's cause, so BC-10 names it (#275)"
+2026-10-08,cc528a79,,30,29,29,29,0,30,29,28,1,"reseal(cells-python): re-seal Aspose.Cells-FOSS-for-Python, fix two stale test invariants (#296)"
+2026-10-08,5cffa343,NORMALISATION:29>30,30,29,28,29,1,30,29,29,0,fix(composition): name the real section when a must-carry unit moves (#1009) (#298)
+2026-10-09,14cdd181,REVIEWER_LOGIC:17>18,30,29,29,29,0,30,29,29,0,"fix(review): recognize a restated absence claim, not only a literal one (BC-10, #1009) (#302)"
+2026-10-09,f6eeed8e,,30,29,29,29,0,30,29,27,1,reseal: recover 2 candidates + fix a live G7-W17 coherence crash after today's version bumps (#305)
