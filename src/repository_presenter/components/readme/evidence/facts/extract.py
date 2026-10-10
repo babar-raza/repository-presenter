@@ -15,6 +15,10 @@ from repository_presenter.components.readme.evidence.facts.inherited import inhe
 from repository_presenter.components.readme.evidence.facts.license import license_facts
 from repository_presenter.components.readme.evidence.facts.links import link_facts
 from repository_presenter.components.readme.evidence.facts.product_pages import product_page_facts
+from repository_presenter.components.readme.evidence.facts.published_version import (
+    PACKAGE_NAME_FACT_ID,
+    published_version_fact,
+)
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
 from repository_presenter.components.readme.extractors.surface.manifest import read_identity
@@ -248,6 +252,14 @@ def extract_facts(
         resolved = (observed.get(fact.id, fact) for fact in manifest_facts)
         facts.extend(_source_build_fact(fact, entry, receipts, build) for fact in resolved)
         probes.extend(registry_probes)
+        # TC-CLM-01 (G3-W08): the registry's current stable release, so BC-14 can hold a README's
+        # version statement to what a reader can fetch. Absent unless the registry answered
+        # conclusively (published_version.py); a second read of the registry the plugin just asked.
+        published = published_version_fact(
+            entry, next((f for f in manifest_facts if f.id == PACKAGE_NAME_FACT_ID), None)
+        )
+        if published is not None:
+            facts.append(published)
     facts.extend(plugin.surface_facts(clone_path, tree_paths))
     # G4-W17 arrival item 51: the manifest's own license declaration, through the ManifestReader
     # facade the plugins read identity from, stands in for a license file the repository does
