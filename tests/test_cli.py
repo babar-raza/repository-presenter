@@ -1067,7 +1067,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "shell": "6",
         "renderer": "30",
         "normalisation": "32",
-        "reviewer_logic": "18",
+        "reviewer_logic": "19",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
@@ -1803,10 +1803,15 @@ def test_a_prose_judgment_one_reader_raised_is_read_again_before_it_holds_the_ca
     second read raises nothing equivalent, so the finding is recorded single_reader_advisory and
     the candidate seals instead of failing BC-10 - the class that left Aspose.Cells and
     Aspose.Slides unsealed with four and three such findings after repair.
+
+    TC-REV-01: the rule now protects a returned ACCEPT only. A first read that RETURNED a
+    rejection keeps it unless a deterministic check refutes every finding (review.py's unit tests
+    and the sealed-review replay prove that); here the first read accepts while still listing the
+    judgment, which is the case the two-reader rule still decides.
     """
     gateway_ready.queues = {
         "independent_review": [
-            _presentation_rejection(),
+            {**_presentation_rejection(), "verdict": "ACCEPT"},
             {"verdict": "ACCEPT", "findings": [], "preserve": []},
         ]
     }
@@ -1815,7 +1820,7 @@ def test_a_prose_judgment_one_reader_raised_is_read_again_before_it_holds_the_ca
     assert code == EXIT_OK, captured.err
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     review = json.loads((transaction / "review.json").read_text("utf-8"))
-    assert review["verdict"] == "ACCEPT" and review["verdict_as_returned"] == "REJECT_PRESENTATION"
+    assert review["verdict"] == "ACCEPT" and review["verdict_as_returned"] == "ACCEPT"
     assert review["findings"] == []
     assert [f["id"] for f in review["advisory"]] == ["F01"]
     assert review["advisory"][0]["single_reader_advisory"] is True
