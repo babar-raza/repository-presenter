@@ -1,12 +1,18 @@
 prompt_id: repository_investigation
-version: "2"
+version: "3"
 stage: S3
 purpose: Interpret a bounded fact dossier into what the product is, who uses it, and which problems and workflows the repository evidences, every statement citing fact IDs.
 model_route: qwen3-next
 route_rationale: Of the two general-purpose chat models the recorded catalog lists (qwen3-next, gpt-oss), qwen3-next is the one the legacy gateway characterization found reliable for strict structured JSON output (5 of 5), while gpt-oss's JSON validity swung between 0.4 and 0.8 across reruns; this job returns strict JSON with cited fact IDs, so it routes to qwen3-next. Revisited whenever preflight records a changed catalog.
 sampling:
   temperature: 0.0
-  max_output_tokens: 3000
+  # A ceiling the schema's own bound is derived from, not a target: dossier.output_chars_bound()
+  # measures the longest reply the per-call schema admits (every array at its cap, every string at
+  # its maxLength, fact IDs at the longest length any sealed investigation cites, 64 characters)
+  # and a test holds that reply, at 4.0 characters per token, inside this number. Measured replies:
+  # 2,563 tokens (the largest sealed one, 11,893 characters); Aspose.Font-FOSS-for-Python needed
+  # more than the former 3000 (13,074 characters and still inside "limitations").
+  max_output_tokens: 10500
   seed: 1
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
@@ -64,8 +70,8 @@ output:
           required: [name, text, fact_ids]
           additionalProperties: false
           properties:
-            name: { type: string, minLength: 1 }
-            text: { type: string, minLength: 1 }
+            name: { type: string, minLength: 1, maxLength: 100 }
+            text: { type: string, minLength: 1, maxLength: 400 }
             fact_ids: { type: array, minItems: 1, items: { type: string } }
       capabilities:
         type: array
@@ -76,8 +82,8 @@ output:
           required: [title, text, fact_ids]
           additionalProperties: false
           properties:
-            title: { type: string, minLength: 1 }
-            text: { type: string, minLength: 1 }
+            title: { type: string, minLength: 1, maxLength: 100 }
+            text: { type: string, minLength: 1, maxLength: 400 }
             fact_ids: { type: array, minItems: 1, items: { type: string } }
       limitations:
         type: array
@@ -85,14 +91,15 @@ output:
         items: { $ref: "#/$defs/statement" }
       uncertainties:
         type: array
-        items: { type: string, minLength: 1 }
+        maxItems: 8
+        items: { type: string, minLength: 1, maxLength: 300 }
     $defs:
       statement:
         type: object
         required: [text, fact_ids]
         additionalProperties: false
         properties:
-          text: { type: string, minLength: 1 }
+          text: { type: string, minLength: 1, maxLength: 400 }
           fact_ids: { type: array, minItems: 1, items: { type: string } }
 system: |
   You investigate one real open-source repository from a bounded dossier of facts that deterministic
@@ -122,6 +129,11 @@ system: |
   Respond with only one JSON object matching the output schema you were given, no fence and no
   prose around it. Capabilities are three to eight items, each with an action-led title and one
   sentence; problems_solved one to four items; limitations only those the facts state.
+
+  Limits the output is decoded under. A statement or workflow cites at most 14 fact IDs and a
+  capability at most 11, and an ID is never repeated within one list; cite the facts that carry the
+  claim, not every symbol it mentions. Every text is at most 400 characters, a name or title at
+  most 100, and uncertainties are at most eight items of at most 300 characters each.
 user_template: |
   Repository: $repository
   Ecosystem: $ecosystem

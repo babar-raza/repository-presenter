@@ -744,9 +744,10 @@ def test_the_schema_bounds_fact_ids_to_what_any_returned_unit_could_legitimately
     assert [error.json_path for error in validator.iter_errors(invented)] == [
         "$.units[0].fact_ids[0]"
     ]
-    assert [error.json_path for error in validator.iter_errors(runaway)] == [
-        f"$.units[0].fact_ids[{i}]" for i in range(50)
-    ]
+    # Every repeat is an invalid entry, and the list itself is past the largest slot's count.
+    assert sorted(error.json_path for error in validator.iter_errors(runaway)) == sorted(
+        ["$.units[0].fact_ids", *(f"$.units[0].fact_ids[{i}]" for i in range(50))]
+    )
 
 
 def test_a_call_with_nothing_citable_pins_fact_ids_empty_rather_than_an_empty_enum() -> None:

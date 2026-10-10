@@ -54,6 +54,10 @@ from repository_presenter.components.readme.composition.authoring import (
     unit_checks,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
+from repository_presenter.components.readme.composition.output_bounds import (
+    largest_slot_citation_count,
+    omittable_count,
+)
 from repository_presenter.core.facts import FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -215,6 +219,14 @@ def coherence_schema(
     citable = coherence_citable_ids(tasks)
     if citable:
         units["items"]["properties"]["fact_ids"]["items"] = {"type": "string", "enum": citable}
+        # A unit cites only its own slot's facts (coherence_checks' per-section unit_checks), so no
+        # unit can legitimately cite more distinct facts than its largest slot may - not the
+        # union above, which is every section's. The decoder cannot enforce uniqueness (HTTP 400
+        # to uniqueItems), so without a count a repeating list runs to the whole budget
+        # (Cells-Rust's section_authoring, 2026-10-10; the same class as S3 and S4).
+        scoped = [task for task in tasks if not task.is_batch]
+        units["items"]["properties"]["fact_ids"]["maxItems"] = largest_slot_citation_count(scoped)
+        schema["properties"]["omitted"]["maxItems"] = omittable_count(scoped)
     else:
         units["items"]["properties"]["fact_ids"] = {"type": "array", "maxItems": 0}
     count = len(existing_units)

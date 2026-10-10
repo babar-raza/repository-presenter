@@ -1,0 +1,9 @@
+{
+  "attempt": 1,
+  "job": "section_authoring",
+  "rejection": [
+    "output truncated at the manifest's max_output_tokens"
+  ],
+  "trimmed": "Real reply (33,604 characters, finish_reason length at 8000 tokens): the hub unit's fact_ids repeated the same facts over and over. Kept: the first unit and the hub unit, with the repetition cut after twelve entries.",
+  "content": "{\n  \"units\": [\n    {\n      \"section\": \"api_reference\",\n      \"slot\": \"intro\",\n      \"text\": \"Aspose.Cells FOSS for Rust provides the WorkbookModel and WorksheetModel as primary entry points for working with spreadsheet documents, where WorkbookModel represents the entire workbook and WorksheetModel represents individual worksheets within it.\",\n      \"fact_ids\": [\n        \"public_symbol:workbookmodel\",\n        \"public_symbol:workbook\",\n        \"public_symbol:worksheetmodel\",\n        \"public_symbol:worksheet\"\n      ]\n    },\n    {\n      \"section\": \"api_reference\",\n      \"slot\": \"hub:public_symbol:workbookmodel\",\n      \"text\": \"The WorkbookModel class enables creating new workbooks with Workbook.new or loading existing XLSX files with Workbook.load_xlsx, and provides access to load diagnostics via Workbook.get_load_diagnostics.\",\n      \"fact_ids\": [\n        \"public_symbol:workbookmodel\",\n        \"public_symbol:workbook\",\n        \"public_symbol:workbook.new\",\n        \"public_symbol:workbook.load_xlsx\",\n        \"public_symbol:workbook.load_xlsx\",\n        \"public_symbol:workbook.new\",\n        \"public_symbol:workbookmodel\",\n        \"public_symbol:workbook\",\n        \"public_symbol:workbook.load_xlsx\",\n        \"public_symbol:workbook.new\",\n        \"public_symbol:workbookmodel\",\n        \"public_symbol:workbook\"\n      ]\n    }\n  ],\n  \"omitted\": []\n}"
+}

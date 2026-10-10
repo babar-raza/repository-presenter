@@ -417,7 +417,12 @@ def reconciliation_schema(
     units = [fact.id for fact in batch_units]
     if not units:
         return schema
-    dispositions["minItems"] = len(units)
+    # No minItems: a floor equal to the batch size forbids closing the array, and a reply that
+    # stops early (a re-ask that returned only the units it was asked to fix: Imaging-.NET,
+    # 2026-10-10, 18 of 20) can then only emit whitespace, which the grammar allows without end -
+    # 45,845 whitespace characters until the 32,000-token budget cut it, with no typed
+    # rejection to repair. A short reply now closes and is refused by the unit binding ("no
+    # disposition for inherited units"), which names what is missing. maxItems still bounds it.
     dispositions["maxItems"] = len(units)
     dispositions["items"]["properties"]["unit_id"] = {"type": "string", "enum": units}
     return schema
