@@ -1,0 +1,6 @@
+[project]
+name = "widget-kit"
+requires-python = ">=3.10"
+
+[project.scripts]
+widget-cli = "widget.cli:main"

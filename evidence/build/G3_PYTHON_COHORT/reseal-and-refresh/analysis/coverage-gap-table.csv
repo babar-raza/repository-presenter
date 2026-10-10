@@ -1,0 +1,577 @@
+repository,bundle_state,live_head,bundle_source_revision,unit_type,units,present_in_readme,present_in_facts_only,missing,no_bundle,not_in_live_readme,missing_names,facts_only_names,match_methods
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,readme_unit,24,22,2,0,0,n/a,,Native and System Requirements | Development Dependencies,content_overlap:8;heading+overlap:16
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,doc_page,2,2,0,0,0,0,,,path:2
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,root_doc,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,changelog,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,github_release,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,contributing,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,security_policy,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,code_of_conduct,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,cli_entry,1,0,0,1,0,1,Converter,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,target_framework,4,1,0,3,0,0,target framework net10.0 | target framework net6.0 | target framework net8.0,,pattern:1
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,ci_matrix,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,example_file,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,test_suite,1,0,0,1,0,1,src/test,,
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,build_command,1,1,0,0,0,0,,,command:1
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET,current,52b0f00ebf28,52b0f00ebf28,test_command,1,0,0,1,0,0,dotnet test,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,readme_unit,29,26,3,0,0,n/a,,Aspose.3D FOSS for Java | Installation | Additional Examples,content_overlap:13;heading+overlap:16
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,doc_page,3,3,0,0,0,0,,,path:3
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,root_doc,3,3,0,0,0,0,,,path:3
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,changelog,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,github_release,1,1,0,0,0,0,,,content_overlap:1
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,contributing,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,security_policy,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,code_of_conduct,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,cli_entry,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,ci_matrix,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,example_file,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,test_suite,1,0,0,1,0,1,src/test,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,build_command,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Java,current,3d2ed6be91f5,3d2ed6be91f5,test_command,2,0,0,2,0,1,mvn test | mvn verify,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,readme_unit,27,25,2,0,0,n/a,,Development Dependencies | Additional Examples,content_overlap:10;heading+overlap:17
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,doc_page,7,0,7,0,0,0,,docs/FBX_IMPLEMENTATION_SUMMARY.md | docs/IMPLEMENTATION_SUMMARY.md | docs/OBJ_IMPORTER_IMPLEMENTATION.md | docs/PYPI_READINESS.md | docs/STL_IMPORT_IMPLEMENTATION.md | docs/foss-python-progress.md | docs/releasing.md,path:7
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,root_doc,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,changelog,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,github_release,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,contributing,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,security_policy,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,code_of_conduct,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,cli_entry,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,ci_matrix,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,example_file,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,test_suite,1,1,0,0,0,0,,,dir_pointer:1
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,build_command,1,0,0,1,0,1,python -m build,,
+aspose-3d-foss/Aspose.3D-FOSS-for-Python,current,65b1f577c0f1,65b1f577c0f1,test_command,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,readme_unit,32,0,0,0,32,n/a,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,doc_page,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,root_doc,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,changelog,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,github_release,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,contributing,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,security_policy,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,code_of_conduct,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,cli_entry,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,target_framework,1,0,0,0,1,1,tsconfig target ES2020,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,ci_matrix,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,example_file,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,test_suite,1,0,0,0,1,1,tests,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,license_notice,0,0,0,0,0,0,,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,build_command,1,0,0,0,1,0,npm build,,
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,NO_BUNDLE,66cb26df3b03,,test_command,1,0,0,0,1,0,npm test,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,readme_unit,18,15,3,0,0,n/a,,Required Package Dependencies | Development Dependencies | Internal,heading+overlap:18
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,doc_page,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,root_doc,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,changelog,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,github_release,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,contributing,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,security_policy,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,code_of_conduct,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,cli_entry,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,ci_matrix,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,example_file,5,5,0,0,0,0,,,basename:4;path:1
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,test_suite,1,1,0,0,0,1,,,dir_pointer:1
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,build_command,0,0,0,0,0,0,,,
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python,current,06eca5c01e13,06eca5c01e13,test_command,1,0,0,1,0,0,pytest,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,readme_unit,27,22,5,0,0,n/a,,Build a Table With Totals | Validate Cell Input | Highlight Data With Conditional Formatting | Add Hyperlinks and Named Ranges | Development and Testing,content_overlap:9;heading+overlap:18
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,doc_page,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,root_doc,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,changelog,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,github_release,1,0,0,1,0,1,release V26.9.0,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,contributing,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,security_policy,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,code_of_conduct,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,cli_entry,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,target_framework,2,1,0,1,0,0,target framework net8.0,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,ci_matrix,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,example_file,16,16,0,0,0,0,,,content_overlap:1;dir_pointer:14;path:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,test_suite,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,license_notice,3,3,0,0,0,0,,,heading:1;pattern:2
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,build_command,1,1,0,0,0,0,,,command:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET,current,941814fd138d,941814fd138d,test_command,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,readme_unit,22,12,10,0,0,n/a,,Aspose.Cells FOSS for C++ | Installation | Additional Examples | Load an Existing Workbook and Read Cells | Highlight Cells With Conditional Formatting | Constrain Input With Data Validation | Add a Hyperlink | Define a Named Range | Scope and Limitations | Development and Testing,content_overlap:2;heading+overlap:20
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,doc_page,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,root_doc,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,changelog,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,github_release,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,contributing,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,security_policy,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,code_of_conduct,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,cli_entry,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,ci_matrix,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,example_file,1,1,0,0,0,0,,,content_overlap:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,test_suite,2,0,0,2,0,2,Aspose.Cells.Foss.Cpp.Tests | Aspose.Cells.Foss.Cpp/tests,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,build_command,1,0,0,1,0,0,cmake --build,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp,current,9f852d0ff1cf,9f852d0ff1cf,test_command,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,readme_unit,26,23,3,0,0,n/a,,Requires **Go 1.24.5+** (see `go.mod`). Depends only on the Go standard library — no third-party modules. | Picture Embedding | Project Structure,content_overlap:10;heading+overlap:16
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,doc_page,1,1,0,0,0,0,,,path:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,root_doc,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,changelog,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,github_release,1,1,0,0,0,0,,,content_overlap:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,contributing,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,security_policy,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,code_of_conduct,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,cli_entry,1,0,0,1,0,1,verify,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,ci_matrix,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,example_file,11,11,0,0,0,0,,,basename:10;path:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,test_suite,2,1,0,1,0,0,aspose/cells_foss,,dir_pointer:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,build_command,1,0,0,1,0,1,go build,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go,source_moved,99c789e9175f,fa4e890e46c5,test_command,1,1,0,0,0,0,,,command:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,readme_unit,19,18,1,0,0,n/a,,Project Structure,content_overlap:1;heading+overlap:18
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,doc_page,2,2,0,0,0,2,,,dir_pointer:2
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,root_doc,1,1,0,0,0,0,,,path:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,changelog,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,github_release,1,0,0,1,0,1,release V26.7.0,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,contributing,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,security_policy,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,code_of_conduct,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,cli_entry,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,ci_matrix,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,example_file,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,test_suite,1,0,0,1,0,1,src/test,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,build_command,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java,current,c65329e7257b,c65329e7257b,test_command,2,1,0,1,0,1,mvn verify,,command:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,readme_unit,20,20,0,0,0,n/a,,,content_overlap:3;heading+overlap:17
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,doc_page,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,root_doc,1,0,0,1,0,1,llms.md,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,changelog,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,github_release,1,0,0,1,0,1,release V26.7.0,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,contributing,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,security_policy,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,code_of_conduct,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,cli_entry,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,ci_matrix,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,example_file,2,0,2,0,0,2,,examples/__init__.py | examples/output_path_helper.py,path:2
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,test_suite,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,build_command,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python,current,4f6768a7b349,4f6768a7b349,test_command,1,1,0,0,0,0,,,command:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,readme_unit,30,18,12,0,0,n/a,,Aspose.Cells FOSS for Rust | Additional Examples | Load XLSX Files With Repair Options | Add Charts From Data Ranges | Apply Conditional Formatting Rules | Enforce Data Validation Rules | Build a Structured Excel Table (ListObject) | Hyperlinks and Defined Names | Styling | Load and Save Options | Validation and Conditional Formatting | Development and Testing,content_overlap:6;heading+overlap:24
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,doc_page,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,root_doc,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,changelog,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,github_release,1,0,0,1,0,1,release V26.7.0,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,contributing,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,security_policy,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,code_of_conduct,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,cli_entry,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,target_framework,1,1,0,0,0,1,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,ci_matrix,1,0,0,1,0,0,"os: ubuntu, windows, macos",,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,example_file,16,16,0,0,0,0,,,basename:3;dir_pointer:12;path:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,test_suite,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,license_notice,2,2,0,0,0,0,,,pattern:2
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,build_command,2,2,0,0,0,0,,,command:2
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust,current,1a6004af47b1,1a6004af47b1,test_command,1,1,0,0,0,0,,,command:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,readme_unit,17,15,2,0,0,n/a,,Native and System Requirements | Core API,content_overlap:1;heading+overlap:16
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,doc_page,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,root_doc,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,changelog,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,github_release,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,contributing,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,security_policy,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,code_of_conduct,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,cli_entry,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,target_framework,1,0,0,1,0,1,tsconfig target ES2020,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,ci_matrix,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,example_file,10,10,0,0,0,0,,,content_overlap:1;path:9
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,test_suite,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,build_command,0,0,0,0,0,0,,,
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,current,fc186507e5b7,fc186507e5b7,test_command,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,readme_unit,23,17,6,0,0,n/a,,Installation | Development Dependencies | Aspose.Email.Foss | CFB Container Access | MSG Document Access | High-Level Message API,content_overlap:3;heading+overlap:20
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,doc_page,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,root_doc,1,1,0,0,0,0,,,path:1
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,changelog,1,1,0,0,0,0,,,path:1
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,github_release,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,contributing,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,security_policy,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,code_of_conduct,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,cli_entry,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,ci_matrix,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,example_file,4,0,4,0,0,0,,examples/README.md | examples/create_msg_and_eml.cs | examples/msg_reader.cs | examples/msg_summary.cs,dir_pointer:1;path:3
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,test_suite,1,1,0,0,0,1,,,dir_pointer:1
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,build_command,1,1,0,0,0,0,,,command:1
+aspose-email-foss/Aspose.Email-FOSS-for-.Net,current,59125b4732df,59125b4732df,test_command,1,1,0,0,0,0,,,command:1
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,readme_unit,25,11,14,0,0,n/a,,Aspose.Email FOSS for C++ | Key Capabilities | Build | Install (Optional) | Native and System Requirements | Additional Examples | Create a Message and Save Both MSG and EML From the Command Line | Inspect Low-Level MSG and CFB Structure | Structs | Message Authoring | Low-Level MSG Access | Low-Level CFB Access | (+2 more),heading+overlap:25
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,doc_page,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,root_doc,1,1,0,0,0,0,,,path:1
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,changelog,1,1,0,0,0,0,,,path:1
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,github_release,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,contributing,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,security_policy,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,code_of_conduct,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,cli_entry,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,ci_matrix,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,example_file,4,0,4,0,0,0,,examples/README.md | examples/create_msg_and_eml.cpp | examples/msg_reader.cpp | examples/msg_summary.cpp,path:4
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,test_suite,1,1,0,0,0,1,,,dir_pointer:1
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,build_command,1,1,0,0,0,0,,,command:1
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp,current,c844a467cf7f,c844a467cf7f,test_command,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,readme_unit,27,21,6,0,0,n/a,,Key Capabilities | Inspect Low-Level MSG and CFB Structure | High-Level Message API | Low-Level MSG API | Low-Level CFB API | Development and Testing,content_overlap:6;heading+overlap:21
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,doc_page,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,root_doc,1,0,1,0,0,0,,PUBLIC_API.md,path:1
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,changelog,1,0,1,0,0,0,,CHANGELOG.md,path:1
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,github_release,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,contributing,1,0,1,0,0,0,,CONTRIBUTING.md,path:1
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,security_policy,1,0,1,0,0,0,,SECURITY.md,path:1
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,code_of_conduct,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,cli_entry,0,0,0,0,0,0,,,
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,ci_matrix,1,0,0,1,0,0,"python-version: 3.10, 3.11, 3.12, 3.13",,
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,example_file,4,4,0,0,0,0,,,dir_pointer:3;path:1
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,test_suite,1,1,0,0,0,1,,,dir_pointer:1
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,build_command,1,0,0,1,0,0,python -m build,,
+aspose-email-foss/Aspose.Email-FOSS-for-Python,current,10a906b48c0c,10a906b48c0c,test_command,1,0,0,1,0,0,unittest,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,readme_unit,27,4,18,5,0,n/a,What Can This Font Do? | Coverage Diagnostics | CSS Hints | Release Risks | CLI Usage,aspose-font | Three Buyer Workflows | What You Get | Who Is This For? | 1. Web Font Optimization | 2. Font QA Reporting | 3. Release-Safe Variable Instance Packages | Variable Axes | Capability Snapshot | Variable-Font-First Workflows | Variable Font Discovery | Web Optimization | (+6 more),content_overlap:14;heading+overlap:8
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,doc_page,0,0,0,0,0,0,,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,root_doc,0,0,0,0,0,0,,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,changelog,1,0,0,1,0,1,CHANGELOG.md,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,github_release,1,0,0,1,0,1,release 26.10.2,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,contributing,0,0,0,0,0,0,,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,security_policy,1,0,0,1,0,1,SECURITY.md,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,code_of_conduct,0,0,0,0,0,0,,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,cli_entry,1,1,0,0,0,0,,,name:1
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,target_framework,1,1,0,0,0,1,,,pattern:1
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,ci_matrix,0,0,0,0,0,0,,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,example_file,0,0,0,0,0,0,,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,test_suite,1,1,0,0,0,0,,,dir_pointer:1
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,build_command,2,0,0,2,0,2,make all | make build,,
+aspose-font-foss/Aspose.Font-FOSS-for-Python,source_moved,adf4885a3a5d,c520e3ebed3c,test_command,2,1,0,1,0,1,make test,,command:1
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,readme_unit,0,0,0,0,0,n/a,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,doc_page,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,root_doc,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,changelog,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,github_release,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,contributing,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,security_policy,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,code_of_conduct,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,cli_entry,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,target_framework,1,0,0,0,1,1,target framework net10.0,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,ci_matrix,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,example_file,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,test_suite,1,0,0,0,1,1,Aspose.GIS.FOSS.Tests,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,license_notice,0,0,0,0,0,0,,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,build_command,1,0,0,0,1,1,dotnet build,,
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net,NO_BUNDLE,b9b8c9c760bf,,test_command,1,0,0,0,1,1,dotnet test,,
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,readme_unit,39,31,8,0,0,n/a,,Execute JavaScript Against The DOM | CSS | Layout | Tree | Enumerations #3 | URL And Encoding | JavaScript Bridge (Optional) | Development and Testing,content_overlap:10;heading+overlap:29
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,doc_page,0,0,0,0,0,0,,,
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,root_doc,1,1,0,0,0,0,,,path:1
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,changelog,1,1,0,0,0,0,,,content_overlap:1
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,github_release,0,0,0,0,0,0,,,
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,contributing,1,0,1,0,0,0,,CONTRIBUTING.md,path:1
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,security_policy,1,0,1,0,0,0,,SECURITY.md,path:1
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,code_of_conduct,0,0,0,0,0,0,,,
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,cli_entry,0,0,0,0,0,0,,,
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,ci_matrix,0,0,0,0,0,0,,,
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,example_file,2,2,0,0,0,0,,,content_overlap:2
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,test_suite,2,1,0,1,0,2,.,,dir_pointer:1
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,build_command,0,0,0,0,0,0,,,
+aspose-html-foss/Aspose.HTML-FOSS-for-Python,current,bf0f1e7a6d29,bf0f1e7a6d29,test_command,1,1,0,0,0,0,,,command:1
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,readme_unit,19,9,3,7,0,n/a,Development Dependencies | Probe a File Asynchronously | Detect a Format From an Unseekable Stream | Detailed Member Reference | Documentation & Resources | Scope and Limitations | Development and Testing,Key Capabilities | Quick Start | Count Frames in a Multi-Frame GIF or a Multi-Page DJVU,content_overlap:4;heading+overlap:8
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,doc_page,0,0,0,0,0,0,,,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,root_doc,0,0,0,0,0,0,,,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,changelog,0,0,0,0,0,0,,,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,github_release,0,0,0,0,0,0,,,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,contributing,0,0,0,0,0,0,,,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,security_policy,0,0,0,0,0,0,,,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,code_of_conduct,0,0,0,0,0,0,,,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,cli_entry,0,0,0,0,0,0,,,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,target_framework,2,1,0,1,0,0,target framework net8.0,,pattern:1
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,ci_matrix,1,0,0,1,0,1,"os: ubuntu, windows",,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,example_file,0,0,0,0,0,0,,,
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,test_suite,1,1,0,0,0,1,,,dir_pointer:1
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,build_command,2,1,0,1,0,1,dotnet pack,,command:1
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET,source_moved,6ebb2091ad01,a7c7314b18e1,test_command,1,0,0,1,0,0,dotnet test,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,readme_unit,36,28,8,0,0,n/a,,Saving | Document and Traversal | Document Structure | Content | Load and Save Options | Licensing | Exceptions | Development and Testing,content_overlap:10;heading+overlap:26
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,doc_page,0,0,0,0,0,0,,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,root_doc,0,0,0,0,0,0,,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,changelog,0,0,0,0,0,0,,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,github_release,1,0,0,1,0,1,release v26.3.2,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,contributing,0,0,0,0,0,0,,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,security_policy,0,0,0,0,0,0,,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,code_of_conduct,0,0,0,0,0,0,,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,cli_entry,0,0,0,0,0,0,,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,ci_matrix,1,0,0,1,0,1,"python-version: 3.10, 3.11, 3.12",,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,example_file,5,3,2,0,0,0,,examples/README.md | examples/extract_text.py,basename:1;content_overlap:2;dir_pointer:1;path:1
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,test_suite,1,1,0,0,0,1,,,dir_pointer:1
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,license_notice,2,2,0,0,0,0,,,path:1;pattern:1
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,build_command,1,0,0,1,0,1,python -m build,,
+aspose-note-foss/Aspose.Note-FOSS-for-Python,source_moved,17b5d7fe2002,41de2e8ab478,test_command,1,0,0,1,0,0,unittest,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,readme_unit,33,26,7,0,0,n/a,,Optional Dependencies | Example Results | Run the MCP Server | Render Model and Output | MCP Tools | Polygon Clipping | Development and Testing,content_overlap:7;heading+overlap:26
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,doc_page,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,root_doc,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,changelog,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,github_release,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,contributing,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,security_policy,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,code_of_conduct,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,cli_entry,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,ci_matrix,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,example_file,0,0,0,0,0,0,,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,test_suite,3,1,0,2,0,3,testdata/ps/functional/NINFIV14 | testdata/xps/integration,,dir_pointer:1
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,build_command,1,0,0,1,0,0,make build,,
+aspose-page-foss/Aspose.Page-FOSS-for-Python,current,43cef367cd0b,43cef367cd0b,test_command,2,0,0,2,0,0,make check | make test,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,readme_unit,38,17,21,0,0,n/a,,"Aspose.PDF FOSS for Go | Key Capabilities | Feature Showcase | Content Authoring With the Flow Layout Engine | Digitally Sign and Verify | Encryption and Signing | Forms (AcroForm) | Outlines, Named Destinations, and Table of Contents | Attachments and Portfolios | Document JavaScript and Open Actions | Text Drawing and Right-to-Left / Arabic Shaping | Vector Graphics and SVG Import | (+9 more)",content_overlap:5;heading+overlap:33
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,doc_page,42,0,42,0,0,42,,docs/superpowers/plans/2026-04-02-metadata-crud.md | docs/superpowers/plans/2026-04-03-in-memory-model.md | docs/superpowers/plans/2026-04-06-text-extraction.md | docs/superpowers/plans/2026-04-07-glyph-widths.md | docs/superpowers/plans/2026-04-07-tounicode-cmap.md | docs/superpowers/plans/2026-04-07-visual-text-sorting.md | docs/superpowers/plans/2026-04-08-image-extraction.md | docs/superpowers/plans/2026-04-13-image-info.md | docs/superpowers/plans/2026-04-14-add-image.md | docs/superpowers/plans/2026-04-14-replace-remove-image.md | docs/superpowers/plans/2026-04-15-add-blank-page.md | docs/superpowers/plans/2026-04-15-new-document.md | (+30 more),dir_pointer:39;path:3
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,root_doc,1,0,0,1,0,1,CONTRIBUTORS.md,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,changelog,1,1,0,0,0,0,,,path:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,github_release,1,0,0,1,0,1,release v0.9.0,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,contributing,1,1,0,0,0,0,,,path:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,security_policy,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,code_of_conduct,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,cli_entry,1,0,0,1,0,1,genpdf417,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,ci_matrix,1,0,0,1,0,1,"os: ubuntu, windows, macos",,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,example_file,21,1,20,0,0,0,,_examples/acroform_build/main.go | _examples/acroform_read/main.go | _examples/ai_alt_text/main.go | _examples/ai_chat/main.go | _examples/ai_make_searchable/main.go | _examples/ai_summary/main.go | _examples/barcode_verify/main.go | _examples/blank_with_images/main.go | _examples/embed_font/main.go | _examples/feature_showcase/assets/CREDITS.md | _examples/feature_showcase/main.go | _examples/markdown_to_pdf/main.go | (+8 more),basename:18;content_overlap:1;dir_pointer:1;path:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,test_suite,2,0,0,2,0,2,. | ai,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,build_command,1,1,0,0,0,0,,,command:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go,source_moved,cdf43df10c8c,286484d23519,test_command,1,1,0,0,0,0,,,command:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,readme_unit,47,31,14,2,0,n/a,Build a Table | Draw Paths and Hold a Graphics State,"Aspose.PDF FOSS for Python | Key Capabilities | Encrypt for Certificate Recipients | Sign a Document | Make the Signature Visible | Put a Watermark on a Layer, Then Resolve It | Put a Missing Font Into the Document | Author Complex-Script Text With TextLayoutOptions | Run a Batch Workflow With the Plugin Layer | Pages And Content | Text Extraction And Editing | Forms And Annotations | (+2 more)",content_overlap:19;heading+overlap:26
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,doc_page,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,root_doc,1,1,0,0,0,0,,,path:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,changelog,1,1,0,0,0,0,,,path:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,github_release,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,contributing,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,security_policy,1,1,0,0,0,0,,,path:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,code_of_conduct,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,cli_entry,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,ci_matrix,1,0,0,1,0,0,"python-version: 3.11, 3.12, 3.13",,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,example_file,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,test_suite,1,1,0,0,0,1,,,dir_pointer:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,build_command,1,0,0,1,0,0,python -m build,,
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python,source_moved,8f0edbe6930f,580935ba0ffc,test_command,1,1,0,0,0,0,,,command:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,readme_unit,104,102,2,0,0,n/a,,Optional Dependencies | Annotations and Actions,content_overlap:51;heading+overlap:53
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,doc_page,17,17,0,0,0,0,,,path:17
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,root_doc,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,changelog,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,github_release,1,0,0,1,0,0,release v26.10.0,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,contributing,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,security_policy,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,code_of_conduct,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,cli_entry,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,target_framework,5,1,0,4,0,0,target framework net10.0 | target framework net48 | target framework net9.0 | target framework netstandard2.0,,pattern:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,ci_matrix,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,example_file,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,test_suite,1,1,0,0,0,0,,,dir_pointer:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,build_command,1,1,0,0,0,0,,,command:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET,source_moved,10a363830fea,d10e2c829e1e,test_command,1,0,0,1,0,0,dotnet test,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,readme_unit,48,27,21,0,0,n/a,,Aspose.PDF FOSS for C++ | Visual Studio (NuGet) | From a Release Archive | As a CMake Subdirectory | Requirements | Build From Source | Development Dependencies | Additional Examples | Render Every Page to a Multi-Page TIFF | Encrypt a Document With AES-256 | Sign a Document | Build an AcroForm Field | (+9 more),content_overlap:13;heading+overlap:35
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,doc_page,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,root_doc,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,changelog,1,0,0,1,0,0,CHANGELOG.md,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,github_release,1,0,0,1,0,0,release v1.0.1,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,contributing,1,1,0,0,0,0,,,path:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,security_policy,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,code_of_conduct,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,cli_entry,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,ci_matrix,3,1,0,2,0,2,"cc: gcc-13, clang-16 | cxx: g++-13, clang++-16",,values:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,example_file,13,13,0,0,0,0,,,dir_pointer:13
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,test_suite,3,1,0,2,0,2,.github/package-test | nuget/test,,dir_pointer:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,license_notice,2,2,0,0,0,0,,,path:1;pattern:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,build_command,1,0,0,1,0,0,cmake --build,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,source_moved,4b83c9fec1e3,888700a8e361,test_command,1,0,0,1,0,0,ctest,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,readme_unit,59,58,1,0,0,n/a,,Document and Pages,content_overlap:32;heading+overlap:27
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,doc_page,18,18,0,0,0,0,,,path:18
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,root_doc,1,1,0,0,0,0,,,path:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,changelog,1,1,0,0,0,0,,,path:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,github_release,1,0,0,1,0,1,release v26.9.0,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,contributing,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,security_policy,1,1,0,0,0,0,,,path:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,code_of_conduct,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,cli_entry,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,ci_matrix,1,1,0,0,0,0,,,values:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,example_file,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,test_suite,1,0,0,1,0,1,src/test,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,build_command,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java,source_moved,736cedaa2922,db2d3f0622f0,test_command,2,0,0,2,0,1,mvn test | mvn verify,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,readme_unit,84,0,0,0,84,n/a,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,doc_page,297,0,0,0,297,57,docs/epub-calibre-verification.md | docs/superpowers/notes/2026-09-09-xfa-mutations.md | docs/superpowers/plans/2026-06-03-pdf-page-splitter.md | docs/superpowers/plans/2026-06-04-page-class.md | docs/superpowers/plans/2026-06-04-page-save.md | docs/superpowers/plans/2026-06-04-pdf-metadata-node-wrappers.md | docs/superpowers/plans/2026-06-04-pdf-metadata.md | docs/superpowers/plans/2026-06-04-pdfdocument-openfile.md | docs/superpowers/plans/2026-06-05-document-reorder.md | docs/superpowers/plans/2026-06-05-document-split.md | docs/superpowers/plans/2026-06-08-in-memory-object-model.md | docs/superpowers/plans/2026-06-09-document-add-remove-page.md | (+285 more),,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,root_doc,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,changelog,1,0,0,0,1,0,CHANGELOG.md,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,github_release,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,contributing,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,security_policy,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,code_of_conduct,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,cli_entry,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,target_framework,2,0,0,0,2,1,node engine >=22 | tsconfig target ES2022,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,ci_matrix,0,0,0,0,0,0,,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,example_file,27,0,0,0,27,9,examples/feature-showcase/annotations.ts | examples/feature-showcase/assets.ts | examples/feature-showcase/assets/PROVENANCE.md | examples/feature-showcase/barcodes.ts | examples/feature-showcase/bill.ts | examples/feature-showcase/compliance.ts | examples/feature-showcase/contents.ts | examples/feature-showcase/cover.ts | examples/feature-showcase/flatten.ts | examples/feature-showcase/flowshowcase.ts | examples/feature-showcase/forms.ts | examples/feature-showcase/furniture.ts | (+15 more),,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,test_suite,1,0,0,0,1,1,test,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,license_notice,2,0,0,0,2,1,LICENSE | THIRD-PARTY-NOTICES.md,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,build_command,1,0,0,0,1,0,npm build,,
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,NO_BUNDLE,c672b3918318,,test_command,1,0,0,0,1,0,npm test,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,readme_unit,13,0,0,0,13,n/a,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,doc_page,4,0,0,0,4,0,documentation/README.md | documentation/developer-guide/basic-psd-operations.md | documentation/getting-started.md | documentation/limitations.md,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,root_doc,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,changelog,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,github_release,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,contributing,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,security_policy,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,code_of_conduct,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,cli_entry,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,target_framework,1,0,0,0,1,0,target framework net10.0,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,ci_matrix,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,example_file,10,0,0,0,10,0,samples/Aspose.PSD.FOSS.Samples.Basic/Program.cs | samples/Aspose.PSD.FOSS.Samples.Layers/Program.cs | samples/Aspose.PSD.FOSS.Samples.Streams/Program.cs | samples/Aspose.PSD.FOSS.Samples.StructuralEditing/Program.cs | samples/Aspose.PSD.NuGet.Samples.Basic/Program.cs | samples/Aspose.PSD.NuGet.Samples.Layers/Program.cs | samples/Aspose.PSD.NuGet.Samples.Streams/Program.cs | samples/Aspose.PSD.NuGet.Samples.StructuralEditing/Program.cs | samples/Common/SampleOutputHelper.cs | samples/Common/SamplePathHelper.cs,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,test_suite,1,0,0,0,1,1,src/Aspose.PSD.FOSS.Test,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,license_notice,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,build_command,1,0,0,0,1,1,dotnet build,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET,NO_BUNDLE,f4e1b261922d,,test_command,1,0,0,0,1,1,dotnet test,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,readme_unit,1,0,0,0,1,n/a,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,doc_page,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,root_doc,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,changelog,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,github_release,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,contributing,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,security_policy,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,code_of_conduct,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,cli_entry,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,target_framework,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,ci_matrix,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,example_file,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,test_suite,1,0,0,0,1,1,aspose_psd_foss_test,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,license_notice,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,build_command,0,0,0,0,0,0,,,
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python,NO_BUNDLE,664446b97952,,test_command,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,readme_unit,27,4,23,0,0,n/a,,Requirements | Installation | Build from source | Install the package CI built | Quick start | Why the `!` | Examples | Text and formatting | Tables | Pictures | Effects | Notes and comments | (+11 more),content_overlap:1;heading+overlap:26
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,doc_page,1,1,0,0,0,1,,,dir_pointer:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,root_doc,1,0,0,1,0,1,PUBLISHING.md,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,changelog,1,0,1,0,0,0,,CHANGELOG.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,github_release,1,0,0,1,0,1,release v26.9.0,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,contributing,1,0,1,0,0,0,,CONTRIBUTING.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,security_policy,1,0,1,0,0,0,,SECURITY.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,code_of_conduct,1,0,1,0,0,0,,CODE_OF_CONDUCT.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,cli_entry,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,target_framework,2,1,0,1,0,0,target framework net10.0,,pattern:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,ci_matrix,1,0,0,1,0,0,"os: ubuntu, windows, macos",,
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,example_file,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,test_suite,1,1,0,0,0,1,,,dir_pointer:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,build_command,2,0,0,2,0,1,dotnet build | dotnet pack,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET,current,86c441b5d81e,86c441b5d81e,test_command,1,0,0,1,0,1,dotnet test,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,readme_unit,34,12,22,0,0,n/a,,"Aspose.Slides FOSS for C++ | Installation | Build From Source | Consume via CMake FetchContent | Install and Use the Installed Package | Install From NuGet on Windows | Required Package Dependencies | Native and System Requirements | Quick Start | Format Text and Apply a Fill Effect | Table With a Colored, Bordered Cell | Connector Between Two Shapes | (+10 more)",content_overlap:3;heading+overlap:31
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,doc_page,1,0,1,0,0,0,,docs/nuget/README.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,root_doc,1,1,0,0,0,0,,,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,changelog,1,0,1,0,0,0,,CHANGELOG.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,github_release,1,0,0,1,0,1,release v26.9.0,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,contributing,1,0,1,0,0,0,,CONTRIBUTING.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,security_policy,1,0,1,0,0,0,,SECURITY.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,code_of_conduct,1,0,1,0,0,0,,CODE_OF_CONDUCT.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,cli_entry,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,ci_matrix,3,0,0,3,0,1,"os: ubuntu, macos, windows | cc: gcc, clang | cxx: g++, clang++",,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,example_file,3,0,3,0,0,0,,examples/consumer/main.cpp | examples/nuget-consumer/README.md | examples/nuget-consumer/main.cpp,path:3
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,test_suite,1,1,0,0,0,0,,,dir_pointer:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,license_notice,2,2,0,0,0,1,,,heading:1;pattern:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,build_command,1,0,0,1,0,0,cmake --build,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp,source_moved,469ce77a07b9,c41f8dddc499,test_command,1,0,0,1,0,0,ctest,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,readme_unit,31,23,8,0,0,n/a,,Aspose.Slides FOSS for Java | Key Capabilities | Installation | Native and System Requirements | Quick Start | Choosing an Edition | Scope and Limitations | Development and Testing,content_overlap:7;heading+overlap:24
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,doc_page,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,root_doc,1,1,0,0,0,0,,,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,changelog,1,0,1,0,0,0,,CHANGELOG.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,github_release,1,1,0,0,0,0,,,content_overlap:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,contributing,1,0,1,0,0,0,,CONTRIBUTING.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,security_policy,1,0,1,0,0,0,,SECURITY.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,code_of_conduct,1,0,1,0,0,0,,CODE_OF_CONDUCT.md,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,cli_entry,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,ci_matrix,2,1,0,1,0,0,"os: ubuntu, windows, macos",,values:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,example_file,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,test_suite,2,1,0,1,0,2,src/test,,dir_pointer:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,build_command,1,0,0,1,0,1,mvn package,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java,current,620a26144188,620a26144188,test_command,2,1,0,1,0,1,mvn test,,command:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,readme_unit,49,36,6,7,0,n/a,Development Dependencies | Presentation and Slides | Text | Styling | Images | Enums | Documentation & Resources,Installation | Required Package Dependencies | Native and System Requirements | Export to Markdown | Shapes | Development and Testing,content_overlap:28;heading+overlap:14
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,doc_page,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,root_doc,1,0,0,1,0,0,PUBLISHING.md,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,changelog,1,1,0,0,0,0,,,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,github_release,1,0,0,1,0,1,release 26.8.0,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,contributing,1,1,0,0,0,0,,,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,security_policy,1,1,0,0,0,0,,,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,code_of_conduct,1,1,0,0,0,0,,,path:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,cli_entry,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,ci_matrix,2,0,0,2,0,0,"os: ubuntu, windows, macos | python-version: 3.10, 3.11, 3.12, 3.13, 3.14",,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,example_file,0,0,0,0,0,0,,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,test_suite,1,1,0,0,0,1,,,dir_pointer:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,build_command,1,0,0,1,0,1,python -m build,,
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python,source_moved,4e63447ba79d,becd199a7766,test_command,1,1,0,0,0,0,,,command:1
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,readme_unit,26,0,0,0,26,n/a,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,doc_page,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,root_doc,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,changelog,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,github_release,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,contributing,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,security_policy,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,code_of_conduct,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,cli_entry,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,target_framework,1,0,0,0,1,0,requires-python >=3.10,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,ci_matrix,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,example_file,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,test_suite,1,0,0,0,1,1,tests,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,license_notice,2,0,0,0,2,0,LICENSE | LICENSE-FONTS,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,build_command,0,0,0,0,0,0,,,
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python,NO_BUNDLE,181015d2eee3,,test_command,1,0,0,0,1,0,pytest,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,readme_unit,30,15,15,0,0,n/a,,What it can do | Supported formats | Getting started | Required Package Dependencies | Native and System Requirements | Development Dependencies | A quick example | Additional Examples | Document and DocumentBuilder | Document Structure | Charts | Development and Testing | (+3 more),content_overlap:7;heading+overlap:23
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,doc_page,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,root_doc,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,changelog,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,github_release,1,0,0,1,0,1,release v26.3.0,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,contributing,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,security_policy,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,code_of_conduct,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,cli_entry,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,target_framework,3,1,0,2,0,2,target framework net462 | target framework net8.0,,pattern:1
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,ci_matrix,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,example_file,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,test_suite,6,0,0,6,0,5,Aspose.Foundation/Aspose.Foundation.Tests | Aspose.JavaMs.Tests | Aspose.Words.Tests | TestData/Data/xsd | TestData/Model/Markup | TestData/Model/Shape/Ole/InsertOleObject,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,build_command,1,0,0,1,0,0,dotnet build,,
+aspose-words-foss/Aspose.Words-FOSS-for-.NET,current,0d3f1add920f,0d3f1add920f,test_command,1,0,0,1,0,0,dotnet test,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,readme_unit,40,29,11,0,0,n/a,,Installation | Additional Examples | Load From a Stream | Set DOCX Compression Level | Convert Image-Containing Documents to Every Output Format | Load Markdown From In-Memory Content | Document Loading and Saving | Markdown Export | PDF Export | DOCX Round-Trip Writing | Document Object Model,content_overlap:10;heading+overlap:30
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,doc_page,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,root_doc,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,changelog,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,github_release,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,contributing,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,security_policy,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,code_of_conduct,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,cli_entry,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,target_framework,1,1,0,0,0,0,,,pattern:1
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,ci_matrix,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,example_file,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,test_suite,2,2,0,0,0,1,,,dir_pointer:2
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,license_notice,1,1,0,0,0,0,,,pattern:1
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,build_command,0,0,0,0,0,0,,,
+aspose-words-foss/Aspose.Words-FOSS-for-Python,current,2d2efee2787c,2d2efee2787c,test_command,1,1,0,0,0,0,,,command:1
