@@ -1,4 +1,4 @@
-"""The advisory scorer: disqualifiers fail a candidate whatever its points, a clean candidate scores
+"""The scorer: disqualifiers fail a candidate whatever its points, a clean candidate scores
 by its criteria, and every unjudged entry stays unjudged rather than passing."""
 
 from __future__ import annotations
@@ -20,10 +20,17 @@ from repository_presenter.components.readme.review.acceptance.scorer import (
     NOT_APPLICABLE,
     NOT_EVALUATED,
     NOT_MET,
+    NOT_TRIGGERED,
     PASS,
+    TRIGGERED,
     UNEVALUATED,
     UNSCORED,
     score_candidate,
+)
+from repository_presenter.components.readme.review.acceptance.template_check import (
+    Evidence,
+    ReferenceSection,
+    TemplateInputs,
 )
 from repository_presenter.components.readme.validation.registry import BLOCKING_CHECKS
 
@@ -62,8 +69,9 @@ This project is licensed under the [MIT](LICENSE) license, which permits use and
 distribution with the notice retained.
 """
 
-# A synthetic weighting for tests only: the first four criteria carry two points, the rest one,
-# so the weights sum to the stated 30. It is never a ratified weighting.
+# A synthetic weighting for tests that pin the scorer's arithmetic apart from the ratified table:
+# the first four criteria carry two points, the rest one, so the weights sum to the stated 30. The
+# production weighting is asserted in test_profile.py.
 _WEIGHTS = [2 if index < 4 else 1 for index in range(len(acceptance.CRITERIA))]
 WEIGHT = {
     criterion.id: weight for criterion, weight in zip(acceptance.CRITERIA, _WEIGHTS, strict=True)
@@ -146,7 +154,7 @@ def test_a_not_applicable_criterion_is_credited_and_says_so() -> None:
     record = _score()
     third_party = _row(record, "C07")
     assert third_party["status"] == NOT_APPLICABLE
-    assert record["applicability_ratified"] is False
+    assert record["applicability_ratified"] is True
     assert record["points_earned"] == 30
 
 
@@ -219,9 +227,18 @@ def test_a_disqualifier_is_unrelated_to_the_points_it_would_otherwise_score() ->
     assert record["outcome"] == DISQUALIFIED
 
 
-def test_the_unratified_production_profile_claims_no_point_total() -> None:
-    record = _score(profile=acceptance.PROFILE)
+def _unratified() -> acceptance.Profile:
+    return replace(
+        acceptance.PROFILE,
+        criteria=tuple(replace(c, points=None) for c in acceptance.CRITERIA),
+        ratified=False,
+    )
+
+
+def test_an_unratified_profile_claims_no_point_total() -> None:
+    record = _score(profile=_unratified())
     assert record["ratified"] is False
+    assert record["applicability_ratified"] is False
     assert record["points_possible"] is None
     assert record["points_earned"] is None
     assert record["outcome"] == UNSCORED
@@ -229,10 +246,114 @@ def test_the_unratified_production_profile_claims_no_point_total() -> None:
     assert _row(record, "D14")["status"] == UNEVALUATED
 
 
-def test_the_production_profile_never_reports_pass_even_at_every_criterion_met() -> None:
-    record = _score(profile=acceptance.PROFILE)
-    assert all(row["status"] in (MET, NOT_APPLICABLE) for row in record["criteria"])
-    assert record["outcome"] != PASS
+# --- the ratified production profile ---------------------------------------------------------
+
+DEMO = Evidence("Aspose.Demo FOSS for Python", "1.0", frozenset({"aspose-demo", "Document"}))
+UNRELATED = ReferenceSection(
+    "Key Capabilities",
+    "A different product that converts spreadsheets between several formats for analysts.",
+    "Other Tool",
+    "9.9",
+)
+TEMPLATED_BODY = (
+    "{name} reads and writes documents with the standard settings that every product of this "
+    "kind uses, and it follows the usual conventions for your platform."
+)
+
+
+def _template(*corpus: ReferenceSection, evidence: Evidence = DEMO) -> TemplateInputs:
+    return TemplateInputs(evidence, corpus)
+
+
+def _production(
+    readme: str = CLEAN_README,
+    *,
+    template: TemplateInputs | None,
+    validation: dict[str, Any] | None = None,
+    review: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return score_candidate(
+        readme,
+        validation if validation is not None else _validation(),
+        review if review is not None else _review(),
+        acceptance.PROFILE,
+        template,
+    )
+
+
+def test_the_production_profile_scores_the_full_thirty_with_d14_judged() -> None:
+    record = _production(template=_template(UNRELATED))
+    assert record["ratified"] is True
+    assert record["points_possible"] == 30
+    assert record["points_earned"] == 30
+    assert record["triggered_disqualifiers"] == []
+    assert record["unevaluated"] == {"criteria": [], "disqualifiers": []}
+    assert _row(record, "D14")["status"] == NOT_TRIGGERED
+    assert record["outcome"] == PASS
+
+
+def test_without_template_inputs_d14_is_unevaluated_and_the_outcome_cannot_pass() -> None:
+    record = _production(template=None)
+    assert _row(record, "D14")["status"] == UNEVALUATED
+    assert record["unevaluated"]["disqualifiers"] == ["D14"]
+    assert record["points_earned"] == 30
+    assert record["outcome"] == INCOMPLETE
+
+
+def test_an_empty_reference_corpus_leaves_d14_unevaluated_not_passed() -> None:
+    record = _production(template=_template())
+    assert _row(record, "D14")["status"] == UNEVALUATED
+    assert record["outcome"] == INCOMPLETE
+
+
+def test_the_d14_checker_is_consulted_and_a_templated_section_disqualifies() -> None:
+    section = TEMPLATED_BODY.format(name="Aspose.Demo FOSS for Python")
+    bullet = "- **Write demo files**: builds a demo document from `Document` objects."
+    assert bullet in CLEAN_README
+    readme = CLEAN_README.replace(bullet, section)
+    reference = ReferenceSection(
+        "Key Capabilities", TEMPLATED_BODY.format(name="Other Tool"), "Other Tool", "9.9"
+    )
+    record = _production(readme, template=_template(reference))
+    assert "D14" in record["triggered_disqualifiers"]
+    assert _row(record, "D14")["status"] == TRIGGERED
+    assert "Key Capabilities" in " ".join(_row(record, "D14")["evidence"])
+    assert record["outcome"] == DISQUALIFIED
+
+
+def test_a_candidate_below_the_full_score_does_not_pass_even_with_nothing_disqualifying() -> None:
+    # BC-07 owns C03, C08 and C09, one point each.
+    record = _production(template=_template(UNRELATED), validation=_validation(**{"BC-07": "FAIL"}))
+    assert record["points_earned"] == 27
+    assert record["triggered_disqualifiers"] == []
+    assert record["outcome"] == FAIL
+
+
+def test_a_banner_link_to_an_aspose_destination_above_the_opening_fails_c01_for_two_points() -> (
+    None
+):
+    banner = "[![Aspose.Demo](https://products.aspose.org/media/demo/banner.png)](https://products.aspose.org/demo/python/)\n\n"
+    readme = CLEAN_README.replace(
+        "Aspose.Demo FOSS for Python reads", banner + "Aspose.Demo FOSS for Python reads", 1
+    )
+    record = _production(readme, template=_template(UNRELATED))
+    assert _row(record, "C01")["status"] == NOT_MET
+    assert record["points_earned"] == 28
+    assert record["outcome"] == FAIL
+
+
+def test_not_applicable_criteria_are_credited_as_met_at_the_ratified_weights() -> None:
+    record = _production(template=_template(UNRELATED))
+    credited = {row["id"] for row in record["criteria"] if row["status"] == NOT_APPLICABLE}
+    assert {"C07", "C12"} <= credited  # no notices file, no additional examples
+    assert record["points_earned"] == record["points_possible"] == 30
+
+
+def test_a_readme_with_no_h1_credits_c01_as_not_applicable_but_still_fails_d05() -> None:
+    record = _production("Just prose with no heading at all.\n", template=_template(UNRELATED))
+    assert _row(record, "C01")["status"] == NOT_APPLICABLE
+    assert "D05" in record["triggered_disqualifiers"]
+    assert record["outcome"] == DISQUALIFIED
 
 
 def test_an_unevaluated_disqualifier_is_incomplete_never_a_pass() -> None:
@@ -312,12 +433,13 @@ def test_the_record_is_deterministic() -> None:
     assert json.dumps(first, sort_keys=True) == json.dumps(second, sort_keys=True)
 
 
-def test_the_record_declares_that_it_is_advisory_and_unratified() -> None:
+def test_the_record_declares_it_ratified_and_not_a_ready_gate() -> None:
     record = _score(profile=acceptance.PROFILE)
-    assert record["advisory"] is True
-    assert record["ratified"] is False
-    assert record["profile_version"] == "1"
-    assert record["scorer_version"] == "1"
+    assert record["advisory"] is True  # never gates READY_FOR_PROPOSAL
+    assert record["ratified"] is True
+    assert record["applicability_ratified"] is True
+    assert record["profile_version"] == acceptance.PROFILE_VERSION == "2"
+    assert record["scorer_version"] == "2"
     assert record["source"] == "plans/idea.md"
 
 

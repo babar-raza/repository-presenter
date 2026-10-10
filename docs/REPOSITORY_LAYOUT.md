@@ -85,7 +85,7 @@ src/repository_presenter/
         rules.py                the pure rules BC-06 and BC-07 call: derived link ceilings, the Enterprise Edition anchor, the badge row's order and support
     review/
       independent/             independent_review job wiring
-      acceptance/               30-point criterion profile (G2)
+      acceptance/               ratified 30-point profile, scorer, D14 template checker, and sealed.py (scores a sealed bundle for the portfolio funnel) (G7-W20)
     repair/
       targeted.py              targeted_repair job wiring: defects, fingerprints, repairs.json
       rounds.py                one composition round (S3 to S10) and the bounded repair loop

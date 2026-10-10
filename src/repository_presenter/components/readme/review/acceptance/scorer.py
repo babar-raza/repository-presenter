@@ -1,8 +1,11 @@
-"""The acceptance scorer: an ADVISORY record of a candidate against the acceptance profile.
+"""The acceptance scorer: a candidate against the ratified 30-point acceptance profile.
 
 ``score_candidate`` reads the README text, ``validation.json``'s checks, and ``review.json``. It
-never changes a blocking check, a verdict, or a state. Its record is written into ``review.json``
-under ``acceptance_profile`` so the score is kept with the review that produced it.
+never changes a blocking check, a verdict, or a state, so it cannot move a candidate to or from
+``READY_FOR_PROPOSAL``; the score gates publication eligibility only (``bundle/portfolio.py``
+computes it from the sealed bundle, not from a stored record). The repair round also writes the
+record into ``review.json`` under ``acceptance_profile``. It has no portfolio corpus, so its D14 is
+unevaluated and its outcome ``INCOMPLETE``; the portfolio funnel supplies ``template`` inputs.
 
 Outcome, in precedence order:
 
@@ -15,8 +18,8 @@ Outcome, in precedence order:
 
 A criterion whose condition does not apply (for example, a third-party notices heading absent)
 is ``NOT_APPLICABLE`` and is credited as satisfied, so a candidate with nothing to fail can still
-reach 30/30. Crediting it is a policy choice the owner has not ratified; the record says so with
-``applicability_ratified: false``.
+reach the full 30. The owner ratified that policy with the weights (2026-10-10); the record states
+it with ``applicability_ratified``.
 """
 
 from __future__ import annotations
@@ -34,6 +37,12 @@ from repository_presenter.components.readme.review.acceptance.profile import (
     Disqualifier,
     Evaluator,
     Profile,
+    ProfileError,
+)
+from repository_presenter.components.readme.review.acceptance.template_check import (
+    TemplateInputs,
+    Verdict,
+    check_template_filling,
 )
 from repository_presenter.components.readme.review.acceptance.text_checks import (
     TEXT_PREDICATES,
@@ -43,7 +52,9 @@ from repository_presenter.components.readme.review.acceptance.text_checks import
 )
 from repository_presenter.components.readme.validation.registry import BLOCKING_CHECKS
 
-SCORER_VERSION = "1"
+__all__ = ["ProfileError", "score_candidate", "validate_profile"]
+
+SCORER_VERSION = "2"
 SCHEMA_VERSION = 1
 
 MET = "MET"
@@ -62,10 +73,6 @@ FAIL = "FAIL"
 
 _SOURCE_REF = re.compile(r"^L\d+(?:-\d+)?$")
 _STRUCTURAL_SECTIONS = frozenset({"structure", "document", "all"})
-
-
-class ProfileError(ValueError):
-    """The acceptance profile is internally inconsistent; the scorer refuses to run on it."""
 
 
 def validate_profile(profile: Profile) -> None:
@@ -114,9 +121,9 @@ def _evaluator_errors(entry_id: str, evaluator: Evaluator, check_ids: set[str]) 
     elif evaluator.kind == "text":
         if len(evaluator.ref) != 1 or evaluator.ref[0] not in TEXT_PREDICATES:
             return [f"{entry_id}: text evaluator {evaluator.ref} is not a known predicate"]
-    elif evaluator.kind == "review":
+    elif evaluator.kind in ("review", "template"):
         if evaluator.ref:
-            return [f"{entry_id}: a review evaluator takes no reference"]
+            return [f"{entry_id}: a {evaluator.kind} evaluator takes no reference"]
     return []
 
 
@@ -125,16 +132,20 @@ def score_candidate(
     validation: Mapping[str, Any],
     review: Mapping[str, Any],
     profile: Profile = PROFILE,
+    template: TemplateInputs | None = None,
 ) -> dict[str, Any]:
-    """The advisory acceptance record for one candidate. Deterministic: the same inputs always
-    produce the same record, so a replay reproduces it byte for byte."""
+    """The acceptance record for one candidate. Deterministic: the same inputs always produce the
+    same record, so a replay reproduces it byte for byte. ``template`` carries D14's evidence and
+    corpus; without it D14 is unevaluated and the outcome cannot be ``PASS``."""
     validate_profile(profile)
     lines = scan(readme)
     verdicts = {
         str(check.get("id")): check.get("verdict") for check in validation.get("checks", [])
     }
     criteria = [_criterion_row(c, lines, verdicts, review) for c in profile.criteria]
-    disqualifiers = [_disqualifier_row(d, lines, verdicts) for d in profile.disqualifiers]
+    disqualifiers = [
+        _disqualifier_row(d, readme, lines, verdicts, template) for d in profile.disqualifiers
+    ]
     possible, earned = _points(profile, criteria)
     triggered = [row["id"] for row in disqualifiers if row["status"] == TRIGGERED]
     unevaluated = {
@@ -146,9 +157,9 @@ def score_candidate(
         "scorer_version": SCORER_VERSION,
         "profile_version": profile.version,
         "source": SOURCE_DOCUMENT,
-        "advisory": True,
+        "advisory": True,  # never gates READY_FOR_PROPOSAL; the portfolio funnel reads the score
         "ratified": profile.ratified,
-        "applicability_ratified": False,
+        "applicability_ratified": profile.ratified,
         "total_points": profile.total_points,
         "points_possible": possible,
         "points_earned": earned,
@@ -228,13 +239,30 @@ def _criterion_row(
 
 
 def _disqualifier_row(
-    disqualifier: Disqualifier, lines: Sequence[Line], verdicts: Mapping[str, Any]
+    disqualifier: Disqualifier,
+    readme: str,
+    lines: Sequence[Line],
+    verdicts: Mapping[str, Any],
+    template: TemplateInputs | None,
 ) -> dict[str, Any]:
     evaluator = disqualifier.evaluator
-    if evaluator.kind == "text":
+    evidence: tuple[str, ...]
+    if evaluator.kind == "template":
+        if template is None:
+            status = UNEVALUATED
+            evidence = ("no template evidence or reference corpus was supplied",)
+        else:
+            judged = check_template_filling(readme, template.evidence, template.corpus)
+            status = {
+                Verdict.DISQUALIFIED: TRIGGERED,
+                Verdict.PASS: NOT_TRIGGERED,
+                Verdict.UNEVALUATED: UNEVALUATED,
+            }[judged.verdict]
+            evidence = judged.evidence
+    elif evaluator.kind == "text":
         result = TEXT_PREDICATES[evaluator.ref[0]](lines)
         status = TRIGGERED if result.outcome == Outcome.FAIL else NOT_TRIGGERED
-        evidence: tuple[str, ...] = result.evidence
+        evidence = result.evidence
     elif evaluator.kind == "check":
         reading, evidence = _check_reading(evaluator.ref, verdicts)
         status = {"FAIL": TRIGGERED, "PASS": NOT_TRIGGERED, "UNKNOWN": UNEVALUATED}[reading]

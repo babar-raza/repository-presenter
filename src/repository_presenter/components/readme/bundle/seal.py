@@ -76,7 +76,6 @@ from repository_presenter.components.readme.evidence.facts.inherited import (
     INHERITED_UNITS_VERSION,
 )
 from repository_presenter.components.readme.extractors.surface.extractor import EXTRACTOR_VERSION
-from repository_presenter.components.readme.review.acceptance.profile import PROFILE_VERSION
 from repository_presenter.components.readme.review.independent.review import REVIEWER_LOGIC_VERSION
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
@@ -115,12 +114,17 @@ from repository_presenter.core.toolchains import toolchain_fingerprint
 DEPENDENCIES_FILENAME = "dependencies.json"
 CURRENT_FILENAME = "CURRENT"
 CONTRACT_VERSION = "readme-contract-v1"
-# G3-W02: the acceptance profile version. The value is "1", frozen 2026-10-01 with the contract
-# (docs/DECISION_LOG.md PA-05). The profile itself (review/acceptance/profile.py) is still
-# UNRATIFIED and its scorer is ADVISORY, so no blocking check reads it and the value is not
-# bumped: a bump would reopen REVIEWING for every sealed candidate. Bump it only when a blocking
-# check's meaning changes or the owner ratifies the profile.
-ACCEPTANCE_PROFILE_VERSION = PROFILE_VERSION
+# G3-W02: the acceptance profile version a sealed bundle CONSUMED, recorded in dependencies.json and
+# read by evaluation.py as a reviewer-scope input. It is "1", frozen 2026-10-01 with the contract
+# (docs/DECISION_LOG.md PA-05), and is deliberately NOT ``PROFILE_VERSION`` any more: the owner
+# ratified the profile on 2026-10-10 (G7-W20, OWNER-13) and the profile is now "2", but ratification
+# changes nothing a sealed review consumed. The independent review (prompts, routes, review logic)
+# is unchanged; the score is recomputed from the sealed README, validation.json and review.json by
+# the portfolio funnel (bundle/portfolio.py), and READY_FOR_PROPOSAL does not read it. Bumping this
+# would reopen REVIEWING for every sealed candidate (status --stale routing, a provider re-review)
+# for no change in content, and would drop the current candidates from the headline count. Move it
+# when a change alters what the independent review itself reads or decides.
+ACCEPTANCE_PROFILE_VERSION = "1"
 REQUIRED_ARTIFACTS = (
     "README.md",
     "README.patch",
