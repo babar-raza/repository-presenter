@@ -1,18 +1,19 @@
 # TC-RSL-01 (plans/reseal-and-refresh, 2026-10-10). Owner/reviewer operator tooling (tools/README.md):
 # never imported by src/, never read by a gate. Starts real `present` runs (gateway spend) - but only
-# inside its own isolated worktrees, and writes nothing to candidates/, project/state.yaml, git history
+# inside its own isolated work clones, and writes nothing to candidates/, project/state.yaml, git history
 # or GitHub.
 """Local parallel reseal runner.
 
-For every selected repository: one isolated short-path worktree (scripts/new_worktree.sh, then
-detached at the cut sha), `preflight` once, `present` (run 1), `present` again in a fresh process
+For every selected repository: one isolated short-path PLAIN clone of the control repo (no git worktree; Go
+fails inside one) at the cut sha, detached;
+then `preflight` once, `present` (run 1), `present` again in a fresh process
 (run 2, the no-op / adoption run), then `verify-noop-proof`. One result row per repository
 (results.jsonl is the append-only source; results.csv and results.json are regenerated from it).
 
 The runner NEVER edits project/state.yaml, never commits, never pushes, never copies a bundle into
-the control checkout's candidates/ - the supervisor stages bundles from each worktree into wave PRs.
+the control checkout's candidates/ - the supervisor stages bundles from each work clone into wave PRs.
 It never retries a rejected seal and never edits a disposition or plan (plans/healing/
-r1-reseal-operations.md hard rules). A failed or timed-out repository leaves its worktree (logs
+r1-reseal-operations.md hard rules). A failed or timed-out repository leaves its work clone (logs
 included) and nothing else.
 
 usage: reseal_wave.py [--cut REF] [--repo OWNER/NAME ...] [--family F] [--platform P]
@@ -39,9 +40,17 @@ from pathlib import Path
 from typing import Any
 
 MAX_PARALLEL_CEILING = 8
-DEFAULT_PARALLEL = 4
+DEFAULT_PARALLEL = 3  # liveness was probed clean to 8; widen by flag after a clean first wave
 DEFAULT_TIMEOUT_MINUTES = 45
 DEFAULT_NODE_DIR = r"D:\Program Files\nodejs"
+DEFAULT_CLONE_ROOT = r"E:\rp"
+# A private copy of the toolchain registry that adds the `vcvarsall` key (MSVC fallback for
+# Cells-Cpp); the shared D:\tools\rp-toolchains file is not edited by the lanes.
+DEFAULT_TOOLCHAIN_REGISTRY = (
+    r"C:\Users\babar\AppData\Local\Temp\claude"
+    r"\e--Users-prora-OneDrive-Documents-GitHub-repository-presenter"
+    r"\01db89e6-ba90-479a-befa-bff20834c024\scratchpad\toolchain-registry-reseal.txt"
+)
 GATEWAY_VARIABLES = ("GPT_OSS_ENDPOINT", "GPT_OSS_API_KEY")
 
 # Stdout line prefixes of `present`, in the order the transaction prints them.
@@ -91,7 +100,7 @@ CSV_COLUMNS = (
     "failure_stage",
     "failure_detail",
     "cut",
-    "worktree",
+    "workdir",
     "attempt",
     "changed_paths",
     "started_at",
@@ -116,11 +125,22 @@ class Entry:
 class Job:
     entry: Entry
     attempt: int
-    name: str  # worktree directory name (short)
-    branch: str
+    name: str  # work clone directory name (short)
 
 
 # --------------------------------------------------------------------------- pure parts
+
+
+_SECRET_NAME = re.compile(r"TOKEN|KEY|SECRET|PASSWORD|CREDENTIAL", re.I)
+
+
+def redact(text: str, environ: Any = None) -> str:
+    """Mask the value of every secret-shaped environment variable. The runner never prints or
+    dumps the environment; this covers a secret that a child's error text echoed back."""
+    for name, value in (os.environ if environ is None else environ).items():
+        if len(value) >= 8 and _SECRET_NAME.search(name):
+            text = text.replace(value, "[redacted]")
+    return text
 
 
 def utc_now() -> str:
@@ -186,8 +206,8 @@ def latest_rows(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     return latest
 
 
-def worktree_name(entry: Entry, attempt: int) -> str:
-    base = f"rs-{entry.family}-{entry.platform}"
+def workdir_name(entry: Entry, attempt: int) -> str:
+    base = f"{entry.family}-{entry.platform}"
     return base if attempt == 1 else f"{base}-{attempt}"
 
 
@@ -199,7 +219,7 @@ def build_queue(
     path_taken: Any = lambda name: False,
 ) -> tuple[list[Job], list[tuple[Entry, str]]]:
     """(jobs to run, [(entry, reason skipped)]). A repository with a result row is skipped unless
-    --retry-failed names its status; a retry takes a fresh worktree name (the first free attempt)."""
+    --retry-failed names its status; a retry takes a fresh clone name (the first free attempt)."""
     latest = latest_rows(rows)
     jobs: list[Job] = []
     skipped: list[tuple[Entry, str]] = []
@@ -209,10 +229,10 @@ def build_queue(
             skipped.append((entry, f"already has a result row ({row.get('status')})"))
             continue
         attempt = 1
-        while path_taken(worktree_name(entry, attempt)):
+        while path_taken(workdir_name(entry, attempt)):
             attempt += 1
-        name = worktree_name(entry, attempt)
-        jobs.append(Job(entry, attempt, name, f"wt/{name}-{cut[:8]}"))
+        name = workdir_name(entry, attempt)
+        jobs.append(Job(entry, attempt, name))
     return jobs, skipped
 
 
@@ -368,25 +388,25 @@ def load_rows(results_dir: Path) -> list[dict[str, Any]]:
 
 @dataclass
 class Runner:
-    control_root: Path  # the checkout whose scripts/new_worktree.sh is used
-    main_root: Path  # the main checkout; worktrees live under <main_root>/runs/wt
+    main_root: Path  # the main checkout: the clone source and owner of the shared .venv
+    clone_root: Path  # work clones live here, under a short path
     python: str
-    bash: str
     cut: str
     results_dir: Path
     timeout_seconds: float
     extra_path: list[str]
     gh_token: str | None
+    toolchain_registry: str | None = None
     lock: threading.Lock = field(default_factory=threading.Lock)
-    worktree_lock: threading.Lock = field(default_factory=threading.Lock)
+    clone_lock: threading.Lock = field(default_factory=threading.Lock)
     live: set[subprocess.Popen[bytes]] = field(default_factory=set)
 
-    def worktree_path(self, name: str) -> Path:
-        return self.main_root / "runs" / "wt" / name
+    def workdir_path(self, name: str) -> Path:
+        return self.clone_root / name
 
-    def env_for(self, worktree: Path) -> dict[str, str]:
+    def env_for(self, workdir: Path) -> dict[str, str]:
         env = dict(os.environ)
-        env["PYTHONPATH"] = str(worktree / "src")
+        env["PYTHONPATH"] = str(workdir / "src")
         env["PYTHONUTF8"] = "1"
         env["PYTHONUNBUFFERED"] = "1"  # logs are files: without this a killed run loses its stages
         env["PYTHONIOENCODING"] = "utf-8"
@@ -395,6 +415,8 @@ class Runner:
             env["PATH"] = os.pathsep.join([*extra, env.get("PATH", "")])
         if self.gh_token:
             env["GH_TOKEN"] = self.gh_token
+        if self.toolchain_registry:
+            env["RP_TOOLCHAIN_REGISTRY"] = self.toolchain_registry
         return env
 
     def run(
@@ -437,28 +459,36 @@ class Runner:
         for proc in procs:
             kill_tree(proc)
 
-    def create_worktree(self, job: Job) -> Path:
-        """scripts/new_worktree.sh, then detach at the cut (the script branches from origin/main's
-        tip, the cut is a pinned sha). Serialised: it fetches and touches the shared git dir."""
-        path = self.worktree_path(job.name)
-        with self.worktree_lock:
-            made = subprocess.run(
-                [self.bash, "scripts/new_worktree.sh", job.name, job.branch],
-                cwd=self.control_root,
-                capture_output=True,
-                text=True,
-                stdin=subprocess.DEVNULL,
-            )
-            if made.returncode != 0:
-                raise RuntimeError(f"new_worktree.sh {job.name}: {made.stdout.strip()[-300:]}")
-            git = subprocess.run(
-                ["git", "-C", str(path), "checkout", "--detach", self.cut],
-                capture_output=True,
-                text=True,
-            )
-            if git.returncode != 0:
-                raise RuntimeError(f"checkout --detach {self.cut[:8]}: {git.stderr.strip()[-300:]}")
+    def create_workdir(self, job: Job) -> Path:
+        """A PLAIN clone of the control repo at the cut (`git worktree` breaks Go's VCS stamping:
+        "error obtaining VCS status"). --shared keeps disk use small; `origin` is removed so
+        nothing run here can push; the shared .venv is linked as scripts/new_worktree.sh does."""
+        path = self.workdir_path(job.name)
+        with self.clone_lock:
+            self.clone_root.mkdir(parents=True, exist_ok=True)
+            source, target = str(self.main_root), str(path)
+            steps = [
+                ["git", "clone", "--shared", "--no-checkout", "--quiet", source, target],
+                ["git", "-C", target, "checkout", "--quiet", "--detach", self.cut],
+                ["git", "-C", target, "remote", "remove", "origin"],
+            ]
+            for argv in steps:
+                done = subprocess.run(argv, capture_output=True, text=True, stdin=subprocess.DEVNULL)
+                if done.returncode != 0:
+                    detail = (done.stderr or done.stdout).strip()[-300:]
+                    raise RuntimeError(f"{' '.join(argv[:4])}: {detail}")
+            link_venv(self.main_root / ".venv", path / ".venv")
         return path
+
+
+def link_venv(source: Path, link: Path) -> None:
+    """The shared venv, linked and never copied (a junction on Windows, a symlink elsewhere)."""
+    if not source.is_dir():
+        return
+    if os.name == "nt":
+        subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(source)], capture_output=True)
+    else:
+        link.symlink_to(source, target_is_directory=True)
 
 
 def kill_tree(proc: subprocess.Popen[bytes]) -> None:
@@ -490,22 +520,22 @@ def read_json(path: Path) -> dict[str, Any]:
         return {}
 
 
-def ledger_calls(worktree: Path, record_path: Path) -> int | None:
+def ledger_calls(workdir: Path, record_path: Path) -> int | None:
     """Provider calls of one invocation, counted from the ledger its invocation record names."""
     record = read_json(record_path)
     ledger = record.get("ledger")
     if not ledger:
         return None
-    path = worktree / ledger
+    path = workdir / ledger
     if not path.is_file():
         return None
     return count_provider_calls(path.read_text(encoding="utf-8").splitlines(), record.get("invocation_id"))
 
 
-def changed_paths(worktree: Path) -> list[str]:
-    """What the run changed in its own worktree (the supervisor stages candidate paths from here)."""
+def changed_paths(workdir: Path) -> list[str]:
+    """What the run changed in its own work clone (the supervisor stages candidate paths from here)."""
     status = subprocess.run(
-        ["git", "-C", str(worktree), "status", "--porcelain", "--untracked-files=all"],
+        ["git", "-C", str(workdir), "status", "--porcelain", "--untracked-files=all"],
         capture_output=True,
         text=True,
     )
@@ -521,7 +551,7 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
         "platform": entry.platform,
         "cut": runner.cut,
         "attempt": job.attempt,
-        "worktree": str(runner.worktree_path(job.name)),
+        "workdir": str(runner.workdir_path(job.name)),
         "started_at": utc_now(),
         "exit_preflight": None,
         "exit_present1": None,
@@ -537,23 +567,23 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
     parsed1: dict[str, Any] = {}
     parsed2: dict[str, Any] = {}
     try:
-        worktree = runner.create_worktree(job)
-        env = runner.env_for(worktree)
-        logs = worktree / "runs" / "reseal-logs"
+        workdir = runner.create_workdir(job)
+        env = runner.env_for(workdir)
+        logs = workdir / "runs" / "reseal-logs"
         cli = [runner.python, "-m", "repository_presenter"]
 
-        # The venv is shared; PYTHONPATH must make it import THIS worktree's src.
+        # The venv is shared; PYTHONPATH must make it import THIS clone's src.
         probe = subprocess.run(
             [runner.python, "-c", "import repository_presenter as r;print(r.__file__)"],
-            cwd=worktree, env=env, capture_output=True, text=True,
+            cwd=workdir, env=env, capture_output=True, text=True,
         )
         imported = Path(probe.stdout.strip() or ".").resolve()
-        if worktree.resolve() not in imported.parents:
-            raise RuntimeError(f"repository_presenter imports {imported}, not the worktree's src")
+        if workdir.resolve() not in imported.parents:
+            raise RuntimeError(f"repository_presenter imports {imported}, not the work clone's src")
 
         def phase(name: str, args: list[str]) -> tuple[int | None, bool, str, str]:
             code, late = runner.run(
-                [*cli, *args], worktree, env, logs / f"{name}.out", logs / f"{name}.err", deadline
+                [*cli, *args], workdir, env, logs / f"{name}.out", logs / f"{name}.err", deadline
             )
             return code, late, read_text(logs / f"{name}.out"), read_text(logs / f"{name}.err")
 
@@ -569,7 +599,7 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
         )
         row["exit_present1"] = code
         parsed1 = parse_present_output(out, err)
-        row["provider_calls_run1"] = ledger_calls(worktree, record1)  # spend counts on failure too
+        row["provider_calls_run1"] = ledger_calls(workdir, record1)  # spend counts on failure too
         if code != 0 or timed_out:
             raise PhaseFailure("present-1", code, timed_out, parsed1, out + "\n" + err)
 
@@ -579,7 +609,7 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
             )
             row["exit_present2"] = code
             parsed2 = parse_present_output(out, err)
-            row["provider_calls_run2"] = ledger_calls(worktree, record2)
+            row["provider_calls_run2"] = ledger_calls(workdir, record2)
             if code != 0 or timed_out:
                 raise PhaseFailure("present-2", code, timed_out, parsed2, out + "\n" + err)
 
@@ -599,7 +629,7 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
         row["failure_class"], row["failure_stage"], row["failure_detail"] = classify_failure(
             failure.phase, failure.code, failure.timed_out, parsed, failure.text
         )
-    except Exception as exc:  # worktree / environment failures: recorded, never raised past the pool
+    except Exception as exc:  # clone / environment failures: recorded, never raised past the pool
         row["failure_class"], row["failure_detail"] = "runner", f"{type(exc).__name__}: {exc}"[:300]
 
     final = {**parsed1, **parsed2}  # run 2 (the adoption run) overrides run 1 where it reports
@@ -607,17 +637,18 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
     for key in ("validation_pass", "validation_fail", "validation_pending", "review_verdict",
                 "review_findings", "bundle_state", "bundle_path"):
         row[key] = final.get(key, "")
-    worktree_path = runner.worktree_path(job.name)
-    if worktree_path.is_dir():
-        row["changed_paths"] = changed_paths(worktree_path)
+    workdir_path = runner.workdir_path(job.name)
+    if workdir_path.is_dir():
+        row["changed_paths"] = changed_paths(workdir_path)
         if row["bundle_path"]:
-            row["bundle_path"] = str(worktree_path / row["bundle_path"])
+            row["bundle_path"] = str(workdir_path / row["bundle_path"])
     if row["failure_class"]:
         row["status"] = "TIMEOUT" if timed_out else "FAILED"
     else:
         row["status"] = row_status(
             row["exit_present1"], row["exit_present2"], row["noop_proof"], parsed2, parsed1, timed_out
         )
+    row["failure_detail"] = redact(row["failure_detail"])
     row["minutes"] = round((time.monotonic() - started) / 60, 1)
     row["finished_at"] = utc_now()
     return row
@@ -641,17 +672,6 @@ def git_out(root: Path, *args: str) -> str:
     return done.stdout.strip()
 
 
-def find_bash(explicit: str | None) -> str:
-    candidates = [explicit, os.environ.get("RESEAL_BASH"), r"C:\Program Files\Git\bin\bash.exe"]
-    for candidate in candidates:
-        if candidate and Path(candidate).is_file():
-            return candidate
-    found = shutil.which("bash")
-    if found is None:
-        raise RuntimeError("no bash found; pass --bash (Git for Windows bash, not the WSL one)")
-    return found
-
-
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     p.add_argument("--cut", default="origin/main", help="cut ref or sha (default origin/main, pinned to its sha)")
@@ -664,7 +684,11 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--retry-failed", action="store_true", help="re-queue FAILED/TIMEOUT/NOT_READY rows")
     p.add_argument("--dry-run", action="store_true", help="print the plan; start nothing")
     p.add_argument("--python", default=None, help="default <main>/.venv/Scripts/python.exe")
-    p.add_argument("--bash", default=None)
+    p.add_argument("--clone-root", type=Path, default=Path(DEFAULT_CLONE_ROOT),
+                   help=f"short-path parent of the work clones (default {DEFAULT_CLONE_ROOT})")
+    p.add_argument("--toolchain-registry", default=None,
+                   help="RP_TOOLCHAIN_REGISTRY for every run (default: the private registry with the"
+                        " vcvarsall key, when it exists)")
     p.add_argument("--extra-path", action="append", default=None, help=f"prepended to the SUBPROCESS PATH (default {DEFAULT_NODE_DIR})")
     p.add_argument("--gh-token-from-gh", action="store_true", help="read GH_TOKEN from `gh auth token` into the subprocess env only")
     return p
@@ -690,20 +714,27 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     results_dir = args.results_dir or main_root / "runs" / "reseal" / cut[:8]
     rows = load_rows(results_dir)
-    taken = lambda name: (main_root / "runs" / "wt" / name).exists()  # noqa: E731
+    taken = lambda name: (args.clone_root / name).exists()  # noqa: E731
     jobs, skipped = build_queue(selected, rows, cut, args.retry_failed, taken)
 
     venv_python = main_root / ".venv" / "Scripts" / "python.exe"
     python = args.python or (str(venv_python) if venv_python.is_file() else sys.executable)
     extra_path = args.extra_path if args.extra_path is not None else [DEFAULT_NODE_DIR]
+    registry = args.toolchain_registry
+    if registry is None and Path(DEFAULT_TOOLCHAIN_REGISTRY).is_file():
+        registry = DEFAULT_TOOLCHAIN_REGISTRY
+    if registry is not None and not Path(registry).is_file():
+        print(f"reseal_wave: toolchain registry not found: {registry}", file=sys.stderr)
+        return 2
+    print(f"toolchain registry: {registry or 'machine default (no vcvarsall key)'}")
     print(f"cut {cut}; {len(selected)} selected, {len(jobs)} to run, {len(skipped)} skipped; "
           f"max_parallel {parallel}; timeout {args.timeout_minutes:g} min; results {results_dir}")
     for entry, reason in skipped:
         print(f"  skip {entry.repository}: {reason}")
     for job in jobs:
-        print(f"  run  {job.entry.repository} -> runs/wt/{job.name} (branch {job.branch}, attempt {job.attempt})")
+        print(f"  run  {job.entry.repository} -> {args.clone_root / job.name} (attempt {job.attempt})")
     if args.dry_run:
-        print("dry run: no worktree created, no process started, nothing written")
+        print("dry run: no clone created, no process started, nothing written")
         return 0
     if not jobs:
         write_outputs(results_dir, rows, cut)
@@ -720,9 +751,9 @@ def main(argv: list[str] | None = None) -> int:
         print("reseal_wave: warning: GH_TOKEN not set; clones are unauthenticated", file=sys.stderr)
 
     runner = Runner(
-        control_root=control_root, main_root=main_root, python=python, bash=find_bash(args.bash),
+        main_root=main_root, clone_root=args.clone_root, python=python,
         cut=cut, results_dir=results_dir, timeout_seconds=args.timeout_minutes * 60,
-        extra_path=extra_path, gh_token=token,
+        extra_path=extra_path, gh_token=token, toolchain_registry=registry,
     )
     results_dir.mkdir(parents=True, exist_ok=True)
     jsonl = results_dir / "results.jsonl"

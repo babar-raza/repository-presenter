@@ -87,11 +87,10 @@ def test_queue_skips_repositories_with_a_row_and_retries_only_on_request() -> No
 
 def test_retry_takes_a_fresh_short_worktree_name() -> None:
     selected = rw.select_entries(rw.parse_registry(REGISTRY), repos=["o/B-Net"])
-    taken = {"rs-slides-net", "rs-slides-net-2"}
+    taken = {"slides-net", "slides-net-2"}
     (job,) = rw.build_queue(selected, [], CUT, path_taken=lambda name: name in taken)[0]
-    assert job.name == "rs-slides-net-3" and job.attempt == 3
-    assert job.branch == "wt/rs-slides-net-3-01234567"
-    assert len(job.name) < 24  # MAX_PATH is the reason names stay short
+    assert job.name == "slides-net-3" and job.attempt == 3
+    assert len(job.name) < 24  # MAX_PATH is the reason names stay short; no worktree, no branch
 
 
 def test_latest_row_wins() -> None:
@@ -253,17 +252,18 @@ def test_environment_prepends_node_to_the_subprocess_path_only(tmp_path, monkeyp
     node.mkdir()
     monkeypatch.setenv("PATH", "base")
     runner = rw.Runner(
-        control_root=tmp_path,
         main_root=tmp_path,
+        clone_root=tmp_path / "rp",
         python="py",
-        bash="bash",
         cut=CUT,
         results_dir=tmp_path,
         timeout_seconds=1,
         extra_path=[str(node), str(tmp_path / "absent")],
         gh_token="tok",
+        toolchain_registry="C:/reg/toolchains.txt",
     )
     env = runner.env_for(tmp_path / "wt")
+    assert env["RP_TOOLCHAIN_REGISTRY"] == "C:/reg/toolchains.txt"
     assert env["PATH"] == f"{node}{rw.os.pathsep}base"
     assert env["PYTHONPATH"] == str(tmp_path / "wt" / "src") and env["GH_TOKEN"] == "tok"
     assert rw.os.environ["PATH"] == "base"  # the machine's own PATH is untouched
@@ -321,20 +321,19 @@ def _fake_runner(tmp_path, monkeypatch, mode: str, timeout: float = 60):
     (worktree / "runs").mkdir()
     monkeypatch.setenv("FAKE_MODE", mode)
     runner = rw.Runner(
-        control_root=tmp_path,
         main_root=tmp_path,
+        clone_root=tmp_path / "rp",
         python=rw.sys.executable,
-        bash="bash",
         cut=CUT,
         results_dir=tmp_path,
         timeout_seconds=timeout,
         extra_path=[],
         gh_token=None,
     )
-    monkeypatch.setattr(runner, "create_worktree", lambda job: worktree)
-    monkeypatch.setattr(runner, "worktree_path", lambda name: worktree)
+    monkeypatch.setattr(runner, "create_workdir", lambda job: worktree)
+    monkeypatch.setattr(runner, "workdir_path", lambda name: worktree)
     entry = rw.Entry("o/A", "words", "python", "full", True)
-    return runner, rw.Job(entry, 1, "rs-words-python", "wt/x")
+    return runner, rw.Job(entry, 1, "words-python")
 
 
 def test_run_job_success_path_runs_two_presents_and_the_noop_proof(tmp_path, monkeypatch) -> None:
@@ -364,3 +363,60 @@ def test_run_job_times_out_and_kills_the_run(tmp_path, monkeypatch) -> None:
     row = rw.run_job(runner, job)
     assert row["status"] == "TIMEOUT" and row["failure_class"] == "timeout"
     assert runner.live == set()  # nothing left running
+
+
+def test_default_parallelism_is_three_and_the_ceiling_stays_eight() -> None:
+    assert rw.DEFAULT_PARALLEL == 3 and rw.MAX_PARALLEL_CEILING == 8
+    assert rw.parser().parse_args([]).max_parallel == 3
+
+
+def test_redact_masks_secret_shaped_environment_values_only() -> None:
+    environ = {
+        "GH_TOKEN": "ghp_supersecretvalue",
+        "GPT_OSS_API_KEY": "k-1234567890",
+        "PATH": "plain/dir",
+    }
+    text = "fatal: auth ghp_supersecretvalue and k-1234567890 in plain/dir"
+    assert rw.redact(text, environ) == "fatal: auth [redacted] and [redacted] in plain/dir"
+
+
+def test_create_workdir_makes_a_plain_detached_clone_without_a_remote(tmp_path) -> None:
+    """A plain clone (not a git worktree), pinned to the cut, with nothing to push to."""
+    import subprocess
+
+    main = tmp_path / "main"
+    main.mkdir()
+
+    def git(*args: str, cwd=main) -> str:
+        return subprocess.run(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@t", *args],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+
+    git("init", "-q")
+    (main / "a.txt").write_text("one", encoding="utf-8")
+    git("add", "a.txt")
+    git("commit", "-q", "-m", "one")
+    cut = git("rev-parse", "HEAD")
+    (main / "a.txt").write_text("two", encoding="utf-8")
+    git("commit", "-q", "-am", "two")
+    runner = rw.Runner(
+        main_root=main,
+        clone_root=tmp_path / "rp",
+        python="py",
+        cut=cut,
+        results_dir=tmp_path,
+        timeout_seconds=1,
+        extra_path=[],
+        gh_token=None,
+    )
+    entry = rw.Entry("o/A", "words", "python", "full", True)
+    path = runner.create_workdir(rw.Job(entry, 1, "words-python"))
+    assert path == tmp_path / "rp" / "words-python"
+    assert (path / "a.txt").read_text(encoding="utf-8") == "one"  # the cut, not the tip
+    assert git("rev-parse", "HEAD", cwd=path) == cut
+    assert (path / ".git").is_dir()  # a plain clone, not a worktree's .git file
+    assert git("remote", cwd=path) == ""
