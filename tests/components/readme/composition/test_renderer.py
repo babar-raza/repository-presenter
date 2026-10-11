@@ -866,7 +866,7 @@ def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> 
     assert "## License" in lines and "- [License](#license)" in lines
     assert lines[-1] == (
         "This project is licensed under the MIT License, as declared in `package.json`; no license "
-        "file is present at this revision. The MIT License permits use, copying, modification, "
+        "file is present in the repository. The MIT License permits use, copying, modification, "
         "distribution, sublicensing, and commercial use, provided its copyright and permission "
         "notice are retained. The software is provided without warranty."
     )
@@ -874,7 +874,7 @@ def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> 
     assert "](LICENSE)" not in readme
     assert render_readme(ENTRY, declared("Apache-2.0"), PLAN, UNITS, DISPOSITIONS).endswith(
         "This project is licensed under the Apache-2.0, as declared in `package.json`; no license "
-        "file is present at this revision.\n"
+        "file is present in the repository.\n"
     )
     # A declaration the classifier could not resolve is no declaration to render.
     unresolved = render_readme(
@@ -1275,8 +1275,9 @@ def test_a_verified_source_build_is_the_installation_not_an_additional_suggestio
     installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
     assert installation.startswith(
         "`aspose-3d-foss` is not yet published on NuGet; build it from a source checkout "
-        f"instead, verified against this revision:\n\n```bash\n{command}\n```"
+        f"instead:\n\n```bash\n{command}\n```"
     )
+    assert _narration_in(installation) == []
     assert installation.count("git clone") == 1
     assert "To work from a source checkout instead" not in installation
 
@@ -1365,9 +1366,9 @@ def test_a_source_checkout_install_renders_honest_pythonpath_prose_never_pip() -
     installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
     assert installation.startswith(
         "`aspose-3d-foss` is not yet published on PyPI, and no build or install command "
-        f"succeeds for this revision; work from the source checkout instead, verified against "
-        f"this revision:\n\n```bash\n{command}\n```"
+        f"succeeds; work from the source checkout instead:\n\n```bash\n{command}\n```"
     )
+    assert _narration_in(installation) == []
     assert installation.count("git clone") == 1
     assert "pip install" not in installation
     assert "To work from a source checkout instead" not in installation
@@ -2881,13 +2882,14 @@ def test_installation_states_the_nuget_distribution_a_registry_confirmed() -> No
     assert lines == [
         "The library is published on NuGet as `Aspose.Slides.Cpp.FOSS`.",
         "",
-        "To build it from a source checkout instead, verified against this revision:",
+        "To build it from a source checkout instead:",
         "",
         "```bash",
         CPP_SOURCE_BUILD,
         "```",
     ]
     assert not any("not yet published" in line for line in lines)
+    assert _narration_in("\n".join(lines)) == []
 
 
 def test_a_confirmed_distribution_without_a_verified_build_is_still_stated_never_denied() -> None:
@@ -2913,10 +2915,9 @@ def test_an_unconfirmed_distribution_is_not_stated_and_no_publication_is_ever_de
 
     for polarity in ("UNRESOLVED", "CONTRADICTED"):
         lines = _installation(_cpp_context(_cpp_source_install(), _cpp_distribution(polarity)))
-        assert lines[0] == (
-            "Build `AsposeSlidesFoss` from a source checkout, verified against this revision:"
-        )
+        assert lines[0] == "Build `AsposeSlidesFoss` from a source checkout:"
         assert not any("published" in line for line in lines)
+        assert _narration_in("\n".join(lines)) == []
     assert "```bash" in lines and CPP_SOURCE_BUILD in lines
 
 
@@ -3002,3 +3003,53 @@ def test_a_path_holding_no_identifier_and_a_lone_identifier_render_as_they_alway
     # A near miss of the path is not the path: the pieces wrap, none of them nested.
     near = context.prose("Open src/Aspose.PSD.FOSS/Other.csproj first.")
     assert near.count("`") % 2 == 0 and "``" not in near
+
+
+# --- wave 6 (cut 5), U-NARRATION: the renderer never narrates its own verification -------------
+def _narration_in(text: str) -> list[str]:
+    """What an internal-assurance reader would object to in reader-facing renderer text: the
+    narration vocabulary BC-07 blocks, plus the words that give a verification claim away."""
+    from repository_presenter.components.readme.validation.registry import narration_patterns
+
+    lowered = text.lower()
+    found = [phrase for phrase, pattern in narration_patterns(()) if pattern.search(lowered)]
+    return found + [
+        word for word in ("verified", "revision", "receipt", "isolation") if word in lowered
+    ]
+
+
+def test_the_license_section_does_not_narrate_a_revision() -> None:
+    from repository_presenter.components.readme.composition import renderer
+
+    for prose in (renderer._MIT_DECLARED_PROSE, renderer._GENERIC_DECLARED_PROSE):
+        assert _narration_in(prose) == [], prose
+
+
+def test_an_unconfirmed_install_is_stated_without_a_revision() -> None:
+    from repository_presenter.components.readme.composition.renderer import _installation
+
+    unresolved = Fact(
+        "install_command:cmake",
+        "install_command",
+        CPP_SOURCE_BUILD,
+        (Evidence("CMakeLists.txt", "package registry: none could not be read"),),
+        polarity="UNRESOLVED",
+    )
+    lines = _installation(_cpp_context(unresolved))
+    assert lines and "could not be confirmed" in lines[0]
+    assert _narration_in("\n".join(lines)) == []
+
+
+def test_the_installation_sentences_are_plain_prose_for_every_source_build_state() -> None:
+    """Every Installation lead the renderer writes for an unpublished or source-built library is
+    something a visitor can read: no "verified against this revision", no "for this revision"
+    (3D-TypeScript, JMAP-Node.js, Cells-TypeScript, HTML-Python, wave 6: the independent review
+    rightly rejected the assurance narration and the repair loop could not change renderer text)."""
+    from repository_presenter.components.readme.composition.renderer import _installation
+
+    leads = []
+    for polarity in ("SUPPORTED", "UNRESOLVED", "CONTRADICTED"):
+        leads += _installation(_cpp_context(_cpp_source_install(), _cpp_distribution(polarity)))
+    leads += _installation(_cpp_context(_cpp_source_install()))
+    assert leads
+    assert _narration_in("\n".join(leads)) == []

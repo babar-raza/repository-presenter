@@ -572,6 +572,10 @@ _NARRATION = (
     "registry receipt",
     "evidence collector",
     "validation status",
+    # Wave 6, U-NARRATION: "verified against this revision" in the renderer's own Installation
+    # sentence, "no license file is present at this revision" in its License one. The snapshot the
+    # pipeline checked is its vocabulary, never a visitor's (plans/idea.md: source revisions).
+    "this revision",
 )
 # How plans/idea.md spells the evidence vocabulary it lists: a plural, a hyphen for a space
 # ("isolated-build conditions"), and "policies". A bare word-bounded phrase read none of "provider
@@ -587,6 +591,7 @@ _NARRATION_FORMS = {
     "registry receipt": r"registry[ -]receipts?",
     "evidence collector": r"evidence[ -]collectors?",
     "validation status": r"validation[ -]status",
+    "this revision": r"(?:at|for|against|on)\s+this\s+revision",
 }
 # "real, verified" (external review, 2026-09-07): measured twice, verbatim, in a sealed
 # candidate's Additional Examples lead-in ("More real, verified snippets are collected below") -

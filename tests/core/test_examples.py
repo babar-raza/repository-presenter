@@ -5,12 +5,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from repository_presenter.core.examples import (
     PRELUDE_ATTRIBUTE,
     ExampleReceipt,
     FixtureBinding,
     collapse_blank_runs,
     printed_example,
+    stable_output,
     with_prelude,
     write_receipts,
 )
@@ -81,3 +84,66 @@ def test_a_java_package_declaration_stays_the_first_statement() -> None:
         "package org.x;\n\nimport java.util.*;\nimport java.io.*;\npublic class Demo {}\n"
     )
     assert with_prelude("var x = 1;", "using System;") == "using System;\nvar x = 1;"
+
+
+# --- wave 6 (cut 5): a receipt is the same bytes in every process --------------------------------
+# PDF-Python was held at BC-11 PENDING for three waves in a row: 14 of its 20 receipts carried the
+# library's own wall-clock log line, so a fresh process could never reproduce examples.json and
+# the zero-call no-op proof was withdrawn ("examples.json changed since the last seal").
+VOLATILE = [
+    "2026-10-12 00:43:01,981 [INFO] aspose_pdf: Document resources released.",
+    "2026-10-12T00:43:01.981234Z [info] done",
+    "2026-10-12 00:43:01+02:00 started",
+    "[00:43:01.981] request finished",
+    "Mon Oct 12 00:43:01 2026",
+    "Ran 3 tests in 0.001s",
+    "== 3 passed in 0.02s ==",
+    "Done in 2.45s.",
+    "took 12ms",
+    "Elapsed: 00:00:01.25 total",
+    "--- PASS: TestSave (0.00s)",
+    "<widget.Document object at 0x000001F4A3B2C4D0>",
+    "worker pid=18244 ready",
+    "request 3f2504e0-4f89-11d3-9a0c-0305e82c3301 sent",
+    "wrote /var/tmp/tmp9xk2_ab3/out.pdf",
+]
+
+
+@pytest.mark.parametrize("line", VOLATILE)
+def test_a_receipt_carries_nothing_that_depends_on_when_or_where_it_ran(line: str) -> None:
+    once = stable_output(line)
+    assert once != line
+    assert stable_output(once) == once  # idempotent: sealing a sealed receipt moves nothing
+    receipt = ExampleReceipt(1, "EXECUTED", 0, line + "\n", line, "exit 0")
+    assert receipt.stdout == once + "\n" and receipt.stderr == once
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "hello world",
+        "Saved 3 pages to out.pdf",
+        "version 26.9.0",
+        "page 1 of 12 (landscape)",
+        "values: [1, 2, 3]",
+        "converted 2024-01-15 to a date",  # a date with no time of day is the example's own output
+        "no exit within 60s",
+        "retry in 5 seconds",  # a configured whole-second wait is not a measurement
+        "0xFF is 255",
+        "within 3.5 of the target",
+    ],
+)
+def test_the_examples_own_deterministic_output_is_left_alone(line: str) -> None:
+    assert stable_output(line) == line
+    assert ExampleReceipt(1, "EXECUTED", 0, line, line, line).stdout == line
+
+
+def test_two_runs_of_the_same_logging_example_write_the_same_examples_json(tmp_path: Path) -> None:
+    clock = iter(["2026-10-12 00:43:01,981", "2026-10-12 00:43:09,114"])
+    runs = []
+    for name in ("first", "second"):
+        stderr = f"{next(clock)} [INFO] aspose_pdf: Document resources released.\n"
+        receipt = ExampleReceipt(1, "EXECUTED", 0, "done in 0.31s\n", stderr, "exit 0")
+        write_receipts([receipt], tmp_path / f"{name}.json")
+        runs.append((tmp_path / f"{name}.json").read_bytes())
+    assert runs[0] == runs[1]

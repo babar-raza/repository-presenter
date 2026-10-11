@@ -56,6 +56,7 @@ _NARRATION = (
     re.compile(r"provider calls?", re.IGNORECASE),
     re.compile(r"evidence collectors?", re.IGNORECASE),
     re.compile(r"validation status", re.IGNORECASE),
+    re.compile(r"(?:at|for|against|on)\s+this\s+revision", re.IGNORECASE),
 )
 _ADDITIONAL_COMMENTARY = (
     re.compile(r"syntax[- ]check", re.IGNORECASE),

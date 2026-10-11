@@ -3193,3 +3193,51 @@ def test_bc12_still_fails_a_misspelled_product_name_in_prose(
     details = _bc12_details(suffix, readme)
     assert details, sentence
     assert all(f"product name {found!r} is not the canonical name" in d for d in details), details
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "To build it from a source checkout instead, verified against this revision:",
+        "No license file is present at this revision.",
+        "The command was checked for this revision.",
+        "Everything here was verified against this revision.",
+    ],
+)
+def test_narration_blocks_a_claim_about_the_revision_the_text_was_verified_at(
+    tmp_path: Path, sentence: str
+) -> None:
+    """Wave 6, U-NARRATION: the renderer's own Installation sentence said "verified against this
+    revision" and neither BC-07 nor acceptance C16 read it as narration. "This revision" is the
+    pipeline's vocabulary for the snapshot it checked, never a visitor's."""
+    readme = _candidate().readme
+    narrated = readme.replace(
+        "## Scope and Limitations\n\n", f"## Scope and Limitations\n\n{sentence}\n\n"
+    )
+    assert narrated != readme
+    document = validate_candidate(_candidate(narrated), tmp_path, ())
+    assert "internal narration 'this revision'" in _failed(document, "BC-07")["details"]
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "The 2.0 revision of the format adds layers.",
+        "This revision of the specification is not supported.",
+        "Revisions of a document are kept in a history.",
+    ],
+)
+def test_the_word_revision_in_a_products_own_domain_is_not_narration(
+    tmp_path: Path, sentence: str
+) -> None:
+    """Negative control: only "at / for / against / on this revision" narrates; a format or
+    document revision the product talks about does not."""
+    readme = _candidate().readme
+    benign = readme.replace(
+        "## Scope and Limitations\n\n", f"## Scope and Limitations\n\n{sentence}\n\n"
+    )
+    assert benign != readme
+    document = validate_candidate(_candidate(benign), tmp_path, ())
+    assert not any(
+        "internal narration 'this revision'" in str(f) for f in blocking_failures(document)
+    )
