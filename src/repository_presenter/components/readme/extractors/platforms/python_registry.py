@@ -49,7 +49,7 @@ def observe_pypi(
     name: str,
     manifest_version: str | None,
     *,
-    fetch: Callable[[str], httpx.Response] = fetch_project_json,
+    fetch: Callable[[str], httpx.Response] | None = None,
     sleep: Callable[[float], None] | None = None,
     repository: str | None = None,
     resolve_url: ResolveUrl | None = None,
@@ -59,12 +59,16 @@ def observe_pypi(
     ``repository`` (``owner/name``) asks the further question a found name does not answer: does
     the project's own ``project_urls`` / ``home_page`` point back at that repository? Only then is
     the distribution corroborated as the repository's own (``repository_matched``).
+
+    ``fetch`` defaults to None and is resolved to this module's ``fetch_project_json`` at call time,
+    never bound as a default argument: a test replaces that module attribute (tests/conftest.py),
+    and a default bound at definition would keep the real function and reach the live registry.
     """
     url = PYPI_PROJECT_URL.format(name=name)
 
     def attempt() -> httpx.Response:
         try:
-            response = fetch(url)
+            response = (fetch or fetch_project_json)(url)
         except httpx.TransportError as exc:
             raise RetryableOperationError(f"{type(exc).__name__}: {exc}") from exc
         if response.status_code in TRANSIENT_STATUSES:

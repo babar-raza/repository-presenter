@@ -8,6 +8,7 @@ from pathlib import Path
 import httpx
 import pytest
 
+from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.components.readme.extractors.platforms.python_registry import (
     fetch_project_json,
     observe_pypi,
@@ -162,3 +163,31 @@ def test_a_distribution_that_lists_no_source_repository_is_not_owned() -> None:
         resolve_url=lambda _url: None,
     )
     assert observation.found and observation.repository_matched is False and not observation.owned
+
+
+def test_a_read_without_an_injected_fetch_goes_through_the_module_fetch_a_test_can_replace(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The offline guard (tests/conftest.py) replaces ``python_registry.fetch_project_json``, and
+    the Python plugin calls ``observe_pypi`` without a ``fetch``. A default argument bound at
+    definition time held the original function, so the guard never took effect and every canary
+    ``present`` asked the live PyPI - whose record for ``aspose-3d-foss`` names another
+    repository, so the install claim went UNRESOLVED on a network the test did not control
+    (CUT-2, TC-EXT-01)."""
+    calls: list[str] = []
+
+    def replaced(url: str, transport: object = None) -> httpx.Response:
+        calls.append(url)
+        return httpx.Response(
+            200,
+            json={
+                "info": {"version": "9.9.9", "project_urls": {"Source": "https://github.com/o/r"}},
+                "releases": {"9.9.9": []},
+            },
+        )
+
+    monkeypatch.setattr(python_registry, "fetch_project_json", replaced)
+    observation = observe_pypi("a-name-only-the-replacement-knows", "9.9.9", repository="o/r")
+    assert calls == ["https://pypi.org/pypi/a-name-only-the-replacement-knows/json"]
+    assert observation.found and observation.latest_version == "9.9.9"
+    assert observation.repository_matched is True
