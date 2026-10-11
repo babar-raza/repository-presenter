@@ -15,6 +15,7 @@ from repository_presenter.components.readme_correction.model import Context, Det
 
 _LINES = re.compile(r"^lines (\d+)(?:-(\d+))?;")
 _MESSAGE_LIMIT = 200
+_NO_DIAGNOSTIC = " (no compiler diagnostic: the toolchain or environment may be at fault)"
 
 
 @detector("failing_example")
@@ -35,7 +36,9 @@ def failing_example(ctx: Context) -> DetectorResult:
                 "failing_example",
                 int(where.group(1)),
                 fact.value.splitlines()[0][:80] if fact.value else "",
-                f"the example on lines {span} does not compile or run: {outcome[:_MESSAGE_LIMIT]}",
+                f"the example verifier recorded a failure for the example on lines {span}: "
+                f"{outcome[:_MESSAGE_LIMIT]}"
+                + (_NO_DIAGNOSTIC if "without naming" in outcome else ""),
                 (fact.id,),
             )
         )

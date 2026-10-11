@@ -23,6 +23,7 @@ def test_a_failing_example_is_reported_with_its_lines_and_never_edited(
     assert result.edits == ()
     (finding,) = result.findings
     assert finding.line == 165 and "lines 165-173" in finding.reason and "CS1503" in finding.reason
+    assert finding.reason.startswith("the example verifier recorded a failure")
     assert finding.fact_ids == ("example:003",)
 
 
@@ -41,3 +42,19 @@ def test_a_verified_or_unresolved_example_is_not_reported(
         evidence=(("README.md", "lines 5-9; python fence"), ("examples.json", "NEEDS_INPUT")),
     )
     assert failing_example(make_context("t\n", make_facts(ok, needs_input))).findings == ()
+
+
+def test_a_failure_with_no_compiler_diagnostic_says_the_environment_may_be_at_fault(
+    make_context: Any, make_facts: Any, make_fact: Any
+) -> None:
+    failing = make_fact(
+        "example:001",
+        "package main",
+        polarity="CONTRADICTED",
+        evidence=(
+            ("README.md", "lines 129-146; go fence; unit u"),
+            ("examples.json", "example 2: FAILED; the build failed without naming a diagnostic"),
+        ),
+    )
+    (finding,) = failing_example(make_context("t\n", make_facts(failing))).findings
+    assert "toolchain or environment may be at fault" in finding.reason

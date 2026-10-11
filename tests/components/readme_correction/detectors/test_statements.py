@@ -49,32 +49,34 @@ def test_a_license_the_table_does_not_know_is_never_touched(
 
 
 # ------------------------------------------------------------------------- public type count
-def test_a_stale_type_count_is_corrected_when_the_count_is_unambiguous(
+def test_a_stale_type_count_is_reported_with_both_figures_and_never_edited(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:
     classes = [symbol(make_fact, f"C{i}", f"src/main/C{i}.java") for i in range(5)]
     readme = "The library ships 3 public types.\n| `X` | 12 public types in a table row |\n"
-    ctx = make_context(readme, make_facts(*classes))
-    edits = claim_public_types(ctx).edits
-    assert [(e.original, e.replacement) for e in edits] == [("3", "5")]
-    assert readme[edits[0].start : edits[0].end] == "3"
+    result = claim_public_types(make_context(readme, make_facts(*classes)))
+    assert result.edits == ()
+    (finding,) = result.findings
+    assert finding.line == 1 and "states 3 public types" in finding.reason
+    assert "5 SUPPORTED class and enum symbols" in finding.reason
 
 
-def test_a_count_with_two_defensible_figures_is_reported_not_edited(
+def test_the_example_and_test_split_is_part_of_the_report(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:
     # Aspose.Words for Python: 198 verified types, 189 outside ApiExamples; the README said 146.
     classes = [symbol(make_fact, f"C{i}", f"pkg/C{i}.py") for i in range(4)]
     classes.append(symbol(make_fact, "Demo", "ApiExamples/Demo.py"))
-    ctx = make_context("It ships 2 public types.\n", make_facts(*classes))
-    result = claim_public_types(ctx)
-    assert result.edits == () and "outside example and test code" in result.findings[0].reason
+    result = claim_public_types(make_context("It ships 2 public types.\n", make_facts(*classes)))
+    assert result.edits == () and "4 outside example and test code" in result.findings[0].reason
 
 
-def test_a_matching_count_needs_no_edit(make_context: Any, make_facts: Any, make_fact: Any) -> None:
+def test_a_matching_count_needs_no_report(
+    make_context: Any, make_facts: Any, make_fact: Any
+) -> None:
     classes = [symbol(make_fact, f"C{i}", f"src/main/C{i}.java") for i in range(2)]
     ctx = make_context("all 2 public types\n", make_facts(*classes))
-    assert claim_public_types(ctx).edits == ()
+    assert claim_public_types(ctx).edits == () and claim_public_types(ctx).findings == ()
 
 
 # ---------------------------------------------------------------------------- test file count

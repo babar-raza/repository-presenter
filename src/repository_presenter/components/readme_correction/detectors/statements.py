@@ -141,10 +141,14 @@ _NON_LIBRARY = frozenset(
 
 @detector("claim_public_types")
 def claim_public_types(ctx: Context) -> DetectorResult:
-    """ "N public types" against the number of SUPPORTED class and enum symbols, the definition the
-    renderer counts by (``renderer_sentences``) - corrected only when that count does not depend on
-    whether example and test code is included, so the README is never moved from one defensible
-    figure to another; a stale number with two candidate figures is reported, not edited."""
+    """ "N public types" against the number of SUPPORTED class and enum symbols: reported only.
+
+    "Public type" has no single definition across ecosystems (nested types, delegates, example and
+    test classes, re-exports), and the fact count is the pipeline's own, so a different number in
+    the README is evidence that the README's API tables are stale, not proof that N is false; the
+    honest repair is refreshing those tables, which is regeneration's job. Measured on the live
+    portfolio: the same statement was off by one in both directions between two defensible counts
+    (Aspose.Cells for C++: 197 stated, 195 verified, 196 by a hand count). Never edited."""
     types = [
         fact
         for fact in ctx.facts.by_kind("public_symbol")
@@ -162,7 +166,6 @@ def claim_public_types(ctx: Context) -> DetectorResult:
         )
     )
     sample = tuple(sorted(fact.id for fact in types)[:5])
-    edits: list[Edit] = []
     findings: list[Finding] = []
     for line in ctx.lines:
         if line.in_fence or line.text.lstrip().startswith("|"):
@@ -172,29 +175,18 @@ def claim_public_types(ctx: Context) -> DetectorResult:
                 stated = match.group("n")
                 if int(stated.replace(",", "")) in {count, library}:
                     continue
-                reason = (
-                    f"the README states {stated} public types; the verified facts hold {count} "
-                    f"SUPPORTED class and enum symbols ({library} outside example and test code)"
-                )
-                if count != library:
-                    findings.append(
-                        Finding("claim_public_types", line.number, line.text, reason, sample)
-                    )
-                    continue
-                shown = f"{count:,}" if "," in stated else str(count)
-                edits.append(
-                    Edit(
-                        kind=FALSE_CLAIM_FIX,
-                        detector="claim_public_types",
-                        start=line.start + match.start("n"),
-                        end=line.start + match.end("n"),
-                        original=stated,
-                        replacement=shown,
-                        fact_ids=sample,
-                        rationale=reason + " (first five cited)",
+                findings.append(
+                    Finding(
+                        "claim_public_types",
+                        line.number,
+                        line.text,
+                        f"the README states {stated} public types; the verified facts hold {count} "
+                        f"SUPPORTED class and enum symbols ({library} outside example and test "
+                        "code): its API tables are likely stale",
+                        sample,
                     )
                 )
-    return DetectorResult(edits=tuple(edits), findings=tuple(findings))
+    return DetectorResult(findings=tuple(findings))
 
 
 # ---------------------------------------------------------------------------- test file count
