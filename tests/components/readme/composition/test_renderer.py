@@ -26,7 +26,13 @@ from repository_presenter.components.readme.composition.renderer import (
     write_text,
 )
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Evidence,
+    Fact,
+    FactsDocument,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 
 ENTRY = RegistryEntry.model_validate(
@@ -971,6 +977,77 @@ def test_the_source_checkout_command_is_the_ecosystems_own_not_a_hard_coded_pip_
         "cd Aspose.Widget-FOSS-for-.NET\ndotnet build\n```"
     ) in installation
     assert "pip install" not in installation
+
+
+def _net_published_install(**attributes: str) -> tuple[RegistryEntry, FactsDocument]:
+    """Aspose.3D for .NET's shape: a package NuGet lists, an executed example, and an install fact
+    that carries (or lacks) the record of what a build proved from the checkout root."""
+    entry = RegistryEntry.model_validate(
+        {
+            **ENTRY.model_dump(mode="json"),
+            "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-.NET",
+            "family": "widget",
+            "platform": "net",
+            "ecosystem": "net",
+        }
+    )
+    install = Fact(
+        "install_command:dotnet",
+        "install_command",
+        "dotnet add package Aspose.Widget",
+        (
+            Evidence(
+                "Widget.csproj", "install command for the package id declared by the manifest"
+            ),
+            Evidence("https://api.nuget.org/", "package registry: found on nuget"),
+        ),
+        attributes=attributes or None,
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id not in {"identity:repository", "install_command:pip"}),
+            Fact("identity:repository", "identity", entry.repository, (Evidence("x"),)),
+            install,
+        ),
+    )
+    return entry, facts
+
+
+def _installation(readme: str) -> str:
+    return readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+
+
+def test_the_source_checkout_block_is_the_command_a_build_proved_from_the_root() -> None:
+    """TC-TST-01 (Aspose.3D for .NET): the template `dotnet build` fails at a root that holds no
+    project; the block is the measured `dotnet build <project>` the verifier ran there."""
+    measured = (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-.NET.git\n"
+        "cd Aspose.Widget-FOSS-for-.NET\ndotnet build src/Widget/Widget.csproj"
+    )
+    entry, facts = _net_published_install(**{SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: measured})
+    installation = _installation(render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS))
+    assert (
+        f"To work from a source checkout instead, build the clone with dotnet build:\n\n"
+        f"```bash\n{measured}\n```"
+    ) in installation
+    assert "cd Aspose.Widget-FOSS-for-.NET\ndotnet build\n" not in installation
+
+
+def test_a_build_that_proved_nothing_from_the_root_leaves_no_source_checkout_block() -> None:
+    entry, facts = _net_published_install(
+        **{SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE: "no build exited 0: failed (exited 1)"}
+    )
+    installation = _installation(render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS))
+    assert "source checkout" not in installation and "git clone" not in installation
+    assert "```bash\ndotnet add package Aspose.Widget\n```" in installation
+
+
+def test_a_fact_with_no_record_still_renders_the_template_so_sealed_bytes_hold() -> None:
+    entry, facts = _net_published_install()
+    installation = _installation(render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS))
+    assert "cd Aspose.Widget-FOSS-for-.NET\ndotnet build\n```" in installation
 
 
 def test_a_verified_source_build_is_the_installation_not_an_additional_suggestion() -> None:

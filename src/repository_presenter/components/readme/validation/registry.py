@@ -88,7 +88,11 @@ from repository_presenter.components.readme.validation.links.rules import (
 )
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import collapse_blank_runs
-from repository_presenter.core.facts import Fact, FactsDocument
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Fact,
+    FactsDocument,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
 
@@ -866,7 +870,53 @@ def _check_install(candidate: Candidate) -> list[Failure]:
             failures.append(
                 Failure("COMPOSING", f"the Installation section does not render {fact.value!r}")
             )
+    failures.extend(_check_source_checkout(candidate))
     return failures
+
+
+def _check_source_checkout(candidate: Candidate) -> list[Failure]:
+    """TC-TST-01: a "work from a source checkout instead" block is only the command the facts
+    recorded as proven from the checkout root.
+
+    Aspose.3D for .NET (2026-10-11): the block read ``dotnet build`` and BC-02 passed it, though
+    the checkout root holds no project or solution and the command fails there with MSB1003. The
+    block was the ecosystem's template, never a fact, so nothing held it to a directory. The
+    facts stage now records on the install fact the exact command a build proved from the root,
+    or why none did (``EcosystemSpec.source_checkout_command``); a README that renders any other
+    block, or one the record refuses, states a command no one ran from the directory it names.
+    """
+    spec = spec_for(candidate.entry.ecosystem)
+    if not spec.source_install_lead:
+        return []
+    lead = f"To work from a source checkout instead, {spec.source_install_lead}:"
+    block = re.search(re.escape(lead) + r"\n\n```bash\n(.*?)\n```", candidate.readme, re.DOTALL)
+    if block is None:
+        return []
+    install = next(
+        (f for f in candidate.facts.by_kind("install_command") if f.id == spec.install_fact_id),
+        None,
+    )
+    repository = candidate.entry.repository
+    expected = spec.source_checkout_command(install, repository, repository.split("/")[-1])
+    rendered = block.group(1)
+    if expected and rendered == expected:
+        return []
+    why = (
+        (install.attributes or {}).get(SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE)
+        if install is not None
+        else None
+    )
+    if expected:
+        detail = (
+            f"the source-checkout block renders {rendered!r}, not the command the facts record "
+            f"as proven from the checkout root, {expected!r}"
+        )
+    else:
+        detail = (
+            f"the source-checkout block renders {rendered!r}, which no build proved from the "
+            f"checkout root ({why or 'no source-checkout command recorded'})"
+        )
+    return [Failure("COMPOSING", detail, "installation")]
 
 
 def _check_claims(candidate: Candidate) -> list[Failure]:

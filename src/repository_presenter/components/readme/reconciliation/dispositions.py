@@ -690,7 +690,11 @@ def _rendered_commands(facts: FactsDocument) -> frozenset[str]:
     )
     kind = (install.attributes or {}).get("install_kind") if install is not None else None
     if executed and repository and kind not in {"source", "source_checkout"}:
-        lines.update(_command_lines(spec.clone_and_build(repository, repository.split("/")[-1])))
+        lines.update(
+            _command_lines(
+                spec.source_checkout_command(install, repository, repository.split("/")[-1])
+            )
+        )
     imported = [
         fact.value
         for fact in facts.by_kind("import_path")

@@ -43,7 +43,13 @@ from repository_presenter.components.readme.validation.registry import (
     validate_candidate,
     write_validation,
 )
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Evidence,
+    Fact,
+    FactsDocument,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
 from support import REPO_ROOT
@@ -2346,6 +2352,71 @@ def test_bc_02_refuses_a_source_build_advertising_a_step_its_receipt_did_not_pro
     # The template path (no receipt attribute) is judged exactly as before this item.
     templated = dataclasses.replace(honest, attributes={"install_kind": "source"})
     assert _check_install(_install_candidate(templated, f"```bash\n{templated.value}\n```")) == []
+
+
+# --- TC-TST-01: BC-02 holds the source-checkout block to the directory a build proved it in ---
+# Aspose.3D for .NET (2026-10-11): `dotnet build` at a checkout root with no project or solution
+# fails with MSB1003, and BC-02 passed it because the block was never a fact.
+
+CHECKOUT_CLONE = (
+    "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
+    "cd Aspose.3D-FOSS-for-Python\n"
+)
+
+
+def _registry_install(**attributes: str) -> Fact:
+    return Fact(
+        "install_command:pip",
+        "install_command",
+        "pip install aspose-3d-foss",
+        (
+            Evidence("setup.py", "install command for the name declared by the manifest"),
+            Evidence("https://pypi.org/pypi/aspose-3d-foss/json", "package registry: found"),
+        ),
+        attributes=attributes or None,
+    )
+
+
+def _with_checkout_block(install: Fact, command: str) -> str:
+    return (
+        f"```bash\n{install.value}\n```\n\n"
+        f"To work from a source checkout instead, install the clone with pip:\n\n"
+        f"```bash\n{command}\n```\n"
+    )
+
+
+def test_bc_02_accepts_the_source_checkout_block_the_facts_recorded() -> None:
+    recorded = CHECKOUT_CLONE + "pip install ."
+    install = _registry_install(**{SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: recorded})
+    assert (
+        _check_install(_install_candidate(install, _with_checkout_block(install, recorded))) == []
+    )
+    # A fact extracted before the record existed keeps the template, and the template passes.
+    legacy = _registry_install()
+    assert _check_install(_install_candidate(legacy, _with_checkout_block(legacy, recorded))) == []
+    # No block rendered at all is nothing to hold.
+    assert _check_install(_install_candidate(install, f"```bash\n{install.value}\n```")) == []
+
+
+def test_bc_02_refuses_a_source_checkout_block_no_build_proved_from_the_root() -> None:
+    install = _registry_install(
+        **{SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE: "no build exited 0: failed (exited 1)"}
+    )
+    readme = _with_checkout_block(install, CHECKOUT_CLONE + "pip install .")
+    failures = _check_install(_install_candidate(install, readme))
+    assert [(f.stage, f.section) for f in failures] == [("COMPOSING", "installation")]
+    assert "no build proved from the checkout root" in failures[0].detail
+    assert "no build exited 0: failed (exited 1)" in failures[0].detail
+
+
+def test_bc_02_refuses_a_source_checkout_block_that_is_not_the_recorded_command() -> None:
+    install = _registry_install(
+        **{SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: CHECKOUT_CLONE + "pip install .[dev]"}
+    )
+    readme = _with_checkout_block(install, CHECKOUT_CLONE + "pip install .")
+    failures = _check_install(_install_candidate(install, readme))
+    assert [f.stage for f in failures] == ["COMPOSING"]
+    assert "not the command the facts record as proven from the checkout root" in failures[0].detail
 
 
 def test_bc_02_accepts_a_source_checkout_fact_that_never_claims_a_verified_build() -> None:
