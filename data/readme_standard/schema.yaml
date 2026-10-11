@@ -19,7 +19,7 @@ $defs:
     description: >
       OBSERVED_COMMON: in at least 80 percent of the live READMEs that could carry it.
       OBSERVED_VARIANT: observed, below 80 percent or in several competing forms.
-      OWNER_RULE: stated by the owner in plans/idea.md or the 2026-10-11 directive.
+      OWNER_RULE: stated by the owner in plans/idea.md, the 2026-10-11 directive or the 2026-10-11 rulings.
     type: array
     minItems: 1
     uniqueItems: true
@@ -77,10 +77,18 @@ $defs:
 
   element:
     type: object
-    required: [id, heading, order, requirement, basis, summary]
+    required: [id, heading, order, structure, requirement, basis, summary]
     additionalProperties: false
     properties:
       id: {$ref: "#/$defs/identifier"}
+      structure:
+        description: >
+          core: the element belongs to the fixed core, the sections every candidate shares, added
+          from verified facts when the live README lacks it (subject to its requirement per
+          archetype). inherited: the element is a section only some live READMEs carry; it is
+          retained in place when live and never added (owner ruling R5, 2026-10-11). A heading
+          outside the catalogue is an inherited addition too (assignments.yaml inherited_headings).
+        enum: [core, inherited]
       heading:
         description: The exact heading text for a section element, null for an unheaded element.
         type: [string, "null"]
@@ -149,21 +157,37 @@ $defs:
         type: array
         items: {type: string}
 
-  open_decision:
+  decision:
+    description: >
+      An owner decision about the standard. status owner_ruled: the owner answered (ruled, on the
+      stated date) and the ruling applies from then; the code gates that still encode the replaced
+      rule migrate on a later governed cut (migration names the work). status open: unanswered,
+      the default in `ruling` applies until the owner rules.
     type: object
-    required: [id, question, default]
+    required: [id, question, status, ruled, ruling, migration]
     additionalProperties: false
     properties:
       id: {type: string, pattern: "^OD-[0-9]{2}$"}
       question: {type: string}
-      default: {type: string}
+      status: {enum: [owner_ruled, open]}
+      ruled:
+        description: The date of the owner's ruling, or null while the decision is open.
+        type: [string, "null"]
+        pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+      ruling: {type: string, minLength: 12}
+      migration:
+        description: >
+          The gate or constant that still encodes the replaced rule, as a section 6.2 item, and the
+          state of its change.
+        type: string
+        minLength: 12
       rules:
         type: array
         items: {type: string}
 
   common:
     type: object
-    required: [schema_version, standard, precedence, axes, elements, rules, defect_classes, open_decisions]
+    required: [schema_version, standard, precedence, structure_kinds, axes, elements, rules, defect_classes, decisions]
     additionalProperties: false
     properties:
       schema_version: {const: 1}
@@ -187,6 +211,14 @@ $defs:
             rank: {type: integer, minimum: 1}
             name: {type: string}
             statement: {type: string}
+      structure_kinds:
+        description: The two kinds of structure (owner ruling R5, 2026-10-11).
+        type: object
+        required: [core, inherited]
+        additionalProperties: false
+        properties:
+          core: {type: string, minLength: 20}
+          inherited: {type: string, minLength: 20}
       axes:
         type: object
         additionalProperties:
@@ -204,9 +236,9 @@ $defs:
         type: array
         minItems: 1
         items: {$ref: "#/$defs/defect_class"}
-      open_decisions:
+      decisions:
         type: array
-        items: {$ref: "#/$defs/open_decision"}
+        items: {$ref: "#/$defs/decision"}
 
   better_than_live:
     type: object
@@ -225,7 +257,7 @@ $defs:
 
   archetype:
     type: object
-    required: [schema_version, id, title, summary, mode, install_channels, elements, channel_variant, better_than_live, insertion_policy]
+    required: [schema_version, id, title, summary, mode, install_channels, elements, channel_variant, better_than_live, insertion_policy, inherited_additions]
     additionalProperties: false
     properties:
       schema_version: {const: 1}
@@ -270,6 +302,10 @@ $defs:
         minItems: 3
         items: {$ref: "#/$defs/better_than_live"}
       insertion_policy: {type: string, minLength: 20}
+      inherited_additions:
+        description: How inherited additions (headings outside the fixed core) are handled in this archetype.
+        type: string
+        minLength: 20
       voice_guidance: {type: string}
 
   assignment:
@@ -320,6 +356,15 @@ $defs:
             - cli_reference
             - mcp_section
             - no_aspose_product_pages
+      inherited_headings:
+        description: >
+          The H2 headings of the live README outside the twelve standard names, copied from the
+          survey (extra_h2) and checked against it. Most are the repository's inherited additions
+          (owner ruling R5), retained in place; some are the live name of a core element or the
+          conditional core section Third-Party Notices (STR-26 maps them), kept under their live name.
+        type: array
+        uniqueItems: true
+        items: {type: string, minLength: 1}
       notes: {type: string}
 
   assignments_file:

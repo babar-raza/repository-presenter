@@ -219,6 +219,89 @@ def test_an_archetype_citing_an_unknown_defect_class_is_reported(copy: Copy) -> 
     assert has(copy.check(), "unknown defect class DEF-99")
 
 
+def test_an_element_without_a_structure_kind_is_rejected(copy: Copy) -> None:
+    copy.edit_yaml("common.yaml", lambda d: d["elements"][0].pop("structure"))
+    assert has(copy.check(), "'structure' is a required property")
+
+
+def test_an_inherited_element_cannot_be_required_by_an_archetype(copy: Copy) -> None:
+    """Owner ruling R5: an inherited addition is retained when live and never added."""
+    copy.edit_yaml(
+        "archetypes/std-source.yaml", lambda d: d["elements"].update(project_structure="required")
+    )
+    assert has(copy.check(), "project_structure is an inherited addition and cannot be required")
+
+
+def test_an_archetype_without_an_inherited_additions_policy_is_rejected(copy: Copy) -> None:
+    copy.edit_yaml("archetypes/std-source.yaml", lambda d: d.pop("inherited_additions"))
+    assert has(copy.check(), "'inherited_additions' is a required property")
+
+
+def test_inherited_headings_that_differ_from_the_survey_are_reported(copy: Copy) -> None:
+    """The recorded inherited additions are the survey's extra H2 headings."""
+    copy.edit_yaml(
+        "assignments.yaml", lambda d: d["assignments"][0].update(inherited_headings=["History"])
+    )
+    assert has(copy.check(), "inherited_headings ['History']")
+
+
+def test_a_dropped_inherited_heading_is_reported(copy: Copy) -> None:
+    def drop(document: dict[str, Any]) -> None:
+        entry = next(a for a in document["assignments"] if a.get("inherited_headings"))
+        entry["inherited_headings"] = entry["inherited_headings"][1:]
+
+    copy.edit_yaml("assignments.yaml", drop)
+    assert has(copy.check(), "outside the twelve standard names")
+
+
+def test_an_owner_ruled_decision_needs_its_date_and_an_open_one_has_none(copy: Copy) -> None:
+    copy.edit_yaml("common.yaml", lambda d: d["decisions"][0].update(ruled=None))
+    assert has(copy.check(), "OD-01 is owner_ruled without a date")
+
+    def reopen(document: dict[str, Any]) -> None:
+        document["decisions"][1].update(status="open")
+
+    copy.edit_yaml("common.yaml", reopen)
+    assert has(copy.check(), "OD-02 is open but carries a date")
+
+
+def test_a_decision_without_a_ruling_or_a_migration_is_rejected(copy: Copy) -> None:
+    copy.edit_yaml("common.yaml", lambda d: d["decisions"][2].pop("migration"))
+    assert has(copy.check(), "'migration' is a required property")
+
+
+def test_the_committed_decisions_are_all_owner_ruled_and_carry_their_gate() -> None:
+    """2026-10-11: the owner answered every decision; each names the gate still on the old rule."""
+    decisions = yaml.safe_load((DATA / "common.yaml").read_text("utf-8"))["decisions"]
+    assert [d["id"] for d in decisions] == [f"OD-{n:02d}" for n in range(1, len(decisions) + 1)]
+    assert {d["status"] for d in decisions} == {"owner_ruled"}
+    assert {d["ruled"] for d in decisions} == {"2026-10-11"}
+    assert all("pending the next governed cut" in d["migration"] for d in decisions)
+
+
+def test_the_structure_has_a_fixed_core_and_inherited_additions() -> None:
+    """Owner ruling R5: banner, Feature Showcase and Project Structure are the inherited kind."""
+    common = yaml.safe_load((DATA / "common.yaml").read_text("utf-8"))
+    kinds = {e["id"]: e["structure"] for e in common["elements"]}
+    assert {i for i, kind in kinds.items() if kind == "inherited"} == {
+        "banner",
+        "feature_showcase",
+        "project_structure",
+    }
+    assert set(kinds.values()) == {"core", "inherited"}
+    assert set(common["structure_kinds"]) == {"core", "inherited"}
+
+
+def test_the_at_a_glance_rendering_rules_are_defects_with_a_render_acceptance() -> None:
+    """Owner ruling R7: clipped and vertical diagrams are defect classes judged by a render."""
+    common = yaml.safe_load((DATA / "common.yaml").read_text("utf-8"))
+    defects = {d["id"]: d for d in common["defect_classes"]}
+    assert defects["DEF-29"]["name"].startswith("MERMAID_CLIPPED")
+    assert defects["DEF-30"]["name"].startswith("MERMAID_VERTICAL")
+    rule = next(r for r in common["rules"] if r["id"] == "STR-28")
+    assert rule["severity"] == "blocking" and "real render" in rule["statement"]
+
+
 def test_a_tampered_observation_count_is_reported(copy: Copy) -> None:
     def tamper(document: dict[str, Any]) -> None:
         next(o for o in document["observations"] if o["id"] == "banner_present")["count"] = 5
@@ -281,7 +364,7 @@ def test_a_defect_that_omits_a_selected_repository_is_reported(copy: Copy) -> No
 
 def test_a_placeholder_naming_an_unknown_observation_is_reported(copy: Copy) -> None:
     copy.edit_yaml(
-        "common.yaml", lambda d: d["open_decisions"][0].update(question="see {obs:nothing_here}")
+        "common.yaml", lambda d: d["decisions"][0].update(question="see {obs:nothing_here}")
     )
     assert has(copy.check(), "{obs:nothing_here}")
 

@@ -91,6 +91,16 @@ better_than_live:
     measured_by: second_h1, unclosed_details, fences_without_language, dead_relative_links all zero or not higher than live
     rules: [STR-01, STR-21, STR-23, LNK-09]
     defect_classes: [DEF-01, DEF-02, DEF-03, DEF-13, DEF-23]
+  - id: BTL-REG-08
+    statement: At a Glance renders unclipped, with Starting Points, Core Capabilities and Outputs left to right, split by key capability.
+    measured_by: a real render of the diagram (STR-28), with no label clipped and the three mother blocks side by side from left to right
+    rules: [STR-08, STR-28]
+    defect_classes: [DEF-29, DEF-30]
+inherited_additions: >-
+  Headings outside the fixed core (Project Structure, Feature Showcase, Detailed Documentation,
+  Constraints and any other the live README carries) are retained in place as written, their paths
+  and assets verified against the tree, and none is added to a README that lacks it (STR-25,
+  STR-27).
 insertion_policy: >-
   Insert a missing standard element at the position its live neighbours imply, under its
   standard heading, from verified facts only. Add its Navigation link. Never reorder, rename or
