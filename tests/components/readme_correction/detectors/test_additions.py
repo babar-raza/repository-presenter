@@ -61,7 +61,9 @@ def test_the_clones_build_and_test_commands_and_ci_matrix_are_appended_to_the_se
     corrected = applied(ctx, [edit])
     assert corrected.startswith("# P\n\n## Development and Testing\n\nRun it the usual way.\n\n")
     assert "```bash\nmvn -B verify\nmvn test\n```" in corrected
-    assert "ci.yml" in corrected and "ubuntu-latest" in corrected
+    # the CI matrix is stated in words (renderer 33, COV-02), never as the raw `ubuntu-latest`
+    assert "[ci workflow](.github/workflows/ci.yml) runs on Ubuntu and Windows" in corrected
+    assert "with Java 17 and 21" in corrected and "ubuntu-latest" not in corrected
     assert corrected.index("mvn test") < corrected.index("## License")
     assert set(edit.fact_ids) == {
         "build_test_asset:build-command",

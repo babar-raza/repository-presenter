@@ -48,6 +48,7 @@ from repository_presenter.core.llm.binding import (
 )
 from repository_presenter.core.llm.fallback import ModelSelection
 from repository_presenter.core.llm.ledger import CallRecord, Ledger, canonical_hash
+from repository_presenter.core.llm.narrowing import Narrowing
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.retry import RetryableOperationError, run_with_retry
 
@@ -491,43 +492,6 @@ class _Attempts:
 
 Checks = Callable[[dict[str, Any]], list[str]]
 Narrow = Callable[[Sequence[str]], tuple[Mapping[str, Any], dict[str, Any] | None]]
-
-
-@dataclass(frozen=True)
-class Narrowing:
-    """A third, narrower ask for the part of a twice-rejected reply that is still wrong.
-
-    The universal re-ask returns the whole reply, and a reply that fixes what it was told so often
-    breaks or keeps one other unit that the job fails (wave 3: nine of thirty-six repositories
-    ended at "output rejected twice", six of them with one or two units left). A ``Narrowing``
-    lets a job name those units and ask for them alone, keeping the rest exactly as the second
-    reply gave it.
-
-    ``pending(content, rejection)`` names the parts of the second reply still wrong (unit IDs,
-    slots); empty when none can be named, and nothing is then asked. ``ask(parts, content,
-    rejection, repeated)`` is the narrowed packet and call schema (the same prompt, narrowed to
-    ``parts``, with the defects of ``rejection`` that concern them). ``merge(content, narrowed,
-    parts)`` is the whole reply with ``parts`` taken from the narrowed reply. The merged reply is
-    judged by the job's ordinary schema, binding and checks, so nothing is accepted unjudged.
-    ``subject`` completes the failure message ("... a narrowed ask for the silent units").
-
-    ``repeated(first, second, parts)`` names the ``parts`` the second reply gave exactly as the
-    first did. The re-ask carried the complete defect list and the model answered it with the same
-    units, so asking for them again with the same defects would be a third equivalent attempt
-    (AGENTS.md "Implementation Discipline"; wave 4: Slides-Java and Slides-Cpp returned the same
-    text a third time). ``ask`` is handed those parts as its last argument so that the narrowed
-    request changes the evidence - it says the earlier text was returned twice and rejected twice -
-    instead of repeating the question. ``None`` for a job whose narrowed ask already shows the
-    model what the re-ask did not (the silent units of a ``unit_ids`` job)."""
-
-    pending: Callable[[str, Sequence[str]], list[str]]
-    ask: Callable[
-        [Sequence[str], str, Sequence[str], Sequence[str]],
-        tuple[Mapping[str, Any], dict[str, Any] | None],
-    ]
-    merge: Callable[[str, str, Sequence[str]], str]
-    subject: str = "the silent units"
-    repeated: Callable[[str, str, Sequence[str]], list[str]] | None = None
 
 
 _ENUM_SHOWN = 12

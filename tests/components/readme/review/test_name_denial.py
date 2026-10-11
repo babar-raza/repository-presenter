@@ -7,6 +7,10 @@ those names; Aspose.HTML-FOSS-for-Python denied ``aspose_html.dom.html``, a SUPP
 Aspose.Cells-FOSS-for-TypeScript denied the package name ``excel-cells``, the value of SUPPORTED
 ``package:name``. The negative controls are the same reviewers' findings that look alike and are
 not name denials - a claim about the names, a name that is no fact, a name excluded by polarity.
+
+The reviewer states the names it denies in the finding's typed ``unsupported_names``, as it
+states an absence in ``absent``; the rule never reads the finding's ``text``
+(tests/test_routing_fields.py). Each finding below carries the names its sealed text denied.
 """
 
 from __future__ import annotations
@@ -268,6 +272,7 @@ def _finding(
         "quote": quote,
         "fact_ids": fact_ids,
         "absent": [],
+        "unsupported_names": [],
         "omission": None,
         "repair": "Remove the unsupported symbols.",
         **extra,
@@ -278,8 +283,36 @@ def _go_ids(values: list[str]) -> list[str]:
     return [value if ":" in value else f"public_symbol:{value.lower()}" for value in values]
 
 
+def _first_names(label: str, values: list[str]) -> list[str]:
+    """What the reviewer lists in ``unsupported_names`` for a first-read finding: the names its
+    text denies, a member by its bare name. Go F05 also listed ``RemoveTable``, which no fact or
+    row carries."""
+    names = dict.fromkeys(value.rsplit(".", 1)[-1] for value in values)
+    return [*names, *(["RemoveTable"] if label == "F05" else [])]
+
+
+# The second read's denials: F03 lists the three types its text names, F05 the one function it
+# calls "not a verified function", and F06 - a judgment about a limitation - denies no name.
+GO_SECOND_NAMES: dict[str, list[str]] = {
+    "F03": ["Chart", "PivotTable", "VBAProject"],
+    "F05": ["LoadWorkbook"],
+    "F06": [],
+}
+
+
 def _go_findings(rows: list[tuple[str, str, str, str, list[str]]]) -> list[dict[str, Any]]:
-    return [_finding(i, s, q, t, _go_ids(ids)) for i, s, q, t, ids in rows]
+    second = rows is GO_SECOND
+    return [
+        _finding(
+            i,
+            s,
+            q,
+            t,
+            _go_ids(ids),
+            unsupported_names=GO_SECOND_NAMES[i] if second else _first_names(i, ids),
+        )
+        for i, s, q, t, ids in rows
+    ]
 
 
 def _go_facts() -> FactsDocument:
@@ -438,7 +471,14 @@ def test_a_denied_name_is_looked_up_by_its_text_when_the_finding_cites_nothing()
         "The candidate lists 'aspose_html.dom.html' as a public symbol, but the facts show it is "
         "not supported.",
     ):
-        finding = _finding("F05", "api_reference", "aspose_html.dom.html", text, [])
+        finding = _finding(
+            "F05",
+            "api_reference",
+            "aspose_html.dom.html",
+            text,
+            [],
+            unsupported_names=["aspose_html.dom.html"],
+        )
         document = _review([finding], facts, candidate)
         assert document["findings"] == [] and document["verdict"] == ACCEPT
         (record,) = document["advisory"]
@@ -476,6 +516,7 @@ def test_a_denied_package_name_is_refuted_by_package_name() -> None:
         "paragraph and installation section, while the repository name and all facts confirm "
         "the product is 'Aspose.Cells FOSS for TypeScript'.",
         ["identity:repository"],
+        unsupported_names=["excel-cells"],
     )
     f02 = _finding(
         "F02",
@@ -485,6 +526,7 @@ def test_a_denied_package_name_is_refuted_by_package_name() -> None:
         "section, while the facts confirm the repository name is "
         "'Aspose.Cells-FOSS-for-TypeScript' and no npm package name fact supports 'excel-cells'.",
         ["package:name"],
+        unsupported_names=["excel-cells"],
     )
     f03 = _finding(
         "F03",
@@ -521,10 +563,8 @@ def _go_one(
 def test_a_name_that_is_no_fact_leaves_the_finding_standing() -> None:
     """The reviewer's denial is true of `Frobnicate`: the candidate prints it and no fact carries
     it. One unresolved name keeps the whole finding blocking, however many others resolve."""
-    finding, facts, candidate = _go_one(
-        1,
-        text=GO_FIRST[1][3].replace("VerifyPassword,", "VerifyPassword, Frobnicate,"),
-    )
+    finding, facts, candidate = _go_one(1)
+    finding["unsupported_names"] = [*finding["unsupported_names"], "Frobnicate"]
     candidate = candidate.replace("\n## License", "\n| Frobnicate | Not a fact. |\n\n## License")
     assert "| Frobnicate |" in candidate
     assert NAME_DENIAL_RULE not in _rules(finding, facts, candidate)
@@ -544,17 +584,10 @@ def test_a_qualified_name_is_resolved_only_exactly() -> None:
     true, so the bare member name's looseness does not reach a qualified one."""
     finding, facts, candidate = _go_one(1)
     candidate = candidate.replace("\n## License", "\n| Workbook.Tables | Printed. |\n\n## License")
-    wrong_type = {
-        **finding,
-        "text": "The candidate's member reference includes Workbook.Tables, none of which have "
-        "verified public_symbol facts.",
-    }
+    wrong_type = {**finding, "unsupported_names": ["Workbook.Tables"]}
     assert name_denial_defect(wrong_type, {f.id: f for f in facts.facts}, candidate) is None
     # And a qualified name that is a fact resolves.
-    right_type = {
-        **wrong_type,
-        "text": wrong_type["text"].replace("Workbook.Tables", "Worksheet.Tables"),
-    }
+    right_type = {**wrong_type, "unsupported_names": ["Worksheet.Tables"]}
     assert name_denial_defect(right_type, {f.id: f for f in facts.facts}, candidate) is not None
 
 
@@ -566,10 +599,7 @@ def test_a_denied_name_the_section_never_prints_does_not_save_the_finding_alone(
     assert "RemoveTable" not in candidate
     ruling = name_denial_defect(finding, {fact.id: fact for fact in facts.facts}, candidate)
     assert ruling is not None and ruling.evidence["not_in_section"] == ["RemoveTable"]
-    lone = {
-        **finding,
-        "text": "The table lists RemoveTable, none of which have verified public_symbol facts.",
-    }
+    lone = {**finding, "unsupported_names": ["RemoveTable"]}
     assert name_denial_defect(lone, {fact.id: fact for fact in facts.facts}, candidate) is None
 
 
@@ -581,9 +611,8 @@ def test_a_name_only_a_contradicted_symbol_carries_is_not_supported() -> None:
         base.source_revision,
         (*base.facts, _symbol("LegacyExport", "CONTRADICTED")),
     )
-    finding, _, candidate = _go_one(
-        1, facts, text=GO_FIRST[1][3].replace("VerifyPassword,", "VerifyPassword, LegacyExport,")
-    )
+    finding, _, candidate = _go_one(1, facts)
+    finding["unsupported_names"] = [*finding["unsupported_names"], "LegacyExport"]
     candidate = candidate.replace("\n## License", "\n| LegacyExport | Old. |\n\n## License")
     assert name_denial_defect(finding, {f.id: f for f in facts.facts}, candidate) is None
     # And a finding that cites the CONTRADICTED fact itself points at excluded evidence.
@@ -594,7 +623,8 @@ def test_a_name_only_a_contradicted_symbol_carries_is_not_supported() -> None:
 def test_a_denial_of_a_claim_about_names_is_not_a_denial_of_the_names() -> None:
     """Wave-3 Aspose.Cells-FOSS-for-TypeScript: every name in these sentences is a SUPPORTED fact,
     and the finding does not deny them - it denies what the candidate says OF them (a mutability
-    limitation, the signatures and fields printed beside them). They keep blocking."""
+    limitation, the signatures and fields printed beside them), so it lists no name in
+    ``unsupported_names``. They keep blocking."""
     types = (
         "Workbook",
         "Worksheet",
@@ -659,17 +689,52 @@ def test_a_denial_of_a_claim_about_names_is_not_a_denial_of_the_names() -> None:
         assert name_denial_defect(finding, by_id, candidate) is None, text
 
 
-def test_a_multi_word_quote_is_a_claim_not_a_name() -> None:
+def test_the_finding_text_is_never_read_for_the_names() -> None:
+    """The wave-4 denial sentences, with the typed field empty: nothing is looked up, the finding
+    stands. Rewording the prose changes nothing either way (RESEARCH_AND_GUIDELINES.md 27.2 RC8)."""
     facts = _go_facts()
     by_id = {fact.id: fact for fact in facts.facts}
     candidate = _go_candidate(facts)
-    for text in (
-        "The candidate lists 'Chart represents a chart' as a public symbol, but no fact supports "
-        "this exact symbol.",
-        "The candidate states 'the Chart type', none of which have verified public_symbol facts.",
-    ):
-        finding = _finding("F01", "api_reference", "| Chart |", text, ["public_symbol:chart"])
-        assert name_denial_defect(finding, by_id, candidate) is None, text
+    for row in GO_FIRST:
+        (finding,) = _go_findings([row])
+        assert name_denial_defect(finding, by_id, candidate) is not None, row[0]
+        assert name_denial_defect({**finding, "unsupported_names": []}, by_id, candidate) is None
+        absent_key = {k: v for k, v in finding.items() if k != "unsupported_names"}
+        assert name_denial_defect(absent_key, by_id, candidate) is None, row[0]
+        reworded = {**finding, "text": "A different sentence entirely."}
+        assert name_denial_defect(reworded, by_id, candidate) is not None, row[0]
+    stands = _review(
+        [{**_go_findings([GO_FIRST[0]])[0], "unsupported_names": []}], facts, candidate
+    )
+    assert [f["id"] for f in stands["findings"]] == ["F02"]
+    assert stands["verdict"] == "REJECT_FACTUAL" and stands["advisory"] == []
+
+
+def test_a_listed_name_is_read_as_a_name_however_it_is_quoted() -> None:
+    facts = _go_facts()
+    by_id = {fact.id: fact for fact in facts.facts}
+    candidate = _go_candidate(facts)
+    finding = _finding("F01", "api_reference", "| Chart |", "x", [], unsupported_names=["`Chart`"])
+    for spelled in ("`Chart`", "'Chart'", '"Chart"', "Chart()", " Chart ", "Chart", "Chart"):
+        ruling = name_denial_defect({**finding, "unsupported_names": [spelled]}, by_id, candidate)
+        assert ruling is not None and list(ruling.evidence["names"]) == ["Chart"], spelled
+
+
+def test_a_multi_word_entry_is_a_claim_not_a_name() -> None:
+    facts = _go_facts()
+    by_id = {fact.id: fact for fact in facts.facts}
+    candidate = _go_candidate(facts)
+    for names in (["Chart represents a chart"], ["Chart", "the Chart type"]):
+        finding = _finding(
+            "F01",
+            "api_reference",
+            "| Chart |",
+            "The candidate lists 'Chart represents a chart' as a public symbol, but no fact "
+            "supports this exact symbol.",
+            ["public_symbol:chart"],
+            unsupported_names=names,
+        )
+        assert name_denial_defect(finding, by_id, candidate) is None, names
 
 
 def test_a_name_denial_that_also_claims_an_omission_keeps_the_omission() -> None:

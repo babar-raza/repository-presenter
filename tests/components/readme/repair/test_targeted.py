@@ -71,6 +71,7 @@ def _finding(
         "quote": quote,
         "fact_ids": list(fact_ids),
         "absent": [],
+        "unsupported_names": [],
         "repair": "r",
     }
 
@@ -222,6 +223,7 @@ def test_aspose_3d_javas_real_f08_finding_is_now_routed_to_s4() -> None:
         "quote": "Every example below is exercised by the project's own test suite. See the",
         "fact_ids": ["link_target:020"],
         "absent": [],
+        "unsupported_names": [],
         "repair": (
             "Move the test suite reference to the beginning of the Additional Examples section "
             "or remove it entirely to avoid redundancy."
@@ -263,6 +265,7 @@ def test_aspose_email_pythons_real_finding_does_not_match_this_mechanism_honestl
         "quote": "| Class | Description |",
         "fact_ids": [],
         "absent": [],
+        "unsupported_names": [],
         "repair": (
             "Remove the duplicated list-based API reference section and retain only the "
             "original table format for clarity and consistency."
