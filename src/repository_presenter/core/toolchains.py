@@ -284,9 +284,8 @@ def _python_roots() -> tuple[Path, ...]:
     return tuple(dict.fromkeys(roots))
 
 
-def _root_pythons() -> list[tuple[str, Path]]:
-    """Interpreters in an install directory's own name (``D:/Python312/python.exe`` is 3.12), and
-    on a POSIX machine the versioned ``python3.N`` commands on PATH."""
+def _directory_pythons() -> list[tuple[str, Path]]:
+    """Interpreters in an install directory's own name (``D:/Python312/python.exe`` is 3.12)."""
     found: list[tuple[str, Path]] = []
     for root in _python_roots():
         try:
@@ -298,11 +297,18 @@ def _root_pythons() -> list[tuple[str, Path]]:
             executable = directory / "python.exe"
             if matched and matched.group("major") == "3" and executable.is_file():
                 found.append((f"3.{int(matched.group('minor'))}", executable))
-    if os.name != "nt":
-        for minor in _POSIX_MINORS:
-            command = shutil.which(f"python3.{minor}")
-            if command:
-                found.append((f"3.{minor}", Path(command)))
+    return found
+
+
+def _path_pythons() -> list[tuple[str, Path]]:
+    """The versioned ``python3.N`` commands on PATH (a POSIX machine's way of carrying several)."""
+    if os.name == "nt":
+        return []
+    found: list[tuple[str, Path]] = []
+    for minor in _POSIX_MINORS:
+        command = shutil.which(f"python3.{minor}")
+        if command:
+            found.append((f"3.{minor}", Path(command)))
     return found
 
 
@@ -315,7 +321,8 @@ def installed_pythons() -> list[tuple[str, Path]]:
     then PATH. The running interpreter is not asked here - the caller offers it first.
     """
     chosen: dict[str, Path] = {}
-    for version, executable in (*_launcher_pythons(), *_root_pythons()):
+    sources = (_launcher_pythons, _directory_pythons, _path_pythons)
+    for version, executable in (found for source in sources for found in source()):
         chosen.setdefault(version, executable)
     return sorted(chosen.items(), key=lambda item: tuple(int(part) for part in item[0].split(".")))
 
