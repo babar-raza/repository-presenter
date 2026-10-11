@@ -96,6 +96,7 @@ src/repository_presenter/
       evaluation.py            dependency evaluation: changed inputs and the stage they reopen
       invalidation.py          typed invalidation scopes: scope -> stage and state tables, and the routing (STATE_MACHINE.md §9)
       dry_run.py               read-only dry run: every CURRENT bundle's routing under the running code, and held updates
+      recheck.py               consumed-scope recheck (G7-W25, investigation 13): is a sealed bundle still current under the running code? CURRENT / RECHECKED_CURRENT / UPDATE_OPTIONAL / UPDATE_REQUIRED / UNVERIFIED; offline, no provider call, never invalidates or edits a bundle; receipts are a cache
       portfolio.py             plans/idea.md's seven separated portfolio counts and the one-bucket-per-entry partition `status` prints (pure read; predicates defined in its docstring)
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
@@ -137,6 +138,7 @@ evidence/sbom/requirements-lock.cdx.json  committed CycloneDX SBOM for this proj
 evidence/g6-w02/proof-readme-v1.md  the disposable-target README input (G6-W02 live proof) passed to `repository-presenter propose --readme-file` in propose.yml's own dispatch; a fixed proof fixture for the write path, never a product candidate, and never read by any product stage. Its redacted run record lives beside it as evidence/g6-w02/LIVE_PROOF.md
 candidates/<owner>__<name>/<revision>/   sealed candidate bundles (README_CONTRACT.md §7)
 candidates/<owner>__<name>/CURRENT       pointer file naming the current revision
+candidates/<owner>__<name>/rechecks/<revision>.json  cached consumed-scope recheck of that bundle (`repository-presenter recheck --write-receipts`), keyed by the manifest digest and the running code's consumed inputs and self-digested; a cache beside the bundle, never inside it, never an authority, ignored when its key or digest does not match (G7-W25)
 ops/proposal-authorizations/  one reviewed JSON record per authorized README proposal (`repository-presenter draft-proposal-authorization` writes it; a person merges it through a pull request before the propose run is triggered); `propose --propose` refuses without one (docs/DECISION_LOG.md 2026-10-05)
 tests/                       mirrors src/repository_presenter/ package for package (see §3)
   fixtures/oracles/           development-only fixtures and oracles (FIXTURE_OR_ORACLE_ONLY)

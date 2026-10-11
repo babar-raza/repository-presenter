@@ -1129,6 +1129,22 @@ def test_a_changed_input_lands_in_the_state_its_scope_defines(
     assert _sealed_files(tmp_path) == sealed
 
 
+@pytest.mark.parametrize(
+    "dependency", ["environment.inherited_units_version", "environment.extractor_version"]
+)
+def test_an_extraction_version_change_never_invalidates(tmp_path: Path, dependency: str) -> None:
+    """Negative control (G7-W25): only a different fact record invalidates, never a version."""
+    _proven_bundle(tmp_path)
+    _alter(tmp_path, "facts.json", '{"facts": ["new"]}\n')
+    result = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage="EXTRACTING", dependencies=(dependency,))
+    )
+    assert result.state == "VALID_UPDATE_AVAILABLE"
+    assert "invalidated" not in _sealed_manifest(tmp_path)
+    assert _sealed_manifest(tmp_path)["update"]["earliest_affected_stage"] == "EXTRACTING"
+    assert _sealed_manifest(tmp_path)["update"]["triggering_scope"] == "facts"
+
+
 @pytest.mark.parametrize("dependency", ["validators", "contract_version"])
 def test_a_validator_change_never_invalidates(tmp_path: Path, dependency: str) -> None:
     """Negative control (AGENTS.md): a validator change re-checks and may yield

@@ -6,6 +6,11 @@ versions, extractor versions), routes every difference through the invalidation 
 (``invalidation.py``), and reports the manifest state a re-run would record. It never clones,
 never calls a provider, never writes, and never touches a sealed bundle.
 
+An extractor or inherited-unit version that differs routes as ``extraction``
+(VALID_UPDATE_AVAILABLE, re-entering EXTRACTING: "would re-extract"), never ``INVALIDATED``: only a
+difference in the facts hash map invalidates, and that needs the fact records a clone yields
+(G7-W25).
+
 What it cannot see is reported as unchanged rather than guessed: the source revision and tree, the
 fact records, and the host-observed environment (Python version, OS, installed package set) need
 a clone or the original host. A ``facts`` scope therefore never appears here; it appears only in
@@ -56,6 +61,10 @@ class BundleRouting:
     state: str  # the manifest state today
     changed: tuple[str, ...]  # input classes that differ
     routing: Routing
+    # Checks and versions the running code has that the sealed record never named. They cannot
+    # reopen the candidate (it did not consume them), but they are not skipped silently: the
+    # consumed-scope recheck runs them (recheck.py; doc 13 section 6.4).
+    unrecorded: tuple[str, ...] = ()
 
     @property
     def would_become(self) -> str:
@@ -93,6 +102,34 @@ def code_derived_dependencies(
     return merged
 
 
+def unrecorded_inputs(
+    sealed: Mapping[str, Any], current_code: Mapping[str, Any]
+) -> tuple[str, ...]:
+    """The checks and extraction versions the running code owns that ``sealed`` does not record.
+
+    ``code_derived_dependencies`` compares only what the sealed record holds, so a check added
+    after sealing (BC-12 on bundles sealed before it existed) or an environment version an older
+    record never wrote is invisible to the routing. Naming them keeps the absence from being read
+    as "unchanged": a check the record lacks must be run, not skipped (doc 13 section 6.4).
+    """
+    missing: list[str] = []
+    sealed_checks = sealed.get("validators")
+    current_checks = current_code.get("validators")
+    if isinstance(sealed_checks, dict) and isinstance(current_checks, dict):
+        missing += [
+            f"validators.{name}" for name in sorted(set(current_checks) - set(sealed_checks))
+        ]
+    sealed_environment = sealed.get("environment")
+    current_environment = current_code.get("environment")
+    if isinstance(sealed_environment, dict) and isinstance(current_environment, dict):
+        missing += [
+            f"environment.{name}"
+            for name in _CODE_OWNED_ENVIRONMENT
+            if name in current_environment and name not in sealed_environment
+        ]
+    return tuple(missing)
+
+
 def portfolio_routing(root: Path, current_code: Mapping[str, Any]) -> list[BundleRouting]:
     """Every CURRENT bundle under ``candidates/``, routed against ``current_code`` (the shape of
     ``seal.upstream_dependencies``); an unreadable bundle is skipped, as ``stale_candidates`` does,
@@ -118,7 +155,12 @@ def portfolio_routing(root: Path, current_code: Mapping[str, Any]) -> list[Bundl
         changed = tuple(change.dependency for change in evaluation.changes)
         rows.append(
             BundleRouting(
-                repository_dir.name, revision, str(manifest.get("state")), changed, route(changed)
+                repository_dir.name,
+                revision,
+                str(manifest.get("state")),
+                changed,
+                route(changed),
+                unrecorded_inputs(sealed, current_code),
             )
         )
     return rows

@@ -25,6 +25,15 @@ scope of the stage that wrote it, used only when a rerun's bytes differ and no c
 explains it. Both are tables: a new input class or artifact is one row, and a lookup that finds
 none raises rather than guessing a state (a guessed state is a hidden policy).
 
+The extractor and inherited-unit inventory versions (:data:`VERSION_PROXIES`) are inputs of the
+``facts`` scope but not themselves factual: a version names a code change, not a different fact
+(doc 13 section 6.4 - ``inherited_units_version`` 1 -> 2 routed 24 of 30 bundles to INVALIDATED
+while regenerating the units changes 2). A change confined to them re-enters EXTRACTING as "would
+re-extract" with ``VALID_UPDATE_AVAILABLE``; only a difference in the ``facts`` hash map, the
+source, or an environment the host observed (Python, OS, toolchains, package set) invalidates
+(G7-W25). The scope name stays ``facts``: the manifest schema enumerates scope names, and a new
+one would be a schema change.
+
 Nothing here is a hash of anything: a scope is derived from the candidate's own consumed inputs,
 so a component the candidate did not consume cannot reopen it and no global control-plane hash
 exists (AGENTS.md; docs/STATE_MACHINE.md section 9).
@@ -152,6 +161,11 @@ FAMILY_SCOPES: dict[str, tuple[dict[str, str], str]] = {
     "prompts": (PROMPT_SCOPES, "evidence"),
     "components": (COMPONENT_SCOPES, "presentation"),
 }
+# Inputs of the ``facts`` scope that are a proxy for a code change rather than a fact: reopening
+# EXTRACTING, but leaving the candidate valid until the fact records themselves differ.
+VERSION_PROXIES: frozenset[str] = frozenset(
+    {"environment.extractor_version", "environment.inherited_units_version"}
+)
 # The reviewer's own deterministic logic (``review.py``'s scope_defect, quote_located and
 # review_checks) reopens COMPOSING rather than its scope's REVIEWING: composing is upstream of
 # reviewing, so nothing under-reopens (docs/STATE_MACHINE.md section 9, EVAL-01, 2026-09-10).
@@ -232,15 +246,25 @@ def route(dependencies: Iterable[str], artifacts: Iterable[str] = ()) -> Routing
         basis = "inputs"
         stages = {dependency: reopening_stage(dependency) for dependency in changed}
         scopes = {scope_of(dependency).name for dependency in changed}
+        # A scope invalidates only through an input that is itself factual: not a version proxy.
+        invalidating = {
+            scope_of(dependency).name
+            for dependency in changed
+            if scope_of(dependency).state == STATE_INVALIDATED and dependency not in VERSION_PROXIES
+        }
     else:
         basis = "artifacts"
         differing = sorted(set(artifacts))
         stages = {name: scope_of_artifact(name).stage for name in differing}
         scopes = {scope_of_artifact(name).name for name in differing}
+        invalidating = {name for name in scopes if SCOPE_BY_NAME[name].state == STATE_INVALIDATED}
     if not scopes:
         return Routing((), None, None, None, basis)
     ordered = sorted(scopes, key=_SCOPE_ORDER.__getitem__)
-    decisive = [name for name in ordered if SCOPE_BY_NAME[name].state == STATE_INVALIDATED]
+    decisive = [name for name in ordered if name in invalidating]
     triggering = (decisive or ordered)[0]
+    # Every non-invalidating outcome is an update: a scope's own INVALIDATED state is reached only
+    # through a factual input (the version proxies above are not).
+    state = STATE_INVALIDATED if triggering in invalidating else STATE_UPDATE_AVAILABLE
     earliest = min(stages.values(), key=_stage_index)
-    return Routing(tuple(ordered), triggering, SCOPE_BY_NAME[triggering].state, earliest, basis)
+    return Routing(tuple(ordered), triggering, state, earliest, basis)

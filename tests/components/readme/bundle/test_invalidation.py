@@ -142,7 +142,16 @@ def test_nothing_changed_routes_nowhere() -> None:
     ("dependency", "scope", "state", "stage"),
     [
         ("source", "facts", STATE_INVALIDATED, "EXTRACTING"),
-        ("environment.extractor_version", "facts", STATE_INVALIDATED, "EXTRACTING"),
+        ("environment.extractor_version", "facts", STATE_UPDATE_AVAILABLE, "EXTRACTING"),
+        (
+            "environment.inherited_units_version",
+            "facts",
+            STATE_UPDATE_AVAILABLE,
+            "EXTRACTING",
+        ),
+        # Negative control: what the host observed answering extraction still invalidates.
+        ("environment.python_version", "facts", STATE_INVALIDATED, "EXTRACTING"),
+        ("environment.toolchains.javac", "facts", STATE_INVALIDATED, "EXTRACTING"),
         ("facts", "facts", STATE_INVALIDATED, "EXTRACTING"),
         ("prompts.repository_investigation", "evidence", STATE_UPDATE_AVAILABLE, "INVESTIGATING"),
         ("prompts.source_reconciliation", "reconciliation", STATE_UPDATE_AVAILABLE, "RECONCILING"),
@@ -331,3 +340,64 @@ def test_held_updates_name_the_scope_the_manifest_recorded(tmp_path: Path) -> No
     assert (held["update-held"].scope, held["update-held"].stage) == ("authoring", "COMPOSING")
     assert (held["invalidated"].scope, held["invalidated"].stage) == ("facts", "EXTRACTING")
     assert held["old-record"].scope is None  # recorded before scopes existed
+
+
+# --- environment versions are not facts (G7-W25, doc 13 section 6.4) --------------------------
+
+
+def test_an_environment_version_difference_would_re_extract_and_never_invalidates(
+    tmp_path: Path,
+) -> None:
+    """24 of 30 sealed bundles were routed INVALIDATED on ``inherited_units_version`` 1 -> 2 while
+    regenerating the units changes only 2 of them: a version names a code change, not a different
+    fact, so it reopens EXTRACTING with an update available."""
+    _bundle(
+        tmp_path,
+        "old-units",
+        "READY_FOR_PROPOSAL",
+        _record(environment__inherited_units_version="0", environment__extractor_version="0"),
+    )
+
+    (row,) = portfolio_routing(tmp_path, code_dependencies(PROMPTS))
+
+    assert row.changed == (
+        "environment.extractor_version",
+        "environment.inherited_units_version",
+    )
+    assert row.routing.scopes == ("facts",)
+    assert row.routing.state == STATE_UPDATE_AVAILABLE and not row.routing.invalidates
+    assert row.routing.stage == "EXTRACTING"
+    assert row.would_become == STATE_UPDATE_AVAILABLE
+
+
+def test_a_difference_in_the_facts_hash_map_still_invalidates() -> None:
+    """Negative control: only a different fact record is a factual input."""
+    sealed = _record()
+    current = copy.deepcopy(sealed)
+    current["facts"]["identity:repository"] = "2" * 64
+    changes = evaluate(sealed, current).changes
+    assert [c.dependency for c in changes] == ["facts"]
+    routing = route([c.dependency for c in changes])
+    assert routing.invalidates and routing.triggering_scope == "facts"
+    # ... and a version change beside it does not soften that.
+    current["environment"]["inherited_units_version"] = "99"
+    both = route([c.dependency for c in evaluate(sealed, current).changes])
+    assert both.invalidates and both.scopes == ("facts",)
+
+
+def test_a_check_or_version_the_sealed_record_lacks_is_reported_not_skipped(
+    tmp_path: Path,
+) -> None:
+    _bundle(
+        tmp_path,
+        "older-record",
+        "READY_FOR_PROPOSAL",
+        _record(**{"validators__BC-12": None, "environment__inherited_units_version": None}),
+    )
+
+    (row,) = portfolio_routing(tmp_path, code_dependencies(PROMPTS))
+
+    # It cannot reopen the candidate (it never consumed it) ...
+    assert row.changed == () and row.routing.state is None
+    # ... but it is named, so the recheck runs it rather than the absence reading as "unchanged".
+    assert row.unrecorded == ("validators.BC-12", "environment.inherited_units_version")

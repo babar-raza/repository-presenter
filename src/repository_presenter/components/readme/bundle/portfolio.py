@@ -42,9 +42,19 @@ at a stage only when it counted at every stage before it, so the counts are a fu
 
 THE PARTITION. Because the counts are nested, mutual exclusivity lives in the ``bucket`` of each
 entry: the first of ``disabled``, ``no_bundle``, ``bundle_corrupt``, ``state_not_accepted``,
-``not_fact_valid``, ``update_available`` that applies, otherwise the deepest of the seven stages the
-entry reached. Every live registry entry is in exactly one bucket, so the buckets sum to the live
-entry count (the denominator). Each count equals the number of entries whose depth reaches it.
+``not_fact_valid``, ``update_required``, ``update_unverified`` that applies, otherwise the deepest
+of the seven stages the entry reached. Every live registry entry is in exactly one bucket, so the
+buckets sum to the live entry count (the denominator). Each count equals the number of entries whose
+depth reaches it.
+
+UPDATE BUCKETS (G7-W25, doc 13). An entry holds an update when its manifest state is
+``VALID_UPDATE_AVAILABLE`` or its sealed record is behind the running code (``stale_directories``).
+A behind-the-record bundle whose consumed-scope recheck (``recheck.py``) came out ``CURRENT``,
+``RECHECKED_CURRENT`` or ``UPDATE_OPTIONAL`` is not stale: it continues down the funnel. A held
+update (manifest state) stays an update whatever its recheck says. The update set splits by what is
+known: ``update_required`` when the recheck failed (``UPDATE_REQUIRED``), ``update_unverified``
+otherwise - the recheck could not run, has not run, or the bundle only holds an update. Only the
+``status`` output split changes; no manifest state and no READY_FOR_PROPOSAL rule does.
 
 ``ready_acceptance_advisory`` is reported on its own: entries that are READY_FOR_PROPOSAL but whose
 acceptance outcome is not a ratified PASS. READY_FOR_PROPOSAL is blocking checks BC-01..BC-11 plus
@@ -63,6 +73,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.bundle.recheck import COUNTING, UPDATE_REQUIRED
 from repository_presenter.components.readme.review.acceptance.profile import RATIFIED
 from repository_presenter.components.readme.review.acceptance.scorer import PASS
 from repository_presenter.components.readme.review.acceptance.sealed import (
@@ -99,7 +110,8 @@ OFF_FUNNEL_BUCKETS: tuple[str, ...] = (
     "bundle_corrupt",
     "state_not_accepted",
     "not_fact_valid",
-    "update_available",
+    "update_required",
+    "update_unverified",
 )
 BUCKETS: tuple[str, ...] = OFF_FUNNEL_BUCKETS + COUNT_NAMES
 # depth = how many cumulative counts an entry reached; no-op-proven is reached at depth 4.
@@ -208,8 +220,12 @@ def assess_portfolio(
     authorizations: Mapping[str, Sequence[ProposalAuthorization]] | None = None,
     acceptance_ratified: bool = RATIFIED,
     acceptance_scorer: AcceptanceScorer | None = None,
+    currency: Mapping[str, str] | None = None,
 ) -> PortfolioReport:
-    """Assess every entry and total the seven counts and the partition."""
+    """Assess every entry and total the seven counts and the partition.
+
+    ``currency`` maps a repository directory (``owner__name``) to its recheck currency state; a
+    stale directory whose currency is counted is not stale (see UPDATE BUCKETS above)."""
     if acceptance_scorer is None and acceptance_ratified:
         acceptance_scorer = sealed_acceptance_scorer(root)
     assessments = [
@@ -223,6 +239,7 @@ def assess_portfolio(
             authorizations=authorizations,
             acceptance_ratified=acceptance_ratified,
             acceptance_scorer=acceptance_scorer,
+            currency=currency or {},
         )
         for entry in entries
     ]
@@ -279,6 +296,7 @@ def _assess(
     authorizations: Mapping[str, Sequence[ProposalAuthorization]] | None,
     acceptance_ratified: bool,
     acceptance_scorer: AcceptanceScorer | None,
+    currency: Mapping[str, str],
 ) -> EntryAssessment:
     def stop(bucket: str, depth: int, reason: str, advisory: bool = False) -> EntryAssessment:
         return EntryAssessment(entry.repository, entry.mode, bucket, depth, reason, advisory)
@@ -326,8 +344,22 @@ def _assess(
     if not _all_pass(verdicts, PRESENTATION_CHECKS):
         return halt("fact_valid", "structure check is not PASS")
     depth = 2
-    if state == STATE_UPDATE_AVAILABLE or directory in stale_directories:
-        return halt("update_available", "an update is available or the bundle is stale")
+    rechecked = currency.get(directory)
+    behind = directory in stale_directories and rechecked not in COUNTING
+    if state == STATE_UPDATE_AVAILABLE or behind:
+        if rechecked == UPDATE_REQUIRED:
+            return halt(
+                "update_required", "the consumed-scope recheck fails: an update is required"
+            )
+        why = (
+            "the bundle holds an update"
+            if state == STATE_UPDATE_AVAILABLE
+            else "the bundle is behind"
+        )
+        return halt(
+            "update_unverified",
+            f"{why} and its consumed-scope recheck is {rechecked or 'not available'}",
+        )
     if review.get("verdict") != "ACCEPT" or not _all_pass(verdicts, (REVIEW_CHECK,)):
         return halt("presentation_valid", "no independent ACCEPT")
     depth = 3
