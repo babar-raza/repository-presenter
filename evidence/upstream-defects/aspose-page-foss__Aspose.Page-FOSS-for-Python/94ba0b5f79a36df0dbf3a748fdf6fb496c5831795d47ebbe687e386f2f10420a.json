@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "source_revision": "43cef367cd0b2cf00cc03064ca9d29d1ff507967",
+  "defect_fingerprint": "sha256:94ba0b5f79a36df0dbf3a748fdf6fb496c5831795d47ebbe687e386f2f10420a",
+  "triggering_check": {
+    "id": "PACKAGE_METADATA_SOURCE_URL",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "pyproject.toml",
+      "detail": "[project] declares name, description, readme, requires-python and dependencies; no [project.urls] table (revision 43cef367cd0b2cf00cc03064ca9d29d1ff507967; unchanged at the live head)"
+    },
+    {
+      "path": "setup.py",
+      "detail": "build_setup_kwargs() passes no url and no project_urls to setuptools"
+    },
+    {
+      "path": "https://pypi.org/pypi/aspose-page-foss/json",
+      "detail": "2026-10-11: version 26.9.0; home_page is None and project_urls is None"
+    }
+  ],
+  "claim": "At revision 43cef367cd0b2cf00cc03064ca9d29d1ff507967, neither pyproject.toml nor setup.py declares a project URL, and the aspose-page-foss 26.9.0 package on PyPI publishes no home_page and no project_urls, so the package page links to neither the source repository nor the issue tracker.",
+  "suggested_issue_title": "Aspose.Page FOSS for Python: published package metadata names no project URL",
+  "suggested_issue_body": "## Summary\n\nAt revision `43cef367cd0b2cf00cc03064ca9d29d1ff507967`, the package metadata declares no project URL. The `aspose-page-foss` 26.9.0 release on PyPI therefore has no `home_page` and no `project_urls`: its page links to neither the source repository nor the issue tracker.\n\n## Environment\n\n- Repository: aspose-page-foss/Aspose.Page-FOSS-for-Python\n- Revision: `43cef367cd0b2cf00cc03064ca9d29d1ff507967` (the upstream revision this report was verified against, default branch `main`)\n- Verified on 2026-10-11 from a fresh shallow clone; the PyPI read is the public JSON API.\n\n## Steps to reproduce\n\n```\ngrep -n -i 'url' pyproject.toml setup.py\ngrep -c '^\\[project.urls\\]' pyproject.toml\ncurl -s https://pypi.org/pypi/aspose-page-foss/json | python -c 'import json,sys; i=json.load(sys.stdin)[\"info\"]; print(i[\"home_page\"], i[\"project_urls\"])'\n```\n\n## Expected\n\nThe package metadata names the repository, `https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python`, as a project URL, so the PyPI page links to the source.\n\n## Actual\n\n- The first command prints nothing: neither `pyproject.toml` nor `setup.py` mentions a URL.\n- The second command prints `0`: there is no `[project.urls]` table.\n- The third command prints `None None`: PyPI lists no `home_page` and no `project_urls` for 26.9.0.\n\n## Suggested fix\n\nAdd a `[project.urls]` table to `pyproject.toml` with `Repository = \"https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python\"` (and `Issues`), make sure `setup.py` forwards it to `setuptools`, and publish a release, since PyPI shows the metadata of the release only.\n\n<!-- repository-presenter-defect: sha256:94ba0b5f79a36df0dbf3a748fdf6fb496c5831795d47ebbe687e386f2f10420a -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

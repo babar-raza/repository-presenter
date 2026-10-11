@@ -207,6 +207,24 @@
       "evidence_digest": "sha256:4fc761243e9868343387e2bba27f94b0df90e2daf9ad3c22728a52b09b80052a",
       "method": "docker gcc:13 (g++ 13.5.0, pugixml 1.13) -std=c++20 -fsyntax-only on each README C++ block wrapped in main(); head check 2026-10-10",
       "note": "Independently reproduced; 6 of 10 blocks fail, the Quick Start compiles once slide.h is included. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-Python__52d17222c2290fa93602bb8ca7631c7908d4b8b1cd9edc076e6161f8eebf316f",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+      "verified_at": "2026-10-11T08:05:00Z",
+      "evidence_digest": "sha256:b240d8d0a3ed5524e46bd2b535b12abe9bf5af54020d5a40d6b99b86fd221c5b",
+      "method": "gh api commits/master; shallow clone at the head; grep -n 'url=' setup.py; curl HTTP status of the old and the real repository URL; PyPI JSON API for aspose-3d-foss (home_page, project_urls); 2026-10-11 (raw-logs/metadata-url-3D-Python.txt)",
+      "note": "Found by the cut-2 ownership work (the PyPI Homepage is copied from setup.py). The old address 404s through both the web and the API; the real repository answers 200."
+    },
+    {
+      "handoff_id": "aspose-page-foss__Aspose.Page-FOSS-for-Python__94ba0b5f79a36df0dbf3a748fdf6fb496c5831795d47ebbe687e386f2f10420a",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "43cef367cd0b2cf00cc03064ca9d29d1ff507967",
+      "verified_at": "2026-10-11T08:05:00Z",
+      "evidence_digest": "sha256:a307d891155531489b385621ac2d3b7b313dbf31f3a6ed681268aeb8746b59ee",
+      "method": "gh api commits/main; shallow clone at the head; grep -n -i url pyproject.toml setup.py; grep -c '^[project.urls]' pyproject.toml; PyPI JSON API for aspose-page-foss (home_page, project_urls); 2026-10-11 (raw-logs/metadata-url-Page-Python.txt)",
+      "note": "Found by the cut-2 ownership work (no registry URL corroborates the package as this repository's own). The registry metadata is the release's; the repository files confirm the cause."
     }
   ]
 }

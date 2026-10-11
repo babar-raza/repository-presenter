@@ -1,0 +1,20 @@
+# log: metadata-url-3D-Python
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-Python
+# head: 65b1f577c0f16d0d9112bb6c1153d3024543ac02
+# utc: 2026-10-11T07:57:23Z
+# cwd: shallow clone of the default branch
+# command: (script below, run with bash)
+#   grep -n 'url=' setup.py
+#   for u in https://github.com/aspose-3d/Aspose.3D-for-Python https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python; do
+#     printf '%s -> HTTP %s\n' "$u" "$(curl -s -o /dev/null -w '%{http_code}' "$u")"
+#   done
+#   curl -s https://pypi.org/pypi/aspose-3d-foss/json | python -c 'import json,sys; i=json.load(sys.stdin)["info"]; print("version", i["version"]); print("home_page", i["home_page"]); print("project_urls", i["project_urls"])'
+# ---- output (capped at 60000 bytes) ----
+15:    url="https://github.com/aspose-3d/Aspose.3D-for-Python",
+https://github.com/aspose-3d/Aspose.3D-for-Python -> HTTP 404
+https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python -> HTTP 200
+version 26.1.0
+home_page https://github.com/aspose-3d/Aspose.3D-for-Python
+project_urls {'Homepage': 'https://github.com/aspose-3d/Aspose.3D-for-Python'}
+
+# exit: 0
