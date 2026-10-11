@@ -819,3 +819,41 @@ def test_a_file_the_readme_names_and_the_clone_contains_is_recorded_on_its_unit(
         "CONTRIBUTING.md"
     )
     assert "repository_files" not in (units["inherited_unit:001.heading"].attributes or {})
+
+
+def test_the_clones_own_workflow_yields_command_and_matrix_facts_end_to_end(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """TC-COV-02: the build, test and CI-matrix facts reach the facts document, schema-valid."""
+    monkeypatch.setattr(
+        python_registry,
+        "fetch_project_json",
+        lambda url, transport=None: httpx.Response(404, json={"message": "Not Found"}),
+    )
+    source = _canary_like_source(tmp_path)
+    workflow = source / ".github" / "workflows" / "ci.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        "on: [push]\njobs:\n  test:\n    strategy:\n      matrix:\n"
+        '        python-version: ["3.10", "3.12"]\n    steps:\n'
+        "      - run: python -m pytest -q\n      - run: python -m build\n",
+        "utf-8",
+    )
+    commit_all(source, "ci")
+    clone = pinned_read_only_clone(str(source), tmp_path / "clone")
+    snapshot = capture_snapshot(ENTRY.repository, clone)
+    plugin = plugin_for(ENTRY.ecosystem)
+    document, _ = extract_facts(
+        ENTRY,
+        snapshot,
+        clone.path,
+        list_tree_paths(clone.path),
+        plugin,
+        plugin.detect_manifest(clone.path),
+    )
+    by_id = {fact.id: fact for fact in document.facts}
+    assert by_id["build_test_asset:test-command"].value == "python -m pytest -q"
+    assert by_id["build_test_asset:build-command"].value == "python -m build"
+    assert by_id["build_test_asset:ci-matrix"].value == "python-version=3.10,3.12"
+    schema = json.loads((REPO_ROOT / "schemas" / "facts.schema.json").read_text("utf-8"))
+    assert list(Draft202012Validator(schema).iter_errors(json.loads(document.to_json()))) == []

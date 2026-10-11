@@ -49,6 +49,55 @@ def _directory_fact(name: str, prefix: str, paths: Sequence[str], detail: str) -
     )
 
 
+class _LiteralLoader(yaml.SafeLoader):
+    """A YAML loader that never reads a float: ``python-version: 3.10`` is the text ``3.10``,
+    not the number 3.1, which would print a runtime nobody tests against."""
+
+
+_LiteralLoader.yaml_implicit_resolvers = {
+    first: [(tag, pattern) for tag, pattern in resolvers if tag != "tag:yaml.org,2002:float"]
+    for first, resolvers in yaml.SafeLoader.yaml_implicit_resolvers.items()
+}
+
+
+def is_release_workflow(path: str) -> bool:
+    """Whether a workflow file exists to publish, deploy, scan, or tend the repository rather
+    than to build and test it (the same name test ``ci_badge_fact`` applies)."""
+    return _NOT_BUILD_STATUS.search(path[len(_WORKFLOW_PREFIX) :]) is not None
+
+
+def workflow_documents(
+    clone_path: Path, tree_paths: Sequence[str]
+) -> list[tuple[str, dict[Any, Any]]]:
+    """Every parseable workflow mapping in the clone, as ``(path, document)`` in path order, with
+    scalars kept literal (``_LiteralLoader``). An unreadable, oversized, or non-mapping file is
+    skipped: it names nothing a fact may rest on."""
+    found: list[tuple[str, dict[Any, Any]]] = []
+    for path in sorted(tree_paths):
+        name = path[len(_WORKFLOW_PREFIX) :]
+        if not path.startswith(_WORKFLOW_PREFIX) or not _WORKFLOW_FILE.fullmatch(name):
+            continue
+        file = clone_path / path
+        try:
+            if file.stat().st_size > _MAX_WORKFLOW_BYTES:
+                continue
+            document = yaml.load(file.read_text("utf-8"), Loader=_LiteralLoader)
+        except (OSError, UnicodeDecodeError, yaml.YAMLError):
+            continue
+        if isinstance(document, dict):
+            found.append((path, document))
+    return found
+
+
+def has_test_evidence(tree_paths: Sequence[str]) -> bool:
+    """Whether the tree shows tests: a test directory at the root or nested, or a Go test file."""
+    return (
+        any(path.startswith("tests/") for path in tree_paths)
+        or _nested_directory(tree_paths, _TEST_DIR_NAME) is not None
+        or any(path.endswith("_test.go") for path in tree_paths)
+    )
+
+
 def _triggers(document: dict[Any, Any]) -> dict[str, Any]:
     """The workflow's ``on`` as a mapping of event name to its config. YAML 1.1 reads the bare
     key ``on`` as boolean ``True``, so both spellings are tried."""
