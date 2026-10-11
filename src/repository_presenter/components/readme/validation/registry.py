@@ -149,7 +149,14 @@ VALIDATION_FILENAME = "validation.json"
 # 19: BC-05 v4 (TC-DSP-01 companion, G3-W08/G7-W12): the typed last-attempt deferral "not provably
 # carried by the section named" is an ADVISORY class (validation/deferrals.py) instead of
 # UNCLASSIFIED BLOCK. A bundle sealed under 18 re-checks under 19 and shows as pending.
-VALIDATOR_VERSION = "19"
+# 20: BC-05 v5 (CUT-2, G3-W08/G7-W12): the baseline's three remaining free-text UNCLASSIFIED
+# rationales are classified from the unit's own source section and the model's attestation, never
+# by loosening the fail-closed default: "unsupported by facts" / "uncertain" read as the
+# NO_EVIDENCE_EITHER_WAY attestation (the facts still veto it), and a unit from the examples section
+# the plan excludes is EXCLUDED_BY_PLAN; a PDF name literal in a code span ("/Root /Metadata") no
+# longer reads as the public symbol of the same letters (PDF-TypeScript 359). A bundle sealed
+# under 19 re-checks under 20 and shows as pending.
+VALIDATOR_VERSION = "20"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -259,7 +266,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # "3" (G7-W12): the cause registry covers the UNCLASSIFIED family; see VALIDATOR_VERSION 16.
         # "4" (TC-DSP-01 companion, G3-W08/G7-W12): a unit the reconciler deferred because the named
         # section cannot carry it (dispositions.RECOVERED_COVERAGE_RATIONALE) is an ADVISORY class.
-        "4",
+        # "5" (CUT-2, G3-W08/G7-W12): "unsupported"/"uncertain" attestations and a unit from the
+        # examples section the plan excludes are classified ADVISORY; see VALIDATOR_VERSION 20.
+        "5",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),

@@ -103,7 +103,12 @@ _LEADING_IDENTIFIER = re.compile(r"^`([A-Za-z_][A-Za-z0-9_]*)`")
 # the file names its text spells that the pinned tree contains (repository_files.py), so a unit
 # that repeats the upstream's "see CONTRIBUTING.md" is spellable in prose. A fact's content
 # changed, hence this constant and not a comment: facts regenerated under "2" lack the attribute.
-INHERITED_UNITS_VERSION = "3"
+#
+# "3" -> "4" (CUT-2, BC-12, G3-W08): the same attribute also records a project or directory name
+# the unit spells (``Aspose.Pdf.Foss.Tests`` for tests/Aspose.Pdf.Foss.Tests.csproj), so prose may
+# name the test project in a code span rather than leave a bare dotted name BC-12 reads as a short
+# spelling of the product.
+INHERITED_UNITS_VERSION = "4"
 
 # This change's own thresholds (module docstring has the full survey and justification): a plain
 # list that RC-06 leaves whole (no member-reference match) is still split into fixed-size chunks

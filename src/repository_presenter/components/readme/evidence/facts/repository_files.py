@@ -30,6 +30,18 @@ The match is exact and case-sensitive, and only against the tree:
 - a name written with a directory is recorded in both forms, the path as spelled and its final
   segment, because prose paraphrasing ``_examples/<name>/main.go`` says ``main.go``.
 
+- a project name (CUT-2, BC-12): the README names a build target without its extension ("the test
+  project `Aspose.Pdf.Foss.Tests`", "the Aspose.GIS.FOSS.Tests/ directory"). The name is recorded
+  when it is the stem of a project or solution file in the tree
+  (``tests/Aspose.Pdf.Foss.Tests.csproj``) or the name of a directory in it, by exact,
+  case-sensitive match. A source file's stem is not a project (``Scene.cs``), and a stem that is
+  only the prefix of a longer project's name is not that project. Left unrecorded, the name was a
+  bare proper noun in prose that BC-12 read as a short spelling of the product (its
+  ``Aspose.Pdf.Foss`` head), and the repair loop could not fix it
+  (aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET, 2026-10-10 baseline); recorded,
+  ``authoring.allowed_identifiers`` admits it, so the renderer wraps it in a code span, which
+  BC-12 does not judge.
+
 A URL is removed before scanning, so ``https://github.com/o/r/blob/main/SECURITY.md`` contributes
 nothing and the link text ``SECURITY.md`` does; a link target the tree resolves is recorded as the
 README wrote it.
@@ -49,21 +61,41 @@ _FILE_TOKEN = re.compile(
     r"((?:\.{1,2}/)?(?:[\w.\-]+/)*[\w\-][\w.\-]*\.[A-Za-z][A-Za-z0-9]{0,7})"
     r"(?![\w\-]|\.[A-Za-z0-9])"
 )
+# A dotted name as a whole word (``Aspose.Pdf.Foss.Tests``), not a prefix of a longer one or of a
+# file name (``Aspose.Pdf.Foss.Tests.csproj``): a project is named without its extension.
+_DOTTED_NAME = re.compile(r"(?<![\w.\-/])\w+(?:\.\w+)+(?![\w\-]|\.\w)")
 _URL = re.compile(r"[A-Za-z][A-Za-z0-9+.\-]*://[^\s)>\]\"']+")
 # A placeholder segment (``_examples/<name>/main.go``) splits a path; the file after it counts.
 _PLACEHOLDER = re.compile(r"<[\w\-]+>")
 
 
+# The files that name a build target: the stem of one is a project's name.
+_PROJECT_EXTENSIONS = frozenset(
+    {".csproj", ".vbproj", ".fsproj", ".vcxproj", ".vcproj", ".pyproj", ".sln", ".slnx"}
+)
+
+
 class TreeIndex(NamedTuple):
-    """The tree's full paths and its final path segments, built once per extraction."""
+    """The tree's full paths, its final path segments and its project names, built once per
+    extraction. ``projects`` holds the stem of each project or solution file and the name of each
+    directory (every path segment before the last)."""
 
     paths: frozenset[str]
     names: frozenset[str]
+    projects: frozenset[str] = frozenset()
 
 
 def tree_index(tree_paths: Iterable[str]) -> TreeIndex:
     paths = frozenset(tree_paths)
-    return TreeIndex(paths, frozenset(path.rsplit("/", 1)[-1] for path in paths))
+    projects: set[str] = set()
+    for path in paths:
+        *directories, final = path.split("/")
+        projects.update(directory for directory in directories if "." in directory)
+        stem, dot, extension = final.rpartition(".")
+        if dot and f".{extension.lower()}" in _PROJECT_EXTENSIONS:
+            projects.add(stem)
+    names = frozenset(path.rsplit("/", 1)[-1] for path in paths)
+    return TreeIndex(paths, names, frozenset(projects))
 
 
 def repository_files(text: str, index: TreeIndex) -> list[str]:
@@ -71,7 +103,14 @@ def repository_files(text: str, index: TreeIndex) -> list[str]:
     if not index.paths:
         return []
     found: set[str] = set()
-    for match in _FILE_TOKEN.finditer(_PLACEHOLDER.sub(" ", _URL.sub(" ", text))):
+    prose = _PLACEHOLDER.sub(" ", _URL.sub(" ", text))
+    if index.projects:
+        found.update(
+            match.group(0)
+            for match in _DOTTED_NAME.finditer(prose)
+            if match.group(0) in index.projects
+        )
+    for match in _FILE_TOKEN.finditer(prose):
         token = match.group(1)
         while token.startswith("./"):
             token = token[2:]
