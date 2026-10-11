@@ -387,7 +387,10 @@ _TYPE_OBJECTIVE = (
 # list's unstated item is no longer a refusal (placement prints it), the stray-identifier check
 # judges a slash-joined pair name by name, and the title-restatement test sees lowerCamel and
 # I-prefixed members and matches whole words.
-NORMALISATION_VERSION = "35"
+# 36: wave 6 (G3-W08, cut 6): the words of a recorded install/build/test command are spellable, a
+# stray identifier that differs from one accepted spelling only in case is restored to it, and a
+# kept unit in the same section discharges a superseded unit it already states (carried_units).
+NORMALISATION_VERSION = "36"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.

@@ -189,7 +189,9 @@ ACCEPT = "ACCEPT"
 # refuted (the reviewer may be right about the renderer), it is outside repair's scope. A demoted
 # finding does not carry a rejection (``verdict_basis`` ``rejection_findings_demoted``), and a
 # finding about composer-owned prose still blocks.
-REVIEWER_LOGIC_VERSION = "20"
+# 21: wave 6 (G3-W08, cut 6): a finding that blames a composition stage for renderer-owned text is
+# demoted to advisory with a recorded ``demoted`` rule, never refuted and never silent.
+REVIEWER_LOGIC_VERSION = "21"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {

@@ -193,7 +193,13 @@ VALIDATION_FILENAME = "validation.json"
 # heads a longer dotted or scoped identifier as an identifier, BC-14 counts a registry-confirmed
 # distribution as a positive reading (each Check version moves by one). A bundle sealed under 21
 # re-checks under 22 and shows as pending.
-VALIDATOR_VERSION = "22"
+# 23: wave 6 (G3-W08, cut 6): BC-02 states an unpublished package as a documented source checkout
+# and refuses its registry install, BC-04 spells the words of a recorded command, BC-05 takes a
+# deferred badge row as the shell's and reads a dropped list against the sections that state it,
+# BC-07 counts "this revision" as narration, BC-10 does not count a demoted finding as owed repair
+# work, BC-12 keeps the dot of Aspose.<Family>, BC-14 judges kept text by the facts' own rules
+# (each of these Check versions moves by one). A bundle sealed under 22 re-checks under 23.
+VALIDATOR_VERSION = "23"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -263,7 +269,10 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # 4 (Imaging-FOSS for .NET and GIS, 2026-10-04): a SUPPORTED registry-kind install whose
         # own registry reading found no distribution is refused - the unverified dotnet command a
         # 404 contradicts can never ship, whatever its wording.
-        "5",
+        # 6 (wave 6): a documented source checkout of an unpublished package is held to the three
+        # records that admit it, the refusal names its class (RETRY_REGISTRY_READ, PACKAGE_ABSENT,
+        # NO_REGISTRY), and a README printing the registry install of such a package is refused.
+        "6",
         "Install command verified against the manifest and the package-registry observation, "
         "against the source-build receipt naming exactly the steps it proved, or - when no "
         "build/install command ever succeeds - against a source-checkout receipt",
@@ -284,7 +293,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # fact's own literal value, example identifier, or command-fence token.
         # 3 (G7-W15): a must-carry unit the section's authoring recorded as omitted with a reason
         # is dispositioned (units document `omitted`), exactly as the authoring call judged it.
-        "5",
+        # 6 (wave 6): the words of a recorded install/build/test command are spellable, and a
+        # stray identifier differing from one accepted spelling only in case is restored to it.
+        "6",
         "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact "
         "value in a code span",
         (
@@ -305,7 +316,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # section cannot carry it (dispositions.RECOVERED_COVERAGE_RATIONALE) is an ADVISORY class.
         # "5" (CUT-2, G3-W08/G7-W12): "unsupported"/"uncertain" attestations and a unit from the
         # examples section the plan excludes are classified ADVISORY; see VALIDATOR_VERSION 20.
-        "7",
+        # "8" (wave 6): a deferred badge or banner row is the shell's (ADVISORY), and a dropped
+        # list is read against the sections that state it for the destination (Placement.read_with).
+        "8",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),
@@ -390,7 +403,8 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # badge-specific link_target fact in its evidence at all needs no badge row, since no
         # badge slot could ever render from it. Any badge-worthy fact present and still no
         # rendered row is unchanged: that is a real composition defect.
-        "11",
+        # "12" (wave 6): "at/for/against/on this revision" is internal narration.
+        "12",
         "Exactly one factual H1; one badge row in the stable order, each badge supported by a "
         "verified fact; title-case headings of every level; canonical abbreviations in prose and "
         "headings; At a Glance topology, column rules and label geometry; fence languages and "
@@ -418,7 +432,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # pre-sprint seals judged under "3" show as stale on this delta by design.
         # "5" (OWNER-15): an ACCEPT whose typed second-reader trigger did not fire needs no second
         # read, and is recorded as such; a triggered ACCEPT with no completed second read fails.
-        "5",
+        # "6" (wave 6): a finding demoted for blaming a stage for renderer-owned text is no
+        # deferred repair work (review.py unrepairable_demotion), so it does not block a row.
+        "6",
         "Independent review returns ACCEPT corroborated by a second independent read when the "
         "typed second-reader trigger fires (an untriggered clean ACCEPT needs none), under a "
         "reviewer identity separate from authoring, with no unrefuted advisory left on a "
@@ -437,7 +453,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-12",
-        "2",
+        # 3 (wave 6): the canonical name keeps the dot of Aspose.<Family> when the registry spells
+        # the family after a hyphen (Aspose-PDF-FOSS-for-Python), so "Aspose PDF FOSS" now fails.
+        "3",
         "Every product-name position in the prose spells the registry's canonical product name "
         "exactly; no separator, case, or suffix variant of it (plans/idea.md L84-85)",
         ("all",),
@@ -445,7 +463,10 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-14",
-        "3",
+        # 4 (wave 6): a "not published" sentence is read whole and judged only when it is about
+        # this package, a Go install target below the module path is its own, and find_package
+        # (Name V [EXACT]) is judged as the request CMake accepts, not as a shown release.
+        "4",
         "A package version, install command, or publication statement in the README equals what "
         "the facts say: the registry's current release (or the manifest's version without that "
         "reading), the package identity fact, and the install command's registry observation",

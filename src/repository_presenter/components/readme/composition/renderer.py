@@ -139,7 +139,11 @@ RENDERER_VERSION = "31"
 # releases (the release-workflow fact), the CI matrix is prose ("Python 3.10 and 3.12", "Ubuntu
 # and Windows"), a command is skipped when the README already shows an equivalent one anywhere,
 # and a build command that needs a tool or a configure step prints it first.
-RENDERER_VERSION = "33"
+# 34: wave 6 (G3-W08, cut 6): Installation states an unpublished package plainly with the build the
+# repository documents, and no sentence claims a check against "this revision"; a kept unit about
+# installing or licensing is dropped when Installation, Dependencies or License state it; the
+# product name keeps the dot of Aspose.<Family>. A bundle sealed under 33 re-renders.
+RENDERER_VERSION = "34"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
