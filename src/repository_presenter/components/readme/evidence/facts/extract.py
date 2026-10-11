@@ -11,6 +11,10 @@ from repository_presenter.components.readme.evidence.facts.assets import (
     asset_facts,
     ci_badge_fact,
 )
+from repository_presenter.components.readme.evidence.facts.commands import (
+    ci_matrix_fact,
+    command_facts,
+)
 from repository_presenter.components.readme.evidence.facts.formats import format_facts
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
 from repository_presenter.components.readme.evidence.facts.license import license_facts
@@ -388,6 +392,11 @@ def extract_facts(
             root=clone_path,
         )
     )
+    # TC-COV-02 (G3-W08): the build and test commands and the CI matrix the clone itself names.
+    facts.extend(command_facts(clone_path, tree_paths))
+    matrix = ci_matrix_fact(clone_path, tree_paths)
+    if matrix is not None:
+        facts.append(matrix)
     # plans/idea.md: a build-status badge only for a real workflow in the clone.
     ci_badge = ci_badge_fact(entry.repository, clone_path, tree_paths)
     if ci_badge is not None:

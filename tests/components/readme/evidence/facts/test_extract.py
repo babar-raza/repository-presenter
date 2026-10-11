@@ -938,9 +938,43 @@ def test_a_template_with_no_build_that_succeeded_is_not_stated() -> None:
 
 
 def test_a_template_that_starts_at_a_root_with_no_manifest_is_not_stated() -> None:
-    """Aspose.Cells for C++ keeps its CMakeLists.txt in a subdirectory, so `cmake -S . -B build`
-    from the checkout root has nothing to configure; the same shape as `dotnet build` at 3D's
-    root. A root that does hold the manifest keeps the template."""
+    """A crate whose Cargo.toml sits in a subdirectory has nothing for `cargo build` to build from
+    the checkout root; the same shape as `dotnet build` at Aspose.3D's root. Rust measures no
+    build of its own, so the template stands only beside a manifest at the root."""
+    rust = RegistryEntry.model_validate(
+        {
+            **ENTRY.model_dump(mode="json"),
+            "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-Rust",
+            "family": "widget",
+            "platform": "rust",
+            "ecosystem": "rust",
+        }
+    )
+    install = Fact(
+        "install_command:cargo",
+        "install_command",
+        "cargo add aspose-widget",
+        (Evidence("crates/widget/Cargo.toml", "manifest"),),
+        polarity="SUPPORTED",
+    )
+    plugin = plugin_for("rust")
+    refused = _with_source_checkout(
+        install, rust, plugin, ["crates/widget/Cargo.toml"], [_receipt("EXECUTED")], None
+    )
+    assert "no manifest" in (refused.attributes or {})[SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE]
+    rooted = _with_source_checkout(
+        install, rust, plugin, ["Cargo.toml"], [_receipt("EXECUTED")], None
+    )
+    assert (rooted.attributes or {})[SOURCE_CHECKOUT_COMMAND_ATTRIBUTE].endswith(
+        "cd Aspose.Widget-FOSS-for-Rust\ncargo build"
+    )
+
+
+def test_cpp_states_the_measured_cmake_build_with_the_directory_it_ran_in() -> None:
+    """Aspose.Cells for C++ keeps its CMakeLists.txt in a subdirectory, so the template
+    `cmake -S . -B build` has nothing to configure at the root. The C++ plugin measures its own
+    build and names the directory (`cmake -S <dir> -B build`), which is the block; a build that
+    did not succeed leaves none."""
     install = Fact(
         "install_command:cmake",
         "install_command",
@@ -949,16 +983,26 @@ def test_a_template_that_starts_at_a_root_with_no_manifest_is_not_stated() -> No
         polarity="UNRESOLVED",
     )
     nested = ["Aspose.Cells.Foss.Cpp/CMakeLists.txt", "Aspose.Cells.Foss.Cpp.Tests/CMakeLists.txt"]
+    steps = "cmake -S Aspose.Cells.Foss.Cpp -B build\ncmake --build build"
+    plugin = plugin_for("cpp")
+    proven = _with_source_checkout(
+        install, CPP_ENTRY, plugin, nested, [_receipt("EXECUTED")], MeasuredBuild(True, steps, "ok")
+    )
+    assert (proven.attributes or {})[SOURCE_CHECKOUT_COMMAND_ATTRIBUTE] == (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-Cpp.git\n"
+        "cd Aspose.Widget-FOSS-for-Cpp\n" + steps
+    )
     refused = _with_source_checkout(
-        install, CPP_ENTRY, plugin_for("cpp"), nested, [_receipt("EXECUTED")], None
+        install,
+        CPP_ENTRY,
+        plugin,
+        nested,
+        [_receipt("EXECUTED")],
+        MeasuredBuild(False, "", "failed"),
     )
-    assert "no manifest" in (refused.attributes or {})[SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE]
-    rooted = _with_source_checkout(
-        install, CPP_ENTRY, plugin_for("cpp"), ["CMakeLists.txt"], [_receipt("EXECUTED")], None
-    )
-    assert (rooted.attributes or {})[SOURCE_CHECKOUT_COMMAND_ATTRIBUTE].endswith(
-        "cd Aspose.Widget-FOSS-for-Cpp\ncmake -S . -B build"
-    )
+    attributes = refused.attributes or {}
+    assert SOURCE_CHECKOUT_COMMAND_ATTRIBUTE not in attributes
+    assert "failed" in attributes[SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE]
 
 
 def test_a_fact_that_is_already_a_source_install_or_has_no_template_is_left_alone() -> None:
@@ -1018,3 +1062,87 @@ def test_extract_facts_counts_test_modules_not_the_files_beside_them_on_a_real_c
     attributes = by_id["install_command:pip"].attributes or {}
     assert attributes["install_kind"] == "source"
     assert SOURCE_CHECKOUT_COMMAND_ATTRIBUTE not in attributes
+
+
+def test_the_clones_own_workflow_yields_command_and_matrix_facts_end_to_end(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """TC-COV-02: the build, test and CI-matrix facts reach the facts document, schema-valid."""
+    monkeypatch.setattr(
+        python_registry,
+        "fetch_project_json",
+        lambda url, transport=None: httpx.Response(404, json={"message": "Not Found"}),
+    )
+    source = _canary_like_source(tmp_path)
+    workflow = source / ".github" / "workflows" / "ci.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        "on: [push]\njobs:\n  test:\n    strategy:\n      matrix:\n"
+        '        python-version: ["3.10", "3.12"]\n    steps:\n'
+        "      - run: python -m pytest -q\n      - run: python -m build\n",
+        "utf-8",
+    )
+    commit_all(source, "ci")
+    clone = pinned_read_only_clone(str(source), tmp_path / "clone")
+    snapshot = capture_snapshot(ENTRY.repository, clone)
+    plugin = plugin_for(ENTRY.ecosystem)
+    document, _ = extract_facts(
+        ENTRY,
+        snapshot,
+        clone.path,
+        list_tree_paths(clone.path),
+        plugin,
+        plugin.detect_manifest(clone.path),
+    )
+    by_id = {fact.id: fact for fact in document.facts}
+    assert by_id["build_test_asset:test-command"].value == "python -m pytest -q"
+    assert by_id["build_test_asset:build-command"].value == "python -m build"
+    assert by_id["build_test_asset:ci-matrix"].value == "python-version=3.10,3.12"
+    schema = json.loads((REPO_ROOT / "schemas" / "facts.schema.json").read_text("utf-8"))
+    assert list(Draft202012Validator(schema).iter_errors(json.loads(document.to_json()))) == []
+
+
+CPP_ENTRY = RegistryEntry.model_validate(
+    {
+        **ENTRY.model_dump(mode="json"),
+        "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-Cpp",
+        "family": "widget",
+        "platform": "cpp",
+        "ecosystem": "cpp",
+    }
+)
+
+
+def test_a_registry_less_install_is_admitted_on_the_measured_build_when_no_example_compiles() -> (
+    None
+):
+    """Aspose.PDF for C++ (CUT-2, 2026-10-11): no registry, so install_command:cmake started
+    UNRESOLVED; the admission needed an EXECUTED example, and with every snippet failing the
+    fact stayed UNRESOLVED and BC-02 refused the candidate although the library built. The
+    measured build admits it, with exactly the steps it ran; a build that failed admits nothing."""
+    plugin_for("cpp")
+    steps = "cmake -S . -B build\ncmake --build build"
+    fact = Fact(
+        "install_command:cmake",
+        "install_command",
+        steps,
+        (
+            Evidence("CMakeLists.txt", "source build for the CMake project the manifest declares"),
+            Evidence("no package registry", "package registry: none could not be read"),
+        ),
+        polarity="UNRESOLVED",
+        confidence=0.5,
+    )
+    snippet_failed = ExampleReceipt(1, "FAILED", 1, "", "", "d", build_verified=True)
+    built = MeasuredBuild(True, steps, "succeeded")
+    admitted = _source_build_fact(fact, CPP_ENTRY, [snippet_failed], built)
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.attributes == {"install_kind": "source", "build_command": steps}
+    assert admitted.value == (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-Cpp.git\n"
+        "cd Aspose.Widget-FOSS-for-Cpp\n" + steps
+    )
+    refused = _source_build_fact(
+        fact, CPP_ENTRY, [snippet_failed], MeasuredBuild(False, "", "failed")
+    )
+    assert refused.polarity == "UNRESOLVED"

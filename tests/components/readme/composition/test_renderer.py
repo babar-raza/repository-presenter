@@ -22,6 +22,7 @@ from repository_presenter.components.readme.composition.renderer import (
     line_counts,
     render_patch,
     render_readme,
+    renderer_sentences,
     renders_verbatim,
     write_text,
 )
@@ -571,6 +572,100 @@ def test_a_placed_command_block_appears_in_its_destination() -> None:
     section = readme.split("## Development and Testing\n", 1)[1].split("\n## ", 1)[0]
     assert section.rstrip("\n").endswith(commands)
     assert readme.count("print(2)") == 1
+
+
+def _command_facts() -> tuple[Fact, ...]:
+    """Build, test and CI-matrix facts as the extractor records them (TC-COV-02)."""
+    return (
+        Fact(
+            "build_test_asset:build-command",
+            "build_test_asset",
+            "python -m build",
+            (Evidence(".github/workflows/ci.yml", "build command; job packaging runs `x`"),),
+        ),
+        Fact(
+            "build_test_asset:test-command",
+            "build_test_asset",
+            "python -m unittest discover -s tests -v",
+            (Evidence(".github/workflows/ci.yml", "test command; job tests runs `x`"),),
+        ),
+        Fact(
+            "build_test_asset:ci-matrix",
+            "build_test_asset",
+            "os=ubuntu-latest,windows-latest;python-version=3.10,3.11",
+            (Evidence(".github/workflows/ci.yml", "job tests strategy.matrix axes os"),),
+        ),
+    )
+
+
+def _development_section(readme: str) -> str:
+    return readme.split("## Development and Testing\n", 1)[1].split("\n## ", 1)[0]
+
+
+def test_development_and_testing_prints_the_build_and_test_commands_and_the_ci_matrix() -> None:
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *_command_facts()))
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    section = _development_section(readme)
+    assert (
+        "The [ci workflow](.github/workflows/ci.yml) runs across os (ubuntu-latest, "
+        "windows-latest) and python-version (3.10, 3.11)."
+    ) in section
+    assert section.rstrip("\n").endswith(
+        "To build and run the tests from a clone, run:\n\n"
+        "```bash\npython -m build\npython -m unittest discover -s tests -v\n```"
+    )
+
+
+def test_a_command_the_placed_inherited_block_already_carries_is_not_printed_twice() -> None:
+    commands = "```bash\npip install -e .\npython -m unittest discover -s tests -v\n```"
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            *_command_facts(),
+            Fact(
+                "inherited_unit:010.code_block",
+                "inherited_unit",
+                commands,
+                (Evidence("README.md", "lines 20-24; code_block"),),
+            ),
+        ),
+    )
+    dispositions: dict[str, Any] = {
+        "dispositions": [
+            *DISPOSITIONS["dispositions"],
+            {
+                "unit_id": "inherited_unit:010.code_block",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "development_testing",
+                "fact_ids": ["build_test_asset:test-command"],
+                "rationale": "r",
+            },
+        ]
+    }
+    section = _development_section(render_readme(ENTRY, facts, PLAN, UNITS, dispositions))
+    assert section.count("python -m unittest discover -s tests -v") == 1
+    assert "To build from a clone, run:\n\n```bash\npython -m build\n```" in section
+    assert section.rstrip("\n").endswith(commands)
+
+
+def test_an_unsupported_command_fact_is_never_printed() -> None:
+    contradicted = tuple(
+        Fact(f.id, f.kind, f.value, f.evidence, polarity="UNRESOLVED")
+        for f in _command_facts()
+        if f.id != "build_test_asset:ci-matrix"
+    )
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *contradicted))
+    section = _development_section(render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS))
+    assert "from a clone" not in section
+
+
+def test_the_command_lead_in_and_matrix_sentence_are_renderer_sentences() -> None:
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *_command_facts()))
+    sentences = renderer_sentences(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "To build and run the tests from a clone, run:" in sentences
+    assert any(s.startswith("The [ci workflow]") for s in sentences)
 
 
 def test_a_placed_unit_inherits_its_sections_visibility_and_overlap_is_exclusive() -> None:
