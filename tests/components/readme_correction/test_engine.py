@@ -6,6 +6,8 @@ import subprocess
 import sys
 from typing import Any
 
+import pytest
+
 from repository_presenter.components.readme_correction.detectors import load_detectors
 from repository_presenter.components.readme_correction.engine import correct, is_stable
 from repository_presenter.components.readme_correction.model import Context
@@ -77,6 +79,7 @@ def test_every_registered_detector_is_loaded_by_name() -> None:
     ]
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_each_kind_of_correction_is_made_and_nothing_else_changes(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:

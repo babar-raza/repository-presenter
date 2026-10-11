@@ -65,7 +65,17 @@ def correct_settled(ctx: Context, original: bytes) -> tuple[CorrectionResult, di
         for key, introduced in bad.items():
             first = groups[key][0]
             line = ctx.readme.count(chr(10), 0, first.start) + 1
-            findings.append(Finding(first.detector, line, "", _reason(introduced), first.fact_ids))
+            findings.append(
+                Finding(
+                    first.detector,
+                    line,
+                    "",
+                    _reason(introduced),
+                    first.fact_ids,
+                    report_only_reason="WOULD_FAIL_VALIDATION",
+                    candidate="".join(e.replacement for e in groups[key]),
+                )
+            )
         kept = [e for e in result.edits if _group(e) not in bad]
         result = assemble(ctx, kept, findings)
         delta = validation_delta(ctx, result, original)

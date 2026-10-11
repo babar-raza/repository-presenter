@@ -37,8 +37,12 @@ from repository_presenter.components.readme_correction.detectors._layout import 
     navigation_plan,
 )
 from repository_presenter.components.readme_correction.detectors.additions import (
+    DEV_RE_ENABLE,
+    DOCS_RE_ENABLE,
     _bullet_token,
+    _dev_conditions_unmet,
     doc_link_bullets,
+    docs_conditions_unmet,
 )
 from repository_presenter.components.readme_correction.detectors.stale import (
     registry_says_unpublished,
@@ -206,6 +210,16 @@ DERIVABLE: tuple[Derivable, ...] = (
 )
 
 
+def _report_only_why(ctx: Context, section_id: str, evidence: tuple[str, ...]) -> str:
+    """Why a whole Development and Testing or Documentation section may not yet be inserted: its
+    facts are the ones the independent review found unreliable (see additions.py)."""
+    if section_id == "development_testing":
+        return _dev_conditions_unmet(ctx, evidence)
+    if section_id == "documentation_resources":
+        return docs_conditions_unmet(ctx)
+    return ""
+
+
 def _present(ctx: Context, section_id: str) -> bool:
     pattern = dict(_MEANS)[section_id]
     return any(
@@ -290,6 +304,23 @@ def missing_sections(ctx: Context) -> DetectorResult:
                         "missing_sections", 0, "", f"{sid} is absent and no verified fact fills it"
                     )
                 )
+            continue
+        unmet = _report_only_why(ctx, sid, evidence)
+        if unmet:  # the same facts that withdrew add_dev_commands / add_doc_links
+            findings.append(
+                Finding(
+                    "missing_sections",
+                    0,
+                    "",
+                    f"{_SHELL[sid].heading} is absent and could be inserted from the cited facts; "
+                    f"not applied: {unmet}",
+                    evidence,
+                    report_only_reason="RE_ENABLE_CONDITION_UNMET",
+                    candidate=block,
+                    re_enable=DEV_RE_ENABLE if sid == "development_testing" else DOCS_RE_ENABLE,
+                    locators=locators,
+                )
+            )
             continue
         skip = _covered_elsewhere(ctx, sid, block)
         if sid == "installation" and registry_says_unpublished(ctx) and unpublished_commands(ctx):

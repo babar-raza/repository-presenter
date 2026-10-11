@@ -109,6 +109,7 @@ def at_a_glance_diagram(ctx: Context) -> DetectorResult:
                     f"(the label {risky[0][:50]!r} holds & < or >: no encoding draws it in a label "
                     "that cannot clip on Mermaid before 11.14 - measured on 11.4.1, 11.12.0, "
                     "11.17.2 and 12.1 - so the drawing stays as the maintainers made it)",
+                    report_only_reason="DIAGRAM_LABEL_NOT_PORTABLE",
                 )
             )
             continue
@@ -122,6 +123,7 @@ def at_a_glance_diagram(ctx: Context) -> DetectorResult:
                     fence.body.splitlines()[0] if fence.body else "",
                     f"the diagram is drawn with {codes}; the corrected drawing is withheld "
                     f"(the horizontal At a Glance contract would fail it anew: {worse[0][:110]})",
+                    report_only_reason="DIAGRAM_CONTRACT_FAILS",
                 )
             )
             continue

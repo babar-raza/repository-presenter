@@ -110,6 +110,23 @@ def corrections_document(
                 "fact_ids": list(finding.fact_ids),
             }
             for finding in result.findings
+            if not finding.report_only_reason
+        ],
+        "report_only": [
+            {
+                "detector": finding.detector,
+                "line": finding.line,
+                "report_only_reason": finding.report_only_reason,
+                "reason": finding.reason,
+                "candidate": finding.candidate,
+                "evidence": {
+                    "fact_ids": list(finding.fact_ids),
+                    "locators": list(finding.locators),
+                },
+                "re_enable": finding.re_enable,
+            }
+            for finding in result.findings
+            if finding.report_only_reason
         ],
         "confinement": {
             "verified": True,

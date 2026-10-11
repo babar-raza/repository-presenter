@@ -148,6 +148,7 @@ def test_a_dotnet_sln_build_repeating_a_csproj_build_is_not_added(
     assert add_dev_commands(ctx).edits == ()
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_a_command_the_readme_lacks_is_still_added(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:
@@ -159,6 +160,7 @@ def test_a_command_the_readme_lacks_is_still_added(
     assert "mvn package" in edit.replacement and "mvn test" in edit.replacement
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_a_command_needing_an_install_that_nothing_names_is_reported_not_added(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:
@@ -196,6 +198,7 @@ def test_an_install_command_whose_coordinates_the_readme_shows_in_a_snippet_is_n
     assert not any("mvn dependency:get" in e.replacement for e in result.edits)
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_an_addition_lands_before_a_trailing_details_block_never_after_its_closing_tag(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:

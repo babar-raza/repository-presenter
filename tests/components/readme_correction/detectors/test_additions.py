@@ -51,6 +51,7 @@ DEV_README = "# P\n\n## Development and Testing\n\nRun it the usual way.\n\n## L
 
 
 # ------------------------------------------------------------------------------ dev commands
+@pytest.mark.usefixtures("reenabled")
 def test_the_clones_build_and_test_commands_and_ci_matrix_are_appended_to_the_section(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:
@@ -171,6 +172,7 @@ TREE = (
 )
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_files_the_tree_holds_are_linked_as_bullets_continuing_the_list(make_context: Any) -> None:
     ctx = make_context(DOCS_README, tree=TREE)
     (edit,) = add_doc_links(ctx).edits
@@ -183,6 +185,7 @@ def test_files_the_tree_holds_are_linked_as_bullets_continuing_the_list(make_con
     assert corrected.index("Documentation](docs/)") < corrected.index("## License")
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_a_file_the_readme_names_anywhere_is_not_linked_again(make_context: Any) -> None:
     named = DOCS_README.replace("reference.", "reference. See CHANGELOG.md and docs/ too.")
     corrected = applied(
@@ -196,6 +199,7 @@ def test_a_file_the_tree_lacks_is_never_linked(make_context: Any) -> None:
     assert add_doc_links(make_context(DOCS_README, tree=("README.md", "LICENSE"))).edits == ()
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_a_missing_docs_section_is_created_from_the_same_bullets(make_context: Any) -> None:
     readme = "# P\n\n## Installation\n\nx\n\n## License\n\nMIT.\n"
     result = missing_sections(make_context(readme, tree=TREE))
@@ -291,6 +295,7 @@ def test_a_fenced_hash_comment_is_not_a_heading() -> None:
     Edit(MISSING_INFO, "t", 0, 0, "", "```bash\n# build it\nmake\n```\n", ("package:name",), "r")
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_an_engine_run_adds_and_a_second_run_over_the_output_adds_nothing(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:

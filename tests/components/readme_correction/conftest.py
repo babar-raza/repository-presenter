@@ -97,3 +97,15 @@ def make_facts() -> Any:
 @pytest.fixture
 def make_context() -> Any:
     return context
+
+
+@pytest.fixture
+def reenabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The re-enable conditions of the report-only detectors (add_dev_commands, add_doc_links and
+    the Development and Documentation sections), taken as met: what the detectors edit once their
+    facts are reliable. Without it they only report."""
+    from repository_presenter.components.readme_correction.detectors import additions, sections
+
+    for module in (additions, sections):
+        monkeypatch.setattr(module, "_dev_conditions_unmet", lambda ctx, cited: "", raising=False)
+        monkeypatch.setattr(module, "docs_conditions_unmet", lambda ctx: "", raising=False)

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from repository_presenter.components.readme_correction.apply import (
     apply_edits,
     confinement_violations,
@@ -30,6 +32,7 @@ def inserted(make_context: Any, readme: str, **kwargs: Any) -> tuple[str, Any]:
     return corrected, result
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_missing_sections_are_rendered_from_facts_and_placed_in_template_order(
     make_context: Any,
 ) -> None:
@@ -69,6 +72,7 @@ def test_a_section_goes_before_the_first_heading_the_template_orders_after_it(
     assert corrected.count("## License") == 1  # present under its own heading: not duplicated
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_a_section_present_under_another_name_is_not_duplicated(make_context: Any) -> None:
     readme = (
         "# P\n\n## Getting Started\n\nmvn dependency:get -Dartifact=x\n\n"

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from repository_presenter.components.readme_correction.apply import apply_edits
 from repository_presenter.components.readme_correction.detectors.examples import failing_example
 from repository_presenter.components.readme_correction.detectors.links import broken_link
@@ -41,6 +43,7 @@ def test_an_inserted_section_gets_its_contents_item_in_document_order(make_conte
     assert items and all(e.locators[0].startswith("README.md:") for e in items)
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_a_section_appended_at_the_end_gets_its_item_after_the_last_preceding_one(
     make_context: Any,
 ) -> None:

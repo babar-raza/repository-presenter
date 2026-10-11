@@ -12,6 +12,7 @@ nothing; a settled pull request is not recreated.
 
 from __future__ import annotations
 
+import json
 import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -181,7 +182,12 @@ class Rehearsal:
 
 
 @pytest.fixture
-def rehearsal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Rehearsal:
+def rehearsal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reenabled: None) -> Rehearsal:
+    return Rehearsal(tmp_path, monkeypatch)
+
+
+@pytest.fixture
+def default_rehearsal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Rehearsal:
     return Rehearsal(tmp_path, monkeypatch)
 
 
@@ -330,3 +336,26 @@ def test_a_diagram_redraw_is_idempotent_and_refused_when_the_source_moved(
     refused = rehearsal.propose(fresh)
     assert not refused.effected and refused.reason_code == Refusal.SOURCE_MOVED
     assert fresh.applied_writes() == []
+
+
+def test_report_only_candidates_stay_in_the_bundle_and_out_of_the_pull_request(
+    default_rehearsal: Rehearsal,
+) -> None:
+    rehearsal = default_rehearsal
+    assert rehearsal.outcome.summary == {
+        "FALSE_CLAIM_FIX": 1,
+        "MISSING_INFO": 1,
+        "MISSING_SECTION": 1,
+    }
+    document = json.loads((rehearsal.bundle / "corrections.json").read_text(encoding="utf-8"))
+    held = {(e["detector"], e["report_only_reason"]) for e in document["report_only"]}
+    assert ("missing_sections", "RE_ENABLE_CONDITION_UNMET") in held
+    assert any("CHANGELOG.md" in e["candidate"] for e in document["report_only"])
+    result = rehearsal.propose()
+    assert result.effected and result.pr_created
+    (pull,) = rehearsal.rest.pulls(REPOSITORY)
+    assert "CHANGELOG.md" not in pull["body"] and pull["title"].endswith(
+        "3 verified README corrections"
+    )
+    branch_readme = rehearsal.rest.file(REPOSITORY, presenter_branch_name(), "README.md")
+    assert branch_readme is not None and "CHANGELOG.md" not in branch_readme

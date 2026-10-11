@@ -39,6 +39,18 @@ DIAGRAM_FIX = "DIAGRAM_FIX"
 EDIT_KINDS: frozenset[str] = frozenset(
     {FALSE_CLAIM_FIX, MISSING_SECTION, BROKEN_LINK, STRUCTURE_FIX, MISSING_INFO, DIAGRAM_FIX}
 )
+#: Why a detector that could have edited reported its candidate instead (typed, closed).
+REPORT_ONLY_REASONS: dict[str, str] = {
+    "RE_ENABLE_CONDITION_UNMET": "the detector is report-only until its re-enable condition holds",
+    "ALREADY_SHOWN": "the README already shows an equivalent of the candidate",
+    "NEEDS_INSTALL_FIRST": "the candidate command needs an install the evidence does not name",
+    "DOCS_HOLDS_NO_DOCUMENTATION": "the docs directory holds no documentation files",
+    "WOULD_FAIL_VALIDATION": "applying it would make a validation check fail that the live passes",
+    "INTERNAL_NARRATION": "the text to insert carries internal-assurance narration",
+    "OVERLAPS_ANOTHER_CORRECTION": "it overlaps another correction",
+    "DIAGRAM_LABEL_NOT_PORTABLE": "a label holds & < or >, which no Mermaid 11.4-12.1 draws",
+    "DIAGRAM_CONTRACT_FAILS": "the redrawn diagram would fail the At a Glance contract anew",
+}
 #: A diagram body is a few dozen lines, never more than this.
 MAX_DIAGRAM = 8000
 #: A line that opens or closes a fenced block (an invisible Mermaid link, ``a ~~~ b``, is not one).
@@ -146,6 +158,20 @@ class Finding:
     text: str
     reason: str
     fact_ids: tuple[str, ...] = ()
+    #: set when the finding is a skipped *edit*: why a detector that could have edited did not
+    #: (one of ``REPORT_ONLY_REASONS``); the bundle lists these under ``report_only``.
+    report_only_reason: str = ""
+    #: the exact text the skipped edit would have inserted (empty when it was a replacement)
+    candidate: str = ""
+    #: what must hold before the detector may edit (the re-enable condition)
+    re_enable: str = ""
+    locators: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.report_only_reason and self.report_only_reason not in REPORT_ONLY_REASONS:
+            raise InvalidEditError(
+                f"{self.detector}: {self.report_only_reason!r} is not a report-only reason"
+            )
 
 
 @dataclass(frozen=True)

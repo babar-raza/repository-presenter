@@ -57,6 +57,8 @@ def _without_narration(ctx: Context, edits: list[Edit], findings: list[Finding])
                     f"the text to insert carries internal narration ({', '.join(hits)}); "
                     "not applied",
                     edit.fact_ids,
+                    report_only_reason="INTERNAL_NARRATION",
+                    candidate=edit.replacement,
                 )
             )
         else:
@@ -81,7 +83,14 @@ def assemble(ctx: Context, edits: list[Edit], findings: list[Finding]) -> Correc
     for edit in dropped:
         line = ctx.readme.count(NL, 0, edit.start) + 1
         extra.append(
-            Finding(edit.detector, line, edit.original, "overlaps another correction; not applied")
+            Finding(
+                edit.detector,
+                line,
+                edit.original,
+                "overlaps another correction; not applied",
+                report_only_reason="OVERLAPS_ANOTHER_CORRECTION",
+                candidate=edit.replacement,
+            )
         )
     corrected, spans = apply_edits(ctx.readme, kept)
     problems = confinement_violations(ctx.readme, corrected, kept, spans)

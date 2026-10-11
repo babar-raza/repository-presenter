@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from repository_presenter.components.readme.composition.renderer import line_counts
 from repository_presenter.components.readme_correction.settle import correct_settled
 
@@ -23,6 +25,7 @@ def commands(make_fact: Any) -> list[Any]:
     ]
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_an_addition_that_would_push_the_readme_over_a_budget_is_dropped_and_reported(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:
@@ -36,6 +39,7 @@ def test_an_addition_that_would_push_the_readme_over_a_budget_is_dropped_and_rep
     assert reasons and "visible" in reasons[0] and "BC-07" in reasons[0]
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_the_same_addition_is_kept_when_there_is_room(
     make_context: Any, make_facts: Any, make_fact: Any
 ) -> None:

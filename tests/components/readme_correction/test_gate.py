@@ -305,6 +305,7 @@ def test_structure_fixes_are_proposable_evidenced_by_their_readme_lines(
     assert "inserted `</details>` before line" in content.body
 
 
+@pytest.mark.usefixtures("reenabled")
 def test_additions_are_proposable_with_their_tree_paths_as_evidence(
     tmp_path: Path, make_context: Any
 ) -> None:

@@ -86,6 +86,32 @@ def _render_section(ctx: Context, section_id: str, facts: tuple[Fact, ...]) -> s
 
 
 # ----------------------------------------------------------------------- Development and Testing
+#: Independent review of the correction bundles (2026-10-11): every failing content hunk was an
+#: add_dev_commands edit - a duplicate of a command the section already shows, commands stitched
+#: from unrelated CI steps (a release Debug build with a package-test ctest, a sanitizer job without
+#: its configure step), a command that fails on a clean clone. A fact being SUPPORTED shows it
+#: exists, not that the sequence runs. So the detector only reports until a command can be shown
+#: to run.
+DEV_RE_ENABLE = (
+    "the commands come from ONE CI job's contiguous steps (configure, build and test of the same "
+    "job, the primary non-sanitizer non-release job) and a build receipt verifies the sequence on "
+    "a clean clone: the fact carries attributes ci_job_contiguous=true and a build_receipt"
+)
+
+
+def _dev_conditions_unmet(ctx: Context, cited: tuple[str, ...]) -> str:
+    """Why the cited build/test facts may not yet be edited in, or '' when they may. Today no
+    extractor records the job chain or a receipt, so the answer is always the reason."""
+    commands = [ctx.fact(i) for i in cited if i in (BUILD_COMMAND_FACT_ID, TEST_COMMAND_FACT_ID)]
+    for fact in commands:
+        attributes = (fact.attributes or {}) if fact is not None else {}
+        if attributes.get("ci_job_contiguous") != "true" or not attributes.get("build_receipt"):
+            return "the commands are not one CI job's contiguous steps verified by a build receipt"
+    if not commands:
+        return "no verified build or test command is cited, only CI or suite information"
+    return ""
+
+
 @detector("add_dev_commands")
 def add_dev_commands(ctx: Context) -> DetectorResult:
     section = find_section(ctx, DEV_HEADING)
@@ -103,6 +129,18 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
             needs = missing_precondition(fact.value)
             if _squash(fact.value) in readme or covered(ctx, fact.value, shown):
                 dropped.add(fact.id)  # the README already shows this command, in some form
+                findings.append(
+                    Finding(
+                        "add_dev_commands",
+                        0,
+                        fact.value.splitlines()[0][:80],
+                        f"the README already shows `{fact.value.splitlines()[0]}` in some form; "
+                        "not added",
+                        (fact.id,),
+                        report_only_reason="ALREADY_SHOWN",
+                        candidate=fact.value,
+                    )
+                )
             elif needs is not None and not states_install(ctx, needs):
                 dropped.add(fact.id)
                 findings.append(
@@ -114,6 +152,8 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
                         f"(`pip install {needs}`), which the evidence of {fact.id} does not "
                         "name; not added",
                         (fact.id,),
+                        report_only_reason="NEEDS_INSTALL_FIRST",
+                        candidate=fact.value,
                     )
                 )
         elif fact.id == CI_MATRIX_FACT_ID:
@@ -142,6 +182,22 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
     if not cited:
         return DetectorResult(findings=tuple(findings))
     text = addition_text(ctx, point, body.splitlines(), continue_list=False)
+    unmet = _dev_conditions_unmet(ctx, cited)
+    if unmet:  # report-only: the candidate is listed with its evidence, never applied
+        findings.append(
+            Finding(
+                "add_dev_commands",
+                ctx.readme.count(chr(10), 0, point.offset) + 1,
+                section.title,
+                f"'{section.title}' could take the clone's build and test information; not "
+                f"applied: {unmet}",
+                cited,
+                report_only_reason="RE_ENABLE_CONDITION_UNMET",
+                candidate=text,
+                re_enable=DEV_RE_ENABLE,
+            )
+        )
+        return DetectorResult(findings=tuple(findings))
     return DetectorResult(
         edits=(
             Edit(
@@ -386,6 +442,38 @@ _DOC_FILES: tuple[tuple[str, str, re.Pattern[str]], ...] = (
 )
 
 
+#: The same review found add_doc_links treating any docs/ directory as documentation (Slides-.NET
+#: and Slides-Cpp: docs/ holds a banner, a NuGet icon and a NuGet README), and a bullet landing
+#: after the section's closing rule. The detector reports its candidate until the fact below exists.
+DOCS_FACT_ID = "build_test_asset:documentation"
+DOCS_RE_ENABLE = (
+    f"a SUPPORTED fact {DOCS_FACT_ID} records a tracked docs directory holding documentation files "
+    "(at least one .md or .rst with prose, not images or package assets), and the bullet is placed "
+    "inside the section's existing list"
+)
+_ASSET_DIRS = frozenset(
+    {"media", "assets", "images", "img", "nuget", "static", "public", "icons", "banner", "logo"}
+)
+
+
+def docs_hold_documentation(ctx: Context) -> bool:
+    """Whether ``docs/`` of the pinned tree holds at least one markdown or reST file outside the
+    asset directories (a banner, an icon and a package README are not documentation)."""
+    for path in ctx.tree_paths:
+        parts = path.lower().split("/")
+        is_text = parts[-1].endswith((".md", ".rst"))
+        if parts[0] == "docs" and len(parts) > 1 and is_text and not _ASSET_DIRS & set(parts[1:-1]):
+            return True
+    return False
+
+
+def docs_conditions_unmet(ctx: Context) -> str:
+    """Why documentation links may not yet be edited in, or '' when they may."""
+    if ctx.supported(DOCS_FACT_ID) is None:
+        return "no fact records a tracked docs directory holding documentation files"
+    return ""
+
+
 def doc_link_bullets(ctx: Context) -> list[tuple[str, str]]:
     """``(bullet, tree path)`` for each community or documentation file the pinned tree holds that
     the README never names, in a fixed order. Root files win over ``.github/`` ones."""
@@ -407,7 +495,7 @@ def doc_link_bullets(ctx: Context) -> list[tuple[str, str]]:
             continue
         found.append((f"- **[{label}]({path})** — {gloss}", path))
     has_docs = any(path.startswith("docs/") for path in ctx.tree_paths)
-    if has_docs and "docs/" not in readme:
+    if has_docs and "docs/" not in readme and docs_hold_documentation(ctx):
         found.append(
             ("- **[Documentation](docs/)** — documentation kept in this repository.", "docs/")
         )
@@ -419,10 +507,41 @@ def add_doc_links(ctx: Context) -> DetectorResult:
     section = find_section(ctx, DOCS_HEADING)
     point = None if section is None else append_point(ctx, section)
     bullets = doc_link_bullets(ctx)
+    findings: list[Finding] = []
+    has_docs = any(path.startswith("docs/") for path in ctx.tree_paths)
+    if has_docs and "docs/" not in ctx.readme.lower() and not docs_hold_documentation(ctx):
+        findings.append(
+            Finding(
+                "add_doc_links",
+                0,
+                "docs/",
+                "docs/ holds no documentation files (only media or package assets), so the "
+                "README is not linked to it as documentation",
+                report_only_reason="DOCS_HOLDS_NO_DOCUMENTATION",
+                locators=("tree:docs/",),
+            )
+        )
     if section is None or point is None or not bullets:
-        return DetectorResult()
+        return DetectorResult(findings=tuple(findings))
     text = addition_text(ctx, point, [b for b, _p in bullets], continue_list=True)
+    unmet = docs_conditions_unmet(ctx)
+    if unmet:  # report-only: the candidate is listed with its evidence, never applied
+        findings.append(
+            Finding(
+                "add_doc_links",
+                ctx.readme.count(chr(10), 0, point.offset) + 1,
+                section.title,
+                f"'{section.title}' could link {', '.join(p for _b, p in bullets)}; not "
+                f"applied: {unmet}",
+                report_only_reason="RE_ENABLE_CONDITION_UNMET",
+                candidate=text,
+                re_enable=DOCS_RE_ENABLE,
+                locators=tuple(f"tree:{path}" for _b, path in bullets),
+            )
+        )
+        return DetectorResult(findings=tuple(findings))
     return DetectorResult(
+        findings=tuple(findings),
         edits=(
             Edit(
                 kind=MISSING_INFO,
@@ -438,7 +557,7 @@ def add_doc_links(ctx: Context) -> DetectorResult:
                     "the pinned tree holds"
                 ),
             ),
-        )
+        ),
     )
 
 
