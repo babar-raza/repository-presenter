@@ -30,6 +30,7 @@ from repository_presenter.components.readme_correction.model import (
     EDIT_KINDS,
     KIND_CORRECTION,
     KIND_FIELD,
+    STRUCTURE_FIX,
     Context,
 )
 from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
@@ -98,6 +99,13 @@ def correction_refusal(bundle: Path, manifest: dict[str, Any], entry: RegistryEn
     for edit in again.edits:
         if edit.kind not in EDIT_KINDS:
             return f"edit kind {edit.kind!r} is outside the closed set"
+        if edit.kind == STRUCTURE_FIX:
+            lines = len(ctx.readme.splitlines())
+            for locator in edit.locators:
+                path, _, number = locator.rpartition(":")
+                if path != ctx.readme_path or not number.isdigit() or not 1 <= int(number) <= lines:
+                    return f"{edit.detector} cites {locator!r}, which is not a line of the README"
+            continue
         wanted = _EVIDENCE_POLARITY[edit.kind]
         for fact_id in edit.fact_ids:
             fact = ctx.fact(fact_id)

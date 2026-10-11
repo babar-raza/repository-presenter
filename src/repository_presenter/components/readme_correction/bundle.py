@@ -59,6 +59,10 @@ def edit_record(ctx: Context, index: int, edit: Edit) -> dict[str, Any]:
                 "value": fact.value[:_VALUE_LIMIT] if fact is not None else None,
             }
         )
+    for locator in edit.locators:  # a structure fix's evidence is the README's own line
+        evidence.append(
+            {"fact_id": None, "status": "README_TEXT", "kind": "readme_structure", "value": locator}
+        )
     return {
         "index": index,
         "kind": edit.kind,

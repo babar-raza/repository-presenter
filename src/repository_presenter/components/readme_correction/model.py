@@ -23,8 +23,13 @@ from repository_presenter.core.registry.models import RegistryEntry
 FALSE_CLAIM_FIX = "FALSE_CLAIM_FIX"
 MISSING_SECTION = "MISSING_SECTION"
 BROKEN_LINK = "BROKEN_LINK"
+#: Markup the README itself shows broken (a second H1, a ``<details>`` never closed): evidence is
+#: the README's own line, not a fact, and the fix is one heading marker or one closing tag.
+STRUCTURE_FIX = "STRUCTURE_FIX"
 #: The closed set of correction kinds; nothing outside it can be applied or proposed.
-EDIT_KINDS: frozenset[str] = frozenset({FALSE_CLAIM_FIX, MISSING_SECTION, BROKEN_LINK})
+EDIT_KINDS: frozenset[str] = frozenset(
+    {FALSE_CLAIM_FIX, MISSING_SECTION, BROKEN_LINK, STRUCTURE_FIX}
+)
 #: A one-line fix touches a few words, never a sentence the maintainers wrote.
 MAX_SPAN = 200
 KIND_FIELD = "kind"
@@ -52,15 +57,22 @@ class Edit:
     fact_ids: tuple[str, ...]
     rationale: str
     order: int = 0  # tie-break between insertions at one offset (shell order)
+    locators: tuple[str, ...] = ()  # ``README.md:<line>`` evidence of a STRUCTURE_FIX
 
     def __post_init__(self) -> None:
         if self.kind not in EDIT_KINDS:
             raise InvalidEditError(f"unknown correction kind {self.kind!r}")
-        if not self.fact_ids:
+        if self.kind == STRUCTURE_FIX:
+            if not self.locators:
+                raise InvalidEditError(f"{self.detector}: a structure fix cites the README line")
+        elif not self.fact_ids:
             raise InvalidEditError(f"{self.detector}: an edit needs at least one evidence fact")
         if self.replacement == self.original:
             raise InvalidEditError(f"{self.detector}: the replacement equals the original")
-        if self.kind == MISSING_SECTION:
+        if self.kind == STRUCTURE_FIX and self.start == self.end:
+            if self.original or self.replacement.strip() != "</details>":
+                raise InvalidEditError(f"{self.detector}: the only insertion is a closing tag")
+        elif self.kind == MISSING_SECTION:
             if self.start != self.end or self.original:
                 raise InvalidEditError(f"{self.detector}: a section is inserted, never replaces")
             if not self.replacement.lstrip("\n").startswith("## "):

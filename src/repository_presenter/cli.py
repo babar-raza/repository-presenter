@@ -2601,15 +2601,17 @@ def run_correct_readme(
         entry = require_listed(registry, repository)
         print(f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem})")
 
-        def extract_facts(revision: str) -> Path:
+        def extract_facts(revision: str) -> Path | None:
             code = run_present(entry.repository, root_argument, facts_only=True)
             facts = (
                 root / RUNS_DIRNAME / "transactions" / f"{entry.owner}__{entry.name}" / revision
             ) / FACTS_FILENAME
-            if code != EXIT_OK or not facts.is_file():
+            if code == EXIT_OK and not facts.is_file():
+                return None  # a NON_PROCESSABLE disposition: insufficient evidence, not a failure
+            if code != EXIT_OK:
                 raise ConfigError(
-                    f"no facts at {revision} for {entry.repository}: the facts-only run "
-                    f"ended {code} without a facts.json (not processable, or the head moved)"
+                    f"no facts at {revision} for {entry.repository}: the facts-only run ended "
+                    f"{code} (or the head moved)"
                 )
             return facts
 
@@ -2633,10 +2635,15 @@ def run_correct_readme(
         _fail(redact(str(exc), live_values))
         return exc.exit_code
     counts = ", ".join(f"{kind} {count}" for kind, count in sorted(outcome.summary.items()))
-    print(
-        f"correct-readme: {outcome.repository} @ {outcome.revision[:12]}: "
+    detail = (
         f"{outcome.edits} edit(s) ({counts or 'none'}), {outcome.unapplied} finding(s) left "
-        f"unapplied; bundle {outcome.out}"
+        f"unapplied"
+        if outcome.manifest
+        else outcome.reason
+    )
+    print(
+        f"correct-readme: {outcome.repository} @ {outcome.revision[:12]}: {outcome.status}: "
+        f"{detail}; bundle {outcome.out}"
     )
     return EXIT_OK
 

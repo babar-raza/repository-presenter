@@ -13,9 +13,12 @@ from repository_presenter import cli
 from repository_presenter.cli import EXIT_OK, EXIT_USAGE, main
 from repository_presenter.components.readme_correction import run as correction_run
 from repository_presenter.components.readme_correction.bundle import CORRECTIONS_NAME
+from repository_presenter.components.readme_correction.gate import load_proposable_correction
+from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
 from repository_presenter.core.facts import FactsDocument, write_facts
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.github.read_client import DefaultBranchRead
+from repository_presenter.core.registry.loader import load_registry, require_listed
 from support import (
     commit_all,
     init_git_repository,
@@ -159,3 +162,66 @@ def test_propose_accepts_a_correction_bundle_in_dry_run_and_refuses_a_tampered_o
     (out / "README.md").write_text(README + "\nunreviewed addition\n", encoding="utf-8")
     assert main(args) != EXIT_OK
     assert "bundle_inconsistent" in capsys.readouterr().err
+
+
+def serve_other(monkeypatch: pytest.MonkeyPatch, source: Path) -> None:
+    monkeypatch.setattr(
+        correction_run,
+        "pinned_read_only_clone",
+        lambda clone_url, destination, **kwargs: pinned_read_only_clone(str(source), destination),
+    )
+
+
+def test_a_repository_with_no_readme_is_a_status_not_a_bundle_and_not_proposable(
+    target: dict[str, Any],
+    make_facts: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    bare = init_git_repository(target["tmp"] / "bare", with_commit=False)
+    (bare / "LICENSE").write_text("MIT\n", encoding="utf-8")
+    revision = commit_all(bare, "license only")
+    serve_other(monkeypatch, bare)
+    facts = facts_file(target["tmp"], revision, make_facts)
+    out = target["tmp"] / "bundle"
+    assert run_correct(target, facts, out) == EXIT_OK
+    assert "no_live_readme" in capsys.readouterr().out
+    assert [p.name for p in out.iterdir()] == ["status.json"]
+    status = json.loads((out / "status.json").read_text(encoding="utf-8"))
+    assert status["status"] == "no_live_readme" and status["revision"] == revision
+    with pytest.raises(WriteRefusedError) as raised:
+        load_proposable_correction(out, REPOSITORY, root=target["root"])
+    assert raised.value.code == Refusal.BUNDLE_MISSING
+
+
+def test_a_placeholder_the_facts_only_run_cannot_process_is_insufficient_evidence(
+    target: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    entry = require_listed(load_registry(target["root"] / "data" / "registry.json"), REPOSITORY)
+    out = target["tmp"] / "bundle"
+    outcome = correction_run.produce_correction(
+        entry,
+        clone_directory=target["tmp"] / "clone",
+        out_directory=out,
+        extract_facts=lambda revision: None,
+    )
+    assert outcome.status == "insufficient_evidence" and not outcome.manifest
+    assert [p.name for p in out.iterdir()] == ["status.json"]
+
+
+def test_a_conformant_readme_yields_no_corrections_and_nothing_to_propose(
+    target: dict[str, Any], make_facts: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    clean = init_git_repository(target["tmp"] / "clean", with_commit=False)
+    (clean / "README.md").write_text(
+        README.replace("26.5.0", "26.7.0"), encoding="utf-8", newline="\n"
+    )
+    revision = commit_all(clean, "seed")
+    serve_other(monkeypatch, clean)
+    out = target["tmp"] / "bundle"
+    assert run_correct(target, facts_file(target["tmp"], revision, make_facts), out) == EXIT_OK
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["summary"] == {}
+    with pytest.raises(WriteRefusedError) as raised:
+        load_proposable_correction(out, REPOSITORY, root=target["root"])
+    assert "nothing to propose" in raised.value.message

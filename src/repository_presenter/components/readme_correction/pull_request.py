@@ -19,11 +19,13 @@ _TITLES = {
     "FALSE_CLAIM_FIX": "correct a README claim the repository contradicts",
     "MISSING_SECTION": "add a README section its facts fill",
     "BROKEN_LINK": "repair a broken README link",
+    "STRUCTURE_FIX": "repair broken README markup",
 }
 _LABELS = {
     "FALSE_CLAIM_FIX": "Claim the repository contradicts",
     "MISSING_SECTION": "Section added from verified facts",
     "BROKEN_LINK": "Broken link repaired",
+    "STRUCTURE_FIX": "Broken markup repaired",
 }
 _SHOWN = 120
 
@@ -34,10 +36,15 @@ def _clip(text: str) -> str:
 
 
 def _item(edit: dict[str, Any]) -> list[str]:
-    evidence = ", ".join(f"`{e['fact_id']}` ({e['status']})" for e in edit["evidence"])
+    evidence = ", ".join(
+        f"`{e['fact_id']}` ({e['status']})" if e["fact_id"] else f"`{e['value']}`"
+        for e in edit["evidence"]
+    )
     if edit["kind"] == "MISSING_SECTION":
         heading = next(line for line in edit["replacement"].splitlines() if line.startswith("## "))
         change = f"inserted `{heading}` before line {edit['line']}"
+    elif not edit["original"]:
+        change = f"inserted `{edit['replacement'].strip()}` before line {edit['line']}"
     else:
         change = (
             f"line {edit['line']}: `{_clip(edit['original'])}` -> `{_clip(edit['replacement'])}`"

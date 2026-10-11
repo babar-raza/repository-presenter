@@ -226,3 +226,35 @@ def test_the_pull_request_lists_each_edit_with_its_evidence_and_claims_nothing_e
     assert "`package:published_version` (SUPPORTED)" in content.body
     assert "Refreshes the README" not in content.body and "reconciled" not in content.body
     assert "kind: correction" in content.body and "no model wrote" in content.body
+
+
+STRUCTURE_README = README.replace("## Dependencies", "# Dependencies note").replace(
+    "## Scope and Limitations",
+    "<details>\n<summary>More</summary>\n\nhidden\n\n## Scope and Limitations",
+)
+
+
+def test_structure_fixes_are_proposable_evidenced_by_their_readme_lines(
+    tmp_path: Path, make_context: Any
+) -> None:
+    directory = make_bundle(tmp_path, make_context, STRUCTURE_README)
+    candidate = load_proposable_correction(directory, REPOSITORY, root=REPO_ROOT)
+    assert candidate.readme_text.count("</details>") == 1
+    assert "\n## Dependencies note\n" in candidate.readme_text
+    document = json.loads((directory / files.CORRECTIONS_NAME).read_text(encoding="utf-8"))
+    fixes = [e for e in document["edits"] if e["kind"] == "STRUCTURE_FIX"]
+    assert {e["detector"] for e in fixes} == {"second_h1", "unclosed_details"}
+    assert all(
+        ev["status"] == "README_TEXT" and ev["value"].startswith("README.md:")
+        for e in fixes
+        for ev in e["evidence"]
+    )
+    content = compose_correction_pull_request(
+        bundle=directory,
+        repository=REPOSITORY,
+        candidate_hash="h" * 64,
+        source_revision="a" * 40,
+        policy_version="p1",
+    )
+    assert "Broken markup repaired" in content.body and "`README.md:" in content.body
+    assert "inserted `</details>` before line" in content.body
