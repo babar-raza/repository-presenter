@@ -1,0 +1,11 @@
+[package]
+name = "widget"
+edition = "2021"
+
+[[bin]]
+name = "sample_basic"
+path = "src/bin/sample_basic.rs"
+
+[[bin]]
+name = "widget-tool"
+path = "src/bin/tool.rs"

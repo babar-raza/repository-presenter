@@ -319,14 +319,21 @@ def test_placements_into_deterministic_sections_fold_into_supersessions() -> Non
     assert folded[0]["disposition"] == "SUPERSEDE_REDUNDANT"
     assert folded[0]["fact_ids"] == ["identity:repository"]
     assert folded[0]["destination_section"] == "identity"
-    assert folded[1]["fact_ids"] == ["identity:repository"]
+    # TC-DSP-01: identity prints the H1 and nothing else, so it carries a heading and not a
+    # paragraph. The paragraph is not called redundant: it is left as the reply wrote it (no
+    # rendered fact is added to it) and refused with the reason, for the one re-ask.
+    assert folded[1]["disposition"] == "SUPERSEDE_REDUNDANT"
+    assert folded[1]["fact_ids"] == []
     assert folded[2]["disposition"] == "DEFER_UNRESOLVED"
     assert folded[2]["destination_section"] is None
+    # Its example is CONTRADICTED, so no section carries the block: a supersession of it is the
+    # placing fold's own answer, an omission citing the contradiction.
+    assert folded[3]["disposition"] == "OMIT_UNSUPPORTED"
+    assert folded[3]["fact_ids"] == ["example:002"]
     remaining = placement_errors(output, FACTS)
-    assert remaining == [
-        "inherited_unit:004.code_block: SUPERSEDE_REDUNDANT names the section whose content "
-        "renders or covers the unit in destination_section, or cites at least one fact ID",
-    ]
+    assert len(remaining) == 1
+    assert remaining[0].startswith("inherited_unit:002.paragraph: uncovered_supersession: ")
+    assert "identity renders from facts and prints no paragraph" in remaining[0]
     assert reconcile_checks(output, FACTS) == errors + remaining
 
 
@@ -354,6 +361,42 @@ def test_two_deterministic_sections_rendering_nothing_both_fold_in_one_pass() ->
     assert [d["destination_section"] for d in output["dispositions"]] == [None, None]
 
 
+def _examples_directory_facts(first: str, second: str) -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("build_test_asset:examples", "build_test_asset", "examples/"),
+            # additional_examples' own condition needs 2+ SUPPORTED examples; FACTS carries
+            # exactly one (example:001) plus one CONTRADICTED - a second SUPPORTED example is
+            # added purely to keep the section present, unrelated to what this test measures.
+            _fact("example:003", "example", "print(3)"),
+            _fact("inherited_unit:011.paragraph", "inherited_unit", first),
+            _fact("inherited_unit:012.paragraph", "inherited_unit", second),
+        ),
+    )
+
+
+def _examples_directory_pair() -> dict[str, Any]:
+    return {
+        "dispositions": [
+            _entry(
+                "inherited_unit:011.paragraph",
+                "VERIFIED_PRESERVE",
+                "additional_examples",
+                "build_test_asset:examples",
+            ),
+            _entry(
+                "inherited_unit:012.paragraph",
+                "VERIFIED_MOVE",
+                "additional_examples",
+                "build_test_asset:examples",
+            ),
+        ]
+    }
+
+
 def test_a_duplicate_subject_placed_into_the_same_section_twice_is_superseded_by_the_first() -> (
     None
 ):
@@ -364,35 +407,15 @@ def test_a_duplicate_subject_placed_into_the_same_section_twice_is_superseded_by
     repair has no path to a VERIFIED_MOVE/VERIFIED_PRESERVE disposition at all (neither
     repair/rounds.py nor repair/targeted.py reads either value), so composing both would have
     produced a permanent, repair-unreachable duplication.
+
+    TC-DSP-01: the pair now has to be a pair - the later sentence must repeat what the earlier one
+    says, not only cite the same fact.
     """
-    facts = FactsDocument(
-        ENTRY.repository,
-        "a" * 40,
-        (
-            *FACTS.facts,
-            _fact("build_test_asset:examples", "build_test_asset", "examples/"),
-            # additional_examples' own condition needs 2+ SUPPORTED examples; FACTS carries
-            # exactly one (example:001) plus one CONTRADICTED - a second SUPPORTED example is
-            # added purely to keep the section present, unrelated to what this test measures.
-            _fact("example:003", "example", "print(3)"),
-        ),
+    facts = _examples_directory_facts(
+        "Runnable scripts live in the examples/ directory.",
+        "See the examples/ directory for runnable scripts.",
     )
-    output = {
-        "dispositions": [
-            _entry(
-                "inherited_unit:001.paragraph",
-                "VERIFIED_PRESERVE",
-                "additional_examples",
-                "build_test_asset:examples",
-            ),
-            _entry(
-                "inherited_unit:002.paragraph",
-                "VERIFIED_MOVE",
-                "additional_examples",
-                "build_test_asset:examples",
-            ),
-        ]
-    }
+    output = _examples_directory_pair()
     assert normalize(output, facts) == []
     folded = output["dispositions"]
     # The first claim on (additional_examples, build_test_asset:examples) stands untouched.
@@ -403,6 +426,23 @@ def test_a_duplicate_subject_placed_into_the_same_section_twice_is_superseded_by
     assert folded[1]["disposition"] == "SUPERSEDE_REDUNDANT"
     assert folded[1]["destination_section"] == "additional_examples"
     assert placement_errors(output, facts) == []
+
+
+def test_two_units_citing_the_same_fact_but_saying_different_things_are_both_placed() -> None:
+    """TC-DSP-01 negative control for item 98's guard. Citing the same fact is not repeating the
+    same sentence: Cells-Rust cited five class symbols on every API Reference unit, so the first
+    claimed them and the project-structure tree and the members lists after it were superseded as
+    "duplicates" of a heading. The second unit says something the first does not, so it stays."""
+    facts = _examples_directory_facts(
+        "Runnable scripts live in the examples/ directory.",
+        "Each script prints its result and exits non-zero when verification fails.",
+    )
+    output = _examples_directory_pair()
+    assert normalize(output, facts) == []
+    assert [d["disposition"] for d in output["dispositions"]] == [
+        "VERIFIED_PRESERVE",
+        "VERIFIED_MOVE",
+    ]
 
 
 def test_the_duplicate_subject_guard_ignores_identity_citations_and_different_sections() -> None:

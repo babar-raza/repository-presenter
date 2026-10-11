@@ -1,0 +1,15 @@
+name: ci
+on: [push]
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+        archive: [tar.gz, zip]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - run: pip install -e .
+      - run: |
+          python -m pytest -q
+          dotnet build -c Release && dotnet test src/Lib

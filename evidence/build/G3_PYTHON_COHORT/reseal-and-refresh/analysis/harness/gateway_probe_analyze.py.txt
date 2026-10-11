@@ -1,0 +1,27 @@
+import json, glob, re, statistics as st, collections, csv
+rows = []; per = collections.defaultdict(lambda: {"proc": 0, "rc_fail": 0, "status": collections.Counter(), "wall": [], "lat": [], "tails": collections.Counter()})
+for f in sorted(glob.glob("runs/pre/pf/c*_r*_w*.json")):
+    m = re.search(r"c(\d+)_r(\d+)_w(\d+)", f); lvl = int(m[1])
+    d = json.load(open(f)); p = per[lvl]
+    p["proc"] += 1; p["wall"].append(d["wall_s"])
+    if d["rc"] != 0: p["rc_fail"] += 1; p["tails"][d["output_tail"][-200:].replace("\n", " | ")] += 1
+    prev = d["start"]
+    for r in d["requests"]:
+        p["status"][r["status"]] += 1; p["lat"].append(r["t"] - prev); prev = r["t"]
+def pct(v, q):
+    v = sorted(v); 
+    if not v: return None
+    k = (len(v) - 1) * q; lo = int(k); hi = min(lo + 1, len(v) - 1)
+    return round(v[lo] + (v[hi] - v[lo]) * (k - lo), 2)
+out = []
+for lvl in sorted(per):
+    p = per[lvl]; n = sum(p["status"].values())
+    bad = sum(c for s, c in p["status"].items() if s == 429 or s >= 500)
+    out.append({"concurrency": lvl, "processes": p["proc"], "http_requests": n,
+                "status_distribution": " ".join(f"{s}:{c}" for s, c in sorted(p["status"].items())),
+                "429_or_5xx": bad, "process_failures": p["rc_fail"],
+                "request_latency_p50_s": pct(p["lat"], .5), "request_latency_p95_s": pct(p["lat"], .95),
+                "preflight_wall_p50_s": pct(p["wall"], .5), "preflight_wall_p95_s": pct(p["wall"], .95)})
+    if p["tails"]: print(lvl, dict(p["tails"]))
+w = csv.DictWriter(open("runs/pre/gateway_headroom.csv", "w", newline=""), fieldnames=list(out[0])); w.writeheader(); w.writerows(out)
+for r in out: print(r)

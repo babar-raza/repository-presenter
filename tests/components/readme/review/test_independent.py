@@ -106,6 +106,16 @@ def _judgment(label: str, section: str, quote: str = "It writes `.glb` files.") 
     return {**_finding(label, section, "S6", quote), "criterion": "presentation", "fact_ids": []}
 
 
+def _refuted(label: str, section: str = "opening") -> dict[str, Any]:
+    """A finding a deterministic check refutes: it says the candidate omits text that the
+    candidate's own section contains (ABSENCE_PRESENT), and quotes something else."""
+    return {
+        **_finding(label, section, "S6", "Aspose.3D FOSS for Python"),
+        "fact_ids": [],
+        "absent": ["`.glb` files"],
+    }
+
+
 def test_a_prose_judgment_on_a_required_row_blocks_only_when_a_second_reader_agrees() -> None:
     """The owner's two-reader rule (2026-09-06 00:15, section 31; section 27.8).
 
@@ -123,24 +133,41 @@ def test_a_prose_judgment_on_a_required_row_blocks_only_when_a_second_reader_agr
         "facts": FACTS,
         "original_readme": "Old prose.",
     }
-    # One reader alone: both findings become advisory, marked, and the candidate seals.
+    # TC-REV-01: on a returned REJECT one reader's prose judgment no longer folds the finding: it
+    # stands, the verdict stays, and the repair loop acts on it. The judgment is recorded.
     alone = review_document(output, REVIEWER, AUTHORING, "d" * 64, second={}, **common)
-    assert alone["verdict"] == ACCEPT and alone["findings"] == []
-    assert [f["id"] for f in alone["advisory"]] == ["F01", "F02"]
-    assert all(f["single_reader_advisory"] for f in alone["advisory"])
+    assert (
+        alone["verdict"] == "REJECT_PRESENTATION" and alone["verdict_basis"] == "rejection_stands"
+    )
+    assert [f["id"] for f in alone["findings"]] == ["F01", "F02"] and alone["advisory"] == []
+    assert all(
+        f["unrefuted_scope_rules"][0]["rule"] == "SINGLE_READER_PROSE" for f in alone["findings"]
+    )
     # `read` counts completed reads (PHASE1/F6): an empty-but-real second reading is read 2.
     assert alone["second_reader"] == {"read": 2, "corroborated": []}
 
-    # A second reader raising the same class on one of them keeps that one blocking; the other
-    # is still one reader's judgment. Equivalence is the class, never the wording.
+    # The two-reader rule survives where no rejection is at stake: a returned ACCEPT whose prose
+    # judgments no second read repeats keeps them advisory, marked.
+    accepted = {**output, "verdict": ACCEPT}
+    calm = review_document(accepted, REVIEWER, AUTHORING, "d" * 64, second={}, **common)
+    assert calm["verdict"] == ACCEPT and calm["findings"] == []
+    assert [f["id"] for f in calm["advisory"]] == ["F01", "F02"]
+    assert all(f["single_reader_advisory"] for f in calm["advisory"])
+
+    # A second reader raising the same class corroborates it; equivalence is the class, never
+    # the wording. On a rejection the uncorroborated one stands as well.
     agreed = {**_judgment("X9", "opening"), "text": "Different words, same defect."}
     both = review_document(
         output, REVIEWER, AUTHORING, "d" * 64, second={"findings": [agreed]}, **common
     )
-    assert [f["id"] for f in both["findings"]] == ["F01"]
-    assert [f["id"] for f in both["advisory"]] == ["F02"]
+    assert [f["id"] for f in both["findings"]] == ["F01", "F02"]
     assert both["verdict"] == "REJECT_PRESENTATION"
     assert both["second_reader"]["corroborated"] == [finding_class(agreed)]
+    corroborated_accept = review_document(
+        accepted, REVIEWER, AUTHORING, "d" * 64, second={"findings": [agreed]}, **common
+    )
+    assert [f["id"] for f in corroborated_accept["findings"]] == ["F01"]
+    assert [f["id"] for f in corroborated_accept["advisory"]] == ["F02"]
 
     # Without a second read nothing is demoted, and a finding a deterministic check can express
     # is never a prose judgment: it blocks on one reader, as it always did.
@@ -587,13 +614,16 @@ def test_the_document_splits_advisory_findings_and_records_both_identities(
     assert document["verdict"] == "REJECT_PRESENTATION"
     assert document["verdict_as_returned"] == "REJECT_PRESENTATION"
     assert [f["id"] for f in document["findings"]] == ["F01"]
-    # A rejection whose findings are all advisory has nothing to act on and does not block.
+    # TC-REV-01: a rejection whose findings nothing can act on is not thereby refuted. It stands,
+    # each unroutable finding says it is unrepairable, and nothing was refuted deterministically.
     unfounded = review_document(
         {**output, "findings": output["findings"][1:]}, REVIEWER, AUTHORING, "d" * 64
     )
-    assert unfounded["verdict"] == "ACCEPT"
+    assert unfounded["verdict"] == "REJECT_PRESENTATION"
     assert unfounded["verdict_as_returned"] == "REJECT_PRESENTATION"
+    assert unfounded["verdict_basis"] == "rejection_stands"
     assert [f["id"] for f in unfounded["advisory"]] == ["F02", "F03"]
+    assert all("unrepairable" in f and "refuted_by" not in f for f in unfounded["advisory"])
     # A finding re-raised after its one repair attempt is no longer this module's concern: it
     # never demotes on that account alone (docs/RESEARCH_AND_GUIDELINES.md section 27.5 D5), so
     # review_document has nothing special to do with it - the transaction that re-raised it
@@ -673,10 +703,7 @@ def test_a_folded_accept_from_a_single_read_no_longer_passes_check_ten() -> None
     lists as F). Check 10 now passes only an accept a second independent read backs:
     ``second_reader.read`` counts completed reads, and a legacy boolean counts as at most one,
     so a pre-F6 review document never satisfies the new predicate by accident."""
-    refuted = {
-        **_finding("F01", "opening", "S6", "It writes `.glb` files."),
-        "fact_ids": ["format:output.glb"],
-    }
+    refuted = _refuted("F01")
     folded = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
     common: dict[str, Any] = {"candidate_readme": CANDIDATE, "facts": FACTS}
     single = review_document(folded, REVIEWER, AUTHORING, "d" * 64, **common)
@@ -702,10 +729,7 @@ def test_a_truncated_second_read_is_recorded_with_its_cause_and_never_passes_che
     first reader's ACCEPT unchanged on one read, but record WHY the corroboration is missing.
     Before this, review.json said only ``read: 1`` and check 10 reported a bare "single read",
     so the owner could not tell a runaway reply from a reader that never ran."""
-    refuted = {
-        **_finding("F01", "opening", "S6", "It writes `.glb` files."),
-        "fact_ids": ["format:output.glb"],
-    }
+    refuted = _refuted("F01")
     folded = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
     failure = {
         "kind": "JobError",
@@ -731,10 +755,7 @@ def test_a_completed_second_read_records_no_failure() -> None:
     """Negative control for the cause record: a second read that completes carries no ``failed``
     key at all (a successful review's record is unchanged), and check 10 passes on the two
     independent ACCEPTs with no failure detail."""
-    refuted = {
-        **_finding("F01", "opening", "S6", "It writes `.glb` files."),
-        "fact_ids": ["format:output.glb"],
-    }
+    refuted = _refuted("F01")
     folded = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
     common: dict[str, Any] = {"candidate_readme": CANDIDATE, "facts": FACTS}
     second = {"verdict": "ACCEPT", "findings": [], "preserve": []}
@@ -766,15 +787,13 @@ def test_a_disagreeing_second_read_routes_its_findings_through_the_fold_stack() 
     assert disputed["second_reader"]["read"] == 2
     assert record_review_verdict(VALIDATION, disputed)["checks"][1]["verdict"] == "FAIL"
     # A refuted second-read finding folds to advisory with its reason: the two reads agree.
-    refuted = {
-        **_finding("F03", "opening", "S6", "It writes `.glb` files."),
-        "fact_ids": ["format:output.glb"],
-    }
+    refuted = _refuted("F03")
     agreeing = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
     agreed = review_document(accept, REVIEWER, AUTHORING, "d" * 64, second=agreeing, **common)
     assert agreed["verdict"] == ACCEPT and agreed["findings"] == []
     assert agreed["advisory"][0]["reader"] == 2
-    assert agreed["advisory"][0]["reviewer_scope_defect"].startswith("the quote contains")
+    assert agreed["advisory"][0]["reviewer_scope_defect"].startswith("the finding claims")
+    assert agreed["advisory"][0]["refuted_by"]["rule"] == "ABSENCE_PRESENT"
     assert record_review_verdict(VALIDATION, agreed)["checks"][1]["verdict"] == "PASS"
     # A prose judgment only the second reader raised is single_reader_advisory, symmetrically.
     lone = {
@@ -809,8 +828,9 @@ def test_a_required_row_admits_no_advisory_left_standing() -> None:
     assert "reviewer_scope_defect" not in document["advisory"][0]
     judged = record_review_verdict(VALIDATION, document)
     assert judged["checks"][1]["verdict"] == "FAIL"
+    assert document["verdict"] == "REJECT_PRESENTATION"  # TC-REV-01: nothing refuted it
     assert judged["checks"][1]["details"] == [
-        "ACCEPT",
+        "REJECT_PRESENTATION",
         "F01 api_reference: a required row admits no advisory left standing: "
         "A claim is unsupported.",
     ]
@@ -845,7 +865,7 @@ def test_a_required_row_admits_no_advisory_left_standing() -> None:
     # An optional row may carry one; the bundle records the count either way.
     on_optional = _finding("F01", "at_a_glance", "S9")
     optional = review_document(
-        {"verdict": "REJECT_PRESENTATION", "findings": [on_optional], "preserve": []},
+        {"verdict": "ACCEPT", "findings": [on_optional], "preserve": []},
         REVIEWER,
         AUTHORING,
         "d" * 64,
@@ -866,7 +886,7 @@ def test_an_absence_the_candidate_disproves_is_the_reviewers_own_defect() -> Non
     the COLLADA export note, and the editable install command were all in the document.
     """
     fully_refuted = {
-        **_finding("F01", "api_reference", "S6", "It writes `.glb` files."),
+        **_finding("F01", "api_reference", "S6", "Aspose.3D FOSS for Python"),
         "criterion": "presentation",
         "fact_ids": [],  # this rule reads absent/candidate, never fact_ids
         "absent": ["`.glb`"],
@@ -1026,7 +1046,7 @@ def test_a_partly_refuted_absence_finding_records_the_claims_that_still_stand() 
             "F10",
             "development_testing",
             "S6",
-            "The build instructions include the command cmake --preset windows-msvc-debug.",
+            "Run the example.",
         ),
         "criterion": "presentation",
         "fact_ids": [],
@@ -1591,10 +1611,29 @@ def test_a_factuality_finding_against_a_verified_row_no_unit_wrote_is_the_review
         "facts": facts,
         "original_readme": original,
     }
+    # TC-REV-01: that the text is the renderer's settles whose WORDING it is, so it refutes a
+    # presentation finding (RENDERER_UNWRITTEN_FACT) but not a factuality one, whose claim may be
+    # true of renderer text: the rejection stands, with the rule that matched recorded.
     document = review_document(output, REVIEWER, AUTHORING, "d" * 64, units=units, **common)
-    assert document["verdict"] == ACCEPT and document["findings"] == []
-    assert document["advisory"][0]["reviewer_scope_defect"] == reason
-    assert deferred_on_required_rows(document) == []
+    assert document["verdict"] == "REJECT_FACTUAL" and [f["id"] for f in document["findings"]] == [
+        "F05"
+    ]
+    assert document["findings"][0]["unrefuted_scope_rules"][0]["rule"] == (
+        "RENDERER_UNWRITTEN_FACT_FACTUAL"
+    )
+    as_presentation = {**f05, "criterion": "presentation", "absent": []}
+    refuted = review_document(
+        {**output, "findings": [as_presentation]},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        units=units,
+        **common,
+    )
+    assert refuted["verdict"] == ACCEPT and refuted["findings"] == []
+    assert refuted["advisory"][0]["reviewer_scope_defect"] == reason
+    assert refuted["advisory"][0]["refuted_by"]["rule"] == "RENDERER_UNWRITTEN_FACT"
+    assert deferred_on_required_rows(refuted) == []
     blocked = review_document(output, REVIEWER, AUTHORING, "d" * 64, **common)
     assert [f["id"] for f in blocked["findings"]] == ["F05"]
 
@@ -2350,8 +2389,10 @@ def test_a_factuality_labelled_finding_against_renderer_owned_text_is_the_review
         "chrome (its summary text or its <details>/</details> wrapper); no unit wrote it and "
         "none can change it"
     )
-    # The unblock this buys: a rejection whose findings are all the reviewer's own defect has
-    # nothing the loop can act on, so BC-10 no longer holds the candidate on a required row.
+    # TC-REV-01: the renderer owns the WORDING of a deterministic section, which refutes a
+    # presentation finding against it but not a factuality one - a wrong version rendered from a
+    # wrong fact is still wrong. The rejection stands, the match is recorded, and the reason text
+    # is unchanged.
     document = review_document(
         {"verdict": "REJECT_FACTUAL", "findings": [rendered_fact], "preserve": []},
         REVIEWER,
@@ -2360,10 +2401,24 @@ def test_a_factuality_labelled_finding_against_renderer_owned_text_is_the_review
         candidate_readme=candidate,
         facts=facts,
     )
-    assert document["verdict"] == ACCEPT and document["findings"] == []
-    assert document["advisory"][0]["reviewer_scope_defect"] == dependencies
-    assert document["advisory"][0]["causal_stage"] == "S6"
-    assert deferred_on_required_rows(document) == []
+    assert document["verdict"] == "REJECT_FACTUAL" and document["advisory"] == []
+    (standing,) = document["findings"]
+    assert standing["unrefuted_scope_rules"][0]["rule"] == "RENDERER_SECTION_FACTUAL"
+    assert standing["unrefuted_scope_rules"][0]["reason"] == dependencies
+    presentation = {**rendered_fact, "criterion": "presentation"}
+    refuted = review_document(
+        {"verdict": "REJECT_PRESENTATION", "findings": [presentation], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=candidate,
+        facts=facts,
+    )
+    assert refuted["verdict"] == ACCEPT and refuted["findings"] == []
+    assert refuted["advisory"][0]["reviewer_scope_defect"] == dependencies
+    assert refuted["advisory"][0]["refuted_by"]["rule"] == "RENDERER_SECTION"
+    assert refuted["advisory"][0]["causal_stage"] == "S6"
+    assert deferred_on_required_rows(refuted) == []
 
 
 def test_a_factuality_finding_against_a_units_own_prose_is_never_exempted() -> None:
@@ -2436,9 +2491,17 @@ def test_a_factuality_finding_naming_no_fact_and_no_absence_is_the_reviewers_def
     # one - the fix must not swallow a real, checkable finding either way.
     with_fact_id = {**ungrounded, "fact_ids": ["format:input.obj"]}
     assert scope_defect(with_fact_id, CANDIDATE, by_id) is None  # UNRESOLVED, not CONTRADICTED
-    with_absent = {**ungrounded, "absent": ["It writes `.glb` files."]}
+    with_absent = {
+        **ungrounded,
+        "quote": "Aspose.3D FOSS for Python",
+        "absent": ["It writes `.glb` files."],
+    }
     assert scope_defect(with_absent, CANDIDATE, by_id) is not None  # absence_defect's own route:
     # the candidate contains exactly what the finding claims is missing.
+    # TC-REV-01: an absent list that points into the finding's own quote is not an absence claim,
+    # so it refutes nothing (Words-.NET F03/F04/F05 listed the very text they called wrong).
+    pointing = {**with_absent, "quote": "It writes `.glb` files."}
+    assert scope_defect(pointing, CANDIDATE, by_id) is None
 
 
 def test_a_synthetic_oversized_review_is_bounded_by_its_own_schema() -> None:
@@ -2658,10 +2721,7 @@ def test_two_of_three_majority_vote_escalation() -> None:
 
     # A majority finding the deterministic stack itself refutes still folds to advisory, exactly
     # like the unescalated rule - the escalation changes who must agree, never what a check judges.
-    refuted = {
-        **_finding("F03", "opening", "S6", "It writes `.glb` files."),
-        "fact_ids": ["format:output.glb"],
-    }
+    refuted = _refuted("F03")
     refuting_second = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
     refuting_third = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
     both_refuted = review_document(
@@ -2674,7 +2734,7 @@ def test_two_of_three_majority_vote_escalation() -> None:
         **common,
     )
     assert both_refuted["verdict"] == ACCEPT and both_refuted["findings"] == []
-    assert both_refuted["advisory"][0]["reviewer_scope_defect"].startswith("the quote contains")
+    assert both_refuted["advisory"][0]["reviewer_scope_defect"].startswith("the finding claims")
 
 
 # --- Structured omission findings (2026-10-05) -------------------------------------------------
@@ -2859,9 +2919,14 @@ def test_a_quote_only_partly_in_the_section_is_upheld() -> None:
 def test_a_prose_only_omission_claim_is_advisory_with_its_reason() -> None:
     reason = _font_defect(_font_finding(_omission()))
     assert reason is not None and "names no fact or example id and no exact phrase" in reason
+    # TC-REV-01: "nothing in it can be checked" annotates the finding, it does not refute it, so
+    # the rejection it rests on stands and the finding stays where the repair loop can read it.
     review = _font_review(_font_finding(_omission()))
-    assert review["findings"] == [] and review["verdict"] == ACCEPT
-    assert review["advisory"][0]["reviewer_scope_defect"] == reason
+    assert review["verdict"] != ACCEPT and review["advisory"] == []
+    (standing,) = review["findings"]
+    assert "reviewer_scope_defect" not in standing and "refuted_by" not in standing
+    assert standing["unrefuted_scope_rules"][0]["rule"] == "OMISSION_UNCHECKABLE"
+    assert standing["unrefuted_scope_rules"][0]["reason"] == reason
     # A claim routed at a different section than the repair would revise cannot be acted on.
     elsewhere = _font_finding(_omission("example:004", section="additional_examples"))
     assert "no repair there could restore it" in (_font_defect(elsewhere) or "")

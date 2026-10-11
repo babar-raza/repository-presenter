@@ -17,6 +17,12 @@ from repository_presenter.components.readme.composition.placement import (
     placements,
 )
 from repository_presenter.components.readme.evidence.facts.product_pages import ENTERPRISE_FACT_ID
+from repository_presenter.components.readme.reconciliation.dispositions import (
+    RECOVERED_COVERAGE_RATIONALE,
+    normalize,
+    placement_errors,
+    recover_uncited_prose_omits,
+)
 from repository_presenter.components.readme.validation.deferrals import (
     DEFERRAL_CLASSES,
     review_deferrals,
@@ -89,7 +95,7 @@ def _only(findings: list[Any]) -> Any:
     return findings[0]
 
 
-def test_the_registry_holds_exactly_the_fifteen_real_causes() -> None:
+def test_the_registry_holds_exactly_the_sixteen_real_causes() -> None:
     """A new class is an explicit change here, so it is reviewed rather than slipped in."""
     assert [cls.id for cls in DEFERRAL_CLASSES] == [
         "NO_VERIFIED_QUICK_START",
@@ -107,6 +113,7 @@ def test_the_registry_holds_exactly_the_fifteen_real_causes() -> None:
         "COMMAND_BLOCK_WITHHELD",
         "API_LISTING_COVERED_BY_CORE_API",
         "NO_EVIDENCE_EITHER_WAY",
+        "NOT_CARRIED_BY_NAMED_SECTION",
     ]
     assert {cls.decision for cls in DEFERRAL_CLASSES} == {"BLOCK", "ADVISORY"}
 
@@ -680,3 +687,112 @@ def test_a_sentence_that_only_mentions_a_verified_class_name_is_still_a_no_evide
     )
     finding = _classify(facts, deferred)
     assert (finding.class_id, finding.decision) == ("NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+
+
+# --- TC-DSP-01 companion (G3-W08): a unit the named section cannot carry is deferred, not lost. ---
+
+_INSTALLATION = "Widget > Installation"
+_XML = "```xml\n<dependency><artifactId>widget</artifactId></dependency>\n```"
+
+
+def _carry_facts(*extra: Fact) -> FactsDocument:
+    """A repository whose verified install command the Installation row prints; an inherited
+    XML install block is not that command, so the row cannot carry it."""
+    return _facts(
+        _fact("install_command", "pip", "pip install widget"),
+        _unit(11, "code_block", _XML, _INSTALLATION),
+        *extra,
+    )
+
+
+def _recovered_deferral(facts: FactsDocument) -> dict[str, Any]:
+    """The entry the reconciler's own last attempt writes for an unprovable supersession,
+    produced by the real code path rather than typed here."""
+    raw = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:011.code_block",
+                "disposition": "SUPERSEDE_REDUNDANT",
+                "destination_section": "installation",
+                "fact_ids": [],
+                "rationale": "Covered by the installation section.",
+            }
+        ]
+    }
+    assert normalize(raw, facts) == []
+    assert placement_errors(raw, facts)  # the claim is refused as it stands
+    recovered = recover_uncited_prose_omits(raw, facts)
+    assert recovered is not None
+    return recovered["dispositions"][0]
+
+
+def test_a_unit_the_named_section_cannot_carry_is_an_advisory_deferral() -> None:
+    """PR #328 made a supersession stand only where the destination provably carries the unit;
+    52 units in 21 sealed repositories were instead deferred on the last attempt. That cause is
+    typed by the rationale prefix the reconciler writes, and it is advisory, never public."""
+    facts = _carry_facts()
+    entry = _recovered_deferral(facts)
+    assert entry["disposition"] == "DEFER_UNRESOLVED"
+    assert entry["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
+    finding = _only(review_deferrals({"dispositions": [entry]}, facts))
+    assert (finding.class_id, finding.decision, finding.stage) == (
+        "NOT_CARRIED_BY_NAMED_SECTION",
+        "ADVISORY",
+        None,
+    )
+    # Never public: a deferral is not a placement.
+    assert (
+        placements(
+            {"sections": [{"section_id": "installation", "include": True}]},
+            {"dispositions": [entry]},
+            facts,
+            "python",
+        )
+        == []
+    )
+
+
+def test_a_look_alike_without_the_typed_prefix_stays_unclassified_and_blocks() -> None:
+    """Negative control: the same words in the model's own rationale, or after other text, are
+    free text and not the reconciler's typed marker; an unmatched cause fails closed."""
+    facts = _carry_facts()
+    for rationale in (
+        "The installation section cannot carry this block.",
+        "Not carried by the section named; held for the owner.",
+        "Retained. " + RECOVERED_COVERAGE_RATIONALE + "because",
+        "",
+    ):
+        finding = _only(
+            review_deferrals(
+                {"dispositions": [_deferred("inherited_unit:011.code_block", rationale)]}, facts
+            )
+        )
+        assert (finding.class_id, finding.decision, finding.stage) == (
+            "UNCLASSIFIED",
+            "BLOCK",
+            "RECONCILING",
+        ), rationale
+
+
+def test_a_contradicted_example_deferred_with_the_prefix_still_blocks() -> None:
+    """A fact-contradicted code block belongs to the omission rule (OMIT_UNSUPPORTED on
+    CONTRADICTED), so a deferral of it is another cause: the prefix does not launder it."""
+    facts = _facts(
+        _example(1, "CONTRADICTED", unit=11),
+        _fact("install_command", "pip", "pip install widget"),
+        _unit(11, "code_block", "```python\nwidget.boom()\n```", "Widget > Usage"),
+    )
+    entry = _deferred(
+        "inherited_unit:011.code_block", RECOVERED_COVERAGE_RATIONALE + "Covered elsewhere."
+    )
+    finding = _only(review_deferrals({"dispositions": [entry]}, facts))
+    assert (finding.class_id, finding.decision) == ("UNCLASSIFIED", "BLOCK")
+
+
+def test_a_specific_blocking_cause_still_decides_before_the_not_carried_class() -> None:
+    """Precedence: the new class is last, so a prefixed deferral that is also an unverified-only
+    example with no Quick Start keeps its extraction-stage BLOCK."""
+    facts = _facts(_example(1, "UNRESOLVED", unit=1), _unit(1, "code_block", "```python\nx()\n```"))
+    entry = _deferred("inherited_unit:001.code_block", RECOVERED_COVERAGE_RATIONALE + "Held.")
+    finding = _only(review_deferrals({"dispositions": [entry]}, facts))
+    assert (finding.class_id, finding.decision) == ("NO_VERIFIED_QUICK_START", "BLOCK")

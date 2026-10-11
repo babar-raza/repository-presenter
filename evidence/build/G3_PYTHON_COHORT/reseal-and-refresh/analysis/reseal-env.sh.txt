@@ -1,0 +1,67 @@
+# authoritative_plan: plans/reseal-and-refresh/PLAN.md
+# artifact_role: analysis_or_evidence_only
+# execution_authority: false
+# card: TC-PRE-01-01
+#
+# reseal-env.sh (documentation, stored as .txt on purpose; it is NOT executable project code).
+# What the shell that runs `repository-presenter present` for the portfolio reseal needs.
+# Nothing here edits the user or system PATH, a profile, or the toolchain registry. Every export
+# lives only in the shell that sources it, and the project's example runner passes its own
+# allow-listed environment to each toolchain subprocess.
+#
+# Measured on 2026-10-10 (Windows 11, user babar), checkout E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter.
+
+# 1. Git for Windows bash first (the WSL bash in System32 fails with these scripts), the worktree's
+#    own src first on the import path (the shared .venv otherwise imports the main checkout's src),
+#    and the CI tools venv that scripts/ci_check.sh uses. new_worktree.sh prints PYTHONPATH and
+#    CI_TOOLS_VENV for each worktree; use that printed PYTHONPATH.
+export PYTHONPATH='<worktree>/src'
+export CI_TOOLS_VENV='C:\dev-tools\rp-ci-tools'
+export PATH='/bin':"$PATH"
+
+# 2. The one measured toolchain gap: npm. The project resolver keeps PATH first for npm and has no
+#    install-root glob for it, so with a stock PATH `npm` is "absent" and the three TypeScript
+#    repositories fail their `npm install` and record BLOCKED_TOOLCHAIN (tsc did not report a
+#    version). Prepending the Node install directory to THIS shell's PATH fixes it
+#    (npm 11.8.0, tsc Version 5.9.3 in the fingerprint). Do this in the reseal shell only.
+export PATH="/d/Program Files/nodejs:$PATH"
+#    PowerShell equivalent, session scope only:
+#    $env:PATH = 'D:\Program Files\nodejs;' + $env:PATH
+
+# 3. Do NOT set RP_TOOLCHAIN_REGISTRY. Unset, the resolver reads
+#    C:\tools\rp-toolchains\TOOLCHAIN_PATHS.txt, then D:\tools\rp-toolchains\TOOLCHAIN_PATHS.txt
+#    (the one that exists here) and re-roots the C: paths it records to D:. It supplies tsc, cargo
+#    (with RUSTUP_HOME and CARGO_HOME), the winlibs g++/cmake/ninja pair and clang. javac, mvn,
+#    dotnet, go and node are found under the machine install roots on D:.
+
+# 4. Read-only GitHub access for the clone step, in the reseal shell only. Never printed, never
+#    written to a file. (GH_TOKEN is the analysis token the project already expects.)
+export GH_TOKEN="$(gh auth token)"
+
+# 5. Gateway credentials already present in the process environment; verify by NAME only:
+#    `env | cut -d= -f1 | grep -x -e GPT_OSS_ENDPOINT -e GPT_OSS_API_KEY`
+#    Never `env`, `printenv`, `set` or `echo` them: the shell also holds GITHUB_TOKEN and
+#    GITLAB_TOKEN (measured), and a stray `env | grep GIT` prints them.
+
+# 6. The interpreter is the shared venv's, NOT the bare `python` on PATH.
+#      .venv/Scripts/python.exe  -> 3.13.2  (the environment of record of the sealed bundles)
+#      `python` on PATH          -> 3.13.15 (C:\Users\babar\AppData\Local\Programs\Python\Python313)
+#    Always call `.venv/Scripts/repository-presenter.exe` or `.venv/Scripts/python.exe`.
+
+# 7. Go repositories (Cells-Go, PDF-Go) must not be run from inside a git WORKTREE. Measured:
+#    `go build` under the example runner's redirected HOME fails with "error obtaining VCS status:
+#    exit status 128" when the workspace sits in a git worktree (runs/wt/<name>/runs/...), and
+#    passes in a plain clone (8 executed, 1 failed, 1 not_verified for Cells-Go, identical to the
+#    sealed bundle) or outside any repository. For those two entries use a plain clone:
+#      git clone --depth 1 https://github.com/babar-raza/repository-presenter.git runs/plain/<name>
+#    and run the same command there with PYTHONPATH=runs/plain/<name>/src and the venv python of the
+#    main checkout. A `git clone <local path>` is refused here (dubious ownership); clone the origin URL.
+
+# 8. After the exports, a preflight must exist in the root that runs `present`
+#    (runs/preflight/catalog.json is per root):
+#      .venv/Scripts/repository-presenter.exe preflight
+#    Then, per repository:
+#      .venv/Scripts/repository-presenter.exe present --repo <owner/name>
+#    (`--facts-only` for the processability pass; it makes no provider call.)
+
+# Optional, not required by any measured result: Python 3.10 to 3.12 for Words-Python (see report).

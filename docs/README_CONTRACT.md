@@ -228,7 +228,7 @@ license statement, validation, sealing, no-op proof, and state.
 
 ## 5. Blocking checks
 
-Exactly these twelve block acceptance at G1. Everything else is advisory until contract v1 freezes.
+Exactly these block acceptance at G1. Everything else is advisory until contract v1 freezes.
 
 | # | Check | Sections |
 |---|---|---|
@@ -244,6 +244,7 @@ Exactly these twelve block acceptance at G1. Everything else is advisory until c
 | 10 | Independent review returns `ACCEPT` with the reviewer identity separate from authoring, and no advisory is left on a required row (§6) | review |
 | 11 | Fresh-process rerun from an empty `runs/` directory is byte-identical with zero provider calls | bundle |
 | 12 | Every product-name position in the prose spells the registry's canonical product name exactly (row 1 of §2; `plans/idea.md` L84-85): no separator, case, or suffix variant such as `Aspose.3D.FOSS` for `Aspose.3D FOSS for .NET`; exact technical identifiers stay in code spans, or beside a package/namespace/version cue | all |
+| 14 | A package version, install command, or publication statement matches the facts (`validation/claims.py`): a version attached to the package name or an install command (`name==1.2`, `name@1.2`, `group:artifact:1.2`, `name version 1.2`, `--version 1.2`) equals the registry's current stable release (`package:published_version`, present only when the registry answered conclusively) or, with no such fact, the manifest's `package:version`; a sentence saying the package is "not (yet) published" is flagged only when a registry reading lists it; an install command's package is the package identity fact (`package:name`), and a near-miss such as `aspose-note` for `aspose-note-foss` is refused, while an unrelated package or a declared dependency is not. An unreadable registry yields no `published_version` fact and an advisory note, never a failure | all |
 
 Advisory at G1, candidates for v1 blocking at G2: search-intent lineage per title, prose quality
 (sentence length, hedges, superlatives), navigation completeness, badge floor, dependency claim
