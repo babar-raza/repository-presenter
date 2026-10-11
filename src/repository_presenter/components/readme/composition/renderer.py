@@ -169,13 +169,13 @@ _GENERIC_PROSE = "This project is licensed under the [{spdx}]({file})."
 # qualifier in place of a link to a file that does not exist. Aspose.3D for TypeScript.
 _MIT_DECLARED_PROSE = (
     "This project is licensed under the MIT License, as declared in `{manifest}`; no license file "
-    "is present at this revision. The MIT License permits use, copying, modification, "
+    "is present in the repository. The MIT License permits use, copying, modification, "
     "distribution, sublicensing, and commercial use, provided its copyright and permission notice "
     "are retained. The software is provided without warranty."
 )
 _GENERIC_DECLARED_PROSE = (
     "This project is licensed under the {spdx}, as declared in `{manifest}`; no license file is "
-    "present at this revision."
+    "present in the repository."
 )
 _EXTRA = re.compile(r"extra '([^']+)'")
 _FLOOR = re.compile(r">=\s*(\d+(?:\.\d+)*)")
@@ -1114,9 +1114,7 @@ def _installation(context: RenderContext) -> list[str]:
     distributions = _published_distributions(context) if not _registry_install(install) else []
     if distributions and install is not None and install.polarity == "SUPPORTED" and source_kind:
         lines.append(_published_sentence(distributions))
-        lines.extend(
-            ["", "To build it from a source checkout instead, verified against this revision:"]
-        )
+        lines.extend(["", "To build it from a source checkout instead:"])
         lines.append("")
         lines.extend(_code_block("bash", install.value))
     elif distributions:
@@ -1150,8 +1148,7 @@ def _installation(context: RenderContext) -> list[str]:
         registry = context.spec.registry
         lines.append(
             f"`{package.value}` is not yet published on {registry}, and no build or install "
-            "command succeeds for this revision; work from the source checkout instead, "
-            "verified against this revision:"
+            "command succeeds; work from the source checkout instead:"
         )
         lines.append("")
         lines.extend(_code_block("bash", install.value))
@@ -1166,9 +1163,9 @@ def _installation(context: RenderContext) -> list[str]:
         # no distribution (a CMake project) has none, so the row says only how to build it.
         lead = (
             f"`{package.value}` is not yet published on {registry}; build it from a source "
-            "checkout instead, verified against this revision:"
+            "checkout instead:"
             if context.spec.manifest_names_distribution
-            else f"Build `{package.value}` from a source checkout, verified against this revision:"
+            else f"Build `{package.value}` from a source checkout:"
         )
         lines.append(lead)
         lines.append("")
@@ -1191,7 +1188,7 @@ def _installation(context: RenderContext) -> list[str]:
         state = (
             f"is not yet published on {registry}"
             if install.polarity == "CONTRADICTED"
-            else f"could not be confirmed on {registry} at this revision"
+            else f"could not be confirmed on {registry}"
         )
         lines.append(f"The package `{package.value}` {state} ({detail}).")
     executed = context.supported("example")

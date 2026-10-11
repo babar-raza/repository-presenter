@@ -46,5 +46,5 @@ def clean(text: str) -> str:
 def narration(text: str) -> list[str]:
     """The internal-assurance phrases ``text`` still carries (empty when it is fit to publish)."""
     found = [phrase for phrase, pattern in narration_patterns(()) if pattern.search(text)]
-    found += [name for name, pattern in _EXTRA if pattern.search(text)]
+    found += [name for name, pattern in _EXTRA if pattern.search(text) and name not in found]
     return found

@@ -786,3 +786,37 @@ def test_no_interpreter_in_range_is_a_typed_blocked_toolchain_reason(tmp_path: P
     assert f"presenter runs Python {running}, which is outside it" in reason
     assert "pinned toolchains offer none" in reason
     assert "installed interpreters are 3.8" in reason
+
+
+def test_two_fresh_runs_of_a_logging_example_seal_the_same_examples_json(tmp_path: Path) -> None:
+    """Aspose.PDF for Python, three waves running: the library logs a wall-clock line, so a fresh
+    process wrote different receipts and the no-op proof was withdrawn. Two real runs, a clock
+    tick apart, must write byte-identical examples.json."""
+    import time
+
+    from repository_presenter.core.examples import write_receipts
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    tree = _package(root)
+    candidates = [
+        _candidate(
+            1,
+            "import logging, time\n"
+            "logging.basicConfig(level=logging.INFO, "
+            "format='%(asctime)s [%(levelname)s] %(name)s: %(message)s')\n"
+            "from widget import greet\n"
+            "logging.getLogger('widget').info('Document resources released.')\n"
+            "print(greet(object().__repr__()[:8]))\n"
+            "print('finished in %.3fs' % time.perf_counter())\n",
+        )
+    ]
+    written = []
+    for name in ("first", "second"):
+        receipts = verify_python_examples(root, tree, candidates, tmp_path / "verify")
+        assert receipts[0].outcome == "EXECUTED"
+        write_receipts(receipts, tmp_path / f"{name}.json")
+        written.append((tmp_path / f"{name}.json").read_bytes())
+        time.sleep(1.2)  # the next run's log line carries a different second
+    assert b"<timestamp> [INFO] widget: Document resources released." in written[0]
+    assert written[0] == written[1]

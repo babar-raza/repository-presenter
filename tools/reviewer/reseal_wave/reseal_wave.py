@@ -42,6 +42,14 @@ from typing import Any
 MAX_PARALLEL_CEILING = 8
 DEFAULT_PARALLEL = 3  # liveness was probed clean to 8; widen by flag after a clean first wave
 DEFAULT_TIMEOUT_MINUTES = 45
+# The base budget is for an ordinary repository. A large one is not slower per unit, there is just
+# more of it: PDF-TypeScript (wave 6) has 541 inherited units, which `present` reconciles in 52
+# sequential provider calls (37 of the 60 minutes it was given) before it authors anything. Once
+# `present` prints how many units it will reconcile, the budget grows by this much per unit above
+# the baseline an ordinary run fits in, so a size is never mistaken for a hang.
+UNIT_BASELINE = 100
+SECONDS_PER_EXTRA_UNIT = 6.0
+POLL_SECONDS = 5.0
 DEFAULT_NODE_DIR = r"D:\Program Files\nodejs"
 DEFAULT_CLONE_ROOT = r"E:\rp"
 # A private copy of the toolchain registry that adds the `vcvarsall` key (MSVC fallback for
@@ -269,6 +277,18 @@ def parse_present_output(stdout: str, stderr: str = "") -> dict[str, Any]:
     return out
 
 
+_INHERITED_UNITS = re.compile(r"(?m)^facts: .*?\binherited_unit (\d+)\b")
+
+
+def budget_extension(
+    stdout: str, per_unit: float = SECONDS_PER_EXTRA_UNIT, baseline: int = UNIT_BASELINE
+) -> float:
+    """Extra seconds a run earns from its own `facts:` line: ``per_unit`` for every inherited unit
+    above ``baseline``. Zero while the line has not been printed (or for a small repository)."""
+    found = _INHERITED_UNITS.search(stdout)
+    return max(0, int(found.group(1)) - baseline) * per_unit if found else 0.0
+
+
 def count_provider_calls(ledger_lines: list[str], invocation_id: str | None = None) -> int:
     """`provider_call` ledger records, restricted to one invocation when the records carry its id."""
     total = 0
@@ -398,6 +418,19 @@ def load_rows(results_dir: Path) -> list[dict[str, Any]]:
 
 
 @dataclass
+class Deadline:
+    """The monotonic instant a row must finish by; a large run moves it once (`extend`)."""
+
+    at: float
+    extended: bool = False
+
+    def extend(self, seconds: float) -> None:
+        if not self.extended:
+            self.at += seconds
+            self.extended = True
+
+
+@dataclass
 class Runner:
     main_root: Path  # the main checkout: the clone source and owner of the shared .venv
     clone_root: Path  # work clones live here, under a short path
@@ -408,6 +441,8 @@ class Runner:
     extra_path: list[str]
     gh_token: str | None
     toolchain_registry: str | None = None
+    seconds_per_unit: float = SECONDS_PER_EXTRA_UNIT
+    poll_seconds: float = POLL_SECONDS
     lock: threading.Lock = field(default_factory=threading.Lock)
     clone_lock: threading.Lock = field(default_factory=threading.Lock)
     live: set[subprocess.Popen[bytes]] = field(default_factory=set)
@@ -437,12 +472,14 @@ class Runner:
         env: dict[str, str],
         stdout_path: Path,
         stderr_path: Path,
-        deadline: float,
+        deadline: Deadline,
     ) -> tuple[int | None, bool]:
-        """(exit code, timed_out). Output goes to files, never pipes, so a chatty run cannot stall."""
+        """(exit code, timed_out). Output goes to files, never pipes, so a chatty run cannot stall.
+
+        The deadline is polled, not waited out in one go, so that the `facts:` line a large run
+        prints early can lengthen it (`budget_extension`) while the run is still going."""
         stdout_path.parent.mkdir(parents=True, exist_ok=True)
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
+        if deadline.at - time.monotonic() <= 0:
             return None, True
         kwargs: dict[str, Any] = {}
         if os.name == "nt":
@@ -456,10 +493,18 @@ class Runner:
             with self.lock:
                 self.live.add(proc)
             try:
-                return proc.wait(timeout=remaining), False
-            except subprocess.TimeoutExpired:
-                kill_tree(proc)
-                return None, True
+                while True:
+                    remaining = deadline.at - time.monotonic()
+                    if remaining <= 0:
+                        kill_tree(proc)
+                        return None, True
+                    try:
+                        return proc.wait(timeout=min(remaining, self.poll_seconds)), False
+                    except subprocess.TimeoutExpired:
+                        if not deadline.extended and self.seconds_per_unit > 0:
+                            extra = budget_extension(read_text(stdout_path), self.seconds_per_unit)
+                            if extra > 0:
+                                deadline.extend(extra)
             finally:
                 with self.lock:
                     self.live.discard(proc)
@@ -573,7 +618,7 @@ def run_job(runner: Runner, job: Job) -> dict[str, Any]:
         "failure_stage": "",
         "failure_detail": "",
     }
-    deadline = started + runner.timeout_seconds
+    deadline = Deadline(started + runner.timeout_seconds)
     timed_out = False
     parsed1: dict[str, Any] = {}
     parsed2: dict[str, Any] = {}
@@ -691,6 +736,9 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--platform", action="append")
     p.add_argument("--max-parallel", type=int, default=DEFAULT_PARALLEL)
     p.add_argument("--timeout-minutes", type=float, default=DEFAULT_TIMEOUT_MINUTES)
+    p.add_argument("--seconds-per-unit", type=float, default=SECONDS_PER_EXTRA_UNIT,
+                   help=f"budget added per inherited unit above {UNIT_BASELINE}, once `present` "
+                        "prints its fact counts (default %(default)s; 0 keeps the base budget)")
     p.add_argument("--results-dir", type=Path, default=None, help="default <main>/runs/reseal/<cut8>")
     p.add_argument("--retry-failed", action="store_true", help="re-queue FAILED/TIMEOUT/NOT_READY rows")
     p.add_argument("--dry-run", action="store_true", help="print the plan; start nothing")
@@ -765,6 +813,7 @@ def main(argv: list[str] | None = None) -> int:
         main_root=main_root, clone_root=args.clone_root, python=python,
         cut=cut, results_dir=results_dir, timeout_seconds=args.timeout_minutes * 60,
         extra_path=extra_path, gh_token=token, toolchain_registry=registry,
+        seconds_per_unit=args.seconds_per_unit,
     )
     results_dir.mkdir(parents=True, exist_ok=True)
     jsonl = results_dir / "results.jsonl"

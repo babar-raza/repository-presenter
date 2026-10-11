@@ -15,16 +15,25 @@ Five rules, all deterministic and independent of the LLM:
 (a) Versions. A version attached to the package name or an install command - ``name==1.2``,
     ``name@1.2``, ``group:artifact:1.2``, ``name version 1.2``, ``--version 1.2``,
     ``Version="1.2"`` - must equal the registry's current stable release when that fact exists,
-    else the manifest's version.
+    else the manifest's version. A CMake ``find_package(Name 1.2 ...)`` is a *request* for a
+    compatible version, not a release the README shows: it is held to what CMake would accept
+    (the release satisfies it), and ``EXACT`` to equality (Slides-Cpp, wave 6: ``26.9`` for the
+    release ``26.9.0`` was read as a wrong release).
 (b) Publication. A sentence saying the package is "not (yet) published" must agree with the
     install command's registry observation; it is flagged only when a registry reading says the
     distribution is published - the registry's current release, an install command's own
     observation, or a distribution fact a registry confirmed as this repository's (Slides-Cpp:
-    "not yet published on any package registry" beside a NuGet package NuGet lists, wave 3).
+    "not yet published on any package registry" beside a NuGet package NuGet lists, wave 3). The
+    sentence is read whole, across the physical lines a paragraph wraps it over, and only when it
+    is about this package: one that names a different package id and not this package's names
+    (3D-.NET, wave 6: the converter tool "is not published to NuGet") is a statement no fact
+    covers, so it is not judged.
 (c) Identity. An install command whose package is a near-miss of the package identity fact (the
     same name without ``-foss``, a prefix, a different separator) is flagged; an unrelated package
     (a test runner), a declared dependency, and a distribution fact a registry confirmed as this
-    repository's own (``package:distribution.*``) are not.
+    repository's own (``package:distribution.*``) are not. A Go package path *below* the module
+    path (or one an ``import_path`` fact names) is the module's own path, not a near-miss of it
+    (Cells-Go, wave 6).
 (d) Exclusivity. A sentence calling a release the "sole", "only" or "first" published version
     (or saying "no other versions" exist) must agree with the registry's version count; the
     current release alone cannot back it.
@@ -91,6 +100,22 @@ _PACKAGE_CONTEXT = re.compile(
     r"(?i)\b(?:package|library|sdk|registry|pypi|nuget|npm|maven|crates\.io)\b"
 )
 _SENTENCES = re.compile(r"(?<=[.!?])\s+")
+# A markdown block opener: a list item, heading, quote, table row or HTML tag starts a new
+# paragraph, so a sentence is never joined across two bullets.
+_BLOCK_START = re.compile(r"^\s*(?:[-*+]\s|\d+[.)]\s|#{1,6}\s|>|\||<)")
+_CODE_SPAN = re.compile(r"`([^`\n]+)`")
+# A code span that names a package or project rather than a file: one token carrying a separator.
+_PACKAGE_ID_SPAN = re.compile(r"^@?[A-Za-z][\w@-]*(?:[./\\:-][\w@-]+)+$")
+_DOCUMENT_OR_SOURCE_FILE = re.compile(
+    r"(?i)\.(?:md|txt|rst|json|toml|ya?ml|cfg|ini|lock|py|ts|js|cs|java|go|rs|cpp|h|hpp|sh|ps1)$"
+)
+_GO_MODULE_PATH = re.compile(r"^[\w.-]+\.[A-Za-z]{2,}/\S+$")
+# `find_package(Name 1.2 [EXACT] ...)`: a request for a version, not a release the README shows.
+_CMAKE_REQUEST = re.compile(
+    r"(?i)\b(?:find_package|find_dependency)\s*\(\s*(?P<name>[\w.+-]+)\s+"
+    r"(?P<version>\d+(?:\.\d+)*)(?P<rest>[^)\n]*)"
+)
+_NUMERIC_VERSION = re.compile(r"\d+(?:\.\d+)*")
 _REGISTRY_FOUND = re.compile(r"package registry: found")
 
 # "26.7.0 is the sole published version", "the first release", "no other versions": a statement
@@ -203,15 +228,54 @@ def _lines(readme: str) -> list[_Line]:
 
 
 def _attached_versions(line: str, names: list[str]) -> list[str]:
-    """Every version a README line attaches to one of ``names``."""
+    """Every version a README line attaches to one of ``names``.
+
+    A ``find_package(Name 1.2 ...)`` request is not attached: it asks for a version rather than
+    showing a release, and ``_cmake_requests`` judges it by what CMake would accept."""
     cleaned = line.replace("`", "")
+    requested = {m.start("name") for m in _CMAKE_REQUEST.finditer(cleaned)}
     found: list[str] = []
     for name in names:
         for match in _name_pattern(name).finditer(cleaned):
+            if match.start() in requested:
+                continue
             tail = _TAIL.match(cleaned[match.end() : match.end() + 90])
             if tail:
                 found.append(tail.group("version"))
     return list(dict.fromkeys(found))
+
+
+def _cmake_requests(line: str, names: list[str]) -> list[tuple[str, bool]]:
+    """(version, exact) of each ``find_package(<one of names> <version> [EXACT] ...)`` on a line."""
+    patterns = [_name_pattern(name) for name in names]
+    found: list[tuple[str, bool]] = []
+    for match in _CMAKE_REQUEST.finditer(line.replace("`", "")):
+        if any(p.fullmatch(match.group("name")) for p in patterns):
+            exact = re.search(r"(?i)\bEXACT\b", match.group("rest")) is not None
+            found.append((match.group("version"), exact))
+    return list(dict.fromkeys(found))
+
+
+def _components(version: str) -> tuple[int, ...] | None:
+    """The numeric dotted prefix of a release (``26.9.0``, ``v26.7.1-rc1`` -> 26.7.1), or None."""
+    matched = _NUMERIC_VERSION.match(_normal_version(version))
+    return tuple(int(part) for part in matched.group(0).split(".")) if matched else None
+
+
+def _request_satisfied(requested: str, exact: bool, release: str) -> bool:
+    """Whether CMake would accept ``release`` for ``find_package(Name <requested> [EXACT])``.
+
+    A plain request is a floor on a compatible release: the same leading (major) number and not
+    newer than the release, so ``26.9`` and ``26.5`` are met by 26.9.0 and ``26.10``, ``26.9.1``
+    and an older year are not. ``EXACT`` is equality, missing trailing components being zero.
+    Either side that is not a plain dotted number cannot be judged and is taken as satisfied."""
+    want, have = _components(requested), _components(release)
+    if want is None or have is None:
+        return True
+    width = max(len(want), len(have))
+    want = want + (0,) * (width - len(want))
+    have = have + (0,) * (width - len(have))
+    return want == have if exact else want[0] == have[0] and want <= have
 
 
 def _pom_versions(readme: str, names: list[str]) -> list[tuple[int, str]]:
@@ -242,6 +306,11 @@ def _version_findings(
     names = _names(identity.value)
     shown = [(line.index, v) for line in lines for v in _attached_versions(line.text, names)]
     shown.extend(_pom_versions(readme, names))
+    requests = [
+        (line.index, version, exact)
+        for line in lines
+        for version, exact in _cmake_requests(line.text, names)
+    ]
     for index, version in shown:
         if expected is None or _normal_version(version) == _normal_version(expected):
             continue
@@ -255,7 +324,20 @@ def _version_findings(
                 f"{identity.value} is shown at version {version}, but {source} is {expected}",
             )
         )
-    return findings, bool(shown)
+    for index, version, exact in requests:
+        if expected is None or _request_satisfied(version, exact, expected):
+            continue
+        stage = "EXTRACTING" if version in install_values else "COMPOSING"
+        findings.append(
+            ClaimFinding(
+                index,
+                stage,
+                f"{identity.value} is requested at version {version}"
+                f"{' (EXACT)' if exact else ''} by find_package, but {source} is {expected}, "
+                "which does not satisfy it",
+            )
+        )
+    return findings, bool(shown or requests)
 
 
 def _positive_registry_reading(facts: FactsDocument) -> bool:
@@ -284,24 +366,109 @@ def _publication_findings(
     if not _positive_registry_reading(facts):
         return []
     patterns = [_name_pattern(name) for name in _names(identity.value)]
+    # Every name a registry reading covers: the identity, and a distribution a registry confirmed
+    # as this repository's own. A sentence naming one of them is about this package.
+    known = patterns + [
+        _name_pattern(fact.value)
+        for fact in facts.facts
+        if fact.id.startswith(DISTRIBUTION_FACT_PREFIX) and fact.polarity == "SUPPORTED"
+    ]
     findings: list[ClaimFinding] = []
-    for line in lines:
-        if line.in_fence:
-            continue
-        for sentence in _SENTENCES.split(line.text.replace("`", "")):
-            if _NOT_PUBLISHED.search(sentence) and (
-                _PACKAGE_CONTEXT.search(sentence) or any(p.search(sentence) for p in patterns)
+    flagged: set[int] = set()
+    for paragraph in _paragraphs(lines):
+        for begin, end in _sentence_spans(paragraph.text):
+            sentence = paragraph.text[begin:end]
+            plain = sentence.replace("`", "")
+            if not _NOT_PUBLISHED.search(plain) or not (
+                _PACKAGE_CONTEXT.search(plain) or any(p.search(plain) for p in patterns)
             ):
-                findings.append(
-                    ClaimFinding(
-                        line.index,
-                        "COMPOSING",
-                        f"the README says the package is not published ({sentence.strip()!r}), "
-                        "but a package-registry reading lists it",
-                    )
+                continue
+            if _names_another_package(sentence, known):
+                continue  # about a package no registry reading here covers: nothing contradicts it
+            raw = _NOT_PUBLISHED.search(sentence)
+            index = paragraph.line_at(begin + (raw.start() if raw else 0))
+            if index in flagged:
+                continue
+            flagged.add(index)
+            findings.append(
+                ClaimFinding(
+                    index,
+                    "COMPOSING",
+                    f"the README says the package is not published ({plain.strip()!r}), "
+                    "but a package-registry reading lists it",
                 )
+            )
+    return sorted(findings, key=lambda finding: finding.line)
+
+
+@dataclass(frozen=True)
+class _Paragraph:
+    """A run of prose lines read as one text: a sentence wrapped over lines keeps its subject."""
+
+    text: str
+    starts: tuple[tuple[int, int], ...]  # (offset of a line's text within ``text``, its index)
+
+    def line_at(self, offset: int) -> int:
+        index = self.starts[0][1]
+        for start, line in self.starts:
+            if start > offset:
                 break
-    return findings
+            index = line
+        return index
+
+
+def _paragraphs(lines: list[_Line]) -> list[_Paragraph]:
+    """The prose paragraphs of a README: runs of non-blank, non-fenced lines, a list item,
+    heading, quote, table row or tag starting a new one."""
+    paragraphs: list[_Paragraph] = []
+    text = ""
+    starts: list[tuple[int, int]] = []
+
+    def flush() -> None:
+        nonlocal text, starts
+        if starts:
+            paragraphs.append(_Paragraph(text, tuple(starts)))
+        text, starts = "", []
+
+    for line in lines:
+        stripped = line.text.strip()
+        if line.in_fence or not stripped:
+            flush()
+            continue
+        if _BLOCK_START.match(line.text):
+            flush()
+        if starts:
+            text += " "
+        starts.append((len(text), line.index))
+        text += stripped
+    flush()
+    return paragraphs
+
+
+def _sentence_spans(text: str) -> list[tuple[int, int]]:
+    spans: list[tuple[int, int]] = []
+    begin = 0
+    for boundary in _SENTENCES.finditer(text):
+        spans.append((begin, boundary.start()))
+        begin = boundary.end()
+    spans.append((begin, len(text)))
+    return spans
+
+
+def _names_another_package(sentence: str, known: list[re.Pattern[str]]) -> bool:
+    """Whether a sentence is about a package or project that is not this one.
+
+    It names a package id or project path in a code span (``Aspose.3D.Converter``,
+    ``src/converter/Converter.csproj``) and none of this package's names. A registry reading
+    covers only the package it read, so a "not published" sentence about the converter beside the
+    library is not a statement it contradicts. A sentence that names this package, or names no
+    other, is judged as before."""
+    if any(pattern.search(sentence.replace("`", "")) for pattern in known):
+        return False
+    return any(
+        _PACKAGE_ID_SPAN.match(token) and not _DOCUMENT_OR_SOURCE_FILE.search(token)
+        for token in (span.strip() for span in _CODE_SPAN.findall(sentence))
+    )
 
 
 def _exclusivity_findings(lines: list[_Line], facts: FactsDocument) -> list[ClaimFinding]:
@@ -424,6 +591,23 @@ def _same_identity(target: str, identity: str) -> bool:
     return _pep503(target) == _pep503(identity) or target.lower() == identity.lower()
 
 
+def _inside_module(target: str, identity: str, import_paths: set[str]) -> bool:
+    """Whether a Go install target is a package of the module the identity names.
+
+    A Go module owns every path below its own: ``go get <module>/aspose/cells_foss`` installs a
+    package of module ``<module>`` and is the form the README's own import line names, so it is
+    the same identity, not a near-miss of it. Only a host-first module path qualifies (an npm
+    scope or a Maven coordinate has no such prefix rule), and only a path *below* it: the module
+    without its ``/v26`` major suffix, or a sibling that merely starts with the same letters, is
+    still a near-miss. A path an ``import_path`` fact names is the fact-backed package path, but
+    only for a Go module: a Python import name that differs from its distribution is a real
+    near-miss as an install target."""
+    if not _GO_MODULE_PATH.match(identity):
+        return False
+    lowered = target.lower()
+    return lowered in import_paths or lowered.startswith(identity.lower().rstrip("/") + "/")
+
+
 def _identity_findings(
     lines: list[_Line], facts: FactsDocument, identity: Fact
 ) -> list[ClaimFinding]:
@@ -440,6 +624,9 @@ def _identity_findings(
         for fact in facts.facts
         if fact.id.startswith(DISTRIBUTION_FACT_PREFIX) and fact.polarity == "SUPPORTED"
     }
+    import_paths = {
+        fact.value.lower() for fact in facts.by_kind("import_path") if fact.polarity == "SUPPORTED"
+    }
     stem = _stem(identity.value)
     install_values = " ".join(f.value for f in facts.by_kind("install_command"))
     findings: list[ClaimFinding] = []
@@ -453,6 +640,7 @@ def _identity_findings(
         for target in targets:
             if (
                 _same_identity(target, identity.value)
+                or _inside_module(target, identity.value, import_paths)
                 or _pep503(target) in dependencies
                 or _pep503(target) in distributions
             ):
