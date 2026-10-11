@@ -1,8 +1,9 @@
 """Missing standard-template sections that verified facts alone can fill.
 
-The template's Installation, Dependencies, Development and Testing, Third-party notices and License
-sections are rendered by the existing deterministic renderer from facts (``render_readme`` with a
-plan that includes just that section and no authored units). A section the live README already has
+The template's Installation, Dependencies, Development and Testing and License sections (the four
+of the ten that need no prose; an extra conditional section such as Third-party notices is not one
+of the ten and is never added) are rendered by the existing deterministic renderer from facts
+(``render_readme`` with a plan that includes just that section and no authored units). A section the live README already has
 under any heading that means the same is never touched; a section that needs prose - Key
 Capabilities, Scope and Limitations, At a Glance, Quick Start, API Reference, Documentation and
 Resources - is reported as a finding, never invented (AGENTS.md: the model proposes, code verifies).
@@ -106,12 +107,6 @@ def _license_ids(ctx: Context) -> tuple[str, ...]:
     )
 
 
-def _notice_ids(ctx: Context) -> tuple[str, ...]:
-    return tuple(
-        f.id for f in ctx.facts.by_kind("third_party_notices") if f.polarity == "SUPPORTED"
-    )
-
-
 @dataclass(frozen=True)
 class Derivable:
     section_id: str
@@ -134,7 +129,6 @@ DERIVABLE: tuple[Derivable, ...] = (
     Derivable("installation", _installation_ids, _spells_install_command),
     Derivable("dependencies", _dependency_ids, _never),
     Derivable("development_testing", _development_ids, _never, required=False),
-    Derivable("third_party_notices", _notice_ids, _never, required=False),
     Derivable("license", _license_ids, _never),
 )
 

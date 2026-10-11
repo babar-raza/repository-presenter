@@ -115,3 +115,11 @@ def test_an_h2_inside_a_fence_is_not_a_heading(make_context: Any) -> None:
     readme = "# P\n\n## Key Capabilities\n\n```md\n## License\n```\n\n## Scope\n\ntext\n"
     corrected, _ = inserted(make_context, readme)
     assert corrected.count("licensed under") == 1  # License was missing in prose: added once
+
+
+def test_third_party_notices_are_not_one_of_the_ten_and_are_never_added(
+    make_context: Any, make_facts: Any, make_fact: Any
+) -> None:
+    notices = make_fact("third_party_notices:file", "THIRD_PARTY_NOTICES.md")
+    result = missing_sections(make_context(README, make_facts(notices)))
+    assert not any("Third" in e.rationale for e in result.edits)
