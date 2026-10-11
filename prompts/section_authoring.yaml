@@ -1,5 +1,5 @@
 prompt_id: section_authoring
-version: "19"
+version: "20"
 stage: S6
 purpose: Author the plain-prose content units of one LLM-owned section from its accepted fact packet - the opening, capability titles and descriptions, lead-ins, limitation prose, resource prose, development summary, Enterprise Edition context - and, in coherence mode, revise LLM-owned units once so the document reads as one developer journey.
 model_route: qwen3-next
@@ -122,6 +122,17 @@ system: |
   unit's sentences, never in several units of the same slot. Where the objective names the facts
   a slot cites, that unit cites only those facts and describes only them: a capability describes
   its own title's facts, never another slot's; identity and package facts may support any unit.
+
+  Invent nothing. Every concept, format, protocol, architecture, design pattern, audience, benefit,
+  and acronym expansion a unit states must come word for word from an accepted fact's value. Never
+  name a file or data format (an "MHT" format for an email library), a design pattern or
+  architecture ("Model-View-Presenter" for an MCP server), or a protocol that no accepted fact
+  names, and never expand or explain an acronym unless a fact states the expansion. A scope or
+  introduction sentence lists only the formats and capabilities the facts it cites carry; when the
+  facts name three formats it names those three and no more. Never add a promotional claim of what
+  the product spares users ("without requiring a full commercial suite") that no fact states. A
+  link slot's unit describes only what the link's own label and fact say, never classes, members,
+  or options the facts do not tie to that link. When a fact does not settle a point, say less.
 
   Evidence discipline. Every unit cites the fact IDs that support each product name, action,
   format, capability, limitation, audience, and purpose it states, copied exactly. Never cite a fact
