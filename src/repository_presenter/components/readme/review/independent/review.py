@@ -293,6 +293,36 @@ def quote_located(quote: str, candidate_readme: str) -> bool:
     return len(wanted) > _ANCHOR_LENGTH and wanted[:_ANCHOR_LENGTH] in haystack
 
 
+# The rendered API reference prints every SUPPORTED public symbol, but ``facts`` carries them only
+# to core/facts.py's dotted-depth and count bounds, so the reviewer judged rows it could not see
+# (measured wave 4: Aspose.HTML-FOSS-for-Python 257 of 338 symbols in ``facts``, Aspose.JMAP-FOSS-
+# for-.NET 44 of 265). The rest travel as a bare list of values, capped, never as records.
+SYMBOL_INDEX_CHARS = 8000
+_NO_INDEX = "none: every SUPPORTED public symbol is already listed in facts"
+
+
+def symbol_index(facts: FactsDocument, listed: Collection[str]) -> str:
+    """The values of the SUPPORTED ``public_symbol`` facts that ``listed`` (the ids already in the
+    packet's ``facts``) leaves out, comma-separated in document order and cut at
+    ``SYMBOL_INDEX_CHARS`` with the number it could not list. A fixed sentence when none is out."""
+    values = [
+        fact.value
+        for fact in facts.facts
+        if fact.kind == "public_symbol" and fact.polarity == "SUPPORTED" and fact.id not in listed
+    ]
+    if not values:
+        return _NO_INDEX
+    shown: list[str] = []
+    used = 0
+    for value in values:
+        if used + len(value) + 2 > SYMBOL_INDEX_CHARS:
+            break
+        shown.append(value)
+        used += len(value) + 2
+    rest = len(values) - len(shown)
+    return ", ".join(shown) + (f", ... and {rest} more not listed" if rest else "")
+
+
 def review_packet(
     entry: RegistryEntry,
     facts: FactsDocument,
@@ -304,11 +334,13 @@ def review_packet(
 ) -> dict[str, Any]:
     """The packet for the one review call; inherited units travel as the original README."""
     kinds = [kind for kind in FACT_KINDS if kind != "inherited_unit"]
+    records = bounded_records(facts, kinds, ("SUPPORTED", "CONTRADICTED", "UNRESOLVED"))
     return {
         "repository": entry.repository,
         "candidate_readme": candidate_readme,
         "original_readme": original_readme,
-        "facts": bounded_records(facts, kinds, ("SUPPORTED", "CONTRADICTED", "UNRESOLVED")),
+        "facts": records,
+        "symbol_index": symbol_index(facts, {record["id"] for record in records}),
         "plan": plan,
         "dispositions": dispositions,
         "validation": {
@@ -484,6 +516,7 @@ DETERMINISTIC_RULES = frozenset(
         "RENDERER_UNWRITTEN_FACT",
         "RENDERER_SECTION",
         "CITED_FACT_LITERAL",
+        "NAME_DENIAL_REFUTED",
     }
 )
 JUDGMENT_RULES = frozenset(
@@ -1048,6 +1081,255 @@ def cited_fact_defect(
             "fact": fact.id,
             "value": fact.value,
             "source": "finding" if fact.id in finding.get("fact_ids", []) else "reviewed_unit",
+        },
+    )
+
+
+# A finding whose claim is that a NAME has no fact - "none of which have verified public_symbol
+# facts", "no fact supports this exact symbol", "no npm package name fact supports 'excel-cells'" -
+# is checkable by lookup alone: either a SUPPORTED fact carries that name or none does. Measured
+# on wave 4 (cut 4, 2026-10-11): Aspose.Cells-FOSS-for-Go raised twelve such findings against its
+# own API reference, every one citing the SUPPORTED public_symbol facts whose values were the names
+# it denied; Aspose.HTML-FOSS-for-Python denied ``aspose_html.dom.html``, itself a SUPPORTED
+# public_symbol; Aspose.Cells-FOSS-for-TypeScript denied the package name ``excel-cells``, the value
+# of SUPPORTED ``package:name``. ``_cited_literal`` could not fold them (a bare name in a quote says
+# nothing about what the sentence claims of it, so CITED_SYMBOL_NAMED is a judgment); this is a
+# different question - not "what does the sentence claim of the name" but "does the name have a
+# fact" - and the finding itself answers it. The grammar is deliberately narrow (every denial form
+# below attaches to a symbol or package-name noun, never to "this claim"/"this count"), and every
+# name the denial covers must resolve: one that does not leaves the finding standing.
+NAME_DENIAL_RULE = "NAME_DENIAL_REFUTED"
+_SYMBOL = r"public[_ ]symbols?"
+_SYMBOL_NOUN = (
+    r"(?:public\s+)?(?:symbols?|names?|identifiers?|members?|functions?|methods?|types?|classes)"
+)
+_SUPPORT_VERB = r"(?:supports?|verif\w*|backs?|confirms?)"
+# (kind, names precede the denial clause, the clause). A name list comes first in prose
+# ("A, B and C, none of which ..."), except where the clause names its object ("... supports 'x'").
+_NAME_DENIALS: tuple[tuple[str, bool, re.Pattern[str]], ...] = tuple(
+    (kind, before, re.compile(pattern, re.IGNORECASE))
+    for kind, before, pattern in (
+        (
+            "public_symbol",
+            True,
+            rf"\bnone\s+of\s+(?:which|them|these)\b[^.;]{{0,40}}?\b{_SYMBOL}\b",
+        ),
+        (
+            "public_symbol",
+            True,
+            rf"\bnot\s+(?:supported|verified|backed|confirmed)\s+by\s+(?:any\s+|the\s+|a\s+)?"
+            rf"(?:verified\s+)?{_SYMBOL}\b",
+        ),
+        (
+            "public_symbol",
+            True,
+            r"\b(?:no|without|lacks?)\s+(?:a\s+|any\s+)?(?:verified\s+|supported\s+)?"
+            r"public[_ ]symbol\s+facts?\b",
+        ),
+        (
+            "public_symbol",
+            True,
+            rf"\bno\s+(?:\w+\s+){{0,3}}?facts?\s+{_SUPPORT_VERB}\s+(?:this|that|the|these|those)"
+            rf"\s+(?:exact\s+)?{_SYMBOL_NOUN}\b",
+        ),
+        (
+            "public_symbol",
+            True,
+            r"\b(?:is|are)\s+not\s+(?:an?\s+)?(?:verified|supported)\s+(?:public\s+)?"
+            r"(?:symbol|function|method|class|type|member|identifier)s?\b",
+        ),
+        (
+            "public_symbol",
+            True,
+            r"\bas\s+an?\s+(?:public\s+)?symbol,?\s+but\b[^.;]{0,50}?"
+            r"\b(?:not\s+supported|unsupported|no\s+facts?\b)",
+        ),
+        (
+            "public_symbol",
+            True,
+            r"\b(?:types|symbols|classes|members|methods|functions|identifiers|names)\b"
+            r"[^.;]{0,40}?\b(?:that|which)\s+(?:are|is)\s+not\s+(?:supported|verified|backed)\s+by\s+"
+            r"(?:any|the)\s+(?:\w+\s+)?facts?\b",
+        ),
+        (
+            "package_name",
+            False,
+            rf"\bno\s+(?:\w+\s+){{0,3}}?package(?:\s+name)?\s+facts?\s+{_SUPPORT_VERB}\b",
+        ),
+        (
+            "package_name",
+            False,
+            r"\b(?:incorrectly|wrongly)\s+(?:states|claims|lists|gives)\s+(?:that\s+)?the\s+"
+            r"package\s+name\s+(?:is|as)\b",
+        ),
+    )
+)
+_FACT_REFERENCE = re.compile(r"\b[a-z_]+:[A-Za-z0-9_.\-]+|\bpublic[_ ]symbols?\b", re.IGNORECASE)
+_QUOTED_SPAN = re.compile(r"""(?<![A-Za-z0-9])(['"`])([^'"`\n]{1,120}?)\1(?![A-Za-z0-9])""")
+_NAME_TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:(?:\.|::)[A-Za-z_][A-Za-z0-9_]*)*")
+# What makes an unquoted word an identifier rather than prose: a lower-to-upper step (FilePath),
+# an acronym run before lowercase (VBAProject), a digit, an underscore, or a dotted/scoped path.
+_IDENTIFIER_SHAPE = re.compile(r"[a-z][A-Z]|[A-Z]{2,}[a-z]|[A-Za-z]\d|_|[A-Za-z](?:\.|::)[A-Za-z]")
+_PROSE_ABBREVIATIONS = frozenset({"e.g", "i.e", "etc", "vs"})
+# Between the last name and a denial that follows it: a noun showing the denial is about what the
+# candidate says OF the names ("methods signatures and fields that are not supported by the
+# public_symbol facts"), not about the names having a fact.
+_CLAIM_NOUN = re.compile(
+    r"\b(?:signatures?|fields?|parameters?|arguments?|returns?|details?|descriptions?|docstrings?|"
+    r"behaviou?rs?|counts?|versions?|annotations?|values?|claims?|statements?|examples?)\b",
+    re.IGNORECASE,
+)
+_CLAUSE_END = re.compile(r"[,;]|(?<=[a-z0-9'\"`])\.(?:\s|$)|\b(?:while|but|however)\b")
+_EVIDENCE_NAMES = 64
+# Where a sentence starts listing what it denies: everything before it is the sentence's own prose
+# ("The candidate's API reference table"), everything after it is the list.
+_LIST_INTRODUCER = re.compile(
+    r"\b(?:includes?|including|lists?|listing|contains?|names?|shows?|exposes?|documents?|"
+    r"features?|describes?|mentions?|uses?|has|have)\b",
+    re.IGNORECASE,
+)
+
+
+def _name_candidates(region: str, known: Collection[str]) -> list[str] | None:
+    """The names a stretch of finding prose denies, or ``None`` when it cannot be read as a list
+    of names (a quoted span of several words is a claim, not a name).
+
+    A quoted or backticked word is a name whatever its spelling. An unquoted word is one when it
+    is shaped like an identifier, is spelled as part of a symbol the facts hold (``known``), or is
+    a capitalised word in the list after the sentence's first introducer ("includes Chart, Foo"):
+    a capitalised word the facts do not hold is then a name that does not resolve, so it keeps the
+    finding standing. Every other word is prose and is not looked up. Fact ids and the kind noun
+    are not names.
+    """
+    plain = _FACT_REFERENCE.sub(" ", region)
+    names: list[str] = []
+    for match in _QUOTED_SPAN.finditer(plain):
+        span = match.group(2).strip()
+        if len(span.split()) > 1:
+            return None
+        if span:
+            names.append(span.removesuffix("()"))
+    bare = _QUOTED_SPAN.sub(" ", plain)
+    introducer = _LIST_INTRODUCER.search(bare)
+    listed_from = introducer.end() if introducer else len(bare)
+    for token in _NAME_TOKEN.finditer(bare):
+        word = token.group()
+        if word in _PROSE_ABBREVIATIONS:
+            continue
+        capitalised = token.start() >= listed_from and word[0].isupper() and not word.isupper()
+        if capitalised or word in known or _IDENTIFIER_SHAPE.search(word):
+            names.append(word)
+    return names
+
+
+def _symbol_names(by_id: Mapping[str, Fact]) -> tuple[dict[str, str], dict[str, str], set[str]]:
+    """The public_symbol facts' names: ``(spelled, scoped, unsupported)``.
+
+    ``spelled`` maps every trailing run of a SUPPORTED symbol's dotted value to its fact id
+    (``a.b.C`` gives ``a.b.C``, ``b.C`` and ``C``, the way a reader names a member); ``scoped``
+    maps its leading segments (the type a member belongs to); ``unsupported`` holds the segments
+    only a non-SUPPORTED symbol carries, which are names too and never resolve.
+    """
+    spelled: dict[str, str] = {}
+    scoped: dict[str, str] = {}
+    other: set[str] = set()
+    for fact in by_id.values():
+        if fact.kind != "public_symbol":
+            continue
+        parts = [part for part in fact.value.replace("::", ".").split(".") if part]
+        if fact.polarity != "SUPPORTED":
+            other.update(parts)
+            continue
+        for start in range(len(parts)):
+            spelled.setdefault(".".join(parts[start:]), fact.id)
+        for part in parts[:-1]:
+            scoped.setdefault(part, fact.id)
+    return spelled, scoped, other - spelled.keys() - scoped.keys()
+
+
+def name_denial_defect(
+    finding: Mapping[str, Any], by_id: Mapping[str, Fact], candidate_readme: str = ""
+) -> Ruling | None:
+    """Why a finding that denies a name any fact is the reviewer's own defect, or None.
+
+    Reads the finding's prose only for the denial shapes in ``_NAME_DENIALS``; the refutation
+    itself is a lookup. Every denial in the text must be about names that all resolve to SUPPORTED
+    facts of the kind it names (a ``public_symbol`` value, or a trailing run or leading segment of
+    one; the value of ``package:name``) and at least one name must be found. A name no SUPPORTED
+    fact carries, a quoted span of several words, a cited fact that is not SUPPORTED, or a kind of
+    denial not listed leaves the finding standing. Recorded as ``refuted_by`` with the name-to-fact
+    map, so review.json shows which fact each denied name has.
+
+    A bare member name (``Modified``) is resolved by any type's member of that name, preferring
+    the facts the finding cites; a qualified one (``Workbook.Modified``) only exactly, so a claim
+    that a member belongs to the wrong type is not settled by this lookup. A name the finding lists
+    that its own section never prints (Go F05 listed ``RemoveTable``, which no fact and no row
+    carries) is recorded under ``not_in_section`` and does not keep the finding standing, but it
+    cannot be the only name: the refutation is the facts, not the candidate's silence.
+    """
+    text = str(finding.get("text", ""))
+    denials = [
+        (kind, before, match)
+        for kind, before, pattern in _NAME_DENIALS
+        for match in pattern.finditer(text)
+    ]
+    if not denials:
+        return None
+    cited = [by_id[i] for i in finding.get("fact_ids", []) if i in by_id]
+    if any(fact.kind != "inherited_unit" and fact.polarity != "SUPPORTED" for fact in cited):
+        return None  # it points at excluded evidence: that is excluded_evidence_defect's to judge
+    spelled, scoped, unsupported = _symbol_names(by_id)
+    cited_spelled, cited_scoped, _ = _symbol_names({fact.id: fact for fact in cited})
+    package = by_id.get("package:name")
+    section = _section_slice(str(finding.get("section_id") or ""), candidate_readme)
+    known = spelled.keys() | scoped.keys() | unsupported
+    resolved: dict[str, str] = {}
+    unwritten: list[str] = []
+    for kind, before, match in denials:
+        region = text[: match.start()] if before else text[match.end() :]
+        if not before:
+            # The object of a clause that names it is what follows it, up to the clause's end:
+            # "... supports 'x'." or "... as 'x' in the opening, while ...".
+            region = _CLAUSE_END.split(region, maxsplit=1)[0]
+        names = _name_candidates(region, known)
+        if not names:
+            return None
+        if before and _CLAIM_NOUN.search(region[max(region.rfind(n) + len(n) for n in names) :]):
+            return None  # what is denied is something said about the names, not the names
+        for name in names:
+            fact_id: str | None = None
+            if kind == "public_symbol":
+                scope = name.replace("::", ".")
+                for tails, heads in ((cited_spelled, cited_scoped), (spelled, scoped)):
+                    fact_id = tails.get(scope) or (heads.get(scope) if "." not in scope else None)
+                    if fact_id:
+                        break
+            elif package is not None and package.polarity == "SUPPORTED" and name == package.value:
+                fact_id = package.id
+            if fact_id is not None:
+                resolved[name] = fact_id
+            elif candidate_readme and not re.search(
+                rf"(?<![A-Za-z0-9_]){re.escape(name)}(?![A-Za-z0-9_])", section
+            ):
+                unwritten.append(name)  # the finding lists text its own section does not contain
+            else:
+                return None
+    if not resolved:
+        return None
+    kinds = sorted({kind for kind, _, _ in denials})
+    shown = list(resolved)[:_ABSENCE_REPORTED]
+    return Ruling(
+        f"the finding denies {', '.join(kinds)} support to {_named(shown)}"
+        f"{' and others' if len(resolved) > len(shown) else ''}, but each is carried by a "
+        "SUPPORTED fact (" + ", ".join(sorted(set(resolved.values()))[:_ABSENCE_REPORTED]) + "): "
+        "a name a SUPPORTED fact carries is supported by definition",
+        NAME_DENIAL_RULE,
+        {
+            "kinds": kinds,
+            "names": dict(list(resolved.items())[:_EVIDENCE_NAMES]),
+            "facts": sorted(set(resolved.values()))[:_EVIDENCE_NAMES],
+            "count": len(resolved),
+            "not_in_section": unwritten[:_EVIDENCE_NAMES],
         },
     )
 
@@ -2318,6 +2600,14 @@ def scope_rulings(
             # code could not settle that: a true quote does not refute an absence.
             grounded = Ruling(str(grounded), "CITED_FACT_QUOTE_ONLY", grounded.evidence)
         rulings.append(grounded)
+    if finding.get("criterion") == "factuality":
+        denied = name_denial_defect(finding, by_id, candidate_readme)
+        # A finding that also says something is missing from its section keeps that remainder:
+        # the name having a fact refutes the denial, not the omission.
+        if denied is not None and not _standing_claims(
+            finding, candidate_readme, by_id, evidence, units
+        ):
+            rulings.append(denied)
     return rulings
 
 
