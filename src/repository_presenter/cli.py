@@ -146,6 +146,16 @@ from repository_presenter.components.readme.bundle.portfolio import (
 from repository_presenter.components.readme.bundle.portfolio import (
     render_lines as render_portfolio_lines,
 )
+from repository_presenter.components.readme.bundle.recheck import (
+    COUNTING,
+    Recheck,
+    currency_counts,
+    currency_map,
+    recheck_portfolio,
+)
+from repository_presenter.components.readme.bundle.recheck import (
+    render_lines as render_recheck_lines,
+)
 from repository_presenter.components.readme.bundle.reproducibility import (
     reproducible_repositories,
 )
@@ -410,6 +420,15 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     status.add_argument(
+        "--recheck",
+        action="store_true",
+        help=(
+            "compute the consumed-scope recheck of every bundle that is behind the running code "
+            "instead of only reading cached receipts (minutes for the whole portfolio); offline, "
+            "no provider call, writes nothing"
+        ),
+    )
+    status.add_argument(
         "--json",
         dest="as_json",
         action="store_true",
@@ -434,6 +453,39 @@ def build_parser() -> argparse.ArgumentParser:
             "proposal authorization records (a JSON object, a list, or a directory of such "
             "files) to count as effect-authorized when valid for the exact sealed candidate"
         ),
+    )
+    recheck = subcommands.add_parser(
+        "recheck",
+        help=(
+            "is each sealed candidate still current under the running code? Re-runs, offline and "
+            "over the bundle's own sealed artifacts, exactly the checks whose recorded inputs "
+            "differ, and reports CURRENT, RECHECKED_CURRENT, UPDATE_OPTIONAL, UPDATE_REQUIRED "
+            "(rerender_only or recompose) or UNVERIFIED (G7-W25); never invalidates, edits a "
+            "bundle or calls a provider"
+        ),
+    )
+    recheck.add_argument("--root", type=Path, default=None, help=root_help)
+    recheck.add_argument(
+        "--repo",
+        action="append",
+        default=None,
+        metavar="OWNER/NAME",
+        help="recheck only this repository (repeatable); default: every current bundle",
+    )
+    recheck.add_argument(
+        "--write-receipts",
+        action="store_true",
+        help=(
+            "cache each result at candidates/<owner>__<name>/rechecks/<revision>.json, keyed by "
+            "the manifest digest and the running code's consumed inputs (never inside a sealed "
+            "bundle)"
+        ),
+    )
+    recheck.add_argument(
+        "--json",
+        dest="as_json",
+        action="store_true",
+        help="print one machine-readable JSON document instead of the text report",
     )
     present = subcommands.add_parser(
         "present",
@@ -1126,6 +1178,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             as_json=args.as_json,
             drift_path=args.drift,
             authorizations_path=args.authorizations,
+            recheck=args.recheck,
+        )
+    if args.command == "recheck":
+        return run_recheck(
+            args.root,
+            repositories=args.repo,
+            write_receipts=args.write_receipts,
+            as_json=args.as_json,
         )
     if args.command == "present":
         if args.durable_state:
@@ -2774,6 +2834,7 @@ def run_status(
     as_json: bool = False,
     drift_path: Path | None = None,
     authorizations_path: Path | None = None,
+    recheck: bool = False,
 ) -> int:
     """Print version, gate, work item, and N/34 progress from sealed bundles on disk.
 
@@ -2798,6 +2859,12 @@ def run_status(
     plus a partition that puts every live registry entry in exactly one bucket. ``--json`` prints
     the whole report as one document instead; ``--drift`` and ``--authorizations`` supply the two
     inputs this offline command cannot observe itself (upstream freshness, an authorization).
+
+    A bundle behind the running code's recorded versions is rechecked over its own sealed artifacts
+    (``bundle/recheck.py``, G7-W25): it counts again when the recheck says ``CURRENT``,
+    ``RECHECKED_CURRENT`` or ``UPDATE_OPTIONAL``, and the partition splits what does not into
+    ``update_required`` and ``update_unverified``. ``status`` reads cached receipts; ``--recheck``
+    computes the missing ones. A bundle without a receipt stays uncounted, as before.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -2832,10 +2899,14 @@ def run_status(
     historical = len({bundle.repository_dir for bundle in iter_sealed_bundles(root)})
     integrity_valid = integrity_valid_candidates(root)
     reproducible = reproducible_repositories(root)
-    accepted = independently_accepted_candidates(root, found)
     executed, example_total = examples_verification_summary(root)
     held = held_updates(root)
-    portfolio = _portfolio_report(root, found, drift, authorizations)
+    rechecked = _status_rechecks(root, found, held, compute=recheck)
+    currency = currency_map(rechecked)
+    # A bundle behind the recorded versions that the recheck proves current is not stale.
+    effective = [c for c in found if currency.get(c.repository_dir) not in COUNTING]
+    accepted = independently_accepted_candidates(root, effective)
+    portfolio = _portfolio_report(root, found, drift, authorizations, currency)
     headline = current_reproducible_no_op_proven(portfolio, reproducible)
     if as_json:
         print(
@@ -2883,6 +2954,10 @@ def run_status(
                         }
                         for candidate in found
                     ],
+                    "recheck": {
+                        "counts": currency_counts(rechecked),
+                        "currency": currency,
+                    },
                     "portfolio": None if portfolio is None else portfolio.to_json(),
                 },
                 indent=2,
@@ -2905,6 +2980,12 @@ def run_status(
         print(f"canary: {cursor.canary}")
         for line in _candidate_state_lines(root, held):
             print(line)
+        if rechecked:
+            counts = currency_counts(rechecked)
+            print(
+                "recheck (behind or holding an update): "
+                + ", ".join(f"{state} {number}" for state, number in counts.items())
+            )
         if portfolio is not None:
             for line in render_portfolio_lines(portfolio):
                 print(line)
@@ -2924,6 +3005,59 @@ def run_status(
             f"but {on_disk} sealed on disk"
         )
         return EXIT_INCONSISTENT
+    return EXIT_OK
+
+
+def _status_rechecks(
+    root: Path, found: Sequence[StaleCandidate], held: Sequence[HeldUpdate], *, compute: bool
+) -> list[Recheck]:
+    """The consumed-scope rechecks ``status`` needs: only the bundles behind the running code or
+    holding an update, from receipts or (``compute``) computed. Degrades to nothing (the pre-recheck
+    behavior, every such bundle uncounted) when the prompt manifests do not load."""
+    directories = sorted({c.repository_dir for c in found} | {u.repository_dir for u in held})
+    if not directories:
+        return []
+    try:
+        current_code = code_dependencies(load_manifests(root / PROMPTS_DIRNAME))
+    except PresenterError:
+        return []
+    return recheck_portfolio(root, current_code, repositories=directories, compute=compute)
+
+
+def run_recheck(
+    root_argument: Path | None,
+    *,
+    repositories: Sequence[str] | None = None,
+    write_receipts: bool = False,
+    as_json: bool = False,
+) -> int:
+    """``recheck``: the currency of every CURRENT bundle (or the named ones) under the running
+    code. Offline, no provider call, never invalidates or edits a sealed bundle; the only write is
+    ``--write-receipts``, a cache beside the bundle."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        current_code = code_dependencies(load_manifests(root / PROMPTS_DIRNAME))
+        rows = recheck_portfolio(
+            root, current_code, repositories=repositories, write_receipts=write_receipts
+        )
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    if repositories and not rows:
+        _fail(f"no current bundle for {', '.join(repositories)}")
+        return EXIT_USAGE
+    if as_json:
+        print(
+            json.dumps(
+                {"counts": currency_counts(rows), "bundles": [row.to_json() for row in rows]},
+                indent=2,
+            )
+        )
+    else:
+        for line in render_recheck_lines(rows):
+            print(line)
     return EXIT_OK
 
 
@@ -2977,11 +3111,14 @@ def _print_routing_dry_run(root: Path) -> None:
     except PresenterError as exc:
         print(f"routing: unavailable ({exc})")
         return
-    rows = [row for row in portfolio_routing(root, current_code) if row.routing.state]
+    routed = portfolio_routing(root, current_code)
+    rows = [row for row in routed if row.routing.state]
     if not rows:
         print("routing: no current candidate would change state")
-        return
-    print(f"routing: {len(rows)} current candidate(s) would change state (dry run, no writes) -")
+    else:
+        print(
+            f"routing: {len(rows)} current candidate(s) would change state (dry run, no writes) -"
+        )
     for row in rows:
         routing = row.routing
         print(
@@ -2989,6 +3126,13 @@ def _print_routing_dry_run(root: Path) -> None:
             f"(scope {routing.triggering_scope}; scopes {', '.join(routing.scopes)}; "
             f"re-enters {routing.stage})"
         )
+    # A check or version the sealed record lacks cannot reopen it, but it is not skipped: it runs.
+    for row in routed:
+        if row.unrecorded:
+            print(
+                f"  {row.repository_dir}: the sealed record lacks {', '.join(row.unrecorded)}; "
+                "`recheck` runs them"
+            )
 
 
 def _portfolio_report(
@@ -2996,6 +3140,7 @@ def _portfolio_report(
     found: Sequence[StaleCandidate],
     drift: Mapping[str, DriftObservation] | None,
     authorizations: Mapping[str, Sequence[ProposalAuthorization]] | None,
+    currency: Mapping[str, str] | None = None,
 ) -> PortfolioReport | None:
     """The seven separated counts over the live registry, or None when there is no registry.
 
@@ -3016,6 +3161,7 @@ def _portfolio_report(
         now=_cli_utc_now(),
         drift=drift,
         authorizations=authorizations,
+        currency=currency,
     )
 
 
