@@ -19,6 +19,7 @@ from repository_presenter.components.readme.composition.placement import (
 )
 from repository_presenter.components.readme.composition.planning import plan_checks
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from support import CELLS_NET_SCOPE_LIST
 
 REPOSITORY = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
 
@@ -719,3 +720,37 @@ def test_a_preserved_code_blocks_own_anchor_looking_text_is_never_rewritten() ->
     placed = decisions["inherited_unit:098.code_block"]
     assert placed.outcome == "placed"
     assert placed.text == "```text\n[Encryption and Signing](#encryption-and-signing)\n```"
+
+
+def test_a_unit_the_plan_hands_to_a_limitation_slot_is_not_also_printed_verbatim() -> None:
+    """Cells .NET 941814fd (wave-3 acceptance, LST-01): the plan handed inherited_unit:064.list to
+    all six limitation slots (``unit_ids``), the composer stated its seven bullets in them, and
+    placement still printed the list as written because the disposition cited examples, none of
+    which any slot of the plan carries. The section read the same seven limitations twice. A unit
+    whose own ID is among the section's planned content is authored there, never placed."""
+    unit = "inherited_unit:064.list"
+    facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (
+            _fact("install_command:dotnet", "install_command", "dotnet build"),
+            _fact("example:001", "example", "print(1)"),
+            _fact(unit, "inherited_unit", CELLS_NET_SCOPE_LIST),
+        ),
+    )
+    entry = {**_entry(unit, "scope_limitations", "example:001"), "disposition": "VERIFIED_MOVE"}
+    dispositions = {"dispositions": [entry]}
+    handed = _plan(
+        material_limitations=[
+            {"fact_ids": ["install_command:dotnet"], "unit_ids": [unit]} for _ in range(6)
+        ]
+    )
+    [decision] = placements(handed, dispositions, facts, "python")
+    assert decision.outcome == "overlap"
+    assert decision.overlap == (unit,)
+    assert placed_texts([decision]) == {}
+    # Negative control: the same plan without the hand-off prints the list as written, whole.
+    bare = _plan(material_limitations=[{"fact_ids": ["install_command:dotnet"], "unit_ids": []}])
+    [decision] = placements(bare, dispositions, facts, "python")
+    assert decision.outcome == "placed"
+    assert placed_texts([decision]) == {"scope_limitations": [CELLS_NET_SCOPE_LIST]}

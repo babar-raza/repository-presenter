@@ -2054,3 +2054,59 @@ def test_no_alternative_renders_for_a_source_install_or_without_a_version() -> N
     )
     readme = render_readme(_java_entry(), versionless, PLAN, UNITS, DISPOSITIONS)
     assert "<dependency>" not in readme
+
+
+# The two sealed READMEs the wave-3 acceptance review found with the Enterprise paragraph emitted
+# as a fragment (Cells .NET 941814fd, Cells Java c65329e7, LST-01): the coherence pass is told to
+# write 'it adds ...' because the renderer prints the edition sentence before it, and the renderer
+# joined the two with a full stop and no capital.
+_FRAGMENT_UNITS = (
+    (
+        "it adds broader spreadsheet functionality, including more file formats, a formula "
+        "calculation engine, pivot tables, and richer rendering/export features.",
+        "It adds broader spreadsheet functionality, including more file formats, a formula "
+        "calculation engine, pivot tables, and richer rendering/export features.",
+    ),
+    (
+        "it adds additional spreadsheet save formats beyond .xlsx, a full formula calculation "
+        "engine, ChartEx chart type creation, and dedicated enterprise support.",
+        "It adds additional spreadsheet save formats beyond .xlsx, a full formula calculation "
+        "engine, ChartEx chart type creation, and dedicated enterprise support.",
+    ),
+    ("which adds rendering and extra formats.", "It adds rendering and extra formats."),
+    ("It adds rendering.", "It adds rendering."),
+    ("`Chart` rendering is added.", "`Chart` rendering is added."),
+    ("e.g. rendering is added.", "e.g. rendering is added."),
+)
+
+
+@pytest.mark.parametrize(("authored", "printed"), _FRAGMENT_UNITS)
+def test_the_enterprise_paragraph_never_follows_its_full_stop_with_a_lower_case_fragment(
+    authored: str, printed: str
+) -> None:
+    target = Fact(
+        "link_target:product.enterprise",
+        "link_target",
+        "https://products.aspose.com/3d/python-net/",
+        (Evidence("https://products.aspose.com/3d/python-net/", "HTTP 200; enterprise target"),),
+        attributes={"role": "enterprise", "level": "platform", "platform": "python"},
+    )
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, target))
+    plan = {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True}
+            if entry["section_id"] == "enterprise_relationship"
+            else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+    units = {
+        "units": [*UNITS["units"], _unit("enterprise_relationship", "context", authored)],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, plan, units, DISPOSITIONS)
+    scope = readme.split("## Scope and Limitations\n\n", 1)[1].split("\n## ", 1)[0]
+    assert scope.rstrip("\n").endswith(
+        "(https://products.aspose.com/3d/python-net/). " + printed
+    ), scope

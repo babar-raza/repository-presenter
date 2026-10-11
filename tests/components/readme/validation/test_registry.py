@@ -46,7 +46,7 @@ from repository_presenter.components.readme.validation.registry import (
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
-from support import REPO_ROOT
+from support import JAVA3D_DOCS_LIST, JAVA3D_SCOPE_LIST, REPO_ROOT
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -2668,3 +2668,153 @@ def test_check_four_honours_a_must_carry_omission_the_authoring_recorded(tmp_pat
     assert verdict([{"section": "scope_limitations", "fact_id": unit, "reason": reason}]) == []
     assert verdict([{"section": "scope_limitations", "fact_id": unit, "reason": " "}]) != []
     assert verdict([{"section": "development_testing", "fact_id": unit, "reason": reason}]) != []
+
+
+# --- LST-01: BC-05 judges the items of a list placement dropped as covered -----------------------
+# 3D Java 3d2ed6be (wave-3 acceptance review, reseal f69f75c7): both kept lists were dropped by
+# placement because one fact each cites is covered by the plan, and the candidate rendered four of
+# the eight documentation links and six of the nine scope bullets with BC-05 passing.
+_DOCS_UNIT = "inherited_unit:070.list"
+_SCOPE_UNIT = "inherited_unit:072.list"
+_JAVA_LINKS = {
+    "link_target:022": "https://docs.aspose.org/3d/java/",
+    "link_target:023": "https://kb.aspose.org/3d/java/",
+    "link_target:024": "https://reference.aspose.org/3d/java/",
+    "link_target:025": "PUBLISHING.md",
+    "link_target:026": "docs/api-diff-26.1.0.md",
+    "link_target:027": "docs/directory-structures.md",
+    "link_target:028": "docs/foss-java-progress.md",
+    "link_target:029": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/issues",
+}
+_JAVA_DOCS_SECTION = "\n".join(
+    [
+        "- **[Getting started guide](https://docs.aspose.org/3d/java/)** — The guide.",
+        "- **[How-to guides & FAQ](https://kb.aspose.org/3d/java/)** — The how-to guides.",
+        "- **[Full API reference](https://reference.aspose.org/3d/java/)** — The reference.",
+        "- Found a bug? [Open an issue]"
+        "(https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/issues).",
+    ]
+)
+_JAVA_SCOPE_SECTION = "\n".join(
+    [
+        "- The only fully functional format in the published 26.5.0 package is STL.",
+        "- OBJ import is a stub in the published Maven Central artifact; do not rely on it.",
+        "- Several recognized-but-unfinished formats fail silently rather than with an error.",
+        "- Additional format coverage beyond STL is a commercial-edition feature.",
+        "- A handful of primitive-shape classes have a mesh-conversion method not implemented.",
+        "- Scene rendering is not implemented in this edition.",
+    ]
+)
+_JAVA_SCOPE_COMPLETE = (
+    _JAVA_SCOPE_SECTION
+    + "\n- NurbsCurve sampling points along the curve is not yet implemented."
+    + "\n- The PbrSpecularMaterial accessors are unimplemented in this edition."
+    + "\n- Licensing, trial and DRM functionality, cryptographic helpers and ZIP read and write"
+    " are excluded."
+)
+
+
+def _java_candidate(docs: str, scope: str, handed: bool = True) -> Candidate:
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        (
+            *(f for f in BASE_FACTS if f.kind != "inherited_unit"),
+            *(_fact(fact_id, "link_target", url) for fact_id, url in _JAVA_LINKS.items()),
+            _fact("install_command:maven", "install_command", "mvn dependency:get"),
+            _fact(_DOCS_UNIT, "inherited_unit", JAVA3D_DOCS_LIST),
+            _fact(_SCOPE_UNIT, "inherited_unit", JAVA3D_SCOPE_LIST),
+        ),
+    )
+    plan = {
+        **PLAN,
+        "sections": [{**s, "include": s["section_id"] in INCLUDED} for s in PLAN["sections"]],
+        "links": [
+            {"link_fact_id": fact_id, "section_id": "documentation_resources"}
+            for fact_id in (
+                "link_target:022",
+                "link_target:023",
+                "link_target:024",
+                "link_target:029",
+            )
+        ],
+        "material_limitations": [
+            {"fact_ids": ["install_command:maven"], "unit_ids": [_SCOPE_UNIT] if handed else []}
+        ],
+    }
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": _DOCS_UNIT,
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "documentation_resources",
+                "fact_ids": list(_JAVA_LINKS),
+                "rationale": "All links in the list are verified by the link_target facts.",
+            },
+            {
+                "unit_id": _SCOPE_UNIT,
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": ["install_command:maven"],
+                "rationale": "All list items are supported by facts.",
+            },
+        ]
+    }
+    readme = (
+        "# Aspose.3D FOSS for Java\n\n## Documentation & Resources\n\n"
+        + docs
+        + "\n\n## Scope and Limitations\n\n"
+        + scope
+        + "\n"
+    )
+    return _candidate(readme=readme, facts=facts, dispositions=dispositions, plan=plan)
+
+
+def test_a_kept_list_placement_dropped_must_have_every_item_rendered() -> None:
+    from repository_presenter.components.readme.validation.registry import _check_dispositions
+
+    failures = _check_dispositions(_java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION))
+    by_section = {failure.section: failure for failure in failures}
+    assert set(by_section) == {"documentation_resources", "scope_limitations"}, failures
+    docs, scope = by_section["documentation_resources"], by_section["scope_limitations"]
+    assert docs.stage == "PLANNING" and scope.stage == "COMPOSING"
+    for document in ("PUBLISHING.md", "api-diff-26.1.0.md", "directory-structures.md"):
+        assert document in docs.detail
+    assert f"{_DOCS_UNIT}: kept as written" in docs.detail and "of its 8 items" in docs.detail
+    assert "PbrSpecularMaterial" in scope.detail and "NurbsCurve" in scope.detail
+    assert "of its 9 items" in scope.detail
+
+
+def test_a_kept_list_every_item_of_which_is_rendered_passes_bc05() -> None:
+    from repository_presenter.components.readme.validation.registry import _check_dispositions
+
+    docs = (
+        _JAVA_DOCS_SECTION
+        + "\n"
+        + "\n".join(f"- [{url}]({url})" for url in list(_JAVA_LINKS.values())[3:7])
+    )
+    assert _check_dispositions(_java_candidate(docs, _JAVA_SCOPE_COMPLETE)) == []
+
+
+def test_a_scope_list_the_plan_never_handed_on_is_a_planning_defect() -> None:
+    from repository_presenter.components.readme.validation.registry import _check_dispositions
+
+    failures = _check_dispositions(
+        _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION, handed=False)
+    )
+    scope = next(f for f in failures if f.section == "scope_limitations")
+    assert scope.stage == "PLANNING"
+
+
+def test_a_list_placement_prints_whole_is_checked_by_the_placed_rule_as_before() -> None:
+    """Negative control: a list nothing in the plan covers is placed verbatim, and the existing
+    rule (placed units appear in their destination) judges it; the new rule never fires."""
+    from repository_presenter.components.readme.validation.registry import _check_dispositions
+
+    candidate = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION)
+    candidate = dataclasses.replace(
+        candidate,
+        plan={**candidate.plan, "links": [], "material_limitations": []},
+        readme=candidate.readme + "\n" + JAVA3D_DOCS_LIST + "\n" + JAVA3D_SCOPE_LIST,
+    )
+    assert [f for f in _check_dispositions(candidate) if "kept as written" in f.detail] == []

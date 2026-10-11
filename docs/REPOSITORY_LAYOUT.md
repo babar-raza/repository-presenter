@@ -77,7 +77,7 @@ src/repository_presenter/
       policy.py                the planning policy: capability, hub, line, and Aspose-link ceilings
       link_budget.py           Aspose-link ceilings derived per document, domain, and surface slot (plans/idea.md), or configured; the plan trim and BC-06 both read it
       type_fallback.py        the last-attempt recovery for one API Reference type description refused only for an unevidenced identifier (README_CONTRACT.md row 14)
-      list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE) states every item, layered on unit_checks by repair/rounds.py
+      list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE/MOVE) states every item, layered on unit_checks by repair/rounds.py; its item test also serves BC-05
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
       terminology.py           the governed technical-terminology registry and heading-case grammar: the one owner of canonical abbreviations (PS, PDF, glTF, npm) and title case

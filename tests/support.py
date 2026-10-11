@@ -599,3 +599,82 @@ def distinct_process_identities(patch: pytest.MonkeyPatch) -> None:
         )
 
     patch.setattr(noop_proof, "current_process_identity", distinct)
+
+
+# The inherited lists the wave-3 acceptance review (reseal f69f75c7, LST-01) found partly or twice
+# rendered, copied byte for byte from each sealed bundle's facts.json (em dashes as —).
+# 3D Java 3d2ed6be inherited_unit:070.list: eight items, 4 repository links the plan never carried.
+JAVA3D_DOCS_LIST = "\n".join(
+    [
+        "- **[Getting started guide](https://docs.aspose.org/3d/java/)** — installation, "
+        "walkthroughs, and feature guides for this FOSS library.",
+        "- **[How-to guides & FAQ](https://kb.aspose.org/3d/java/)** — task-focused answers "
+        "for common 3D-processing questions.",
+        "- **[Full API reference](https://reference.aspose.org/3d/java/)** — the complete, "
+        "browsable reference for all 266 public types (the [API reference](#api-reference) "
+        "section above covers the essentials).",
+        "- **[Publishing guide](PUBLISHING.md)** — how this package is released to Maven "
+        "Central, in the repository.",
+        "- **[API diff for 26.1.0](docs/api-diff-26.1.0.md)** — API changes for that "
+        "release, in the repository.",
+        "- **[Directory structures](docs/directory-structures.md)** — repository layout "
+        "notes, in the repository.",
+        "- **[Implementation progress notes](docs/foss-java-progress.md)** — current "
+        "FOSS-edition implementation status, in the repository.",
+        "- Found a bug or have a feature request? [Open an issue]"
+        "(https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/issues) on GitHub "
+        "— this is also the place for community & support and further reading pointers.",
+    ]
+)
+# 3D Java inherited_unit:072.list: nine scope bullets, none handed to a limitation slot.
+JAVA3D_SCOPE_LIST = "\n".join(
+    [
+        "- STL (import and export) is the only format that is fully functional in the published "
+        "`26.5.0` package; a handful of other formats have recognized options classes registered "
+        "with `FileFormat` but no working load/save path behind them in that package — see "
+        "[FILE_FORMATS.md](FILE_FORMATS.md) for format-by-format notes, keeping in mind its "
+        "summary table and later detail sections don't fully agree with each other.",
+        "- OBJ import has a real, working parser in the upstream GitHub source, but the "
+        "currently published Maven Central artifact was built from an older state and still "
+        "ships a stub there — do not rely on OBJ import from the published package (see "
+        "Upstream Issues in this repository, and build from source instead if you need it).",
+        "- Several of the recognized-but-unfinished formats above fail silently rather than "
+        "with an error: loading or saving through them can return successfully while producing "
+        "no real data, so don't rely on catching an exception to detect the gap — check "
+        "the actual output.",
+        "- Additional format coverage beyond STL (including proprietary and high-performance "
+        "formats) is a commercial-edition feature; see the closing note below.",
+        "- A handful of primitive-shape classes have a mesh-conversion method that is present "
+        "but not yet implemented; `Box`, `Cylinder`, `Sphere`, and `Dish` are confirmed to "
+        "convert correctly.",
+        "- `NurbsCurve` exposes its full control-point/knot/degree data model, but sampling "
+        "points along the curve is not yet implemented.",
+        "- `PbrSpecularMaterial`'s accessors are unimplemented in this edition; the PBR "
+        "material capability described above uses the alternative that works.",
+        "- Licensing, trial, and DRM-related functionality (`License`, `Metered`) is "
+        "intentionally excluded, as are cryptographic helpers and ZIP-packaged file-system "
+        "read/write — none of these apply to the FOSS edition.",
+        "- Scene rendering is not implemented in this edition.",
+    ]
+)
+# Cells .NET 941814fd inherited_unit:064.list: seven bullets the plan handed to six limitation
+# slots (unit_ids) and placement then printed verbatim as well, so the section stated them twice.
+CELLS_NET_SCOPE_LIST = "\n".join(
+    [
+        "- **Load format scope.** Load support is limited to XLSX (`LoadFormat.Auto` and "
+        "`LoadFormat.Xlsx`). Legacy XLS, ODS, CSV, and other spreadsheet formats are not loaded.",
+        "- **Save format scope.** Save support currently covers XLSX and PDF "
+        "(`SaveFormat.Xlsx` and `SaveFormat.Pdf`).",
+        "- **No formula calculation engine.** `Cell.Formula` stores the formula as a string; "
+        "the library does not parse, evaluate, or recalculate formulas.",
+        "- **No image or HTML export.** PDF export is supported, but there is no image or HTML "
+        "rendering output in this checkout.",
+        "- **No print execution.** `Worksheet.PageSetup` configures how a spreadsheet "
+        "application would print the file, but the library itself does not send workbooks to a "
+        "printer.",
+        "- **No macros or VBA.** The public API has no VBA-project or macro-related types, so "
+        "macro-enabled workbooks round-trip only their non-macro content.",
+        "- **No pivot tables.** Structured tables (`ListObject`) and charts (`Chart`) are "
+        "supported; pivot tables are not part of the public API surface.",
+    ]
+)
