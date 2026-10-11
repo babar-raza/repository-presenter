@@ -214,7 +214,7 @@ def test_one_pull_request_whose_branch_commit_is_exactly_the_readme_patch(
     patch = (rehearsal.bundle / PATCH_NAME).read_text(encoding="utf-8")
     assert render_patch(README, branch_readme) == patch  # the commit's diff is README.patch
     (pull,) = rehearsal.rest.pulls(REPOSITORY)
-    assert pull["title"] == "correctable: 4 verified README corrections"
+    assert pull["title"] == "docs(readme): 4 verified corrections"
     body = pull["body"]
     assert "`1.0.0` -> `2.0.0`" in body and "`package:published_version` (SUPPORTED)" in body
     assert "inserted `## Dependencies`" in body and "`tree:CHANGELOG.md`" in body
@@ -315,8 +315,8 @@ def test_a_diagram_redraw_is_proposed_as_one_pull_request_whose_commit_is_the_pa
     patch = (rehearsal.bundle / PATCH_NAME).read_text(encoding="utf-8")
     assert render_patch(README_WITH_DIAGRAM, branch_readme) == patch
     (pull,) = rehearsal.rest.pulls(REPOSITORY)
-    assert "At a Glance diagram redrawn (same words and edges)" in pull["body"]
-    assert "redrew the Mermaid diagram at line 8 (labels and edges unchanged)" in pull["body"]
+    assert pull["title"] == "docs(readme): 4 verified corrections"
+    assert "redrawn left to right so text no longer clips" in pull["body"]
     flat = branch_readme.replace("<br/>", " ")  # the drawing wraps long labels; the words stay
     for label in ("Starting Points", "Core Capabilities", "Outputs", "Polygon triangulation"):
         assert label in flat  # every word the maintainers wrote is still there
@@ -354,8 +354,10 @@ def test_report_only_candidates_stay_in_the_bundle_and_out_of_the_pull_request(
     result = rehearsal.propose()
     assert result.effected and result.pr_created
     (pull,) = rehearsal.rest.pulls(REPOSITORY)
-    assert "CHANGELOG.md" not in pull["body"] and pull["title"].endswith(
-        "3 verified README corrections"
+    assert "CHANGELOG.md" not in pull["body"]
+    assert pull["title"] == (
+        "docs(readme): show the current release (2.0.0) in the install snippets, "
+        "add the Dependencies section and add the published-version badge"
     )
     branch_readme = rehearsal.rest.file(REPOSITORY, presenter_branch_name(), "README.md")
     assert branch_readme is not None and "CHANGELOG.md" not in branch_readme

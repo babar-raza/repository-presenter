@@ -26,6 +26,8 @@ from typing import Any
 from repository_presenter.core.examples import RECEIPTS_FILENAME
 
 VALIDATION_FILENAME = "validation.json"
+#: Only a correction bundle (components/readme_correction/bundle.py) holds this file.
+CORRECTIONS_FILENAME = "corrections.json"
 #: The blocking check that verifies the README's install command against the package manifest.
 INSTALL_CHECK = "BC-02"
 #: Section headings listed per category before the remainder is summarized as a count.
@@ -86,6 +88,11 @@ def _read_json(path: Path) -> Any:
 def load_pull_request_evidence(bundle: Path) -> PullRequestEvidence:
     """The verification counts of the sealed ``bundle``, read from its validation record and its
     example receipts. A missing or malformed record leaves that count unknown."""
+    if (bundle / CORRECTIONS_FILENAME).is_file():
+        raise ValueError(
+            f"{bundle} is a correction bundle: its pull request text comes from "
+            "components/readme_correction/pull_request.py, not a regenerated candidate's counts"
+        )
     receipts = _read_json(bundle / RECEIPTS_FILENAME)
     executed = total = None
     if isinstance(receipts, list):
