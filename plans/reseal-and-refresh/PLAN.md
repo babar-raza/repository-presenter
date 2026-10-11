@@ -98,7 +98,7 @@ The owner's quality bar (this session): ALL useful information from the cloned r
 
 ## 3. Requirements (stable IDs)
 
-REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-REF-01…09 refresh app (§11).
+REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-REF-01…12 refresh app (§11): REF-10 every workflow rehearsed locally in its hosted shape, REF-11 the whole autonomous cycle rehearsed locally on synthetic upstreams, REF-12 production hosting go-live.
 
 ---
 
@@ -164,7 +164,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
 - **Cut-1 slice (time-boxed, governed, `cut: 1-if-ready`):** TC-REV-01 (REJECT stands, so the repair loop can fix findings instead of shipping them), TC-CLM-01 (published-version fact and BC-14), and a thin TC-COV-02 limited to fact kinds that existing template sections already render; each declares its G7-W22 ground (factual accuracy: unsupported public claims in sealed READMEs) and rests on the owner's 2026-10-10 plan-review answers (TC-R2-00). TC-VER-01 bumps the affected constants once. Anything not green by Sunday 22:00 moves to cut 2; the cut is then current `origin/main`.
 - **Track C-1, read-only analysis that may start now:** TC-COV-01 (coverage inventory of clone information per repository). No `src/` change.
 - **Track C-2, second cut (accepted by the owner; governed changes land only after wave 1's reseal so the reseal runs on one fixed code):** TC-DSP-01/02, TC-COV-02 (remaining kinds)/03, TC-EXT-01, TC-INV-01/02, TC-CUR-01, TC-BND-01, TC-CTR-01, TC-PRP-01, TC-VER-02, plus whatever of the cut-1 slice did not make it; then TC-R2-01 (declare the second cut) and TC-R2-02 (second portfolio reseal, re-using the Track C-0 cards). Development may overlap wave 1 on branches; landing may not.
-- **Track D, refresh app (after Monday; staged):** TC-REF-01…09.
+- **Track D, refresh app (after Monday; staged):** TC-REF-01…09, then the local-to-hosted path: **TC-REF-10** (every workflow run locally in its hosted shape) → **TC-REF-11** (the full autonomous cycle rehearsed locally on synthetic upstreams, including failure modes) → **TC-REF-12** (production hosting go-live on GitHub Actions, staged). Hosting is never the first place a workflow runs.
 
 **Path ownership (lint-checked).** L-gov: `docs/`, `plans/reseal-and-refresh/`, `project/state.yaml`, `tools/plan_lint/`, `tests/test_plan_lint.py`, `evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/`. L-seal: `candidates/`, `runs/` (gitignored). L-hosted: `.github/workflows/`, `components/monitor/`, `components/propose/`, `components/candidates_publish/`, `core/sealing_plan.py`. L-issues: `components/issues/`, `evidence/upstream-defects/`, `ops/issue_approvals/` (records only after owner approval). L-review: `components/readme/review/`. L-disp: `components/readme/reconciliation/`, `components/readme/validation/`. L-extract: `components/readme/extractors/`, `components/readme/evidence/facts/`, `core/facts.py` (FactKind only). L-core: `core/` (rest), `components/readme/bundle/`, `cli.py`. L-compose: `components/readme/composition/` (serialised after L-disp and L-extract). Verifier: read-only, writes only `quality/` and `analysis/`. Hot files, one writer at a time: `validation/registry.py`, `reconciliation/dispositions.py`, version-pin tests (TC-VER-01 only), `project/state.yaml` (L-gov only), `docs/RESEARCH_AND_GUIDELINES.md` §27.9 (L-gov only).
 
@@ -1311,7 +1311,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
     - id: TC-REF-02-03
       title: Observe
       steps:
-        - "run | one unattended cycle after the owner enables the variables | run id, PR and zero-call no-op proof on an unchanged revision recorded"
+        - "run | one unattended hosted cycle, only after TC-REF-12 stage H0 and the owner enabling the variables | run id, PR and zero-call no-op proof on an unchanged revision recorded"
 
 - id: TC-REF-03
   title: Standing authorization (owner-signed) replacing per-hash records after the pilot wave
@@ -1429,7 +1429,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-REF-09]
   item: G7-W06
   lane: supervisor
-  depends: [TC-REF-02, TC-REF-04, TC-REF-06, TC-REF-07]
+  depends: [TC-REF-02, TC-REF-04, TC-REF-06, TC-REF-07, TC-REF-12]
   governed: false
   paths: {write: [project/state.yaml, docs/DECISION_LOG.md]}
   outcome: shadow, then issues, then a PR pilot on the two `full` repositories, then per-repository expansion each with its own owner record
@@ -1442,6 +1442,92 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
         - "run | stage 2: approved issues live (Track B) | issues filed once"
         - "decide-owner | stage 3: PR pilot on Cells-Java and 3D-Java only after their candidates pass the review lane and the owner signs | recorded"
         - "decide-owner | stage 4: expand per repository, one owner record each | recorded"
+
+- id: TC-REF-10
+  title: Run every workflow locally in its hosted shape (before anything is hosted)
+  reqs: [REQ-REF-10]
+  item: G7-W06
+  lane: L-hosted
+  depends: [TC-RSL-03, TC-REF-01]
+  governed: false
+  paths: {write: [tools/workflow_rehearsal/, tests/test_workflow_rehearsal.py, docs/OPERATIONS_RUNBOOK.md, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/]}
+  outcome: each of monitor, sealing-scheduled, present, candidates-publish, propose, issues-scheduled and liveness has been executed locally job by job with the hosted inputs (variables, secret names, permissions, checkout depth, runner OS image) and a recorded result, so the first hosted run finds no surprises
+  accept: ["actionlint (or the repository's workflow-shape tests) clean on every workflow", "each workflow ran locally via a container-based runner (Docker is present on this machine; nektos/act or a plain ubuntu container running the same job steps) or, where a step cannot run in a container, by replaying that step's script locally; the gap per workflow is recorded", "GitHub write endpoints are served by a local fake (bare git remote for pushes, recorded fake REST API for pull requests and issues); the LLM gateway is real; no write reaches GitHub", "the full list of variables, secrets and permissions each workflow needs is generated from the YAML and equals what docs/OPERATIONS_RUNBOOK.md states"]
+  children:
+    - id: TC-REF-10-01
+      title: Inventory and static checks
+      steps:
+        - "inspect | .github/workflows/*.yml: triggers, permissions, environments, variables, secrets, job graph, artifacts, concurrency groups | generated table, equal to the runbook text"
+        - "run | actionlint and tests/test_*_workflow.py | clean"
+    - id: TC-REF-10-02
+      title: Local execution harness
+      steps:
+        - "create | tools/workflow_rehearsal: runs a workflow's jobs in order in an ubuntu container (or act) with a local bare remote as origin and a fake GitHub REST transport; hosted-only context (github.*) is provided from a fixture | harness runs monitor.yml end to end"
+        - "run | each remaining workflow, recording container image, python version (hosted is 3.11 while the environment of record for bundles is 3.13: record the difference and its effect on bundle currency, doc 13), duration, and any step that needs a hosted-only service | per-workflow result table"
+    - id: TC-REF-10-03
+      title: Differences between this machine and the hosted runner
+      steps:
+        - "record | toolchains the hosted image lacks that sealing needs (g++, cmake, ninja, cargo, dotnet, go, java) and how workflows install them; examples that need Windows; hosted Python 3.11 versus bundle environment 3.13 | list with a fix or a typed limitation per ecosystem"
+        - "decide-owner | where each ecosystem is sealed in production: a hosted runner, or a self-hosted runner on this machine (the existing runner is registered to a product repository, not the control repository: a new registration for the control repository is an owner action) | decision recorded"
+
+- id: TC-REF-11
+  title: Rehearse the whole autonomous cycle locally on synthetic upstreams
+  reqs: [REQ-REF-11]
+  item: G7-W06
+  lane: L-hosted
+  depends: [TC-REF-10, TC-REF-02, TC-CUR-01, TC-PRP-01]
+  governed: false
+  paths: {write: [tools/workflow_rehearsal/, tests/test_workflow_rehearsal.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/]}
+  outcome: a recorded local run of monitor, plan, seal, verify-noop-proof, commit-back, propose and issue filing against synthetic upstream repositories and the local fakes, covering success and every failure mode
+  accept: ["a synthetic upstream commit that touches a consumed path produces exactly one candidate update and, at the propose step, one pull request on the fake remote; an irrelevant commit produces none", "an unchanged revision makes zero provider calls (ledger proof)", "provider outage is BLOCKED_EXTERNAL, no budget burn, retried next cycle", "a run killed mid-transaction recovers without double processing; a stale lease is fenced", "the pause variable, the per-run and per-day call budgets and the open-PR cap each stop the cycle", "a maintainer edit to the README upstream is reconciled, never overwritten", "no credential appears in any log or artifact of the rehearsal (grep over all outputs)"]
+  children:
+    - id: TC-REF-11-01
+      title: Synthetic upstreams
+      steps:
+        - "create | a local bare repository per scenario (relevant change, irrelevant change, README edit by a maintainer, force-pushed history, deleted repository, archived repository) plus a fixture registry entry in dry_run mode | scenario table"
+    - id: TC-REF-11-02
+      title: Happy path and no-op
+      steps:
+        - "run | the harness: monitor, sealing plan, present (real gateway), verify-noop-proof, publish-candidates (local remote), propose (fake REST) | one candidate PR on the fake remote with the generated title and body; a second run creates nothing"
+    - id: TC-REF-11-03
+      title: Failure modes
+      steps:
+        - "run | gateway outage, kill mid-transaction, stale lease, lost response on a write, rate-limit response, pause variable, budget exhaustion | each recovers or stops as the acceptance lines state; evidence per mode"
+    - id: TC-REF-11-04
+      title: Soak
+      steps:
+        - "run | the cycle every hour for 24 hours with a synthetic upstream that changes twice | no duplicate PR, no stuck lease, freshness ages as expected, summary recorded"
+
+- id: TC-REF-12
+  title: Production hosting on GitHub Actions (staged go-live)
+  reqs: [REQ-REF-12]
+  item: G7-W06
+  lane: supervisor
+  depends: [TC-REF-11, TC-REF-07, TC-REF-08, TC-REF-04, TC-REF-06, TC-REF-02, TC-RSL-02]
+  governed: false
+  paths: {write: [docs/OPERATIONS_RUNBOOK.md, project/state.yaml, docs/DECISION_LOG.md, .github/workflows/]}
+  outcome: the system runs on GitHub Actions on its schedules with write capability enabled only in the stages the owner approves, a documented kill switch and a documented rollback
+  accept: ["prerequisites ready and checked by a preflight job: App installation and permissions per organization (contents and pull requests write only for PR stages, issues write only for issue stages), required secrets and variables present, branch protection and required checks on the control repository, environments with required reviewers guarding every write job", "stage H0 (hosted dry run): schedules enabled with writes disabled only after one workflow_dispatch of each workflow passed on the hosted runner", "stage H1 (shadow): monitor, seal and commit-back to the control repository only; at least N consecutive scheduled cycles without incident, counts recorded", "stage H2 approved issues; stage H3 PR pilot on owner-named repositories; stage H4 per-repository expansion with one owner record each (the TC-REF-09 stages are these H stages)", "kill switch and rollback rehearsed once in production: the pause variable stops the next cycle, a standing record revert stops PRs, the previous candidates are restored by reverting a commit-back PR", "service levels measured and recorded"]
+  children:
+    - id: TC-REF-12-01
+      title: Prerequisites and preflight
+      steps:
+        - "create | a preflight workflow job that fails closed when a required secret, variable, permission or protection is missing, printing names only | green on the control repository"
+        - "decide-owner | secrets, variables and environment reviewers set; the App installed on the organizations in scope with the minimum permissions per stage; branch protection on main | owner confirmation recorded"
+    - id: TC-REF-12-02
+      title: Hosted dry run (H0)
+      steps:
+        - "run | workflow_dispatch of monitor, present, candidates-publish (dry), sealing-scheduled with writes disabled | each passes on the hosted runner; hosted-only differences from TC-REF-10-03 recorded"
+    - id: TC-REF-12-03
+      title: Shadow, then stages
+      steps:
+        - "run | enable schedules; watch H1 cycles; promote through H2 to H4 only on recorded stage exit evidence and owner records | per-stage evidence"
+    - id: TC-REF-12-04
+      title: Operations
+      steps:
+        - "create | docs/OPERATIONS_RUNBOOK.md: schedules, who gets alerts, kill switch, rollback, rotating credentials, what to do on red CI, on an outage, on a bad PR | runbook reviewed by the owner"
+        - "run | one production kill-switch and rollback rehearsal | recorded"
+
 ```
 
 ---
