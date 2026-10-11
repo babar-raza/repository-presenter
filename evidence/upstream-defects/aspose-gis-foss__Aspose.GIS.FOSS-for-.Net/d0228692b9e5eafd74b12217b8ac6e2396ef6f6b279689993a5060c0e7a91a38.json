@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net",
+  "source_revision": "b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4",
+  "defect_fingerprint": "sha256:d0228692b9e5eafd74b12217b8ac6e2396ef6f6b279689993a5060c0e7a91a38",
+  "triggering_check": {
+    "id": "README_MISSING_OR_PLACEHOLDER",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "git ls-tree --name-only b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4",
+      "detail": "no README among the root entries"
+    }
+  ],
+  "claim": "At revision b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4, aspose-gis-foss/Aspose.GIS.FOSS-for-.Net has no README at its root.",
+  "suggested_issue_title": "Aspose.GIS.FOSS for .Net: the repository has no README",
+  "suggested_issue_body": "## Summary\n\nAt revision `b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4` the repository has no README file at its root.\n\n## Environment\n\n- Repository: aspose-gis-foss/Aspose.GIS.FOSS-for-.Net\n- Revision: `b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\ngit ls-tree --name-only b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4\n```\n\n## Expected\n\nA README at the repository root that says what the project is, how to install it and how to use it.\n\n## Actual\n\nThe root listing has no README file.\n\n<!-- repository-presenter-defect: sha256:d0228692b9e5eafd74b12217b8ac6e2396ef6f6b279689993a5060c0e7a91a38 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "README_MISSING_OR_PLACEHOLDER"
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+  "source_revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+  "defect_fingerprint": "sha256:5dc560bf15112ac5723507b6dfb1ce68af8cee7925035d8bf8a3c44afb0e3d80",
+  "triggering_check": {
+    "id": "LICENSE_MISSING_ROOT",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "git ls-tree --name-only fc186507e5b7124f4664aa6035f25cfd3112367d",
+      "detail": "no license file among the root entries"
+    },
+    {
+      "path": "License/LICENSE.txt",
+      "detail": "the only license file in the tree"
+    }
+  ],
+  "claim": "At revision fc186507e5b7124f4664aa6035f25cfd3112367d, aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript has no license file at its root (the only one is License/LICENSE.txt).",
+  "suggested_issue_title": "Aspose.Cells FOSS for TypeScript: the license file is only in License/, not at the repository root",
+  "suggested_issue_body": "## Summary\n\nAt revision `fc186507e5b7124f4664aa6035f25cfd3112367d` the repository has no license file at its root, only `License/LICENSE.txt`.\n\n## Environment\n\n- Repository: aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript\n- Revision: `fc186507e5b7124f4664aa6035f25cfd3112367d` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\ngit ls-tree --name-only fc186507e5b7124f4664aa6035f25cfd3112367d\ngh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript --jq .license\n```\n\n## Expected\n\nA license file at the repository root (for example `LICENSE`), so GitHub license detection and package scanners, which read only the root, can identify the license.\n\n## Actual\n\nThe only license file is `License/LICENSE.txt`; the root listing has none, so the repository page shows no license.\n\n<!-- repository-presenter-defect: sha256:5dc560bf15112ac5723507b6dfb1ce68af8cee7925035d8bf8a3c44afb0e3d80 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "LICENSE_MISSING_ROOT"
+}

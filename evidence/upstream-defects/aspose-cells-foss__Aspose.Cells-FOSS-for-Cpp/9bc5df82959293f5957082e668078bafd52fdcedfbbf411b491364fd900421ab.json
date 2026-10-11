@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "source_revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+  "defect_fingerprint": "sha256:9bc5df82959293f5957082e668078bafd52fdcedfbbf411b491364fd900421ab",
+  "triggering_check": {
+    "id": "LICENSE_MISSING_ROOT",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "git ls-tree --name-only 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "detail": "no license file among the root entries"
+    },
+    {
+      "path": "License/LICENSE.txt",
+      "detail": "the only license file in the tree"
+    }
+  ],
+  "claim": "At revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2, aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp has no license file at its root (the only one is License/LICENSE.txt).",
+  "suggested_issue_title": "Aspose.Cells FOSS for Cpp: the license file is only in License/, not at the repository root",
+  "suggested_issue_body": "## Summary\n\nAt revision `9f852d0ff1cfdad2d661556d6b87a8eff8c063a2` the repository has no license file at its root, only `License/LICENSE.txt`.\n\n## Environment\n\n- Repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp\n- Revision: `9f852d0ff1cfdad2d661556d6b87a8eff8c063a2` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\ngit ls-tree --name-only 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2\ngh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp --jq .license\n```\n\n## Expected\n\nA license file at the repository root (for example `LICENSE`), so GitHub license detection and package scanners, which read only the root, can identify the license.\n\n## Actual\n\nThe only license file is `License/LICENSE.txt`; the root listing has none, so the repository page shows no license.\n\n<!-- repository-presenter-defect: sha256:9bc5df82959293f5957082e668078bafd52fdcedfbbf411b491364fd900421ab -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "LICENSE_MISSING_ROOT"
+}

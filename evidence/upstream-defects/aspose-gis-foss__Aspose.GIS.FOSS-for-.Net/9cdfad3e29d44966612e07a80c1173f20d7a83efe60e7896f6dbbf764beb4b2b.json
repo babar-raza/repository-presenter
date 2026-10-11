@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net",
+  "source_revision": "b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4",
+  "defect_fingerprint": "sha256:9cdfad3e29d44966612e07a80c1173f20d7a83efe60e7896f6dbbf764beb4b2b",
+  "triggering_check": {
+    "id": "LICENSE_MISSING_ROOT",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "git ls-tree --name-only b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4",
+      "detail": "no license file among the root entries"
+    }
+  ],
+  "claim": "At revision b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4, aspose-gis-foss/Aspose.GIS.FOSS-for-.Net has no license file at its root.",
+  "suggested_issue_title": "Aspose.GIS.FOSS for .Net: no license file at the repository root",
+  "suggested_issue_body": "## Summary\n\nAt revision `b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4` the repository has no license file at its root.\n\n## Environment\n\n- Repository: aspose-gis-foss/Aspose.GIS.FOSS-for-.Net\n- Revision: `b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\ngit ls-tree --name-only b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4\ngh api repos/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net --jq .license\n```\n\n## Expected\n\nA license file at the repository root (for example `LICENSE`), so GitHub license detection and package scanners, which read only the root, can identify the license.\n\n## Actual\n\nThe root listing has no license file, and none exists elsewhere in the tree.\n\n<!-- repository-presenter-defect: sha256:9cdfad3e29d44966612e07a80c1173f20d7a83efe60e7896f6dbbf764beb4b2b -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "LICENSE_MISSING_ROOT"
+}

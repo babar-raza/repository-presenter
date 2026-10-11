@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+  "source_revision": "952317cad8db1880ed85be9814c24e9303930d49",
+  "defect_fingerprint": "sha256:a2e2612a201108c13992c6849816313a71cb486f22489fc443d9cb6f3558241a",
+  "triggering_check": {
+    "id": "LICENSE_MISSING_ROOT",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "git ls-tree --name-only 952317cad8db1880ed85be9814c24e9303930d49",
+      "detail": "no license file among the root entries"
+    },
+    {
+      "path": "License/LICENSE.txt",
+      "detail": "the only license file in the tree"
+    },
+    {
+      "path": "pyproject.toml",
+      "detail": "declares license MIT"
+    }
+  ],
+  "claim": "At revision 952317cad8db1880ed85be9814c24e9303930d49, aspose-cells-foss/Aspose.Cells-FOSS-for-Python has no license file at its root (the only one is License/LICENSE.txt).",
+  "suggested_issue_title": "Aspose.Cells FOSS for Python: the license file is only in License/, not at the repository root",
+  "suggested_issue_body": "## Summary\n\nAt revision `952317cad8db1880ed85be9814c24e9303930d49` the repository has no license file at its root, only `License/LICENSE.txt`.\n\n## Environment\n\n- Repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Python\n- Revision: `952317cad8db1880ed85be9814c24e9303930d49` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\ngit ls-tree --name-only 952317cad8db1880ed85be9814c24e9303930d49\ngh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Python --jq .license\n```\n\n## Expected\n\nA license file at the repository root (for example `LICENSE`), so GitHub license detection and package scanners, which read only the root, can identify the license.\n\n## Actual\n\nThe only license file is `License/LICENSE.txt`; the root listing has none, so the repository page shows no license. `pyproject.toml` declares the license as `MIT`.\n\n<!-- repository-presenter-defect: sha256:a2e2612a201108c13992c6849816313a71cb486f22489fc443d9cb6f3558241a -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "LICENSE_MISSING_ROOT"
+}

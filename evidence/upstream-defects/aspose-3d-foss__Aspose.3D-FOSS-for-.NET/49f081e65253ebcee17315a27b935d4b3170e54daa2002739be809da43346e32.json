@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+  "source_revision": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+  "defect_fingerprint": "sha256:49f081e65253ebcee17315a27b935d4b3170e54daa2002739be809da43346e32",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "5",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": ".gitignore",
+      "detail": "line 8: testdata; git ls-files tracks 0 testdata files"
+    },
+    {
+      "path": "src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj",
+      "detail": "dotnet test (net10.0, 2026-10-11): Failed: 53, Passed: 130, Total: 183; 47 FileNotFoundException for testdata/ fixtures"
+    }
+  ],
+  "claim": "At revision 52b0f00ebf28a0b4173921725ff170685ec2c502, .gitignore excludes testdata, no testdata file is tracked, and dotnet test reports 53 failures out of 183 tests, 47 of them FileNotFoundException for testdata fixtures.",
+  "suggested_issue_title": "Aspose.3D FOSS for .NET: 53 of 183 tests fail on a clean checkout because testdata/ is not tracked",
+  "suggested_issue_body": "## Summary\n\n`.gitignore` (line 8) excludes `testdata`, the directory from which the test suite reads its fixture files, and no file under it is tracked. On a clean checkout `dotnet test` therefore reports 53 failures out of 183 tests; 47 of them are `FileNotFoundException` for fixtures under `testdata/`.\n\n## Environment\n\n- Repository: aspose-3d-foss/Aspose.3D-FOSS-for-.NET\n- Revision: `52b0f00ebf28a0b4173921725ff170685ec2c502` (the upstream revision this report was verified against, default branch `main`)\n- Windows 11, .NET SDK 10.0.401 (net10.0)\n- Verified on 2026-10-11 from a fresh shallow clone.\n\n## Steps to reproduce\n\n```\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET\ncd Aspose.3D-FOSS-for-.NET\ngrep -n testdata .gitignore\ngit ls-files | grep -i -c testdata\ndotnet test src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj\n```\n\n## Expected\n\nThe test suite passes on a clean checkout: the fixtures are tracked or the tests generate them.\n\n## Actual\n\n`grep` prints `8:testdata`, the second command prints `0`, and the run ends with:\n\n```\nFailed!  - Failed:    53, Passed:   130, Skipped:     0, Total:   183 (net10.0)\n```\nThe 47 file errors name, for example: `Test file not found: ../../../../../../testdata/input/cube.obj` (6 tests), `testdata/stl/stl_ascii.stl` (5), `testdata/gltf/simple_cube.gltf` (4), `testdata/3mf/box.3mf` (3) and `./collada/cube_triangulate.dae` (3).\n\n## Where in the repository\n\n- `.gitignore:8` (`testdata`)\n- `src/test/Aspose.ThreeD.Tests/` (the tests that read the fixtures)\n\n## Suggested fix\n\nRemove `testdata` from `.gitignore` and commit the fixture files, or build the fixtures inside the tests.\n\n<!-- repository-presenter-defect: sha256:49f081e65253ebcee17315a27b935d4b3170e54daa2002739be809da43346e32 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

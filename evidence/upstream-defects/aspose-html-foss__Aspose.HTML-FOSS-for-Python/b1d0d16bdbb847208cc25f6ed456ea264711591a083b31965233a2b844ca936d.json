@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+  "source_revision": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11",
+  "defect_fingerprint": "sha256:b1d0d16bdbb847208cc25f6ed456ea264711591a083b31965233a2b844ca936d",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "5",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "tests/test_css/test_w3c_fixture_loader.py",
+      "detail": "line 19: from tests.test_css.w3c.conftest import (; git ls-files tests/test_css/w3c is empty"
+    },
+    {
+      "path": "python -m pytest --collect-only -q",
+      "detail": "2026-10-11: ModuleNotFoundError: No module named 'tests.test_css.w3c'; Interrupted: 1 error during collection; 12296 tests collected, 1 error"
+    }
+  ],
+  "claim": "At revision bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11, tests/test_css/test_w3c_fixture_loader.py imports the untracked package tests.test_css.w3c and pytest is interrupted by a collection error.",
+  "suggested_issue_title": "Aspose.HTML FOSS for Python: pytest stops at collection because tests/test_css/w3c is not in the repository",
+  "suggested_issue_body": "## Summary\n\n`tests/test_css/test_w3c_fixture_loader.py` (line 19) imports `tests.test_css.w3c.conftest`, but no file under `tests/test_css/w3c` is tracked. A plain `pytest` run therefore ends with a collection error and the session is interrupted.\n\n## Environment\n\n- Repository: aspose-html-foss/Aspose.HTML-FOSS-for-Python\n- Revision: `bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11` (the upstream revision this report was verified against, default branch `main`)\n- Windows 11, Python 3.13.15, pytest 9\n- Verified on 2026-10-11 from a fresh shallow clone.\n\n## Steps to reproduce\n\n```\ngit clone https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python\ncd Aspose.HTML-FOSS-for-Python\ngit ls-files tests/test_css/w3c | wc -l\nsed -n 19p tests/test_css/test_w3c_fixture_loader.py\nPYTHONPATH=src python -m pytest --collect-only -q\n```\n\n## Expected\n\n`pytest` collects every test module without errors.\n\n## Actual\n\nThe first command prints `0`, the second prints `from tests.test_css.w3c.conftest import (`, and the run ends with:\n\n```\nE   ModuleNotFoundError: No module named 'tests.test_css.w3c'\nERROR tests/test_css/test_w3c_fixture_loader.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n12296 tests collected, 1 error\n```\n\n## Where in the repository\n\n- `tests/test_css/test_w3c_fixture_loader.py:19`\n- `tests/test_css/w3c/` (not tracked)\n\n## Suggested fix\n\nCommit the `tests/test_css/w3c` package, or skip the loader test when the fixtures are absent.\n\n<!-- repository-presenter-defect: sha256:b1d0d16bdbb847208cc25f6ed456ea264711591a083b31965233a2b844ca936d -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:ee780fd392f4a2ab4e130a137ed32f715e2224f8a77dd327a44aa67588754c00",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "5",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "tests/test_3mf_materials.test.ts",
+      "detail": "npx jest (node:22, 2026-10-11): ENOENT open '../foss.3d.python/examples/3mf/dodeca_chain_loop_color.3mf'"
+    },
+    {
+      "path": "src/aspose/threed/Transform.ts",
+      "detail": "line 160: TypeError: rotation[0].eulerAngles is not a function (tests/test_3mf_roundtrip.test.ts)"
+    },
+    {
+      "path": "tests/test_scene_save_stl.test.ts",
+      "detail": "line 77: expect(mesh2.polygonCount).toBe(1) received 0; Tests: 4 failed, 93 passed, 97 total"
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, npx jest reports 4 failed and 93 passed tests out of 97.",
+  "suggested_issue_title": "Aspose.3D FOSS for TypeScript: npx jest reports 4 failing tests out of 97 at the default branch head",
+  "suggested_issue_body": "## Summary\n\nAfter `npm install`, `npx jest` runs 97 tests and 4 fail: `Test3MFMaterialImport > testMaterialImport`, `Test3MFRoundTrip > testRoundTripExportImport`, `TestGltfExporter > testSimpleTriangleBinary` and `TestSceneSaveSTL > testRoundtripFile`. Each has a different cause.\n\n## Environment\n\n- Repository: aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript\n- Revision: `66cb26df3b031f0bf6976d4e88dc89721983afa4` (the upstream revision this report was verified against, default branch `master`)\n- Docker image `node:22` (Node v22.23.3, npm 10.9.9)\n- Verified on 2026-10-11 from a fresh shallow clone.\n\n## Steps to reproduce\n\n```\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript\ncd Aspose.3D-FOSS-for-TypeScript\nnpm install\nnpx jest\n```\n\n## Expected\n\nAll tests pass on a clean clone.\n\n## Actual\n\n```\nTest Suites: 4 failed, 28 passed, 32 total\nTests:       4 failed, 93 passed, 97 total\n```\nFailure causes:\n\n- `testMaterialImport`: `ENOENT: no such file or directory, open '../foss.3d.python/examples/3mf/dodeca_chain_loop_color.3mf'`; the fixture lives outside this repository.\n- `testRoundTripExportImport`: `TypeError: rotation[0].eulerAngles is not a function` at `Transform.ts:160`.\n- `testSimpleTriangleBinary`: `RangeError: The value of \"offset\" is out of range. It must be >= 0 and <= 636. Received 640` while writing the binary glTF buffer (`writeFloatLE`).\n- `testRoundtripFile`: `expect(mesh2.polygonCount).toBe(1)` receives `0` after the STL round trip.\n\n## Where in the repository\n\n- `tests/test_3mf_materials.test.ts`, `tests/test_3mf_roundtrip.test.ts`, `tests/test_gltf_exporter.test.ts`, `tests/test_scene_save_stl.test.ts`\n- `src/aspose/threed/Transform.ts:160`\n\n## Suggested fix\n\nVendor the 3MF fixture into `tests/`, fix or skip the three library failures, and run `npx jest` in CI so a failing test is noticed.\n\n<!-- repository-presenter-defect: sha256:ee780fd392f4a2ab4e130a137ed32f715e2224f8a77dd327a44aa67588754c00 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}
