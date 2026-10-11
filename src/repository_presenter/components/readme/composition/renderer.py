@@ -59,7 +59,12 @@ from repository_presenter.components.readme.evidence.facts.assets import CI_BADG
 from repository_presenter.components.readme.evidence.facts.commands import (
     BUILD_COMMAND_FACT_ID,
     CI_MATRIX_FACT_ID,
+    PRECONDITION_ATTRIBUTE,
+    RELEASE_WORKFLOW_FACT_ID,
     TEST_COMMAND_FACT_ID,
+    CommandForm,
+    command_form,
+    commands_in_text,
     matrix_axes,
 )
 from repository_presenter.components.readme.evidence.facts.links import link_text
@@ -122,10 +127,13 @@ RENDERER_VERSION = "31"
 # sentence on the CI matrix's operating systems and runtimes. A repository whose facts name
 # neither renders as before.
 # 33: CUT-4 (G3-W08): the At a Glance diagram is drawn by components/readme_diagram (horizontal
-# mother
-# blocks, no clipping), kept units drop only when fully stated, one-pass code-span wrapping, C++
-# CMake minimum and distribution, moved limitations tables print. A bundle sealed under 32
-# re-renders.
+# mother blocks, no clipping), kept units drop only when fully stated, one-pass code-span
+# wrapping, C++ CMake minimum and distribution, moved limitations tables print. A bundle sealed
+# under 32 re-renders.
+# Also 33 (same cut, L-cov3): the release sentence is written only for a workflow with a step that
+# releases (the release-workflow fact), the CI matrix is prose ("Python 3.10 and 3.12", "Ubuntu
+# and Windows"), a command is skipped when the README already shows an equivalent one anywhere,
+# and a build command that needs a tool or a configure step prints it first.
 RENDERER_VERSION = "33"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
@@ -640,6 +648,55 @@ def _documentation_resources(context: RenderContext) -> list[str]:
     return lines
 
 
+# The runtimes a CI matrix names (``strategy.matrix`` keys), as a reader says them; an axis not
+# here, or a value that is not a plain version, is quoted as ``key: values`` instead.
+_MATRIX_LABELS = {
+    "python-version": "Python",
+    "python": "Python",
+    "node-version": "Node.js",
+    "node": "Node.js",
+    "dotnet-version": ".NET",
+    "dotnet": ".NET",
+    "go-version": "Go",
+    "go": "Go",
+    "java-version": "Java",
+    "java": "Java",
+    "jdk": "JDK",
+    "rust": "Rust",
+}
+_MATRIX_OPERATING_SYSTEMS = {"ubuntu": "Ubuntu", "windows": "Windows", "macos": "macOS"}
+_MATRIX_OS_VALUE = re.compile(r"(ubuntu|windows|macos)(?:-(latest|\d+(?:\.\d+)*))?")
+_MATRIX_RUNTIME_VALUE = re.compile(r"\d+(?:\.\d+)*|stable|beta|nightly")
+
+
+def _operating_system(value: str) -> str | None:
+    """``ubuntu-latest`` as ``Ubuntu``, ``macos-14`` as ``macOS 14``; ``None`` for any other."""
+    match = _MATRIX_OS_VALUE.fullmatch(value)
+    if match is None:
+        return None
+    name, version = match.groups()
+    label = _MATRIX_OPERATING_SYSTEMS[name]
+    return f"{label} {version}" if version and version != "latest" else label
+
+
+def _matrix_phrase(axes: list[tuple[str, list[str]]]) -> str:
+    """The CI matrix as prose: ``on Ubuntu and Windows, with Python 3.10 and 3.12``."""
+    systems: list[str] = []
+    runtimes: list[str] = []
+    for axis, values in axes:
+        named = [label for value in values if (label := _operating_system(value)) is not None]
+        if axis == "os" and len(named) == len(values):
+            systems.extend(label for label in named if label not in systems)
+        elif axis in _MATRIX_LABELS and all(_MATRIX_RUNTIME_VALUE.fullmatch(v) for v in values):
+            runtimes.append(f"{_MATRIX_LABELS[axis]} {_join_and(values)}")
+        else:
+            runtimes.append(f"`{axis}: {', '.join(values)}`")
+    parts = [f"on {_join_and(systems)}"] if systems else []
+    if runtimes:
+        parts.append(f"with {'; '.join(runtimes)}")
+    return ", ".join(parts)
+
+
 def _join_and(parts: list[str]) -> str:
     """``a``, ``a and b``, ``a, b and c``."""
     if len(parts) <= 1:
@@ -647,39 +704,52 @@ def _join_and(parts: list[str]) -> str:
     return f"{', '.join(parts[:-1])} and {parts[-1]}"
 
 
-_COMMAND_PROMPT = re.compile(r"^\s*(?:[$>]\s*)?")
-
-
-def _placed_command_lines(context: RenderContext) -> frozenset[str]:
-    """Every line of every inherited block already placed in Development and Testing, so a
-    command the renderer would print is not printed a second time beside the maintainers' own."""
-    lines: set[str] = set()
-    for text in context.placed.get("development_testing", []):
-        for line in text.splitlines():
-            lines.add(_COMMAND_PROMPT.sub("", line).strip())
-    return frozenset(lines)
+def _readme_commands(context: RenderContext) -> list[CommandForm]:
+    """Every command the README shows besides the ones Development and Testing is about to add: the
+    verbatim blocks any section places, the units the model authored (code fences and inline
+    code alike) and the commands Installation prints, so a command already shown anywhere, however
+    spelled, is not printed a second time (the placed-inherited-block rule, in its general form)."""
+    included = {section.id for section in context.included}
+    texts = [text for placed in context.placed.values() for text in placed]
+    texts.extend(text for (section, _slot), text in context.units.items() if section in included)
+    if "installation" in included:
+        texts.append("\n".join(_installation(context)))
+    return [form for text in texts for form in commands_in_text(text)]
 
 
 def _development_commands(context: RenderContext) -> tuple[str, list[str]]:
     """TC-COV-02: the lead-in sentence and the commands of the build and test facts, in build
-    then test order, minus any a placed inherited block already carries. ``("", [])`` when the
-    facts name none, so a repository without them renders as before."""
-    present = _placed_command_lines(context)
-    roles: list[tuple[str, str]] = []
+    then test order, minus any the README already shows in an equivalent form, each after the
+    precondition its fact carries (a tool to install, a configure step) unless that is shown too.
+    ``("", [])`` when the facts name none, so a repository without them renders as before."""
+    shown = _readme_commands(context)
+
+    def present(command: str) -> bool:
+        form = command_form(command)
+        return form is not None and any(have.covers(form) for have in shown)
+
+    roles: list[str] = []
+    block: list[str] = []
     for role, fact_id_ in (("build", BUILD_COMMAND_FACT_ID), ("test", TEST_COMMAND_FACT_ID)):
         fact = context.fact(fact_id_)
-        if fact is not None and fact.polarity == "SUPPORTED" and fact.value not in present:
-            roles.append((role, fact.value))
+        if fact is None or fact.polarity != "SUPPORTED" or present(fact.value):
+            continue
+        roles.append(role)
+        needs = (fact.attributes or {}).get(PRECONDITION_ATTRIBUTE, "").splitlines()
+        for line in (*(need for need in needs if not present(need)), fact.value):
+            if line not in block:
+                block.append(line)
     if not roles:
         return "", []
     names = {"build": "build", "test": "run the tests"}
-    lead = f"To {' and '.join(names[role] for role, _ in roles)} from a clone, run:"
-    return lead, ["```bash", *(command for _, command in roles), "```"]
+    lead = f"To {' and '.join(names[role] for role in roles)} from a clone, run:"
+    return lead, ["```bash", *block, "```"]
 
 
 def _development_sentences(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2 row 17: the suite-size sentence when a test-file count is
-    verified, and the release sentence linking the publish workflow file when one exists;
+    verified, the CI matrix in words, and the release sentence naming the workflow one of whose
+    steps releases (the release-workflow fact; never a workflow chosen by file name or position);
     representative assets are named in prose, never listed as bare directories."""
     sentences: list[str] = []
     tests = context.fact("build_test_asset:tests")
@@ -697,17 +767,11 @@ def _development_sentences(context: RenderContext) -> list[str]:
         path = matrix.evidence[0].path
         if axes:
             stem = path.rsplit("/", 1)[-1].rsplit(".", 1)[0]
-            parts = [f"{axis} ({', '.join(values)})" for axis, values in axes]
-            sentences.append(f"The [{stem} workflow]({path}) runs across {_join_and(parts)}.")
-    ci = context.fact("build_test_asset:ci")
-    if ci is not None and ci.polarity == "SUPPORTED":
-        prefix = ci.value if ci.value.endswith("/") else ci.value + "/"
-        workflows = [e.path for e in ci.evidence if e.path.startswith(prefix) and e.path != prefix]
-        release = [w for w in workflows if any(k in w.lower() for k in ("publish", "release"))]
-        chosen = release[0] if release else workflows[0] if workflows else None
-        if chosen is not None:
-            stem = chosen.rsplit("/", 1)[-1].rsplit(".", 1)[0]
-            sentences.append(f"Releases run through the [{stem} workflow]({chosen}).")
+            sentences.append(f"The [{stem} workflow]({path}) runs {_matrix_phrase(axes)}.")
+    release = context.fact(RELEASE_WORKFLOW_FACT_ID)
+    if release is not None and release.polarity == "SUPPORTED":
+        stem = release.value.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+        sentences.append(f"Releases run through the [{stem} workflow]({release.value}).")
     return sentences
 
 

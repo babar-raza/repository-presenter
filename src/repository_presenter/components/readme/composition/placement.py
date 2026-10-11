@@ -68,7 +68,10 @@ from urllib.parse import unquote
 
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
 from repository_presenter.components.readme.composition.coverage import Destinations, uncovered
-from repository_presenter.components.readme.evidence.facts.commands import CI_MATRIX_FACT_ID
+from repository_presenter.components.readme.evidence.facts.commands import (
+    CI_MATRIX_FACT_ID,
+    RELEASE_WORKFLOW_FACT_ID,
+)
 from repository_presenter.components.readme.evidence.facts.links import heading_slug
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
@@ -311,10 +314,16 @@ def _adjacent_section_opening(
     return rendered
 
 
-# The CI matrix sentence is the renderer's (TC-COV-02), so a prose unit citing it overlaps it. The
-# build and test commands are deliberately absent: a command is deduplicated line by line at
-# render time, and dropping a unit that spells a different invocation would lose it.
-_RENDERER_OWNED_ASSETS = ("build_test_asset:tests", "build_test_asset:ci", CI_MATRIX_FACT_ID)
+# The CI matrix sentence and the release sentence are the renderer's (TC-COV-02), so a prose unit
+# citing either overlaps it. The build and test commands are deliberately absent: a command is
+# deduplicated against the README's equivalent commands at render time, and dropping a unit that
+# spells a different invocation would lose it.
+_RENDERER_OWNED_ASSETS = (
+    "build_test_asset:tests",
+    "build_test_asset:ci",
+    CI_MATRIX_FACT_ID,
+    RELEASE_WORKFLOW_FACT_ID,
+)
 
 
 _STOCK_CONSTRUCTOR_SUMMARY = re.compile(

@@ -642,6 +642,11 @@ def _command_facts() -> tuple[Fact, ...]:
             "build_test_asset",
             "python -m build",
             (Evidence(".github/workflows/ci.yml", "build command; job packaging runs `x`"),),
+            attributes={
+                "role": "build command",
+                "source": "ci workflow",
+                "precondition": "pip install build",
+            },
         ),
         Fact(
             "build_test_asset:test-command",
@@ -666,13 +671,17 @@ def test_development_and_testing_prints_the_build_and_test_commands_and_the_ci_m
     facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *_command_facts()))
     readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
     section = _development_section(readme)
+    # The matrix is prose, never the raw keys of the workflow ("os (...)", "python-version (...)").
     assert (
-        "The [ci workflow](.github/workflows/ci.yml) runs across os (ubuntu-latest, "
-        "windows-latest) and python-version (3.10, 3.11)."
+        "The [ci workflow](.github/workflows/ci.yml) runs on Ubuntu and Windows, "
+        "with Python 3.10 and 3.11."
     ) in section
+    assert "python-version" not in section and "ubuntu-latest" not in section
+    # `python -m build` needs the PyPA build package, which the project does not itself declare.
     assert section.rstrip("\n").endswith(
         "To build and run the tests from a clone, run:\n\n"
-        "```bash\npython -m build\npython -m unittest discover -s tests -v\n```"
+        "```bash\npip install build\npython -m build\n"
+        "python -m unittest discover -s tests -v\n```"
     )
 
 
@@ -706,7 +715,9 @@ def test_a_command_the_placed_inherited_block_already_carries_is_not_printed_twi
     }
     section = _development_section(render_readme(ENTRY, facts, PLAN, UNITS, dispositions))
     assert section.count("python -m unittest discover -s tests -v") == 1
-    assert "To build from a clone, run:\n\n```bash\npython -m build\n```" in section
+    assert (
+        "To build from a clone, run:\n\n```bash\npip install build\npython -m build\n```"
+    ) in section
     assert section.rstrip("\n").endswith(commands)
 
 
@@ -1391,6 +1402,7 @@ def test_development_and_testing_states_the_suite_size_and_links_the_release_wor
                     Evidence(".github/workflows/", "2 files; GitHub Actions workflows"),
                 ),
             ),
+            _release_workflow(".github/workflows/publish.yml", "job publish runs twine upload"),
         ),
     )
     readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
@@ -1400,6 +1412,276 @@ def test_development_and_testing_states_the_suite_size_and_links_the_release_wor
         "The suite covers 34 test files under `tests/`. "
         "Releases run through the [publish workflow](.github/workflows/publish.yml)."
     ) in section
+
+
+def _release_workflow(path: str, detail: str) -> Fact:
+    """The release-workflow fact as the extractor records it: a workflow with a releasing step."""
+    return Fact(
+        "build_test_asset:release-workflow",
+        "build_test_asset",
+        path,
+        (Evidence(path, f"release step; {detail}"),),
+        attributes={"role": "release workflow", "workflow": path},
+    )
+
+
+def _facts_with_workflows(*extra: Fact, paths: tuple[str, ...]) -> FactsDocument:
+    """The build assets of a repository whose workflow directory holds ``paths``."""
+    ci = Fact(
+        "build_test_asset:ci",
+        "build_test_asset",
+        ".github/workflows/",
+        (
+            *(Evidence(path) for path in paths),
+            Evidence(".github/workflows/", f"{len(paths)} files; GitHub Actions workflows"),
+        ),
+    )
+    return FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, ci, *extra))
+
+
+@pytest.mark.parametrize(
+    "paths",
+    [
+        # JMAP .NET/Cpp/Go/Java/Python/Rust/TypeScript: ci.yml is a secret scan and a test run;
+        # nothing is published (acc-corr2-set2).
+        (".github/workflows/ci.yml",),
+        # PDF-Go: lint.yml is golangci-lint; its releases are manual.
+        (".github/workflows/lint.yml",),
+        (".github/workflows/ci.yml", ".github/workflows/lint.yml"),
+        # A file name that says release proves nothing: only a releasing step does.
+        (".github/workflows/release-notes.yml",),
+    ],
+)
+def test_no_release_sentence_is_written_when_no_workflow_has_a_releasing_step(
+    paths: tuple[str, ...],
+) -> None:
+    facts = _facts_with_workflows(paths=paths)
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "Releases run through" not in readme
+    assert not any("Releases run" in s for s in renderer_sentences(ENTRY, facts, PLAN, UNITS, {}))
+
+
+def test_the_release_sentence_names_the_workflow_that_releases_not_the_first_one() -> None:
+    facts = _facts_with_workflows(
+        _release_workflow(
+            ".github/workflows/ci.yml", "job publish uses pypa/gh-action-pypi-publish"
+        ),
+        paths=(".github/workflows/ci.yml", ".github/workflows/lint.yml"),
+    )
+    section = _development_section(render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS))
+    assert "Releases run through the [ci workflow](.github/workflows/ci.yml)." in section
+    assert "lint workflow" not in section
+    assert "Releases run through the [ci workflow](.github/workflows/ci.yml)." in (
+        renderer_sentences(ENTRY, facts, PLAN, UNITS, {})
+    )
+
+
+def _matrix_fact(value: str) -> Fact:
+    return Fact(
+        "build_test_asset:ci-matrix",
+        "build_test_asset",
+        value,
+        (Evidence(".github/workflows/ci.yml", "job tests strategy.matrix axes"),),
+    )
+
+
+@pytest.mark.parametrize(
+    ("value", "sentence"),
+    [
+        (
+            "python-version=3.10,3.12",
+            "The [ci workflow](.github/workflows/ci.yml) runs with Python 3.10 and 3.12.",
+        ),
+        (
+            "os=ubuntu-latest,windows-latest;python-version=3.10,3.11,3.12",
+            "The [ci workflow](.github/workflows/ci.yml) runs on Ubuntu and Windows, "
+            "with Python 3.10, 3.11 and 3.12.",
+        ),
+        (
+            "os=ubuntu-22.04,macos-14,windows-2022",
+            "The [ci workflow](.github/workflows/ci.yml) runs on Ubuntu 22.04, macOS 14 and "
+            "Windows 2022.",
+        ),
+        (
+            "node-version=18,20;dotnet-version=8.0;go-version=1.22;java-version=17,21;jdk=21",
+            "The [ci workflow](.github/workflows/ci.yml) runs with Node.js 18 and 20; .NET 8.0; "
+            "Go 1.22; Java 17 and 21; JDK 21.",
+        ),
+        (
+            "rust=stable,nightly",
+            "The [ci workflow](.github/workflows/ci.yml) runs with Rust stable and nightly.",
+        ),
+        # An axis the table does not know, or a value that is not a plain version, is quoted.
+        (
+            "toolchain=stable,nightly;os=self-hosted",
+            "The [ci workflow](.github/workflows/ci.yml) runs with `toolchain: stable, nightly`; "
+            "`os: self-hosted`.",
+        ),
+        (
+            "python-version=3.x,pypy-3.10",
+            "The [ci workflow](.github/workflows/ci.yml) runs with `python-version: 3.x, "
+            "pypy-3.10`.",
+        ),
+    ],
+)
+def test_the_ci_matrix_is_written_in_words_not_as_workflow_keys(value: str, sentence: str) -> None:
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, _matrix_fact(value)))
+    assert sentence in renderer_sentences(ENTRY, facts, PLAN, UNITS, {})
+    assert sentence in _development_section(render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS))
+
+
+def _command_fact(role: str, command: str, precondition: str = "") -> Fact:
+    attributes = {"role": f"{role} command", "source": "ci workflow"}
+    if precondition:
+        attributes["precondition"] = precondition
+    return Fact(
+        f"build_test_asset:{role}-command",
+        "build_test_asset",
+        command,
+        (Evidence(".github/workflows/ci.yml", f"{role} command; job j runs `{command}`"),),
+        attributes=attributes,
+    )
+
+
+def _commands_block(readme: str) -> str:
+    section = _development_section(readme)
+    return section.split("run:\n\n", 1)[1] if "run:\n\n" in section else ""
+
+
+@pytest.mark.parametrize(
+    ("command", "shown"),
+    [
+        # JMAP-Python: the fact is `python -m pytest -q`, the live README says `pytest`.
+        ("python -m pytest -q", "```bash\npytest\n```"),
+        # 3D-Java / Cells-Java: `mvn package` against the maintainers' `mvn clean package`.
+        ("mvn package", "```bash\nmvn clean package -DskipTests\n```"),
+        # Cells-.NET / Imaging: a solution build against an existing project build.
+        ("dotnet build App.sln", "```bash\ndotnet build src/App/App.csproj\n```"),
+        ("dotnet test", "```bash\ndotnet test App.sln --no-build\n```"),
+        # Whitespace, a prompt, and a wrapper do not make a different command.
+        ("cargo test --all-targets", "```console\n$   cargo   test\n```"),
+        ("pytest", "```bash\nuv run python -m pytest tests/\n```"),
+        ("npm test", "```bash\nnpm run test\n```"),
+        # Inline code in the authored prose counts as showing it.
+        (
+            "python -m unittest discover -s tests -v",
+            "Run `python -m unittest discover -s tests -v`.",
+        ),
+        ("go test ./...", "Run `go test ./...` before sending a change."),
+        # A command chained after another is still shown.
+        ("cmake --build build --parallel 4", "```bash\ncd x && cmake --build build\n```"),
+    ],
+)
+def test_a_command_is_skipped_when_an_equivalent_one_is_shown_anywhere_in_the_readme(
+    command: str, shown: str
+) -> None:
+    units = {
+        "units": [*UNITS["units"], _unit("quick_start", "tip", shown)],
+        "omitted": [],
+    }
+    facts = FactsDocument(
+        ENTRY.repository, "a" * 40, (*FACTS.facts, _command_fact("test", command))
+    )
+    readme = render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS)
+    assert _commands_block(readme) == ""
+    assert "from a clone" not in _development_section(readme)
+    assert renderer_sentences(ENTRY, facts, PLAN, units, {}) == renderer_sentences(
+        ENTRY, FactsDocument(ENTRY.repository, "a" * 40, FACTS.facts), PLAN, units, {}
+    )
+
+
+@pytest.mark.parametrize(
+    ("role", "command", "shown"),
+    [
+        # A different subcommand, a narrower target and a different program are different commands.
+        ("build", "mvn package", "```bash\nmvn test\n```"),
+        ("test", "make test", "```bash\nmake\n```"),
+        ("build", "cargo build", "```bash\ncargo doc\n```\nThen `cargo` is used."),
+        ("test", "go test ./...", "```bash\ngo test ./internal/...\n```"),
+        ("test", "ctest --test-dir build", "```bash\ncmake --build build\n```"),
+        ("test", "pytest", "```bash\npip install pytest\n```"),
+        ("build", "npm run build", "```bash\nnpm test\n```"),
+        ("build", "cmake --build build", "```bash\ncmake -S . -B build\n```"),
+    ],
+)
+def test_a_command_is_printed_when_only_a_different_one_is_shown(
+    role: str, command: str, shown: str
+) -> None:
+    units = {
+        "units": [*UNITS["units"], _unit("quick_start", "tip", shown)],
+        "omitted": [],
+    }
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, _command_fact(role, command)))
+    block = _commands_block(render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS))
+    assert command in block
+
+
+def test_a_command_the_placed_inherited_block_of_another_section_shows_is_not_printed() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _command_fact("build", "mvn package"),
+            _command_fact("test", "mvn test"),
+            Fact(
+                "inherited_unit:010.code_block",
+                "inherited_unit",
+                "```bash\nmvn clean package\n```",
+                (Evidence("README.md", "lines 20-22; code_block"),),
+            ),
+        ),
+    )
+    dispositions: dict[str, Any] = {
+        "dispositions": [
+            *DISPOSITIONS["dispositions"],
+            {
+                "unit_id": "inherited_unit:010.code_block",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "installation",
+                "fact_ids": ["build_test_asset:build-command"],
+                "rationale": "r",
+            },
+        ]
+    }
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, dispositions)
+    assert "mvn clean package" in readme
+    # The maintainers' block sits in Installation; Development and Testing prints only `mvn test`.
+    assert _commands_block(readme) == "```bash\nmvn test\n```\n"
+
+
+def test_a_precondition_already_shown_is_not_printed_again() -> None:
+    units = {
+        "units": [
+            *UNITS["units"],
+            _unit("installation", "tip", "Run `python -m pip install build`."),
+        ],
+        "omitted": [],
+    }
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _command_fact("build", "python -m build", "pip install build")),
+    )
+    block = _commands_block(render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS))
+    assert block == "```bash\npython -m build\n```\n"
+
+
+def test_a_cmake_chain_prints_its_configure_step_once() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _command_fact("build", "cmake --build build --parallel 4", "cmake -S . -B build"),
+            _command_fact("test", "ctest --test-dir build", "cmake -S . -B build"),
+        ),
+    )
+    block = _commands_block(render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS))
+    assert block == (
+        "```bash\ncmake -S . -B build\ncmake --build build --parallel 4\n"
+        "ctest --test-dir build\n```\n"
+    )
 
 
 def test_every_limitation_unit_renders_as_its_own_bullet() -> None:
