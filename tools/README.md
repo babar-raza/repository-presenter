@@ -227,6 +227,19 @@ governance tracks, two directories, no overlap.
   - Tests: `tests/test_canary_rehearsal.py` (every step against the workflow rehearsal's fakes),
     `tests/test_propose_sandbox_workflow.py`, `tests/core/registry/test_sandbox.py`.
 
+- `corrections/` — the correction wave's operator tooling (`docs/OPERATIONS_RUNBOOK.md` section 12):
+  the real README-correction pull requests, proposed by `propose.yml`'s correction mode from bundles
+  committed under `corrections/<run-id>/`. No command here writes to GitHub.
+  - `assemble.py` — local files only, in a control-repository worktree: for exactly the repositories
+    the owner approved (`--repo`, there is no "all"), takes the `correct-readme` bundles of a run
+    directory through the typed gate, copies only the bundle's files plus `PULL_REQUEST.md` and
+    `SHA256SUMS`, sets those registry entries to `full`, drafts their authorization records
+    (`draft-proposal-authorization`, whose live read is `GH_TOKEN`'s) and prints the review list and the
+    paced dispatch plan it never runs. Nothing is kept if any step fails.
+  - Tests: `tests/test_correction_wave_rehearsal.py` (every step against the workflow rehearsal's
+    fakes), `tests/test_propose_correction_workflow.py`,
+    `tests/components/readme_correction/test_committed.py`.
+
 - `readme_standard/` — the tooling of `docs/README_STANDARD.md`, written at the owner directive of
   2026-10-11 (the live upstream README is the structure standard). Read-only: no network, no model,
   no write outside `data/readme_standard/` and the standard's own generated tables.

@@ -41,6 +41,27 @@
 #     are installed before either token exists, and checkout does not persist the job's own
 #     GITHUB_TOKEN into .git/config.
 #
+# CORRECTION MODE (docs/OPERATIONS_RUNBOOK.md section 12): a manual dispatch that also names
+# `correction_run` proposes a committed README CORRECTION instead of a sealed candidate. The bundle is
+# corrections/<correction_run>/<owner>__<name>/ in this checkout (assembled by
+# tools/corrections/assemble.py and merged through the same reviewed pull request that adds its
+# authorization record and flips the registry entry to `full`). Nothing is regenerated here, no model
+# is called and no gateway secret is used. The path is the same two jobs and every gate above,
+# unchanged, plus these, all made by the command line the final step of each job runs:
+#   - the bundle is verified against its SHA256SUMS before any token exists (an early step, in both
+#     jobs), and again inside `propose --correction-bundle ... --require-sums`, which also requires
+#     exactly the committed file set and PULL_REQUEST.md to be the text this run would post;
+#   - the typed correction gate re-derives the corrected README from the bundle's own bytes
+#     (confinement, idempotence, the validation delta) - a bundle edited after review is refused;
+#   - the target's live head must still be the bundle's revision (`source_moved`, in the dry run and
+#     again immediately before the write);
+#   - the registry entry must be `full`, and the authorization record - merged to origin/main before
+#     this run's trigger commit, at most seven days old - binds the sha256 of that exact corrected
+#     README, so editing the bundle after the record was merged is a candidate-hash mismatch.
+# `do_propose` defaults to false: a correction dispatch is a dry run (plan, decision, no write, no
+# write token) unless the dispatcher ticks it AND every gate passes. `correction_run` is a dispatch
+# input only: the scheduled sealing run (workflow_call) cannot reach this mode.
+#
 # `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED=1` is set in the one "Propose for real" step below
 # only - never at the job or workflow level - so a reviewer of this file can see directly that the
 # owner's explicit go-ahead (AGENTS.md "Security and Effects": never inferred from credential
@@ -71,6 +92,10 @@ on:
         type: string
       authorization_record:
         description: "Path to the committed authorization record, ops/proposal-authorizations/<name>.json; required when do_propose is checked"
+        required: false
+        type: string
+      correction_run:
+        description: "Correction mode: the id of a committed correction run, corrections/<run-id>/ (docs/OPERATIONS_RUNBOOK.md section 12); proposes corrections/<run-id>/<owner>__<name>/ instead of a sealed candidate. Leave blank for the sealed candidate."
         required: false
         type: string
       do_propose:
@@ -129,6 +154,8 @@ jobs:
       authorization_record: ${{ steps.record.outputs.authorization_record }}
       proceed: ${{ steps.record.outputs.proceed }}
       candidate_artifact: ${{ steps.validate.outputs.candidate_artifact }}
+      # Correction mode only: the committed bundle directory this run proposes ('' otherwise).
+      correction_bundle: ${{ steps.validate.outputs.correction_bundle }}
     steps:
       # First, before checkout or any install: nothing the dispatcher typed is used until it has
       # passed. Values arrive only through env: and are only ever expanded as quoted variables. The
@@ -141,6 +168,7 @@ jobs:
           INPUT_AUTHORIZATION_RECORD: ${{ inputs.authorization_record }}
           INPUT_DO_PROPOSE: ${{ inputs.do_propose }}
           INPUT_CANDIDATE_ARTIFACT: ${{ inputs.candidate_artifact }}
+          INPUT_CORRECTION_RUN: ${{ inputs.correction_run }}
         run: |
           set -euo pipefail
           fail() {
@@ -192,6 +220,20 @@ jobs:
               || fail candidate_artifact "must be sealed-<owner>__<name> of the target repo"
           fi
 
+          # correction_run: the id of a committed correction run - one path component, so the bundle
+          # directory is always corrections/<id>/<owner>__<name> and nothing can climb out of it.
+          # A correction is never combined with a sealed candidate's artifact.
+          correction_bundle=""
+          if [ -n "$INPUT_CORRECTION_RUN" ]; then
+            [[ "$INPUT_CORRECTION_RUN" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]] \
+              || fail correction_run "must be a run id: 1-64 of [A-Za-z0-9._-], starting alphanumeric"
+            [[ "$INPUT_CORRECTION_RUN" != *..* ]] \
+              || fail correction_run "must not contain '..'"
+            [ -z "$INPUT_CANDIDATE_ARTIFACT" ] \
+              || fail correction_run "cannot be combined with candidate_artifact"
+            correction_bundle="corrections/${INPUT_CORRECTION_RUN}/${owner}__${name}"
+          fi
+
           {
             echo "owner=$owner"
             echo "name=$name"
@@ -199,6 +241,7 @@ jobs:
             echo "base_branch=$INPUT_BASE_BRANCH"
             echo "authorization_record=$INPUT_AUTHORIZATION_RECORD"
             echo "candidate_artifact=$INPUT_CANDIDATE_ARTIFACT"
+            echo "correction_bundle=$correction_bundle"
           } >> "$GITHUB_OUTPUT"
 
       # Full depth: the command reads the authorization record's merge provenance from git history.
@@ -216,6 +259,29 @@ jobs:
             echo "::error::the authorization record is missing or is not a regular file in this checkout"
             exit 1
           fi
+
+      # Correction mode only. Before any dependency is installed and before any token exists: the
+      # committed bundle is a real directory of this checkout and matches its SHA256SUMS, checked with
+      # the platform's own sha256sum. (The command re-checks, more strictly, when it runs.)
+      - name: Verify the committed correction bundle against its SHA256SUMS (correction mode only)
+        if: ${{ steps.validate.outputs.correction_bundle != '' }}
+        env:
+          CORRECTION_BUNDLE: ${{ steps.validate.outputs.correction_bundle }}
+        run: |
+          set -euo pipefail
+          if [ -L "$CORRECTION_BUNDLE" ] || [ ! -d "$CORRECTION_BUNDLE" ]; then
+            echo "::error::the correction bundle is not in this checkout: merge the pull request that adds corrections/<run>/ first"
+            exit 1
+          fi
+          if [ -L "$CORRECTION_BUNDLE/SHA256SUMS" ] || [ ! -f "$CORRECTION_BUNDLE/SHA256SUMS" ]; then
+            echo "::error::the correction bundle has no SHA256SUMS"
+            exit 1
+          fi
+          if ! (cd "$CORRECTION_BUNDLE" && sha256sum --check --strict --quiet SHA256SUMS); then
+            echo "::error::the correction bundle does not match its SHA256SUMS: it was edited after it was assembled"
+            exit 1
+          fi
+          echo "the correction bundle matches its SHA256SUMS"
 
       - uses: actions/setup-python@v6
         with:
@@ -338,6 +404,7 @@ jobs:
           REPO: ${{ steps.validate.outputs.repo }}
           BASE_BRANCH: ${{ steps.validate.outputs.base_branch }}
           AUTHORIZATION_RECORD: ${{ steps.record.outputs.authorization_record }}
+          CORRECTION_BUNDLE: ${{ steps.validate.outputs.correction_bundle }}
           TRIGGER_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
@@ -347,6 +414,9 @@ jobs:
           fi
           if [ -n "$AUTHORIZATION_RECORD" ]; then
             args+=(--authorization-record "$AUTHORIZATION_RECORD")
+          fi
+          if [ -n "${CORRECTION_BUNDLE:-}" ]; then
+            args+=(--correction-bundle "$CORRECTION_BUNDLE" --require-sums)
           fi
           if repository-presenter propose "${args[@]}"; then
             status=0
@@ -375,6 +445,29 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      # Correction mode only: this job runs on its own runner and checkout, so it verifies the
+      # bundle itself - the dry run's verdict is not taken on trust - before anything is installed
+      # and before the write token exists.
+      - name: Verify the committed correction bundle against its SHA256SUMS (correction mode only)
+        if: ${{ needs.dry-run.outputs.correction_bundle != '' }}
+        env:
+          CORRECTION_BUNDLE: ${{ needs.dry-run.outputs.correction_bundle }}
+        run: |
+          set -euo pipefail
+          if [ -L "$CORRECTION_BUNDLE" ] || [ ! -d "$CORRECTION_BUNDLE" ]; then
+            echo "::error::the correction bundle is not in this checkout"
+            exit 1
+          fi
+          if [ -L "$CORRECTION_BUNDLE/SHA256SUMS" ] || [ ! -f "$CORRECTION_BUNDLE/SHA256SUMS" ]; then
+            echo "::error::the correction bundle has no SHA256SUMS"
+            exit 1
+          fi
+          if ! (cd "$CORRECTION_BUNDLE" && sha256sum --check --strict --quiet SHA256SUMS); then
+            echo "::error::the correction bundle does not match its SHA256SUMS: it was edited after it was assembled"
+            exit 1
+          fi
+          echo "the correction bundle matches its SHA256SUMS"
 
       - uses: actions/setup-python@v6
         with:
@@ -435,6 +528,7 @@ jobs:
           REPO: ${{ needs.dry-run.outputs.repo }}
           BASE_BRANCH: ${{ needs.dry-run.outputs.base_branch }}
           AUTHORIZATION_RECORD: ${{ needs.dry-run.outputs.authorization_record }}
+          CORRECTION_BUNDLE: ${{ needs.dry-run.outputs.correction_bundle }}
           TRIGGER_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
@@ -443,6 +537,9 @@ jobs:
             args+=(--base-branch "$BASE_BRANCH")
           fi
           args+=(--authorization-record "$AUTHORIZATION_RECORD")
+          if [ -n "${CORRECTION_BUNDLE:-}" ]; then
+            args+=(--correction-bundle "$CORRECTION_BUNDLE" --require-sums)
+          fi
           if repository-presenter propose "${args[@]}" --propose; then
             status=0
           else

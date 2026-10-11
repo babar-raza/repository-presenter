@@ -250,7 +250,13 @@ def test_the_removed_cli_flags_and_inputs_are_gone() -> None:
     for removed in ("--readme-file", "--expires-in-minutes", "--source-revision"):
         assert removed not in text
     inputs = _load(PROPOSE)[True]["workflow_dispatch"]["inputs"]
-    assert set(inputs) == {"repo", "base_branch", "authorization_record", "do_propose"}
+    assert set(inputs) == {
+        "repo",
+        "base_branch",
+        "authorization_record",
+        "correction_run",
+        "do_propose",
+    }
 
 
 @pytest.mark.parametrize("job_name", [DRY_RUN_JOB, WRITE_JOB])
@@ -436,6 +442,7 @@ GOOD = {
     "INPUT_AUTHORIZATION_RECORD": "",
     "INPUT_DO_PROPOSE": "false",
     "INPUT_CANDIDATE_ARTIFACT": "",
+    "INPUT_CORRECTION_RUN": "",
 }
 RECORD = "ops/proposal-authorizations/2026-10-05-acme-readme.json"
 
@@ -484,6 +491,7 @@ def test_a_valid_dry_run_dispatch_passes_and_publishes_the_split_target(tmp_path
         "base_branch": "",
         "authorization_record": "",
         "candidate_artifact": "",
+        "correction_bundle": "",
     }
 
 
@@ -517,6 +525,15 @@ HOSTILE = [
     ("base_branch", "x.lock"),
     ("base_branch", "main\nx"),
     ("do_propose", "yes"),
+    ("correction_run", "run;touch pwned"),
+    ("correction_run", "run$(touch pwned)"),
+    ("correction_run", "../run"),
+    ("correction_run", "a/b"),
+    ("correction_run", "a..b"),
+    ("correction_run", ".hidden"),
+    ("correction_run", "-run"),
+    ("correction_run", "a" * 65),
+    ("correction_run", "run\nx"),
     ("authorization_record", "ops/../etc/passwd.json"),
     ("authorization_record", "/etc/passwd"),
     ("authorization_record", "ops/a b"),
