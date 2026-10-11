@@ -106,3 +106,18 @@ def test_a_count_the_two_derivations_dispute_is_never_edited(make_context: Any) 
 
 def test_a_true_test_file_count_needs_no_edit(make_context: Any) -> None:
     assert claim_test_files(make_context("It has 3 test files.\n", tree=TESTS_TREE)).edits == ()
+
+
+def test_a_fact_that_counts_only_test_sources_is_trusted_without_a_recount(
+    make_context: Any, make_facts: Any, make_fact: Any
+) -> None:
+    # TC-TST-01: "11 files; test suite (7 test sources among the 11 files here)". A tree whose
+    # file names a name-based recount cannot reproduce does not hold the correction back.
+    fact = make_fact(
+        "build_test_asset:tests",
+        "src/test/",
+        evidence=(("src/test/", "11 files; test suite (7 test sources among the 11 files here)"),),
+    )
+    ctx = make_context("The suite has 18 test files.\n", make_facts(fact), tree=("README.md",))
+    (edit,) = claim_test_files(ctx).edits
+    assert (edit.original, edit.replacement) == ("18", "7")

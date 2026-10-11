@@ -140,7 +140,9 @@ def correction_refusal(bundle: Path, manifest: dict[str, Any], entry: RegistryEn
     return None
 
 
-def load_proposable_correction(bundle: Path, repository: str, *, root: Path) -> ProposableCandidate:
+def load_proposable_correction(
+    bundle: Path, repository: str, *, root: Path, entry: RegistryEntry | None = None
+) -> ProposableCandidate:
     """The corrected README of ``bundle`` as the one thing a proposal may carry, or a typed refusal.
 
     ``bundle`` is the directory ``correct-readme --out`` wrote; ``root`` is the control repository
@@ -156,10 +158,11 @@ def load_proposable_correction(bundle: Path, repository: str, *, root: Path) -> 
             Refusal.BUNDLE_INCONSISTENT,
             f"the bundle is for {manifest.get('repository')!r}, not {repository}",
         )
-    try:
-        entry = require_listed(load_registry(root / _REGISTRY_RELATIVE_PATH), repository)
-    except PresenterError as exc:
-        raise WriteRefusedError(Refusal.REGISTRY_NOT_LISTED, str(exc)) from exc
+    if entry is None:  # production: the registry names the entry; a rehearsal supplies its own
+        try:
+            entry = require_listed(load_registry(root / _REGISTRY_RELATIVE_PATH), repository)
+        except PresenterError as exc:
+            raise WriteRefusedError(Refusal.REGISTRY_NOT_LISTED, str(exc)) from exc
     reason = correction_refusal(bundle, manifest, entry)
     if reason is not None:
         raise WriteRefusedError(Refusal.CORRECTION_NOT_PROVEN, f"{repository}: {reason}")

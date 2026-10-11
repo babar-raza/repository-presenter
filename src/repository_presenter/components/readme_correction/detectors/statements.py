@@ -192,6 +192,7 @@ def claim_public_types(ctx: Context) -> DetectorResult:
 # ---------------------------------------------------------------------------- test file count
 _TEST_FILES = re.compile(r"(?<![\w.])(?P<n>\d+)(?P<tail>\s+test\s+files?\b)", re.IGNORECASE)
 _FILE_COUNT = re.compile(r"^(\d+) files\b")
+_TEST_SOURCES = re.compile(r"\((\d+) test sources among")
 _TEST_FILE_NAME = re.compile(
     r"""(?ix)
     ^(?: test_.*\.py | .*_test\.py | .*tests?\.(?:java|cs|kt|scala) | test.*\.(?:java|cpp|cc)
@@ -220,6 +221,11 @@ def claim_test_files(ctx: Context) -> DetectorResult:
     tests = ctx.supported("build_test_asset:tests")
     if tests is None:
         return DetectorResult()
+    sources = [
+        int(match.group(1))
+        for evidence in tests.evidence
+        if (match := _TEST_SOURCES.search(evidence.detail or "")) is not None
+    ]
     counts = [
         int(match.group(1))
         for evidence in tests.evidence
@@ -227,8 +233,11 @@ def claim_test_files(ctx: Context) -> DetectorResult:
     ]
     if not counts:
         return DetectorResult()
-    fact_count = counts[-1]
     recount = len(_test_files(ctx.tree_paths, tests.value))
+    # A fact that says how many of its files are test sources (TC-TST-01) already counts only
+    # those; an older one counted every file under the directory and is recounted by name.
+    fact_count = sources[-1] if sources else counts[-1]
+    trusted = bool(sources)
     edits: list[Edit] = []
     findings: list[Finding] = []
     for line in ctx.lines:
@@ -242,7 +251,7 @@ def claim_test_files(ctx: Context) -> DetectorResult:
                 f"the README states {stated} test files; the verified suite under "
                 f"`{tests.value}` holds {fact_count} files (recount by file name: {recount})"
             )
-            if recount != fact_count:
+            if not trusted and recount != fact_count:
                 findings.append(
                     Finding(
                         "claim_test_files",
