@@ -1,0 +1,30 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing OBJ, STL, or glTF file (.gltf/.glb)"]
+    i2["An existing FBX or COLLADA file"]
+    i3["An existing 3MF (3D Manufacturing Format) archive"]
+  end
+  PRODUCT["Aspose.3D FOSS for TypeScript"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Scene graph construction and traversal"]
+      c2["Mesh and vertex-attribute construction"]
+      c3["Material assignment (Lambert, Phong, PBR)"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Camera and light placement"]
+      c5["Keyframe animation"]
+      c6["Multi-format import and export"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["STL or glTF file"]
+    o2["FBX or COLLADA file"]
+    o3["3MF (3D Manufacturing Format) archive"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

@@ -1,0 +1,32 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing PDF file or stream"]
+  end
+  PRODUCT["Aspose.PDF FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Document creation, loading, and merging"]
+      c2["Text authoring with complex-script shaping"]
+      c3["Text extraction and search"]
+      c4["Text replacement and redaction"]
+      c5["Page rendering to raster images"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c6["Interactive form fields"]
+      c7["Annotations with generated appearances"]
+      c8["Encryption and signature validation"]
+      c9["PDF/A, PDF/UA and PDF/X validation"]
+      c10["Resource optimization"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["PDF file"]
+    o2["PNG file"]
+    o3["TIFF file"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

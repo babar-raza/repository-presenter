@@ -1,0 +1,29 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing XLSX workbook (including password-protected)"]
+    i2["CSV files"]
+  end
+  PRODUCT["Aspose.Cells FOSS for Go"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Cell read and write (A1-style references)"]
+      c2["Font, fill, alignment, and border styling"]
+      c3["Formulas with a built-in SUM/AVERAGE/MAX/MIN engine"]
+      c4["Data validation, tables, and picture embedding"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c5["CSV import and export"]
+      c6["Streaming row-by-row reading"]
+      c7["Password protection and encryption"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["XLSX workbooks (including password-protected)"]
+    o2["CSV files"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

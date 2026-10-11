@@ -1,0 +1,30 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing .xlsx workbook"]
+    i2["An existing HTML document"]
+  end
+  PRODUCT["Aspose.Cells FOSS for TypeScript"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Cell values, formulas, and shared strings"]
+      c2["Style formatting (font, fill, border, alignment, number formats)"]
+      c3["Worksheet settings (column widths, row heights, merges, auto filter)"]
+      c4["Data validation and conditional formatting"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c5["Hyperlinks and defined names"]
+      c6["Embedded pictures and shapes"]
+      c7["HTML round-trip import and export"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["A workbook document"]
+    o2["An HTML document"]
+    o3["Plain text files"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

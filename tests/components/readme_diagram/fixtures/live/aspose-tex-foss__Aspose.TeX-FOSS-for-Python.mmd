@@ -1,0 +1,20 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["A plain-text document (TeX/LaTeX source, from a path, string, or bytes)"]
+  end
+  PRODUCT["Aspose.TeX FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction TB
+    c1["Tokenize and interpret TeX/LaTeX input"]
+    c2["Resolve fonts and glyph metrics"]
+    c3["Build lines and pages from typeset boxes"]
+    c4["Write PDF, DVI, or SVG output"]
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["PDF document (file path or in-memory bytes)"]
+    o2["DVI document (file path or in-memory bytes)"]
+    o3["SVG document (file path or in-memory bytes, multi-page)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

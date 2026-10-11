@@ -1,0 +1,20 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing CFB container (file, stream, or byte array)"]
+    i2["An existing MSG file (Outlook message)"]
+  end
+  PRODUCT["Aspose.Email FOSS for .NET"]
+  subgraph Capabilities["Core Capabilities"]
+    direction TB
+    c1["CFB container read and write"]
+    c2["MSG document read and write"]
+    c3["High-level message creation, editing, and property access"]
+    c4["EML and MSG conversion through a built-in MIME implementation"]
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["A CFB container (file or byte array)"]
+    o2["An MSG file (Outlook message)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

@@ -1,0 +1,33 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing PDF file"]
+    i2["An HTML document"]
+    i3["Markdown text (CommonMark/GFM)"]
+  end
+  PRODUCT["Aspose.PDF FOSS for TypeScript"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Parse and repair PDF documents"]
+      c2["Edit pages, metadata and content streams"]
+      c3["Author text, vector graphics and images"]
+      c4["Build tables, flow layouts and multi-page documents"]
+      c5["Create, fill and flatten AcroForm fields"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c6["Manage annotations, outlines, layers and attachments"]
+      c7["Encrypt, sign and validate PDF/A, PDF/X and PDF/UA"]
+      c8["Extract and search text, tables and vector paths"]
+      c9["Render and export to images, HTML, Markdown, DOCX and EPUB"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["A PDF file"]
+    o2["SVG, PNG, JPEG, TIFF, BMP or GIF images"]
+    o3["HTML, Markdown, DOCX or EPUB documents"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs
