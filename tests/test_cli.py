@@ -534,7 +534,7 @@ LOCAL_UNITS: dict[str, dict[str, Any]] = {
                 "opening",
                 "opening",
                 "Aspose.3D for Python builds scenes in memory and saves them as GLB files. "
-                "Developers using Python use it to write GLB from code.",
+                "Its Python API writes GLB from code.",
                 "identity:repository",
                 "format:output.glb",
             )
@@ -1496,7 +1496,7 @@ def test_present_fresh_skips_seeding_even_against_a_warm_local_transaction(
     assert len(made) > 4
 
 
-OPENING_QUOTE = "Developers using Python use it to write GLB from code."
+OPENING_QUOTE = "Its Python API writes GLB from code."
 _PROMPTS = load_manifests(REPO_ROOT / "prompts")
 OPENING_FINGERPRINT = defect_fingerprint(
     "review",
@@ -1507,7 +1507,7 @@ OPENING_FINGERPRINT = defect_fingerprint(
 )
 REVISED_OPENING = (
     "Aspose.3D for Python builds scenes in memory and saves them as GLB files. "
-    "Python developers use it to write GLB files from code."
+    "Its Python API writes GLB files from code."
 )
 
 
@@ -1553,7 +1553,7 @@ def _opening_repair() -> dict[str, Any]:
                 "id": "R01",
                 "path": "$.units[0].text",
                 "before": OPENING_QUOTE,
-                "after": "Python developers use it to write GLB files from code.",
+                "after": "Its Python API writes GLB files from code.",
                 "fact_ids": ["identity:repository"],
             }
         ],
@@ -1596,7 +1596,7 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     assert '"the quick start"' in repair_request
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     readme = (transaction / "README.md").read_text("utf-8")
-    assert "Python developers use it to write GLB files from code." in readme
+    assert "Its Python API writes GLB files from code." in readme
     assert OPENING_QUOTE not in readme
     review = json.loads((transaction / "review.json").read_text("utf-8"))
     assert review["verdict"] == "ACCEPT"
@@ -1662,7 +1662,7 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     gateway_ready.queues = {
         "independent_review": [
             _rejection("F01"),
-            _rejection("F02", "Python developers use it to write GLB files from code."),
+            _rejection("F02", "Its Python API writes GLB files from code."),
         ],
         "targeted_repair": [_opening_repair()],
     }

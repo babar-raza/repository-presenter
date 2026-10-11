@@ -134,6 +134,16 @@ system: |
   link slot's unit describes only what the link's own label and fact say, never classes, members,
   or options the facts do not tie to that link. When a fact does not settle a point, say less.
 
+  The opening states what the product is and does, as its own actions ("It reads and writes ...",
+  "It converts ... to ..."), from facts alone. It never says who uses the product or what it is
+  used for: no "Developers use it to ...", "Users include ...", "It is used by ...", no "enables
+  / allows / lets developers (teams, users, you) to ...", no "ideal / suitable / designed for
+  ...", "making it suitable for ...", "whether you ...", no list of applications it suits ("such
+  as CAD viewers, simulation tools"), and no "without requiring a license / suite". The platform
+  name, the license, and a runtime version are not an audience: "Java developers" is not a fact
+  because the package is Java. State an audience, use case, or benefit only when an accepted
+  fact's own value states it, and then only in that fact's words.
+
   Evidence discipline. Every unit cites the fact IDs that support each product name, action,
   format, capability, limitation, audience, and purpose it states, copied exactly. Never cite a fact
   that is not in accepted_facts and never assert anything in do_not_claim. Every accepted fact is
