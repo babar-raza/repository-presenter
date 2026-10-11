@@ -1379,19 +1379,66 @@ _IDENTIFIER_CUE_AFTER = re.compile(
 )
 
 
-def _is_technical_identifier(found: str, before: str, after: str) -> bool:
+# What makes a no-space match part of a LONGER identifier rather than a spelling of the product
+# name: a qualified-name or file-extension continuation (``.DataSet``, ``.Tests``, ``.csproj``), a
+# path or scope separator (``/``, a backslash, ``::``) after it, or the same before it (``src/``,
+# ``Contoso.``). A dot only continues a name when a letter follows it, so a sentence that ends
+# with the shorthand ("... built on Aspose.GIS.FOSS.") is not continued. Underscores are left to
+# the slug rule above: ``_Aspose.GIS.FOSS_`` is Markdown emphasis, not an identifier.
+_IDENTIFIER_CONTINUES = re.compile(r"^(?:\.[A-Za-z_]|[/\\]|::)")
+_IDENTIFIER_CONTINUED = re.compile(r"(?:[A-Za-z0-9_]\.|[/\\]|::)$")
+_DOTTED_SEGMENT = re.compile(r"^\.([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def _name_tail(canonical: str) -> frozenset[str]:
+    """The lower-cased segments a canonical name carries after its FOSS segment, less the word
+    "for": ``Aspose.GIS.FOSS for .Net`` -> ``{"net"}``. A dotted continuation that spells one of
+    them (``Aspose.GIS.FOSS.Net``) is the product name's own suffix run together, not a type."""
+    segments = [part for part in re.split(r"[\s._-]+", canonical) if part]
+    foss = next((i for i, part in enumerate(segments) if part.lower() == "foss"), None)
+    tail = [] if foss is None else segments[foss + 1 :]
+    return frozenset(part.lower() for part in tail if part.lower() != "for")
+
+
+def _is_technical_identifier(
+    found: str,
+    before: str,
+    after: str,
+    *,
+    around: tuple[str, str] | None = None,
+    tail: Collection[str] = (),
+) -> bool:
     """plans/idea.md L81-83: package names, import paths, namespaces, and commands "may use their
-    exact technical forms only where that technical identifier is itself the subject". Two
+    exact technical forms only where that technical identifier is itself the subject". Three
     lexical, deterministic signs of that: a spelling with no whitespace that carries a hyphen or
     an underscore is a package, module, or repository slug (``aspose-3d-foss``,
-    ``Aspose.Cells_FOSS``), never a spelling of the product name; and any other no-space spelling
-    (``Aspose.3D.FOSS``) is an identifier only when a package/namespace/version cue sits beside it.
-    A sentence that merely opens with the shorthand ("Aspose.3D.FOSS provides ...") has no cue."""
+    ``Aspose.Cells_FOSS``), never a spelling of the product name; any other no-space spelling
+    (``Aspose.3D.FOSS``) is an identifier when a package/namespace/version cue sits beside it;
+    and it is one when it is only the head of a longer dotted, slashed or scoped identifier -
+    ``Aspose.GIS.FOSS.DataSet`` (a type), ``Aspose.GIS.FOSS.Tests/`` (a project directory),
+    ``src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj`` (a path): the longer identifier is the subject
+    and no product-name position is spelled (wave 3: GIS-.Net, Imaging-.NET, PSD-.NET, whose
+    repairs were refused as unchanged because the text was right). A sentence that merely opens or
+    closes with the shorthand ("Aspose.3D.FOSS provides ...", "... on Aspose.3D.FOSS.") has no cue
+    and no continuation, and a continuation that spells the canonical name's own suffix
+    (``tail``: ``Aspose.GIS.FOSS.Net``) is that name mangled, not a type.
+
+    ``before``/``after`` are the prose the match sits in, code spans blanked. ``around`` is the
+    same window read from the README itself, code-span backticks removed: a path the normaliser
+    split into adjacent spans (``src/`Aspose.PSD.FOSS/`Aspose.PSD.FOSS`.csproj```) is blank on
+    both sides in the prose and a plain path in the source. It decides the continuation only; a
+    cue word inside a code span is not a cue."""
     if any(character.isspace() for character in found):
         return False
     if "-" in found or "_" in found:
         return True
-    return bool(_IDENTIFIER_CUE_BEFORE.search(before) or _IDENTIFIER_CUE_AFTER.match(after))
+    if _IDENTIFIER_CUE_BEFORE.search(before) or _IDENTIFIER_CUE_AFTER.match(after):
+        return True
+    near_before, near_after = around if around is not None else (before, after)
+    if not (_IDENTIFIER_CONTINUES.match(near_after) or _IDENTIFIER_CONTINUED.search(near_before)):
+        return False
+    segment = _DOTTED_SEGMENT.match(near_after)
+    return segment is None or segment.group(1).lower() not in tail
 
 
 def _check_canonical_name(candidate: Candidate) -> list[Failure]:
@@ -1403,16 +1450,29 @@ def _check_canonical_name(candidate: Candidate) -> list[Failure]:
     canonical = product_name(candidate.entry)
     pattern = canonical_name_pattern(canonical)
     text = _visible_prose(candidate.readme)
+    tail = _name_tail(canonical)
+    source = candidate.readme.splitlines()
     failures: list[Failure] = []
     seen: set[tuple[str, str | None]] = set()
     for match in pattern.finditer(text):
         found = match.group(0)
         if found == canonical:
             continue
+        # The prose is the README with each code span blanked to spaces of the same length, so a
+        # match sits at the same column of the same line in the source.
+        line = text.count("\n", 0, match.start())
+        column = match.start() - (text.rfind("\n", 0, match.start()) + 1)
+        row = source[line] if line < len(source) else ""
+        around = (
+            row[max(0, column - 24) : column].replace("`", ""),
+            row[column + len(found) : column + len(found) + 24].replace("`", ""),
+        )
         if _is_technical_identifier(
             found,
             text[max(0, match.start() - 24) : match.start()],
             text[match.end() : match.end() + 24],
+            around=around,
+            tail=tail,
         ):
             continue
         section = _located(candidate.readme, text, match.start())

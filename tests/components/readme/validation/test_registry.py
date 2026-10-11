@@ -2889,3 +2889,115 @@ def test_a_list_placement_prints_whole_is_checked_by_the_placed_rule_as_before()
         readme=candidate.readme + "\n" + JAVA3D_DOCS_LIST + "\n" + JAVA3D_SCOPE_LIST,
     )
     assert [f for f in _check_dispositions(candidate) if "kept as written" in f.detail] == []
+
+
+# ---- wave 3: BC-12 read a qualified name, a namespace and a path as the product name -----------
+#
+# The READMEs below are the lines of the wave-3 candidates (cut f69f75c7, 2026-10-11) that BC-12
+# failed: Aspose.GIS.FOSS-for-.Net (Class1/DataSet rows and the Tests/ path), Aspose.Imaging-FOSS-
+# for-.NET (the ImageInfo/ImageProbe/ImageFormat rows) and Aspose.PSD-FOSS-for-.NET (a path whose
+# code spans the normaliser split). Each repair was "revised_output matches the causal stage's
+# own output unchanged", because the model's text was right: the match was the validator's.
+
+
+def _bc12_entry(suffix: str) -> RegistryEntry:
+    registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text(encoding="utf-8"))
+    return RegistryEntry.model_validate(
+        next(e for e in registry["entries"] if e["repository"].endswith(suffix))
+    )
+
+
+def _bc12_details(suffix: str, readme: str) -> list[str]:
+    entry = _bc12_entry(suffix)
+    return [f.detail for f in _check_canonical_name(SimpleNamespace(entry=entry, readme=readme))]
+
+
+_GIS = "Aspose.GIS.FOSS-for-.Net"
+_GIS_README = "\n".join(
+    [
+        "# Aspose.GIS.FOSS for .Net",
+        "",
+        "| Type | Description |",
+        "|---|---|",
+        "| `Class1` | Aspose.GIS.FOSS.Class1 represents a base class for GIS data processing "
+        "operations in Aspose.GIS.FOSS for .Net. |",
+        "| `DataSet` | Aspose.GIS.FOSS.DataSet provides functionality to load, manipulate, and "
+        "convert geospatial datasets, including the Convert method for format transformations. |",
+        "",
+        "Aspose.GIS.FOSS for .Net targets net10.0 and is built from the "
+        "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net repository. The test suite resides in "
+        "Aspose.GIS.FOSS.Tests/ and validates the library's functionality.",
+        "",
+    ]
+)
+_IMAGING = "Aspose.Imaging-FOSS-for-.NET"
+_IMAGING_README = "\n".join(
+    [
+        "# Aspose.Imaging FOSS for .NET",
+        "",
+        "| Type | Description |",
+        "|---|---|",
+        "| `ImageInfo` | The Aspose.Imaging.Foss.ImageInfo type provides basic metadata about an "
+        "image, including its format, dimensions, bit depth, and frame count. |",
+        "| `ImageProbe` | The Aspose.Imaging.Foss.ImageProbe type enables detection and "
+        "inspection of image formats from various input sources. |",
+        "| `ImageFormat` | The Aspose.Imaging.Foss.ImageFormat type represents an image file "
+        "format supported by Aspose.Imaging FOSS for .NET. |",
+        "",
+    ]
+)
+_PSD = "Aspose.PSD-FOSS-for-.NET"
+_PSD_README = "\n".join(
+    [
+        "# Aspose.PSD FOSS for .NET",
+        "",
+        "- The library is installed by cloning the repository and building the project with "
+        "dotnet build src/`Aspose.PSD.FOSS/`Aspose.PSD.FOSS`.csproj`, and it targets net10.0.",
+        "",
+    ]
+)
+
+
+@pytest.mark.parametrize(
+    ("suffix", "readme"),
+    [(_GIS, _GIS_README), (_IMAGING, _IMAGING_README), (_PSD, _PSD_README)],
+    ids=["gis", "imaging", "psd"],
+)
+def test_bc12_does_not_read_a_qualified_name_or_a_path_as_the_product_name(
+    suffix: str, readme: str
+) -> None:
+    """The canonical name's head sits inside a longer dotted type name
+    (``Aspose.GIS.FOSS.DataSet``), a project path (``Aspose.GIS.FOSS.Tests/``,
+    ``src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj``) or a namespace: the longer identifier is the
+    subject, so no product-name position is spelled."""
+    assert _bc12_details(suffix, readme) == []
+
+
+@pytest.mark.parametrize(
+    ("suffix", "sentence", "found"),
+    [
+        (_GIS, "Aspose.GIS.FOSS provides readers for geospatial formats.", "Aspose.GIS.FOSS"),
+        (_GIS, "Use Aspose.GIS.FOSS to read a shapefile.", "Aspose.GIS.FOSS"),
+        (_GIS, "It is the work of the team behind Aspose.GIS.FOSS.", "Aspose.GIS.FOSS"),
+        (_GIS, "Install Aspose.GIS.FOSS, then open a dataset.", "Aspose.GIS.FOSS"),
+        (_GIS, "Aspose.GIS.FOSS.Net reads shapefiles.", "Aspose.GIS.FOSS"),
+        (_IMAGING, "Aspose.Imaging.Foss reads image metadata.", "Aspose.Imaging.Foss"),
+        (
+            _IMAGING,
+            "Aspose Imaging Foss for .NET reads image metadata.",
+            "Aspose Imaging Foss for .NET",
+        ),
+        (_PSD, "Aspose.PSD.FOSS edits layer names.", "Aspose.PSD.FOSS"),
+    ],
+)
+def test_bc12_still_fails_a_misspelled_product_name_in_prose(
+    suffix: str, sentence: str, found: str
+) -> None:
+    """Negative controls: a spelling that stands where the product name belongs - a sentence that
+    opens with the shorthand, one that ends with it, one with a comma after it, or the canonical
+    suffix mangled into a dotted tail - is still a product-name position, and still fails."""
+    entry = _bc12_entry(suffix)
+    readme = f"# {entry.name.replace('-', ' ')}\n\n{sentence}\n"
+    details = _bc12_details(suffix, readme)
+    assert details, sentence
+    assert all(f"product name {found!r} is not the canonical name" in d for d in details), details
