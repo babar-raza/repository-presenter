@@ -395,8 +395,21 @@ def add_doc_links(ctx: Context) -> DetectorResult:
 
 
 # ----------------------------------------------------------------------------------------- badge
-_SHIELDS_KIND = re.compile(r"img\.shields\.io/([a-z0-9-]+)/", re.IGNORECASE)
 _IMAGE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)")
+_BADGE_URL = re.compile(r"!\[[^\]]*\]\(https?://([^/\s)]+)/([^/\s)]+)")
+
+
+def _badge_family(badge: str) -> str:
+    """Where a registry's badge comes from, to the segment that names the registry (shields.io's
+    maven-central, pypi, nuget; pkg.go.dev's badge): a README showing that family has a badge."""
+    match = _BADGE_URL.search(badge)
+    if match is None:
+        return ""
+    host, first = match.group(1), match.group(2)
+    if host == "img.shields.io":
+        second = re.search(r"img\.shields\.io/[^/]+/([^/\s)]+)", badge)
+        return f"{host}/{first}/" + (second.group(1) if second and first != "badge" else "")
+    return f"{host}/{first}/"
 
 
 @detector("add_version_badge")
@@ -414,10 +427,8 @@ def add_version_badge(ctx: Context) -> DetectorResult:
     badge = slots.get("package")
     if not badge:
         return DetectorResult()
-    kind = _SHIELDS_KIND.search(badge)
-    if kind is not None and re.search(
-        rf"shields\.io/{re.escape(kind.group(1))}/", ctx.readme, re.I
-    ):
+    family = _badge_family(badge)
+    if family and re.search(re.escape(family), ctx.readme, re.IGNORECASE):
         return DetectorResult()
     preamble: list[ReadmeLine] = []
     for line in ctx.lines:

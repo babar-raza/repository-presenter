@@ -61,6 +61,19 @@ def _attached(line: ReadmeLine, names: list[str]) -> list[tuple[int, int, str]]:
     return [(start, end, version) for (start, end), version in sorted(found.items())]
 
 
+def _same_version(shown: str, expected: str) -> bool:
+    """Whether two version strings name one release: NuGet reads ``26.9.0.0`` and ``26.9.0`` as the
+    same version, so a trailing zero component is not a difference (Aspose.Cells for .NET)."""
+
+    def parts(version: str) -> list[str]:
+        pieces = bc14._normal_version(version).split(".")
+        while len(pieces) > 3 and pieces[-1] == "0":
+            pieces.pop()
+        return pieces
+
+    return parts(shown) == parts(expected)
+
+
 @detector("claim_version")
 def claim_version(ctx: Context) -> DetectorResult:
     identity = ctx.supported("package:name")
@@ -91,7 +104,7 @@ def claim_version(ctx: Context) -> DetectorResult:
             ),
         )
         for (start, end), version in sorted(spans.items())
-        if bc14._normal_version(version) != expected
+        if not _same_version(version, expected)
     ]
     return DetectorResult(edits=tuple(edits))
 

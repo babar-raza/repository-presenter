@@ -361,3 +361,13 @@ def test_a_dependency_the_readme_names_anywhere_is_not_listed_again(
     )
     ctx = make_context(readme, dependency_facts(make_fact), repository=WORDS)
     assert add_dependency_groups(ctx).edits == ()
+
+
+def test_a_badge_of_the_registrys_family_in_any_form_counts_as_shown(
+    make_context: Any, make_fact: Any
+) -> None:
+    other = "# P\n\n[![PyPI version](https://img.shields.io/pypi/v/aspose-words-foss)](x)\n\n## A\n"
+    assert (
+        add_version_badge(make_context(other, python_facts(make_fact), repository=WORDS)).edits
+        == ()
+    )

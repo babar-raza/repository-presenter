@@ -110,3 +110,14 @@ def test_a_package_path_inside_the_module_is_not_a_near_miss(
     )
     readme = f"```bash\ngo get {module}/aspose/cells_foss\n```\n"
     assert claim_identity(make_context(readme, facts)).edits == ()
+
+
+def test_a_trailing_zero_component_is_the_same_release(
+    make_context: Any, make_facts: Any, make_fact: Any
+) -> None:
+    # NuGet reads 26.9.0.0 and 26.9.0 as one version: Aspose.Cells for .NET shows the former.
+    facts = make_facts(make_fact("package:published_version", "26.9.0", evidence=(("x", None),)))
+    readme = "```\nmvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.9.0.0\n```\n"
+    assert claim_version(make_context(readme, facts)).edits == ()
+    wrong = readme.replace("26.9.0.0", "26.8.0.0")
+    assert [e.replacement for e in claim_version(make_context(wrong, facts)).edits] == ["26.9.0"]
