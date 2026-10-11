@@ -37,10 +37,10 @@ from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from repository_presenter.components.readme.composition.source_topics import source_heading
 from repository_presenter.components.readme.reconciliation.destinations import (
     holdable_sections,
     nearest_for_units,
-    source_heading,
 )
 from repository_presenter.components.readme.reconciliation.dispositions import (
     lead_in_of,

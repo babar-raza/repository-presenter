@@ -15,7 +15,10 @@ from repository_presenter.components.readme.composition.coverage import (
     Destinations,
     hard_tokens,
     sentences,
+    states_all,
     uncovered,
+    uncovered_block,
+    unversioned,
 )
 from repository_presenter.components.readme.composition.list_coverage import (
     list_items,
@@ -283,3 +286,238 @@ def test_a_list_restated_under_its_bold_labels_is_dropped_not_printed_a_second_t
         uncovered(archived["unit"], archived["list"], silent, "scope_limitations")
         == archived["list"]
     )
+
+
+# --- a release number is not content; the renderer's own sections may state a unit (wave 6) -------
+#
+# The units are the real ones of the wave-6 transactions: PDF-Java 015 (the Gradle line at 26.6.0
+# the Installation row prints at 26.9.0), BarCode-Python 014 and Cells-Java 019 (install prose),
+# PDF-Python 021 (the extras and what each adds), 3D-.NET 014 (a paragraph one sentence of which is
+# the Dependencies section's), Slides-Python 122 (a pointer at documents the section lists).
+
+GRADLE_KEPT = "```groovy\nimplementation 'org.aspose:aspose-pdf-foss:26.6.0'\n```"
+INSTALLATION = (
+    "Add the dependency to your build file.\n\n```xml\n<dependency>\n"
+    "    <groupId>org.aspose</groupId>\n    <artifactId>aspose-pdf-foss</artifactId>\n"
+    "    <version>26.9.0</version>\n</dependency>\n```\n\n```groovy\n"
+    "implementation 'org.aspose:aspose-pdf-foss:26.9.0'\n```"
+)
+
+
+def test_a_release_number_of_three_components_is_one_token_a_floor_is_not() -> None:
+    assert unversioned("aspose-pdf-foss:26.6.0") == unversioned("aspose-pdf-foss:26.9.0")
+    assert unversioned("v1.2.3-rc1 and 1.2.3.4") == "<release> and <release>"
+    # a floor and a count are compared as written
+    assert unversioned("Python 3.10, Java 17") == "Python 3.10, Java 17"
+    assert unversioned("Python 3.10") != unversioned("Python 3.12")
+
+
+def test_a_kept_block_the_installation_row_prints_at_another_release_is_covered() -> None:
+    shown = _shown({"installation": INSTALLATION, "development_testing": "Run the tests."})
+    rows = ("installation", "dependencies")
+    assert uncovered_block(GRADLE_KEPT, shown, rows) == ""
+    # the Kotlin DSL line is not printed by the row: the block is carried whole
+    kotlin = '```kotlin\nimplementation("org.aspose:aspose-pdf-foss:26.6.0")\n```'
+    assert uncovered_block(kotlin, shown, rows) == kotlin
+    # one line the row lacks carries the whole block (its lines only mean something together)
+    two = GRADLE_KEPT.replace("\n```", "\nrepositories { mavenCentral() }\n```", 1)
+    assert uncovered_block(two, shown, rows) == two
+    # nothing to compare by: carried, never assumed covered
+    assert uncovered_block("```\n# only a comment\n```", shown, rows) == (
+        "```\n# only a comment\n```"
+    )
+    # only the renderer's sections named are read: a line Development and Testing prints (and
+    # drops when a placed block shows it) is not the Installation row's
+    other = _shown({"installation": "Open a document.", "development_testing": INSTALLATION})
+    assert uncovered_block(GRADLE_KEPT, other, rows) == GRADLE_KEPT
+
+
+def test_a_shell_command_is_compared_as_written_never_at_another_release() -> None:
+    """BC-08 demands the unit's own spelling of a command, so a command at another release than the
+    document's is not the document's command - for a prose sentence and for a block alike - while
+    a build-file declaration (which BC-08 does not protect) is compared release number aside."""
+    unit = "Install it with `pip install aspose-foo==1.2.3` or from source."
+    other_release = _shown(
+        {
+            "development_testing": (
+                "Install it with pip or from source: `pip install aspose-foo==2.0.0`."
+            )
+        }
+    )
+    assert (
+        uncovered("inherited_unit:010.paragraph", unit, other_release, "development_testing")
+        == unit
+    )
+    same = _shown(
+        {
+            "development_testing": (
+                "Install it with pip or from source: `pip install aspose-foo==1.2.3`."
+            )
+        }
+    )
+    assert uncovered("inherited_unit:010.paragraph", unit, same, "development_testing") == ""
+    block = "```bash\npip install aspose-foo==1.2.3\n```"
+    rows = ("installation",)
+    assert (
+        uncovered_block(block, _shown({"installation": "pip install aspose-foo==2.0.0"}), rows)
+        == block
+    )
+    assert (
+        uncovered_block(block, _shown({"installation": "pip install aspose-foo==1.2.3"}), rows)
+        == ""
+    )
+
+
+BARCODE_INSTALL = (
+    "The distribution is named `aspose-barcode-foss`; the import package is "
+    "`aspose_barcode_foss`.\nRequires Python 3.12+ and Pillow >= 10.1.0 (a real, declared runtime "
+    "dependency, used only for\nPNG rendering) - otherwise the library has no system-level "
+    "dependencies, and ships a `py.typed`\nmarker for full type-checker support."
+)
+DEPENDENCIES = (
+    "### Required Package Dependencies\n\n- `Pillow>=10.1.0`\n\n"
+    "### Native and System Requirements\n\n- Requires Python 3.12 or later "
+    "(`python_requires` in `pyproject.toml`)."
+)
+
+
+def test_a_unit_about_installing_may_be_stated_by_the_renderers_own_sections() -> None:
+    """The destination is Scope and Limitations (the model's filing); the second sentence of the
+    unit is new (the ``py.typed`` marker, the import package), so it is carried and only that
+    sentence is - the first, stated by the Installation and Dependencies text, is not repeated."""
+    shown = _shown(
+        {
+            "installation": "Install `aspose-barcode-foss` with pip; the import package is "
+            "`aspose_barcode_foss`.",
+            "dependencies": DEPENDENCIES,
+            "scope_limitations": "The library does not decode barcodes.",
+        }
+    )
+    unit = (
+        "Requires Python 3.12 or later and `Pillow>=10.1.0`. It ships a `py.typed` marker for "
+        "full type-checker support."
+    )
+    carried = uncovered(
+        "inherited_unit:014.paragraph",
+        unit,
+        shown,
+        "scope_limitations",
+        also=("installation", "dependencies"),
+        only_also=True,
+    )
+    assert carried == "It ships a `py.typed` marker for full type-checker support."
+    # without the renderer's sections the paragraph is carried whole, as before
+    assert uncovered("inherited_unit:014.paragraph", unit, shown, "scope_limitations") == unit
+
+
+def test_the_destination_is_not_a_haystack_for_a_unit_nominated_by_its_topic_alone() -> None:
+    """3D-.NET 014: ``The repository also contains a separate console conversion tool ... it is not
+    published to NuGet.`` shares enough identifiers with the long Development and Testing text to be
+    "stated" by it. A unit no fact ties to the destination is judged against the renderer's
+    Installation and Dependencies text only."""
+    unit = (
+        "The repository also contains a separate console conversion tool "
+        "(`src/converter/Converter.csproj`, package id `Aspose.3D.Converter`) that references the "
+        "library as a project; it is not published to NuGet."
+    )
+    long_authored = (
+        "Build the repository with the converter project and the console tool, which references "
+        "the library as a project, from src/converter/Converter.csproj; package ids such as "
+        "Aspose.3D.Converter are not published to NuGet."
+    )
+    shown = _shown(
+        {
+            "installation": "Install the published package from NuGet (`Aspose.3D.FOSS`).",
+            "dependencies": "No required third-party package dependencies.",
+            "development_testing": long_authored,
+        }
+    )
+    kwargs = {"also": ("installation", "dependencies")}
+    assert (
+        uncovered("inherited_unit:014.paragraph", unit, shown, "development_testing", **kwargs)
+        == ""
+    )
+    assert (
+        uncovered(
+            "inherited_unit:014.paragraph",
+            unit,
+            shown,
+            "development_testing",
+            only_also=True,
+            **kwargs,
+        )
+        == unit
+    )
+
+
+def test_a_dependency_item_is_judged_as_a_sentence_against_the_renderers_text() -> None:
+    """PDF-Python 021: the lead word of an item ("images", "pytest") is stated by any unrelated
+    mention and would hide what the item says about it. Against the renderer's sections an item is
+    stated only when it is stated as a sentence."""
+    extras = (
+        "- `images` - Pillow-based image support (JPX/JPEG 2000 decoding, arithmetic-coded JPEG).\n"
+        "- `Pillow` >=12.3"
+    )
+    shown = _shown(
+        {
+            "dependencies": "- `Pillow>=12.3` (extra `images`)\n- `Brotli>=1.2` (extra `woff2`)",
+            "development_testing": "Run the tests.",
+        }
+    )
+    carried = uncovered(
+        "inherited_unit:021.list",
+        extras,
+        shown,
+        "development_testing",
+        also=("dependencies",),
+        only_also=True,
+    )
+    assert carried == extras.splitlines()[0]  # the item that says what the extra adds
+
+
+def test_a_paragraph_that_only_points_at_listed_documents_is_dropped_in_documentation() -> None:
+    """Slides-Python 122: ``See agents.md ... and CONTRIBUTING.md ... for how to build`` repeats two
+    items of the list above it (README_CONTRACT.md row 15 never names a target twice)."""
+    pointer = (
+        "See [`agents.md`](agents.md) for the package's internal structure and contribution "
+        "conventions, and\n[CONTRIBUTING.md](CONTRIBUTING.md)\n"
+        "(https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/"
+        "CONTRIBUTING.md)\nfor how to build, how to run the tests, and how to report a fix."
+    )
+    listed = (
+        "- **[Contributor guide](agents.md)** - architecture notes.\n"
+        "- **[CONTRIBUTING.md](CONTRIBUTING.md)** - how to build and test."
+    )
+    shown = _shown({"documentation_resources": listed})
+    assert (
+        uncovered(
+            "inherited_unit:122.paragraph",
+            pointer,
+            shown,
+            "documentation_resources",
+            by_link=True,
+        )
+        == ""
+    )
+    # negative control: one document the section does not list keeps the paragraph
+    other = pointer.replace("CONTRIBUTING.md](CONTRIBUTING.md)", "SECURITY.md](SECURITY.md)")
+    assert (
+        uncovered(
+            "inherited_unit:122.paragraph",
+            other,
+            shown,
+            "documentation_resources",
+            by_link=True,
+        )
+        == other
+    )
+
+
+def test_states_all_asks_every_sentence_of_the_unit_of_the_kept_text() -> None:
+    kept = (
+        "Reading is limited to `.pptx`; `SaveFormat` declares `Ppt` and `Pdf` but only `Pptx` "
+        "is written."
+    )
+    assert states_all(kept, "Only `Pptx` is written; `SaveFormat` declares `Ppt` and `Pdf`.")
+    assert not states_all(kept, "Only `Pptx` is written. Comment threads are classic.")
+    assert not states_all(kept, "")

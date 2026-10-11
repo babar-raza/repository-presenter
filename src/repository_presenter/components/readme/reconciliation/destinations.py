@@ -17,10 +17,15 @@ This module is the one answer to "which sections can hold a unit here":
   decoder's enum for a placing disposition (``dispositions.reconciliation_schema``), the list a
   refusal quotes, and the set a last-resort correction picks from, so the three can never disagree.
 * :func:`nearest_holdable` - the holdable section nearest to one unit, read from the unit's own
-  source heading and kind. It is a registry (``_TOPICS`` and ``_HOMES``), not a branch: a heading
-  that names a topic ("Installation", "Requirements", "Testing") maps to the sections that topic
-  belongs in, a unit under no known topic falls back to its kind, and a unit none of the holdable
-  sections suits gets ``None`` - the one case a deferral is still the honest outcome.
+  source heading and kind. It is a registry (``composition/source_topics._TOPICS`` and ``_HOMES``),
+  not a branch: a heading that names a topic ("Installation", "Requirements", "Testing") maps to
+  the sections that topic belongs in, a unit under no known topic falls back to its kind, and a
+  unit none of the holdable sections suits gets ``None`` - the one case a deferral is still the
+  honest outcome.
+* :func:`rehomed` - the section a kept unit belongs in when the reply filed it in one that has no
+  place for its topic (an install requirement in Scope and Limitations, a dependency list in the
+  API Reference); ``dispositions.normalize`` applies it, because no stage after reconciliation
+  can move a kept unit.
 * :func:`disposition_variants` - the two complete object shapes the S4 schema offers: a placing
   disposition names a holdable section, every other disposition keeps the open destination (a
   supersession names whichever section renders or covers the unit, including a renderer-owned one).
@@ -33,8 +38,6 @@ disposition that says "this section already prints the substance", and the cover
 from __future__ import annotations
 
 import copy
-import re
-from collections import Counter
 from collections.abc import Collection, Mapping, Sequence
 from typing import Any
 
@@ -46,6 +49,13 @@ from repository_presenter.components.readme.composition.planning import section_
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
+)
+from repository_presenter.components.readme.composition.source_topics import (
+    heading_parts,
+    path_topic,
+    root_heading,
+    source_heading,
+    topic_of,
 )
 from repository_presenter.core.facts import Fact, FactsDocument
 
@@ -70,59 +80,17 @@ _PRINTS = {
     "scope_limitations": frozenset({"paragraph", "list", "table", "blockquote"}),
 }
 
-# A heading's topic, from its own words. The deepest heading of a unit's path is read first, then
-# its parents; the product's H1 (the path's first part) names the product, not a topic.
-_TOPICS: tuple[tuple[str, re.Pattern[str]], ...] = (
-    # Sections the shell prints itself from facts: the licence statement, the notices link, the
-    # Navigation list, the badge and banner rows. A unit under one of these headings is that
-    # section's own text, not content to keep somewhere else, so it has no home.
-    (
-        "furniture",
-        re.compile(
-            r"\b(?:licen[cs]\w*|copyright|notices?|third party|navigation|table of contents|"
-            r"contents|badges?|banner)\b"
-        ),
-    ),
-    (
-        "build",
-        re.compile(r"\b(?:tests?|testing|build|building|develop\w*|contribut\w*|compil\w*|ci)\b"),
-    ),
-    (
-        "example",
-        re.compile(
-            r"\b(?:examples?|usage|samples?|tutorials?|recipes?|demos?|quick start|how to)\b"
-        ),
-    ),
-    (
-        "install",
-        re.compile(
-            r"\b(?:install\w*|setup|set up|getting started|requirements?|prerequisites?|"
-            r"depend\w*|extras?|packages?)\b"
-        ),
-    ),
-    ("api", re.compile(r"\b(?:api|reference|classes|methods?|namespaces?|modules?)\b")),
-    (
-        "limits",
-        re.compile(
-            r"\b(?:limit\w*|supported|compatib\w*|known|restrictions?|caveats?|status|roadmap|notes?)\b"
-        ),
-    ),
-    (
-        "capabilities",
-        re.compile(r"\b(?:features?|capabilit\w*|overview|about|highlights?|why|what)\b"),
-    ),
-    (
-        "resources",
-        re.compile(
-            r"\b(?:docs?|documentation|links?|resources?|community|contact|help|learn\w*|"
-            r"changelog|releases?|acknowledg\w*|credits?)\b"
-        ),
-    ),
-)
 # The sections a topic's units belong in, nearest first, for a code block and for anything else.
 # "install" content that the Installation row does not print (a second package manager, an extra,
-# a build-tool declaration) lives with the commands a maintainer runs, or with the requirements a
-# reader must meet; it is never dropped.
+# a build-tool declaration, a requirement the Dependencies section does not state) lives in
+# Development and Testing - README_CONTRACT.md row 17: "install or build and run the suite" - and
+# nowhere else a reader would look for a limitation, a link or a first example. Scope and
+# Limitations (row 16) is a bulleted list of limitations, Documentation and Resources (row 15) a
+# list of links, Quick Start (row 10) one or two minimal examples; the wave-6 acceptance reviews
+# found 124 install and dependency units in those three across 44 bundles (BarCode-Python,
+# Slides-Python, PDF-Python, every sealed or would-be bundle). The prose and the code pools start
+# with the same section so a lead-in and its block are never sent to different sections; the
+# fallbacks after it are for a repository with no build or test asset.
 _HOMES: Mapping[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "build": (
         ("development_testing", "additional_examples", "quick_start"),
@@ -134,7 +102,11 @@ _HOMES: Mapping[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     ),
     "install": (
         ("development_testing", "quick_start", "additional_examples"),
-        ("scope_limitations", "documentation_resources", "development_testing"),
+        ("development_testing", "quick_start", "documentation_resources", "scope_limitations"),
+    ),
+    "setup": (
+        ("quick_start", "development_testing", "additional_examples"),
+        ("quick_start", "development_testing", "documentation_resources", "scope_limitations"),
     ),
     "api": (("api_reference",), ("api_reference",)),
     "limits": (("scope_limitations",), ("scope_limitations",)),
@@ -147,6 +119,32 @@ _HOMES: Mapping[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
         ("documentation_resources", "scope_limitations"),
     ),
 }
+# The sections a topic's units are moved out of when the reply filed them there: those whose
+# contract row has no place for the topic - a bulleted list of limitations (row 16), a list of
+# links (row 15), three to eight capabilities (row 7), the API surface (row 14), task-named
+# examples (row 12). A model that meets "Requires Python 3.12+" under Installation files it with
+# whatever section it reads next (Scope and Limitations 29 times, Documentation and Resources 21,
+# Additional Examples 7, API Reference 4 and Key Capabilities 2 in the 44 wave-6 bundles), and no
+# stage after reconciliation can move a kept unit. Quick Start is left alone for install content:
+# it follows Installation, and an install warning there ("the PyPI release predates this source",
+# Slides-Python) is read where a visitor needs it. Build and test material is the same shape
+# filed under limitations (BarCode-Python's dev dependencies, 9 units), and a pointer into the API
+# listing filed under capabilities is the orphan PDF-Python's Key Capabilities ends with (17).
+_MISFILED: Mapping[str, frozenset[str]] = {
+    "install": frozenset(
+        {
+            "scope_limitations",
+            "documentation_resources",
+            "key_capabilities",
+            "api_reference",
+            "additional_examples",
+        }
+    ),
+    "build": frozenset({"scope_limitations", "key_capabilities", "api_reference"}),
+    "api": frozenset({"key_capabilities", "scope_limitations"}),
+}
+# The unit kinds the shell owns outright; a placement of one is never a content placement.
+_SHELL_KINDS = frozenset({"heading", "badge_row", "html_block"})
 # A unit under no known topic is placed by its kind alone. Neither list ends in the API Reference:
 # a snippet or a sentence that is not about the API is not made to read as part of it, and a unit
 # none of these suits is the one a deferral is still the honest outcome for.
@@ -154,7 +152,6 @@ _KIND_HOMES: tuple[tuple[str, ...], tuple[str, ...]] = (
     ("development_testing", "additional_examples", "quick_start"),
     ("scope_limitations", "documentation_resources", "key_capabilities"),
 )
-_SPACE = re.compile(r"[^a-z0-9]+")
 
 
 def holdable_sections(
@@ -176,43 +173,6 @@ def holdable_sections(
     )
 
 
-def source_heading(unit: Fact | None) -> str | None:
-    """The heading path the extractor recorded for an inherited unit, or ``None``."""
-    if unit is None:
-        return None
-    section = (unit.attributes or {}).get("section")
-    return section or None
-
-
-def _path(section: str) -> list[str]:
-    """A heading path ("Product > Installation > Requirements") as lower-case parts."""
-    return [
-        part for part in (_SPACE.sub(" ", p.lower()).strip() for p in section.split(">")) if part
-    ]
-
-
-def root_heading(units: Sequence[Fact]) -> str | None:
-    """The README's title as the first part of its units' heading paths: the part more than half of
-    them share. A path starts with the product's own H1, which names the product and not a topic
-    ("Aspose.Note FOSS" is not a note); a README with no H1 has no such part."""
-    firsts = Counter(
-        path[0] for unit in units if (section := source_heading(unit)) and (path := _path(section))
-    )
-    if not firsts:
-        return None
-    root, count = firsts.most_common(1)[0]
-    return root if count * 2 > sum(firsts.values()) else None
-
-
-def _topic(parts: Sequence[str]) -> str | None:
-    """The topic of a heading path's parts: the first, deepest part that names one."""
-    for part in reversed(parts):
-        for topic, pattern in _TOPICS:
-            if pattern.search(part):
-                return topic
-    return None
-
-
 def nearest_holdable(
     unit_id: str, heading_path: str | None, holdable: Collection[str], root: str | None = None
 ) -> str | None:
@@ -227,12 +187,12 @@ def nearest_holdable(
     home."""
     kind = unit_id.rsplit(".", 1)[-1]
     code = kind == "code_block"
-    parts = _path(heading_path) if heading_path else []
+    parts = heading_parts(heading_path) if heading_path else []
     if parts and root is not None and parts[0] == root:
         parts = parts[1:]
         if not parts:
             return None
-    topic = _topic(parts)
+    topic = topic_of(parts)
     if topic == "furniture":
         return None
     candidates = _HOMES[topic][0 if code else 1] if topic is not None else ()
@@ -241,6 +201,30 @@ def nearest_holdable(
             if section in holdable and section not in _NEVER_AUTOMATIC and kind in _kinds(section):
                 return section
     return None
+
+
+def rehomed(
+    unit_id: str,
+    heading_path: str | None,
+    destination: str | None,
+    holdable: Collection[str],
+    root: str | None = None,
+) -> str | None:
+    """The section a kept unit belongs in when the reply filed it somewhere else, or ``None`` when
+    it stays where it is.
+
+    Only a unit of a topic with a ``_MISFILED`` entry (what the Installation and Dependencies
+    sections print, build and test material, API listings) filed in a section that has no
+    place for it is moved, and only to the topic's
+    own home (:func:`nearest_holdable`); a unit the shell owns, a unit with no home, or one filed
+    in a section that can hold it is left alone."""
+    if unit_id.rsplit(".", 1)[-1] in _SHELL_KINDS or destination is None:
+        return None
+    topic = path_topic(heading_path, root)
+    if topic is None or destination not in _MISFILED.get(topic, frozenset()):
+        return None
+    home = nearest_holdable(unit_id, heading_path, holdable, root)
+    return home if home is not None and home != destination else None
 
 
 def _kinds(section: str) -> Collection[str]:

@@ -49,6 +49,17 @@ hubs - closing a real gap without discarding the plan's own signal, which severa
 candidates' dispositions turned out to depend on even though it is itself only an approximation
 (RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08).
 
+A kept unit about installing is also read against the renderer's own Installation and Dependencies
+sections, and one under the License heading against the License section, whatever section the
+reply sent it to (``_STATED_BY``). Those sections cannot hold a kept unit, so the dependency list,
+the Python floor and the alternative install block under the source's own Installation heading
+were filed in Quick Start, Scope and Limitations or Documentation and Resources, tested against
+the wrong section, and printed beside the very text they repeat (wave-6 acceptance reviews,
+cause 4: 124 such units in 44 bundles; the licence paragraph in Scope in 15). The topic is read
+from the unit's source heading (``source_topics``), the test is ``coverage.uncovered`` (a prose
+unit, sentence by sentence) or ``coverage.uncovered_block`` (a code block, line by line), and a
+release number never makes two lines different (``coverage.unversioned``).
+
 A unit that is actually placed also has its own intra-document anchors resolved here, against the
 plan's own section inclusion (``planned_heading_slugs``, ``resolve_intra_document_anchors``): an
 anchor to a heading this candidate will render is kept, one to a heading it will not (almost
@@ -67,7 +78,15 @@ from typing import Any, Literal
 from urllib.parse import unquote
 
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
-from repository_presenter.components.readme.composition.coverage import Destinations, uncovered
+from repository_presenter.components.readme.composition.coverage import (
+    Destinations,
+    uncovered,
+    uncovered_block,
+)
+from repository_presenter.components.readme.composition.source_topics import (
+    root_heading,
+    unit_topic,
+)
 from repository_presenter.components.readme.evidence.facts.commands import (
     CI_MATRIX_FACT_ID,
     RELEASE_WORKFLOW_FACT_ID,
@@ -82,6 +101,14 @@ PLACING = frozenset(
 )
 _RENDERED_ELSEWHERE = frozenset({"heading", "badge_row", "html_block"})
 Outcome = Literal["placed", "overlap", "owned_elsewhere", "excluded"]
+# The renderer's own sections a kept unit of a topic is read against besides its destination. They
+# print the install command, the alternative declarations, the runtime floor and every dependency
+# (README_CONTRACT.md rows 8 and 9), and the licence statement (row 20), from facts, and can hold no
+# kept unit themselves.
+_STATED_BY: Mapping[str, tuple[str, ...]] = {
+    "install": ("installation", "dependencies"),
+    "furniture": ("license", "third_party_notices"),
+}
 
 
 @dataclass(frozen=True)
@@ -91,6 +118,9 @@ class Placement:
     text: str
     outcome: Outcome
     overlap: tuple[str, ...] = ()
+    # The sections besides ``destination`` whose text the coverage test counted as the
+    # destination's own; the validator reads a dropped list against the same text.
+    read_with: tuple[str, ...] = ()
 
 
 def renders_verbatim(unit_id: str, value: str, ecosystem: str) -> bool:
@@ -558,6 +588,48 @@ def _introduces_nothing_rendered(
     return True
 
 
+def _drop_orphaned_lead_ins(result: list[Placement]) -> list[Placement]:
+    """``result`` with every kept lead-in ("Gradle (Groovy DSL):") dropped whose block was.
+
+    A kept sentence that ends in a colon introduces the unit right after it in the source. When
+    that unit is dropped because the document already states it (the Installation row prints the
+    Gradle declaration the source put under this sentence), the sentence is left introducing
+    nothing: ``Maven:`` and a colon, in the middle of Quick Start. The lead-in follows its block's
+    fate when the block is in the same destination, and only then; a block that is placed, or one
+    that is superseded and so not in ``result`` at all, leaves the sentence as it was."""
+    at: dict[int, list[Placement]] = {}
+    for decision in result:
+        ordinal = _unit_ordinal(decision.unit_id)
+        if ordinal is not None:
+            at.setdefault(ordinal, []).append(decision)
+    kept: list[Placement] = []
+    for decision in result:
+        ordinal = _unit_ordinal(decision.unit_id)
+        following = (
+            [d for d in at.get(ordinal + 1, ()) if d.destination == decision.destination]
+            if ordinal is not None
+            else []
+        )
+        if (
+            decision.outcome == "placed"
+            and decision.unit_id.rsplit(".", 1)[-1] == "paragraph"
+            and decision.text.rstrip().endswith(":")
+            and following
+            and all(d.outcome == "overlap" for d in following)
+        ):
+            marks = tuple(sorted({mark for d in following for mark in d.overlap}))
+            decision = Placement(
+                decision.unit_id,
+                decision.destination,
+                decision.text,
+                "overlap",
+                marks,
+                decision.read_with,
+            )
+        kept.append(decision)
+    return kept
+
+
 def placements(
     plan: dict[str, Any],
     dispositions: dict[str, Any],
@@ -593,6 +665,7 @@ def placements(
     # lead-in immediately after it is covered too, whatever example(s) it cites (arrival item 92).
     section_heading_ordinals = _section_heading_ordinals(dispositions)
     by_ordinal = _entries_by_ordinal(dispositions)
+    root = root_heading(tuple(by_id.values()))
     shown: Destinations | None = None
     result: list[Placement] = []
     for entry in dispositions.get("dispositions", []):
@@ -636,20 +709,44 @@ def placements(
             # states it twice (Cells .NET 941814fd: the Scope list, LST-01).
             overlap = (unit_id,)
         text = unit.value
+        also: tuple[str, ...] = ()
+        topical = False
+        if destinations is not None:
+            also = tuple(
+                section
+                for section in _STATED_BY.get(unit_topic(unit, root) or "", ())
+                if section != destination
+            )
+            if (
+                also
+                and not overlap
+                and (unit_id.endswith(".code_block") or not text.rstrip().endswith(":"))
+            ):
+                # About a subject the renderer's own sections print, so they may already state it
+                # whatever it cites; only the text of those sections decides, never the
+                # destination's (a unit no fact ties to the destination is not its content).
+                # A sentence that introduces a block ("...to your pom.xml:") follows its block's
+                # fate (_drop_orphaned_lead_ins).
+                overlap, topical = also, True
         if overlap and destinations is not None:
             # A shared fact is a citation, not a statement: the destination drops the unit only
             # if it states all of it, else the part it does not state is placed (coverage.py).
             # Resolved once and only when something overlaps.
             if shown is None:
                 shown = destinations()
-            remainder = uncovered(
-                unit_id,
-                text,
-                shown,
-                destination,
-                by_link=destination == "documentation_resources",
-                lead_in=bool(set(overlap) & lead_in_of),
-            )
+            if unit_id.endswith(".code_block"):
+                remainder = uncovered_block(text, shown, also)
+            else:
+                remainder = uncovered(
+                    unit_id,
+                    text,
+                    shown,
+                    destination,
+                    by_link=destination == "documentation_resources",
+                    lead_in=bool(set(overlap) & lead_in_of),
+                    also=also,
+                    only_also=topical,
+                )
             if remainder and not _introduces_nothing_rendered(
                 unit_id,
                 remainder,
@@ -668,8 +765,8 @@ def placements(
         # to rewrite.
         if outcome == "placed" and not unit_id.endswith(".code_block"):
             text = resolve_intra_document_anchors(text, planned_slugs)
-        result.append(Placement(unit_id, destination, text, outcome, overlap))
-    return result
+        result.append(Placement(unit_id, destination, text, outcome, overlap, also))
+    return _drop_orphaned_lead_ins(result)
 
 
 def placed_texts(decisions: list[Placement]) -> dict[str, list[str]]:

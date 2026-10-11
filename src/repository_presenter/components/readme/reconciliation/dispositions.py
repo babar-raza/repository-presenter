@@ -43,11 +43,17 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
     shell_packet,
 )
+from repository_presenter.components.readme.composition.coverage import unversioned
 from repository_presenter.components.readme.composition.placement import renderer_fact_ids
 from repository_presenter.components.readme.composition.planning import section_conditions
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
+)
+from repository_presenter.components.readme.composition.source_topics import (
+    path_topic,
+    root_heading,
+    source_heading,
 )
 from repository_presenter.components.readme.evidence.facts.links import extract_links
 from repository_presenter.components.readme.evidence.facts.product_pages import (
@@ -62,8 +68,7 @@ from repository_presenter.components.readme.reconciliation.destinations import (
     disposition_variants,
     holdable_sections,
     nearest_holdable,
-    root_heading,
-    source_heading,
+    rehomed,
 )
 from repository_presenter.core.ecosystems import EcosystemSpec, spec_for
 from repository_presenter.core.errors import ConfigError
@@ -863,13 +868,16 @@ def _is_mermaid(text: str) -> bool:
 
 def _command_lines(text: str) -> list[str]:
     """The comparable command lines of a fenced block: prompts, comments, fences and version pins
-    removed, whitespace collapsed, lower case - the form a rendered install command is held in."""
+    removed, release numbers replaced, whitespace collapsed, lower case - the form a rendered
+    install command is held in. A Gradle line kept from the source at ``:26.6.0`` is the line the
+    Installation row prints at ``:26.9.0`` (PDF-Java, wave 6: the unit was moved to Development and
+    Testing as "not printed" and tripped BC-14 on the stale number)."""
     lines: list[str] = []
     for raw in text.splitlines():
         line = _PROMPT.sub("", raw).strip()
         if not line or line.startswith(("```", "#", "//")):
             continue
-        lines.append(" ".join(_VERSION_PIN.sub("", line).split()).lower())
+        lines.append(" ".join(unversioned(_VERSION_PIN.sub("", line)).split()).lower())
     return lines
 
 
@@ -1431,6 +1439,57 @@ def _fold_uncovered(output: dict[str, Any], facts: FactsDocument, ctx: _Coverage
             )
 
 
+def _printed_by_installation(unit_id: str, cited: set[str], ctx: _Coverage) -> bool:
+    """Whether ``unit_id`` is a code block every line of which the Installation row prints and
+    whose supersession by it the stage can prove (``_supersession_gap``)."""
+    if _unit_kind(unit_id) != "code_block" or unit_id in ctx.examples:
+        return False
+    lines = _command_lines(ctx.text(unit_id))
+    if not lines or any(line not in ctx.commands for line in lines):
+        return False
+    return _supersession_gap(unit_id, "installation", cited, ctx) is None
+
+
+# What a re-homed unit says about itself. The disposition record has no other field for the cause
+# (DispositionsV1 is closed), so it opens the rationale, ahead of the reply's own words.
+REHOMED_RATIONALE = "Kept in {section}: {old} holds no {topic} material. "
+
+
+def _rehome_misfiled_units(
+    output: dict[str, Any], facts: FactsDocument, units: Mapping[str, Fact]
+) -> None:
+    """Move every kept unit filed in a section that has no place for its topic to the section that
+    does, in place.
+
+    Source READMEs put the alternative install blocks, the runtime floor and the dependency lists
+    under their own Installation heading; the shell prints Installation and Dependencies itself
+    and has no section for what they leave out, so the reconciler filed 124 such units across the
+    44 wave-6 bundles in Quick Start (55), Scope and Limitations (29), Documentation and Resources
+    (21) and elsewhere - sections whose contract rows (README_CONTRACT.md 10, 15, 16) hold one
+    example, a list of links and a list of limitations. Development and Testing is where
+    "install or build and run the suite" belongs (row 17), and ``destinations.rehomed`` names it
+    (or the next home when the repository has no build or test asset). Nothing is dropped here:
+    placement drops what Installation and Dependencies already state, from text, at render."""
+    holdable = holdable_sections(facts)
+    root = root_heading(list(units.values()))
+    for entry in output.get("dispositions", []):
+        if entry.get("disposition") not in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}:
+            continue
+        unit_id = str(entry.get("unit_id", "?"))
+        old = entry.get("destination_section")
+        heading = source_heading(units.get(unit_id))
+        home = rehomed(unit_id, heading, old, holdable, root)
+        if home is None:
+            continue
+        lead = REHOMED_RATIONALE.format(section=home, old=old, topic=path_topic(heading, root))
+        reason = str(entry.get("rationale") or "").strip()
+        room = _RATIONALE_LIMIT - len(lead)
+        if len(reason) > room:
+            reason = reason[: max(room - 3, 0)].rstrip() + "..."
+        entry["destination_section"] = home
+        entry["rationale"] = (lead + reason).strip()
+
+
 def normalize(
     output: dict[str, Any], facts: FactsDocument, policy: PlanningPolicy = DEFAULT_POLICY
 ) -> list[str]:
@@ -1514,6 +1573,19 @@ def normalize(
                 entry["disposition"] = "VERIFIED_PRESERVE"
                 entry["destination_section"] = "development_testing"
                 entry["fact_ids"] = sorted(cited | set(build_ids or install_ids))
+            continue
+        if (
+            disposition in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}
+            and install_ids
+            and _printed_by_installation(unit, cited, coverage)
+        ):
+            # A kept install block whose every line the Installation row prints already (the Maven
+            # and Gradle declarations, the clone-and-build lines, the verify line) is redundant:
+            # placing it prints the command twice, and at the source's release number it prints a
+            # stale one beside the current one (PDF-Java 015, wave 6).
+            entry["disposition"] = "SUPERSEDE_REDUNDANT"
+            entry["destination_section"] = "installation"
+            entry["fact_ids"] = sorted(cited | set(install_ids))
             continue
         if disposition in PLACING and unit in contradicted:
             # The example failed at this revision: the block is never placed (README_CONTRACT.md
@@ -1695,6 +1767,7 @@ def normalize(
     # such as the OMIT_UNSUPPORTED-command branch's VERIFIED_PRESERVE into development_testing
     # above), in document order, so the first PLACING claim on a (section, fact) pair always
     # wins and is never itself downgraded.
+    _rehome_misfiled_units(output, facts, units_by_id)
     claims: Claims = {}
     for entry in output.get("dispositions", []):
         destination = entry.get("destination_section")

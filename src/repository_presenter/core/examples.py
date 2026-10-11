@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Literal
 
@@ -72,11 +72,17 @@ def printed_example(fact: Fact) -> str:
 
 @dataclass(frozen=True)
 class FormatClaim:
-    """A file extension one example statement loads (input) or saves (output), by code line."""
+    """A file extension one example statement loads (input) or saves (output), by code line.
+
+    ``literals`` are the file-name literals the claim was read from, in code order, when the
+    platform plugin records them (the Python plugin does): the fact builder then tells a fixture the
+    example saves to from one it opens, which an extension alone cannot. They are evidence about
+    the claim, not part of it, so two claims that differ only in them compare equal."""
 
     extension: str
     direction: FormatDirection
     line: int
+    literals: tuple[str, ...] = field(default=(), compare=False)
 
 
 FormatDeclarationKind = Literal["declaration", "registration"]

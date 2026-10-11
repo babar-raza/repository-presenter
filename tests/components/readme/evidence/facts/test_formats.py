@@ -190,3 +190,59 @@ def test_two_static_sources_support_a_format_no_example_executed() -> None:
     ]
     fbx_out = next(f for f in facts if f.id == "format:output.fbx")
     assert [e.path for e in fbx_out.evidence] == ["README.md", "examples.json"]
+
+
+def test_a_round_trip_example_supports_the_same_extension_in_and_out() -> None:
+    """Slides-Python, wave 6 (example 2 of the live README): ``Presentation("input.pptx")`` opens a
+    deck and ``prs.save("output.pptx")`` writes one. The constructor carries no input verb, so the
+    only evidence the product reads ``.pptx`` is the fixture the harness staged under the literal
+    ``input.pptx`` - and the suppression of E23 (a fixture of an extension the same example saves
+    is a pure text scan, not a read) discarded it because ``.pptx`` is also an output. The product's
+    own document format never became an input fact, so the At a Glance diagram offered the only
+    input fact there was - ``picture.png``, an image placed on a slide - as the Starting Point
+    (acceptance review of the sealed bundle: live README says "An existing .pptx presentation").
+    The suppression is per literal: a fixture the example only ever writes is still not an input."""
+    candidates = [
+        _candidate(
+            2,
+            "import aspose.slides_foss as slides\n"
+            'with slides.Presentation("input.pptx") as prs:\n'
+            '    prs.save("output.pptx", SaveFormat.PPTX)\n'
+            "with slides.Presentation() as prs:\n"
+            '    prs.save("new.pptx", SaveFormat.PPTX)\n',
+            170,
+        )
+    ]
+    receipts = [
+        _receipt(
+            2,
+            "EXECUTED",
+            fixtures=(
+                FixtureBinding("input.pptx", "aspose/slides_foss/_internal/pptx/Template.pptx"),
+                FixtureBinding("output.pptx", "aspose/slides_foss/_internal/pptx/Template.pptx"),
+                FixtureBinding("new.pptx", "aspose/slides_foss/_internal/pptx/Template.pptx"),
+            ),
+        )
+    ]
+    facts = format_facts(candidates, receipts, format_claims, "examples.json")
+    by_id = {f.id: f for f in facts}
+    assert by_id["format:input.pptx"].polarity == "SUPPORTED"
+    assert by_id["format:output.pptx"].polarity == "SUPPORTED"
+    # the evidence of the input is the fixture that was read, never a file the example wrote
+    assert [e.detail for e in by_id["format:input.pptx"].evidence] == [
+        "staged as input.pptx; example 2 read it: EXECUTED"
+    ]
+
+
+def test_a_fixture_the_example_only_writes_never_becomes_an_input() -> None:
+    """Negative control for the per-literal suppression: every staged literal is a save target."""
+    candidates = [_candidate(1, 'doc.save("a.pdf")\ndoc.save("b.pdf")\n', 5)]
+    receipts = [
+        _receipt(
+            1,
+            "EXECUTED",
+            fixtures=(FixtureBinding("a.pdf", "x/a.pdf"), FixtureBinding("b.pdf", "x/b.pdf")),
+        )
+    ]
+    facts = format_facts(candidates, receipts, format_claims, "examples.json")
+    assert [f.id for f in facts] == ["format:output.pdf"]
