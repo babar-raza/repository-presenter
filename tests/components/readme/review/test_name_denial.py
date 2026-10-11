@@ -446,6 +446,9 @@ def test_the_refutation_depends_on_the_rule(monkeypatch: pytest.MonkeyPatch) -> 
     """Mutation: with the rule inert the wave-4 payloads block exactly as the sealed review did."""
     facts = _go_facts()
     monkeypatch.setattr(review_module, "name_denial_defect", lambda *a, **k: None)
+    # The demotion of a rendered API Reference row is its own class (test_unrepairable_demotion.py);
+    # isolate the rule under test.
+    monkeypatch.setattr(review_module, "unrepairable_demotion", lambda *a, **k: None)
     document = _review(_go_findings(GO_FIRST), facts, _go_candidate(facts))
     assert document["verdict"] == "REJECT_FACTUAL"
     assert document["verdict_basis"] == "rejection_stands"

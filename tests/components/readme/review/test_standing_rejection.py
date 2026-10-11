@@ -27,6 +27,7 @@ from repository_presenter.components.readme.extractors.platforms.registry import
 from repository_presenter.components.readme.review.independent import review as review_module
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
+    DEMOTION_RULES,
     DETERMINISTIC_RULES,
     JUDGMENT_RULES,
     Ruling,
@@ -249,6 +250,9 @@ def test_removing_a_deterministic_rule_leaves_the_rejection_standing(
     rule: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """The mutation control: take the rule away and the same finding carries the REJECT."""
+    # A mis-staged S6 on a renderer-owned section is demoted by its own rule, not by the one under
+    # test (test_unrepairable_demotion.py); isolate the rule.
+    monkeypatch.setattr(review_module, "unrepairable_demotion", lambda *a, **k: None)
     f = DETERMINISTIC_EXEMPLARS[rule]
     others = [r.rule for r in rulings_of(f) if r.deterministic and r.rule != rule]
     if others:
@@ -279,7 +283,12 @@ def test_removing_a_deterministic_rule_leaves_the_rejection_standing(
 
 
 @pytest.mark.parametrize("rule", sorted(JUDGMENT_EXEMPLARS))
-def test_a_judgment_rule_annotates_but_never_flips_a_rejection(rule: str) -> None:
+def test_a_judgment_rule_annotates_but_never_flips_a_rejection(
+    rule: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The claim is about the judgment rules; the separate demotion of a finding that names no stage
+    # the repair loop can act on is tested in test_unrepairable_demotion.py.
+    monkeypatch.setattr(review_module, "unrepairable_demotion", lambda *a, **k: None)
     f = JUDGMENT_EXEMPLARS[rule]
     # A content unit wrote the quoted sentence (so the renderer-owned rules do not apply), except
     # for the one rule that is about text no unit wrote.
@@ -442,6 +451,7 @@ DERIVED = {
     "single_reader_advisory",
     "reader",
     "refuted_by",
+    "demoted",
     "unrefuted_scope_rules",
     "unrepairable",
     "absent_refuted",
@@ -559,18 +569,33 @@ def _first_read(review: dict[str, Any]) -> dict[str, Any]:
 
 def _assert_standing_rule(first: dict[str, Any], document: dict[str, Any]) -> str:
     """The invariant: ACCEPT from a returned rejection only when every finding is refuted by a
-    deterministic rule; otherwise the rejection stands. Returns which."""
+    deterministic rule or demoted because it names no stage the repair loop can act on; otherwise
+    the rejection stands. Returns which."""
     returned = first["verdict"]
     if returned == ACCEPT:
         assert document["verdict"] == ACCEPT
         return "accepted"
     if document["verdict"] == ACCEPT:
         assert document["findings"] == [] and first["findings"], "an empty rejection cannot clear"
+        demoted = 0
         for record in document["advisory"]:
             assert "unrepairable" not in record
-            assert record["refuted_by"]["rule"] in DETERMINISTIC_RULES, record["id"]
-            assert record["reviewer_scope_defect"], record["id"]
-        return "refuted"
+            if "refuted_by" in record:
+                assert record["refuted_by"]["rule"] in DETERMINISTIC_RULES, record["id"]
+                assert record["reviewer_scope_defect"], record["id"]
+            else:
+                # Not refuted, so recorded as demoted: a composition stage blamed for text the
+                # renderer owns - and never called refuted.
+                assert record["demoted"]["rule"] in DEMOTION_RULES, record["id"]
+                assert record["demoted"]["stage"] in {"S6", "S7", "S8"}, record["id"]
+                assert "reviewer_scope_defect" not in record, record["id"]
+                demoted += 1
+        # The basis says which: a refutation keeps the second-read trigger, demotions alone do not.
+        refuted = len(document["advisory"]) - demoted
+        assert document["verdict_basis"] == (
+            "rejection_refuted_deterministically" if refuted else "rejection_findings_demoted"
+        )
+        return "demoted" if demoted else "refuted"
     assert document["verdict"] == returned
     assert (
         document["findings"]
@@ -590,25 +615,28 @@ def test_replaying_a_sealed_review_never_lets_a_judgment_clear_a_rejection(bundl
     first = _first_read(world["review"])
     document = _fold(world, first)
     outcome = _assert_standing_rule(first, document)
-    # What the sealed bundle shows is what the old fold did; the new one may only be stricter.
+    # What the sealed bundle shows is what the old fold did; the new one is stricter except for the
+    # one recorded class: a finding that names no stage the repair loop can act on (demoted).
     sealed_accept = world["review"]["verdict"] == ACCEPT
     if outcome in ("stands",):
         assert first["verdict"] != ACCEPT
     if not sealed_accept:
-        assert outcome == "stands"
+        assert outcome in ("stands", "demoted")
     # Every demotion the sealed review recorded as a reviewer-scope defect is either still
-    # refuted (with its rule) or now stands: none is silently both advisory and unrefuted.
+    # refuted (with its rule), demoted (with its record), or now stands: none is silently both
+    # advisory and unrecorded.
     for record in document["advisory"]:
         if record["id"] in {f["id"] for f in first["findings"]} and "reader" not in record:
             assert (
                 "refuted_by" in record
+                or "demoted" in record
                 or "unrepairable" in record
                 or "single_reader_advisory" in record
             )
 
 
 def test_replay_summary_partitions_every_sealed_rejection() -> None:
-    counts = {"accepted": 0, "refuted": 0, "stands": 0}
+    counts = {"accepted": 0, "refuted": 0, "demoted": 0, "stands": 0}
     for bundle in sealed_reviews():
         world = _load(bundle)
         first = _first_read(world["review"])
