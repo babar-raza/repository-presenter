@@ -138,7 +138,7 @@ def test_literal_install_requires_become_dependencies(tmp_path: Path) -> None:
         "from setuptools import setup\n"
         'setup(name="x", install_requires=["numpy>=1.20", " requests ", 3, ""])\n',
     )
-    assert parse_setup_py(path) == {"name": "x", "dependencies": "numpy>=1.20,requests"}
+    assert parse_setup_py(path) == {"name": "x", "dependencies": '["numpy>=1.20", "requests"]'}
     empty = _setup_py(
         tmp_path, 'from setuptools import setup\nsetup(name="y", install_requires=[])\n'
     )

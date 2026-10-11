@@ -14,6 +14,7 @@ the parity control and the contract's own checks; origin never makes a fact true
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Literal, Protocol
@@ -27,7 +28,10 @@ from repository_presenter.core.facts import slug
 # same convention SHELL_VERSION/RENDERER_VERSION/NORMALISATION_VERSION already use for their own
 # domains; dependencies.json's environment class records it so a change here reopens EXTRACTING
 # for every sealed candidate, not only the ones a plugin file's own edit happens to touch.
-EXTRACTOR_VERSION = "1"
+# 2 (TC-EXT-01, G3-W08 cut 2): PEP 508 requirements kept whole, src-layout import paths, dynamic
+# Python dependencies unresolved, relative manifest discovery, Maven identity from the project's
+# own POM children, install claims gated on registry ownership, unexposed Rust items dropped.
+EXTRACTOR_VERSION = "2"
 
 SymbolKind = Literal["module", "class", "enum", "function", "method", "unknown"]
 
@@ -147,8 +151,16 @@ def surface_symbols(
     package_root: Path,
     repository_root: Path,
     family: str,
+    confirms_unreachable: Callable[[dict[str, Any]], bool] | None = None,
 ) -> list[SurfaceSymbol]:
     """Every public type the vendored engine finds, and the members it declares.
+
+    The engine also marks a declaration `reachable: False` when it is syntactically public yet
+    no re-export from the package root exposes it. That mark is a best-effort scan and
+    measurably wrong in both directions for Rust (it called `semver::Version`, defined in
+    `lib.rs`, and `aho_corasick::AhoCorasick`, re-exported through nested braces, unreachable),
+    so it is never trusted alone: an entry is dropped only when `confirms_unreachable` - the
+    caller's independent test - agrees. Without one the mark is ignored, as it always was.
 
     A type contributes itself, then one symbol per public method and property, so the API
     Reference's rows and its member bullets come from the same read of the same tree.
@@ -172,6 +184,12 @@ def surface_symbols(
         # same repositories a lane's own directory-name heuristic patched around in its own
         # plugin - a workaround this makes redundant rather than a second, parallel filter.
         if str(entry.get("visibility", "")) == "internal":
+            continue
+        if (
+            entry.get("reachable") is False
+            and confirms_unreachable is not None
+            and confirms_unreachable(entry)
+        ):
             continue
         qualified = slug_safe(str(entry.get("class_import") or entry.get("name", "")))
         if not qualified:

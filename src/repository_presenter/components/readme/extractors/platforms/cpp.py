@@ -351,7 +351,7 @@ class CppPlugin:
             path
             for pattern in self.manifest_globs
             for path in root.rglob(pattern)
-            if not any(part in IGNORED_DIRECTORIES for part in path.parts)
+            if not any(part in IGNORED_DIRECTORIES for part in path.relative_to(root).parts)
         ]
         if not candidates:
             return None

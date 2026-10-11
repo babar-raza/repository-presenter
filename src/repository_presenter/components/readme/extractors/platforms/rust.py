@@ -26,9 +26,10 @@ Per `docs/REPOSITORY_LAYOUT.md` §2.1 this module imports `core/`, the shared fa
 
 from __future__ import annotations
 
+import re
 import tomllib
-from collections.abc import Iterator, Sequence
-from pathlib import Path
+from collections.abc import Callable, Iterator, Sequence
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from repository_presenter.components.readme.extractors.platforms.rust_examples import (
@@ -39,7 +40,10 @@ from repository_presenter.components.readme.extractors.surface.manifest import (
     PackageIdentity,
     read_identity,
 )
-from repository_presenter.components.readme.extractors.surface.registry import observe
+from repository_presenter.components.readme.extractors.surface.registry import (
+    observe,
+    repository_of,
+)
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
 from repository_presenter.core.examples import (
     ExampleCandidate,
@@ -47,7 +51,7 @@ from repository_presenter.core.examples import (
     FormatClaim,
     FormatDeclaration,
 )
-from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.facts import Evidence, Fact, fact_id
 from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
@@ -227,6 +231,39 @@ def _dependency_facts(manifest: Path, where: str) -> list[Fact]:
     return sorted(facts, key=lambda fact: fact.id)
 
 
+_PUB_MODULE = re.compile(r"^\s*pub(?:\([^)]*\))?\s+mod\s+(\w+)", re.MULTILINE)
+
+
+def _unexposed_by_the_crate_root(package_root: Path) -> Callable[[dict[str, Any]], bool]:
+    """Whether the crate root provably never exposes a declaration the engine flagged unreachable.
+
+    The engine's flag is a name lookup in `lib.rs`'s `pub use` lists. It is confirmed here only
+    when `lib.rs` is silent about the item altogether: the item is not defined in `lib.rs`, its
+    name is not mentioned anywhere in it (a nested-brace `pub use` the engine's scan misses
+    still names the item), and no `pub mod` of the crate root is a path segment of its file.
+    Anything less certain keeps the symbol: a missed public item breaks a complete API
+    reference, an extra one only adds a row.
+    """
+    try:
+        lib = (package_root / "lib.rs").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        lib = ""
+    public_modules = frozenset(_PUB_MODULE.findall(lib))
+
+    def confirm(entry: dict[str, Any]) -> bool:
+        if not lib:
+            return False
+        parts = PurePosixPath(str(entry.get("file", ""))).parts
+        if not parts or parts[-1] == "lib.rs":
+            return False
+        name = str(entry.get("name", ""))
+        if not name or re.search(rf"\b{re.escape(name)}\b", lib):
+            return False
+        return not public_modules & {part.removesuffix(".rs") for part in parts}
+
+    return confirm
+
+
 class RustPlugin:
     """What the facts stage asks of Rust."""
 
@@ -352,7 +389,12 @@ class RustPlugin:
             else manifest.parent
         )
         symbols = surface_symbols(
-            get_parser(_PARSER_LANGUAGE), _PARSER_LANGUAGE, package_root, root, self.ecosystem
+            get_parser(_PARSER_LANGUAGE),
+            _PARSER_LANGUAGE,
+            package_root,
+            root,
+            self.ecosystem,
+            confirms_unreachable=_unexposed_by_the_crate_root(package_root),
         )
         facts: list[Fact] = []
         for symbol in symbols:
@@ -387,23 +429,15 @@ class RustPlugin:
         name = by_id.get("package:name")
         if install is None or name is None:
             return [], []
-        reading = observe(self.ecosystem, name.value)
-        polarity: Polarity
-        if not reading.conclusive:
-            polarity, confidence = "UNRESOLVED", 0.5
-        elif reading.published:
-            polarity, confidence = "SUPPORTED", 1.0
-        else:
-            polarity, confidence = "CONTRADICTED", 1.0
+        reading = observe(self.ecosystem, name.value, repository=repository_of(facts))
+        polarity, confidence, detail = reading.install_verdict()
         resolved = Fact(
             install.id,
             install.kind,
             install.value,
             (
                 *install.evidence,
-                Evidence(
-                    reading.evidence_url or reading.registry or RUST.registry, reading.summary
-                ),
+                Evidence(reading.evidence_url or reading.registry or RUST.registry, detail),
             ),
             polarity=polarity,
             confidence=confidence,

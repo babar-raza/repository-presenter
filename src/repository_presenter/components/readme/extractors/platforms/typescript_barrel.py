@@ -167,11 +167,13 @@ def entry_barrel(package: Path) -> Path | None:
         (
             path
             for path in package.rglob("index.ts")
-            if not any(part in IGNORED_DIRECTORIES for part in path.parts)
-            and not any(part.lower() in _NOT_THE_PRODUCT for part in path.parts)
+            if not any(part in IGNORED_DIRECTORIES for part in path.relative_to(package).parts)
+            and not any(
+                part.lower() in _NOT_THE_PRODUCT for part in path.relative_to(package).parts
+            )
             and _is_barrel(path)
         ),
-        key=lambda path: (len(path.parts), str(path)),
+        key=lambda path: (len(path.relative_to(package).parts), str(path)),
     )
     if barrels:
         return barrels[0]

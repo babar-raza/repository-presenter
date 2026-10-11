@@ -247,7 +247,10 @@ def extract_facts(
     )
     if manifest is not None:
         manifest_facts = plugin.manifest_facts(clone_path, manifest, tree_paths)
-        registry_facts, registry_probes = plugin.registry_facts(manifest_facts)
+        # The identity facts ride along so a plugin can ask the registry whether the package
+        # it found under the manifest's name points back at THIS repository: a name on a
+        # registry is not ownership (TC-EXT-01).
+        registry_facts, registry_probes = plugin.registry_facts([*facts, *manifest_facts])
         observed = {fact.id: fact for fact in registry_facts}
         resolved = (observed.get(fact.id, fact) for fact in manifest_facts)
         facts.extend(_source_build_fact(fact, entry, receipts, build) for fact in resolved)

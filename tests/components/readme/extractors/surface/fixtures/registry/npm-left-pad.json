@@ -1,0 +1,17 @@
+{
+  "name": "left-pad",
+  "dist-tags": {
+    "latest": "1.3.0"
+  },
+  "repository": {
+    "url": "git+ssh://git@github.com/stevemao/left-pad.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/stevemao/left-pad#readme",
+  "maintainers": [
+    {
+      "email": "maochenyan@gmail.com",
+      "name": "stevemao"
+    }
+  ]
+}

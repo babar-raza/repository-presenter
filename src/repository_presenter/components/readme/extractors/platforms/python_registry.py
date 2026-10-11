@@ -18,7 +18,11 @@ from typing import Any
 
 import httpx
 
-from repository_presenter.components.readme.extractors.surface.registry import TRANSIENT_STATUSES
+from repository_presenter.components.readme.extractors.surface.registry import (
+    TRANSIENT_STATUSES,
+    ResolveUrl,
+    match_repository,
+)
 from repository_presenter.core.package_registry import (
     RegistryObservation,
     register_observer,
@@ -47,8 +51,15 @@ def observe_pypi(
     *,
     fetch: Callable[[str], httpx.Response] = fetch_project_json,
     sleep: Callable[[float], None] | None = None,
+    repository: str | None = None,
+    resolve_url: ResolveUrl | None = None,
 ) -> RegistryObservation:
-    """Observe ``name`` on PyPI, retrying transient failures under the package_registry policy."""
+    """Observe ``name`` on PyPI, retrying transient failures under the package_registry policy.
+
+    ``repository`` (``owner/name``) asks the further question a found name does not answer: does
+    the project's own ``project_urls`` / ``home_page`` point back at that repository? Only then is
+    the distribution corroborated as the repository's own (``repository_matched``).
+    """
     url = PYPI_PROJECT_URL.format(name=name)
 
     def attempt() -> httpx.Response:
@@ -89,7 +100,13 @@ def observe_pypi(
         payload: Any = response.json()
         latest = str(payload["info"]["version"])
         releases = payload.get("releases") or {}
-    except (ValueError, KeyError, TypeError) as exc:
+        info = payload["info"]
+        urls = tuple(
+            str(url)
+            for url in (*(info.get("project_urls") or {}).values(), info.get("home_page"))
+            if url
+        )
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
         return RegistryObservation(
             name,
             url,
@@ -99,6 +116,7 @@ def observe_pypi(
             elapsed_ms=elapsed,
         )
     published = None if manifest_version is None else manifest_version in releases
+    matched = match_repository(urls, repository, resolve_url) if repository and urls else None
     return RegistryObservation(
         name,
         url,
@@ -107,6 +125,8 @@ def observe_pypi(
         manifest_version_published=published,
         status=200,
         elapsed_ms=elapsed,
+        project_urls=urls,
+        repository_matched=matched,
     )
 
 

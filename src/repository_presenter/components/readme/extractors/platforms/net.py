@@ -26,7 +26,10 @@ from repository_presenter.components.readme.extractors.surface.manifest import (
     PackageIdentity,
     read_identity,
 )
-from repository_presenter.components.readme.extractors.surface.registry import observe
+from repository_presenter.components.readme.extractors.surface.registry import (
+    observe,
+    repository_of,
+)
 from repository_presenter.core.ecosystems import NET
 from repository_presenter.core.examples import (
     ExampleCandidate,
@@ -35,7 +38,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
     MeasuredBuild,
 )
-from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.facts import Evidence, Fact, fact_id
 from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
@@ -233,7 +236,7 @@ class NetPlugin:
             path
             for pattern in self.manifest_globs
             for path in root.rglob(pattern)
-            if not any(part in _IGNORED_DIRECTORIES for part in path.parts)
+            if not any(part in _IGNORED_DIRECTORIES for part in path.relative_to(root).parts)
         ]
         if not candidates:
             return None
@@ -348,15 +351,8 @@ class NetPlugin:
         name = by_id.get("package:name")
         if install is None or name is None:
             return [], []
-        reading = observe(self.ecosystem, name.value)
-        polarity: Polarity
-        if not reading.conclusive:
-            polarity, confidence = "UNRESOLVED", 0.5
-        elif reading.published:
-            polarity, confidence = "SUPPORTED", 1.0
-        else:
-            polarity, confidence = "CONTRADICTED", 1.0
-        detail = reading.summary
+        reading = observe(self.ecosystem, name.value, repository=repository_of(facts))
+        polarity, confidence, detail = reading.install_verdict()
         resolved = Fact(
             install.id,
             install.kind,

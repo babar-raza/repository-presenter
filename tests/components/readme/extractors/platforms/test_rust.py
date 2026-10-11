@@ -361,6 +361,7 @@ def test_a_published_crate_supports_the_install_claim(monkeypatch: Any, tmp_path
             "https://crates.io/api/v1/crates/crate",
             "crates-io-api",
             "live_probe",
+            repository_matched=True,
         )
 
     monkeypatch.setattr(rust, "observe", published)
@@ -418,3 +419,49 @@ def test_every_fact_the_plugin_emits_is_typed_as_a_fact(tmp_path: Path) -> None:
         *rust.PLUGIN.surface_facts(tmp_path, tree),
     ]:
         assert isinstance(fact, Fact)
+
+
+# TC-EXT-01 (G3-W08 cut 2): the engine's `reachable` flag was discarded, so a `pub` item inside a
+# private module was published. Trimmed real crate: dtolnay/ryu at 75f9e707 (`mod common;` holds
+# `pub fn decimal_length9`; `mod buffer;` holds the public `Buffer` and `Float` it re-exports and
+# the sealed-trait plumbing it does not; `pub mod raw` re-exports `format64`).
+def test_a_pub_item_in_a_private_module_the_crate_root_never_exposes_is_not_public(
+    tmp_path: Path,
+) -> None:
+    import shutil
+
+    crate = tmp_path / "ryu"
+    shutil.copytree(Path(__file__).parent / "fixtures" / "ryu_crate", crate)
+    tree = sorted(p.relative_to(crate).as_posix() for p in crate.rglob("*") if p.is_file())
+    values = {fact.value for fact in rust.PLUGIN.surface_facts(crate, tree)}
+    # What the crate root exposes stays, `pub mod raw`'s re-export included.
+    assert {"buffer.Buffer", "buffer.Float", "format64"} <= values, values
+    # `pub fn decimal_length9` in private `mod common` and the sealed-trait plumbing that
+    # `lib.rs` never names are not importable, so they are not public symbols.
+    assert not any("decimal_length9" in value or "Sealed" in value for value in values), values
+    assert not any(value.startswith("common") for value in values), values
+
+
+def test_the_unreachable_mark_alone_never_removes_a_symbol_lib_rs_defines_or_names(
+    tmp_path: Path,
+) -> None:
+    """Measured on semver and aho-corasick: the engine called `semver::Version` (defined in
+    `lib.rs`) and `AhoCorasick` (re-exported through nested braces) unreachable."""
+    (tmp_path / "Cargo.toml").write_text(
+        '[package]\nname = "x"\nversion = "1.0.0"\nedition = "2021"\n', encoding="utf-8"
+    )
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "lib.rs").write_text(
+        "mod engine;\npub use crate::engine::{Engine, Kind};\npub struct Version;\n"
+        "// Named is re-exported by a macro the scan cannot see.\n",
+        encoding="utf-8",
+    )
+    (src / "engine.rs").write_text(
+        "pub struct Engine;\npub struct Kind;\npub struct Named;\npub struct Hidden;\n",
+        encoding="utf-8",
+    )
+    tree = ["Cargo.toml", "src/lib.rs", "src/engine.rs"]
+    values = {fact.value for fact in rust.PLUGIN.surface_facts(tmp_path, tree)}
+    assert {"Version", "engine.Engine", "engine.Kind", "engine.Named"} <= values, values
+    assert not any(value.endswith("Hidden") for value in values), values
