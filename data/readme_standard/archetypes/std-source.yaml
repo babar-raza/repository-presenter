@@ -1,0 +1,91 @@
+# Standard skeleton, library installed from source (not published, or no registry install).
+# 11 of 36 repositories.
+schema_version: 1
+id: std-source
+title: Standard skeleton, source-installed library
+summary: >-
+  The generated ten-section skeleton for a library with no registry install: the reader clones and
+  builds, installs editable, runs npm install from a clone, or adds a ProjectReference or Git
+  dependency. The README says plainly that no package is published and what to do instead.
+mode: gap_fill
+install_channels: [source_only]
+elements:
+  identity_h1: required
+  badge_row: required
+  banner: preserve_only
+  opening: required
+  navigation: required
+  at_a_glance: expected
+  key_capabilities: required
+  installation: required
+  dependencies: required
+  quick_start: expected
+  feature_showcase: preserve_only
+  additional_examples: expected
+  project_structure: preserve_only
+  api_reference: required
+  docs_resources: expected
+  scope_limitations: required
+  enterprise_paragraph: conditional
+  development_testing: expected
+  third_party_notices: conditional
+  license: required
+element_notes:
+  badge_row: no package badge while unpublished; license, runtime floor and build status only when verified
+  installation: the unpublished statement and the verified source steps are both required
+  dependencies: include toolchain and native requirements the source build needs
+channel_variant:
+  install_forms:
+    - "git clone, then the verified build (pip install -e ., npm install and npm run build, dotnet build, cargo build)"
+    - "ProjectReference or Git dependency block for consumers (Imaging .NET, Cells Rust)"
+    - "sys.path or PYTHONPATH step only when no packaging metadata exists (PSD Python, HTML)"
+    - one sentence on the supported runtime from the manifest
+  verification:
+    - the registry observation is conclusive that no package of that name is published (BC-02)
+    - the source-build receipt names exactly the steps the README prints
+    - working directory, ignored inputs and generated files the build needs are shown
+  required_statements:
+    - "that no package is published yet, in one plain sentence, when the registry shows none"
+    - the package or project name consumers will use once published, when the manifest names it
+better_than_live:
+  - id: BTL-SRC-01
+    statement: The README states the publication state the registry shows, in one sentence, with no contradicting install command.
+    measured_by: BC-02 conclusive registry observation against the README's own statements
+    rules: [STR-10, DET-05]
+    defect_classes: [DEF-05, DEF-22]
+  - id: BTL-SRC-02
+    statement: Every source-install and build command runs in a clean clone, including the working directory and ignored inputs it needs.
+    measured_by: clean-clone execution receipt
+    rules: [DET-07, DET-01]
+    defect_classes: [DEF-09]
+  - id: BTL-SRC-03
+    statement: Dependencies lists runtime, optional, native and development requirements, including toolchain floors, from the manifest.
+    measured_by: bucket contents equal the dependency snapshot; Python, Node, Rust or .NET floors equal the manifest
+    rules: [STR-11, DET-02]
+    defect_classes: [DEF-19, DEF-06]
+  - id: BTL-SRC-04
+    statement: The license sentence matches a license file in the tree; where none exists the README links nothing missing and an upstream issue handoff exists.
+    measured_by: license fact against the tree; handoff present
+    rules: [DET-06, STR-18]
+    defect_classes: [DEF-07]
+  - id: BTL-SRC-05
+    statement: Maturity statements (alpha, pre-release) agree with the manifest's classifiers and version.
+    measured_by: statement against pyproject classifiers or package version
+    rules: [DET-05]
+    defect_classes: [DEF-04]
+  - id: BTL-SRC-06
+    statement: Examples import from the path the source tree really provides and compile or run there.
+    measured_by: BC-03 receipts against the built output
+    rules: [DET-03]
+    defect_classes: [DEF-20]
+  - id: BTL-SRC-07
+    statement: API Reference holds only public types with the verified count and no stock descriptions where documentation exists.
+    measured_by: survey_features api_count_mismatch, api_boilerplate_rows; row set equals the public_symbol facts
+    rules: [STR-14, DET-04]
+    defect_classes: [DEF-10, DEF-11, DEF-12]
+insertion_policy: >-
+  Insert a missing standard element beside its live neighbours from verified facts only. Do not
+  add a package badge, a registry install line or a version while the registry shows none.
+voice_guidance: >-
+  Keep the live register. The scope_forward voice (PSD) and the candid limitation bullets
+  (3D TypeScript, PDF TypeScript) are preserved as written; additions match their sentence length.

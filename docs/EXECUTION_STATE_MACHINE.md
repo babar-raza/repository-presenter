@@ -74,7 +74,7 @@ The coding agent reads authority in this order:
 
 1. This document owns implementation sequence, gates, deliverables, and the build cursor.
 2. `docs/STATE_MACHINE.md` owns the production runtime states and transitions;
-   `docs/README_CONTRACT.md` owns the candidate's shape, assembly, agentic decisions, and checks;
+   `docs/README_STANDARD.md` owns a README's structure and composition (owner directive 2026-10-11: follow the live upstream README); `docs/README_CONTRACT.md` its assembly, agentic decisions, and checks;
    `docs/REPOSITORY_LAYOUT.md` owns where a file lives.
 3. Typed schemas and tests own implemented interface behavior after their gate is accepted.
 4. The reuse manifest owns the disposition of each legacy module and asset.
