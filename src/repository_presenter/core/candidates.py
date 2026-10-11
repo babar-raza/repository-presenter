@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterable, Iterator, Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -453,15 +453,146 @@ class ProposableCandidate:
     revision: str
     readme_text: str
     candidate_hash: str
+    bundle: Path  # the sealed bundle directory, for the evidence a pull request cites
 
 
-def load_proposable_candidate(root: Path, repository: str) -> ProposableCandidate:
+#: The bundle's review (``components/readme/review/independent/review.py`` writes it; ``core/``
+#: may not import that module, so the names it reads are restated here).
+REVIEW_FILENAME = "review.json"
+_ACCEPT = "ACCEPT"
+_REJECTION_REFUTED = "rejection_refuted_deterministically"
+
+#: ``(bundle_dir, repository_directory_name) -> reason`` - ``None`` when the bundle's ratified
+#: 30-point acceptance outcome is PASS, otherwise why it is not. Injected, never defaulted: the
+#: scorer lives in ``components/readme/``, which ``core/`` may not import, and a gate that a caller
+#: could forget to supply would fail open (``components/readme/bundle/portfolio.py::
+#: proposal_acceptance_gate`` builds the production one).
+AcceptanceGate = Callable[[Path, str], "str | None"]
+
+
+def _read_json_object(path: Path) -> dict[str, Any] | None:
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return loaded if isinstance(loaded, dict) else None
+
+
+def _review_refusal(bundle: Path, manifest: Mapping[str, Any]) -> tuple[Refusal, str] | None:
+    """Why the sealed review cannot be trusted as an independent ACCEPT, or None.
+
+    A returned REJECT stands unless every first-read finding it rested on carries a recorded
+    deterministic refutation (``refuted_by``) - the rule ``review_document`` applies when it
+    writes the verdict (TC-REV-01). Read back here from the record itself, not trusted from the
+    ``verdict`` field alone: a bundle sealed before ``verdict_as_returned`` was recorded cannot show
+    that its ACCEPT was not a converted REJECT, so it is refused under its own code.
+    """
+    if REVIEW_FILENAME not in dict(manifest.get("files", {})):
+        return Refusal.REVIEW_PREDATES_HONESTY_RECORD, (
+            f"the sealed bundle lists no {REVIEW_FILENAME}: nothing records that the review was "
+            "an independent ACCEPT"
+        )
+    review = _read_json_object(bundle / REVIEW_FILENAME)
+    if review is None:
+        return Refusal.BUNDLE_INCONSISTENT, f"{REVIEW_FILENAME} is not a readable JSON object"
+    returned = review.get("verdict_as_returned")
+    if returned is None or "verdict_basis" not in review:
+        return Refusal.REVIEW_PREDATES_HONESTY_RECORD, (
+            "the review predates the honesty record (no verdict_as_returned / verdict_basis in "
+            f"{REVIEW_FILENAME}): it cannot show that its ACCEPT was not a converted REJECT - "
+            "re-review and re-seal"
+        )
+    verdict = review.get("verdict")
+    if verdict != _ACCEPT:
+        return Refusal.REVIEW_REJECTION_OVERRIDDEN, f"the sealed review verdict is {verdict!r}"
+    if returned == _ACCEPT:
+        return None
+    # The reviewer returned a rejection that now reads ACCEPT: only a deterministic refutation of
+    # every finding it rested on may stand behind that.
+    if review.get("verdict_basis") != _REJECTION_REFUTED:
+        return Refusal.REVIEW_REJECTION_OVERRIDDEN, (
+            f"the reviewer returned {returned!r} and the verdict is ACCEPT, but the recorded basis "
+            f"is {review.get('verdict_basis')!r}, not a deterministic refutation"
+        )
+    first_read = [
+        record
+        for record in review.get("advisory", [])
+        if isinstance(record, dict) and "reader" not in record
+    ]
+    unrefuted = [record for record in first_read if not record.get("refuted_by")]
+    if not first_read or unrefuted:
+        return Refusal.REVIEW_REJECTION_OVERRIDDEN, (
+            f"the reviewer returned {returned!r} and the verdict is ACCEPT, but "
+            + (
+                "no finding records a deterministic refutation"
+                if not first_read
+                else f"{len(unrefuted)} of its {len(first_read)} findings record no "
+                "deterministic refutation (refuted_by)"
+            )
+        )
+    return None
+
+
+def _no_op_refusal(manifest: Mapping[str, Any]) -> tuple[Refusal, str] | None:
+    """Why the manifest carries no *measured* zero-call no-op proof, or None.
+
+    The claim (``no_op_proof``: a fresh-process, byte-identical rerun with no provider calls) and
+    the measurement behind it (``ledger_totals`` and the rerun's invocation in ``calls.jsonl``,
+    which ``verify_bundle`` has already reconciled) are both required."""
+    proof = manifest.get("no_op_proof")
+    if not isinstance(proof, dict):
+        return Refusal.NO_OP_PROOF_MISSING, "the manifest records no no_op_proof"
+    if (
+        proof.get("byte_identical") is not True
+        or proof.get("fresh_process") is not True
+        or proof.get("provider_calls") != 0
+    ):
+        return Refusal.NO_OP_PROOF_MISSING, (
+            "the recorded no_op_proof is not a byte-identical, fresh-process, zero-provider-call "
+            "rerun"
+        )
+    rerun = proof.get("rerun")
+    if not isinstance(manifest.get("ledger_totals"), dict) or not (
+        isinstance(rerun, dict) and isinstance(rerun.get("invocation_id"), str)
+    ):
+        return Refusal.NO_OP_PROOF_MISSING, (
+            "the no-op proof is a claim, not a measurement: the manifest records no ledger_totals "
+            "or no rerun invocation to reconcile against calls.jsonl - re-prove and re-seal"
+        )
+    return None
+
+
+def proposal_gate_refusal(
+    bundle: Path, directory: str, manifest: Mapping[str, Any], acceptance: AcceptanceGate
+) -> tuple[Refusal, str] | None:
+    """The first reason a ``READY_FOR_PROPOSAL`` bundle is still not proposable, or None.
+
+    READY_FOR_PROPOSAL (BC-01..BC-11 plus the zero-call rerun) is the runtime state; this is the
+    *propose* gate on top of it (TC-PRP-01), deliberately not part of that state: an honest review
+    (:func:`_review_refusal`), a measured no-op proof (:func:`_no_op_refusal`) and the ratified
+    30-point acceptance outcome PASS (``acceptance``). ``directory`` is the repository directory
+    name the acceptance scorer indexes the template corpus by."""
+    refusal = _review_refusal(bundle, manifest) or _no_op_refusal(manifest)
+    if refusal is not None:
+        return refusal
+    reason = acceptance(bundle, directory)
+    if reason is not None:
+        return Refusal.ACCEPTANCE_NOT_PASSED, reason
+    return None
+
+
+def load_proposable_candidate(
+    root: Path, repository: str, *, acceptance: AcceptanceGate
+) -> ProposableCandidate:
     """Load ``repository``'s candidate for proposal, or raise :class:`WriteRefusedError` (typed).
 
     ``CURRENT`` may point at a revision that is no longer ``READY_FOR_PROPOSAL`` (for example
     ``VALID_UPDATE_AVAILABLE`` after a component changed): such a bundle is not a final candidate
     and is never proposed. The bundle's recorded revision is returned so the caller can compare it
-    with the target's live upstream revision."""
+    with the target's live upstream revision.
+
+    Past READY_FOR_PROPOSAL the bundle must also pass :func:`proposal_gate_refusal` (honest review,
+    measured no-op proof, ratified acceptance PASS), each a typed refusal of its own."""
     owner, name = repository.split("/", 1)
     repository_dir = root / CANDIDATES_DIRNAME / f"{owner}__{name}"
     current = repository_dir / CURRENT_FILENAME
@@ -496,6 +627,9 @@ def load_proposable_candidate(root: Path, repository: str) -> ProposableCandidat
         raise WriteRefusedError(
             Refusal.BUNDLE_INCONSISTENT, f"sealed bundle at {revision} lists no {README_FILENAME}"
         )
+    refusal = proposal_gate_refusal(bundle, repository_dir.name, manifest, acceptance)
+    if refusal is not None:
+        raise WriteRefusedError(refusal[0], f"{repository} @ {revision}: {refusal[1]}")
     # Bytes, not read_text(): no newline translation between the sealed bytes and what is proposed.
     readme_text = (bundle / README_FILENAME).read_bytes().decode("utf-8")
     return ProposableCandidate(
@@ -503,4 +637,5 @@ def load_proposable_candidate(root: Path, repository: str) -> ProposableCandidat
         revision=revision,
         readme_text=readme_text,
         candidate_hash=sha256_text(readme_text),
+        bundle=bundle,
     )

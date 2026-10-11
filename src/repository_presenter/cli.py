@@ -104,6 +104,11 @@ from repository_presenter.components.propose.effect import (
 from repository_presenter.components.propose.effect import (
     write_authorized as propose_write_authorized,
 )
+from repository_presenter.components.propose.pull_request import (
+    PullRequestContent,
+    compose_pull_request,
+    load_pull_request_evidence,
+)
 from repository_presenter.components.propose.wave import (
     LiveObservation,
     WaveError,
@@ -136,6 +141,7 @@ from repository_presenter.components.readme.bundle.portfolio import (
     current_reproducible_no_op_proven,
     load_authorizations,
     load_drift,
+    proposal_acceptance_gate,
 )
 from repository_presenter.components.readme.bundle.portfolio import (
     render_lines as render_portfolio_lines,
@@ -2301,7 +2307,9 @@ def run_propose(
             permit = require_write_permitted(registry, repository, "readme_proposal")
         elif entry.mode != "full":
             print(f"propose: registry mode {entry.mode!r} - a dry-run result is all this can be")
-        candidate = load_proposable_candidate(root, repository)
+        candidate = load_proposable_candidate(
+            root, repository, acceptance=proposal_acceptance_gate(root)
+        )
         readme_text = candidate.readme_text
         revision = candidate.revision
         candidate_hash = candidate.candidate_hash
@@ -2398,20 +2406,25 @@ def run_propose(
             base = default_branch_read.branch
         base = base or ""  # unused by propose_candidate before its own authorization gate
 
-        pr_title = "Update README via repository-presenter"
-        pr_body = (
-            "Automated README proposal from repository-presenter.\n\n"
-            f"- candidate_hash: {candidate_hash}\n"
-            f"- source_revision: {revision}\n"
-            f"- policy_version: {CURRENT_POLICY_VERSION}\n"
-        )
+        evidence = load_pull_request_evidence(candidate.bundle)
+
+        def _compose_pull_request(live_readme: str | None) -> PullRequestContent:
+            return compose_pull_request(
+                candidate_readme=readme_text,
+                live_readme=live_readme,
+                repository=repository,
+                evidence=evidence,
+                candidate_hash=candidate_hash,
+                source_revision=revision,
+                policy_version=CURRENT_POLICY_VERSION,
+            )
+
         result = propose_candidate(
             repository=repository,
             readme_text=readme_text,
             source_revision=revision,
             base_branch=base,
-            pr_title=pr_title,
-            pr_body=pr_body,
+            compose_pull_request=_compose_pull_request,
             token=write_token,
             environment=os.environ,
             permit=permit,
@@ -2599,7 +2612,9 @@ def run_draft_proposal_authorization(
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)
         entry = require_listed(registry, repository)
         require_write_permitted(registry, entry.repository, "readme_proposal")
-        candidate = load_proposable_candidate(root, entry.repository)
+        candidate = load_proposable_candidate(
+            root, entry.repository, acceptance=proposal_acceptance_gate(root)
+        )
         live = fetch_default_branch_sha(entry.repository, token=os.environ.get("GH_TOKEN") or None)
         if live.error is not None or live.sha is None or live.branch is None:
             _fail(f"draft-proposal-authorization: could not read the target: {live.error}")
@@ -2712,6 +2727,7 @@ def run_wave_readiness(
             live_read=None if offline else _live,
             stale=stale,
             provenance=git_provenance,
+            acceptance=proposal_acceptance_gate(root),
         )
         print(render_table(rows))
         if not emitting:

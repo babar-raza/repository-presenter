@@ -48,6 +48,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
+from repository_presenter.components.propose.pull_request import PullRequestContent
 from repository_presenter.core.authorization.proposal import (
     ProposalAuthorization,
     validate_authorization,
@@ -131,6 +132,9 @@ LoadAuthorizationFn = Callable[[], ProposalAuthorization]
 VerifyTokenFn = Callable[..., TokenDecision]
 VerifyPullRequestAppFn = Callable[..., TokenDecision]
 ClockFn = Callable[[], str]
+#: ``(the README the base branch has now, or None if it has none) -> (title, body)``; called only
+#: past every gate, so composing it (which needs a read of the target) never precedes the token.
+ComposePullRequestFn = Callable[["str | None"], "PullRequestContent"]
 
 _CANDIDATE_HASH_LINE = re.compile(r"candidate_hash:\s*([0-9a-f]{64})")
 
@@ -211,8 +215,6 @@ def propose_candidate(
     readme_text: str,
     source_revision: str,
     base_branch: str,
-    pr_title: str,
-    pr_body: str,
     token: str | None,
     environment: Mapping[str, str],
     permit: WritePermit,
@@ -230,11 +232,22 @@ def propose_candidate(
     create_pull_request: CreatePullRequestFn = default_create_pull_request,
     update_pull_request: UpdatePullRequestFn = default_update_pull_request,
     reconcile_write: ReconcileWriteFn | None = None,
+    pr_title: str | None = None,
+    pr_body: str | None = None,
+    compose_pull_request: ComposePullRequestFn | None = None,
 ) -> ProposalEffectResult:
     """Create or update the one stable presenter branch and PR on `repository` - but only past
     every gate in this module's own docstring. Every early return before the first write makes no
     write call, and the gates before the token check make no network call at all.
+
+    The pull request's text is either given (``pr_title`` and ``pr_body``) or composed after the
+    gates from the README the base branch has now (``compose_pull_request``, see
+    ``components/propose/pull_request.py``); exactly one of the two.
     """
+    if compose_pull_request is None and (pr_title is None or pr_body is None):
+        raise ValueError("give pr_title and pr_body, or compose_pull_request")
+    if compose_pull_request is not None and (pr_title is not None or pr_body is not None):
+        raise ValueError("give either pr_title and pr_body, or compose_pull_request - not both")
     if permit.effect != "readme_proposal" or permit.entry.repository != repository:
         raise ValueError("the write permit does not clear this effect for this repository")
     owner, name = repository.split("/", 1)
@@ -321,6 +334,15 @@ def propose_candidate(
         return _github_error(f"could not read base branch {base_branch!r}: {exc}")
     if base_sha is None:
         return _github_error(f"base branch {base_branch!r} does not exist")
+
+    if compose_pull_request is not None:
+        try:
+            live_readme = get_contents(owner, name, README_PATH, ref=base_branch, token=token)
+        except RepositoryMetadataError as exc:
+            return _github_error(f"could not read {README_PATH} on {base_branch!r}: {exc}")
+        content = compose_pull_request(None if live_readme is None else live_readme.text)
+        pr_title, pr_body = content.title, content.body
+    assert pr_title is not None and pr_body is not None
 
     try:
         branch_sha = get_ref(owner, name, branch, token=token)
