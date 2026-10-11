@@ -1,0 +1,76 @@
+"""Who first wrote a README line: read-only GitHub API (commits list + contents at a ref)."""
+import base64, json, os, subprocess, sys
+
+tok = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True).stdout.strip()
+ENV = dict(os.environ, GH_TOKEN=tok)
+
+
+def gh(path):
+    r = subprocess.run(["gh", "api", path], capture_output=True, text=True, encoding="utf-8", errors="replace", env=ENV)
+    if r.returncode != 0:
+        return None
+    return json.loads(r.stdout)
+
+
+def commits(repo, path, branch):
+    out = []
+    page = 1
+    while True:
+        d = gh(f"repos/{repo}/commits?path={path}&sha={branch}&per_page=100&page={page}")
+        if not d:
+            break
+        out.extend(d)
+        if len(d) < 100:
+            break
+        page += 1
+    return out  # newest first
+
+
+_cache = {}
+
+
+def text_at(repo, path, sha):
+    key = (repo, path, sha)
+    if key not in _cache:
+        d = gh(f"repos/{repo}/contents/{path}?ref={sha}")
+        if not d or "content" not in d:
+            _cache[key] = None
+        else:
+            _cache[key] = base64.b64decode(d["content"]).decode("utf-8", "replace")
+    return _cache[key]
+
+
+def first_with(repo, path, branch, needle):
+    cs = commits(repo, path, branch)
+    if not cs:
+        return None, 0
+    # presence at newest?
+    if needle not in (text_at(repo, path, cs[0]["sha"]) or ""):
+        return "ABSENT_AT_HEAD", len(cs)
+    lo, hi = 0, len(cs) - 1  # find the largest index with presence (oldest commit with the needle)
+    # linear from oldest side with binary search assuming monotone
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if needle in (text_at(repo, path, cs[mid]["sha"]) or ""):
+            lo = mid
+        else:
+            hi = mid - 1
+    c = cs[lo]
+    return {
+        "sha": c["sha"][:8],
+        "date": c["commit"]["author"]["date"][:10],
+        "author": c["commit"]["author"]["name"],
+        "login": (c.get("author") or {}).get("login"),
+        "message": c["commit"]["message"].splitlines()[0][:90],
+        "n_commits_touching": len(cs),
+        "newest": f'{cs[0]["sha"][:8]} {cs[0]["commit"]["author"]["date"][:10]} {(cs[0].get("author") or {}).get("login")}',
+    }, len(cs)
+
+
+CASES = json.load(open(sys.argv[1], encoding="utf-8"))
+res = {}
+for key, (repo, branch, path, needle) in CASES.items():
+    r, n = first_with(repo, path, branch, needle)
+    res[key] = r
+    print(key.ljust(24), repo.split("/")[1][:30].ljust(30), "|", r)
+json.dump(res, open(sys.argv[2], "w", encoding="utf-8"), indent=1)

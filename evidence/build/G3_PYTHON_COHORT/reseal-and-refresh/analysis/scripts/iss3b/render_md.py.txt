@@ -1,0 +1,287 @@
+import json
+import sys
+from pathlib import Path
+
+sp = Path(sys.argv[1])
+out = Path(sys.argv[2])
+registry = json.load(open(sys.argv[3], encoding="utf-8"))["entries"]
+RAWCOUNT = len(list(Path(sys.argv[4]).glob("iss3b-*.txt")))
+table = json.load(open(sp / "table_rows.json", encoding="utf-8"))
+heads = json.load(open(sp / "heads_issues.json", encoding="utf-8"))
+counts = json.load(open(sp / "table_counts.json", encoding="utf-8"))
+
+mode = {e["repository"]: e["mode"] for e in registry}
+full = sorted(r for r, m in mode.items() if m == "full")
+dry = sorted(r for r, m in mode.items() if m == "dry_run")
+
+
+def esc(x):
+    return str(x).replace("|", "\\|").replace("\n", " ")
+
+
+def short(repo):
+    return repo.split("/", 1)[-1]
+
+
+def rows_where(**kw):
+    return [t for t in table if all(t[k] == v for k, v in kw.items())]
+
+
+file_h = [t for t in table if t["action"] == "FILE" and t["kind"] == "handoff"]
+file_t = [t for t in table if t["action"] == "FILE" and t["kind"] == "text-only"]
+hold = [t for t in table if t["action"] == "HOLD"]
+rc = [t for t in table if t["action"] == "README-CORRECTION"]
+drop = [t for t in table if t["action"] == "DROP"]
+file_repos = sorted({t["repo"] for t in file_h})
+need_mode = [r for r in file_repos if mode.get(r) == "dry_run"]
+already = [r for r in file_repos if mode.get(r) == "full"]
+orgs = sorted({r.split("/")[0] for r in file_repos})
+by_wave = {w: [t for t in file_h if t["wave"] == w] for w in ("1a", "1b", "2", "3")}
+
+
+def wave_repos(ws):
+    return sorted({t["repo"] for w in ws for t in by_wave[w]})
+
+
+def tbl_handoff(items):
+    lines = [
+        "| id | repository | defect class | proposed title (exact) | sev | evidence (raw-logs) | reproduced 2026-10-11 | duplicate check | readiness blockers | action |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for t in items:
+        wave = f" wave {t['wave']}" if t["wave"] != "-" else ""
+        lines.append(
+            f"| {t['id']} | {short(t['repo'])} ({t['mode']}) | {esc(t['class'])} | {esc(t['title'])} | {t['severity']} | {esc(t['evidence'].replace('raw-logs/', ''))} | {esc(t['reproduced'])} | {esc(t['duplicate'])} | {esc(t['blockers'])} | **{t['action']}**{wave} |"
+        )
+    return "\n".join(lines)
+
+
+def tbl_text(items):
+    lines = [
+        "| id | repository | defect class | proposed title | sev | evidence (raw-logs) | reproduced 2026-10-11 | duplicate check | readiness blockers | action |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for t in items:
+        lines.append(
+            f"| {t['id']} | {esc(short(t['repo']))} ({t['mode']}) | {esc(t['class'])} | {esc(t['title'])} | {t['severity']} | {esc(t['evidence'].replace('raw-logs/', ''))} | {esc(t['reproduced'])} | {esc(t['duplicate'])} | {esc(t['blockers'])} | **{t['action']}** |"
+        )
+    return "\n".join(lines)
+
+
+md = []
+md.append("""authoritative_plan: plans/reseal-and-refresh/PLAN.md
+artifact_role: analysis_or_evidence_only
+execution_authority: false
+
+# Upstream issue approval table, final (lane iss3b, G6-W01)
+
+Prepared 2026-10-11 for the owner. **Nothing was filed, no comment was posted, no approval record was written, and
+no repository other than this checkout was written to.** Every upstream read was a `git clone --depth 1`, a
+`gh api` GET, a package-registry GET or a local build or test run; the GET token was used in-process and never
+printed. The earlier table (`issue-approval-table.md`, 24 handoffs: 12 FILE, 2 HOLD, 10 DROP) is superseded by this
+one; every decision in it still holds.""")
+
+md.append(f"""
+## 1. Result
+
+{len(table)} candidate rows were re-verified by command at the live default-branch head today, 42 of them as upstream-defect
+handoffs on record (26 before this lane, 16 added), the rest as text drafts the handoff model cannot carry.
+
+| action | rows | of which a handoff the tool can approve and file | meaning |
+|---|---|---|---|
+| FILE | {counts['counts']['FILE']} | {len(file_h)} | real, reproduced at the live head, not a duplicate, quality gate passing. Wave 1a is {len(by_wave['1a'])}, 1b is {len(by_wave['1b'])}, 2 is {len(by_wave['2'])}, 3 is {len(by_wave['3'])}; the other {len(file_t)} have verified text but need a defect class the registry does not have |
+| HOLD | {counts['counts']['HOLD']} | 2 | real but not worth an issue yet, or waiting on a stated resume predicate |
+| README-CORRECTION | {counts['counts']['README-CORRECTION']} | 6 | the failing text is in a README the presenter's own merged pull requests wrote: the correction lane fixes it, no issue |
+| DROP | {counts['counts']['DROP']} | 4 | disclosed upstream, already fixed, a duplicate of an issue the owner already filed, or not a defect |
+
+Headline findings from today's re-run (they change what the owner would have approved):
+
+1. **3D-.NET `af8da760` was too narrow and partly wrong.** The README Quick Start does not compile as written
+   (`Vector3` lives in `Aspose.ThreeD.Utilities`, which the fence does not import), and the first report said it was
+   "verbatim". The runtime failure is general: `Scene.Save(path, FileFormat)` throws `NotImplementedException` for 44
+   of the 45 public `FileFormat` constants (only `Discreet3DS` works) while `Scene.Save(path)` writes nine formats by
+   extension. The handoff text was re-drafted around that library defect; digest and re-verification refreshed.
+2. **Cells-Python moved today** (three maintainer commits on 2026-10-11 ending at `952317ca` "Update Readme"; the Python
+   floor went from 3.7 to 3.10 and the wheel is now 26.10.0). Drafts U14, U16, U17 still reproduce; U15 changed (one
+   failing example test, not two); the licence finding still holds at the new head. The repository is being edited
+   right now, so re-run `issue-readiness` before approving anything for it.
+3. **PSD-.NET and PSD-Python moved on 2026-10-10** (the presenter's README pull requests #7 and #5 merged). The PSD-Python
+   README is no longer a placeholder, so half of old draft U11 is obsolete. The two licence findings duplicate the
+   owner's own open issues #5 and #4, so they are DROP, not FILE.
+4. **PDF-Cpp "CMake configure fails" does not reproduce**: configure, build and `ctest` succeed on gcc 14.4 with CMake
+   3.31.6 (1 of 1 tests pass). That wave-4 note was the presenter's own runner.
+5. **The JMAP repositories have no upstream defect**: all eight READMEs say no package is published, the registries
+   agree (404), and CI is green in all eight.
+6. **Provenance moved four README-based drafts to README-CORRECTION**: Cells-Go formula text (`9f0a4033`),
+   Cells-Rust "once the repository is live" (`1a6004af`), Cells-TS placeholder API rows (`fc186507`) and the 3D-.NET
+   diagram's U3D/RVM/AMF/HTML5 labels (`042a1e5f`, `158183d2`) are all the presenter's own text
+   (`raw-logs/iss3b-provenance.txt`).
+7. **Disclosed upstream, so DROP**: 3D-Java jar stubs (README.md:587), Slides-Java 26.7.0 only (SECURITY.md:11),
+   Slides-Python PyPI lag (README.md:134), Cells-Rust not on crates.io (README.md:105).""")
+
+md.append("""
+## 2. How it was verified
+
+- Heads and open and closed issues: `gh api` GET for all 44 registry repositories
+  (`raw-logs/iss3b-open-issues-and-heads.txt`, `iss3b-closed-issues.txt`, `iss3b-ci-runs.txt`). Fresh shallow clones
+  at those heads (Page-Python and Words-.NET blobless). Every handoff's `source_revision` equals today's head except
+  Imaging-.NET and PDF-TypeScript (both DROP) and Note-Python (two commits, a change and its revert: the tree is
+  identical, which the filer's recheck accepts).
+- Builds and tests: Docker `gcc:13/14/15`, `silkeh/clang:latest`, `ubuntu:24.04` (g++ 12/13/14, clang 18), `node:22`,
+  `rust:1`, `python:3.12`; native .NET SDK 10.0.401 and Python 3.13.15 (one venv per repository). Each log's header
+  names the repository, the head, the UTC time and the command; exit codes are in the log.
+- Provenance of every README claim that decides FILE versus README-CORRECTION: the commit history of the file
+  (`raw-logs/iss3b-provenance.txt`).
+- Drafting: the 7 library, build, install and test handoffs went through `Handoff` and `issue_quality_findings`
+  (`make_handoffs.py` and `revise_3dnet.py`, committed as `.txt` under `analysis/scripts/iss3b/`); the 9 licence, README and placeholder-manifest
+  handoffs are the output of the defect-class detectors (`classes.detect_all` and `draft.draft_class_handoff`) run over
+  today's clones. All 42 handoffs read `recheck: replayable`; 38 pass the quality gate (the 4 that fail are the
+  DROP rows: jargon text or synthetic).
+- Re-verification record: `evidence/upstream-defects/reverification.json` now holds 41 entries (every handoff but the
+  synthetic one), each with today's time, head, recomputed digest, method and the raw log. The six README-CORRECTION
+  handoffs are recorded `NOT_A_DEFECT` so that `issue-readiness` refuses to approve them.
+- Not re-run: nothing on the FILE or HOLD lists. Text-only rows U33/U46/U47 were checked by registry GETs and README
+  greps (they are disclosed, not builds). crates.io could not be reached from this host (TLS error), so the Rust crate
+  status rests on the README's own statement.""")
+
+md.append("""
+## 3. FILE: handoffs the tool can approve and file (30)
+
+Order matters: file wave 1a alone first, watch it, then 1b, then 2, then 3. Per repository the system files at most
+3 issues a UTC day and stops at 5 open issues of its own. Severity is the lane's judgement (High: cannot be built,
+installed, imported or called as documented; Medium: a documented path or the test suite fails; Low: metadata,
+licence layout or documentation).
+""")
+for w, title in (("1a", "Wave 1a: the first live filing (alone)"), ("1b", "Wave 1b: library, build and install defects that stop use"), ("2", "Wave 2: Medium and Low severity examples, tests and the repository with no licence at all"), ("3", "Wave 3: Low-severity metadata, licence layout and documentation")):
+    md.append(f"\n### {title}\n")
+    md.append(tbl_handoff(by_wave[w]))
+
+md.append("""
+
+Wave 1a is `3f1b3176` (Cells-Cpp `std::numeric_limits` without `<limits>`): a hard compile error on every tested
+compiler with a one-line fix, nothing to argue with. The owner named the `-Werror` handoff `b3df5761` as the first
+live filing on 2026-10-04; its content is sound and it cross-references `3f1b3176`, but `-Werror` is partly policy, so
+it is in wave 2 and should follow once the first issue has landed well. Both are in the same repository and
+organization, so one registry change and one App grant cover either order.""")
+
+md.append(f"\n## 4. FILE: verified text, but no handoff yet ({len(file_t)})\n")
+md.append("""These are real and reproduced today. Their issue text is written in the handoff shape and passes
+`issue_quality_findings`; it is in `decisions/issue-texts-not-yet-fileable.md` (the older, longer drafts are in
+`analysis/issue-drafts-unrepresentable.md` with an addendum for today). The handoff model cannot carry them: `defect_class` has no entry for a runtime error, packaging fault,
+documentation contradiction or library side effect, and a new class needs a schema and registry change through a
+named work item. Until then they can only be filed by hand. Re-verification logs are the same raw logs.
+""")
+md.append(tbl_text(file_t))
+
+md.append("\n## 5. HOLD (26)\n")
+md.append("""Two handoffs and 24 text drafts. The 24 are low-value hygiene, metadata and documentation findings; a maintainer
+who receives many one-line hygiene issues at once is less likely to act on the important ones. Recommended: hold them,
+and offer them as one courtesy batch per repository once the wave-1 issues have been answered. Resume predicate for
+the two handoffs is in the duplicate column.
+""")
+md.append(tbl_handoff([t for t in hold if t["kind"] == "handoff"]))
+md.append("")
+md.append(tbl_text([t for t in hold if t["kind"] == "text-only"]))
+
+md.append("\n## 6. README-CORRECTION (11): do not file, fix the README\n")
+md.append("""Each failing text was written, or reshaped into its failing form, by one of the owner's merged README pull requests
+(`babar-raza`), found by walking the file's history. The six with handoffs are recorded `NOT_A_DEFECT` in `reverification.json`; `issue-readiness` marks
+them not approvable. The correction lane should fix: 3D-.NET (`FromFile` overload, `Vector3` using, `Save` call,
+U3D/RVM/AMF/HTML5 labels), 3D-TypeScript (`controlPoints`), Cells-Cpp (`WorksheetCollection.h`), PDF-Cpp (headers for
+the create-from-scratch and TIFF blocks), Slides-Cpp (`slide.h`), Cells-Go (formula list, missing APIs, heading),
+Cells-Rust (pre-publication sentence), Cells-TypeScript (placeholder API rows), PDF-Java README lines 1608-1611 and
+Page-Python's "Run the MCP Server" example.
+""")
+md.append(tbl_handoff([t for t in rc if t["kind"] == "handoff"]))
+md.append("")
+md.append(tbl_text([t for t in rc if t["kind"] == "text-only"]))
+
+md.append("\n## 7. DROP (13)\n")
+md.append(tbl_handoff([t for t in drop if t["kind"] == "handoff"]))
+md.append("")
+md.append(tbl_text([t for t in drop if t["kind"] == "text-only"]))
+
+# owner steps
+md.append(f"""
+
+## 8. What the owner must do to enable filing
+
+Nothing below was done by this lane.
+
+### 8.1 Registry modes today
+
+`data/registry.json` has 44 entries. **Registry mode `full` (2):** {", ".join(short(r) for r in full)}.
+**Registry mode `dry_run` (42):** every other entry; none is `disabled`, none sets `issues_mode`. An entry with no
+`issues_mode` derives it from `mode`, so the two `full` repositories are already issue-eligible; the 42 `dry_run` ones
+refuse issue filing until `issues_mode` is `file`.
+
+### 8.2 Registry: `"issues_mode": "file"` for the repositories that carry a FILE handoff
+
+Setting it arms issue filing for that entry only and leaves its README pull request refused (`docs/PROPOSAL_WAVE_RUNBOOK.md`
+section 8). Reviewed pull request to `data/registry.json`. Arm only the repositories of the wave being filed:
+
+| wave | repositories that need `issues_mode: file` |
+|---|---|""")
+for ws, label in ((["1a"], "1a"), (["1b"], "1b"), (["2"], "2"), (["3"], "3")):
+    rs = [r for r in wave_repos(ws) if mode.get(r) == "dry_run"]
+    md.append(f"| {label} | {', '.join(short(r) for r in rs) or '-'} |")
+md.append(f"""
+Already issue-eligible (`mode: full`): {", ".join(short(r) for r in already) or "-"} (its wave-3 licence handoff needs only an approval).
+All together {len(need_mode)} `dry_run` entries need the field: {", ".join(short(r) for r in need_mode)}.
+
+### 8.3 GitHub App: Issues: write, per organization
+
+The App must hold Contents: write, Pull requests: write, **Issues: write** and Metadata: read on each organization
+that owns a FILE repository. Click path (`docs/PROPOSAL_WAVE_RUNBOOK.md` section 1, item 1): open
+`https://github.com/organizations/<org>/settings/installations`, **Configure** on repository-presenter, repository access
+"All repositories" (or the target repository), accept the pending permission update. `audit-app-installations.yml`
+proves Metadata: read only, so the first filing in each organization is the real test of the write grant. The organizations
+holding FILE handoffs ({len(orgs)}): {", ".join(orgs)}. Only the organization holding the wave being filed needs the grant
+first (wave 1a needs only `aspose-cells-foss`). The text-only FILE rows would add `aspose-pdf-foss`. No new secret is needed: the workflow mints an issues-write installation
+token from the existing App secrets (`GH_APP_ID`, `GH_APP_PRIVATE_KEY`), which this lane could not inspect.
+
+### 8.4 Approval records (human-authored, reviewed pull request)
+
+For each wave, from a checkout of this branch, emit the records into a scratch directory outside the repository (the
+command refuses `ops/`), read each one, and commit them under `ops/issue_approvals/` in a pull request you author and
+merge. Records expire (7 days by default, at most 30); a handoff that changes after the digest was shown is refused as
+stale. The id files in this directory were checked against the emitter today (1, 7, 11 and 11 records; scratch output
+deleted):
+
+```sh
+repository-presenter issue-readiness --emit-approvals ../issue-approvals-scratch \\
+    --approver <owner-github-login> --valid-days 7 \\
+    --handoff-ids-file evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/decisions/issue-approval-ids-wave-1a-first-filing.txt
+# then wave-1b, wave-2, wave-3 in turn, each only after the previous wave has been answered
+repository-presenter file-upstream-defects --repo <owner>/<name>   # each approved handoff must read WOULD-FILE
+```
+
+### 8.5 Kill switch and run
+
+Repository variable `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` = `1` (Settings > Secrets and variables > Actions >
+Variables), then dispatch `issues-scheduled.yml` (it also runs daily at 03:41 UTC). The variable can only stop filing; it
+never authorizes one, so with it on the scheduled workflow files **every** approved handoff it finds, subject to the caps
+(3 a day and 5 open per repository, 10 seconds between writes). Approve only the rows you mean to file. Commenting on
+filed issues is a separate variable (`REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED`) and is not needed to file.
+
+### 8.6 Before each wave
+
+Upstream heads move (Cells-Python, PSD-.NET and PSD-Python moved in the last two days). Re-run
+`repository-presenter issue-readiness` the day you approve: a moved head makes the recheck inconclusive and the filer
+refuses it.
+
+## 9. Changes made to the handoff record today
+
+- 16 handoffs added under `evidence/upstream-defects/`: 7 drafted from verified reproductions (GIS build, Page install,
+  3D-.NET tests, 3D-TS jest, HTML collection, 3D-Python unittest, Words-Python pdfplumber) and 9 emitted by the
+  defect-class detectors (7 licence, 1 README, 1 placeholder manifest).
+- `af8da760` (3D-.NET) re-drafted as described in section 1, same fingerprint.
+- `reverification.json`: all 41 entries refreshed; six set to `NOT_A_DEFECT` (README-CORRECTION).
+- `tests/components/issues/test_ledger.py`: the corpus count 26 to 42. `tests/components/issues/test_classes.py`: the
+  test that required every committed handoff to lack `defect_class` now checks both shapes.
+- `decisions/issue-texts-not-yet-fileable.md`: the 9 text-only FILE issues, each held to `issue_quality_findings` (all pass).
+- {RAWCOUNT} sanitized raw logs under `analysis/raw-logs/iss3b-*`, the scripts under `analysis/scripts/iss3b/`, this table
+  (`issue-approval-table-final.md` and `.csv`) and the four wave id files.
+""")
+out.write_text("\n".join(md).rstrip("\n") + "\n", encoding="utf-8", newline="\n")
+print("written", out, len("\n".join(md)))

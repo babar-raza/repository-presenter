@@ -41,8 +41,8 @@ Loop transcript: resolved dynamically by `tools/reviewer/transcript_path.py` via
 `tools/reviewer/.local/executor_transcript.txt` (one line, the live executor's transcript path) -
 never hardcode a specific transcript filename here again; §0 step 1 sets that file fresh every
 session.
-Never touch src/, tests/, prompts/, schemas/, or a path the active item owns (README_CONTRACT.md is
-usually one). state.yaml only at a clean checkpoint, schema-validated. Stage own paths only; guard the
+Never touch src/, tests/, prompts/, schemas/, or a path the active item owns (README_STANDARD.md and
+README_CONTRACT.md are usually among them). state.yaml only at a clean checkpoint, schema-validated. Stage own paths only; guard the
 index (`git diff --cached --name-only` equals the intended list).
 Reusable tooling discipline (owner, 2026-09-06 20:23, after the same anchor-replace-then-validate
 script got written twice in one session as a scratchpad throwaway): a helper script for a governance
@@ -105,7 +105,7 @@ stopped. Every message is also a one-line §31 reviewer entry.
 |---|---|---|
 | Stopped (stop:true) / capped / **stalled** (its last ScheduleWakeup delay has passed by > 10 min with no new record — 2026-09-06 08:45: a 300 s wakeup never fired; the session was simply idle and resumed 5 s after a message) | Re-arm at once: SendMessage `Reviewer: your <time> ScheduleWakeup (<delay>) did not fire; continue now.` + the re-arm line. Capped and reset time not passed → note it, re-arm at the first wake after; PushNotification the owner. The stop monitor alarms at delay + 10 min (min 15). | Stall twice in a day → §31 note; the loop's `ScheduleWakeup` is not reliable enough to be the only wake source, so the monitor's re-arm is standing procedure. |
 | Stuck iteration (> 90 min without a commit; same test failing ≥3×; ≥15 edits without a commit; same command failing ≥3×) | SendMessage: checkpoint now — commit what passes the focused tests and one full suite, record the open predicate and the diagnosis in §31 (§5 two-attempt rule: change mechanism), continue. | Second wake same signature → split the item in §27.9 as owner (the stuck predicate becomes its own item behind the candidate-producing ones) + message. |
-| Gate-exit satisfiability (active item is the gate's last) | Restate the bullet in the ESM within 500 lines against the rule it conflicts with (rule 14; §27.10 ≥3 compositions; §30.9 controls); mirror in state.yaml `current_gate.purpose` at a clean checkpoint; §31 owner entry; commit, push. | — |
+| Gate-exit satisfiability (active item is the gate's last) | Restate the bullet in the ESM within its line cap (`execution_state_machine_max_lines` in project/state.yaml, 520; `AGENTS.md` 210) against the rule it conflicts with (rule 14; §27.10 ≥3 compositions; §30.9 controls); mirror in state.yaml `current_gate.purpose` at a clean checkpoint; §31 owner entry; commit, push. | — |
 | Gate purpose in state.yaml carries retired predicates | Fix at a clean checkpoint (schema-validated). | — |
 | Queue / purpose differs from §27.9 | Expected for one wake after a §27.9 edit (the loop reconciles before promoting). | Second wake, or an item promoted out of order → fix state.yaml at a clean checkpoint + message. |
 | Limits vs decisions (lanes flag etc.) | Fix state.yaml at a clean checkpoint. | — |

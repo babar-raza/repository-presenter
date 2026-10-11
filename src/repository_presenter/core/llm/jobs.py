@@ -4,9 +4,11 @@ A job is one manifest plus one packet. The runner renders the manifest's templat
 packet, sends one chat completion at the manifest's route and sampling contract, parses the JSON
 object it returns, validates it against the manifest's output schema, and binds every cited ID to
 the facts. A rejected output earns exactly one re-ask that quotes the rejection; a second
-rejection fails the job closed. Every physical attempt is recorded in the ledger. An accepted
-output is stored under the hash of the request that produced it, so the same request in a later
-run reuses it with zero provider calls and a ``cache_reuse`` ledger record.
+rejection fails the job closed, unless the job passes a ``Narrowing``: one further, narrower ask
+for only the part of the second reply still wrong, the rest kept as given. Every physical attempt
+is recorded in the ledger. An accepted output is stored under the hash of the request that
+produced it, so the same request in a later run reuses it with zero provider calls and a
+``cache_reuse`` ledger record.
 
 Extracted from the legacy ``call_transport.py``: physical-attempt accounting and request and
 response hashing are retained; the requests-based protocol handling, provider sessions, and
@@ -15,6 +17,7 @@ trusted-lane budgets are removed in favour of the openai SDK and this project's 
 
 from __future__ import annotations
 
+import copy
 import functools
 import itertools
 import json
@@ -45,6 +48,7 @@ from repository_presenter.core.llm.binding import (
 )
 from repository_presenter.core.llm.fallback import ModelSelection
 from repository_presenter.core.llm.ledger import CallRecord, Ledger, canonical_hash
+from repository_presenter.core.llm.narrowing import Narrowing
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.retry import RetryableOperationError, run_with_retry
 
@@ -193,6 +197,31 @@ class CallStore:
         suffix = f"-{stage}" if stage else ""
         path = self.directory / f"{request_sha256[:12]}.rejected-{attempt}{suffix}.json"
         payload = {"job": job, "attempt": attempt, "rejection": errors, "content": content}
+        text = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+        path.write_bytes(text.encode("utf-8"))
+        return path
+
+    def record_repairs(
+        self,
+        request_sha256: str,
+        attempt: int,
+        job: str,
+        changes: Sequence[Mapping[str, Any]],
+    ) -> Path:
+        """Keep, beside the store, what a job's last-resort ``recover`` changed in the reply it
+        accepted - one entry per changed value, in the shape ``repairs.json`` keeps for a repair
+        (``id``, ``path``, ``before``, ``after``; a unit's entry also names its ``slot``). The
+        accepted output alone does not say which words the code, not the model, wrote."""
+        self.directory.mkdir(parents=True, exist_ok=True)
+        path = self.directory / f"{request_sha256[:12]}.repaired-{attempt}.json"
+        payload = {
+            "job": job,
+            "attempt": attempt,
+            "source": "recover",
+            "outcome": "repaired",
+            "request_sha256": request_sha256,
+            "changes": [dict(change) for change in changes],
+        }
         text = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
         path.write_bytes(text.encode("utf-8"))
         return path
@@ -485,6 +514,34 @@ def _schema_message(error: Any) -> str:
     )
 
 
+def schema_error_lines(error: Any) -> list[str]:
+    """A schema error as the lines the re-ask quotes: ``path: message``.
+
+    An ``anyOf``/``oneOf`` error says only that a value "is not valid under any of the given
+    schemas" and quotes the whole value, which tells a model nothing about what to change. The
+    alternatives' own errors are in ``error.context``; the lines come from the alternative the
+    value came closest to - the one with the fewest errors, a type mismatch counting against it
+    (a value of the right type with a wrong member is nearer than one of the wrong type) - so a
+    disposition object that names a section its disposition may not read as "'installation' is not
+    one of [...]" at its ``destination_section``, not as a union failure."""
+    context = list(getattr(error, "context", None) or [])
+    if error.validator not in {"anyOf", "oneOf"} or not context:
+        return [f"{error.json_path}: {_schema_message(error)}"]
+    branches: dict[Any, list[Any]] = {}
+    for sub in context:
+        head = sub.schema_path[0] if sub.schema_path else 0
+        branches.setdefault(head, []).append(sub)
+    closest = min(
+        branches.values(),
+        key=lambda errors: (any(e.validator == "type" for e in errors), len(errors)),
+    )
+    return [
+        line
+        for sub in sorted(closest, key=lambda e: e.json_path)
+        for line in schema_error_lines(sub)
+    ]
+
+
 def _parse(
     manifest: LoadedManifest,
     content: str,
@@ -500,8 +557,9 @@ def _parse(
         return None, ["output is not a JSON object"]
     validator = Draft202012Validator(schema_for(manifest, call_schema))
     errors = [
-        f"{error.json_path}: {_schema_message(error)}"
+        line
         for error in sorted(validator.iter_errors(output), key=lambda error: error.json_path)
+        for line in schema_error_lines(error)
     ]
     # G4-W17 arrival item 100 (PGPY-02): a job's domain checks run once the schema has passed,
     # never gated on binding_errors too - binding_errors is a read-only citation check (it never
@@ -557,7 +615,7 @@ def run_job(
     checks: Checks | None = None,
     call_schema: dict[str, Any] | None = None,
     recover: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None,
-    narrow: Narrow | None = None,
+    narrow: Narrow | Narrowing | None = None,
 ) -> JobResult:
     """The accepted output of one job, from the store when the same request was accepted before.
 
@@ -577,16 +635,24 @@ def run_job(
     own message already named a real, citable fix) from a blind one; a job with no such narrow,
     verifiable correction passes nothing here and this parameter is inert for it.
 
-    ``narrow`` serves a ``unit_ids`` job only (cut-2 wave, 2026-10-11, BarCode-Python): when the
+    ``narrow`` is one further, narrower ask for the part of the second reply that is still wrong.
+    A callable serves a ``unit_ids`` job (cut-2 wave, 2026-10-11, BarCode-Python): when the
     second reply is still silent on some inherited units - after the first reply's answers have
     been carried over (:func:`fill_silent_units`) - one further ask is made that shows the model
     exactly those units and nothing else. ``narrow(unit_ids)`` returns that ask's packet and call
     schema (the same prompt, narrowed to the units). Its reply adds an entry only for a unit that
-    was silent; the merged whole is then judged by the same schema, binding and ``checks`` as any
-    reply, so no unit is accepted unjudged, and a unit still silent fails the job naming it. The
-    ask is an ordinary ledger record (attempt 3, the logical call's own id), the accepted output is
-    stored under the logical request's hash as always (so a replay reuses it with zero calls), and
-    ``recover`` runs after it, on the merged reply, instead of after the second.
+    was silent. A :class:`Narrowing` serves any job whose rejection can name the parts of the reply
+    still wrong (section authoring: the slots, wave 3); it also decides what the narrowed reply
+    replaces. Either way the merged whole is then judged by the same schema, binding and
+    ``checks`` as any reply, so no unit is accepted unjudged, and a part still wrong fails the job
+    naming it. The ask is an ordinary ledger record (attempt 3, the logical call's own id), the
+    accepted output is stored under the logical request's hash as always (so a replay reuses it
+    with zero calls), and ``recover`` runs after it, on the merged reply, instead of after the
+    second.
+
+    What ``recover`` changed in the reply it accepted is kept beside the store
+    (:meth:`CallStore.record_repairs`), so the words the code wrote are never mistaken for the
+    model's.
     """
     job = manifest.manifest.prompt_id
     model = effective_model(manifest, context)
@@ -660,17 +726,21 @@ def run_job(
             return JobResult(job, output, request_sha256, 0, 0, True, None, None)
 
     attempts = _Attempts(manifest, context, ledger, request_sha256, model)
+    narrowing = _narrowing(narrow, manifest, facts)
     current = payload
     rejection: list[str] = []
     recovered_rejection: list[str] = []
     first_reply = ""
     narrowed_units: list[str] = []
+    repeated_units: list[str] = []
     merged_so_far = ""
     for ask in (1, 2, 3):
         if ask == 3:
-            if not narrowed_units:
+            if not narrowed_units or narrowing is None:
                 break
-            narrowed_packet, narrowed_schema = narrow(narrowed_units)  # type: ignore[misc]
+            narrowed_packet, narrowed_schema = narrowing.ask(
+                narrowed_units, merged_so_far, rejection, repeated_units
+            )
             current = request_payload(
                 manifest,
                 render_messages(manifest, narrowed_packet, narrowed_schema),
@@ -691,10 +761,11 @@ def run_job(
                 "the output, never retry"
             )
         content = reply.content
+        earlier_reply = first_reply
         if ask == 2 and manifest.manifest.output.binding == "unit_ids":
             content = _complete_from_first_reply(content, first_reply)
-        elif ask == 3:
-            content = _add_narrowed_units(content, merged_so_far, narrowed_units)
+        elif ask == 3 and narrowing is not None:
+            content = narrowing.merge(merged_so_far, content, narrowed_units)
         first_reply = reply.content
         output, rejection = _parse(manifest, content, facts, checks, call_schema)
         if output is not None:
@@ -714,23 +785,34 @@ def run_job(
         if ask == 1:
             current = _re_ask(manifest, payload, reply.content, rejection)
         else:
-            if ask == 2 and narrow is not None and manifest.manifest.output.binding == "unit_ids":
-                narrowed_units = _silent_units(content, facts)
+            if ask == 2 and narrowing is not None:
+                narrowed_units = narrowing.pending(content, rejection)
+                if narrowed_units and narrowing.repeated is not None:
+                    repeated_units = narrowing.repeated(earlier_reply, content, narrowed_units)
                 if narrowed_units:
-                    # The model's own two asks are spent; one narrowed ask for the units still
-                    # without a disposition comes before any deterministic last resort.
+                    # The model's own two asks are spent; one narrowed ask for the parts still
+                    # wrong comes before any deterministic last resort.
                     merged_so_far = content
                     continue
             if recover is not None:
                 # Last resort (G4-W17 arrival item 111): only after the final attempt is still
                 # rejected, and only on that exact raw reply - never on the first attempt, so the
-                # model's own re-ask is always tried before any deterministic correction.
-                try:
-                    raw = json.loads(content)
-                except json.JSONDecodeError:
-                    raw = None
-                corrected = recover(raw) if isinstance(raw, dict) else None
-                if corrected is not None:
+                # model's own re-ask is always tried before any deterministic correction. After a
+                # narrowed ask the merged reply is corrected first; when that cannot be, the
+                # second reply is - what the correction could fix before the narrowed ask was made
+                # it can still fix, so the extra ask never costs a job that would have been saved.
+                candidates = [(content, "fix")]
+                if ask == 3 and merged_so_far and merged_so_far != content:
+                    candidates.append((merged_so_far, "fix-second"))
+                for candidate, stage in candidates:
+                    try:
+                        raw = json.loads(candidate)
+                    except json.JSONDecodeError:
+                        raw = None
+                    before = copy.deepcopy(raw)  # ``recover`` corrects in place
+                    corrected = recover(raw) if isinstance(raw, dict) else None
+                    if corrected is None:
+                        continue
                     # Judged by the manifest's own schema, the binding and the checks - not by
                     # ``call_schema``: that pins what a *decoder* may emit (a packet-capped ID list)
                     # and a deterministic correction legitimately writes IDs the decoder was never
@@ -742,6 +824,9 @@ def run_job(
                     )
                     if fixed is not None:
                         store.put(request_sha256, job, reply.model, fixed)
+                        store.record_repairs(
+                            request_sha256, ask, job, repair_changes(before, corrected)
+                        )
                         return JobResult(
                             job,
                             fixed,
@@ -761,16 +846,83 @@ def run_job(
                         job,
                         json.dumps(corrected),
                         fixed_rejection,
-                        stage="fix",
+                        stage=stage,
                     )
-                    recovered_rejection = fixed_rejection
+                    recovered_rejection = recovered_rejection or fixed_rejection
     asked = (
-        "three times (the third a narrowed ask for the silent units)" if narrowed_units else "twice"
+        f"three times (the third a narrowed ask for {narrowing.subject})"
+        if narrowed_units and narrowing is not None
+        else "twice"
     )
     message = f"{job}: output rejected {asked}; last rejection: {'; '.join(rejection)}"
     if recovered_rejection:
         message += f"; recover's correction was rejected too: {'; '.join(recovered_rejection)}"
     raise JobError(message)
+
+
+def _narrowing(
+    narrow: Narrow | Narrowing | None, manifest: LoadedManifest, facts: FactsDocument
+) -> Narrowing | None:
+    """The :class:`Narrowing` a ``narrow`` argument stands for: itself, or - for the plain callable
+    that serves a ``unit_ids`` job - the narrowed ask for the inherited units still silent."""
+    if narrow is None or isinstance(narrow, Narrowing):
+        return narrow
+    if manifest.manifest.output.binding != "unit_ids":
+        return None
+    return Narrowing(
+        pending=lambda content, _rejection: _silent_units(content, facts),
+        ask=lambda units, _content, _rejection, _repeated: narrow(units),
+        merge=lambda merged, narrowed, units: _add_narrowed_units(narrowed, merged, units),
+    )
+
+
+_CHANGE_VALUE_LIMIT = 2000  # characters of a replaced value kept in a repair record
+
+
+def repair_changes(before: Any, after: Any) -> list[dict[str, Any]]:
+    """What a ``recover`` changed, as ``repairs.json`` keeps a repair's changes: one entry per
+    changed leaf, ``{id, path, before, after}`` with ``path`` like ``units.3.text``, and the
+    ``slot`` of the unit it lies in. A list that grew or shrank is one entry at the list itself."""
+    changes: list[dict[str, Any]] = []
+
+    def walk(old: Any, new: Any, path: tuple[str, ...]) -> None:
+        if old == new:
+            return
+        if isinstance(old, dict) and isinstance(new, dict) and old.keys() == new.keys():
+            for key in old:
+                walk(old[key], new[key], (*path, str(key)))
+            return
+        if isinstance(old, list) and isinstance(new, list) and len(old) == len(new):
+            for index, (a, b) in enumerate(zip(old, new, strict=True)):
+                walk(a, b, (*path, str(index)))
+            return
+        change: dict[str, Any] = {
+            "id": f"R{len(changes) + 1:02d}",
+            "path": ".".join(path),
+            "before": _shown(old),
+            "after": _shown(new),
+        }
+        if len(path) >= 2 and path[0] == "units" and path[1].isdigit():
+            units = after.get("units") if isinstance(after, dict) else None
+            if isinstance(units, list) and int(path[1]) < len(units):
+                slot = (
+                    units[int(path[1])].get("slot")
+                    if isinstance(units[int(path[1])], dict)
+                    else None
+                )
+                if isinstance(slot, str):
+                    change["slot"] = slot
+        changes.append(change)
+
+    walk(before, after, ())
+    return changes
+
+
+def _shown(value: Any) -> Any:
+    text = (
+        value if isinstance(value, str) else json.dumps(value, sort_keys=True, ensure_ascii=False)
+    )
+    return text if len(text) <= _CHANGE_VALUE_LIMIT else text[:_CHANGE_VALUE_LIMIT] + "..."
 
 
 def _silent_units(content: str, facts: FactsDocument) -> list[str]:

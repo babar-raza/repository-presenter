@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from repository_presenter.core.snapshot.inventory import scan
 
 
@@ -40,6 +42,55 @@ class TestLicense:
         assert scan(tmp_path).license_path == nested / "LICENSE.txt"
 
     def test_missing_license_is_none(self, tmp_path: Path) -> None:
+        assert scan(tmp_path).license_path is None
+
+    @pytest.mark.parametrize("directory", ["LICENSES", "licenses", "Licenses", "licence"])
+    def test_finds_a_license_in_any_conventionally_named_directory(
+        self, tmp_path: Path, directory: str
+    ) -> None:
+        """The real path, spelled as the tree spells it, is what the license fact cites."""
+        nested = tmp_path / directory
+        nested.mkdir()
+        (nested / "License.txt").write_text("MIT", encoding="utf-8")
+        assert scan(tmp_path).license_path == nested / "License.txt"
+
+    def test_a_reuse_layout_with_one_spdx_named_file_is_that_license(self, tmp_path: Path) -> None:
+        nested = tmp_path / "LICENSES"
+        nested.mkdir()
+        (nested / "MIT.txt").write_text("MIT", encoding="utf-8")
+        assert scan(tmp_path).license_path == nested / "MIT.txt"
+
+    def test_a_reuse_layout_with_several_licenses_names_none_of_them(self, tmp_path: Path) -> None:
+        """Negative control: two licenses might be a dual license or a bundled dependency's, so
+        no file is guessed to be the project's."""
+        nested = tmp_path / "LICENSES"
+        nested.mkdir()
+        (nested / "MIT.txt").write_text("MIT", encoding="utf-8")
+        (nested / "Apache-2.0.txt").write_text("Apache", encoding="utf-8")
+        assert scan(tmp_path).license_path is None
+
+    def test_a_root_license_wins_over_a_directory_one(self, tmp_path: Path) -> None:
+        (tmp_path / "LICENSE").write_text("MIT", encoding="utf-8")
+        (tmp_path / "LICENSES").mkdir()
+        (tmp_path / "LICENSES" / "LICENSE.txt").write_text("Apache", encoding="utf-8")
+        assert scan(tmp_path).license_path == tmp_path / "LICENSE"
+
+    @pytest.mark.parametrize("directory", ["docs", "third_party", "legal", "vendor"])
+    def test_a_license_in_any_other_directory_is_not_the_projects(
+        self, tmp_path: Path, directory: str
+    ) -> None:
+        nested = tmp_path / directory
+        nested.mkdir()
+        (nested / "LICENSE.txt").write_text("MIT", encoding="utf-8")
+        assert scan(tmp_path).license_path is None
+
+    def test_a_non_license_file_in_a_license_directory_is_not_a_license(
+        self, tmp_path: Path
+    ) -> None:
+        nested = tmp_path / "LICENSES"
+        nested.mkdir()
+        (nested / "README.md").write_text("about", encoding="utf-8")
+        (nested / "MIT.txt").mkdir()
         assert scan(tmp_path).license_path is None
 
 
@@ -108,6 +159,46 @@ def test_a_directory_without_a_license_file_yields_no_notices(tmp_path: Path) ->
     (tmp_path / "fonts").mkdir()
     (tmp_path / "fonts" / "Arimo.ttf").write_text("x", encoding="utf-8")
     assert scan(tmp_path).notices_path is None
+
+
+def test_a_notices_file_kept_beside_the_license_in_its_directory_is_the_notices_file(
+    tmp_path: Path,
+) -> None:
+    """Cells-.NET and Cells-Python (wave 3) keep `License/ThirdPartyNotices.txt` beside
+    `License/LICENSE.txt`, and the README links both. Without a record for the notices file the
+    attribution has nowhere to render (BC-05 NOTICES_WITHOUT_RECORD)."""
+    nested = tmp_path / "License"
+    nested.mkdir()
+    (nested / "LICENSE.txt").write_text("MIT License\n", encoding="utf-8")
+    (nested / "ThirdPartyNotices.txt").write_text("zlib\n", encoding="utf-8")
+    inventory = scan(tmp_path)
+    assert inventory.notices_path == nested / "ThirdPartyNotices.txt"
+    assert inventory.license_path == nested / "LICENSE.txt"
+
+
+def test_the_license_itself_is_never_its_own_notices_file(tmp_path: Path) -> None:
+    """Negative control: a `License` directory is not a notices directory, so a licence file in
+    it (which matches the notice-bearing pattern) is not recorded as third-party attribution."""
+    (tmp_path / "License").mkdir()
+    (tmp_path / "License" / "LICENSE.txt").write_text("MIT License\n", encoding="utf-8")
+    assert scan(tmp_path).notices_path is None
+
+
+def test_a_root_notices_file_wins_over_one_in_the_license_directory(tmp_path: Path) -> None:
+    (tmp_path / "License").mkdir()
+    (tmp_path / "License" / "ThirdPartyNotices.txt").write_text("a\n", encoding="utf-8")
+    assert scan(tmp_path).notices_path == tmp_path / "License" / "ThirdPartyNotices.txt"
+    (tmp_path / "NOTICE").write_text("root\n", encoding="utf-8")
+    assert scan(tmp_path).notices_path == tmp_path / "NOTICE"
+
+
+def test_a_notices_file_in_a_license_directory_beats_a_covering_license_file(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "LICENSES").mkdir()
+    (tmp_path / "LICENSES" / "NOTICE.txt").write_text("n\n", encoding="utf-8")
+    (tmp_path / "LICENSE-FONTS").write_text("Knuth\n", encoding="utf-8")
+    assert scan(tmp_path).notices_path == tmp_path / "LICENSES" / "NOTICE.txt"
 
 
 def test_a_missing_root_yields_an_empty_inventory(tmp_path: Path) -> None:

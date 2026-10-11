@@ -21,6 +21,19 @@ that names one, in rank order:
 
 A command line that carries an expression, a secret-bearing word, a pipe or a redirect is never
 admitted: the renderer prints the command verbatim and a reader runs it.
+
+A workflow command is read as part of ONE job's own steps, never stitched from unrelated ones
+(the independent reviews of 2026-10-11: a release job's Debug build beside a package-consumer
+``ctest --test-dir build-pkgtest``, and a sanitizer job's ``cmake --build build-asan`` without the
+configure step that creates ``build-asan``; both fail on a clean clone). A command that works in a
+build directory (``cmake --build X``, ``ctest --test-dir X``) is admitted only when the same job
+configures X earlier with one printable, unconditional ``cmake -S . -B X``, which the fact then
+carries as its ``precondition``; a test in a build directory must share the chosen build's job and
+directory. Sanitizer, coverage, benchmark, documentation, package-test, minimum-toolchain and (in
+a non-release workflow) release or package jobs, steps that run in another directory, and steps
+that hold shell control flow are never read: no command is better than a wrong one. A tool the
+project does not itself declare is named as a ``precondition`` too (``python -m build`` needs
+``pip install build``).
 """
 
 from __future__ import annotations
@@ -42,10 +55,19 @@ from repository_presenter.core.facts import Evidence, Fact, fact_id
 BUILD_COMMAND_FACT_ID = fact_id("build_test_asset", "build-command")
 TEST_COMMAND_FACT_ID = fact_id("build_test_asset", "test-command")
 CI_MATRIX_FACT_ID = fact_id("build_test_asset", "ci-matrix")
+RELEASE_WORKFLOW_FACT_ID = fact_id("build_test_asset", "release-workflow")
+# The attribute a command fact carries when a reader must run something first: newline-joined.
+PRECONDITION_ATTRIBUTE = "precondition"
 
 _SAFE_LINE = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_ ./:=@+,-]*")
 _UNSAFE_WORD = re.compile(
     r"(?i)deploy|publish|token|secret|password|api-?key|sign|upload|push|twine|release"
+)
+# A build configuration named "Release" is not a release action: CMake and CTest take it as
+# ``--config Release``, ``--build-config Release``, ``-C Release`` and
+# ``-DCMAKE_BUILD_TYPE=Release``.
+_BUILD_CONFIGURATION = re.compile(
+    r"(?:--(?:build-)?config[ =]|-C |-DCMAKE_BUILD_TYPE=)(?i:release)\b"
 )
 _MAX_COMMAND_LENGTH = 120
 _MAX_MANIFEST_BYTES = 1024 * 1024
@@ -94,6 +116,11 @@ class _Candidate:
     path: str
     detail: str
     source: str
+    # A workflow command's job, and the build directory it works in (``None``: it works in none)
+    # with the configure command that creates that directory in the same job.
+    job: str = ""
+    directory: str | None = None
+    setup: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -121,25 +148,6 @@ CONVENTIONS: tuple[ConventionRule, ...] = (
 )
 
 
-def _commands_in(run: str) -> list[str]:
-    """The single-line commands of a workflow ``run`` step that are safe to print verbatim."""
-    found: list[str] = []
-    for raw in run.splitlines():
-        line = raw.strip()
-        if line.startswith("$ "):
-            line = line[2:].strip()
-        if (
-            not line
-            or line.endswith("\\")
-            or len(line) > _MAX_COMMAND_LENGTH
-            or not _SAFE_LINE.fullmatch(line)
-            or _UNSAFE_WORD.search(line)
-        ):
-            continue
-        found.append(line)
-    return found
-
-
 def _role_of(command: str) -> str | None:
     if any(rule.search(command) for rule in _TEST_RULES):
         return "test"
@@ -148,54 +156,187 @@ def _role_of(command: str) -> str | None:
     return None
 
 
+# Jobs and steps that are not the project's own build and test: a sanitizer, coverage, benchmark,
+# documentation, package-consumer, packaging or minimum-toolchain leg builds a variant a reader
+# cannot reproduce from the plain commands. Release and package jobs are also skipped in a
+# workflow that is not itself a release workflow (a release workflow's own are all it has).
+_SIDE_JOB = re.compile(
+    r"(?i)sanitiz|\b(?:a|ub|t|m)san\b|valgrind|coverage|codecov|bench|\bdocs?\b|pkg-?test"
+    r"|package[-_ ]?test|smoke|consumer|nuget|sbom|floor|minimum|reproducib"
+)
+_RELEASE_JOB = re.compile(r"(?i)release|publish|deploy|\bpack(?:age)?\b")
+# A run that holds shell control flow runs its commands conditionally or repeatedly.
+_CONTROL_LINE = re.compile(r"(?:if|for|while|until|case|then|else|elif|fi|do|done|esac)(?![\w./-])")
+_CONFIGURE_LINE = re.compile(r"(?:^|\s)cmake\s(?!.*--build)(?=.*\s-B\s?(?P<dir>[^\s\\]+))")
+_CONFIGURE_SOURCE = re.compile(r"\s-S\s?(?P<source>[^\s\\]+)")
+_BUILD_DIRECTORY = re.compile(
+    r"^cmake --build (?P<dir>[^\s-]\S*)|^ctest .*--test-dir[ =](?P<test>\S+)"
+)
+# The tools a build command needs that the project does not itself declare.
+PRECONDITIONS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"^python3? -m build\b"), "pip install build"),
+)
+_NODE_SCRIPT = re.compile(r"^npm (?:test|run (?P<name>[A-Za-z0-9:_-]+))\b")
+
+
+@dataclass(frozen=True)
+class _Run:
+    """One line of one ``run`` step of a job, in file order."""
+
+    line: str
+    admitted: bool
+    conditional: bool
+
+
+def _admitted(line: str) -> bool:
+    return (
+        bool(line)
+        and not line.endswith("\\")
+        and len(line) <= _MAX_COMMAND_LENGTH
+        and _SAFE_LINE.fullmatch(line) is not None
+        and _UNSAFE_WORD.search(_BUILD_CONFIGURATION.sub("", line)) is None
+    )
+
+
+def _is_side(name: str, release: bool) -> bool:
+    return _SIDE_JOB.search(name) is not None or (
+        not release and _RELEASE_JOB.search(name) is not None
+    )
+
+
+def _elsewhere(step: dict[Any, Any], job: dict[Any, Any]) -> bool:
+    """Whether a step runs in a directory other than the repository root."""
+    defaults = job.get("defaults")
+    run_defaults = defaults.get("run") if isinstance(defaults, dict) else None
+    inherited = run_defaults.get("working-directory") if isinstance(run_defaults, dict) else None
+    directory = step.get("working-directory", inherited)
+    return isinstance(directory, str) and directory.strip() not in {"", ".", "./"}
+
+
+def _job_runs(job: dict[Any, Any], release: bool) -> list[_Run]:
+    steps = job.get("steps")
+    runs: list[_Run] = []
+    for step in steps if isinstance(steps, list) else []:
+        run = step.get("run") if isinstance(step, dict) else None
+        if not isinstance(run, str) or _elsewhere(step, job):
+            continue
+        if _SIDE_JOB.search(str(step.get("name", ""))):
+            continue
+        lines = [raw.strip().removeprefix("$ ").strip() for raw in run.splitlines()]
+        controlled = any(_CONTROL_LINE.match(line) for line in lines)
+        conditional = "if" in step
+        runs.extend(
+            _Run(line, not controlled and _admitted(line), conditional)
+            for line in lines
+            if line and not line.startswith("#")
+        )
+    return runs
+
+
+def _build_directory(command: str) -> str | None:
+    """The build directory a ``cmake --build`` or ``ctest`` command works in, ``""`` when it names
+    none (it then works in the current directory, which no earlier step is shown to have set), and
+    ``None`` for a command that works in no build directory."""
+    match = _BUILD_DIRECTORY.match(command)
+    if match is not None:
+        return match.group("dir") or match.group("test")
+    return "" if command.startswith(("cmake --build", "ctest")) else None
+
+
+def _configure_for(directory: str, runs: list[_Run], before: int) -> str | None:
+    """The one printable, unconditional ``cmake -S . -B <directory>`` an earlier line of the job
+    runs, or ``None`` when there is none, when a configure of it cannot be printed (a variable, a
+    continuation, a conditional leg, a source other than the root), or when two differ."""
+    if not directory:
+        return None
+    configures: list[_Run] = []
+    for run in runs[:before]:
+        match = _CONFIGURE_LINE.search(run.line)
+        if match is None or match.group("dir") != directory:
+            continue
+        source = _CONFIGURE_SOURCE.search(run.line)
+        if source is not None and source.group("source") not in {".", "./"}:
+            return None
+        configures.append(run)
+    if not configures or any(r.conditional or not r.admitted for r in configures):
+        return None
+    commands = {run.line for run in configures}
+    return commands.pop() if len(commands) == 1 else None
+
+
+def _package_scripts(clone_path: Path, tree_paths: Sequence[str]) -> dict[str, Any] | None:
+    """The root ``package.json``'s ``scripts``, or ``None`` when there is none to read."""
+    if "package.json" not in tree_paths:
+        return None
+    try:
+        file = clone_path / "package.json"
+        if file.stat().st_size > _MAX_MANIFEST_BYTES:
+            return None
+        document = json.loads(file.read_text("utf-8"))
+    except (OSError, UnicodeDecodeError, ValueError):
+        return None
+    scripts = document.get("scripts") if isinstance(document, dict) else None
+    return scripts if isinstance(scripts, dict) else None
+
+
+def _names_a_missing_script(command: str, scripts: dict[str, Any] | None) -> bool:
+    """Whether an ``npm test`` or ``npm run <name>`` command names a script the root package.json
+    does not define (it would fail on a clean clone)."""
+    match = _NODE_SCRIPT.match(command)
+    if match is None:
+        return False
+    return not _script_defined(scripts, match.group("name") or "test")
+
+
 def _workflow_candidates(
     clone_path: Path, tree_paths: Sequence[str]
 ) -> dict[str, list[_Candidate]]:
     found: dict[str, list[_Candidate]] = {"build": [], "test": []}
+    scripts = _package_scripts(clone_path, tree_paths)
     for path, document in workflow_documents(clone_path, tree_paths):
         jobs = document.get("jobs")
         if not isinstance(jobs, dict):
             continue
         release = is_release_workflow(path)
         for job_id, job in jobs.items():
-            steps = job.get("steps") if isinstance(job, dict) else None
-            for step in steps if isinstance(steps, list) else []:
-                run = step.get("run") if isinstance(step, dict) else None
-                if not isinstance(run, str):
+            if not isinstance(job, dict) or _is_side(f"{job_id} {job.get('name', '')}", release):
+                continue
+            runs = _job_runs(job, release)
+            for position, run in enumerate(runs):
+                role = _role_of(run.line) if run.admitted else None
+                if role is None or _names_a_missing_script(run.line, scripts):
                     continue
-                for command in _commands_in(run):
-                    role = _role_of(command)
-                    if role is None:
+                directory = _build_directory(run.line)
+                configure = None
+                if directory is not None:
+                    configure = _configure_for(directory, runs, position)
+                    if configure is None:
                         continue
-                    found[role].append(
-                        _Candidate(
-                            _RANK_RELEASE_CI if release else _RANK_CI,
-                            command,
-                            path,
-                            f"job {job_id} runs `{command}`",
-                            "ci workflow",
-                        )
+                found[role].append(
+                    _Candidate(
+                        _RANK_RELEASE_CI if release else _RANK_CI,
+                        run.line,
+                        path,
+                        f"job {job_id} runs `{run.line}`",
+                        "ci workflow",
+                        str(job_id),
+                        directory,
+                        (configure,) if configure is not None else (),
                     )
+                )
     return found
+
+
+def _script_defined(scripts: dict[str, Any] | None, name: str) -> bool:
+    body = scripts.get(name) if scripts is not None else None
+    return isinstance(body, str) and bool(body.strip()) and "no test specified" not in body
 
 
 def _script_candidates(clone_path: Path, tree_paths: Sequence[str]) -> dict[str, list[_Candidate]]:
     found: dict[str, list[_Candidate]] = {"build": [], "test": []}
-    if "package.json" not in tree_paths:
-        return found
-    try:
-        file = clone_path / "package.json"
-        if file.stat().st_size > _MAX_MANIFEST_BYTES:
-            return found
-        document = json.loads(file.read_text("utf-8"))
-    except (OSError, UnicodeDecodeError, ValueError):
-        return found
-    scripts = document.get("scripts") if isinstance(document, dict) else None
-    if not isinstance(scripts, dict):
-        return found
+    scripts = _package_scripts(clone_path, tree_paths)
     for name, role, command in (("test", "test", "npm test"), ("build", "build", "npm run build")):
-        body = scripts.get(name)
-        if isinstance(body, str) and body.strip() and "no test specified" not in body:
+        if _script_defined(scripts, name):
             found[role].append(
                 _Candidate(
                     _RANK_SCRIPT,
@@ -311,24 +452,48 @@ def command_facts(clone_path: Path, tree_paths: Sequence[str]) -> list[Fact]:
 
     Several candidates of the best rank resolve to the first by (path, command), so the same tree
     always yields the same fact. A role no source names yields no fact and the section says
-    nothing about it.
+    nothing about it. A test that works in a build directory is kept only beside the chosen build
+    of the same job and directory; otherwise no test is named rather than one that cannot run.
     """
     candidates: dict[str, list[_Candidate]] = {"build": [], "test": []}
     for source in _SOURCES:
         for role, found in source(clone_path, tree_paths).items():
             candidates[role].extend(found)
+
+    def best(options: list[_Candidate]) -> _Candidate | None:
+        return min(options, key=lambda c: (c.rank, c.path, c.command, c.job), default=None)
+
+    build = best(candidates["build"])
+    chain = (build.path, build.job, build.directory) if build is not None else None
+    test = best(
+        [
+            c
+            for c in candidates["test"]
+            if c.directory is None or (c.path, c.job, c.directory) == chain
+        ]
+    )
     facts: list[Fact] = []
-    for role, identifier in (("build", BUILD_COMMAND_FACT_ID), ("test", TEST_COMMAND_FACT_ID)):
-        if not candidates[role]:
+    for role, identifier, chosen in (
+        ("build", BUILD_COMMAND_FACT_ID, build),
+        ("test", TEST_COMMAND_FACT_ID, test),
+    ):
+        if chosen is None:
             continue
-        chosen = min(candidates[role], key=lambda c: (c.rank, c.path, c.command))
+        setup = (
+            *chosen.setup,
+            *(need for rule, need in PRECONDITIONS if rule.search(chosen.command)),
+        )
+        detail = f"{role} command; {chosen.detail}" + "".join(f"; after `{need}`" for need in setup)
+        attributes = {"role": f"{role} command", "source": chosen.source}
+        if setup:
+            attributes[PRECONDITION_ATTRIBUTE] = "\n".join(setup)
         facts.append(
             Fact(
                 identifier,
                 "build_test_asset",
                 chosen.command,
-                (Evidence(chosen.path, f"{role} command; {chosen.detail}"),),
-                attributes={"role": f"{role} command", "source": chosen.source},
+                (Evidence(chosen.path, detail),),
+                attributes=attributes,
             )
         )
     return facts
@@ -441,13 +606,242 @@ def matrix_axes(fact: Fact) -> list[tuple[str, list[str]]]:
     return pairs
 
 
+# --- The release workflow --------------------------------------------------------------------
+# A workflow is where releases run only if one of its steps publishes a package, uploads release
+# assets or creates a release; its file name proves nothing (a ``ci.yml`` that only tests, or a
+# ``lint.yml``, is not one), and a registry that holds nothing proves the same.
+_PUBLISH_ACTIONS = frozenset(
+    {
+        "pypa/gh-action-pypi-publish",
+        "softprops/action-gh-release",
+        "actions/create-release",
+        "actions/upload-release-asset",
+        "ncipollo/release-action",
+        "marvinpinto/action-automatic-releases",
+        "svenstaro/upload-release-action",
+        "goreleaser/goreleaser-action",
+        "jreleaser/release-action",
+        "googleapis/release-please-action",
+        "js-devtools/npm-publish",
+        "taiki-e/create-gh-release-action",
+        "taiki-e/upload-rust-binary-action",
+    }
+)
+_PUBLISH_COMMANDS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("twine upload", re.compile(r"\btwine upload\b")),
+    ("npm publish", re.compile(r"\b(?:npm|yarn|pnpm)(?: run)? publish\b")),
+    ("cargo publish", re.compile(r"\bcargo publish\b")),
+    ("nuget push", re.compile(r"\bnuget push\b")),
+    ("mvn deploy", re.compile(r"\bmvnw?\b.*\b(?:deploy|release:perform)\b")),
+    ("gradle publish", re.compile(r"\bgradlew?\b.*\bpublish(?!ToMavenLocal)")),
+    ("gh release", re.compile(r"\bgh release (?:create|upload)\b")),
+    ("goreleaser release", re.compile(r"\bgoreleaser release\b")),
+    ("package publish", re.compile(r"\b(?:poetry|uv|hatch|flit|pdm) publish\b")),
+    ("gem push", re.compile(r"\bgem push\b")),
+)
+# A rehearsal or a test index publishes nothing a user installs.
+_NOT_A_RELEASE = re.compile(r"(?i)--dry-run|test\.pypi\.org|testpypi")
+# A comment or an echoed message names a command without running it.
+_NOT_A_COMMAND = re.compile(r"\s*(?:#|echo\b|printf\b)")
+
+
+def _publishing_step(step: Any) -> str | None:
+    """What a workflow step does that releases something, or ``None``."""
+    if not isinstance(step, dict):
+        return None
+    uses = step.get("uses")
+    if isinstance(uses, str):
+        action = uses.split("@", 1)[0].strip().lower()
+        if action in _PUBLISH_ACTIONS and not _NOT_A_RELEASE.search(str(step.get("with"))):
+            return f"uses {action}"
+    run = step.get("run")
+    for line in run.splitlines() if isinstance(run, str) else []:
+        if _NOT_A_RELEASE.search(line) or _NOT_A_COMMAND.match(line):
+            continue
+        for label, pattern in _PUBLISH_COMMANDS:
+            if pattern.search(line):
+                return f"runs {label}"
+    return None
+
+
+def release_workflow_fact(clone_path: Path, tree_paths: Sequence[str]) -> Fact | None:
+    """The workflow whose own step publishes a package, uploads release assets or creates a
+    release, or ``None`` when no workflow in the clone does (the renderer then writes no release
+    sentence). Several resolve to one whose file name says publish or release, then the first by
+    path, so the same tree always yields the same fact."""
+    found: list[tuple[tuple[int, str], str, str, str]] = []
+    for path, document in workflow_documents(clone_path, tree_paths):
+        jobs = document.get("jobs")
+        for job_id, job in jobs.items() if isinstance(jobs, dict) else []:
+            steps = job.get("steps") if isinstance(job, dict) else None
+            for step in steps if isinstance(steps, list) else []:
+                action = _publishing_step(step)
+                if action is not None:
+                    named = re.search(r"(?i)publish|release", path.rsplit("/", 1)[-1]) is not None
+                    found.append(((0 if named else 1, path), path, str(job_id), action))
+                    break
+    if not found:
+        return None
+    _rank, path, job_id, action = min(found, key=lambda item: item[0])
+    return Fact(
+        RELEASE_WORKFLOW_FACT_ID,
+        "build_test_asset",
+        path,
+        (Evidence(path, f"release step; job {job_id} {action}"),),
+        attributes={"role": "release workflow", "workflow": path},
+    )
+
+
+# --- Equivalent commands ---------------------------------------------------------------------
+# Whether a command a README already shows makes another redundant: the same program, the same
+# subcommand words and the same target, however the line is spelled (whitespace, a prompt, a
+# ``python -m`` or ``uv run`` wrapper, ``npm run test`` for ``npm test``, flags, an extra goal as
+# in ``mvn clean package`` for ``mvn package``).
+_PROMPT = re.compile(r"^\s*(?:[$>]\s*)?")
+_ENV_ASSIGNMENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=\S*")
+_WRAPPERS = (
+    ("sudo",),
+    ("time",),
+    ("uv", "run"),
+    ("poetry", "run"),
+    ("pipenv", "run"),
+    ("hatch", "run"),
+    ("pdm", "run"),
+    ("npx",),
+    ("bundle", "exec"),
+    ("python", "-m"),
+    ("python3", "-m"),
+    ("py", "-m"),
+)
+_PROGRAM_FAMILY = {"yarn": "npm", "pnpm": "npm", "bun": "npm", "mvnw": "mvn", "gradlew": "gradle"}
+_PROJECT_FILE = re.compile(r"(?i)\.(?:sln|slnx|csproj|fsproj|vbproj|vcxproj)$")
+_PATH_LIKE = re.compile(r"[/\\]|^\.+$|\.\w{1,6}$")
+# A flag that opens a mode of its program is a subcommand word (``cmake --build``); the value of
+# a flag is neither a subcommand nor a target, except the directories these flags name.
+_MODE_FLAGS = frozenset({"--build", "--install", "--preset", "--workflow"})
+_DIRECTORY_FLAGS = {
+    "cmake": frozenset({"-B", "--build"}),
+    "ctest": frozenset({"--test-dir"}),
+    "make": frozenset({"-C"}),
+}
+_VALUE_FLAGS = {
+    "cmake": frozenset({"-S", "-C", "-j", "--config", "--target", "--parallel"}),
+    "ctest": frozenset({"-C", "-j", "-R", "-E", "--build-config", "--parallel"}),
+    # ``-k``, ``-m`` and ``--filter`` narrow what runs, so their words stay subcommand words:
+    # ``pytest -k slow`` does not stand in for ``pytest``.
+    "dotnet": frozenset({"-c", "-f", "--configuration", "--framework", "--logger"}),
+    "pytest": frozenset({"-n", "-p"}),
+    "mvn": frozenset({"-pl", "-f", "-T", "-P"}),
+    "make": frozenset({"-j"}),
+}
+_COMMAND_SPLIT = re.compile(r"\s*(?:&&|\|\||[;|])\s*")
+_INLINE_CODE = re.compile(r"`+([^`\n]+)`+")
+_FENCE = re.compile(r"(`{3,}|~{3,})")
+
+
+@dataclass(frozen=True)
+class CommandForm:
+    """A command reduced to what makes it the same command: its program, its subcommand words and
+    the targets it names."""
+
+    program: str
+    verbs: frozenset[str]
+    targets: frozenset[str]
+
+    def covers(self, other: CommandForm) -> bool:
+        """Whether running this command already does what ``other`` does."""
+        return (
+            self.program == other.program
+            and other.verbs <= self.verbs
+            and (bool(other.verbs) or not self.verbs)
+            and (not other.targets or other.targets <= self.targets)
+        )
+
+
+def command_form(text: str) -> CommandForm | None:
+    """The ``CommandForm`` of one command line, or ``None`` for a line that is not one."""
+    tokens = _PROMPT.sub("", text.split(" #", 1)[0]).split()
+    if not tokens or tokens[0].startswith("#"):
+        return None
+    while tokens and _ENV_ASSIGNMENT.fullmatch(tokens[0]):
+        tokens.pop(0)
+    stripped = True
+    while stripped and tokens:
+        stripped = False
+        for wrapper in _WRAPPERS:
+            if len(tokens) > len(wrapper) and tuple(tokens[: len(wrapper)]) == wrapper:
+                tokens, stripped = tokens[len(wrapper) :], True
+    if not tokens:
+        return None
+    name = tokens[0].removeprefix("./").removeprefix(".\\").lower()
+    name = re.sub(r"\.(?:cmd|bat|exe|sh)$", "", name)
+    program = _PROGRAM_FAMILY.get(name, name)
+    verbs: set[str] = set()
+    targets: set[str] = set()
+    directory_flags = _DIRECTORY_FLAGS.get(program, frozenset())
+    value_flags = _VALUE_FLAGS.get(program, frozenset())
+    pending = ""
+    for token in tokens[1:]:
+        if pending:
+            if pending in directory_flags:
+                targets.add(token.rstrip("/\\"))
+            pending = ""
+        elif token.startswith("-"):
+            flag, equals, value = token.partition("=")
+            if flag in _MODE_FLAGS:
+                verbs.add(flag)
+            if equals:
+                if flag in directory_flags:
+                    targets.add(value.rstrip("/\\"))
+            elif flag in directory_flags or flag in value_flags:
+                pending = flag
+        elif (program == "npm" and token == "run") or (
+            program in {"dotnet", "msbuild"} and _PROJECT_FILE.search(token)
+        ):
+            continue
+        elif _PATH_LIKE.search(token):
+            targets.add(token.rstrip("/\\"))
+        else:
+            verbs.add(token.lower())
+    return CommandForm(program, frozenset(verbs), frozenset(targets))
+
+
+def commands_in_text(text: str) -> list[CommandForm]:
+    """Every command a README text shows: each line of a code fence or of an indented or prompted
+    block, and each inline code span, split at ``&&``, ``;`` and pipes."""
+    forms: list[CommandForm] = []
+    fence = ""
+    for raw in text.splitlines():
+        marker = _FENCE.match(raw.strip())
+        if marker is not None and (not fence or marker.group(1)[0] == fence):
+            fence = "" if fence else marker.group(1)[0]
+            continue
+        if fence or raw.startswith(("    ", "\t")) or raw.lstrip().startswith(("$ ", "> ")):
+            sources = [raw]
+        else:
+            sources = _INLINE_CODE.findall(raw)
+        for source in sources:
+            for part in _COMMAND_SPLIT.split(source):
+                form = command_form(part)
+                if form is not None:
+                    forms.append(form)
+    return forms
+
+
 __all__ = [
     "BUILD_COMMAND_FACT_ID",
     "CI_MATRIX_FACT_ID",
     "CONVENTIONS",
+    "PRECONDITIONS",
+    "PRECONDITION_ATTRIBUTE",
+    "RELEASE_WORKFLOW_FACT_ID",
     "TEST_COMMAND_FACT_ID",
+    "CommandForm",
     "ConventionRule",
     "ci_matrix_fact",
     "command_facts",
+    "command_form",
+    "commands_in_text",
     "matrix_axes",
+    "release_workflow_fact",
 ]

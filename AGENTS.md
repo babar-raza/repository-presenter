@@ -18,8 +18,9 @@ Read in this order at the start of every session:
 
 1. `project/state.yaml` — the only live implementation cursor.
 2. The current gate in `docs/EXECUTION_STATE_MACHINE.md`.
-3. Relevant behavior in `docs/STATE_MACHINE.md`, and `docs/README_CONTRACT.md` whenever the work
-   item touches facts, composition, validation, or review.
+3. Relevant behavior in `docs/STATE_MACHINE.md`; `docs/README_STANDARD.md` for a README's
+   structure, composition, links and tone, and `docs/README_CONTRACT.md` for assembly and checks,
+   whenever the work item touches facts, composition, validation, or review.
 4. Relevant context in `docs/RESEARCH_AND_GUIDELINES.md`; `docs/DECISION_LOG.md` (§31) for decisions since.
 5. `plans/idea.md` — the human product authority, for the outcome standard and standing
    constraints; never a cursor or task list.
@@ -33,8 +34,10 @@ Authority by subject:
 - `AGENTS.md` owns agent conduct and safety.
 - `docs/EXECUTION_STATE_MACHINE.md` owns build order and gate acceptance.
 - `docs/STATE_MACHINE.md` owns production runtime behavior.
-- `docs/README_CONTRACT.md` owns the candidate README's shape, assembly, agentic decisions, and
-  blocking checks. `docs/REPOSITORY_LAYOUT.md` owns where a file lives.
+- `docs/README_STANDARD.md` owns a README's structure and composition (a fixed core plus inherited
+  additions), links, tone and details: the live upstream README is the authority.
+  `docs/README_CONTRACT.md` owns assembly, agentic decisions, and blocking checks.
+  `docs/REPOSITORY_LAYOUT.md` owns where a file lives.
 - `project/state.yaml` owns current implementation status.
 - `migration/reuse-manifest.yaml` owns reuse-source code disposition (legacy and aspose.org).
 - `docs/SUPERVISION.md` owns session supervision: supervisor, lane agents, monitors, liveness.
@@ -89,7 +92,7 @@ before picking.
 - Reuse accepted unaffected work when one dependency changes.
 - End every work item with a run of the official entry point on the canary. A module with no
   production importer is a defect, not a deliverable.
-- Count progress in one unit only: authorizable candidates, N/36 (independent acceptance review
+- Count progress in one unit only: authorizable candidates, N/44 (the registry size on 2026-10-11; independent acceptance review
   passed and not worse than the live README); report sealed counts alongside, never as progress.
 - Invalidate a candidate only through an input it consumed. Never add a global control-plane hash;
   validator and reviewer changes re-check and may yield `VALID_UPDATE_AVAILABLE`, never blanket
@@ -132,7 +135,7 @@ deterministic gate result, or directly mutates a repository.
 - Existing README and product-agent content are valuable evidence, not automatic truth.
 - Two product lanes: live-first (start from the live README; add only verified corrections and
   verified missing information) and regeneration from scratch. The README standard is what the live
-  READMEs do, and both lanes must beat live; `docs/README_CONTRACT.md` is under revision (G3-W10).
+  READMEs do (`docs/README_STANDARD.md`), and both lanes must beat live.
 - Aspose.org, external documentation, prior candidates, and imported corpora are development
   oracles; none can solely support a factual public claim.
 - Every public claim maps to accepted evidence.

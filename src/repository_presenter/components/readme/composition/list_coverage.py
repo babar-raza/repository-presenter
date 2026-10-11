@@ -1,54 +1,53 @@
-"""A list kept as written states every item: the section-authoring guard for partial preservation.
+"""The item test for a list kept as written: which of its items a destination section states.
 
 Cut-2 BC-10 triage, cause 5 (aspose-pdf-foss/Aspose.PDF-FOSS-for-Java 131.list: six limitation
 bullets dropped; Cells-Java 048.list: three of five rendered; 3D-Java 072.list: two of its items
 absent). Reconciliation marked the whole list ``VERIFIED_PRESERVE`` - facts support every claim in
 it - and Scope and Limitations authors one slot per unit, so the composer condensed the list and
-silently lost items. Every unit-level check passed (the unit *is* cited); only independent review
-read the section against the source, and its repair was then blocked by BC-04 because a dropped
-item names an identifier that is not a fact value.
+silently lost items; wave-3 LST-01 found the placement rule that dropped it on one shared fact.
 
-This module is the earlier, deterministic answer: after ``section_authoring`` returns, every item
-of each ``VERIFIED_PRESERVE``/``VERIFIED_MOVE`` list unit the section owes must be stated by the
-section's units, or the reply is refused with the missing items named (the one re-ask can act on
-them). Presence is judged on the subject words of an item's lead (its bold phrase, else its first
-words), not on its exact text: the composer rewrites items from facts, so an item restated in other
-words is present, and one described without an identifier BC-04 would refuse is still present.
+Presence is judged on the subject words of an item's lead (its bold phrase, else its first
+words) or on the words only that item says, not on its exact text: the composer rewrites items
+from facts, so an item restated in other words is present, and one described without an
+identifier BC-04 would refuse is still present. The second test is what spares a bold label the
+composer folds into its sentences without repeating ("Out of scope for v1", "Protocol"): judged by
+the label alone, five restated lists of the wave-4 run were refused (triage, cause 1). It counts
+only the words the item does not share with its siblings - "throw Error not implemented in this
+FOSS build" repeats down a whole limitations list and proves nothing about any one item - and over
+every archived reply the restated lists keep 0.61-0.92 of them where the items really dropped keep
+0.00-0.32.
 
-It sits beside ``authoring.py`` rather than inside it so the change moves no governed constant;
-``repair/rounds.py`` layers it onto ``unit_checks`` for the initial draft and for an S6 repair.
+Three callers read the one test, so they cannot disagree about what "states an item" means:
 
-Wave-3 acceptance review (reseal f69f75c7, LST-01): the guard above still let the defect through
-in five of five candidates, for three reasons it did not cover.
+* ``composition/coverage.py`` - placement drops a kept list only for the items its destination
+  states, and prints the rest as written (wave-4 cut 4, L-r3), so no item reaches nowhere;
+* validation BC-05 - the independent check that the finished section states every item of a list
+  placement dropped (``missing_items(..., by_link=True)`` judges Documentation and Resources by the
+  link each item carries);
+* ``composition/authoring.py`` - the objective names the lists a section's units may fold into
+  their own words (``kept_lists``).
 
-1. A list was checked only when the plan handed it to a slot, and the plan handed none of 3D Java's,
-   3D TypeScript's, Cells Java's or 3D .NET's - while ``placement.placements`` dropped each as
-   "overlap" because ONE of the facts it cites is covered by another limitation slot. The list was
-   then neither authored nor printed, and the premise ("a list no slot carries is printed by
-   placement as written") was false. ``planning.plan_checks`` now hands every such list to the
-   limitation slots (and its links to the documentation slots), so the premise holds again.
-2. A list was checked only when a unit cited it, so a composer that stated half of it without
-   citing it passed; the check now binds a list the section owes whether or not anyone cites it.
-3. A section whose slots the plan does not bind (Development and Testing) never had a list owed at
-   all; ``SectionTask.owed_lists`` names the lists placement dropped there.
-
-Documentation and Resources prints one authored line per link, so its items are links:
-``missing_items(..., by_link=True)`` judges them by the link they carry (validation BC-05).
+Authoring no longer refuses a reply that leaves an item unstated (wave-4 triage, cause 1): placement
+already prints what the units do not state, so the refusal only turned a list longer than its slots
+(3D .NET, PDF .NET: 8 and 16 items for seven slots) and an item naming an identifier that is not a
+fact value (Email .NET, Imaging .NET: `Microsoft.NET.Test.Sdk`) into a deadlock with the identifier
+gate - naming the package is a stray identifier, describing it in words is a missing item. Replayed
+through the real renderer on the last archived reply of eleven repositories with the refusal removed
+(3D .NET, 3D Java, PDF .NET, PDF Java, Email .NET, Imaging .NET, PSD .NET and the four JMAP
+libraries of this README structure), placement printed every item the units left unstated (PDF
+.NET: three of sixteen) and BC-05 found none missing in any of them.
 """
 
 from __future__ import annotations
 
 import math
 import re
+from collections import Counter
 from collections.abc import Collection, Mapping
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from repository_presenter.core.facts import FactsDocument
 
-if TYPE_CHECKING:  # authoring imports this module; the task type is only a hint here
-    from repository_presenter.components.readme.composition.authoring import SectionTask
-
-LIST_ITEM_MISSING = "list_item_missing"
 # The dispositions that keep a unit as written. A rewrite or a supersession is the composer's to
 # condense; only a list the reconciler said stands as written owes every item.
 _AS_WRITTEN = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
@@ -65,15 +64,14 @@ _STOPWORDS = frozenset(
 )
 _STEM = 5
 _PRESENT_SHARE = 0.5
-_QUOTE_LIMIT = 160
 _MIN_ITEMS = 2
 # A Markdown link destination; an in-page anchor names a heading, not a document.
 _LINK_DESTINATION = re.compile(r"\]\(\s*<?([^)\s>]+)")
-# The sections whose authored text owes every item of a list placement dropped from them: the
-# limitation slots of Scope and Limitations (the plan hands the list to them) and Development and
-# Testing's one unbound summary slot. Key Capabilities and API Reference slots are bound to one
-# capability or hub each, so no unit could state a list's items; Documentation and Resources is
-# judged by the link each item carries (validation BC-05).
+# The sections whose authored text is told of the lists placement dropped from them, to fold their
+# items in: the limitation slots of Scope and Limitations (the plan hands the list to them) and
+# Development and Testing's one unbound summary slot. Key Capabilities and API Reference slots are
+# bound to one capability or hub each, so no unit could state a list's items; Documentation and
+# Resources is judged by the link each item carries (validation BC-05).
 OWED_SECTIONS = frozenset({"scope_limitations", "development_testing"})
 
 
@@ -117,6 +115,13 @@ def _stems(text: str) -> set[str]:
     return words
 
 
+def stems(text: str) -> set[str]:
+    """The word stems this module compares text by (``composition/coverage.py`` reads the same
+    test for a kept paragraph's sentences that BC-05 reads for a kept list's items, and
+    ``validation/content_presence.py`` judges a deferred unit against the finished README)."""
+    return _stems(text)
+
+
 def item_links(item: str) -> list[str]:
     """The document links an item carries: its Markdown destinations other than in-page anchors."""
     return [dest for dest in _LINK_DESTINATION.findall(item) if not dest.startswith("#")]
@@ -137,24 +142,31 @@ def missing_items(
     one link from another. An item with no such link falls back to its subject words.
     """
     destination = _stems(destination_text)
+    items = list_items(unit_text)
+    said_by = Counter(stem for item in items for stem in _stems(item))
     missing: list[str] = []
-    for item in list_items(unit_text):
+    for item in items:
         links = item_links(item) if by_link else []
         if links:
             if not any(link in document_text for link in links):
                 missing.append(item)
             continue
-        subject = _stems(_lead(item)) or _stems(item)
-        if not subject:
+        lead, whole = _stems(_lead(item)), _stems(item)
+        if not (lead or whole):
             continue
-        if len(subject & destination) < max(1, math.ceil(len(subject) * _PRESENT_SHARE)):
+        # What only this item says: a word every item of the list repeats ("not implemented",
+        # the product's name) shows nothing about this one.
+        own = {stem for stem in whole if said_by[stem] == 1} or whole
+        if not (_shares(lead, destination) or _shares(own, destination)):
             missing.append(item)
     return missing
 
 
-def _quote(item: str) -> str:
-    plain = " ".join(item.replace("**", "").split())
-    return plain if len(plain) <= _QUOTE_LIMIT else plain[:_QUOTE_LIMIT].rstrip() + "..."
+def _shares(subject: set[str], destination: set[str]) -> bool:
+    """Whether the destination holds at least ``_PRESENT_SHARE`` of ``subject``'s stems."""
+    return bool(subject) and len(subject & destination) >= max(
+        1, math.ceil(len(subject) * _PRESENT_SHARE)
+    )
 
 
 def kept_lists(
@@ -163,9 +175,9 @@ def kept_lists(
     owed: Collection[str],
     facts: FactsDocument,
 ) -> dict[str, str]:
-    """The list units kept as written in ``section_id`` that its authored units owe in full:
-    ``unit id -> the unit's inherited text``, restricted to ``owed`` - the lists the plan handed
-    to one of the section's slots and the lists placement dropped from an unbound section."""
+    """The list units kept as written in ``section_id`` that its authored units may fold into their
+    own words: ``unit id -> the unit's inherited text``, restricted to ``owed`` - the lists the plan
+    handed to one of the section's slots and the lists placement dropped from an unbound section."""
     texts = {fact.id: fact.value for fact in facts.by_kind("inherited_unit")}
     return {
         unit: texts[unit]
@@ -177,53 +189,3 @@ def kept_lists(
         and unit in texts
         and len(list_items(texts[unit])) >= _MIN_ITEMS
     }
-
-
-def handed_units(task: SectionTask) -> set[str]:
-    """Every fact and unit ID the plan bound to one of ``task``'s slots."""
-    return set().union(*task.slot_facts.values()) if task.slot_facts else set()
-
-
-def kept_list_units(
-    dispositions: Mapping[str, Any], task: SectionTask, facts: FactsDocument
-) -> dict[str, str]:
-    """The list units kept as written in ``task``'s section that its authored units owe in full:
-    the lists the plan handed to a slot of the section, and the lists placement dropped from the
-    section (``task.owed_lists``). A list neither is printed by placement as written, so no
-    authored unit stands in for it."""
-    return kept_lists(
-        dispositions, task.section_id, handed_units(task) | set(task.owed_lists), facts
-    )
-
-
-def list_coverage_errors(
-    output: Mapping[str, Any],
-    task: SectionTask,
-    dispositions: Mapping[str, Any],
-    facts: FactsDocument,
-) -> list[str]:
-    """One repairable refusal per kept list whose items the authored units do not all state."""
-    errors: list[str] = []
-    units = [unit for unit in output.get("units", []) if isinstance(unit, dict)]
-    # The section's whole authored text, not only the units citing a list: the plan cites a
-    # limitation's facts, not always the list unit its wording came from, and a composer that
-    # states half a list without citing it still owes the other half.
-    stated = " ".join(str(unit.get("text", "")) for unit in units)
-    for unit_id, text in kept_list_units(dispositions, task, facts).items():
-        missing = missing_items(text, stated)
-        if not missing:
-            continue
-        citing = [
-            str(unit.get("slot")) for unit in units if unit_id in (unit.get("fact_ids") or [])
-        ]
-        bound = [slot for slot, facts_of in task.slot_facts.items() if unit_id in facts_of]
-        slots = ", ".join(citing or bound or list(task.slots))
-        errors.append(
-            f"{unit_id}: {LIST_ITEM_MISSING}: this list was kept as written, so every one of its "
-            f"{len(list_items(text))} items must be stated by the units that cite it; "
-            f"{len(missing)} not stated: "
-            + "; ".join(f'"{_quote(item)}"' for item in missing)
-            + f". Fold each into a unit citing {unit_id} ({slots}); an item that names an "
-            "identifier that is not an accepted fact value is described in plain words instead"
-        )
-    return errors

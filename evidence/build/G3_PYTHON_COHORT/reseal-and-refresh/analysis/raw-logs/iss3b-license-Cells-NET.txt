@@ -1,0 +1,32 @@
+# key: license-Cells-NET
+# repository clone: Aspose.Cells-FOSS-for-.NET
+# head: 941814fd138dc28cf47123d48194f329f283498d
+# utc: 2026-10-11T17:48:20Z
+
+$ git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$'; echo root-match-exit=$?
+[exit 0]
+root-match-exit=1
+
+$ git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)' | head -8
+[exit 0]
+License/LICENSE.txt
+License/SkiaSharp.LICENSE.txt
+License/ThirdPartyNotices.txt
+
+$ gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET --jq '"license=" + (.license|tostring)'
+[exit 0]
+license=null
+
+$ grep -n -i -E 'licen[sc]e|MIT' README.md | head -5
+[exit 0]
+3:[![NuGet version](https://img.shields.io/nuget/v/Aspose.Cells.FOSS.svg)](https://www.nuget.org/packages/Aspose.Cells.FOSS/) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/blob/master/License/LICENSE.txt) [![Contributors](https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.svg)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/graphs/contributors) [![Issues](https://img.shields.io/github/issues/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.svg)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/issues)
+7:Aspose.Cells FOSS for .NET is a free, open-source, MIT-licensed .NET library for creating, loading, editing, and saving Excel `.xlsx` workbooks, with no dependency on Microsoft Excel or any other native Office library. It exposes an Aspose.Cells-compatible API surface built around `Workbook`, `Worksheet`, `Cells`, and `Cell`. The library is pure managed code, multi-targeting `netstandard2.0` and `net8.0`, so the same package runs on Windows, Linux, and macOS, including containerized and serverless environments.
+18:- [Scope and Limitations](#scope-and-limitations)
+20:- [License](#license)
+478:## Scope and Limitations
+
+$ gh api 'repos/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/issues?state=open&per_page=100' --jq '.[] | "#\(.number) \(.title)"'; echo open-issues-listed
+[exit 0]
+#3 Refresh README: verified examples and documentation links
+#1 Aspose.Cells.FOSS Unavailable on nuget.org
+open-issues-listed

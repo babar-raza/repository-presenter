@@ -1,0 +1,33 @@
+# key: repro-Font-Python
+# repository clone: Aspose.Font-FOSS-for-Python
+# head: adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6
+# utc: 2026-10-11T17:55:35Z
+
+$ "<scratch>/venvs/font/Scripts/python.exe" -m pip install -q . 2>&1 | tail -3
+[exit 0]
+
+
+# VariableInstanceBuilder fence = README.md lines 129-140
+
+$ cd "<scratch>\work\font" && "<scratch>/venvs/font/Scripts/python.exe" ex1.py 2>&1 | tail -4
+[exit 0]
+    ...<5 lines>...
+        output_dir="var-package-output",
+    )
+TypeError: VariableInstanceBuilder.build_package() got an unexpected keyword argument 'instance_names'
+
+# Web optimizer fence = README.md lines 296-417
+
+$ cd "<scratch>\work\font" && "<scratch>/venvs/font/Scripts/python.exe" ex2.py 2>&1 | tail -6
+[exit 0]
+static-fallback
+Traceback (most recent call last):
+  File "<scratch>\work\font\ex2.py", line 95, in <module>
+    print(subset_bundle.manifest["subset"]["coverage"]["missing_count"])
+          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'subset'
+
+$ cd "<scratch>\work\font" && "<scratch>/venvs/font/Scripts/python.exe" p.py 2>&1 | tail -4
+[exit 0]
+False True
+False True

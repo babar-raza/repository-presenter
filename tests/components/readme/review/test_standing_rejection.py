@@ -93,6 +93,7 @@ def finding(label: str = "F01", **overrides: Any) -> dict[str, Any]:
         "quote": "",
         "fact_ids": [],
         "absent": [],
+        "unsupported_names": [],
         "omission": None,
         "repair": "Fix it.",
     }
@@ -143,6 +144,14 @@ DETERMINISTIC_EXEMPLARS: dict[str, dict[str, Any]] = {
     "RENDERER_UNWRITTEN_FACT": finding(quote="| `pkg.Widget` | A widget. |"),
     "RENDERER_SECTION": finding(section_id="installation", quote="Install with pip."),
     "CITED_FACT_LITERAL": finding(quote="Version 1.2.3 is current.", fact_ids=["package:version"]),
+    # The finding denies pkg.Widget any public_symbol fact, and cites the SUPPORTED fact that is it.
+    "NAME_DENIAL_REFUTED": finding(
+        criterion="factuality",
+        quote="It renders widgets quickly and everywhere, fast.",
+        text="The section lists pkg.Widget, none of which have verified public_symbol facts.",
+        fact_ids=["public_symbol:pkg.widget"],
+        unsupported_names=["pkg.Widget"],
+    ),
 }
 
 # One minimal finding per JUDGMENT rule: the rule matches and annotates, and refutes nothing.

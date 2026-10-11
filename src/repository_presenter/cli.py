@@ -11,7 +11,7 @@ import sys
 import time
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from functools import partial
 from pathlib import Path
@@ -83,6 +83,28 @@ from repository_presenter.components.metadata.proposal import (
     diff_against_observed,
     write_diff_record,
 )
+from repository_presenter.components.monitor.discovery import (
+    DiscoveryReport,
+    discovery_document,
+    load_discovery,
+    observe_registry_gaps,
+    registry_status_json,
+)
+from repository_presenter.components.monitor.discovery import (
+    render_lines as render_discovery_lines,
+)
+from repository_presenter.components.monitor.discovery import (
+    status_lines as registry_status_lines,
+)
+from repository_presenter.components.monitor.discovery import (
+    summary_line as discovery_summary_line,
+)
+from repository_presenter.components.monitor.discovery import (
+    summary_markdown as discovery_summary_markdown,
+)
+from repository_presenter.components.monitor.discovery import (
+    workflow_annotations as discovery_annotations,
+)
 from repository_presenter.components.monitor.drift import (
     assemble_drift_contract,
     drift_document,
@@ -99,6 +121,7 @@ from repository_presenter.components.monitor.install_state import (
     summarize_installs,
     write_state,
 )
+from repository_presenter.components.monitor.org_listing import list_organization_repositories
 from repository_presenter.components.propose.effect import (
     AUTHORIZATION_VARIABLE as PROPOSE_AUTHORIZATION_VARIABLE,
 )
@@ -232,6 +255,11 @@ from repository_presenter.components.readme.validation.registry import (
     coverage_rows,
     summarize_validation,
 )
+from repository_presenter.components.readme_correction.gate import load_proposable_correction
+from repository_presenter.components.readme_correction.pull_request import (
+    compose_correction_pull_request,
+)
+from repository_presenter.components.readme_correction.run import produce_correction
 from repository_presenter.core.authorization.proposal import (
     AUTHORIZATION_DIRNAME,
     CURRENT_POLICY_VERSION,
@@ -347,6 +375,7 @@ from repository_presenter.core.registry.loader import (
     require_listed,
 )
 from repository_presenter.core.registry.models import Registry, RegistryEntry
+from repository_presenter.core.registry.sandbox import load_registry_for
 from repository_presenter.core.registry.write_gate import require_write_permitted
 from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.sealing_plan import (
@@ -365,6 +394,7 @@ from repository_presenter.core.secrets import (
     configured_secrets,
     find_secret_leaks,
     redact,
+    scan_for_secrets,
     stage_transaction_for_upload,
 )
 from repository_presenter.core.snapshot.capture import (
@@ -417,6 +447,11 @@ def build_parser() -> argparse.ArgumentParser:
         f"project root holding {CURSOR_RELATIVE_PATH.as_posix()}; "
         "discovered from the working directory when omitted"
     )
+    sandbox_help = (
+        "consult the sandbox allow-list (data/registry_sandbox.json: the owner's throwaway canary "
+        "repository, correction proposals only) instead of the production registry; the "
+        "production registry is never consulted or changed, and a repository in both is refused"
+    )
     status = subcommands.add_parser(
         "status",
         help="report the current gate and the honest count of current, reproducible, accepted, "
@@ -465,6 +500,24 @@ def build_parser() -> argparse.ArgumentParser:
             "proposal authorization records (a JSON object, a list, or a directory of such "
             "files) to count as effect-authorized when valid for the exact sealed candidate"
         ),
+    )
+    status.add_argument(
+        "--discovery",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "monitor evidence (drift documents, a `registry-gaps --out` file, or a directory of "
+            "them) whose registry discovery the `registry:` line reports; defaults to --drift, "
+            f"then to {RUNS_DIRNAME}/{MONITOR_DIRNAME}/ when it exists. Offline: never reads "
+            "GitHub, never changes the denominator"
+        ),
+    )
+    status.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="also list every unregistered, missing-upstream and policy-excluded repository",
     )
     recheck = subcommands.add_parser(
         "recheck",
@@ -744,6 +797,65 @@ def build_parser() -> argparse.ArgumentParser:
             f"{DRIFT_FILENAME} (drift-<owner>.json with --owner)"
         ),
     )
+    monitor_cmd.add_argument(
+        "--no-discovery",
+        dest="discover",
+        action="store_false",
+        help=(
+            "skip the registry discovery section (one read-only organization listing per "
+            "authorized owner); by default the evidence also records which repositories of the "
+            "authorized organizations the registry does not list"
+        ),
+    )
+    gaps_cmd = subcommands.add_parser(
+        "registry-gaps",
+        help=(
+            "report which repositories of the registry's authorized organizations the registry "
+            "does not list (UNREGISTERED), which are excluded by policy, and which admitted "
+            "entries no longer exist upstream; read-only, never admits anything"
+        ),
+    )
+    gaps_cmd.add_argument("--root", type=Path, default=None, help=root_help)
+    gaps_cmd.add_argument(
+        "--owner",
+        default=None,
+        metavar="OWNER",
+        help="only this authorized organization; every organization in the registry when omitted",
+    )
+    gaps_cmd.add_argument(
+        "--json",
+        dest="as_json",
+        action="store_true",
+        help="print the discovery document as JSON instead of the text report",
+    )
+    gaps_cmd.add_argument(
+        "--from",
+        dest="source",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "report previously recorded discovery (monitor drift documents, a --out file, or a "
+            "directory of them) instead of listing the organizations; offline, no GH_TOKEN"
+        ),
+    )
+    gaps_cmd.add_argument(
+        "--out", type=Path, default=None, help="also write the discovery document to this file"
+    )
+    gaps_cmd.add_argument(
+        "--summary",
+        type=Path,
+        default=None,
+        help="append the markdown summary to this file (the workflow step summary)",
+    )
+    gaps_cmd.add_argument(
+        "--warn-only",
+        action="store_true",
+        help=(
+            "workflow mode: report findings and problems as ::warning annotations (private "
+            "repository names withheld) and exit 0 whatever the evidence says"
+        ),
+    )
     install_record_cmd = subcommands.add_parser(
         "monitor-install-record",
         help=(
@@ -988,6 +1100,35 @@ def build_parser() -> argparse.ArgumentParser:
     verify_noop.add_argument("--first", type=Path, required=True, metavar="PATH")
     verify_noop.add_argument("--second", type=Path, required=True, metavar="PATH")
     verify_noop.add_argument("--root", type=Path, default=None, help=root_help)
+    correct = subcommands.add_parser(
+        "correct-readme",
+        help=(
+            "correct the live README at the registry's head against verified facts: a patch "
+            "bundle (README.md, README.patch, corrections.json) of evidenced edits only - false "
+            "claims, template sections facts alone can fill, broken links - with no model call "
+            "and no write to the target"
+        ),
+    )
+    correct.add_argument("--repo", required=True, metavar="OWNER/NAME", help="registry coordinates")
+    correct.add_argument("--root", type=Path, default=None, help=root_help)
+    correct.add_argument("--sandbox", action="store_true", help=sandbox_help)
+    correct.add_argument(
+        "--facts",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "a facts.json for exactly the registry head's revision (a candidate's or a prior "
+            "facts-only run's); omitted, the facts-only extraction path runs first"
+        ),
+    )
+    correct.add_argument(
+        "--out",
+        type=Path,
+        required=True,
+        metavar="DIR",
+        help="the empty or absent directory the correction bundle is written into",
+    )
     propose = subcommands.add_parser(
         "propose",
         help=(
@@ -1004,6 +1145,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="the target repository to propose against",
     )
     propose.add_argument("--root", type=Path, default=None, help=root_help)
+    propose.add_argument("--sandbox", action="store_true", help=sandbox_help)
     propose.add_argument(
         "--authorization-record",
         type=Path,
@@ -1023,6 +1165,28 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "the commit this run was triggered at (the workflow passes ${{ github.sha }}); "
             "defaults to $GITHUB_SHA, then HEAD"
+        ),
+    )
+    propose.add_argument(
+        "--correction-bundle",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help=(
+            "propose the corrected README of a `correct-readme --out` bundle instead of a sealed "
+            "candidate: the explicit, typed alternative gate (components/readme_correction/"
+            "gate.py) re-derives the correction and refuses unless it is exactly the evidenced "
+            "edits; every other check (registry, source revision, authorization, token) is shared"
+        ),
+    )
+    propose.add_argument(
+        "--require-sums",
+        action="store_true",
+        help=(
+            "with --correction-bundle: the bundle is a committed corrections/<run>/<slug>/ "
+            "directory (components/readme_correction/committed.py): refuse unless its SHA256SUMS "
+            "verifies over exactly the committed file set and its PULL_REQUEST.md is the text "
+            "this run would post. The hosted propose.yml correction mode always passes it"
         ),
     )
     propose.add_argument(
@@ -1124,6 +1288,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     draft.add_argument("--repo", required=True, metavar="OWNER/NAME", help="the target repository")
     draft.add_argument("--root", type=Path, default=None, help=root_help)
+    draft.add_argument("--sandbox", action="store_true", help=sandbox_help)
+    draft.add_argument(
+        "--correction-bundle",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help=(
+            "draft the record for the corrected README of a `correct-readme --out` bundle (the "
+            "same typed gate `propose --correction-bundle` applies) instead of a sealed candidate"
+        ),
+    )
     draft.add_argument(
         "--approver", required=True, help="who is approving this exact candidate (a person)"
     )
@@ -1284,6 +1459,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             drift_path=args.drift,
             authorizations_path=args.authorizations,
             recheck=args.recheck,
+            discovery_path=args.discovery,
+            verbose=args.verbose,
         )
     if args.command == "recheck":
         return run_recheck(
@@ -1317,7 +1494,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "preflight":
         return run_preflight(args.root)
     if args.command == "monitor":
-        return run_monitor(args.root, owner=args.owner, out=args.out)
+        return run_monitor(args.root, owner=args.owner, out=args.out, discover=args.discover)
+    if args.command == "registry-gaps":
+        return run_registry_gaps(
+            args.root,
+            owner=args.owner,
+            as_json=args.as_json,
+            source=args.source,
+            out=args.out,
+            summary=args.summary,
+            warn_only=args.warn_only,
+        )
     if args.command == "monitor-install-record":
         return run_monitor_install_record(args.owner, args.outcome, args.repositories, args.out)
     if args.command == "monitor-install-summary":
@@ -1375,16 +1562,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_sealed_ready(args.repo, args.root)
     if args.command == "stage-transaction-artifact":
         return run_stage_transaction_artifact(args.transaction, args.staging)
+    if args.command == "correct-readme":
+        return run_correct_readme(
+            args.repo, args.root, facts_path=args.facts, out=args.out, sandbox=args.sandbox
+        )
     if args.command == "propose":
         return run_propose(
             args.repo,
             args.root,
+            correction_bundle=args.correction_bundle,
             local_test_readme_file=args.local_test_readme_file,
             source_revision=args.source_revision,
             base_branch=args.base_branch,
             authorization_record=args.authorization_record,
             trigger_sha=args.trigger_sha,
             propose=args.do_propose,
+            sandbox=args.sandbox,
+            require_sums=args.require_sums,
         )
     if args.command == "publish-candidates":
         return run_publish_candidates(
@@ -1403,6 +1597,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             base_branch=args.base_branch,
             expires_in_hours=args.expires_in_hours,
             supersedes_prs=tuple(args.supersedes_pr),
+            correction_bundle=args.correction_bundle,
+            sandbox=args.sandbox,
         )
     if args.command == "wave-readiness":
         return run_wave_readiness(
@@ -1557,7 +1753,11 @@ def run_preflight(root_argument: Path | None) -> int:
 
 
 def run_monitor(
-    root_argument: Path | None, *, owner: str | None = None, out: Path | None = None
+    root_argument: Path | None,
+    *,
+    owner: str | None = None,
+    out: Path | None = None,
+    discover: bool = True,
 ) -> int:
     """Observe every enabled registry entry's upstream head against its CURRENT bundle (G7-W06).
 
@@ -1565,6 +1765,11 @@ def run_monitor(
     run never falls back to anonymous reads. It makes no provider call and writes only the
     evidence file. Exit 1 when any repository was UNREACHABLE, because the observation is then
     incomplete and the run must say so; DRIFTED and NO_BUNDLE are findings, not failures.
+
+    Unless ``discover`` is false the evidence also carries a ``discovery`` section (one read-only
+    organization listing per authorized owner, ``components/monitor/discovery.py``): what the
+    authorized organizations hold that the registry does not list. It is a finding for the owner,
+    never a failure of this run, and it admits nothing.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -1595,7 +1800,24 @@ def run_monitor(
         freshness_observe=observe_registry,
     )
     observed_at = datetime.now(UTC).isoformat(timespec="seconds")
-    document = drift_document(observations, observed_at=observed_at, owner=owner)
+    discovery = (
+        observe_registry_gaps(
+            root,
+            registry,
+            lister=list_organization_repositories,
+            token=token,
+            now=datetime.now(UTC),
+            organization=owner,
+        )
+        if discover
+        else None
+    )
+    document = drift_document(
+        observations,
+        observed_at=observed_at,
+        owner=owner,
+        discovery=None if discovery is None else discovery.to_json(),
+    )
     name = DRIFT_FILENAME if owner is None else f"drift-{owner}.json"
     path = out or root / RUNS_DIRNAME / MONITOR_DIRNAME / name
     write_drift_document(document, path)
@@ -1608,6 +1830,9 @@ def run_monitor(
         print(line)
     counts = ", ".join(f"{status} {count}" for status, count in document["summary"].items())
     print(f"monitor: {len(observations)} observed - {counts}")
+    if discovery is not None:
+        for line in render_discovery_lines(discovery):
+            print(line)
     print(f"evidence: {path}")
     unreachable = [o.repository for o in observations if o.status == "UNREACHABLE"]
     if unreachable:
@@ -1617,6 +1842,115 @@ def run_monitor(
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def run_registry_gaps(
+    root_argument: Path | None,
+    *,
+    owner: str | None = None,
+    as_json: bool = False,
+    source: Path | None = None,
+    out: Path | None = None,
+    summary: Path | None = None,
+    warn_only: bool = False,
+) -> int:
+    """Report the repositories of the authorized organizations the registry does not list.
+
+    Live (default) it lists each registry owner's organization once, read-only, with the
+    ``GH_TOKEN`` read token; with ``--from`` it reports discovery the monitor already recorded and
+    reads nothing. Either way it classifies and reports, and admits nothing: the registry stays the
+    hard allow-list and the denominator. Exit 1 when discovery was incomplete (an organization
+    could not be listed, or no evidence was found); an UNREGISTERED repository is a finding, not a
+    failure. ``--warn-only`` is the workflow mode: ``::warning`` annotations and exit 0 always, so
+    the monitor workflow's summary can never turn red for a finding or for missing evidence.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    authorized = {entry.owner.casefold() for entry in registry.entries}
+    if owner is not None and owner.casefold() not in authorized:
+        _fail(f"{owner} is not an organization in the registry")
+        return EXIT_USAGE
+    report: DiscoveryReport | None
+    if source is not None:
+        try:
+            report = load_discovery(source)
+        except PresenterError as exc:
+            return _gaps_problem(str(exc), warn_only=warn_only, code=exc.exit_code)
+        if report is None:
+            return _gaps_problem(
+                f"no registry discovery recorded under {source}",
+                warn_only=warn_only,
+                code=EXIT_INCONSISTENT,
+            )
+        if owner is not None:
+            report = replace(
+                report,
+                organizations=tuple(
+                    item
+                    for item in report.organizations
+                    if item.organization.casefold() == owner.casefold()
+                ),
+            )
+    else:
+        token = os.environ.get("GH_TOKEN") or None
+        if token is None:
+            _fail(
+                "GH_TOKEN (the read-only analysis token) is required; "
+                "registry-gaps lists no organization without it"
+            )
+            return EXIT_USAGE
+        report = observe_registry_gaps(
+            root,
+            registry,
+            lister=list_organization_repositories,
+            token=token,
+            now=datetime.now(UTC),
+            organization=owner,
+        )
+    document = discovery_document(report)
+    if out is not None:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+    if as_json:
+        print(json.dumps(document, indent=2))
+    elif warn_only:
+        # The job log is readable by everyone who can read the run: the count and the annotations
+        # (which withhold private names), not a line per repository.
+        print(discovery_summary_line(report))
+        for annotation in discovery_annotations(report, authorized_organizations=len(authorized)):
+            print(annotation)
+    else:
+        for line in render_discovery_lines(report):
+            print(line)
+    if summary is not None:
+        with summary.open("a", encoding="utf-8") as handle:
+            handle.write(
+                discovery_summary_markdown(
+                    report,
+                    admitted=len(registry.entries),
+                    authorized_organizations=len(authorized),
+                )
+                + "\n"
+            )
+    if not report.complete and not warn_only:
+        _fail("registry discovery is incomplete; the counts above are not the whole picture")
+        return EXIT_INCONSISTENT
+    return EXIT_OK
+
+
+def _gaps_problem(message: str, *, warn_only: bool, code: int) -> int:
+    """Report an unusable evidence source: a ``::warning`` and exit 0 in workflow mode."""
+    if warn_only:
+        print(f"::warning title=Registry discovery not reported::{message}")
+        return EXIT_OK
+    _fail(message)
+    return code
 
 
 def run_monitor_install_record(
@@ -2625,9 +2959,22 @@ def run_propose(
     authorization_record: Path | None = None,
     trigger_sha: str | None = None,
     propose: bool = False,
+    correction_bundle: Path | None = None,
+    sandbox: bool = False,
+    require_sums: bool = False,
 ) -> int:
     """Create or update the one stable presenter branch/PR proposing ``repository``'s README
     candidate (G6-W02; ``components/propose/effect.py``).
+
+    ``correction_bundle`` swaps the candidate for the corrected README of a ``correct-readme``
+    bundle, behind its own typed gate (``components/readme_correction/gate.py``); nothing else in
+    this function changes for it, and a regenerated candidate is still judged by the original gate.
+    ``require_sums`` additionally requires that bundle to be an intact committed
+    ``corrections/<run>/<slug>/`` directory (``components/readme_correction/committed.py``).
+
+    ``sandbox`` reads the sandbox allow-list (``core/registry/sandbox.py``) instead of the
+    production registry: the owner's throwaway canary repository, proposed to by a correction
+    bundle only. Every gate after the registry lookup is the one a product repository meets.
 
     A proposal carries exactly one thing: ``repository``'s sealed ``CURRENT`` candidate, and only
     while that bundle is integrity-verified and ``READY_FOR_PROPOSAL`` at the revision the target
@@ -2649,6 +2996,15 @@ def run_propose(
     if root is None:
         return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    if require_sums and correction_bundle is None:
+        _fail("propose: --require-sums applies to a --correction-bundle only")
+        return EXIT_USAGE
+    if sandbox and (correction_bundle is None or local_test_readme_file is not None):
+        _fail(
+            "propose: --sandbox proposes a --correction-bundle only: the sandbox has no sealed "
+            "candidate and --local-test-readme-file skips the registry"
+        )
+        return EXIT_USAGE
     try:
         if local_test_readme_file is not None:
             if propose:
@@ -2675,17 +3031,26 @@ def run_propose(
             print("propose: dry run (local test mode never writes)")
             return EXIT_OK
 
-        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        registry = load_registry_for(root, sandbox=sandbox)
         entry = require_listed(registry, repository)
         repository = entry.repository
-        print(f"admitted: {entry.repository} (mode {entry.mode})")
+        print(f"admitted: {entry.repository} (mode {entry.mode}{', sandbox' if sandbox else ''})")
         if propose:
             permit = require_write_permitted(registry, repository, "readme_proposal")
         elif entry.mode != "full":
             print(f"propose: registry mode {entry.mode!r} - a dry-run result is all this can be")
-        candidate = load_proposable_candidate(
-            root, repository, acceptance=proposal_acceptance_gate(root)
-        )
+        if correction_bundle is not None:
+            candidate = load_proposable_correction(
+                correction_bundle, repository, root=root, entry=entry, require_sums=require_sums
+            )
+            print(
+                f"propose: correction bundle {correction_bundle.name} (typed correction gate"
+                f"{'; SHA256SUMS and pull request text verified' if require_sums else ''})"
+            )
+        else:
+            candidate = load_proposable_candidate(
+                root, repository, acceptance=proposal_acceptance_gate(root)
+            )
         readme_text = candidate.readme_text
         revision = candidate.revision
         candidate_hash = candidate.candidate_hash
@@ -2782,14 +3147,20 @@ def run_propose(
             base = default_branch_read.branch
         base = base or ""  # unused by propose_candidate before its own authorization gate
 
-        evidence = load_pull_request_evidence(candidate.bundle)
-
         def _compose_pull_request(live_readme: str | None) -> PullRequestContent:
+            if correction_bundle is not None:
+                return compose_correction_pull_request(
+                    bundle=candidate.bundle,
+                    repository=repository,
+                    candidate_hash=candidate_hash,
+                    source_revision=revision,
+                    policy_version=CURRENT_POLICY_VERSION,
+                )
             return compose_pull_request(
                 candidate_readme=readme_text,
                 live_readme=live_readme,
                 repository=repository,
-                evidence=evidence,
+                evidence=load_pull_request_evidence(candidate.bundle),
                 candidate_hash=candidate_hash,
                 source_revision=revision,
                 policy_version=CURRENT_POLICY_VERSION,
@@ -2834,6 +3205,79 @@ def run_propose(
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
+    return EXIT_OK
+
+
+def run_correct_readme(
+    repository: str,
+    root_argument: Path | None,
+    *,
+    facts_path: Path | None,
+    out: Path,
+    sandbox: bool = False,
+) -> int:
+    """``correct-readme``: write the correction bundle for ``repository``'s live README.
+
+    Read-only toward the target, no model call, no write beyond ``out``. The hard allow-list is
+    checked before any repository-specific network work, exactly as ``present`` does. ``sandbox``
+    reads the sandbox allow-list instead (``core/registry/sandbox.py``), here and in the facts-only
+    extraction it starts."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    try:
+        registry = load_registry_for(root, sandbox=sandbox)
+        entry = require_listed(registry, repository)
+        print(
+            f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem}"
+            f"{', sandbox' if sandbox else ''})"
+        )
+
+        def extract_facts(revision: str) -> Path | None:
+            code = run_present(entry.repository, root_argument, facts_only=True, sandbox=sandbox)
+            facts = (
+                root / RUNS_DIRNAME / "transactions" / f"{entry.owner}__{entry.name}" / revision
+            ) / FACTS_FILENAME
+            if code == EXIT_OK and not facts.is_file():
+                return None  # a NON_PROCESSABLE disposition: insufficient evidence, not a failure
+            if code != EXIT_OK:
+                raise ConfigError(
+                    f"no facts at {revision} for {entry.repository}: the facts-only run ended "
+                    f"{code} (or the head moved)"
+                )
+            return facts
+
+        outcome = produce_correction(
+            entry,
+            clone_directory=root / RUNS_DIRNAME / "clones" / f"{entry.owner}__{entry.name}",
+            out_directory=out,
+            facts_path=facts_path,
+            extract_facts=extract_facts,
+            token=os.environ.get("GH_TOKEN") or None,
+        )
+        leaks = scan_for_secrets(out, configured_secrets(os.environ))
+        if leaks:
+            shutil.rmtree(out)
+            _fail(f"correct-readme: a secret appeared in {leaks[0].path.name}; bundle discarded")
+            return EXIT_UNSAFE
+    except FileExistsError as exc:
+        _fail(f"correct-readme: {redact(str(exc), live_values)}")
+        return EXIT_USAGE
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    counts = ", ".join(f"{kind} {count}" for kind, count in sorted(outcome.summary.items()))
+    detail = (
+        f"{outcome.edits} edit(s) ({counts or 'none'}), {outcome.unapplied} finding(s) left "
+        f"unapplied"
+        if outcome.manifest
+        else outcome.reason
+    )
+    print(
+        f"correct-readme: {outcome.repository} @ {outcome.revision[:12]}: {outcome.status}: "
+        f"{detail}; bundle {outcome.out}"
+    )
     return EXIT_OK
 
 
@@ -2967,9 +3411,15 @@ def run_draft_proposal_authorization(
     base_branch: str | None = None,
     expires_in_hours: int = 24,
     supersedes_prs: tuple[int, ...] = (),
+    correction_bundle: Path | None = None,
+    sandbox: bool = False,
 ) -> int:
     """Write the authorization record for ``repository``'s current candidate under ``ops/
     proposal-authorizations/`` for a person to review and merge.
+
+    ``correction_bundle`` drafts it for the corrected README of a ``correct-readme`` bundle (the
+    typed gate ``propose --correction-bundle`` applies); ``sandbox`` reads the sandbox allow-list
+    and then requires a correction bundle, since the sandbox has no sealed candidate.
 
     Drafting authorizes nothing: ``propose --propose`` accepts a record only once it is merged to
     ``origin/main`` before the commit a run is triggered at, so the run that drafts a record can
@@ -2983,14 +3433,22 @@ def run_draft_proposal_authorization(
             f"draft-proposal-authorization: --expires-in-hours must be 1..{MAX_LIFETIME.days * 24}"
         )
         return EXIT_USAGE
+    if sandbox and correction_bundle is None:
+        _fail("draft-proposal-authorization: --sandbox drafts for a --correction-bundle only")
+        return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
     try:
-        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        registry = load_registry_for(root, sandbox=sandbox)
         entry = require_listed(registry, repository)
         require_write_permitted(registry, entry.repository, "readme_proposal")
-        candidate = load_proposable_candidate(
-            root, entry.repository, acceptance=proposal_acceptance_gate(root)
-        )
+        if correction_bundle is not None:
+            candidate = load_proposable_correction(
+                correction_bundle, entry.repository, root=root, entry=entry
+            )
+        else:
+            candidate = load_proposable_candidate(
+                root, entry.repository, acceptance=proposal_acceptance_gate(root)
+            )
         live = fetch_default_branch_sha(entry.repository, token=os.environ.get("GH_TOKEN") or None)
         if live.error is not None or live.sha is None or live.branch is None:
             _fail(f"draft-proposal-authorization: could not read the target: {live.error}")
@@ -3151,6 +3609,8 @@ def run_status(
     drift_path: Path | None = None,
     authorizations_path: Path | None = None,
     recheck: bool = False,
+    discovery_path: Path | None = None,
+    verbose: bool = False,
 ) -> int:
     """Print version, gate, work item, and N/34 progress from sealed bundles on disk.
 
@@ -3181,6 +3641,12 @@ def run_status(
     ``RECHECKED_CURRENT`` or ``UPDATE_OPTIONAL``, and the partition splits what does not into
     ``update_required`` and ``update_unverified``. ``status`` reads cached receipts; ``--recheck``
     computes the missing ones. A bundle without a receipt stays uncounted, as before.
+
+    The ``registry:`` line reports the allow-list's size and, from the monitor's recorded
+    discovery (``--discovery``, else ``--drift``, else ``runs/monitor/``), how many repositories of
+    the authorized organizations the registry does not list. It is a separate line: the
+    denominator is the registry's size, discovery admits nothing, and this command stays offline.
+    ``--verbose`` lists those repositories.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -3201,6 +3667,7 @@ def run_status(
         authorizations = (
             load_authorizations(authorizations_path) if authorizations_path is not None else None
         )
+        registry_view = _registry_view(root, discovery_path=discovery_path, drift_path=drift_path)
     except (CursorError, BundleError, OSError) as exc:
         _fail(str(exc))
         return EXIT_INCONSISTENT
@@ -3281,6 +3748,15 @@ def run_status(
                         "currency": currency,
                     },
                     "portfolio": None if portfolio is None else portfolio.to_json(),
+                    "registry": (
+                        None
+                        if registry_view is None
+                        else registry_status_json(
+                            registry_view.admitted,
+                            registry_view.organizations,
+                            registry_view.report,
+                        )
+                    ),
                 },
                 indent=2,
             )
@@ -3300,6 +3776,15 @@ def run_status(
         )
         print(f"examples: {executed}/{example_total} verified across counted candidates")
         print(f"canary: {cursor.canary}")
+        if registry_view is not None:
+            for line in registry_status_lines(
+                registry_view.admitted,
+                registry_view.report,
+                authorized_organizations=registry_view.organizations,
+                verbose=verbose,
+                note=registry_view.note,
+            ):
+                print(line)
         for line in _candidate_state_lines(root, held):
             print(line)
         if issue_rows:
@@ -3330,6 +3815,45 @@ def run_status(
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+@dataclass(frozen=True)
+class _RegistryView:
+    """What ``status`` knows about the allow-list: its size and the monitor's recorded discovery."""
+
+    admitted: int
+    organizations: int
+    report: DiscoveryReport | None
+    note: str | None = None
+
+
+def _registry_view(
+    root: Path, *, discovery_path: Path | None, drift_path: Path | None
+) -> _RegistryView | None:
+    """The ``registry:`` line's inputs; ``None`` when the project has no readable registry (the
+    portfolio block already reports that). Evidence named on the command line must be readable
+    (:class:`ConfigError`, like ``--drift``); the implicit ``runs/monitor/`` one degrades to a
+    note, since an old local run must never make ``status`` fail."""
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+    except PresenterError:
+        return None
+    admitted = len(registry.entries)
+    organizations = len({entry.owner.casefold() for entry in registry.entries})
+    explicit = discovery_path if discovery_path is not None else drift_path
+    if explicit is not None:
+        return _RegistryView(admitted, organizations, load_discovery(explicit))
+    implicit = root / RUNS_DIRNAME / MONITOR_DIRNAME
+    if not implicit.is_dir():
+        return _RegistryView(admitted, organizations, None)
+    try:
+        report = load_discovery(implicit)
+    except ConfigError as exc:
+        return _RegistryView(admitted, organizations, None, f"monitor evidence unreadable: {exc}")
+    note = (
+        None if report is not None else f"no discovery section in {RUNS_DIRNAME}/{MONITOR_DIRNAME}/"
+    )
+    return _RegistryView(admitted, organizations, report, note)
 
 
 def _status_rechecks(
@@ -3609,8 +4133,12 @@ def run_present(
     fresh: bool = False,
     on_disposition: Callable[[Path], None] | None = None,
     invocation_record: Path | None = None,
+    sandbox: bool = False,
 ) -> int:
     """Run one ``present`` invocation, recording it when ``invocation_record`` is given.
+
+    ``sandbox`` (``facts_only`` runs started by ``correct-readme --sandbox``) admits the repository
+    from the sandbox allow-list and records no upstream-defect handoff for it.
 
     The record names this process (id, start time, boot marker), the invocation's id - stamped on
     every ledger record it appends - and the ledger it wrote to, so ``verify-noop-proof`` can
@@ -3631,7 +4159,9 @@ def run_present(
 
     exit_code: int | None = None
     try:
-        exit_code = _run_present(repository, root_argument, facts_only, fresh, invocation, disposed)
+        exit_code = _run_present(
+            repository, root_argument, facts_only, fresh, invocation, disposed, sandbox=sandbox
+        )
         return exit_code
     finally:
         if invocation_record is not None:
@@ -3651,6 +4181,8 @@ def _run_present(
     fresh: bool,
     invocation: Invocation,
     on_disposition: Callable[[Path], None] | None,
+    *,
+    sandbox: bool = False,
 ) -> int:
     """Admit ``repository`` from the registry, then run the transaction stages.
 
@@ -3675,7 +4207,7 @@ def _run_present(
         return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
     try:
-        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        registry = load_registry_for(root, sandbox=sandbox)
         entry = require_listed(registry, repository)
         print(
             f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem}, "
@@ -3802,7 +4334,10 @@ def _run_present(
             f"evaluation: {(transaction / EVALUATION_FILENAME).relative_to(root).as_posix()} "
             f"({summarize_evaluation(evaluated)}; digest {evaluation_digest})"
         )
-        _record_defect_class_handoffs(root, entry, clone.revision, clone.path, tree_paths, manifest)
+        if not sandbox:  # a sandbox is no product: nothing upstream could be told about it
+            _record_defect_class_handoffs(
+                root, entry, clone.revision, clone.path, tree_paths, manifest
+            )
         if facts_only:
             return _report_facts_only(root, entry, clone.revision, document, transaction)
         # Fallback chains (core/llm/fallback.py), decided once at run start before any content

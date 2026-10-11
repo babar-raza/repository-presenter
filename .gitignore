@@ -31,3 +31,6 @@ venv/
 tools/reviewer/.local/
 tools/census/.local/
 tools/discovery/.local/
+
+# The At a Glance diagram check's Node packages (components/readme_diagram/render): installed with npm ci, never committed
+node_modules/

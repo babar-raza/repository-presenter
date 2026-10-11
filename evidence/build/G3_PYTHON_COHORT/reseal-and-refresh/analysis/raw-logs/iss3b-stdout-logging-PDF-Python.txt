@@ -1,0 +1,25 @@
+# key: stdout-logging-PDF-Python
+# repository clone: Aspose-PDF-FOSS-for-Python
+# head: 8f0edbe6930f300088fc72f64711be3265a723d1
+# utc: 2026-10-11T18:02:22Z
+
+$ sed -n 8,13p src/aspose_pdf/engine/logging.py
+[exit 0]
+if not _logger.handlers:
+    _logger.setLevel(logging.INFO)
+    _handler = logging.StreamHandler(sys.stdout)
+    _formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+    _handler.setFormatter(_formatter)
+    _logger.addHandler(_handler)
+
+$ "<scratch>/venvs/pdfpy/Scripts/python.exe" -m pip install -q -e . 2>&1 | tail -2
+[exit 0]
+
+
+$ "<scratch>/venvs/pdfpy/Scripts/python.exe" "<scratch>\work/pdfpy_stdout.py" 2>/dev/null
+[exit 0]
+2026-10-11 23:02:36,571 [INFO] aspose_pdf: Document resources released.
+
+$ "<scratch>/venvs/pdfpy/Scripts/python.exe" "<scratch>\work/pdfpy_stdout.py" 2>&1 >/dev/null | head -3; echo "[stderr above]"
+[exit 0]
+[stderr above]

@@ -1,0 +1,25 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing DOCX document"]
+    i2["An existing DOC (Word 97-2003) document"]
+    i3["An existing RTF document"]
+    i4["An existing Markdown file"]
+    i5["An existing plain-text file"]
+  end
+  PRODUCT["Aspose.Words FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction TB
+    c1["Load and parse DOC, DOCX, RTF, Markdown, and plain-text documents"]
+    c2["DOCX round-trip editing via the Light Document Model"]
+    c3["Markdown export with configurable headings, lists, and tables"]
+    c4["PDF export via a built-in paragraph, table, and shape renderer"]
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["DOCX documents"]
+    o2["Markdown files"]
+    o3["PDF documents"]
+    o4["Plain text"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

@@ -1,0 +1,12 @@
+#!/bin/bash
+export MSYS_NO_PATHCONV=1
+SP="<scratch>"
+clone=Aspose.PDF-FOSS-for-Cpp
+head=$(git -C "$SP/clones/$clone" rev-parse HEAD)
+{
+echo "# repository clone: $clone"; echo "# head: $head"; echo "# utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo "# image: gcc:14"
+echo "# commands (README 'Build and test' path): cmake -S . -B build && cmake --build build -j4 && ctest --test-dir build"
+docker run --rm -v "$SP/clones/$clone:/src:ro" gcc:14 bash -c "apt-get update -qq >/dev/null 2>&1; apt-get install -y -qq cmake ninja-build python3 >/dev/null 2>&1; cp -r /src /w && cd /w && g++ --version | head -1 && cmake --version | head -1 && cmake -S . -B build > /tmp/cfg.txt 2>&1; echo configure-exit=\$?; tail -4 /tmp/cfg.txt; cmake --build build -j4 > /tmp/build.txt 2>&1; echo build-exit=\$?; tail -4 /tmp/build.txt; grep -c 'error' /tmp/build.txt | sed 's/^/error-lines: /'; ctest --test-dir build --output-on-failure -j4 2>&1 | tail -6"
+echo "# end $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+} > "$SP/full/pdfcpp_build.txt" 2>&1
+echo done > "$SP/full/pdfcpp_build_done.txt"

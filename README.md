@@ -30,7 +30,7 @@ today; [`project/state.yaml`](project/state.yaml) is the one live cursor and win
 | Accepted gates | `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UNDER_CHANGE` |
 | Current gate | `G3_PYTHON_COHORT` (READY) |
 | Active work item | `G4-W17` — landing shared-code fixes from the lane agents, and resealing candidates they invalidate |
-| Progress | **28 of 36** registry repositories hold a current, reviewable, no-op-proven candidate (29 ever sealed; 5 registry entries have no bundle yet; 2 are disabled) |
+| Progress | **0 of 44** registry repositories hold a current, independently accepted, no-op-proven candidate (30 ever sealed, 1 current-code reproducible; 14 registry entries have no bundle yet; 2 are disabled; the denominator is the registry size) |
 | Pending update | 1 candidate (`Aspose.Slides-FOSS-for-Java`) is `VALID_UPDATE_AVAILABLE`: still valid, update not yet re-sealed |
 | Independent acceptance | 0 candidates — the 30-point acceptance profile is still advisory, not ratified (`G3-W02`) |
 | Pull requests against target repos | **None opened yet.** The proposal path is built and gated; its first live proof is open (see below) |
@@ -75,7 +75,7 @@ GitHub token — see [Configuration](#configuration) and the [Example](#example)
 
 | Term | Meaning |
 |---|---|
-| **Registry** | [`data/registry.json`](data/registry.json): the hard allow-list of admitted repositories (36 entries across 15 `aspose-*-foss` organizations; Python 13, .NET 9, Java 4, C++ 4, TypeScript 3, Go 2, Rust 1). Nothing outside it is ever reached. |
+| **Registry** | [`data/registry.json`](data/registry.json): the hard allow-list of admitted repositories (44 entries across 15 `aspose-*-foss` organizations; Python 14, .NET 10, Java 5, C++ 5, TypeScript 4, Go 3, Rust 2, Node.js 1). Nothing outside it is ever reached. |
 | **Mode** | Per registry entry: `dry_run` (analyze and seal locally, can never write), `full` (may propose, if separately authorized), or `disabled`. |
 | **Facts** | Deterministic, provenance-bound claims extracted from an immutable upstream revision. Every public README claim must map to one. |
 | **Candidate / bundle** | A proposed README plus the content-addressed evidence that justifies it, under `candidates/<owner>__<name>/<revision>/`; `CURRENT` points at the live one. |
@@ -86,7 +86,7 @@ GitHub token — see [Configuration](#configuration) and the [Example](#example)
 | **Handoff** | A local, evidence-backed record of a genuine upstream product defect, which may become a GitHub issue (gated). |
 | **`BLOCKED_EXTERNAL` / `FAILED_INTERNAL`** | Blocker classes: something only an owner can supply, versus a defect in this code. The second is never an acceptable stopping point. |
 
-The unit of progress is one: **authorizable candidates, N/36** (independent acceptance review
+The unit of progress is one: **authorizable candidates, N/44** (independent acceptance review
 passed and not worse than the live README; sealed counts are reported alongside, not as progress).
 Code volume, plans, and evidence files are supporting work, not progress.
 
@@ -119,9 +119,12 @@ badges, diagram topology, identifiers, validation, every state transition, and e
 - **Placeholder repositories** (README/license only) return `insufficient_evidence`; no candidate
   is fabricated.
 
-The sealed README's shape and its blocking checks are specified in
-[`docs/README_CONTRACT.md`](docs/README_CONTRACT.md). Full runtime design (scheduling, proposal,
-effect authorization) is in [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md); build order is in
+A README's structure, composition, links and tone are specified in
+[`docs/README_STANDARD.md`](docs/README_STANDARD.md) (the live upstream README is the authority);
+its assembly and blocking checks stay in the legacy encoding
+[`docs/README_CONTRACT.md`](docs/README_CONTRACT.md) until the gates migrate. Full runtime design
+(scheduling, proposal, effect authorization) is in [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md);
+build order is in
 [`docs/EXECUTION_STATE_MACHINE.md`](docs/EXECUTION_STATE_MACHINE.md).
 
 ## Repository map
@@ -179,7 +182,7 @@ families through registries rather than central `if/elif` chains.
 |---|---|
 | Snapshot → facts → investigation → reconciliation → planning → composition → validation → independent review → repair → seal | **Built**; 28 current sealed candidates |
 | Deterministic Markdown renderer; the LLM never writes the final document | **Built** |
-| Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript) with pinned per-language tree-sitter wheels (no parser is downloaded at run time) | **Built**; sealed candidates exist for all seven |
+| Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript, Node.js) with pinned per-language tree-sitter wheels (no parser is downloaded at run time) | **Built**; sealed candidates exist for the first seven; Node.js (read through the TypeScript grammar) has no sealed candidate yet |
 | Safety: pinned, read-only, push-neutered clones; secret-canary scan before sealing | **Built** |
 | Durable state (content-addressed storage, leases, fencing tokens, recovery) | **Built** (`core/state/`) |
 | Drift monitoring (`monitor`) and unattended sealing plan (`sealing-plan`) | **Built**; the scheduled path is not yet proven by a real cron-fired run |
@@ -226,9 +229,10 @@ This section is a map, not the rules — the rules live in [`AGENTS.md`](AGENTS.
 1. [`project/state.yaml`](project/state.yaml) — the only live cursor (it is large; read it in
    sections, or run `repository-presenter status` first).
 2. The current gate in [`docs/EXECUTION_STATE_MACHINE.md`](docs/EXECUTION_STATE_MACHINE.md).
-3. [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md) for runtime behavior, and
-   [`docs/README_CONTRACT.md`](docs/README_CONTRACT.md) when touching facts, composition,
-   validation, or review.
+3. [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md) for runtime behavior;
+   [`docs/README_STANDARD.md`](docs/README_STANDARD.md) for a README's structure, composition, links
+   and tone, and [`docs/README_CONTRACT.md`](docs/README_CONTRACT.md) for assembly and checks, when
+   touching facts, composition, validation, or review.
 4. [`docs/RESEARCH_AND_GUIDELINES.md`](docs/RESEARCH_AND_GUIDELINES.md) and
    [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) (§31) for context and recent decisions.
 5. [`plans/idea.md`](plans/idea.md) — the product outcome standard; never a task list.
@@ -241,7 +245,8 @@ This section is a map, not the rules — the rules live in [`AGENTS.md`](AGENTS.
 | Agent conduct and safety | `AGENTS.md` |
 | Build order, gate acceptance | `docs/EXECUTION_STATE_MACHINE.md` |
 | Runtime behavior | `docs/STATE_MACHINE.md` |
-| README shape and blocking checks | `docs/README_CONTRACT.md` |
+| README structure, composition, links, tone | `docs/README_STANDARD.md` |
+| README assembly and blocking checks (legacy encoding until the gates migrate) | `docs/README_CONTRACT.md` |
 | File placement | `docs/REPOSITORY_LAYOUT.md` |
 | Current implementation status | `project/state.yaml` |
 | Legacy reuse | `migration/reuse-manifest.yaml` |
@@ -311,6 +316,7 @@ repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
 repository-presenter monitor-install-record --owner OWNER --outcome {success,failure} --repositories NAMES --out PATH
 repository-presenter monitor-install-summary DIR [--summary PATH]
 repository-presenter monitor-drift-contract DIR --out PATH
+repository-presenter registry-gaps [--root PATH] [--owner OWNER] [--json] [--from PATH] [--out PATH] [--summary PATH] [--warn-only]
 repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remote REMOTE]
   [--wall-clock-seconds N] [--provider-calls N] [--max-wall-clock-seconds N]
   [--max-provider-calls N] [--stale-after-hours N]
@@ -322,7 +328,9 @@ repository-presenter issue-readiness [--root PATH] [--repo OWNER/NAME] [--approv
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
 repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
-repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N]
+repository-presenter propose --repo OWNER/NAME --correction-bundle DIR [--require-sums] [--sandbox] [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]   # propose a correction bundle through its typed gate
+repository-presenter correct-readme --repo OWNER/NAME --out DIR [--root PATH] [--facts PATH] [--sandbox]
+repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N] [--correction-bundle DIR] [--sandbox]
 repository-presenter wave-readiness [--root PATH] [--repo OWNER/NAME] [--offline] [--authorize OWNER/NAME@HASH] [--authorize-file PATH] [--emit-records DIR --approver NAME --expires-at TIME [--issued-at TIME]]
 repository-presenter publish-candidates --repo OWNER/NAME --import-dir PATH [--root PATH] [--control-repo OWNER/NAME] [--base-branch NAME] [--publish]
 repository-presenter sealing-plan [--root PATH] [--drift-file PATH] [--history-file PATH] [--github-output PATH]
@@ -422,6 +430,8 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   for the handoff's fingerprint marker (so a fresh checkout cannot file a duplicate), rechecks that
   the defect still fires, and refuses on any inconclusive result. A handoff whose status is not
   `HANDOFF_PENDING` is skipped outright.
+- **`correct-readme`** — Lane L (live-first, owner decision D1): reads the live upstream README at the pinned revision and writes into `--out` a correction bundle of small, verified edits (`README.md`, `README.original.md`, `README.patch`, `corrections.json`, `validation_delta.json`, `manifest.json`), or a typed status when there is nothing to patch (`no_live_readme`, `insufficient_evidence`). It makes no model call, every edit cites the facts that justify it and the bytes outside the listed edits are unchanged, and a candidate edit that cannot be verified is listed under `report_only`, never applied. `--facts` supplies a `facts.json` for exactly the registry head's revision. The bundle is not a sealed candidate and never lands under `candidates/`; `propose --correction-bundle DIR` re-derives it through the same checks and the same authorization as a sealed README before any pull request.
+- **`registry-gaps`** — read-only reconciliation of the registry's organizations against the registry itself: lists every repository in an admitted organization as registered, unregistered (a candidate for the owner's admission decision), excluded by policy (`data/registry_exclusions.json`) or missing upstream. `--from` reads a saved monitor/listing document instead of GitHub, `--warn-only` never fails the run. It never admits anything: the registry stays a hard allow-list. `status --discovery` / `--no-discovery` / `--verbose` report the same result on the `registry:` line from recorded evidence (offline); `monitor --no-discovery` leaves the section out of the drift document.
 - **`issue-funnel`** — read-only count of the issue handoffs by stage (pending, approved, filed, resolved) from `evidence/upstream-defects/` and the approval records; `--max-pending-days` annotates a handoff that has waited longer, and `--fail-on-alert` turns any annotation into a non-zero exit (a warning otherwise).
 - **`file-upstream-defects` pacing** — `--daily-cap`, `--open-cap` and `--pace-seconds` bound how many issues one run may file per repository, how many presenter issues may stay open per repository, and the pause between two writes; `--with-updates` also posts the evidence-change update comments (it needs the comments switch above).
 - **`issue-readiness`** — read-only report of every `evidence/upstream-defects/` handoff and what
@@ -475,6 +485,18 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   `ops/proposal-authorizations/` (`--expires-in-hours` sets its window, at most 168;
   `--supersedes-pr N` explicitly permits a re-proposal after that merged or closed PR). Drafting
   authorizes nothing: the record counts only once a person has merged it.
+- **`correct-readme --repo OWNER/NAME --out DIR`** — writes a correction bundle for the repository's
+  live README at the registry head: only edits its facts dictate, no model call, no write to the
+  target. `propose --correction-bundle DIR` proposes that bundle's corrected README behind the typed
+  correction gate (every other `propose` gate is shared), and `draft-proposal-authorization
+  --correction-bundle DIR` drafts its record. `--sandbox` on these three commands reads the sandbox
+  allow-list `data/registry_sandbox.json` (the owner's throwaway canary repository, correction
+  proposals only) instead of the production registry, which it never consults or changes
+  (`docs/PROPOSAL_WAVE_RUNBOOK.md` section 9). `--require-sums` is what the hosted `propose.yml`
+  correction mode passes: the bundle is a committed `corrections/<run>/<slug>/` (assembled by
+  `tools/corrections/assemble.py`), and the command refuses unless its `SHA256SUMS` verifies over
+  exactly the committed files and its `PULL_REQUEST.md` is the text the run would post
+  (`docs/OPERATIONS_RUNBOOK.md` section 12).
 - **`wave-readiness`** — the operator view of a proposal wave (G6-W03,
   `docs/PROPOSAL_WAVE_RUNBOOK.md`). Read-only: prints, per sealed `READY_FOR_PROPOSAL` candidate (or
   each `--repo`), the registry mode, candidate hash, whether its sealed revision is still the live
@@ -566,7 +588,8 @@ Full rules are in [`AGENTS.md`](AGENTS.md)'s "Security and Effects" section; the
 | Agent conduct, safety, work loop | [`AGENTS.md`](AGENTS.md) |
 | Build order, gates, acceptance | [`docs/EXECUTION_STATE_MACHINE.md`](docs/EXECUTION_STATE_MACHINE.md) |
 | Production runtime behavior | [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md) |
-| Candidate README shape, assembly, agentic decisions, blocking checks | [`docs/README_CONTRACT.md`](docs/README_CONTRACT.md) |
+| README structure, composition, links, tone | [`docs/README_STANDARD.md`](docs/README_STANDARD.md) |
+| README assembly, agentic decisions, blocking checks (legacy encoding until the gates migrate) | [`docs/README_CONTRACT.md`](docs/README_CONTRACT.md) |
 | Where a file lives | [`docs/REPOSITORY_LAYOUT.md`](docs/REPOSITORY_LAYOUT.md) |
 | Session supervision: supervisor, lane agents, monitors, liveness | [`docs/SUPERVISION.md`](docs/SUPERVISION.md) |
 | Research record and design reasoning | [`docs/RESEARCH_AND_GUIDELINES.md`](docs/RESEARCH_AND_GUIDELINES.md) |

@@ -1,0 +1,88 @@
+import sys, shutil, os
+sys.path.insert(0, r"<scratch>")
+from vlib import *
+WORK = SP / "work"
+which = sys.argv[1:]
+
+PROBE = '''using System;
+using System.Linq;
+using System.Reflection;
+using Aspose.ThreeD;
+using Aspose.ThreeD.Entities;
+
+var fields = typeof(FileFormat).GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.FieldType == typeof(FileFormat)).OrderBy(f => f.Name).ToList();
+int ok = 0, fail = 0;
+foreach (var f in fields)
+{
+    var fmt = (FileFormat)f.GetValue(null);
+    var scene = new Scene();
+    scene.RootNode.CreateChildNode("Box", new Box(2, 2, 2));
+    var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "fmt_probe" + fmt.Extension);
+    try { scene.Save(path, fmt); ok++; Console.WriteLine($"ok   {f.Name}"); }
+    catch (NotImplementedException e) { fail++; Console.WriteLine($"FAIL {f.Name,-22} {e.Message}"); }
+}
+Console.WriteLine($"constants={fields.Count} saved_ok={ok} NotImplementedException={fail}");
+
+foreach (var ext in new[] { ".stl", ".obj", ".gltf", ".glb", ".fbx", ".dae", ".ply", ".3mf", ".3ds" })
+{
+    var scene = new Scene();
+    scene.RootNode.CreateChildNode("Box", new Box(2, 2, 2));
+    var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ext_probe" + ext);
+    try { scene.Save(path); Console.WriteLine($"Save(path *{ext}) ok {new System.IO.FileInfo(path).Length} bytes"); }
+    catch (Exception e) { Console.WriteLine($"Save(path *{ext}) {e.GetType().Name}"); }
+}
+'''
+
+CSPROJ = '''<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="{ref}" />
+  </ItemGroup>
+</Project>
+'''
+
+
+def case_3dnet_formats():
+    clone = "Aspose.3D-FOSS-for-.NET"
+    ref = str(CLONES / clone / "src/main/Aspose.ThreeD/Aspose.ThreeD.csproj")
+    w = WORK / "3dnet_probe"
+    shutil.rmtree(w, ignore_errors=True)
+    w.mkdir()
+    (w / "p.csproj").write_text(CSPROJ.replace("{ref}", ref))
+    (w / "Program.cs").write_text(PROBE)
+    L = Log("formats-probe-3D-NET", clone)
+    L.say("Program.cs (probe) = loop over the public static FileFormat fields, then Save(path) by extension:")
+    L.parts.append(PROBE)
+    L.run("grep -n 'public static FileFormat Discreet3DS\\|Discreet3DS = \\|public virtual Formats.SaveOptions CreateSaveOptions' src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs")
+    L.run("sed -n 425,429p src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs")
+    L.run("dotnet run > run.txt 2>&1; grep -v warning run.txt | grep -v '^ *$' | grep -E '^(ok|FAIL|constants|Save)' | cut -c1-150", cwd=w, timeout=900, max_lines=80)
+    L.save()
+
+
+def case_npm():
+    L = Log("npm-registry-3D-TS", "Aspose.3D-FOSS-for-TypeScript")
+    L.run("curl -s -o /dev/null -w '%{http_code}\\n' 'https://registry.npmjs.org/@aspose%2f3d'")
+    L.run("grep -n '\"name\"' package.json | head -2; grep -n -i 'no published package' README.md | cut -c1-200")
+    L.save()
+    L = Log("npm-registry-PDF-TS", "Aspose.PDF-FOSS-for-TypeScript")
+    L.run("curl -s -o /dev/null -w '%{http_code}\\n' 'https://registry.npmjs.org/@asposefoss%2fpdf'")
+    L.run("grep -n '\"name\"' package.json | head -2; grep -n -i 'npm install\\|git clone' README.md | head -4 | cut -c1-200")
+    L.save()
+
+
+def case_imaging():
+    L = Log("imaging-readme-Imaging-NET", "Aspose.Imaging-FOSS-for-.NET")
+    L.run("grep -n -i 'dotnet add\\|nuget.org\\|Aspose.Imaging.Foss' README.md | head -6 | cut -c1-200; echo grep-exit=$?")
+    L.run("git log -1 --format='%h %ad %s' --date=short")
+    L.save()
+
+
+if __name__ == "__main__":
+    for name in which:
+        globals()["case_" + name]()
+    print("done", which)

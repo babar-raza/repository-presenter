@@ -27,7 +27,6 @@ from repository_presenter.components.readme.repair.rounds import (
     _refuse_noop,
     _reject_insufficient_visible_line_overage,
     _reject_uncarried_units,
-    _reject_unlisted_items,
     _round_raw_calls,
     _second_opinion,
     _stage_target,
@@ -39,7 +38,7 @@ from repository_presenter.components.readme.review.independent.review import (
     review_document,
 )
 from repository_presenter.core.errors import JobError
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm.jobs import CallStore, JobResult
 from repository_presenter.core.llm.prompts import load_manifests
 from support import REPO_ROOT
@@ -159,6 +158,7 @@ _BLOCKING = {
     "quote": "",
     "fact_ids": [],
     "absent": [],
+    "unsupported_names": [],
     "omission": None,
     "repair": "Drop the claim.",
 }
@@ -533,73 +533,6 @@ def test_the_repair_stage_checks_refuse_a_dropped_must_carry_unit_with_its_sourc
     assert _reject_uncarried_units(None, no_carry_task)({"units": []}) == []
 
 
-def test_the_authoring_checks_refuse_a_kept_list_that_lost_an_item() -> None:
-    """_reject_unlisted_items layers list_coverage_errors onto a section_authoring check (the
-    initial draft and an S6 repair alike): a list kept as written owes every item (cut-2 BC-10
-    triage, cause 5). A section with no kept list gets its own check back unchanged."""
-    unit = "inherited_unit:131.list"
-    facts = FactsDocument(
-        "org/x",
-        "a" * 40,
-        (
-            Fact(
-                unit,
-                "inherited_unit",
-                "- **Resource optimization** - limited.\n- **Tagged PDF** - partial.",
-                (Evidence("README.md", None),),
-            ),
-        ),
-    )
-    dispositions = {
-        "dispositions": [
-            {
-                "unit_id": unit,
-                "disposition": "VERIFIED_PRESERVE",
-                "destination_section": "scope_limitations",
-                "fact_ids": [],
-                "rationale": "r",
-            }
-        ]
-    }
-    task = SectionTask(
-        "scope_limitations",
-        {},
-        frozenset({unit}),
-        ("limitation:1",),
-        slot_facts={"limitation:1": frozenset({unit})},
-    )
-
-    def own_check(_: dict[str, Any]) -> list[str]:
-        return ["own"]
-
-    guarded = _reject_unlisted_items(own_check, task, dispositions, facts)
-    dropped = {
-        "units": [
-            {
-                "slot": "limitation:1",
-                "fact_ids": [unit],
-                "text": "Resource optimization is limited.",
-            }
-        ],
-        "omitted": [],
-    }
-    errors = guarded(dropped)
-    assert errors[0] == "own" and "list_item_missing" in errors[1] and "Tagged PDF" in errors[1]
-    whole = {
-        "units": [
-            {
-                "slot": "limitation:1",
-                "fact_ids": [unit],
-                "text": "Resource optimization is limited and Tagged PDF support is partial.",
-            }
-        ],
-        "omitted": [],
-    }
-    assert guarded(whole) == ["own"]
-    elsewhere = SectionTask("opening", {}, frozenset(), ("opening",))
-    assert _reject_unlisted_items(own_check, elsewhere, dispositions, facts) is own_check
-
-
 class _RecordingStore:
     def __init__(self) -> None:
         self.puts: list[tuple[str, str, Any, dict[str, Any]]] = []
@@ -750,3 +683,16 @@ def test_the_source_reconciliation_call_passes_its_last_resort_recovery() -> Non
     assert "recover_uncited_prose_omits," in source and "facts=batch_facts," in source
     # the recovery may cite only what this batch's decoder enum offers (PDF-TypeScript 356)
     assert "citable=frozenset(" in source and "citable_fact_ids(" in source
+
+
+def test_the_section_authoring_call_passes_its_narrowed_ask() -> None:
+    """Wave 3: nine repositories ended at "output rejected twice". The narrowed ask for the slots
+    still refused (composition/authoring_retry.py) is a module with no production importer unless
+    run_round hands it to the S6 call - which also keeps the recovery composed in type_fallback."""
+    import inspect
+
+    from repository_presenter.components.readme.repair import rounds
+
+    source = inspect.getsource(rounds.run_round)
+    assert "narrow=authoring_narrowing(task, loaded)," in source
+    assert "recover_section_authoring_with_type_fallback," in source

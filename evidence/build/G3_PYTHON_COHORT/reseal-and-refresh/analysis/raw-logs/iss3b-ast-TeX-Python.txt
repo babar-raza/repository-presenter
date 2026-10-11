@@ -1,0 +1,36 @@
+# key: ast-TeX-Python
+# repository clone: Aspose.TeX-FOSS-for-Python
+# head: 181015d2eee3e19f8af3d84e4a932ac84ad47c7c
+# utc: 2026-10-11T17:55:53Z
+
+$ "<scratch>/venvs/tex/Scripts/python.exe" -I "<scratch>\work\astscan.py"
+[exit 0]
+all .py files: 119 unparsable: 102
+src/aspose_tex: 45 unparsable: 35
+[('run_hello.py', 'IndentationError', 66), ('src/aspose_tex/_engine/box_builder.py', 'IndentationError', 63), ('src/aspose_tex/_engine/box_primitives.py', 'IndentationError', 91)]
+
+$ "<scratch>/venvs/tex/Scripts/python.exe" -m pip install -q -e . 2>&1 | tail -3
+[exit 0]
+
+
+$ cd "<scratch>\work" && "<scratch>/venvs/tex/Scripts/python.exe" -c "import aspose_tex" 2>&1 | tail -7
+[exit 0]
+    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource
+  File "<scratch>\clones\Aspose.TeX-FOSS-for-Python\src\aspose_tex\_input\__init__.py", line 3, in <module>
+    from aspose_tex._input.catcode import Catcode, CatcodeTable
+  File "<scratch>\clones\Aspose.TeX-FOSS-for-Python\src\aspose_tex\_input\catcode.py", line 66
+    table[c] = Catcode.LETTER
+    ^^^^^
+IndentationError: expected an indented block after 'for' statement on line 65
+
+$ sed -n 60,68p src/aspose_tex/_input/catcode.py | cut -c1-90
+[exit 0]
+ table[35] = Catcode.PARAMETER # #
+ table[94] = Catcode.SUPERSCRIPT # ^
+ table[95] = Catcode.SUBSCRIPT # _
+ table[0] = Catcode.IGNORED # NUL
+ table[32] = Catcode.SPACE # space
+ for c in range(ord('a'), ord('z') + 1):
+ table[c] = Catcode.LETTER
+ for c in range(ord('A'), ord('Z') + 1):
+ table[c] = Catcode.LETTER

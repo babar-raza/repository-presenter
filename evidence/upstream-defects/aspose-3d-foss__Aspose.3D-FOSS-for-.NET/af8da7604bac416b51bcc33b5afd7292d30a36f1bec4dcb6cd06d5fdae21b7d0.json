@@ -10,29 +10,25 @@
   },
   "evidence": [
     {
+      "path": "src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs",
+      "detail": "lines 347-350: base CreateSaveOptions() throws NotImplementedException(\"Save options not implemented for {Extension}\"); line 370: only Discreet3DS is assigned a subclass instance"
+    },
+    {
+      "path": "src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs",
+      "detail": "line 427: Save(string fileName, FileFormat format) calls format.CreateSaveOptions()"
+    },
+    {
+      "path": "dotnet run (probe over the 45 public FileFormat fields; Scene with one Box; Save(path, format))",
+      "detail": "2026-10-11: saved_ok=1 (Discreet3DS), NotImplementedException=44; Save(path) by extension succeeds for .stl .obj .gltf .glb .fbx .dae .ply .3mf .3ds"
+    },
+    {
       "path": "README.md",
-      "detail": "lines 129-144, the Quick Start code block; line 143 is scene.Save(\"output.fbx\", FileFormat.FBX7400Binary) (revision 52b0f00ebf28a0b4173921725ff170685ec2c502; unchanged at the live head)"
-    },
-    {
-      "path": "dotnet run of a net10.0 console project (ProjectReference to src/main/Aspose.ThreeD/Aspose.ThreeD.csproj) containing README.md:130-143 verbatim",
-      "detail": "2026-10-10T15:37Z: Unhandled exception. System.NotImplementedException: Save options not implemented for .fbx at Aspose.ThreeD.FileFormat.CreateSaveOptions() in FileFormat.cs:line 349 at Aspose.ThreeD.Scene.Save(String fileName, FileFormat format) in Scene.cs:line 427"
-    },
-    {
-      "path": "same project with the second argument removed: scene.Save(\"output.fbx\")",
-      "detail": "2026-10-10T15:52Z: prints 'saved' and writes output.fbx (2185 bytes)"
-    },
-    {
-      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/quickstart-3D-NET.txt",
-      "detail": "raw command output of the reproduction"
-    },
-    {
-      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/quickstart-3D-NET-without-format.txt",
-      "detail": "raw command output of the control run"
+      "detail": "line 143: scene.Save(\"output.fbx\", FileFormat.FBX7400Binary); (revision 52b0f00ebf28a0b4173921725ff170685ec2c502; unchanged at the live head)"
     }
   ],
-  "claim": "At revision 52b0f00ebf28a0b4173921725ff170685ec2c502, the README Quick Start statement scene.Save(\"output.fbx\", FileFormat.FBX7400Binary) at line 143 throws System.NotImplementedException (\"Save options not implemented for .fbx\") from FileFormat.CreateSaveOptions(), whereas scene.Save(\"output.fbx\") without a format argument succeeds.",
-  "suggested_issue_title": "Aspose.3D FOSS for .NET: README Quick Start throws NotImplementedException in Scene.Save(path, FBX7400Binary)",
-  "suggested_issue_body": "Reproduced independently against the current default-branch head `52b0f00ebf28a0b4173921725ff170685ec2c502` on 2026-10-10.\n\n## Summary\n\nThe README Quick Start ends with `scene.Save(\"output.fbx\", FileFormat.FBX7400Binary);` (`README.md:143`). That call throws `NotImplementedException: Save options not implemented for .fbx`: `Scene.Save(string, FileFormat)` asks the `FileFormat` object for its save options (`Scene.cs:427`) and `FileFormat.CreateSaveOptions()` (`FileFormat.cs:349`) throws for it. Saving without the format argument works.\n\n## Environment\n\n- Revision `52b0f00ebf28a0b4173921725ff170685ec2c502` (default branch `main`)\n- .NET SDK 10.0.401, a net10.0 console project with a `ProjectReference` to `src/main/Aspose.ThreeD/Aspose.ThreeD.csproj`\n\n## Steps to reproduce\n\n`Program.cs` is `README.md:130-143` verbatim (the three `using` lines, the `Scene`/`LambertMaterial`/`Box` code and the final `scene.Save(\"output.fbx\", FileFormat.FBX7400Binary);`), then `dotnet run`.\n\n## Expected\n\nThe Quick Start saves `output.fbx` as the README shows.\n\n## Actual result\n\n```\nUnhandled exception. System.NotImplementedException: Save options not implemented for .fbx\n   at Aspose.ThreeD.FileFormat.CreateSaveOptions() in .../FileFormat.cs:line 349\n   at Aspose.ThreeD.Scene.Save(String fileName, FileFormat format) in .../Scene.cs:line 427\n```\n\nChanging the last statement to `scene.Save(\"output.fbx\");` prints `saved` and writes a 2185-byte `output.fbx`.\n\n## Where in the repository\n\n- `README.md:143`\n- `src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs:349`\n- `src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs:427`\n\n## Suggested fix\n\nEither make the `FileFormat.FBX7400Binary` constant (and the other format constants the README uses) return working save options, or change the README example to `scene.Save(\"output.fbx\")`.\n\n<!-- repository-presenter-defect: sha256:af8da7604bac416b51bcc33b5afd7292d30a36f1bec4dcb6cd06d5fdae21b7d0 -->\n",
+  "claim": "At revision 52b0f00ebf28a0b4173921725ff170685ec2c502, Scene.Save(path, FileFormat) throws NotImplementedException for 44 of the 45 public FileFormat constants because their CreateSaveOptions() is the base implementation, while Scene.Save(path) writes the same formats by extension.",
+  "suggested_issue_title": "Aspose.3D FOSS for .NET: Scene.Save(path, FileFormat) throws NotImplementedException for 44 of 45 FileFormat constants",
+  "suggested_issue_body": "## Summary\n\n`Scene.Save(string, FileFormat)` takes the save options from the `FileFormat` object it is given (`Scene.cs:427`). The public constants such as `FileFormat.STLBinary`, `FileFormat.WavefrontOBJ`, `FileFormat.GLTF2` and `FileFormat.FBX7400Binary` are plain `FileFormat` instances, and the base `FileFormat.CreateSaveOptions()` (`FileFormat.cs:347-350`) throws `NotImplementedException`. Of the 45 public `FileFormat` constants only `FileFormat.Discreet3DS` (assigned the `Discreet3DSFormat` instance at `FileFormat.cs:370`) saves; the other 44 throw. `Scene.Save(path)` without a format argument writes `.stl`, `.obj`, `.gltf`, `.glb`, `.fbx`, `.dae`, `.ply`, `.3mf` and `.3ds` files, so the format-specific save options exist. The README Quick Start ends with `scene.Save(\"output.fbx\", FileFormat.FBX7400Binary);` (README.md line 143) and hits the same exception.\n\n## Environment\n\n- Repository: aspose-3d-foss/Aspose.3D-FOSS-for-.NET\n- Revision: `52b0f00ebf28a0b4173921725ff170685ec2c502` (the upstream revision this report was verified against, default branch `main`)\n- Windows 11, .NET SDK 10.0.401, a net10.0 console project with a `ProjectReference` to `src/main/Aspose.ThreeD/Aspose.ThreeD.csproj`\n- Verified on 2026-10-11 from a fresh shallow clone.\n\n## Steps to reproduce\n\n```csharp\nusing Aspose.ThreeD;\nusing Aspose.ThreeD.Entities;\n\nvar scene = new Scene();\nscene.RootNode.CreateChildNode(\"Box\", new Box(2, 2, 2));\nscene.Save(\"output.stl\");                        // works\nscene.Save(\"output.stl\", FileFormat.STLBinary);  // throws\n```\n\n## Expected\n\n`Scene.Save(path, FileFormat.STLBinary)` writes the file, as `Scene.Save(path)` does for the same extension.\n\n## Actual\n\n```\nSystem.NotImplementedException: Save options not implemented for .stl\n   at Aspose.ThreeD.FileFormat.CreateSaveOptions() in FileFormat.cs:line 349\n   at Aspose.ThreeD.Scene.Save(String fileName, FileFormat format) in Scene.cs:line 427\n```\n\nCalling `Save(path, format)` for each of the 45 public `FileFormat` fields reports one success (`Discreet3DS`) and 44 `NotImplementedException`, among them `STLBinary`, `STLASCII`, `WavefrontOBJ`, `GLTF`, `GLTF2`, `GLTF2_Binary`, `Collada` and all `FBX*` versions.\n\n## Where in the repository\n\n- `src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs:347-350` (base `CreateSaveOptions`), `:59` onward (the constants), `:370` (`Discreet3DS`), `:394` and later (the format-specific overrides)\n- `src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs:425-428`\n- `README.md:143`\n\n## Suggested fix\n\nMake the public constants return the format-specific instances (for example `FileFormat.STLBinary` backed by `StlFormat`), or let the base `CreateSaveOptions()` map its content type and format type to the matching `SaveOptions`.\n\n<!-- repository-presenter-defect: sha256:af8da7604bac416b51bcc33b5afd7292d30a36f1bec4dcb6cd06d5fdae21b7d0 -->\n",
   "status": "HANDOFF_PENDING",
   "issue_ref": null,
   "close_reason": null

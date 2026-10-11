@@ -1,0 +1,16 @@
+# key: packaging-3D-TS
+# repository clone: Aspose.3D-FOSS-for-TypeScript
+# head: 66cb26df3b031f0bf6976d4e88dc89721983afa4
+# utc: 2026-10-11T18:32:16Z
+
+$ python "<scratch>/work/pkgjson.py"
+[exit 0]
+main: dist/index.js types: dist/index.d.ts
+dependencies: ['xmldom']
+devDependencies has adm-zip: True
+keys: ['name', 'version', 'description', 'main', 'types', 'scripts', 'keywords', 'author', 'license', 'devDependencies', 'dependencies']
+
+$ grep -n -F "require('adm-zip')" src/aspose/threed/formats/threemf/ThreeMfExporter.ts src/aspose/threed/formats/threemf/ThreeMfImporter.ts
+[exit 0]
+src/aspose/threed/formats/threemf/ThreeMfExporter.ts:162:        const zip = new (require('adm-zip'))();
+src/aspose/threed/formats/threemf/ThreeMfImporter.ts:53:            const AdmZip = require('adm-zip');

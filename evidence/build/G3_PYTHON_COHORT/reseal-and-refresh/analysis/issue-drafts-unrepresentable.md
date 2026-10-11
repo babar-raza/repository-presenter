@@ -369,3 +369,34 @@ with Document('tests/fixtures_4pages.pdf') as d: pass"` with stderr discarded.
 - **Expected:** the build exits 0, and the repository has a README and a LICENSE.
 - **Actual:** `Build FAILED.`, `369 Error(s)`, `45 Warning(s)`: CS0246 (type or namespace not found), CS0115, CS0534, CS0234, CS0535, CS0508, CS8937. Of 57 distinct unresolved type names, 41 are declared nowhere in the tracked sources: Axis, BursaWolfParameters, Dataset, Driver, Ellipsoid, Extent, GeoJsonLayer, GeoJsonOptions, GeocentricAxisesOrder, GeographicAxisesOrder, GeographicCrsEntry, GeographicDatum, GeographicDatumEntry, IAttributeIndex, IFeatureStyle, ILinearRing, ISpatialIndex, JoinByGeometryOptions, JoinOptions, LayerEvaluationRestrictions, LayerIndices, LocalDatum, MapInfoCoordinateValidationError, MapInfoCoordinateValidationException, NumericFormat, ParameterType, PointsSequence, Polygon, ProjectedAxisesOrder, Projection, ProjectionMethodIdentifier, Projections, Renderer, SavingOptions, ToWgs84Entry, TransformationError, VectorSymbolizer, VerticalDatum, WkbVariant, WktVariant, WrapAttributesConverter. The namespaces `Aspose.GIS.FOSS.Rendering.Symbolizers` and `Aspose.GIS.FOSS.Epsg` do not exist. Examples: `Aspose.GIS.FOSS\Geometries\IGeometry.cs(5,33): error CS0234: The type or namespace name 'Symbolizers' does not exist in the namespace 'Aspose.GIS.FOSS.Rendering'`; `Aspose.GIS.FOSS\SpatialReferencing\Internal\OgcEsriSrsTransformer.cs(6,23): error CS0234: The type or namespace name 'Epsg' does not exist in the namespace 'Aspose.GIS.FOSS'`; `Aspose.GIS.FOSS\Geometries\IPolygon.cs(38,7): error CS0246: The type or namespace name 'Polygon' could not be found`; `Aspose.GIS.FOSS\FileDriver.cs(346,16): error CS0246: The type or namespace name 'Dataset' could not be found`; `Aspose.GIS.FOSS\GeoJsonDriver.cs(18,30): error CS0115: 'GeoJsonDriver.SupportsSpatialReferenceSystem(SpatialReferenceSystem)': no suitable method found to override`. The head commit is titled "Second part", which suggests a partial import. `git ls-files` lists 114 files and none is named `README*` or `LICENSE*`; `gh api repos/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net --jq .license` returns `null`; `Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj` has no `PackageId`, `Version`, `Description`, `PackageLicenseExpression` or `RepositoryUrl`.
 - **Fix:** add the missing source files (or remove the references) so that `dotnet build` exits 0, then add a README, an OSI-approved LICENSE and package metadata. A CI job that builds on every push would catch this class of problem.
+
+---
+
+## Addendum 2026-10-11: re-verification at today's heads (lane iss3b, G6-W01)
+
+Every draft above was re-run by command today; the outputs are `raw-logs/iss3b-*.txt` and the decision for each is in
+`decisions/issue-approval-table-final.md`. What changed since the 2026-10-10 text:
+
+- **Now handoffs** (the `defect_class` registry landed): U01 to U05 and U51's licence half (`LICENSE_MISSING_ROOT`),
+  U51's missing README (`README_MISSING_OR_PLACEHOLDER`), U10 (`MANIFEST_PLACEHOLDER_METADATA`), U51's build failure,
+  U27, U35, U36, U37, U18 and U08 (build, install and test failures), U34 (the earlier package-metadata handoff).
+  Their text lives in `evidence/upstream-defects/`, not here.
+- **Superseded by provenance**: U41, U20 and the README half of U48 are README text the presenter's own pull requests
+  wrote (README-CORRECTION, not issues). U43's README lines are the presenter's too; its `docs/limitations.md` versus
+  `docs/conversion.md` contradiction is the maintainers' and stays a FILE row.
+- **Duplicates of the owner's open issues**: the PSD-.NET licence finding (open #5, noted in U10) and the PSD-Python
+  licence finding (open #4, noted in U11) are not re-drafted.
+- **U11 (PSD-Python)**: the README is no longer a two-line placeholder (the presenter's PR #5 merged on 2026-10-10,
+  `dbc90f46`); the missing `pyproject.toml` and the empty `__init__.py` still hold.
+- **U14, U15, U16, U17 (Cells-Python)**: the head moved to `952317ca` (three maintainer commits on 2026-10-11, Python
+  floor 3.7 to 3.10, wheel 26.10.0). U14, U16 and U17 reproduce unchanged; U15 now fails one example test
+  (`test_xlsx_to_markdown`), the JSON one passes. The wheel top-level entries are `aspose` (73) and `examples` (33).
+- **U38 (Page-Python)**: reproduced with fastmcp 4.1.0 using `PYTHONPATH=src` (the package itself cannot be installed
+  from a fresh clone, see the new Page-Python install handoff). The README "Run the MCP Server" example is the
+  presenter's own and calls `server.run(host=..., port=...)` directly, so it needs a correction of its own.
+- **U06 (3D-TypeScript)**: `adm-zip` is confirmed to be in `devDependencies` only while `ThreeMfExporter.ts:162` and
+  `ThreeMfImporter.ts:53` require it at run time; `require('.')` fails with `Cannot find module '.../dist/index.js'`.
+- **U33, U46, U47**: still disclosed upstream (README.md:587, SECURITY.md:11, README.md:134); Central still serves only
+  26.5.0 and 26.7.0, PyPI 26.8.0 still lacks `Hyperlink`.
+- **Not defects**: the JMAP repositories (unpublished by their own statement, CI green), PDF-Cpp's CMake configure
+  (builds and passes its test on gcc 14.4), the Email-Python `msg_path` excerpt.

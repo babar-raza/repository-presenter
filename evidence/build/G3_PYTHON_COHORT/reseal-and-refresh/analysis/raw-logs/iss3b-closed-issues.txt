@@ -1,0 +1,6 @@
+# closed issues per repository (read 2026-10-11, gh api GET); repositories with none are omitted
+aspose-note-foss/Aspose.Note-FOSS-for-Python | #1 | Titles are empty | adoebber | 2026-01-20 -> 2026-03-20 completed
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go | #5 | OpenStreamWithPassword accepts any password without error for compressed xref streams — pa | tylerl-vipre | 2026-09-22 -> 2026-09-29 completed
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go | #2 | `Open` returns a zero-page document when `/Kids` is an indirect reference | raf555 | 2026-09-20 -> 2026-09-29 completed
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp | #2 | how to set a table's font size? | Uradouby | 2026-06-30 -> 2026-06-30 completed
+aspose-words-foss/Aspose.Words-FOSS-for-Python | #1 | Was able to install from GitHub but not PIP | MathAtAz | 2026-05-20 -> 2026-05-21 completed

@@ -38,9 +38,11 @@ from repository_presenter.core.state.schema import (
 from support import (
     REPO_ROOT,
     FakeDefaultBranchReader,
+    FakeOrganizationLister,
     commit_all,
     distinct_process_identities,
     init_git_repository,
+    mirror,
     mock_gateway,
     monitor_registry_entry,
     write_bundle,
@@ -1156,9 +1158,9 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "2" and dependencies["components"] == {
         "shell": "6",
-        "renderer": "32",
-        "normalisation": "34",
-        "reviewer_logic": "19",
+        "renderer": "33",
+        "normalisation": "35",
+        "reviewer_logic": "20",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
@@ -1534,6 +1536,7 @@ def _rejection(label: str, quote: str = OPENING_QUOTE) -> dict[str, Any]:
                 "quote": quote,
                 "fact_ids": ["identity:repository"],
                 "absent": [],
+                "unsupported_names": [],
                 "omission": None,
                 "repair": "Name the developers concretely.",
             }
@@ -1806,6 +1809,7 @@ def _scope_rejection(label: str = "F01") -> dict[str, Any]:
                 "quote": SCOPE_QUOTE,
                 "fact_ids": ["identity:repository"],
                 "absent": [],
+                "unsupported_names": [],
                 "omission": None,
                 "repair": "Add a bullet for the GLB-only export limitation.",
             }
@@ -1874,6 +1878,7 @@ def _presentation_rejection(label: str = "F01") -> dict[str, Any]:
                 "quote": SCOPE_QUOTE,
                 "fact_ids": [],
                 "absent": [],
+                "unsupported_names": [],
                 "omission": None,
                 "repair": "Restore the original level of detail.",
             }
@@ -2986,6 +2991,7 @@ def test_an_injected_preservation_defect_is_repaired_at_reconciling(
         "quote": OPENING_QUOTE,
         "fact_ids": ["inherited_unit:002.paragraph"],
         "absent": [],
+        "unsupported_names": [],
         "omission": None,
         "repair": "Preserve the inherited paragraph where a visitor finds it.",
     }
@@ -3076,6 +3082,7 @@ def test_an_s4_repair_may_declare_only_the_unit_its_own_change_touched(
         "quote": OPENING_QUOTE,
         "fact_ids": ["inherited_unit:002.paragraph"],
         "absent": [],
+        "unsupported_names": [],
         "omission": None,
         "repair": "Preserve the inherited paragraph where a visitor finds it.",
     }
@@ -3294,6 +3301,16 @@ def monitor_root(project: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         ],
     }
     (project / "data" / "registry.json").write_text(json.dumps(payload), encoding="utf-8")
+    # Registry discovery rides on the monitor run: its organization lister is replaced too, and it
+    # lists exactly the admitted repositories (tests/test_cli_registry_gaps.py covers the findings).
+    shutil.copy(
+        REPO_ROOT / "data" / "registry_exclusions.json",
+        project / "data" / "registry_exclusions.json",
+    )
+    admitted = load_registry(project / "data" / "registry.json").entries
+    monkeypatch.setattr(
+        cli, "list_organization_repositories", FakeOrganizationLister(mirror(admitted))
+    )
     write_bundle(
         project,
         "aspose-3d-foss__Aspose.3D-FOSS-for-Python",

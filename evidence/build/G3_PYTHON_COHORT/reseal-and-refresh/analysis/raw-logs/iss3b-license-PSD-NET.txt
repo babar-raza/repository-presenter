@@ -1,0 +1,25 @@
+# key: license-PSD-NET
+# repository clone: Aspose.PSD-FOSS-for-.NET
+# head: 85ed7eec7c801d8b5c97aa099f018d3b98df2981
+# utc: 2026-10-11T17:48:33Z
+
+$ git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$'; echo root-match-exit=$?
+[exit 0]
+root-match-exit=1
+
+$ git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)' | head -8
+[exit 0]
+
+
+$ gh api repos/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET --jq '"license=" + (.license|tostring)'
+[exit 0]
+license=null
+
+$ grep -n -i -E 'licen[sc]e|MIT' src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj | head -5
+[exit 0]
+15:    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+$ gh api 'repos/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET/issues?state=open&per_page=100' --jq '.[] | "#\(.number) \(.title)"'; echo open-issues-listed
+[exit 0]
+#5 Add a LICENSE file and merge real source to main
+open-issues-listed

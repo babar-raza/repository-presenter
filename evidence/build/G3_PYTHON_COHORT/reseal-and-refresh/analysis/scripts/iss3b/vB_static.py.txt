@@ -1,0 +1,152 @@
+import sys
+sys.path.insert(0, r"<scratch>")
+from vlib import *
+
+def case(key, clone, cmds, gh=False, note=""):
+    L = Log(key, clone, note)
+    for c in cmds:
+        L.run(c, gh=gh or ("gh api" in c) or False)
+    L.save()
+
+# U09 GIS committed obj/
+case("hygiene-GIS", "Aspose.GIS.FOSS-for-.Net", [
+ "git ls-files | grep -c '/obj/'",
+ "git ls-files | grep '/obj/' | head -16",
+ "grep -n -E '^(obj|bin)' .gitignore; echo gitignore-grep-exit=$?",
+ "ls -a | head -30",
+])
+# U10 PSD-NET placeholders
+case("placeholders-PSD-NET", "Aspose.PSD-FOSS-for-.NET", [
+ "grep -n -E '<(Authors|PackageProjectUrl|RepositoryUrl|GeneratePackageOnBuild)>' src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj",
+ "curl -s -o /dev/null -w '%{http_code}\n' https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET",
+ "curl -s -o /dev/null -w '%{http_code}\n' https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET",
+])
+# U11-U13 PSD-Python
+case("psdpy-structure", "Aspose.PSD-FOSS-for-Python", [
+ "ls",
+ "git ls-files | head -5; git ls-files | wc -l",
+ "ls pyproject.toml setup.py setup.cfg 2>&1 | head",
+ "wc -c README.md; cat README.md | head -20",
+ "wc -l aspose_psd_foss/__init__.py",
+ "git ls-files | grep '/obj/'",
+ "git log -3 --format='%h %ad %s' --date=short",
+])
+# U17 Cells-Python urls
+case("urls-Cells-Python", "Aspose.Cells-FOSS-for-Python", [
+ "grep -n -A6 'project.urls' pyproject.toml",
+ "curl -s -o /dev/null -w '%{http_code} %{url_effective}\n' -L https://github.com/aspose-cells-foss/aspose-cells-python",
+ "git log -3 --format='%h %ad %s' --date=short",
+])
+# U20 Cells-Rust README
+case("notests-Cells-Rust", "Aspose.Cells-FOSS-for-Rust", [
+ "grep -n -i 'once the repository is live' README.md",
+ "git ls-files tests | wc -l",
+ "git grep -n -E '#\[(test|cfg\(test\))' -- '*.rs' | wc -l",
+ "grep -n 'cargo test\|cargo bench' .github/workflows/*.yml",
+])
+# U21/U22 Cells-Java
+case("javadoc-Cells-Java", "Aspose.Cells-FOSS-for-Java", [
+ "grep -o '<title>[^<]*' docs/apidocs/index.html | head -2",
+ "grep -o 'content=\"0;[^\"]*' docs/apidocs/index.html | head -2",
+ "git ls-files docs/apidocs/com/aspose/cells_foss | wc -l",
+ "ls src/main/java/org/aspose",
+ "grep -n -m3 '<groupId>\|<artifactId>\|<version>' pom.xml",
+ "grep -n 'apidocs' README.md | head -4",
+ "grep -n 'â€' pom.xml | head -3",
+ "grep -n '鈫' Agents.md | head -3",
+])
+# U23 Cells-Cpp tests README
+case("paths-Cells-Cpp-tests-readme", "Aspose.Cells-FOSS-for-Cpp", [
+ "grep -n workspace Aspose.Cells.Foss.Cpp.Tests/README.md",
+ "ls -d workspace 2>&1",
+ "git ls-tree --name-only HEAD",
+])
+# U24 Email-Cpp
+case("paths-Email-Cpp", "Aspose.Email-FOSS-for-Cpp", [
+ "grep -n 'cpp/' examples/README.md",
+ "ls -d cpp 2>&1",
+ "git ls-files CMakeLists.txt CMakePresets.json",
+])
+# U25/U26 Email-NET
+case("paths-Email-NET", "Aspose.Email-FOSS-for-.Net", [
+ "grep -n 'csharp/' examples/README.md",
+ "ls -d csharp 2>&1",
+ "git ls-files 'examples/*.csproj'",
+])
+case("nuget-Email-NET", "Aspose.Email-FOSS-for-.Net", [
+ "grep -rn '<Version>' --include=*.csproj .",
+ "grep -n -m3 '^## \[' CHANGELOG.md",
+ "curl -s https://api.nuget.org/v3-flatcontainer/aspose.email.foss/index.json",
+ "grep -n PackageReference README.md",
+])
+# U28/U29 3D-NET
+case("hygiene-3D-NET", "Aspose.3D-FOSS-for-.NET", [
+ "git ls-files | grep -E '\.(log|bak)$'",
+ "grep -n -E 'log|bak' .gitignore; echo gitignore-grep-exit=$?",
+ "grep -n -m2 '<Version>' src/main/Aspose.ThreeD/Aspose.ThreeD.csproj",
+ "curl -s https://api.nuget.org/v3-flatcontainer/aspose.3d.foss/index.json",
+ "grep -n -m3 '26.2.0' AGENTS.md docs/release-26.2.0.md",
+])
+# U30-U32 3D-Java
+case("fileformats-3D-Java", "Aspose.3D-FOSS-for-Java", [
+ "grep -n -i -E '^#+ .*(gltf|fbx)' FILE_FORMATS.md",
+ "ls .github/workflows",
+ "grep -n 'mvn' .github/workflows/*.yml",
+ "grep -n -i 'upstream issues' README.md",
+ "git grep -n -i 'upstream' -- '*.md' | head -8",
+])
+# U40 Words-NET
+case("nuget-Words-NET", "Aspose.Words-FOSS-for-.NET", [
+ "git show HEAD:README.md | grep -n -i 'landing soon'",
+ "curl -s https://api.nuget.org/v3-flatcontainer/aspose.words.foss/index.json",
+ "git show HEAD:README.md | grep -n -E 'all (615|617)|(615|617) (public )?types'",
+])
+# U41/U42 Cells-Go
+case("stale-Cells-Go", "Aspose.Cells-FOSS-for-Go", [
+ "sed -n '59p;83,84p' README.md",
+ "grep -o -E 'case \"[A-Z]+\"' aspose/cells_foss/formula_engine.go | sort -u | tr '\n' ' '",
+ "for s in AddChart AddPivotTable AddConditionalFormatting SetVBAProject; do echo $s: $(grep -c $s README.md); done",
+ "sed -n 105p README.md",
+ "git ls-files 'examples/outputfiles/*'",
+ "grep -n 'outputfiles' .gitignore AGENTS.md",
+])
+# U43 PDF-Java
+case("limitations-PDF-Java", "Aspose.PDF-FOSS-for-Java", [
+ "sed -n 1608,1611p README.md",
+ "sed -n 16p docs/limitations.md",
+ "sed -n 3p docs/conversion.md",
+ "grep -n -E '^    (Xlsx|Excel|Markdown)' src/main/java/org/aspose/pdf/SaveFormat.java",
+ "grep -n -E 'SaveFormat.Xlsx|SaveFormat.Markdown' CHANGELOG.md | head -4",
+])
+# U45 Imaging
+case("imaging-recheck", "Aspose.Imaging-FOSS-for-.NET", [
+ "grep -n 'RepositoryUrl\|PackageProjectUrl' src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj",
+ "curl -s -o /dev/null -w '%{http_code} %{url_effective}\n' -L https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss",
+ "grep -n -i 'dotnet add\|nuget.org' README.md | head -5",
+])
+# U48 Cells-TS (static part)
+case("static-Cells-TS", "Aspose.Cells-FOSS-for-TypeScript", [
+ "grep -n '\"license\"\|\"description\"\|\"repository\"\|\"engines\"' package.json; echo grep-exit=$?",
+ "grep -c 'Class in the Cells TYPESCRIPT API' README.md",
+ "head -12 package.json",
+])
+# U49 Font
+case("tags-Font-Python", "Aspose.Font-FOSS-for-Python", [
+ "grep -n -m2 '^version' pyproject.toml",
+ "git ls-remote --tags origin | sed 's#.*refs/tags/##' | grep -v '\^' | tail -5",
+])
+# U50 Cells-NET agents.md
+case("cells-net-agents", "Aspose.Cells-FOSS-for-.NET", [
+ "grep -n 'RELEASE_NOTES' agents.md",
+ "git ls-files | grep -i release_notes; echo ls-exit=$?",
+ "grep -rn -m1 '<Version' --include=*.csproj .",
+])
+# U37 Page version file (static portion)
+case("version-txt-Page-Python-static", "Aspose.Page-FOSS-for-Python", [
+ "git ls-files local | wc -l",
+ "grep -n '^local/' .gitignore",
+ "sed -n 35p setup.py",
+ "sed -n 45p package.py",
+ "grep -n -i 'Version.txt' README.md | head",
+])
+print("done")

@@ -1,25 +1,39 @@
-"""A list kept as written (VERIFIED_PRESERVE) states every item (composition/list_coverage.py).
+"""The item test for a list kept as written (composition/list_coverage.py).
 
-The fixture is the real list from the cut-2 BC-10 triage, aspose-pdf-foss/Aspose.PDF-FOSS-for-Java
-inherited_unit:131.list: a "Partially implemented today" list of six bullets that was preserved
+The first fixture is the real list from the cut-2 BC-10 triage, aspose-pdf-foss/Aspose.PDF-FOSS-for-
+Java inherited_unit:131.list: a "Partially implemented today" list of six bullets that was preserved
 into Scope and Limitations, where each bullet is authored into a limitation slot. The authored
-section stated five of them; the sixth (`PdfFileSecurity.setAllowExceptions` throws) vanished, and
-every later repair was blocked because the item names an identifier that is not a fact value.
+section stated five of them; the sixth (`PdfFileSecurity.setAllowExceptions` throws) vanished.
+
+``fixtures/wave4_list_replies.json`` holds the lists and replies of the wave-4 run (reseal 8c48f4d2)
+exactly as archived. Five repositories (JMAP-Go, JMAP-Node.js, JMAP-TypeScript, JMAP-Rust, PSD-.NET)
+were refused for a list their reply HAD restated; four (3D-.NET, 3D-Java, PDF-.NET, PDF-Java) for
+items it really had dropped. Email-.NET and Imaging-.NET were refused for a list item that could
+not be stated without a stray identifier, which is why authoring no longer refuses an unstated item
+(placement prints it; see the last test and test_authoring.py).
 """
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
-from repository_presenter.components.readme.composition.authoring import SectionTask
+from repository_presenter.components.readme.composition.coverage import Destinations, uncovered
 from repository_presenter.components.readme.composition.list_coverage import (
+    OWED_SECTIONS,
     item_links,
-    list_coverage_errors,
+    kept_lists,
     list_items,
     missing_items,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from support import JAVA3D_DOCS_LIST, JAVA3D_SCOPE_LIST
+
+FIXTURES = Path(__file__).parent / "fixtures"
+WAVE4: dict[str, dict[str, Any]] = json.loads(
+    (FIXTURES / "wave4_list_replies.json").read_text(encoding="utf-8")
+)
 
 UNIT = "inherited_unit:131.list"
 PARTIAL = "\n".join(
@@ -86,26 +100,6 @@ def _dispositions(
     }
 
 
-def _task(slots: list[str], section: str = "scope_limitations") -> SectionTask:
-    return SectionTask(
-        section,
-        {},
-        frozenset({UNIT}),
-        tuple(slots),
-        slot_facts={slot: frozenset({UNIT}) for slot in slots},
-    )
-
-
-def _output(texts: dict[str, str], cited: str = UNIT) -> dict[str, Any]:
-    return {
-        "units": [
-            {"section": "scope_limitations", "slot": slot, "text": text, "fact_ids": [cited]}
-            for slot, text in texts.items()
-        ],
-        "omitted": [],
-    }
-
-
 def test_the_list_is_read_as_its_top_level_items() -> None:
     items = list_items(PARTIAL)
     assert len(items) == 6
@@ -130,55 +124,21 @@ def test_every_item_stated_in_other_words_is_present() -> None:
     assert missing_items(PARTIAL, destination) == []
 
 
-def test_the_authoring_check_refuses_a_section_that_drops_an_item() -> None:
-    task = _task(list(AUTHORED))
-    errors = list_coverage_errors(_output(AUTHORED), task, _dispositions(), _facts())
-    assert len(errors) == 1
-    assert errors[0].startswith(f"{UNIT}: list_item_missing")
-    assert "setAllowExceptions" in errors[0]
-    assert "limitation:1" in errors[0]  # where the item can be folded in
-
-
-def test_a_section_that_states_every_item_passes() -> None:
-    texts = {
-        **AUTHORED,
-        "limitation:6": "Setting allow exceptions on the file security class throws an error.",
-    }
-    task = _task(list(texts))
-    assert list_coverage_errors(_output(texts), task, _dispositions(), _facts()) == []
-
-
-def test_only_a_list_kept_as_written_is_held_to_every_item() -> None:
-    """Negative control: a rewritten or superseded list is the composer's to condense."""
-    task = _task(list(AUTHORED))
+def test_only_a_list_kept_as_written_in_the_section_is_named_for_folding() -> None:
+    """Negative control: a rewritten or superseded list is the composer's to condense, a list
+    placed in another section is not this section's, and a one-item list is not a list."""
+    owed = {UNIT}
+    assert set(kept_lists(_dispositions(), "scope_limitations", owed, _facts())) == {UNIT}
     for disposition in ("VERIFIED_REWRITE", "SUPERSEDE_REDUNDANT", "OMIT_UNSUPPORTED"):
-        assert (
-            list_coverage_errors(_output(AUTHORED), task, _dispositions(disposition), _facts())
-            == []
-        )
-
-
-def test_a_list_placed_in_another_section_is_not_this_sections_to_state() -> None:
-    task = _task(list(AUTHORED))
-    other = _dispositions(section="additional_examples")
-    assert list_coverage_errors(_output(AUTHORED), task, other, _facts()) == []
-
-
-def test_a_list_no_slot_of_the_section_was_given_is_not_checked() -> None:
-    """Placement prints such a list as written; no authored unit stands in for it."""
-    task = SectionTask("scope_limitations", {}, frozenset(), ("limitation:1",))
-    assert list_coverage_errors(_output(AUTHORED), task, _dispositions(), _facts()) == []
-
-
-def test_a_one_item_list_is_not_checked() -> None:
-    facts = FactsDocument(
+        assert kept_lists(_dispositions(disposition), "scope_limitations", owed, _facts()) == {}
+    assert kept_lists(_dispositions(), "additional_examples", owed, _facts()) == {}
+    assert kept_lists(_dispositions(), "scope_limitations", set(), _facts()) == {}  # not owed
+    one = FactsDocument(
         "org/x",
         "a" * 40,
         (Fact(UNIT, "inherited_unit", "- **Only item** - it is limited.", (Evidence("R", None),)),),
     )
-    task = _task(["limitation:1"])
-    output = _output({"limitation:1": "Something else entirely."})
-    assert list_coverage_errors(output, task, _dispositions(), facts) == []
+    assert kept_lists(_dispositions(), "scope_limitations", owed, one) == {}
 
 
 def _dispositions_for(
@@ -229,68 +189,16 @@ JAVA3D_AUTHORED = {
     ),
     "limitation:6": "Scene rendering is not implemented in this edition.",
 }
-JAVA3D_SLOTS = [slot for slot in JAVA3D_AUTHORED if slot.startswith("limitation:")]
 
 
-def _java3d_facts() -> FactsDocument:
-    return FactsDocument(
-        "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
-        "3" * 40,
-        (Fact(JAVA3D_UNIT, "inherited_unit", JAVA3D_SCOPE_LIST, (Evidence("README.md", None),)),),
-    )
-
-
-def _java3d_task(handed: bool = True) -> SectionTask:
-    return SectionTask(
-        "scope_limitations",
-        {},
-        frozenset({JAVA3D_UNIT}),
-        ("scope", *JAVA3D_SLOTS),
-        slot_facts={slot: frozenset({JAVA3D_UNIT}) for slot in JAVA3D_SLOTS} if handed else {},
-    )
-
-
-def _java3d_output(texts: dict[str, str], cited: list[str]) -> dict[str, Any]:
-    return {
-        "units": [
-            {
-                "section": "scope_limitations",
-                "slot": slot,
-                "text": text,
-                "fact_ids": cited if slot == "scope" else [],
-            }
-            for slot, text in texts.items()
-        ],
-        "omitted": [],
-    }
-
-
-def test_the_scope_list_3d_java_lost_three_bullets_from_is_refused_with_them_named() -> None:
+def test_the_scope_list_3d_java_lost_three_bullets_from_is_named_with_them() -> None:
     """The sealed candidate's six units state six of the nine bullets. The three it lost are the
     ones the independent acceptance review found missing (PbrSpecularMaterial; the NurbsCurve
     sampling limit; the licensing, trial and ZIP exclusions)."""
-    errors = list_coverage_errors(
-        _java3d_output(JAVA3D_AUTHORED, [JAVA3D_UNIT]),
-        _java3d_task(),
-        _dispositions_for(JAVA3D_UNIT),
-        _java3d_facts(),
-    )
-    assert len(errors) == 1 and errors[0].startswith(f"{JAVA3D_UNIT}: list_item_missing")
-    assert "NurbsCurve" in errors[0] and "PbrSpecularMaterial" in errors[0]
-    assert "9 items" in errors[0]
-
-
-def test_a_list_nobody_cited_is_still_owed_in_full() -> None:
-    """The earlier guard skipped a list no unit cited; a composer that states six of nine bullets
-    without citing the list passed it."""
-    errors = list_coverage_errors(
-        _java3d_output(JAVA3D_AUTHORED, []),
-        _java3d_task(),
-        _dispositions_for(JAVA3D_UNIT),
-        _java3d_facts(),
-    )
-    assert len(errors) == 1 and "PbrSpecularMaterial" in errors[0]
-    assert "limitation:1" in errors[0]  # the slots the plan bound the list to
+    missing = missing_items(JAVA3D_SCOPE_LIST, " ".join(JAVA3D_AUTHORED.values()))
+    assert len(list_items(JAVA3D_SCOPE_LIST)) == 9 and len(missing) == 3
+    joined = " ".join(missing)
+    assert "NurbsCurve" in joined and "PbrSpecularMaterial" in joined
 
 
 def test_a_scope_section_that_states_all_nine_bullets_passes() -> None:
@@ -303,27 +211,7 @@ def test_a_scope_section_that_states_all_nine_bullets_passes() -> None:
             "ZIP file-system read and write are excluded from the FOSS edition."
         ),
     }
-    assert (
-        list_coverage_errors(
-            _java3d_output(texts, [JAVA3D_UNIT]),
-            _java3d_task(),
-            _dispositions_for(JAVA3D_UNIT),
-            _java3d_facts(),
-        )
-        == []
-    )
-
-
-def test_a_list_the_plan_never_handed_to_a_slot_is_not_owed_here() -> None:
-    """Negative control: placement prints it whole, so no authored unit stands in for it; and a
-    one-item list is not a list."""
-    errors = list_coverage_errors(
-        _java3d_output(JAVA3D_AUTHORED, []),
-        _java3d_task(handed=False),
-        _dispositions_for(JAVA3D_UNIT),
-        _java3d_facts(),
-    )
-    assert errors == []
+    assert missing_items(JAVA3D_SCOPE_LIST, " ".join(texts.values())) == []
 
 
 # 3D .NET 52b0f00e: the development dependencies list was moved into Development and Testing,
@@ -346,53 +234,22 @@ DOTNET3D_SUMMARY = (
 )
 
 
-def test_an_unbound_section_owes_the_list_placement_dropped_from_it() -> None:
+def test_an_unbound_section_is_told_of_the_list_placement_drops_from_it() -> None:
     facts = FactsDocument(
         "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
         "5" * 40,
         (Fact(DOTNET3D_UNIT, "inherited_unit", DOTNET3D_DEV_DEPS, (Evidence("README.md", None),)),),
     )
-    task = SectionTask(
-        "development_testing",
-        {},
-        frozenset({DOTNET3D_UNIT}),
-        ("summary",),
-        owed_lists=frozenset({DOTNET3D_UNIT}),
-    )
     dispositions = _dispositions_for(DOTNET3D_UNIT, "VERIFIED_MOVE", "development_testing")
-    output = {
-        "units": [
-            {
-                "section": "development_testing",
-                "slot": "summary",
-                "text": DOTNET3D_SUMMARY,
-                "fact_ids": [DOTNET3D_UNIT],
-            }
-        ],
-        "omitted": [],
-    }
+    assert "development_testing" in OWED_SECTIONS
+    named = kept_lists(dispositions, "development_testing", {DOTNET3D_UNIT}, facts)
+    assert list(named) == [DOTNET3D_UNIT]
     # The sealed summary mentions code-coverage collection, which the list's second item is about;
-    # a summary that does not is refused with that item named.
-    assert list_coverage_errors(output, task, dispositions, facts) == []
-    silent = {
-        **output["units"][0],
-        "text": DOTNET3D_SUMMARY.replace(
-            "The test suite includes code-coverage collection, and ", ""
-        ),
-    }
-    output = {"units": [silent], "omitted": []}
-    errors = list_coverage_errors(output, task, dispositions, facts)
-    assert len(errors) == 1 and "coverlet.collector" in errors[0]
-    assert "xunit.runner.visualstudio" not in errors[0]  # that item's subject, xunit, is stated
-    stated = {
-        **output["units"][0],
-        "text": DOTNET3D_SUMMARY
-        + " It uses coverlet.collector for coverage and Microsoft.NET.Test.Sdk.",
-    }
-    assert list_coverage_errors({"units": [stated], "omitted": []}, task, dispositions, facts) == []
-    # Negative control: the same section without the owed marker is not held to the list.
-    unmarked = SectionTask("development_testing", {}, frozenset({DOTNET3D_UNIT}), ("summary",))
-    assert list_coverage_errors(output, unmarked, dispositions, facts) == []
+    # a summary that does not leaves that item unstated - and placement prints it (below).
+    assert missing_items(named[DOTNET3D_UNIT], DOTNET3D_SUMMARY) == []
+    silent = DOTNET3D_SUMMARY.replace("The test suite includes code-coverage collection, and ", "")
+    missing = missing_items(named[DOTNET3D_UNIT], silent)
+    assert len(missing) == 1 and "coverlet.collector" in missing[0]
 
 
 # 3D Java 3d2ed6be: Documentation and Resources prints one authored line per planned link; the plan
@@ -433,3 +290,97 @@ def test_a_documentation_item_is_stated_when_its_link_is_printed() -> None:
     assert len(missing_items(JAVA3D_DOCS_LIST, printed, by_link=True, document_text=printed)) == 2
     # An in-page anchor is no document link: that item falls back to its subject words.
     assert item_links("- **[API reference](#api-reference)** — the essentials.") == []
+
+
+# --- Wave 4 (reseal 8c48f4d2, triage cause 1): the label is not the item -------------------------
+
+
+def _case(key: str) -> tuple[str, str]:
+    """The archived list and the text of the units the model's reply authored for it."""
+    case = WAVE4[key]
+    return str(case["list"]), " ".join(str(text) for text in case["units"].values())
+
+
+def test_a_bold_label_the_reply_folds_into_its_sentences_does_not_make_the_item_missing() -> None:
+    """JMAP-Go, JMAP-Node.js, JMAP-TypeScript and JMAP-Rust (the same README structure) and PSD-.NET
+    were refused in three identical replies for a list the reply had restated: the item test judged
+    the words of the bold label ("Out of scope for v1", "Protocol", "No full Photoshop feature
+    set"), and no reply says "out of scope" when it states the three things that are. Before: one
+    or two items missing at every attempt; now: none."""
+    for key in ("jmap_go", "jmap_node", "psd_net"):
+        text, stated = _case(key)
+        items = list_items(text)
+        assert any("**" in item for item in items), key
+        assert missing_items(text, stated) == [], key
+
+
+def test_the_label_alone_is_still_a_valid_way_to_state_an_item() -> None:
+    """Negative control for the fix's other direction: an item named by its lead only, in a
+    section that says nothing else of it, remains present - the first test is unchanged."""
+    text = (
+        "- **Rendering**: not implemented in this build, so pages stay blank.\n- **Fonts**: none."
+    )
+    assert missing_items(text, "Rendering is a gap.") == ["**Fonts**: none."]
+
+
+def test_items_a_reply_really_dropped_are_still_named() -> None:
+    """The true omissions of the same run, from the archived replies, stay caught: the fix looks
+    at the item's own words, and a reply that does not say them has not stated the item."""
+    expected = {
+        # 3D .NET's first reply states neither the watermark nor the licence limitation; the
+        # watermark item shares only the product's name and two generic words with the section.
+        "3d_net_a1": ["Text watermarking", "License and trial-management"],
+        "3d_net_a2": ["Microsoft3MFFormat", "RvmFormat.LoadAttributes"],
+        "3d_java": ["PbrSpecularMaterial"],
+        "pdf_java": ["Public-key-encrypted PDFs"],
+    }
+    for key, names in expected.items():
+        text, stated = _case(key)
+        missing = missing_items(text, stated)
+        assert len(missing) == len(names), (key, missing)
+        for item, name in zip(missing, names, strict=True):
+            assert name in item, (key, item)
+
+
+def test_pdf_dot_net_keeps_the_items_its_reply_dropped_and_not_the_ones_it_restated() -> None:
+    text, stated = _case("pdf_net")
+    assert len(list_items(text)) == 16
+    missing = missing_items(text, stated)
+    assert len(missing) == 3
+    for fragment in ("Dynamic XFA", "Colour management", "pixel-identical"):
+        assert any(fragment in item for item in missing), fragment
+
+
+def test_a_phrase_every_item_repeats_does_not_state_one_of_them() -> None:
+    """3D TypeScript's limitations all end 'throw Error ... is not implemented in this FOSS
+    build'; a section that says so once has stated none of the members it lists."""
+    text = "\n".join(
+        [
+            "- `VertexElement.setIndices()`/`clear()` throw `Error('... is not implemented')` in "
+            "this FOSS build.",
+            "- `Node.selectSingleObject()`/`selectObjects()` throw `Error('... is not "
+            "implemented')` in this FOSS build.",
+            "- `Mesh.doBoolean()` throws `Error('... is not implemented')` in this FOSS build.",
+        ]
+    )
+    generic = "These members throw an error that is not implemented in this FOSS build."
+    assert len(missing_items(text, generic)) == 3
+    named = generic + " VertexElement setIndices and clear, selectSingleObject and doBoolean."
+    assert missing_items(text, named) == []
+
+
+def test_what_placement_prints_is_what_the_item_test_finds_missing() -> None:
+    """Authoring no longer refuses a reply that leaves an item out: placement prints the items the
+    section does not state, and the item test finds none missing afterwards. Replayed on the
+    archived final replies of PDF .NET (three items of sixteen) and 3D .NET (the two the first
+    reply dropped): the 16-item list cannot be stated by six limitation slots, and the printed
+    remainder is the three items, as written."""
+    for key in ("pdf_net", "3d_net_a1"):
+        text, stated = _case(key)
+        before = missing_items(text, stated)
+        assert before, key
+        shown = Destinations.of({"scope_limitations": stated})
+        remainder = uncovered(WAVE4[key]["unit"], text, shown, "scope_limitations")
+        assert remainder, key
+        assert len(list_items(remainder)) == len(before), key
+        assert missing_items(text, stated + "\n" + remainder) == [], key

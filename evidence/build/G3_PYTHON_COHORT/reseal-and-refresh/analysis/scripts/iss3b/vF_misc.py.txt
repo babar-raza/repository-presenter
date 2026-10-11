@@ -1,0 +1,79 @@
+import sys, shutil, os
+sys.path.insert(0, r"<scratch>")
+from vlib import *
+PYEXE = r"C:/Users/babar/AppData/Local/Programs/Python/Python313/python.exe"
+VEN = SP / "venvs"
+WORK = SP / "work"
+which = sys.argv[1:]
+
+
+def venv(name):
+    p = VEN / name
+    if not (p / "Scripts" / "python.exe").exists():
+        sh(f'"{PYEXE}" -m venv "{p}"', timeout=300)
+    return str(p / "Scripts" / "python.exe").replace("\\", "/")
+
+
+def case_page_pypi():
+    py = venv("3dpy")
+    L = Log("metadata-url-Page-Python", "Aspose.Page-FOSS-for-Python")
+    L.run("git show HEAD:pyproject.toml | grep -n -i 'url' ; echo grep-exit=$?")
+    L.run("git show HEAD:setup.py | grep -n -i 'url' ; echo grep-exit=$?")
+    L.run("git show HEAD:pyproject.toml | grep -c '^\\[project.urls\\]'")
+    L.run(f'curl -s https://pypi.org/pypi/aspose-page-foss/json | "{py}" -c "import json,sys; i=json.load(sys.stdin)[\'info\']; print(i[\'version\'], i[\'home_page\'], i[\'project_urls\'])"')
+    L.save()
+
+
+def case_disclosed():
+    py = venv("3dpy")
+    L = Log("disclosed-3D-Java-jar", "Aspose.3D-FOSS-for-Java")
+    L.run("curl -s https://repo1.maven.org/maven2/org/aspose/aspose-3d-foss/maven-metadata.xml | grep -E '<(latest|release|version)>'")
+    L.run("grep -n -i 'ships a stub' README.md | cut -c1-260")
+    L.save()
+    L = Log("maven-Slides-Java", "Aspose.Slides-FOSS-for-Java")
+    L.run("curl -s https://repo1.maven.org/maven2/org/aspose/aspose-slides-foss/maven-metadata.xml | grep -E '<(latest|release|version)>'")
+    L.run("curl -s -o /dev/null -w '%{http_code}\\n' https://repo1.maven.org/maven2/org/aspose/aspose-slides-foss/26.8.0/aspose-slides-foss-26.8.0.pom")
+    L.run("grep -n -m1 '<version>' pom.xml")
+    L.run("grep -n -i '26.7.0' SECURITY.md README.md | head -4 | cut -c1-240")
+    L.save()
+    L = Log("pypi-Slides-Python", "Aspose.Slides-FOSS-for-Python")
+    w = WORK / "slidespy"
+    shutil.rmtree(w, ignore_errors=True)
+    w.mkdir()
+    py2 = venv("slidespy")
+    L.run(f'"{py2}" -m pip install -q aspose-slides-foss 2>&1 | tail -1; "{py2}" -m pip show aspose-slides-foss | sed -n 2p', cwd=w, timeout=900)
+    L.run(f'cd "{w}" && "{py2}" -I -c "from aspose.slides_foss import Hyperlink" 2>&1 | tail -2', cwd=w)
+    L.run("grep -n -m1 '^version' pyproject.toml; grep -n -i 'predates the source tree' README.md | cut -c1-200")
+    L.save()
+
+
+def case_3dpy_unittest():
+    py = venv("3dpy")
+    L = Log("unittest-3D-Python", "Aspose.3D-FOSS-for-Python")
+    L.run("grep -n -i '^examples' .gitignore; git ls-files examples | wc -l")
+    L.run(f'PYTHONIOENCODING=utf-8 "{py}" -m unittest discover tests/ > "{WORK}/ut3d.txt" 2>&1; grep -E "^(Ran |FAILED|OK)" "{WORK}/ut3d.txt"; grep -E "^(ERROR|FAIL):" "{WORK}/ut3d.txt" | head -8; grep -E "FileNotFoundError" "{WORK}/ut3d.txt" | sort -u | head -6 | cut -c1-200', timeout=900, max_lines=40)
+    L.save()
+
+
+def case_3dnet_tests():
+    L = Log("testdata-3D-NET", "Aspose.3D-FOSS-for-.NET")
+    L.run("grep -n -i testdata .gitignore; git ls-files | grep -i -c testdata")
+    L.run(f'dotnet test src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj > "{WORK}/dn_test.txt" 2>&1; grep -E "Failed:|Passed:" "{WORK}/dn_test.txt" | tail -2; grep -c FileNotFoundException "{WORK}/dn_test.txt"; grep -o "Test file not found: [^ ]*" "{WORK}/dn_test.txt" | sort | uniq -c | sort -rn | head -5', timeout=1800)
+    L.save()
+
+
+def case_wordspy_cap():
+    L = Log("requires-python-Words-Python", "Aspose.Words-FOSS-for-Python")
+    L.run("grep -n 'requires-python' pyproject.toml")
+    L.run("curl -s https://pypi.org/pypi/aspose-words-foss/json | python -c \"import json,sys; d=json.load(sys.stdin); print(d['info']['version'], d['info']['requires_python'])\"")
+    L.save()
+
+
+def case_3dts_require():
+    pass
+
+
+if __name__ == "__main__":
+    for name in which:
+        globals()["case_" + name]()
+    print("done", which)

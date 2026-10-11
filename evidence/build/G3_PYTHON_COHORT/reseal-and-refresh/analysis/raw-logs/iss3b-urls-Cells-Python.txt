@@ -1,0 +1,23 @@
+# key: urls-Cells-Python
+# repository clone: Aspose.Cells-FOSS-for-Python
+# head: 952317cad8db1880ed85be9814c24e9303930d49
+# utc: 2026-10-11T17:49:15Z
+
+$ grep -n -A6 'project.urls' pyproject.toml
+[exit 0]
+39:[project.urls]
+40-Homepage = "https://github.com/aspose-cells-foss/aspose-cells-python"
+41-Documentation = "https://github.com/aspose-cells-foss/aspose-cells-python#readme"
+42-Repository = "https://github.com/aspose-cells-foss/aspose-cells-python.git"
+43-Issues = "https://github.com/aspose-cells-foss/aspose-cells-python/issues"
+44-
+45-[tool.setuptools]
+
+$ curl -s -o /dev/null -w '%{http_code} %{url_effective}
+' -L https://github.com/aspose-cells-foss/aspose-cells-python
+[exit 23]
+200 https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python
+
+$ git log -3 --format='%h %ad %s' --date=short
+[exit 0]
+952317c 2026-10-11 Update Readme

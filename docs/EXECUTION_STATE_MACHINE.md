@@ -29,8 +29,10 @@ There are two product lanes (owner decision D1, 2026-10-11). **Lane L, live-firs
 live upstream README and adds only verified corrections and verified missing information (G3-W09).
 **Lane R, regeneration** composes from scratch and continues; its idempotence is being fixed
 (G3-W11). The standard for README structure, composition, links and tone is what the live READMEs
-do (G3-W10); `README_CONTRACT.md` is under revision to match, and every iteration of either lane
-must beat live. Gate exit floors that say "sealed" count sealed bundles, not the progress unit.
+do (G3-W10), written in `docs/README_STANDARD.md`; `README_CONTRACT.md` stays the legacy encoding of
+assembly and blocking checks until the gates migrate (README_STANDARD §6.2), and every iteration of
+either lane must beat live. Gate exit floors that say "sealed" count sealed bundles, not the
+progress unit.
 The observable repository transaction (Lane R in full; Lane L patches the live README under the
 same validation and review) is:
 
@@ -86,7 +88,7 @@ The coding agent reads authority in this order:
 
 1. This document owns implementation sequence, gates, deliverables, and the build cursor.
 2. `docs/STATE_MACHINE.md` owns the production runtime states and transitions;
-   `docs/README_CONTRACT.md` owns the candidate's shape, assembly, agentic decisions, and checks;
+   `docs/README_STANDARD.md` owns a README's structure and composition (owner directive 2026-10-11: follow the live upstream README); `docs/README_CONTRACT.md` stays the legacy encoding of its assembly, agentic decisions, and checks until the gates migrate (README_STANDARD §6.2);
    `docs/REPOSITORY_LAYOUT.md` owns where a file lives.
 3. Typed schemas and tests own implemented interface behavior after their gate is accepted.
 4. The reuse manifest owns the disposition of each legacy module and asset.
@@ -244,10 +246,11 @@ leases, or hosted execution yet; those are G5.
    schema are project-specific accounting the SDK does not replace. LLM prose may only express fact
    IDs supplied in its packet; deterministic code renders commands, links, badges, Mermaid, example
    code, and license identity.
-4. **Composition** to `docs/README_CONTRACT.md`: the semantic shell in its §2, the assembly
-   pipeline in its §3, and the agentic decisions in its §4. The LLM returns typed content units
-   bound to fact IDs; the deterministic renderer emits the Markdown; one coherence pass may revise
-   LLM-owned units only.
+4. **Composition** to `docs/README_STANDARD.md` (shape, links, tone), which the legacy encoding in
+   `docs/README_CONTRACT.md` still implements until the gates migrate: the semantic shell in its §2,
+   the assembly pipeline in its §3, and the agentic decisions in its §4. The LLM returns typed
+   content units bound to fact IDs; the deterministic renderer emits the Markdown; one coherence
+   pass may revise LLM-owned units only.
 5. **Blocking checks:** exactly the eleven in `docs/README_CONTRACT.md` §5. Everything else is
    advisory until G2 freezes contract v1.
 6. **Independent review** per `docs/README_CONTRACT.md` §4 and §6: separate prompt and identity;
@@ -316,7 +319,7 @@ contract freezes against thirteen sealed products rather than one (§28.5).
 
 ## G4 — Multi-Language Cohorts, Local
 
-Goal: a README for every enabled registry entry (`data/registry.json`, derived) and 36/36
+Goal: a README for every enabled registry entry (`data/registry.json`, derived) and 44/44
 dispositions through one shared surface extractor and six thin plugins, before hosted machinery.
 
 | Ecosystem | Mandatory truth |

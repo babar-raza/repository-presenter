@@ -1,0 +1,71 @@
+# No README exists (GIS .NET at the survey).
+schema_version: 1
+id: greenfield
+title: Greenfield, no live README
+summary: >-
+  The default branch has no README, so there is no live structure to follow. The standard
+  skeleton is authored from verified facts only, or the transaction records insufficient_evidence
+  when the tree carries no public surface to describe.
+mode: greenfield
+install_channels: [none]
+elements:
+  identity_h1: required
+  badge_row: required
+  banner: optional
+  opening: required
+  navigation: required
+  at_a_glance: conditional
+  key_capabilities: required
+  installation: required
+  dependencies: required
+  quick_start: conditional
+  feature_showcase: not_applicable
+  additional_examples: conditional
+  project_structure: not_applicable
+  api_reference: conditional
+  docs_resources: conditional
+  scope_limitations: required
+  enterprise_paragraph: conditional
+  development_testing: conditional
+  third_party_notices: conditional
+  license: conditional
+element_notes:
+  license: required only when a license file exists; otherwise the README says nothing about a license and an upstream issue handoff is raised
+  installation: source install only until a registry observation shows a published package
+channel_variant:
+  install_forms:
+    - the verified source build of the tree, with its receipt
+  verification:
+    - every command carries a build receipt (BC-02)
+    - every claim maps to an accepted fact (BC-04)
+  required_statements:
+    - that no package is published, when the registry shows none
+better_than_live:
+  - id: BTL-GRN-01
+    statement: Nothing is claimed that a fact does not support; with no public surface the outcome is insufficient_evidence, not a thin README.
+    measured_by: BC-04 unit-to-fact binding; processability gate
+    rules: [PRC-07, PRC-04]
+    defect_classes: [DEF-26]
+  - id: BTL-GRN-02
+    statement: The owner's standing rules hold from the first version - canonical H1, one badge row, Enterprise Edition naming, no assurance narration.
+    measured_by: text_checks predicates and BC-06, BC-07, BC-12 all pass
+    rules: [STR-01, STR-02, LNK-03, TON-04]
+  - id: BTL-GRN-03
+    statement: A missing LICENSE or README is raised upstream through an issue handoff and never papered over in the README.
+    measured_by: handoff present for each missing community file
+    rules: [DET-06]
+    defect_classes: [DEF-07, DEF-26]
+  - id: BTL-GRN-04
+    statement: When At a Glance is authored it is unclipped and its three mother blocks run left to right, split by key capability.
+    measured_by: a real render of the diagram (STR-28), with no label clipped and the three mother blocks side by side from left to right
+    rules: [STR-08, STR-28]
+    defect_classes: [DEF-29, DEF-30]
+inherited_additions: >-
+  There is no live README, so there are no inherited additions; the fixed core is authored from
+  verified facts only. The first merged README becomes the baseline and every heading it then
+  carries is retained in place by the iterations after it (PRC-09, STR-27).
+insertion_policy: >-
+  Author the standard skeleton in order, omitting every element whose facts are missing and
+  recording why; no placeholder prose.
+voice_guidance: >-
+  neutral_reference, declarative third person, sentences under 25 words on average.

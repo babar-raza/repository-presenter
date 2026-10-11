@@ -28,6 +28,19 @@ the unit (planning.plan_checks), and here it is recorded as excluded so the vali
 A code block the plan or the renderer already owns - an ecosystem example or a Mermaid block -
 renders through them, not verbatim; any other unit renders as written.
 
+Fact-ID overlap only nominates a unit for dropping; the destination's text decides it. A shared
+fact is a citation, not a statement - the wave-3 transactions dropped 40% of the kept units on one
+shared fact each, lost the limitations, tables and commands they carried, and then failed BC-08 on
+the commands (Cells-Go, Page-Python, PDF-Go, PDF-.NET). With the document as it renders without
+any kept unit (``destinations``, ``renderer.RenderContext.unplaced_destinations``) a nominated
+unit is dropped only when ``coverage.uncovered`` finds nothing of it unstated; otherwise it is
+placed, or only its uncovered remainder is. A kept sentence that introduces a block ("...run the
+test suite:") is not carried when that block is not rendered after it (reconciliation kept the
+sentence and superseded the block): the drop stands. Planning and authoring have no document yet
+and keep the fact-ID answer, the one they hand to a slot or owe in full (``planning``,
+``list_coverage``); render and validation pass ``destinations``, so what the document drops is
+decided on text.
+
 ``api_reference``'s coverage (what counts as "the destination's own plan-driven content" for the
 overlap check above) additionally includes what the renderer itself actually displays, on top of
 the plan's own per-hub citations: ``api_reference_covered_fact_ids`` computes exactly what
@@ -48,13 +61,17 @@ may edit only authored units, so an anchor left unresolved here can never be fix
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
 from urllib.parse import unquote
 
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
-from repository_presenter.components.readme.evidence.facts.commands import CI_MATRIX_FACT_ID
+from repository_presenter.components.readme.composition.coverage import Destinations, uncovered
+from repository_presenter.components.readme.evidence.facts.commands import (
+    CI_MATRIX_FACT_ID,
+    RELEASE_WORKFLOW_FACT_ID,
+)
 from repository_presenter.components.readme.evidence.facts.links import heading_slug
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
@@ -297,10 +314,16 @@ def _adjacent_section_opening(
     return rendered
 
 
-# The CI matrix sentence is the renderer's (TC-COV-02), so a prose unit citing it overlaps it. The
-# build and test commands are deliberately absent: a command is deduplicated line by line at
-# render time, and dropping a unit that spells a different invocation would lose it.
-_RENDERER_OWNED_ASSETS = ("build_test_asset:tests", "build_test_asset:ci", CI_MATRIX_FACT_ID)
+# The CI matrix sentence and the release sentence are the renderer's (TC-COV-02), so a prose unit
+# citing either overlaps it. The build and test commands are deliberately absent: a command is
+# deduplicated against the README's equivalent commands at render time, and dropping a unit that
+# spells a different invocation would lose it.
+_RENDERER_OWNED_ASSETS = (
+    "build_test_asset:tests",
+    "build_test_asset:ci",
+    CI_MATRIX_FACT_ID,
+    RELEASE_WORKFLOW_FACT_ID,
+)
 
 
 _STOCK_CONSTRUCTOR_SUMMARY = re.compile(
@@ -466,10 +489,93 @@ def resolve_intra_document_anchors(text: str, planned_slugs: frozenset[str]) -> 
     return _INTRA_DOC_ANCHOR.sub(resolve, text)
 
 
+def _table_owes_its_rows(unit_id: str, destination: str, *, text_known: bool) -> bool:
+    """A kept table destined for Scope and Limitations is printed, never dropped on a shared fact.
+
+    The overlap rule presumes the destination's authored prose states what a dropped unit said.
+    A list handed to the limitation slots is held to every item (``list_coverage``, BC-05), but
+    no slot is handed a table and nothing judges its rows, so a limitations table moved there was
+    dropped on one shared fact (``package:name``, which nearly every unit cites) and the section
+    kept only the positive bullets: Slides-.NET lost its 'Not in the public API' and 'Save
+    formats' tables, 13 verified API gaps and 18 of 21 refused save formats (wave-3 acceptance
+    review, reseal f69f75c7). The rows are the limitation, so before any text exists (planning and
+    authoring, ``text_known`` False) the fact-id rule may not drop the table. Once the document
+    is known the whole-content test (``coverage.uncovered``) decides it from text, and places a
+    table the destination does not state; this rule then stands aside."""
+    return not text_known and unit_id.endswith(".table") and destination == "scope_limitations"
+
+
+def _entries_by_ordinal(dispositions: Mapping[str, Any]) -> dict[int, list[Mapping[str, Any]]]:
+    """Every disposition keyed by the source-block ordinal of the unit it decides."""
+    found: dict[int, list[Mapping[str, Any]]] = {}
+    for entry in dispositions.get("dispositions", []):
+        ordinal = _unit_ordinal(str(entry.get("unit_id", "")))
+        if ordinal is not None:
+            found.setdefault(ordinal, []).append(entry)
+    return found
+
+
+def _introduces_nothing_rendered(
+    unit_id: str,
+    text: str,
+    destination: str,
+    *,
+    by_ordinal: Mapping[int, list[Mapping[str, Any]]],
+    by_id: Mapping[str, Fact],
+    ecosystem: str,
+    example_sections: Mapping[str, str],
+    example_ordinals: Mapping[str, int],
+) -> bool:
+    """Whether ``text`` is a kept sentence that introduces something ("...run the test suite:")
+    when what it introduces is not rendered right after it in ``destination``.
+
+    Reconciliation decides a lead-in and the block beside it separately, and may keep the first
+    while it supersedes the second (Aspose.BarCode FOSS for Python: ``Clone the repository and run
+    the test suite:`` kept, its ``bash`` block superseded by the commands the renderer prints).
+    Carrying the lead-in then leaves a colon with nothing after it - worse than the drop the
+    overlap rule gave it, so that drop stands. What follows is the next source block when it is
+    placed in the same destination, or an example the plan renders there.
+    """
+    if unit_id.rsplit(".", 1)[-1] != "paragraph" or not text.rstrip().endswith(":"):
+        return False
+    ordinal = _unit_ordinal(unit_id)
+    if ordinal is None:
+        return False
+    if any(
+        section == destination and example_ordinals.get(example_id) == ordinal + 1
+        for example_id, section in example_sections.items()
+    ):
+        return False
+    for entry in by_ordinal.get(ordinal + 1, ()):
+        following = by_id.get(str(entry.get("unit_id", "")))
+        if (
+            following is not None
+            and entry.get("disposition") in PLACED
+            and entry.get("destination_section") == destination
+            and renders_verbatim(following.id, following.value, ecosystem)
+        ):
+            return False
+    return True
+
+
 def placements(
-    plan: dict[str, Any], dispositions: dict[str, Any], facts: FactsDocument, ecosystem: str
+    plan: dict[str, Any],
+    dispositions: dict[str, Any],
+    facts: FactsDocument,
+    ecosystem: str,
+    destinations: Callable[[], Destinations] | None = None,
 ) -> list[Placement]:
-    """Every preserved or moved unit with the outcome the three rules give it."""
+    """Every preserved or moved unit with the outcome the three rules give it.
+
+    ``destinations`` is the document as it renders with no kept unit placed
+    (``renderer.RenderContext.unplaced_destinations``), asked for at most once and only when a unit
+    overlaps the plan's content. With it, a unit the plan's content overlaps is dropped only when
+    the destination states ALL of it (``coverage.uncovered``); a unit it states in part places only
+    the part it does not - the unit's uncovered remainder - and one it states not at all places as
+    written. Without it (planning and authoring, before any text exists) an overlapping unit drops
+    on the fact-id rule alone, which is all that is knowable then; the render and the validator
+    always pass it, so what drops in the document is decided on text.
+    """
     included = {
         str(entry.get("section_id")) for entry in plan.get("sections", []) if entry.get("include")
     }
@@ -477,7 +583,8 @@ def placements(
     by_id = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
     # Where the plan actually renders each example - the paired code block's real destination,
     # whatever section the reconciliation named for the sentence introducing it (arrival item 65).
-    rendered_examples = frozenset(rendered_example_ids(plan))
+    example_sections = rendered_example_ids(plan)
+    rendered_examples = frozenset(example_sections)
     # Each rendered example's own code-block ordinal, so coverage below can be scoped to the one
     # unit actually adjacent to it rather than any unit anywhere that cites the same ID
     # (arrival item 76).
@@ -485,6 +592,8 @@ def placements(
     # quick_start's/additional_examples' own original heading ordinal, so a section-opening
     # lead-in immediately after it is covered too, whatever example(s) it cites (arrival item 92).
     section_heading_ordinals = _section_heading_ordinals(dispositions)
+    by_ordinal = _entries_by_ordinal(dispositions)
+    shown: Destinations | None = None
     result: list[Placement] = []
     for entry in dispositions.get("dispositions", []):
         unit_id = str(entry.get("unit_id", ""))
@@ -500,26 +609,59 @@ def placements(
         if destination not in included:
             result.append(Placement(unit_id, destination, unit.value, "excluded"))
             continue
+        lead_in_of = _adjacent_rendered_examples(
+            unit_id, rendered_examples, example_ordinals
+        ) | _adjacent_section_opening(
+            unit_id, destination, section_heading_ordinals, rendered_examples
+        )
         covered = (
             planned_fact_ids(plan, destination)
             | renderer_fact_ids(destination, facts, plan)
-            | _adjacent_rendered_examples(unit_id, rendered_examples, example_ordinals)
-            | _adjacent_section_opening(
-                unit_id, destination, section_heading_ordinals, rendered_examples
-            )
+            | lead_in_of
         )
         overlap = (
             ()
             if unit_id.endswith(".code_block")  # a command block is content nothing else renders
+            or _table_owes_its_rows(unit_id, destination, text_known=destinations is not None)
             else tuple(sorted(set(entry.get("fact_ids") or []) & covered))
         )
-        if not overlap and unit_id in covered and not unit_id.endswith(".code_block"):
+        if (
+            not overlap
+            and unit_id in covered
+            and not unit_id.endswith(".code_block")
+            and not _table_owes_its_rows(unit_id, destination, text_known=destinations is not None)
+        ):
             # The plan handed this very unit to a slot of the destination (a limitation's
             # ``unit_ids``): the composer states it there, so printing it as written as well
             # states it twice (Cells .NET 941814fd: the Scope list, LST-01).
             overlap = (unit_id,)
-        outcome: Outcome = "overlap" if overlap else "placed"
         text = unit.value
+        if overlap and destinations is not None:
+            # A shared fact is a citation, not a statement: the destination drops the unit only
+            # if it states all of it, else the part it does not state is placed (coverage.py).
+            # Resolved once and only when something overlaps.
+            if shown is None:
+                shown = destinations()
+            remainder = uncovered(
+                unit_id,
+                text,
+                shown,
+                destination,
+                by_link=destination == "documentation_resources",
+                lead_in=bool(set(overlap) & lead_in_of),
+            )
+            if remainder and not _introduces_nothing_rendered(
+                unit_id,
+                remainder,
+                destination,
+                by_ordinal=by_ordinal,
+                by_id=by_id,
+                ecosystem=ecosystem,
+                example_sections=example_sections,
+                example_ordinals=example_ordinals,
+            ):
+                text, overlap = remainder, ()
+        outcome: Outcome = "overlap" if overlap else "placed"
         # Item 114: resolved only for the text this candidate actually copies verbatim into the
         # document, never a code block - a fenced example's own bytes are content, not prose, and
         # "[...](#...)" inside one is source the unit must reproduce exactly, not a cross-reference

@@ -1,0 +1,93 @@
+# Off-template README: hand-written or minimal structure of its own
+# (Cells Python, Font Python, Slides .NET, Words .NET at the survey).
+schema_version: 1
+id: offtemplate
+title: Off-template README, insertion mode
+summary: >-
+  A README that does not use the generated skeleton: a terse short form (Cells Python), a persona
+  and CLI pitch (Font), a candid hand-written reference (Slides .NET) or a provenance narrative
+  (Words .NET). Its structure and voice are the authority; the standard only inserts verified
+  elements the README lacks and corrects what is false, beside the README's own headings.
+mode: insertion
+install_channels: [registry, none]
+elements:
+  identity_h1: required
+  badge_row: expected
+  banner: preserve_only
+  opening: required
+  navigation: optional
+  at_a_glance: optional
+  key_capabilities: required
+  installation: required
+  dependencies: expected
+  quick_start: expected
+  feature_showcase: preserve_only
+  additional_examples: optional
+  project_structure: preserve_only
+  api_reference: expected
+  docs_resources: expected
+  scope_limitations: required
+  enterprise_paragraph: conditional
+  development_testing: expected
+  third_party_notices: conditional
+  license: required
+element_notes:
+  key_capabilities: any live heading that lists what the library does counts (Features, What it can do, What You Get)
+  installation: any live heading that installs counts (Getting started); Font has none and none is invented while the package is unpublished
+  scope_limitations: any live heading that states limits counts (Scope, What it cannot do, What's not included)
+  navigation: not added to a README that has no list of sections; an existing one is kept
+  api_reference: Cells Python links out to the package exports; a listing is added only beside that live heading
+  enterprise_paragraph: placed in the live heading that points to the commercial product (Slides .NET Choosing an edition, Words .NET What's not included)
+channel_variant:
+  install_forms:
+    - "registry: the live install line, verified (pip install aspose-cells-foss; dotnet add package Aspose.Slides.FOSS; dotnet add package Aspose.Words.FOSS)"
+    - "none: no install section is invented for an unpublished package (Font); the MCP extra the README shows stays as written"
+  verification:
+    - package name and version against the registry (BC-02, BC-14)
+    - the README's own statements agree with each other (Words .NET installs by NuGet and says the package is landing soon)
+  required_statements:
+    - the publication state when the live README contradicts itself
+better_than_live:
+  - id: BTL-OFF-01
+    statement: Verified elements the README lacks are inserted beside its own headings without renaming or reordering them.
+    measured_by: heading diff shows additions only; the live heading list is a subsequence of the candidate's
+    rules: [STR-26, PRC-01, PRC-02]
+    defect_classes: [DEF-15, DEF-19]
+  - id: BTL-OFF-02
+    statement: Statements that contradict the code, the registry or each other are corrected with evidence.
+    measured_by: claim audit and BC-02 / BC-14; contradiction count falls
+    rules: [PRC-04, STR-09, DET-05]
+    defect_classes: [DEF-05, DEF-06]
+  - id: BTL-OFF-03
+    statement: Dead links and commands that cannot run are repaired or flagged upstream.
+    measured_by: dead_relative_links zero; clean-clone receipts
+    rules: [LNK-09, DET-07]
+    defect_classes: [DEF-03, DEF-09]
+  - id: BTL-OFF-04
+    statement: The H1 is the canonical product name and License is the prose declaration, keeping any extra license facts.
+    measured_by: h1_canonical; license_prose
+    rules: [STR-01, STR-18]
+    defect_classes: [DEF-25]
+  - id: BTL-OFF-05
+    statement: References to the aspose.com product use Enterprise Edition, once, in the live heading that already points there.
+    measured_by: enterprise_mentions equals one; commercial_substitute_mentions falls
+    rules: [LNK-03, LNK-04]
+    defect_classes: [DEF-14, DEF-15]
+  - id: BTL-OFF-06
+    statement: The README's voice is kept; no marketing wording, emoji or first person is added and none is rewritten into the portfolio default.
+    measured_by: marketing_words, emoji, first_person_words not higher than live
+    rules: [PRC-01, TON-03, TON-04, TON-05]
+inherited_additions: >-
+  Nearly every heading is an inherited addition or the live name of a core element. All are
+  retained in place with their text, level and order (STR-27); the heading-equivalence map (STR-26)
+  marks which live heading serves which core element, and a missing core element is inserted beside
+  its neighbour. Headings are never renamed to the standard names.
+insertion_policy: >-
+  Map each standard element to the live heading that already serves it (STR-26). Insert a missing
+  element as a new section next to the nearest related live heading, under its standard name,
+  only when no live heading serves it and verified facts exist. Never convert the README to the
+  generated skeleton.
+voice_guidance: >-
+  neutral_reference additions in the live README's own sentence length. Slides .NET keeps its
+  sentence-case headings and measured claims; Words .NET keeps its story and call to action;
+  Font keeps its persona tables; Cells Python keeps its terse fragments.

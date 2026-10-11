@@ -52,6 +52,7 @@ class _Repo:
     issues: list[dict[str, Any]] = field(default_factory=list)
     next_number: int = 1
     archived: bool = False
+    repository_id: int = 0
 
 
 @dataclass
@@ -85,13 +86,21 @@ class FakeGitHubRest:
         *,
         default_branch: str = "main",
         readme: str | None = None,
+        tip: str | None = None,
+        repository_id: int = 0,
+        files: dict[str, str] | None = None,
     ) -> str:
-        """Create ``repository`` with its default branch (and a README when given); return the tip."""
-        repo = _Repo(default_branch=default_branch)
-        tip = _sha("root", repository)
+        """Create ``repository`` with its default branch (and a README when given); return the tip.
+
+        ``tip`` pins the default branch's commit id (a canary rehearsal makes it the local upstream's
+        real head); ``files`` adds further files to the default branch."""
+        repo = _Repo(default_branch=default_branch, repository_id=repository_id)
+        tip = tip or _sha("root", repository)
         repo.refs[default_branch] = tip
         if readme is not None:
             repo.files[(default_branch, "README.md")] = (_sha("blob", readme), readme)
+        for path, text in (files or {}).items():
+            repo.files[(default_branch, path)] = (_sha("blob", text), text)
         self._repos[repository] = repo
         return tip
 
@@ -107,6 +116,10 @@ class FakeGitHubRest:
         for (existing, path), value in list(repo.files.items()):
             if existing == repo.default_branch and base is not None:
                 repo.files.setdefault((branch, path), value)
+
+    def set_file(self, repository: str, branch: str, path: str, text: str) -> None:
+        """Record a file a ``git push`` changed on ``branch`` (the git side is a local bare remote)."""
+        self._repos[repository].files[(branch, path)] = (_sha("blob", text), text)
 
     def close_pull(self, repository: str, number: int, *, merged: bool = False) -> None:
         for pull in self._repos[repository].pulls:
@@ -205,10 +218,15 @@ class FakeGitHubRest:
         rest = match[3] or ""
         if method == "GET" and rest == "":
             return 200, {
+                "id": repo.repository_id,
                 "full_name": repository,
                 "default_branch": repo.default_branch,
                 "archived": repo.archived,
+                "visibility": "public",
             }
+        tree = re.match(r"^/git/trees/(.+)$", rest)
+        if method == "GET" and tree:
+            return self._get_tree(repo)
         reference = re.match(r"^/git/ref/heads/(.+)$", rest)
         if method == "GET" and reference:
             sha = repo.refs.get(reference[1])
@@ -231,6 +249,12 @@ class FakeGitHubRest:
         pull = re.match(r"^/pulls/(\d+)$", rest)
         if pull and method == "PATCH":
             return self._patch_pull(repository, repo, int(pull[1]), payload)
+        if pull and method == "GET":
+            found = next((p for p in repo.pulls if p["number"] == int(pull[1])), None)
+            return (200, self._pull_view(repository, found)) if found else (404, {"message": "Not Found"})
+        changed = re.match(r"^/pulls/(\d+)/files$", rest)
+        if changed and method == "GET":
+            return self._pull_files(repo, int(changed[1]))
         issue = re.match(r"^/issues/(\d+)$", rest)
         if issue and method == "GET":
             return self._get_issue(repo, int(issue[1]))
@@ -322,12 +346,39 @@ class FakeGitHubRest:
             "merged_at": None,
             "title": payload["title"],
             "body": payload.get("body") or "",
-            "head": {"ref": head},
+            "head": {"ref": head, "repo": {"full_name": repository}},
             "base": {"ref": payload["base"]},
+            "user": {"login": "repository-presenter[bot]", "type": "Bot"},
             "performed_via_github_app": {"id": self.app_id},
         }
         repo.pulls.append(pull)
         return 201, self._pull_view(repository, pull)
+
+    @staticmethod
+    def _get_tree(repo: _Repo) -> Response:
+        names = sorted({path.split("/", 1)[0] for (branch, path) in repo.files if branch == repo.default_branch})
+        return 200, {
+            "truncated": False,
+            "tree": [
+                {"path": n, "type": "tree" if any(p.startswith(n + "/") for (b, p) in repo.files if b == repo.default_branch) else "blob"}
+                for n in names
+            ],
+        }
+
+    @staticmethod
+    def _pull_files(repo: _Repo, number: int) -> Response:
+        pull = next((p for p in repo.pulls if p["number"] == number), None)
+        if pull is None:
+            return 404, {"message": "Not Found"}
+        head, base = pull["head"]["ref"], pull["base"]["ref"]
+        files = []
+        for (branch, path), (blob, _text) in sorted(repo.files.items()):
+            if branch != head:
+                continue
+            before = repo.files.get((base, path))
+            if before is None or before[0] != blob:
+                files.append({"filename": path, "status": "added" if before is None else "modified"})
+        return 200, files
 
     def _patch_pull(
         self, repository: str, repo: _Repo, number: int, payload: dict[str, Any]

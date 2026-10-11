@@ -1,0 +1,417 @@
+{
+ "3d_java": {
+  "source": "G:/rp-w4/3d-java wave 4 (cut 4 8c48f4d2): source_reconciliation a02ee8220f11 attempts 1 and 2, 125cbad6b80b attempt 2; entries are verbatim, restricted to the units of the slice",
+  "install_units": [
+   "inherited_unit:011.heading",
+   "inherited_unit:012.paragraph",
+   "inherited_unit:013.paragraph",
+   "inherited_unit:014.code_block",
+   "inherited_unit:015.paragraph",
+   "inherited_unit:016.code_block",
+   "inherited_unit:017.paragraph",
+   "inherited_unit:018.code_block",
+   "inherited_unit:019.paragraph"
+  ],
+  "install_reply_1": [
+   {
+    "unit_id": "inherited_unit:011.heading",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [],
+    "rationale": "The Installation heading is rendered by the deterministic installation section."
+   },
+   {
+    "unit_id": "inherited_unit:012.paragraph",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven",
+     "package:name",
+     "package:version"
+    ],
+    "rationale": "The paragraph's substance is rendered deterministically by the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:013.paragraph",
+    "disposition": "OMIT_UNSUPPORTED",
+    "destination_section": null,
+    "fact_ids": [],
+    "rationale": "The 'Maven:' label is not a standalone unit; the install command is rendered deterministically."
+   },
+   {
+    "unit_id": "inherited_unit:014.code_block",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven"
+    ],
+    "rationale": "The Maven dependency snippet is rendered deterministically by the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:015.paragraph",
+    "disposition": "OMIT_UNSUPPORTED",
+    "destination_section": null,
+    "fact_ids": [],
+    "rationale": "The 'Gradle (Kotlin DSL):' label is not a standalone unit; the install command is rendered deterministically."
+   },
+   {
+    "unit_id": "inherited_unit:016.code_block",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven"
+    ],
+    "rationale": "The Gradle Kotlin DSL snippet is rendered deterministically by the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:017.paragraph",
+    "disposition": "OMIT_UNSUPPORTED",
+    "destination_section": null,
+    "fact_ids": [],
+    "rationale": "The 'Gradle (Groovy DSL):' label is not a standalone unit; the install command is rendered deterministically."
+   },
+   {
+    "unit_id": "inherited_unit:018.code_block",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven"
+    ],
+    "rationale": "The Gradle Groovy DSL snippet is rendered deterministically by the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:019.paragraph",
+    "disposition": "OMIT_UNSUPPORTED",
+    "destination_section": null,
+    "fact_ids": [],
+    "rationale": "The 'Other build tools' sentence is unsupported; only Maven and Gradle are verified."
+   }
+  ],
+  "install_reply_2": [
+   {
+    "unit_id": "inherited_unit:011.heading",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [],
+    "rationale": "The Installation heading is rendered by the deterministic installation section."
+   },
+   {
+    "unit_id": "inherited_unit:012.paragraph",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven",
+     "package:name",
+     "package:version"
+    ],
+    "rationale": "The paragraph's substance is rendered deterministically by the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:013.paragraph",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven"
+    ],
+    "rationale": "The 'Maven:' label introduces the Maven dependency code block and is placed with it in the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:014.code_block",
+    "disposition": "VERIFIED_PRESERVE",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven"
+    ],
+    "rationale": "The Maven dependency snippet is verified and placed in the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:015.paragraph",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven"
+    ],
+    "rationale": "The 'Gradle (Kotlin DSL):' label introduces the Gradle Kotlin DSL code block and is placed with it in the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:016.code_block",
+    "disposition": "VERIFIED_PRESERVE",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven"
+    ],
+    "rationale": "The Gradle Kotlin DSL snippet is verified and placed in the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:017.paragraph",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven"
+    ],
+    "rationale": "The 'Gradle (Groovy DSL):' label introduces the Gradle Groovy DSL code block and is placed with it in the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:018.code_block",
+    "disposition": "VERIFIED_PRESERVE",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven"
+    ],
+    "rationale": "The Gradle Groovy DSL snippet is verified and placed in the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:019.paragraph",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "installation",
+    "fact_ids": [
+     "install_command:maven",
+     "package:version",
+     "package:java_release"
+    ],
+    "rationale": "The 'Other build tools' paragraph introduces additional build tool examples and is placed in the installation section with verified coordinates."
+   }
+  ],
+  "install_rejection_2": [
+   "inherited_unit:014.code_block: VERIFIED_PRESERVE needs a destination the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations); got 'installation'",
+   "inherited_unit:016.code_block: VERIFIED_PRESERVE needs a destination the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations); got 'installation'",
+   "inherited_unit:018.code_block: VERIFIED_PRESERVE needs a destination the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations); got 'installation'",
+   "inherited_unit:014.code_block: uncovered_supersession: VERIFIED_PRESERVE treats installation as carrying this code block, but installation prints the verified install command, not '<dependency>'. A unit is superseded only when something that renders takes its place: place it (VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations) or choose DEFER_UNRESOLVED; the unit's exact text is \"```xml\\n<dependency>\\n    <groupId>org.aspose</groupId>\\n    <artifactId>aspose-3d-foss</artifactId>\\n    <version>26.5.0</version>\\n</dependency>\\n```\"",
+   "inherited_unit:016.code_block: uncovered_supersession: VERIFIED_PRESERVE treats installation as carrying this code block, but installation prints the verified install command, not 'implementation(\"org.aspose:aspose-3d-foss:26.5.0\")'. A unit is superseded only when something that renders takes its place: place it (VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations) or choose DEFER_UNRESOLVED; the unit's exact text is \"```kotlin\\nimplementation(\\\"org.aspose:aspose-3d-foss:26.5.0\\\")\\n```\"",
+   "inherited_unit:018.code_block: uncovered_supersession: VERIFIED_PRESERVE treats installation as carrying this code block, but installation prints the verified install command, not \"implementation 'org.aspose:aspose-3d-foss:26.5.0'\". A unit is superseded only when something that renders takes its place: place it (VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations) or choose DEFER_UNRESOLVED; the unit's exact text is \"```groovy\\nimplementation 'org.aspose:aspose-3d-foss:26.5.0'\\n```\""
+  ],
+  "ack_unit": "inherited_unit:084.paragraph",
+  "ack_reply_2": [
+   {
+    "unit_id": "inherited_unit:084.paragraph",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "identity",
+    "fact_ids": [],
+    "rationale": "The acknowledgment paragraph is moved to identity, where it belongs as a factual statement about the project's clean-room purpose."
+   }
+  ],
+  "ack_rejection_2": [
+   "inherited_unit:084.paragraph: VERIFIED_MOVE needs a destination the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations); got 'identity'",
+   "inherited_unit:084.paragraph: uncovered_supersession: VERIFIED_MOVE treats identity as carrying this paragraph, but identity renders from facts and prints no paragraph. A unit is superseded only when something that renders takes its place: place it (VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations) or choose DEFER_UNRESOLVED; the unit's exact text is \"**Acknowledgments.** This project is a clean-room implementation built for API compatibility\\nwith the commercial Aspose.3D for Java library.\""
+  ],
+  "repair": {
+   "reply_1": {
+    "fingerprint": "a5aee22cabfa389d91cc1a38",
+    "causal_stage": "S4",
+    "revised_output": {
+     "dispositions": [
+      {
+       "unit_id": "inherited_unit:016.code_block",
+       "disposition": "VERIFIED_MOVE",
+       "destination_section": "installation",
+       "fact_ids": [
+        "install_command:maven"
+       ],
+       "rationale": "The Gradle Kotlin DSL snippet is verified and placed in the installation section."
+      }
+     ]
+    },
+    "changes": [
+     {
+      "id": "R01",
+      "path": "dispositions.15",
+      "before": "{  ",
+      "after": "{  ",
+      "fact_ids": []
+     },
+     {
+      "id": "R02",
+      "path": "dispositions.15.destination_section",
+      "before": "null",
+      "after": "installation",
+      "fact_ids": [
+       "install_command:maven"
+      ]
+     },
+     {
+      "id": "R03",
+      "path": "dispositions.15.disposition",
+      "before": "DEFER_UNRESOLVED",
+      "after": "VERIFIED_MOVE",
+      "fact_ids": [
+       "install_command:maven"
+      ]
+     },
+     {
+      "id": "R04",
+      "path": "dispositions.15.rationale",
+      "before": "Not provably carried by the section named; held for the owner. The Gradle Kotlin DSL snippet is verified and placed in the installation section.",
+      "after": "The Gradle Kotlin DSL snippet is verified and placed in the installation section.",
+      "fact_ids": [
+       "install_command:maven"
+      ]
+     }
+    ]
+   },
+   "rejection_1": [
+    "revised_output: inherited_unit:016.code_block: VERIFIED_MOVE needs a destination the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations); got 'installation'",
+    "revised_output: inherited_unit:016.code_block: uncovered_supersession: VERIFIED_MOVE treats installation as carrying this code block, but installation prints the verified install command, not 'implementation(\"org.aspose:aspose-3d-foss:26.5.0\")'. A unit is superseded only when something that renders takes its place: place it (VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations) or choose DEFER_UNRESOLVED; the unit's exact text is \"```kotlin\\nimplementation(\\\"org.aspose:aspose-3d-foss:26.5.0\\\")\\n```\""
+   ],
+   "reply_2": {
+    "fingerprint": "a5aee22cabfa389d91cc1a38",
+    "causal_stage": "S4",
+    "revised_output": {
+     "dispositions": [
+      {
+       "unit_id": "inherited_unit:016.code_block",
+       "disposition": "DEFER_UNRESOLVED",
+       "destination_section": null,
+       "fact_ids": [
+        "install_command:maven"
+       ],
+       "rationale": "The Gradle Kotlin DSL snippet is verified but not carried by any named section; deferred to the owner."
+      }
+     ]
+    },
+    "changes": [
+     {
+      "id": "R01",
+      "path": "dispositions.15.destination_section",
+      "before": "installation",
+      "after": "installation",
+      "fact_ids": []
+     },
+     {
+      "id": "R02",
+      "path": "dispositions.15.disposition",
+      "before": "VERIFIED_MOVE",
+      "after": "DEFER_UNRESOLVED",
+      "fact_ids": [
+       "install_command:maven"
+      ]
+     },
+     {
+      "id": "R03",
+      "path": "dispositions.15.rationale",
+      "before": "The Gradle Kotlin DSL snippet is verified and placed in the installation section.",
+      "after": "The Gradle Kotlin DSL snippet is verified but not carried by any named section; deferred to the owner.",
+      "fact_ids": [
+       "install_command:maven"
+      ]
+     }
+    ]
+   },
+   "rejection_2": [
+    "revised_output: change R02 claims 'dispositions.15.disposition' changed ('VERIFIED_MOVE' to 'DEFER_UNRESOLVED'), but the causal stage's own input and this revision hold the identical value there"
+   ],
+   "failure": {
+    "causal_stage": "RECONCILING",
+    "detail": "inherited_unit:016.code_block is deferred as NOT_CARRIED_BY_NAMED_SECTION: the README does not state 1 piece(s) of it (implementation(\"org.aspose:aspose-3d-foss:26.5.0\")), so deferring it loses content: keep it where a reader will find it, restate it, or omit it citing the fact that contradicts it.",
+    "section_id": null
+   },
+   "source": "G:/rp-w4/3d-java wave 4: targeted_repair cdfc23a964da attempts 1 and 2 (verbatim) and the BC-05 failure record of validation.json for inherited_unit:016.code_block, which carried no unit_id field then"
+  }
+ },
+ "note_python": {
+  "source": "G:/rp-w4/note-python wave 4: source_reconciliation 93d6f5fe6eb1 attempts 1 and 2; entries are verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:011.heading",
+   "inherited_unit:012.code_block",
+   "inherited_unit:013.paragraph",
+   "inherited_unit:014.code_block",
+   "inherited_unit:015.paragraph"
+  ],
+  "reply_1": [
+   {
+    "unit_id": "inherited_unit:011.heading",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [],
+    "rationale": "The Installation heading is rendered deterministically by the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:012.code_block",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [],
+    "rationale": "The installation command is rendered deterministically by the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:013.paragraph",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "dependencies",
+    "fact_ids": [
+     "dependency:optional.pdf.reportlab-3.6",
+     "install_command:pip"
+    ],
+    "rationale": "The paragraph about the pdf extra is supported and moved to the dependencies section."
+   },
+   {
+    "unit_id": "inherited_unit:014.code_block",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "dependencies",
+    "fact_ids": [
+     "install_command:pip"
+    ],
+    "rationale": "The pip install command for the pdf extra is supported and moved to the dependencies section."
+   },
+   {
+    "unit_id": "inherited_unit:015.paragraph",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "dependencies",
+    "fact_ids": [
+     "package:python_requires",
+     "import_path:aspose.note"
+    ],
+    "rationale": "The paragraph about Python version and import path is supported and moved to the dependencies section."
+   }
+  ],
+  "reply_2": [
+   {
+    "unit_id": "inherited_unit:011.heading",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [],
+    "rationale": "The Installation heading is rendered deterministically by the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:012.code_block",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "destination_section": "installation",
+    "fact_ids": [],
+    "rationale": "The installation command is rendered deterministically by the installation section."
+   },
+   {
+    "unit_id": "inherited_unit:013.paragraph",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "dependencies",
+    "fact_ids": [
+     "install_command:pip"
+    ],
+    "rationale": "The paragraph about the pdf extra is supported and moved to the dependencies section."
+   },
+   {
+    "unit_id": "inherited_unit:014.code_block",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "dependencies",
+    "fact_ids": [
+     "install_command:pip"
+    ],
+    "rationale": "The pip install command for the pdf extra is supported and moved to the dependencies section."
+   },
+   {
+    "unit_id": "inherited_unit:015.paragraph",
+    "disposition": "VERIFIED_MOVE",
+    "destination_section": "dependencies",
+    "fact_ids": [
+     "package:python_requires",
+     "import_path:aspose.note"
+    ],
+    "rationale": "The paragraph about Python version and import path is supported and moved to the dependencies section."
+   }
+  ],
+  "rejection_2": [
+   "inherited_unit:013.paragraph: VERIFIED_MOVE needs a destination the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations); got 'dependencies'",
+   "inherited_unit:014.code_block: VERIFIED_MOVE needs a destination the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations); got 'dependencies'",
+   "inherited_unit:015.paragraph: VERIFIED_MOVE needs a destination the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations); got 'dependencies'",
+   "inherited_unit:013.paragraph: uncovered_supersession: VERIFIED_MOVE treats dependencies as carrying this paragraph, but it rests on facts dependencies does not render: install_command:pip. A unit is superseded only when something that renders takes its place: place it (VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations) or choose DEFER_UNRESOLVED; the unit's exact text is \"PDF export needs the optional `pdf` extra, which pulls in [ReportLab](https://pypi.org/project/reportlab/):\"",
+   "inherited_unit:014.code_block: uncovered_supersession: VERIFIED_MOVE treats dependencies as carrying this code block, but it rests on facts dependencies does not render: install_command:pip. A unit is superseded only when something that renders takes its place: place it (VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations) or choose DEFER_UNRESOLVED; the unit's exact text is \"```bash\\npip install \\\"aspose-note-foss[pdf]\\\"\\n```\"",
+   "inherited_unit:015.paragraph: uncovered_supersession: VERIFIED_MOVE treats dependencies as carrying this paragraph, but it rests on facts dependencies does not render: import_path:aspose.note. A unit is superseded only when something that renders takes its place: place it (VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold (additional_examples, api_reference, at_a_glance, development_testing, documentation_resources, enterprise_relationship, key_capabilities, opening, quick_start, scope_limitations) or choose DEFER_UNRESOLVED; the unit's exact text is \"Requires Python 3.10 or later. The PyPI distribution is named `aspose-note-foss`; the import package is\\n`aspose.note` — `from aspose.note import Document`.\""
+  ]
+ }
+}

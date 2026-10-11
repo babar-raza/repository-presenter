@@ -1,0 +1,33 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    i1["Existing .xlsx workbook (file path or stream)"]
+  end
+  PRODUCT["Aspose.Cells FOSS for Java"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Workbook and worksheet creation, loading, and saving"]
+      c2["Cell values and formulas"]
+      c3["Cell and range styling (fonts, borders, fills, alignment, number formats)"]
+      c4["Row and column sizing, hiding, and outline grouping"]
+      c5["Merged cells, defined names, and hyperlinks"]
+      c6["Data validation"]
+      c7["Conditional formatting"]
+      c8["Auto filters with color, dynamic, top-10, and custom filter types"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c9["Page setup, freeze panes, and worksheet/workbook protection"]
+      c10["Cell comments"]
+      c11["Embedded pictures"]
+      c12["Embedded charts"]
+      c13["Drawing shapes"]
+      c14["Excel tables (ListObjects)"]
+      c15["Load diagnostics and repair reporting"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    o1[".xlsx workbook (file path or binary stream)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

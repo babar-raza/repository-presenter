@@ -1,0 +1,28 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing OBJ, STL, glTF, COLLADA, or 3MF file"]
+  end
+  PRODUCT["Aspose.3D FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Multi-format scene import (OBJ, STL, glTF, COLLADA, 3MF)"]
+      c2["Multi-format scene export (OBJ, STL, glTF, 3MF)"]
+      c3["Scene-graph construction and traversal"]
+      c4["Mesh authoring and editing"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c5["Parameterized primitive geometry"]
+      c6["Lambert, Phong, and PBR material assignment"]
+      c7["Polygon triangulation"]
+      c8["Keyframe animation and skeletal pose data"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["OBJ, STL, glTF, or 3MF file"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

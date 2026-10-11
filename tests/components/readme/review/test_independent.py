@@ -26,10 +26,12 @@ from repository_presenter.components.readme.review.independent.review import (
     finding_class,
     prose_judgment,
     quote_located,
+    refutation,
     review_checks,
     review_document,
     review_packet,
     scope_defect,
+    scope_rulings,
     second_read_decision,
     second_reader,
     summarize_review,
@@ -96,6 +98,7 @@ def _finding(label: str, section: str, stage: str, quote: str = "") -> dict[str,
         "quote": quote,
         "fact_ids": ["format:input.obj"],
         "absent": [],
+        "unsupported_names": [],
         "omission": None,
         "repair": "Drop the claim.",
     }
@@ -479,6 +482,7 @@ def test_a_presentation_finding_naming_nothing_is_refuted_by_its_units_own_produ
         "criterion": "presentation",
         "fact_ids": [],
         "absent": [],
+        "unsupported_names": [],
     }
     # Without the reviewed unit's own citations in scope, nothing here is checkable and the
     # finding stands - exactly today's behaviour.
@@ -2482,6 +2486,7 @@ def test_a_factuality_finding_naming_no_fact_and_no_absence_is_the_reviewers_def
         **_finding("F07", "key_capabilities", "S6", "It writes `.glb` files."),
         "fact_ids": [],
         "absent": [],
+        "unsupported_names": [],
     }
     assert scope_defect(ungrounded, CANDIDATE, by_id) == (
         "a factuality finding names neither a product fact_id to contradict the quote nor an "
@@ -3114,3 +3119,464 @@ def test_no_tracked_sealed_review_gains_an_uncorroborated_pass_from_the_trigger(
         if judged["verdict"] == "PASS" and trigger.get("triggered"):
             assert int(second.get("read") or 0) >= 2, review_path
     assert checked >= 1, "no sealed bundle was replayed; the replay test went blind"
+
+
+# ---- wave 3: findings that demand text no stage can restore (lane R, causes U8 and U17) --------
+#
+# The strings below are copied from the wave-3 transaction directories (review.json, raw_calls.json,
+# dispositions.json, facts.json, README.md) of Aspose.Email-FOSS-for-.Net (F03), Aspose.Cells-FOSS-
+# for-Rust (F01, F03) and Aspose.Words-FOSS-for-.NET (F01), cut f69f75c7, 2026-10-11.
+
+_EMAIL_UNIT_012 = (
+    "The published NuGet package ID is `Aspose.Email.Foss` (confirmed against the library's own\n"
+    "`.csproj`, which is what NuGet actually built and published from):"
+)
+_EMAIL_CANDIDATE = (
+    "# Aspose.Email FOSS for .Net\n\nA library for email files.\n\n## Installation\n\n"
+    "Install the published package from NuGet (`Aspose.Email.Foss`, version 26.7.0):\n\n"
+    "```bash\ndotnet add package Aspose.Email.Foss\n```\n\n"
+    "To work from a source checkout instead, build the clone with dotnet build:\n\n"
+    "```bash\ngit clone https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net.git\n"
+    "dotnet build\n```\n\n## Dependencies\n\nNo required third-party packages.\n"
+)
+_EMAIL_ORIGINAL = (
+    f"# Aspose.Email FOSS for .Net\n\n{_EMAIL_UNIT_012}\n\nRequires NuGet 6.0 or later.\n"
+)
+# Aspose.Email-FOSS-for-.Net review F03, verbatim. The absent string is the model's own
+# 120-character cut of the unit's first sentence (it ends "NuGo"), which is why locating it needs
+# the anchor rule.
+_EMAIL_F03: dict[str, Any] = {
+    "absent": [
+        "The published NuGet package ID is `Aspose.Email.Foss` (confirmed against the library's "
+        "own `.csproj`, which is what NuGo"
+    ],
+    "causal_stage": "S2",
+    "criterion": "factuality",
+    "fact_ids": ["package:name"],
+    "id": "F03",
+    "omission": {
+        "kind": "omission",
+        "missing_ids": [],
+        "missing_quotes": [
+            "The published NuGet package ID is `Aspose.Email.Foss` (confirmed against the "
+            "library's own `.csproj`, which is what NuGet actually built and published from):"
+        ],
+        "section_id": "installation",
+    },
+    "quote": "Install the published package from NuGet (`Aspose.Email.Foss`, version 26.7.0):",
+    "repair": "Add the supporting fact that the package ID is confirmed against the library's own "
+    ".csproj file.",
+    "section_id": "installation",
+    "text": "The candidate omits the explicit statement that the package builds from the .csproj "
+    "file, which is a key fact supporting the package ID claim.",
+}
+
+
+def _email_world(destination: str = "installation") -> tuple[FactsDocument, dict[str, Any]]:
+    facts = FactsDocument(
+        "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+        "a" * 40,
+        (
+            Fact("package:name", "package", "Aspose.Email.Foss", (Evidence("x"),)),
+            Fact("package:published_version", "package", "26.7.0", (Evidence("x"),)),
+            Fact(
+                "install_command:dotnet",
+                "install_command",
+                "dotnet add package Aspose.Email.Foss",
+                (Evidence("x"),),
+            ),
+            Fact(
+                "inherited_unit:012.paragraph",
+                "inherited_unit",
+                _EMAIL_UNIT_012,
+                (Evidence("x"),),
+            ),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:012.paragraph",
+                "disposition": "SUPERSEDE_REDUNDANT",
+                "destination_section": destination,
+                "fact_ids": ["install_command:dotnet", "package:name", "package:published_version"],
+                "rationale": "The paragraph is preserved as it correctly describes the package ID.",
+            }
+        ]
+    }
+    return facts, dispositions
+
+
+def _reject(
+    finding: dict[str, Any],
+    facts: FactsDocument,
+    candidate: str,
+    original: str = "",
+    dispositions: dict[str, Any] | None = None,
+    verdict: str = "REJECT_FACTUAL",
+) -> dict[str, Any]:
+    return review_document(
+        {"verdict": verdict, "findings": [finding], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=candidate,
+        facts=facts,
+        original_readme=original,
+        units={"units": []},
+        dispositions=dispositions,
+    )
+
+
+def test_a_finding_for_a_superseded_unit_whose_facts_the_section_renders_is_refuted() -> None:
+    """Aspose.Email-FOSS-for-.Net F03 (wave 3): reconciliation superseded the paragraph "The
+    published NuGet package ID is `Aspose.Email.Foss` (confirmed against ...)" into Installation
+    because the facts it cites (the package name, its published version, the dotnet command) are
+    all rendered there. The reviewer asked for that paragraph back; Installation is the renderer's,
+    so the repair was "unrepairable: section installation is deterministic" and the REJECT stood
+    for text no stage can write. Only OMIT_UNSUPPORTED was recognised as excluded."""
+    facts, dispositions = _email_world()
+    document = _reject(_EMAIL_F03, facts, _EMAIL_CANDIDATE, _EMAIL_ORIGINAL, dispositions)
+    assert document["findings"] == []
+    assert document["verdict"] == ACCEPT
+    assert document["verdict_as_returned"] == "REJECT_FACTUAL"
+    assert document["verdict_basis"] == "rejection_refuted_deterministically"
+    (record,) = document["advisory"]
+    # The honesty record names the rule and the unit, and says the unit was superseded.
+    assert record["refuted_by"]["rule"] == "EXCLUDED_DISPOSITION"
+    assert record["refuted_by"]["evidence"]["fact"] == "inherited_unit:012.paragraph"
+    assert record["refuted_by"]["evidence"]["disposition"] == "SUPERSEDE_REDUNDANT"
+    assert "SUPERSEDE_REDUNDANT" in record["reviewer_scope_defect"]
+
+
+def test_a_superseded_unit_refutes_nothing_unless_its_facts_are_on_the_page() -> None:
+    """Negative controls for the rule above: a supersession is a promise that the destination
+    carries the unit, so each way the promise is not kept leaves the REJECT standing."""
+    original = _EMAIL_ORIGINAL
+    # (1) A fact the supersession cites is not rendered in the section.
+    facts, dispositions = _email_world()
+    bare = _EMAIL_CANDIDATE.replace("dotnet add package Aspose.Email.Foss", "dotnet add package")
+    standing = _reject(_EMAIL_F03, facts, bare, original, dispositions)
+    assert standing["verdict"] == "REJECT_FACTUAL"
+    assert standing["verdict_basis"] == "rejection_stands"
+    assert [f["id"] for f in standing["findings"]] == ["F03"]
+    assert "refuted_by" not in standing["findings"][0]
+    # (2) The supersession routes the unit to a different section than the one the finding names.
+    facts, elsewhere = _email_world(destination="identity")
+    standing = _reject(_EMAIL_F03, facts, _EMAIL_CANDIDATE, original, elsewhere)
+    assert standing["verdict"] == "REJECT_FACTUAL"
+    # (3) The finding also claims something no excluded unit holds and the candidate lacks.
+    facts, dispositions = _email_world()
+    more = {**_EMAIL_F03, "absent": [*_EMAIL_F03["absent"], "Requires NuGet 6.0 or later."]}
+    standing = _reject(more, facts, _EMAIL_CANDIDATE, original, dispositions)
+    assert standing["verdict"] == "REJECT_FACTUAL"
+    assert [f["id"] for f in standing["findings"]] == ["F03"]
+    # (4) A unit reconciliation kept and placed is not excluded.
+    kept = {
+        "dispositions": [{**dispositions["dispositions"][0], "disposition": "VERIFIED_PRESERVE"}]
+    }
+    kept_review = _reject(_EMAIL_F03, facts, _EMAIL_CANDIDATE, original, kept)
+    assert kept_review["verdict"] == "REJECT_FACTUAL"
+    # (5) Without dispositions threaded the rule is inert, exactly as before.
+    assert _reject(_EMAIL_F03, facts, _EMAIL_CANDIDATE, original, None)["verdict"] == (
+        "REJECT_FACTUAL"
+    )
+
+
+_RUST_MERMAID = (
+    '```mermaid\nflowchart TD\n  subgraph StartingPoints["Starting Points"]\n'
+    '    direction TB\n    i1["An existing .xlsx workbook"]\n  end\n'
+    '  PRODUCT["Aspose.Cells FOSS for Rust"]\n'
+    '  subgraph Outputs["Outputs"]\n    direction TB\n'
+    '    o1[".xlsx workbook (file path, binary stream, or in-memory bytes)"]\n  end\n```'
+)
+_RUST_PATH_LEADIN = "For local development against a cloned copy, use a path dependency instead:"
+_RUST_PATH_BLOCK = (
+    "```toml\n[dependencies]\n"
+    'aspose-cells-foss-rust = { path = "../Aspose.Cells-FOSS-for-Rust" }\n```'
+)
+_RUST_GIT_BLOCK = (
+    "```toml\n[dependencies]\n"
+    'aspose-cells-foss-rust = { git = "https://github.com/aspose-cells-foss/'
+    'Aspose.Cells-FOSS-for-Rust" }\n```'
+)
+_RUST_CANDIDATE = (
+    "# Aspose.Cells FOSS for Rust\n\n## At a Glance\n\n```mermaid\nflowchart TD\n"
+    "  PRODUCT[...]\n  subgraph Capabilities[...]\n    c1[...]\n  end\n"
+    "  PRODUCT --> Capabilities\n```\n\n## Installation\n\n"
+    "`aspose-cells-foss-rust` is not yet published on crates.io; build it from a source "
+    "checkout instead, verified against this revision:\n\n"
+    "```bash\ngit clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust.git\n"
+    "cd Aspose.Cells-FOSS-for-Rust\ncargo build\n```\n\n## Dependencies\n\nNone.\n"
+)
+_RUST_ORIGINAL = "\n\n".join(
+    ["# Aspose.Cells FOSS for Rust", _RUST_MERMAID, _RUST_PATH_LEADIN, _RUST_PATH_BLOCK]
+)
+_RUST_F01: dict[str, Any] = {
+    "absent": ["Starting Points", "Outputs", "i1", "o1"],
+    "causal_stage": "S6",
+    "criterion": "presentation",
+    "fact_ids": [],
+    "id": "F01",
+    "omission": {
+        "kind": "omission",
+        "missing_ids": [],
+        "missing_quotes": [
+            "subgraph Starting Points[...]",
+            "subgraph Outputs[...]",
+            "Starting Points --> PRODUCT --> Capabilities --> Outputs",
+        ],
+        "section_id": "at_a_glance",
+    },
+    "quote": "```mermaid flowchart TD  PRODUCT[...]  subgraph Capabilities[...]  direction LR  "
+    "c1[...] end PRODUCT --> Capabilities ```",
+    "repair": "Restore the original At a Glance diagram structure with Starting Points and Outputs "
+    "subgraphs and the full flowchart arrow.",
+    "section_id": "at_a_glance",
+    "text": "The At a Glance diagram in the candidate omits the 'Starting Points' and 'Outputs' "
+    "subgraphs present in the original.",
+}
+_RUST_F03: dict[str, Any] = {
+    "absent": ["path dependency", "../Aspose.Cells-FOSS-for-Rust"],
+    "causal_stage": "S6",
+    "criterion": "presentation",
+    "fact_ids": ["install_command:cargo"],
+    "id": "F03",
+    "omission": {
+        "kind": "omission",
+        "missing_ids": [],
+        "missing_quotes": [
+            _RUST_PATH_LEADIN,
+            "[dependencies]",
+            "aspose-cells-foss-rust = { path = '../Aspose.Cells-FOSS-for-Rust' }",
+        ],
+        "section_id": "installation",
+    },
+    "quote": "`aspose-cells-foss-rust` is not yet published on crates.io; build it from a source "
+    "checkout instead, verified against this revision:",
+    "repair": "Restore the path dependency instruction for local development as present in the "
+    "original.",
+    "section_id": "installation",
+    "text": "The Installation section omits the path dependency instruction for local development.",
+}
+
+
+def _rust_world(
+    *, mermaid: str = "OMIT_UNSUPPORTED", leadin: str = "SUPERSEDE_REDUNDANT"
+) -> tuple[FactsDocument, dict[str, Any]]:
+    cargo = (
+        "git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust.git\n"
+        "cd Aspose.Cells-FOSS-for-Rust\ncargo build"
+    )
+    facts = FactsDocument(
+        "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+        "a" * 40,
+        (
+            Fact("install_command:cargo", "install_command", cargo, (Evidence("x"),)),
+            Fact(
+                "inherited_unit:008.code_block", "inherited_unit", _RUST_MERMAID, (Evidence("x"),)
+            ),
+            Fact(
+                "inherited_unit:013.code_block", "inherited_unit", _RUST_GIT_BLOCK, (Evidence("x"),)
+            ),
+            Fact(
+                "inherited_unit:014.paragraph",
+                "inherited_unit",
+                _RUST_PATH_LEADIN,
+                (Evidence("x"),),
+            ),
+            Fact(
+                "inherited_unit:015.code_block",
+                "inherited_unit",
+                _RUST_PATH_BLOCK,
+                (Evidence("x"),),
+            ),
+        ),
+    )
+
+    def entry(
+        unit: str, disposition: str, destination: str | None, ids: list[str]
+    ) -> dict[str, Any]:
+        return {
+            "unit_id": unit,
+            "disposition": disposition,
+            "destination_section": destination,
+            "fact_ids": ids,
+            "rationale": "r",
+        }
+
+    dispositions = {
+        "dispositions": [
+            entry("inherited_unit:008.code_block", mermaid, None, []),
+            entry("inherited_unit:013.code_block", "DEFER_UNRESOLVED", None, []),
+            entry(
+                "inherited_unit:014.paragraph", leadin, "installation", ["install_command:cargo"]
+            ),
+            entry("inherited_unit:015.code_block", "DEFER_UNRESOLVED", None, []),
+        ]
+    }
+    return facts, dispositions
+
+
+def test_short_claims_all_found_in_an_omitted_unit_are_the_reviewers_defect() -> None:
+    """Aspose.Cells-FOSS-for-Rust F01 (wave 3): the original's Mermaid Starting Points/Outputs
+    diagram (unit 008) was OMIT_UNSUPPORTED - no verified input or output format exists. The
+    finding names it by four short words and a subgraph quote; the old rule skipped every claim
+    under 40 characters, so the REJECT stood on content that cannot be written."""
+    facts, dispositions = _rust_world()
+    document = _reject(
+        _RUST_F01, facts, _RUST_CANDIDATE, _RUST_ORIGINAL, dispositions, "REJECT_PRESENTATION"
+    )
+    assert document["findings"] == [] and document["verdict"] == ACCEPT
+    (record,) = document["advisory"]
+    assert record["refuted_by"]["rule"] == "EXCLUDED_DISPOSITION"
+    assert record["refuted_by"]["evidence"]["fact"] == "inherited_unit:008.code_block"
+    assert record["refuted_by"]["evidence"]["disposition"] == "OMIT_UNSUPPORTED"
+    assert document["verdict_as_returned"] == "REJECT_PRESENTATION"
+
+
+def test_short_claims_stay_standing_when_they_prove_nothing_about_the_unit() -> None:
+    """Negative controls: a short claim can coincide with excluded text, so the rule demands the
+    whole finding be accounted for - never one lone short word, never a claim outside the unit."""
+    facts, dispositions = _rust_world()
+    rejected = "REJECT_PRESENTATION"
+    # One lone short claim is a coincidence risk (the 40-character floor's whole reason).
+    lone = {**_RUST_F01, "absent": ["Outputs"], "omission": None}
+    assert _reject(lone, facts, _RUST_CANDIDATE, _RUST_ORIGINAL, dispositions, rejected)[
+        "verdict"
+    ] == (rejected)
+    # A claim the unit does not hold, present in the original: a real remainder.
+    original = _RUST_ORIGINAL + "\n\nA Tutorial section follows."
+    extra = {**_RUST_F01, "absent": [*_RUST_F01["absent"], "Tutorial"]}
+    standing = _reject(extra, facts, _RUST_CANDIDATE, original, dispositions, rejected)
+    assert standing["verdict"] == rejected
+    assert [f["id"] for f in standing["findings"]] == ["F01"]
+    # The same finding against a unit reconciliation kept: nothing excluded, the REJECT stands.
+    facts, kept = _rust_world(mermaid="VERIFIED_PRESERVE")
+    kept_review = _reject(_RUST_F01, facts, _RUST_CANDIDATE, _RUST_ORIGINAL, kept, rejected)
+    assert kept_review["verdict"] == rejected
+    # A short claim must be a whole word of the unit: "oo" is inside "foo", not a word of it.
+    facts, dispositions = _rust_world()
+    inside = {**_RUST_F01, "absent": ["Outputs", "xlsx wor"], "omission": None}
+    assert _reject(inside, facts, _RUST_CANDIDATE, _RUST_ORIGINAL, dispositions, rejected)[
+        "verdict"
+    ] == (rejected)
+
+
+def test_a_finding_for_deferred_and_superseded_install_snippets_is_the_reviewers_defect() -> None:
+    """Aspose.Cells-FOSS-for-Rust F03 (wave 3): the original's path-dependency lead-in (unit 014,
+    SUPERSEDE_REDUNDANT into Installation) and its two TOML blocks (013, 015, DEFER_UNRESOLVED -
+    "not provably carried by the section named; held for the owner") are what the reviewer asks
+    for. A deferred unit is never rendered and BC-05's deferral classes already judge it (the
+    deferral is on validation.json's advisory list); Installation is the renderer's."""
+    facts, dispositions = _rust_world()
+    document = _reject(
+        _RUST_F03, facts, _RUST_CANDIDATE, _RUST_ORIGINAL, dispositions, "REJECT_PRESENTATION"
+    )
+    assert document["findings"] == [] and document["verdict"] == ACCEPT
+    (record,) = document["advisory"]
+    assert record["refuted_by"]["rule"] == "EXCLUDED_DISPOSITION"
+    units = {u["fact"]: u["disposition"] for u in record["refuted_by"]["evidence"]["units"]}
+    assert units["inherited_unit:014.paragraph"] == "SUPERSEDE_REDUNDANT"
+    assert "DEFER_UNRESOLVED" in units.values()
+    # Negative: with the lead-in kept rather than excluded, the claim it holds is a real remainder.
+    facts, kept = _rust_world(leadin="VERIFIED_PRESERVE")
+    standing = _reject(
+        _RUST_F03, facts, _RUST_CANDIDATE, _RUST_ORIGINAL, kept, "REJECT_PRESENTATION"
+    )
+    assert standing["verdict"] == "REJECT_PRESENTATION"
+    assert [f["id"] for f in standing["findings"]] == ["F03"]
+
+
+def test_the_quote_rule_still_reads_only_omitted_units() -> None:
+    """The quote rule is item 86's: a quote that is an OMIT_UNSUPPORTED unit's text is refuted. A
+    quote that is a DEFER_UNRESOLVED unit's text is not - the candidate would be carrying words
+    reconciliation held back, which may be unsupported - so only the claims rule reads deferrals."""
+    facts, dispositions = _rust_world()
+    by_id = {fact.id: fact for fact in facts.facts}
+    plain = {**_RUST_F03, "section_id": "key_capabilities", "fact_ids": [], "absent": []}
+    omitted = {**plain, "omission": None, "quote": _RUST_MERMAID}
+    refuted = refutation(scope_rulings(omitted, "", by_id, dispositions=dispositions))
+    assert refuted is not None and refuted.evidence["via"] == "quote"
+    deferred = {**plain, "omission": None, "quote": _RUST_GIT_BLOCK}
+    rules = {r.rule for r in scope_rulings(deferred, "", by_id, dispositions=dispositions)}
+    assert "EXCLUDED_DISPOSITION" not in rules
+
+
+_WORDS_VERSION_LINE = (
+    "Install the published package from NuGet (`Aspose.Words.FOSS`, version 26.3.0):"
+)
+_WORDS_CANDIDATE = f"# Aspose.Words FOSS for .NET\n\n## Installation\n\n{_WORDS_VERSION_LINE}\n"
+
+
+def _words_facts() -> FactsDocument:
+    return FactsDocument(
+        "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+        "a" * 40,
+        (
+            Fact("package:name", "package", "Aspose.Words.FOSS", (Evidence("x"),)),
+            Fact("package:published_version", "package", "26.3.0", (Evidence("x"),)),
+        ),
+    )
+
+
+def _words_f01(fact_ids: list[str], quote: str = _WORDS_VERSION_LINE) -> dict[str, Any]:
+    return {
+        "absent": [],
+        "unsupported_names": [],
+        "causal_stage": "S6",
+        "criterion": "factuality",
+        "fact_ids": fact_ids,
+        "id": "F01",
+        "omission": None,
+        "quote": quote,
+        "repair": "Remove the version claim.",
+        "section_id": "installation",
+        "text": "The candidate states the package version is 26.3.0, but no fact supports this "
+        "specific version claim.",
+    }
+
+
+def test_the_literal_value_refutation_prefers_the_fact_that_asserts_something() -> None:
+    """Aspose.Words-FOSS-for-.NET F01 (wave 3): the finding lists `package:name` first and
+    `package:published_version` second, and cites the second as the evidence for the very version
+    its quote carries. `_cited_literal` returned the FIRST cited fact whose value the quote
+    contains - the bare name - so the refutation became CITED_SYMBOL_NAMED, a judgment that never
+    folds, and a finding contradicted by its own citation blocked an unrepairable section."""
+    facts = _words_facts()
+    by_id = {fact.id: fact for fact in facts.facts}
+    finding = _words_f01(["package:name", "package:published_version"])
+    ruling = refutation(scope_rulings(finding, _WORDS_CANDIDATE, by_id))
+    assert ruling is not None and ruling.rule == "CITED_FACT_LITERAL"
+    assert "26.3.0" in ruling
+    document = _reject(finding, facts, _WORDS_CANDIDATE)
+    assert document["findings"] == [] and document["verdict"] == ACCEPT
+    (record,) = document["advisory"]
+    assert record["refuted_by"]["rule"] == "CITED_FACT_LITERAL"
+    assert record["refuted_by"]["evidence"]["fact"] == "package:published_version"
+    # The order the reviewer listed them in does not matter.
+    swapped = _words_f01(["package:published_version", "package:name"])
+    assert _reject(swapped, facts, _WORDS_CANDIDATE)["verdict"] == ACCEPT
+    # The presentation-labelled twin goes through the same shared path (its first deterministic
+    # ruling is the renderer-owned section's, so the shared rule is read from the whole stack).
+    twin = {**finding, "criterion": "presentation"}
+    assert "CITED_FACT_LITERAL" in {r.rule for r in scope_rulings(twin, _WORDS_CANDIDATE, by_id)}
+    assert (
+        _reject(twin, facts, _WORDS_CANDIDATE, verdict="REJECT_PRESENTATION")["verdict"] == ACCEPT
+    )
+
+
+def test_a_quote_carrying_only_a_cited_name_is_still_a_judgment_that_stands() -> None:
+    """Negative control: preferring the asserting fact must not turn a bare name into support.
+    The quote carries only `Aspose.Words.FOSS`, the finding says something else about it, so the
+    rejection stands as before."""
+    facts = _words_facts()
+    quote = "Install the published package from NuGet (`Aspose.Words.FOSS`):"
+    candidate = f"# Aspose.Words FOSS for .NET\n\n## Installation\n\n{quote}\n"
+    finding = _words_f01(["package:name", "package:published_version"], quote)
+    standing = _reject(finding, facts, candidate)
+    assert standing["verdict"] == "REJECT_FACTUAL"
+    assert standing["verdict_basis"] == "rejection_stands"
+    (record,) = standing["findings"]
+    assert "refuted_by" not in record
+    assert {r["rule"] for r in record["unrefuted_scope_rules"]} >= {"CITED_SYMBOL_NAMED"}

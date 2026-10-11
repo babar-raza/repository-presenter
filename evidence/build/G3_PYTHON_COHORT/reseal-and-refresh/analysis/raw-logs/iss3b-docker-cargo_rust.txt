@@ -1,0 +1,10 @@
+# repository clone: Aspose.Cells-FOSS-for-Rust
+# head: 1a6004af47b1ef15385f9d36d381a8172428cc7e
+# utc: 2026-10-11T18:10:26Z
+# image: rust:1
+# script: analysis/scripts/container_rust.sh (README blocks as probes, g++ -fsyntax-only)
+cargo 1.99.0 (5f94df478 2026-08-27)
+cargo test --all-targets exit: 0
+     15 running 0 tests
+     15 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+# end 2026-10-11T18:12:19Z

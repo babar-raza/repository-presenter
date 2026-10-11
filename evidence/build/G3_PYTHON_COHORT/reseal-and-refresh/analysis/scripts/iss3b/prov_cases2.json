@@ -1,0 +1,11 @@
+{
+  "pdfjava-limitations-md": ["aspose-pdf-foss/Aspose.PDF-FOSS-for-Java", "main", "docs/limitations.md", "XLSX, PPTX, EPUB, MOBI, Markdown, LaTeX, ZUGFeRD"],
+  "pdfjava-conversion-md": ["aspose-pdf-foss/Aspose.PDF-FOSS-for-Java", "main", "docs/conversion.md", "PDF ↔ XLSX"],
+  "3djava-fileformats": ["aspose-3d-foss/Aspose.3D-FOSS-for-Java", "main", "FILE_FORMATS.md", "format not yet implemented"],
+  "emailcpp-examples-readme": ["aspose-email-foss/Aspose.Email-FOSS-for-Cpp", "master", "examples/README.md", "cmake -S cpp -B cpp/out/build/examples"],
+  "emailnet-examples-readme": ["aspose-email-foss/Aspose.Email-FOSS-for-.Net", "main", "examples/README.md", "csharp/examples/"],
+  "cellscpp-tests-readme": ["aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp", "main", "Aspose.Cells.Foss.Cpp.Tests/README.md", "workspace"],
+  "cellsnet-agents": ["aspose-cells-foss/Aspose.Cells-FOSS-for-.NET", "master", "agents.md", "RELEASE_NOTES_V26.5.0.md"],
+  "cellsgo-gitignore": ["aspose-cells-foss/Aspose.Cells-FOSS-for-Go", "main", ".gitignore", "outputfiles"],
+  "wordsnet-readme-counts": ["aspose-words-foss/Aspose.Words-FOSS-for-.NET", "master", "README.md", "617 public types"]
+}

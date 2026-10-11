@@ -614,20 +614,32 @@ def test_record_writes_once_and_the_ledger_dedups(tmp_path: Path) -> None:
 
 
 def _legacy_payload() -> dict:
-    existing = sorted((REPO_ROOT / "evidence" / "upstream-defects").glob("*/*.json"))[0]
-    return json.loads(existing.read_text(encoding="utf-8"))
+    """The first committed handoff drafted before the class registry (it carries no class)."""
+    for existing in sorted((REPO_ROOT / "evidence" / "upstream-defects").glob("*/*.json")):
+        payload = json.loads(existing.read_text(encoding="utf-8"))
+        if "defect_class" not in payload:
+            return payload
+    raise AssertionError("no handoff without a defect class is on record")
 
 
-def test_every_existing_handoff_stays_valid_and_serializes_without_the_field() -> None:
+def test_every_handoff_on_record_stays_valid_with_or_without_the_field() -> None:
     paths = sorted((REPO_ROOT / "evidence" / "upstream-defects").glob("*/*.json"))
     assert paths
+    legacy = 0
     for path in paths:
         payload = json.loads(path.read_text(encoding="utf-8"))
-        assert "defect_class" not in payload
         assert list(VALIDATOR.iter_errors(payload)) == []
         handoff = handoff_from_dict(payload, path=path)
+        if "defect_class" in payload:
+            # A handoff drafted with a class round-trips it.
+            assert handoff.defect_class == payload["defect_class"]
+            assert handoff_to_dict(handoff)["defect_class"] == handoff.defect_class
+            continue
+        # A handoff drafted before the registry stays valid and serializes without the field.
+        legacy += 1
         assert handoff.defect_class is None
         assert "defect_class" not in handoff_to_dict(handoff)
+    assert legacy
 
 
 def test_a_defect_class_round_trips_and_an_unknown_one_is_refused() -> None:

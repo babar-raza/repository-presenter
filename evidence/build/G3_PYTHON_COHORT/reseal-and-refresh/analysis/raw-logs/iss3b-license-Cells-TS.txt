@@ -1,0 +1,24 @@
+# key: license-Cells-TS
+# repository clone: Aspose.Cells-FOSS-for-TypeScript
+# head: fc186507e5b7124f4664aa6035f25cfd3112367d
+# utc: 2026-10-11T17:48:17Z
+
+$ git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$'; echo root-match-exit=$?
+[exit 0]
+root-match-exit=1
+
+$ git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)' | head -8
+[exit 0]
+License/LICENSE.txt
+
+$ gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript --jq '"license=" + (.license|tostring)'
+[exit 0]
+license=null
+
+$ grep -n -i -E 'licen[sc]e|MIT' package.json | head -5
+[exit 0]
+
+
+$ gh api 'repos/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript/issues?state=open&per_page=100' --jq '.[] | "#\(.number) \(.title)"'; echo open-issues-listed
+[exit 0]
+open-issues-listed

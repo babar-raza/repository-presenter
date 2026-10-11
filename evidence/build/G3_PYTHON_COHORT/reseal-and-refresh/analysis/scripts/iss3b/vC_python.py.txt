@@ -1,0 +1,170 @@
+import sys, shutil, os
+sys.path.insert(0, r"<scratch>")
+from vlib import *
+PYEXE = r"C:/Users/babar/AppData/Local/Programs/Python/Python313/python.exe"
+VEN = SP / "venvs"; VEN.mkdir(exist_ok=True)
+WORK = SP / "work"; WORK.mkdir(exist_ok=True)
+which = sys.argv[1:]
+
+
+def venv(name):
+    p = VEN / name
+    if not (p / "Scripts" / "python.exe").exists():
+        sh(f'"{PYEXE}" -m venv "{p}"', timeout=300)
+    return str(p / "Scripts" / "python.exe").replace("\\", "/")
+
+
+def fence_lines(clone, start, end):
+    lines = (CLONES / clone / "README.md").read_text(encoding="utf-8").splitlines()[start - 1:end]
+    return "\n".join(lines) + "\n"
+
+
+def fence_at(clone, line_no):
+    txt = (CLONES / clone / "README.md").read_text(encoding="utf-8").splitlines()
+    i = line_no - 1
+    while not txt[i].startswith("```python"):
+        i -= 1
+    j = i + 1
+    while not txt[j].startswith("```"):
+        j += 1
+    return "\n".join(txt[i + 1:j]) + "\n", i + 2, j
+
+
+def case_3dpy():
+    py = venv("3dpy")
+    L = Log("repro-3D-Python-obj", "Aspose.3D-FOSS-for-Python")
+    w = WORK / "3dpy"
+    shutil.rmtree(w, ignore_errors=True)
+    w.mkdir()
+    L.run(f'"{py}" -m pip install -q -e . 2>&1 | tail -3', timeout=600)
+    src, a, b = fence_at("Aspose.3D-FOSS-for-Python", 283)
+    (w / "ex.py").write_text(src)
+    L.say(f"README.md lines {a}-{b} (the 'Position a Node With Transform' fence) saved as ex.py and run in an empty directory")
+    L.run(f"sed -n {a},{b}p README.md")
+    L.run(f'cd "{w}" && "{py}" ex.py 2>&1 | tail -8', cwd=w)
+    L.run(f'cd "{w}" && "{py}" -c "from aspose.threed import Scene; from aspose.threed.entities import Box; s=Scene(); s.root_node.create_child_node(\'b\', entity=Box().to_mesh()); s.save(\'o.stl\'); print(\'stl ok\')" 2>&1 | tail -3', cwd=w)
+    L.save()
+    L2 = Log("unittest-3D-Python", "Aspose.3D-FOSS-for-Python")
+    L2.run("grep -n -i '^examples' .gitignore; git ls-files examples | wc -l")
+    L2.run(f'PYTHONIOENCODING=utf-8 "{py}" -m unittest discover tests/ > "{WORK}/ut3d.txt" 2>&1; grep -E "^(Ran |FAILED|OK)" "{WORK}/ut3d.txt"; grep -E "^(ERROR|FAIL):" "{WORK}/ut3d.txt" | head -8; grep -E "FileNotFoundError" "{WORK}/ut3d.txt" | sort -u | head -6', timeout=900, max_lines=40)
+    L2.save()
+    L3 = Log("seturl-3D-Python", "Aspose.3D-FOSS-for-Python")
+    L3.run("grep -n 'url=' setup.py")
+    L3.run("curl -s -o /dev/null -w '%{http_code}\\n' https://github.com/aspose-3d/Aspose.3D-for-Python; curl -s -o /dev/null -w '%{http_code}\\n' https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python")
+    L3.run(f'curl -s https://pypi.org/pypi/aspose-3d-foss/json | "{py}" -c "import json,sys; i=json.load(sys.stdin)[\'info\']; print(i[\'version\'], i[\'home_page\'], i[\'project_urls\'])"')
+    L3.save()
+
+
+def case_tex():
+    py = venv("tex")
+    L = Log("ast-TeX-Python", "Aspose.TeX-FOSS-for-Python")
+    code = (
+        "import ast,sys,pathlib\n"
+        "bad=[];tot=0;srcbad=0;srctot=0\n"
+        "for p in sorted(pathlib.Path('.').rglob('*.py')):\n"
+        "    tot+=1; insrc=p.as_posix().startswith('src/aspose_tex')\n"
+        "    srctot+=insrc\n"
+        "    try: ast.parse(p.read_text(encoding='utf-8',errors='replace'))\n"
+        "    except SyntaxError as e: bad.append((p.as_posix(),type(e).__name__,e.lineno)); srcbad+=insrc\n"
+        "print('all .py files:',tot,'unparsable:',len(bad)); print('src/aspose_tex:',srctot,'unparsable:',srcbad)\n"
+        "print(bad[:3])\n"
+    )
+    f = WORK / "astscan.py"
+    f.write_text(code)
+    L.run(f'"{py}" -I "{f}"')
+    L.run(f'"{py}" -m pip install -q -e . 2>&1 | tail -3', timeout=600)
+    L.run(f'cd "{WORK}" && "{py}" -c "import aspose_tex" 2>&1 | tail -7', cwd=WORK)
+    L.run("sed -n 60,68p src/aspose_tex/_input/catcode.py | cut -c1-90")
+    L.save()
+
+
+def case_font():
+    py = venv("font")
+    L = Log("repro-Font-Python", "Aspose.Font-FOSS-for-Python")
+    w = WORK / "font"
+    shutil.rmtree(w, ignore_errors=True)
+    w.mkdir()
+    L.run(f'"{py}" -m pip install -q . 2>&1 | tail -3', timeout=900)
+    shutil.copy(CLONES / "Aspose.Font-FOSS-for-Python" / "testdata" / "Roboto-VariableFont_wdth,wght.ttf", w)
+    s, a, b = fence_at("Aspose.Font-FOSS-for-Python", 132)
+    (w / "ex1.py").write_text(s)
+    L.say(f"VariableInstanceBuilder fence = README.md lines {a}-{b}")
+    L.run(f'cd "{w}" && "{py}" ex1.py 2>&1 | tail -4', cwd=w)
+    s, a, b = fence_at("Aspose.Font-FOSS-for-Python", 390)
+    (w / "ex2.py").write_text(s)
+    L.say(f"Web optimizer fence = README.md lines {a}-{b}")
+    L.run(f'cd "{w}" && "{py}" ex2.py 2>&1 | tail -6', cwd=w, timeout=600)
+    probe = (
+        "from aspose_font import FontLoader, WebFontOptimizer\n"
+        "font = FontLoader.open('Roboto-VariableFont_wdth,wght.ttf')\n"
+        "b = WebFontOptimizer.build(font, presets=('latin','arabic'), text='Aspose', include_woff=False)\n"
+        "print('subset' in b.manifest, 'subset' in b.bundle.manifest)\n"
+        "l = WebFontOptimizer.build(font, include_woff=False, variable_mode='live')\n"
+        "print('requested_variable_mode' in l.manifest, 'requested_variable_mode' in l.bundle.manifest)\n"
+    )
+    (w / "p.py").write_text(probe)
+    L.run(f'cd "{w}" && "{py}" p.py 2>&1 | tail -4', cwd=w, timeout=600)
+    L.save()
+    L2 = Log("link-Font-Python", "Aspose.Font-FOSS-for-Python")
+    L2.run("grep -n 'one_command_web_optimizer' README.md")
+    L2.run("gh api repos/aspose-font-foss/Aspose.Font-FOSS-for-Python/contents/docs 2>&1 | head -3", gh=True)
+    L2.run("git ls-files | grep -i -E 'one_command|^docs/'; echo grep-exit=$?")
+    L2.save()
+    L3 = Log("pypi-Font-Python", "Aspose.Font-FOSS-for-Python")
+    L3.run("grep -n 'aspose-font\\[mcp\\]' README.md; grep -n '^name' pyproject.toml")
+    L3.run("curl -s -o /dev/null -w '%{http_code}\\n' https://pypi.org/pypi/aspose-font/json")
+    L3.run(f'cd "{w}" && "{py}" -m pip download aspose-font --no-deps -d dl 2>&1 | tail -3', cwd=w)
+    L3.run("curl -s -o /dev/null -w '%{http_code}\\n' https://pypi.org/pypi/aspose-font-foss/json")
+    L3.run("git ls-remote --tags origin | sed 's#.*refs/tags/##' | grep -v '\\^' | tail -3")
+    L3.save()
+
+
+def case_note():
+    py = venv("note")
+    L = Log("quickstart-Note-Python", "Aspose.Note-FOSS-for-Python")
+    w = WORK / "note"
+    shutil.rmtree(w, ignore_errors=True)
+    w.mkdir()
+    L.run(f'"{py}" -m pip install -q -e . 2>&1 | tail -3', timeout=600)
+    L.run("git ls-files | grep -i 'SimpleTable.one'")
+    sample = list((CLONES / "Aspose.Note-FOSS-for-Python").rglob("SimpleTable.one"))
+    shutil.copy(sample[0], w / "SimpleTable.one")
+    src, a, b = fence_at("Aspose.Note-FOSS-for-Python", 106)
+    (w / "ex.py").write_text(src)
+    L.say(f"README.md Quick Start fence = lines {a}-{b}")
+    L.run(f"sed -n {a},{b}p README.md")
+    L.run(f'cd "{w}" && "{py}" ex.py 2>&1 | tail -6', cwd=w)
+    L.run(f'cd "{w}" && "{py}" -c "from aspose.note import Document; d=Document(\'SimpleTable.one\'); print([type(p.Title).__name__ for p in d])"', cwd=w)
+    L.run("grep -n 'Title' README.md | sed -n 1,10p")
+    L.save()
+
+
+def case_html():
+    py = venv("html")
+    L = Log("w3c-fixture-HTML-Python", "Aspose.HTML-FOSS-for-Python")
+    L.run("grep -n 'build-backend' pyproject.toml")
+    w = WORK / "html"
+    shutil.rmtree(w, ignore_errors=True)
+    shutil.copytree(CLONES / "Aspose.HTML-FOSS-for-Python", w, ignore=shutil.ignore_patterns(".git"))
+    L.run(f'"{py}" -m pip install . 2>&1 | tail -6', cwd=w, timeout=600)
+    L.run(f'"{py}" -m pip install -q pytest 2>&1 | tail -1', cwd=w, timeout=600)
+    L.run("git ls-files tests/test_css/w3c | wc -l")
+    L.run("sed -n 19p tests/test_css/test_w3c_fixture_loader.py")
+    L.run(f'PYTHONPATH=src "{py}" -m pytest --collect-only -q tests/test_css/test_w3c_fixture_loader.py 2>&1 | tail -8', cwd=w, timeout=600)
+    L.save()
+
+
+def case_psdpy():
+    py = venv("psdpy")
+    L = Log("pytest-PSD-Python", "Aspose.PSD-FOSS-for-Python")
+    L.run(f'"{py}" -m pip install -q pytest 2>&1 | tail -1', timeout=600)
+    L.run(f'"{py}" -m pytest -q 2>&1 | tail -6', timeout=600)
+    L.run("ls aspose_psd_foss_test | grep -c 'tests.py'; ls aspose_psd_foss_test | grep -c '^test_'")
+    L.run(f'"{py}" -m pip install --dry-run --no-deps --no-build-isolation . 2>&1 | tail -3')
+    L.save()
+
+
+if __name__ == "__main__":
+    for name in which:
+        globals()["case_" + name]()
+    print("done", which)

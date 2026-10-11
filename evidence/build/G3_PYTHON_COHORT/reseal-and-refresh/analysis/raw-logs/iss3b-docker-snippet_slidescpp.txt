@@ -1,0 +1,24 @@
+# repository clone: Aspose.Slides-FOSS-for-Cpp
+# head: 469ce77a07b988c49deb930632b8276c89ec6b66
+# utc: 2026-10-11T18:09:45Z
+# image: gcc:13
+# script: analysis/scripts/container_slidescpp.sh (README blocks as probes, g++ -fsyntax-only)
+g++ (GCC) 13.5.0
+pugixml: Version: 1.13-0.2
+--- README Quick Start (block at README.md:242) verbatim, g++ -std=c++20 -fsyntax-only -Iinclude:
+exit=1
+/p/slidescpp/snippet_01_line242.cpp:14:19: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'
+--- same with #include <Aspose/Slides/Foss/slide.h> added:
+exit=0
+--- per-block table (blocks 02 and 10 are fragments that rely on earlier blocks):
+snippet_01_line242.cpp: exit=1 incomplete type 'class Aspose::Slides::Foss::Slide'
+snippet_02_line272.cpp: exit=1
+snippet_03_line285.cpp: exit=1 incomplete type 'class Aspose::Slides::Foss::Slide'
+snippet_04_line316.cpp: exit=1 incomplete type 'class Aspose::Slides::Foss::Slide'
+snippet_05_line342.cpp: exit=1 incomplete type 'class Aspose::Slides::Foss::Slide'
+snippet_06_line368.cpp: exit=1 incomplete type 'class Aspose::Slides::Foss::Slide'
+snippet_07_line394.cpp: exit=1 incomplete type 'class Aspose::Slides::Foss::Slide'
+snippet_08_line416.cpp: exit=0
+snippet_09_line446.cpp: exit=0
+snippet_10_line788.cpp: exit=1
+# end 2026-10-11T18:10:26Z

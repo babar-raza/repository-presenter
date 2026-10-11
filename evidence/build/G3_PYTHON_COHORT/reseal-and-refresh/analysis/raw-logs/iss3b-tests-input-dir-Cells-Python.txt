@@ -1,0 +1,19 @@
+# key: tests-input-dir-Cells-Python
+# repository clone: Aspose.Cells-FOSS-for-Python
+# head: 952317cad8db1880ed85be9814c24e9303930d49
+# utc: 2026-10-11T18:03:16Z
+
+$ git ls-files | grep -E '(^|/)input/' | wc -l
+[exit 0]
+0
+
+$ PYTHONPATH=. "<scratch>/venvs/cellspy/Scripts/python.exe" -m pytest -q examples/test_xlsx_to_json.py examples/test_xlsx_to_markdown.py 2>&1 | tail -8
+[exit 0]
+
+>       self.assertGreater(len(xlsx_files), 0, "No XLSX files found in input directory")
+E       AssertionError: 0 not greater than 0 : No XLSX files found in input directory
+
+examples\test_xlsx_to_markdown.py:51: AssertionError
+=========================== short test summary info ===========================
+FAILED examples/test_xlsx_to_markdown.py::TestXLSXToMarkdownConversion::test_convert_all_xlsx_to_markdown
+1 failed, 16 passed in 0.51s

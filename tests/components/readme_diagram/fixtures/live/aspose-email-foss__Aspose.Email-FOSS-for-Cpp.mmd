@@ -1,0 +1,23 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing MSG file (Outlook Message)"]
+    i2["An existing EML file (RFC 5322 / MIME)"]
+    i3["An existing CFB container (Compound File Binary)"]
+  end
+  PRODUCT["Aspose.Email FOSS for C++"]
+  subgraph Capabilities["Core Capabilities"]
+    direction TB
+    c1["Low-level CFB container read, build, and write"]
+    c2["Low-level MSG document read and write"]
+    c3["High-level message creation and editing"]
+    c4["Recipients and attachments, including embedded messages"]
+    c5["MSG/EML interoperability"]
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["MSG files (Outlook Message)"]
+    o2["EML files (RFC 5322 / MIME)"]
+    o3["CFB containers (Compound File Binary)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

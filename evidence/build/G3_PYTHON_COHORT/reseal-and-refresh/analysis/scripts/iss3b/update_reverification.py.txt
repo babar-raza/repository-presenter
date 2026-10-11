@@ -1,0 +1,124 @@
+"""Refresh evidence/upstream-defects/reverification.json after the 2026-10-11 re-verification (lane iss3b).
+
+For every handoff on record: recompute the evidence digest from the file, set the live head and the
+verification time from today's reads, and record the method and the raw log that holds the output.
+"""
+import datetime
+import json
+import sys
+from pathlib import Path
+
+from repository_presenter.components.issues.approval import evidence_digest
+from repository_presenter.components.issues.model import load_handoff
+
+root = Path(sys.argv[1])  # evidence/upstream-defects
+heads = json.load(open(sys.argv[2], encoding="utf-8"))  # heads_issues.json from today's reads
+RAWLOGS = "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs"
+now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+# short id -> (verdict, method, note, raw log keys)
+OURS = (
+    "The failing README text was written by the presenter's own merged README pull request, not by the maintainers; "
+    "the correction belongs to the README correction lane. Not an upstream defect: do not approve."
+)
+R = {
+    "c00f9615": ("CONFIRMED", "pip install -e . in a venv then import aspose_tex; ast.parse over every .py file at the live head (102 of 119, src/aspose_tex 35 of 45)", "", ["ast-TeX-Python"]),
+    "094c4163": ("CONFIRMED", "pip install -e . (Python 3.13.15) in a venv; README fence (lines 275-285) run in an empty directory: TypeError at ObjExporter.py:50; STL save of the same scene works", "", ["repro-3D-Python-obj"]),
+    "52d17222": ("CONFIRMED", "grep url= setup.py; curl HTTP status of the old and the real repository URL; PyPI JSON API for aspose-3d-foss", "", ["seturl-3D-Python"]),
+    "94ba0b5f": ("CONFIRMED", "git show HEAD:pyproject.toml and setup.py (no url, no [project.urls]); PyPI JSON API for aspose-page-foss (home_page None, project_urls None)", "", ["metadata-url-Page-Python"]),
+    "3f1b3176": ("CONFIRMED", "docker gcc:13, gcc:14, gcc:15 and silkeh/clang:latest: cmake -G Ninja then cmake --build -- -k 0 on Aspose.Cells.Foss.Cpp", "", ["docker-cellscpp_gcc_13", "docker-cellscpp_gcc_14", "docker-cellscpp_gcc_15", "docker-cellscpp_silkeh_clang_latest"]),
+    "b3df5761": ("CONFIRMED", "docker gcc:13, gcc:14, gcc:15 and silkeh/clang:latest: default cmake build of Aspose.Cells.Foss.Cpp (-Wall -Wextra -Werror)", "", ["docker-cellscpp_gcc_13", "docker-cellscpp_gcc_14", "docker-cellscpp_gcc_15", "docker-cellscpp_silkeh_clang_latest"]),
+    "7f0f3388": ("CONFIRMED", "docker ubuntu:24.04 g++-12/13/14 (clang++-18 accepts), gcc:14 and gcc:15 (clang 22 accepts): default cmake build, 9 translation units fail", "", ["docker-emailcpp_ubuntu24", "docker-emailcpp_gcc_14", "docker-emailcpp_gcc_15", "docker-emailcpp_silkeh_clang_latest"]),
+    "ae9f06b9": ("CONFIRMED", "pip install . in a venv: BackendUnavailable for setuptools.backends.legacy; grep build-backend pyproject.toml", "", ["w3c-fixture-HTML-Python"]),
+    "52ba0e1d": ("CONFIRMED", "pip install . in a venv; README fence (lines 296-417) run against testdata/Roboto-VariableFont_wdth,wght.ttf: KeyError 'subset'; probe prints False True", "", ["repro-Font-Python"]),
+    "dc90b681": ("CONFIRMED", "pip install . in a venv; README fence (lines 129-140) run: TypeError unexpected keyword argument 'instance_names'", "", ["repro-Font-Python"]),
+    "0dcf9304": ("CONFIRMED", "grep README.md for the link; gh api contents/docs (404); git ls-files shows no docs/ directory", "", ["link-Font-Python"]),
+    "a241746e": ("CONFIRMED", "grep README.md:539; curl pypi.org/pypi/aspose-font/json (404) and aspose-font-foss (404); pip download aspose-font --no-deps fails", "Held for the owner: the release is two days old, so re-check PyPI after 2026-10-16 and file only if it is still 404.", ["pypi-Font-Python"]),
+    "6532670d": ("CONFIRMED", "pip install -e . in a venv; README Quick Start fence (lines 105-110) run on testfiles/SimpleTable.one: AttributeError 'NoneType' object has no attribute 'TitleText'", "", ["quickstart-Note-Python"]),
+    "c04f74bf": ("CONFIRMED", "docker node:22 (v22.23.3, TypeScript from the lockfile): npm install then npx tsc --noEmit: 3 errors, exit 2", "", ["docker-cellsts_tsc"]),
+    "af8da760": ("CONFIRMED", "dotnet run (SDK 10.0.401) of a probe over the 45 public FileFormat fields (Save(path, format)): 1 ok, 44 NotImplementedException; Save(path) by extension works for 9 extensions; README Quick Start fence compiles only with using Aspose.ThreeD.Utilities and then throws", "Text re-drafted 2026-10-11: the original report covered only FBX7400Binary; the probe shows the failure is general to the FileFormat constants.", ["quickstart-3D-NET", "formats-probe-3D-NET"]),
+    "7e755ed8": ("CONFIRMED", "dotnet build of a net10.0 console project with the README Create a Chart fence (lines 242-256) plus using Aspose.Cells_FOSS: CS0200; Chart.cs:47 is get-only; gh pr view 3 (presenter PR deleting the line) is still OPEN", "Held for the owner: the presenter's own open pull request #3 (2026-09-19) already deletes the line; file only if it is closed unmerged. The failing line is the maintainers' (first in V26.9.0).", ["chartname-Cells-NET"]),
+    "ad94a06d": ("NOT_A_DEFECT", "dotnet build of the README fence (lines 166-172): CS1503 reproduces; git history of README.md: the line first appears in the presenter's commit 042a1e5f (2026-08-19)", OURS, ["fromfile-3D-NET", "provenance"]),
+    "9264bf05": ("NOT_A_DEFECT", "docker node:22 tsc --strict on the README fence (lines 144-154): TS2339 reproduces; git history of README.md: the line first appears in the presenter's commit 66cb26df (2026-09-18)", OURS, ["docker-threedts_readme_tsc", "provenance"]),
+    "74b4b0a3": ("NOT_A_DEFECT", "docker gcc:13 g++ -std=c++17 -fsyntax-only on the README snippet: no match for operator[] reproduces; adding WorksheetCollection.h fixes it; git history: the snippet first appears in the presenter's commit 9f852d0f (2026-08-13)", OURS, ["docker-snippet_cellscpp", "provenance"]),
+    "a1a661ef": ("NOT_A_DEFECT", "docker gcc:13 g++ -std=c++20 -fsyntax-only on the README create-from-scratch block: incomplete type reproduces; the block was made stand-alone by the presenter's README refresh c559fc3d (2026-09-18); the maintainers' later header change (57695cd3) also removed transitive includes", OURS, ["docker-snippet_pdfcpp", "provenance"]),
+    "f49213f4": ("NOT_A_DEFECT", "docker gcc:13 g++ -std=c++20 -fsyntax-only on the README TIFF block: incomplete type reproduces; same history as a1a661ef", OURS, ["docker-snippet_pdfcpp", "provenance"]),
+    "8b8b2cae": ("NOT_A_DEFECT", "docker gcc:13 (pugixml 1.13) g++ -std=c++20 -fsyntax-only on the README blocks: 6 of 10 fail without slide.h; the maintainers' README before the presenter's PR 6ed44d59 listed slide.h in nine places", OURS, ["docker-snippet_slidescpp", "provenance"]),
+}
+KEEP_VERDICT = {"a6f52c1a", "ef667e7d", "2c99dc76"}  # unchanged verdicts, only re-read
+EXTRA = {
+    "a6f52c1a": ("npm registry GET for @aspose/3d (404) and README search for 'no published package'", ["npm-registry-3D-TS"]),
+    "ef667e7d": ("npm registry GET for @asposefoss/pdf (404) and README source-install section", ["npm-registry-PDF-TS"]),
+    "2c99dc76": ("README grep at the live head (no dotnet add / nuget claim any more)", ["imaging-readme-Imaging-NET"]),
+}
+NEW = {
+    "cd17e99e": ("CONFIRMED", "dotnet build Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj -c Release (SDK 10.0.401): 369 Error(s), 45 Warning(s); 57 unresolved type names, 41 declared nowhere", ["build-GIS-NET"]),
+    "48692986": ("CONFIRMED", "pip install . --no-deps on the sparse clone: FileNotFoundError local/Version.txt; git ls-files local is empty; .gitignore line 9", ["version-txt-Page-Python"]),
+    "49f081e6": ("CONFIRMED", "dotnet test src/test/Aspose.ThreeD.Tests (net10.0): Failed 53, Passed 130, Total 183; 47 FileNotFoundException for testdata/ fixtures", ["testdata-3D-NET"]),
+    "ee780fd3": ("CONFIRMED", "docker node:22: npm install then npx jest: 4 failed, 93 passed, 97 total; per-test failure causes read from the jest output", ["docker-threedts_detail"]),
+    "b1d0d16b": ("CONFIRMED", "pytest 9.1.1 --collect-only -q: ModuleNotFoundError tests.test_css.w3c; Interrupted: 1 error during collection; 12296 tests collected", ["w3c-fixture-HTML-Python"]),
+    "18934ab2": ("CONFIRMED", "pip install -e . in a venv then python -m unittest discover tests/: Ran 123, FAILED (errors=5, skipped=5); FileNotFoundError for examples/", ["unittest-3D-Python"]),
+    "bb3b52f4": ("CONFIRMED", "docker python:3.12: pip install -e '.[dev]' then pytest ApiExamples: 1 failed, 26 passed; pdfplumber not installed", ["docker-wordspy_py312", "pdfplumber-Words-Python"]),
+    "cd25aa80": ("CONFIRMED", "git ls-files (no root license file); gh api repos/<r> --jq .license (null); package.json declares MIT", ["license-3D-TS"]),
+    "cf626176": ("CONFIRMED", "git ls-files (only License/LICENSE.txt, License/SkiaSharp.LICENSE.txt, License/ThirdPartyNotices.txt); gh api repos/<r> --jq .license (null)", ["license-Cells-NET"]),
+    "9bc5df82": ("CONFIRMED", "git ls-files (only License/LICENSE.txt); gh api repos/<r> --jq .license (null)", ["license-Cells-Cpp"]),
+    "83a93576": ("CONFIRMED", "git ls-files (License/LICENSE.txt and a generated docs/apidocs/legal/LICENSE); gh api repos/<r> --jq .license (null)", ["license-Cells-Java"]),
+    "a2e2612a": ("CONFIRMED", "git ls-files (only License/LICENSE.txt and License/ThirdPartyNotices.txt); gh api repos/<r> --jq .license (null)", ["license-Cells-Python"]),
+    "5dc560bf": ("CONFIRMED", "git ls-files (only License/LICENSE.txt); gh api repos/<r> --jq .license (null)", ["license-Cells-TS"]),
+    "9cdfad3e": ("CONFIRMED", "git ls-files (no license file anywhere); gh api repos/<r> --jq .license (null)", ["license-GIS"]),
+    "d0228692": ("CONFIRMED", "git ls-files (no README); gh api repos/<r>/readme is 404", ["license-GIS", "hygiene-GIS"]),
+    "0f1273fb": ("CONFIRMED", "grep csproj for Authors/PackageProjectUrl/RepositoryUrl; curl HTTP status of the yourorg URL (404) and the real repository (200)", ["placeholders-PSD-NET"]),
+}
+
+path = root / "reverification.json"
+doc = json.loads(path.read_text(encoding="utf-8"))
+old = {e["handoff_id"]: e for e in doc["entries"]}
+entries = {}
+for owner_dir in sorted(root.iterdir()):
+    if not owner_dir.is_dir():
+        continue
+    for f in sorted(owner_dir.glob("*.json")):
+        h = load_handoff(f)
+        hid = f"{owner_dir.name}__{f.stem}"
+        short = f.stem[:8]
+        digest = evidence_digest(h)
+        head = heads[h.repository]["head"] if h.repository in heads else None
+        prev = old.get(hid)
+        if short in R:
+            verdict, method, note, logs = R[short]
+            base_note = prev["note"] if prev else ""
+        elif short in KEEP_VERDICT:
+            verdict = prev["verdict"]
+            method, logs = EXTRA[short]
+            note, base_note = "", prev["note"]
+        elif short in NEW:
+            verdict, method, logs = NEW[short]
+            note, base_note = "", ""
+        else:
+            if prev:
+                entries[hid] = prev  # e.g. nothing else is expected here
+            continue
+        live = head if verdict != "FIXED_OR_CHANGED" else prev["live_head_sha"]
+        if verdict == "NOT_A_DEFECT" and short in {"a6f52c1a", "ef667e7d"}:
+            live = prev["live_head_sha"]
+        logtxt = ", ".join(f"{RAWLOGS}/iss3b-{k}.txt" for k in logs)
+        merged_note = " ".join(x for x in (base_note, note) if x).strip()
+        entries[hid] = {
+            "handoff_id": hid,
+            "verdict": verdict,
+            "live_head_sha": live,
+            "verified_at": now if verdict != "FIXED_OR_CHANGED" else prev["verified_at"],
+            "evidence_digest": digest,
+            "method": f"{method}; re-verified {now[:10]} (lane iss3b); raw logs: {logtxt}",
+            "note": merged_note or "Re-verified at the live head.",
+        }
+        if verdict == "FIXED_OR_CHANGED":
+            entries[hid]["method"] = f"{prev['method']}; {method}; re-read {now[:10]} (lane iss3b); raw logs: {logtxt}"
+            entries[hid]["verified_at"] = now
+        if verdict == "NOT_A_DEFECT" and short in {"a6f52c1a", "ef667e7d"}:
+            entries[hid]["method"] = f"{prev['method']}; {method}; re-read {now[:10]} (lane iss3b); raw logs: {logtxt}"
+            entries[hid]["verified_at"] = now
+# keep any previous entry whose handoff file no longer exists out of the record
+doc["entries"] = list(entries.values())
+path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+print("entries:", len(doc["entries"]))

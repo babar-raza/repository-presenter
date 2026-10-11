@@ -61,6 +61,37 @@ def test_the_review_and_authoring_prompts_carry_the_cut2_scope_rules() -> None:
     assert "unless a fact states the expansion" in authoring
 
 
+def test_the_review_prompt_lets_the_reviewer_see_and_trust_the_symbols_it_judges() -> None:
+    """BC-10 wave 4, cause 5: the reviewer denied names its own citations proved. v13 adds the
+    bounded `symbol_index` to the packet and tells the reviewer where a name's fact is; v14 adds
+    the typed `unsupported_names` (a changed prompt carries a new version)."""
+    manifest = load_manifests(REAL_PROMPTS)["independent_review"].manifest
+    assert manifest.version == "14"
+    assert "symbol_index" in manifest.packet.names and "symbol_index" in manifest.placeholders()
+    review = " ".join(manifest.system.split())
+    assert "Names are checked mechanically too." in review
+    assert "find its value in `facts` or `symbol_index`" in review
+    assert "a finding that denies it contradicts itself" in review
+    assert "table's grouping or category label" in review
+    assert "Never list a name in a finding that the candidate does not contain." in review
+
+
+def test_the_review_prompt_takes_the_denied_names_as_a_typed_field() -> None:
+    """A name denial is stated in `unsupported_names`, as an absence is in `absent`, so code looks
+    the names up and never reads the finding's text for them (RC8; tests/test_routing_fields.py)."""
+    manifest = load_manifests(REAL_PROMPTS)["independent_review"].manifest
+    finding = manifest.output.schema_["properties"]["findings"]["items"]
+    # Optional: a review recorded before v14, and a reply that leaves the field out, still
+    # validate; absent means the name-denial rule does not apply to that finding.
+    assert "unsupported_names" not in finding["required"]
+    names = finding["properties"]["unsupported_names"]
+    assert names["type"] == "array" and names["items"]["type"] == "string"
+    assert names["maxItems"] >= 25  # the wave-4 Go F05 finding listed 25 names
+    review = " ".join(manifest.system.split())
+    assert "put in `unsupported_names` each such name itself" in review
+    assert "`unsupported_names` is then the empty array" in review
+
+
 def test_a_manifest_edit_changes_only_its_own_hash(tmp_path: Path) -> None:
     prompts = _copy(tmp_path)
     before = load_manifests(prompts).hashes()

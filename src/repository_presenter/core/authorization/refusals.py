@@ -29,6 +29,9 @@ class Refusal(StrEnum):
     REVIEW_REJECTION_OVERRIDDEN = "review_rejection_overridden"
     NO_OP_PROOF_MISSING = "no_op_proof_missing"
     ACCEPTANCE_NOT_PASSED = "acceptance_not_passed"
+    # The correction gate (components/readme_correction/gate.py): a patch to the live README that
+    # re-derives byte for byte, edits only what its evidence dictates, and adds no failing check.
+    CORRECTION_NOT_PROVEN = "correction_not_proven"
     LOCAL_TEST_CANNOT_WRITE = "local_test_cannot_write"
     # Owner switch and credential presence (components/propose/effect.py).
     WRITE_NOT_ENABLED = "write_not_enabled"

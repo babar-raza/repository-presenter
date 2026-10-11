@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,7 @@ from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     unit_checks,
 )
+from repository_presenter.components.readme.composition.components.glance import diagram_failures
 from repository_presenter.components.readme.composition.placement import (
     api_reference_covered_fact_ids,
 )
@@ -26,7 +28,10 @@ from repository_presenter.components.readme.composition.renderer import (
     renders_verbatim,
     write_text,
 )
+from repository_presenter.components.readme.extractors.platforms.cpp import CPP
+from repository_presenter.components.readme_diagram import lint_source, parse, render_check
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.core.examples import PRELUDE_ATTRIBUTE
 from repository_presenter.core.facts import (
     SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
@@ -346,6 +351,60 @@ def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
     )
 
 
+def _with_a_project_path() -> RenderContext:
+    """Aspose.PSD-FOSS-for-.NET (wave 3): the facts hold the project file's whole path, the path
+    from the project folder, the file name and the namespace as accepted values."""
+
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("import_path:widget.core", "import_path", "Widget.Core"),
+            _fact(
+                "build_test_asset:project", "build_test_asset", "src/Widget.Core/Widget.Core.csproj"
+            ),
+            _fact("build_test_asset:folder", "build_test_asset", "Widget.Core/Widget.Core.csproj"),
+            _fact("build_test_asset:file", "build_test_asset", "Widget.Core.csproj"),
+        ),
+    )
+    return RenderContext(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+
+
+def test_prose_does_not_wrap_a_token_inside_the_span_a_longer_token_just_made() -> None:
+    """The shorter values (the namespace, the file name) were wrapped again inside the span the
+    folder path had just made, splitting it into ``src/`Widget.Core/`Widget.Core`.csproj` `` and
+    failing BC-04 on a code span that is no fact value (Aspose.PSD-FOSS-for-.NET, wave 3)."""
+    context = _with_a_project_path()
+    assert context.prose(
+        "Build it with dotnet build src/Widget.Core/Widget.Core.csproj, then run."
+    ) == ("Build it with dotnet build `src/Widget.Core/Widget.Core.csproj`, then run.")
+    assert context.prose("Edit Widget.Core/Widget.Core.csproj to change it.") == (
+        "Edit `Widget.Core/Widget.Core.csproj` to change it."
+    )
+
+
+def test_prose_leaves_a_code_span_the_text_already_has_alone() -> None:
+    """Negative control: a token inside a span the author wrote is already in a span."""
+    context = _with_a_project_path()
+    text = "Run `dotnet build src/Widget.Core/Widget.Core.csproj` first, then `Scene.save`."
+    assert context.prose(text) == (
+        "Run `dotnet build src/Widget.Core/Widget.Core.csproj` first, then `Scene.save`."
+    )
+
+
+def test_prose_still_wraps_a_token_beside_a_span_and_a_lone_value() -> None:
+    """Negative control: only a match inside a span is skipped; a value standing alone, or beside
+    a span (a call, a sibling), is wrapped as before."""
+    context = _with_a_project_path()
+    assert context.prose("Open other/Widget.Core.csproj in an editor.") == (
+        "Open other/`Widget.Core.csproj` in an editor."
+    )
+    assert context.prose("Use `Scene.save` and Widget.Core.csproj together, or Scene.save().") == (
+        "Use `Scene.save` and `Widget.Core.csproj` together, or `Scene.save()`."
+    )
+
+
 def test_prose_wraps_an_identifier_its_own_cited_inherited_unit_fact_spells_verbatim() -> None:
     """G4-W17 arrival item 69: renderer.prose must wrap exactly what unit_checks (authoring.py)
     already admitted for this same unit - an identifier spelled verbatim inside a SUPPORTED
@@ -583,6 +642,11 @@ def _command_facts() -> tuple[Fact, ...]:
             "build_test_asset",
             "python -m build",
             (Evidence(".github/workflows/ci.yml", "build command; job packaging runs `x`"),),
+            attributes={
+                "role": "build command",
+                "source": "ci workflow",
+                "precondition": "pip install build",
+            },
         ),
         Fact(
             "build_test_asset:test-command",
@@ -607,13 +671,17 @@ def test_development_and_testing_prints_the_build_and_test_commands_and_the_ci_m
     facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *_command_facts()))
     readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
     section = _development_section(readme)
+    # The matrix is prose, never the raw keys of the workflow ("os (...)", "python-version (...)").
     assert (
-        "The [ci workflow](.github/workflows/ci.yml) runs across os (ubuntu-latest, "
-        "windows-latest) and python-version (3.10, 3.11)."
+        "The [ci workflow](.github/workflows/ci.yml) runs on Ubuntu and Windows, "
+        "with Python 3.10 and 3.11."
     ) in section
+    assert "python-version" not in section and "ubuntu-latest" not in section
+    # `python -m build` needs the PyPA build package, which the project does not itself declare.
     assert section.rstrip("\n").endswith(
         "To build and run the tests from a clone, run:\n\n"
-        "```bash\npython -m build\npython -m unittest discover -s tests -v\n```"
+        "```bash\npip install build\npython -m build\n"
+        "python -m unittest discover -s tests -v\n```"
     )
 
 
@@ -647,7 +715,9 @@ def test_a_command_the_placed_inherited_block_already_carries_is_not_printed_twi
     }
     section = _development_section(render_readme(ENTRY, facts, PLAN, UNITS, dispositions))
     assert section.count("python -m unittest discover -s tests -v") == 1
-    assert "To build from a clone, run:\n\n```bash\npython -m build\n```" in section
+    assert (
+        "To build from a clone, run:\n\n```bash\npip install build\npython -m build\n```"
+    ) in section
     assert section.rstrip("\n").endswith(commands)
 
 
@@ -745,6 +815,24 @@ def test_an_unpublished_package_is_stated_plainly_and_only_verified_installs_ren
     assert render_readme(ENTRY, apache, PLAN, UNITS, DISPOSITIONS).endswith(
         "This project is licensed under the [Apache-2.0](LICENSE).\n"
     )
+
+
+def test_the_license_section_and_badge_link_the_licenses_directory_path_as_recorded() -> None:
+    """A license kept under `LICENSES/` (or `License/`) is linked by that real path, not by a root
+    `LICENSE` that does not exist; the fact's value is the only spelling the renderer reads."""
+    nested = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact(f.id, f.kind, "LICENSES/MIT.txt", f.evidence) if f.id == "license:file" else f
+            for f in FACTS.facts
+        ),
+    )
+    readme = render_readme(ENTRY, nested, PLAN, UNITS, DISPOSITIONS)
+    assert readme.splitlines()[-1].startswith(
+        "This project is licensed under the [MIT License](LICENSES/MIT.txt). "
+    )
+    assert "(LICENSE)" not in readme
 
 
 def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> None:
@@ -1314,6 +1402,7 @@ def test_development_and_testing_states_the_suite_size_and_links_the_release_wor
                     Evidence(".github/workflows/", "2 files; GitHub Actions workflows"),
                 ),
             ),
+            _release_workflow(".github/workflows/publish.yml", "job publish runs twine upload"),
         ),
     )
     readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
@@ -1323,6 +1412,276 @@ def test_development_and_testing_states_the_suite_size_and_links_the_release_wor
         "The suite covers 34 test files under `tests/`. "
         "Releases run through the [publish workflow](.github/workflows/publish.yml)."
     ) in section
+
+
+def _release_workflow(path: str, detail: str) -> Fact:
+    """The release-workflow fact as the extractor records it: a workflow with a releasing step."""
+    return Fact(
+        "build_test_asset:release-workflow",
+        "build_test_asset",
+        path,
+        (Evidence(path, f"release step; {detail}"),),
+        attributes={"role": "release workflow", "workflow": path},
+    )
+
+
+def _facts_with_workflows(*extra: Fact, paths: tuple[str, ...]) -> FactsDocument:
+    """The build assets of a repository whose workflow directory holds ``paths``."""
+    ci = Fact(
+        "build_test_asset:ci",
+        "build_test_asset",
+        ".github/workflows/",
+        (
+            *(Evidence(path) for path in paths),
+            Evidence(".github/workflows/", f"{len(paths)} files; GitHub Actions workflows"),
+        ),
+    )
+    return FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, ci, *extra))
+
+
+@pytest.mark.parametrize(
+    "paths",
+    [
+        # JMAP .NET/Cpp/Go/Java/Python/Rust/TypeScript: ci.yml is a secret scan and a test run;
+        # nothing is published (acc-corr2-set2).
+        (".github/workflows/ci.yml",),
+        # PDF-Go: lint.yml is golangci-lint; its releases are manual.
+        (".github/workflows/lint.yml",),
+        (".github/workflows/ci.yml", ".github/workflows/lint.yml"),
+        # A file name that says release proves nothing: only a releasing step does.
+        (".github/workflows/release-notes.yml",),
+    ],
+)
+def test_no_release_sentence_is_written_when_no_workflow_has_a_releasing_step(
+    paths: tuple[str, ...],
+) -> None:
+    facts = _facts_with_workflows(paths=paths)
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "Releases run through" not in readme
+    assert not any("Releases run" in s for s in renderer_sentences(ENTRY, facts, PLAN, UNITS, {}))
+
+
+def test_the_release_sentence_names_the_workflow_that_releases_not_the_first_one() -> None:
+    facts = _facts_with_workflows(
+        _release_workflow(
+            ".github/workflows/ci.yml", "job publish uses pypa/gh-action-pypi-publish"
+        ),
+        paths=(".github/workflows/ci.yml", ".github/workflows/lint.yml"),
+    )
+    section = _development_section(render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS))
+    assert "Releases run through the [ci workflow](.github/workflows/ci.yml)." in section
+    assert "lint workflow" not in section
+    assert "Releases run through the [ci workflow](.github/workflows/ci.yml)." in (
+        renderer_sentences(ENTRY, facts, PLAN, UNITS, {})
+    )
+
+
+def _matrix_fact(value: str) -> Fact:
+    return Fact(
+        "build_test_asset:ci-matrix",
+        "build_test_asset",
+        value,
+        (Evidence(".github/workflows/ci.yml", "job tests strategy.matrix axes"),),
+    )
+
+
+@pytest.mark.parametrize(
+    ("value", "sentence"),
+    [
+        (
+            "python-version=3.10,3.12",
+            "The [ci workflow](.github/workflows/ci.yml) runs with Python 3.10 and 3.12.",
+        ),
+        (
+            "os=ubuntu-latest,windows-latest;python-version=3.10,3.11,3.12",
+            "The [ci workflow](.github/workflows/ci.yml) runs on Ubuntu and Windows, "
+            "with Python 3.10, 3.11 and 3.12.",
+        ),
+        (
+            "os=ubuntu-22.04,macos-14,windows-2022",
+            "The [ci workflow](.github/workflows/ci.yml) runs on Ubuntu 22.04, macOS 14 and "
+            "Windows 2022.",
+        ),
+        (
+            "node-version=18,20;dotnet-version=8.0;go-version=1.22;java-version=17,21;jdk=21",
+            "The [ci workflow](.github/workflows/ci.yml) runs with Node.js 18 and 20; .NET 8.0; "
+            "Go 1.22; Java 17 and 21; JDK 21.",
+        ),
+        (
+            "rust=stable,nightly",
+            "The [ci workflow](.github/workflows/ci.yml) runs with Rust stable and nightly.",
+        ),
+        # An axis the table does not know, or a value that is not a plain version, is quoted.
+        (
+            "toolchain=stable,nightly;os=self-hosted",
+            "The [ci workflow](.github/workflows/ci.yml) runs with `toolchain: stable, nightly`; "
+            "`os: self-hosted`.",
+        ),
+        (
+            "python-version=3.x,pypy-3.10",
+            "The [ci workflow](.github/workflows/ci.yml) runs with `python-version: 3.x, "
+            "pypy-3.10`.",
+        ),
+    ],
+)
+def test_the_ci_matrix_is_written_in_words_not_as_workflow_keys(value: str, sentence: str) -> None:
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, _matrix_fact(value)))
+    assert sentence in renderer_sentences(ENTRY, facts, PLAN, UNITS, {})
+    assert sentence in _development_section(render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS))
+
+
+def _command_fact(role: str, command: str, precondition: str = "") -> Fact:
+    attributes = {"role": f"{role} command", "source": "ci workflow"}
+    if precondition:
+        attributes["precondition"] = precondition
+    return Fact(
+        f"build_test_asset:{role}-command",
+        "build_test_asset",
+        command,
+        (Evidence(".github/workflows/ci.yml", f"{role} command; job j runs `{command}`"),),
+        attributes=attributes,
+    )
+
+
+def _commands_block(readme: str) -> str:
+    section = _development_section(readme)
+    return section.split("run:\n\n", 1)[1] if "run:\n\n" in section else ""
+
+
+@pytest.mark.parametrize(
+    ("command", "shown"),
+    [
+        # JMAP-Python: the fact is `python -m pytest -q`, the live README says `pytest`.
+        ("python -m pytest -q", "```bash\npytest\n```"),
+        # 3D-Java / Cells-Java: `mvn package` against the maintainers' `mvn clean package`.
+        ("mvn package", "```bash\nmvn clean package -DskipTests\n```"),
+        # Cells-.NET / Imaging: a solution build against an existing project build.
+        ("dotnet build App.sln", "```bash\ndotnet build src/App/App.csproj\n```"),
+        ("dotnet test", "```bash\ndotnet test App.sln --no-build\n```"),
+        # Whitespace, a prompt, and a wrapper do not make a different command.
+        ("cargo test --all-targets", "```console\n$   cargo   test\n```"),
+        ("pytest", "```bash\nuv run python -m pytest tests/\n```"),
+        ("npm test", "```bash\nnpm run test\n```"),
+        # Inline code in the authored prose counts as showing it.
+        (
+            "python -m unittest discover -s tests -v",
+            "Run `python -m unittest discover -s tests -v`.",
+        ),
+        ("go test ./...", "Run `go test ./...` before sending a change."),
+        # A command chained after another is still shown.
+        ("cmake --build build --parallel 4", "```bash\ncd x && cmake --build build\n```"),
+    ],
+)
+def test_a_command_is_skipped_when_an_equivalent_one_is_shown_anywhere_in_the_readme(
+    command: str, shown: str
+) -> None:
+    units = {
+        "units": [*UNITS["units"], _unit("quick_start", "tip", shown)],
+        "omitted": [],
+    }
+    facts = FactsDocument(
+        ENTRY.repository, "a" * 40, (*FACTS.facts, _command_fact("test", command))
+    )
+    readme = render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS)
+    assert _commands_block(readme) == ""
+    assert "from a clone" not in _development_section(readme)
+    assert renderer_sentences(ENTRY, facts, PLAN, units, {}) == renderer_sentences(
+        ENTRY, FactsDocument(ENTRY.repository, "a" * 40, FACTS.facts), PLAN, units, {}
+    )
+
+
+@pytest.mark.parametrize(
+    ("role", "command", "shown"),
+    [
+        # A different subcommand, a narrower target and a different program are different commands.
+        ("build", "mvn package", "```bash\nmvn test\n```"),
+        ("test", "make test", "```bash\nmake\n```"),
+        ("build", "cargo build", "```bash\ncargo doc\n```\nThen `cargo` is used."),
+        ("test", "go test ./...", "```bash\ngo test ./internal/...\n```"),
+        ("test", "ctest --test-dir build", "```bash\ncmake --build build\n```"),
+        ("test", "pytest", "```bash\npip install pytest\n```"),
+        ("build", "npm run build", "```bash\nnpm test\n```"),
+        ("build", "cmake --build build", "```bash\ncmake -S . -B build\n```"),
+    ],
+)
+def test_a_command_is_printed_when_only_a_different_one_is_shown(
+    role: str, command: str, shown: str
+) -> None:
+    units = {
+        "units": [*UNITS["units"], _unit("quick_start", "tip", shown)],
+        "omitted": [],
+    }
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, _command_fact(role, command)))
+    block = _commands_block(render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS))
+    assert command in block
+
+
+def test_a_command_the_placed_inherited_block_of_another_section_shows_is_not_printed() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _command_fact("build", "mvn package"),
+            _command_fact("test", "mvn test"),
+            Fact(
+                "inherited_unit:010.code_block",
+                "inherited_unit",
+                "```bash\nmvn clean package\n```",
+                (Evidence("README.md", "lines 20-22; code_block"),),
+            ),
+        ),
+    )
+    dispositions: dict[str, Any] = {
+        "dispositions": [
+            *DISPOSITIONS["dispositions"],
+            {
+                "unit_id": "inherited_unit:010.code_block",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "installation",
+                "fact_ids": ["build_test_asset:build-command"],
+                "rationale": "r",
+            },
+        ]
+    }
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, dispositions)
+    assert "mvn clean package" in readme
+    # The maintainers' block sits in Installation; Development and Testing prints only `mvn test`.
+    assert _commands_block(readme) == "```bash\nmvn test\n```\n"
+
+
+def test_a_precondition_already_shown_is_not_printed_again() -> None:
+    units = {
+        "units": [
+            *UNITS["units"],
+            _unit("installation", "tip", "Run `python -m pip install build`."),
+        ],
+        "omitted": [],
+    }
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _command_fact("build", "python -m build", "pip install build")),
+    )
+    block = _commands_block(render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS))
+    assert block == "```bash\npython -m build\n```\n"
+
+
+def test_a_cmake_chain_prints_its_configure_step_once() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _command_fact("build", "cmake --build build --parallel 4", "cmake -S . -B build"),
+            _command_fact("test", "ctest --test-dir build", "cmake -S . -B build"),
+        ),
+    )
+    block = _commands_block(render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS))
+    assert block == (
+        "```bash\ncmake -S . -B build\ncmake --build build --parallel 4\n"
+        "ctest --test-dir build\n```\n"
+    )
 
 
 def test_every_limitation_unit_renders_as_its_own_bullet() -> None:
@@ -1711,23 +2070,32 @@ def test_the_banner_is_a_linked_image_from_both_verified_facts_or_absent() -> No
     assert "banner-readme.png" not in render_readme(ENTRY, one, plan, UNITS, DISPOSITIONS)
 
 
-def test_at_a_glance_is_the_one_chain_of_section_2_1() -> None:
-    lines = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS).splitlines()
+def _glance_section(readme: str) -> list[str]:
+    lines = readme.splitlines()
     start = lines.index("## At a Glance")
     end = lines.index("## Key Capabilities")
-    section = [line for line in lines[start + 1 : end] if line.strip()]
+    return [line for line in lines[start + 1 : end] if line.strip()]
+
+
+def test_at_a_glance_is_the_one_chain_of_section_2_1() -> None:
+    # Updated for R7 (OD-10): the same chain, drawn left to right with SVG labels and pinned columns
+    # (components/readme_diagram) instead of the top-to-bottom `flowchart TD` with HTML labels.
+    section = _glance_section(render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS))
     assert section == [
         "```mermaid",
-        "flowchart TD",
+        '%%{init: {"htmlLabels": false, "flowchart": {"htmlLabels": false, "nodeSpacing": 22, '
+        '"rankSpacing": 26, "padding": 10, "useMaxWidth": true, "wrappingWidth": 400}}}%%',
+        "flowchart LR",
         '  subgraph StartingPoints["Starting Points"]',
-        "    direction LR",
+        "    direction TB",
         '    i1["An existing OBJ file"]',
         "  end",
-        '  PRODUCT["Aspose.3D FOSS for Python"]',
+        '  PRODUCT["Aspose.3D<br/>FOSS for Python"]',
         '  subgraph Capabilities["Core Capabilities"]',
         "    direction TB",
         '    c1["Build scenes"]',
         '    c2["Save GLB"]',
+        "    c1 ~~~ c2",
         "  end",
         '  subgraph Outputs["Outputs"]',
         "    direction TB",
@@ -1736,6 +2104,36 @@ def test_at_a_glance_is_the_one_chain_of_section_2_1() -> None:
         "  StartingPoints --> PRODUCT --> Capabilities --> Outputs",
         "```",
     ]
+
+
+def test_the_rendered_at_a_glance_runs_left_to_right_and_its_labels_cannot_clip() -> None:
+    """The clipping model: the production renderer's diagram is the contract's own drawing - no
+    ``flowchart TD``, SVG labels, every label inside the pixel budget - and every node keeps the
+    words the plan chose (R7/OD-10, README_STANDARD.md STR-28)."""
+    body = "\n".join(_glance_section(render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS))[1:-1])
+    assert body.splitlines()[1] == "flowchart LR" and "flowchart TD" not in body
+    assert '"htmlLabels": false' in body.splitlines()[0]
+    assert lint_source(body).conforming
+    # The fixture plan carries two capabilities, which planning would refuse; that is the only
+    # contract finding: the drawing itself, its geometry and its labels are the contract's own.
+    assert [f.message for f in diagram_failures(body, True)] == [
+        "At a Glance shows 2 capabilities; at least 3"
+    ]
+    glance = parse(body).glance
+    assert glance.starting_points == ("An existing OBJ file",)
+    assert glance.capabilities == ("Build scenes", "Save GLB")
+    assert glance.outputs == ("GLB file",) and glance.product == "Aspose.3D FOSS for Python"
+
+
+def test_the_rendered_at_a_glance_passes_a_real_render_in_every_font() -> None:
+    """The real render (skipped when no browser renderer is installed, see render_check.py): the
+    three blocks sit left to right, no label exceeds its box natively or in five wider fonts."""
+    renderer = render_check.find_renderer(os.environ)
+    if renderer is None:
+        pytest.skip("no Mermaid renderer installed (RP_MERMAID_TOOLS)")
+    body = "\n".join(_glance_section(render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS))[1:-1])
+    run = render_check.measure(renderer, {"production": body + "\n"})
+    assert render_check.check_entry(run.entries["production"], parse(body).glance) == []
 
 
 def test_at_a_glance_drops_absent_groups_and_balances_six_or_more_capabilities() -> None:
@@ -1753,7 +2151,15 @@ def test_at_a_glance_drops_absent_groups_and_balances_six_or_more_capabilities()
     assert "  PRODUCT --> Capabilities" + chr(10) in readme
     assert '    subgraph capl[" "]' in readme and '    subgraph capr[" "]' in readme
     assert '      c3["Read OBJ"]' in readme and '      c4["Write STL"]' in readme
-    assert "~~~" not in readme
+    # Updated for R7 (OD-10): the columns are pinned top to bottom by invisible `~~~` edges (the
+    # reading order a renderer would otherwise choose), where the old drawing had no such edge.
+    assert "      c1 ~~~ c2 ~~~ c3" in readme and "      c4 ~~~ c5 ~~~ c6" in readme
+    # The right column is declared first: Mermaid draws sibling clusters in reverse order, so the
+    # first half of the capabilities lands on the left.
+    assert readme.index('subgraph capr[" "]') < readme.index('subgraph capl[" "]')
+    glance = parse("\n".join(_glance_section(readme)[1:-1])).glance
+    assert [len(column) for column in glance.capability_columns] == [3, 3]
+    assert glance.capabilities == tuple(titles)
 
 
 def test_the_flagship_example_stands_visible_before_the_collapsed_block() -> None:
@@ -2299,3 +2705,300 @@ def test_the_enterprise_paragraph_never_follows_its_full_stop_with_a_lower_case_
     assert scope.rstrip("\n").endswith(
         "(https://products.aspose.com/3d/python-net/). " + printed
     ), scope
+
+
+def test_an_example_is_printed_as_the_program_its_receipt_compiled() -> None:
+    """Wave-3 acceptance review, Slides-.NET: the harness supplied `using` directives the README
+    never printed, so printed examples failed CS0103/CS0246. Every place the renderer prints a
+    verified example prints the receipt's prelude in front of it; an example that needed none is
+    printed exactly as before."""
+    prelude = {PRELUDE_ATTRIBUTE: "import math"}
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact(
+                f.id,
+                f.kind,
+                f.value,
+                f.evidence,
+                polarity=f.polarity,
+                attributes=prelude if f.id in {"example:001", "example:002"} else f.attributes,
+            )
+            for f in FACTS.facts
+        ),
+    )
+    plan = {**PLAN, "second_quick_start_example_id": "example:002", "additional_example_ids": []}
+    units = {
+        "units": [*UNITS["units"], _unit("quick_start", "lead_in:2", "Build a scene.")],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, plan, units, DISPOSITIONS)
+    assert "```python\nimport math\nfrom aspose.threed import Scene\n" in readme
+    assert "```python\nimport math\nprint(2)\n```" in readme
+    plain = render_readme(ENTRY, FACTS, plan, units, DISPOSITIONS)
+    assert "import math" not in plain
+
+
+def test_a_moved_limitations_table_renders_every_row_in_scope() -> None:
+    """The Scope section prints a VERIFIED_MOVE'd limitations table as written, after the bullets
+    and before the Enterprise paragraph, with every row (Slides-.NET lost both of its tables)."""
+    table = (
+        "| Feature | Status |\n| --- | --- |\n| Charts | not implemented |\n| SmartArt | missing |"
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("inherited_unit:020.table", "inherited_unit", table)),
+    )
+    moved = {
+        "unit_id": "inherited_unit:020.table",
+        "disposition": "VERIFIED_MOVE",
+        "destination_section": "scope_limitations",
+        "fact_ids": ["package:name"],
+        "rationale": "r",
+    }
+    plan = {**PLAN, "material_limitations": [{"fact_ids": ["package:name"], "unit_ids": []}]}
+    readme = render_readme(
+        ENTRY, facts, plan, UNITS, {"dispositions": [*DISPOSITIONS["dispositions"], moved]}
+    )
+    scope = readme.split("## Scope", 1)[1].split("\n## ", 1)[0]
+    assert table in scope
+
+
+# --- C++ (wave-3 triage U7/U15): the CMake minimum and the NuGet distribution a registry confirmed
+CPP_ENTRY = RegistryEntry.model_validate(
+    {
+        "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+        "family": "slides",
+        "platform": "cpp",
+        "ecosystem": CPP.ecosystem,  # importing the platform module registers the C++ spec
+        "mode": "dry_run",
+        "policy_profile": "p",
+        "active": True,
+        "provider_identity": {"provider": "github", "repository_id": 2, "node_id": "R_2"},
+    }
+)
+CPP_SOURCE_BUILD = (
+    "git clone https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.git\n"
+    "cd Aspose.Slides-FOSS-for-Cpp\ncmake -S . -B build"
+)
+
+
+def _cpp_context(*facts: Fact) -> RenderContext:
+    base = (
+        _fact("identity:repository", "identity", CPP_ENTRY.repository),
+        _fact("package:name", "package", "AsposeSlidesFoss"),
+    )
+    document = FactsDocument(CPP_ENTRY.repository, "a" * 40, (*base, *facts))
+    return RenderContext(CPP_ENTRY, document, {"sections": []}, {"units": []}, {"dispositions": []})
+
+
+def _cmake_fact(path: str, value: str = "3.26", fact_id: str = "package:cmake_minimum") -> Fact:
+    return Fact(
+        fact_id,
+        "package",
+        value,
+        (Evidence(path, "lowest CMake version `cmake_minimum_required` accepts"),),
+    )
+
+
+def _cpp_standard() -> Fact:
+    return Fact(
+        "package:cxx_standard",
+        "package",
+        "17",
+        (Evidence("CMakeLists.txt", "C++ standard the project's own build requires"),),
+    )
+
+
+def _cpp_source_install() -> Fact:
+    return Fact(
+        "install_command:cmake",
+        "install_command",
+        CPP_SOURCE_BUILD,
+        (Evidence("CMakeLists.txt", "verified source build: the library compiled"),),
+        attributes={"install_kind": "source"},
+    )
+
+
+def _cpp_distribution(polarity: str = "SUPPORTED") -> Fact:
+    return Fact(
+        "package:distribution.aspose-slides-cpp-foss",
+        "package",
+        "Aspose.Slides.Cpp.FOSS",
+        (Evidence("README.md", "NuGet package the repository's own README names"),),
+        polarity=polarity,  # type: ignore[arg-type]
+        attributes={"registry": "nuget"},
+    )
+
+
+def test_dependencies_state_the_cmake_minimum_beside_the_cxx_standard() -> None:
+    """Email-Cpp F02, wave 3: ``package:cmake_minimum`` (3.26) was extracted and SUPPORTED but no
+    row read it, the independent review rightly rejected the omission, and a renderer-owned
+    section cannot be repaired. The same holds for Cells-, PDF- and Slides-Cpp."""
+    from repository_presenter.components.readme.composition.renderer import _dependencies
+
+    context = _cpp_context(_cpp_standard(), _cmake_fact("CMakeLists.txt"))
+    assert _dependencies(context) == [
+        "### Native and System Requirements",
+        "",
+        "- Requires C++ `17` (`CMAKE_CXX_STANDARD` in `CMakeLists.txt`).",
+        "- Requires CMake 3.26 or later (`cmake_minimum_required` in `CMakeLists.txt`).",
+    ]
+    # The minimum alone still earns the heading; a range is not turned into "or later".
+    alone = _dependencies(_cpp_context(_cmake_fact("lib/CMakeLists.txt", "3.20...3.30")))
+    assert alone == [
+        "### Native and System Requirements",
+        "",
+        "- Requires CMake `3.20...3.30` (`cmake_minimum_required` in `lib/CMakeLists.txt`).",
+    ]
+
+
+def test_an_unsupported_cmake_minimum_and_an_ecosystem_without_a_build_tool_print_nothing() -> None:
+    from repository_presenter.components.readme.composition.renderer import _dependencies
+
+    unresolved = Fact(
+        "package:cmake_minimum",
+        "package",
+        "3.26",
+        (Evidence("CMakeLists.txt", "x"),),
+        polarity="UNRESOLVED",
+    )
+    assert _dependencies(_cpp_context(unresolved)) == []
+    # Python declares no build tool minimum: its Dependencies bytes do not move.
+    readme = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert "CMake" not in readme
+
+
+def test_installation_states_the_nuget_distribution_a_registry_confirmed() -> None:
+    """Slides-Cpp F01, wave 3: "`AsposeSlidesFoss` is not yet published on any package
+    registry" -- false, NuGet lists `Aspose.Slides.Cpp.FOSS` (and Cells and PDF). A distribution
+    the registry confirmed as this repository's own is what a reader installs."""
+    from repository_presenter.components.readme.composition.renderer import _installation
+
+    lines = _installation(_cpp_context(_cpp_source_install(), _cpp_distribution()))
+    assert lines == [
+        "The library is published on NuGet as `Aspose.Slides.Cpp.FOSS`.",
+        "",
+        "To build it from a source checkout instead, verified against this revision:",
+        "",
+        "```bash",
+        CPP_SOURCE_BUILD,
+        "```",
+    ]
+    assert not any("not yet published" in line for line in lines)
+
+
+def test_a_confirmed_distribution_without_a_verified_build_is_still_stated_never_denied() -> None:
+    from repository_presenter.components.readme.composition.renderer import _installation
+
+    unresolved_install = Fact(
+        "install_command:cmake",
+        "install_command",
+        CPP_SOURCE_BUILD,
+        (Evidence("CMakeLists.txt", "package registry: none could not be read"),),
+        polarity="UNRESOLVED",
+    )
+    lines = _installation(_cpp_context(unresolved_install, _cpp_distribution()))
+    assert lines == ["The library is published on NuGet as `Aspose.Slides.Cpp.FOSS`."]
+
+
+def test_an_unconfirmed_distribution_is_not_stated_and_no_publication_is_ever_denied() -> None:
+    """Negative controls. A name NuGet did not confirm (UNRESOLVED) or said does not exist
+    (CONTRADICTED) is not stated as published; and with no registry observed at all (Email-Cpp)
+    the row says how to build the library, not that it is "not yet published" -- nothing observed
+    that."""
+    from repository_presenter.components.readme.composition.renderer import _installation
+
+    for polarity in ("UNRESOLVED", "CONTRADICTED"):
+        lines = _installation(_cpp_context(_cpp_source_install(), _cpp_distribution(polarity)))
+        assert lines[0] == (
+            "Build `AsposeSlidesFoss` from a source checkout, verified against this revision:"
+        )
+        assert not any("published" in line for line in lines)
+    assert "```bash" in lines and CPP_SOURCE_BUILD in lines
+
+
+def test_an_ecosystem_whose_manifest_names_a_package_still_says_not_yet_published() -> None:
+    """The registry's own observation keeps its sentence: Python's `source` install is a build
+    proved after the registry said the package is not there (CONTRADICTED)."""
+    source = Fact(
+        "install_command:pip",
+        "install_command",
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
+        "cd Aspose.3D-FOSS-for-Python\npip install .",
+        (Evidence("setup.py", "verified source build"), Evidence("pypi", "distribution not found")),
+        attributes={"install_kind": "source"},
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(source if f.id == "install_command:pip" else f for f in FACTS.facts),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert (
+        "`aspose-3d-foss` is not yet published on PyPI; build it from a source checkout instead"
+        in readme
+    )
+
+
+# --- one code span per path (PSD-.NET, wave-3 triage U11) ----------------------------------------
+PSD_UNIT = (
+    "The library is installed by cloning the repository and building the project with "
+    "dotnet build src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj, and it targets net10.0."
+)
+
+
+def _psd_context() -> RenderContext:
+    entry = RegistryEntry.model_validate(
+        {
+            "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET",
+            "family": "psd",
+            "platform": "net",
+            "ecosystem": "net",
+            "mode": "dry_run",
+            "policy_profile": "p",
+            "active": True,
+            "provider_identity": {"provider": "github", "repository_id": 3, "node_id": "R_3"},
+        }
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", entry.repository),
+            _fact("package:name", "package", "Aspose.PSD.FOSS"),
+            _fact("package:project", "package", "Aspose.PSD.FOSS.csproj"),
+            _fact("package:project_path", "package", "Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"),
+            _fact("package:project_file", "package", "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"),
+        ),
+    )
+    return RenderContext(entry, facts, {"sections": []}, {"units": []}, {"dispositions": []})
+
+
+def test_a_path_a_fact_spells_whole_is_one_code_span_not_three() -> None:
+    """Aspose.PSD FOSS for .NET: the unit wrote the project path as plain prose; the wrap pass
+    matched the path's dotted pieces one token at a time, and once the path was a span it matched
+    ``Aspose.PSD.FOSS`` inside it again ("/" is not a character the neighbours test excludes),
+    giving three spans, two of them no fact spells (BC-04)."""
+    rendered = _psd_context().prose(PSD_UNIT)
+    assert rendered == (
+        "The library is installed by cloning the repository and building the project with "
+        "dotnet build `src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj`, and it targets net10.0."
+    )
+    assert rendered.count("`") == 2
+
+
+def test_a_path_holding_no_identifier_and_a_lone_identifier_render_as_they_always_did() -> None:
+    """Negative controls: only a path that holds a token about to be wrapped is wrapped whole."""
+    context = _psd_context()
+    assert context.prose("Use the project Aspose.PSD.FOSS to build.") == (
+        "Use the project `Aspose.PSD.FOSS` to build."
+    )
+    assert context.prose("See docs/guide.md and tests/ for details.") == (
+        "See docs/guide.md and tests/ for details."
+    )
+    # A near miss of the path is not the path: the pieces wrap, none of them nested.
+    near = context.prose("Open src/Aspose.PSD.FOSS/Other.csproj first.")
+    assert near.count("`") % 2 == 0 and "``" not in near

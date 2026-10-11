@@ -30,6 +30,7 @@ from repository_presenter.components.readme.composition.link_budget import (
 )
 from repository_presenter.components.readme.composition.policy import PlanningPolicy
 from repository_presenter.components.readme.composition.renderer import BADGE_ORDER
+from repository_presenter.core.examples import printed_example
 from repository_presenter.core.facts import FactsDocument
 
 # The markers an example fact's evidence carries once it has actually run (BC-03's own list).
@@ -42,8 +43,9 @@ _ANCHOR = re.compile(r"^full-featured \S.* — Enterprise Edition$")
 def verified_example_hashes(facts: FactsDocument) -> set[str]:
     """The normalized digests of every example that actually ran at this revision."""
     return {
-        code_sha256(fact.value)
+        code_sha256(code)
         for fact in facts.by_kind("example")
+        for code in (fact.value, printed_example(fact))
         if fact.polarity == "SUPPORTED"
         and any(
             marker in (evidence.detail or "")

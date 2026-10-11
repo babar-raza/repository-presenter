@@ -3,3 +3,7 @@
 # Windows command files keep the line ending cmd.exe expects.
 *.bat text eol=crlf
 *.cmd text eol=crlf
+
+# A committed correction bundle (corrections/<run>/<slug>/) is verified byte for byte against its
+# SHA256SUMS and its manifest, and carries an upstream README as it was: no line-ending conversion.
+corrections/** -text

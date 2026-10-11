@@ -1,0 +1,86 @@
+# key: jmap-disclosure
+# repository clone:
+# head:
+# utc: 2026-10-11T18:31:20Z
+
+# Each JMAP README says no package has been published; the registries agree. HTTP status of the package page (404 = not published):
+
+# == Aspose.JMAP-FOSS-for-.NET head 0d5cf17e0e9ee185eea2847f6587b918ac0eb016
+
+$ grep -n -i -E 'no (package|artifact|crate) has been published|not (been )?published|until it is' README.md | head -2 | cut -c1-200
+[exit 0]
+79:No package has been published to NuGet yet; until it is, build the library from source (see
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'https://api.nuget.org/v3-flatcontainer/aspose.jmap.foss/index.json'
+[exit 23]
+404
+
+# == Aspose.JMAP-FOSS-for-Cpp head 559c962081323468039dc75cf38676499f32b20e
+
+$ grep -n -i -E 'no (package|artifact|crate) has been published|not (been )?published|until it is' README.md | head -2 | cut -c1-200
+[exit 0]
+78:No package has been published to a registry. Consume the library from source with CMake — add it
+
+# == Aspose.JMAP-FOSS-for-Go head 327dda39116ba02657fa49ec6dbeb69965628447
+
+$ grep -n -i -E 'no (package|artifact|crate) has been published|not (been )?published|until it is' README.md | head -2 | cut -c1-200
+[exit 0]
+
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'https://proxy.golang.org/github.com/aspose-email-foss/aspose.jmap-foss-for-go/@v/list'
+[exit 23]
+200
+
+# == Aspose.JMAP-FOSS-for-Java head f0d6ba73dc92db4b3effaa7c1fa76682e2d09fd4
+
+$ grep -n -i -E 'no (package|artifact|crate) has been published|not (been )?published|until it is' README.md | head -2 | cut -c1-200
+[exit 0]
+78:No artifact has been published to Maven Central yet; until it is, build and install the library
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'https://repo1.maven.org/maven2/com/aspose/aspose-jmap-foss/maven-metadata.xml'
+[exit 23]
+404
+
+# == Aspose.JMAP-FOSS-for-Node.js head 93f22fb57ba83484d14af5af2017590a0f5bf55f
+
+$ grep -n -i -E 'no (package|artifact|crate) has been published|not (been )?published|until it is' README.md | head -2 | cut -c1-200
+[exit 0]
+77:No package has been published to npm yet; until it is, build the library from source (see
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'https://registry.npmjs.org/aspose-jmap-foss'
+[exit 23]
+404
+
+# == Aspose.JMAP-FOSS-for-Python head f2137fa6bade0002c317e3a73081f2a0b5173a23
+
+$ grep -n -i -E 'no (package|artifact|crate) has been published|not (been )?published|until it is' README.md | head -2 | cut -c1-200
+[exit 0]
+78:No package has been published to PyPI yet; until it is, build the library from source (see
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'https://pypi.org/pypi/aspose-jmap-foss/json'
+[exit 23]
+404
+
+# == Aspose.JMAP-FOSS-for-Rust head d7286100735e6d518837fde8639e8de694a08ef6
+
+$ grep -n -i -E 'no (package|artifact|crate) has been published|not (been )?published|until it is' README.md | head -2 | cut -c1-200
+[exit 0]
+
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'https://crates.io/api/v1/crates/aspose-jmap-foss'
+[exit 35]
+000
+
+# == Aspose.JMAP-FOSS-for-TypeScript head d8fdf9e8f3367424c3a900271eb3bd0b99c6195e
+
+$ grep -n -i -E 'no (package|artifact|crate) has been published|not (been )?published|until it is' README.md | head -2 | cut -c1-200
+[exit 0]
+78:No package has been published to npm yet; until it is, build the library from source (see
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'https://registry.npmjs.org/aspose-jmap-foss-ts'
+[exit 23]
+404
+
+$ gh api repos/aspose-email-foss/Aspose.JMAP-FOSS-for-Python/actions/runs?per_page=1 --jq '.workflow_runs[0] | {name, conclusion, head_branch, created_at}'
+[exit 0]
+{"conclusion":"success","created_at":"2026-09-26T15:24:14Z","head_branch":"main","name":"CI"}

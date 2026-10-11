@@ -1,0 +1,34 @@
+# repository clone: Aspose.3D-FOSS-for-TypeScript
+# head: 66cb26df3b031f0bf6976d4e88dc89721983afa4
+# utc: 2026-10-11T17:47:32Z
+# image: node:22
+# commands: npm install --no-audit --no-fund > /tmp/i.txt 2>&1; echo npm-install-exit=$?; npm run build 2>&1 | tail -5; echo build-exit=$?; ls dist; node -e "require('.')" 2>&1 | head -4; echo require-exit=$?; grep -n 'adm-zip' package.json src/aspose/threed/formats/threemf/*.ts | head; echo ---lint; npm run lint 2>&1 | tail -8; echo lint-exit=$?
+v22.23.3
+10.9.9
+npm-install-exit=0
+
+> @aspose/3d@24.12.0 build
+> tsc
+
+build-exit=0
+aspose
+node:internal/modules/cjs/loader:524
+      throw err;
+      ^
+
+require-exit=0
+package.json:26:    "@types/adm-zip": "^0.5.7",
+package.json:31:    "adm-zip": "^0.5.16",
+src/aspose/threed/formats/threemf/ThreeMfExporter.ts:162:        const zip = new (require('adm-zip'))();
+src/aspose/threed/formats/threemf/ThreeMfImporter.ts:53:            const AdmZip = require('adm-zip');
+---lint
+ESLint couldn't find a configuration file. To set up a configuration file for this project, please run:
+
+    npm init @eslint/config
+
+ESLint looked for configuration files in /w/src/aspose/threed and its ancestors. If it found none, it then looked in your home directory.
+
+If you think you already have a configuration file or if you need more help, please stop by the ESLint Discord server: https://eslint.org/chat
+
+lint-exit=0
+# end 2026-10-11T17:48:19Z

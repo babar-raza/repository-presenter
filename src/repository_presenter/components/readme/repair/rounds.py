@@ -33,6 +33,9 @@ from repository_presenter.components.readme.composition.authoring import (
     write_content_units,
     write_raw_calls,
 )
+from repository_presenter.components.readme.composition.authoring_retry import (
+    authoring_narrowing,
+)
 from repository_presenter.components.readme.composition.coherence import (
     apply_coherence,
     coherence_batch_units,
@@ -43,14 +46,9 @@ from repository_presenter.components.readme.composition.coherence import (
     recover_coherence_regressions,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
-from repository_presenter.components.readme.composition.list_coverage import (
-    kept_list_units,
-    list_coverage_errors,
-)
 from repository_presenter.components.readme.composition.output_bounds import (
     bound_authoring_citations,
 )
-from repository_presenter.components.readme.composition.placement import placed_texts, placements
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
     bound_visible_line_overage,
@@ -65,6 +63,7 @@ from repository_presenter.components.readme.composition.policy import DEFAULT_PO
 from repository_presenter.components.readme.composition.renderer import (
     PATCH_FILENAME,
     README_FILENAME,
+    RenderContext,
     line_counts,
     render_patch,
     render_readme,
@@ -93,6 +92,13 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     reconciliation_schema,
     recover_uncited_prose_omits,
     write_dispositions,
+)
+from repository_presenter.components.readme.reconciliation.patch import (
+    condensed,
+    patch_checks,
+    patch_scope,
+    target_batch,
+    unit_changes,
 )
 from repository_presenter.components.readme.repair.targeted import (
     MAX_ROUNDS,
@@ -453,12 +459,7 @@ def run_round(tx: TransactionInputs) -> Round:
         authored[task.label] = run_job(
             loaded,
             task.packet,
-            checks=_reject_unlisted_items(
-                functools.partial(unit_checks, task=task, facts=facts, name=name),
-                task,
-                dispositions,
-                facts,
-            ),
+            checks=functools.partial(unit_checks, task=task, facts=facts, name=name),
             call_schema=call_schema,
             # G4-W17, docs/DECISION_LOG.md 2026-09-24 14:25 UTC (PROPOSAL, Page-Python's
             # first-ever seal attempt) and 2026-09-27 (docs/DEFECT_INDEX.md
@@ -480,6 +481,10 @@ def run_round(tx: TransactionInputs) -> Round:
                 facts=facts,
                 name=name,
             ),
+            # Wave 3 (nine of thirty-six repositories at "output rejected twice"): after the two
+            # asks, one more for only the slots still refused, the accepted units kept as they
+            # are (composition/authoring_retry.py); a rejection no slot owns is not narrowed.
+            narrow=authoring_narrowing(task, loaded),
             **common,
         )
     units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])
@@ -674,14 +679,13 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
         # cheap and available here - whether its quote is a placed, preserved/moved unit's own
         # text, which authoring never wrote and cannot revise regardless of the guess (RC-04,
         # RESEARCH_AND_GUIDELINES.md 27.2 RC4/SW4, 2026-09-08).
-        placed = placed_texts(
-            placements(
-                current.planned.output,
-                current.dispositions,
-                tx.facts,
-                tx.entry.ecosystem,
-            )
-        )
+        placed = RenderContext(
+            tx.entry,
+            tx.facts.canonical(),
+            current.planned.output,
+            current.units,
+            current.dispositions,
+        ).placed
         defects.extend(
             review_defects(current.review, tx.facts, current.llm_sections, repairer, placed)
         )
@@ -816,12 +820,18 @@ def _stage_target(
         # and reports a repair that targeted the wrong batch - it is never silently accepted.
         # dict insertion order, not sorted(keys) - "reconciliation#10" would sort before
         # "reconciliation#2" lexicographically; current.reconciled is built in batch order.
-        first_batch_id = next(iter(current.reconciled))
+        # The batch is the one holding a unit the defect names in its ``unit_id`` field (wave 4:
+        # the first batch was assumed, so a defect about a later batch revised the wrong one); a
+        # defect that names none keeps the first.
         # The budget is read here, where batching happens, from the same manifest run_round splits
         # with. Read eagerly by the caller it would require source_reconciliation for every repair,
         # including stages that never batch.
         reconciliation_budget = prompts["source_reconciliation"].manifest.sampling.max_output_tokens
-        batch_units = dict(reconciliation_batches(facts, reconciliation_budget))[first_batch_id]
+        batches = dict(reconciliation_batches(facts, reconciliation_budget))
+        first_batch_id = target_batch(defect.record, batches, current.reconciled) or next(
+            iter(current.reconciled)
+        )
+        batch_units = batches[first_batch_id]
         batch_facts = reconciliation_batch_facts(facts, batch_units)
         # Real bug, found live against Cells-Rust: repair_checks's own binding_errors call
         # (repair/targeted.py) needs the SAME batch-scoped facts reconciliation_batch_facts()
@@ -891,29 +901,6 @@ def _reject_uncarried_units(
     return guarded
 
 
-def _reject_unlisted_items(
-    checks: Callable[[dict[str, Any]], list[str]] | None,
-    task: SectionTask,
-    dispositions: Mapping[str, Any],
-    facts: FactsDocument,
-) -> Callable[[dict[str, Any]], list[str]]:
-    """Layer the list-coverage rule onto a section_authoring check - the initial draft's
-    ``unit_checks`` and an S6 repair's stage_checks alike: a list reconciliation kept as written
-    (VERIFIED_PRESERVE) owes every one of its items to the units that cite it, so a reply that
-    condenses the list and loses one is refused with the missing items named, before the section
-    reaches independent review (cut-2 BC-10 triage, cause 5; composition/list_coverage.py).
-    A section with no such list gets its own checks back unchanged."""
-    if not kept_list_units(dispositions, task, facts):
-        return checks if checks is not None else (lambda revised: [])
-
-    def guarded(revised: dict[str, Any]) -> list[str]:
-        errors = list(checks(revised)) if checks is not None else []
-        errors.extend(list_coverage_errors(revised, task, dispositions, facts))
-        return errors
-
-    return guarded
-
-
 def repair_defect(
     tx: TransactionInputs, current: Round, defect: Defect, repairs: RepairLedger
 ) -> None:
@@ -942,6 +929,29 @@ def repair_defect(
     )
     contract = causal.manifest.output.schema_
     probe = _slot_set_probe(current, defect, tx.facts)
+    # An S4 defect that names the units at fault (BC-05's failure records carry them in a field) is
+    # repaired as a patch of those units alone, under a contract that bounds the reply and offers
+    # a placing disposition only the sections that can hold a unit (reconciliation/patch.py);
+    # otherwise the whole stored batch is revised as before.
+    patch = None
+    stage_output: dict[str, Any] = target.output
+    reply_contract = contract
+    if defect.stage == "S4":
+        reconciliation = tx.prompts["source_reconciliation"]
+        patch = patch_scope(
+            defect.record,
+            {batch_id: result.output for batch_id, result in current.reconciled.items()},
+            dict(
+                reconciliation_batches(tx.facts, reconciliation.manifest.sampling.max_output_tokens)
+            ),
+            tx.facts,
+            reconciliation,
+            current.investigation.output,
+            tx.prompts["targeted_repair"].manifest.sampling.max_output_tokens,
+        )
+        if patch is not None:
+            stage_output, reply_contract = patch.shown, patch.contract
+            stage_checks = patch_checks(patch, stage_checks)
     # G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC (BarCode-Python BC-10 F03): an S6 repair
     # gets review's own stricter title-restatement standard layered onto its stage_checks (never
     # onto unit_checks itself) and a matching recover= last resort, so a reply that still opens a
@@ -956,9 +966,6 @@ def repair_defect(
     if section_task is not None:
         stage_checks = _reject_title_verbatim_opening(stage_checks, section_task)
         stage_checks = _reject_uncarried_units(stage_checks, section_task)
-        stage_checks = _reject_unlisted_items(
-            stage_checks, section_task, current.dispositions, tx.facts
-        )
     # G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): a BC-07
     # visible-line-budget defect always names causal stage S5 (the only Failure `_check_structure`
     # ever raises with `stage="PLANNING"` - validation/registry.py), so this is a structured,
@@ -1017,10 +1024,10 @@ def repair_defect(
             repair_packet(
                 tx.entry,
                 defect,
-                target.output,
+                stage_output,
                 tx.facts,
                 current.review.get("preserve", []),
-                contract,
+                condensed(reply_contract) if patch is not None else contract,
                 allowed,
                 slot_facts,
                 visible_line_hint,
@@ -1033,11 +1040,15 @@ def repair_defect(
             ledger=tx.ledger,
             store=tx.store,
             context=tx.context,
-            call_schema=repair_schema(tx.prompts["targeted_repair"], contract),
+            call_schema=repair_schema(
+                tx.prompts["targeted_repair"], reply_contract, bound_changes=patch is not None
+            ),
             checks=functools.partial(
                 repair_checks,
                 defect=defect,
                 output_contract=contract,
+                patch_contract=reply_contract if patch is not None else None,
+                derive_changes=unit_changes if patch is not None else None,
                 binding=causal.manifest.output.binding,
                 # PHASE0/G: the causal stage's OWN binding check (unit_ids for S4) must be judged
                 # against the same fact set that stage's own call was - stage_facts, not tx.facts

@@ -1,0 +1,22 @@
+# key: nuget-Words-NET
+# repository clone: Aspose.Words-FOSS-for-.NET
+# head: 0d3f1add920f5294d726b4f286c2d6ba7c3ae22c
+# utc: 2026-10-11T17:49:30Z
+
+$ git show HEAD:README.md | grep -n -i 'landing soon'
+[exit 0]
+952:- **Watch** it (Releases only is fine) to hear about new features first. The NuGet package and new formats are landing soon.
+
+$ curl -s https://api.nuget.org/v3-flatcontainer/aspose.words.foss/index.json
+[exit 0]
+{
+  "versions": [
+    "26.2.0",
+    "26.3.0"
+  ]
+}
+
+$ git show HEAD:README.md | grep -n -E 'all (615|617)|(615|617) (public )?types'
+[exit 0]
+901:The full surface totals 615 public types across the Core API, interfaces, and enumerations. See the [full API reference](#documentation--resources) below for every type.
+942:- **[Full API reference](https://reference.aspose.org/words/net/)** — the complete, browsable reference for all 617 public types (the [API reference](#api-reference) section above covers the essentials).

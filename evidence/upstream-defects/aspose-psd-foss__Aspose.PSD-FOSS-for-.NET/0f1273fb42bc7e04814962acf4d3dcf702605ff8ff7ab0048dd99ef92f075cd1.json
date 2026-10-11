@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET",
+  "source_revision": "85ed7eec7c801d8b5c97aa099f018d3b98df2981",
+  "defect_fingerprint": "sha256:0f1273fb42bc7e04814962acf4d3dcf702605ff8ff7ab0048dd99ef92f075cd1",
+  "triggering_check": {
+    "id": "MANIFEST_PLACEHOLDER_METADATA",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj",
+      "detail": "Authors = SID"
+    },
+    {
+      "path": "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj",
+      "detail": "PackageProjectUrl = https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET"
+    },
+    {
+      "path": "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj",
+      "detail": "RepositoryUrl = https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET"
+    }
+  ],
+  "claim": "At revision 85ed7eec7c801d8b5c97aa099f018d3b98df2981, aspose-psd-foss/Aspose.PSD-FOSS-for-.NET's src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj carries placeholder metadata (Authors, PackageProjectUrl, RepositoryUrl).",
+  "suggested_issue_title": "Aspose.PSD FOSS for .NET: Aspose.PSD.FOSS.csproj contains placeholder metadata",
+  "suggested_issue_body": "## Summary\n\nAt revision `85ed7eec7c801d8b5c97aa099f018d3b98df2981` the package manifest `src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj` carries placeholder metadata that is published with the package.\n\n## Environment\n\n- Repository: aspose-psd-foss/Aspose.PSD-FOSS-for-.NET\n- Revision: `85ed7eec7c801d8b5c97aa099f018d3b98df2981` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\ngrep -n -e SID -e https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj\n```\n\n## Expected\n\nPackage metadata names the real project: URLs that point to `aspose-psd-foss/Aspose.PSD-FOSS-for-.NET` on GitHub, and an author or company that identifies the project.\n\n## Actual\n\n- `Authors` is `SID`\n- `PackageProjectUrl` is `https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET`\n- `RepositoryUrl` is `https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET`\n\n<!-- repository-presenter-defect: sha256:0f1273fb42bc7e04814962acf4d3dcf702605ff8ff7ab0048dd99ef92f075cd1 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "MANIFEST_PLACEHOLDER_METADATA"
+}

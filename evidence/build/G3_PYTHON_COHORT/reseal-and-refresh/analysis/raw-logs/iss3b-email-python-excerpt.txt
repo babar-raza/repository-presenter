@@ -1,0 +1,15 @@
+# key: email-python-excerpt
+# repository clone: Aspose.Email-FOSS-for-Python
+# head: 10a906b48c0c11005c4d93b524e4431901c9717c
+# utc: 2026-10-11T18:30:42Z
+
+$ grep -n 'msg_path' README.md | head -4
+[exit 0]
+177:with msg.MsgReader.from_file(msg_path) as reader:
+
+$ sed -n 169,172p README.md
+[exit 0]
+### Inspect Low-Level MSG and CFB Structure
+
+Open a `.msg` through `MsgReader` and inspect the underlying CFB container and property-stream
+header (excerpted from `examples/msg_reader.py`):

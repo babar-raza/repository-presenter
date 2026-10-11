@@ -1068,6 +1068,77 @@ def test_a_real_symbol_in_a_code_span_still_names_a_verified_symbol(text: str) -
     assert _classify(facts, deferred).decision == "BLOCK"
 
 
+# Wave-3 triage U2 (Cells-Python f69f75c7 inherited_unit:038): a path in a code span is a place on
+# disk, not an API name. Its directory segments were read as names, so `examples/outputfiles/`
+# "spelled" the verified import path `examples` (the examples directory, a real fact) and vetoed
+# NO_EVIDENCE_EITHER_WAY, leaving the deferral UNCLASSIFIED and blocking the whole candidate.
+_CELLS_038 = (
+    "Generated workbooks are written below `examples/outputfiles/` and are not intended for "
+    "source control."
+)
+_CELLS_038_WHY = (
+    "No fact confirms the outputfiles directory or its intended exclusion from source control; "
+    "the claim is unsupported and undetermined."
+)
+
+
+def _cells_python_facts(text: str) -> FactsDocument:
+    return _facts(
+        _fact("import_path", "examples", "examples"),
+        _fact("import_path", "aspose.cells_foss", "aspose.cells_foss"),
+        _fact("build_test_asset", "examples", "examples/"),
+        _example(1, "SUPPORTED", unit=2),
+        _example(2, "SUPPORTED", unit=3),
+        _unit(38, "paragraph", text, "Aspose.Cells FOSS for Python > Examples"),
+    )
+
+
+def test_a_directory_path_never_names_a_verified_symbol_of_the_same_letters() -> None:
+    finding = _classify(
+        _cells_python_facts(_CELLS_038), _deferred("inherited_unit:038.paragraph", _CELLS_038_WHY)
+    )
+    assert (finding.class_id, finding.decision) == ("NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+
+
+@pytest.mark.parametrize(
+    "span",
+    [
+        "examples/outputfiles/",
+        "./examples/outputfiles",
+        "src\\examples\\out.xlsx",
+        "Aspose.Words/Aspose.Words.csproj",
+        "go run ./examples/feature_showcase",
+        "https://example.com/examples/guide",
+    ],
+)
+def test_no_path_in_a_code_span_names_a_verified_symbol(span: str) -> None:
+    facts = _cells_python_facts(f"Files land in `{span}` after the run.")
+    facts = _facts(*facts.facts, _fact("public_symbol", "words", "Aspose.Words"))
+    assert not DeferralContext.build({"dispositions": []}, facts).names_verified_symbol(
+        "inherited_unit:038.paragraph"
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Generated workbooks are written by `examples`, which is not intended for source control.",
+        "Import `aspose.cells_foss` and then write below `outputfiles/`.",
+        "Run `go run ./out` first, then `examples` to list them.",
+    ],
+)
+def test_a_name_beside_or_apart_from_a_path_still_names_a_verified_symbol(text: str) -> None:
+    """Negative control: only the slash-bearing token is dropped; a verified name spelled as its
+    own word or its own span is still evidence the facts hold what the unit claims, so the same
+    deferral stays a BLOCK."""
+    facts = _cells_python_facts(text)
+    assert DeferralContext.build({"dispositions": []}, facts).names_verified_symbol(
+        "inherited_unit:038.paragraph"
+    )
+    deferred = _deferred("inherited_unit:038.paragraph", _CELLS_038_WHY)
+    assert _classify(facts, deferred).decision == "BLOCK"
+
+
 # CUT-2 (BC-05 v5 extension): the notices, licence, dependency, lead-in and install-snippet causes
 # the 2026-10-10 baseline and the first cut-2 wave left blocking. Each unit is trimmed from the
 # real transaction named in its docstring.
@@ -1269,3 +1340,124 @@ def test_an_installation_snippet_without_a_verified_install_is_not_this_class() 
     facts = _facts(_unit(13, "code_block", _CMAKE, "Aspose.Email FOSS for C++ > Installation"))
     finding = _classify(facts, _deferred("inherited_unit:013.code_block", "Held."))
     assert finding.class_id == "INSTALL_STEPS_UNVERIFIED"
+
+
+# --- An advisory deferral holds only while the README carries what it withheld -----------------
+# Wave-3 acceptance review (reseal f69f75c7): NOT_CARRIED_BY_NAMED_SECTION, ENTERPRISE_NO_VERIFIED_
+# TARGET and LEADIN_OF_WITHHELD_CONTENT each hid a true loss behind an advisory that blocks nothing.
+
+
+def _verdict(facts: FactsDocument, entries: list[dict[str, Any]], readme: str | None) -> Any:
+    return _only(review_deferrals({"dispositions": entries}, facts, None, readme))
+
+
+def test_a_not_carried_deferral_blocks_when_the_readme_does_not_state_the_unit() -> None:
+    """Note-Python 013 and Slides-Python 018: the unit was withheld as "not provably carried" and
+    the README stated none of it. Without a README the registry's decision stands (control)."""
+    unit = (
+        "PDF export needs the optional `pdf` extra, which pulls in "
+        "[ReportLab](https://pypi.org/project/reportlab/)."
+    )
+    facts = _facts(_unit(1, "paragraph", unit))
+    entry = _deferred("inherited_unit:001.paragraph", RECOVERED_COVERAGE_RATIONALE + "Supported.")
+    unchanged = _verdict(facts, [entry], None)
+    assert (unchanged.class_id, unchanged.decision) == ("NOT_CARRIED_BY_NAMED_SECTION", "ADVISORY")
+    lost = _verdict(facts, [entry], "# Widget\n\n## Installation\n\n`pip install widget`\n")
+    assert (lost.class_id, lost.decision, lost.stage) == (
+        "NOT_CARRIED_BY_NAMED_SECTION",
+        "BLOCK",
+        "RECONCILING",
+    )
+    assert "reportlab" in lost.reason
+    carried = _verdict(
+        facts,
+        [entry],
+        "# Widget\n\nPDF needs the `pdf` extra: [ReportLab](https://pypi.org/project/reportlab/).\n",
+    )
+    assert (carried.class_id, carried.decision) == ("NOT_CARRIED_BY_NAMED_SECTION", "ADVISORY")
+
+
+def _enterprise_unit(url: str = "https://products.aspose.com/widget/python-net/") -> Fact:
+    return _unit(
+        1,
+        "paragraph",
+        f"These limitations don't apply to [Widget - Enterprise Edition]({url}), which adds more.",
+    )
+
+
+def _readme_link(
+    url: str, polarity: str = "SUPPORTED", text: str = "Widget - Enterprise Edition"
+) -> Fact:
+    return Fact(
+        "link_target:029",
+        "link_target",
+        url,
+        (Evidence("README.md", f"line 9; external; text '{text}'"),),
+        polarity=polarity,  # type: ignore[arg-type]
+    )
+
+
+def test_an_enterprise_paragraph_whose_own_link_was_verified_live_blocks() -> None:
+    """Slides-Python 117: the upstream README links its Enterprise Edition page, the link
+    extractor read it live, and the candidate still dropped the paragraph for want of a target."""
+    url = "https://products.aspose.com/widget/python-net/"
+    entry = _deferred("inherited_unit:001.paragraph", "Belongs under the Enterprise section.")
+    facts = _facts(_enterprise_unit(), _readme_link(url))
+    finding = _verdict(facts, [entry], "# Widget\n")
+    assert (finding.class_id, finding.decision, finding.stage) == (
+        "ENTERPRISE_NO_VERIFIED_TARGET",
+        "BLOCK",
+        "EXTRACTING",
+    )
+    assert url.rstrip("/") in finding.reason
+    # Controls: no README in hand, an unverified link, another host, and a link the paragraph
+    # does not carry each keep the registry's advisory.
+    assert _verdict(facts, [entry], None).decision == "ADVISORY"
+    broken = _facts(_enterprise_unit(), _readme_link(url, "UNRESOLVED"))
+    assert _verdict(broken, [entry], "# Widget\n").decision == "ADVISORY"
+    elsewhere = "https://example.com/enterprise"
+    foreign = _facts(_enterprise_unit(elsewhere), _readme_link(elsewhere))
+    assert _verdict(foreign, [entry], "# Widget\n").decision == "ADVISORY"
+    other = _facts(
+        _enterprise_unit(), _readme_link("https://products.aspose.com/words/python-net/")
+    )
+    assert _verdict(other, [entry], "# Widget\n").decision == "ADVISORY"
+
+
+def _leadin_facts(next_example: str | None) -> tuple[FactsDocument, list[dict[str, Any]]]:
+    block = "```csharp\nusing Widget.Drawing;\n```"
+    units = (
+        _unit(1, "paragraph", "Each sample below assumes this namespace:"),
+        _unit(2, "code_block", block),
+    )
+    facts = (
+        _facts(*units)
+        if next_example is None
+        else _facts(*units, _example(1, next_example, unit=2))
+    )
+    return facts, [
+        _deferred("inherited_unit:001.paragraph", "Preserved."),
+        _kept("inherited_unit:002.code_block"),
+    ]
+
+
+def test_a_lead_in_blocks_when_its_withheld_code_block_is_stated_nowhere() -> None:
+    """Slides-.NET 033: the lead-in of the `using` block went with the block, and the printed
+    examples then failed to compile. A block withheld for no verdict and absent from the README
+    is a loss; the same block stated elsewhere, or withheld because its example failed, is not."""
+    facts, entries = _leadin_facts(None)
+    lost = _verdict(facts, entries, "# Widget\n")
+    assert (lost.class_id, lost.decision, lost.stage) == (
+        "LEADIN_OF_WITHHELD_CONTENT",
+        "BLOCK",
+        "RECONCILING",
+    )
+    assert "using widget.drawing;" in lost.reason
+    carried = _verdict(
+        facts, entries, "# Widget\n\n```csharp\nusing Widget.Drawing;\nrun();\n```\n"
+    )
+    assert (carried.class_id, carried.decision) == ("LEADIN_OF_WITHHELD_CONTENT", "ADVISORY")
+    for polarity in ("CONTRADICTED", "UNRESOLVED"):
+        facts, entries = _leadin_facts(polarity)
+        withheld = _verdict(facts, entries, "# Widget\n")
+        assert (withheld.class_id, withheld.decision) == ("LEADIN_OF_WITHHELD_CONTENT", "ADVISORY")

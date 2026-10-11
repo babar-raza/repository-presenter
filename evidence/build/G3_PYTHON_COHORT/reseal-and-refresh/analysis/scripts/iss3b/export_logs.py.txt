@@ -1,0 +1,95 @@
+"""Copy the lane's verification logs into the worktree's raw-logs directory, sanitized."""
+import json
+import re
+import sys
+from pathlib import Path
+
+sp = Path(sys.argv[1])
+dest = Path(sys.argv[2])
+dest.mkdir(parents=True, exist_ok=True)
+
+SCRATCH = re.compile(
+    r"C:[/\\]+Users[/\\]+babar[/\\]+AppData[/\\]+Local[/\\]+Temp[/\\]+claude[/\\]+"
+    r"e--Users-prora-OneDrive-Documents-GitHub-repository-presenter[/\\]+"
+    r"01db89e6-ba90-479a-befa-bff20834c024[/\\]+scratchpad[/\\]+iss3b",
+    re.IGNORECASE,
+)
+CHECKOUT = re.compile(
+    r"[EC]:[/\\]+Users[/\\]+prora[/\\]+OneDrive[/\\]+Documents[/\\]+GitHub[/\\]+repository-presenter", re.IGNORECASE
+)
+OWNER = re.compile(r"\bbabar\s+197610\b")
+TMPPATH = re.compile(r"C:[/\\]+Users[/\\]+babar[/\\]+AppData[/\\]+Local[/\\]+Temp[/\\]+claude[^\s\])\"']*", re.IGNORECASE)
+HOME = re.compile(r"Users[/\\]+babar\b", re.IGNORECASE)
+TOKEN = re.compile(r"\b(?:ghp|gho|ghs|ghr|github_pat)_[A-Za-z0-9_]{20,}")
+
+
+def clean(text: str) -> str:
+    text = SCRATCH.sub("<scratch>", text)
+    text = TMPPATH.sub("<tmp>", text)
+    text = HOME.sub("Users/<user>", text)
+    text = CHECKOUT.sub("<checkout>", text)
+    text = OWNER.sub("user group", text)
+    text = "\n".join(line.rstrip() for line in text.replace("\r\n", "\n").split("\n"))
+    text = text.rstrip("\n") + "\n"
+    if TOKEN.search(text):
+        raise SystemExit("token-shaped value in a log; refusing to export")
+    return text
+
+
+def cap(text: str, limit: int = 24000) -> str:
+    if len(text) <= limit:
+        return text
+    return text[:limit] + f"\n[... truncated: {len(text) - limit} more characters]\n"
+
+
+n = 0
+for f in sorted((sp / "logs").glob("*.txt")):
+    (dest / f"iss3b-{f.stem}.txt").write_text(cap(clean(f.read_text(encoding="utf-8", errors="replace"))), encoding="utf-8", newline="\n")
+    n += 1
+for f in sorted((sp / "full").glob("*.txt")):
+    if f.stem.endswith("_done"):
+        continue
+    if f.stem in {"AGENTS"}:
+        continue
+    (dest / f"iss3b-docker-{f.stem}.txt").write_text(cap(clean(f.read_text(encoding="utf-8", errors="replace"))), encoding="utf-8", newline="\n")
+    n += 1
+
+# provenance summary
+lines = ["# key | repository | file | first commit with the text | date | author (login) | commit message | commits touching the file | newest commit touching the file",
+         "# read-only GitHub API: gh api repos/<r>/commits?path=<file> and contents/<file>?ref=<sha>; binary search for the oldest commit that carries the quoted text",
+         "# run 2026-10-11 by lane iss3b"]
+cases = {}
+for name in ("prov_cases.json", "prov_cases2.json", "prov_cases3.json", "prov_case4.json"):
+    cases.update(json.load(open(sp / name, encoding="utf-8")))
+for name in ("prov_results.json", "prov_results2.json", "prov_results3.json", "prov_results4.json"):
+    res = json.load(open(sp / name, encoding="utf-8"))
+    for k, v in res.items():
+        repo, branch, path, needle = cases[k]
+        if isinstance(v, dict):
+            lines.append(f"{k} | {repo} | {path} | {v['sha']} | {v['date']} | {v['author']} ({v['login']}) | {v['message']} | {v['n_commits_touching']} | {v['newest']}")
+        else:
+            lines.append(f"{k} | {repo} | {path} | {v}")
+(dest / "iss3b-provenance.txt").write_text(clean("\n".join(lines) + "\n"), encoding="utf-8", newline="\n")
+n += 1
+# today's reads of heads and issues
+heads = json.load(open(sp / "heads_issues.json", encoding="utf-8"))
+out = ["# repository | default branch | head | head date | license (GitHub) | issues enabled | open issues (non-PR) | open PRs | read 2026-10-11 (gh api GET)"]
+for repo, row in heads.items():
+    iss = [i for i in row.get("open_issues", []) if not i["is_pr"]]
+    prs = [i for i in row.get("open_issues", []) if i["is_pr"]]
+    out.append(f"{repo} | {row['default_branch']} | {row['head']} | {row['head_date'][:10]} | {row['license']} | {row['has_issues']} | {'; '.join('#%d %s' % (i['number'], i['title'][:70]) for i in iss) or '-'} | {', '.join('#%d' % p['number'] for p in prs) or '-'}")
+(dest / "iss3b-open-issues-and-heads.txt").write_text(clean("\n".join(out) + "\n"), encoding="utf-8", newline="\n")
+closed = json.load(open(sp / "closed_issues.json", encoding="utf-8"))
+out = ["# closed issues per repository (read 2026-10-11, gh api GET); repositories with none are omitted"]
+for repo, items in closed.items():
+    for i in items:
+        out.append(f"{repo} | #{i['n']} | {i['t'][:90]} | {i['u']} | {i['c']} -> {i['x']} {i['r']}")
+(dest / "iss3b-closed-issues.txt").write_text(clean("\n".join(out) + "\n"), encoding="utf-8", newline="\n")
+ci = json.load(open(sp / "ci_runs.json", encoding="utf-8"))
+out = ["# workflows and the latest runs on the default branch (read 2026-10-11, gh api GET)"]
+for repo, row in ci.items():
+    runs = row["runs"] if isinstance(row["runs"], list) else []
+    out.append(f"{repo} | workflows={row['workflows']} | " + ", ".join(f"{(r['conclusion'] or r['status'])}@{r['date']}" for r in runs[:3]))
+(dest / "iss3b-ci-runs.txt").write_text(clean("\n".join(out) + "\n"), encoding="utf-8", newline="\n")
+n += 2
+print("exported", n, "files to", dest)

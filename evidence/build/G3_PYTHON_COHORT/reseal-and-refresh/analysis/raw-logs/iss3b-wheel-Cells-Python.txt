@@ -1,0 +1,27 @@
+# key: wheel-Cells-Python
+# repository clone: Aspose.Cells-FOSS-for-Python
+# head: 952317cad8db1880ed85be9814c24e9303930d49
+# utc: 2026-10-11T18:03:17Z
+
+$ sed -n 44,56p pyproject.toml
+[exit 0]
+
+[tool.setuptools]
+packages = ["aspose", "aspose.cells_foss", "examples"]
+
+[tool.setuptools.package-data]
+"aspose.cells_foss" = ["*.py", "*.geojson"]
+examples = ["*.py"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "examples"]
+pythonpath = ["."]
+
+$ "<scratch>/venvs/cellspy/Scripts/python.exe" -m pip install -q build 2>&1 | tail -1; "<scratch>/venvs/cellspy/Scripts/python.exe" -m pip wheel . --no-deps -w "<scratch>\work\cellspy/whl" 2>&1 | tail -2
+[exit 0]
+  Stored in directory: C:\Users/<user>\AppData\Local\Temp\pip-ephem-wheel-cache-uzxqz640\wheels\90\55\23\becd3fef0c6c4c7c1f3801ccc6920c4e96011cb0b32455ca97
+Successfully built aspose-cells-foss
+
+$ "<scratch>/venvs/cellspy/Scripts/python.exe" -c "import zipfile,glob,collections; z=zipfile.ZipFile(glob.glob(r'<scratch>\work\cellspy/whl/*.whl')[0]); c=collections.Counter(n.split('/')[0] for n in z.namelist()); print(dict(c))"
+[exit 0]
+{'aspose': 73, 'aspose_cells_foss-26.10.0.dist-info': 5, 'examples': 33}

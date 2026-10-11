@@ -1,0 +1,35 @@
+# repository clone: Aspose.Email-FOSS-for-Cpp
+# head: c844a467cf7f2503819b655f4d6ceaef91056c40
+# utc: 2026-10-11T17:49:36Z
+# image: gcc:14
+# command: docker run --rm -v <clone>:/src:ro gcc:14 bash -c 'apt-get install cmake ninja-build; cd /src/. && cmake -S . -B /tmp/b -G Ninja && cmake --build /tmp/b -- -k 0'
+g++ (GCC) 14.4.0
+cmake version 3.31.6
+cmake-configure-exit=0
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /tmp/b
+build-exit=1
+error-lines: 10
+FAILED: CMakeFiles/AsposeEmailFoss.dir/src/cfb/cfb_document.cpp.o
+/src/include/aspose/email/foss/cfb/cfb_reader.hpp:28:33: error: declaration of 'const aspose::email::foss::cfb::header& aspose::email::foss::cfb::cfb_reader::header() const' changes meaning of 'header' [-Wchanges-meaning]
+FAILED: CMakeFiles/AsposeEmailFoss.dir/src/msg/msg_writer.cpp.o
+/src/include/aspose/email/foss/cfb/cfb_reader.hpp:28:33: error: declaration of 'const aspose::email::foss::cfb::header& aspose::email::foss::cfb::cfb_reader::header() const' changes meaning of 'header' [-Wchanges-meaning]
+FAILED: tests/CMakeFiles/aspose_email_foss_cfb_tests.dir/test_cfb.cpp.o
+/src/include/aspose/email/foss/cfb/cfb_reader.hpp:28:33: error: declaration of 'const aspose::email::foss::cfb::header& aspose::email::foss::cfb::cfb_reader::header() const' changes meaning of 'header' [-Wchanges-meaning]
+FAILED: tests/CMakeFiles/aspose_email_foss_msg_tests.dir/test_msg.cpp.o
+/src/include/aspose/email/foss/cfb/cfb_reader.hpp:28:33: error: declaration of 'const aspose::email::foss::cfb::header& aspose::email::foss::cfb::cfb_reader::header() const' changes meaning of 'header' [-Wchanges-meaning]
+FAILED: CMakeFiles/AsposeEmailFoss.dir/src/cfb/cfb_reader.cpp.o
+/src/include/aspose/email/foss/cfb/cfb_reader.hpp:28:33: error: declaration of 'const aspose::email::foss::cfb::header& aspose::email::foss::cfb::cfb_reader::header() const' changes meaning of 'header' [-Wchanges-meaning]
+FAILED: CMakeFiles/AsposeEmailFoss.dir/src/msg/mime/eml_message_mapper.cpp.o
+/src/include/aspose/email/foss/cfb/cfb_reader.hpp:28:33: error: declaration of 'const aspose::email::foss::cfb::header& aspose::email::foss::cfb::cfb_reader::header() const' changes meaning of 'header' [-Wchanges-meaning]
+FAILED: CMakeFiles/AsposeEmailFoss.dir/src/msg/msg_reader.cpp.o
+/src/include/aspose/email/foss/cfb/cfb_reader.hpp:28:33: error: declaration of 'const aspose::email::foss::cfb::header& aspose::email::foss::cfb::cfb_reader::header() const' changes meaning of 'header' [-Wchanges-meaning]
+FAILED: CMakeFiles/AsposeEmailFoss.dir/src/msg/msg_document.cpp.o
+/src/include/aspose/email/foss/cfb/cfb_reader.hpp:28:33: error: declaration of 'const aspose::email::foss::cfb::header& aspose::email::foss::cfb::cfb_reader::header() const' changes meaning of 'header' [-Wchanges-meaning]
+FAILED: CMakeFiles/AsposeEmailFoss.dir/src/msg/mapi_message.cpp.o
+/src/include/aspose/email/foss/cfb/cfb_reader.hpp:28:33: error: declaration of 'const aspose::email::foss::cfb::header& aspose::email::foss::cfb::cfb_reader::header() const' changes meaning of 'header' [-Wchanges-meaning]
+ninja: build stopped: cannot make progress due to previous errors.
+# end 2026-10-11T17:50:42Z

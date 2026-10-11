@@ -1538,9 +1538,9 @@ def test_recover_defers_a_unit_whose_only_symbol_is_the_directory_of_a_path_it_n
         return folded
 
     # Tree-verified path: the segment is not spelled, so there is nothing to cite.
-    # BC-05 still reads that segment as a verified symbol (a looser test than the extractor-side
-    # guard), so the deferral takes the typed prefix, which classifies ADVISORY; the no-evidence
-    # wording would be UNCLASSIFIED and block the candidate downstream.
+    # This stage reads that segment as a verified symbol (a looser test than the extractor-side
+    # guard, and than BC-05 since wave-3 U2), so the deferral takes the typed prefix, which
+    # classifies ADVISORY under either reading of the path.
     original = deferred(facts)
     assert original["fact_ids"] == []
     assert original["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
@@ -1995,7 +1995,7 @@ def test_units_both_replies_are_silent_on_get_one_narrowed_ask_and_the_job_is_ac
     assert "inherited_unit:006.html_block" in user and "inherited_unit:018.paragraph" in user
     assert "inherited_unit:003.code_block" not in user
     shape = asked["response_format"]["json_schema"]["schema"]["properties"]["dispositions"]  # type: ignore[index]
-    assert shape["items"]["properties"]["unit_id"]["enum"] == [
+    assert shape["items"]["anyOf"][0]["properties"]["unit_id"]["enum"] == [
         "inherited_unit:006.html_block",
         "inherited_unit:018.paragraph",
     ]

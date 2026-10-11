@@ -1,5 +1,30 @@
 # Candidate README Contract
 
+> **Superseded in part, 2026-10-11.** This document is not the structure and composition standard.
+> By the owner directive of 2026-10-11 the standard is the live upstream README of each repository,
+> and `docs/README_STANDARD.md` defines it: the common schema, the product-wise differences schema,
+> the improvement rules and the migration plan. **Section 2 below** (the semantic shell table and the
+> prose after it) is superseded and is kept only as the legacy encoding of what the code does today
+> (`SEMANTIC_SHELL`, BC-07, the renderer) until the gates are migrated (`README_STANDARD.md`
+> section 6); do not edit it to track a live README, change the standard instead. Section 2.1 (At a
+> Glance topology) is an owner rule and stays. **Section 8** (prose rules) now binds only text a
+> change adds; `README_STANDARD.md` section 3.5 re-bases it on the live tone. Sections 1 and 3 to 7
+> keep their authority, amended as `README_STANDARD.md` section 6.1 lists.
+>
+> **Owner rulings R1 to R7, 2026-10-11** (`README_STANDARD.md` section 7, `docs/DECISION_LOG.md`).
+> Where the legacy text below conflicts with them, the ruling governs and the text is history, not
+> to be repaired: the linked banner of row 3 is not promotion before the product is explained
+> (§1 and `plans/idea.md`, R1); the anchor of row 18 reads `Aspose.{Family} for {Platform} — Enterprise
+> Edition` and never opens "full-featured", so BC-06's prefix check is void (R2); Enterprise Edition
+> is the only name of the aspose.com product, with no exception (R3); the maintainers' tone, prose
+> structure and headings are followed (R4); the "Deliberate product-specific sections" paragraph
+> and its plan `deviation` give way to inherited additions retained in place beside a fixed core
+> (R5); row 7's three-to-eight cap and the 320-line visible budget are void, the badge order of row
+> 2 binds added badges only, and a README documents the release (R6); the `flowchart TD` of §2.1
+> and BC-07 gives way to a diagram that never clips a label and runs left to right, accepted by a
+> real render (R7). The code that still encodes the replaced wording is owner-ruled, pending the
+> next governed cut (`README_STANDARD.md` section 6.2).
+
 Status: normative for every candidate. Version 1 froze as `readme-contract-v1` at G3 exit
 (G3-W02, 2026-10-01 — deferred past the originally-planned G2 exit while G3/G4's own multi-cohort
 work was still in flight, per the flip-timing paragraph below); it now changes only at a declared
@@ -94,7 +119,7 @@ content: `D` deterministic renderer from facts, `L` LLM content units bound to f
 | 14 | `api_reference` | API Reference | Required | collapsible | M | Most FOSS repositories carry no dedicated reference, so the README is it. A visible one-to-two-sentence intro naming the real entry-point classes, how they relate, and the verified public type count; then a single `<details><summary>View the Complete Public API Surface</summary>` block holding the complete verified public surface: a `### Core API` table (`\| Class \| Description \|`, every name in a code span) covering every verified public type exactly once — keyed by its canonical defining location, so a package re-export and the class inside a same-named module are one row, never two — split by kind where the ecosystem warrants (`#### Enumerations`, `#### Interfaces`, `#### Structs`, `#### Traits`), then `#### Detailed Member Reference` with `### <Topic>` groups listing the hub types' verified members as nested bullets. Every description is evidence-backed from the symbol's own documentation or signature; a type with no verifiable description gets its verified signature summary, never an invented sentence and never mechanical filler ("class with N methods", "extends Exception"). A documentation summary with a lost or cut word ("Base class for  and") is not a description, and is treated as no documentation. A member is listed only with its own documentation summary: one with none, or only a constructor's stock "Initializes a new instance of the X class." sentence, is left out rather than described by its signature ("Defined as `string`."). Inherited API content the plan places here renders inside the same block, deduplicated, never outside it. Depth scales with the surface; the table is deterministic from the verified public-symbol facts and the LLM owns only the intro, the topic grouping, and description wording bound to fact IDs. |
 | 15 | `documentation_resources` | Documentation & Resources | Conditional: verified relevant targets exist | visible | M | One list, each item a bold link, an em dash, and one sentence on what it covers: the verified documentation, knowledge-base, and reference targets (the reference item states the verified public type count and points to the in-page API Reference for the essentials); repository-relative links to verified tracked docs when they exist (a publishing or contributor guide, implementation notes, labeled as such); and a closing "Found a bug or have a feature request? Open an issue" line to the repository's issues page. Aspose links within the configured or derived ceilings. Never the same target twice. |
 | 16 | `scope_limitations` | Scope and Limitations | Required | visible | L | A bulleted list of designed or declared limitations, each naming the precise mechanism a fact records (an exact exception type, a named unimplemented class or method) — never a vaguer paraphrase ("raises an exception") when the fact is more precise ("raises `NotImplementedError`"). At most one scope sentence before the list, only when it says something the bullets do not; never a prose paragraph restating them. When nothing traces to a public source, omit the list rather than invent filler. Transient defects (a package that fails to import at this commit, a broken build backend) are never limitations. The section closes with the Enterprise Edition paragraph (row 18). |
-| 17 | `development_testing` | Development and Testing | Conditional: build or test assets exist | visible | M | Prose with fenced commands from the actual build files and CI: install or build and run the suite; a single-target run when the ecosystem has one, copied exactly from its verified example fact, never approximated; one sentence sizing what the suite covers when a test-file count is verified; a release sentence linking the repository's release or publish workflow file when one exists. The renderer prints, from the clone's own files, the build command and the test command (`build_test_asset:build-command` and `:test-command`: a non-release workflow `run` step, else a `package.json` script, a `Makefile` target, the standard command of the toolchain manifest at the root - `test` only when the tree shows tests - and last a release workflow's step) as one fenced `bash` block after the sentences, omitting any command a placed inherited block already carries, and one sentence on the operating systems and runtimes of the CI matrix (`build_test_asset:ci-matrix`). Representative assets are named in prose, never as a bare directory list. Never collapsed. |
+| 17 | `development_testing` | Development and Testing | Conditional: build or test assets exist | visible | M | Prose with fenced commands from the actual build files and CI: install or build and run the suite; a single-target run when the ecosystem has one, copied exactly from its verified example fact, never approximated; one sentence sizing what the suite covers when a test-file count is verified; a release sentence linking the workflow one of whose steps publishes a package, uploads release assets or creates a release (`build_test_asset:release-workflow`), and no release sentence when no workflow has such a step (a file name proves nothing). The renderer prints, from the clone's own files, the build command and the test command (`build_test_asset:build-command` and `:test-command`: a non-release workflow `run` step, else a `package.json` script, a `Makefile` target, the standard command of the toolchain manifest at the root - `test` only when the tree shows tests - and last a release workflow's step) as one fenced `bash` block after the sentences. A workflow command is read from one job's own steps, never a sanitizer, coverage, benchmark, documentation, package-test, minimum-toolchain, release or package job (outside a release workflow), never a step in another directory or under shell control flow, and a command that works in a build directory only when the same job configures that directory earlier with one unconditional `cmake -S . -B <directory>`, which the block prints first; otherwise no command is named. A command that needs a tool the project does not declare prints its precondition first (`pip install build` for `python -m build`). Any command, and any precondition, the README already shows in an equivalent form anywhere (a code fence or inline code: same program, subcommand words and target, however spelled) is omitted. One sentence puts the operating systems and runtimes of the CI matrix (`build_test_asset:ci-matrix`) in words ("on Ubuntu and Windows, with Python 3.10 and 3.12"), never as workflow keys. Representative assets are named in prose, never as a bare directory list. Never collapsed. |
 | 18 | `enterprise_relationship` | none (closing paragraph of Scope and Limitations) | Conditional: a verified aspose.com product target exists in policy | visible, below the fold | M | The final paragraph of Scope and Limitations, separated from the bullets by a blank line, never inside a bullet: one or two sentences of the shape "These limitations don't apply to [full-featured Aspose.{Family} for {Platform} — Enterprise Edition](url), which adds …" (the anchor text is renderer-owned: `plans/idea.md` asks for "an informative **full-featured ... Enterprise Edition** anchor below the fold", and BC-06 rejects a link to the verified target whose text does not open "full-featured" and end "Enterprise Edition"), naming what the Enterprise Edition adds from verified facts or policy, never invented. "Enterprise Edition" is the only edition name anywhere in the document, and it appears exactly once. A family-level target names no platform at all; a platform-level target names exactly the one real platform and never the resolved URL's own implementation detail (a compound or bridge slug never surfaces in the anchor or surrounding prose). Omit the paragraph entirely on an unresolved target — never guess a platform or fall back to a family link for convenience. |
 | 19 | `third_party_notices` | Third-Party Notices | Conditional: the file exists | visible | D | Repository-relative link with normal link text, not code styling. |
 | 20 | `license` | License | Required | visible | D | Prose declaration from the license fact: "This project is licensed under the [<name>](<path>)." then, for a permissive license such as MIT, one sentence of practical permissions and the notice condition, and that the software is provided without warranty. Never a bare link, no README-level copyright line unless portfolio policy enables it. |
@@ -136,10 +161,16 @@ file"), the product node, the `Core Capabilities` group, and an `Outputs` group 
 node that lists the verified output formats — connected by exactly one edge per hop
 (`StartingPoints --> PRODUCT --> Capabilities --> Outputs`); `Starting Points` is omitted, with its
 edge, when no input format is verified, and `Outputs` likewise. Individual capabilities never fan
-out to the product or to outputs; no per-format node edges. Up to five capability nodes form one
-column; six to eight form two balanced columns. Every label is geometry-safe: no unbroken token over
-28 characters, and no label wrapping past three lines at Mermaid's default node width — a longer
-title is shortened at planning, never clipped at render. No custom styling directives. The LLM
+out to the product or to outputs; no per-format node edges. The blocks run left to right
+(`flowchart LR`: Starting Points, the product, Core Capabilities, Outputs), each group a column of
+boxes in reading order, split by key capability. Up to five capability nodes form one column; six
+to eight form two balanced columns, side by side. Every label is geometry-safe and every box
+grows with its text: labels are SVG text (`htmlLabels: false`), wrapped by one character-width
+model into lines inside one pixel budget per diagram, so no word is wider than the budget and no
+label wraps past four lines - a longer title is shortened at planning, never clipped at render.
+No custom styling directives. The drawing is `components/readme_diagram`'s, shared with the
+live-first correction path; the diagram is accepted by its own structure and width model and, in
+tests, by a real render (README_STANDARD.md STR-28, owner ruling R7). The LLM
 chooses which verified formats and which core capabilities appear; the renderer owns every node,
 edge, and label.
 
@@ -206,10 +237,14 @@ list while the section stated half of it, and BC-05 passed every such unit). A `
 Scope list twice). Planning completes the hand-off: every `link_target` fact such a list cites into
 Documentation and Resources joins the plan's `links` when the plan already carries one of them, and
 a list placement drops from Scope and Limitations is added to every limitation's `unit_ids`. The
-authoring guard (`list_coverage.py`) then refuses a section whose units do not state every item of a
-list it was handed (or, in an unbound section such as Development and Testing, of a list placement
-dropped from it), and BC-05 fails the candidate naming each item the rendered section does not state —
-by the link it carries in Documentation and Resources, by its subject words elsewhere.
+authoring objective names those lists so the units fold their items in where they fit, but authoring
+does not refuse a reply that leaves one out (wave-4 triage, cause 1: a list longer than its slots,
+or an item naming an identifier no fact spells, made the refusal unsatisfiable): placement prints
+every item the section does not state, as written, and BC-05 fails the candidate naming each item the
+rendered section still does not state — by the link it carries in Documentation and Resources, by
+the item's own words elsewhere (`list_coverage.missing_items`, the one test placement, BC-05 and the
+objective share: an item is stated when the section holds half the words of its lead or half the
+words only that item says, so a bold label the composer folds into its sentences is not the item).
 
 Two more placement rules, both from the same G1 canary bundle: a placed unit inherits its section's
 visibility — in a `collapsible` section it renders inside the section's `<details>` block after the
@@ -251,7 +286,7 @@ Exactly these block acceptance at G1. Everything else is advisory until contract
 | 4 | Every content unit's fact IDs exist, are `SUPPORTED`, and lie within the fact set the plan assigned to that unit's slot — a capability description cites its own title's facts, never another slot's, and the capability's title is supported by the facts its unit cites; every identifier in prose is a fact value in a code span; an `opening` sentence that names an audience, use case, suitability, or spared cost is refused unless an accepted fact of that section states the same claim (`composition/audience.py`) | `opening`, `key_capabilities`, `scope_limitations`, `api_reference`, `documentation_resources`, `enterprise_relationship` |
 | 5 | Every material inherited unit has exactly one disposition; placed units appear in their destination | all |
 | 6 | Every link resolves; Aspose links are contextual and within the ceilings derived for this document (total, `aspose.org`/`aspose.com`, and `products`/`docs`/`kb`/`blog`/`reference` slots, from its visible content size and verified examples, or the configured maxima; `composition/link_budget.py`); "Enterprise Edition" is the only edition name (no substitute such as "commercial edition" or "paid version", in any letter case — `plans/idea.md` L51-53); no unsafe raw HTML (`<script>`/`<iframe>`/an event-handler attribute, or a `javascript:` or `vbscript:` scheme at a URL position - a link or image destination, a reference definition, an autolink, or a URL-bearing attribute value; prose that merely contains the words is not a URL) renders outside a fenced code block | `documentation_resources`, `enterprise_relationship`, `badges` |
-| 7 | Exactly one factual H1; one badge row in the stable order, each badge supported by a verified fact; title-case headings of every level; canonical abbreviations in prose and headings; At a Glance topology, column rules and label geometry (no label wraps past three lines); every code fence carries a language and no empty-line run appears in the document or an example; no section the shell marks visible renders inside `<details>`; no internal narration; within the visible-length budget (content inside `<details>` is unbounded but verified) | structure |
+| 7 | Exactly one factual H1; one badge row in the stable order, each badge supported by a verified fact; title-case headings of every level; canonical abbreviations in prose and headings; At a Glance topology, column rules and label geometry (the horizontal drawing; no label wraps past four lines at the line budget); every code fence carries a language and no empty-line run appears in the document or an example; no section the shell marks visible renders inside `<details>`; no internal narration; within the visible-length budget (content inside `<details>` is unbounded but verified) | structure |
 | 8 | Protected content preserved | all |
 | 9 | No configured secret in the bundle | bundle |
 | 10 | Independent review returns `ACCEPT` with the reviewer identity separate from authoring, and no advisory is left on a required row (§6) | review |
@@ -318,7 +353,9 @@ first-attempt acceptance filters on it). The manifest records `sealed_by` (the i
 process that wrote the bundle) and `ledger_totals` (sums over `calls.jsonl`), and verification
 fails closed when they stop reconciling with the ledger. The
 manifest seals the
-bundle (`schemas/candidate-bundle.schema.json`); only `READY_FOR_PROPOSAL` counts toward N/34.
+bundle (`schemas/candidate-bundle.schema.json`); `READY_FOR_PROPOSAL` is the sealed state. Progress
+is the authorizable count, N of the registry size (44 on 2026-10-11), under owner decision D4 and
+`AGENTS.md`.
 The manifest also carries an optional `call_variance`: when a job's successful attempts across
 the transaction's whole history - every repair round and reopening, not only what the accepted
 composition ultimately consumed - never settled on one response, that job and every distinct

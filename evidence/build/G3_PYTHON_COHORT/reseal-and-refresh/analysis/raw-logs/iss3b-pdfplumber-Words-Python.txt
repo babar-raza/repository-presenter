@@ -1,0 +1,34 @@
+# key: pdfplumber-Words-Python
+# repository clone: Aspose.Words-FOSS-for-Python
+# head: 2d2efee2787cb9e56d071d17f8d7b740dce8b784
+# utc: 2026-10-11T18:03:13Z
+
+$ "<scratch>/venvs/wordspy/Scripts/python.exe" -m pip install -q --ignore-requires-python -e ".[dev]" 2>&1 | tail -2
+[exit 0]
+
+
+$ grep -n 'requires-python' pyproject.toml; grep -n -A6 'optional-dependencies' pyproject.toml | head -12
+[exit 0]
+15:requires-python = ">=3.10,<3.13"
+42:[project.optional-dependencies]
+43-dev = [
+44-    "Pillow>=10.0.0",
+45-    "pytest>=9.0.2",
+46-]
+47-
+48-[tool.pytest.ini_options]
+
+$ grep -n 'import pdfplumber' ApiExamples/loading_markdown.py
+[exit 0]
+163:        import pdfplumber
+
+$ "<scratch>/venvs/wordspy/Scripts/python.exe" -m pytest ApiExamples/ -q --rootdir=ApiExamples -c ApiExamples/pytest.ini 2>&1 | tail -8
+[exit 0]
+        # Same check on the PDF: two real clickable link annotations, not styled text.
+>       import pdfplumber
+E       ModuleNotFoundError: No module named 'pdfplumber'
+
+ApiExamples\loading_markdown.py:163: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED ApiExamples\loading_markdown.py::LoadingMarkdown::test_save_markdown_with_base64_image_to_docx_and_pdf
+1 failed, 26 passed in 12.23s

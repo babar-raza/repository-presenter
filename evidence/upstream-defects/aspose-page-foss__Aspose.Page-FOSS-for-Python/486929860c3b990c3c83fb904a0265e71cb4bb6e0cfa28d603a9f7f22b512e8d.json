@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "source_revision": "43cef367cd0b2cf00cc03064ca9d29d1ff507967",
+  "defect_fingerprint": "sha256:486929860c3b990c3c83fb904a0265e71cb4bb6e0cfa28d603a9f7f22b512e8d",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "5",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "setup.py",
+      "detail": "line 35: \"version\": (ROOT / \"local\" / \"Version.txt\").read_text(...)"
+    },
+    {
+      "path": "package.py",
+      "detail": "line 45: value = (ROOT / \"local\" / \"Version.txt\").read_text(...)"
+    },
+    {
+      "path": "pip install . --no-deps",
+      "detail": "2026-10-11: FileNotFoundError: local/Version.txt; ERROR: Failed to build ... when getting requirements to build wheel"
+    }
+  ],
+  "claim": "At revision 43cef367cd0b2cf00cc03064ca9d29d1ff507967, setup.py and package.py read local/Version.txt, the directory local/ is git-ignored and untracked, and pip install . fails with FileNotFoundError on a fresh clone.",
+  "suggested_issue_title": "Aspose.Page FOSS for Python: pip install . fails on a fresh clone because local/Version.txt is not in the repository",
+  "suggested_issue_body": "## Summary\n\nInstalling the package from a fresh clone fails. `setup.py` (line 35) reads the package version from `local/Version.txt`, and `package.py` (line 45) reads the same file, but `.gitignore` (line 9) excludes the whole `local/` directory, so the file is not in the repository. The README documents the source build (`python package.py build`) and says the wheel version comes from `local/Version.txt` (README.md lines 98 and 102).\n\n## Environment\n\n- Repository: aspose-page-foss/Aspose.Page-FOSS-for-Python\n- Revision: `43cef367cd0b2cf00cc03064ca9d29d1ff507967` (the upstream revision this report was verified against, default branch `main`)\n- Windows 11, Python 3.13.15, pip 26.2.1\n- Verified on 2026-10-11 from a fresh shallow clone.\n\n## Steps to reproduce\n\n```\ngit clone https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python\ncd Aspose.Page-FOSS-for-Python\ngit ls-files local | wc -l\npip install . --no-deps\n```\n\n## Expected\n\n`pip install .` builds and installs the package from a clean clone, or the documentation says how to create `local/Version.txt` first.\n\n## Actual\n\n`git ls-files local | wc -l` prints `0`, and the install stops while preparing the wheel:\n\n```\nFileNotFoundError: [Errno 2] No such file or directory: '.../local/Version.txt'\nERROR: Failed to build 'file:///.../Aspose.Page-FOSS-for-Python' when getting requirements to build wheel\n```\n\n## Where in the repository\n\n- `setup.py:35` and `package.py:45` (both read `local/Version.txt`)\n- `.gitignore:9` (`local/`)\n- `README.md:98` and `README.md:102`\n\n## Suggested fix\n\nTrack a default `local/Version.txt` (and ignore only the credential files kept in `local/`), or fall back to the `version` declared in `pyproject.toml` when the file is missing.\n\n<!-- repository-presenter-defect: sha256:486929860c3b990c3c83fb904a0265e71cb4bb6e0cfa28d603a9f7f22b512e8d -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "INSTALL_FAILS"
+}

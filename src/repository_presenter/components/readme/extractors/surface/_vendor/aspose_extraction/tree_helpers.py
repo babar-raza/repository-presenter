@@ -379,6 +379,32 @@ def is_public(node, language: str) -> bool:
     return True
 
 
+# Wave-3 triage U10 (local patch, 2026-10-11): ``collect_nodes`` is a deep walk, and the TypeScript
+# ``is_public`` accepts any ``property_signature`` under an ``object_type``. A type literal in a
+# signature or in a local ``type X = {...}`` (Aspose.Cells for TypeScript ``workbook.ts``: the
+# return literal ``{ col; colOff; row; rowOff }`` of a private method, ``options?: { password?;
+# saveFormat? }``, a function-local ``type XfEntry``) is therefore read as members of the class.
+_TS_MEMBER_CONTAINERS = frozenset({"class_body", "interface_body", "object_type"})
+_TS_TYPE_COMBINATORS = frozenset({"intersection_type", "union_type", "parenthesized_type"})
+
+
+def ts_member_belongs_to(member, owner) -> bool:
+    """True when *member* is declared directly in *owner*'s own body (TypeScript/JavaScript).
+
+    A member sits in a ``class_body``, an ``interface_body`` or the ``object_type`` of an interface
+    or ``type X = {...}``, and that container hangs straight off *owner* (through at most an
+    intersection, union, or parenthesised type). A type literal nested in a method signature, a
+    parameter, a property type, or a local alias has a container whose parent is a type
+    annotation or a statement, so its properties are not members of *owner*."""
+    container = member.parent
+    if container is None or container.type not in _TS_MEMBER_CONTAINERS:
+        return False
+    holder = container.parent
+    while holder is not None and holder.type in _TS_TYPE_COMBINATORS:
+        holder = holder.parent
+    return holder is not None and holder == owner
+
+
 _CSHARP_OBSOLETE_ATTR_NAMES = ("Obsolete", "ObsoleteAttribute")
 
 

@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal
+
+from repository_presenter.core.facts import Fact
 
 ExampleOutcome = Literal["EXECUTED", "FAILED", "TIMED_OUT", "NEEDS_INPUT", "NOT_VERIFIED"]
 FormatDirection = Literal["input", "output"]
@@ -29,6 +32,42 @@ def collapse_blank_runs(text: str) -> str:
             kept.append(line)
         previous_empty = empty
     return "\n".join(kept)
+
+
+# The ``example`` fact attribute that carries the lines a verifier put in front of the README's
+# snippet to make it compile (a C# ``using``, a Java ``import``). The receipt that proved the
+# example compiled the program ``prelude + code``; a reader who copies only ``code`` has the
+# program the verifier did not run (wave-3 acceptance review, Slides-.NET: three of seven printed
+# examples failed CS0103/CS0246 because the harness-supplied ``using Aspose.Slides.Foss.Drawing;``
+# was never printed).
+PRELUDE_ATTRIBUTE = "prelude"
+_PACKAGE_LINE = re.compile(r"^\s*package\s+[\w.]+\s*;\s*$")
+
+
+def with_prelude(code: str, prelude: str) -> str:
+    """``code`` as a reader must see it for the verifier's program to be theirs: the supplied
+    lines first, one per line. A Java ``package`` declaration has to stay the first statement of a
+    compilation unit, so the lines follow it. No prelude, no change."""
+    lines = [line.strip() for line in prelude.splitlines() if line.strip()]
+    if not lines:
+        return code
+    body = code.split("\n")
+    at = 0
+    for index, line in enumerate(body):
+        if line.strip():
+            at = index + 1 if _PACKAGE_LINE.match(line) else 0
+            break
+    head, tail = body[:at], body[at:]
+    while tail and not tail[0].strip():
+        tail = tail[1:]
+    return "\n".join([*head, *([""] if head else []), *lines, *tail])
+
+
+def printed_example(fact: Fact) -> str:
+    """The example a README prints for ``fact``: exactly the program its receipt compiled,
+    including the usings or imports the verifier supplied. Every renderer and every check that
+    compares a printed fence with a verified example reads it from here, so the two agree."""
+    return with_prelude(fact.value, (fact.attributes or {}).get(PRELUDE_ATTRIBUTE, ""))
 
 
 @dataclass(frozen=True)
@@ -133,6 +172,11 @@ class ExampleReceipt:
     broken code - still has this to admit an honest, weaker install fact from, distinct from a
     syntax-only check (C++) that proves nothing about where the code lives. Empty for every
     receipt that is not this shape.
+
+    ``prelude`` is the lines the verifier put in front of the snippet to make it compile, one per
+    line (C# ``using`` directives, Java ``import`` statements), exactly as compiled. The example
+    fact carries it as ``PRELUDE_ATTRIBUTE`` and every printer shows it (``printed_example``):
+    what a README prints is what the receipt compiled. Empty when the snippet compiled as written.
     """
 
     ordinal: int
@@ -145,6 +189,7 @@ class ExampleReceipt:
     build_verified: bool = True
     build_command: str = ""
     source_roots: tuple[str, ...] = ()
+    prelude: str = ""
 
 
 def write_receipts(receipts: list[ExampleReceipt], path: Path) -> None:

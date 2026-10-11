@@ -1,0 +1,37 @@
+# key: csv-encoding-Cells-Python
+# repository clone: Aspose.Cells-FOSS-for-Python
+# head: 952317cad8db1880ed85be9814c24e9303930d49
+# utc: 2026-10-11T18:03:02Z
+
+$ git log -3 --format='%h %an %ad %s' --date=short; git show --stat --format= HEAD | tail -4
+[exit 0]
+952317c Laurence Chen 2026-10-11 Update Readme
+ llms.md                                            |  307 ++
+ pyproject.toml                                     |   54 +
+ requirements.txt                                   |    6 +
+ 113 files changed, 63330 insertions(+)
+
+$ "<scratch>/venvs/cellspy/Scripts/python.exe" -m pip install -q -e . pytest 2>&1 | tail -1
+[exit 0]
+
+
+$ "<scratch>/venvs/cellspy/Scripts/python.exe" -c "import locale,sys; print(locale.getpreferredencoding(False), sys.flags.utf8_mode)"
+[exit 0]
+utf-8 1
+
+$ sed -n 29,31p aspose/cells_foss/csv_handler.py
+[exit 0]
+    """Return the system's preferred encoding (e.g. 'cp1252', 'gbk', 'utf-8')."""
+    return locale.getpreferredencoding(False) or 'utf-8'
+
+$ cd "<scratch>\work\cellspy" && PYTHONUTF8=0 PYTHONPATH="<scratch>\clones\Aspose.Cells-FOSS-for-Python" "<scratch>/venvs/cellspy/Scripts/python.exe" csv_repro.py 2>&1 | tail -4
+[exit 0]
+  File "C:\Users/<user>\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+
+$ cd "<scratch>\work\cellspy" && PYTHONUTF8=1 PYTHONPATH="<scratch>\clones\Aspose.Cells-FOSS-for-Python" "<scratch>/venvs/cellspy/Scripts/python.exe" csv_repro.py 2>&1 | tail -2; echo "---o.csv:"; cat o.csv
+[exit 0]
+---o.csv:
+你好

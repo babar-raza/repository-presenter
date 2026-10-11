@@ -1,0 +1,40 @@
+# key: chartname-Cells-NET
+# repository clone: Aspose.Cells-FOSS-for-.NET
+# head: 941814fd138dc28cf47123d48194f329f283498d
+# utc: 2026-10-11T18:06:12Z
+
+$ sed -n 240,258p README.md
+[exit 0]
+
+```csharp
+var workbook = new Workbook();
+var sheet = workbook.Worksheets[0];
+sheet.Name = "Charts";
+
+for (var month = 1; month <= 12; month++)
+{
+    sheet.Cells[month, 0].PutValue("Month " + month);
+    sheet.Cells[month, 1].PutValue(month * 1000);
+}
+
+var chartIndex = sheet.Charts.Add(ChartType.Column, "Charts!$B$1:$B$13", 0, 4, 18, 8);
+var chart = sheet.Charts[chartIndex];
+chart.Name = "Revenue";
+
+workbook.Save("charts-sample.xlsx");
+```
+
+# Program.cs = using Aspose.Cells_FOSS; + the README fence, README.md lines 242-256, verbatim
+
+$ dotnet build 2>&1 | grep -E 'error|Build succeeded' | head -4
+[exit 0]
+<scratch>\work\cellsnet_chart\Program.cs(15,1): error CS0200: Property or indexer 'Chart.Name' cannot be assigned to -- it is read only [<scratch>\work\cellsnet_chart\p.csproj]
+<scratch>\work\cellsnet_chart\Program.cs(15,1): error CS0200: Property or indexer 'Chart.Name' cannot be assigned to -- it is read only [<scratch>\work\cellsnet_chart\p.csproj]
+
+$ sed -n 47p src/Aspose.Cells_FOSS/Chart.cs
+[exit 0]
+        public string Name => _model.Name;
+
+$ gh pr view 3 --repo aspose-cells-foss/Aspose.Cells-FOSS-for-.NET --json state,createdAt,author,files --jq '{state,createdAt,author:.author.login,files:[.files[].path]}'
+[exit 0]
+{"author":"babar-raza","createdAt":"2026-09-19T14:08:52Z","files":["README.md"],"state":"OPEN"}

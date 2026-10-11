@@ -16,6 +16,8 @@ from repository_presenter.components.readme.extractors.platforms.registry import
     plugin_for,
 )
 from repository_presenter.core.errors import ConfigError
+from repository_presenter.core.registry.loader import REGISTRY_RELATIVE_PATH, load_registry
+from support import REPO_ROOT
 
 
 def _package_module_names() -> list[str]:
@@ -36,6 +38,19 @@ def test_python_is_the_first_registered_plugin() -> None:
     assert [(c.direction, c.extension) for c in plugin.format_claims('s.save("a.glb")\n')] == [
         ("output", ".glb")
     ]
+
+
+def test_every_admitted_registry_entry_has_a_platform_plugin() -> None:
+    """Admission is a promise the facts stage can keep: an entry whose ecosystem has no
+    ``platforms/<ecosystem>.py`` would fail closed at its first run. That is why
+    aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js (pure JavaScript) waited for
+    ``platforms/nodejs.py``, and the guard that keeps the next such admission from landing as
+    data alone."""
+    registry = load_registry(REPO_ROOT / REGISTRY_RELATIVE_PATH)
+    unserved = sorted(
+        entry.repository for entry in registry.entries if entry.ecosystem not in known_ecosystems()
+    )
+    assert unserved == []
 
 
 def test_unknown_ecosystem_fails_closed() -> None:
@@ -79,6 +94,9 @@ _MANIFESTS = Path(__file__).parent / "fixtures" / "manifests"
         ("typescript", "ts", "package.json", "build"),
         ("typescript", "ts", "package.json", "lib"),
         ("typescript", "ts", "package.json", "dist"),
+        ("nodejs", "ts", "package.json", "build"),
+        ("nodejs", "ts", "package.json", "lib"),
+        ("nodejs", "ts", "package.json", "dist"),
         ("java", "java", "pom.xml", "build"),
         ("java", "java", "pom.xml", "out"),
         ("java", "java", "pom.xml", "target"),
@@ -121,7 +139,7 @@ def test_the_typescript_entry_barrel_ignores_directories_above_the_package(
 # TC-EXT-01: a package NAME found on a registry is not ownership. Every registry-reading plugin
 # asks the façade about THIS repository, and a published distribution nothing corroborates is
 # UNRESOLVED - never SUPPORTED, so the README cannot tell a reader to install another project.
-@pytest.mark.parametrize("ecosystem", ["typescript", "go", "java", "net", "rust"])
+@pytest.mark.parametrize("ecosystem", ["typescript", "nodejs", "go", "java", "net", "rust"])
 @pytest.mark.parametrize("matched", [False, None])
 def test_a_published_name_that_nothing_ties_to_the_repository_is_not_a_supported_install(
     monkeypatch: pytest.MonkeyPatch, ecosystem: str, matched: bool | None

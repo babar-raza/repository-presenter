@@ -1,0 +1,28 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing PPTX presentation"]
+  end
+  PRODUCT["Aspose.Slides FOSS for .NET"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Presentation, slide, and section creation and editing"]
+      c2["Shape creation (AutoShape, Table, Connector, PictureFrame)"]
+      c3["Text formatting (TextFrame, Paragraph, Portion)"]
+      c4["Fill, line, and 3D shape styling"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c5["Visual effects (shadow, glow, blur, reflection)"]
+      c6["Document properties (core, app, custom)"]
+      c7["Speaker notes and classic comments"]
+      c8["Image embedding"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["PPTX, PPSX or POTX package"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

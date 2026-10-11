@@ -1,0 +1,26 @@
+# key: license-Cells-Python
+# repository clone: Aspose.Cells-FOSS-for-Python
+# head: 952317cad8db1880ed85be9814c24e9303930d49
+# utc: 2026-10-11T17:48:14Z
+
+$ git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$'; echo root-match-exit=$?
+[exit 0]
+root-match-exit=1
+
+$ git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)' | head -8
+[exit 0]
+License/LICENSE.txt
+License/ThirdPartyNotices.txt
+
+$ gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Python --jq '"license=" + (.license|tostring)'
+[exit 0]
+license=null
+
+$ grep -n -i -E 'licen[sc]e|MIT' pyproject.toml | head -5
+[exit 0]
+11:license = "MIT"
+12:license-files = ["License/LICENSE.txt"]
+
+$ gh api 'repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Python/issues?state=open&per_page=100' --jq '.[] | "#\(.number) \(.title)"'; echo open-issues-listed
+[exit 0]
+open-issues-listed

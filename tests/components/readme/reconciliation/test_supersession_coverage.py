@@ -582,17 +582,33 @@ def test_normalising_twice_changes_nothing_more() -> None:
 
 def test_the_recovered_reply_still_has_to_pass_the_checks() -> None:
     """recover= is a last attempt, not a way round the checks: a section that renders from facts
-    cannot carry the unit, so the last attempt withdraws the claim - deferred, listed, never
-    rendered - and the result passes the same checks any reply does."""
+    cannot carry the unit, so the last attempt keeps it where a section that can hold it is - never
+    drops it - and the result passes the same checks any reply does."""
     raw = _only("inherited_unit:011.code_block", "SUPERSEDE_REDUNDANT", "installation")
     assert normalize(raw, FACTS) == []
     assert placement_errors(raw, FACTS)
     recovered = recover_uncited_prose_omits(raw, FACTS)
     assert recovered is not None
     entry = recovered["dispositions"][0]
+    assert (entry["disposition"], entry["destination_section"]) == (
+        "VERIFIED_PRESERVE",
+        "development_testing",
+    )
+    assert entry["rationale"].startswith("Kept in development_testing")
+    assert len(entry["rationale"]) <= 160
+    assert reconcile_checks(recovered, FACTS) == []
+
+
+def test_a_unit_no_section_can_hold_is_still_deferred_with_the_typed_rationale() -> None:
+    """Negative control: the placement is for a unit some section can hold. With only a prose
+    section holdable, an install code block has no home, and the last attempt withdraws the claim
+    exactly as before - deferred, listed for the owner, typed so BC-05 can read the cause."""
+    raw = _only("inherited_unit:011.code_block", "SUPERSEDE_REDUNDANT", "installation")
+    recovered = recover_uncited_prose_omits(raw, FACTS, holdable=("scope_limitations",))
+    assert recovered is not None
+    entry = recovered["dispositions"][0]
     assert (entry["disposition"], entry["destination_section"]) == ("DEFER_UNRESOLVED", None)
     assert entry["rationale"].startswith("Not provably carried by the section named")
-    assert len(entry["rationale"]) <= 160
     assert reconcile_checks(recovered, FACTS) == []
 
 
@@ -684,9 +700,11 @@ def replay(name: str, bundle: Path) -> ReplayRow:
         if "uncovered_supersession" in error or "supported_omission" in error
     )
     row.refused = sum(1 for _ in new_refusals)
-    # What the last attempt leaves if the one re-ask changed nothing: the claim withdrawn.
+    # What the last attempt leaves if the one re-ask changed nothing and no section can hold the
+    # unit: the claim withdrawn. (With a home, the unit is kept there instead:
+    # test_recover_keeps_what_a_section_can_hold_over_the_sealed_bundles.)
     last = copy.deepcopy(after)
-    _recover_uncovered(last, facts)
+    _recover_uncovered(last, facts, holdable=())
     row.final = last
 
     def blocks(document: dict[str, Any]) -> int:
@@ -844,3 +862,38 @@ def test_cells_rust_project_structure_is_no_longer_discarded_as_covered() -> Non
     # deferral and stays one: not a disposition defect, and not flagged.
     assert before["inherited_unit:034.code_block"]["disposition"] == "DEFER_UNRESOLVED"
     assert "inherited_unit:034.code_block" not in reasons
+
+
+@needs_candidates
+def test_recover_keeps_what_a_section_can_hold_over_the_sealed_bundles() -> None:
+    """The replay over the current bundles: wherever the last attempt used to withdraw a claim by
+    deferring, it now keeps a unit its destination cannot print in a section that can hold it -
+    never in a renderer-owned one, never twice - and withdraws (typed) only what no section
+    suits: the shell's own furniture (the licence statement, the title's introduction) and the
+    claims about support, which a placement would publish."""
+    from repository_presenter.components.readme.reconciliation.destinations import (
+        PLACING_DISPOSITIONS,
+        holdable_sections,
+    )
+
+    kept = 0
+    for name, bundle in _current_bundles():
+        facts = read_facts(bundle / "facts.json")
+        document = json.loads((bundle / "dispositions.json").read_text(encoding="utf-8"))
+        normalize(document, facts)
+        before = copy.deepcopy(document)
+        _recover_uncovered(document, facts)
+        holdable = set(holdable_sections(facts))
+        for was, now in zip(before["dispositions"], document["dispositions"], strict=True):
+            if was == now:
+                continue
+            if now["rationale"].startswith("Kept in "):
+                kept += 1
+                assert now["destination_section"] in holdable, (name, now["unit_id"])
+                assert now["disposition"] in PLACING_DISPOSITIONS, (name, now["unit_id"])
+            else:
+                assert now["disposition"] in {"DEFER_UNRESOLVED", "SUPERSEDE_REDUNDANT"}, name
+                assert now["rationale"].startswith("Not provably carried by the section named")
+        ids = [entry["unit_id"] for entry in document["dispositions"]]
+        assert len(ids) == len(set(ids)), name
+    assert kept > 0  # the install blocks and requirement sentences the older code withheld

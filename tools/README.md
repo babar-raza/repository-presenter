@@ -215,6 +215,47 @@ governance tracks, two directories, no overlap.
     `tests/test_workflow_rehearsal_cycle.py` (no network; the model scenarios use the scripted gateway
     of `tests/test_cli.py`; set `RP_REHEARSAL_EVIDENCE_DIR` to record their evidence).
 
+- `canary/` — the sandbox canary's operator tooling (owner decision D6, 2026-10-11;
+  `docs/PROPOSAL_WAVE_RUNBOOK.md` section 9): the one pull request allowed while real product
+  repositories stay paused, against the owner's own `babar-raza/presenter-sandbox`. No command here
+  writes to GitHub.
+  - `seed.py` — local files only: copies one product's committed tree into a clone of the sandbox
+    for the owner to review, commit and push (refuses a symlink, a submodule, `.github/`, a dirty
+    clone, any remote but the sandbox).
+  - `canary.py` — `preflight` and `verify` (read-only GETs; the token comes from `GH_TOKEN`) and
+    `assemble` (writes the bundle, the record and the one-line registry flip into a worktree).
+  - Tests: `tests/test_canary_rehearsal.py` (every step against the workflow rehearsal's fakes),
+    `tests/test_propose_sandbox_workflow.py`, `tests/core/registry/test_sandbox.py`.
+
+- `corrections/` — the correction wave's operator tooling (`docs/OPERATIONS_RUNBOOK.md` section 12):
+  the real README-correction pull requests, proposed by `propose.yml`'s correction mode from bundles
+  committed under `corrections/<run-id>/`. No command here writes to GitHub.
+  - `assemble.py` — local files only, in a control-repository worktree: for exactly the repositories
+    the owner approved (`--repo`, there is no "all"), takes the `correct-readme` bundles of a run
+    directory through the typed gate, copies only the bundle's files plus `PULL_REQUEST.md` and
+    `SHA256SUMS`, sets those registry entries to `full`, drafts their authorization records
+    (`draft-proposal-authorization`, whose live read is `GH_TOKEN`'s) and prints the review list and the
+    paced dispatch plan it never runs. Nothing is kept if any step fails.
+  - Tests: `tests/test_correction_wave_rehearsal.py` (every step against the workflow rehearsal's
+    fakes), `tests/test_propose_correction_workflow.py`,
+    `tests/components/readme_correction/test_committed.py`.
+
+- `readme_standard/` — the tooling of `docs/README_STANDARD.md`, written at the owner directive of
+  2026-10-11 (the live upstream README is the structure standard). Read-only: no network, no model,
+  no write outside `data/readme_standard/` and the standard's own generated tables.
+  - `survey_features.py` — one README (and optionally its clone) to a flat record of about 110
+    measures; the same functions are the deterministic detectors the standard's defect table names.
+  - `build_survey.py` — reads clones of the registry repositories (`--root` repeats) and writes
+    `data/readme_standard/survey.json` (head commit and README SHA-256 per repository).
+  - `observations.py` — the closed predicate language (`gte`, `contains`, `nonempty`, ...) that
+    turns a condition in a data file into a count; no data file can run code.
+  - `render_tables.py` — renders the document's tables from `data/readme_standard/`.
+  - `check_profiles.py` — `python -X utf8 -m tools.readme_standard.check_profiles`: validates the
+    data against `schema.yaml`, proves all registry repositories are assigned exactly once,
+    recomputes every frequency, and checks the document's tags and tables; `--write-counts` and
+    `--write-doc` refresh the machine-maintained parts.
+  - Tests: `tests/test_readme_standard.py`.
+
 ## Environment variables
 
 Both `reviewer_check.py`, `stop_monitor.py`, and `timestamp_monitor.py` default to this machine's
