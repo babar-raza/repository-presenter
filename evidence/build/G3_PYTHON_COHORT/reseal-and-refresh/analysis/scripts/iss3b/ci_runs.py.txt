@@ -1,0 +1,16 @@
+import json, os, subprocess, sys
+sp = sys.argv[1]
+h = json.load(open(sp + "/heads_issues.json"))
+tok = subprocess.run(["gh","auth","token"],capture_output=True,text=True).stdout.strip()
+env = dict(os.environ, GH_TOKEN=tok)
+out = {}
+for repo,row in h.items():
+    r = subprocess.run(["gh","api",f"repos/{repo}/actions/runs?branch={row['default_branch']}&per_page=5","--jq","[.workflow_runs[] | {name:.name, conclusion:.conclusion, status:.status, date:.created_at[:10], sha:.head_sha[:8], event:.event}]"],capture_output=True,text=True,encoding="utf-8",errors="replace",env=env)
+    try: runs = json.loads(r.stdout)
+    except Exception: runs = r.stderr[:100]
+    wf = subprocess.run(["gh","api",f"repos/{repo}/actions/workflows","--jq","[.workflows[] | .name]"],capture_output=True,text=True,encoding="utf-8",errors="replace",env=env)
+    try: wfs = json.loads(wf.stdout)
+    except Exception: wfs = wf.stderr[:100]
+    out[repo] = {"workflows": wfs, "runs": runs}
+    print(repo.split("/")[1][:34].ljust(34), "workflows=", wfs if isinstance(wfs,list) else wfs, "|", [ (x["conclusion"] or x["status"], x["date"]) for x in runs][:3] if isinstance(runs,list) else runs)
+json.dump(out, open(sp + "/ci_runs.json","w"), indent=1)

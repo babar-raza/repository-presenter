@@ -1,0 +1,14 @@
+# repository clone: Aspose.Cells-FOSS-for-TypeScript
+# head: fc186507e5b7124f4664aa6035f25cfd3112367d
+# utc: 2026-10-11T17:46:59Z
+# image: node:22
+# commands: npm install --no-audit --no-fund > /tmp/i.txt 2>&1; echo npm-install-exit=$?; npx tsc --noEmit; echo tsc-exit=$?
+v22.23.3
+10.9.9
+npm-install-exit=0
+aspose_cells/chartLoader.ts(210,11): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+aspose_cells/html/htmlDocument.ts(92,54): error TS7006: Parameter 'e' implicitly has an 'any' type.
+aspose_cells/workbook.ts(482,63): error TS2345: Argument of type 'Buffer<ArrayBufferLike>' is not assignable to parameter of type 'string'.
+tsc-exit=2
+# end 2026-10-11T17:47:22Z

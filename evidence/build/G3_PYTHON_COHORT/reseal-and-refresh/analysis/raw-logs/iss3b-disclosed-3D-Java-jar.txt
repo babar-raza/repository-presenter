@@ -1,0 +1,14 @@
+# key: disclosed-3D-Java-jar
+# repository clone: Aspose.3D-FOSS-for-Java
+# head: 3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3
+# utc: 2026-10-11T18:16:44Z
+
+$ curl -s https://repo1.maven.org/maven2/org/aspose/aspose-3d-foss/maven-metadata.xml | grep -E '<(latest|release|version)>'
+[exit 0]
+    <latest>26.5.0</latest>
+    <release>26.5.0</release>
+      <version>26.5.0</version>
+
+$ grep -n -i 'ships a stub' README.md | cut -c1-260
+[exit 0]
+587:- OBJ import has a real, working parser in the upstream GitHub source, but the currently published Maven Central artifact was built from an older state and still ships a stub there — do not rely on OBJ import from the published package (see Upstream Issu

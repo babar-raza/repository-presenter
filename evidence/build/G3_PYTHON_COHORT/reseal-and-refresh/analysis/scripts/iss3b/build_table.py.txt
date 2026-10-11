@@ -1,0 +1,228 @@
+"""Build the final upstream-issue approval table (markdown, csv, per-wave id files).
+
+Inputs: readiness_final.json (issue-readiness --json over all handoffs on record), heads_issues.json,
+the registry, and the decisions below (each backed by the iss3b raw logs).
+"""
+import csv
+import json
+import sys
+from pathlib import Path
+
+sp = Path(sys.argv[1])
+out_md = Path(sys.argv[2])
+out_csv = Path(sys.argv[3])
+ids_dir = Path(sys.argv[4])
+registry = json.load(open(sys.argv[5], encoding="utf-8"))["entries"]
+rows = json.load(open(sp / "readiness_final.json", encoding="utf-8"))
+heads = json.load(open(sp / "heads_issues.json", encoding="utf-8"))
+mode = {e["repository"]: e["mode"] for e in registry}
+RL = "raw-logs/iss3b-"
+
+# short id -> (action, wave, severity, class label, logs, reproduced, duplicate note)
+H = {
+    # wave 1a: the first live filing, alone
+    "3f1b3176": ("FILE", "1a", "High", "BUILD_OR_TESTS_FAIL", ["docker-cellscpp_gcc_13", "docker-cellscpp_gcc_14", "docker-cellscpp_gcc_15", "docker-cellscpp_silkeh_clang_latest"], "yes: gcc 13.5/14.4/15.3 and clang 22.1.8, 12 errors", None),
+    # wave 1b
+    "c00f9615": ("FILE", "1b", "High", "SOURCE_UNPARSEABLE", ["ast-TeX-Python"], "yes: 102 of 119 .py files (src/aspose_tex 35 of 45); import aspose_tex fails at _input/catcode.py:66", None),
+    "cd17e99e": ("FILE", "1b", "High", "BUILD_OR_TESTS_FAIL", ["build-GIS-NET"], "yes: 369 errors, 45 warnings, 41 of 57 unresolved type names declared nowhere", None),
+    "7f0f3388": ("FILE", "1b", "High", "BUILD_OR_TESTS_FAIL", ["docker-emailcpp_ubuntu24", "docker-emailcpp_gcc_14", "docker-emailcpp_gcc_15", "docker-emailcpp_silkeh_clang_latest"], "yes: g++ 12.4/13.3/14.2 (ubuntu 24.04), gcc 14.4, gcc 15; 9 translation units; clang 18 and 22 accept", None),
+    "ae9f06b9": ("FILE", "1b", "High", "INSTALL_FAILS", ["w3c-fixture-HTML-Python"], "yes: pip install . raises BackendUnavailable (Cannot import 'setuptools.backends.legacy')", None),
+    "094c4163": ("FILE", "1b", "High", "EXAMPLE_FAILS (library)", ["repro-3D-Python-obj"], "yes: TypeError at ObjExporter.py:50; the README example is the presenter's but the defect is in the library", None),
+    "af8da760": ("FILE", "1b", "High", "EXAMPLE_FAILS (library)", ["quickstart-3D-NET", "formats-probe-3D-NET"], "yes, and wider than the first report: 44 of 45 FileFormat constants throw on Save(path, format)", None),
+    "48692986": ("FILE", "1b", "Medium", "INSTALL_FAILS", ["version-txt-Page-Python"], "yes: pip install . FileNotFoundError local/Version.txt (git-ignored)", None),
+    # wave 2
+    "b3df5761": ("FILE", "2", "Medium", "BUILD_OR_TESTS_FAIL", ["docker-cellscpp_gcc_13", "docker-cellscpp_gcc_14", "docker-cellscpp_gcc_15", "docker-cellscpp_silkeh_clang_latest"], "yes: -Werror stops 3 files on gcc 13-15 and 5 on clang 22 (trigraph in NumberFormat.cpp:30); file after 3f1b3176 (partly a policy choice)", None),
+    "52ba0e1d": ("FILE", "2", "Medium", "EXAMPLE_FAILS", ["repro-Font-Python"], "yes: KeyError 'subset' (README is the maintainers', Release 26.10.2)", None),
+    "dc90b681": ("FILE", "2", "Medium", "EXAMPLE_FAILS", ["repro-Font-Python"], "yes: TypeError unexpected keyword argument 'instance_names' (maintainers' README)", None),
+    "6532670d": ("FILE", "2", "Medium", "EXAMPLE_FAILS", ["quickstart-Note-Python"], "yes: AttributeError on page.Title (maintainers' README since 2026-01-12)", "closed #1 'Titles are empty' is a different defect (fixed in 26.3)"),
+    "49f081e6": ("FILE", "2", "Medium", "BUILD_OR_TESTS_FAIL", ["testdata-3D-NET"], "yes: 53 of 183 tests fail, 47 FileNotFoundException", None),
+    "ee780fd3": ("FILE", "2", "Medium", "BUILD_OR_TESTS_FAIL", ["docker-threedts_detail", "docker-threedts_jest"], "yes: 4 of 97 fail (causes read from the jest output)", None),
+    "b1d0d16b": ("FILE", "2", "Low", "BUILD_OR_TESTS_FAIL", ["w3c-fixture-HTML-Python"], "yes: collection error, 12296 collected, session interrupted", None),
+    "18934ab2": ("FILE", "2", "Low", "BUILD_OR_TESTS_FAIL", ["unittest-3D-Python"], "yes: Ran 123, errors=5, skipped=5", None),
+    "bb3b52f4": ("FILE", "2", "Low", "BUILD_OR_TESTS_FAIL", ["docker-wordspy_py312", "pdfplumber-Words-Python"], "yes: python:3.12, 1 failed 26 passed", "open #3 (Chinese text lost) is unrelated"),
+    "c04f74bf": ("FILE", "2", "Low", "BUILD_OR_TESTS_FAIL", ["docker-cellsts_tsc"], "yes: 3 errors, exit 2 (the README's own verification command)", None),
+    "cd25aa80": ("FILE", "2", "Medium", "LICENSE_MISSING_ROOT", ["license-3D-TS"], "yes: no license file anywhere; package.json declares MIT; GitHub reports license null", None),
+    # wave 3
+    "0dcf9304": ("FILE", "3", "Low", "BROKEN_LINK", ["link-Font-Python"], "yes: docs/ does not exist (API 404)", None),
+    "52d17222": ("FILE", "3", "Low", "STALE_METADATA", ["seturl-3D-Python"], "yes: setup.py:15 url 404; PyPI 26.1.0 Homepage is the same address", None),
+    "94ba0b5f": ("FILE", "3", "Low", "STALE_METADATA", ["metadata-url-Page-Python"], "yes: no [project.urls]; PyPI 26.9.0 home_page None", None),
+    "cf626176": ("FILE", "3", "Low", "LICENSE_MISSING_ROOT", ["license-Cells-NET"], "yes: License/ only; GitHub license null", "open #1 (NuGet unavailable) and PR #3 (presenter) are unrelated"),
+    "9bc5df82": ("FILE", "3", "Low", "LICENSE_MISSING_ROOT", ["license-Cells-Cpp"], "yes: License/LICENSE.txt only; GitHub license null", None),
+    "83a93576": ("FILE", "3", "Low", "LICENSE_MISSING_ROOT", ["license-Cells-Java"], "yes: License/LICENSE.txt only; GitHub license null", None),
+    "a2e2612a": ("FILE", "3", "Low", "LICENSE_MISSING_ROOT", ["license-Cells-Python"], "yes at head 952317ca (moved today, still License/ only)", None),
+    "5dc560bf": ("FILE", "3", "Low", "LICENSE_MISSING_ROOT", ["license-Cells-TS"], "yes: License/LICENSE.txt only; GitHub license null", None),
+    "9cdfad3e": ("FILE", "3", "Low", "LICENSE_MISSING_ROOT", ["license-GIS"], "yes: no license file anywhere", None),
+    "d0228692": ("FILE", "3", "Low", "README_MISSING_OR_PLACEHOLDER", ["license-GIS", "hygiene-GIS"], "yes: no README (API 404, 114 tracked files)", None),
+    "0f1273fb": ("FILE", "3", "Low", "MANIFEST_PLACEHOLDER_METADATA", ["placeholders-PSD-NET"], "yes: Authors SID, yourorg URLs (404); head moved to 85ed7eec, csproj unchanged", "open #5 asks for a LICENSE only (different defect)"),
+    # hold
+    "a241746e": ("HOLD", "-", "Medium", "INSTALL_FAILS", ["pypi-Font-Python"], "yes: PyPI aspose-font and aspose-font-foss are 404", "Held: Release 26.10.2 is two days old, so the distribution may still be published. Resume predicate: re-check PyPI after 2026-10-16; file only if still 404."),
+    "7e755ed8": ("HOLD", "-", "Low", "EXAMPLE_FAILS", ["chartname-Cells-NET"], "yes: CS0200 (maintainers' README, first in V26.9.0)", "The presenter's own open PR #3 (2026-09-19) deletes that line. Resume predicate: file only if PR #3 is closed unmerged."),
+    # readme correction (ours)
+    "ad94a06d": ("README-CORRECTION", "-", "Low", "EXAMPLE_FAILS", ["fromfile-3D-NET", "provenance"], "yes: CS1503, but README.md:168 first appears in the presenter's commit 042a1e5f (2026-08-19)", None),
+    "9264bf05": ("README-CORRECTION", "-", "Low", "EXAMPLE_FAILS", ["docker-threedts_readme_tsc", "provenance"], "yes: TS2339, but the example first appears in the presenter's commit 66cb26df (2026-09-18)", None),
+    "74b4b0a3": ("README-CORRECTION", "-", "Low", "EXAMPLE_FAILS", ["docker-snippet_cellscpp", "provenance"], "yes: no match for operator[]; the example first appears in the presenter's commit 9f852d0f (2026-08-13); adding WorksheetCollection.h fixes it", None),
+    "a1a661ef": ("README-CORRECTION", "-", "Low", "EXAMPLE_FAILS", ["docker-snippet_pdfcpp", "provenance"], "yes: incomplete type Paragraphs/ArtifactCollection; made stand-alone by the presenter's refresh c559fc3d", None),
+    "f49213f4": ("README-CORRECTION", "-", "Low", "EXAMPLE_FAILS", ["docker-snippet_pdfcpp", "provenance"], "yes: incomplete type PageCollection; same history", None),
+    "8b8b2cae": ("README-CORRECTION", "-", "Low", "EXAMPLE_FAILS", ["docker-snippet_slidescpp", "provenance"], "yes: 6 of 10 blocks lack slide.h; regression from the presenter's PR 6ed44d59", None),
+    # drop
+    "a6f52c1a": ("DROP", "-", "n/a", "INSTALL_FAILS", ["npm-registry-3D-TS"], "yes (npm 404) but disclosed in the README ('there is no published package to import by name yet'); text fails the quality gate", None),
+    "ef667e7d": ("DROP", "-", "n/a", "INSTALL_FAILS", ["npm-registry-PDF-TS"], "yes (npm 404) but the README documents the source install; text fails the quality gate", None),
+    "2c99dc76": ("DROP", "-", "n/a", "INSTALL_FAILS", ["imaging-readme-Imaging-NET"], "no: the README no longer has the install command or the badge (head 6ebb2091)", None),
+    "b7bf37c2": ("DROP", "-", "n/a", "synthetic", [], "n/a: the G6-W01 filing-path test record (issue #189), already FILED", None),
+}
+
+open_issues = {r: [i for i in row.get("open_issues", []) if not i["is_pr"]] for r, row in heads.items()}
+
+
+def dup_text(repo, extra):
+    if extra:
+        return extra
+    oi = open_issues.get(repo, [])
+    if not oi:
+        return "none: no open issue in the repository"
+    return "no overlap with open " + "; ".join(f"#{i['number']} {i['title'][:50]}" for i in oi)
+
+
+def blockers_text(r):
+    out = []
+    for b in r["blockers"]:
+        if b.startswith("registry write gate"):
+            out.append("registry (dry_run: needs issues_mode file)")
+        elif b.startswith("owner approval"):
+            out.append("approval (no record)")
+        elif b.startswith("not independently confirmed"):
+            out.append("re-verification " + b.split(": ", 1)[1].split(" at ")[0])
+        elif b.startswith("issue text fails"):
+            out.append("quality gate")
+        elif b.startswith("status is"):
+            out.append("status FILED")
+        else:
+            out.append(b[:60])
+    return ", ".join(out)
+
+
+table = []
+for r in rows:
+    hid = r["handoff_id"]
+    short = hid.split("__")[2][:8]
+    action, wave, sev, cls, logs, repro, dupextra = H[short]
+    if short == "a241746e" or short == "7e755ed8":
+        dup = dupextra
+    else:
+        dup = dup_text(r["repository"], dupextra)
+    table.append({
+        "id": short,
+        "repo": r["repository"],
+        "mode": mode.get(r["repository"], "not listed"),
+        "class": cls,
+        "title": r["title"],
+        "severity": sev,
+        "evidence": "; ".join(f"{RL}{k}.txt" for k in logs) or "-",
+        "reproduced": repro,
+        "duplicate": dup,
+        "blockers": blockers_text(r),
+        "action": action,
+        "wave": wave,
+        "handoff_id": hid,
+        "digest": r["evidence_digest"],
+        "kind": "handoff",
+    })
+
+# text-only candidates: (id, repo, class, title, severity, logs, reproduced, duplicate, action, wave)
+NOH = "no handoff (needs a defect class the registry does not have); text gate-checked in issue-texts-not-yet-fileable.md"
+T = [
+    # file, medium, text ready
+    ("U06", "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript", "PACKAGING_BROKEN", "Aspose.3D FOSS for TypeScript: package.json main and types point at dist/index.js, which the build does not produce", "Medium", ["packaging-3D-TS", "docker-threedts_detail"], "yes: Error: Cannot find module '/w/dist/index.js' (main and types, package.json lines 5-6; src/ has no index.ts)", None, "FILE", "2"),
+    ("U06b", "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript", "PACKAGING_BROKEN", "Aspose.3D FOSS for TypeScript: adm-zip is required at run time for 3MF but is only listed in devDependencies", "Medium", ["packaging-3D-TS", "docker-threedts_detail"], "yes: devDependencies lists adm-zip (package.json:31) and dependencies only xmldom; required at ThreeMfExporter.ts:162 and ThreeMfImporter.ts:53", None, "FILE", "2"),
+    ("U14", "aspose-cells-foss/Aspose.Cells-FOSS-for-Python", "LOCALE_DEPENDENT_BEHAVIOUR", "Aspose.Cells FOSS for Python: save_as_csv uses the locale encoding by default and raises UnicodeEncodeError for CJK text", "Medium", ["csv-encoding-Cells-Python"], "yes at head 952317ca: UnicodeEncodeError under a cp1252 locale (PYTHONUTF8=0), works under UTF-8 mode", None, "FILE", "2"),
+    ("U16", "aspose-cells-foss/Aspose.Cells-FOSS-for-Python", "PACKAGING_BROKEN", "Aspose.Cells FOSS for Python: the wheel installs a top-level examples package next to aspose", "Medium", ["wheel-Cells-Python"], "yes: wheel 26.10.0 has top-level aspose (73), examples (33) and the dist-info", None, "FILE", "2"),
+    ("U19", "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust", "NO_TESTS", "Aspose.Cells FOSS for Rust: cargo test --all-targets runs 0 tests because the crate has no tests", "Medium", ["notests-Cells-Rust", "docker-cargo_rust"], "yes: 15 targets, each 'running 0 tests'; tests/ has 0 tracked files, no #[test]", None, "FILE", "2"),
+    ("U31", "aspose-3d-foss/Aspose.3D-FOSS-for-Java", "NO_CI_TESTS", "Aspose.3D FOSS for Java: no workflow runs the tests, every Maven build step passes -DskipTests", "Medium", ["fileformats-3D-Java"], "yes: .github/workflows holds only maven-central-release.yml; every mvn build step passes -DskipTests", None, "FILE", "2"),
+    ("U38", "aspose-page-foss/Aspose.Page-FOSS-for-Python", "RUNTIME_ERROR", "Aspose.Page FOSS for Python: aspose.page.mcp.server.run() raises TypeError, host and port reach the stdio transport", "Medium", ["mcp-run-Page-Python"], "yes (fastmcp 4.1.0): TypeError TransportMixin.run_stdio_async() got an unexpected keyword argument 'host'; the README 'Run the MCP Server' example (the presenter's, ca4fb3d7) calls server.run(host=..., port=...) directly and needs its own correction", None, "FILE", "2"),
+    ("U43", "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java", "DOC_CONTRADICTION", "Aspose.PDF FOSS for Java: limitations.md lists XLSX and Markdown conversion as unsupported, conversion.md says it works", "Medium", ["limitations-PDF-Java"], "yes: docs/limitations.md:16 (maintainers, 2026-08-19) vs docs/conversion.md:3 (2026-10-05), SaveFormat.java Xlsx/Excel/Markdown, CHANGELOG 121/146. The README lines 1608-1611 repeat it and are the presenter's (ea62b381): fix those in the README lane", "open #6 (flaky test, filed by babar-raza) is unrelated", "FILE", "2"),
+    ("U44", "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python", "LIBRARY_SIDE_EFFECT", "Aspose.PDF FOSS for Python: the library adds an INFO StreamHandler on stdout when it is imported", "Medium", ["stdout-logging-PDF-Python"], "yes: stdout receives '[INFO] aspose_pdf: Document resources released.'; stderr empty", None, "FILE", "2"),
+    # hold: low-value hygiene, docs, metadata (text ready in issue-drafts-unrepresentable.md; no handoff)
+    ("U07", "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript", "TOOLING_BROKEN", "Aspose.3D FOSS for TypeScript: npm run lint fails, ESLint finds no configuration file", "Low", ["docker-threedts_build"], "yes: ESLint couldn't find a configuration file", None, "HOLD", "3"),
+    ("U15", "aspose-cells-foss/Aspose.Cells-FOSS-for-Python", "TESTS_FAIL", "Aspose.Cells FOSS for Python: examples/test_xlsx_to_markdown.py fails on a clean checkout because input/ is not tracked", "Low", ["tests-input-dir-Cells-Python"], "yes at 952317ca: 1 failed, 16 passed (the earlier JSON-test failure is gone)", None, "HOLD", "3"),
+    ("U17", "aspose-cells-foss/Aspose.Cells-FOSS-for-Python", "STALE_METADATA", "Aspose.Cells FOSS for Python: project.urls use the old repository name", "Low", ["urls-Cells-Python"], "yes: old URL redirects (200) to the current repository", None, "HOLD", "3"),
+    ("U21", "aspose-cells-foss/Aspose.Cells-FOSS-for-Java", "STALE_GENERATED_DOC", "Aspose.Cells FOSS for Java: docs/apidocs documents the removed com.aspose.cells_foss package", "Low", ["javadoc-Cells-Java"], "yes: title 'cells-foss 1.0.0 API', 112 tracked files for the old package", None, "HOLD", "3"),
+    ("U22", "aspose-cells-foss/Aspose.Cells-FOSS-for-Java", "ENCODING", "Aspose.Cells FOSS for Java: pom.xml and Agents.md contain mis-encoded characters", "Low", ["javadoc-Cells-Java"], "yes: pom.xml:62, Agents.md:46", None, "HOLD", "3"),
+    ("U23", "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp", "DOC_COMMAND_BROKEN", "Aspose.Cells FOSS for Cpp: Aspose.Cells.Foss.Cpp.Tests/README.md uses a workspace/ directory that does not exist", "Low", ["paths-Cells-Cpp-tests-readme"], "yes: lines 8, 9, 15, 19", None, "HOLD", "3"),
+    ("U24", "aspose-email-foss/Aspose.Email-FOSS-for-Cpp", "DOC_COMMAND_BROKEN", "Aspose.Email FOSS for Cpp: examples/README.md build commands use a cpp/ directory that does not exist", "Low", ["paths-Email-Cpp"], "yes: lines 30, 31, 46, 62", None, "HOLD", "3"),
+    ("U25", "aspose-email-foss/Aspose.Email-FOSS-for-.Net", "DOC_COMMAND_BROKEN", "Aspose.Email FOSS for .Net: examples/README.md run commands use a csharp/ directory that does not exist", "Low", ["paths-Email-NET"], "yes: lines 30, 45, 61", None, "HOLD", "3"),
+    ("U26", "aspose-email-foss/Aspose.Email-FOSS-for-.Net", "VERSION_MISMATCH", "Aspose.Email FOSS for .Net: project version 0.1.0 and CHANGELOG disagree with the published package 26.7.0", "Low", ["nuget-Email-NET"], "yes: csproj 0.1.0, CHANGELOG [0.1.0] 2026-03-18, NuGet 26.7.0", None, "HOLD", "3"),
+    ("U28", "aspose-3d-foss/Aspose.3D-FOSS-for-.NET", "REPO_HYGIENE", "Aspose.3D FOSS for .NET: build.log, test.log and FileFormat.cs.bak are committed", "Low", ["hygiene-3D-NET"], "yes: 3 tracked files, no .gitignore rule", None, "HOLD", "3"),
+    ("U29", "aspose-3d-foss/Aspose.3D-FOSS-for-.NET", "VERSION_MISMATCH", "Aspose.3D FOSS for .NET: csproj and NuGet are at 26.1.0 while AGENTS.md and docs describe 26.2.0", "Low", ["hygiene-3D-NET"], "yes: csproj 26.1.0, NuGet [26.1.0], docs say 26.2.0", None, "HOLD", "3"),
+    ("U30", "aspose-3d-foss/Aspose.3D-FOSS-for-Java", "DOC_CONTRADICTION", "Aspose.3D FOSS for Java: FILE_FORMATS.md has duplicate glTF and FBX sections with opposite status", "Low", ["fileformats-3D-Java"], "yes: headings at lines 32/48 and 39/53", None, "HOLD", "3"),
+    ("U32", "aspose-3d-foss/Aspose.3D-FOSS-for-Java", "DOC_BROKEN_REFERENCE", "Aspose.3D FOSS for Java: the README refers to an 'Upstream Issues' section that does not exist", "Low", ["fileformats-3D-Java"], "yes: README.md:587", None, "HOLD", "3"),
+    ("U39", "aspose-page-foss/Aspose.Page-FOSS-for-Python", "TESTS_FAIL", "Aspose.Page FOSS for Python: two tests import a top-level tools package that is not in the repository", "Low", ["tools-package-Page-Python"], "yes: ImportError cannot import name 'codex_hook_post_metrics' from 'tools'; Makefile runs tools/metrics_api_v1.py", None, "HOLD", "3"),
+    ("U42", "aspose-cells-foss/Aspose.Cells-FOSS-for-Go", "REPO_HYGIENE", "Aspose.Cells FOSS for Go: generated CSV files under examples/outputfiles are committed", "Low", ["stale-Cells-Go"], "yes: employees.csv and exported.csv tracked; .gitignore covers only *.xlsx", None, "HOLD", "3"),
+    ("U09", "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net", "REPO_HYGIENE", "Aspose.GIS.FOSS for .Net: 14 files under obj/ are committed and .gitignore has no obj/ or bin/ rule", "Low", ["hygiene-GIS"], "yes: 14 tracked", None, "HOLD", "3"),
+    ("U12", "aspose-psd-foss/Aspose.PSD-FOSS-for-Python", "REPO_HYGIENE", "Aspose.PSD FOSS for Python: generated MSBuild obj/ files are committed as Python modules", "Low", ["psdpy-structure"], "yes: 4 files", "open #4 (license) and #1 (timeline) are unrelated", "HOLD", "3"),
+    ("U11", "aspose-psd-foss/Aspose.PSD-FOSS-for-Python", "NOT_INSTALLABLE", "Aspose.PSD FOSS for Python: no pyproject.toml or setup.py, so the package cannot be installed; __init__.py is empty", "Low", ["psdpy-structure"], "yes at dbc90f46; the README is no longer a placeholder (the presenter's PR #5 merged 2026-10-10), so that half of the old draft is obsolete", "owner already filed #4 ('Add a LICENSE file and merge real source to main')", "HOLD", "3"),
+    ("U13", "aspose-psd-foss/Aspose.PSD-FOSS-for-Python", "TESTS_NOT_DISCOVERED", "Aspose.PSD FOSS for Python: plain pytest runs no tests, the modules are named *tests.py", "Low", ["pytest-PSD-Python"], "yes: no tests ran; 11 *tests.py modules, 0 test_*.py", "owner already filed #4 (pre-release repository)", "HOLD", "3"),
+    ("U45", "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET", "STALE_METADATA", "Aspose.Imaging FOSS for .NET: RepositoryUrl and PackageProjectUrl use the old repository name", "Low", ["imaging-recheck"], "yes: lines 19-20; redirect still answers 200", None, "HOLD", "3"),
+    ("U48a", "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript", "PLACEHOLDER_METADATA", "Aspose.Cells FOSS for TypeScript: package.json has no license, description, repository or engines field", "Low", ["static-Cells-TS"], "yes: none of the four keys present", None, "HOLD", "3"),
+    ("U49", "aspose-font-foss/Aspose.Font-FOSS-for-Python", "VERSION_MISMATCH", "Aspose.Font FOSS for Python: pyproject version is 1.0.0 but the repository is tagged 26.x", "Low", ["tags-Font-Python"], "yes: version = \"1.0.0\", newest tags 26.9.1-26.9.4", None, "HOLD", "3"),
+    ("U50", "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET", "DOC_BROKEN_REFERENCE", "Aspose.Cells FOSS for .NET: agents.md names RELEASE_NOTES_V26.5.0.md, which does not exist", "Low", ["cells-net-agents"], "yes: agents.md:18 and :119; csproj is at 26.9.0.0", None, "HOLD", "3"),
+    ("U40", "aspose-words-foss/Aspose.Words-FOSS-for-.NET", "STALE_DOC", "Aspose.Words FOSS for .NET: the README says the NuGet package is landing soon although it is published", "Low", ["nuget-Words-NET"], "yes: README.md:952 (maintainers, 2026-09-01), NuGet 26.2.0 and 26.3.0; the 615-vs-617 counts: the 617 line is the presenter's (68d56fda), so only the sentence is upstream's", None, "HOLD", "3"),
+    # disclosed upstream -> drop
+    ("U33", "aspose-3d-foss/Aspose.3D-FOSS-for-Java", "PUBLISHED_ARTIFACT_STALE", "Publish a release built from HEAD: the 26.5.0 jar ships OBJ, glTF and FBX loader/saver stubs", "Low", ["disclosed-3D-Java-jar"], "yes, but disclosed: README.md:587 warns that the published artifact ships a stub; Central still has only 26.5.0", None, "DROP", "-"),
+    ("U46", "aspose-slides-foss/Aspose.Slides-FOSS-for-Java", "PUBLISHED_ARTIFACT_STALE", "Publish 26.8.0: Maven Central still serves only 26.7.0", "Low", ["maven-Slides-Java"], "yes, but disclosed in SECURITY.md:11 and README.md:95", None, "DROP", "-"),
+    ("U47", "aspose-slides-foss/Aspose.Slides-FOSS-for-Python", "PUBLISHED_ARTIFACT_STALE", "Publish a release: aspose-slides-foss 26.8.0 on PyPI lacks Hyperlink", "Low", ["pypi-Slides-Python"], "yes (ImportError cannot import name 'Hyperlink'), but disclosed in README.md:134", None, "DROP", "-"),
+    # duplicates of the owner's open issues
+    ("LIC-PSD-NET", "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET", "LICENSE_MISSING_ROOT", "Aspose.PSD FOSS for .NET: no license file at the repository root", "Medium", ["license-PSD-NET"], "yes: no license file; GitHub license null", "DUPLICATE of open #5 'Add a LICENSE file and merge real source to main' (babar-raza, 2026-09-25)", "DROP", "-"),
+    ("LIC-PSD-PY", "aspose-psd-foss/Aspose.PSD-FOSS-for-Python", "LICENSE_MISSING_ROOT", "Aspose.PSD FOSS for Python: no license file at the repository root", "Medium", ["license-PSD-Py"], "yes: no license file; GitHub license null", "DUPLICATE of open #4 'Add a LICENSE file and merge real source to main' (babar-raza, 2026-09-25)", "DROP", "-"),
+    # README claims owned by the presenter -> correction lane
+    ("RC-3DNET-FORMATS", "aspose-3d-foss/Aspose.3D-FOSS-for-.NET", "README_CLAIM (ours)", "Aspose.3D FOSS for .NET README diagram lists U3D, RVM, AMF and HTML5, which IOService.cs does not read or write", "Medium", ["provenance"], "yes: IOService.cs dispatch is OBJ, STL, glTF, FBX, 3MF, COLLADA, PLY, 3DS only; the labels are the presenter's (RVM since 158183d2, U3D since 042a1e5f)", None, "README-CORRECTION", "-"),
+    ("U41", "aspose-cells-foss/Aspose.Cells-FOSS-for-Go", "README_CLAIM (ours)", "Aspose.Cells FOSS for Go README lists four formula functions (22 exist), omits chart, pivot, conditional-format and VBA APIs, and has a stray heading", "Low", ["stale-Cells-Go", "provenance"], "yes, but the README text is the presenter's (9f0a4033, 2026-08-13)", None, "README-CORRECTION", "-"),
+    ("U20", "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust", "README_CLAIM (ours)", "Aspose.Cells FOSS for Rust README: 'Once the repository is live at its real GitHub location' is a pre-publication leftover", "Low", ["notests-Cells-Rust", "provenance"], "yes, but the text is the presenter's (1a6004af, 2026-08-14)", None, "README-CORRECTION", "-"),
+    ("U48b", "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript", "README_CLAIM (ours)", "Aspose.Cells FOSS for TypeScript README: 24 API-table rows read 'Class in the Cells TYPESCRIPT API.'", "Low", ["static-Cells-TS", "provenance"], "yes, but the rows are the presenter's (fc186507, 2026-08-14)", None, "README-CORRECTION", "-"),
+    ("RC-3DJAVA-EDITION", "aspose-3d-foss/Aspose.3D-FOSS-for-Java", "README_CLAIM (policy)", "Aspose.3D FOSS for Java README uses a non-canonical edition name ('commercial-edition')", "Low", ["provenance"], "yes: README.md:589 says 'commercial-edition' (a non-canonical edition name); the sentence is the presenter's own (0f77c8a3, 2026-09-12), so it is a README correction, not a defect in the library", None, "README-CORRECTION", "-"),
+    # not defects
+    ("EMAIL-PY-EXCERPT", "aspose-email-foss/Aspose.Email-FOSS-for-Python", "DOC_EXCERPT", "Aspose.Email FOSS for Python README: the 'Inspect Low-Level MSG' excerpt uses an undefined msg_path", "Low", ["email-python-excerpt"], "yes, but it is a labelled excerpt of examples/msg_reader.py, not a runnable block", None, "DROP", "-"),
+    ("JMAP-x8", "aspose-email-foss/Aspose.JMAP-FOSS-for-{.NET,Cpp,Go,Java,Node.js,Python,Rust,TypeScript}", "none", "Aspose.JMAP FOSS (eight repositories): packages are not published and examples need a live server", "n/a", ["jmap-disclosure", "ci-runs"], "no defect: every README says no package is published, the registries agree, CI is green in all eight", None, "DROP", "-"),
+    ("PDFCPP-CONFIGURE", "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp", "BUILD_OR_TESTS_FAIL", "Aspose.PDF FOSS for Cpp: CMake configure fails (wave-4 note)", "n/a", ["docker-pdfcpp_build"], "no: cmake -S . -B build, build and ctest succeed on gcc 14.4 / CMake 3.31.6 (1 of 1 tests pass); the wave-4 failure was the presenter's own runner", None, "DROP", "-"),
+    ("RUST-CRATES", "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust", "PUBLISHED_ARTIFACT_STALE", "Aspose.Cells FOSS for Rust: the crate is not on crates.io", "n/a", ["crates-Cells-Rust"], "not a defect: the README states it is not yet published (README.md:105, :674)", None, "DROP", "-"),
+]
+for (cid, repo, cls, title, sev, logs, repro, dup, action, wave) in T:
+    table.append({
+        "id": cid, "repo": repo, "mode": mode.get(repo, "-"), "class": cls, "title": title, "severity": sev,
+        "evidence": "; ".join(f"{RL}{k}.txt" for k in logs) or "-", "reproduced": repro,
+        "duplicate": dup_text(repo, dup) if repo in heads else (dup or "-"),
+        "blockers": NOH if action in {"FILE", "HOLD"} else "-", "action": action, "wave": wave,
+        "handoff_id": "", "digest": "", "kind": "text-only",
+    })
+
+ORDER = {"1a": 0, "1b": 1, "2": 2, "3": 3, "-": 4}
+ACTION_ORDER = {"FILE": 0, "HOLD": 1, "README-CORRECTION": 2, "DROP": 3}
+table.sort(key=lambda t: (ACTION_ORDER[t["action"]], ORDER[t["wave"]], t["kind"] != "handoff", t["repo"], t["id"]))
+
+fields = ["action", "wave", "id", "kind", "repo", "mode", "class", "severity", "title", "reproduced", "duplicate", "blockers", "evidence", "handoff_id", "digest"]
+with open(out_csv, "w", encoding="utf-8", newline="") as f:
+    w = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
+    w.writeheader()
+    for t in table:
+        w.writerow({k: t[k] for k in fields})
+
+# id files per wave (handoff-backed FILE rows)
+ids_dir.mkdir(parents=True, exist_ok=True)
+waves = {"1a": [], "1b": [], "2": [], "3": []}
+for t in table:
+    if t["action"] == "FILE" and t["kind"] == "handoff":
+        waves[t["wave"]].append(t)
+names = {"1a": "wave-1a-first-filing", "1b": "wave-1b", "2": "wave-2", "3": "wave-3"}
+for w, items in waves.items():
+    lines = [f"# {names[w]}: ID@sha256:DIGEST per line, for repository-presenter issue-readiness --handoff-ids-file ... --emit-approvals <scratch dir outside the repository>",
+             f"# {len(items)} handoff(s); digests from issue-readiness on {Path(sys.argv[2]).stem} inputs, 2026-10-11"]
+    for t in sorted(items, key=lambda x: x["repo"]):
+        lines.append(f"{t['handoff_id']}@{t['digest']}  # {t['repo'].split('/')[1]} {t['title'][:70].rstrip()}")
+    (ids_dir / f"issue-approval-ids-{names[w]}.txt").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+counts = {}
+for t in table:
+    counts.setdefault(t["action"], 0)
+    counts[t["action"]] += 1
+json.dump({"counts": counts, "total": len(table), "waves": {k: len(v) for k, v in waves.items()}}, open(sp / "table_counts.json", "w"), indent=1)
+json.dump(table, open(sp / "table_rows.json", "w", encoding="utf-8"), indent=1)
+print(counts, len(table), {k: len(v) for k, v in waves.items()})

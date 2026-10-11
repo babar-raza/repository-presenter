@@ -1,0 +1,11 @@
+#!/bin/bash
+export MSYS_NO_PATHCONV=1
+SP="<scratch>"
+hdr() { echo "# repository clone: $1"; echo "# head: $(git -C "$SP/clones/$1" rev-parse HEAD)"; echo "# utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo "# image: $2"; }
+{ hdr Aspose.3D-FOSS-for-TypeScript node:22
+docker run --rm -v "$SP/clones/Aspose.3D-FOSS-for-TypeScript:/src:ro" node:22 bash -c "cp -r /src /w && cd /w && node --version && npm install --no-audit --no-fund >/dev/null 2>&1; npx jest > /tmp/j.txt 2>&1; grep -E '^(Tests:|Test Suites:)' /tmp/j.txt; grep -E '●.*›' /tmp/j.txt | sort -u; echo; for t in testMaterialImport testRoundTripExportImport testSimpleTriangleBinary testRoundtripFile; do echo \"--- \$t\"; grep -A12 \"● .*› \$t\" /tmp/j.txt | sed -n 2,12p | cut -c1-200; done; echo '--- require'; npm run build >/dev/null 2>&1; node -e \"require('.')\" 2>&1 | grep -m2 -E 'Error|Cannot'; grep -n '\"main\"\|\"types\"' package.json; ls dist"
+echo "# end"; } > "$SP/full/threedts_detail.txt" 2>&1
+{ hdr Aspose.Words-FOSS-for-Python python:3.12
+docker run --rm -v "$SP/clones/Aspose.Words-FOSS-for-Python:/src:ro" python:3.12 bash -c "cp -r /src /w && cd /w && python --version && pip install -q -e '.[dev]' 2>&1 | tail -1; python -m pytest ApiExamples/ -q --rootdir=ApiExamples -c ApiExamples/pytest.ini 2>&1 | tail -6; pip list 2>/dev/null | grep -i pdfplumber; echo pdfplumber-grep-exit=\$?"
+echo "# end"; } > "$SP/full/wordspy_py312.txt" 2>&1
+echo done > "$SP/full/docker3_done.txt"

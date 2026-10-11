@@ -1,0 +1,51 @@
+import datetime, json, os, subprocess, sys
+from pathlib import Path
+SP = Path(r"<scratch>")
+CLONES = SP / "clones"
+LOGS = SP / "logs"
+LOGS.mkdir(exist_ok=True)
+BASH = r"C:\Program Files\Git\bin\bash.exe"
+HEADS = json.load(open(SP / "heads_issues.json"))
+_TOK = None
+def token():
+    global _TOK
+    if _TOK is None:
+        _TOK = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True).stdout.strip()
+    return _TOK
+def now():
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+def head_of(name):
+    return subprocess.run(["git", "-C", str(CLONES / name), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+def sh(cmd, cwd=None, timeout=300, env=None, gh=False):
+    e = dict(os.environ)
+    e["MSYS_NO_PATHCONV"] = "1"
+    if gh:
+        e["GH_TOKEN"] = token()
+    if env:
+        e.update(env)
+    try:
+        r = subprocess.run([BASH, "-c", cmd], cwd=cwd, capture_output=True, timeout=timeout, env=e)
+        out = (r.stdout + r.stderr).decode("utf-8", "replace")
+        return r.returncode, out
+    except subprocess.TimeoutExpired as ex:
+        return 124, ((ex.stdout or b"") + (ex.stderr or b"")).decode("utf-8", "replace") + "\n[timeout]"
+class Log:
+    """One candidate's verification log: header + (command, exit, output) entries."""
+    def __init__(self, key, clone_name, note=""):
+        self.key = key; self.clone = clone_name; self.head = head_of(clone_name) if clone_name else ""
+        self.parts = [f"# key: {key}", f"# repository clone: {clone_name}", f"# head: {self.head}", f"# utc: {now()}"]
+        if note: self.parts.append(f"# note: {note}")
+        self.results = []
+    def run(self, cmd, cwd=None, timeout=300, gh=False, max_lines=60, env=None):
+        cwd = cwd if cwd else (CLONES / self.clone if self.clone else None)
+        rc, out = sh(cmd, cwd=cwd, timeout=timeout, gh=gh, env=env)
+        lines = out.splitlines()
+        if len(lines) > max_lines:
+            out = "\n".join(lines[:max_lines]) + f"\n[... {len(lines)-max_lines} more lines omitted]"
+        self.parts.append(f"\n$ {cmd}\n[exit {rc}]\n{out.rstrip()}")
+        self.results.append((cmd, rc, out))
+        return rc, out
+    def say(self, text):
+        self.parts.append(f"\n# {text}")
+    def save(self):
+        (LOGS / f"{self.key}.txt").write_text("\n".join(self.parts) + "\n", encoding="utf-8", newline="\n")

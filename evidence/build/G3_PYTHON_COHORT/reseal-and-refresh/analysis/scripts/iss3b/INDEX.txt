@@ -1,0 +1,40 @@
+# Scripts of lane iss3b (2026-10-11), kept as .txt so that ruff and the format check leave them alone.
+# They are the method behind raw-logs/iss3b-*.txt; they assume a scratch directory (shown as <scratch>) and the clones under it.
+# Order: heads_issues, clone_one (xargs), class_detect, vA..vH (cases), run_*.sh (Docker), provenance, closed_issues, ci_runs,
+# make_handoffs / revise_3dnet (draft through the quality gate), update_reverification, export_logs, build_table, render_md.
+
+vlib.py.txt
+heads_issues.py.txt
+closed_issues.py.txt
+ci_runs.py.txt
+class_detect.py.txt
+provenance.py.txt
+vA_license.py.txt
+vB_static.py.txt
+vC_python.py.txt
+vD_dotnet.py.txt
+vE_python2.py.txt
+vF_misc.py.txt
+vG_final.py.txt
+vH_last.py.txt
+make_handoffs.py.txt
+revise_3dnet.py.txt
+update_reverification.py.txt
+build_table.py.txt
+render_md.py.txt
+export_logs.py.txt
+copy_scripts.py.txt
+make_text_only.py.txt
+clone_one.sh.txt
+dk_cpp.sh.txt
+dk_node.sh.txt
+run_cpp_all.sh.txt
+run_node_all.sh.txt
+run_email_ubuntu.sh.txt
+run_docker2.sh.txt
+run_docker3.sh.txt
+run_pdfcpp_build.sh.txt
+prov_cases.json
+prov_cases2.json
+prov_cases3.json
+prov_case4.json

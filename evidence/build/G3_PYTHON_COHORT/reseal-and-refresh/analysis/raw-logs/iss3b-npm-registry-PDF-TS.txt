@@ -1,0 +1,15 @@
+# key: npm-registry-PDF-TS
+# repository clone: Aspose.PDF-FOSS-for-TypeScript
+# head: c672b3918318ccd0c13bc9dc619620cac2674c9e
+# utc: 2026-10-11T18:24:07Z
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'https://registry.npmjs.org/@asposefoss%2fpdf'
+[exit 23]
+404
+
+$ grep -n '"name"' package.json | head -2; grep -n -i 'npm install\|git clone' README.md | head -4 | cut -c1-200
+[exit 0]
+2:  "name": "@asposefoss/pdf",
+275:git clone https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript.git
+277:npm install
+4527:npm install        # dev deps only — TypeScript, vitest, tsx

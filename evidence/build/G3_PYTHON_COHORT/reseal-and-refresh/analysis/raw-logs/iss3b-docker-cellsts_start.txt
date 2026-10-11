@@ -1,0 +1,16 @@
+# repository clone: Aspose.Cells-FOSS-for-TypeScript
+# head: fc186507e5b7124f4664aa6035f25cfd3112367d
+# utc: 2026-10-11T17:47:23Z
+# image: node:22
+# commands: npm install --no-audit --no-fund > /tmp/i.txt 2>&1; (npm start 2>&1 | tail -5); echo start-exit=$?; grep -n -E '"(license|description|repository|engines)"' package.json; echo grep-exit=$?; grep -c 'Class in the Cells TYPESCRIPT API' README.md
+v22.23.3
+10.9.9
+> excel-cells@1.0.0 start
+> tsx index.ts
+
+Testing  export...
+Saved to outputfiles/test_export.xlsx
+start-exit=0
+grep-exit=1
+24
+# end 2026-10-11T17:47:32Z

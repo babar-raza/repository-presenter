@@ -1,0 +1,66 @@
+# repository clone: Aspose.3D-FOSS-for-TypeScript
+# head: 66cb26df3b031f0bf6976d4e88dc89721983afa4
+# utc: 2026-10-11T18:18:07Z
+# image: node:22
+v22.23.3
+Test Suites: 4 failed, 28 passed, 32 total
+Tests:       4 failed, 93 passed, 97 total
+  ● Test3MFMaterialImport › testMaterialImport
+  ● Test3MFRoundTrip › testRoundTripExportImport
+  ● TestGltfExporter › testSimpleTriangleBinary
+  ● TestSceneSaveSTL › testRoundtripFile
+
+--- testMaterialImport
+
+    ENOENT: no such file or directory, open '../foss.3d.python/examples/3mf/dodeca_chain_loop_color.3mf'
+
+      124 |         if (typeof fileOrStream === 'string') {
+      125 |             const fs = require('fs');
+    > 126 |             const buffer = fs.readFileSync(fileOrStream);
+          |                               ^
+      127 |             this.openFromBuffer(buffer, options);
+      128 |         } else if (fileOrStream && typeof fileOrStream.read === 'function') {
+      129 |             const chunks: Buffer[] = [];
+
+--- testRoundTripExportImport
+
+    TypeError: rotation[0].eulerAngles is not a function
+
+      158 |         this._scaling = scaling[0];
+      159 |         this._rotation = rotation[0];
+    > 160 |         this._eulerAngles = rotation[0].eulerAngles();
+          |                                         ^
+      161 |         this._invalidateCache();
+      162 |     }
+      163 |
+
+--- testSimpleTriangleBinary
+
+    RangeError: The value of "offset" is out of range. It must be >= 0 and <= 636. Received 640
+
+      417 |
+      418 |             for (let i = 0; i < binaryBuffer.length; i++) {
+    > 419 |                 glbBuffer.writeFloatLE(binaryBuffer[i], offset);
+          |                           ^
+      420 |                 offset += 4;
+      421 |             }
+      422 |         }
+
+--- testRoundtripFile
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      75 |         const node2 = scene2.rootNode.childNodes[0];
+      76 |         const mesh2 = node2.entity as Mesh;
+    > 77 |         expect(mesh2!.polygonCount).toBe(1);
+         |                                     ^
+      78 |     });
+--- require
+Error: Cannot find module '/w/dist/index.js'. Please verify that the package.json has a valid "main" entry
+5:  "main": "dist/index.js",
+6:  "types": "dist/index.d.ts",
+aspose
+# end

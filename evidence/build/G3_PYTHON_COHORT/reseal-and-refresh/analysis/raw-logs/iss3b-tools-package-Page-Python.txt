@@ -1,0 +1,33 @@
+# key: tools-package-Page-Python
+# repository clone: Aspose.Page-FOSS-for-Python
+# head: 43cef367cd0b2cf00cc03064ca9d29d1ff507967
+# utc: 2026-10-11T18:08:24Z
+
+$ git checkout HEAD -- tests/test_codex_hook_post_metrics.py tests/test_metrics_api_v1.py 2>&1 | tail -1
+[exit 0]
+
+
+$ git grep -n -E '^(from|import) tools' HEAD -- tests; git ls-tree -r --name-only HEAD tests/tools; git ls-tree --name-only HEAD tools
+[exit 0]
+HEAD:tests/test_codex_hook_post_metrics.py:11:from tools import codex_hook_post_metrics as hook
+HEAD:tests/test_metrics_api_v1.py:11:from tools.metrics_api_v1 import (
+tests/tools/pdf_render.py
+tests/tools/pdf_validate.py
+
+$ "<scratch>/venvs/page/Scripts/python.exe" -m pip install -q pytest 2>&1 | tail -1; PYTHONPATH=src "<scratch>/venvs/page/Scripts/python.exe" -m pytest --collect-only -q tests/test_metrics_api_v1.py tests/test_codex_hook_post_metrics.py 2>&1 | tail -8
+[exit 0]
+tests\test_codex_hook_post_metrics.py:11: in <module>
+    from tools import codex_hook_post_metrics as hook
+E   ImportError: cannot import name 'codex_hook_post_metrics' from 'tools' (unknown location)
+=========================== short test summary info ===========================
+ERROR tests/test_metrics_api_v1.py
+ERROR tests/test_codex_hook_post_metrics.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!
+no tests collected, 2 errors in 0.27s
+
+$ grep -n 'metrics_api_v1' Makefile | head -4
+[exit 0]
+52:	@$(PYTHON) tools/metrics_api_v1.py \
+73:	@$(PYTHON) tools/metrics_api_v1.py \
+96:	@$(PYTHON) tools/metrics_api_v1.py --payload-file "$(METRICS_PAYLOAD_FILE)"; \
+108:	@$(PYTHON) tools/metrics_api_v1.py --payload-file "$(METRICS_PAYLOAD_FILE)" --dry-run; \

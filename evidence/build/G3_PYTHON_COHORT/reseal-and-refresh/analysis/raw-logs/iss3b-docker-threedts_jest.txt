@@ -1,0 +1,19 @@
+# repository clone: Aspose.3D-FOSS-for-TypeScript
+# head: 66cb26df3b031f0bf6976d4e88dc89721983afa4
+# utc: 2026-10-11T17:48:19Z
+# image: node:22
+# commands: npm install --no-audit --no-fund > /tmp/i.txt 2>&1; npx jest 2>&1 | grep -E '^(FAIL|Tests:|Test Suites:)|●.*›' | sort -u | head -30; echo jest-done
+v22.23.3
+10.9.9
+  ● Test3MFMaterialImport › testMaterialImport
+  ● Test3MFRoundTrip › testRoundTripExportImport
+  ● TestGltfExporter › testSimpleTriangleBinary
+  ● TestSceneSaveSTL › testRoundtripFile
+FAIL tests/test_3mf_materials.test.ts (11.782 s)
+FAIL tests/test_3mf_roundtrip.test.ts (12.211 s)
+FAIL tests/test_gltf_exporter.test.ts (12.294 s)
+FAIL tests/test_scene_save_stl.test.ts (12.245 s)
+Test Suites: 4 failed, 28 passed, 32 total
+Tests:       4 failed, 93 passed, 97 total
+jest-done
+# end 2026-10-11T17:49:11Z

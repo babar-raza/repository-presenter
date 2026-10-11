@@ -1,0 +1,20 @@
+# key: paths-Email-NET
+# repository clone: Aspose.Email-FOSS-for-.Net
+# head: 59125b4732df0eedbc4d4c2ab978698ed4348eb7
+# utc: 2026-10-11T17:49:25Z
+
+$ grep -n 'csharp/' examples/README.md
+[exit 0]
+30:dotnet run --project csharp/examples/create_msg_and_eml/create_msg_and_eml.csproj -- --msg-path example-message.msg --eml-path example-message.eml
+45:dotnet run --project csharp/examples/msg_reader/msg_reader.csproj -- <path-to-msg>
+61:dotnet run --project csharp/examples/msg_summary/msg_summary.csproj -- <path-to-msg>
+
+$ ls -d csharp 2>&1
+[exit 2]
+ls: cannot access 'csharp': No such file or directory
+
+$ git ls-files 'examples/*.csproj'
+[exit 0]
+examples/create_msg_and_eml/create_msg_and_eml.csproj
+examples/msg_reader/msg_reader.csproj
+examples/msg_summary/msg_summary.csproj

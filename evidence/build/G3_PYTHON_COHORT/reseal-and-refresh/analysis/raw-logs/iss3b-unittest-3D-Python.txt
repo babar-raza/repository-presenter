@@ -1,0 +1,23 @@
+# key: unittest-3D-Python
+# repository clone: Aspose.3D-FOSS-for-Python
+# head: 65b1f577c0f16d0d9112bb6c1153d3024543ac02
+# utc: 2026-10-11T18:17:08Z
+
+$ grep -n -i '^examples' .gitignore; git ls-files examples | wc -l
+[exit 0]
+8:examples
+0
+
+$ PYTHONIOENCODING=utf-8 "<scratch>/venvs/3dpy/Scripts/python.exe" -m unittest discover tests/ > "<scratch>\work/ut3d.txt" 2>&1; grep -E "^(Ran |FAILED|OK)" "<scratch>\work/ut3d.txt"; grep -E "^(ERROR|FAIL):" "<scratch>\work/ut3d.txt" | head -8; grep -E "FileNotFoundError" "<scratch>\work/ut3d.txt" | sort -u | head -6 | cut -c1-200
+[exit 0]
+Ran 123 tests in 0.034s
+FAILED (errors=5, skipped=5)
+ERROR: test_material_import_from_boombox (test_gltf_materials.TestGltfMaterialImport.test_material_import_from_boombox)
+ERROR: test_material_properties_from_corset (test_gltf_materials.TestGltfMaterialImport.test_material_properties_from_corset)
+ERROR: test_scene_open_ascii_stl_file (test_scene_open_stl.TestSceneOpenSTL.test_scene_open_ascii_stl_file)
+ERROR: test_scene_open_ascii_with_options (test_scene_open_stl.TestSceneOpenSTL.test_scene_open_ascii_with_options)
+ERROR: test_scene_open_binary_stl_file (test_scene_open_stl.TestSceneOpenSTL.test_scene_open_binary_stl_file)
+FileNotFoundError: [Errno 2] No such file or directory: 'examples/gltf2/BoomBox/glTF/BoomBox.gltf'
+FileNotFoundError: [Errno 2] No such file or directory: 'examples/gltf2/Corset/glTF/Corset.gltf'
+FileNotFoundError: [Errno 2] No such file or directory: 'examples/stl/stl_ascii.stl'
+FileNotFoundError: [Errno 2] No such file or directory: 'examples/stl/stl_binary.stl'

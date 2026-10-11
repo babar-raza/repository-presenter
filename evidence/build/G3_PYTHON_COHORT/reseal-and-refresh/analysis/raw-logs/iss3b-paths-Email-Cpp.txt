@@ -1,0 +1,20 @@
+# key: paths-Email-Cpp
+# repository clone: Aspose.Email-FOSS-for-Cpp
+# head: c844a467cf7f2503819b655f4d6ceaef91056c40
+# utc: 2026-10-11T17:49:23Z
+
+$ grep -n 'cpp/' examples/README.md
+[exit 0]
+30:cmake -S cpp -B cpp/out/build/examples -DASPOSE_EMAIL_FOSS_BUILD_EXAMPLES=ON -DASPOSE_EMAIL_FOSS_BUILD_TESTS=OFF
+31:cmake --build cpp/out/build/examples --config RelWithDebInfo --target aspose_email_foss_example_create_msg_and_eml
+46:cmake --build cpp/out/build/examples --config RelWithDebInfo --target aspose_email_foss_example_msg_reader
+62:cmake --build cpp/out/build/examples --config RelWithDebInfo --target aspose_email_foss_example_msg_summary
+
+$ ls -d cpp 2>&1
+[exit 2]
+ls: cannot access 'cpp': No such file or directory
+
+$ git ls-files CMakeLists.txt CMakePresets.json
+[exit 0]
+CMakeLists.txt
+CMakePresets.json

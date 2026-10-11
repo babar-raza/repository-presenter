@@ -1,0 +1,16 @@
+# repository clone: Aspose.Email-FOSS-for-Cpp
+# head: c844a467cf7f2503819b655f4d6ceaef91056c40
+# utc: 2026-10-11T17:51:20Z
+# image: silkeh/clang:latest
+# command: docker run --rm -v <clone>:/src:ro silkeh/clang:latest bash -c 'apt-get install cmake ninja-build; cd /src/. && cmake -S . -B /tmp/b -G Ninja && cmake --build /tmp/b -- -k 0'
+Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77)
+cmake version 3.31.6
+cmake-configure-exit=0
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /tmp/b
+build-exit=0
+error-lines: 0
+# end 2026-10-11T17:51:34Z

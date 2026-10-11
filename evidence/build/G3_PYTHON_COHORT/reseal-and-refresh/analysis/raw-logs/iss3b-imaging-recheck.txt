@@ -1,0 +1,17 @@
+# key: imaging-recheck
+# repository clone: Aspose.Imaging-FOSS-for-.NET
+# head: 6ebb2091ad016a46489bef65eaad0f1eb9843e1a
+# utc: 2026-10-11T17:49:35Z
+
+$ grep -n 'RepositoryUrl\|PackageProjectUrl' src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj
+[exit 0]
+19:    <RepositoryUrl>https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss</RepositoryUrl>
+20:    <PackageProjectUrl>https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss</PackageProjectUrl>
+
+$ curl -s -o /dev/null -w '%{http_code} %{url_effective}
+' -L https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss
+[exit 23]
+200 https://github.com/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET
+
+$ grep -n -i 'dotnet add\|nuget.org' README.md | head -5
+[exit 0]

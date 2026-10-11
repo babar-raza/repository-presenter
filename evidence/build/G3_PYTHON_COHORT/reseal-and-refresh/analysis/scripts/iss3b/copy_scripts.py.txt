@@ -1,0 +1,50 @@
+import re
+import sys
+from pathlib import Path
+
+sp = Path(sys.argv[1])
+dest = Path(sys.argv[2])
+dest.mkdir(parents=True, exist_ok=True)
+SCRATCH = re.compile(
+    r"C:[/\\]+Users[/\\]+babar[/\\]+AppData[/\\]+Local[/\\]+Temp[/\\]+claude[/\\]+"
+    r"e--Users-prora-OneDrive-Documents-GitHub-repository-presenter[/\\]+"
+    r"01db89e6-ba90-479a-befa-bff20834c024[/\\]+scratchpad[/\\]+iss3b",
+    re.I,
+)
+CHECK = re.compile(
+    r"[EC]:[/\\]+Users[/\\]+prora[/\\]+OneDrive[/\\]+Documents[/\\]+GitHub[/\\]+repository-presenter", re.I
+)
+py = [
+    "vlib", "heads_issues", "closed_issues", "ci_runs", "class_detect", "provenance", "vA_license",
+    "vB_static", "vC_python", "vD_dotnet", "vE_python2", "vF_misc", "vG_final", "vH_last",
+    "make_handoffs", "revise_3dnet", "update_reverification", "build_table", "render_md",
+    "export_logs", "copy_scripts", "make_text_only",
+]
+sh = ["clone_one", "dk_cpp", "dk_node", "run_cpp_all", "run_node_all", "run_email_ubuntu", "run_docker2",
+      "run_docker3", "run_pdfcpp_build"]
+index = [
+    "# Scripts of lane iss3b (2026-10-11), kept as .txt so that ruff and the format check leave them alone.",
+    "# They are the method behind raw-logs/iss3b-*.txt; they assume a scratch directory (shown as <scratch>) and the clones under it.",
+    "# Order: heads_issues, clone_one (xargs), class_detect, vA..vH (cases), run_*.sh (Docker), provenance, closed_issues, ci_runs,",
+    "# make_handoffs / revise_3dnet (draft through the quality gate), update_reverification, export_logs, build_table, render_md.",
+    "",
+]
+
+
+def clean(t):
+    return CHECK.sub("<checkout>", SCRATCH.sub("<scratch>", t))
+
+
+for n in py:
+    t = clean((sp / f"{n}.py").read_text(encoding="utf-8"))
+    (dest / f"{n}.py.txt").write_text(t, encoding="utf-8", newline="\n")
+    index.append(f"{n}.py.txt")
+for n in sh:
+    t = clean((sp / f"{n}.sh").read_text(encoding="utf-8"))
+    (dest / f"{n}.sh.txt").write_text(t, encoding="utf-8", newline="\n")
+    index.append(f"{n}.sh.txt")
+for n in ["prov_cases.json", "prov_cases2.json", "prov_cases3.json", "prov_case4.json"]:
+    (dest / n).write_text((sp / n).read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+    index.append(n)
+(dest / "INDEX.txt").write_text("\n".join(index) + "\n", encoding="utf-8", newline="\n")
+print(len(index))

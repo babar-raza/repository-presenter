@@ -1,0 +1,22 @@
+# key: license-PSD-Py
+# repository clone: Aspose.PSD-FOSS-for-Python
+# head: dbc90f46f7ef405748885aaf44cecd6e74461e8d
+# utc: 2026-10-11T17:48:37Z
+
+$ git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$'; echo root-match-exit=$?
+[exit 0]
+root-match-exit=1
+
+$ git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)' | head -8
+[exit 0]
+
+
+$ gh api repos/aspose-psd-foss/Aspose.PSD-FOSS-for-Python --jq '"license=" + (.license|tostring)'
+[exit 0]
+license=null
+
+$ gh api 'repos/aspose-psd-foss/Aspose.PSD-FOSS-for-Python/issues?state=open&per_page=100' --jq '.[] | "#\(.number) \(.title)"'; echo open-issues-listed
+[exit 0]
+#4 Add a LICENSE file and merge real source to main
+#1 Do you have an estimated timeline for when Aspose.PSD FOSS for Python will be fully open-sourced?
+open-issues-listed

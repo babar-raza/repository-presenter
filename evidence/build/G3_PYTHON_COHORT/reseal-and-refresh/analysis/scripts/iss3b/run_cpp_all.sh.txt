@@ -1,0 +1,11 @@
+#!/bin/bash
+SP="<scratch>"
+for img in gcc:13 gcc:14 gcc:15 silkeh/clang:latest; do
+  k=$(echo $img | tr ':/' '__')
+  "$SP/dk_cpp.sh" "cellscpp_$k" "$img" Aspose.Cells-FOSS-for-Cpp Aspose.Cells.Foss.Cpp
+done
+for img in gcc:12 gcc:13 gcc:14 gcc:15 silkeh/clang:18 silkeh/clang:latest; do
+  k=$(echo $img | tr ':/' '__')
+  "$SP/dk_cpp.sh" "emailcpp_$k" "$img" Aspose.Email-FOSS-for-Cpp .
+done
+echo ALLDONE > "$SP/full/cpp_done.txt"

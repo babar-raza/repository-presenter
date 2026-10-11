@@ -1,0 +1,25 @@
+# repository clone: Aspose.PDF-FOSS-for-Cpp
+# head: 4b83c9fec1e37fd205156770161f6843bac00ceb
+# utc: 2026-10-11T18:09:18Z
+# image: gcc:14
+# commands (README 'Build and test' path): cmake -S . -B build && cmake --build build -j4 && ctest --test-dir build
+g++ (GCC) 14.4.0
+cmake version 3.31.6
+configure-exit=0
+-- Found Threads: TRUE
+-- Configuring done (4.2s)
+-- Generating done (0.1s)
+-- Build files have been written to: /w/build
+build-exit=0
+[100%] Building CXX object CMakeFiles/aspose_pdf_foss_tests.dir/tests/x_image_smoke_test.cpp.o
+[100%] Building CXX object CMakeFiles/aspose_pdf_foss_tests.dir/tests/xref_recovery_smoke_test.cpp.o
+[100%] Linking CXX executable aspose_pdf_foss_tests
+[100%] Built target aspose_pdf_foss_tests
+error-lines: 0
+    Start 1: aspose_pdf_foss_tests
+1/1 Test #1: aspose_pdf_foss_tests ............   Passed    1.06 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.07 sec
+# end 2026-10-11T18:13:25Z

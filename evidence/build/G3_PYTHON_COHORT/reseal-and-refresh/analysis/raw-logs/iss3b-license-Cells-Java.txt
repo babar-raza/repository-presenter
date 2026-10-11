@@ -1,0 +1,29 @@
+# key: license-Cells-Java
+# repository clone: Aspose.Cells-FOSS-for-Java
+# head: c65329e7257b1311abb9686d7e4957a8cc002955
+# utc: 2026-10-11T17:48:11Z
+
+$ git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$'; echo root-match-exit=$?
+[exit 0]
+root-match-exit=1
+
+$ git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)' | head -8
+[exit 0]
+License/LICENSE.txt
+docs/apidocs/legal/LICENSE
+
+$ gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Java --jq '"license=" + (.license|tostring)'
+[exit 0]
+license=null
+
+$ grep -n -i -E 'licen[sc]e|MIT' pom.xml | head -5
+[exit 0]
+17:    <licenses>
+18:        <license>
+19:            <name>MIT License</name>
+20:            <url>https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/blob/master/License/LICENSE.txt</url>
+22:        </license>
+
+$ gh api 'repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/issues?state=open&per_page=100' --jq '.[] | "#\(.number) \(.title)"'; echo open-issues-listed
+[exit 0]
+open-issues-listed

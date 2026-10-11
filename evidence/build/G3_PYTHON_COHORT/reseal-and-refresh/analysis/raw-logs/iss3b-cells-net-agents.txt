@@ -1,0 +1,17 @@
+# key: cells-net-agents
+# repository clone: Aspose.Cells-FOSS-for-.NET
+# head: 941814fd138dc28cf47123d48194f329f283498d
+# utc: 2026-10-11T17:49:40Z
+
+$ grep -n 'RELEASE_NOTES' agents.md
+[exit 0]
+18:- release notes for this checkout include `RELEASE_NOTES_V26.5.0.md` (dated `2026-05-20`)
+119:- when behavior changes, keep `RELEASE_NOTES_V26.5.0.md` synchronized with affected API and compatibility notes
+
+$ git ls-files | grep -i release_notes; echo ls-exit=$?
+[exit 0]
+ls-exit=1
+
+$ grep -rn -m1 '<Version' --include=*.csproj .
+[exit 0]
+./src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj:12:    <Version>26.9.0.0</Version>

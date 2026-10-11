@@ -1,0 +1,21 @@
+# key: placeholders-PSD-NET
+# repository clone: Aspose.PSD-FOSS-for-.NET
+# head: 85ed7eec7c801d8b5c97aa099f018d3b98df2981
+# utc: 2026-10-11T17:49:10Z
+
+$ grep -n -E '<(Authors|PackageProjectUrl|RepositoryUrl|GeneratePackageOnBuild)>' src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj
+[exit 0]
+13:    <Authors>SID</Authors>
+16:    <PackageProjectUrl>https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET</PackageProjectUrl>
+17:    <RepositoryUrl>https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET</RepositoryUrl>
+20:    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+$ curl -s -o /dev/null -w '%{http_code}
+' https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET
+[exit 23]
+404
+
+$ curl -s -o /dev/null -w '%{http_code}
+' https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET
+[exit 23]
+200

@@ -1,0 +1,16 @@
+#!/bin/bash
+# usage: dk_node.sh <key> <clone-name> "<shell commands inside /w>"
+export MSYS_NO_PATHCONV=1
+SP="<scratch>"
+key="$1"; clone="$2"; cmds="$3"; image="${4:-node:22}"
+out="$SP/full/$key.txt"
+head=$(git -C "$SP/clones/$clone" rev-parse HEAD)
+{
+echo "# repository clone: $clone"
+echo "# head: $head"
+echo "# utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+echo "# image: $image"
+echo "# commands: $cmds"
+docker run --rm -v "$SP/clones/$clone:/src:ro" "$image" bash -c "cp -r /src /w && cd /w && node --version && npm --version && $cmds"
+echo "# end $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+} > "$out" 2>&1

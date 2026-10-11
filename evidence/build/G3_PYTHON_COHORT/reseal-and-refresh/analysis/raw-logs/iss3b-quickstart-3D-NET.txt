@@ -1,0 +1,49 @@
+# key: quickstart-3D-NET
+# repository clone: Aspose.3D-FOSS-for-.NET
+# head: 52b0f00ebf28a0b4173921725ff170685ec2c502
+# utc: 2026-10-11T18:05:53Z
+
+$ sed -n 128,143p README.md
+[exit 0]
+
+```csharp
+using Aspose.ThreeD;
+using Aspose.ThreeD.Entities;
+using Aspose.ThreeD.Shading;
+
+// Create a new scene and add a box primitive to the root node
+var scene = new Scene();
+var material = new LambertMaterial("Body")
+{
+    DiffuseColor = new Vector3(0.6, 0.6, 0.6),
+};
+scene.RootNode.CreateChildNode("Box", new Box(2, 2, 2), material);
+
+// Save to FBX
+scene.Save("output.fbx", FileFormat.FBX7400Binary);
+
+# Program.cs = the README fence, README.md lines 130-143, verbatim
+
+$ dotnet --version
+[exit 0]
+10.0.401
+
+$ dotnet build 2>&1 | grep -E ' error |Build succeeded' | grep -o 'Program.cs.*' | sort -u | cut -c1-200 | head -4
+[exit 0]
+Program.cs(9,24): error CS0246: The type or namespace name 'Vector3' could not be found (are you missing a using directive or an assembly reference?) [<tmp>
+
+# same program with `using Aspose.ThreeD.Utilities;` added (Vector3 lives there) so that it compiles
+
+$ dotnet run 2>&1 | grep -v 'warning' | grep -v '^ *$' | tail -6 | cut -c1-220
+[exit 0]
+Unhandled exception. System.NotImplementedException: Save options not implemented for .fbx
+   at Aspose.ThreeD.FileFormat.CreateSaveOptions() in <scratch>\clones\As
+   at Aspose.ThreeD.Scene.Save(String fileName, FileFormat format) in <tmp>
+   at Program.<Main>$(String[] args) in <scratch>\work\3dnet_save\Program
+
+# same program with the last statement changed to scene.Save("output.fbx");
+
+$ dotnet run 2>&1 | grep -v 'warning' | grep -v '^ *$' | tail -3 | cut -c1-200; ls -l output.fbx 2>&1 | head -2
+[exit 0]
+saved
+-rw-r--r-- 1 user group 2185 Oct 11 23:06 output.fbx

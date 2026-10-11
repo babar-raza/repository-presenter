@@ -1,0 +1,23 @@
+# key: notests-Cells-Rust
+# repository clone: Aspose.Cells-FOSS-for-Rust
+# head: 1a6004af47b1ef15385f9d36d381a8172428cc7e
+# utc: 2026-10-11T17:49:18Z
+
+$ grep -n -i 'once the repository is live' README.md
+[exit 0]
+106:[Scope and Limitations](#scope-and-limitations)). Once the repository is live at its real
+
+$ git ls-files tests | wc -l
+[exit 0]
+0
+
+$ git grep -n -E '#\[(test|cfg\(test\))' -- '*.rs' | wc -l
+[exit 0]
+0
+
+$ grep -n 'cargo test\|cargo bench' .github/workflows/*.yml
+[exit 0]
+.github/workflows/ci.yml:56:      - name: cargo test
+.github/workflows/ci.yml:57:        run: cargo test --all-targets
+.github/workflows/ci.yml:71:      - name: cargo bench
+.github/workflows/ci.yml:72:        run: cargo bench

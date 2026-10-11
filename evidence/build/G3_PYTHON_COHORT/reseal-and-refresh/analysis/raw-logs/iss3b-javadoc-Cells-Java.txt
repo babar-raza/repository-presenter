@@ -1,0 +1,39 @@
+# key: javadoc-Cells-Java
+# repository clone: Aspose.Cells-FOSS-for-Java
+# head: c65329e7257b1311abb9686d7e4957a8cc002955
+# utc: 2026-10-11T17:49:20Z
+
+$ grep -o '<title>[^<]*' docs/apidocs/index.html | head -2
+[exit 0]
+<title>cells-foss 1.0.0 API
+
+$ grep -o 'content="0;[^"]*' docs/apidocs/index.html | head -2
+[exit 0]
+content="0;com/aspose/cells_foss/package-summary.html
+
+$ git ls-files docs/apidocs/com/aspose/cells_foss | wc -l
+[exit 0]
+112
+
+$ ls src/main/java/org/aspose
+[exit 0]
+cells_foss
+
+$ grep -n -m3 '<groupId>\|<artifactId>\|<version>' pom.xml
+[exit 0]
+8:    <groupId>org.aspose</groupId>
+9:    <artifactId>aspose-cells-foss</artifactId>
+10:    <version>26.7.0</version>
+
+$ grep -n 'apidocs' README.md | head -4
+[exit 0]
+274:└── docs/apidocs/                         # Generated HTML Javadoc for the public API (run `mvn javadoc:javadoc` to regenerate)
+526:mvn javadoc:javadoc   # generates docs/apidocs/index.html
+
+$ grep -n 'â€' pom.xml | head -3
+[exit 0]
+62:        <!-- Apache POI â€” OOXML (xlsx) support -->
+
+$ grep -n '鈫' Agents.md | head -3
+[exit 0]
+46:- Generate Javadoc: `mvn javadoc:javadoc` 鈫?output at `docs/apidocs/index.html`

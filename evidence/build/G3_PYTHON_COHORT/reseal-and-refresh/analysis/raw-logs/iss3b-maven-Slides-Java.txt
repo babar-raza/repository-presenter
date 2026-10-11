@@ -1,0 +1,25 @@
+# key: maven-Slides-Java
+# repository clone: Aspose.Slides-FOSS-for-Java
+# head: 620a2614418854b4a18966a361e6907ddc88c7cb
+# utc: 2026-10-11T18:16:44Z
+
+$ curl -s https://repo1.maven.org/maven2/org/aspose/aspose-slides-foss/maven-metadata.xml | grep -E '<(latest|release|version)>'
+[exit 0]
+    <latest>26.7.0</latest>
+    <release>26.7.0</release>
+      <version>26.7.0</version>
+
+$ curl -s -o /dev/null -w '%{http_code}\n' https://repo1.maven.org/maven2/org/aspose/aspose-slides-foss/26.8.0/aspose-slides-foss-26.8.0.pom
+[exit 23]
+404
+
+$ grep -n -m1 '<version>' pom.xml
+[exit 0]
+9:    <version>26.8.0</version>
+
+$ grep -n -i '26.7.0' SECURITY.md README.md | head -4 | cut -c1-240
+[exit 0]
+SECURITY.md:11:| `26.7.0` | no. It is the only version published so far, and it predates a large body of correctness and hardening work. Upgrade when `26.8.0` is out, or build from source, rather than asking for a patch release. |
+SECURITY.md:14:If you are pinning `26.7.0` today, read [CHANGELOG.md](CHANGELOG.md) before deciding to stay on it.
+README.md:95:`aspose-slides-foss` is published on Maven Central as `org.aspose:aspose-slides-foss:26.7.0`.
+README.md:103:    <version>26.7.0</version>

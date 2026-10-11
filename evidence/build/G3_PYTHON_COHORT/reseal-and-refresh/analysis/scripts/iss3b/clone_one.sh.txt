@@ -1,0 +1,11 @@
+#!/bin/sh
+# usage: clone_one.sh repo branch sha sizekb dest
+repo="$1"; sha="$3"; size="$4"; dest="$5"
+name=$(basename "$repo")
+d="$dest/$name"
+if [ -d "$d/.git" ]; then echo "exists $name"; exit 0; fi
+if [ "$size" -gt 150000 ]; then
+  git -c core.autocrlf=false clone --quiet --depth 1 --filter=blob:none --no-checkout "https://github.com/$repo.git" "$d" && git -C "$d" config core.autocrlf false && echo "blobless $name $(git -C $d rev-parse HEAD)"
+else
+  git -c core.autocrlf=false clone --quiet --depth 1 "https://github.com/$repo.git" "$d" && git -C "$d" config core.autocrlf false && echo "ok $name $(git -C $d rev-parse HEAD)"
+fi

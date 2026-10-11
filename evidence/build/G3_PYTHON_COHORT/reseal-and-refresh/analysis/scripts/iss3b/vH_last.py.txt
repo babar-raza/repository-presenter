@@ -1,0 +1,64 @@
+import sys, json
+sys.path.insert(0, r"<scratch>")
+from vlib import *
+
+which = sys.argv[1:]
+
+
+def case_jmap():
+    names = {
+        ".NET": ("Aspose.JMAP-FOSS-for-.NET", "https://api.nuget.org/v3-flatcontainer/aspose.jmap.foss/index.json"),
+        "Cpp": ("Aspose.JMAP-FOSS-for-Cpp", None),
+        "Go": ("Aspose.JMAP-FOSS-for-Go", "https://proxy.golang.org/github.com/aspose-email-foss/aspose.jmap-foss-for-go/@v/list"),
+        "Java": ("Aspose.JMAP-FOSS-for-Java", "https://repo1.maven.org/maven2/com/aspose/aspose-jmap-foss/maven-metadata.xml"),
+        "Node.js": ("Aspose.JMAP-FOSS-for-Node.js", "https://registry.npmjs.org/aspose-jmap-foss"),
+        "Python": ("Aspose.JMAP-FOSS-for-Python", "https://pypi.org/pypi/aspose-jmap-foss/json"),
+        "Rust": ("Aspose.JMAP-FOSS-for-Rust", "https://crates.io/api/v1/crates/aspose-jmap-foss"),
+        "TypeScript": ("Aspose.JMAP-FOSS-for-TypeScript", "https://registry.npmjs.org/aspose-jmap-foss-ts"),
+    }
+    L = Log("jmap-disclosure", "")
+    L.say("Each JMAP README says no package has been published; the registries agree. HTTP status of the package page (404 = not published):")
+    for lang, (clone, url) in names.items():
+        L.say(f"== {clone} head {head_of(clone)}")
+        L.run(f"grep -n -i -E 'no (package|artifact|crate) has been published|not (been )?published|until it is' README.md | head -2 | cut -c1-200", cwd=CLONES / clone)
+        if url:
+            L.run(f"curl -s -o /dev/null -w '%{{http_code}}\\n' '{url}'")
+    L.run("gh api repos/aspose-email-foss/Aspose.JMAP-FOSS-for-Python/actions/runs?per_page=1 --jq '.workflow_runs[0] | {name, conclusion, head_branch, created_at}'", gh=True, cwd=CLONES / names["Python"][0])
+    L.save()
+
+
+def case_email_py():
+    L = Log("email-python-excerpt", "Aspose.Email-FOSS-for-Python")
+    L.run("grep -n 'msg_path' README.md | head -4")
+    L.run("sed -n 169,172p README.md")
+    L.save()
+
+
+def case_rust_crates():
+    L = Log("crates-Cells-Rust", "Aspose.Cells-FOSS-for-Rust")
+    L.run("grep -n -E '^name|^version' Cargo.toml | head -3")
+    L.run("curl -s -o /dev/null -w '%{http_code}\\n' https://crates.io/api/v1/crates/aspose-cells-foss-rust")
+    L.run("grep -n -i 'not yet published\\|crates.io' README.md | head -4 | cut -c1-200")
+    L.save()
+
+
+def case_3dts_pkg():
+    L = Log("packaging-3D-TS", "Aspose.3D-FOSS-for-TypeScript")
+    code = (
+        "import json\n"
+        "d=json.load(open('package.json'))\n"
+        "print('main:', d.get('main'), 'types:', d.get('types'))\n"
+        "print('dependencies:', sorted(d.get('dependencies', {})))\n"
+        "print('devDependencies has adm-zip:', 'adm-zip' in d.get('devDependencies', {}))\n"
+        "print('keys:', list(d))\n"
+    )
+    (SP / "work" / "pkgjson.py").write_text(code)
+    L.run(f'python "{SP}/work/pkgjson.py"')
+    L.run("grep -n -F \"require('adm-zip')\" src/aspose/threed/formats/threemf/ThreeMfExporter.ts src/aspose/threed/formats/threemf/ThreeMfImporter.ts")
+    L.save()
+
+
+if __name__ == "__main__":
+    for name in which:
+        globals()["case_" + name]()
+    print("done", which)

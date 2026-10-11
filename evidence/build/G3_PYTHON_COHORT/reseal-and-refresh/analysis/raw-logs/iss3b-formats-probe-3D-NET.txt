@@ -1,0 +1,106 @@
+# key: formats-probe-3D-NET
+# repository clone: Aspose.3D-FOSS-for-.NET
+# head: 52b0f00ebf28a0b4173921725ff170685ec2c502
+# utc: 2026-10-11T18:24:00Z
+
+# Program.cs (probe) = loop over the public static FileFormat fields, then Save(path) by extension:
+using System;
+using System.Linq;
+using System.Reflection;
+using Aspose.ThreeD;
+using Aspose.ThreeD.Entities;
+
+var fields = typeof(FileFormat).GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.FieldType == typeof(FileFormat)).OrderBy(f => f.Name).ToList();
+int ok = 0, fail = 0;
+foreach (var f in fields)
+{
+    var fmt = (FileFormat)f.GetValue(null);
+    var scene = new Scene();
+    scene.RootNode.CreateChildNode("Box", new Box(2, 2, 2));
+    var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "fmt_probe" + fmt.Extension);
+    try { scene.Save(path, fmt); ok++; Console.WriteLine($"ok   {f.Name}"); }
+    catch (NotImplementedException e) { fail++; Console.WriteLine($"FAIL {f.Name,-22} {e.Message}"); }
+}
+Console.WriteLine($"constants={fields.Count} saved_ok={ok} NotImplementedException={fail}");
+
+foreach (var ext in new[] { ".stl", ".obj", ".gltf", ".glb", ".fbx", ".dae", ".ply", ".3mf", ".3ds" })
+{
+    var scene = new Scene();
+    scene.RootNode.CreateChildNode("Box", new Box(2, 2, 2));
+    var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ext_probe" + ext);
+    try { scene.Save(path); Console.WriteLine($"Save(path *{ext}) ok {new System.IO.FileInfo(path).Length} bytes"); }
+    catch (Exception e) { Console.WriteLine($"Save(path *{ext}) {e.GetType().Name}"); }
+}
+
+
+$ grep -n 'public static FileFormat Discreet3DS\|Discreet3DS = \|public virtual Formats.SaveOptions CreateSaveOptions' src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs
+[exit 0]
+85:    public static FileFormat Discreet3DS;
+347:        public virtual Formats.SaveOptions CreateSaveOptions()
+370:            Discreet3DS = Discreet3DSFormat;
+
+$ sed -n 425,429p src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs
+[exit 0]
+        public void Save(string fileName, FileFormat format)
+        {
+            var options = format.CreateSaveOptions();
+            Save(fileName, options);
+        }
+
+$ dotnet run > run.txt 2>&1; grep -v warning run.txt | grep -v '^ *$' | grep -E '^(ok|FAIL|constants|Save)' | cut -c1-150
+[exit 0]
+FAIL AMF                    Save options not implemented for .amf
+FAIL ASE                    Save options not implemented for .ase
+FAIL Aspose3DWeb            Save options not implemented for .html
+FAIL Blender                Save options not implemented for .blend
+FAIL Collada                Save options not implemented for .dae
+ok   Discreet3DS
+FAIL DXF                    Save options not implemented for .dxf
+FAIL FBX6100ASCII           Save options not implemented for .fbx
+FAIL FBX6100Binary          Save options not implemented for .fbx
+FAIL FBX7200ASCII           Save options not implemented for .fbx
+FAIL FBX7200Binary          Save options not implemented for .fbx
+FAIL FBX7300ASCII           Save options not implemented for .fbx
+FAIL FBX7300Binary          Save options not implemented for .fbx
+FAIL FBX7400ASCII           Save options not implemented for .fbx
+FAIL FBX7400Binary          Save options not implemented for .fbx
+FAIL FBX7500ASCII           Save options not implemented for .fbx
+FAIL FBX7500Binary          Save options not implemented for .fbx
+FAIL FBX7600ASCII           Save options not implemented for .fbx
+FAIL FBX7600Binary          Save options not implemented for .fbx
+FAIL FBX7700ASCII           Save options not implemented for .fbx
+FAIL FBX7700Binary          Save options not implemented for .fbx
+FAIL GLTF                   Save options not implemented for .gltf
+FAIL GLTF_Binary            Save options not implemented for .glb
+FAIL GLTF2                  Save options not implemented for .gltf
+FAIL GLTF2_Binary           Save options not implemented for .glb
+FAIL HTML5                  Save options not implemented for .html
+FAIL IFC                    Save options not implemented for .ifc
+FAIL MayaASCII              Save options not implemented for .mb
+FAIL MayaBinary             Save options not implemented for .mb
+FAIL Pcd                    Save options not implemented for .pcd
+FAIL PcdBinary              Save options not implemented for .pcd
+FAIL SiemensJT8             Save options not implemented for .jt
+FAIL SiemensJT9             Save options not implemented for .jt
+FAIL STLASCII               Save options not implemented for .stl
+FAIL STLBinary              Save options not implemented for .stl
+FAIL Universal3D            Save options not implemented for .u3d
+FAIL USD                    Save options not implemented for .usd
+FAIL USDA                   Save options not implemented for .usda
+FAIL USDZ                   Save options not implemented for .usdz
+FAIL VRML                   Save options not implemented for .wrl
+FAIL WavefrontOBJ           Save options not implemented for .obj
+FAIL XBinary                Save options not implemented for .x
+FAIL XText                  Save options not implemented for .x
+FAIL Xyz                    Save options not implemented for .xyz
+FAIL Zip                    Save options not implemented for .zip
+constants=45 saved_ok=1 NotImplementedException=44
+Save(path *.stl) ok 828 bytes
+Save(path *.obj) ok 173 bytes
+Save(path *.gltf) ok 1458 bytes
+Save(path *.glb) ok 917 bytes
+Save(path *.fbx) ok 2135 bytes
+Save(path *.dae) ok 1582 bytes
+Save(path *.ply) ok 163 bytes
+Save(path *.3mf) ok 1094 bytes
+Save(path *.3ds) ok 232 bytes

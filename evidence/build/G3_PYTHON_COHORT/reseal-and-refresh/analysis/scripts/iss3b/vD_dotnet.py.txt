@@ -1,0 +1,114 @@
+import sys, shutil, os
+sys.path.insert(0, r"<scratch>")
+from vlib import *
+WORK = SP / "work"
+WORK.mkdir(exist_ok=True)
+which = sys.argv[1:]
+
+CSPROJ = """<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="{ref}" />
+  </ItemGroup>
+</Project>
+"""
+
+
+def fence(clone, start, end):
+    lines = (CLONES / clone / "README.md").read_text(encoding="utf-8").splitlines()[start - 1:end]
+    return "\n".join(lines) + "\n"
+
+
+def fence_around(clone, needle, lang="csharp"):
+    lines = (CLONES / clone / "README.md").read_text(encoding="utf-8").splitlines()
+    idx = next(i for i, l in enumerate(lines) if needle in l)
+    a = idx
+    while not lines[a].startswith("```"):
+        a -= 1
+    b = idx
+    while not lines[b].startswith("```") or b == a:
+        b += 1
+    return "\n".join(lines[a + 1:b]) + "\n", a + 2, b
+
+
+def mk(name, ref):
+    w = WORK / name
+    shutil.rmtree(w, ignore_errors=True)
+    w.mkdir(parents=True)
+    (w / "p.csproj").write_text(CSPROJ.replace("{ref}", ref))
+    return w
+
+
+def case_3dnet():
+    clone = "Aspose.3D-FOSS-for-.NET"
+    ref = str(CLONES / clone / "src/main/Aspose.ThreeD/Aspose.ThreeD.csproj")
+    w = mk("3dnet_save", ref)
+    L = Log("quickstart-3D-NET", clone)
+    L.run("sed -n 128,143p README.md")
+    body, fa, fb = fence_around(clone, 'scene.Save("output.fbx", FileFormat.FBX7400Binary)')
+    (w / "Program.cs").write_text(body)
+    L.say(f"Program.cs = the README fence, README.md lines {fa}-{fb}, verbatim")
+    L.run("dotnet --version")
+    L.run("dotnet build 2>&1 | grep -E ' error |Build succeeded' | grep -o 'Program.cs.*' | sort -u | cut -c1-200 | head -4", cwd=w, timeout=900)
+    prog0 = (w / "Program.cs").read_text()
+    (w / "Program.cs").write_text("using Aspose.ThreeD.Utilities;\n" + prog0)
+    L.say("same program with `using Aspose.ThreeD.Utilities;` added (Vector3 lives there) so that it compiles")
+    L.run("dotnet run 2>&1 | grep -v 'warning' | grep -v '^ *$' | tail -6 | cut -c1-220", cwd=w, timeout=900)
+    prog = ("using Aspose.ThreeD.Utilities;\n" + prog0).replace('scene.Save("output.fbx", FileFormat.FBX7400Binary);', 'scene.Save("output.fbx"); System.Console.WriteLine("saved");')
+    (w / "Program.cs").write_text(prog)
+    L.say("same program with the last statement changed to scene.Save(\"output.fbx\");")
+    L.run("dotnet run 2>&1 | grep -v 'warning' | grep -v '^ *$' | tail -3 | cut -c1-200; ls -l output.fbx 2>&1 | head -2", cwd=w, timeout=900)
+    L.save()
+    w2 = mk("3dnet_fromfile", ref)
+    L2 = Log("fromfile-3D-NET", clone)
+    L2.run("sed -n 164,172p README.md")
+    body2, fa, fb = fence_around(clone, 'Scene.FromFile("input.fbx", FileFormat.FBX7400Binary)')
+    (w2 / "Program.cs").write_text(body2)
+    L2.say(f"Program.cs = the README fence, README.md lines {fa}-{fb}, verbatim")
+    L2.run("dotnet build 2>&1 | grep -E 'error|Build succeeded' | head -4", cwd=w2, timeout=900)
+    L2.run("grep -n 'public static Scene FromFile' src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs")
+    L2.save()
+
+
+def case_3dnet_tests():
+    clone = "Aspose.3D-FOSS-for-.NET"
+    L = Log("testdata-3D-NET", clone)
+    L.run("grep -n -i testdata .gitignore; git ls-files | grep -i -c testdata")
+    L.run("dotnet test src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj 2>&1 | grep -E 'Failed!|Passed!|Total tests|FileNotFoundException' | sort | uniq -c | sort -rn | head -8", timeout=1800)
+    L.save()
+
+
+def case_cellsnet():
+    clone = "Aspose.Cells-FOSS-for-.NET"
+    ref = str(CLONES / clone / "src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj")
+    w = mk("cellsnet_chart", ref)
+    L = Log("chartname-Cells-NET", clone)
+    L.run("sed -n 240,258p README.md")
+    body, fa, fb = fence_around(clone, 'chart.Name = "Revenue"')
+    (w / "Program.cs").write_text("using Aspose.Cells_FOSS;\n\n" + body)
+    L.say(f"Program.cs = using Aspose.Cells_FOSS; + the README fence, README.md lines {fa}-{fb}, verbatim")
+    L.run("dotnet build 2>&1 | grep -E 'error|Build succeeded' | head -4", cwd=w, timeout=900)
+    L.run("sed -n 47p src/Aspose.Cells_FOSS/Chart.cs")
+    L.run("gh pr view 3 --repo aspose-cells-foss/Aspose.Cells-FOSS-for-.NET --json state,createdAt,author,files --jq '{state,createdAt,author:.author.login,files:[.files[].path]}'", gh=True)
+    L.save()
+
+
+def case_gis():
+    clone = "Aspose.GIS.FOSS-for-.Net"
+    L = Log("build-GIS-NET", clone)
+    L.run("ls; git ls-files | wc -l")
+    L.run("dotnet build Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj -c Release 2>&1 | tail -6", timeout=1800)
+    L.run("dotnet build Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj -c Release 2>&1 | grep -E ' error ' | sed -E 's/.*error (CS[0-9]+).*/\\1/' | sort | uniq -c | sort -rn | head -8", timeout=1800)
+    L.run("dotnet build Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj -c Release 2>&1 | grep -E ' error ' | sort -u | head -4 | cut -c1-260", timeout=1800)
+    L.save()
+
+
+if __name__ == "__main__":
+    for name in which:
+        globals()["case_" + name]()
+    print("done", which)

@@ -1,0 +1,80 @@
+"""Re-draft handoff af8da760 (3D-.NET Scene.Save with a FileFormat) from today's wider re-verification."""
+import sys
+from dataclasses import replace
+from pathlib import Path
+
+from repository_presenter.components.issues.model import EvidenceEntry, load_handoff, write_handoff
+from repository_presenter.components.issues.quality import issue_quality_findings
+
+path = Path(sys.argv[1])
+h = load_handoff(path)
+fp = h.defect_fingerprint
+title = "Aspose.3D FOSS for .NET: Scene.Save(path, FileFormat) throws NotImplementedException for 44 of 45 FileFormat constants"
+body = f"""## Summary
+
+`Scene.Save(string, FileFormat)` takes the save options from the `FileFormat` object it is given (`Scene.cs:427`). The public constants such as `FileFormat.STLBinary`, `FileFormat.WavefrontOBJ`, `FileFormat.GLTF2` and `FileFormat.FBX7400Binary` are plain `FileFormat` instances, and the base `FileFormat.CreateSaveOptions()` (`FileFormat.cs:347-350`) throws `NotImplementedException`. Of the 45 public `FileFormat` constants only `FileFormat.Discreet3DS` (assigned the `Discreet3DSFormat` instance at `FileFormat.cs:370`) saves; the other 44 throw. `Scene.Save(path)` without a format argument writes `.stl`, `.obj`, `.gltf`, `.glb`, `.fbx`, `.dae`, `.ply`, `.3mf` and `.3ds` files, so the format-specific save options exist. The README Quick Start ends with `scene.Save("output.fbx", FileFormat.FBX7400Binary);` (README.md line 143) and hits the same exception.
+
+## Environment
+
+- Repository: aspose-3d-foss/Aspose.3D-FOSS-for-.NET
+- Revision: `{h.source_revision}` (the upstream revision this report was verified against, default branch `main`)
+- Windows 11, .NET SDK 10.0.401, a net10.0 console project with a `ProjectReference` to `src/main/Aspose.ThreeD/Aspose.ThreeD.csproj`
+- Verified on 2026-10-11 from a fresh shallow clone.
+
+## Steps to reproduce
+
+```csharp
+using Aspose.ThreeD;
+using Aspose.ThreeD.Entities;
+
+var scene = new Scene();
+scene.RootNode.CreateChildNode("Box", new Box(2, 2, 2));
+scene.Save("output.stl");                        // works
+scene.Save("output.stl", FileFormat.STLBinary);  // throws
+```
+
+## Expected
+
+`Scene.Save(path, FileFormat.STLBinary)` writes the file, as `Scene.Save(path)` does for the same extension.
+
+## Actual
+
+```
+System.NotImplementedException: Save options not implemented for .stl
+   at Aspose.ThreeD.FileFormat.CreateSaveOptions() in FileFormat.cs:line 349
+   at Aspose.ThreeD.Scene.Save(String fileName, FileFormat format) in Scene.cs:line 427
+```
+
+Calling `Save(path, format)` for each of the 45 public `FileFormat` fields reports one success (`Discreet3DS`) and 44 `NotImplementedException`, among them `STLBinary`, `STLASCII`, `WavefrontOBJ`, `GLTF`, `GLTF2`, `GLTF2_Binary`, `Collada`, all `FBX*` versions and `PLY`-related constants where present.
+
+## Where in the repository
+
+- `src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs:347-350` (base `CreateSaveOptions`), `:59` onward (the constants), `:370` (`Discreet3DS`), `:394` and later (the format-specific overrides)
+- `src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs:425-428`
+- `README.md:143`
+
+## Suggested fix
+
+Make the public constants return the format-specific instances (for example `FileFormat.STLBinary` backed by `StlFormat`), or let the base `CreateSaveOptions()` map its content type and format type to the matching `SaveOptions`.
+
+<!-- repository-presenter-defect: {fp} -->
+"""
+# keep only statements that the probe supports: drop the speculative "PLY-related constants where present"
+body = body.replace(", all `FBX*` versions and `PLY`-related constants where present.", " and all `FBX*` versions.")
+evidence = (
+    EvidenceEntry(path="src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs", detail="lines 347-350: base CreateSaveOptions() throws NotImplementedException(\"Save options not implemented for {Extension}\"); line 370: only Discreet3DS is assigned a subclass instance"),
+    EvidenceEntry(path="src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs", detail="line 427: Save(string fileName, FileFormat format) calls format.CreateSaveOptions()"),
+    EvidenceEntry(path="dotnet run (probe over the 45 public FileFormat fields; Scene with one Box; Save(path, format))", detail="2026-10-11: saved_ok=1 (Discreet3DS), NotImplementedException=44; Save(path) by extension succeeds for .stl .obj .gltf .glb .fbx .dae .ply .3mf .3ds"),
+    EvidenceEntry(path="README.md", detail="line 143: scene.Save(\"output.fbx\", FileFormat.FBX7400Binary); (revision " + h.source_revision + "; unchanged at the live head)"),
+)
+claim = (
+    f"At revision {h.source_revision}, Scene.Save(path, FileFormat) throws NotImplementedException for 44 of the 45 "
+    "public FileFormat constants because their CreateSaveOptions() is the base implementation, while Scene.Save(path) "
+    "writes the same formats by extension."
+)
+new = replace(h, suggested_issue_title=title, suggested_issue_body=body, evidence=evidence, claim=claim)
+findings = issue_quality_findings(new)
+if findings:
+    raise SystemExit("; ".join(str(f) for f in findings))
+write_handoff(new, path)
+print("revised", path.name[:12], len(title))

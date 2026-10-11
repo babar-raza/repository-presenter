@@ -1,0 +1,3 @@
+# wave-1a-first-filing: ID@sha256:DIGEST per line, for repository-presenter issue-readiness --handoff-ids-file ... --emit-approvals <scratch dir outside the repository>
+# 1 handoff(s); digests from issue-readiness on issue-approval-table-final inputs, 2026-10-11
+aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119@sha256:d0b98ad7b94167e9f20405e58183725868299dcaec32ece3b69092e923050907  # Aspose.Cells-FOSS-for-Cpp Aspose.Cells FOSS for Cpp: XlsxWorkbookSerializerCommon.cpp uses std::

@@ -1,0 +1,20 @@
+# key: license-GIS
+# repository clone: Aspose.GIS.FOSS-for-.Net
+# head: b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4
+# utc: 2026-10-11T17:48:29Z
+
+$ git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$'; echo root-match-exit=$?
+[exit 0]
+root-match-exit=1
+
+$ git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)' | head -8
+[exit 0]
+
+
+$ gh api repos/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net --jq '"license=" + (.license|tostring)'
+[exit 0]
+license=null
+
+$ gh api 'repos/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net/issues?state=open&per_page=100' --jq '.[] | "#\(.number) \(.title)"'; echo open-issues-listed
+[exit 0]
+open-issues-listed
