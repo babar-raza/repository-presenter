@@ -694,6 +694,55 @@ def recover_coherence_audience_claims(
     return output if changed else None
 
 
+def recover_coherence_missing_units(
+    output: dict[str, Any], *, existing_units: list[dict[str, Any]], tasks: list[SectionTask]
+) -> dict[str, Any] | None:
+    """Last-resort correction for S8 coherence's own ``run_job`` call, alongside
+    ``recover_coherence_content_loss``: a unit the pass was given and did not return is restored,
+    whole, from the accepted S6 unit it was given as.
+
+    Wave 3 (PDF-Java): the reply filled ``preview`` and every workflow slot but
+    ``workflow:example:007``, and the exact-slot-set rule failed the run on the first attempt and
+    the re-ask. The pass only ever revises units and hands back every one it received, "revised or
+    not", and ``apply_coherence`` already reads a unit the reply lacks as unrevised - so a skipped
+    unit is the accepted unit as it stood, and that is exactly what is put back: no word is
+    written, and a unit the pass was never given (not in ``existing_units``) is never invented.
+
+    Returns ``None`` when no unit was missing.
+    """
+    units = output.get("units")
+    if not isinstance(units, list):
+        return None
+    returned = {
+        (str(unit.get("section")), str(unit.get("slot")))
+        for unit in units
+        if isinstance(unit, dict)
+    }
+    owed = {(task.section_id, slot) for task in tasks if not task.is_batch for slot in task.slots}
+    restored = [
+        {key: value for key, value in unit.items()}
+        for unit in existing_units
+        if (str(unit.get("section")), str(unit.get("slot"))) in owed
+        and (str(unit.get("section")), str(unit.get("slot"))) not in returned
+    ]
+    if not restored:
+        return None
+    order = {
+        (str(unit.get("section")), str(unit.get("slot"))): index
+        for index, unit in enumerate(existing_units)
+    }
+    units.extend(restored)
+    units.sort(
+        key=lambda unit: order.get(
+            (str(unit.get("section")), str(unit.get("slot")))
+            if isinstance(unit, dict)
+            else ("", ""),
+            len(order),
+        )
+    )
+    return output
+
+
 def recover_coherence_regressions(
     output: dict[str, Any],
     *,
@@ -702,8 +751,9 @@ def recover_coherence_regressions(
     tasks: list[SectionTask],
 ) -> dict[str, Any] | None:
     """The one ``recover=`` callable ``repair/rounds.py``'s S8 call site passes: all of S8
-    coherence's own last-resort corrections, composed - ``recover_coherence_content_loss`` first
-    (the generic dropped-fact-with-no-trace revert, G3-W05), then
+    coherence's own last-resort corrections, composed - ``recover_coherence_missing_units`` first
+    (a unit the reply skipped is the accepted unit, put back), then
+    ``recover_coherence_content_loss`` (the generic dropped-fact-with-no-trace revert, G3-W05), then
     ``recover_coherence_carried_units`` (the must-carry-specific revert and stray-citation strip,
     above) against whatever the first pass left, then ``recover_coherence_title_restatements``
     (a revision that newly restates its own slot title reverts to the accepted unit), then
@@ -715,6 +765,12 @@ def recover_coherence_regressions(
     fails exactly as it would have without this at all. Returns ``None`` only when no correction
     found anything to fix."""
     changed = False
+    missing_fixed = recover_coherence_missing_units(
+        output, existing_units=existing_units, tasks=tasks
+    )
+    if missing_fixed is not None:
+        output = missing_fixed
+        changed = True
     content_fixed = recover_coherence_content_loss(
         output, existing_units=existing_units, facts=facts
     )

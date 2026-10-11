@@ -445,6 +445,27 @@ def _bare_angle_bracket(raw_text: str) -> bool:
     return _MARKUP_OPENER.search(_CODE_SPAN.sub("", raw_text)) is not None
 
 
+_ANGLE_QUOTED = 3  # markup fragments a refusal quotes: enough to find them, never the paragraph
+_ANGLE_SPAN = 40  # longest fragment quoted whole; a longer one is cut at this length
+
+
+def angle_markup(raw_text: str) -> list[str]:
+    """The distinct markup fragments ``_bare_angle_bracket`` found in ``raw_text`` (``<address>``,
+    ``</div>``, ``<!-- x -->``), in order and at most ``_ANGLE_QUOTED`` of them, each cut at its
+    closing ``>`` - what the refusal quotes so the re-ask knows which ``<`` is meant."""
+    outside = _CODE_SPAN.sub("", raw_text)
+    quoted: list[str] = []
+    for opener in _MARKUP_OPENER.finditer(outside):
+        close = outside.find(">", opener.start())
+        end = close + 1 if 0 <= close - opener.start() < _ANGLE_SPAN else opener.start() + 20
+        fragment = outside[opener.start() : end]
+        if fragment not in quoted:
+            quoted.append(fragment)
+        if len(quoted) == _ANGLE_QUOTED:
+            break
+    return quoted
+
+
 # A bracketed, comma-separated list a unit's own text echoes: matched together with any single
 # run of whitespace immediately before it, so removing the whole match (G4-W17 arrival item 124,
 # below) leaves the surrounding prose's own spacing intact whether the echo sat mid-sentence or
@@ -544,6 +565,13 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one unit of at most one sentence",
     ),
 }
+
+
+def slots_clause(slots: Iterable[str]) -> str:
+    """The sentence of a section_authoring objective that names the slots a call fills, each
+    exactly once. One function, so the packet builders and the narrowed ask that re-states it for
+    fewer slots (``authoring_retry``) can never drift apart."""
+    return f"Slots to fill, each exactly once: {', '.join(slots)}."
 
 
 @dataclass(frozen=True)
@@ -1002,7 +1030,7 @@ def _type_batches(
             "mode": "author",
             "section_id": "api_reference",
             "objective": (
-                f"{_TYPE_OBJECTIVE} Slots to fill, each exactly once: {', '.join(slots)}. "
+                f"{_TYPE_OBJECTIVE} {slots_clause(slots)} "
                 f"Identifiers the prose may spell, exactly as written: {', '.join(spellings)}; "
                 "any other API name, member, attribute, or parameter is rejected."
             ),
@@ -1258,7 +1286,7 @@ def authoring_tasks(
             "mode": "author",
             "section_id": section,
             "objective": (
-                f"{objective} Slots to fill, each exactly once: {', '.join(slots)}. "
+                f"{objective} {slots_clause(slots)} "
                 f"{bound_rule}{title_rule}{renders_rule}{carry_rule}"
                 f"Identifiers the prose may spell, exactly as written: {', '.join(spellings)}; "
                 "any other API name, member, attribute, or parameter is rejected."
@@ -1934,6 +1962,14 @@ def restates_own_title(text: str, title: str, facts: FactsDocument) -> bool:
     )
 
 
+def restated_command_lines(text: str, lines: Iterable[str]) -> list[str]:
+    """The placed command lines ``text`` spells out verbatim (case-insensitive), in the order the
+    lines are given - the test ``unit_checks`` applies and the last-resort repair
+    (``authoring_retry``) removes, so both judge one way."""
+    lowered = text.lower()
+    return [line for line in lines if line.lower() in lowered]
+
+
 def unit_checks(
     output: dict[str, Any],
     task: SectionTask,
@@ -2028,13 +2064,17 @@ def unit_checks(
         lines = task.slot_render_lines.get(str(unit.get("slot")))
         if not lines:
             continue
-        text_lower = str(unit.get("text", "")).lower()
-        restated = [line for line in lines if line.lower() in text_lower]
+        restated = restated_command_lines(str(unit.get("text", "")), lines)
         if restated:
+            # Every restated line is named: with one re-ask per job, a refusal that named the
+            # first of two commands was answered by removing it, and the second failed the run
+            # (TeX-Python, wave 3: 'pytest' fixed, 'ruff check .' kept).
+            many = len(restated) > 1
             errors.append(
-                f"unit {unit.get('slot')}: restates {restated[0]!r}, a command the renderer "
-                "already prints verbatim in a fenced block right after this unit; write only "
-                "what the block does not already say, never the command itself"
+                f"unit {unit.get('slot')}: restates {', '.join(repr(line) for line in restated)}, "
+                f"{'commands' if many else 'a command'} the renderer already prints verbatim in a "
+                "fenced block right after this unit; write only what the block does not already "
+                f"say, never {'any command' if many else 'the command'} itself"
             )
     # README_CONTRACT.md check 4: a unit's facts lie within the set the plan assigned to its
     # slot; identity and package facts belong to no slot and may support any unit.
@@ -2118,14 +2158,27 @@ def unit_checks(
         if canonicalised != text:
             text = canonicalised
             unit["text"] = text
+        # Every distinct forbidden thing the unit contains is named in the one refusal, once each,
+        # and a "<" quotes the markup it found: the single re-ask can then remove all of them,
+        # instead of the first and then the next (the shape of every "fixed one, exposed the
+        # other" failure of wave 3).
+        forbidden: list[str] = []
+        meanings: set[str] = set()
         for marker, meaning in _FORBIDDEN:
+            if meaning in meanings:
+                continue
             if marker == "<":
                 matched = _bare_angle_bracket(raw_text)
             else:
                 matched = text.startswith(marker) if marker in _ANCHORED_ONLY else marker in text
             if matched:
-                errors.append(f"unit {slot}: text contains {meaning} ({marker.strip()!r})")
-                break
+                meanings.add(meaning)
+                found = f"{meaning} ({marker.strip()!r})"
+                if marker == "<":
+                    found += f": {', '.join(angle_markup(raw_text))}"
+                forbidden.append(found)
+        if forbidden:
+            errors.append(f"unit {slot}: text contains {', '.join(forbidden)}")
         unit_fact_ids = unit.get("fact_ids", [])
         # G4-W17 arrival item 69: an identifier a SUPPORTED inherited_unit fact this unit itself
         # cites spells verbatim - a limitation naming the member the source says is NOT
@@ -2362,6 +2415,10 @@ def _strip_angle_mentions(text: str) -> str | None:
             before = piece[match.start() - 1 : match.start()]
             after = piece[match.end() : match.end() + 1]
             name = match.group(1)
+            if before.isalnum() or before == "_":
+                # ``List<String>``: brackets that follow an identifier are its type arguments,
+                # not a mention of an element; removing them would fuse two names into one.
+                return match.group(0)
             return "{" + name + "}" if "/" in (before, after) else name
 
         return _ANGLE_MENTION.sub(read, piece)

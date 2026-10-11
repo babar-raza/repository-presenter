@@ -35,6 +35,9 @@ from repository_presenter.components.readme.composition.authoring import (
     recover_section_authoring_output,
     unit_checks,
 )
+from repository_presenter.components.readme.composition.authoring_retry import (
+    recover_restating_sentences,
+)
 from repository_presenter.core.facts import Fact, FactsDocument
 
 _TYPE_SLOT = "type:"
@@ -126,11 +129,14 @@ def recover_section_authoring_with_type_fallback(
 ) -> dict[str, Any] | None:
     """``section_authoring``'s initial-draft ``recover=``: every correction
     ``recover_section_authoring_output`` makes, then the type-description fallback above on
-    whatever those left, then the deletion of an audience claim no accepted fact states
-    (``audience.strip_audience_units``; the opening only). ``None`` only when none changed
-    anything."""
+    whatever those left, then the removal of a sentence that only restates the slot's title or a
+    command the page prints (``authoring_retry.recover_restating_sentences``), then the deletion
+    of an audience claim no accepted fact states (``audience.strip_audience_units``; the opening
+    only). ``None`` only when none changed anything."""
     changed = recover_section_authoring_output(output, slot_titles=slot_titles) is not None
     if recover_unevidenced_type_descriptions(output, task=task, facts=facts, name=name) is not None:
+        changed = True
+    if recover_restating_sentences(output, task=task, facts=facts) is not None:
         changed = True
     support = support_texts(task.accepted_ids, facts)
     if strip_audience_units(output, support, task.section_id) is not None:
