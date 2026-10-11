@@ -59,8 +59,10 @@ from repository_presenter.core.candidates import (
     COUNTED_STATES,
     CURRENT_FILENAME,
     README_FILENAME,
+    AcceptanceGate,
     BundleError,
     StaleCandidate,
+    proposal_gate_refusal,
     verify_bundle,
 )
 from repository_presenter.core.errors import PresenterError
@@ -237,10 +239,16 @@ def assess_wave(
     stale: Iterable[StaleCandidate] = (),
     now: datetime | None = None,
     provenance: ProvenanceFn,
+    acceptance: AcceptanceGate,
 ) -> list[WaveRow]:
     """The readiness table. ``repositories`` limits it; ``None`` means every READY_FOR_PROPOSAL
     candidate under ``candidates/``. ``live_read`` is ``None`` for an offline report, in which case
-    source freshness is reported as unread and counts as a blocker for nothing. A pure read."""
+    source freshness is reported as unread and counts as a blocker for nothing. A pure read.
+
+    ``acceptance`` is the propose gate's acceptance check: a READY_FOR_PROPOSAL candidate whose
+    review is not an honest ACCEPT, whose no-op proof is not measured, or whose ratified 30-point
+    outcome is not PASS is BLOCKED here with the same typed refusal ``propose`` would raise
+    (``core/candidates.py::proposal_gate_refusal``, TC-PRP-01)."""
     clock = now or datetime.now(UTC)
     stale_by_directory = {item.repository_dir: item.reasons for item in stale}
     listed = {entry.repository: entry for entry in registry.entries}
@@ -286,6 +294,17 @@ def assess_wave(
         state, revision, candidate_hash, _ = inspected
         if state not in COUNTED_STATES:
             blockers.append(f"{Refusal.BUNDLE_NOT_READY}: state is {state}, not READY_FOR_PROPOSAL")
+        else:
+            slug = repository.replace("/", "__")
+            bundle = root / CANDIDATES_DIRNAME / slug / revision
+            manifest = _read_manifest(bundle)
+            gate = (
+                None
+                if manifest is None
+                else proposal_gate_refusal(bundle, slug, manifest, acceptance)
+            )
+            if gate is not None:
+                blockers.append(f"{gate[0]}: {gate[1]}")
         live_sha: str | None = None
         base_branch: str | None = None
         source = "unread (offline)"

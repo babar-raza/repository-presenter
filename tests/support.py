@@ -7,7 +7,7 @@ import json
 import os
 import stat
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -354,6 +354,44 @@ def write_registry_file(root: Path, entries: list[dict[str, Any]]) -> Path:
     return path
 
 
+#: A sealed review whose ACCEPT is the reviewer's own (TC-PRP-01's honest-review rule).
+HONEST_REVIEW: dict[str, Any] = {
+    "schema_version": 1,
+    "verdict": "ACCEPT",
+    "verdict_as_returned": "ACCEPT",
+    "verdict_basis": "accepted_as_returned",
+    "findings": [],
+    "advisory": [],
+}
+#: What a manifest sealed with a measured zero-call no-op proof records.
+MEASURED_NO_OP: dict[str, Any] = {
+    "no_op_proof": {
+        "byte_identical": True,
+        "fresh_process": True,
+        "provider_calls": 0,
+        "rerun": {"invocation_id": "rerun-1"},
+    },
+    "ledger_totals": {
+        "records": 2,
+        "provider_calls": 1,
+        "cache_reuses": 1,
+        "audit_only": 0,
+        "total_tokens": 10,
+    },
+}
+
+
+def accepting_acceptance(_bundle: Path, _directory: str) -> str | None:
+    """A propose-gate acceptance check that scores every bundle PASS - for tests about the other
+    gates (the real scorer needs a real, fully validated bundle)."""
+    return None
+
+
+def rejecting_acceptance(_bundle: Path, _directory: str) -> str | None:
+    """A propose-gate acceptance check that scores every bundle below PASS."""
+    return "the ratified 30-point acceptance outcome is 'FAIL' (12/30 points), not PASS"
+
+
 def write_proposable_bundle(
     root: Path,
     repository: str,
@@ -361,27 +399,39 @@ def write_proposable_bundle(
     readme_text: str,
     *,
     state: str = "READY_FOR_PROPOSAL",
+    review: Mapping[str, Any] | None = HONEST_REVIEW,
+    manifest_extra: Mapping[str, Any] | None = None,
 ) -> Path:
-    """A sealed bundle with a real README and a manifest that verifies, plus ``CURRENT``."""
+    """A sealed bundle with a real README, an honest review and a measured no-op proof, and a
+    manifest that verifies, plus ``CURRENT``. ``review=None`` seals without ``review.json``;
+    ``manifest_extra`` overlays manifest fields (a ``None`` value removes the field)."""
     owner, name = repository.split("/", 1)
     bundle = root / "candidates" / f"{owner}__{name}" / revision
     bundle.mkdir(parents=True, exist_ok=True)
     data = readme_text.encode("utf-8")
     (bundle / "README.md").write_bytes(data)
-    (bundle / "manifest.json").write_text(
-        json.dumps(
-            {
-                "schema_version": 1,
-                "repository": repository,
-                "revision": revision,
-                "state": state,
-                "files": {
-                    "README.md": {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
-                },
-            }
-        ),
-        encoding="utf-8",
-    )
+    files = {"README.md": {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}}
+    if review is not None:
+        review_bytes = json.dumps(review).encode("utf-8")
+        (bundle / "review.json").write_bytes(review_bytes)
+        files["review.json"] = {
+            "sha256": hashlib.sha256(review_bytes).hexdigest(),
+            "bytes": len(review_bytes),
+        }
+    manifest: dict[str, Any] = {
+        "schema_version": 1,
+        "repository": repository,
+        "revision": revision,
+        "state": state,
+        "files": files,
+        **MEASURED_NO_OP,
+    }
+    for key, value in (manifest_extra or {}).items():
+        if value is None:
+            manifest.pop(key, None)
+        else:
+            manifest[key] = value
+    (bundle / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     (bundle.parent / "CURRENT").write_text(f"{revision}\n", encoding="utf-8")
     return bundle
 

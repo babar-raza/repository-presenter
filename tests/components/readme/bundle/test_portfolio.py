@@ -826,3 +826,33 @@ def test_funnel_lines_are_printed_unchanged_by_the_headline(tmp_path: Path) -> N
         "independently accepted 1, no-op-proven 1, source-fresh 1, publication-eligible 0, "
         "effect-authorized 0"
     )
+
+
+# --- the PROPOSE gate's acceptance check (TC-PRP-01) ---------------------------------------------
+
+
+def test_the_proposal_gate_passes_only_a_ratified_pass(tmp_path: Path) -> None:
+    from repository_presenter.components.readme.bundle.portfolio import proposal_acceptance_gate
+
+    records = {
+        "pass": {"ratified": True, "outcome": "PASS"},
+        "fail": {
+            "ratified": True,
+            "outcome": "FAIL",
+            "points_earned": 12,
+            "points_possible": 30,
+            "triggered_disqualifiers": ["D3"],
+        },
+        "unratified": {"ratified": False, "outcome": "PASS"},
+    }
+
+    def scorer(_bundle: Path, directory: str) -> dict[str, Any]:
+        return records[directory]
+
+    gate = proposal_acceptance_gate(tmp_path, scorer=scorer)
+    assert gate(tmp_path, "pass") is None
+    reason = gate(tmp_path, "fail")
+    assert reason is not None and "'FAIL'" in reason and "12/30" in reason and "D3" in reason
+    assert gate(tmp_path, "unratified") is not None
+    unratified_profile = proposal_acceptance_gate(tmp_path, ratified=False, scorer=scorer)
+    assert "not ratified" in str(unratified_profile(tmp_path, "pass"))

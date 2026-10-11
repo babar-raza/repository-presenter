@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -26,7 +27,13 @@ from repository_presenter.core.candidates import (
     verify_bundle,
 )
 from repository_presenter.core.hashing import sha256_text
-from support import write_bundle, write_proposable_bundle
+from support import (
+    HONEST_REVIEW,
+    accepting_acceptance,
+    rejecting_acceptance,
+    write_bundle,
+    write_proposable_bundle,
+)
 
 
 def test_missing_candidates_directory_counts_zero(tmp_path: Path) -> None:
@@ -422,7 +429,7 @@ REVISION = "c65329e7257b1311abb9686d7e4957a8cc002955"
 
 def test_a_ready_for_proposal_bundle_is_proposable(tmp_path: Path) -> None:
     write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n\nBody.\n")
-    candidate = load_proposable_candidate(tmp_path, PROPOSABLE)
+    candidate = load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
     assert candidate.revision == REVISION
     assert candidate.readme_text == "# Cells\n\nBody.\n"
     assert candidate.candidate_hash == sha256_text("# Cells\n\nBody.\n")
@@ -430,7 +437,10 @@ def test_a_ready_for_proposal_bundle_is_proposable(tmp_path: Path) -> None:
 
 def test_the_sealed_bytes_are_proposed_without_newline_translation(tmp_path: Path) -> None:
     write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "line one\r\nline two\r\n")
-    assert load_proposable_candidate(tmp_path, PROPOSABLE).readme_text == "line one\r\nline two\r\n"
+    assert (
+        load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance).readme_text
+        == "line one\r\nline two\r\n"
+    )
 
 
 @pytest.mark.parametrize("state", ["VALID_UPDATE_AVAILABLE", "ACCEPTED", "INVALIDATED", "BLOCKED"])
@@ -439,14 +449,14 @@ def test_a_bundle_not_in_ready_for_proposal_is_refused(tmp_path: Path, state: st
     final candidate."""
     write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", state=state)
     with pytest.raises(WriteRefusedError) as info:
-        load_proposable_candidate(tmp_path, PROPOSABLE)
+        load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
     assert info.value.code is Refusal.BUNDLE_NOT_READY
     assert state in str(info.value)
 
 
 def test_a_repository_with_no_current_candidate_is_refused(tmp_path: Path) -> None:
     with pytest.raises(WriteRefusedError) as info:
-        load_proposable_candidate(tmp_path, PROPOSABLE)
+        load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
     assert info.value.code is Refusal.BUNDLE_MISSING
 
 
@@ -454,7 +464,7 @@ def test_current_naming_a_revision_with_no_bundle_is_refused(tmp_path: Path) -> 
     bundle = write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n")
     (bundle.parent / "CURRENT").write_text("0" * 40 + "\n", encoding="utf-8")
     with pytest.raises(WriteRefusedError) as info:
-        load_proposable_candidate(tmp_path, PROPOSABLE)
+        load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
     assert info.value.code is Refusal.BUNDLE_MISSING
 
 
@@ -462,7 +472,7 @@ def test_a_tampered_readme_fails_integrity_and_is_refused(tmp_path: Path) -> Non
     bundle = write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n")
     (bundle / "README.md").write_text("# Tampered\n", encoding="utf-8")
     with pytest.raises(WriteRefusedError) as info:
-        load_proposable_candidate(tmp_path, PROPOSABLE)
+        load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
     assert info.value.code is Refusal.BUNDLE_INCONSISTENT
 
 
@@ -474,7 +484,7 @@ def test_a_manifest_for_another_revision_or_repository_is_refused(tmp_path: Path
             json.dumps({**manifest, field: value}), encoding="utf-8"
         )
         with pytest.raises(WriteRefusedError) as info:
-            load_proposable_candidate(tmp_path, PROPOSABLE)
+            load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
         assert info.value.code is Refusal.BUNDLE_INCONSISTENT
 
 
@@ -485,7 +495,7 @@ def test_a_bundle_whose_manifest_lists_no_readme_is_refused(tmp_path: Path) -> N
     manifest["files"] = {"facts.json": {"sha256": hashlib.sha256(b"{}").hexdigest(), "bytes": 2}}
     (bundle / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(WriteRefusedError) as info:
-        load_proposable_candidate(tmp_path, PROPOSABLE)
+        load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
     assert info.value.code is Refusal.BUNDLE_INCONSISTENT
 
 
@@ -504,8 +514,131 @@ def test_the_real_slides_java_candidate_is_not_proposable_when_it_is_not_ready()
         "state"
     ]
     if state == "READY_FOR_PROPOSAL":
-        assert load_proposable_candidate(REPO_ROOT, repository).revision == revision
+        # Past READY_FOR_PROPOSAL the propose gate (TC-PRP-01) may still refuse a bundle sealed
+        # before the honesty record and the measured no-op proof existed - with a typed code.
+        try:
+            candidate = load_proposable_candidate(
+                REPO_ROOT, repository, acceptance=accepting_acceptance
+            )
+        except WriteRefusedError as refusal:
+            assert refusal.code in PROPOSE_GATE_REFUSALS
+        else:
+            assert candidate.revision == revision
         return
     with pytest.raises(WriteRefusedError) as info:
-        load_proposable_candidate(REPO_ROOT, repository)
+        load_proposable_candidate(REPO_ROOT, repository, acceptance=accepting_acceptance)
     assert info.value.code is Refusal.BUNDLE_NOT_READY
+
+
+# ---------------------------------------------------------------------------
+# the propose gate (TC-PRP-01): honest review, measured no-op proof, ratified acceptance
+# ---------------------------------------------------------------------------
+
+PROPOSE_GATE_REFUSALS = {
+    Refusal.REVIEW_PREDATES_HONESTY_RECORD,
+    Refusal.REVIEW_REJECTION_OVERRIDDEN,
+    Refusal.NO_OP_PROOF_MISSING,
+    Refusal.ACCEPTANCE_NOT_PASSED,
+}
+REFUTED = {"rule": "SCOPE_X", "evidence": {"where": "section 3"}}
+
+
+def _refusal_code(root: Path, acceptance: Any = accepting_acceptance) -> Refusal:
+    with pytest.raises(WriteRefusedError) as info:
+        load_proposable_candidate(root, PROPOSABLE, acceptance=acceptance)
+    return info.value.code
+
+
+def _converted_review(**overrides: Any) -> dict[str, Any]:
+    """A reviewer REJECT that the review record turned into ACCEPT because its one finding was
+    deterministically refuted."""
+    return {
+        **HONEST_REVIEW,
+        "verdict_as_returned": "REJECT",
+        "verdict_basis": "rejection_refuted_deterministically",
+        "advisory": [{"section_id": "usage", "refuted_by": REFUTED}],
+        **overrides,
+    }
+
+
+def test_a_rejection_converted_with_a_recorded_deterministic_refutation_is_proposable(
+    tmp_path: Path,
+) -> None:
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", review=_converted_review())
+    candidate = load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
+    assert candidate.revision == REVISION
+
+
+def test_a_review_that_predates_the_honesty_record_is_refused_under_its_own_code(
+    tmp_path: Path,
+) -> None:
+    legacy = {"schema_version": 1, "verdict": "ACCEPT", "findings": [], "advisory": []}
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", review=legacy)
+    assert _refusal_code(tmp_path) is Refusal.REVIEW_PREDATES_HONESTY_RECORD
+
+
+def test_a_bundle_sealed_without_a_review_is_refused_as_predating_the_record(
+    tmp_path: Path,
+) -> None:
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", review=None)
+    assert _refusal_code(tmp_path) is Refusal.REVIEW_PREDATES_HONESTY_RECORD
+
+
+@pytest.mark.parametrize(
+    "review",
+    [
+        # the verdict itself is a rejection
+        {**HONEST_REVIEW, "verdict": "REJECT", "verdict_as_returned": "REJECT"},
+        # a REJECT turned ACCEPT with the basis of an ordinary accept
+        _converted_review(verdict_basis="accepted_as_returned"),
+        # a REJECT turned ACCEPT on a finding that records no refutation
+        _converted_review(advisory=[{"section_id": "usage", "unrefuted_scope_rules": [{}]}]),
+        # one refuted and one unrefuted finding
+        _converted_review(
+            advisory=[
+                {"section_id": "a", "refuted_by": REFUTED},
+                {"section_id": "b", "unrepairable": "names no section"},
+            ]
+        ),
+        # a REJECT turned ACCEPT resting on no finding at all
+        _converted_review(advisory=[]),
+    ],
+    ids=["rejected", "wrong-basis", "unrefuted", "partly-unrefuted", "no-findings"],
+)
+def test_a_returned_rejection_without_a_recorded_refutation_is_refused(
+    tmp_path: Path, review: dict[str, Any]
+) -> None:
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", review=review)
+    assert _refusal_code(tmp_path) is Refusal.REVIEW_REJECTION_OVERRIDDEN
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        {"no_op_proof": None},
+        {"no_op_proof": {"byte_identical": False, "fresh_process": True, "provider_calls": 0}},
+        {"no_op_proof": {"byte_identical": True, "fresh_process": True, "provider_calls": 3}},
+        {"ledger_totals": None},
+        {"no_op_proof": {"byte_identical": True, "fresh_process": True, "provider_calls": 0}},
+    ],
+    ids=["absent", "not-identical", "provider-calls", "unmeasured-no-totals", "no-rerun"],
+)
+def test_a_manifest_without_a_measured_no_op_proof_is_refused(
+    tmp_path: Path, extra: dict[str, Any]
+) -> None:
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", manifest_extra=extra)
+    assert _refusal_code(tmp_path) is Refusal.NO_OP_PROOF_MISSING
+
+
+def test_an_acceptance_outcome_below_pass_is_refused_with_the_scorer_reason(
+    tmp_path: Path,
+) -> None:
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n")
+    with pytest.raises(WriteRefusedError) as info:
+        load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=rejecting_acceptance)
+    assert info.value.code is Refusal.ACCEPTANCE_NOT_PASSED
+    assert "not PASS" in str(info.value)
+
+
+def test_the_honesty_refusals_are_distinct_typed_codes() -> None:
+    assert len({code.value for code in PROPOSE_GATE_REFUSALS}) == len(PROPOSE_GATE_REFUSALS) == 4

@@ -76,6 +76,7 @@ from repository_presenter.core.authorization.proposal import (
 from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
     CURRENT_FILENAME,
+    AcceptanceGate,
     BundleError,
     verify_bundle,
 )
@@ -370,6 +371,31 @@ def _assess(
         return halt("publication_eligible", "no valid authorization record")
     depth = 7
     return halt("effect_authorized", "authorized")
+
+
+def proposal_acceptance_gate(
+    root: Path, *, ratified: bool = RATIFIED, scorer: AcceptanceScorer | None = None
+) -> AcceptanceGate:
+    """The PROPOSE gate's acceptance check (TC-PRP-01): ``None`` for a bundle whose ratified
+    30-point outcome is PASS, otherwise why not. The same scorer and the same predicate
+    (:func:`_acceptance_passed`) as the funnel's ``publication_eligible`` count; READY_FOR_PROPOSAL
+    itself does not depend on it."""
+    score = scorer if scorer is not None else sealed_acceptance_scorer(root)
+
+    def gate(bundle: Path, directory: str) -> str | None:
+        if not ratified:
+            return "the 30-point acceptance profile is not ratified: nothing scores PASS"
+        record = score(bundle, directory)
+        if _acceptance_passed(record):
+            return None
+        return (
+            f"the ratified 30-point acceptance outcome is {record.get('outcome')!r} "
+            f"({record.get('points_earned')}/{record.get('points_possible')} points; "
+            f"triggered disqualifiers {record.get('triggered_disqualifiers') or []}; "
+            f"unevaluated {record.get('unevaluated') or {}}), not PASS"
+        )
+
+    return gate
 
 
 def _read_object(path: Path) -> dict[str, Any]:

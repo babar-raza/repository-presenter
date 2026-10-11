@@ -61,7 +61,10 @@ Columns: registry mode, candidate hash, sealed revision, `live` (current, or MOV
 head), `README.md` at the live head, authorization record state (none, valid+merged, valid but not
 merged, expired, mismatch), staleness (informational: a bundle behind the running code is still
 proposable by hash; the owner decides whether stale content is acceptable). Verdict BLOCKED lists
-the reason (`source_moved`, no README, not final, not listed); re-seal those or leave them out.
+the reason (`source_moved`, no README, not final, not listed, or a propose-gate refusal:
+`review_predates_honesty_record`, `review_rejection_overridden`, `no_op_proof_missing`,
+`acceptance_not_passed`); re-seal those or leave them out. The propose gate (not READY_FOR_PROPOSAL
+itself) requires an honest review, a measured no-op proof and the ratified 30-point outcome PASS.
 Budget about 6 seconds per candidate for the live reads.
 
 ## 3. The signature, then the one pull request

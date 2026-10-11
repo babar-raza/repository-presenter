@@ -42,8 +42,11 @@ from repository_presenter.core.github.read_client import DefaultBranchRead, File
 from repository_presenter.core.hashing import sha256_text
 from repository_presenter.core.registry.loader import load_registry
 from support import (
+    HONEST_REVIEW,
+    accepting_acceptance,
     merge_to_origin_main,
     monitor_registry_entry,
+    rejecting_acceptance,
     write_proposable_bundle,
     write_registry_file,
 )
@@ -68,6 +71,13 @@ def stamp(moment: datetime) -> str:
 
 def hash_of(repository: str) -> str:
     return sha256_text(README[repository])
+
+
+@pytest.fixture(autouse=True)
+def _acceptance_scores_pass(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The ratified-acceptance check needs a real, fully validated bundle; the CLI-driven tests
+    here use synthetic ones (the gate is tested below with an injected scorer)."""
+    monkeypatch.setattr(cli, "proposal_acceptance_gate", lambda _root: accepting_acceptance)
 
 
 @pytest.fixture
@@ -121,6 +131,7 @@ def assess(
     repositories: list[str] | None = None,
     provenance=merged,  # type: ignore[no-untyped-def]
     now: datetime = NOW,
+    acceptance=accepting_acceptance,  # type: ignore[no-untyped-def]
 ):
     return assess_wave(
         control,
@@ -129,6 +140,7 @@ def assess(
         live_read=world,
         now=now,
         provenance=provenance,
+        acceptance=acceptance,
     )
 
 
@@ -190,6 +202,59 @@ def test_a_moved_source_blocks_the_candidate(control: Path) -> None:
     assert row.verdict == "BLOCKED"
     assert row.source.startswith("MOVED")
     assert any(str(Refusal.SOURCE_MOVED) in blocker for blocker in row.blockers)
+
+
+def _blocked_by(control: Path, code: Refusal, **bundle: object) -> None:
+    """Re-seal FULL's bundle with a defect and assert the row is BLOCKED naming ``code``."""
+    write_proposable_bundle(control, FULL, REV_FULL, README[FULL], **bundle)  # type: ignore[arg-type]
+    (row,) = assess(control, LiveWorld(), repositories=[FULL])
+    assert row.verdict == "BLOCKED"
+    assert any(blocker.startswith(f"{code}:") for blocker in row.blockers), row.blockers
+
+
+def test_a_review_predating_the_honesty_record_blocks_the_candidate(control: Path) -> None:
+    legacy = {"schema_version": 1, "verdict": "ACCEPT", "findings": [], "advisory": []}
+    _blocked_by(control, Refusal.REVIEW_PREDATES_HONESTY_RECORD, review=legacy)
+
+
+def test_a_converted_rejection_without_a_refutation_blocks_the_candidate(control: Path) -> None:
+    converted = {
+        **HONEST_REVIEW,
+        "verdict_as_returned": "REJECT",
+        "verdict_basis": "rejection_refuted_deterministically",
+        "advisory": [{"section_id": "usage"}],
+    }
+    _blocked_by(control, Refusal.REVIEW_REJECTION_OVERRIDDEN, review=converted)
+
+
+def test_a_manifest_without_a_measured_no_op_proof_blocks_the_candidate(control: Path) -> None:
+    _blocked_by(control, Refusal.NO_OP_PROOF_MISSING, manifest_extra={"ledger_totals": None})
+
+
+def test_an_acceptance_outcome_below_pass_blocks_the_candidate(control: Path) -> None:
+    (row,) = assess(control, LiveWorld(), repositories=[FULL], acceptance=rejecting_acceptance)
+    assert row.verdict == "BLOCKED"
+    assert any(blocker.startswith(f"{Refusal.ACCEPTANCE_NOT_PASSED}:") for blocker in row.blockers)
+    assert "not PASS" in render_table([row])
+
+
+def test_a_gate_refusal_withholds_the_owner_step_and_refuses_the_record(control: Path) -> None:
+    """A BLOCKED row is never offered to the owner to sign, and ``emit_records`` writes nothing."""
+    rows = assess(control, LiveWorld(), repositories=[FULL], acceptance=rejecting_acceptance)
+    result = emit_records(
+        control,
+        load_registry(control / "data" / "registry.json"),
+        rows,
+        [OwnerEntry(FULL, hash_of(FULL)[:12])],
+        approver="owner",
+        issued_at=ISSUED,
+        expires_at=EXPIRES,
+        destination=control.parent / "scratch-blocked",
+        now=NOW,
+    )
+    assert result.written == () and result.refusals[0].code == "blocked"
+    assert str(Refusal.ACCEPTANCE_NOT_PASSED) in result.refusals[0].reason
+    assert not (control.parent / "scratch-blocked").exists()
 
 
 def test_a_head_without_a_readme_md_blocks_the_candidate(control: Path) -> None:
@@ -284,6 +349,7 @@ def test_the_table_reports_stale_bundles_but_staleness_never_blocks(control: Pat
         stale=[StaleCandidate(slug, REV_FULL, ("components.renderer 24 -> 30",))],
         now=NOW,
         provenance=merged,
+        acceptance=accepting_acceptance,
     )
     assert rows[0].stale and rows[0].blockers == ()
     assert "behind code" in render_table(rows)
