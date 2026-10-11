@@ -177,6 +177,25 @@ governance tracks, two directories, no overlap.
     has no API path around a first cross-org installation's consent. Full guide:
     `docs/DECISION_LOG.md`, 2026-09-23 16:04 UTC.
 
+- `workflow_rehearsal/` — runs this repository's GitHub workflows locally in their hosted shape
+  (TC-REF-10, `plans/reseal-and-refresh/PLAN.md` section 11). Nothing here writes to GitHub: every
+  write endpoint is a local fake.
+  - `inventory.py` — parses `.github/workflows/*.yml` and renders the triggers / permissions /
+    variables / secrets / job-graph tables embedded between markers in `docs/OPERATIONS_RUNBOOK.md`
+    (`--write` splices, `--check` fails on a stale block; a test does the same).
+  - `shape_checks.py` — YAML shape checks (needs graph, step and matrix references, pinned actions,
+    cron, untrusted event fields) plus a wrapper for `actionlint` when a binary is installed
+    (`ACTIONLINT`, PATH, or `D:/tools/actionlint`).
+  - `scenarios.py` — deterministic synthetic bare upstreams (relevant change, irrelevant change,
+    maintainer README edit, force-pushed history, deleted, archived, unchanged) and `world.json`.
+  - `fake_github.py` — stdlib HTTPS server answering the REST endpoints the workflows read, the App
+    token exchange (a fake token), recording pull requests and issues, and serving the bare
+    repositories over git smart HTTP.
+  - `harness.py` — `dryrun` (`act -n` over every workflow), `monitor` (`monitor.yml` end to end in
+    the act image on a Docker network where `api.github.com` is the fake), `down`, and the
+    per-workflow plan (what runs locally, what is a documented gap). Needs Docker and `act`.
+  - Tests: `tests/test_workflow_rehearsal.py` (no network, Docker or act).
+
 ## Environment variables
 
 Both `reviewer_check.py`, `stop_monitor.py`, and `timestamp_monitor.py` default to this machine's
