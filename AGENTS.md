@@ -92,7 +92,7 @@ before picking.
 - Reuse accepted unaffected work when one dependency changes.
 - End every work item with a run of the official entry point on the canary. A module with no
   production importer is a defect, not a deliverable.
-- Count progress in one unit only: authorizable candidates, N/36 (independent acceptance review
+- Count progress in one unit only: authorizable candidates, N/44 (the registry size on 2026-10-11; independent acceptance review
   passed and not worse than the live README); report sealed counts alongside, never as progress.
 - Invalidate a candidate only through an input it consumed. Never add a global control-plane hash;
   validator and reviewer changes re-check and may yield `VALID_UPDATE_AVAILABLE`, never blanket

@@ -30,7 +30,7 @@ today; [`project/state.yaml`](project/state.yaml) is the one live cursor and win
 | Accepted gates | `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UNDER_CHANGE` |
 | Current gate | `G3_PYTHON_COHORT` (READY) |
 | Active work item | `G4-W17` — landing shared-code fixes from the lane agents, and resealing candidates they invalidate |
-| Progress | **28 of 36** registry repositories hold a current, reviewable, no-op-proven candidate (29 ever sealed; 5 registry entries have no bundle yet; 2 are disabled) |
+| Progress | **0 of 44** registry repositories hold a current, independently accepted, no-op-proven candidate (30 ever sealed, 1 current-code reproducible; 14 registry entries have no bundle yet; 2 are disabled; the denominator is the registry size) |
 | Pending update | 1 candidate (`Aspose.Slides-FOSS-for-Java`) is `VALID_UPDATE_AVAILABLE`: still valid, update not yet re-sealed |
 | Independent acceptance | 0 candidates — the 30-point acceptance profile is still advisory, not ratified (`G3-W02`) |
 | Pull requests against target repos | **None opened yet.** The proposal path is built and gated; its first live proof is open (see below) |
