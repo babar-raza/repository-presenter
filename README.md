@@ -311,6 +311,7 @@ repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
 repository-presenter monitor-install-record --owner OWNER --outcome {success,failure} --repositories NAMES --out PATH
 repository-presenter monitor-install-summary DIR [--summary PATH]
 repository-presenter monitor-drift-contract DIR --out PATH
+repository-presenter registry-gaps [--root PATH] [--owner OWNER] [--json] [--from PATH] [--out PATH] [--summary PATH] [--warn-only]
 repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remote REMOTE]
   [--wall-clock-seconds N] [--provider-calls N] [--max-wall-clock-seconds N]
   [--max-provider-calls N] [--stale-after-hours N]
@@ -422,6 +423,7 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   for the handoff's fingerprint marker (so a fresh checkout cannot file a duplicate), rechecks that
   the defect still fires, and refuses on any inconclusive result. A handoff whose status is not
   `HANDOFF_PENDING` is skipped outright.
+- **`registry-gaps`** — read-only reconciliation of the registry's organizations against the registry itself: lists every repository in an admitted organization as registered, unregistered (a candidate for the owner's admission decision), excluded by policy (`data/registry_exclusions.json`) or missing upstream. `--from` reads a saved monitor/listing document instead of GitHub, `--warn-only` never fails the run. It never admits anything: the registry stays a hard allow-list. `status --discovery` / `--no-discovery` / `--verbose` report the same result on the `registry:` line from recorded evidence (offline); `monitor --no-discovery` leaves the section out of the drift document.
 - **`issue-funnel`** — read-only count of the issue handoffs by stage (pending, approved, filed, resolved) from `evidence/upstream-defects/` and the approval records; `--max-pending-days` annotates a handoff that has waited longer, and `--fail-on-alert` turns any annotation into a non-zero exit (a warning otherwise).
 - **`file-upstream-defects` pacing** — `--daily-cap`, `--open-cap` and `--pace-seconds` bound how many issues one run may file per repository, how many presenter issues may stay open per repository, and the pause between two writes; `--with-updates` also posts the evidence-change update comments (it needs the comments switch above).
 - **`issue-readiness`** — read-only report of every `evidence/upstream-defects/` handoff and what
