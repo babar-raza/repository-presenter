@@ -21,6 +21,11 @@
 # a write permission: `permissions` below grants `contents: read`, and each token is narrowed to
 # `permission-contents: read`. The evidence is uploaded as a workflow artifact, never committed. PR
 # creation is not part of this workflow (G7-W06 stage 2).
+#
+# The same leg also lists its organization once (components/monitor/discovery.py) and records which
+# repositories the registry does not list: the denominator stays the registry's size, so the
+# coverage job's last step turns a non-empty list into a warning and a step-summary table. Discovery
+# only reports; admission is an owner act (an edit to data/registry.json).
 name: Monitor
 
 on:
@@ -226,3 +231,13 @@ jobs:
 
       - name: Summarize each owner's installation state
         run: repository-presenter monitor-install-summary monitor --summary "$GITHUB_STEP_SUMMARY"
+
+      # The registry is a hard allow-list, so a repository added upstream changes no count until an
+      # owner admits it. Each leg's evidence carries a `discovery` section (one read-only listing of
+      # the owner's organization); this step reports it. --warn-only: a warning annotation and the
+      # step summary, exit 0 whatever the evidence says -- an unregistered repository, a missing
+      # upstream one or an unlistable organization is something to see, never a red run, and
+      # nothing here admits anything.
+      - name: Registry discovery (warns when an authorized organization holds unregistered repositories)
+        if: always()
+        run: repository-presenter registry-gaps --from monitor --warn-only --summary "$GITHUB_STEP_SUMMARY"

@@ -27,6 +27,7 @@ from repository_presenter.components.readme.composition.authoring import (
     verified_members,
 )
 from repository_presenter.components.readme.composition.components.ecosystems import (
+    DISTRIBUTION_REGISTRY_NAMES,
     REGISTRY_NAMES,
     host_names,
 )
@@ -43,7 +44,9 @@ from repository_presenter.components.readme.composition.components.terminology i
     LOWER_WORD,
     to_title_case,
 )
+from repository_presenter.components.readme.composition.coverage import Destinations
 from repository_presenter.components.readme.composition.placement import (
+    Placement,
     api_reference_hub_methods,
     placed_texts,
     placements,
@@ -64,7 +67,10 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import printed_example
 from repository_presenter.core.facts import Fact, FactsDocument
-from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID
+from repository_presenter.core.package_registry import (
+    DISTRIBUTION_FACT_PREFIX,
+    PUBLISHED_VERSION_FACT_ID,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 
 # The template component version dependencies.json records. 19: facts render in canonical (ID)
@@ -127,6 +133,8 @@ __all__ = ["renders_verbatim"]  # re-exported for the validator and the tests
 _WORD = re.compile(r"\b[A-Z][A-Za-z0-9]*\b")
 _EXTENSION = re.compile(r"(?<![\w`.])\.[a-z0-9]{2,}\b")
 _SLUG_STRIP = re.compile(r"[^\w\- ]")
+# A code span already in the text: the author's, or one an earlier, longer token made.
+_CODE_SPAN_RUN = re.compile(r"`[^`\n]*`")
 # README_CONTRACT.md section 2 row 20: the declaration, then for a permissive license one
 # sentence of practical permissions and the notice condition, and the absence of warranty.
 _MIT_PROSE = (
@@ -150,6 +158,7 @@ _GENERIC_DECLARED_PROSE = (
 )
 _EXTRA = re.compile(r"extra '([^']+)'")
 _FLOOR = re.compile(r">=\s*(\d+(?:\.\d+)*)")
+_VERSION_NUMBER = re.compile(r"\d+(?:\.\d+)*")
 _FILE_COUNT = re.compile(r"(\d+) files")
 
 
@@ -193,9 +202,14 @@ class RenderContext:
             for unit in units.get("units", [])
         }
         # Placement follows the three rules of README_CONTRACT.md section 3, decided once in
-        # placement.py so the validator judges exactly what the renderer did.
-        self.placements = placements(plan, dispositions, facts, entry.ecosystem)
-        self.placed: dict[str, list[str]] = placed_texts(self.placements)
+        # placement.py so the validator judges exactly what the renderer did. It is decided
+        # lazily (a context that only reads badges or sentences needs no placement) and on the
+        # document as it renders with nothing placed, which is why `placed` is empty while that
+        # document is being built (`unplaced_destinations`).
+        self.dispositions = dispositions
+        self._unplaced = False
+        self._placements: list[Placement] | None = None
+        self._placed: dict[str, list[str]] | None = None
         self.allowed = allowed_identifiers(facts, self.name)
         self.members = verified_members(facts)
         self.methods = surface_members(facts)
@@ -212,6 +226,57 @@ class RenderContext:
                 for kind in ("class", "enum", "function")
             )
         )
+
+    @property
+    def placements(self) -> list[Placement]:
+        """Every kept unit's placement, decided once by ``placement.placements`` on the
+        document as it renders with no kept unit placed."""
+        if self._placements is None:
+            self._placements = placements(
+                self.plan,
+                self.dispositions,
+                self.facts,
+                self.entry.ecosystem,
+                self.unplaced_destinations,
+            )
+        return self._placements
+
+    @property
+    def placed(self) -> dict[str, list[str]]:
+        """The verbatim text each section places; empty while the unplaced document is built."""
+        if self._unplaced:
+            return {}
+        if self._placed is None:
+            self._placed = placed_texts(self.placements)
+        return self._placed
+
+    def unplaced_destinations(self) -> Destinations:
+        """The document as it renders with no kept unit placed: what each section states by
+        itself, which is what a kept unit must be covered by to be dropped (``coverage.py``).
+        Each section is rendered when a kept unit is first judged against it.
+
+        The Enterprise paragraph closing Scope and Limitations is cut from that section's text, as
+        BC-05 cuts it: what the commercial edition adds is not a limitation of this one, so it
+        states no kept limitation.
+        """
+        sections = {section.id: section for section in self.included}
+
+        def unplaced(section_id: str) -> str:
+            section = sections.get(section_id)
+            if section is None:
+                return ""
+            remembered, self._unplaced, self.rendered_ids = self.rendered_ids, True, None
+            try:
+                body = "\n".join(_section_body(self, section))
+            finally:
+                self._unplaced, self.rendered_ids = False, remembered
+            return (
+                body.split(ENTERPRISE_SENTENCE_LEAD, 1)[0]
+                if section_id == "scope_limitations"
+                else body
+            )
+
+        return Destinations(unplaced, tuple(sections))
 
     def canonical(self, text: str) -> str:
         """``text`` with every known abbreviation raised to the spelling the document uses."""
@@ -261,22 +326,61 @@ class RenderContext:
         tokens.update(word for word in _WORD.findall(text) if word in self.symbol_names)
         # A bare extension that is a format fact value (``.stl``) is an identifier too.
         tokens.update(ext for ext in _EXTENSION.findall(text) if ext in self.allowed)
-        rendered = text
-        for token in sorted(tokens, key=len, reverse=True):
-            if token in self.name_tokens or token in REGISTRY_NAMES.values() or token in self.hosts:
-                continue  # the product's name, package registries and hosting sites are nouns
-            if (
-                token not in self.symbol_names
-                and token not in cited
-                and not identifier_allowed(token, self.allowed, self.members, self.methods)
-            ):
-                continue
-            rendered = re.sub(
-                rf"(?<![`\w.]){re.escape(token)}(\(\))?(?![`\w])",
-                lambda m: f"`{m.group(0)}`",
-                rendered,
+        wrapped = {
+            token
+            for token in tokens
+            if not (token in self.name_tokens or token in REGISTRY_NAMES.values())
+            and token not in self.hosts  # the product's name, registries and hosts are nouns
+            and (
+                token in self.symbol_names
+                or token in cited
+                or identifier_allowed(token, self.allowed, self.members, self.methods)
             )
-        return rendered
+        }
+        # A path a fact spells whole (``src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj``) that holds a
+        # token about to be wrapped is wrapped whole: ``identifier_tokens`` reads only pieces of it
+        # (a module path without its leading directory, the dotted names inside), and wrapping the
+        # pieces alone leaves the rest of the path outside the span. A path holding none of them
+        # (``tests/``) renders as it always has.
+        paths = [
+            value
+            for value in self.allowed
+            if "/" in value
+            and " " not in value
+            and "://" not in value
+            and value in text
+            and any(token in value for token in wrapped)
+            and re.search(rf"(?<![\w/.-]){re.escape(value)}(?![\w/-]|\.\w)", text)
+        ]
+        wrapped.update(paths)
+        if not wrapped:
+            return text
+        # One pass, longest token first at every position: a token inside one already wrapped is
+        # never wrapped again (a separate pass per token matched `Aspose.PSD.FOSS` inside the
+        # path `src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj` once its path was a span, because "/"
+        # is not a character the neighbours test excludes, and split it into three spans, two of
+        # them no fact value - BC-04 on aspose-psd-foss/Aspose.PSD-FOSS-for-.NET).
+        pattern = "|".join(re.escape(token) for token in sorted(wrapped, key=len, reverse=True))
+        compiled = re.compile(rf"(?<![`\w.])(?:{pattern})(\(\))?(?![`\w])")
+        # Text already inside a code span (the author's own) is left exactly as written; only the
+        # stretches between spans are wrapped.
+        pieces = re.split(r"(`[^`\n]*`)", text)
+        return "".join(
+            piece if index % 2 else compiled.sub(lambda m: f"`{m.group(0)}`", piece)
+            for index, piece in enumerate(pieces)
+        )
+
+
+def _wrap_outside_spans(text: str, token: str) -> str:
+    """``text`` with each whole-word ``token`` (and a call's trailing ``()``) in a code span,
+    except where it already sits inside one."""
+    spans = [match.span() for match in _CODE_SPAN_RUN.finditer(text)]
+
+    def wrap(match: re.Match[str]) -> str:
+        inside = any(start <= match.start() < end for start, end in spans)
+        return match.group(0) if inside else f"`{match.group(0)}`"
+
+    return re.sub(rf"(?<![`\w.]){re.escape(token)}(\(\))?(?![`\w])", wrap, text)
 
 
 def anchor(heading: str) -> str:
@@ -444,8 +548,8 @@ def _dependencies(context: RenderContext) -> list[str]:
     # is `package:target_framework` and no branch could see it (measured 2026-09-06).
     spec = context.spec
     requires = context.fact(spec.floor_fact_id) if spec.floor_fact_id else None
+    requirements: list[str] = []
     if requires is not None and requires.polarity == "SUPPORTED" and requires.evidence:
-        lines.extend(["", "### Native and System Requirements", ""])
         floor = _FLOOR.fullmatch(requires.value.strip())
         path = requires.evidence[0].path
         # A repository whose manifest declares the floor under a more precise name than the
@@ -453,14 +557,35 @@ def _dependencies(context: RenderContext) -> list[str]:
         # spec's is what every ecosystem that never sets it already does, unchanged.
         declaration = (requires.attributes or {}).get("floor_declaration") or spec.floor_declaration
         if floor:
-            lines.append(
+            requirements.append(
                 f"- Requires {spec.floor_label} {floor.group(1)} or later "
                 f'(`{declaration}="{requires.value}"` in `{path}`).'
             )
         else:
-            lines.append(
+            requirements.append(
                 f"- Requires {spec.floor_label} `{requires.value}` (`{declaration}` in `{path}`)."
             )
+    # The build tool's own minimum is a requirement a consumer building the library meets too
+    # (CMake for C++: `package:cmake_minimum` was extracted and SUPPORTED but no row read it, and
+    # the independent review rightly rejected the omission - Email-Cpp F02, wave 3).
+    tool = context.fact(spec.build_tool_fact_id) if spec.build_tool_fact_id else None
+    if (
+        tool is not None
+        and tool.polarity == "SUPPORTED"
+        and tool.evidence
+        and spec.build_tool_label
+    ):
+        path = tool.evidence[0].path
+        declaration = spec.build_tool_declaration
+        mention = f" (`{declaration}` in `{path}`)" if declaration else f" (`{path}`)"
+        if _VERSION_NUMBER.fullmatch(tool.value.strip()):
+            requirements.append(
+                f"- Requires {spec.build_tool_label} {tool.value.strip()} or later{mention}."
+            )
+        else:
+            requirements.append(f"- Requires {spec.build_tool_label} `{tool.value}`{mention}.")
+    if requirements:
+        lines.extend(["", "### Native and System Requirements", "", *requirements])
     if development:
         lines.extend(["", "### Development Dependencies", ""])
         lines.extend(_extra_bullet(fact) for fact in development)
@@ -833,6 +958,42 @@ def _oxford(items: list[str]) -> str:
     return ", ".join(items[:-1]) + f", and {items[-1]}"
 
 
+def _registry_install(install: Fact | None) -> bool:
+    """Whether ``install`` is a SUPPORTED install from a registry, not a source build."""
+    return (
+        install is not None
+        and install.polarity == "SUPPORTED"
+        and (install.attributes or {}).get("install_kind") not in ("source", "source_checkout")
+    )
+
+
+def _published_distributions(context: RenderContext) -> list[Fact]:
+    """The distributions a registry confirmed as this repository's own (``package:distribution.*``
+    facts, SUPPORTED only once the registry listed the package and its project URL named this
+    repository), in fact order."""
+    return [
+        fact
+        for fact in context.supported("package")
+        if fact.id.startswith(DISTRIBUTION_FACT_PREFIX)
+    ]
+
+
+def _published_sentence(distributions: list[Fact]) -> str:
+    """The verified distribution as one sentence (``The library is published on NuGet as `X`.``),
+    never a command: the package id is the fact, how a reader's own project references it is not."""
+    names = _oxford([f"`{fact.value}`" for fact in distributions])
+    registries = sorted(
+        {
+            DISTRIBUTION_REGISTRY_NAMES[token]
+            for fact in distributions
+            if (token := str((fact.attributes or {}).get("registry", "")).lower())
+            in DISTRIBUTION_REGISTRY_NAMES
+        }
+    )
+    where = f" on {_oxford(registries)}" if registries else ""
+    return f"The library is published{where} as {names}."
+
+
 def _installation(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2 row 8, every command verified at this revision.
 
@@ -869,7 +1030,21 @@ def _installation(context: RenderContext) -> list[str]:
     kind = (install.attributes or {}).get("install_kind") if install is not None else None
     source_kind = kind == "source"
     checkout_kind = kind == "source_checkout"
-    if (
+    # A distribution a registry confirmed is this repository's own (C++: the NuGet package its
+    # README names, `package:distribution.<id>`): when the install is not itself a registry
+    # install, it is what a reader installs, and the row states it instead of a non-publication
+    # nothing observed.
+    distributions = _published_distributions(context) if not _registry_install(install) else []
+    if distributions and install is not None and install.polarity == "SUPPORTED" and source_kind:
+        lines.append(_published_sentence(distributions))
+        lines.extend(
+            ["", "To build it from a source checkout instead, verified against this revision:"]
+        )
+        lines.append("")
+        lines.extend(_code_block("bash", install.value))
+    elif distributions:
+        lines.append(_published_sentence(distributions))
+    elif (
         install is not None
         and install.polarity == "SUPPORTED"
         and checkout_kind
@@ -890,10 +1065,15 @@ def _installation(context: RenderContext) -> list[str]:
         and package is not None
     ):
         registry = context.spec.registry
-        lines.append(
+        # "Not yet published" is an observation of a registry: an ecosystem whose manifest names
+        # no distribution (a CMake project) has none, so the row says only how to build it.
+        lead = (
             f"`{package.value}` is not yet published on {registry}; build it from a source "
             "checkout instead, verified against this revision:"
+            if context.spec.manifest_names_distribution
+            else f"Build `{package.value}` from a source checkout, verified against this revision:"
         )
+        lines.append(lead)
         lines.append("")
         lines.extend(_code_block("bash", install.value))
     elif install is not None and install.polarity == "SUPPORTED" and package is not None:

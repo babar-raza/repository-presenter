@@ -624,7 +624,9 @@ def test_a_protected_commands_own_placeholder_bracket_is_not_html() -> None:
         ],
         "omitted": [],
     }
-    assert unit_checks(bare, task, FACTS, NAME) == ["unit capability:1: text contains HTML ('<')"]
+    assert unit_checks(bare, task, FACTS, NAME) == [
+        "unit capability:1: text contains HTML ('<'): <div>"
+    ]
 
 
 def test_a_version_constraints_less_than_is_not_html() -> None:
@@ -651,8 +653,13 @@ def test_a_version_constraints_less_than_is_not_html() -> None:
 
     assert checked("Scene rendering needs the extra pinned as quickjs>=1.19,<2 to run.") == []
     assert checked("Scene needs a build older than 2 (<= 1.9) or a count < 3.") == []
-    for markup in ("Scene is <b>bold</b>.", "Scene is <!-- x -->.", "Scene is a</div> tail."):
-        assert checked(markup) == ["unit capability:1: text contains HTML ('<')"]
+    # The refusal quotes the markup it found, so the one re-ask can tell which "<" is meant.
+    for markup, quoted in (
+        ("Scene is <b>bold</b>.", "<b>, </b>"),
+        ("Scene is <!-- x -->.", "<!-- x -->"),
+        ("Scene is a</div> tail.", "</div>"),
+    ):
+        assert checked(markup) == [f"unit capability:1: text contains HTML ('<'): {quoted}"]
 
 
 def test_a_proper_noun_the_source_spells_in_prose_is_not_an_unsupported_identifier() -> None:
@@ -4281,7 +4288,7 @@ def test_a_final_reply_that_still_names_a_placeholder_in_angle_brackets_is_rewri
     facts, task = _pdf_go_facts(), _pdf_go_task()
     name = "Aspose.PDF FOSS for Go"
     assert unit_checks(_angle_output(PDF_GO_SUMMARY), task, facts, name) == [
-        "unit summary: text contains HTML ('<')"
+        "unit summary: text contains HTML ('<'): <name>"
     ]
     recovered = recover_section_authoring_output(_angle_output(PDF_GO_SUMMARY), slot_titles={})
     assert recovered is not None
@@ -4314,6 +4321,9 @@ def test_the_angle_bracket_rewrite_leaves_real_markup_and_code_spans_alone() -> 
         "Run <script>alert(1)</script> to see it.",
         "Run `go run ./_examples/<name>` to try one.",
         "The value is below 5 when a < b and above 2 when b > c.",
+        # Type arguments follow an identifier: removing the brackets would fuse two names into
+        # one ("ListString"), a worse claim than the refusal it hides.
+        "It returns a List<String> of the names.",
     ):
         assert recover_section_authoring_output(_angle_output(text), slot_titles={}) is None, text
 

@@ -57,10 +57,7 @@ from repository_presenter.components.readme.composition.list_coverage import (
     list_items,
     missing_items,
 )
-from repository_presenter.components.readme.composition.placement import (
-    Placement,
-    placements,
-)
+from repository_presenter.components.readme.composition.placement import Placement
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
@@ -756,9 +753,33 @@ def _example_for_unit(facts: FactsDocument, unit_id: str) -> Fact | None:
 
 
 def _placements(candidate: Candidate) -> list[Placement]:
-    return placements(
-        candidate.plan, candidate.dispositions, candidate.facts, candidate.entry.ecosystem
+    """Exactly what the renderer placed: the same decision, on the document as it renders with no
+    kept unit placed (``RenderContext.placements``), so a unit placement dropped as stated by its
+    destination is judged against that destination's own text and a carried remainder is judged
+    as the text it is.
+
+    Five checks ask, and deciding it renders the document once without the kept units (seconds on
+    a large API Reference), so the answer is remembered on the candidate for as long as the
+    artifacts it is a function of are unchanged."""
+    signature = _sha256(
+        json.dumps(
+            [candidate.plan, candidate.units, candidate.dispositions], sort_keys=True, default=str
+        ).encode("utf-8")
     )
+    remembered = getattr(candidate, "_placement_memo", None)
+    if remembered is not None and remembered[0] == signature:
+        decisions: list[Placement] = remembered[1]
+        return decisions
+    context = RenderContext(
+        candidate.entry,
+        candidate.facts.canonical(),
+        candidate.plan,
+        candidate.units,
+        candidate.dispositions,
+    )
+    decisions = context.placements
+    object.__setattr__(candidate, "_placement_memo", (signature, decisions))
+    return decisions
 
 
 def _placed_texts(candidate: Candidate) -> list[str]:
@@ -1104,8 +1125,14 @@ _LIST_OBLIGED = OWED_SECTIONS | {"documentation_resources"}
 def _dropped_list_failures(
     candidate: Candidate, placement: Placement, texts: Mapping[str, str]
 ) -> list[Failure]:
-    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because the plan's
-    own content "already covers that material" must in fact state every one of its items.
+    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because its
+    destination "already covers that material" must in fact state every one of its items.
+
+    The net under the whole-content drop rule: placement now drops a list only for items the
+    destination states (``composition/coverage.py``, the item test below plus the commands and
+    links an item carries), so on a placement the renderer made this finds nothing. It remains the
+    independent statement of the standard - and the check that placement and BC-05 still agree on
+    what "states an item" means.
 
     The drop is exclusive on fact IDs, so ONE shared fact dropped the whole list while the section
     stated only some of it, and BC-05 passed every such unit (wave-3 acceptance review of reseal
@@ -1386,19 +1413,66 @@ _IDENTIFIER_CUE_AFTER = re.compile(
 )
 
 
-def _is_technical_identifier(found: str, before: str, after: str) -> bool:
+# What makes a no-space match part of a LONGER identifier rather than a spelling of the product
+# name: a qualified-name or file-extension continuation (``.DataSet``, ``.Tests``, ``.csproj``), a
+# path or scope separator (``/``, a backslash, ``::``) after it, or the same before it (``src/``,
+# ``Contoso.``). A dot only continues a name when a letter follows it, so a sentence that ends
+# with the shorthand ("... built on Aspose.GIS.FOSS.") is not continued. Underscores are left to
+# the slug rule above: ``_Aspose.GIS.FOSS_`` is Markdown emphasis, not an identifier.
+_IDENTIFIER_CONTINUES = re.compile(r"^(?:\.[A-Za-z_]|[/\\]|::)")
+_IDENTIFIER_CONTINUED = re.compile(r"(?:[A-Za-z0-9_]\.|[/\\]|::)$")
+_DOTTED_SEGMENT = re.compile(r"^\.([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def _name_tail(canonical: str) -> frozenset[str]:
+    """The lower-cased segments a canonical name carries after its FOSS segment, less the word
+    "for": ``Aspose.GIS.FOSS for .Net`` -> ``{"net"}``. A dotted continuation that spells one of
+    them (``Aspose.GIS.FOSS.Net``) is the product name's own suffix run together, not a type."""
+    segments = [part for part in re.split(r"[\s._-]+", canonical) if part]
+    foss = next((i for i, part in enumerate(segments) if part.lower() == "foss"), None)
+    tail = [] if foss is None else segments[foss + 1 :]
+    return frozenset(part.lower() for part in tail if part.lower() != "for")
+
+
+def _is_technical_identifier(
+    found: str,
+    before: str,
+    after: str,
+    *,
+    around: tuple[str, str] | None = None,
+    tail: Collection[str] = (),
+) -> bool:
     """plans/idea.md L81-83: package names, import paths, namespaces, and commands "may use their
-    exact technical forms only where that technical identifier is itself the subject". Two
+    exact technical forms only where that technical identifier is itself the subject". Three
     lexical, deterministic signs of that: a spelling with no whitespace that carries a hyphen or
     an underscore is a package, module, or repository slug (``aspose-3d-foss``,
-    ``Aspose.Cells_FOSS``), never a spelling of the product name; and any other no-space spelling
-    (``Aspose.3D.FOSS``) is an identifier only when a package/namespace/version cue sits beside it.
-    A sentence that merely opens with the shorthand ("Aspose.3D.FOSS provides ...") has no cue."""
+    ``Aspose.Cells_FOSS``), never a spelling of the product name; any other no-space spelling
+    (``Aspose.3D.FOSS``) is an identifier when a package/namespace/version cue sits beside it;
+    and it is one when it is only the head of a longer dotted, slashed or scoped identifier -
+    ``Aspose.GIS.FOSS.DataSet`` (a type), ``Aspose.GIS.FOSS.Tests/`` (a project directory),
+    ``src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj`` (a path): the longer identifier is the subject
+    and no product-name position is spelled (wave 3: GIS-.Net, Imaging-.NET, PSD-.NET, whose
+    repairs were refused as unchanged because the text was right). A sentence that merely opens or
+    closes with the shorthand ("Aspose.3D.FOSS provides ...", "... on Aspose.3D.FOSS.") has no cue
+    and no continuation, and a continuation that spells the canonical name's own suffix
+    (``tail``: ``Aspose.GIS.FOSS.Net``) is that name mangled, not a type.
+
+    ``before``/``after`` are the prose the match sits in, code spans blanked. ``around`` is the
+    same window read from the README itself, code-span backticks removed: a path the normaliser
+    split into adjacent spans (``src/`Aspose.PSD.FOSS/`Aspose.PSD.FOSS`.csproj```) is blank on
+    both sides in the prose and a plain path in the source. It decides the continuation only; a
+    cue word inside a code span is not a cue."""
     if any(character.isspace() for character in found):
         return False
     if "-" in found or "_" in found:
         return True
-    return bool(_IDENTIFIER_CUE_BEFORE.search(before) or _IDENTIFIER_CUE_AFTER.match(after))
+    if _IDENTIFIER_CUE_BEFORE.search(before) or _IDENTIFIER_CUE_AFTER.match(after):
+        return True
+    near_before, near_after = around if around is not None else (before, after)
+    if not (_IDENTIFIER_CONTINUES.match(near_after) or _IDENTIFIER_CONTINUED.search(near_before)):
+        return False
+    segment = _DOTTED_SEGMENT.match(near_after)
+    return segment is None or segment.group(1).lower() not in tail
 
 
 def _check_canonical_name(candidate: Candidate) -> list[Failure]:
@@ -1410,16 +1484,29 @@ def _check_canonical_name(candidate: Candidate) -> list[Failure]:
     canonical = product_name(candidate.entry)
     pattern = canonical_name_pattern(canonical)
     text = _visible_prose(candidate.readme)
+    tail = _name_tail(canonical)
+    source = candidate.readme.splitlines()
     failures: list[Failure] = []
     seen: set[tuple[str, str | None]] = set()
     for match in pattern.finditer(text):
         found = match.group(0)
         if found == canonical:
             continue
+        # The prose is the README with each code span blanked to spaces of the same length, so a
+        # match sits at the same column of the same line in the source.
+        line = text.count("\n", 0, match.start())
+        column = match.start() - (text.rfind("\n", 0, match.start()) + 1)
+        row = source[line] if line < len(source) else ""
+        around = (
+            row[max(0, column - 24) : column].replace("`", ""),
+            row[column + len(found) : column + len(found) + 24].replace("`", ""),
+        )
         if _is_technical_identifier(
             found,
             text[max(0, match.start() - 24) : match.start()],
             text[match.end() : match.end() + 24],
+            around=around,
+            tail=tail,
         ):
             continue
         section = _located(candidate.readme, text, match.start())

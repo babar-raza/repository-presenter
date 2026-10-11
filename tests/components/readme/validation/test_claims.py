@@ -221,7 +221,7 @@ def test_a_not_published_sentence_about_something_else_is_left_alone() -> None:
 # --- the check as the validator runs it -------------------------------------------------------
 def test_bc14_is_a_registered_blocking_check_judged_at_s9() -> None:
     check = next(c for c in BLOCKING_CHECKS if c.id == "BC-14")
-    assert (check.version, check.judged_at) == ("1", "S9")
+    assert (check.version, check.judged_at) == ("2", "S9")
 
 
 def test_the_registry_judge_routes_each_finding_to_its_section_and_stage() -> None:
@@ -279,6 +279,31 @@ def test_an_unconfirmed_distribution_does_not_excuse_the_near_miss() -> None:
     # And a different package that merely resembles the project is still refused.
     other = CELLS_CPP_INSTALL.replace("Aspose.Cells.Cpp.FOSS", "Aspose.Cells.Cpp")
     assert claim_findings(other, _cells_cpp("SUPPORTED"))
+
+
+SLIDES_CPP_NOT_PUBLISHED = (
+    "## Installation\n\n`AsposeSlidesFoss` is not yet published on any package registry; build it "
+    "from a source checkout instead, verified against this revision:\n"
+)
+CPP_PUBLISHED = "## Installation\n\nThe library is published on NuGet as `Aspose.Cells.Cpp.FOSS`.\n"
+
+
+def test_a_confirmed_distribution_is_a_positive_registry_reading() -> None:
+    """Slides-Cpp, wave 3: the Installation section said "not yet published on any package
+    registry" beside a NuGet package NuGet lists (the independent review's F01). A distribution a
+    registry confirmed as this repository's own is a reading that the package is published, so a
+    sentence denying it is flagged exactly as one beside `package:published_version` is."""
+    [finding] = claim_findings(SLIDES_CPP_NOT_PUBLISHED, _cells_cpp("SUPPORTED"))
+    assert finding.stage == "COMPOSING" and "not published" in finding.detail
+    # What the renderer now writes of such a library is not a denial.
+    assert claim_findings(CPP_PUBLISHED, _cells_cpp("SUPPORTED")) == []
+
+
+def test_an_unconfirmed_distribution_is_no_reading_so_the_denial_is_not_judged() -> None:
+    """Negative control: the check flags only against a reading. A name NuGet did not confirm
+    (UNRESOLVED) or said does not exist (CONTRADICTED) leaves nothing to hold the sentence to."""
+    for polarity in ("UNRESOLVED", "CONTRADICTED"):
+        assert claim_findings(SLIDES_CPP_NOT_PUBLISHED, _cells_cpp(polarity)) == []
 
 
 # --- Cells-Java: "the sole published version" while the registry lists two ---------------------

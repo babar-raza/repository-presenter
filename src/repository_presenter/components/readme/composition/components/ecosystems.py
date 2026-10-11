@@ -20,6 +20,10 @@ REGISTRY_NAMES: dict[str, str] = {
     "rust": "crates.io",
     "go": "pkg.go.dev",
 }
+# The registry a `package:distribution.<id>` fact names in its `registry` attribute (the token an
+# extractor records, lower case), as a visitor reads it. A distribution outside this table is
+# stated without naming its registry rather than by a guessed spelling.
+DISTRIBUTION_REGISTRY_NAMES: dict[str, str] = {"nuget": "NuGet"}
 # The code-hosting sites a verified link may point at. A visitor reads "the GitHub issue
 # tracker" the way they read "PyPI": a proper noun, never an API name, so prose spells it as
 # written here and the renderer leaves it out of a code span. A name enters the allowed set only

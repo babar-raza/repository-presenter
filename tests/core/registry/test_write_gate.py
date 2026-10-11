@@ -154,13 +154,13 @@ def test_an_inactive_entry_is_refused_issue_effects_even_with_issues_mode_file(
 
 
 def test_the_real_registry_default_derivation_leaves_every_entry_behaving_as_before() -> None:
-    """All 36 shipped entries set no ``issues_mode``: issue_filing and issue_close are permitted
+    """All 44 shipped entries set no ``issues_mode``: issue_filing and issue_close are permitted
     for exactly the entries the old ``mode == 'full'`` rule permitted (the 2 ``full`` ones), and
     the README-side effects are unchanged."""
     from support import REPO_ROOT
 
     registry = load_registry(REPO_ROOT / "data" / "registry.json")
-    assert len(registry.entries) == 36
+    assert len(registry.entries) == 44
     assert all(entry.issues_mode is None for entry in registry.entries)
 
     def permitted(repository: str, effect: WriteEffect) -> bool:

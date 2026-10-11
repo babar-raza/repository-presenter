@@ -241,3 +241,26 @@ def test_only_a_unique_live_enterprise_labelled_variant_link_settles_it(
     resolved = product_page_facts(ENTRY)[0]
     other = _readme_link("link_target:1", "https://products.aspose.com/3d/python/", enterprise)
     assert enterprise_from_readme_link([resolved, other]) is None
+
+
+def test_a_nodejs_repository_is_looked_up_under_the_portfolios_nodejs_slugs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The registry's platform for a Node.js library is `nodejs`; a table keyed `node` was never
+    consulted, so the lookup fell through to the platform name alone."""
+    entry = ENTRY.model_copy(
+        update={
+            "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js",
+            "family": "jmap",
+            "platform": "nodejs",
+            "ecosystem": "nodejs",
+        }
+    )
+    asked = _serve(monkeypatch, {"https://products.aspose.com/jmap/nodejs-java/"})
+    target = {fact.id: fact for fact in product_page_facts(entry)}[ENTERPRISE_FACT_ID]
+    assert target.value == "https://products.aspose.com/jmap/nodejs-java/"
+    assert asked[:3] == [
+        "https://products.aspose.com/jmap/nodejs/",
+        "https://products.aspose.com/jmap/nodejs-java/",
+        "https://products.aspose.com/jmap/nodejs-cpp/",
+    ]

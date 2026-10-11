@@ -750,3 +750,16 @@ def test_the_source_reconciliation_call_passes_its_last_resort_recovery() -> Non
     assert "recover_uncited_prose_omits," in source and "facts=batch_facts," in source
     # the recovery may cite only what this batch's decoder enum offers (PDF-TypeScript 356)
     assert "citable=frozenset(" in source and "citable_fact_ids(" in source
+
+
+def test_the_section_authoring_call_passes_its_narrowed_ask() -> None:
+    """Wave 3: nine repositories ended at "output rejected twice". The narrowed ask for the slots
+    still refused (composition/authoring_retry.py) is a module with no production importer unless
+    run_round hands it to the S6 call - which also keeps the recovery composed in type_fallback."""
+    import inspect
+
+    from repository_presenter.components.readme.repair import rounds
+
+    source = inspect.getsource(rounds.run_round)
+    assert "narrow=authoring_narrowing(task, loaded)," in source
+    assert "recover_section_authoring_with_type_fallback," in source

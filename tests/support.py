@@ -7,7 +7,7 @@ import json
 import os
 import stat
 from collections import Counter
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -23,10 +23,16 @@ from repository_presenter.components.issues.approval import (
     handoff_id,
 )
 from repository_presenter.components.issues.model import Handoff
+from repository_presenter.components.monitor.org_listing import (
+    OrganizationListing,
+    UpstreamRepository,
+)
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.git_safety.git import run_git
 from repository_presenter.core.github.read_client import DefaultBranchRead
 from repository_presenter.core.llm import transport
+from repository_presenter.core.registry.loader import load_registry
+from repository_presenter.core.registry.models import Registry, RegistryEntry
 from repository_presenter.core.state.cas import SaveResult
 from repository_presenter.core.state.schema import RepositoryRecord
 
@@ -330,6 +336,125 @@ class FakeDefaultBranchReader:
         if isinstance(outcome, DefaultBranchRead):
             return outcome
         return DefaultBranchRead(repository, sha=outcome, branch="main")
+
+
+# --- Registry discovery (components/monitor/discovery.py): an organization lister that reaches no
+# network. ``FakeOrganizationLister`` stands in for ``org_listing.list_organization_repositories``,
+# records every organization it is asked for and the token it was given, and is the only seam, so a
+# test can prove what was listed and that nothing else was read.
+
+# What GitHub held on 2026-10-11 in the registry's organizations, beyond the 36 admitted entries:
+# the JMAP family (public, last pushed 2026-09-26), the PDF library's MCP server, and one
+# organization profile repository. Ids and flags are the ones GitHub reported.
+TODAYS_UNADMITTED: tuple[UpstreamRepository, ...] = (
+    *(
+        UpstreamRepository(
+            f"aspose-email-foss/Aspose.JMAP-FOSS-for-{platform}",
+            identity,
+            default_branch="main",
+            pushed_at="2026-09-26T20:04:00Z",
+            language=language,
+        )
+        for platform, identity, language in (
+            ("Python", 1389232730, "Python"),
+            ("Node.js", 1389232832, "JavaScript"),
+            ("TypeScript", 1389232963, "TypeScript"),
+            ("Go", 1389233108, "Go"),
+            ("Rust", 1389233264, "Rust"),
+            (".NET", 1389233379, "C#"),
+            ("Cpp", 1389233504, "C++"),
+            ("Java", 1389233642, "Java"),
+        )
+    ),
+    UpstreamRepository(
+        "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go-MCP",
+        1287149459,
+        default_branch="main",
+        pushed_at="2026-07-03T09:59:27Z",
+        language="Go",
+    ),
+    UpstreamRepository(
+        "aspose-slides-foss/.github",
+        1335892192,
+        default_branch="main",
+        pushed_at="2026-09-20T12:44:55Z",
+    ),
+)
+TODAYS_UNREGISTERED = tuple(
+    repository.full_name for repository in TODAYS_UNADMITTED if repository.name != ".github"
+)
+
+
+class FakeOrganizationLister:
+    """``organization -> OrganizationListing``, recording every call."""
+
+    def __init__(
+        self,
+        repositories: Mapping[str, Iterable[UpstreamRepository]],
+        *,
+        errors: Mapping[str, str | Exception] | None = None,
+        truncated: Iterable[str] = (),
+    ) -> None:
+        self.repositories = {org: tuple(items) for org, items in repositories.items()}
+        self.errors = dict(errors or {})
+        self.truncated = frozenset(truncated)
+        self.calls: list[str] = []
+        self.tokens: list[str | None] = []
+
+    def __call__(self, organization: str, *, token: str | None = None) -> OrganizationListing:
+        self.calls.append(organization)
+        self.tokens.append(token)
+        failure = self.errors.get(organization)
+        if isinstance(failure, Exception):
+            raise failure
+        if failure is not None:
+            return OrganizationListing(organization, error=failure)
+        return OrganizationListing(
+            organization,
+            self.repositories.get(organization, ()),
+            truncated=organization in self.truncated,
+        )
+
+
+def mirror(entries: Iterable[RegistryEntry]) -> dict[str, list[UpstreamRepository]]:
+    """What GitHub would list if it held exactly the admitted entries, under their admitted ids."""
+    listing: dict[str, list[UpstreamRepository]] = {}
+    for entry in entries:
+        listing.setdefault(entry.owner, []).append(
+            UpstreamRepository(
+                entry.repository,
+                entry.provider_identity.repository_id,
+                default_branch="main",
+                pushed_at="2026-09-01T00:00:00Z",
+            )
+        )
+    return listing
+
+
+def with_extra(
+    listing: Mapping[str, Sequence[UpstreamRepository]], extra: Iterable[UpstreamRepository]
+) -> dict[str, list[UpstreamRepository]]:
+    merged = {org: list(items) for org, items in listing.items()}
+    for repository in extra:
+        merged.setdefault(repository.owner, []).append(repository)
+    return merged
+
+
+def registry_without_todays_unadmitted(path: Path) -> Registry:
+    """The real registry minus any entry that already admits one of today's ten repositories.
+
+    The reality test stays true after the owner admits the JMAP family: those entries are removed
+    again here, so the ten always arrive as repositories the registry does not list.
+    """
+    registry = load_registry(path)
+    unadmitted_ids = {repository.repository_id for repository in TODAYS_UNADMITTED}
+    return Registry(
+        entries=tuple(
+            entry
+            for entry in registry.entries
+            if entry.provider_identity.repository_id not in unadmitted_ids
+        )
+    )
 
 
 def accepting_token_verifier(token: str) -> Any:

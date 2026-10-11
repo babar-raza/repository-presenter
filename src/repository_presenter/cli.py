@@ -11,7 +11,7 @@ import sys
 import time
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from functools import partial
 from pathlib import Path
@@ -83,6 +83,28 @@ from repository_presenter.components.metadata.proposal import (
     diff_against_observed,
     write_diff_record,
 )
+from repository_presenter.components.monitor.discovery import (
+    DiscoveryReport,
+    discovery_document,
+    load_discovery,
+    observe_registry_gaps,
+    registry_status_json,
+)
+from repository_presenter.components.monitor.discovery import (
+    render_lines as render_discovery_lines,
+)
+from repository_presenter.components.monitor.discovery import (
+    status_lines as registry_status_lines,
+)
+from repository_presenter.components.monitor.discovery import (
+    summary_line as discovery_summary_line,
+)
+from repository_presenter.components.monitor.discovery import (
+    summary_markdown as discovery_summary_markdown,
+)
+from repository_presenter.components.monitor.discovery import (
+    workflow_annotations as discovery_annotations,
+)
 from repository_presenter.components.monitor.drift import (
     assemble_drift_contract,
     drift_document,
@@ -99,6 +121,7 @@ from repository_presenter.components.monitor.install_state import (
     summarize_installs,
     write_state,
 )
+from repository_presenter.components.monitor.org_listing import list_organization_repositories
 from repository_presenter.components.propose.effect import (
     AUTHORIZATION_VARIABLE as PROPOSE_AUTHORIZATION_VARIABLE,
 )
@@ -466,6 +489,24 @@ def build_parser() -> argparse.ArgumentParser:
             "files) to count as effect-authorized when valid for the exact sealed candidate"
         ),
     )
+    status.add_argument(
+        "--discovery",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "monitor evidence (drift documents, a `registry-gaps --out` file, or a directory of "
+            "them) whose registry discovery the `registry:` line reports; defaults to --drift, "
+            f"then to {RUNS_DIRNAME}/{MONITOR_DIRNAME}/ when it exists. Offline: never reads "
+            "GitHub, never changes the denominator"
+        ),
+    )
+    status.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="also list every unregistered, missing-upstream and policy-excluded repository",
+    )
     recheck = subcommands.add_parser(
         "recheck",
         help=(
@@ -742,6 +783,65 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             f"evidence file to write; defaults to {RUNS_DIRNAME}/{MONITOR_DIRNAME}/"
             f"{DRIFT_FILENAME} (drift-<owner>.json with --owner)"
+        ),
+    )
+    monitor_cmd.add_argument(
+        "--no-discovery",
+        dest="discover",
+        action="store_false",
+        help=(
+            "skip the registry discovery section (one read-only organization listing per "
+            "authorized owner); by default the evidence also records which repositories of the "
+            "authorized organizations the registry does not list"
+        ),
+    )
+    gaps_cmd = subcommands.add_parser(
+        "registry-gaps",
+        help=(
+            "report which repositories of the registry's authorized organizations the registry "
+            "does not list (UNREGISTERED), which are excluded by policy, and which admitted "
+            "entries no longer exist upstream; read-only, never admits anything"
+        ),
+    )
+    gaps_cmd.add_argument("--root", type=Path, default=None, help=root_help)
+    gaps_cmd.add_argument(
+        "--owner",
+        default=None,
+        metavar="OWNER",
+        help="only this authorized organization; every organization in the registry when omitted",
+    )
+    gaps_cmd.add_argument(
+        "--json",
+        dest="as_json",
+        action="store_true",
+        help="print the discovery document as JSON instead of the text report",
+    )
+    gaps_cmd.add_argument(
+        "--from",
+        dest="source",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "report previously recorded discovery (monitor drift documents, a --out file, or a "
+            "directory of them) instead of listing the organizations; offline, no GH_TOKEN"
+        ),
+    )
+    gaps_cmd.add_argument(
+        "--out", type=Path, default=None, help="also write the discovery document to this file"
+    )
+    gaps_cmd.add_argument(
+        "--summary",
+        type=Path,
+        default=None,
+        help="append the markdown summary to this file (the workflow step summary)",
+    )
+    gaps_cmd.add_argument(
+        "--warn-only",
+        action="store_true",
+        help=(
+            "workflow mode: report findings and problems as ::warning annotations (private "
+            "repository names withheld) and exit 0 whatever the evidence says"
         ),
     )
     install_record_cmd = subcommands.add_parser(
@@ -1284,6 +1384,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             drift_path=args.drift,
             authorizations_path=args.authorizations,
             recheck=args.recheck,
+            discovery_path=args.discovery,
+            verbose=args.verbose,
         )
     if args.command == "recheck":
         return run_recheck(
@@ -1317,7 +1419,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "preflight":
         return run_preflight(args.root)
     if args.command == "monitor":
-        return run_monitor(args.root, owner=args.owner, out=args.out)
+        return run_monitor(args.root, owner=args.owner, out=args.out, discover=args.discover)
+    if args.command == "registry-gaps":
+        return run_registry_gaps(
+            args.root,
+            owner=args.owner,
+            as_json=args.as_json,
+            source=args.source,
+            out=args.out,
+            summary=args.summary,
+            warn_only=args.warn_only,
+        )
     if args.command == "monitor-install-record":
         return run_monitor_install_record(args.owner, args.outcome, args.repositories, args.out)
     if args.command == "monitor-install-summary":
@@ -1557,7 +1669,11 @@ def run_preflight(root_argument: Path | None) -> int:
 
 
 def run_monitor(
-    root_argument: Path | None, *, owner: str | None = None, out: Path | None = None
+    root_argument: Path | None,
+    *,
+    owner: str | None = None,
+    out: Path | None = None,
+    discover: bool = True,
 ) -> int:
     """Observe every enabled registry entry's upstream head against its CURRENT bundle (G7-W06).
 
@@ -1565,6 +1681,11 @@ def run_monitor(
     run never falls back to anonymous reads. It makes no provider call and writes only the
     evidence file. Exit 1 when any repository was UNREACHABLE, because the observation is then
     incomplete and the run must say so; DRIFTED and NO_BUNDLE are findings, not failures.
+
+    Unless ``discover`` is false the evidence also carries a ``discovery`` section (one read-only
+    organization listing per authorized owner, ``components/monitor/discovery.py``): what the
+    authorized organizations hold that the registry does not list. It is a finding for the owner,
+    never a failure of this run, and it admits nothing.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -1595,7 +1716,24 @@ def run_monitor(
         freshness_observe=observe_registry,
     )
     observed_at = datetime.now(UTC).isoformat(timespec="seconds")
-    document = drift_document(observations, observed_at=observed_at, owner=owner)
+    discovery = (
+        observe_registry_gaps(
+            root,
+            registry,
+            lister=list_organization_repositories,
+            token=token,
+            now=datetime.now(UTC),
+            organization=owner,
+        )
+        if discover
+        else None
+    )
+    document = drift_document(
+        observations,
+        observed_at=observed_at,
+        owner=owner,
+        discovery=None if discovery is None else discovery.to_json(),
+    )
     name = DRIFT_FILENAME if owner is None else f"drift-{owner}.json"
     path = out or root / RUNS_DIRNAME / MONITOR_DIRNAME / name
     write_drift_document(document, path)
@@ -1608,6 +1746,9 @@ def run_monitor(
         print(line)
     counts = ", ".join(f"{status} {count}" for status, count in document["summary"].items())
     print(f"monitor: {len(observations)} observed - {counts}")
+    if discovery is not None:
+        for line in render_discovery_lines(discovery):
+            print(line)
     print(f"evidence: {path}")
     unreachable = [o.repository for o in observations if o.status == "UNREACHABLE"]
     if unreachable:
@@ -1617,6 +1758,115 @@ def run_monitor(
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def run_registry_gaps(
+    root_argument: Path | None,
+    *,
+    owner: str | None = None,
+    as_json: bool = False,
+    source: Path | None = None,
+    out: Path | None = None,
+    summary: Path | None = None,
+    warn_only: bool = False,
+) -> int:
+    """Report the repositories of the authorized organizations the registry does not list.
+
+    Live (default) it lists each registry owner's organization once, read-only, with the
+    ``GH_TOKEN`` read token; with ``--from`` it reports discovery the monitor already recorded and
+    reads nothing. Either way it classifies and reports, and admits nothing: the registry stays the
+    hard allow-list and the denominator. Exit 1 when discovery was incomplete (an organization
+    could not be listed, or no evidence was found); an UNREGISTERED repository is a finding, not a
+    failure. ``--warn-only`` is the workflow mode: ``::warning`` annotations and exit 0 always, so
+    the monitor workflow's summary can never turn red for a finding or for missing evidence.
+    """
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    authorized = {entry.owner.casefold() for entry in registry.entries}
+    if owner is not None and owner.casefold() not in authorized:
+        _fail(f"{owner} is not an organization in the registry")
+        return EXIT_USAGE
+    report: DiscoveryReport | None
+    if source is not None:
+        try:
+            report = load_discovery(source)
+        except PresenterError as exc:
+            return _gaps_problem(str(exc), warn_only=warn_only, code=exc.exit_code)
+        if report is None:
+            return _gaps_problem(
+                f"no registry discovery recorded under {source}",
+                warn_only=warn_only,
+                code=EXIT_INCONSISTENT,
+            )
+        if owner is not None:
+            report = replace(
+                report,
+                organizations=tuple(
+                    item
+                    for item in report.organizations
+                    if item.organization.casefold() == owner.casefold()
+                ),
+            )
+    else:
+        token = os.environ.get("GH_TOKEN") or None
+        if token is None:
+            _fail(
+                "GH_TOKEN (the read-only analysis token) is required; "
+                "registry-gaps lists no organization without it"
+            )
+            return EXIT_USAGE
+        report = observe_registry_gaps(
+            root,
+            registry,
+            lister=list_organization_repositories,
+            token=token,
+            now=datetime.now(UTC),
+            organization=owner,
+        )
+    document = discovery_document(report)
+    if out is not None:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+    if as_json:
+        print(json.dumps(document, indent=2))
+    elif warn_only:
+        # The job log is readable by everyone who can read the run: the count and the annotations
+        # (which withhold private names), not a line per repository.
+        print(discovery_summary_line(report))
+        for annotation in discovery_annotations(report, authorized_organizations=len(authorized)):
+            print(annotation)
+    else:
+        for line in render_discovery_lines(report):
+            print(line)
+    if summary is not None:
+        with summary.open("a", encoding="utf-8") as handle:
+            handle.write(
+                discovery_summary_markdown(
+                    report,
+                    admitted=len(registry.entries),
+                    authorized_organizations=len(authorized),
+                )
+                + "\n"
+            )
+    if not report.complete and not warn_only:
+        _fail("registry discovery is incomplete; the counts above are not the whole picture")
+        return EXIT_INCONSISTENT
+    return EXIT_OK
+
+
+def _gaps_problem(message: str, *, warn_only: bool, code: int) -> int:
+    """Report an unusable evidence source: a ``::warning`` and exit 0 in workflow mode."""
+    if warn_only:
+        print(f"::warning title=Registry discovery not reported::{message}")
+        return EXIT_OK
+    _fail(message)
+    return code
 
 
 def run_monitor_install_record(
@@ -3151,6 +3401,8 @@ def run_status(
     drift_path: Path | None = None,
     authorizations_path: Path | None = None,
     recheck: bool = False,
+    discovery_path: Path | None = None,
+    verbose: bool = False,
 ) -> int:
     """Print version, gate, work item, and N/34 progress from sealed bundles on disk.
 
@@ -3181,6 +3433,12 @@ def run_status(
     ``RECHECKED_CURRENT`` or ``UPDATE_OPTIONAL``, and the partition splits what does not into
     ``update_required`` and ``update_unverified``. ``status`` reads cached receipts; ``--recheck``
     computes the missing ones. A bundle without a receipt stays uncounted, as before.
+
+    The ``registry:`` line reports the allow-list's size and, from the monitor's recorded
+    discovery (``--discovery``, else ``--drift``, else ``runs/monitor/``), how many repositories of
+    the authorized organizations the registry does not list. It is a separate line: the
+    denominator is the registry's size, discovery admits nothing, and this command stays offline.
+    ``--verbose`` lists those repositories.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -3201,6 +3459,7 @@ def run_status(
         authorizations = (
             load_authorizations(authorizations_path) if authorizations_path is not None else None
         )
+        registry_view = _registry_view(root, discovery_path=discovery_path, drift_path=drift_path)
     except (CursorError, BundleError, OSError) as exc:
         _fail(str(exc))
         return EXIT_INCONSISTENT
@@ -3281,6 +3540,15 @@ def run_status(
                         "currency": currency,
                     },
                     "portfolio": None if portfolio is None else portfolio.to_json(),
+                    "registry": (
+                        None
+                        if registry_view is None
+                        else registry_status_json(
+                            registry_view.admitted,
+                            registry_view.organizations,
+                            registry_view.report,
+                        )
+                    ),
                 },
                 indent=2,
             )
@@ -3300,6 +3568,15 @@ def run_status(
         )
         print(f"examples: {executed}/{example_total} verified across counted candidates")
         print(f"canary: {cursor.canary}")
+        if registry_view is not None:
+            for line in registry_status_lines(
+                registry_view.admitted,
+                registry_view.report,
+                authorized_organizations=registry_view.organizations,
+                verbose=verbose,
+                note=registry_view.note,
+            ):
+                print(line)
         for line in _candidate_state_lines(root, held):
             print(line)
         if issue_rows:
@@ -3330,6 +3607,45 @@ def run_status(
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+@dataclass(frozen=True)
+class _RegistryView:
+    """What ``status`` knows about the allow-list: its size and the monitor's recorded discovery."""
+
+    admitted: int
+    organizations: int
+    report: DiscoveryReport | None
+    note: str | None = None
+
+
+def _registry_view(
+    root: Path, *, discovery_path: Path | None, drift_path: Path | None
+) -> _RegistryView | None:
+    """The ``registry:`` line's inputs; ``None`` when the project has no readable registry (the
+    portfolio block already reports that). Evidence named on the command line must be readable
+    (:class:`ConfigError`, like ``--drift``); the implicit ``runs/monitor/`` one degrades to a
+    note, since an old local run must never make ``status`` fail."""
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+    except PresenterError:
+        return None
+    admitted = len(registry.entries)
+    organizations = len({entry.owner.casefold() for entry in registry.entries})
+    explicit = discovery_path if discovery_path is not None else drift_path
+    if explicit is not None:
+        return _RegistryView(admitted, organizations, load_discovery(explicit))
+    implicit = root / RUNS_DIRNAME / MONITOR_DIRNAME
+    if not implicit.is_dir():
+        return _RegistryView(admitted, organizations, None)
+    try:
+        report = load_discovery(implicit)
+    except ConfigError as exc:
+        return _RegistryView(admitted, organizations, None, f"monitor evidence unreadable: {exc}")
+    note = (
+        None if report is not None else f"no discovery section in {RUNS_DIRNAME}/{MONITOR_DIRNAME}/"
+    )
+    return _RegistryView(admitted, organizations, report, note)
 
 
 def _status_rechecks(

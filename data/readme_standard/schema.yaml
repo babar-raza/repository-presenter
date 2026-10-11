@@ -1,0 +1,351 @@
+# JSON Schema (draft 2020-12, written as YAML) for every file under data/readme_standard/.
+# Validated by tools/readme_standard/check_profiles.py; the meaning of each axis value is described
+# in common.yaml `axes` and the two key sets must stay equal. This is a data schema of the README
+# standard, not a governed interface: if a stage of the pipeline ever reads these files, the schema
+# graduates to schemas/ through a named work item (AGENTS.md, Authority by subject).
+$schema: https://json-schema.org/draft/2020-12/schema
+title: README standard data files
+$defs:
+  requirement:
+    description: >
+      What an archetype asks of one common element. required: present in the output; when the live
+      README lacks it, add it from verified facts, or record insufficient_evidence for it.
+      expected: add when verified facts are rich enough, absence is not a defect. conditional:
+      required only when the stated condition holds. optional: keep when the live README has it,
+      add only beside a live heading that already hosts it. preserve_only: keep exactly as live,
+      never add. not_applicable: the element has no meaning for this archetype; never add.
+    enum: [required, expected, conditional, optional, preserve_only, not_applicable]
+  basis:
+    description: >
+      OBSERVED_COMMON: in at least 80 percent of the live READMEs that could carry it.
+      OBSERVED_VARIANT: observed, below 80 percent or in several competing forms.
+      OWNER_RULE: stated by the owner in plans/idea.md or the 2026-10-11 directive.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      enum: [OBSERVED_COMMON, OBSERVED_VARIANT, OWNER_RULE]
+  identifier:
+    type: string
+    pattern: "^[a-z][a-z0-9_]*$"
+  repository:
+    type: string
+    pattern: "^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$"
+
+  condition_map:
+    description: Feature name (dotted for nested values) to a literal or an operator mapping.
+    type: object
+
+  observation:
+    type: object
+    required: [id, note, where, count, of]
+    additionalProperties: false
+    properties:
+      id: {$ref: "#/$defs/identifier"}
+      note: {type: string, minLength: 8}
+      where: {$ref: "#/$defs/condition_map"}
+      among: {$ref: "#/$defs/condition_map"}
+      count: {type: integer, minimum: 0}
+      of: {type: integer, minimum: 0}
+
+  statistic:
+    type: object
+    required: [id, note, feature, statistic, value]
+    additionalProperties: false
+    properties:
+      id: {$ref: "#/$defs/identifier"}
+      note: {type: string, minLength: 8}
+      feature: {type: string}
+      statistic: {enum: [count, min, max, median, mean]}
+      among: {$ref: "#/$defs/condition_map"}
+      value: {type: number}
+
+  observations_file:
+    type: object
+    required: [schema_version, survey, observations, statistics]
+    additionalProperties: false
+    properties:
+      schema_version: {const: 1}
+      survey: {type: string}
+      observations:
+        type: array
+        minItems: 1
+        items: {$ref: "#/$defs/observation"}
+      statistics:
+        type: array
+        items: {$ref: "#/$defs/statistic"}
+
+  element:
+    type: object
+    required: [id, heading, order, requirement, basis, summary]
+    additionalProperties: false
+    properties:
+      id: {$ref: "#/$defs/identifier"}
+      heading:
+        description: The exact heading text for a section element, null for an unheaded element.
+        type: [string, "null"]
+      order: {type: integer, minimum: 1}
+      requirement: {$ref: "#/$defs/requirement"}
+      basis: {$ref: "#/$defs/basis"}
+      summary: {type: string, minLength: 8}
+      condition: {type: string}
+      observations:
+        type: array
+        items: {$ref: "#/$defs/identifier"}
+      forms:
+        description: Forms observed in the live READMEs, most common first.
+        type: array
+        items: {type: string}
+      preferred_form: {type: string}
+
+  rule:
+    type: object
+    required: [id, element, basis, severity, statement, detector]
+    additionalProperties: false
+    properties:
+      id: {type: string, pattern: "^(PRC|STR|LNK|TON|DET)-[0-9]{2}$"}
+      element: {$ref: "#/$defs/identifier"}
+      basis: {$ref: "#/$defs/basis"}
+      severity:
+        description: >
+          blocking: a candidate that breaks it is not acceptable. advisory: recorded for the
+          reviewer, never blocks, and never justifies an edit on its own.
+        enum: [blocking, advisory]
+      statement: {type: string, minLength: 12}
+      detector:
+        description: The deterministic check that decides it (existing code path, or NEW with a note).
+        type: string
+      owner_ref: {type: string}
+      observations:
+        type: array
+        items: {$ref: "#/$defs/identifier"}
+
+  defect_class:
+    type: object
+    required: [id, name, repositories, detector, correction]
+    additionalProperties: false
+    properties:
+      id: {type: string, pattern: "^DEF-[0-9]{2}$"}
+      name: {type: string}
+      repositories:
+        type: array
+        items: {$ref: "#/$defs/repository"}
+      detector:
+        type: object
+        required: [kind, ref]
+        additionalProperties: false
+        properties:
+          kind: {enum: [existing, new, claim_audit]}
+          ref: {type: string}
+          measure: {$ref: "#/$defs/identifier"}
+          where:
+            description: >
+              When present, the repositories listed must equal the README-bearing survey rows
+              this condition selects, so the list cannot drift from the measurements.
+            $ref: "#/$defs/condition_map"
+      correction: {type: string}
+      preserves: {type: string}
+      rules:
+        type: array
+        items: {type: string}
+
+  open_decision:
+    type: object
+    required: [id, question, default]
+    additionalProperties: false
+    properties:
+      id: {type: string, pattern: "^OD-[0-9]{2}$"}
+      question: {type: string}
+      default: {type: string}
+      rules:
+        type: array
+        items: {type: string}
+
+  common:
+    type: object
+    required: [schema_version, standard, precedence, axes, elements, rules, defect_classes, open_decisions]
+    additionalProperties: false
+    properties:
+      schema_version: {const: 1}
+      standard:
+        type: object
+        required: [name, status, directive, survey]
+        additionalProperties: false
+        properties:
+          name: {type: string}
+          status: {type: string}
+          directive: {type: string}
+          survey: {type: string}
+      precedence:
+        type: array
+        minItems: 3
+        items:
+          type: object
+          required: [rank, name, statement]
+          additionalProperties: false
+          properties:
+            rank: {type: integer, minimum: 1}
+            name: {type: string}
+            statement: {type: string}
+      axes:
+        type: object
+        additionalProperties:
+          type: object
+          additionalProperties: {type: string}
+      elements:
+        type: array
+        minItems: 1
+        items: {$ref: "#/$defs/element"}
+      rules:
+        type: array
+        minItems: 1
+        items: {$ref: "#/$defs/rule"}
+      defect_classes:
+        type: array
+        minItems: 1
+        items: {$ref: "#/$defs/defect_class"}
+      open_decisions:
+        type: array
+        items: {$ref: "#/$defs/open_decision"}
+
+  better_than_live:
+    type: object
+    required: [id, statement, measured_by]
+    additionalProperties: false
+    properties:
+      id: {type: string, pattern: "^[A-Z]+(-[A-Z0-9]+)+$"}
+      statement: {type: string, minLength: 12}
+      measured_by: {type: string}
+      rules:
+        type: array
+        items: {type: string}
+      defect_classes:
+        type: array
+        items: {type: string}
+
+  archetype:
+    type: object
+    required: [schema_version, id, title, summary, mode, install_channels, elements, channel_variant, better_than_live, insertion_policy]
+    additionalProperties: false
+    properties:
+      schema_version: {const: 1}
+      id: {type: string, pattern: "^[a-z][a-z0-9-]*$"}
+      title: {type: string}
+      summary: {type: string, minLength: 20}
+      mode:
+        description: >
+          gap_fill: the live README has the standard skeleton; correct, add what is missing,
+          improve in place. insertion: the live README is off-template; keep its structure and
+          voice, insert missing verified elements beside its own headings. greenfield: no README
+          exists; author the standard skeleton from verified facts, or record insufficient_evidence.
+        enum: [gap_fill, insertion, greenfield]
+      install_channels:
+        type: array
+        minItems: 1
+        items: {enum: [registry, source_only, native_build, none]}
+      elements:
+        type: object
+        additionalProperties: {$ref: "#/$defs/requirement"}
+      element_notes:
+        type: object
+        additionalProperties: {type: string}
+      channel_variant:
+        type: object
+        required: [install_forms, verification, required_statements]
+        additionalProperties: false
+        properties:
+          install_forms:
+            type: array
+            minItems: 1
+            items: {type: string}
+          verification:
+            type: array
+            minItems: 1
+            items: {type: string}
+          required_statements:
+            type: array
+            items: {type: string}
+      better_than_live:
+        type: array
+        minItems: 3
+        items: {$ref: "#/$defs/better_than_live"}
+      insertion_policy: {type: string, minLength: 20}
+      voice_guidance: {type: string}
+
+  assignment:
+    type: object
+    required: [repository, family, ecosystem, archetype, install_channel, api_size_class, surfaces, voice, special_structures]
+    additionalProperties: false
+    properties:
+      repository: {$ref: "#/$defs/repository"}
+      family:
+        description: The product family (3d, cells, pdf, ...), copied from data/registry.json and checked against it.
+        type: string
+        pattern: "^[a-z0-9]+$"
+      ecosystem:
+        description: The ecosystem (net, java, python, typescript, go, cpp, rust), copied from data/registry.json and checked against it.
+        type: string
+        pattern: "^[a-z]+$"
+      archetype: {type: string, pattern: "^[a-z][a-z0-9-]*$"}
+      install_channel: {enum: [registry, source_only, native_build, none]}
+      api_size_class:
+        description: Derived from the survey's listed API rows (none 0, S 1-49, M 50-199, L 200-499, XL 500 or more).
+        enum: [none, S, M, L, XL]
+      surfaces:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {enum: [library, cli, mcp]}
+      voice:
+        enum: [neutral_reference, scope_forward, concise_minimal, candid_handwritten, narrative_marketing, persona_pitch]
+      special_structures:
+        type: array
+        uniqueItems: true
+        items:
+          enum:
+            - project_structure
+            - feature_showcase
+            - third_party_notices_section
+            - license_notices_link
+            - format_matrix
+            - choosing_edition
+            - result_images
+            - image_glance
+            - maturity_notice
+            - install_warning
+            - extra_reference_sections
+            - collapsed_capability_reference
+            - persona_tables
+            - provenance_story
+            - cli_reference
+            - mcp_section
+            - no_aspose_product_pages
+      notes: {type: string}
+
+  assignments_file:
+    type: object
+    required: [schema_version, assignments]
+    additionalProperties: false
+    properties:
+      schema_version: {const: 1}
+      assignments:
+        type: array
+        minItems: 1
+        items: {$ref: "#/$defs/assignment"}
+
+  survey_file:
+    type: object
+    required: [schema_version, features_version, captured, rows]
+    properties:
+      schema_version: {const: 1}
+      features_version: {type: integer, minimum: 1}
+      captured: {type: string, pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+      rows:
+        type: object
+        minProperties: 1
+        additionalProperties:
+          type: object
+          required: [head, readme]
+          properties:
+            head: {type: string, minLength: 7}
+            readme: {type: boolean}

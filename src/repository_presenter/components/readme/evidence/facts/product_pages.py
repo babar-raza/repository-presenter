@@ -42,7 +42,7 @@ PLATFORM_SLUGS: dict[str, tuple[str, ...]] = {
     "cpp": ("cpp",),
     "go": ("go", "go-cpp"),
     "rust": ("rust", "rust-cpp"),
-    "node": ("nodejs", "nodejs-java", "nodejs-cpp"),
+    "nodejs": ("nodejs", "nodejs-java", "nodejs-cpp"),
     "php": ("php", "php-java"),
 }
 

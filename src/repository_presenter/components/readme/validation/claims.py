@@ -18,7 +18,9 @@ Five rules, all deterministic and independent of the LLM:
     else the manifest's version.
 (b) Publication. A sentence saying the package is "not (yet) published" must agree with the
     install command's registry observation; it is flagged only when a registry reading says the
-    distribution is published.
+    distribution is published - the registry's current release, an install command's own
+    observation, or a distribution fact a registry confirmed as this repository's (Slides-Cpp:
+    "not yet published on any package registry" beside a NuGet package NuGet lists, wave 3).
 (c) Identity. An install command whose package is a near-miss of the package identity fact (the
     same name without ``-foss``, a prefix, a different separator) is flagged; an unrelated package
     (a test runner), a declared dependency, and a distribution fact a registry confirmed as this
@@ -257,8 +259,15 @@ def _version_findings(
 
 
 def _positive_registry_reading(facts: FactsDocument) -> bool:
-    """Whether a registry reading says the distribution is published."""
+    """Whether a registry reading says the distribution is published: the registry's current
+    release, a distribution a registry confirmed as this repository's own (a C++ library's NuGet
+    package, ``package:distribution.*``), or an install command's own registry observation."""
     if _fact(facts, PUBLISHED_VERSION_FACT_ID):
+        return True
+    if any(
+        fact.id.startswith(DISTRIBUTION_FACT_PREFIX) and fact.polarity == "SUPPORTED"
+        for fact in facts.facts
+    ):
         return True
     for fact in facts.by_kind("install_command"):
         if (fact.attributes or {}).get("install_kind") in _SOURCE_KINDS:

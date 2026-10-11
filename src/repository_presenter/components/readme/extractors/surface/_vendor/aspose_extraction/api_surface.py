@@ -54,6 +54,7 @@ from repository_presenter.components.readme.extractors.surface._vendor.aspose_ex
     is_public,
     node_text,
     synthesize_interface_members,
+    ts_member_belongs_to,
     visibility_tier,
 )
 from repository_presenter.components.readme.extractors.surface._vendor.aspose_extraction import lang
@@ -3044,6 +3045,14 @@ def extract_api_surface(
                         _parent = _parent.parent
                     if _in_nested:
                         continue
+
+                # U10 (wave-3 triage, local patch): the same deep walk for TypeScript/JavaScript
+                # also reaches the properties of a type literal in a signature or a local
+                # `type X = {...}`; only a member declared directly in cnode's own body counts.
+                if language in ("typescript", "javascript") and not ts_member_belongs_to(
+                    mnode, cnode
+                ):
+                    continue
 
                 # Skip Python @property and setter/deleter â€” handled by _extract_python_properties.
                 # Checks the full decorator stack (see _all_decorator_text), not just the

@@ -1,0 +1,100 @@
+# Standard skeleton, library installed from a package registry.
+schema_version: 1
+id: std-registry
+title: Standard skeleton, registry-published library
+summary: >-
+  The generated ten-section skeleton with Navigation and Additional Examples, for a library the
+  reader installs from PyPI, NuGet, Maven Central or the Go module proxy. The live README has the
+  skeleton; the work is correction, gap-filling and measurable improvement inside it.
+mode: gap_fill
+install_channels: [registry]
+elements:
+  identity_h1: required
+  badge_row: required
+  banner: preserve_only
+  opening: required
+  navigation: required
+  at_a_glance: expected
+  key_capabilities: required
+  installation: required
+  dependencies: required
+  quick_start: expected
+  feature_showcase: preserve_only
+  additional_examples: expected
+  project_structure: preserve_only
+  api_reference: required
+  docs_resources: expected
+  scope_limitations: required
+  enterprise_paragraph: conditional
+  development_testing: expected
+  third_party_notices: conditional
+  license: required
+element_notes:
+  navigation: add the link when a section is added; an existing generated TOC is kept
+  dependencies: a live README without the section receives it (Cells .NET)
+  banner: never added, never removed (OD-01)
+  enterprise_paragraph: required when a verified aspose.com target exists, otherwise omitted
+channel_variant:
+  install_forms:
+    - ".NET: dotnet add package <Id> --version <registry latest>, then the PackageReference block"
+    - "Java: Maven dependency block with the registry's latest version, Gradle Groovy or Kotlin line"
+    - "Python: pip install <name> (quoted when versioned), then a one-line import verification"
+    - "Go: go get <module path with major-version suffix>, plus the aliased import line"
+    - "Python, .NET, Java: the supported runtime from the manifest in one sentence"
+  verification:
+    - package name equals the package identity fact (BC-02)
+    - version equals the registry's current stable release, or the statement says unreleased (BC-14)
+    - import path in the verify line equals the verified import path
+    - a source-build fallback is shown only after its receipt succeeds
+  required_statements:
+    - the package name and the import name or namespace, when they differ
+    - which release the README documents when the source tree is ahead (PRC-08)
+better_than_live:
+  - id: BTL-REG-01
+    statement: Every version, install command and publication statement equals the registry answer or is marked unreleased.
+    measured_by: BC-14 on live and candidate; stale-version count must not rise and must fall where the live README is stale
+    rules: [STR-10, DET-05, PRC-08]
+    defect_classes: [DEF-04, DEF-05]
+  - id: BTL-REG-02
+    statement: Dependencies exists with manifest-derived buckets, verified-empty stated, and is linked from Navigation.
+    measured_by: section presence; bucket contents equal the dependency snapshot
+    rules: [STR-11]
+    defect_classes: [DEF-19]
+  - id: BTL-REG-03
+    statement: Every shown example compiles or runs at the revision; a proven fix replaces a failing one, and removal needs a receipt.
+    measured_by: BC-03 receipts; failing-example count must not rise
+    rules: [DET-03, STR-12, STR-13]
+    defect_classes: [DEF-20]
+  - id: BTL-REG-04
+    statement: >-
+      API Reference lists only public types, states the verified count, and replaces stock
+      descriptions with the symbols' own documentation where it exists.
+    measured_by: survey_features api_count_mismatch, api_boilerplate_rows; row set equals the public_symbol facts
+    rules: [STR-14, DET-04]
+    defect_classes: [DEF-10, DEF-11, DEF-12]
+  - id: BTL-REG-05
+    statement: >-
+      Exactly one Enterprise Edition paragraph closes Scope and Limitations with a verified,
+      correctly labeled target, and no other wording names the aspose.com product's edition.
+    measured_by: enterprise_mentions equals one; anchor platform equals the repository platform; commercial_substitute_mentions falls
+    rules: [LNK-03, LNK-04, LNK-05]
+    defect_classes: [DEF-14, DEF-15, DEF-16]
+  - id: BTL-REG-06
+    statement: Documented commands, including the verify step, run in a clean clone.
+    measured_by: clean-clone execution receipt per documented command
+    rules: [DET-07, DET-01]
+    defect_classes: [DEF-08, DEF-09]
+  - id: BTL-REG-07
+    statement: >-
+      Markup hygiene is repaired where it is broken: one H1, balanced details tags, fence
+      languages, working relative links.
+    measured_by: second_h1, unclosed_details, fences_without_language, dead_relative_links all zero or not higher than live
+    rules: [STR-01, STR-21, STR-23, LNK-09]
+    defect_classes: [DEF-01, DEF-02, DEF-03, DEF-13, DEF-23]
+insertion_policy: >-
+  Insert a missing standard element at the position its live neighbours imply, under its
+  standard heading, from verified facts only. Add its Navigation link. Never reorder, rename or
+  rewrite a live section to make room.
+voice_guidance: >-
+  Keep the live register (neutral_reference, or scope_forward for Slides Java). New sentences
+  match the live sentence length, are declarative, third person, and stay under 40 words.

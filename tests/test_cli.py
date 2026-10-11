@@ -38,9 +38,11 @@ from repository_presenter.core.state.schema import (
 from support import (
     REPO_ROOT,
     FakeDefaultBranchReader,
+    FakeOrganizationLister,
     commit_all,
     distinct_process_identities,
     init_git_repository,
+    mirror,
     mock_gateway,
     monitor_registry_entry,
     write_bundle,
@@ -3294,6 +3296,16 @@ def monitor_root(project: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         ],
     }
     (project / "data" / "registry.json").write_text(json.dumps(payload), encoding="utf-8")
+    # Registry discovery rides on the monitor run: its organization lister is replaced too, and it
+    # lists exactly the admitted repositories (tests/test_cli_registry_gaps.py covers the findings).
+    shutil.copy(
+        REPO_ROOT / "data" / "registry_exclusions.json",
+        project / "data" / "registry_exclusions.json",
+    )
+    admitted = load_registry(project / "data" / "registry.json").entries
+    monkeypatch.setattr(
+        cli, "list_organization_repositories", FakeOrganizationLister(mirror(admitted))
+    )
     write_bundle(
         project,
         "aspose-3d-foss__Aspose.3D-FOSS-for-Python",

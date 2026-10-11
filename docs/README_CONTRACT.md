@@ -1,5 +1,16 @@
 # Candidate README Contract
 
+> **Superseded in part, 2026-10-11.** This document is not the structure and composition standard.
+> By the owner directive of 2026-10-11 the standard is the live upstream README of each repository,
+> and `docs/README_STANDARD.md` defines it: the common schema, the product-wise differences schema,
+> the improvement rules and the migration plan. **Section 2 below** (the semantic shell table and the
+> prose after it) is superseded and is kept only as the legacy encoding of what the code does today
+> (`SEMANTIC_SHELL`, BC-07, the renderer) until the gates are migrated (`README_STANDARD.md`
+> section 6); do not edit it to track a live README, change the standard instead. Section 2.1 (At a
+> Glance topology) is an owner rule and stays. **Section 8** (prose rules) now binds only text a
+> change adds; `README_STANDARD.md` section 3.5 re-bases it on the live tone. Sections 1 and 3 to 7
+> keep their authority, amended as `README_STANDARD.md` section 6.1 lists.
+
 Status: normative for every candidate. Version 1 froze as `readme-contract-v1` at G3 exit
 (G3-W02, 2026-10-01 — deferred past the originally-planned G2 exit while G3/G4's own multi-cohort
 work was still in flight, per the flip-timing paragraph below); it now changes only at a declared

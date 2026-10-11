@@ -33,6 +33,7 @@ def answering(status: int | None, body: bytes = b"{}") -> tuple[Fetch, list[str]
 # ecosystem, package name, the body a published package answers with, a url fragment of the read
 CASES = [
     ("typescript", "@aspose/3d", b'{"maintainers": [{"name": "a"}]}', "registry.npmjs.org"),
+    ("nodejs", "aspose-jmap-foss", b'{"maintainers": [{"name": "a"}]}', "registry.npmjs.org"),
     ("net", "Aspose.Imaging.Foss", b"{}", "api.nuget.org/v3-flatcontainer/aspose.imaging.foss"),
     ("java", "com.aspose:aspose-slides-foss", b"<metadata/>", "repo1.maven.org/maven2/com/aspose"),
     ("rust", "aspose-cells-foss", b'{"crate": {"id": "x"}}', "crates.io/api/v1/crates"),

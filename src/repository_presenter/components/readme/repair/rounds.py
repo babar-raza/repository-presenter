@@ -33,6 +33,9 @@ from repository_presenter.components.readme.composition.authoring import (
     write_content_units,
     write_raw_calls,
 )
+from repository_presenter.components.readme.composition.authoring_retry import (
+    authoring_narrowing,
+)
 from repository_presenter.components.readme.composition.coherence import (
     apply_coherence,
     coherence_batch_units,
@@ -50,7 +53,6 @@ from repository_presenter.components.readme.composition.list_coverage import (
 from repository_presenter.components.readme.composition.output_bounds import (
     bound_authoring_citations,
 )
-from repository_presenter.components.readme.composition.placement import placed_texts, placements
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
     bound_visible_line_overage,
@@ -65,6 +67,7 @@ from repository_presenter.components.readme.composition.policy import DEFAULT_PO
 from repository_presenter.components.readme.composition.renderer import (
     PATCH_FILENAME,
     README_FILENAME,
+    RenderContext,
     line_counts,
     render_patch,
     render_readme,
@@ -480,6 +483,10 @@ def run_round(tx: TransactionInputs) -> Round:
                 facts=facts,
                 name=name,
             ),
+            # Wave 3 (nine of thirty-six repositories at "output rejected twice"): after the two
+            # asks, one more for only the slots still refused, the accepted units kept as they
+            # are (composition/authoring_retry.py); a rejection no slot owns is not narrowed.
+            narrow=authoring_narrowing(task, loaded),
             **common,
         )
     units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])
@@ -674,14 +681,13 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
         # cheap and available here - whether its quote is a placed, preserved/moved unit's own
         # text, which authoring never wrote and cannot revise regardless of the guess (RC-04,
         # RESEARCH_AND_GUIDELINES.md 27.2 RC4/SW4, 2026-09-08).
-        placed = placed_texts(
-            placements(
-                current.planned.output,
-                current.dispositions,
-                tx.facts,
-                tx.entry.ecosystem,
-            )
-        )
+        placed = RenderContext(
+            tx.entry,
+            tx.facts.canonical(),
+            current.planned.output,
+            current.units,
+            current.dispositions,
+        ).placed
         defects.extend(
             review_defects(current.review, tx.facts, current.llm_sections, repairer, placed)
         )
