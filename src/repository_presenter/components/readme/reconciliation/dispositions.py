@@ -566,7 +566,13 @@ _SECTION_RENDERS: dict[str, frozenset[str]] = {
 _NAVIGATION_ITEM = re.compile(r"^\s*[-*+]\s*\[[^\]]+\]\(#[^)\s]*\)\s*$")
 _CODE_SPAN = re.compile(r"`([^`\n]+)`")
 _IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
-_SYMBOL_SPAN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:(?:\.|::)[A-Za-z_][A-Za-z0-9_]*)*")
+# A name as a README writes it in a listing: dotted or `::`-qualified, told apart from a same-named
+# type by a module suffix (`Arc-template`), generic (`Collection<T>`) or an array (`Mode[]`).
+# Anything with a call, a path, an assignment or a space outside the brackets is code, not a name.
+_NAME_SPAN = re.compile(
+    r"[A-Za-z_][A-Za-z0-9_]*(?:(?:\.|::|-)[A-Za-z0-9_]+)*"
+    r"(?:<[A-Za-z0-9_.,:\s\[\]<>-]*>)?(?:\[\])?"
+)
 _VERSION_PIN = re.compile(r"(?<=\S)(?:==|>=|<=|~=|!=|>|<)[^\s]+|\s--version\s+\S+")
 _PROMPT = re.compile(r"^\s*(?:[$>]\s+)")
 
@@ -773,10 +779,17 @@ def _uncovered_members(text: str, members: frozenset[str], names: frozenset[str]
     column), a list or a paragraph by every name it spells."""
     found: list[str] = []
     for span in _CODE_SPAN.findall(text):
-        for token in _IDENTIFIER.findall(span):
-            if token in members and token not in names and token not in found:
-                found.append(token)
+        token = _type_name(span.strip())
+        if token in members and token not in names and token not in found:
+            found.append(token)
     return found
+
+
+def _type_name(span: str) -> str:
+    """The name a listing's span stands for: its last dotted segment, without the generic,
+    array or module suffix the README adds to tell two same-named types apart."""
+    base = re.split(r"[<\[]", span, maxsplit=1)[0].split("-", 1)[0]
+    return re.split(r"::|\.", base)[-1]
 
 
 def _supersession_gap(
@@ -866,7 +879,7 @@ def _supersession_gap(
         )
         spelled = _table_first_column(text) if kind == "table" else text
         spans = [span.strip() for span in _CODE_SPAN.findall(spelled)]
-        if not spans or not all(_SYMBOL_SPAN.fullmatch(span) for span in spans):
+        if not spans or not all(_NAME_SPAN.fullmatch(span) for span in spans):
             # A listing of classes writes names. A tree of paths, a command or a signature in a
             # code span is something else (Cells-Rust Project Structure), not the table's content.
             return (NOT_AN_API_LISTING, "it lists paths or code, not the classes the table prints")
@@ -1058,6 +1071,25 @@ def _prune_incidental_coverage(output: dict[str, Any], ctx: _Coverage) -> None:
             entry["fact_ids"] = sorted(cited - ctx.api_ids)
 
 
+# BC-07 (validation/registry.py) counts these rows of the API Reference against the verified types.
+_API_ROW = re.compile(r"^\| `([^`]+)` \|", re.M)
+
+
+def _is_row_table(unit: str, entry: Mapping[str, Any], ctx: _Coverage) -> bool:
+    """An API Reference table whose rows BC-07 would count, that the Core API table does not cover.
+
+    Wave 1 (cut-1 code) failed 7 repositories with 1.6-4x as many rows as verified types when
+    such tables were placed beside the renderer's own. A table placed verbatim in api_reference
+    adds its rows to the count, so it can be placed only if it has none."""
+    return (
+        entry.get("destination_section") == "api_reference"
+        and unit.endswith(".table")
+        and bool(_API_ROW.search(ctx.text(unit)))
+        and _supersession_gap(unit, "api_reference", set(entry.get("fact_ids") or []), ctx)
+        is not None
+    )
+
+
 def _fold_uncovered(output: dict[str, Any], facts: FactsDocument, ctx: _Coverage) -> None:
     """Fold every disposition that claims more than reconciliation can prove into the one it can.
 
@@ -1091,7 +1123,9 @@ def _fold_uncovered(output: dict[str, Any], facts: FactsDocument, ctx: _Coverage
         elif entry.get("disposition") == "SUPERSEDE_REDUNDANT" and (
             entry.get("destination_section") in ctx.placeable
         ):
-            entry["disposition"] = "VERIFIED_PRESERVE"
+            entry["disposition"] = (
+                "VERIFIED_REWRITE" if _is_row_table(unit, entry, ctx) else "VERIFIED_PRESERVE"
+            )
 
 
 def normalize(
@@ -1275,6 +1309,14 @@ def normalize(
             # rendered beside it (the re-asked reconciler placed two such tables on the canary).
             entry["disposition"] = "SUPERSEDE_REDUNDANT"
             entry["destination_section"] = "api_reference"
+            continue
+        if disposition in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"} and _is_row_table(
+            unit, entry, coverage
+        ):
+            # The table lists something the Core API table does not (a function, a member), so it
+            # is not redundant - but its rows cannot be placed verbatim either: BC-07 counts every
+            # row of the section against the verified types. Its substance is kept as a rewrite.
+            entry["disposition"] = "VERIFIED_REWRITE"
             continue
         if (
             disposition in PLACING
