@@ -86,8 +86,9 @@ GitHub token — see [Configuration](#configuration) and the [Example](#example)
 | **Handoff** | A local, evidence-backed record of a genuine upstream product defect, which may become a GitHub issue (gated). |
 | **`BLOCKED_EXTERNAL` / `FAILED_INTERNAL`** | Blocker classes: something only an owner can supply, versus a defect in this code. The second is never an acceptable stopping point. |
 
-The unit of progress is one: **current reviewable no-op-proven candidates, N/36**. Code volume,
-plans, and evidence files are supporting work, not progress.
+The unit of progress is one: **authorizable candidates, N/36** (independent acceptance review
+passed and not worse than the live README; sealed counts are reported alongside, not as progress).
+Code volume, plans, and evidence files are supporting work, not progress.
 
 ## How it works
 
@@ -218,7 +219,7 @@ Requirements: Python 3.11+; core dependencies `httpx`, `jsonschema`, `markdown-i
 
 ## For coding agents
 
-This section is a map, not the rules — the rules live in [`AGENTS.md`](AGENTS.md) (≤200 lines).
+This section is a map, not the rules — the rules live in [`AGENTS.md`](AGENTS.md) (≤210 lines).
 
 **Read order at session start**
 

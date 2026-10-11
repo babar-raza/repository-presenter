@@ -89,12 +89,13 @@ before picking.
 - Reuse accepted unaffected work when one dependency changes.
 - End every work item with a run of the official entry point on the canary. A module with no
   production importer is a defect, not a deliverable.
-- Count progress in one unit only: current reviewable no-op-proven candidates, N/34.
+- Count progress in one unit only: authorizable candidates, N/36 (independent acceptance review
+  passed and not worse than the live README); report sealed counts alongside, never as progress.
 - Invalidate a candidate only through an input it consumed. Never add a global control-plane hash;
   validator and reviewer changes re-check and may yield `VALID_UPDATE_AVAILABLE`, never blanket
   invalidation.
 - Make reviewer findings repairable: each names a section and a causal stage, or it is advisory.
-- Keep governance within budget: this file at most 200 lines, the build plan at most 500 lines,
+- Keep governance within budget: this file at most 210 lines, the build plan at most 520 lines,
   at most eight gates. Replace a rule before adding one.
 
 Two equivalent failed attempts, or 15 minutes without materially narrowing the cause, prohibit a
@@ -129,6 +130,9 @@ deterministic gate result, or directly mutates a repository.
 
 - The exact immutable upstream revision is factual authority.
 - Existing README and product-agent content are valuable evidence, not automatic truth.
+- Two product lanes: live-first (start from the live README; add only verified corrections and
+  verified missing information) and regeneration from scratch. The README standard is what the live
+  READMEs do, and both lanes must beat live; `docs/README_CONTRACT.md` is under revision (G3-W10).
 - Aspose.org, external documentation, prior candidates, and imported corpora are development
   oracles; none can solely support a factual public claim.
 - Every public claim maps to accepted evidence.

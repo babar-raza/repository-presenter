@@ -9,7 +9,7 @@ Legacy source baseline: `babar-raza/foss-readme-optimizer` at
 `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`
 
 Revision 1 sequenced four infrastructure gates before the first README, the legacy failure mode;
-`RESEARCH_AND_GUIDELINES.md` §17 records why revision 2 replaced it. Cap: 500 lines, eight gates.
+`RESEARCH_AND_GUIDELINES.md` §17 records why revision 2 replaced it. Cap: 520 lines (raised from 500 on 2026-10-11, owner), eight gates.
 
 ## 1. Mission
 
@@ -17,10 +17,22 @@ Build and deploy Repository Presenter as an autonomous GitHub-native system whos
 component keeps the README files of authorized repositories accurate, credible, repository-specific,
 and current, using a configurable custom LLM inside deterministic controls.
 
-Progress has exactly one unit: **current, reviewable, no-op-proven README candidates** against the
-registry's own entry count, both printed live by `status`, never restated here. Code volume, tests,
-evidence, schemas, transitions, and closed work items are not progress. The observable repository
-transaction is:
+Progress has exactly one unit: **authorizable README candidates** (the candidate passes the
+independent acceptance review and is not worse than the live README; owner decision D4, 2026-10-11)
+against the registry's own entry count, never restated here. The sealed count (current-code
+reproducible, independently accepted, no-op-proven) is printed live by `status` and reported
+alongside; it is not progress. `progress.authorizable_candidates` in the cursor carries the
+authorizable count, derived by the live-first report (G3-W09). Code volume, tests, evidence,
+schemas, transitions, and closed work items are not progress.
+
+There are two product lanes (owner decision D1, 2026-10-11). **Lane L, live-first** starts from the
+live upstream README and adds only verified corrections and verified missing information (G3-W09).
+**Lane R, regeneration** composes from scratch and continues; its idempotence is being fixed
+(G3-W11). The standard for README structure, composition, links and tone is what the live READMEs
+do (G3-W10); `README_CONTRACT.md` is under revision to match, and every iteration of either lane
+must beat live. Gate exit floors that say "sealed" count sealed bundles, not the progress unit.
+The observable repository transaction (Lane R in full; Lane L patches the live README under the
+same validation and review) is:
 
 1. inspect an immutable real repository revision;
 2. interpret the product agentically from repository-grounded evidence;
@@ -65,7 +77,7 @@ transaction is:
 21. **Validators and reviewers re-check; they do not invalidate.** A validator or rubric change re-runs against accepted candidates and produces "still valid", `VALID_UPDATE_AVAILABLE`, or a typed factual, safety, or protected-content failure. Only the last invalidates.
 22. **Reviewer findings must be repairable.** A finding names a candidate section and a causal stage from a fixed vocabulary; anything else is advisory and never blocks twice.
 23. **The acceptance contract freezes at G2 exit** as version 1 and changes only at declared version boundaries with regression evaluation across every current candidate.
-24. **Governance stays compact.** `AGENTS.md` at most 200 lines, this document at most 500, at most eight gates. When a new rule is needed, an old one is replaced.
+24. **Governance stays compact.** `AGENTS.md` at most 210 lines, this document at most 520, at most eight gates. When a new rule is needed, an old one is replaced.
 25. **Write-scope expansion is gated, never a cursor-only edit (G6-W06).** Flipping a registry entry's `mode` from `dry_run` to `full` requires, per repository: an owner authorization dated in `docs/DECISION_LOG.md`; a committed record under `ops/proposal-authorizations/`; and that repository's candidate current-code reproducible, independently accepted, and no-op-proven. An agent never flips `mode` unilaterally absent all three (`OWNER-20`).
 
 ## 3. Authority and conflict resolution
@@ -111,10 +123,10 @@ Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UND
 `G3_PYTHON_COHORT`, `G4_MULTI_LANGUAGE_COHORTS`, `G5_RERUN_DURABILITY_AND_HOSTED_OPERATION`,
 `G6_PROPOSAL_EFFECT_PROOF`, `G7_PRODUCTION_AND_CONTINUOUS_OPERATION`.
 
-**Register.** Work items whose `project/state.yaml` owner begins `REGISTER:` and `owner_items` OWNER-10 to OWNER-19 own every reviewer id in `docs/DEFECT_INDEX.md`: G6-W05 write path; G3-W06 README contract; G3-W07 code freeze and re-seal; G5-W08 seal routing, status, durable state, registry coverage; G5-W09 no-op proof; G7-W07 autonomy and safeguards; G4-W18 discovery into `src/`; G4-W19 product-evidence surfaces; G7-W08 hygiene and prompts; G7-W09 documentation claims; G7-W10
+**Register.** Work items whose `project/state.yaml` owner begins `REGISTER:` and `owner_items` OWNER-10 to OWNER-19 own every reviewer id in `docs/DEFECT_INDEX.md`: G6-W05 write path; G3-W06 README contract (under revision since 2026-10-11, G3-W10); G3-W07 code freeze and re-seal; G5-W08 seal routing, status, durable state, registry coverage; G5-W09 no-op proof; G7-W07 autonomy and safeguards; G4-W18 discovery into `src/`; G4-W19 product-evidence surfaces; G7-W08 hygiene and prompts; G7-W09 documentation claims; G7-W10
 cursor-staleness guard; G7-W11 sealing-loop failure memory; G7-W12 UNCLASSIFIED deferral family (classes
 and nested-test extraction, S4 command fold and recover landed; PSD-.NET open); G7-W13 unattended sealing hosted pipeline proof; G7-W14 hosted portfolio-currency
-durability; G7-W15 S6 must-carry gap (settled, third sighting; root-caused and fixed, live-cleared); G7-W17 S8 coherence must-carry recovery gap (settled, seventh sighting); G7-W18 the same shape's S6 re-ask exhaustion (fixed with G7-W15); G7-W19 absence-finding restated-claim fold gap (fixed). G7-W20 acceptance profile ratification (OWNER-13, owner-decided); G7-W21 Monday delivery plan and background-track schedule; G7-W22 candidate currency freeze and re-seal batching; G7-W23 dotted file name in prose (the extractor records tree-verified file names). Registered 2026-10-10 under plans/reseal-and-refresh/PLAN.md: G3-W08 candidate content gate and coverage; G6-W07 issue-system operations; G7-W25 consumed-scope recheck.
+durability; G7-W15 S6 must-carry gap (settled, third sighting; root-caused and fixed, live-cleared); G7-W17 S8 coherence must-carry recovery gap (settled, seventh sighting); G7-W18 the same shape's S6 re-ask exhaustion (fixed with G7-W15); G7-W19 absence-finding restated-claim fold gap (fixed). G7-W20 acceptance profile ratification (OWNER-13, owner-decided); G7-W21 Monday delivery plan and background-track schedule; G7-W22 candidate currency freeze and re-seal batching; G7-W23 dotted file name in prose (the extractor records tree-verified file names). Registered 2026-10-10 under plans/reseal-and-refresh/PLAN.md: G3-W08 candidate content gate and coverage; G6-W07 issue-system operations; G7-W25 consumed-scope recheck. Registered 2026-10-11 under owner decisions D1 to D7 (`plans/reseal-and-refresh/PLAN.md` section 11A): G3-W09 live-first correction lane; G3-W10 README structure standard from the live survey (`README_CONTRACT.md` under revision); G3-W11 regeneration idempotence.
 `tests/test_register_integrity.py` fails when an id loses its work item.
 
 **Owner-only predicates never live in a gate.** Branch protection, secrets, App installation, and
