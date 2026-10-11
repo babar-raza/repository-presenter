@@ -43,19 +43,20 @@ def test_all_registry_repositories_are_assigned_exactly_once() -> None:
         a["repository"]
         for a in yaml.safe_load((DATA / "assignments.yaml").read_text("utf-8"))["assignments"]
     ]
-    assert len(registered) >= 43  # the 36 surveyed first plus the seven JMAP libraries
+    assert len(registered) >= 44  # the 36 surveyed first plus the eight JMAP libraries
     assert Counter(assigned) == Counter(registered)
 
 
-def test_the_seven_jmap_libraries_are_assigned_with_the_family_condition() -> None:
+def test_the_eight_jmap_libraries_are_assigned_with_the_family_condition() -> None:
     assignments = yaml.safe_load((DATA / "assignments.yaml").read_text("utf-8"))["assignments"]
     jmap = [a for a in assignments if a["family"] == "jmap"]
-    assert len(jmap) == 7
+    assert len(jmap) == 8
     assert {a["ecosystem"] for a in jmap} == {
         "net",
         "cpp",
         "go",
         "java",
+        "nodejs",
         "python",
         "rust",
         "typescript",
@@ -609,6 +610,16 @@ permission notice are retained. The software is provided without warranty.
 
 def measure(text: str, tree: Path | None = None) -> dict[str, Any]:
     return survey_features.features(text, tree)
+
+
+def test_a_platform_name_with_a_dot_is_still_the_canonical_h1() -> None:
+    for platform in (".NET", "Node.js", "Python", "C++"):
+        text = GOOD.replace(
+            "# Aspose.Demo FOSS for Python", f"# Aspose.Demo FOSS for {platform}", 1
+        )
+        assert measure(text)["h1_canonical"] is True, platform
+    odd = GOOD.replace("# Aspose.Demo FOSS for Python", "# Aspose Demo for Node.js", 1)
+    assert measure(odd)["h1_canonical"] is False
 
 
 def test_a_clean_readme_measures_clean() -> None:
