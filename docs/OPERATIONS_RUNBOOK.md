@@ -71,7 +71,7 @@ GitHub notification email for failed scheduled runs of the repository owner.
 | Monitor | `monitor.yml` | schedule `17 */6 * * *` (UTC)<br>workflow_dispatch | contents: read | cancel-in-progress: True, group: monitor |
 | Present | `present.yml` | repository_dispatch types: present<br>workflow_call inputs: repository (string, required)<br>workflow_dispatch inputs: repository (string, required) | contents: write | cancel-in-progress: False, group: present-${{ inputs.repository // github.event.client_payload.repository // 'unknown' }} |
 | Propose (sandbox canary) | `propose-sandbox.yml` | workflow_dispatch inputs: authorization_record (string, optional); do_propose (boolean, default False) | contents: read | cancel-in-progress: False, group: propose-sandbox |
-| Propose | `propose.yml` | workflow_call inputs: authorization_record (string, optional); base_branch (string, optional); candidate_artifact (string, optional); do_propose (boolean, default False); repo (string, required)<br>workflow_dispatch inputs: authorization_record (string, optional); base_branch (string, optional); do_propose (boolean, default False); repo (string, required) | contents: read | cancel-in-progress: False, group: propose-${{ inputs.repo }} |
+| Propose | `propose.yml` | workflow_call inputs: authorization_record (string, optional); base_branch (string, optional); candidate_artifact (string, optional); do_propose (boolean, default False); repo (string, required)<br>workflow_dispatch inputs: authorization_record (string, optional); base_branch (string, optional); correction_run (string, optional); do_propose (boolean, default False); repo (string, required) | contents: read | cancel-in-progress: False, group: propose-${{ inputs.repo }} |
 | Sealing (scheduled) | `sealing-scheduled.yml` | schedule `37 5 * * *` (UTC)<br>workflow_dispatch | contents: read | - |
 | Verify GitHub App Installation | `verify-app-installation.yml` | workflow_dispatch | contents: read | - |
 
@@ -601,3 +601,136 @@ governed list (that list lives only in `tests/test_version_bump_discipline.py`; 
    at depth 1, where that single test skips and layers 1 and 3 carry the proof).
 3. **On every commit (`tests/test_version_bump_discipline.py`).** Unchanged: a governed file whose
    meaning changes without its constant moving fails the suite.
+
+## 12. The correction wave: real README-correction pull requests through `propose.yml`
+
+Prepared 2026-10-12 and **enables nothing**: no variable, secret, environment, schedule or registry
+mode is set by this section's code, and every step below that changes one is an owner action. The
+pause on real upstream pushes stands until the owner takes the steps in 12.3. The sandbox canary
+(`docs/PROPOSAL_WAVE_RUNBOOK.md` section 9) is the rehearsal on a throwaway repository; this is the
+same path on the registered product repositories, with one addition: `propose.yml`'s **correction
+mode**. A manual dispatch that also names `correction_run` proposes
+`corrections/<correction_run>/<owner>__<name>/` (a bundle `correct-readme` wrote, reviewed and
+merged) instead of a sealed candidate. No model is called, no gateway secret is used, nothing is
+regenerated; the scheduled sealing run cannot reach this mode (`correction_run` is a dispatch input
+only).
+
+### 12.1 The gates (all of them apply; none is new except the committed-bundle check)
+
+| # | Gate | Where it is enforced |
+|---|---|---|
+| 1 | The registry entry is `mode: full` | the wave pull request flips exactly the approved list; `core/registry/write_gate.py` (`registry_dry_run`) |
+| 2 | The bundle is the one that was reviewed | `SHA256SUMS` checked with `sha256sum` in both jobs before any dependency is installed and before any token exists, then by `propose --require-sums` (exactly the committed file set, no link, no extra file, `PULL_REQUEST.md` equal to the text that will be posted) |
+| 3 | The correction is proven | the typed gate (`components/readme_correction/gate.py`) re-derives it from the bundle's own bytes: byte-identical rerun, every edit confined and evidenced, a rerun over the result finds nothing more, no validation check fails more often than on the live README |
+| 4 | The head has not moved | the live default-branch head must equal the bundle's revision (`source_moved`), in the dry run and again immediately before the write |
+| 5 | An authorization record for this exact text | `ops/proposal-authorizations/<owner>__<name>__<12 of the corrected README's hash>.json`, merged to `origin/main` before the commit the run is triggered at, at most 7 days old, binding the sha256 of the corrected README, the revision, the base and presenter branches |
+| 6 | The owner switch | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED=1` is set in the one "Propose for real" step only, and that step runs only when `do_propose` is ticked. The **repository variable** of that name stays UNSET: it arms the unattended sealing run, which has nothing to do with this wave |
+| 7 | The credential | the dry run mints a read-only App installation token (contents + metadata) for the one target; the write job mints a write token (contents, pull requests, metadata) for the one target, seen by one step; the App must be installed on the target |
+| 8 | Dry run by default | `do_propose` defaults to false: a dispatch without it reports the plan and the authorization decision and writes nothing |
+
+The effect writes the presenter branch, one `README.md` commit on it and its pull request: never a
+default branch, never a merge, never another file.
+
+### 12.2 Owner prerequisites (once)
+
+1. **The App is installed on every organization that holds a target** (OWNER-04; the steps and the
+   `audit-app-installations.yml` check are `docs/PROPOSAL_WAVE_RUNBOOK.md` section 1.1). Contents:
+   write, Pull requests: write, Metadata: read.
+2. **Confirm the variable `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` is NOT listed** in
+   Settings > Secrets and variables > Actions > Variables. Add nothing: `GH_APP_ID` and
+   `GH_APP_PRIVATE_KEY` already exist, and no environment is needed.
+3. **Decide the exact list** (OWNER-20) and record it in `docs/DECISION_LOG.md` in the form of
+   `docs/PROPOSAL_WAVE_RUNBOOK.md` section 7, with "sealed README" read as "corrected README of
+   `corrections/<run-id>/<slug>/`", each line `OWNER/NAME @ <first 16 of the corrected README's hash>;
+   rev <40 hex>` from the `assemble.py` table (12.3 step 3). A repository is authorized only if it
+   appears there. Registry mode becomes `full` for exactly these repositories, which also makes them
+   eligible for issue filing (that still needs its own approvals and the issues kill switch).
+
+### 12.3 The sequence (O = owner acts; A = operator, local, read-only toward GitHub)
+
+1. **A: the correction run, the same day as the wave** (a moved head refuses with `source_moved`):
+   `repository-presenter correct-readme --repo OWNER/NAME --out runs/correct/<run-id>/<owner>__<name>`
+   for each candidate repository (`GH_TOKEN` from `gh auth token`; facts either `--facts FILE` for
+   exactly the registry head, or the facts-only run, which needs the gateway secrets and a recorded
+   `runs/preflight/catalog.json`; no model is called by the correction itself). A repository with a
+   `status.json` instead of a bundle has nothing to correct (`no_live_readme`, `insufficient_evidence`,
+   `no_detector_fired`). Pick `<run-id>` once: `[A-Za-z0-9._-]`, at most 64, e.g. `2026-10-12`.
+2. **O: approve the list** (12.2 step 3). Repositories held in `data/correction_holds.json` are
+   refused by the assembly until the owner removes the hold.
+3. **A: assemble, in a fresh worktree from `scripts/new_worktree.sh`, and open ONE pull request:**
+   ```
+   export GH_TOKEN="$(gh auth token)"
+   PYTHONPATH=src python tools/corrections/assemble.py --root . \
+     --run runs/correct/<run-id> --run-id <run-id> --repos-file wave.txt --approver <owner login>
+   bash scripts/ci_check.sh
+   ```
+   `wave.txt` holds one `OWNER/NAME` per approved repository (there is no "all"). The tool passes each
+   bundle through the typed gate, copies only the bundle's files (nothing else from the run
+   directory), writes `PULL_REQUEST.md` and `SHA256SUMS`, re-verifies the committed shape with the
+   check the workflow will apply, sets `mode: full` for exactly those registry entries (one line
+   each) and drafts one record per repository (window: now to +7 days, `--hours` shortens it). It
+   prints the table, the `git add` paths and the dispatch plan, and runs none of it. Any failure
+   leaves the worktree as it was. `--no-records` writes the bundles only.
+4. **O: review and merge that pull request.** Files changed shows, per repository: `PULL_REQUEST.md`
+   (the exact title and body that will be posted), `README.patch` (the exact diff), `corrections.json`
+   (each edit with the evidence behind it), the one-line `dry_run` to `full`, and the record
+   (repository, candidate hash, source revision, approver, window). The records authorize nothing
+   until this merge, and a run triggered before it cannot use them.
+5. **O: dry runs.** For each repository, Actions > Propose > Run workflow (or the printed
+   `gh workflow run propose.yml -R babar-raza/repository-presenter --ref main -f repo=<R> -f
+   correction_run=<run-id> -f authorization_record=<record>`), `do_propose` unchecked. A green
+   `dry-run` job whose log says `the correction bundle matches its SHA256SUMS`, `correction bundle
+   ... (typed correction gate; SHA256SUMS and pull request text verified)`, `bundle revision equals
+   the target's current revision` and `the authorization record matches this candidate`, with its
+   token step green (the App is installed). No `write` job runs.
+6. **O: the first real pull request, alone** (`docs/STATE_MACHINE.md` 12.1: the first live exercise
+   against a real external target is owner-selected). The same dispatch with `do_propose` checked.
+   The log ends `effected=True - proposed` and `pr: .../pull/N`. Verify it before dispatching the
+   rest, as `docs/PROPOSAL_WAVE_RUNBOOK.md` section 5 says, comparing the branch README with
+   `corrections/<run-id>/<slug>/README.md` (the record's `candidate_hash` is its sha256) and the body
+   with `PULL_REQUEST.md`: author `app/repository-presenter`, head `repository-presenter/readme-update`,
+   exactly one file `README.md`, the base branch untouched.
+7. **O: the rest**, paced (the printed plan sleeps 30 seconds between dispatches), each with
+   `do_propose` checked, watching `gh run list --workflow propose.yml`. A rerun is safe:
+   `effected=True - no change needed`, no second pull request or commit.
+
+### 12.4 What a refusal means (nothing is written in any of them)
+
+| The log says | Cause | Do |
+|---|---|---|
+| `the correction bundle is not in this checkout` | the wave pull request is not merged, or `correction_run` or `repo` is misspelled | merge it, or fix the input |
+| `does not match its SHA256SUMS` / `bundle_inconsistent` | a file under `corrections/` was edited after assembly | revert that edit; re-assemble under a new run id if it was meant |
+| `correction_not_proven` | the gate's re-derivation failed (the bundle is not a proven correction) | do not propose; the correction lane fixes the cause, then a new run |
+| `source_moved` | the target's head is no longer the bundle's revision | new correction run for that repository, new run id, new record |
+| `registry_dry_run` | the entry is not `full` | the wave pull request is not merged, or it was reverted |
+| `authorization_missing` / `authorization_not_committed` / `authorization_expired` / `authorization_mismatch` | no record, not on `origin/main` before the trigger commit, older than 7 days, or for other text | merge it, or re-assemble |
+| `write_not_enabled`, `no_write_token`, `token_not_installation`, `token_wrong_scope` | the owner switch or credential is not what the effect requires | the workflow sets these; report it, do not work around it |
+| `pr_already_closed` / `pr_already_merged` | the pull request for this candidate was closed or merged | not recreated; a changed README is a new candidate and a new record |
+
+### 12.5 Stop and roll back
+
+- Stop dispatching: Ctrl-C the loop; in-flight `write` jobs finish on purpose. Emergency brake, no merge
+  needed: `gh workflow disable propose.yml -R babar-raza/repository-presenter` (this also stops sealed
+  proposals; `enable` restores it).
+- Undo one pull request: `gh pr close N -R <owner>/<repo> --delete-branch`. It is never recreated for
+  that candidate.
+- Undo the authorization: revert the wave pull request (bundles, registry flips and records go
+  together); with the records absent and the entries back at `dry_run`, both gates refuse.
+- Hard stop: suspend or remove the App on the organization; every token mint then fails before a write.
+
+### 12.6 What was rehearsed, and what was not
+
+`tests/test_correction_wave_rehearsal.py` takes the whole path through the workflow's own `run:`
+steps (executed under bash, expressions resolved from the dispatch inputs and earlier outputs) and the
+real CLI, effect, client and App-attribution checks against the stateful fake REST: assembly from a
+run directory that also holds internal files; a dry run that writes nothing; refusals without a
+record, with an edited, unmerged, expired or foreign one, with the entry still `dry_run`, with the owner
+switch, the token, a personal token or a token reaching two repositories taken away or wrong, with a
+bundle edited (every file), re-sealed, extended or its pull request text edited, and with a moved head
+before and between the jobs; one pull request created and attributed to the App; a rerun that writes
+nothing; a later correction run that updates the same pull request in place; a closed pull request
+that is not recreated. `tests/test_propose_correction_workflow.py` pins the workflow's structure with
+a negative control per rule. Not proven locally, said plainly: the App installation and permission
+screens, `actions/create-github-app-token`'s server-side narrowing, `sha256sum` on the hosted runner
+(the same coreutils the tests ran), GitHub's required-review and branch-protection behavior on a
+product repository, and a maintainer's response.

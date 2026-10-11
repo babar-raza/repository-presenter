@@ -1180,6 +1180,16 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     propose.add_argument(
+        "--require-sums",
+        action="store_true",
+        help=(
+            "with --correction-bundle: the bundle is a committed corrections/<run>/<slug>/ "
+            "directory (components/readme_correction/committed.py): refuse unless its SHA256SUMS "
+            "verifies over exactly the committed file set and its PULL_REQUEST.md is the text "
+            "this run would post. The hosted propose.yml correction mode always passes it"
+        ),
+    )
+    propose.add_argument(
         "--local-test-readme-file",
         type=Path,
         default=None,
@@ -1568,6 +1578,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             trigger_sha=args.trigger_sha,
             propose=args.do_propose,
             sandbox=args.sandbox,
+            require_sums=args.require_sums,
         )
     if args.command == "publish-candidates":
         return run_publish_candidates(
@@ -2950,6 +2961,7 @@ def run_propose(
     propose: bool = False,
     correction_bundle: Path | None = None,
     sandbox: bool = False,
+    require_sums: bool = False,
 ) -> int:
     """Create or update the one stable presenter branch/PR proposing ``repository``'s README
     candidate (G6-W02; ``components/propose/effect.py``).
@@ -2957,6 +2969,8 @@ def run_propose(
     ``correction_bundle`` swaps the candidate for the corrected README of a ``correct-readme``
     bundle, behind its own typed gate (``components/readme_correction/gate.py``); nothing else in
     this function changes for it, and a regenerated candidate is still judged by the original gate.
+    ``require_sums`` additionally requires that bundle to be an intact committed
+    ``corrections/<run>/<slug>/`` directory (``components/readme_correction/committed.py``).
 
     ``sandbox`` reads the sandbox allow-list (``core/registry/sandbox.py``) instead of the
     production registry: the owner's throwaway canary repository, proposed to by a correction
@@ -2982,6 +2996,9 @@ def run_propose(
     if root is None:
         return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    if require_sums and correction_bundle is None:
+        _fail("propose: --require-sums applies to a --correction-bundle only")
+        return EXIT_USAGE
     if sandbox and (correction_bundle is None or local_test_readme_file is not None):
         _fail(
             "propose: --sandbox proposes a --correction-bundle only: the sandbox has no sealed "
@@ -3024,9 +3041,12 @@ def run_propose(
             print(f"propose: registry mode {entry.mode!r} - a dry-run result is all this can be")
         if correction_bundle is not None:
             candidate = load_proposable_correction(
-                correction_bundle, repository, root=root, entry=entry
+                correction_bundle, repository, root=root, entry=entry, require_sums=require_sums
             )
-            print(f"propose: correction bundle {correction_bundle.name} (typed correction gate)")
+            print(
+                f"propose: correction bundle {correction_bundle.name} (typed correction gate"
+                f"{'; SHA256SUMS and pull request text verified' if require_sums else ''})"
+            )
         else:
             candidate = load_proposable_candidate(
                 root, repository, acceptance=proposal_acceptance_gate(root)

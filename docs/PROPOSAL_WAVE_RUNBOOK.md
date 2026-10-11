@@ -321,6 +321,7 @@ with it). `tests/test_propose_sandbox_workflow.py` pins the workflow.
 When the canary is recorded (run ids, the pull request URL, the `verify` output) and the owner has
 decided the exact real list (OWNER-20), one revert removes `propose-sandbox.yml`,
 `data/registry_sandbox.json`, `ops/sandbox-canary/`, `core/registry/sandbox.py`, the `--sandbox`
-flags, `tools/canary/` and their tests; `propose.yml` was never changed by it. The real list then
-needs its own records and a correction path in `propose.yml` (it takes sealed candidates only today;
-`propose --correction-bundle` is a command line, not yet a dispatch input).
+flags, `tools/canary/` and their tests; `propose.yml`'s sealed-candidate path was never changed by it.
+The real list then goes through `propose.yml`'s correction mode (a dispatch that names
+`correction_run`; `docs/OPERATIONS_RUNBOOK.md` section 12 has the exact owner steps), with its own
+bundles, records and registry flips assembled by `tools/corrections/assemble.py`.

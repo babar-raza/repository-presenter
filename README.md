@@ -328,7 +328,7 @@ repository-presenter issue-readiness [--root PATH] [--repo OWNER/NAME] [--approv
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
 repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
-repository-presenter propose --repo OWNER/NAME --correction-bundle DIR [--sandbox] [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]   # propose a correction bundle through its typed gate
+repository-presenter propose --repo OWNER/NAME --correction-bundle DIR [--require-sums] [--sandbox] [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]   # propose a correction bundle through its typed gate
 repository-presenter correct-readme --repo OWNER/NAME --out DIR [--root PATH] [--facts PATH] [--sandbox]
 repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N] [--correction-bundle DIR] [--sandbox]
 repository-presenter wave-readiness [--root PATH] [--repo OWNER/NAME] [--offline] [--authorize OWNER/NAME@HASH] [--authorize-file PATH] [--emit-records DIR --approver NAME --expires-at TIME [--issued-at TIME]]
@@ -492,7 +492,11 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   --correction-bundle DIR` drafts its record. `--sandbox` on these three commands reads the sandbox
   allow-list `data/registry_sandbox.json` (the owner's throwaway canary repository, correction
   proposals only) instead of the production registry, which it never consults or changes
-  (`docs/PROPOSAL_WAVE_RUNBOOK.md` section 9).
+  (`docs/PROPOSAL_WAVE_RUNBOOK.md` section 9). `--require-sums` is what the hosted `propose.yml`
+  correction mode passes: the bundle is a committed `corrections/<run>/<slug>/` (assembled by
+  `tools/corrections/assemble.py`), and the command refuses unless its `SHA256SUMS` verifies over
+  exactly the committed files and its `PULL_REQUEST.md` is the text the run would post
+  (`docs/OPERATIONS_RUNBOOK.md` section 12).
 - **`wave-readiness`** — the operator view of a proposal wave (G6-W03,
   `docs/PROPOSAL_WAVE_RUNBOOK.md`). Read-only: prints, per sealed `READY_FOR_PROPOSAL` candidate (or
   each `--repo`), the registry mode, candidate hash, whether its sealed revision is still the live

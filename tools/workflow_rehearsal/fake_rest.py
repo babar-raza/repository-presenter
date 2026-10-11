@@ -117,6 +117,10 @@ class FakeGitHubRest:
             if existing == repo.default_branch and base is not None:
                 repo.files.setdefault((branch, path), value)
 
+    def set_file(self, repository: str, branch: str, path: str, text: str) -> None:
+        """Record a file a ``git push`` changed on ``branch`` (the git side is a local bare remote)."""
+        self._repos[repository].files[(branch, path)] = (_sha("blob", text), text)
+
     def close_pull(self, repository: str, number: int, *, merged: bool = False) -> None:
         for pull in self._repos[repository].pulls:
             if pull["number"] == number:

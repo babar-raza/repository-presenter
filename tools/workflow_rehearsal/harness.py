@@ -86,7 +86,9 @@ WORKFLOW_PLAN: dict[str, dict[str, str]] = {
         "event": "workflow_dispatch",
         "mode": "dryrun",
         "gap": "dry-run job is replayable; write job needs an authorization record merged to main before "
-        "the trigger commit and the target's live revision; the fake REST records the PR.",
+        "the trigger commit and the target's live revision; the fake REST records the PR. Correction mode "
+        "(correction_run) also needs the committed corrections/<run>/<slug>/ bundle on main; "
+        "tests/test_correction_wave_rehearsal.py runs both jobs' own steps against the fakes.",
     },
     "propose-sandbox.yml": {
         "event": "workflow_dispatch",

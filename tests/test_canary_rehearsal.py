@@ -488,7 +488,7 @@ def test_p1_the_first_run_opens_exactly_one_pull_request_the_app_performed(
     assert all(line.status != canary.MISSING for line in lines), [line.render() for line in lines]
     assert statuses(lines)["performed by the App"] == canary.OK
     (pull,) = world.rest.pulls(SANDBOX)
-    assert pull["title"].startswith("presenter-sandbox: ")
+    assert pull["title"].startswith("docs(readme): ")  # the correction composer names the change
     assert "kind: correction" in pull["body"] and "### How to decline" in pull["body"]
     assert world.rest.file(SANDBOX, "main", "README.md") == README  # the base branch is untouched
     corrected = world.rest.file(SANDBOX, BRANCH, "README.md")

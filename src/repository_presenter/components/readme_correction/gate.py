@@ -24,6 +24,10 @@ from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme_correction import bundle as files
+from repository_presenter.components.readme_correction.committed import (
+    pull_request_text_problem,
+    sums_problems,
+)
 from repository_presenter.components.readme_correction.engine import CorrectionError
 from repository_presenter.components.readme_correction.model import (
     DIAGRAM_FIX,
@@ -35,6 +39,7 @@ from repository_presenter.components.readme_correction.model import (
     Edit,
 )
 from repository_presenter.components.readme_correction.settle import correct_settled
+from repository_presenter.core.authorization.proposal import CURRENT_POLICY_VERSION
 from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
 from repository_presenter.core.candidates import BundleError, ProposableCandidate, verify_bundle
 from repository_presenter.core.errors import PresenterError
@@ -142,12 +147,29 @@ def correction_refusal(bundle: Path, manifest: dict[str, Any], entry: RegistryEn
 
 
 def load_proposable_correction(
-    bundle: Path, repository: str, *, root: Path, entry: RegistryEntry | None = None
+    bundle: Path,
+    repository: str,
+    *,
+    root: Path,
+    entry: RegistryEntry | None = None,
+    require_sums: bool = False,
 ) -> ProposableCandidate:
     """The corrected README of ``bundle`` as the one thing a proposal may carry, or a typed refusal.
 
     ``bundle`` is the directory ``correct-readme --out`` wrote; ``root`` is the control repository
-    (its registry names the entry the renderer's ecosystem vocabulary comes from)."""
+    (its registry names the entry the renderer's ecosystem vocabulary comes from).
+
+    ``require_sums`` is the hosted correction mode's extra: ``bundle`` is a committed
+    ``corrections/<run>/<slug>/`` (``committed.py``), so its ``SHA256SUMS`` must verify over exactly
+    the committed file set, and its ``PULL_REQUEST.md`` must be the text this run would post. The
+    typed checks below are the same either way."""
+    if require_sums:
+        problems = sums_problems(bundle)
+        if problems:
+            raise WriteRefusedError(
+                Refusal.BUNDLE_INCONSISTENT,
+                f"{bundle.name}: the committed bundle is not intact: " + "; ".join(problems),
+            )
     try:
         manifest = verify_bundle(bundle)
     except BundleError as exc:
@@ -168,10 +190,21 @@ def load_proposable_correction(
     if reason is not None:
         raise WriteRefusedError(Refusal.CORRECTION_NOT_PROVEN, f"{repository}: {reason}")
     text = (bundle / files.README_NAME).read_bytes().decode("utf-8")
-    return ProposableCandidate(
+    candidate = ProposableCandidate(
         repository=repository,
         revision=str(manifest["revision"]),
         readme_text=text,
         candidate_hash=sha256_text(text),
         bundle=bundle,
     )
+    if require_sums:
+        problem = pull_request_text_problem(
+            bundle,
+            repository=repository,
+            candidate_hash=candidate.candidate_hash,
+            source_revision=candidate.revision,
+            policy_version=CURRENT_POLICY_VERSION,
+        )
+        if problem is not None:
+            raise WriteRefusedError(Refusal.BUNDLE_INCONSISTENT, f"{repository}: {problem}")
+    return candidate
