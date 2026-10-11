@@ -1538,9 +1538,9 @@ def test_recover_defers_a_unit_whose_only_symbol_is_the_directory_of_a_path_it_n
         return folded
 
     # Tree-verified path: the segment is not spelled, so there is nothing to cite.
-    # BC-05 still reads that segment as a verified symbol (a looser test than the extractor-side
-    # guard), so the deferral takes the typed prefix, which classifies ADVISORY; the no-evidence
-    # wording would be UNCLASSIFIED and block the candidate downstream.
+    # This stage reads that segment as a verified symbol (a looser test than the extractor-side
+    # guard, and than BC-05 since wave-3 U2), so the deferral takes the typed prefix, which
+    # classifies ADVISORY under either reading of the path.
     original = deferred(facts)
     assert original["fact_ids"] == []
     assert original["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
