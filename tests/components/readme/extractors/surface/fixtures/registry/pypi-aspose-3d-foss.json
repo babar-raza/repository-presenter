@@ -1,0 +1,18 @@
+{
+  "info": {
+    "name": "aspose-3d-foss",
+    "version": "26.1.0",
+    "home_page": "https://github.com/aspose-3d/Aspose.3D-for-Python",
+    "project_urls": {
+      "Homepage": "https://github.com/aspose-3d/Aspose.3D-for-Python"
+    },
+    "license": null
+  },
+  "releases": {
+    "26.1.0": [
+      {
+        "packagetype": "sdist"
+      }
+    ]
+  }
+}

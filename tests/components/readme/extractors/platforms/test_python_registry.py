@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import httpx
+import pytest
 
 from repository_presenter.components.readme.extractors.platforms.python_registry import (
     fetch_project_json,
@@ -100,3 +102,63 @@ def test_fetch_uses_a_bounded_json_client() -> None:
         "https://pypi.org/pypi/x/json", transport=httpx.MockTransport(handler)
     )
     assert json.loads(response.text)["info"]["version"] == "2.0"
+
+
+# TC-EXT-01 (G3-W08 cut 2): a name found on PyPI is not ownership. Trimmed real PyPI records
+# (2026-10-11): `aspose-3d-foss` (Homepage github.com/aspose-3d/Aspose.3D-for-Python, which now
+# 404s) and `aspose-page`, a commercial product with no source repository in its metadata.
+def _recorded(name: str) -> httpx.Response:
+    path = Path(__file__).parents[1] / "surface" / "fixtures" / "registry" / f"pypi-{name}.json"
+    return httpx.Response(200, json=json.loads(path.read_text(encoding="utf-8")))
+
+
+def test_a_project_url_that_names_the_repository_corroborates_ownership() -> None:
+    observation = observe_pypi(
+        "aspose-3d-foss",
+        "26.1.0",
+        fetch=lambda _url: _recorded("aspose-3d-foss"),
+        repository="aspose-3d/Aspose.3D-for-Python",
+        resolve_url=lambda url: pytest.fail(f"a matching URL must not be resolved: {url}"),
+    )
+    assert observation.repository_matched is True and observation.owned
+
+
+def test_a_renamed_repository_is_corroborated_through_the_redirect() -> None:
+    resolved: list[str] = []
+
+    def resolve(url: str) -> str | None:
+        resolved.append(url)
+        return "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+
+    observation = observe_pypi(
+        "aspose-3d-foss",
+        "26.1.0",
+        fetch=lambda _url: _recorded("aspose-3d-foss"),
+        repository="aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+        resolve_url=resolve,
+    )
+    assert resolved == ["https://github.com/aspose-3d/Aspose.3D-for-Python"]
+    assert observation.owned
+
+
+def test_a_distribution_that_points_at_another_repository_is_not_owned() -> None:
+    observation = observe_pypi(
+        "aspose-3d-foss",
+        "26.1.0",
+        fetch=lambda _url: _recorded("aspose-3d-foss"),
+        repository="aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+        resolve_url=lambda _url: None,
+    )
+    assert observation.found and observation.repository_matched is False
+    assert not observation.owned
+
+
+def test_a_distribution_that_lists_no_source_repository_is_not_owned() -> None:
+    observation = observe_pypi(
+        "aspose-page",
+        "26.8.0",
+        fetch=lambda _url: _recorded("aspose-page"),
+        repository="aspose-page-foss/Aspose.Page-FOSS-for-Python",
+        resolve_url=lambda _url: None,
+    )
+    assert observation.found and observation.repository_matched is False and not observation.owned

@@ -57,6 +57,7 @@ def _reading(**overrides: object) -> RegistryObservation:
         "method": "maven-metadata-xml",
         "source": "live_probe",
         "latest_version": "26.7.0",
+        "repository_matched": True,
     }
     return RegistryObservation(**{**values, **overrides})  # type: ignore[arg-type]
 
@@ -64,7 +65,7 @@ def _reading(**overrides: object) -> RegistryObservation:
 def test_a_conclusive_published_reading_becomes_the_published_version_fact(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(published_version, "_observe", lambda ecosystem, name: _reading())
+    monkeypatch.setattr(published_version, "_observe", lambda ecosystem, name, **_: _reading())
     fact = published_version_fact(ENTRY, NAME)
     assert fact is not None
     assert (fact.id, fact.kind, fact.value, fact.polarity) == (
@@ -88,20 +89,29 @@ def test_a_conclusive_published_reading_becomes_the_published_version_fact(
         _reading(ambiguous=True),  # answered ambiguously
         _reading(published=False, latest_version=None),  # 404
         _reading(latest_version=None),  # published, no stable release listed
+        _reading(repository_matched=False),  # the name is another project's
+        _reading(repository_matched=None),  # the registry names no source repository
     ],
-    ids=["unreachable", "ambiguous", "not-found", "no-stable-release"],
+    ids=[
+        "unreachable",
+        "ambiguous",
+        "not-found",
+        "no-stable-release",
+        "other-project",
+        "no-source-url",
+    ],
 )
 def test_nothing_conclusive_yields_no_fact_never_an_invented_version(
     monkeypatch: pytest.MonkeyPatch, reading: RegistryObservation
 ) -> None:
-    monkeypatch.setattr(published_version, "_observe", lambda ecosystem, name: reading)
+    monkeypatch.setattr(published_version, "_observe", lambda ecosystem, name, **_: reading)
     assert published_version_fact(ENTRY, NAME) is None
 
 
 def test_without_a_supported_package_name_nothing_is_asked(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def refuse(ecosystem: str, name: str) -> RegistryObservation:
+    def refuse(ecosystem: str, name: str, **_: object) -> RegistryObservation:
         raise AssertionError("the registry must not be asked without a package identity")
 
     monkeypatch.setattr(published_version, "_observe", refuse)
@@ -135,7 +145,7 @@ def test_extract_facts_emits_the_fact_beside_the_manifest_version(
 
     asked: list[tuple[str, str]] = []
 
-    def observed(ecosystem: str, name: str) -> RegistryObservation:
+    def observed(ecosystem: str, name: str, **_: object) -> RegistryObservation:
         asked.append((ecosystem, name))
         return _reading(registry="pypi", name=name, latest_version="1.2.0")
 
@@ -152,7 +162,7 @@ def test_extract_facts_emits_the_fact_beside_the_manifest_version(
     monkeypatch.setattr(
         published_version,
         "_observe",
-        lambda ecosystem, name: _reading(published=None, ambiguous=True, latest_version=None),
+        lambda ecosystem, name, **_: _reading(published=None, ambiguous=True, latest_version=None),
     )
     unreadable, _ = extract_facts(entry, snapshot, clone.path, paths, plugin, manifest)
     assert PUBLISHED_VERSION_FACT_ID not in {fact.id for fact in unreadable.facts}

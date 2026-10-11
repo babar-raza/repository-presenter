@@ -100,16 +100,33 @@ def _setup_call(tree: ast.Module) -> ast.Call | None:
     return calls[0] if len(calls) == 1 else None
 
 
-def literal_setup_keywords(setup_py_path: Path) -> dict[str, object]:
-    """Read literal setup keyword values without importing or executing the file."""
+def _proven_setup_call(setup_py_path: Path) -> ast.Call | None:
     try:
         tree = ast.parse(
             setup_py_path.read_text(encoding="utf-8-sig", errors="replace"),
             filename=str(setup_py_path),
         )
     except (OSError, SyntaxError):
-        return {}
-    call = _setup_call(tree)
+        return None
+    return _setup_call(tree)
+
+
+def declared_setup_keywords(setup_py_path: Path) -> frozenset[str]:
+    """Every keyword the proven setuptools call passes, literal or computed.
+
+    A keyword whose value is computed (``install_requires=read_requirements()``) is declared
+    but unreadable without running the file; callers use the difference from the literal
+    keywords to say "unknown" instead of "none".
+    """
+    call = _proven_setup_call(setup_py_path)
+    if call is None:
+        return frozenset()
+    return frozenset(keyword.arg for keyword in call.keywords if keyword.arg is not None)
+
+
+def literal_setup_keywords(setup_py_path: Path) -> dict[str, object]:
+    """Read literal setup keyword values without importing or executing the file."""
+    call = _proven_setup_call(setup_py_path)
     if call is None:
         return {}
     literals: dict[str, object] = {}
@@ -158,12 +175,19 @@ def parse_setup_py(setup_py_path: Path) -> dict[str, str]:
     if classifier_versions:
         info["python_classifier_versions"] = ",".join(classifier_versions)
     requirements = literals.get("install_requires")
+    if isinstance(requirements, str):
+        requirements = [line for line in requirements.splitlines() if line.strip()]
     if isinstance(requirements, list | tuple):
         declared = [r.strip() for r in requirements if isinstance(r, str) and r.strip()]
         if declared:
-            info["dependencies"] = ",".join(declared)
+            info["dependencies"] = json.dumps(declared)
         else:
             info["dependency_evidence"] = "the `install_requires` list is empty"
+    elif "install_requires" in declared_setup_keywords(setup_py_path):
+        info["dependencies_dynamic"] = (
+            "`install_requires` is computed in setup.py, so the requirements are not statically "
+            "known"
+        )
     extras = literals.get("extras_require")
     if isinstance(extras, dict):
         buckets = {

@@ -705,6 +705,8 @@ def _npm_registry_reading(published: bool) -> RegistryObservation:
         "https://registry.npmjs.org/@aspose%2Fwidget",
         "packument",
         "test",
+        # A published package is the repository's own once the registry points back at it.
+        repository_matched=True if published else None,
     )
 
 

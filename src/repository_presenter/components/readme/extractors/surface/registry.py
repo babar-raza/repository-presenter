@@ -22,18 +22,22 @@ from __future__ import annotations
 import json
 import re
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from typing import Any
+from xml.etree import ElementTree
 
 from repository_presenter.components.readme.extractors.surface._vendor.aspose_extraction import (
     package_registries,
     publication_probe,
 )
+from repository_presenter.core.facts import Fact, Polarity
+from repository_presenter.core.package_registry import install_verdict, points_at_repository
 from repository_presenter.core.retry import RETRY_POLICIES, RetryableOperationError, run_with_retry
 
 Fetch = Callable[..., Any]
 Sleep = Callable[[float], None]
+ResolveUrl = Callable[[str], "str | None"]
 # What the vendored probe calls each registry, keyed by this repository's ecosystem name.
 REGISTRY_TYPES: dict[str, str] = {
     "python": "pypi",
@@ -67,6 +71,28 @@ class RegistryObservation:
     # never an install fact's evidence (section 27.2 RC7). None when the registry lists no stable
     # release, answered ambiguously, or its body could not be read.
     latest_version: str | None = None
+    # The registry's own project / source URLs for the distribution, and whether one names the
+    # repository the caller asked about (None: no repository given, or the registry lists no URL).
+    project_urls: tuple[str, ...] = ()
+    repository_matched: bool | None = None
+
+    @property
+    def owned(self) -> bool:
+        """Whether the published distribution is corroborated as this repository's own.
+
+        A name found on a registry proves only that the name is taken. Ownership needs the
+        registry's own project or source URL to point back at the repository.
+        """
+        return self.conclusive and bool(self.published) and self.repository_matched is True
+
+    def install_verdict(self) -> tuple[Polarity, float, str]:
+        """The polarity, confidence and evidence detail an install claim takes from this read."""
+        return install_verdict(
+            conclusive=self.conclusive,
+            published=self.published,
+            repository_matched=self.repository_matched,
+            summary=self.summary,
+        )
 
     @property
     def conclusive(self) -> bool:
@@ -90,6 +116,36 @@ class RegistryObservation:
             return f"package registry: {self.registry} answered ambiguously"
         found = "found" if self.published else "distribution not found"
         return f"package registry: {found} on {self.registry}"
+
+
+def repository_of(facts: Sequence[Fact]) -> str | None:
+    """``owner/name`` of the repository under analysis, from its ``identity:repository`` fact."""
+    for fact in facts:
+        if fact.id == "identity:repository" and fact.value.strip():
+            return fact.value.strip()
+    return None
+
+
+def match_repository(
+    urls: Iterable[str], repository: str, resolve_url: ResolveUrl | None = None
+) -> bool | None:
+    """Whether the registry's ``urls`` name ``repository``, following a rename's redirect once.
+
+    GitHub keeps a 301 from a repository's old name, and a registry record is rarely updated
+    when the repository moves; so a GitHub URL that does not match is resolved before the
+    registry's record is called wrong (the vendored probe's own rule, quarantined here because
+    the façade does not hand it the repository).
+    """
+    listed = [url for url in urls if url]
+    verdict = points_at_repository(listed, repository)
+    if verdict is not False:
+        return verdict
+    resolve = resolve_url or publication_probe.default_resolve_url
+    for url in sorted({u for u in listed if "github.com" in u.lower()}):
+        final = resolve(url)
+        if final and points_at_repository([final], repository):
+            return True
+    return False
 
 
 def registry_type(ecosystem: str) -> str:
@@ -210,14 +266,66 @@ def _latest_version(registry: str, live: dict[str, Any], body: bytes | None) -> 
     return None
 
 
+_MAVEN_POM_URL = (
+    "https://repo1.maven.org/maven2/{group_path}/{artifact}/{version}/{artifact}-{version}.pom"
+)
+_POM_URL_TAGS = frozenset({"url", "connection", "developerConnection"})
+
+
+def _maven_release(body: bytes | None) -> str | None:
+    """The version ``maven-metadata.xml`` names as released, qualifier and all (``33.7.2-jre``).
+
+    Distinct from the registry's "current stable release": that one rejects any qualifier, and a
+    qualified release (Guava's ``-jre``) is still a published artifact whose POM names its source.
+    """
+    if body is None:
+        return None
+    text = body.decode("utf-8", errors="replace")
+    for pattern in (_MAVEN_RELEASE, _MAVEN_LATEST):
+        found = pattern.search(text)
+        if found:
+            return found.group(1)
+    versions = _MAVEN_VERSION.findall(text)
+    return versions[-1] if versions else None
+
+
+def _maven_pom_urls(package_name: str, version: str | None, fetch: Fetch | None) -> tuple[str, ...]:
+    """The project and SCM URLs the published artifact's own POM declares, or none.
+
+    ``maven-metadata.xml`` names no source repository, so the artifact's POM is the registry's
+    only statement of where it came from. A POM that cannot be read declares nothing: the caller
+    then has no URL to compare, which is "ownership not confirmed", never a guess.
+    """
+    if ":" not in package_name or not version:
+        return ()
+    group, artifact = package_name.split(":", 1)
+    url = _MAVEN_POM_URL.format(
+        group_path=group.replace(".", "/"), artifact=artifact, version=version
+    )
+    try:
+        response = (fetch or package_registries.default_fetch)(url)
+        if response is None or getattr(response, "status_code", None) != 200:
+            return ()
+        root = ElementTree.fromstring(response.body)
+    except (ElementTree.ParseError, OSError, ValueError, TypeError):
+        return ()
+    found: list[str] = []
+    for element in root.iter():
+        if element.tag.rsplit("}", 1)[-1] in _POM_URL_TAGS and (element.text or "").strip():
+            found.append((element.text or "").strip())
+    return tuple(found)
+
+
 def observe(
     ecosystem: str,
     package_name: str,
     *,
     repository_url: str | None = None,
+    repository: str | None = None,
     fetch: Fetch | None = None,
     offline: bool = False,
     sleep: Sleep | None = None,
+    resolve_url: ResolveUrl | None = None,
 ) -> RegistryObservation:
     """Ask the registry whether ``package_name`` is published, or say plainly that we did not.
 
@@ -229,6 +337,12 @@ def observe(
     ``RETRY_POLICIES["package_registry"]``, for every ecosystem alike (G4-W17 arrival item 57);
     a 404 and a non-transient status are the registry's answer and are never asked again.
     ``sleep`` exists so a test measures the replays without waiting on the policy's backoff.
+
+    ``repository`` (``owner/name``) is the repository the manifest's package name belongs to. A
+    distribution published under that name is only *corroborated* as the repository's own when the
+    registry's project or source URL points back at it (``repository_matched``); without it a
+    caller must not read "found" as "this project's package". ``resolve_url`` follows a renamed
+    repository's redirect and exists so a test never reaches GitHub.
     """
     kind = registry_type(ecosystem)
     # The vendored adapters key their own coordinate differently per registry: the Go adapter
@@ -264,6 +378,7 @@ def observe(
     published = live.get("published")
     ambiguous = bool(live.get("ambiguous", True))
     latest: str | None = None
+    body: bytes | None = None
     if reads is not None and published and not ambiguous:
         # PyPI's version was already parsed by the probe; the other registries' bodies are the
         # ones the probe's own adapter fetched, keyed by the URL it reports as its evidence.
@@ -271,6 +386,14 @@ def observe(
         if body is None and kind == "pypi":
             body = reads.bodies.get(f"https://pypi.org/pypi/{package_name}/json")
         latest = _latest_version(kind, live, body)
+    urls: tuple[str, ...] = ()
+    matched: bool | None = None
+    if repository and published and not ambiguous:
+        if kind == "maven":
+            urls = _maven_pom_urls(package_name, _maven_release(body), fetch)
+        elif live.get("project_url"):
+            urls = (str(live["project_url"]),)
+        matched = match_repository(urls, repository, resolve_url) if urls else None
     return RegistryObservation(
         registry=kind,
         name=package_name,
@@ -280,4 +403,6 @@ def observe(
         method=live.get("method"),
         source=str(result.get("source", "")),
         latest_version=latest,
+        project_urls=urls,
+        repository_matched=matched,
     )

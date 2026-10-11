@@ -54,7 +54,7 @@ def read_no_registry_for_the_published_version() -> Iterator[None]:
         patch.setattr(
             published_version,
             "_observe",
-            lambda ecosystem, name: observe(ecosystem, name, offline=True),
+            lambda ecosystem, name, **_: observe(ecosystem, name, offline=True),
         )
         yield
 

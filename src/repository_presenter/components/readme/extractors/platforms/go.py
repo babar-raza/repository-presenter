@@ -35,7 +35,10 @@ from repository_presenter.components.readme.extractors.surface.manifest import (
     PackageIdentity,
     read_identity,
 )
-from repository_presenter.components.readme.extractors.surface.registry import observe
+from repository_presenter.components.readme.extractors.surface.registry import (
+    observe,
+    repository_of,
+)
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
 from repository_presenter.core.examples import (
     ExampleCandidate,
@@ -43,7 +46,7 @@ from repository_presenter.core.examples import (
     FormatClaim,
     FormatDeclaration,
 )
-from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.facts import Evidence, Fact, fact_id
 from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
@@ -365,21 +368,15 @@ class GoPlugin:
         name = by_id.get("package:name")
         if install is None or name is None:
             return [], []
-        reading = observe(self.ecosystem, name.value)
-        polarity: Polarity
-        if not reading.conclusive:
-            polarity, confidence = "UNRESOLVED", 0.5
-        elif reading.published:
-            polarity, confidence = "SUPPORTED", 1.0
-        else:
-            polarity, confidence = "CONTRADICTED", 1.0
+        reading = observe(self.ecosystem, name.value, repository=repository_of(facts))
+        polarity, confidence, detail = reading.install_verdict()
         resolved = Fact(
             install.id,
             install.kind,
             install.value,
             (
                 *install.evidence,
-                Evidence(reading.evidence_url or reading.registry or GO.registry, reading.summary),
+                Evidence(reading.evidence_url or reading.registry or GO.registry, detail),
             ),
             polarity=polarity,
             confidence=confidence,
