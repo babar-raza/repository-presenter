@@ -59,6 +59,7 @@ def test_every_registered_detector_is_loaded_by_name() -> None:
         "add_doc_links",
         "add_install_forms",
         "add_version_badge",
+        "at_a_glance_diagram",
         "broken_link",
         "claim_identity",
         "claim_license",
