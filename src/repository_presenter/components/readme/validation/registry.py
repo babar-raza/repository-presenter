@@ -168,7 +168,14 @@ VALIDATION_FILENAME = "validation.json"
 # BC-14 refuses a "sole / only / first published version" claim the registry's version count
 # contradicts (each Check version moves by one). A bundle sealed under 20 re-checks under 21 and
 # shows as pending.
-VALIDATOR_VERSION = "21"
+# 22: CUT-4 (G3-W08, wave-3 triage and acceptance review): BC-03 judges a printed example by what the
+# verifier compiled, BC-04 also enforces the text-hygiene and audience guards, BC-05 checks a kept unit
+# against the whole destination document and blocks silent deferrals, BC-07 judges the horizontal
+# At a Glance drawing by the width model and flags a dangling reference, BC-12 treats a name that
+# heads a longer dotted or scoped identifier as an identifier, BC-14 counts a registry-confirmed
+# distribution as a positive reading (each Check version moves by one). A bundle sealed under 21
+# re-checks under 22 and shows as pending.
+VALIDATOR_VERSION = "22"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -247,7 +254,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-03",
-        "2",
+        "3",
         "Every rendered example was executed or compiled in isolation at this revision",
         ("quick_start", "additional_examples"),
         "S9",
@@ -259,7 +266,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # fact's own literal value, example identifier, or command-fence token.
         # 3 (G7-W15): a must-carry unit the section's authoring recorded as omitted with a reason
         # is dispositioned (units document `omitted`), exactly as the authoring call judged it.
-        "4",
+        "5",
         "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact "
         "value in a code span",
         (
@@ -280,7 +287,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # section cannot carry it (dispositions.RECOVERED_COVERAGE_RATIONALE) is an ADVISORY class.
         # "5" (CUT-2, G3-W08/G7-W12): "unsupported"/"uncertain" attestations and a unit from the
         # examples section the plan excludes are classified ADVISORY; see VALIDATOR_VERSION 20.
-        "6",
+        "7",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),
@@ -365,7 +372,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # badge-specific link_target fact in its evidence at all needs no badge row, since no
         # badge slot could ever render from it. Any badge-worthy fact present and still no
         # rendered row is unchanged: that is a real composition defect.
-        "10",
+        "11",
         "Exactly one factual H1; one badge row in the stable order, each badge supported by a "
         "verified fact; title-case headings of every level; canonical abbreviations in prose and "
         "headings; At a Glance topology, column rules and label geometry; fence languages and "
@@ -412,7 +419,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-12",
-        "1",
+        "2",
         "Every product-name position in the prose spells the registry's canonical product name "
         "exactly; no separator, case, or suffix variant of it (plans/idea.md L84-85)",
         ("all",),
@@ -420,7 +427,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-14",
-        "2",
+        "3",
         "A package version, install command, or publication statement in the README equals what "
         "the facts say: the registry's current release (or the manifest's version without that "
         "reading), the package identity fact, and the install command's registry observation",

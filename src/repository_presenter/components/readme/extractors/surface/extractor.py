@@ -48,7 +48,9 @@ lang.LANGUAGES.setdefault("javascript", lang.typescript)
 # own POM children, install claims gated on registry ownership, unexposed Rust items dropped.
 # 3 (TC-COV-02, G3-W08, cut 3): build_test_asset facts for the build command, the test command and
 # the CI matrix, read from the clone's workflows, package.json, Makefile and toolchain manifests.
-EXTRACTOR_VERSION = "3"
+# 4: CUT-4 (G3-W08): TypeScript nested type-literal fields are not members, license and notices files
+# under License/ directories, the registry-lag fact, the JavaScript adapter.
+EXTRACTOR_VERSION = "4"
 
 SymbolKind = Literal["module", "class", "enum", "function", "method", "unknown"]
 
