@@ -33,6 +33,9 @@ from repository_presenter.components.readme.composition.authoring import (
     write_content_units,
     write_raw_calls,
 )
+from repository_presenter.components.readme.composition.authoring_retry import (
+    authoring_narrowing,
+)
 from repository_presenter.components.readme.composition.coherence import (
     apply_coherence,
     coherence_batch_units,
@@ -480,6 +483,10 @@ def run_round(tx: TransactionInputs) -> Round:
                 facts=facts,
                 name=name,
             ),
+            # Wave 3 (nine of thirty-six repositories at "output rejected twice"): after the two
+            # asks, one more for only the slots still refused, the accepted units kept as they
+            # are (composition/authoring_retry.py); a rejection no slot owns is not narrowed.
+            narrow=authoring_narrowing(task, loaded),
             **common,
         )
     units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])
