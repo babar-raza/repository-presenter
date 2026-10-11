@@ -328,9 +328,9 @@ repository-presenter issue-readiness [--root PATH] [--repo OWNER/NAME] [--approv
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
 repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]
 repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
-repository-presenter propose --repo OWNER/NAME --correction-bundle DIR [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]   # propose a correction bundle through its typed gate
-repository-presenter correct-readme --repo OWNER/NAME --out DIR [--root PATH] [--facts PATH]
-repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N]
+repository-presenter propose --repo OWNER/NAME --correction-bundle DIR [--sandbox] [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]   # propose a correction bundle through its typed gate
+repository-presenter correct-readme --repo OWNER/NAME --out DIR [--root PATH] [--facts PATH] [--sandbox]
+repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N] [--correction-bundle DIR] [--sandbox]
 repository-presenter wave-readiness [--root PATH] [--repo OWNER/NAME] [--offline] [--authorize OWNER/NAME@HASH] [--authorize-file PATH] [--emit-records DIR --approver NAME --expires-at TIME [--issued-at TIME]]
 repository-presenter publish-candidates --repo OWNER/NAME --import-dir PATH [--root PATH] [--control-repo OWNER/NAME] [--base-branch NAME] [--publish]
 repository-presenter sealing-plan [--root PATH] [--drift-file PATH] [--history-file PATH] [--github-output PATH]
@@ -485,6 +485,14 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   `ops/proposal-authorizations/` (`--expires-in-hours` sets its window, at most 168;
   `--supersedes-pr N` explicitly permits a re-proposal after that merged or closed PR). Drafting
   authorizes nothing: the record counts only once a person has merged it.
+- **`correct-readme --repo OWNER/NAME --out DIR`** — writes a correction bundle for the repository's
+  live README at the registry head: only edits its facts dictate, no model call, no write to the
+  target. `propose --correction-bundle DIR` proposes that bundle's corrected README behind the typed
+  correction gate (every other `propose` gate is shared), and `draft-proposal-authorization
+  --correction-bundle DIR` drafts its record. `--sandbox` on these three commands reads the sandbox
+  allow-list `data/registry_sandbox.json` (the owner's throwaway canary repository, correction
+  proposals only) instead of the production registry, which it never consults or changes
+  (`docs/PROPOSAL_WAVE_RUNBOOK.md` section 9).
 - **`wave-readiness`** — the operator view of a proposal wave (G6-W03,
   `docs/PROPOSAL_WAVE_RUNBOOK.md`). Read-only: prints, per sealed `READY_FOR_PROPOSAL` candidate (or
   each `--repo`), the registry mode, candidate hash, whether its sealed revision is still the live

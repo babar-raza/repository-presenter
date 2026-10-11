@@ -375,6 +375,7 @@ from repository_presenter.core.registry.loader import (
     require_listed,
 )
 from repository_presenter.core.registry.models import Registry, RegistryEntry
+from repository_presenter.core.registry.sandbox import load_registry_for
 from repository_presenter.core.registry.write_gate import require_write_permitted
 from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.sealing_plan import (
@@ -445,6 +446,11 @@ def build_parser() -> argparse.ArgumentParser:
     root_help = (
         f"project root holding {CURSOR_RELATIVE_PATH.as_posix()}; "
         "discovered from the working directory when omitted"
+    )
+    sandbox_help = (
+        "consult the sandbox allow-list (data/registry_sandbox.json: the owner's throwaway canary "
+        "repository, correction proposals only) instead of the production registry; the "
+        "production registry is never consulted or changed, and a repository in both is refused"
     )
     status = subcommands.add_parser(
         "status",
@@ -1105,6 +1111,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     correct.add_argument("--repo", required=True, metavar="OWNER/NAME", help="registry coordinates")
     correct.add_argument("--root", type=Path, default=None, help=root_help)
+    correct.add_argument("--sandbox", action="store_true", help=sandbox_help)
     correct.add_argument(
         "--facts",
         type=Path,
@@ -1138,6 +1145,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="the target repository to propose against",
     )
     propose.add_argument("--root", type=Path, default=None, help=root_help)
+    propose.add_argument("--sandbox", action="store_true", help=sandbox_help)
     propose.add_argument(
         "--authorization-record",
         type=Path,
@@ -1270,6 +1278,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     draft.add_argument("--repo", required=True, metavar="OWNER/NAME", help="the target repository")
     draft.add_argument("--root", type=Path, default=None, help=root_help)
+    draft.add_argument("--sandbox", action="store_true", help=sandbox_help)
+    draft.add_argument(
+        "--correction-bundle",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help=(
+            "draft the record for the corrected README of a `correct-readme --out` bundle (the "
+            "same typed gate `propose --correction-bundle` applies) instead of a sealed candidate"
+        ),
+    )
     draft.add_argument(
         "--approver", required=True, help="who is approving this exact candidate (a person)"
     )
@@ -1534,7 +1553,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "stage-transaction-artifact":
         return run_stage_transaction_artifact(args.transaction, args.staging)
     if args.command == "correct-readme":
-        return run_correct_readme(args.repo, args.root, facts_path=args.facts, out=args.out)
+        return run_correct_readme(
+            args.repo, args.root, facts_path=args.facts, out=args.out, sandbox=args.sandbox
+        )
     if args.command == "propose":
         return run_propose(
             args.repo,
@@ -1546,6 +1567,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             authorization_record=args.authorization_record,
             trigger_sha=args.trigger_sha,
             propose=args.do_propose,
+            sandbox=args.sandbox,
         )
     if args.command == "publish-candidates":
         return run_publish_candidates(
@@ -1564,6 +1586,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             base_branch=args.base_branch,
             expires_in_hours=args.expires_in_hours,
             supersedes_prs=tuple(args.supersedes_pr),
+            correction_bundle=args.correction_bundle,
+            sandbox=args.sandbox,
         )
     if args.command == "wave-readiness":
         return run_wave_readiness(
@@ -2925,6 +2949,7 @@ def run_propose(
     trigger_sha: str | None = None,
     propose: bool = False,
     correction_bundle: Path | None = None,
+    sandbox: bool = False,
 ) -> int:
     """Create or update the one stable presenter branch/PR proposing ``repository``'s README
     candidate (G6-W02; ``components/propose/effect.py``).
@@ -2932,6 +2957,10 @@ def run_propose(
     ``correction_bundle`` swaps the candidate for the corrected README of a ``correct-readme``
     bundle, behind its own typed gate (``components/readme_correction/gate.py``); nothing else in
     this function changes for it, and a regenerated candidate is still judged by the original gate.
+
+    ``sandbox`` reads the sandbox allow-list (``core/registry/sandbox.py``) instead of the
+    production registry: the owner's throwaway canary repository, proposed to by a correction
+    bundle only. Every gate after the registry lookup is the one a product repository meets.
 
     A proposal carries exactly one thing: ``repository``'s sealed ``CURRENT`` candidate, and only
     while that bundle is integrity-verified and ``READY_FOR_PROPOSAL`` at the revision the target
@@ -2953,6 +2982,12 @@ def run_propose(
     if root is None:
         return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    if sandbox and (correction_bundle is None or local_test_readme_file is not None):
+        _fail(
+            "propose: --sandbox proposes a --correction-bundle only: the sandbox has no sealed "
+            "candidate and --local-test-readme-file skips the registry"
+        )
+        return EXIT_USAGE
     try:
         if local_test_readme_file is not None:
             if propose:
@@ -2979,16 +3014,18 @@ def run_propose(
             print("propose: dry run (local test mode never writes)")
             return EXIT_OK
 
-        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        registry = load_registry_for(root, sandbox=sandbox)
         entry = require_listed(registry, repository)
         repository = entry.repository
-        print(f"admitted: {entry.repository} (mode {entry.mode})")
+        print(f"admitted: {entry.repository} (mode {entry.mode}{', sandbox' if sandbox else ''})")
         if propose:
             permit = require_write_permitted(registry, repository, "readme_proposal")
         elif entry.mode != "full":
             print(f"propose: registry mode {entry.mode!r} - a dry-run result is all this can be")
         if correction_bundle is not None:
-            candidate = load_proposable_correction(correction_bundle, repository, root=root)
+            candidate = load_proposable_correction(
+                correction_bundle, repository, root=root, entry=entry
+            )
             print(f"propose: correction bundle {correction_bundle.name} (typed correction gate)")
         else:
             candidate = load_proposable_candidate(
@@ -3152,23 +3189,33 @@ def run_propose(
 
 
 def run_correct_readme(
-    repository: str, root_argument: Path | None, *, facts_path: Path | None, out: Path
+    repository: str,
+    root_argument: Path | None,
+    *,
+    facts_path: Path | None,
+    out: Path,
+    sandbox: bool = False,
 ) -> int:
     """``correct-readme``: write the correction bundle for ``repository``'s live README.
 
     Read-only toward the target, no model call, no write beyond ``out``. The hard allow-list is
-    checked before any repository-specific network work, exactly as ``present`` does."""
+    checked before any repository-specific network work, exactly as ``present`` does. ``sandbox``
+    reads the sandbox allow-list instead (``core/registry/sandbox.py``), here and in the facts-only
+    extraction it starts."""
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
     try:
-        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        registry = load_registry_for(root, sandbox=sandbox)
         entry = require_listed(registry, repository)
-        print(f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem})")
+        print(
+            f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem}"
+            f"{', sandbox' if sandbox else ''})"
+        )
 
         def extract_facts(revision: str) -> Path | None:
-            code = run_present(entry.repository, root_argument, facts_only=True)
+            code = run_present(entry.repository, root_argument, facts_only=True, sandbox=sandbox)
             facts = (
                 root / RUNS_DIRNAME / "transactions" / f"{entry.owner}__{entry.name}" / revision
             ) / FACTS_FILENAME
@@ -3344,9 +3391,15 @@ def run_draft_proposal_authorization(
     base_branch: str | None = None,
     expires_in_hours: int = 24,
     supersedes_prs: tuple[int, ...] = (),
+    correction_bundle: Path | None = None,
+    sandbox: bool = False,
 ) -> int:
     """Write the authorization record for ``repository``'s current candidate under ``ops/
     proposal-authorizations/`` for a person to review and merge.
+
+    ``correction_bundle`` drafts it for the corrected README of a ``correct-readme`` bundle (the
+    typed gate ``propose --correction-bundle`` applies); ``sandbox`` reads the sandbox allow-list
+    and then requires a correction bundle, since the sandbox has no sealed candidate.
 
     Drafting authorizes nothing: ``propose --propose`` accepts a record only once it is merged to
     ``origin/main`` before the commit a run is triggered at, so the run that drafts a record can
@@ -3360,14 +3413,22 @@ def run_draft_proposal_authorization(
             f"draft-proposal-authorization: --expires-in-hours must be 1..{MAX_LIFETIME.days * 24}"
         )
         return EXIT_USAGE
+    if sandbox and correction_bundle is None:
+        _fail("draft-proposal-authorization: --sandbox drafts for a --correction-bundle only")
+        return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
     try:
-        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        registry = load_registry_for(root, sandbox=sandbox)
         entry = require_listed(registry, repository)
         require_write_permitted(registry, entry.repository, "readme_proposal")
-        candidate = load_proposable_candidate(
-            root, entry.repository, acceptance=proposal_acceptance_gate(root)
-        )
+        if correction_bundle is not None:
+            candidate = load_proposable_correction(
+                correction_bundle, entry.repository, root=root, entry=entry
+            )
+        else:
+            candidate = load_proposable_candidate(
+                root, entry.repository, acceptance=proposal_acceptance_gate(root)
+            )
         live = fetch_default_branch_sha(entry.repository, token=os.environ.get("GH_TOKEN") or None)
         if live.error is not None or live.sha is None or live.branch is None:
             _fail(f"draft-proposal-authorization: could not read the target: {live.error}")
@@ -4052,8 +4113,12 @@ def run_present(
     fresh: bool = False,
     on_disposition: Callable[[Path], None] | None = None,
     invocation_record: Path | None = None,
+    sandbox: bool = False,
 ) -> int:
     """Run one ``present`` invocation, recording it when ``invocation_record`` is given.
+
+    ``sandbox`` (``facts_only`` runs started by ``correct-readme --sandbox``) admits the repository
+    from the sandbox allow-list and records no upstream-defect handoff for it.
 
     The record names this process (id, start time, boot marker), the invocation's id - stamped on
     every ledger record it appends - and the ledger it wrote to, so ``verify-noop-proof`` can
@@ -4074,7 +4139,9 @@ def run_present(
 
     exit_code: int | None = None
     try:
-        exit_code = _run_present(repository, root_argument, facts_only, fresh, invocation, disposed)
+        exit_code = _run_present(
+            repository, root_argument, facts_only, fresh, invocation, disposed, sandbox=sandbox
+        )
         return exit_code
     finally:
         if invocation_record is not None:
@@ -4094,6 +4161,8 @@ def _run_present(
     fresh: bool,
     invocation: Invocation,
     on_disposition: Callable[[Path], None] | None,
+    *,
+    sandbox: bool = False,
 ) -> int:
     """Admit ``repository`` from the registry, then run the transaction stages.
 
@@ -4118,7 +4187,7 @@ def _run_present(
         return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
     try:
-        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        registry = load_registry_for(root, sandbox=sandbox)
         entry = require_listed(registry, repository)
         print(
             f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem}, "
@@ -4245,7 +4314,10 @@ def _run_present(
             f"evaluation: {(transaction / EVALUATION_FILENAME).relative_to(root).as_posix()} "
             f"({summarize_evaluation(evaluated)}; digest {evaluation_digest})"
         )
-        _record_defect_class_handoffs(root, entry, clone.revision, clone.path, tree_paths, manifest)
+        if not sandbox:  # a sandbox is no product: nothing upstream could be told about it
+            _record_defect_class_handoffs(
+                root, entry, clone.revision, clone.path, tree_paths, manifest
+            )
         if facts_only:
             return _report_facts_only(root, entry, clone.revision, document, transaction)
         # Fallback chains (core/llm/fallback.py), decided once at run start before any content

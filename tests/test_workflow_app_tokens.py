@@ -43,6 +43,15 @@ EXPECTED_MINT_PERMISSIONS: dict[str, list[dict[str, str]]] = {
             "permission-pull-requests": "write",
         },
     ],
+    # The sandbox canary: propose.yml's two mints, for the one sandbox repository and nothing else.
+    "propose-sandbox.yml": [
+        {"permission-contents": "read", "permission-metadata": "read"},
+        {
+            "permission-contents": "write",
+            "permission-metadata": "read",
+            "permission-pull-requests": "write",
+        },
+    ],
     # One read-only GET /repos/{owner}/{repo} and nothing else.
     "verify-app-installation.yml": [{"permission-metadata": "read"}],
     "audit-app-installations.yml": [{"permission-metadata": "read"}],
@@ -63,6 +72,7 @@ EXPECTED_MINT_PERMISSIONS: dict[str, list[dict[str, str]]] = {
 # The only workflows allowed to mint a write-scoped App token, and the write scopes each may hold.
 ALLOWED_WRITE_SCOPES: dict[str, list[str]] = {
     "propose.yml": ["permission-contents", "permission-pull-requests"],
+    "propose-sandbox.yml": ["permission-contents", "permission-pull-requests"],
     "issues-scheduled.yml": ["permission-issues"],
 }
 

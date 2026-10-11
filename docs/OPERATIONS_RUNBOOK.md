@@ -70,6 +70,7 @@ GitHub notification email for failed scheduled runs of the repository owner.
 | Mirror to GitLab | `mirror-gitlab.yml` | push (branches: ['main'], tags: ['*'])<br>workflow_dispatch | contents: read | cancel-in-progress: False, group: mirror-gitlab |
 | Monitor | `monitor.yml` | schedule `17 */6 * * *` (UTC)<br>workflow_dispatch | contents: read | cancel-in-progress: True, group: monitor |
 | Present | `present.yml` | repository_dispatch types: present<br>workflow_call inputs: repository (string, required)<br>workflow_dispatch inputs: repository (string, required) | contents: write | cancel-in-progress: False, group: present-${{ inputs.repository // github.event.client_payload.repository // 'unknown' }} |
+| Propose (sandbox canary) | `propose-sandbox.yml` | workflow_dispatch inputs: authorization_record (string, optional); do_propose (boolean, default False) | contents: read | cancel-in-progress: False, group: propose-sandbox |
 | Propose | `propose.yml` | workflow_call inputs: authorization_record (string, optional); base_branch (string, optional); candidate_artifact (string, optional); do_propose (boolean, default False); repo (string, required)<br>workflow_dispatch inputs: authorization_record (string, optional); base_branch (string, optional); do_propose (boolean, default False); repo (string, required) | contents: read | cancel-in-progress: False, group: propose-${{ inputs.repo }} |
 | Sealing (scheduled) | `sealing-scheduled.yml` | schedule `37 5 * * *` (UTC)<br>workflow_dispatch | contents: read | - |
 | Verify GitHub App Installation | `verify-app-installation.yml` | workflow_dispatch | contents: read | - |
@@ -86,6 +87,7 @@ GitHub notification email for failed scheduled runs of the repository owner.
 | `mirror-gitlab.yml` | - | `GITLAB_TOKEN` | - |
 | `monitor.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY`, `GPT_OSS_API_KEY`, `GPT_OSS_ENDPOINT` | - |
 | `present.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY`, `GITHUB_TOKEN`, `GPT_OSS_API_KEY`, `GPT_OSS_ENDPOINT` | `REPOSITORY_PRESENTER_STATE_TOKEN` |
+| `propose-sandbox.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` |
 | `propose.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` |
 | `sealing-scheduled.yml` | `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_SEALING_PAUSED` | - + `secrets: inherit` | `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_SEALING_PAUSED` |
 | `verify-app-installation.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | - |
@@ -154,6 +156,13 @@ Artifacts: `down:drift-*`, `up:drift-${{ matrix.owner }}`
 | `present` | - | ubuntu-latest | contents: write (workflow) | permission-contents=read+permission-metadata=read | - | - | - | - |
 
 Artifacts: `up:seal-transaction-${{ steps.target.outputs.owner }}__${{ steps.target.outputs.name }}-${{ github.run_attempt }}`, `up:sealed-${{ steps.target.outputs.owner }}__${{ steps.target.outputs.name }}`
+
+#### `propose-sandbox.yml` job graph
+
+| Job | Needs | Runs on | Effective permissions | App token scope | Environment | Concurrency | Matrix | Condition |
+|---|---|---|---|---|---|---|---|---|
+| `dry-run` | - | ubuntu-latest | contents: read | permission-contents=read+permission-metadata=read | - | - | - | - |
+| `write` | `dry-run` | ubuntu-latest | contents: read | permission-contents=write+permission-metadata=read+permission-pull-requests=write | sandbox-canary | - | - | `${{ inputs.do_propose && needs.dry-run.result == 'success' }}` |
 
 #### `propose.yml` job graph
 
