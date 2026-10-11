@@ -407,28 +407,94 @@ def tight(readme: str) -> str:
     )
 
 
-def test_the_length_the_redraw_adds_is_said_in_words_without_the_rulings(
+def checks_line(content: Any) -> str:
+    return next(
+        line
+        for line in content.body.splitlines()
+        if line.startswith("- We ran repository-presenter")
+    )
+
+
+def delta_of(tmp_path: Path) -> dict[str, Any]:
+    return json.loads((tmp_path / "bundle" / files.DELTA_NAME).read_text(encoding="utf-8"))
+
+
+def tally(delta: dict[str, Any]) -> tuple[int, int, int, int]:
+    live, after = delta["live_failures"], delta["corrected_failures"]
+    names = set(live) | set(after)
+    removed = sum(max(live.get(n, 0) - after.get(n, 0), 0) for n in names)
+    added = sum(max(after.get(n, 0) - live.get(n, 0), 0) for n in names)
+    return sum(live.values()), sum(after.values()), removed, added
+
+
+def test_a_correction_that_only_removes_failures_says_how_many_of_how_many(
     tmp_path: Path, make_context: Any
 ) -> None:
+    content = compose(tmp_path, make_context, VERSION)
+    before, after, removed, added = tally(delta_of(tmp_path))
+    assert added == 0 and removed > 0
+    assert f"They report {before} failure(s) on yours and {after} on the corrected one: " in (
+        checks_line(content)
+    )
+    assert f"it removes {removed} of the {before} and adds none." in checks_line(content)
+    assert "validate_candidate" not in content.body and "BC-" not in content.body
+
+
+def test_failures_it_adds_are_stated_and_nothing_is_called_fewer_when_hidden_text_is_now_read(
+    tmp_path: Path, make_context: Any
+) -> None:
+    # The Cells-Go case: closing the markup resolves failures and exposes one in text it hid.
+    content = compose(tmp_path, make_context, STRUCTURE)
+    _before, _after, removed, added = tally(delta_of(tmp_path))
+    line = checks_line(content)
+    assert added > 0  # the net may even be positive; the sentence still says removes and adds
+    assert f"it removes {removed} and adds {added}; the added ones are explained below." in line
+    assert "fewer" not in line and "no failure that yours" not in line
+    assert "Closing the broken markup makes text visible" in content.body
+    assert "they now report 1 issue(s) there (for example the code span `v26`)" in content.body
+    assert "new problems this change introduces" not in content.body
+
+
+def test_a_redraw_that_tips_the_length_limit_says_how_many_lines_and_by_how_much(
+    tmp_path: Path, make_context: Any
+) -> None:
+    # The Email-Cpp case: one failure resolved, one added (length), net zero.
     content = compose(tmp_path, make_context, tight(with_diagram(diagram())))
-    body = content.body
-    assert (
-        "the redraw adds a few lines (its init line and the links that keep columns in order)"
-        in body
+    document = json.loads(
+        (tmp_path / "bundle" / files.CORRECTIONS_NAME).read_text(encoding="utf-8")
     )
-    assert re.search(
-        r"the README now has \d+ lines outside collapsed blocks, over the 300-line limit", body
+    edit = next(e for e in document["edits"] if e["kind"] == "DIAGRAM_FIX")
+    grown = len(edit["replacement"].splitlines()) - len(edit["original"].splitlines())
+    before, after, removed, added = tally(delta_of(tmp_path))
+    line = checks_line(content)
+    assert added > 0 and before - after <= 0
+    assert f"it removes {removed} and adds {added}" in line and "fewer" not in line
+    found = re.search(
+        r"the README now has ([0-9]+) lines outside collapsed blocks, "
+        r"([0-9]+) over the 300-line limit",
+        content.body,
     )
-    assert "(yours was within it)" in body
-    assert "owner ruling" not in body
+    assert found is not None and int(found.group(1)) - 300 == int(found.group(2)) > 0
+    assert f"the redrawn diagram adds {grown} lines" in content.body
+    assert "the redraw is what makes the labels fit" in content.body
+    assert "(yours was within it)" in content.body and "owner ruling" not in content.body
     assert_plain(content)
 
 
-def test_the_checks_sentence_is_plain_and_counts_exactly(tmp_path: Path, make_context: Any) -> None:
-    body = compose(tmp_path, make_context, VERSION).body
-    assert "We ran repository-presenter's README checks" in body
-    assert "has no failure that yours does not already have" in body
-    assert "validate_candidate" not in body and "BC-" not in body
+def test_a_content_fix_with_a_redraw_over_the_limit_states_both_without_a_false_net(
+    tmp_path: Path, make_context: Any
+) -> None:
+    # The PDF-Java case: a version fix and a redraw; failures removed and one length failure added.
+    readme = tight(with_diagram(diagram())).replace(":26.7.0", ":26.5.0", 1)
+    content = compose(tmp_path, make_context, readme)
+    before, after, removed, added = tally(delta_of(tmp_path))
+    line = checks_line(content)
+    assert removed > added > 0
+    assert f"They report {before} failure(s) on yours and {after} on the corrected one: " in line
+    assert f"it removes {removed} and adds {added}; the added ones are explained below." in line
+    assert "fewer" not in line and "no failure that yours" not in line
+    assert "the redrawn diagram adds" in content.body
+    assert_plain(content)
 
 
 @pytest.mark.parametrize(

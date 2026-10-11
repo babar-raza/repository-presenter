@@ -423,24 +423,43 @@ def _lead(
 _LENGTH = re.compile(r"(\d+) visible lines of \d+ exceed the visible budget (\d+)")
 
 
-def _delta_lines(delta: dict[str, Any]) -> list[str]:
+def _tally(delta: dict[str, Any]) -> tuple[int, int, int, int]:
+    """``(before, after, removed, added)``: the failures the checks report on the README and on the
+    corrected one, and how many of them the correction takes away and brings, check by check."""
+    live = delta.get("live_failures", {})
+    after = delta.get("corrected_failures", {})
+    names = set(live) | set(after)
+    removed = sum(max(live.get(n, 0) - after.get(n, 0), 0) for n in names)
+    added = sum(max(after.get(n, 0) - live.get(n, 0), 0) for n in names)
+    return sum(live.values()), sum(after.values()), removed, added
+
+
+def _delta_lines(delta: dict[str, Any], edits: list[dict[str, Any]]) -> list[str]:
+    """What the README checks found, computed from the record and nothing else: the totals before
+    and after, what the correction removes and what it adds. It never says "fewer" unless it adds
+    nothing, and every failure it adds is explained in a line of its own."""
     if not delta:
         return []
-    introduced = delta.get("introduced", [])
-    resolved = sum(item["fewer"] for item in delta.get("resolved", []))
+    before, after, removed, added = _tally(delta)
     text = (
-        "- We ran repository-presenter's README checks (install commands, version claims, "
-        "links, structure, length) on your README and on the corrected one. "
-        + (
-            "The corrected README has no failure that yours does not already have"
-            if not introduced
-            else f"The corrected README has {len(introduced)} failure(s) that yours does not"
-        )
-        + (f", and has {resolved} fewer failure(s) than yours." if resolved else ".")
+        "- We ran repository-presenter's README checks (install commands, version claims, links, "
+        f"structure, length) on your README and on the corrected one. They report {before} "
+        f"failure(s) on yours and {after} on the corrected one: "
     )
+    if added == 0:
+        text += (
+            f"it removes {removed} of the {before} and adds none."
+            if removed
+            else "it removes none and adds none."
+        )
+    else:
+        text += f"it removes {removed} and adds {added}; the added ones are explained below."
     lines = [text]
+    explained = 0
     revealed = delta.get("revealed", [])
     if revealed:
+        count = sum(i["extra"] for i in revealed)
+        explained += count
         spans = [
             m.group(1)
             for item in revealed
@@ -450,18 +469,31 @@ def _delta_lines(delta: dict[str, Any]) -> list[str]:
         about = f" (for example the code span `{spans[0]}`)" if spans else ""
         lines.append(
             "- Closing the broken markup makes text visible that the checks could not read "
-            f"before; they now report {sum(i['extra'] for i in revealed)} issue(s) there{about}. "
-            "That text is yours and this change does not alter it."
+            f"before; they now report {count} issue(s) there{about}. That text is yours and this "
+            "change does not alter it."
         )
+    grown = sum(
+        len(e["replacement"].splitlines()) - len(e["original"].splitlines())
+        for e in edits
+        if e["kind"] == "DIAGRAM_FIX"
+    )
     for item in delta.get("allowed", []):
         found = next((m for d in item["details"] if (m := _LENGTH.search(d))), None)
         if found is not None:
+            explained += item["extra"]
+            over = int(found.group(1)) - int(found.group(2))
             lines.append(
-                "- Length: the redraw adds a few lines (its init line and the links that keep "
-                f"columns in order), so the README now has {found.group(1)} lines outside "
-                f"collapsed blocks, over the {found.group(2)}-line limit the checks apply "
-                "(yours was within it)."
+                f"- Length: the redrawn diagram adds {grown} lines (its init line and the links "
+                f"that keep columns in order), so the README now has {found.group(1)} lines "
+                f"outside collapsed blocks, {over} over the {found.group(2)}-line limit the "
+                "checks apply (yours was within it). That is the one check the redraw makes "
+                "fail; the redraw is what makes the labels fit."
             )
+    if added > explained:
+        lines.append(
+            f"- {added - explained} of the failure(s) it adds are new problems this change "
+            "introduces."
+        )
     return lines
 
 
@@ -513,7 +545,7 @@ def compose_correction_pull_request(
     checks = [
         "- Only `README.md` changes, and only at the places listed: with the edits removed, the "
         "corrected README and yours are identical.",
-        *_delta_lines(delta),
+        *_delta_lines(delta, edits),
         "- Running the correction again on the corrected README makes no further edit "
         f"(idempotent: {'yes' if stability.get('idempotent') else 'NO'}); the same inputs give the "
         f"same bytes (deterministic: {'yes' if stability.get('deterministic') else 'NO'}). No "
