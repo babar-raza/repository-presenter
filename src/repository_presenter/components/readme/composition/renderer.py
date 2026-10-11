@@ -875,7 +875,7 @@ def _installation(context: RenderContext) -> list[str]:
     repository = context.fact("identity:repository")
     if executed and repository is not None and not source_kind and not checkout_kind:
         name = repository.value.split("/")[-1]
-        command = context.spec.clone_and_build(repository.value, name)
+        command = context.spec.source_checkout_command(install, repository.value, name)
         if command and context.spec.source_install_lead:
             lines.append("")
             lines.append(

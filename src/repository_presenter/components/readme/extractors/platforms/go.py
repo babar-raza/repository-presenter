@@ -39,7 +39,7 @@ from repository_presenter.components.readme.extractors.surface.registry import (
     observe,
     repository_of,
 )
-from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.core.ecosystems import SPECS, EcosystemSpec, SuiteFileRule
 from repository_presenter.core.examples import (
     ExampleCandidate,
     ExampleReceipt,
@@ -87,6 +87,12 @@ GO = EcosystemSpec(
     floor_is_minimum=True,
     manifest_globs=("go.mod",),
     source_suffixes=frozenset({".go"}),
+    # `go test` runs `_test.go` files, but one that declares no Test/Benchmark/Fuzz/Example
+    # function (or testify suite method) is a helper the others share, not a test.
+    suite_files=SuiteFileRule(
+        name=r"_test\.go$",
+        marker=r"(?m)^func[ \t]+(?:\([^)]*\)[ \t]+)?(?:Test|Benchmark|Fuzz|Example)\w*[ \t]*\(",
+    ),
 )
 # The spec layer registers by name and never grows a list of ecosystems (§29.6 E3): a plugin
 # module declares its own spec when it is imported, which is what `plugin_for` does before any

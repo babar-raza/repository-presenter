@@ -40,7 +40,7 @@ from repository_presenter.components.readme.extractors.surface.registry import (
     observe,
     repository_of,
 )
-from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.core.ecosystems import SPECS, EcosystemSpec, SuiteFileRule
 from repository_presenter.core.examples import (
     ExampleCandidate,
     ExampleReceipt,
@@ -87,6 +87,19 @@ CPP = EcosystemSpec(
     floor_declaration="CMAKE_CXX_STANDARD",
     manifest_globs=("CMakeLists.txt",),
     source_suffixes=frozenset({".h", ".hpp", ".hxx", ".cpp", ".cc", ".cxx"}),
+    # A translation unit in a test directory is a test when it registers cases with a framework
+    # (GoogleTest, Catch2, doctest, Boost.Test) or is a hand-written test executable with its
+    # own `main` (CMake `add_test` over `add_executable`). The support sources and headers a
+    # suite links in (`Support/TestSupport.cpp`, fixtures, `ScenarioFactories`) define neither.
+    suite_files=SuiteFileRule(
+        name=r"\.(?:cpp|cc|cxx)$",
+        marker=(
+            r"(?m)^[ \t]*(?:(?:TEST|TEST_F|TEST_P|TYPED_TEST|TYPED_TEST_P|TEST_CASE"
+            r"|TEST_CASE_METHOD|SCENARIO|BOOST_AUTO_TEST_CASE|BOOST_AUTO_TEST_SUITE"
+            r"|BOOST_FIXTURE_TEST_SUITE|BOOST_TEST_CASE)[ \t]*\("
+            r"|int[ \t]+main[ \t]*\()"
+        ),
+    ),
 )
 # The spec layer registers by name and never grows a list of ecosystems (§29.6 E3): a plugin
 # module declares its own spec when it is imported, which is what `plugin_for` does before any

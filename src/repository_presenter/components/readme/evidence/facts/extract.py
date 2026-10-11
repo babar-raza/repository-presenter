@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import replace
+from fnmatch import fnmatchcase
 from pathlib import Path
 
 from repository_presenter.components.readme.evidence.facts.assets import (
@@ -28,7 +29,7 @@ from repository_presenter.components.readme.extractors.examples.verify import ex
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
 from repository_presenter.components.readme.extractors.surface.manifest import read_identity
 from repository_presenter.components.readme.extractors.surface.registry import REGISTRY_TYPES
-from repository_presenter.core.ecosystems import spec_for
+from repository_presenter.core.ecosystems import SPECS, EcosystemSpec, spec_for
 from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
     ExampleCandidate,
@@ -36,6 +37,8 @@ from repository_presenter.core.examples import (
     MeasuredBuild,
 )
 from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
     Evidence,
     Fact,
     FactsDocument,
@@ -220,6 +223,88 @@ def _source_checkout_fact(
     )
 
 
+# The install kinds a verified build or checkout already states as the install itself.
+_SOURCE_INSTALL_KINDS = frozenset({"source", "source_checkout"})
+
+
+def _has_root_manifest(spec: EcosystemSpec, tree_paths: Sequence[str]) -> bool:
+    """Whether the checkout root holds a file the ecosystem's build tool starts from."""
+    return any(
+        "/" not in path and fnmatchcase(path, glob)
+        for path in tree_paths
+        for glob in spec.manifest_globs
+    )
+
+
+def _with_source_checkout(
+    fact: Fact,
+    entry: RegistryEntry,
+    plugin: PlatformPlugin,
+    tree_paths: Sequence[str],
+    receipts: Sequence[ExampleReceipt],
+    build: MeasuredBuild | None,
+) -> Fact:
+    """Record, on the registry install fact, the clone-and-build block the Installation section
+    may offer beside it: the command a build proved from the checkout root, or why none did.
+
+    TC-TST-01 (Aspose.3D for .NET, 2026-10-11): the block was the ecosystem's template, printed
+    whenever an example executed, and ``dotnet build`` at a root that holds no project or
+    solution fails with MSB1003. Nothing had run that command from that directory, and BC-02
+    never saw it because the block was not a fact. Now it is one:
+
+    - an ecosystem that drives its own build (``verify_build``) is held to what that build ran,
+      spelled relative to the checkout root, and a build that did not exit 0 leaves no block;
+    - any other ecosystem's template stands only when an example executed against a build that
+      succeeded (``build_verified``, the same proof ``_source_build_fact`` asks for) and the
+      checkout root holds a manifest for the template, which starts at the root, to build.
+
+    A source-kind install is the proof itself and needs no second block. The record rides in the
+    fact's attributes, not its evidence, because the renderer reads the evidence's last line as
+    the registry's reading.
+    """
+    spec = SPECS.get(entry.ecosystem)
+    if (
+        spec is None
+        or fact.kind != "install_command"
+        or fact.id != spec.install_fact_id
+        or (fact.attributes or {}).get("install_kind") in _SOURCE_INSTALL_KINDS
+        or not spec.source_install
+        or not spec.source_install_lead
+    ):
+        return fact
+    name = entry.repository.split("/")[-1]
+
+    def record(attribute: str, value: str) -> Fact:
+        return replace(fact, attributes={**(fact.attributes or {}), attribute: value})
+
+    if build is not None and build.verified and build.command:
+        return record(
+            SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+            spec.clone_and_run(entry.repository, name, build.command),
+        )
+    if getattr(plugin, "verify_build", None) is not None:
+        # This ecosystem measures its own build, so its template was never the thing measured.
+        reason = build.summary if build is not None else "not attempted"
+        return record(SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE, f"no build exited 0: {reason}")
+    proven = [r for r in receipts if r.outcome == "EXECUTED" and r.build_verified]
+    if not proven:
+        return record(
+            SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+            "no example executed against a build of this checkout that succeeded",
+        )
+    measured = next((r.build_command for r in proven if r.build_command), "")
+    if measured:
+        return record(
+            SOURCE_CHECKOUT_COMMAND_ATTRIBUTE, spec.clone_and_run(entry.repository, name, measured)
+        )
+    if not _has_root_manifest(spec, tree_paths):
+        return record(
+            SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+            "the checkout root holds no manifest for the build to start from",
+        )
+    return record(SOURCE_CHECKOUT_COMMAND_ATTRIBUTE, spec.clone_and_build(entry.repository, name))
+
+
 def extract_facts(
     entry: RegistryEntry,
     snapshot: RepositorySnapshot,
@@ -258,7 +343,17 @@ def extract_facts(
         registry_facts, registry_probes = plugin.registry_facts([*facts, *manifest_facts])
         observed = {fact.id: fact for fact in registry_facts}
         resolved = (observed.get(fact.id, fact) for fact in manifest_facts)
-        facts.extend(_source_build_fact(fact, entry, receipts, build) for fact in resolved)
+        facts.extend(
+            _with_source_checkout(
+                _source_build_fact(fact, entry, receipts, build),
+                entry,
+                plugin,
+                tree_paths,
+                receipts,
+                build,
+            )
+            for fact in resolved
+        )
         probes.extend(registry_probes)
         # TC-CLM-01 (G3-W08): the registry's current stable release, so BC-14 can hold a README's
         # version statement to what a reader can fetch. Absent unless the registry answered
@@ -289,7 +384,14 @@ def extract_facts(
             clone_path, snapshot.license_path, snapshot.notices_path, declared, declared_in
         )
     )
-    facts.extend(asset_facts(tree_paths))
+    ecosystem_spec = SPECS.get(entry.ecosystem)
+    facts.extend(
+        asset_facts(
+            tree_paths,
+            suite_files=ecosystem_spec.suite_files if ecosystem_spec is not None else None,
+            root=clone_path,
+        )
+    )
     # TC-COV-02 (G3-W08): the build and test commands and the CI matrix the clone itself names.
     facts.extend(command_facts(clone_path, tree_paths))
     matrix = ci_matrix_fact(clone_path, tree_paths)
