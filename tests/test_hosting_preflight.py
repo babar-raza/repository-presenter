@@ -200,8 +200,13 @@ def test_the_write_jobs_are_found_with_the_stage_that_first_needs_them() -> None
     assert found[("candidates-publish.yml", "write")]["stage"] == "H1"
     assert found[("issues-scheduled.yml", "file-and-close")]["stage"] == "H2"
     assert found[("propose.yml", "write")]["stage"] == "H3"
-    # Today no write job declares an environment: the preflight must say so, not assume it.
-    assert all(j["environment"] is None for j in found.values())
+    assert found[("propose-sandbox.yml", "write")]["stage"] == "H3"
+    # Today no production write job declares an environment: the preflight must say so, not assume
+    # it. The sandbox canary's write job is the one exception, and it names its environment.
+    assert all(
+        j["environment"] is None for key, j in found.items() if key[0] != "propose-sandbox.yml"
+    )
+    assert found[("propose-sandbox.yml", "write")]["environment"] == "sandbox-canary"
 
 
 # --- the real workflow tree --------------------------------------------------------------------

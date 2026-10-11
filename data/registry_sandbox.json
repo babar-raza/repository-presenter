@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "repository": "babar-raza/presenter-sandbox",
+      "family": "email",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "issues_mode": "off",
+      "policy_profile": "sandbox-canary",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1412405801,
+        "node_id": "R_kgDOVC-aKQ"
+      }
+    }
+  ]
+}

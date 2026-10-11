@@ -64,6 +64,9 @@ WRITE_JOB_STAGE = {
     "candidates-publish.yml": "H1",
     "issues-scheduled.yml": "H2",
     "propose.yml": "H3",
+    # The sandbox canary (docs/PROPOSAL_WAVE_RUNBOOK.md section 9) rehearses the H3 write job on the
+    # owner's throwaway repository; it is held to the same environment-reviewers requirement.
+    "propose-sandbox.yml": "H3",
 }
 RECORD_DIRS = {"H2": "ops/issue_approvals", "H3": "ops/proposal-authorizations"}
 

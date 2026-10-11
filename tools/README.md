@@ -215,6 +215,18 @@ governance tracks, two directories, no overlap.
     `tests/test_workflow_rehearsal_cycle.py` (no network; the model scenarios use the scripted gateway
     of `tests/test_cli.py`; set `RP_REHEARSAL_EVIDENCE_DIR` to record their evidence).
 
+- `canary/` — the sandbox canary's operator tooling (owner decision D6, 2026-10-11;
+  `docs/PROPOSAL_WAVE_RUNBOOK.md` section 9): the one pull request allowed while real product
+  repositories stay paused, against the owner's own `babar-raza/presenter-sandbox`. No command here
+  writes to GitHub.
+  - `seed.py` — local files only: copies one product's committed tree into a clone of the sandbox
+    for the owner to review, commit and push (refuses a symlink, a submodule, `.github/`, a dirty
+    clone, any remote but the sandbox).
+  - `canary.py` — `preflight` and `verify` (read-only GETs; the token comes from `GH_TOKEN`) and
+    `assemble` (writes the bundle, the record and the one-line registry flip into a worktree).
+  - Tests: `tests/test_canary_rehearsal.py` (every step against the workflow rehearsal's fakes),
+    `tests/test_propose_sandbox_workflow.py`, `tests/core/registry/test_sandbox.py`.
+
 - `readme_standard/` — the tooling of `docs/README_STANDARD.md`, written at the owner directive of
   2026-10-11 (the live upstream README is the structure standard). Read-only: no network, no model,
   no write outside `data/readme_standard/` and the standard's own generated tables.
