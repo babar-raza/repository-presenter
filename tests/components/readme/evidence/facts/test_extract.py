@@ -857,3 +857,49 @@ def test_the_clones_own_workflow_yields_command_and_matrix_facts_end_to_end(
     assert by_id["build_test_asset:ci-matrix"].value == "python-version=3.10,3.12"
     schema = json.loads((REPO_ROOT / "schemas" / "facts.schema.json").read_text("utf-8"))
     assert list(Draft202012Validator(schema).iter_errors(json.loads(document.to_json()))) == []
+
+
+CPP_ENTRY = RegistryEntry.model_validate(
+    {
+        **ENTRY.model_dump(mode="json"),
+        "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-Cpp",
+        "family": "widget",
+        "platform": "cpp",
+        "ecosystem": "cpp",
+    }
+)
+
+
+def test_a_registry_less_install_is_admitted_on_the_measured_build_when_no_example_compiles() -> (
+    None
+):
+    """Aspose.PDF for C++ (CUT-2, 2026-10-11): no registry, so install_command:cmake started
+    UNRESOLVED; the admission needed an EXECUTED example, and with every snippet failing the
+    fact stayed UNRESOLVED and BC-02 refused the candidate although the library built. The
+    measured build admits it, with exactly the steps it ran; a build that failed admits nothing."""
+    plugin_for("cpp")
+    steps = "cmake -S . -B build\ncmake --build build"
+    fact = Fact(
+        "install_command:cmake",
+        "install_command",
+        steps,
+        (
+            Evidence("CMakeLists.txt", "source build for the CMake project the manifest declares"),
+            Evidence("no package registry", "package registry: none could not be read"),
+        ),
+        polarity="UNRESOLVED",
+        confidence=0.5,
+    )
+    snippet_failed = ExampleReceipt(1, "FAILED", 1, "", "", "d", build_verified=True)
+    built = MeasuredBuild(True, steps, "succeeded")
+    admitted = _source_build_fact(fact, CPP_ENTRY, [snippet_failed], built)
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.attributes == {"install_kind": "source", "build_command": steps}
+    assert admitted.value == (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-Cpp.git\n"
+        "cd Aspose.Widget-FOSS-for-Cpp\n" + steps
+    )
+    refused = _source_build_fact(
+        fact, CPP_ENTRY, [snippet_failed], MeasuredBuild(False, "", "failed")
+    )
+    assert refused.polarity == "UNRESOLVED"

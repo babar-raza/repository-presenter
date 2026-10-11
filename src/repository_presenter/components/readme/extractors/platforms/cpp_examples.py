@@ -40,6 +40,7 @@ altered, and named in the receipt's own detail either way.
 
 from __future__ import annotations
 
+import hashlib
 import os
 import re
 import shutil
@@ -473,6 +474,48 @@ def build_product(
     return ("failed", fetched_includes(build))
 
 
+# The phrase `build_product` returned for a manifest this process already built, so the examples'
+# build and the measured build below are one build and not two (a configure that fetches
+# dependencies measured 95 s on Aspose.PDF and 140 s on Aspose.Slides). Keyed by the manifest's
+# resolved path and its bytes; one `present` process verifies one pinned revision of one checkout.
+_BUILT: dict[tuple[str, str], str] = {}
+
+
+def _build_key(manifest: Path) -> tuple[str, str]:
+    try:
+        digest = hashlib.sha256(manifest.read_bytes()).hexdigest()
+    except OSError:
+        digest = ""
+    return (str(manifest.resolve()), digest)
+
+
+def measured_cpp_build(manifest: Path, workspace: Path) -> str:
+    """How the library's own CMake build went, in `build_product`'s phrase, measured whether or
+    not any README example exists.
+
+    A C++ project has no registry, so its install is the source build the verifier itself drives,
+    and the only proof that build can stand on is the build (CUT-2 blocker, 2026-10-11: Aspose.PDF
+    for C++ read UNRESOLVED -> BC-02 whenever no README snippet happened to syntax-check, although
+    its library configured and built). A build the examples' own verification already ran for this
+    manifest is reused rather than run again.
+    """
+    key = _build_key(manifest)
+    if key in _BUILT:
+        return _BUILT[key]
+    compiler = cpp_compiler()
+    if compiler is None:
+        return "not attempted (no C++ compiler on this machine)"
+    fresh = _fresh_workspace(workspace)
+    if fresh is None:
+        return "not attempted (no clean workspace to build in)"
+    product, _fetched = build_product(
+        manifest.parent, fresh, toolchain_path(compiler, ninja_executable()),
+        cmake_executable(), ninja_executable(),
+    )  # fmt: skip
+    _BUILT[key] = product
+    return product
+
+
 def verify_cpp_examples(
     root: Path,
     manifest: Path | None,
@@ -501,6 +544,7 @@ def verify_cpp_examples(
         return _blocked(candidates, "BLOCKED_TOOLCHAIN: the C++ compiler did not report a version")
 
     product, fetched = build_product(manifest.parent, workspace, path, cmake, ninja)
+    _BUILT[_build_key(manifest)] = product
     language = standard or _DEFAULT_STANDARD
     includes = [
         argument

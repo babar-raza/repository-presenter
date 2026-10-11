@@ -21,7 +21,8 @@ Three rules, all deterministic and independent of the LLM:
     distribution is published.
 (c) Identity. An install command whose package is a near-miss of the package identity fact (the
     same name without ``-foss``, a prefix, a different separator) is flagged; an unrelated package
-    (a test runner) and a declared dependency are not.
+    (a test runner), a declared dependency, and a distribution fact a registry confirmed as this
+    repository's own (``package:distribution.*``) are not.
 
 This module imports nothing from `validation/registry.py`: it reports a line index and a causal
 stage, and the registry maps the line to its shell section.
@@ -33,7 +34,10 @@ import re
 from dataclasses import dataclass
 
 from repository_presenter.core.facts import Fact, FactsDocument
-from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID
+from repository_presenter.core.package_registry import (
+    DISTRIBUTION_FACT_PREFIX,
+    PUBLISHED_VERSION_FACT_ID,
+)
 
 _VERSION = r"v?\d+(?:\.\d+)+(?:[-+][0-9A-Za-z.]*[0-9A-Za-z])?"
 _VERSION_RE = re.compile(_VERSION)
@@ -300,6 +304,14 @@ def _identity_findings(
         for fact in facts.by_kind("dependency")
         if (match := _REQUIREMENT_NAME.match(fact.value))
     }
+    # A distribution the repository's own README names and a registry confirmed as this
+    # repository's (a C++ library's NuGet package; its manifest names only a CMake project) is a
+    # second fact-backed identity, so an install command naming it is not a near-miss of the first.
+    distributions = {
+        _pep503(fact.value)
+        for fact in facts.facts
+        if fact.id.startswith(DISTRIBUTION_FACT_PREFIX) and fact.polarity == "SUPPORTED"
+    }
     stem = _stem(identity.value)
     install_values = " ".join(f.value for f in facts.by_kind("install_command"))
     findings: list[ClaimFinding] = []
@@ -311,7 +323,11 @@ def _identity_findings(
         if coordinate:
             targets.append(coordinate)
         for target in targets:
-            if _same_identity(target, identity.value) or _pep503(target) in dependencies:
+            if (
+                _same_identity(target, identity.value)
+                or _pep503(target) in dependencies
+                or _pep503(target) in distributions
+            ):
                 continue
             candidate = _stem(target)
             if candidate and stem and (candidate.startswith(stem) or stem.startswith(candidate)):

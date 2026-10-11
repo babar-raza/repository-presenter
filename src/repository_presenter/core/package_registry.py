@@ -23,6 +23,12 @@ from repository_presenter.core.probes import ProbeRecord
 # because the validator that reads it must not import the extractor that emits it.
 PUBLISHED_VERSION_FACT_ID = "package:published_version"
 
+# A package fact id starting with this names a distribution a reader installs that is not the
+# manifest's own `package:name` (a C++ library's NuGet package, whose manifest names only a CMake
+# project). Emitted by a platform plugin, SUPPORTED only once a registry confirmed it is this
+# repository's; validation/claims.py accepts an install command naming one.
+DISTRIBUTION_FACT_PREFIX = "package:distribution"
+
 # `owner/name` out of any GitHub spelling a registry stores: https, git+https, git+ssh, scp-style
 # `git@github.com:owner/name.git`, a `/tree/main` or `#readme` tail, `www.`.
 _GITHUB_REPOSITORY = re.compile(r"github\.com[/:]+([^/\s#?]+)/([^/\s#?]+)", re.IGNORECASE)

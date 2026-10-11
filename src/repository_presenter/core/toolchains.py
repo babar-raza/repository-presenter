@@ -232,6 +232,94 @@ def resolve_tool(name: str) -> str | None:
     return None
 
 
+# One line of `py -0p`: `-V:3.12 *        C:\...\python.exe` (`-V:PythonCore/3.12` and the older
+# `-3.12-64` spelling are accepted too); the version is the leading major.minor.
+_LAUNCHER_LINE = re.compile(
+    r"^\s*-(?:V:)?(?:[^/\s]+/)?(?P<version>\d+\.\d+)\S*\s+\*?\s*(?P<path>\S.*?)\s*$"
+)
+# A conventional CPython install directory: `Python312`, `Python3.12`, `python-3.12`.
+_PYTHON_DIRECTORY = re.compile(
+    r"^python-?(?P<major>\d)\.?(?P<minor>\d{1,2})(?:-\d+)?$", re.IGNORECASE
+)
+_POSIX_MINORS = range(8, 16)
+_LAUNCHER_TIMEOUT_SECONDS = 30.0
+
+
+def _launcher_pythons() -> list[tuple[str, Path]]:
+    """The interpreters the Windows ``py`` launcher lists (``py -0p``), or none without it.
+
+    The launcher reads the registry entries every python.org installer writes, so it finds an
+    interpreter installed anywhere - the same answer from any shell, as the install-root search
+    below is for a tool the registry does not record.
+    """
+    launcher = shutil.which("py")
+    if launcher is None or os.name != "nt":
+        return []
+    with tempfile.TemporaryDirectory(prefix="rp-toolchain-", ignore_cleanup_errors=True) as scratch:
+        listing = execute(
+            [launcher, "-0p"], workspace=Path(scratch), timeout_seconds=_LAUNCHER_TIMEOUT_SECONDS
+        )
+    if listing.return_code != 0 or listing.timed_out:
+        return []
+    found: list[tuple[str, Path]] = []
+    for line in (listing.stdout + "\n" + listing.stderr).splitlines():
+        matched = _LAUNCHER_LINE.match(line)
+        if matched and Path(matched.group("path")).is_file():
+            found.append((matched.group("version"), Path(matched.group("path"))))
+    return found
+
+
+def _python_roots() -> tuple[Path, ...]:
+    """The directories a CPython installer conventionally creates ``PythonNNN`` folders under."""
+    if os.name != "nt":
+        return ()
+    roots: list[Path] = []
+    local = os.environ.get("LOCALAPPDATA", "").strip()
+    if local:
+        roots.append(Path(local) / "Programs" / "Python")
+    program_files = os.environ.get("PROGRAMFILES", "").strip()
+    if program_files:
+        roots.append(Path(program_files))
+    roots.extend((Path("C:/"), Path("D:/"), Path("D:/Program Files"), Path("D:/tools")))
+    return tuple(dict.fromkeys(roots))
+
+
+def _root_pythons() -> list[tuple[str, Path]]:
+    """Interpreters in an install directory's own name (``D:/Python312/python.exe`` is 3.12), and
+    on a POSIX machine the versioned ``python3.N`` commands on PATH."""
+    found: list[tuple[str, Path]] = []
+    for root in _python_roots():
+        try:
+            directories = [path for path in root.iterdir() if path.is_dir()]
+        except OSError:
+            continue
+        for directory in directories:
+            matched = _PYTHON_DIRECTORY.match(directory.name)
+            executable = directory / "python.exe"
+            if matched and matched.group("major") == "3" and executable.is_file():
+                found.append((f"3.{int(matched.group('minor'))}", executable))
+    if os.name != "nt":
+        for minor in _POSIX_MINORS:
+            command = shutil.which(f"python3.{minor}")
+            if command:
+                found.append((f"3.{minor}", Path(command)))
+    return found
+
+
+def installed_pythons() -> list[tuple[str, Path]]:
+    """The CPython interpreters this machine already has, as ``(major.minor, executable)``,
+    lowest version first, one per version.
+
+    Where two sources name the same version the first wins, in the resolver's usual order for a
+    tool the registry does not record: the launcher's own record, then the install directories,
+    then PATH. The running interpreter is not asked here - the caller offers it first.
+    """
+    chosen: dict[str, Path] = {}
+    for version, executable in (*_launcher_pythons(), *_root_pythons()):
+        chosen.setdefault(version, executable)
+    return sorted(chosen.items(), key=lambda item: tuple(int(part) for part in item[0].split(".")))
+
+
 def subprocess_path(*tools: str | None) -> str:
     """The PATH a verifier's subprocess gets: each tool's own directory first, then the process's.
 

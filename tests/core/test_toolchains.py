@@ -169,3 +169,48 @@ def test_a_present_tool_that_reports_no_version_is_named_as_such(
     )
     monkeypatch.setattr(toolchains, "probe_version", lambda name, path: "")
     assert toolchain_fingerprint()["javac"] == "present (no version reported)"
+
+
+def _fake_python_install(root: Path, directory: str) -> Path:
+    install = root / directory
+    install.mkdir(parents=True)
+    executable = install / "python.exe"
+    executable.write_bytes(b"")
+    return executable
+
+
+def test_the_installed_pythons_are_found_by_the_launcher_and_the_install_directories(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Words-Python in a lane worktree (2026-10-11): `requires-python >=3.10,<3.13`, a machine
+    with Python 3.12 installed, and no `runs/verify` venv - every example read NOT_VERIFIED. The
+    resolver now also answers from what the machine has: the `py -0p` record first, then a
+    conventional install directory, one interpreter per version, lowest version first."""
+    listed = _fake_python_install(tmp_path / "launcher", "Python312")
+    other = _fake_python_install(tmp_path / "launcher", "Python311")
+    by_directory = _fake_python_install(tmp_path / "d-root", "Python310")
+    shadowed = _fake_python_install(tmp_path / "d-root", "Python3.12")
+    (tmp_path / "d-root" / "NotPython").mkdir()
+    monkeypatch.setattr(
+        toolchains, "_launcher_pythons", lambda: [("3.12", listed), ("3.11", other)]
+    )
+    monkeypatch.setattr(toolchains, "_python_roots", lambda: (tmp_path / "d-root",))
+    monkeypatch.setattr(toolchains.os, "name", "nt")
+    assert toolchains.installed_pythons() == [
+        ("3.10", by_directory),
+        ("3.11", other),
+        ("3.12", listed),
+    ]
+    assert shadowed not in {path for _, path in toolchains.installed_pythons()}
+
+
+def test_a_launcher_listing_line_is_read_in_each_of_its_spellings() -> None:
+    for line, version in (
+        (r" -V:3.12 *        C:\Python312\python.exe", "3.12"),
+        (r" -V:PythonCore/3.11   C:\Users\x\Python311\python.exe", "3.11"),
+        (r" -3.10-64        C:\Python310\python.exe", "3.10"),
+    ):
+        matched = toolchains._LAUNCHER_LINE.match(line)
+        assert matched is not None and matched.group("version") == version
+        assert matched.group("path").endswith("python.exe")
+    assert toolchains._LAUNCHER_LINE.match("Installed Pythons found by py Launcher") is None
