@@ -46,6 +46,7 @@ src/repository_presenter/
     preflight.py            fail-closed LLM gateway check recording the model catalog (the GitHub check joins it at G4)
     llm/                     transport, ledger, call schema, prompt registry, prompt hygiene
       fallback.py              model fallback chains: the one FALLBACK_CHAINS table, per-run availability probes, one fixed effective model per route (owner directive, 2026-10-04)
+      narrowing.py             the Narrowing value (a job's third, narrower ask): plain data and callables, apart from jobs.py so a component that only builds one (reconciliation/dispositions.py, read by the readme_correction path) loads no model client
     state/                   repository/proposal records, backend, migrations
     evidence/                evidence writer and manifest schema
     registry/                registry loader, revision store

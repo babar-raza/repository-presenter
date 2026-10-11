@@ -54,7 +54,7 @@ from repository_presenter.components.readme.composition.output_bounds import (
     bound_authoring_citations,
 )
 from repository_presenter.core.facts import FactsDocument
-from repository_presenter.core.llm.jobs import Narrowing
+from repository_presenter.core.llm.narrowing import Narrowing
 from repository_presenter.core.llm.prompts import LoadedManifest
 
 _SLOT_SET_ERROR = "units must fill exactly these slots once each"

@@ -98,6 +98,7 @@ def _finding(label: str, section: str, stage: str, quote: str = "") -> dict[str,
         "quote": quote,
         "fact_ids": ["format:input.obj"],
         "absent": [],
+        "unsupported_names": [],
         "omission": None,
         "repair": "Drop the claim.",
     }
@@ -481,6 +482,7 @@ def test_a_presentation_finding_naming_nothing_is_refuted_by_its_units_own_produ
         "criterion": "presentation",
         "fact_ids": [],
         "absent": [],
+        "unsupported_names": [],
     }
     # Without the reviewed unit's own citations in scope, nothing here is checkable and the
     # finding stands - exactly today's behaviour.
@@ -2484,6 +2486,7 @@ def test_a_factuality_finding_naming_no_fact_and_no_absence_is_the_reviewers_def
         **_finding("F07", "key_capabilities", "S6", "It writes `.glb` files."),
         "fact_ids": [],
         "absent": [],
+        "unsupported_names": [],
     }
     assert scope_defect(ungrounded, CANDIDATE, by_id) == (
         "a factuality finding names neither a product fact_id to contradict the quote nor an "
@@ -3520,6 +3523,7 @@ def _words_facts() -> FactsDocument:
 def _words_f01(fact_ids: list[str], quote: str = _WORDS_VERSION_LINE) -> dict[str, Any]:
     return {
         "absent": [],
+        "unsupported_names": [],
         "causal_stage": "S6",
         "criterion": "factuality",
         "fact_ids": fact_ids,

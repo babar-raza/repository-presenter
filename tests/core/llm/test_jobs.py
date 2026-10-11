@@ -308,6 +308,7 @@ def test_a_review_with_one_invented_fact_pointer_is_parsed_not_refused() -> None
                 "quote": "reads PostScript and Portable Document Format files as input.",
                 "fact_ids": ["example:001", "scope:pdf_import_absent"],
                 "absent": [],
+                "unsupported_names": [],
                 "omission": None,
                 "repair": "Remove PDF from the list of input formats.",
             }

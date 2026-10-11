@@ -93,6 +93,7 @@ def finding(label: str = "F01", **overrides: Any) -> dict[str, Any]:
         "quote": "",
         "fact_ids": [],
         "absent": [],
+        "unsupported_names": [],
         "omission": None,
         "repair": "Fix it.",
     }
@@ -149,6 +150,7 @@ DETERMINISTIC_EXEMPLARS: dict[str, dict[str, Any]] = {
         quote="It renders widgets quickly and everywhere, fast.",
         text="The section lists pkg.Widget, none of which have verified public_symbol facts.",
         fact_ids=["public_symbol:pkg.widget"],
+        unsupported_names=["pkg.Widget"],
     ),
 }
 

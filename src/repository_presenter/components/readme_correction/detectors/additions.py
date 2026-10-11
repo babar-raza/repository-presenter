@@ -66,6 +66,7 @@ from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID
 DEV_HEADING = re.compile(r"develop|testing|\btests?\b|building|\bbuild\b", re.IGNORECASE)
 INSTALL_HEADING = re.compile(r"install|set-?up|getting started", re.IGNORECASE)
 DOCS_HEADING = re.compile(r"documentation|resources|links", re.IGNORECASE)
+_WORKFLOW_SUFFIX = re.compile(r"\.ya?ml")  # a GitHub Actions workflow file: .yml or .yaml
 _SHELL = frozenset({"bash", "sh", "shell", "console", "text", "powershell", "ps1", "cmd", ""})
 _GRADLE = frozenset({"groovy", "kotlin", "gradle", "kts"})
 
@@ -163,7 +164,11 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
             # A wrong suite size is corrected (claim_test_files); an absent one is not added.
             dropped.add(fact.id)
         elif fact.id == "build_test_asset:ci":
-            workflows = [e.path for e in fact.evidence if e.path.endswith((".yml", ".yaml"))]
+            workflows = [
+                e.path
+                for e in fact.evidence
+                if _WORKFLOW_SUFFIX.fullmatch(posixpath.splitext(e.path)[1])
+            ]
             if any(path in readme for path in workflows):
                 dropped.add(fact.id)
     dev_ids = {

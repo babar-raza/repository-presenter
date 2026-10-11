@@ -158,6 +158,7 @@ _BLOCKING = {
     "quote": "",
     "fact_ids": [],
     "absent": [],
+    "unsupported_names": [],
     "omission": None,
     "repair": "Drop the claim.",
 }

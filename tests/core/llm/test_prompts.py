@@ -75,6 +75,20 @@ def test_the_review_prompt_lets_the_reviewer_see_and_trust_the_symbols_it_judges
     assert "Never list a name in a finding that the candidate does not contain." in review
 
 
+def test_the_review_prompt_takes_the_denied_names_as_a_typed_field() -> None:
+    """A name denial is stated in `unsupported_names`, as an absence is in `absent`, so code looks
+    the names up and never reads the finding's text for them (RC8; tests/test_routing_fields.py)."""
+    manifest = load_manifests(REAL_PROMPTS)["independent_review"].manifest
+    finding = manifest.output.schema_["properties"]["findings"]["items"]
+    assert "unsupported_names" in finding["required"]
+    names = finding["properties"]["unsupported_names"]
+    assert names["type"] == "array" and names["items"]["type"] == "string"
+    assert names["maxItems"] >= 25  # the wave-4 Go F05 finding listed 25 names
+    review = " ".join(manifest.system.split())
+    assert "put in `unsupported_names` each such name itself" in review
+    assert "`unsupported_names` is then the empty array" in review
+
+
 def test_a_manifest_edit_changes_only_its_own_hash(tmp_path: Path) -> None:
     prompts = _copy(tmp_path)
     before = load_manifests(prompts).hashes()

@@ -69,7 +69,7 @@ output:
         maxItems: 16
         items:
           type: object
-          required: [id, section_id, causal_stage, criterion, text, quote, fact_ids, absent, omission, repair]
+          required: [id, section_id, causal_stage, criterion, text, quote, fact_ids, absent, unsupported_names, omission, repair]
           additionalProperties: false
           properties:
             id: { type: string, pattern: "^F[0-9]{2}$" }
@@ -96,6 +96,14 @@ output:
             absent:
               type: array
               maxItems: 8
+              items: { type: string, minLength: 1, maxLength: 120 }
+            # The identifiers and package names the finding says no fact supports, as strings the
+            # code can look up: a name denial is checkable, so it is stated in a field instead of
+            # asserted in prose, and code never reads the finding's text to find the names
+            # (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8, 27.5 D5; tests/test_routing_fields.py).
+            unsupported_names:
+              type: array
+              maxItems: 32
               items: { type: string, minLength: 1, maxLength: 120 }
             # The typed form of an omission claim (v11): when the finding says its section lacks
             # a fact, a verified example, or a passage, `omission` names which, as ids from the
@@ -192,7 +200,12 @@ system: |
   a symbol. Before you write that an identifier or a package name has no fact, find its value in
   `facts` or `symbol_index`. If you cite a public_symbol fact id for it, that fact exists and
   supports the name: a finding that denies it contradicts itself and is recorded as your own
-  defect. An identifier found in neither list is still no finding against a row the renderer
+  defect. Whenever a finding says an identifier or a package name has no supporting fact, put in
+  `unsupported_names` each such name itself, one identifier or package name per string, as the
+  candidate spells it. Code then looks each one up among the SUPPORTED facts: when every one is a
+  fact value (or the package name) the denial is refuted, and when any one is no fact the finding
+  stands. A finding that denies no name lists none, and `unsupported_names` is then the empty
+  array. An identifier found in neither list is still no finding against a row the renderer
   printed. Never list a name in a finding that the candidate does not contain.
 
   Absence is checked mechanically too. Whenever a finding says the candidate lacks, omits, drops,

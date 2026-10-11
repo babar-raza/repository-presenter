@@ -74,7 +74,7 @@ from repository_presenter.core.facts import (
     bounded_records,
 )
 from repository_presenter.core.llm.binding import collect_ids, silent_unit_ids
-from repository_presenter.core.llm.jobs import Narrowing
+from repository_presenter.core.llm.narrowing import Narrowing
 from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
 from repository_presenter.core.package_registry import (
     DISTRIBUTION_FACT_PREFIX,
