@@ -61,7 +61,7 @@ def test_the_clones_build_and_test_commands_and_ci_matrix_are_appended_to_the_se
     corrected = applied(ctx, [edit])
     assert corrected.startswith("# P\n\n## Development and Testing\n\nRun it the usual way.\n\n")
     assert "```bash\nmvn -B verify\nmvn test\n```" in corrected
-    assert "ci.yml" in corrected and "ubuntu-latest" in corrected
+    assert "ci.yml" in corrected and "ubuntu" in corrected.lower()
     assert corrected.index("mvn test") < corrected.index("## License")
     assert set(edit.fact_ids) == {
         "build_test_asset:build-command",

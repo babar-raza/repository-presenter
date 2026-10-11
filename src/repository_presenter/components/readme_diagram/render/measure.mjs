@@ -122,6 +122,7 @@ async function renderAndMeasure(src, domId, config, fonts) {
       mode: 'svg',
       text: (t.textContent || '').replace(/\s+/g, ' ').trim(),
       lines: Math.max(1, outer.length),
+      lineTexts: Array.from(outer).map((o) => (o.textContent || '').replace(/\s+/g, ' ').trim()),
       textRect: rect(t),
       clipX: 0,
       clipY: 0,
@@ -135,7 +136,7 @@ async function renderAndMeasure(src, domId, config, fonts) {
       if (!shape || !label) continue;
       const s = rect(shape);
       const o = overflow(label.textRect, s);
-      nodes.push({ id: bare(g.id), text: label.text, lines: label.lines, mode: label.mode, shape: s, text_rect: label.textRect, spill_x: o.x, spill_y: o.y, clip_x: label.clipX, clip_y: label.clipY });
+      nodes.push({ id: bare(g.id), text: label.text, lines: label.lines, line_texts: label.lineTexts || [], mode: label.mode, shape: s, text_rect: label.textRect, spill_x: o.x, spill_y: o.y, clip_x: label.clipX, clip_y: label.clipY });
     }
     const clusters = [];
     for (const g of svgEl.querySelectorAll('g.cluster')) {
@@ -144,7 +145,7 @@ async function renderAndMeasure(src, domId, config, fonts) {
       if (!shape) continue;
       const s = rect(shape);
       const o = label ? overflow(label.textRect, s) : { x: 0, y: 0 };
-      clusters.push({ id: bare(g.id), text: label ? label.text : '', mode: label ? label.mode : 'none', shape: s, spill_x: o.x, spill_y: o.y, clip_x: label ? label.clipX : 0, clip_y: label ? label.clipY : 0 });
+      clusters.push({ id: bare(g.id), text: label ? label.text : '', line_texts: label ? (label.lineTexts || []) : [], mode: label ? label.mode : 'none', shape: s, spill_x: o.x, spill_y: o.y, clip_x: label ? label.clipX : 0, clip_y: label ? label.clipY : 0 });
     }
     return { foreign_objects: svgEl.querySelectorAll('foreignObject').length, nodes, clusters };
   };
