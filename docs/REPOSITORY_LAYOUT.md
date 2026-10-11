@@ -74,6 +74,7 @@ src/repository_presenter/
     reconciliation/           source_reconciliation job wiring, dispositions
     composition/               presentation_planning, section_authoring, renderer
       placement.py             where each inherited unit renders, under the three placement rules
+      coverage.py              what a destination section already states of a kept unit (whole sentences, list items, commands, links): the test placement.py drops a unit by, so only what the destination says in full is dropped and the rest is placed
       policy.py                the planning policy: capability, hub, line, and Aspose-link ceilings
       link_budget.py           Aspose-link ceilings derived per document, domain, and surface slot (plans/idea.md), or configured; the plan trim and BC-06 both read it
       type_fallback.py        the last-attempt recovery for one API Reference type description refused only for an unevidenced identifier (README_CONTRACT.md row 14)

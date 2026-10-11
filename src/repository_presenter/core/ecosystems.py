@@ -126,6 +126,20 @@ class EcosystemSpec:
     # version) or an exact standard or framework target (a .NET target framework, a C++ standard,
     # a Rust edition); the runtime badge appends "+" only to the former.
     floor_is_minimum: bool = False
+    # The build tool's own lowest version, reported beside the floor in the Dependencies row: which
+    # fact carries it, what to call the tool, and the manifest declaration the sentence names (a
+    # CMake project: `package:cmake_minimum`, "CMake", `cmake_minimum_required`). An ecosystem
+    # whose build tool states no minimum leaves these empty and the renderer prints nothing.
+    build_tool_fact_id: str = ""
+    build_tool_label: str = ""
+    build_tool_declaration: str = ""
+    # Whether the manifest's `package:name` names a distribution a registry can be asked about.
+    # A CMake `project()` is a build target, not a package (C++): nothing observed what any
+    # registry lists under it, so the Installation row never says it is "not yet published" -
+    # that negative has no observation behind it (it is false for three of the four Aspose C++
+    # libraries, which NuGet lists). What a registry confirmed arrives as a
+    # `package:distribution.<id>` fact instead, and the row states exactly that.
+    manifest_names_distribution: bool = True
     manifest_globs: tuple[str, ...] = ()
     source_suffixes: frozenset[str] = field(default_factory=frozenset)
     # Other declarations of the same published package a reader of this ecosystem uses besides the
