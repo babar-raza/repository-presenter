@@ -92,7 +92,7 @@ src/repository_presenter/
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
       terminology.py           the governed technical-terminology registry and heading-case grammar: the one owner of canonical abbreviations (PS, PDF, glTF, npm) and title case
-      glance.py                the At a Glance label-geometry policy: one common wrap width, at most three lines
+      glance.py                the At a Glance component: the renderer's, planning's and BC-07's one door onto components/readme_diagram (draw_at_a_glance, the title ceiling, the contract's diagram check)
     validation/
       registry.py              versioned check registry
       content_presence.py      whether the finished README states what a deferred unit said (its code spans, link destinations, versions and prose); BC-05 uses it to refuse an advisory deferral that hid a loss

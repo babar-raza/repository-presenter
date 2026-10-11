@@ -37,9 +37,7 @@ from repository_presenter.components.readme.composition.authoring import (
     verified_members,
 )
 from repository_presenter.components.readme.composition.components.glance import (
-    GLANCE_LINE_CHARS,
-    GLANCE_MAX_LINES,
-    wrapped_lines,
+    diagram_failures,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.components.shell import (
@@ -541,9 +539,6 @@ _COMMAND = re.compile(
     r"cargo|cmake|make|git)\b(?!-)",
     re.IGNORECASE,
 )
-_CAPABILITY_NODE = re.compile(r"^\s*c(\d+)\[", re.MULTILINE)
-_GLANCE_LABEL = re.compile(r"\[\"([^\"]*)\"\]")
-_GLANCE_DIRECTIVE = re.compile(r"^(?:style|classDef|linkStyle|click)\b")
 _GLANCE_FENCE = re.compile(r"```mermaid\n.*?\n```", re.DOTALL)
 _NARRATION = (
     "preserved repository details",
@@ -1594,98 +1589,13 @@ def _check_links(candidate: Candidate) -> list[Failure]:
     return failures
 
 
-def _column_size(lines: list[str], name: str) -> int | None:
-    """How many capability nodes the named column subgraph holds; None when it is absent."""
-    try:
-        index = lines.index(f'subgraph {name}[" "]')
-    except ValueError:
-        return None
-    size = 0
-    for line in lines[index + 1 :]:
-        if line == "end":
-            break
-        if _CAPABILITY_NODE.match(line):
-            size += 1
-    return size
-
-
 def _topology_failures(body: str, has_inputs: bool) -> list[Failure]:
-    """README_CONTRACT.md section 2.1: one chain with one edge per hop, groups as single
-    listing nodes, Starting Points only with a verified input format, one column up to five
-    capabilities and two balanced columns from six, geometry-safe labels, no styling."""
-    failures: list[Failure] = []
-    lines = [line.strip() for line in body.splitlines() if line.strip()]
-    if not lines or lines[0] != "flowchart TD":
-        failures.append(Failure("COMPOSING", "At a Glance is a flowchart TD"))
-    starting = any(line.startswith("subgraph StartingPoints[") for line in lines)
-    outputs = any(line.startswith("subgraph Outputs[") for line in lines)
-    chain = " --> ".join(
-        group
-        for group, present in (
-            ("StartingPoints", starting),
-            ("PRODUCT", True),
-            ("Capabilities", True),
-            ("Outputs", outputs),
-        )
-        if present
-    )
-    edges = [line for line in lines if "-->" in line or "---" in line or "~~~" in line]
-    if edges != [chain]:
-        failures.append(
-            Failure("COMPOSING", f"At a Glance is the one chain {chain!r}; found {edges}")
-        )
-    if starting and not has_inputs:
-        failures.append(
-            Failure("PLANNING", "At a Glance shows Starting Points without a verified input format")
-        )
-    if any(_GLANCE_DIRECTIVE.match(line) for line in lines):
-        failures.append(Failure("COMPOSING", "At a Glance carries a styling directive"))
-    count = len(_CAPABILITY_NODE.findall(body))
-    columns = {name: _column_size(lines, name) for name in ("capl", "capr")}
-    present = [name for name, size in columns.items() if size is not None]
-    if count > 8:
-        failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at most 8"))
-    elif count < 3:
-        failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at least 3"))
-    elif count <= 5 and present:
-        failures.append(
-            Failure("COMPOSING", f"At a Glance: {count} capabilities form one column, not two")
-        )
-    elif count >= 6 and len(present) != 2:
-        failures.append(
-            Failure(
-                "COMPOSING",
-                f"At a Glance: {count} capabilities form two balanced columns; "
-                f"found {len(present)} column(s)",
-            )
-        )
-    elif count >= 6 and abs((columns["capl"] or 0) - (columns["capr"] or 0)) > 1:
-        failures.append(
-            Failure(
-                "COMPOSING",
-                f"At a Glance: {count} capabilities form two balanced columns; "
-                f"found {columns['capl']} and {columns['capr']}",
-            )
-        )
-    for label in _GLANCE_LABEL.findall(body):
-        for token in label.split():
-            if len(token) > GLANCE_LINE_CHARS:
-                failures.append(
-                    Failure("COMPOSING", f"At a Glance label token over 28 characters: {token!r}")
-                )
-        # README_CONTRACT.md section 2.1: "no label wrapping past three lines at Mermaid's default
-        # node width - a longer title is shortened at planning, never clipped at render". Every
-        # label, endpoint or capability, wraps under the one common width of components/glance.py.
-        height = len(wrapped_lines(label))
-        if height > GLANCE_MAX_LINES:
-            failures.append(
-                Failure(
-                    "PLANNING",
-                    f"At a Glance label {label!r} wraps to {height} lines at the common node "
-                    f"width of {GLANCE_LINE_CHARS} characters; at most {GLANCE_MAX_LINES}",
-                )
-            )
-    return failures
+    """README_CONTRACT.md section 2.1, judged by ``components/readme_diagram/contract.py``: the
+    horizontal drawing of the diagram's own content, three to eight capabilities in one column
+    to five or two balanced columns from six, geometry-safe labels."""
+    return [
+        Failure(failure.stage, failure.message) for failure in diagram_failures(body, has_inputs)
+    ]
 
 
 def _outside_lines(readme: str) -> list[tuple[str, str | None]]:

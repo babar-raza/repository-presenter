@@ -35,9 +35,10 @@ from repository_presenter.components.readme.bundle.recheck import (
 )
 from repository_presenter.components.readme.bundle.seal import code_dependencies
 from repository_presenter.components.readme.composition import audience
-from repository_presenter.components.readme.composition.renderer import render_patch
+from repository_presenter.components.readme.composition.renderer import render_patch, render_readme
 from repository_presenter.components.readme.validation import deferrals
 from repository_presenter.core.candidates import BundleError, verify_bundle
+from repository_presenter.core.facts import FACTS_FILENAME, read_facts
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.loader import find_entry, load_registry
 from support import REPO_ROOT, write_cursor
@@ -74,6 +75,33 @@ class Fixture:
             / DIRECTORY
             / (root / "candidates" / DIRECTORY / "CURRENT").read_text(encoding="utf-8").strip()
         )
+        self._rerender_under_the_running_renderer()
+
+    def _rerender_under_the_running_renderer(self) -> None:
+        """Seal the copied bundle's README as the running renderer draws it.
+
+        Updated for R7 (OD-10): the At a Glance diagram is drawn differently now (left to right,
+        SVG labels), so the bundle committed under the earlier renderer re-renders on a handful of
+        diagram lines - which the presentation recheck rightly calls ``UPDATE_REQUIRED``. These
+        tests are about what a *version* move does when nothing a bundle consumed changed, so the
+        fixture must start from a bundle whose README the running renderer reproduces; its
+        README.md and README.patch are re-rendered from the sealed facts, plan and units."""
+        readme = (self.bundle / "README.md").read_text(encoding="utf-8")
+        patch = (self.bundle / "README.patch").read_text(encoding="utf-8")
+        original = recheck.original_readme(readme, patch)
+        assert original is not None, "the committed bundle must round-trip its own patch"
+        entry = find_entry(load_registry(self.root / "data" / "registry.json"), REPOSITORY)
+        rendered = render_readme(
+            entry,
+            read_facts(self.bundle / FACTS_FILENAME),
+            *(
+                json.loads((self.bundle / name).read_text(encoding="utf-8"))
+                for name in ("plan.json", "content_units.json", "dispositions.json")
+            ),
+        )
+        (self.bundle / "README.md").write_bytes(rendered.encode("utf-8"))
+        (self.bundle / "README.patch").write_bytes(render_patch(original, rendered).encode("utf-8"))
+        self._redigest("README.md", "README.patch")
 
     @property
     def dependencies(self) -> dict[str, Any]:
