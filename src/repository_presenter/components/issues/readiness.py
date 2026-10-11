@@ -184,7 +184,11 @@ def _registry_state(registry: Registry | None, repository: str) -> tuple[str, bo
         return "not listed", False
     if not entry.active:
         return f"{entry.mode} (inactive)", False
-    return entry.mode, entry.mode == "full"
+    if entry.mode == "disabled":
+        return entry.mode, False
+    issues_mode = entry.effective_issues_mode
+    state = entry.mode if entry.issues_mode is None else f"{entry.mode}, issues_mode {issues_mode}"
+    return state, issues_mode == "file"
 
 
 def _reverification_state(record: Reverification | None, digest: str) -> tuple[str, bool]:
@@ -445,7 +449,8 @@ def emit_approvals(
         if not row.registry_ok:
             notices.append(
                 f"{identifier}: registry state is {row.registry_state}; the record is emitted but "
-                "filing stays refused until the owner makes that entry mode full"
+                "filing stays refused until the owner makes that entry issue-fileable "
+                "(issues_mode file, or mode full)"
             )
     if refusals:
         return EmitOutcome((), tuple(refusals), tuple(notices))

@@ -170,12 +170,20 @@ Record in `docs/DECISION_LOG.md` (append-only), in this form, with the real valu
   - Revocation. I may revoke at any time by reverting the wave pull request or disabling propose.yml.
 ```
 
-## 8. The upstream issue logger shares the same preconditions
+## 8. The upstream issue logger has its own registry switch
 
-`issues-scheduled.yml` files an issue only for a repository in registry mode `full`, only with a
-committed `ops/issue_approvals/<handoff-id>.json` for that exact handoff
-(`ops/issue_approvals/README.md`), only while the repository variable
-`REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` is `1`, and only where the App holds issues:write.
+`issues-scheduled.yml` files an issue only for a repository whose registry entry is issue-eligible:
+`issues_mode` is `file`. `issues_mode` (`off | dry_run | file`) is optional; when absent it derives
+from `mode` (`full` -> `file`, otherwise `dry_run`), so an entry that sets nothing behaves as it
+did before. Issue filing and issue closing consult `issues_mode`; README proposals and metadata
+writes consult `mode` only. An entry with `issues_mode: file` and `mode: dry_run` can therefore
+have an issue filed while its README proposal stays refused, and `issues_mode: off` refuses issue
+effects even at `mode: full`. A `disabled` entry is refused every effect. The workflow's target
+matrix comes from the handoff ledger (`issue-targets`), not the registry; the write gate decides
+per leg. A filing also needs a committed `ops/issue_approvals/<handoff-id>.json` for that exact
+handoff (`ops/issue_approvals/README.md`), the repository variable
+`REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` set to `1`, and the App holding issues:write.
 As of 2026-10-10 six aspose repositories hold a `HANDOFF_PENDING` handoff, all registry `dry_run`,
-none filed upstream. The mode flip in the wave pull request is therefore also what arms issue
-filing for them; the approvals and the variable are separate owner acts.
+none filed upstream. Setting `issues_mode: file` on an entry (an owner act, separate from the wave
+pull request's mode flip) arms issue filing for it without arming its README pull request; the
+approvals and the variable remain separate owner acts.

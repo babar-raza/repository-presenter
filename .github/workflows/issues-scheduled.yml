@@ -1,7 +1,11 @@
 # Unattended upstream-issue management (components/issues/; docs/investigations/03-issue-tracking.md).
 #
 # Each scheduled run fans out over every repository that has a HANDOFF_PENDING or FILED handoff
-# under evidence/upstream-defects/ (`repository-presenter issue-targets`, the matrix below). Per
+# under evidence/upstream-defects/ (`repository-presenter issue-targets`, the matrix below). The
+# matrix is selected by the ledger, never by the registry; whether a leg may write is decided by the
+# registry write gate (core/registry/write_gate.py), which consults the entry's `issues_mode`
+# (file permits; absent, it derives from `mode`: full -> file, otherwise dry_run) and never `mode`
+# alone, so an entry can be issue-eligible while its README pull requests stay refused. Per
 # target repository:
 #
 #   analyse (always; read-only). A read token scoped to that one repository (contents, issues and
@@ -13,12 +17,12 @@
 #     REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED is 1 (Settings > Secrets and variables > Actions >
 #     Variables). The kill switch can stop every write; it never authorizes one. A handoff is filed
 #     only when the owner has committed an approval record for that exact handoff
-#     (ops/issue_approvals/<handoff-id>.yaml; its target, evidence digest and expiry are verified
+#     (ops/issue_approvals/<handoff-id>.json; its target, evidence digest and expiry are verified
 #     by components/issues/approval.py, read from the commit this run was triggered on). The job
 #     counts such handoffs first and mints the issues-write token, scoped to that one repository,
 #     only when the count is nonzero. Closing a filed issue needs its own, separate approval record
 #     (ops/issue_close_approvals/<handoff-id>.json: the exact issue number and the close reason,
-#     expiring), the registry entry in mode full, a write token verified to be an installation token
+#     expiring), the registry entry's issues_mode file, a write token verified to be an installation token
 #     scoped to that one repository, and the fingerprint marker on the live issue; the same count
 #     includes FILED handoffs only when such a close approval is on record. The token is handed only
 #     to the two gated steps below as GH_ISSUES_WRITE_TOKEN, and the literal switch value "1" is

@@ -1,4 +1,4 @@
-"""The one registry write gate: only a listed, active, mode-``full`` entry may receive a write."""
+"""The one registry write gate: a listed, active entry whose consulted mode permits the effect."""
 
 from __future__ import annotations
 
@@ -21,6 +21,18 @@ EFFECTS: tuple[WriteEffect, ...] = (
     "issue_filing",
     "issue_close",
 )
+
+
+ISSUE_EFFECTS: tuple[WriteEffect, ...] = ("issue_filing", "issue_close")
+PR_EFFECTS: tuple[WriteEffect, ...] = ("readme_proposal", "metadata_write")
+
+
+def _with_issues_mode(tmp_path: Path, *, mode: str, issues_mode: str | None, active: bool = True):
+    entry = monitor_registry_entry(FULL, mode=mode, repository_id=1)
+    if issues_mode is not None:
+        entry["issues_mode"] = issues_mode
+    entry["active"] = active
+    return load_registry(write_registry_file(tmp_path, [entry]))
 
 
 def _registry(tmp_path: Path, *, inactive: bool = False) -> Any:
@@ -84,3 +96,81 @@ def test_the_real_registry_grants_no_write_to_a_dry_run_entry() -> None:
             registry, "aspose-3d-foss/Aspose.3D-FOSS-for-Python", "readme_proposal"
         )
     assert info.value.code is Refusal.REGISTRY_DRY_RUN
+
+
+@pytest.mark.parametrize("effect", ISSUE_EFFECTS)
+def test_issues_mode_file_with_dry_run_mode_permits_issues_but_not_a_readme_proposal(
+    tmp_path: Path, effect: WriteEffect
+) -> None:
+    """The negative control: issue-eligible does not mean PR-eligible, through the real gate."""
+    registry = _with_issues_mode(tmp_path, mode="dry_run", issues_mode="file")
+    assert require_write_permitted(registry, FULL, effect).effect == effect
+    for pr_effect in PR_EFFECTS:
+        with pytest.raises(WriteRefusedError) as info:
+            require_write_permitted(registry, FULL, pr_effect)
+        assert info.value.code is Refusal.REGISTRY_DRY_RUN
+
+
+@pytest.mark.parametrize("effect", ISSUE_EFFECTS)
+def test_issues_mode_off_refuses_issue_effects_even_when_mode_is_full(
+    tmp_path: Path, effect: WriteEffect
+) -> None:
+    registry = _with_issues_mode(tmp_path, mode="full", issues_mode="off")
+    with pytest.raises(WriteRefusedError) as info:
+        require_write_permitted(registry, FULL, effect)
+    assert info.value.code is Refusal.REGISTRY_DISABLED and "issues_mode 'off'" in str(info.value)
+    for pr_effect in PR_EFFECTS:  # mode full still permits the PR-side effects
+        assert require_write_permitted(registry, FULL, pr_effect).effect == pr_effect
+
+
+@pytest.mark.parametrize("effect", ISSUE_EFFECTS)
+def test_issues_mode_dry_run_refuses_issue_effects_even_when_mode_is_full(
+    tmp_path: Path, effect: WriteEffect
+) -> None:
+    registry = _with_issues_mode(tmp_path, mode="full", issues_mode="dry_run")
+    with pytest.raises(WriteRefusedError) as info:
+        require_write_permitted(registry, FULL, effect)
+    assert info.value.code is Refusal.REGISTRY_DRY_RUN and "issues_mode" in str(info.value)
+
+
+@pytest.mark.parametrize("effect", EFFECTS)
+def test_a_disabled_mode_refuses_every_effect_whatever_issues_mode_says(
+    tmp_path: Path, effect: WriteEffect
+) -> None:
+    registry = _with_issues_mode(tmp_path, mode="disabled", issues_mode="file")
+    with pytest.raises(WriteRefusedError) as info:
+        require_write_permitted(registry, FULL, effect)
+    assert info.value.code is Refusal.REGISTRY_DISABLED
+
+
+@pytest.mark.parametrize("effect", ISSUE_EFFECTS)
+def test_an_inactive_entry_is_refused_issue_effects_even_with_issues_mode_file(
+    tmp_path: Path, effect: WriteEffect
+) -> None:
+    registry = _with_issues_mode(tmp_path, mode="full", issues_mode="file", active=False)
+    with pytest.raises(WriteRefusedError) as info:
+        require_write_permitted(registry, FULL, effect)
+    assert info.value.code is Refusal.REGISTRY_INACTIVE
+
+
+def test_the_real_registry_default_derivation_leaves_every_entry_behaving_as_before() -> None:
+    """All 36 shipped entries set no ``issues_mode``: issue_filing and issue_close are permitted
+    for exactly the entries the old ``mode == 'full'`` rule permitted (the 2 ``full`` ones), and
+    the README-side effects are unchanged."""
+    from support import REPO_ROOT
+
+    registry = load_registry(REPO_ROOT / "data" / "registry.json")
+    assert len(registry.entries) == 36
+    assert all(entry.issues_mode is None for entry in registry.entries)
+
+    def permitted(repository: str, effect: WriteEffect) -> bool:
+        try:
+            require_write_permitted(registry, repository, effect)
+        except WriteRefusedError:
+            return False
+        return True
+
+    for effect in EFFECTS:
+        allowed = {e.repository for e in registry.entries if permitted(e.repository, effect)}
+        assert allowed == {e.repository for e in registry.entries if e.mode == "full"}
+        assert len(allowed) == 2
