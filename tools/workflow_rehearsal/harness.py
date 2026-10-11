@@ -88,6 +88,13 @@ WORKFLOW_PLAN: dict[str, dict[str, str]] = {
         "gap": "dry-run job is replayable; write job needs an authorization record merged to main before "
         "the trigger commit and the target's live revision; the fake REST records the PR.",
     },
+    "propose-sandbox.yml": {
+        "event": "workflow_dispatch",
+        "mode": "dryrun",
+        "gap": "the sandbox canary: dry-run job is replayable; the write job waits on the "
+        "sandbox-canary environment (hosted-only), needs the committed correction bundle and a record "
+        "merged to main before the trigger commit, and the App installed on the sandbox repository.",
+    },
     "issues-scheduled.yml": {
         "event": "schedule",
         "mode": "dryrun",

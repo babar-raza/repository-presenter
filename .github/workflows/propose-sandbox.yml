@@ -1,0 +1,226 @@
+# The sandbox canary (owner decision D6, 2026-10-11; OWNER-11; docs/PROPOSAL_WAVE_RUNBOOK.md
+# section 9): the one write-capable run that is allowed to open a pull request while every real
+# product repository stays paused. Its target is the owner's own throwaway repository
+# babar-raza/presenter-sandbox and nothing else: the target is a literal in this file (never an
+# input) and in `core/registry/sandbox.py` (SANDBOX_REPOSITORIES), and it is read from
+# `data/registry_sandbox.json`, a file no other workflow is given. `propose.yml`, the monitor and
+# the sealing run never see it; this workflow never sees `data/registry.json`'s products as a
+# target (a repository in both registries is refused at load).
+#
+# It proposes a CORRECTION: the bundle `repository-presenter correct-readme --sandbox` wrote and a
+# person reviewed in the pull request that merged it, committed under ops/sandbox-canary/bundle/.
+# Nothing is regenerated here, no model is called and no gateway secret is used: the typed gate
+# (components/readme_correction/gate.py) re-derives the corrected README from the bundle's own
+# bytes, and the authorization record binds the sha256 of that exact text, so editing the bundle
+# after the record was merged is refused as a candidate-hash mismatch.
+#
+# Everything past the registry lookup is the product path, unchanged: the same two trust levels as
+# propose.yml (a read-only dry run that holds no write credential, then a write job that mints one
+# repository-scoped App installation token and exposes it to exactly one step), the same
+# authorization record (merged to origin/main before this run's trigger commit, at most 7 days),
+# the same registry write gate (`mode: full` in the sandbox file), the same source recheck, token
+# provenance and App attribution checks, the same idempotent branch/commit/pull-request effect.
+# One addition: the write job declares the environment `sandbox-canary`, so the owner can require
+# an approval click before it runs (docs/OPERATIONS_RUNBOOK.md section 9.1 asks every write job
+# for one; this is the first). Without protection rules on the environment the job simply runs.
+#
+# `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED=1` is set in the one "Propose for real" step
+# only, exactly as in propose.yml, and the repository variable of the same name stays UNSET: it
+# arms sealing-scheduled.yml, which this workflow has nothing to do with.
+#
+# shell-injection hardening is propose.yml's: no `${{ inputs.* }}` in a `run:` script; inputs pass
+# through `env:` and are validated against strict patterns first, echoing the input's name only.
+name: Propose (sandbox canary)
+
+on:
+  workflow_dispatch:
+    inputs:
+      authorization_record:
+        description: "Path to the committed authorization record, ops/proposal-authorizations/<name>.json; required when do_propose is checked"
+        required: false
+        type: string
+      do_propose:
+        description: "Leave unchecked for a dry run (report the plan and the authorization decision, write nothing). Check to attempt the real write to babar-raza/presenter-sandbox."
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# One run at a time against the one target. Never cancel a run in flight: a write interrupted
+# between the branch ref, the contents PUT and the pull request is reconciled by the next run.
+concurrency:
+  group: propose-sandbox
+  cancel-in-progress: false
+
+jobs:
+  dry-run:
+    name: Validate and dry-run babar-raza/presenter-sandbox
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      authorization_record: ${{ steps.validate.outputs.authorization_record }}
+    steps:
+      - name: Validate every dispatch input against a strict allow-pattern
+        id: validate
+        env:
+          INPUT_AUTHORIZATION_RECORD: ${{ inputs.authorization_record }}
+          INPUT_DO_PROPOSE: ${{ inputs.do_propose }}
+        run: |
+          set -euo pipefail
+          fail() {
+            echo "::error::propose-sandbox input '$1' rejected: $2"
+            exit 1
+          }
+
+          case "$INPUT_DO_PROPOSE" in
+            true | false) ;;
+            *) fail do_propose "must be true or false" ;;
+          esac
+
+          # One JSON file directly under ops/proposal-authorizations/ (no subdirectory, no '..'),
+          # required for a real write.
+          record_re='^ops/proposal-authorizations/[A-Za-z0-9][A-Za-z0-9._-]*[.]json$'
+          if [ -n "$INPUT_AUTHORIZATION_RECORD" ]; then
+            [[ "$INPUT_AUTHORIZATION_RECORD" =~ $record_re ]] \
+              || fail authorization_record "must be ops/proposal-authorizations/<name>.json"
+            [ "${#INPUT_AUTHORIZATION_RECORD}" -le 200 ] \
+              || fail authorization_record "is too long"
+          elif [ "$INPUT_DO_PROPOSE" = "true" ]; then
+            fail authorization_record "is required when do_propose is checked"
+          fi
+
+          echo "authorization_record=$INPUT_AUTHORIZATION_RECORD" >> "$GITHUB_OUTPUT"
+
+      # Full depth: the command reads the authorization record's merge provenance from git history.
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Confirm the record and the correction bundle are regular files in this checkout
+        env:
+          AUTHORIZATION_RECORD: ${{ steps.validate.outputs.authorization_record }}
+        run: |
+          set -euo pipefail
+          if [ -n "$AUTHORIZATION_RECORD" ] && { [ ! -f "$AUTHORIZATION_RECORD" ] || [ -L "$AUTHORIZATION_RECORD" ]; }; then
+            echo "::error::the authorization record is missing or is not a regular file in this checkout"
+            exit 1
+          fi
+          if [ ! -f ops/sandbox-canary/bundle/manifest.json ] || [ -L ops/sandbox-canary/bundle/manifest.json ]; then
+            echo "::error::ops/sandbox-canary/bundle/manifest.json is missing: merge the canary pull request (the correction bundle) first"
+            exit 1
+          fi
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      # Read-only, by explicit permission-* inputs, scoped to the one sandbox repository. The dry
+      # run reads the target's current revision with it and writes nothing.
+      - name: Mint a read-only installation token, scoped to the sandbox repository alone
+        id: read-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: babar-raza
+          repositories: presenter-sandbox
+          permission-contents: read
+          permission-metadata: read
+
+      - name: Dry run - report the plan and the authorization decision, no write
+        env:
+          GH_TOKEN: ${{ steps.read-token.outputs.token }}
+          AUTHORIZATION_RECORD: ${{ steps.validate.outputs.authorization_record }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          args=(--sandbox --repo babar-raza/presenter-sandbox --correction-bundle ops/sandbox-canary/bundle --trigger-sha "$TRIGGER_SHA")
+          if [ -n "$AUTHORIZATION_RECORD" ]; then
+            args+=(--authorization-record "$AUTHORIZATION_RECORD")
+          fi
+          if repository-presenter propose "${args[@]}"; then
+            status=0
+          else
+            status=$?
+          fi
+          if [ "$status" -eq 3 ]; then
+            echo "::error::proposal refused (exit 3): the dry run was refused for a typed reason, printed above; nothing was written"
+          fi
+          exit "$status"
+
+  write:
+    name: Propose the correction to babar-raza/presenter-sandbox
+    needs: dry-run
+    if: ${{ inputs.do_propose && needs.dry-run.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The owner may require reviewers on this environment: the job then waits for an approval click.
+    environment: sandbox-canary
+    # The checkout's own grant only; the write capability is the App installation token below.
+    permissions:
+      contents: read
+    steps:
+      # Full depth: the command reads the authorization record's merge provenance from git history.
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: requirements-lock.txt
+
+      # Installed before the write token exists, so no dependency code ever runs with it.
+      - name: Install from the lock
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-lock.txt
+          python -m pip install --disable-pip-version-check --no-deps -e .
+
+      # Scoped to the one sandbox repository; never the whole installation. The permission-*
+      # inputs are the minimum the effect uses: contents write (branch ref and the README PUT) and
+      # pull-requests write (open or refresh the presenter PR). No issues, no administration.
+      - name: Mint a fresh installation token, scoped to the sandbox repository alone
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: babar-raza
+          repositories: presenter-sandbox
+          permission-contents: write
+          permission-metadata: read
+          permission-pull-requests: write
+
+      - name: "Propose for real (gated: REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED set only here)"
+        env:
+          REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED: "1"
+          GH_PROPOSAL_WRITE_TOKEN: ${{ steps.app-token.outputs.token }}
+          AUTHORIZATION_RECORD: ${{ needs.dry-run.outputs.authorization_record }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          args=(--sandbox --repo babar-raza/presenter-sandbox --correction-bundle ops/sandbox-canary/bundle --trigger-sha "$TRIGGER_SHA")
+          args+=(--authorization-record "$AUTHORIZATION_RECORD")
+          if repository-presenter propose "${args[@]}" --propose; then
+            status=0
+          else
+            status=$?
+          fi
+          if [ "$status" -eq 3 ]; then
+            echo "::error::proposal refused (exit 3): the command refused the write for a typed reason, printed above; nothing was written"
+          fi
+          exit "$status"
