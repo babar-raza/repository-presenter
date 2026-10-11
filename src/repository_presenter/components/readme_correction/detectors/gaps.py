@@ -24,7 +24,7 @@ from repository_presenter.components.readme_correction.model import (
 
 _IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _NO_DEPENDENCIES = re.compile(
-    r"(?i)\b(?:pure[- ]managed|pure[- ]python|dependency[- ]free|zero (?:runtime )?dependencies"
+    r"(?i)\b(?:pure[- ]managed|dependency[- ]free|zero (?:runtime )?dependencies"
     r"|no (?:runtime |third[- ]party |external |native )*dependencies)\b"
 )
 _SAMPLE = 8
