@@ -32,6 +32,10 @@ from repository_presenter.components.readme.evidence.facts.commands import (
     TEST_COMMAND_FACT_ID,
 )
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
+from repository_presenter.components.readme_correction.augment import (
+    CMAKE_FACT_ID,
+    augment_dependencies,
+)
 from repository_presenter.components.readme_correction.detectors import detector
 from repository_presenter.components.readme_correction.detectors._layout import (
     addition_text,
@@ -70,7 +74,8 @@ def _render_section(ctx: Context, section_id: str, facts: tuple[Fact, ...]) -> s
     plan = {"sections": [{"section_id": section_id, "include": True}]}
     text = render_readme(ctx.entry, document, plan, {"units": []}, {"dispositions": []})
     lines = text.splitlines()
-    return clean(chr(10).join(lines[1:]).strip(chr(10))) if lines else ""
+    body = clean(chr(10).join(lines[1:]).strip(chr(10))) if lines else ""
+    return augment_dependencies(ctx, body) if section_id == "dependencies" else body
 
 
 # ----------------------------------------------------------------------- Development and Testing
@@ -199,6 +204,8 @@ def add_dependency_groups(ctx: Context) -> DetectorResult:
     floor = spec_for_ecosystem(ctx).floor_fact_id
     if floor and ctx.supported(floor) is not None:
         cited += (floor,)
+    if ctx.supported(CMAKE_FACT_ID) is not None:
+        cited += (CMAKE_FACT_ID,)
     return DetectorResult(
         edits=(
             Edit(

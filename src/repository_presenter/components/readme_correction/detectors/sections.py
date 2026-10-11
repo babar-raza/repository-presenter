@@ -27,6 +27,10 @@ from repository_presenter.components.readme.evidence.facts.commands import (
     TEST_COMMAND_FACT_ID,
 )
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
+from repository_presenter.components.readme_correction.augment import (
+    CMAKE_FACT_ID,
+    augment_dependencies,
+)
 from repository_presenter.components.readme_correction.detectors import detector
 from repository_presenter.components.readme_correction.detectors._layout import (
     fence_lines,
@@ -127,6 +131,8 @@ def _dependency_ids(ctx: Context) -> tuple[str, ...]:
     floor = _spec(ctx).floor_fact_id
     if floor and ctx.supported(floor) is not None:
         ids.append(floor)
+    if ctx.supported(CMAKE_FACT_ID) is not None:
+        ids.append(CMAKE_FACT_ID)
     return tuple(ids[:20])
 
 
@@ -227,7 +233,8 @@ def _rendered(ctx: Context, section_id: str) -> str:
     _spec(ctx)
     plan = {"sections": [{"section_id": section_id, "include": True}]}
     text = render_readme(ctx.entry, ctx.facts, plan, {"units": []}, {"dispositions": []})
-    return clean(text.strip(NL))
+    body = clean(text.strip(NL))
+    return augment_dependencies(ctx, body) if section_id == "dependencies" else body
 
 
 def _covered_elsewhere(ctx: Context, sid: str, block: str) -> str | None:

@@ -370,3 +370,25 @@ def test_a_badge_of_the_registrys_family_in_any_form_counts_as_shown(
         add_version_badge(make_context(other, python_facts(make_fact), repository=WORDS)).edits
         == ()
     )
+
+
+def test_the_cmake_minimum_joins_the_native_requirements_of_an_inserted_dependencies_section(
+    make_context: Any, make_fact: Any
+) -> None:
+    facts = [
+        make_fact("package:name", "aspose_cells_foss_cpp", evidence=(("CMakeLists.txt", None),)),
+        make_fact("dependency:none", "none", evidence=(("CMakeLists.txt", "links nothing"),)),
+        make_fact("package:cxx_standard", "17", evidence=(("CMakeLists.txt", None),)),
+        make_fact("package:cmake_minimum", "3.16", evidence=(("CMakeLists.txt", None),)),
+    ]
+    readme = "# P\n\n## Installation\n\nx\n\n## License\n\nMIT.\n"
+    ctx = make_context(readme, facts, repository="aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp")
+    (edit,) = [e for e in missing_sections(ctx).edits if "## Dependencies" in e.replacement]
+    assert "- Requires CMake 3.16 or later." in edit.replacement
+    assert "package:cmake_minimum" in edit.fact_ids
+    stated = readme.replace("MIT.", "MIT. Needs CMake 3.16+.")
+    again = missing_sections(
+        make_context(stated, facts, repository="aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp")
+    )
+    (edit2,) = [e for e in again.edits if "## Dependencies" in e.replacement]
+    assert "CMake" not in edit2.replacement  # the README already states it
