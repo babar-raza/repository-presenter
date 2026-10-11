@@ -1,0 +1,15 @@
+# log: license-3D-TS
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript
+# head: 66cb26df3b031f0bf6976d4e88dc89721983afa4
+# utc: 2026-10-10T15:02:00Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked files whose name looks like a license:'; git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- tracked at repository root:'; git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- GitHub license detection: gh api repos/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript --jq .license:'; gh api repos/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript --jq '"license=" + (.license|tostring)'
+# ---- output (capped at 60000 bytes) ----
+--- tracked files whose name looks like a license:
+NONE
+--- tracked at repository root:
+NONE
+--- GitHub license detection: gh api repos/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript --jq .license:
+license=null
+
+# exit: 0

@@ -1,0 +1,20 @@
+# log: imaging-recheck
+# repository: aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET
+# head: 6ebb2091ad016a46489bef65eaad0f1eb9843e1a
+# utc: 2026-10-10T15:23:56Z
+# cwd: shallow clone of the default branch
+# command: git log -3 --format='%h %cI %s'; echo '--- README mentions of nuget / dotnet add package / Aspose.Imaging.Foss install:'; grep -n -i 'nuget\|dotnet add package' README.md | head -8; echo '--- handoff revision a7c7314b vs head: files changed in README.md:'; git fetch -q --depth 50 origin 2>&1 | tail -1; git log --oneline a7c7314b..HEAD -- README.md 2>&1 | head -5; echo '--- csproj URLs (old repository name):'; grep -n 'RepositoryUrl\|PackageProjectUrl' src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj; curl -s -o /dev/null -w 'old URL (follows rename redirect): HTTP %{http_code}\n' -L https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss; curl -s -o /dev/null -w 'nuget Aspose.Imaging.Foss: HTTP %{http_code}\n' https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json
+# ---- output (capped at 60000 bytes) ----
+6ebb209 2026-10-10T04:55:01-07:00 Refresh README: verified examples and documentation links (#2)
+--- README mentions of nuget / dotnet add package / Aspose.Imaging.Foss install:
+11:without pulling in a full imaging stack to decode a single pixel. It has no NuGet dependencies
+--- handoff revision a7c7314b vs head: files changed in README.md:
+6ebb209 Refresh README: verified examples and documentation links (#2)
+5872b4a Refresh README: verified examples and documentation links (#1)
+--- csproj URLs (old repository name):
+19:    <RepositoryUrl>https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss</RepositoryUrl>
+20:    <PackageProjectUrl>https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss</PackageProjectUrl>
+old URL (follows rename redirect): HTTP 200
+nuget Aspose.Imaging.Foss: HTTP 404
+
+# exit: 0

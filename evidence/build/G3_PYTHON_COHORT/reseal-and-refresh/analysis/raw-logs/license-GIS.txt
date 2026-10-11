@@ -1,0 +1,15 @@
+# log: license-GIS
+# repository: aspose-gis-foss/Aspose.GIS.FOSS-for-.Net
+# head: b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4
+# utc: 2026-10-10T15:02:01Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked files whose name looks like a license:'; git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- tracked at repository root:'; git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- GitHub license detection: gh api repos/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net --jq .license:'; gh api repos/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net --jq '"license=" + (.license|tostring)'
+# ---- output (capped at 60000 bytes) ----
+--- tracked files whose name looks like a license:
+NONE
+--- tracked at repository root:
+NONE
+--- GitHub license detection: gh api repos/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net --jq .license:
+license=null
+
+# exit: 0

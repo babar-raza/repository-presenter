@@ -1,0 +1,18 @@
+# log: nuget-Email-NET
+# repository: aspose-email-foss/Aspose.Email-FOSS-for-.Net
+# head: 59125b4732df0eedbc4d4c2ab978698ed4348eb7
+# utc: 2026-10-10T15:23:02Z
+# cwd: shallow clone of the default branch
+# command: curl -s https://api.nuget.org/v3-flatcontainer/aspose.email.foss/index.json; echo; grep -rn '<Version>' --include=*.csproj . | head -3; grep -n -m3 '^## \[' CHANGELOG.md; grep -n 'PackageReference' README.md | head -2
+# ---- output (capped at 60000 bytes) ----
+{
+  "versions": [
+    "26.7.0"
+  ]
+}
+./src/Aspose.Email.Foss/Aspose.Email.Foss.csproj:5:    <Version>0.1.0</Version>
+5:## [0.1.0] - 2026-03-18
+76:<PackageReference Include="Aspose.Email.Foss" Version="26.7.0" />
+88:from `src/Aspose.Email.Foss/Aspose.Email.Foss.csproj`, which declares zero `<PackageReference>`
+
+# exit: 0

@@ -1,0 +1,12 @@
+# log: quickstart-3D-NET-without-format
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-.NET
+# head: 52b0f00ebf28a0b4173921725ff170685ec2c502
+# utc: 2026-10-10T15:52:33Z
+# cwd: shallow clone of the default branch
+# command: echo 'README Quick Start with the second argument removed: scene.Save("output.fbx")'; cd ../../probes/n3d && dotnet run -c Debug 2>&1 | grep -v -E ': warning |^\s*$' | tail -3; ls -la output.fbx | awk '{print "output.fbx bytes:", $5}'
+# ---- output (capped at 60000 bytes) ----
+README Quick Start with the second argument removed: scene.Save("output.fbx")
+saved
+output.fbx bytes: 2185
+
+# exit: 0

@@ -1,0 +1,19 @@
+# log: version-txt-Page-Python
+# repository: aspose-page-foss/Aspose.Page-FOSS-for-Python
+# head: 43cef367cd0b2cf00cc03064ca9d29d1ff507967
+# utc: 2026-10-10T15:20:41Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked files under local/ (count):'; git ls-files local | wc -l; echo '--- .gitignore rule:'; grep -n '^local/' .gitignore; echo '--- setup.py reads it (line 35) and package.py (line 45):'; sed -n 35p setup.py; sed -n 45p package.py; echo '--- pip install . --no-deps (error lines):'; E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/pg/Scripts/python.exe -m pip install . --no-deps 2>&1 | grep -E 'FileNotFoundError|No such file|status .error' | head -4
+# ---- output (capped at 60000 bytes) ----
+--- tracked files under local/ (count):
+0
+--- .gitignore rule:
+9:local/
+--- setup.py reads it (line 35) and package.py (line 45):
+        "version": (ROOT / "local" / "Version.txt").read_text(encoding="utf-8").strip(),
+    value = (ROOT / "local" / "Version.txt").read_text(encoding="utf-8").strip()
+--- pip install . --no-deps (error lines):
+  Getting requirements to build wheel: finished with status 'error'
+  FileNotFoundError: [Errno 2] No such file or directory: 'E:\\Users\\prora\\OneDrive\\Documents\\GitHub\\repository-presenter\\runs\\wt\\liss1\\runs\\iss01\\clones\\aspose-page-foss__Aspose.Page-FOSS-for-Python\\local\\Version.txt'
+
+# exit: 0

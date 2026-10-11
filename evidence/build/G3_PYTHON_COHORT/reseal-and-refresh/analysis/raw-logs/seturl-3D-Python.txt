@@ -1,0 +1,13 @@
+# log: seturl-3D-Python
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-Python
+# head: 65b1f577c0f16d0d9112bb6c1153d3024543ac02
+# utc: 2026-10-10T15:15:51Z
+# cwd: shallow clone of the default branch
+# command: grep -n 'url=' setup.py; u=$(grep -o 'https://github.com/[^"]*' setup.py | head -1); echo "url: $u"; curl -s -o /dev/null -w 'HTTP %{http_code}\n' $u; curl -s -o /dev/null -w 'repo gh api: HTTP %{http_code}\n' https://api.github.com/repos/aspose-3d/Aspose.3D-for-Python
+# ---- output (capped at 60000 bytes) ----
+15:    url="https://github.com/aspose-3d/Aspose.3D-for-Python",
+url: https://github.com/aspose-3d/Aspose.3D-for-Python
+HTTP 404
+repo gh api: HTTP 404
+
+# exit: 0

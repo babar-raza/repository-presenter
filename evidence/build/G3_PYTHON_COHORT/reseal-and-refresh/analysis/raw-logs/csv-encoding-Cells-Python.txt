@@ -1,0 +1,41 @@
+# log: csv-encoding-Cells-Python
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Python
+# head: 4f6768a7b349a1309644f456eb43bc35f70c16d7
+# utc: 2026-10-10T15:04:27Z
+# cwd: shallow clone of the default branch
+# command: sed -n 27,32p aspose/cells_foss/csv_handler.py; E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/cy/Scripts/python.exe -I -c "import locale; print('locale.getpreferredencoding(False) =', locale.getpreferredencoding(False))"; echo '--- save_as_csv with CJK text (Python 3.13, Windows, default locale cp1252):'; PYTHONPATH=. E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/cy/Scripts/python.exe -c "
+from aspose.cells_foss import Workbook
+wb = Workbook(); ws = wb.get_active_worksheet(); ws.cells['A1'].value = '你好'
+wb.save_as_csv('o.csv')
+"; echo '--- same with PYTHONUTF8=1:'; PYTHONUTF8=1 PYTHONPATH=. E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/cy/Scripts/python.exe -c "
+from aspose.cells_foss import Workbook
+wb = Workbook(); ws = wb.get_active_worksheet(); ws.cells['A1'].value = '你好'
+wb.save_as_csv('o.csv'); print('written', open('o.csv', encoding='utf-8').read().strip())
+"; rm -f o.csv
+# ---- output (capped at 60000 bytes) ----
+
+
+def _system_encoding() -> str:
+    """Return the system's preferred encoding (e.g. 'cp1252', 'gbk', 'utf-8')."""
+    return locale.getpreferredencoding(False) or 'utf-8'
+
+locale.getpreferredencoding(False) = cp1252
+--- save_as_csv with CJK text (Python 3.13, Windows, default locale cp1252):
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+    wb.save_as_csv('o.csv')
+    ~~~~~~~~~~~~~~^^^^^^^^^
+  File "E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-cells-foss__Aspose.Cells-FOSS-for-Python\aspose\cells_foss\workbook.py", line 537, in save_as_csv
+    CSVHandler.save_csv(self, file_path, options)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-cells-foss__Aspose.Cells-FOSS-for-Python\aspose\cells_foss\csv_handler.py", line 192, in save_csv
+    writer.writerow(formatted_row)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\babar\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+--- same with PYTHONUTF8=1:
+written 你好
+
+# exit: 0

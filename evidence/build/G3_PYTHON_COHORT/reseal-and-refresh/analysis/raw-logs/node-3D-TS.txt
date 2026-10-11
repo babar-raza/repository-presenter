@@ -1,0 +1,36 @@
+# log: node-3D-TS
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript
+# head: 66cb26df3b031f0bf6976d4e88dc89721983afa4
+# utc: 2026-10-10T15:40:32Z
+# cwd: shallow clone of the default branch
+# command: echo '--- package.json:'; grep -n -E '"(main|types|license)"' package.json; echo 'adm-zip is declared under:'; python -I -c "import json; d=json.load(open('package.json')); print([k for k in ('dependencies','devDependencies') if 'adm-zip' in d.get(k,{})], 'name=', d['name'])"; grep -rn "require('adm-zip')" src | cut -d: -f1,2; echo '--- npm registry (host curl):'; curl -s -o /dev/null -w '@aspose/3d: HTTP %{http_code}\n' https://registry.npmjs.org/%40aspose%2F3d; echo '--- in container node:22 (copy of the clone):'; ../../dn.sh node:22 aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript "node --version; npm install --no-audit --no-fund --loglevel=error >/dev/null 2>&1; npm run build 2>&1 | tail -2; ls dist; node -e \"require('.')\" 2>&1 | grep -E 'Cannot find module|Error' | head -2; echo '--- npm run lint:'; npm run lint 2>&1 | grep -E \"couldn't find|ESLint\" | head -2; echo '--- jest:'; npx jest 2>&1 | grep -E '^(Tests|Test Suites):|●.*›' | sort -u | head -12"
+# ---- output (capped at 60000 bytes) ----
+--- package.json:
+5:  "main": "dist/index.js",
+6:  "types": "dist/index.d.ts",
+24:  "license": "MIT",
+adm-zip is declared under:
+['devDependencies'] name= @aspose/3d
+src/aspose/threed/formats/threemf/ThreeMfExporter.ts:162
+src/aspose/threed/formats/threemf/ThreeMfImporter.ts:53
+--- npm registry (host curl):
+curl: option -w: error encountered when reading a file
+curl: try 'curl --help' or 'curl --manual' for more information
+--- in container node:22 (copy of the clone):
+v22.23.3
+> tsc
+
+aspose
+Error: Cannot find module '/w/dist/index.js'. Please verify that the package.json has a valid "main" entry
+--- npm run lint:
+ESLint: 8.57.1
+ESLint couldn't find a configuration file. To set up a configuration file for this project, please run:
+--- jest:
+  ● Test3MFMaterialImport › testMaterialImport
+  ● Test3MFRoundTrip › testRoundTripExportImport
+  ● TestGltfExporter › testSimpleTriangleBinary
+  ● TestSceneSaveSTL › testRoundtripFile
+Test Suites: 4 failed, 28 passed, 32 total
+Tests:       4 failed, 93 passed, 97 total
+
+# exit: 0

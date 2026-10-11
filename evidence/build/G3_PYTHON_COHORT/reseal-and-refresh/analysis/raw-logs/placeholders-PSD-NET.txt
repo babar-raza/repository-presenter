@@ -1,0 +1,17 @@
+# log: placeholders-PSD-NET
+# repository: aspose-psd-foss/Aspose.PSD-FOSS-for-.NET
+# head: f4e1b261922d514591b898f01346af1c6bf59f92
+# utc: 2026-10-10T15:34:41Z
+# cwd: shallow clone of the default branch
+# command: grep -n -E '<(Authors|PackageProjectUrl|RepositoryUrl|PackageLicenseExpression|GeneratePackageOnBuild)>' src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj; curl -s -o /dev/null -w 'https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET: HTTP %{http_code}\n' https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET; curl -s -o /dev/null -w 'actual repository https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET: HTTP %{http_code}\n' https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET; grep -rn 'yourorg' --include=*.csproj --include=*.md --include=*.nuspec . | head -4
+# ---- output (capped at 60000 bytes) ----
+13:    <Authors>SID</Authors>
+15:    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+16:    <PackageProjectUrl>https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET</PackageProjectUrl>
+17:    <RepositoryUrl>https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET</RepositoryUrl>
+20:    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET: HTTP 404/nactual repository https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET: HTTP 200
+./src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj:16:    <PackageProjectUrl>https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET</PackageProjectUrl>
+./src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj:17:    <RepositoryUrl>https://github.com/yourorg/Aspose.PSD-FOSS-for-.NET</RepositoryUrl>
+
+# exit: 0

@@ -1,0 +1,25 @@
+# log: unittest-3D-Python
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-Python
+# head: 65b1f577c0f16d0d9112bb6c1153d3024543ac02
+# utc: 2026-10-10T15:15:59Z
+# cwd: shallow clone of the default branch
+# command: echo '--- gitignore examples rule:'; grep -n -i '^examples' .gitignore; echo '--- tracked files under examples/:'; git ls-files examples | wc -l; PYTHONIOENCODING=utf-8 E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/p3/Scripts/python.exe -m unittest discover tests/ > out.txt 2>&1; echo "unittest exit: $?"; grep -E '^(Ran |FAILED|OK)|^(ERROR|FAIL):' out.txt | head -20; grep -E 'FileNotFound|No such file' out.txt | sort | uniq -c | sort -rn | head -4; rm -f out.txt
+# ---- output (capped at 60000 bytes) ----
+--- gitignore examples rule:
+8:examples
+--- tracked files under examples/:
+0
+unittest exit: 1
+ERROR: test_material_import_from_boombox (test_gltf_materials.TestGltfMaterialImport.test_material_import_from_boombox)
+ERROR: test_material_properties_from_corset (test_gltf_materials.TestGltfMaterialImport.test_material_properties_from_corset)
+ERROR: test_scene_open_ascii_stl_file (test_scene_open_stl.TestSceneOpenSTL.test_scene_open_ascii_stl_file)
+ERROR: test_scene_open_ascii_with_options (test_scene_open_stl.TestSceneOpenSTL.test_scene_open_ascii_with_options)
+ERROR: test_scene_open_binary_stl_file (test_scene_open_stl.TestSceneOpenSTL.test_scene_open_binary_stl_file)
+Ran 123 tests in 0.033s
+FAILED (errors=5, skipped=5)
+      2 FileNotFoundError: [Errno 2] No such file or directory: 'examples/stl/stl_ascii.stl'
+      1 FileNotFoundError: [Errno 2] No such file or directory: 'examples/stl/stl_binary.stl'
+      1 FileNotFoundError: [Errno 2] No such file or directory: 'examples/gltf2/Corset/glTF/Corset.gltf'
+      1 FileNotFoundError: [Errno 2] No such file or directory: 'examples/gltf2/BoomBox/glTF/BoomBox.gltf'
+
+# exit: 0

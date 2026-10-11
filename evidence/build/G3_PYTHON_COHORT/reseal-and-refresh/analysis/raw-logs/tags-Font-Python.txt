@@ -1,0 +1,17 @@
+# log: tags-Font-Python
+# repository: aspose-font-foss/Aspose.Font-FOSS-for-Python
+# head: adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6
+# utc: 2026-10-10T15:23:36Z
+# cwd: shallow clone of the default branch
+# command: grep -n -m2 '^version' pyproject.toml; git ls-remote --tags origin | sed 's#.*refs/tags/##' | sort -V | tail -5; curl -s -o /dev/null -w 'PyPI aspose-font: HTTP %{http_code}\n' https://pypi.org/pypi/aspose-font/json; grep -n 'pip install "aspose-font' README.md
+# ---- output (capped at 60000 bytes) ----
+7:version = "1.0.0"
+2026.5.4^{}
+2026.5.5
+2026.5.5^{}
+2026.5.6
+2026.5.6^{}
+PyPI aspose-font: HTTP 404
+539:pip install "aspose-font[mcp]"
+
+# exit: 0

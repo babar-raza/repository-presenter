@@ -1,0 +1,26 @@
+# log: limitations-PDF-Java
+# repository: aspose-pdf-foss/Aspose.PDF-FOSS-for-Java
+# head: 736cedaa2922e4952f429364bdb9a4bbb1d97863
+# utc: 2026-10-10T15:36:11Z
+# cwd: shallow clone of the default branch
+# command: echo '--- README.md out-of-scope lines 1608-1611:'; sed -n 1608,1611p README.md; echo '--- docs/limitations.md line 16:'; sed -n 16p docs/limitations.md; echo '--- docs/conversion.md line 3:'; sed -n 3p docs/conversion.md; echo '--- SaveFormat.java constants:'; grep -n -E '^    (Xlsx|Excel|Markdown|Docx|Html)' src/main/java/org/aspose/pdf/SaveFormat.java; echo '--- CHANGELOG.md:'; grep -n -E 'SaveFormat.Xlsx|SaveFormat.Markdown' CHANGELOG.md
+# ---- output (capped at 60000 bytes) ----
+--- README.md out-of-scope lines 1608-1611:
+- **Conversion to non-PDF formats** other than HTML/XML — DOCX, XLSX, PPTX, EPUB, MOBI, Markdown,
+  LaTeX, and similar are not supported; this edition is PDF in, PDF (or HTML/XML/raster) out.
+- **Conversion from non-PDF formats** other than HTML — DOC, DOCX, XLSX, PPTX, XPS, PCL,
+  PostScript, EPS, and SVG as input are not supported.
+--- docs/limitations.md line 16:
+- **Conversion to spreadsheet/presentation/e-book formats** — XLSX, PPTX, EPUB, MOBI, Markdown, LaTeX, ZUGFeRD, and similar. (HTML, DOCX and DOC conversion *are* supported — see [conversion.md](conversion.md).)
+--- docs/conversion.md line 3:
+Convert between PDF and other document formats: **PDF ↔ HTML**, **PDF ↔ DOCX**, **PDF ↔ XLSX**, and **PDF ↔ Markdown**. All conversions run entirely in-process with zero third-party dependencies (only `java.*`/`javax.*`), so no external tools or services are required.
+--- SaveFormat.java constants:
+10:    Html,
+26:    Xlsx,
+32:    Excel,
+39:    Markdown
+--- CHANGELOG.md:
+121:- New save format `SaveFormat.Xlsx` (alias `SaveFormat.Excel`) and
+146:- New save format `SaveFormat.Markdown` and `MarkdownSaveOptions`.
+
+# exit: 0

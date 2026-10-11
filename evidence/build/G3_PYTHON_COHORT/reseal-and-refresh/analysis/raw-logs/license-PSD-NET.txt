@@ -1,0 +1,15 @@
+# log: license-PSD-NET
+# repository: aspose-psd-foss/Aspose.PSD-FOSS-for-.NET
+# head: f4e1b261922d514591b898f01346af1c6bf59f92
+# utc: 2026-10-10T15:02:03Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked files whose name looks like a license:'; git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- tracked at repository root:'; git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- GitHub license detection: gh api repos/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET --jq .license:'; gh api repos/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET --jq '"license=" + (.license|tostring)'
+# ---- output (capped at 60000 bytes) ----
+--- tracked files whose name looks like a license:
+NONE
+--- tracked at repository root:
+NONE
+--- GitHub license detection: gh api repos/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET --jq .license:
+license=null
+
+# exit: 0

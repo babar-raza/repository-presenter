@@ -1,0 +1,16 @@
+# log: sample-errors-GIS-NET
+# repository: aspose-gis-foss/Aspose.GIS.FOSS-for-.Net
+# head: b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4
+# utc: 2026-10-10T15:54:42Z
+# cwd: shallow clone of the default branch
+# command: echo 'selected errors from the full dotnet build output:'; python -I /e/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/scripts/gis_sample_errors.py ../../probes/gisbuild.txt
+# ---- output (capped at 60000 bytes) ----
+selected errors from the full dotnet build output:
+Aspose.GIS.FOSS\Geometries\IGeometry.cs(5,33): error CS0234: The type or namespace name 'Symbolizers' does not exist in the namespace 'Aspose.GIS.FOSS.Rendering' (are you missing an assembly reference?)
+Aspose.GIS.FOSS\SpatialReferencing\Internal\OgcEsriSrsTransformer.cs(6,23): error CS0234: The type or namespace name 'Epsg' does not exist in the namespace 'Aspose.GIS.FOSS' (are you missing an assembly reference?)
+Aspose.GIS.FOSS\FileDriver.cs(346,16): error CS0246: The type or namespace name 'Dataset' could not be found (are you missing a using directive or an assembly reference?)
+Aspose.GIS.FOSS\GeoJsonDriver.cs(18,30): error CS0115: 'GeoJsonDriver.SupportsSpatialReferenceSystem(SpatialReferenceSystem)': no suitable method found to override
+Aspose.GIS.FOSS\Geometries\IPolygon.cs(38,7): error CS0246: The type or namespace name 'Polygon' could not be found (are you missing a using directive or an assembly reference?)
+Aspose.GIS.FOSS\Geometries\Geometry.cs(12,35): error CS0535: 'Geometry' does not implement interface member 'IGeometry.AsImage(AbstractPath, Measurement, Measurement, Renderer, VectorSymbolizer)'
+
+# exit: 0

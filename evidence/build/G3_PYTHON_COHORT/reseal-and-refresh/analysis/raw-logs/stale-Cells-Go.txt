@@ -1,0 +1,31 @@
+# log: stale-Cells-Go
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Go
+# head: 99c789e9175f2b12ad82bafeeba148ddcc1367fb
+# utc: 2026-10-10T15:31:12Z
+# cwd: shallow clone of the default branch
+# command: echo '--- README claims (lines 59, 83-84):'; sed -n '59p;83,84p' README.md; echo '--- functions implemented in aspose/cells_foss/formula_engine.go (case labels):'; grep -o -E 'case "[A-Z]+"' aspose/cells_foss/formula_engine.go | sort -u | tr '\n' ' '; echo; echo '--- exported methods absent from README (declaration | README hits):'; for s in AddChart AddPivotTable AddConditionalFormatting SetVBAProject; do printf '%s: ' $s; grep -rn "func (.*) $s(" aspose | head -1 | cut -d: -f1,2 | tr '\n' ' '; printf '| README hits: '; grep -c $s README.md; done; echo '--- stray top-level heading inside Installation (README.md:105):'; sed -n 105p README.md; echo '--- committed generated output:'; git ls-files 'examples/outputfiles/*.csv'; grep -n 'outputfiles' .gitignore AGENTS.md 2>/dev/null | head -3; echo '--- latest release tags:'; git ls-remote --tags origin | grep -v '\^' | sed 's#.*refs/tags/##' | sort -V | tail -2
+# ---- output (capped at 60000 bytes) ----
+--- README claims (lines 59, 83-84):
+      c3["Formulas with a built-in SUM/AVERAGE/MAX/MIN engine"]
+- Formulas are stored with `Cell.SetFormula` and evaluated by the built-in `CalculateFormula`
+  engine, which supports `SUM`, `AVERAGE`, `MAX`, and `MIN` over single cells or A1-style ranges.
+--- functions implemented in aspose/cells_foss/formula_engine.go (case labels):
+case "ABS" case "AND" case "AVERAGE" case "CONCAT" case "COUNT" case "COUNTIF" case "IF" case "LEFT" case "LEN" case "LOWER" case "MAX" case "MID" case "MIN" case "NOT" case "OR" case "POWER" case "RIGHT" case "ROUND" case "SQRT" case "SUM" case "UPPER" case "VLOOKUP" 
+--- exported methods absent from README (declaration | README hits):
+AddChart: aspose/cells_foss/chart.go:84 | README hits: 0
+AddPivotTable: aspose/cells_foss/pivot_table.go:65 | README hits: 0
+AddConditionalFormatting: aspose/cells_foss/conditional_format.go:88 | README hits: 0
+SetVBAProject: aspose/cells_foss/macro.go:33 | README hits: 0
+--- stray top-level heading inside Installation (README.md:105):
+# Requires **Go 1.24.5+** (see `go.mod`). Depends only on the Go standard library — no third-party modules.
+--- committed generated output:
+examples/outputfiles/employees.csv
+examples/outputfiles/exported.csv
+.gitignore:31:examples/outputfiles/*.xlsx
+AGENTS.md:24:- Never commit generated `.xlsx` files or contents from `outputfiles/`
+AGENTS.md:53:`go run ./<name>/`, not `go test`. Examples write to `examples/outputfiles/`.
+--- latest release tags:
+v26.7.0
+v26.7.1
+
+# exit: 0

@@ -1,0 +1,15 @@
+# log: license-Cells-TS
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript
+# head: fc186507e5b7124f4664aa6035f25cfd3112367d
+# utc: 2026-10-10T15:01:58Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked files whose name looks like a license:'; git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- tracked at repository root:'; git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- GitHub license detection: gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript --jq .license:'; gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript --jq '"license=" + (.license|tostring)'
+# ---- output (capped at 60000 bytes) ----
+--- tracked files whose name looks like a license:
+License/LICENSE.txt
+--- tracked at repository root:
+NONE
+--- GitHub license detection: gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript --jq .license:
+license=null
+
+# exit: 0

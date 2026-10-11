@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "source_revision": "17b5d7fe200297fdc135e6f95f4f16b82e8fc31c",
+  "defect_fingerprint": "sha256:6532670d5efd3bebe8be1dae3dfc04c1fd93552edaf757bb49b06c0ae0bcf33f",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 104-111, the first Quick Start code block (revision 17b5d7fe200297fdc135e6f95f4f16b82e8fc31c; unchanged at the live head)"
+    },
+    {
+      "path": "pip install -e . ; cd testfiles ; python (README.md:105-110 verbatim: Document('SimpleTable.one'), print(doc.DisplayName), for page in doc: print(page.Title.TitleText.Text))",
+      "detail": "2026-10-10T15:16Z: prints 'SimpleTable', then AttributeError: 'NoneType' object has no attribute 'TitleText' (python 3.13.15)"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/quickstart-Note-Python.txt",
+      "detail": "raw command output of the reproduction"
+    }
+  ],
+  "claim": "At revision 17b5d7fe200297fdc135e6f95f4f16b82e8fc31c, the README Quick Start loop print(page.Title.TitleText.Text) raises AttributeError: 'NoneType' object has no attribute 'TitleText' on the repository's own testfiles/SimpleTable.one, because page.Title is None for a page without a title.",
+  "suggested_issue_title": "Aspose.Note FOSS for Python: README Quick Start crashes because page.Title is None for pages without a title",
+  "suggested_issue_body": "Reproduced independently against the current default-branch head `17b5d7fe200297fdc135e6f95f4f16b82e8fc31c` on 2026-10-10.\n\n## Summary\n\nThe first Quick Start example (`README.md:104-111`) loops over the pages of `SimpleTable.one` and prints `page.Title.TitleText.Text`. `testfiles/SimpleTable.one` has pages without a title, for which `page.Title` is `None`, so the loop raises `AttributeError` after printing the display name.\n\n## Environment\n\n- Revision `17b5d7fe200297fdc135e6f95f4f16b82e8fc31c` (default branch `main`)\n- Python 3.13.15, `pip install -e .` from the repository root (no extra dependencies)\n\n## Steps to reproduce\n\n```sh\npip install -e .\ncd testfiles\npython - <<'EOF'\nfrom aspose.note import Document\n\ndoc = Document(\"SimpleTable.one\")\nprint(doc.DisplayName)\nfor page in doc:\n    print(page.Title.TitleText.Text)\nEOF\n```\n\n## Expected\n\nThe Quick Start loop runs to the end on the repository's own `testfiles/SimpleTable.one`.\n\n## Actual result\n\n```\nSimpleTable\nTraceback (most recent call last):\n  File \"<stdin>\", line 6, in <module>\nAttributeError: 'NoneType' object has no attribute 'TitleText'\n```\n\n## Where in the repository\n\n- `README.md:105-110` (the example)\n- `testfiles/SimpleTable.one` (the fixture the example opens)\n\n## Suggested fix\n\nGuard the access (`if page.Title and page.Title.TitleText: ...`) or use a fixture whose pages have titles.\n\n<!-- repository-presenter-defect: sha256:6532670d5efd3bebe8be1dae3dfc04c1fd93552edaf757bb49b06c0ae0bcf33f -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

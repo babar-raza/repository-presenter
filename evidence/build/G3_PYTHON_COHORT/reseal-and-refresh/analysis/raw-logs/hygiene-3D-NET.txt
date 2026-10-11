@@ -1,0 +1,25 @@
+# log: hygiene-3D-NET
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-.NET
+# head: 52b0f00ebf28a0b4173921725ff170685ec2c502
+# utc: 2026-10-10T15:50:34Z
+# cwd: shallow clone of the default branch
+# command: grep -n -m2 '<Version>' src/main/Aspose.ThreeD/Aspose.ThreeD.csproj; curl -s https://api.nuget.org/v3-flatcontainer/aspose.3d.foss/index.json | tr -d ' \n'; echo; ls docs; grep -n -m3 '26.2.0' AGENTS.md docs/release-26.2.0.md | cut -c1-160; echo '--- tracked build/log artifacts:'; git ls-files | grep -E '\.(log|bak)$'; echo '--- gitignore rules for them:'; grep -n -E 'log|bak' .gitignore || echo none
+# ---- output (capped at 60000 bytes) ----
+9:    <Version>26.1.0</Version>
+{"versions":["26.1.0"]}
+foss-net-progress.md
+release-26.2.0.md
+AGENTS.md:5:This is a FOSS (Free and Open Source) implementation of Aspose.3D for .NET 26.2.0.
+AGENTS.md:96:Updated FOSS implementation to match On-Premise 26.2.0 API signatures:
+AGENTS.md:130:The FOSS implementation now matches On-Premise 26.2.0 API surface for all public types that exist in both versions. Remaining missing types are mo
+docs/release-26.2.0.md:1:# FOSS 26.2.0 Release Notes
+docs/release-26.2.0.md:5:- **FOSS Version**: 26.2.0
+docs/release-26.2.0.md:12:The FOSS version 26.2.0 is fully aligned with Aspose.3D for .NET On-Premise 26.2.0.
+--- tracked build/log artifacts:
+src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs.bak
+src/main/Aspose.ThreeD/build.log
+src/test/Aspose.ThreeD.Tests/test.log
+--- gitignore rules for them:
+none
+
+# exit: 0

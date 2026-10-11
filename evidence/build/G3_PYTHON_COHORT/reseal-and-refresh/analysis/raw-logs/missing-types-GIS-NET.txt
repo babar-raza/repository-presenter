@@ -1,0 +1,11 @@
+# log: missing-types-GIS-NET
+# repository: aspose-gis-foss/Aspose.GIS.FOSS-for-.Net
+# head: b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4
+# utc: 2026-10-10T15:39:24Z
+# cwd: shallow clone of the default branch
+# command: bash /e/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/scripts/gis_missing_types.sh ../../probes/gisbuild.txt
+# ---- output (capped at 60000 bytes) ----
+unresolved names: 57; declared nowhere in the repository: 41
+Axis BursaWolfParameters Dataset Driver Ellipsoid Extent GeoJsonLayer GeoJsonOptions GeocentricAxisesOrder GeographicAxisesOrder GeographicCrsEntry GeographicDatum GeographicDatumEntry IAttributeIndex IFeatureStyle ILinearRing ISpatialIndex JoinByGeometryOptions JoinOptions LayerEvaluationRestrictions LayerIndices LocalDatum MapInfoCoordinateValidationError MapInfoCoordinateValidationException NumericFormat ParameterType PointsSequence Polygon ProjectedAxisesOrder Projection ProjectionMethodIdentifier Projections Renderer SavingOptions ToWgs84Entry TransformationError VectorSymbolizer VerticalDatum WkbVariant WktVariant WrapAttributesConverter 
+
+# exit: 0

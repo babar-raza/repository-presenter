@@ -1,0 +1,15 @@
+# log: license-Cells-Cpp
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp
+# head: 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+# utc: 2026-10-10T15:01:54Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked files whose name looks like a license:'; git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- tracked at repository root:'; git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- GitHub license detection: gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp --jq .license:'; gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp --jq '"license=" + (.license|tostring)'
+# ---- output (capped at 60000 bytes) ----
+--- tracked files whose name looks like a license:
+License/LICENSE.txt
+--- tracked at repository root:
+NONE
+--- GitHub license detection: gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp --jq .license:
+license=null
+
+# exit: 0
