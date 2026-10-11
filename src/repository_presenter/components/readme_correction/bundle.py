@@ -28,6 +28,7 @@ from repository_presenter.components.readme_correction.model import (
     CorrectionResult,
     Edit,
 )
+from repository_presenter.components.readme_correction.settle import correct_settled
 from repository_presenter.core.facts import FACTS_FILENAME, write_facts
 
 MANIFEST_NAME = "manifest.json"
@@ -135,7 +136,7 @@ def write_bundle(
     if directory.exists() and any(directory.iterdir()):
         raise FileExistsError(f"{directory} is not empty; a correction bundle is written whole")
     directory.mkdir(parents=True, exist_ok=True)
-    deterministic, idempotent = is_stable(ctx, result)
+    deterministic, idempotent = is_stable(ctx, result, lambda c: correct_settled(c, original)[0])
     document = corrections_document(ctx, original, result, deterministic, idempotent)
     corrected = result.corrected.encode("utf-8")
     (directory / README_NAME).write_bytes(corrected)

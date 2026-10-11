@@ -24,8 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme_correction import bundle as files
-from repository_presenter.components.readme_correction.check import validation_delta
-from repository_presenter.components.readme_correction.engine import CorrectionError, correct
+from repository_presenter.components.readme_correction.engine import CorrectionError
 from repository_presenter.components.readme_correction.model import (
     EDIT_KINDS,
     KIND_CORRECTION,
@@ -34,6 +33,7 @@ from repository_presenter.components.readme_correction.model import (
     Context,
     Edit,
 )
+from repository_presenter.components.readme_correction.settle import correct_settled
 from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
 from repository_presenter.core.candidates import BundleError, ProposableCandidate, verify_bundle
 from repository_presenter.core.errors import PresenterError
@@ -102,7 +102,7 @@ def correction_refusal(bundle: Path, manifest: dict[str, Any], entry: RegistryEn
         return "facts.json is for another repository or revision than the manifest"
     ctx = Context(entry, facts, original_text, tree, str(manifest.get("readme_path", "README.md")))
     try:
-        again = correct(ctx)
+        again, delta = correct_settled(ctx, original)
     except (CorrectionError, ValueError) as exc:
         return f"re-running the correction fails: {exc}"
     if again.corrected.encode("utf-8") != stored:
@@ -127,11 +127,11 @@ def correction_refusal(bundle: Path, manifest: dict[str, Any], entry: RegistryEn
             fact = ctx.fact(fact_id)
             if fact is None or fact.polarity != wanted:
                 return f"{edit.detector} cites {fact_id} which is not a {wanted} fact"
-    if correct(Context(entry, facts, again.corrected, tree, ctx.readme_path)).edits:
+    final = Context(entry, facts, again.corrected, tree, ctx.readme_path)
+    if correct_settled(final, original)[0].edits:
         return "a run over the corrected README finds further corrections: the result is not final"
     if not again.edits:
         return "the bundle makes no correction; there is nothing to propose"
-    delta = validation_delta(ctx, again, original)
     if delta["introduced"]:
         introduced = ", ".join(item["check"] for item in delta["introduced"])
         return (

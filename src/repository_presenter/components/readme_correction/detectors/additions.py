@@ -396,6 +396,7 @@ def add_doc_links(ctx: Context) -> DetectorResult:
 
 
 # ----------------------------------------------------------------------------------------- badge
+_BADGE_OPEN = re.compile(r"\[?!\[")
 _IMAGE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)")
 _BADGE_URL = re.compile(r"!\[[^\]]*\]\(https?://([^/\s)]+)/([^/\s)]+)")
 
@@ -447,17 +448,21 @@ def add_version_badge(ctx: Context) -> DetectorResult:
         if f is not None
     )
     if row:
-        last = row[-1]
+        first = row[0]
+        opener = _BADGE_OPEN.search(first.text)
+        at = opener.start() if opener else -1
+        if at < 0 or first.text[:at].strip():
+            return DetectorResult()  # the row opens with text: no safe place in the stable order
         edit = Edit(
             kind=MISSING_INFO,
             detector="add_version_badge",
-            start=last.end,
-            end=last.end,
+            start=first.start + at,
+            end=first.start + at,
             original="",
-            replacement=" " + badge,
+            replacement=badge + " ",
             fact_ids=cited,
-            rationale="the README shows no published-version badge; the registry's is appended to "
-            "its badge row",
+            rationale="the README shows no published-version badge; the registry's leads its "
+            "badge row (the package badge is first in the stable order)",
         )
         return DetectorResult(edits=(edit,))
     title = next((line for line in preamble if line.text.startswith("# ")), None)

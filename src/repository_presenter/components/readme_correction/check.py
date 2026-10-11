@@ -78,7 +78,11 @@ def validation_delta(ctx: Context, result: CorrectionResult, original: bytes) ->
         base = _failures(ctx, exposed, original, revision)
     else:
         base = live
-    after = _failures(ctx, result.corrected, original, revision)
+    after = (
+        live
+        if result.corrected == ctx.readme
+        else _failures(ctx, result.corrected, original, revision)
+    )
     return {
         "schema_version": 1,
         "judge": "validate_candidate",

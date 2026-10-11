@@ -223,7 +223,7 @@ def python_facts(make_fact: Any) -> list[Any]:
     ]
 
 
-def test_the_published_version_badge_joins_the_badge_row(make_context: Any, make_fact: Any) -> None:
+def test_the_published_version_badge_leads_the_badge_row(make_context: Any, make_fact: Any) -> None:
     readme = (
         "# P\n\n[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n"
         "## Installation\n\nx\n"
@@ -231,10 +231,9 @@ def test_the_published_version_badge_joins_the_badge_row(make_context: Any, make
     ctx = make_context(readme, python_facts(make_fact), repository=WORDS)
     (edit,) = add_version_badge(ctx).edits
     corrected = applied(ctx, [edit])
-    assert corrected.splitlines()[2].endswith(
-        "(LICENSE) [![PyPI](https://img.shields.io/pypi/v/aspose-words-foss.svg)]"
-        "(https://pypi.org/project/aspose-words-foss/)"
-    )
+    row = corrected.splitlines()[2]
+    assert row.startswith("[![PyPI](https://img.shields.io/pypi/v/aspose-words-foss.svg)]")
+    assert row.endswith("[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)")
 
 
 def test_a_badge_is_added_under_the_title_when_there_is_no_row_and_not_when_one_exists(

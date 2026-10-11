@@ -22,9 +22,9 @@ from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme_correction.bundle import write_bundle
-from repository_presenter.components.readme_correction.check import validation_delta
-from repository_presenter.components.readme_correction.engine import CorrectionError, correct
+from repository_presenter.components.readme_correction.engine import CorrectionError
 from repository_presenter.components.readme_correction.model import Context
+from repository_presenter.components.readme_correction.settle import correct_settled
 from repository_presenter.core.facts import read_facts
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.registry.models import RegistryEntry
@@ -123,8 +123,7 @@ def produce_correction(
             f"is {entry.repository} @ {clone.revision}; extract facts at the head and retry"
         )
     ctx = Context(entry, facts, text, tuple(list_tree_paths(clone.path)), snapshot.readme_path)
-    result = correct(ctx)
-    delta = validation_delta(ctx, result, original)
+    result, delta = correct_settled(ctx, original)
     if delta["introduced"]:
         raise CorrectionError(
             "the correction introduces failing checks the live README did not have: "
