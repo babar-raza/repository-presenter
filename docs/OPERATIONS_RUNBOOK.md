@@ -340,8 +340,45 @@ GitHub accepts it and `actionlint` is clean; this is a typed `act` limitation, n
 | `audit-app-installations.yml`, `verify-app-installation.yml` | planned | ask GitHub which organizations installed the App: hosted-only facts; **not run** |
 | `mirror-gitlab.yml` | planned | pushes to GitLab with `GITLAB_TOKEN`: an outbound write, never run locally |
 
-What the full autonomous cycle on synthetic upstreams needs next is `TC-REF-11`
-(`tools/workflow_rehearsal/scenarios.py` already builds the six scenarios of `TC-REF-11-01`).
+### Whole-cycle rehearsal on synthetic upstreams (TC-REF-11)
+
+`python tools/workflow_rehearsal/cycle.py --out <dir>` (with `PYTHONPATH=src`) and
+`tests/test_workflow_rehearsal_cycle.py` drive the **code the workflows call**, not the workflows, through
+every failure mode and effect of the cycle, against local fakes only (no network, no model; the pytest
+module refuses any non-loopback connection). The workflows themselves stay covered by the table above.
+Evidence: `workflow-rehearsal-cycle-offline.json` (the model-free scenarios) and
+`workflow-rehearsal-cycle-fake-model.json` (scenarios behind the scripted gateway of `tests/test_cli.py`;
+written by the test module when `RP_REHEARSAL_EVIDENCE_DIR` is set), both under
+`evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/`.
+
+| Acceptance line | Scenario and what the real code did |
+|---|---|
+| a stale lease is fenced | two `GitStateBackend` workers on a bare remote's `refs/repository-presenter-state/*`: B recovers under fencing token 2; A's commit, renewal and release all fail to land |
+| a killed run recovers without double processing | a child process dies (`os._exit(137)`) after paying for a stage with its lease unreleased; the next run resumes the same transaction under token 2, runs the pipeline once; a replay of the dead run's trigger runs nothing |
+| the pause variable stops the cycle | `sealing-plan` plans nothing for exactly `1` (and `seal` runs only on `has_work`); `0`, `true`, ` 1`, the empty string and `yes` do not pause |
+| per-run cap, cooldown, call budget | 5 drifted repositories: 3 selected, 1 deferred then selected next cycle, 1 held by failure memory until a new commit; a 4-call budget stops `present` after exactly 4 requests and the resumed run reuses them (12 in total, not 16) |
+| a relevant change is selected, an irrelevant one is not, a maintainer README edit is flagged | the monitor over the synthetic upstreams, through the drift contract to the sealing plan; a README change is `RELEVANT_CHANGE` naming `README.md`; a collected sealed commit with no recorded blobs is `UNKNOWN`, never work |
+| one candidate PR, a second run creates nothing, zero provider calls unchanged | the canary through `present` x2, `verify-noop-proof`, a relevant commit, a re-seal, `publish-candidates` to a local bare control remote, `propose_candidate` against the stateful fake REST: one PR with the generated title and body, a second run writes nothing; the next monitor cycle selects nothing and `present` makes no call |
+| a lost response on a write is reconciled | contents PUT (landed and never-arrived), branch create, PR create, a 429 and an issue create, each on the fake REST |
+| a maintainer edit is never overwritten | the propose gate refuses on the moved source, zero writes, the default branch keeps the edit |
+| no credential in any output | every request log, git history, child output and the evidence itself scanned (a planted token is flagged by a negative control) |
+
+**Gaps this rehearsal found (not fixed here; each is a named card):** a gateway outage ends
+`FAILED_INTERNAL`, not `BLOCKED_EXTERNAL` (no code maps it; `TC-REF-06`, `OWNER-12`), and the plan's
+failure memory then holds the repository for 24 hours; there is no per-day provider-call budget and no
+cross-repository open-PR cap (`TC-REF-02-02`; today only the 3-repository cycle cap, the 100-call
+per-process ceiling and one open PR per target bound a day); an archived repository is never read as
+archived; only the contents PUT is reconciled inside one run, the other lost answers are reconciled by
+the next run; the scripted candidate fails the real 30-point acceptance gate (`INCOMPLETE`, `D14`
+unevaluated), so the propose rehearsal uses a permissive gate for mechanics and a constructed full-mode
+permit (the canary is `dry_run`). Not rehearsed: the live gateway (no `present` run was made), the
+24-hour soak (`TC-REF-11-04`), the hosted runner.
+
+**Test-isolation defect found on the way:** `observe_pypi` binds `fetch=fetch_project_json` as a keyword
+default, so the `monkeypatch` of `python_registry.fetch_project_json` in `tests/conftest.py` and
+`tests/test_cli.py` does not take effect and every canary `present` test reaches the real PyPI; with the
+live answer (project URLs pointing elsewhere) those tests fail `BC-02` on this lineage. The rehearsal
+replaces the default itself (`__kwdefaults__`).
 
 ### Toolchains the hosted image lacks, and how the workflows provide them (TC-REF-10-03)
 

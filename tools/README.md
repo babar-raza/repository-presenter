@@ -203,6 +203,17 @@ governance tracks, two directories, no overlap.
     compared with read-only `gh` calls; prints names and verdicts, never values.
   - Tests: `tests/test_workflow_rehearsal.py`, `tests/test_no_bump_check.py` and
     `tests/test_hosting_preflight.py` (no network, Docker, act or real `gh`).
+  - `fake_rest.py` — an in-process, stateful model of the GitHub REST write paths (refs, contents with
+    sha rules, pull requests, issues, the installation scope) behind the `fetch` / `write` seams of
+    `core/github/client.py`; injects dropped requests, lost responses and HTTP errors; never records a
+    token value.
+  - `cycle.py` — the whole-cycle rehearsal (TC-REF-11): stale lease, killed run, pause, cap and cooldown,
+    monitor to sealing plan on the synthetic upstreams, propose and commit-back idempotence, lost
+    responses, rate limits, and a credential scan over every output. `PYTHONPATH=src python
+    tools/workflow_rehearsal/cycle.py --out <dir>` writes the evidence JSON.
+  - Tests: `tests/test_workflow_rehearsal.py` (no network, Docker or act) and
+    `tests/test_workflow_rehearsal_cycle.py` (no network; the model scenarios use the scripted gateway
+    of `tests/test_cli.py`; set `RP_REHEARSAL_EVIDENCE_DIR` to record their evidence).
 
 ## Environment variables
 
