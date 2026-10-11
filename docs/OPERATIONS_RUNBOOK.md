@@ -1,6 +1,8 @@
 # Operations Runbook
 
-Status: operational runbook, `TC-REF-10` (G7-W06; `plans/reseal-and-refresh/PLAN.md` section 11).
+Status: operational runbook, `TC-REF-10` (G7-W06; `plans/reseal-and-refresh/PLAN.md` section 11);
+sections 9 to 11 prepare `TC-REF-12` (staged go-live, kill-switch rehearsal, no-bump guard) and
+**enable nothing**: every variable, schedule and environment change in them is an owner action.
 Owns: what runs when, what each hosted workflow needs (variables, secrets, permissions), how to stop
 it, how to roll it back, and how every workflow was rehearsed locally before anything is hosted.
 Does not own authorization policy (`AGENTS.md` "Security and Effects"), the write gates themselves
@@ -376,3 +378,180 @@ natively sealed candidate as a re-seal.
 | Actions API (`gh run list`, artifacts of earlier runs), scheduling, concurrency queues | hosted services | `sealing-scheduled.yml` `plan` and `liveness.yml` read them; not reproducible locally, replayed by script where feasible |
 | Real App token mint, installation lookup, rate limits | real | fake service; its server-side permission narrowing and 401/403 semantics are hosted-only |
 | Network | outbound to GitHub, PyPI, registries | same reads (act fetches `actions/*` from GitHub; setup-python and pip fetch from the internet); **no write leaves the machine** |
+
+## 9. Staged go-live, H0 to H4 (`TC-REF-12`): checklist, exit evidence, stop
+
+Nothing here is switched on by merging this file. A stage is entered only by the owner, only when the
+previous stage's exit evidence is recorded in `docs/DECISION_LOG.md`, and only when the preflight
+(9.1) says GO for it. Going back a stage is always allowed and needs no evidence: close the gate
+(section 4). These are the plan's stages (`TC-REF-12`; `TC-REF-09`'s shadow, issues, pilot and
+expansion stages are the same stages).
+
+Write-gate posture per stage (variables of section 3; "open" means exactly `1`, anything else or unset
+is closed; `REPOSITORY_PRESENTER_SEALING_PAUSED` must not be `1` from H1 on):
+
+| Stage | Meaning | `..CANDIDATES_WRITE_AUTHORIZED` | `..ISSUES_WRITE_AUTHORIZED` | `..PROPOSAL_WRITE_AUTHORIZED` |
+|---|---|---|---|---|
+| H0 | hosted dry run: schedules on, every write closed | closed | closed | closed |
+| H1 | shadow: monitor, seal, commit-back to this repository only | **open** | closed | closed |
+| H2 | approved upstream issues | open | **open** | closed |
+| H3 | pull-request pilot on owner-named repositories | open | open | **open** |
+| H4 | per-repository expansion, one owner record each | open | open | open |
+
+### 9.1 The preflight (read-only; names and verdicts only)
+
+```
+python tools/workflow_rehearsal/hosting_preflight.py [--repo OWNER/NAME] [--stage H1] [--confirm CHECK_ID ...] [--json]
+```
+
+It builds the requirement list **from the workflow YAML** (`inventory.py`: the secrets each workflow
+reads, the `vars.*` it reads, every job that mints an App token with a `write` scope and the
+environment it declares, the CI status-check names `ci.yml` produces) and compares it with what
+read-only `gh` calls report, then prints one GO / NO-GO per stage and the owner action each missing
+item needs. A variable's value is reduced to open or closed, a secret's value is never requested,
+nothing from the environment is printed, and every `gh` call passes a read-only guard
+(`assert_read_only`; a test pins that a write-shaped call is refused). Run it with your own `gh` login
+(repository admin, because branch protection and secrets are admin reads). Exit 0 means the table was
+produced (and `--stage`, if given, is GO), 1 means `--stage` is NO-GO, 2 means nothing could be read.
+
+| Check | Stage | Source of truth | Owner action when it is not OK |
+|---|---|---|---|
+| each secret in section 3 present (`GITLAB_TOKEN` is informational: the mirror gates no stage) | H0 | `gh secret list` (names only) plus organization secrets visible to the repository | set the repository Actions secret |
+| every `vars.*` the workflows read is modelled by the preflight | H0 | the YAML | add it to `GATES` or `PAUSE` in `hosting_preflight.py` |
+| write gates not more open than the stage allows (`posture:H0` to `posture:H4`) | each | `gh variable list` (value reduced to open or closed) | close the gate named in the output |
+| sealing not paused | H1 | the same | delete the pause variable or set it to `0` |
+| every workflow file is on the default branch and enabled | H0 | `gh workflow list --all` | merge it, or `gh workflow enable` |
+| default branch protected, required checks equal the CI contexts, no force push | H0 | `gh api .../branches/<default>/protection` | fix branch protection |
+| App credentials mint a token; App installed on the organizations in scope | H0 | a successful `verify-app-installation.yml` and `audit-app-installations.yml` run | install the App, dispatch the workflow once (read-only) |
+| each write job is guarded by an environment with required reviewers | the job's stage: `candidates-publish` H1, `issues-scheduled` H2, `propose` H3 | the YAML, then `gh api .../environments/<name>` | today **no workflow declares an environment**: a `TC-REF-12` workflow change declares one, then the owner adds reviewers |
+| owner records exist: `ops/issue_approvals/` (H2), `ops/proposal-authorizations/` (H3) | H2, H3 | `gh api .../contents/<dir>` on the default branch | approve the exact list, merge the records pull request |
+| App grants exactly the write scope each write job requests (`app-scope:<file>:<job>`) | the job's stage | **manual**: a user token cannot read an App's permissions | check the App settings per organization in scope, then pass `--confirm app-scope:<file>:<job>` |
+| registry entries in mode `full` are exactly the owner-named pilot list | H3 | **manual** (the `data/registry.json` count is shown) | confirm the list, then pass `--confirm registry:pilot` |
+
+A `--confirm` holds for that run only and is never stored; record the confirmation itself in
+`docs/DECISION_LOG.md`. A fact the token cannot read is `UNKNOWN`, and `UNKNOWN` is NO-GO. A
+`preflight` job in a workflow (`TC-REF-12-01`) will run this same script with `--stage` and fail
+closed; until it exists the script is run from the owner's shell.
+
+### 9.2 Checklist per stage
+
+**H0, hosted dry run (all write gates closed).**
+- Enter: preflight `--stage H0` GO; every gate closed; if a workflow must not fire on its schedule
+  before its first dispatch passes, `gh workflow disable <file>` it until then.
+- Do, once each, with `gh workflow run <file> -R <repo>`: `monitor.yml`; `present.yml` for one Python
+  pilot repository (hosted toolchains exist for it); `candidates-publish.yml` with that seal's artifact
+  and `do_publish` false; `sealing-scheduled.yml` (its `publish-candidates` and `propose` legs are
+  skipped by their `if:` while the gates are closed); `propose.yml` with `do_propose` false (the
+  `dry-run` job only). Then leave the schedules enabled.
+- Exit evidence: the five run ids, each green on the hosted runner; the hosted-only differences from
+  section 8 recorded (Python 3.11 against the 3.13 bundle environment, toolchains, Actions-API
+  steps); zero writes proved (no new branch, pull request or issue in this repository or any registry
+  repository; `git ls-remote origin` shows no new `candidates/` or proposal branch); preflight output
+  saved (names only).
+- Stop: the pause variable, or `gh workflow disable`.
+
+**H1, shadow (commit-back to this repository only).**
+- Enter: H0 evidence; preflight `--stage H1` GO (environment reviewers on the `candidates-publish`
+  write job, App `contents` and `pull-requests` write on this repository confirmed, sealing not
+  paused). The owner sets `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` to `1`; the other two
+  stay closed.
+- Run: monitor, seal and commit-back on the schedules for **N consecutive scheduled cycles without
+  incident** (N is set by the owner at entry and recorded; the plan fixes no number). An incident is: a
+  scheduled run that fails for a reason other than a typed external outage; a duplicate candidate
+  pull request; a stuck lease or an unreconciled write; a credential value in a log or artifact; any
+  write outside this repository; a provider call on an unchanged revision.
+- Exit evidence, per cycle: run ids; funnel counts and per-candidate freshness age from the job
+  summary; the candidate pull requests opened, merged or closed; durable state refs consistent
+  (`git ls-remote origin 'refs/repository-presenter-state/*'`); the zero-call no-op proof on an
+  unchanged revision. The kill switch and rollback rehearsal of section 10 is done once during this
+  stage.
+- Stop: section 4, steps 1 and 2.
+
+**H2, approved issues.**
+- Enter: H1 exit evidence; preflight `--stage H2` GO (approval records merged under
+  `ops/issue_approvals/` for the exact handoffs, App `issues` write confirmed per organization in
+  scope, environment reviewers on `file-and-close`). The owner sets
+  `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` to `1`; the proposal gate stays closed.
+- Exit evidence: every approved handoff filed exactly once (the issue URL recorded in its evidence);
+  the next scheduled run files nothing new; no issue exists without an approval record.
+- Stop: close the issues gate; close a wrongly filed issue "not planned" with a comment and revert its
+  approval (section 5).
+
+**H3, pull-request pilot on owner-named repositories.**
+- Enter: H2 exit evidence; the owner names the repositories (the plan's pilot is the two registry
+  entries already in mode `full`); each candidate passed the independent review lane; per-hash
+  authorization records merged **before** the trigger commit under `ops/proposal-authorizations/`;
+  preflight `--stage H3` GO (registry `full` entries equal the named list, environment reviewers on
+  the `propose` write job). The owner sets `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` to `1`.
+- Exit evidence: each pull request URL with its generated title and body; the target's check results; a
+  second run updates the same stable branch and opens no second pull request; the maintainer's
+  response recorded.
+- Stop: close the proposal gate; revert the authorization record (the write gate then refuses that
+  target); `gh pr close N -R <owner>/<repo> --delete-branch`.
+
+**H4, per-repository expansion.**
+- Enter: H3 exit evidence; one owner record per repository (authorization record and registry mode
+  flip together in one pull request, section 5); preflight `--stage H4` GO.
+- Exit evidence: per repository, its record and first pull request; service levels **measured** over
+  the stage and recorded, replacing the proposed ones: relevant change to candidate within 24 hours and
+  to pull request within 48 hours, unchanged revision to zero provider calls.
+- Stop: revert that repository's record, or set its mode back to `dry_run`.
+
+## 10. Kill switch and rollback rehearsal (once in production, during H1)
+
+The plan requires each stop to be shown to work once on the real system before it is relied on. Do
+this at H1, while only this repository can be written; every step is an owner action and each result
+is recorded (run id, the notice or the skipped job) in `docs/DECISION_LOG.md`. A rehearsal that does
+not give the stated result is a stop-the-line defect (section 7).
+
+1. **The pause variable stops the next cycle.** Set `REPOSITORY_PRESENTER_SEALING_PAUSED` to `1`.
+   Dispatch `sealing-scheduled.yml` (or wait for the next schedule): the `plan` job prints "sealing
+   paused by owner variable", reports no work, and no `seal`, `publish-candidates` or `propose` job
+   runs. The monitor still runs. Delete the variable (or set `0`) and confirm the next run proceeds.
+2. **Close one write gate.** Unset `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED`, dispatch
+   `sealing-scheduled.yml` with work available: the `publish-candidates` leg does not run. Set it back
+   to `1`.
+3. **Disable one workflow.** `gh workflow disable candidates-publish.yml -R <repo>`, then dispatch it:
+   GitHub refuses. `gh workflow enable` it again.
+4. **A standing record revert stops pull requests** (rehearse at H3 with `do_propose` false, so nothing
+   is written): revert the authorization record for one pilot repository through a pull request,
+   dispatch `propose.yml` for it: the `dry-run` job reports the target refused for want of a record.
+   Restore the record by reverting the revert.
+5. **Rollback of a candidate.** Merge one commit-back pull request, then `git revert` the merge commit
+   through a pull request: `candidates/<slug>/CURRENT` points at the previous bundle, and the next
+   `monitor.yml` run reports that repository against it again (`repository-presenter status --stale`
+   agrees).
+
+After the rehearsal confirm that the next scheduled run is normal and note the date of the rehearsal
+in the H1 exit evidence.
+
+## 11. No-bump guard: the rehearsal and hosting work can never move a governed version
+
+Owner requirement (2026-10-11): `TC-REF-10`, `TC-REF-11` and `TC-REF-12` must not be able to cause a
+bump in any governed version (a bump marks every sealed candidate stale and restarts the reseal), and
+they must run beside the reseal work without conflicts. Three layers, none of them a second copy of the
+governed list (that list lives only in `tests/test_version_bump_discipline.py`; the others parse it):
+
+1. **On paper (plan lint, run in CI by `tests/test_plan_lint.py`).** The three cards are
+   `no_bump: true`. The lint refuses a `no_bump` card that is `governed: true` or writes anywhere under
+   `src/` (`NO_BUMP_BREACH`), and refuses any `governed: false` card whose write paths reach a governed
+   source (`GOVERNED_PATH_IN_UNGOVERNED_CARD`). Their write paths are disjoint from every Track C-0
+   path, which the existing `PARALLEL_WRITE_CONFLICT` rule proves (nothing relaxed: the hot files the
+   plan header names under `serialised_paths` are written by the supervisor one at a time).
+2. **On the diff (this tool; run it before opening any pull request from a rehearsal or hosting
+   branch).**
+
+   ```
+   python tools/workflow_rehearsal/no_bump_check.py origin/main --no-src
+   ```
+
+   It takes the files the branch changed since its merge-base with the given ref and exits 1 if one is
+   a governed source, if any `src/**/*.py` version constant (`*VERSION = <literal>` or a
+   `Check("id", "version", ...)` literal) differs between the merge-base and the head, or (with
+   `--no-src`, which these cards use) if anything under `src/` changed at all. Exit 2 means it could
+   not decide (unknown ref, unreadable governed list) and is a failure. Recorded result for the
+   `TC-REF-10` harness commit `38456556` against its parent: OK, 10 changed files, 0 violations
+   (`tests/test_no_bump_check.py` re-proves it wherever that commit is present; hosted CI checks out
+   at depth 1, where that single test skips and layers 1 and 3 carry the proof).
+3. **On every commit (`tests/test_version_bump_discipline.py`).** Unchanged: a governed file whose
+   meaning changes without its constant moving fails the suite.

@@ -10,15 +10,13 @@ from collections.abc import Callable
 
 from .cards import CHILD_ID, ITEM_ID, OPS, PARENT_ID, REQ_ID, Parent, Plan
 from .findings import Finding
+from .governed import GovernedSetError, governed_files
 
-# The four governed sources (tests/test_version_bump_discipline.py GOVERNED holds the live list;
-# tests/test_plan_lint.py proves the two agree). A card whose write set reaches one is governed.
-GOVERNED_FILES: tuple[str, ...] = (
-    "src/repository_presenter/components/readme/composition/renderer.py",
-    "src/repository_presenter/components/readme/composition/authoring.py",
-    "src/repository_presenter/components/readme/review/independent/review.py",
-    "src/repository_presenter/components/readme/validation/registry.py",
-)
+# A card whose write set reaches a governed source (the list is parsed from
+# tests/test_version_bump_discipline.py, never copied; see governed.py) is governed. A
+# `no_bump: true` card promises it cannot move any governed version, so it may not write anywhere
+# under these roots (every version constant a sealed candidate records lives in the source tree).
+NO_BUMP_FORBIDDEN_ROOTS: tuple[str, ...] = ("src",)
 
 
 def _segments(path: str) -> tuple[str, ...]:
@@ -222,6 +220,16 @@ def write_conflicts(left: Parent, right: Parent) -> list[tuple[str, str]]:
     return [(a, b) for a in left.write for b in right.write if paths_overlap(a, b)]
 
 
+def unwaived_conflicts(plan: Plan, left: Parent, right: Parent) -> list[tuple[str, str]]:
+    """Shared write paths of two cards, minus overlaps wholly inside a header `serialised_paths:`
+    entry (a hot file only the supervisor writes, one at a time)."""
+    return [
+        (a, b)
+        for a, b in write_conflicts(left, right)
+        if not any(_path_within(a, w) and _path_within(b, w) for w in plan.serialised_paths)
+    ]
+
+
 def rule_paths(plan: Plan) -> list[Finding]:
     found: list[Finding] = []
     for parent in plan.parents:
@@ -262,9 +270,7 @@ def rule_parallel_writes(plan: Plan) -> list[Finding]:
     for left, right in parallel_pairs(plan):
         if left.lane and left.lane == right.lane:
             continue
-        for a, b in write_conflicts(left, right):
-            if any(_path_within(a, w) and _path_within(b, w) for w in plan.serialised_paths):
-                continue  # a hot file the supervisor serialises (header `serialised_paths:`)
+        for a, b in unwaived_conflicts(plan, left, right):
             found.append(
                 Finding(
                     "PARALLEL_WRITE_CONFLICT",
@@ -278,6 +284,10 @@ def rule_parallel_writes(plan: Plan) -> list[Finding]:
 
 def rule_governed(plan: Plan) -> list[Finding]:
     found: list[Finding] = []
+    try:
+        sources = governed_files()
+    except GovernedSetError as error:  # fail closed: an unreadable set is never an empty set
+        return [Finding("GOVERNED_SET_UNREADABLE", "plan", str(error))]
     for parent in plan.parents:
         if parent.governed is None:
             found.append(
@@ -292,8 +302,17 @@ def rule_governed(plan: Plan) -> list[Finding]:
                     "or the owner approval record)",
                 )
             )
-        touches = [g for g in GOVERNED_FILES for w in parent.write if paths_overlap(g, w)]
-        if touches and parent.governed is not True:
+        touches = [g for g in sources for w in parent.write if paths_overlap(g, w)]
+        if touches and parent.governed is False:
+            found.append(
+                Finding(
+                    "GOVERNED_PATH_IN_UNGOVERNED_CARD",
+                    parent.id,
+                    f"`governed: false` card writes governed source {touches[0]}; a bump needs "
+                    "`governed: true` with a `ground:`, otherwise remove the path from the card",
+                )
+            )
+        elif touches and parent.governed is None:
             found.append(
                 Finding(
                     "GOVERNED_UNDECLARED",
@@ -301,6 +320,35 @@ def rule_governed(plan: Plan) -> list[Finding]:
                     f"card writes governed source {touches[0]} but does not declare governed: true",
                 )
             )
+    return found
+
+
+def rule_no_bump(plan: Plan) -> list[Finding]:
+    """A `no_bump: true` card cannot move a governed version: not governed, not under `src/`."""
+    found: list[Finding] = []
+    try:
+        sources = governed_files()
+    except GovernedSetError:
+        return []  # rule_governed already reports the unreadable set
+    for parent in plan.parents:
+        if not parent.no_bump:
+            continue
+        if parent.governed is not False:
+            found.append(
+                Finding("NO_BUMP_BREACH", parent.id, "`no_bump: true` requires `governed: false`")
+            )
+        for path in parent.write:
+            hit = next((g for g in sources if paths_overlap(g, path)), None)
+            if hit is None:
+                hit = next((r for r in NO_BUMP_FORBIDDEN_ROOTS if paths_overlap(r, path)), None)
+            if hit is not None:
+                found.append(
+                    Finding(
+                        "NO_BUMP_BREACH",
+                        parent.id,
+                        f"`no_bump: true` card writes {path!r}, which reaches {hit!r}",
+                    )
+                )
     return found
 
 
@@ -317,6 +365,7 @@ RULES: tuple[Rule, ...] = (
     rule_paths,
     rule_parallel_writes,
     rule_governed,
+    rule_no_bump,
 )
 
 

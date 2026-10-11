@@ -18,7 +18,7 @@ from typing import Any
 import pytest
 import yaml
 from tools.plan_lint import __main__ as cli
-from tools.plan_lint import cards, ledger, lint, maps, rules
+from tools.plan_lint import cards, governed, ledger, lint, maps, rules
 from tools.plan_lint.findings import Finding, errors
 
 from support import REPO_ROOT
@@ -207,10 +207,29 @@ STATIC_DEFECTS: list[tuple[str, str, str, str]] = [
         "GOVERNED_NO_GROUND",
     ),
     (
-        "governed source written without governed: true",
+        "governed source written by a `governed: false` card",
         "  governed: true\n",
         "  governed: false\n",
-        "GOVERNED_UNDECLARED",
+        "GOVERNED_PATH_IN_UNGOVERNED_CARD",
+    ),
+    (
+        "no_bump card that also declares governed: true",
+        "  governed: false\n  paths: {write: [docs/synthetic/two/]}",
+        "  governed: true\n  no_bump: true\n  ground: g\n  paths: {write: [docs/synthetic/two/]}",
+        "NO_BUMP_BREACH",
+    ),
+    (
+        "no_bump card that writes a governed source",
+        "  governed: false\n  paths: {write: [docs/synthetic/two/]}",
+        "  governed: false\n  no_bump: true\n"
+        "  paths: {write: [src/repository_presenter/components/readme/validation/registry.py]}",
+        "NO_BUMP_BREACH",
+    ),
+    (
+        "no_bump card that writes anywhere under src/",
+        "  governed: false\n  paths: {write: [docs/synthetic/two/]}",
+        "  governed: false\n  no_bump: true\n  paths: {write: [src/repository_presenter/cli.py]}",
+        "NO_BUMP_BREACH",
     ),
     (
         "governed flag missing",
@@ -290,7 +309,44 @@ def test_write_path_overlap_is_segment_wise() -> None:
 
 
 def test_governed_files_agree_with_the_version_bump_discipline_test() -> None:
-    assert set(rules.GOVERNED_FILES) == {source.path for source in GOVERNED}
+    assert set(governed.governed_files()) == {source.path for source in GOVERNED}
+
+
+def test_the_lint_keeps_no_second_copy_of_the_governed_list() -> None:
+    """The set is parsed from the discipline test; a literal path in rules.py would be a copy."""
+    text = Path(rules.__file__).read_text(encoding="utf-8")
+    assert all(source.path not in text for source in GOVERNED)
+    assert not hasattr(rules, "GOVERNED_FILES")
+
+
+def test_the_governed_list_is_read_fail_closed() -> None:
+    assert governed.parse_governed_files(
+        "GOVERNED = (GovernedSource('a', 'src/a.py', ('X',)), GovernedSource('b', path='b.py'))"
+    ) == ("src/a.py", "b.py")
+    for broken in ("X = 1", "GOVERNED = ()", "GOVERNED = (GovernedSource('a', some_name, ()),)"):
+        with pytest.raises(governed.GovernedSetError):
+            governed.parse_governed_files(broken)
+    with pytest.raises(governed.GovernedSetError):
+        governed.governed_files(Path("no-such-root"))
+
+
+def test_an_unreadable_governed_set_fails_the_lint_instead_of_passing_it(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def unreadable() -> tuple[str, ...]:
+        raise governed.GovernedSetError("synthetic")
+
+    monkeypatch.setattr(rules, "governed_files", unreadable)
+    assert "GOVERNED_SET_UNREADABLE" in codes(lint_text(PLAN_TEXT))
+
+
+def test_a_clean_no_bump_card_passes() -> None:
+    text = mutate(
+        "  governed: false\n  paths: {write: [docs/synthetic/two/]}",
+        "  governed: false\n  no_bump: true\n  paths: {write: [docs/synthetic/two/]}",
+    )
+    assert cards.parse_plan_text(text).parent("TC-BBB-01").no_bump is True  # type: ignore[union-attr]
+    assert lint_text(text) == []
 
 
 # --------------------------------------------------------------------------- ledger
@@ -855,3 +911,84 @@ def test_the_real_plan_lints_clean() -> None:
     ledger_path = REPO_ROOT / lint.DEFAULT_LEDGER
     findings = lint.lint_files(plan_path, ledger_path, REPO_ROOT / lint.DEFAULT_STATE, REPO_ROOT)
     assert [f.render() for f in errors(findings)] == []
+
+
+# ----------------------------- the local-rehearsal and hosting cards cannot bump (TC-REF-10/11/12)
+
+REHEARSAL_CARDS = ("TC-REF-10", "TC-REF-11", "TC-REF-12")
+TRACK_C0 = (
+    "TC-PRE-01",
+    "TC-PIL-01",
+    "TC-CUT-01",
+    "TC-CUT-02",
+    "TC-RSL-01",
+    "TC-RSL-03",
+    "TC-TRI-01",
+    "TC-ACC-01",
+    "TC-WAV-01",
+    "TC-ACC-02",
+)
+
+
+def _real_plan_text() -> str:
+    plan_path = _real_plan_path()
+    if not plan_path.is_file():
+        pytest.skip(f"real plan not present yet ({plan_path})")
+    return plan_path.read_text(encoding="utf-8")
+
+
+def test_the_rehearsal_and_hosting_cards_cannot_move_a_governed_version() -> None:
+    plan = cards.parse_plan_text(_real_plan_text())
+    sources = governed.governed_files()
+    for card_id in REHEARSAL_CARDS:
+        parent = plan.parent(card_id)
+        assert parent is not None, card_id
+        assert parent.governed is False and parent.no_bump and not parent.ground, card_id
+        reaches = [w for w in parent.write if any(rules.paths_overlap(s, w) for s in sources)]
+        assert reaches == [], f"{card_id} writes a governed source: {reaches}"
+        assert not any(rules.paths_overlap("src", w) for w in parent.write), card_id
+    assert not {f.rule for f in lint_text(_real_plan_text())} & {
+        "NO_BUMP_BREACH",
+        "GOVERNED_PATH_IN_UNGOVERNED_CARD",
+        "GOVERNED_UNDECLARED",
+        "GOVERNED_SET_UNREADABLE",
+    }
+
+
+def test_ref_10_runs_beside_the_reseal_and_the_rule_finds_no_conflict() -> None:
+    text = _real_plan_text()
+    plan = cards.parse_plan_text(text)
+    parallel = {frozenset((left.id, right.id)) for left, right in rules.parallel_pairs(plan)}
+    for other in ("TC-RSL-03", "TC-TRI-01", "TC-ACC-01", "TC-ACC-02", "TC-WAV-01"):
+        assert frozenset(("TC-REF-10", other)) in parallel, other
+    assert "PARALLEL_WRITE_CONFLICT" not in codes(lint_text(text))
+
+
+def test_the_rehearsal_and_hosting_write_paths_are_disjoint_from_track_c0() -> None:
+    plan = cards.parse_plan_text(_real_plan_text())
+    for ref_id in REHEARSAL_CARDS:
+        for c_id in TRACK_C0:
+            ref, other = plan.parent(ref_id), plan.parent(c_id)
+            assert ref is not None and other is not None, (ref_id, c_id)
+            assert rules.unwaived_conflicts(plan, ref, other) == [], (ref_id, c_id)
+
+
+@pytest.mark.parametrize(
+    ("added", "expected"),
+    [
+        ("candidates/", {"PARALLEL_WRITE_CONFLICT"}),
+        (
+            "src/repository_presenter/components/readme/validation/registry.py",
+            {"GOVERNED_PATH_IN_UNGOVERNED_CARD", "NO_BUMP_BREACH"},
+        ),
+        ("src/repository_presenter/cli.py", {"NO_BUMP_BREACH"}),
+    ],
+)
+def test_a_widened_rehearsal_card_is_refused(added: str, expected: set[str]) -> None:
+    anchor = "tests/test_no_bump_check.py, docs/OPERATIONS_RUNBOOK.md"
+    widened = mutate(
+        anchor,
+        f"tests/test_no_bump_check.py, {added}, docs/OPERATIONS_RUNBOOK.md",
+        _real_plan_text(),
+    )
+    assert expected <= codes(lint_text(widened))

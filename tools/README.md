@@ -194,7 +194,15 @@ governance tracks, two directories, no overlap.
   - `harness.py` — `dryrun` (`act -n` over every workflow), `monitor` (`monitor.yml` end to end in
     the act image on a Docker network where `api.github.com` is the fake), `down`, and the
     per-workflow plan (what runs locally, what is a documented gap). Needs Docker and `act`.
-  - Tests: `tests/test_workflow_rehearsal.py` (no network, Docker or act).
+  - `no_bump_check.py` — `no_bump_check.py <base-ref> [--no-src]`: fails when a branch's diff since
+    its merge-base touches a governed source (the list is parsed from
+    `tests/test_version_bump_discipline.py` by `tools/plan_lint/governed.py`) or moves any `src/`
+    version constant; the diff-level proof behind the plan's `no_bump: true` cards (TC-REF-10/11/12).
+  - `hosting_preflight.py` — read-only go/no-go table for the staged go-live H0 to H4
+    (`docs/OPERATIONS_RUNBOOK.md` section 9): requirements generated from the workflow YAML,
+    compared with read-only `gh` calls; prints names and verdicts, never values.
+  - Tests: `tests/test_workflow_rehearsal.py`, `tests/test_no_bump_check.py` and
+    `tests/test_hosting_preflight.py` (no network, Docker, act or real `gh`).
 
 ## Environment variables
 
