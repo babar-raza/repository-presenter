@@ -1,0 +1,666 @@
+{
+  "3d-python": {
+    "build_command_fact": {
+      "attributes": {
+        "precondition": "pip install build",
+        "role": "build command",
+        "source": "ci workflow"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "build command; job build runs `python -m build`; after `pip install build`",
+          "path": ".github/workflows/publish.yml"
+        }
+      ],
+      "id": "build_test_asset:build-command",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "python -m build"
+    },
+    "distribution_facts": [],
+    "ecosystem": "python",
+    "install_fact": {
+      "attributes": {
+        "source_checkout_command": "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install ."
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "distribution name declared by the manifest",
+          "path": "setup.py"
+        },
+        {
+          "detail": "package registry: a distribution of this name exists, but ownership not confirmed: the registry's project URLs point at another repository",
+          "path": "https://pypi.org/pypi/aspose-3d-foss/json"
+        }
+      ],
+      "id": "install_command:pip",
+      "kind": "install_command",
+      "polarity": "UNRESOLVED",
+      "value": "pip install aspose-3d-foss"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "distribution name declared by the manifest",
+          "path": "setup.py"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "aspose-3d-foss"
+    },
+    "readme_installation": "## Installation\n\nInstall the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npython3 -m pip install aspose-3d-foss\n```\n\nTo work from the latest source checkout instead, install it in editable mode:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npython3 -m pip install -e .\n```\n\nVerify the install:\n\n```bash\npython3 -c \"from aspose.threed import Scene; print('Aspose.3D FOSS OK')\"\n```\n\nThe package supports Python 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12 on Windows, macOS, and Linux,\nwith no native dependencies.\n",
+    "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    "root_paths": [
+      ".gitignore",
+      "AGENTS.md",
+      "LICENSE",
+      "MANIFEST.in",
+      "README.md",
+      "setup.py"
+    ],
+    "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+  },
+  "cells-rust": {
+    "build_command_fact": {
+      "attributes": {
+        "role": "build command",
+        "source": "ci workflow"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "build command; job build-and-test runs `cargo check --all-targets`",
+          "path": ".github/workflows/ci.yml"
+        }
+      ],
+      "id": "build_test_asset:build-command",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "cargo check --all-targets"
+    },
+    "distribution_facts": [],
+    "ecosystem": "rust",
+    "install_fact": {
+      "attributes": {
+        "source_checkout_unverified": "no example executed against a build of this checkout that succeeded"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "install command for the crate name the manifest declares",
+          "path": "Cargo.toml"
+        },
+        {
+          "detail": "package registry: distribution not found on cargo",
+          "path": "https://crates.io/api/v1/crates/aspose-cells-foss-rust"
+        }
+      ],
+      "id": "install_command:cargo",
+      "kind": "install_command",
+      "polarity": "CONTRADICTED",
+      "value": "cargo add aspose-cells-foss-rust"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "crate name declared by the manifest's `[package]` table",
+          "path": "Cargo.toml"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "aspose-cells-foss-rust"
+    },
+    "readme_installation": "## Installation\n\nAspose.Cells FOSS for Rust is not yet published to [crates.io](https://crates.io/) (see\n[Scope and Limitations](#scope-and-limitations)). Once the repository is live at its real\nGitHub location, add it as a Git dependency in `Cargo.toml`:\n\n```toml\n[dependencies]\naspose-cells-foss-rust = { git = \"https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust\" }\n```\n\nFor local development against a cloned copy, use a path dependency instead:\n\n```toml\n[dependencies]\naspose-cells-foss-rust = { path = \"../Aspose.Cells-FOSS-for-Rust\" }\n```\n\nThe package name is `aspose-cells-foss-rust`; the library is imported as\n`aspose_cells_foss_rust`. Requires a recent stable Rust toolchain (2021 edition or later).\nNo proprietary Aspose runtime and no Microsoft Office installation is required.\n\nTo build the library directly from a clone:\n\n```bash\ngit clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust.git\ncd Aspose.Cells-FOSS-for-Rust\ncargo build\n```\n",
+    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+    "root_paths": [
+      "AGENTS.md",
+      "Cargo.toml",
+      "LICENSE.txt",
+      "README.md"
+    ],
+    "source_revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e"
+  },
+  "gis-net": {
+    "build_command_fact": null,
+    "distribution_facts": [],
+    "ecosystem": "net",
+    "install_fact": {
+      "attributes": {
+        "source_checkout_unverified": "no build exited 0: failed (`dotnet build Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj` exited 1)"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "install command for the package id the manifest yields (no PackageId declared; MSBuild's default is the project file name)",
+          "path": "Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj"
+        },
+        {
+          "detail": "package registry: distribution not found on nuget",
+          "path": "https://api.nuget.org/v3-flatcontainer/aspose.gis.foss/index.json"
+        }
+      ],
+      "id": "install_command:dotnet",
+      "kind": "install_command",
+      "polarity": "CONTRADICTED",
+      "value": "dotnet add package Aspose.GIS.FOSS"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "package id defaults to the project file name (MSBuild: PackageId and AssemblyName default to it; none declared)",
+          "path": "Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.GIS.FOSS"
+    },
+    "readme_installation": "",
+    "repository": "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net",
+    "root_paths": [
+      ".gitignore",
+      "Aspose.GIS.FOSS.slnx"
+    ],
+    "source_revision": "b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4"
+  },
+  "jmap-cpp": {
+    "build_command_fact": {
+      "attributes": {
+        "precondition": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release",
+        "role": "build command",
+        "source": "ci workflow"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "build command; job test runs `cmake --build build --config Release`; after `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`",
+          "path": ".github/workflows/ci.yml"
+        }
+      ],
+      "id": "build_test_asset:build-command",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "cmake --build build --config Release"
+    },
+    "distribution_facts": [],
+    "ecosystem": "cpp",
+    "install_fact": {
+      "attributes": {
+        "source_checkout_unverified": "no build exited 0: configure failed"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "source build for the CMake project the manifest declares; C++ has no package registry to install from",
+          "path": "CMakeLists.txt"
+        },
+        {
+          "detail": "package registry: none could not be read",
+          "path": "no package registry"
+        }
+      ],
+      "id": "install_command:cmake",
+      "kind": "install_command",
+      "polarity": "UNRESOLVED",
+      "value": "cmake -S . -B build\ncmake --build build"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "project name declared by `project()`",
+          "path": "CMakeLists.txt"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "aspose-jmap-foss-cpp"
+    },
+    "readme_installation": "## Installation\n\nNo package has been published to a registry. Consume the library from source with CMake \u2014 add it\nas a subdirectory of your own build, or use `FetchContent`:\n\n```cmake\nadd_subdirectory(Aspose.JMAP-FOSS-for-Cpp)\ntarget_link_libraries(your_app PRIVATE aspose-jmap-foss-cpp)\n```\n\nBecause the library is header-only, you can also just add `include/` to your include path and\n`#include \"JmapClient.hpp\"` directly, as long as `nlohmann/json.hpp` is discoverable.\n",
+    "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp",
+    "root_paths": [
+      ".gitignore",
+      "CMakeLists.txt",
+      "LICENSE",
+      "README.md"
+    ],
+    "source_revision": "559c962081323468039dc75cf38676499f32b20e"
+  },
+  "jmap-go": {
+    "build_command_fact": {
+      "attributes": {
+        "role": "build command",
+        "source": "ci workflow"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "build command; job test runs `go build ./...`",
+          "path": ".github/workflows/ci.yml"
+        }
+      ],
+      "id": "build_test_asset:build-command",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "go build ./..."
+    },
+    "distribution_facts": [],
+    "ecosystem": "go",
+    "install_fact": {
+      "attributes": null,
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "install command for the module path declared by the manifest, major-version suffix included",
+          "path": "go.mod"
+        },
+        {
+          "detail": "package registry: go_modules could not be read",
+          "path": "https://proxy.golang.org/github.com/aspose-email-foss/!aspose.!j!m!a!p-!f!o!s!s-for-!go/@v/list"
+        }
+      ],
+      "id": "install_command:go",
+      "kind": "install_command",
+      "polarity": "UNRESOLVED",
+      "value": "go get github.com/aspose-email-foss/Aspose.JMAP-FOSS-for-Go"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "module path declared by the module file",
+          "path": "go.mod"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "github.com/aspose-email-foss/Aspose.JMAP-FOSS-for-Go"
+    },
+    "readme_installation": "## Installation\n\nThe module path is `github.com/aspose-email-foss/Aspose.JMAP-FOSS-for-Go` (imported as package `jmap`). No versioned tag\nhas been published yet; until one is, vendor the repository or point a `replace` directive at a\nlocal checkout (see [Development and Testing](#development-and-testing)).\n\n```bash\ngo get github.com/aspose-email-foss/Aspose.JMAP-FOSS-for-Go\n```\n",
+    "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Go",
+    "root_paths": [
+      ".gitignore",
+      "LICENSE",
+      "README.md",
+      "client_core.go",
+      "client_core_test.go",
+      "client_mail.go",
+      "client_mail_test.go",
+      "client_submission.go",
+      "client_submission_test.go",
+      "common_types.go",
+      "common_types_test.go",
+      "comparator.go",
+      "comparator_test.go",
+      "delivery_status.go",
+      "delivery_status_test.go",
+      "email.go",
+      "email_address.go",
+      "email_address_group.go",
+      "email_address_group_test.go",
+      "email_address_test.go",
+      "email_body_part.go",
+      "email_body_part_test.go",
+      "email_header.go",
+      "email_header_test.go",
+      "email_submission.go",
+      "email_submission_test.go",
+      "email_test.go",
+      "envelope.go",
+      "envelope_test.go",
+      "go.mod",
+      "identity.go",
+      "identity_test.go",
+      "invocation.go",
+      "invocation_test.go",
+      "jmap_request_envelope.go",
+      "jmap_request_envelope_test.go",
+      "jmap_response_envelope.go",
+      "jmap_response_envelope_test.go",
+      "mailbox.go",
+      "mailbox_test.go",
+      "search_snippet.go",
+      "search_snippet_test.go",
+      "session.go",
+      "session_test.go",
+      "thread.go",
+      "thread_test.go",
+      "transport.go",
+      "transport_test.go"
+    ],
+    "source_revision": "327dda39116ba02657fa49ec6dbeb69965628447"
+  },
+  "jmap-java": {
+    "build_command_fact": {
+      "attributes": {
+        "role": "build command",
+        "source": "toolchain convention"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "build command; standard `mvn package` for the project declared in pom.xml; no workflow step or script names it",
+          "path": "pom.xml"
+        }
+      ],
+      "id": "build_test_asset:build-command",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "mvn package"
+    },
+    "distribution_facts": [],
+    "ecosystem": "java",
+    "install_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "install command for the coordinate the `pom.xml` manifest declares",
+          "path": "pom.xml"
+        },
+        {
+          "detail": "package registry: distribution not found on maven",
+          "path": "https://repo1.maven.org/maven2/com/aspose/aspose-jmap-foss/maven-metadata.xml"
+        }
+      ],
+      "id": "install_command:maven",
+      "kind": "install_command",
+      "polarity": "CONTRADICTED",
+      "value": "mvn dependency:get -Dartifact=com.aspose:aspose-jmap-foss:0.1.0"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "`groupId` and `artifactId` declared by the POM",
+          "path": "pom.xml"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "com.aspose:aspose-jmap-foss"
+    },
+    "readme_installation": "## Installation\n\nNo artifact has been published to Maven Central yet; until it is, build and install the library\nlocally (see [Development and Testing](#development-and-testing)). The intended coordinates are\n`com.aspose:aspose-jmap-foss`:\n\n```xml\n<dependency>\n  <groupId>com.aspose</groupId>\n  <artifactId>aspose-jmap-foss</artifactId>\n  <version>0.1.0</version>\n</dependency>\n```\n",
+    "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Java",
+    "root_paths": [
+      ".gitignore",
+      "LICENSE",
+      "README.md",
+      "pom.xml"
+    ],
+    "source_revision": "f0d6ba73dc92db4b3effaa7c1fa76682e2d09fd4"
+  },
+  "jmap-python": {
+    "build_command_fact": null,
+    "distribution_facts": [],
+    "ecosystem": "python",
+    "install_fact": {
+      "attributes": {
+        "source_checkout_unverified": "no example executed against a build of this checkout that succeeded"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "distribution name declared by the manifest",
+          "path": "pyproject.toml"
+        },
+        {
+          "detail": "package registry: distribution not found",
+          "path": "https://pypi.org/pypi/aspose-jmap-foss/json"
+        }
+      ],
+      "id": "install_command:pip",
+      "kind": "install_command",
+      "polarity": "CONTRADICTED",
+      "value": "pip install aspose-jmap-foss"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "distribution name declared by the manifest",
+          "path": "pyproject.toml"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "aspose-jmap-foss"
+    },
+    "readme_installation": "## Installation\n\nNo package has been published to PyPI yet; until it is, build the library from source (see\n[Development and Testing](#development-and-testing)). The intended published id is\n`aspose-jmap-foss`:\n\n```bash\npip install aspose-jmap-foss\n```\n\nThe package imports as `aspose_jmap_foss`, is pure Python source (no compiled extensions), and\ntargets Python 3.10 or later.\n",
+    "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Python",
+    "root_paths": [
+      ".gitignore",
+      "LICENSE",
+      "README.md",
+      "pyproject.toml"
+    ],
+    "source_revision": "f2137fa6bade0002c317e3a73081f2a0b5173a23"
+  },
+  "jmap-rust": {
+    "build_command_fact": {
+      "attributes": {
+        "role": "build command",
+        "source": "ci workflow"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "build command; job test runs `cargo build`",
+          "path": ".github/workflows/ci.yml"
+        }
+      ],
+      "id": "build_test_asset:build-command",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "cargo build"
+    },
+    "distribution_facts": [],
+    "ecosystem": "rust",
+    "install_fact": {
+      "attributes": {
+        "source_checkout_unverified": "no example executed against a build of this checkout that succeeded"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "install command for the crate name the manifest declares",
+          "path": "Cargo.toml"
+        },
+        {
+          "detail": "package registry: distribution not found on cargo",
+          "path": "https://crates.io/api/v1/crates/aspose-jmap-foss"
+        }
+      ],
+      "id": "install_command:cargo",
+      "kind": "install_command",
+      "polarity": "CONTRADICTED",
+      "value": "cargo add aspose-jmap-foss"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "crate name declared by the manifest's `[package]` table",
+          "path": "Cargo.toml"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "aspose-jmap-foss"
+    },
+    "readme_installation": "## Installation\n\nNo version has been published to crates.io yet; until one is, add a path or git dependency on a\nlocal checkout (see [Development and Testing](#development-and-testing)). The intended published\nname is `aspose-jmap-foss` (crate `aspose_jmap_foss`):\n\n```bash\ncargo add aspose-jmap-foss\n```\n",
+    "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Rust",
+    "root_paths": [
+      ".gitignore",
+      "Cargo.toml",
+      "LICENSE",
+      "README.md"
+    ],
+    "source_revision": "d7286100735e6d518837fde8639e8de694a08ef6"
+  },
+  "page-python": {
+    "build_command_fact": {
+      "attributes": {
+        "role": "build command",
+        "source": "Makefile"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "build command; target build is defined",
+          "path": "Makefile"
+        }
+      ],
+      "id": "build_test_asset:build-command",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "make build"
+    },
+    "distribution_facts": [],
+    "ecosystem": "python",
+    "install_fact": {
+      "attributes": {
+        "source_checkout_unverified": "no example executed against a build of this checkout that succeeded"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "distribution name declared by the manifest",
+          "path": "pyproject.toml"
+        },
+        {
+          "detail": "package registry: a distribution of this name exists, but ownership not confirmed: the registry lists no source repository to compare with this one",
+          "path": "https://pypi.org/pypi/aspose-page-foss/json"
+        }
+      ],
+      "id": "install_command:pip",
+      "kind": "install_command",
+      "polarity": "UNRESOLVED",
+      "value": "pip install aspose-page-foss"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "distribution name declared by the manifest",
+          "path": "pyproject.toml"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "aspose-page-foss"
+    },
+    "readme_installation": "## Installation\n\nInstall the package from PyPI:\n\n```bash\npip install aspose-page-foss\n```\n\nTo build and verify a wheel from a clone of the repository instead, install `uv`, `setuptools`,\nand `wheel`, then run:\n\n```bash\ngit clone https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python.git\ncd Aspose.Page-FOSS-for-Python\npython package.py build\npython package.py verify\n```\n\nThe wheel version comes from `local/Version.txt`. `verify` installs it with all dependencies\nin `.package-venv` and tests PS/XPS to PDF/PNG conversion. To upload the built wheel, use\n`python package.py publish-test` for TestPyPI or `python package.py publish` for PyPI; these\ncommands read credentials from the matching files in `local/`.\n\nThe library targets Python 3.10+ (`pyproject.toml`'s `requires-python = \">=3.10\"`). See\n[Dependencies](#dependencies) below for the full required/optional/native breakdown.\n",
+    "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+    "root_paths": [
+      ".gitignore",
+      "LICENSE.txt",
+      "Makefile",
+      "README.md",
+      "package.py",
+      "pyproject.toml",
+      "setup.py"
+    ],
+    "source_revision": "43cef367cd0b2cf00cc03064ca9d29d1ff507967"
+  },
+  "pdf-cpp": {
+    "build_command_fact": null,
+    "distribution_facts": [
+      {
+        "attributes": {
+          "registry": "nuget"
+        },
+        "confidence": 1.0,
+        "evidence": [
+          {
+            "detail": "NuGet package the repository's own README names",
+            "path": "README.md"
+          },
+          {
+            "detail": "package registry: found on nuget",
+            "path": "https://api.nuget.org/v3-flatcontainer/aspose.pdf.cpp.foss/index.json"
+          }
+        ],
+        "id": "package:distribution.aspose.pdf.cpp.foss",
+        "kind": "package",
+        "polarity": "SUPPORTED",
+        "value": "Aspose.PDF.Cpp.FOSS"
+      }
+    ],
+    "ecosystem": "cpp",
+    "install_fact": {
+      "attributes": {
+        "source_checkout_unverified": "no build exited 0: configure failed"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "source build for the CMake project the manifest declares; C++ has no package registry to install from",
+          "path": "CMakeLists.txt"
+        },
+        {
+          "detail": "package registry: none could not be read",
+          "path": "no package registry"
+        }
+      ],
+      "id": "install_command:cmake",
+      "kind": "install_command",
+      "polarity": "UNRESOLVED",
+      "value": "cmake -S . -B build\ncmake --build build"
+    },
+    "package_name_fact": {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "project name declared by `project()`",
+          "path": "CMakeLists.txt"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "Aspose_PDF_FOSS"
+    },
+    "readme_installation": "## Installation\n\nThis library builds as a static library you link into your project. Either way, include the whole\npublic API through the single-entry header, or include individual headers from `aspose/pdf/`:\n\n```cpp\n#include <aspose.pdf.foss.hpp>\n```\n\n### Visual Studio (NuGet)\n\nInstall the [`Aspose.PDF.Cpp.FOSS`](https://www.nuget.org/packages/Aspose.PDF.Cpp.FOSS) package\ninto a C++ project (`Install-Package Aspose.PDF.Cpp.FOSS`). It ships static libraries for x64,\nx86, and ARM64 in Release and Debug. It adds the include path, links the matching library, and\nraises the project to C++20.\n\n### From a Release Archive\n\nEach [GitHub release](https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp/releases) ships\nprebuilt archives for Linux x64 (GCC 13) and Windows x64 (MSVC, with Release and Debug libraries).\nEach archive contains the public headers, the static library, and a CMake package. Extract it and\npoint `CMAKE_PREFIX_PATH` at the extracted folder:\n\n```cmake\nfind_package(aspose_pdf_foss 1.0 CONFIG REQUIRED)\ntarget_link_libraries(your_app PRIVATE aspose_pdf_foss::aspose_pdf_foss)\n```\n\nThe same package is produced by `cmake --install build --prefix <dir>` from a source build.\n\n### As a CMake Subdirectory\n\n```cmake\nadd_subdirectory(aspose.pdf-foss-for-cpp)\ntarget_link_libraries(your_app PRIVATE aspose_pdf_foss::aspose_pdf_foss)\n```\n\nBoth forms of the target make your code compile as C++20.\n\n### Requirements\n\n- A C++20 compiler (clang 16+, gcc 13+, or MSVC 2022 17.5+)\n- CMake 3.20 or later\n- Python 3, build-time only \u2014 a generator step embeds the bundled font outlines into a generated\n  source file\n\n**Runtime dependencies: none.** The test suite alone fetches\n[GoogleTest](https://github.com/google/googletest) v1.14.0 via CMake `FetchContent` at configure\ntime; it is not needed to build or consume the library itself.\n\n### Build From Source\n\n```bash\ncmake -S . -B build\ncmake --build build\n```\n\nThe static library lands at `build/libaspose_pdf_foss.a` (or `aspose_pdf_foss.lib` on MSVC), built\nout-of-source under `build/`. For a release build, pass `-DCMAKE_BUILD_TYPE=Release` to the\nconfigure step. `CMakePresets.json` also carries host-conditional Windows-MSVC presets \u2014 e.g.\n`cmake --preset windows-msvc-debug`.\n",
+    "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+    "root_paths": [
+      ".gitattributes",
+      ".gitignore",
+      "CHANGELOG.md",
+      "CMakeLists.txt",
+      "CMakePresets.json",
+      "CONTRIBUTING.md",
+      "LICENSE",
+      "README.md",
+      "THIRD_PARTY_NOTICES.md",
+      "build.bat"
+    ],
+    "source_revision": "4b83c9fec1e37fd205156770161f6843bac00ceb"
+  }
+}

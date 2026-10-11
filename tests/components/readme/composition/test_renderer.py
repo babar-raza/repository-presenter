@@ -28,6 +28,9 @@ from repository_presenter.components.readme.composition.renderer import (
     renders_verbatim,
     write_text,
 )
+from repository_presenter.components.readme.composition.renderer import (
+    _installation as installation_lines,
+)
 from repository_presenter.components.readme.extractors.platforms.cpp import CPP
 from repository_presenter.components.readme_diagram import lint_source, parse, render_check
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
@@ -1373,6 +1376,110 @@ def test_a_source_checkout_install_renders_honest_pythonpath_prose_never_pip() -
     assert "To work from a source checkout instead" not in installation
     assert "img.shields.io/pypi" not in readme
     assert "pypi.org/project" not in readme
+
+
+def test_an_unpublished_package_with_a_documented_build_renders_no_registry_command() -> None:
+    """BC-02, wave 6 (the Aspose.JMAP libraries): the registry reads "not found" and the
+    maintainers' README says the same, so the Installation says so in plain prose and gives the
+    clone plus the repository's own build. It claims no verification (the command was not run for
+    this revision), prints no registry command, and offers no registry badge."""
+    command = (
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
+        "cd Aspose.3D-FOSS-for-Python\n"
+        "pip install ."
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id != "install_command:pip"),
+            Fact(
+                "install_command:pip",
+                "install_command",
+                command,
+                (
+                    Evidence("pyproject.toml", "distribution name declared by the manifest"),
+                    Evidence(
+                        "https://pypi.org/pypi/aspose-3d-foss/json",
+                        "package registry: distribution not found",
+                    ),
+                    Evidence(
+                        "README.md", "the maintainers' README states the package is not published"
+                    ),
+                    Evidence(
+                        "pyproject.toml", "documented source build, not run for this revision"
+                    ),
+                ),
+                attributes={
+                    "install_kind": "source_checkout",
+                    "registry_state": "not_published",
+                    "registry_command": "pip install aspose-3d-foss",
+                    "source_basis": "documented",
+                    "documented_command": "pip install .",
+                },
+            ),
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+    assert installation.startswith(
+        "`aspose-3d-foss` is not published on PyPI yet; to use it, build it from a source "
+        f"checkout:\n\n```bash\n{command}\n```"
+    )
+    assert "pip install aspose-3d-foss" not in readme
+    assert "verified against this revision" not in installation
+    assert "To work from a source checkout instead" not in installation
+    assert "img.shields.io/pypi" not in readme
+
+
+def test_a_documented_checkout_of_a_registry_less_ecosystem_makes_no_claim_about_a_registry() -> (
+    None
+):
+    """C++ has no registry to be "not published" on: the sentence only says how to build it."""
+    spec = SPECS["cpp"]
+    assert spec.manifest_names_distribution is False
+    entry = RegistryEntry.model_validate(
+        {
+            **ENTRY.model_dump(mode="json"),
+            "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp",
+            "family": "jmap",
+            "platform": "cpp",
+            "ecosystem": "cpp",
+        }
+    )
+    command = (
+        "git clone https://github.com/aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp.git\n"
+        "cd Aspose.JMAP-FOSS-for-Cpp\n"
+        "cmake -S . -B build\ncmake --build build"
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", entry.repository),
+            _fact("package:name", "package", "aspose-jmap-foss-cpp"),
+            Fact(
+                "install_command:cmake",
+                "install_command",
+                command,
+                (
+                    Evidence(
+                        "CMakeLists.txt", "source build for the CMake project the manifest declares"
+                    ),
+                    Evidence("no package registry", "package registry: none could not be read"),
+                ),
+                attributes={
+                    "install_kind": "source_checkout",
+                    "registry_state": "not_published",
+                    "source_basis": "documented",
+                    "documented_command": "cmake -S . -B build\ncmake --build build",
+                },
+            ),
+        ),
+    )
+    lines = installation_lines(RenderContext(entry, facts, {}, {}, {}))
+    assert lines[0] == "Build `aspose-jmap-foss-cpp` from a source checkout:"
+    assert lines[2:] == ["```bash", command, "```"]
 
 
 def test_a_package_registry_name_stays_plain_in_prose() -> None:

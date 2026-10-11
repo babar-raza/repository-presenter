@@ -63,6 +63,7 @@ TYPESCRIPT = EcosystemSpec(
         "[![npm](https://img.shields.io/npm/v/{package}.svg)](https://www.npmjs.com/package/"
         "{package})"
     ),
+    source_dependencies="npm install",
     verify_command="npm ls {module}",
     # tsc type-checks a snippet against a few hundred source files in seconds; the ceiling in
     # core.execution is 300 and the whole cohort has never come near it.

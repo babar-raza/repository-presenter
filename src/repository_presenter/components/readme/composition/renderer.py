@@ -74,7 +74,12 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
 )
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import printed_example
-from repository_presenter.core.facts import Fact, FactsDocument
+from repository_presenter.core.facts import (
+    DOCUMENTED_SOURCE_BASIS,
+    SOURCE_BASIS_ATTRIBUTE,
+    Fact,
+    FactsDocument,
+)
 from repository_presenter.core.package_registry import (
     DISTRIBUTION_FACT_PREFIX,
     PUBLISHED_VERSION_FACT_ID,
@@ -1116,6 +1121,26 @@ def _installation(context: RenderContext) -> list[str]:
         lines.extend(_code_block("bash", install.value))
     elif distributions:
         lines.append(_published_sentence(distributions))
+    elif (
+        install is not None
+        and install.polarity == "SUPPORTED"
+        and checkout_kind
+        and (install.attributes or {}).get(SOURCE_BASIS_ATTRIBUTE) == DOCUMENTED_SOURCE_BASIS
+        and package is not None
+    ):
+        # An unpublished package whose build this revision did not measure (BC-02, wave 6): the
+        # registry reads "not found" and the maintainers' README says the same, so the page says
+        # so plainly and gives the repository's own documented build. Nothing here claims the
+        # command was run - it is what the repository's CI or toolchain names - and no registry
+        # command is printed, because the registry says there is nothing to install.
+        lines.append(
+            f"`{package.value}` is not published on {context.spec.registry} yet; to use it, build "
+            "it from a source checkout:"
+            if context.spec.manifest_names_distribution
+            else f"Build `{package.value}` from a source checkout:"
+        )
+        lines.append("")
+        lines.extend(_code_block("bash", install.value))
     elif (
         install is not None
         and install.polarity == "SUPPORTED"

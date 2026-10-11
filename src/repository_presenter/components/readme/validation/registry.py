@@ -81,6 +81,11 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
+from repository_presenter.components.readme.evidence.facts.unpublished import (
+    DOCUMENTED_BUILD_PHRASE,
+    README_STATEMENT_PHRASE,
+    documented_steps,
+)
 from repository_presenter.components.readme.validation.claims import claim_findings, claim_notes
 from repository_presenter.components.readme.validation.deferrals import review_deferrals
 from repository_presenter.components.readme.validation.links.rules import (
@@ -91,9 +96,20 @@ from repository_presenter.components.readme.validation.links.rules import (
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import collapse_blank_runs, printed_example
 from repository_presenter.core.facts import (
+    DOCUMENTED_COMMAND_ATTRIBUTE,
+    DOCUMENTED_SOURCE_BASIS,
+    NOT_PUBLISHED,
+    REGISTRY_COMMAND_ATTRIBUTE,
+    REGISTRY_STATE_ATTRIBUTE,
+    SOURCE_BASIS_ATTRIBUTE,
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
     Fact,
     FactsDocument,
+)
+from repository_presenter.core.package_registry import (
+    DISTRIBUTION_FACT_PREFIX,
+    RETRYABLE_READINGS,
+    fact_registry_reading,
 )
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
@@ -864,8 +880,10 @@ def _check_install(candidate: Candidate) -> list[Failure]:
         # attribute directly rather than by a phrase it must never claim.
         checkout_kind = (fact.attributes or {}).get("install_kind") == "source_checkout"
         if fact.polarity != "SUPPORTED":
-            last = fact.evidence[-1].detail or "" if fact.evidence else ""
-            failures.append(Failure("EXTRACTING", f"{fact.id} is {fact.polarity}: {last}"))
+            if not _stated_by_distribution(candidate, fact):
+                failures.append(Failure("EXTRACTING", _unestablished_install(fact)))
+        elif problems := _documented_source_failures(candidate, fact):
+            failures.extend(problems)
         elif (fact.attributes or {}).get("install_kind") not in _SOURCE_KINDS and (
             "distribution not found" in details
         ):
@@ -913,7 +931,188 @@ def _check_install(candidate: Candidate) -> list[Failure]:
             failures.append(
                 Failure("COMPOSING", f"the Installation section does not render {fact.value!r}")
             )
+    failures.extend(_registry_command_failures(candidate))
     failures.extend(_check_source_checkout(candidate))
+    return failures
+
+
+def _stated_by_distribution(candidate: Candidate, fact: Fact) -> bool:
+    """Whether a registry-less install nothing proved is simply not what the README claims.
+
+    A C++ library has no registry, so its CMake source build stays UNRESOLVED unless a build
+    exited 0 (wave 6, Aspose.PDF for C++: the upstream CMake configure fails on this runner). When
+    a registry confirmed the NuGet package the repository's own README names
+    (``package:distribution.*``) the Installation row states that distribution, prints no command,
+    and the UNRESOLVED fact is not a claim anyone reads. It is a claim the moment the README
+    prints its command, and that is refused as before.
+    """
+    distributions = [
+        f.value
+        for f in candidate.facts.facts
+        if f.id.startswith(DISTRIBUTION_FACT_PREFIX) and f.polarity == "SUPPORTED"
+    ]
+    return (
+        fact.polarity == "UNRESOLVED"
+        and fact_registry_reading(fact) == "no_registry"
+        and any(f"`{value}`" in candidate.readme for value in distributions)
+        and f"```bash\n{fact.value}\n```" not in candidate.readme
+    )
+
+
+def _unestablished_install(fact: Fact) -> str:
+    """Why a non-SUPPORTED install fact refuses the candidate, naming the class of the registry
+    reading behind it (wave 6, BC-02: eleven rows, three different causes under one sentence).
+
+    The classes call for different responses, so the sentence says which this is.
+    ``RETRY_REGISTRY_READ``: the registry gave no answer (a network or TLS failure, a 5xx past the
+    retry policy), which says nothing about the package - extract again, and never repair a README
+    for it. ``PACKAGE_ABSENT``: the registry's own answer is that nothing is published, which is a
+    true statement about the package and becomes a source install only when the maintainers'
+    README says so and the repository documents a build (``evidence/facts/unpublished.py``).
+    """
+    last = fact.evidence[-1].detail or "" if fact.evidence else ""
+    base = f"{fact.id} is {fact.polarity}: {last}"
+    reading = fact_registry_reading(fact)
+    if reading in RETRYABLE_READINGS:
+        return (
+            f"{base}; RETRY_REGISTRY_READ: the registry gave no answer, which says nothing about "
+            "the package - extract again, the candidate is not at fault"
+        )
+    if reading == "not_published":
+        return (
+            f"{base}; PACKAGE_ABSENT: the registry lists no such package, and it becomes a "
+            "source install only when the maintainers' README says it is unpublished and the "
+            "repository documents a build"
+        )
+    if reading == "no_registry":
+        return (
+            f"{base}; NO_REGISTRY: the ecosystem has no registry to ask, so the install is a "
+            "source build, stated only from a build that exited 0 or - when the maintainers' "
+            "README says it is unpublished - the build the repository documents"
+        )
+    return base
+
+
+def _documented_source_failures(candidate: Candidate, fact: Fact) -> list[Failure]:
+    """A documented source-checkout install (``source_basis: documented``) is held to what admits
+    it, so a fact that merely claims the shape cannot slip through (BC-02, wave 6).
+
+    It stands on three independent records, each on the fact itself: the registry reading is the
+    registry's own "nothing is published" (or the ecosystem has no registry), the maintainers'
+    README states the same, and the steps after the clone are the repository's own build, which
+    BC-02 re-derives from the build-command fact rather than trust the attribute. A fact with any
+    one missing is refused at EXTRACTING: the admission is the earliest cause.
+    """
+    attributes = fact.attributes or {}
+    if attributes.get(SOURCE_BASIS_ATTRIBUTE) != DOCUMENTED_SOURCE_BASIS:
+        return []
+    details = [evidence.detail or "" for evidence in fact.evidence]
+    reading = fact_registry_reading(fact)
+    problems: list[str] = []
+    if attributes.get("install_kind") != "source_checkout":
+        problems.append("a documented source install is a source_checkout kind")
+    if attributes.get(REGISTRY_STATE_ATTRIBUTE) != NOT_PUBLISHED or reading not in (
+        "not_published",
+        "no_registry",
+    ):
+        problems.append(
+            f"its registry reading ({reading or 'none'}) does not show the package unpublished"
+        )
+    if not any(README_STATEMENT_PHRASE in detail for detail in details):
+        problems.append("the maintainers' README is not recorded as saying it is unpublished")
+    steps = attributes.get(DOCUMENTED_COMMAND_ATTRIBUTE, "")
+    expected = documented_steps(
+        spec_for(candidate.entry.ecosystem), candidate.facts.facts, candidate.tree_paths
+    )
+    if not any(DOCUMENTED_BUILD_PHRASE in detail for detail in details) or expected is None:
+        problems.append("the repository documents no build to state")
+    elif steps != expected[0]:
+        problems.append(
+            f"it names the steps {steps!r}, but the repository documents {expected[0]!r}"
+        )
+    elif not fact.value.endswith("\n" + steps):
+        problems.append(f"its command does not end with the documented steps {steps!r}")
+    return [
+        Failure("EXTRACTING", f"{fact.id} is a documented source install but {problem}")
+        for problem in problems
+    ]
+
+
+# A line that installs a package from a registry: a package tool, an install/add/get verb or a
+# Maven artifact coordinate, and the package's own name.
+_REGISTRY_INSTALL_VERB = re.compile(r"(?i)\b(?:install|add|get|i)\b|dependency:get|-Dartifact=")
+
+
+def _registry_install_lines(
+    readme: str, implied: set[str], package_name: str
+) -> list[tuple[int, str]]:
+    """``(line index, stripped line)`` for each README line that is the registry install.
+
+    Either the exact command the manifest implied (anywhere, as a line or as an inline code span),
+    or - inside a fence only, where a reader copies and runs it - a package tool installing the
+    package by its own name (a pinned or re-spelled variant of the same command).
+    """
+    found: list[tuple[int, str]] = []
+    inside = False
+    for index, line in enumerate(readme.splitlines()):
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            inside = not inside
+            continue
+        plain = stripped.removeprefix("$ ").strip()
+        exact = plain in implied or any(f"`{item}`" in line for item in implied)
+        variant = (
+            inside
+            and package_name != ""
+            and package_name in plain.lower()
+            and _COMMAND.match(plain) is not None
+            and _REGISTRY_INSTALL_VERB.search(plain) is not None
+            and "git clone" not in plain
+        )
+        if exact or variant:
+            found.append((index, stripped))
+    return found
+
+
+def _registry_command_failures(candidate: Candidate) -> list[Failure]:
+    """BC-02: a README never prints the registry install of a package its registry says is not
+    published (wave 6). The unpublished state is only true if the page says so plainly; a kept
+    ``cargo add aspose-jmap-foss`` beside "not published" tells the reader to run a command that
+    cannot succeed.
+
+    Judged for a fact that records the registry command it replaced (``registry_command``): the
+    exact line, or a fenced line that is a package tool installing the package by name. A line from
+    a placed inherited unit routes to that unit's disposition (RECONCILING, ``unit``): the earliest
+    cause is the keep, and the section's author cannot change a verbatim inherited line.
+    """
+    failures: list[Failure] = []
+    package = next((f for f in candidate.facts.facts if f.id == "package:name"), None)
+    package_name = package.value.lower() if package is not None else ""
+    for fact in candidate.facts.by_kind("install_command"):
+        command = (fact.attributes or {}).get(REGISTRY_COMMAND_ATTRIBUTE)
+        if not command or fact.polarity != "SUPPORTED":
+            continue
+        implied = {line.strip() for line in command.splitlines() if line.strip()}
+        printed = _registry_install_lines(candidate.readme, implied, package_name)
+        if not printed:
+            continue
+        carriers = {
+            line.strip(): placement.unit_id
+            for placement in _placements(candidate)
+            if placement.outcome == "placed"
+            for line in placement.text.splitlines()
+        }
+        sections = _section_lines(candidate.readme)
+        for index, line in printed:
+            detail = (
+                f"{fact.id}: the README prints {line!r}, the registry install of a package its "
+                "registry reading says is not published"
+            )
+            unit = carriers.get(line)
+            if unit is not None:
+                failures.append(Failure("RECONCILING", detail, unit=unit))
+            else:
+                failures.append(Failure("COMPOSING", detail, sections[index]))
     return failures
 
 
