@@ -1440,7 +1440,16 @@ def coordinate_neighbor_promises(
     dispositions: dict[str, Any], facts: FactsDocument
 ) -> dict[str, Any]:
     """Defer a placed unit whose own text promises the block immediately following it in the
-    original document when that neighbor's own disposition does not survive to render anywhere.
+    original document when that neighbor's own disposition does not survive to render anywhere,
+    and keep a lead-in and its payload one thing otherwise.
+
+    A lead-in (a paragraph or list ending ``:``) is never carried alone. Its payload is the next
+    code block, list or table: withheld (OMIT/DEFER) -> the lead-in is deferred with it; a
+    verified example the plan renders under its own lead-in -> the lead-in is superseded into the
+    example's section; a list placed in the same carry section -> the lead-in is superseded into
+    it, so the unit that carries the list states it. Cut-2 BC-10 triage cause 4 (Cells-Rust,
+    Cells-.NET, 3D-Python, Slides-Python): the composer otherwise authored a slot from the
+    sentence alone and invented the payload.
 
     BC-10 coherence-gap, ``aspose-slides-foss/Aspose.Slides-FOSS-for-.NET``
     (``docs/DECISION_LOG.md`` 2026-09-17 14:14 UTC, corroborated 2026-09-24 10:14 UTC):
@@ -1483,6 +1492,7 @@ def coordinate_neighbor_promises(
     entries_by_id = {
         str(entry.get("unit_id", "?")): entry for entry in dispositions.get("dispositions", [])
     }
+    examples = _example_status(facts)
     for entry in dispositions.get("dispositions", []):
         if entry.get("disposition") not in PLACING:
             continue
@@ -1492,18 +1502,78 @@ def coordinate_neighbor_promises(
         unit_fact = units_by_id.get(unit)
         if unit_fact is None or not unit_fact.value.rstrip().endswith(":"):
             continue
-        ordinal = _unit_ordinal(unit)
-        if ordinal is None:
+        payload = _payload_of(unit, units_by_id)
+        neighbor = entries_by_id.get(payload) if payload is not None else None
+        if payload is None or neighbor is None:
             continue
-        neighbor = entries_by_id.get(f"inherited_unit:{ordinal + 1:03d}.code_block")
-        if neighbor is None or neighbor.get("disposition") not in {
-            "OMIT_UNSUPPORTED",
-            "DEFER_UNRESOLVED",
-        }:
+        kind = _unit_kind(payload)
+        if neighbor.get("disposition") in {"OMIT_UNSUPPORTED", "DEFER_UNRESOLVED"}:
+            entry["disposition"] = "DEFER_UNRESOLVED"
+            entry["destination_section"] = None
             continue
-        entry["disposition"] = "DEFER_UNRESOLVED"
-        entry["destination_section"] = None
+        destination = entry.get("destination_section")
+        if kind == "code_block" and examples.get(payload, ("", ""))[0] == "SUPPORTED":
+            # Lead-in without payload (BC-10, Cells-Rust 025 / Cells-.NET / 3D-Python): the plan
+            # renders every verified example once, under its own authored lead-in (README_CONTRACT
+            # rows 10 and 12), and never places the inherited block behind it. The sentence that
+            # introduced that block is therefore redundant wherever the reconciler sent it, and
+            # preserved it lands detached, after the example, promising a block that is not there.
+            target = next(
+                (
+                    section
+                    for section in (destination, neighbor.get("destination_section"))
+                    if section in _EXAMPLE_SECTIONS
+                ),
+                None,
+            )
+            if target is not None and neighbor.get("disposition") in PLACING | {
+                "SUPERSEDE_REDUNDANT"
+            }:
+                _supersede_lead_in(entry, target)
+        elif (
+            kind == "list"
+            and unit.rsplit(".", 1)[-1] == "paragraph"
+            and destination in _CARRY_SECTIONS
+            and neighbor.get("disposition") in PLACING
+            and neighbor.get("destination_section") == destination
+        ):
+            # Lead-in without payload (BC-10, Slides-Python 114/115): a carry section authors one
+            # slot per unit, so a preserved lead-in became a slot of its own with no list under
+            # it, and the composer invented one (58 names, none from the README). Superseded into
+            # the section, the unit that carries the list must state it (authoring.carried_units).
+            _supersede_lead_in(entry, str(destination))
     return dispositions
+
+
+_PAYLOAD_KINDS = frozenset({"code_block", "list", "table"})
+_EXAMPLE_SECTIONS = frozenset({"quick_start", "additional_examples"})
+_LEAD_IN_RATIONALE = "Lead-in of the block that follows: carried together with it, never alone."
+
+
+def _payload_of(unit_id: str, units: Mapping[str, Fact]) -> str | None:
+    """The block that immediately follows ``unit_id`` in the source README when it is the kind of
+    block a colon introduces (a code block, a list or a table), else ``None``.
+
+    Split units of one block (``077.003.list``) share an ordinal; the first of the next ordinal
+    is the neighbour."""
+    ordinal = _unit_ordinal(unit_id)
+    if ordinal is None:
+        return None
+    following = sorted(
+        (other, nxt)
+        for other in units
+        if (nxt := _unit_ordinal(other)) is not None and nxt > ordinal
+    )
+    if not following:
+        return None
+    first = min(following, key=lambda pair: (pair[1], pair[0]))
+    return first[0] if _unit_kind(first[0]) in _PAYLOAD_KINDS else None
+
+
+def _supersede_lead_in(entry: dict[str, Any], destination: str) -> None:
+    entry["disposition"] = "SUPERSEDE_REDUNDANT"
+    entry["destination_section"] = destination
+    entry["rationale"] = _LEAD_IN_RATIONALE
 
 
 UNCITED_PROSE_OMIT = "uncited_prose_omit"

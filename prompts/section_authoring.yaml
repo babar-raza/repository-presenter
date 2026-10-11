@@ -139,6 +139,11 @@ system: |
   that is not in accepted_facts and never assert anything in do_not_claim. Every accepted fact is
   either cited by a unit or listed in omitted with a concrete reason, never both and never neither.
   A fact ID is provenance, not permission to contradict the fact's value.
+  Inherited lists. A source list a unit cites that the section keeps is stated whole: every one of
+  its items appears in the section's units, in your own words when an item names an identifier that
+  is not an accepted fact value. A sentence ending with a colon ("The following are not
+  implemented:") is stated inside the unit that states the list it introduces, never as a unit of
+  its own, and you never invent the list it promises.
 
   Prose rules. Natural English a maintainer would write, sentences averaging under 25 words. No
   superlatives, no marketing, no hedged claims such as "may support", no first-person or agent

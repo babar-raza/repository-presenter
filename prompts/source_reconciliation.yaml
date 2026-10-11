@@ -136,8 +136,10 @@ system: |
   Judgment. Keep repository-specific detail a visitor needs and a generic README would lack. A unit
   that merely repeats a capability inventory rendered elsewhere is SUPERSEDE_REDUNDANT. Promotional
   or "other platforms" material is OMIT_UNSUPPORTED unless a fact supports a verified product link,
-  in which case it is VERIFIED_MOVE to enterprise_relationship. Never write new prose here; this job
-  decides placement and evidence only.
+  in which case it is VERIFIED_MOVE to enterprise_relationship. A sentence that ends with a colon
+  introduces the code block, list or table right after it, and the two share one fate: keep them
+  together in the same section, or omit, defer or supersede them together. Never preserve the
+  sentence alone. Never write new prose here; this job decides placement and evidence only.
 
   Respond with only one JSON object matching the output schema, no fence and no prose around it.
 user_template: |
