@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import shutil
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -26,15 +27,18 @@ from repository_presenter.components.monitor.discovery import (
 from repository_presenter.components.monitor.drift import drift_document
 from repository_presenter.components.monitor.org_listing import UpstreamRepository
 from repository_presenter.core.registry.loader import load_registry
+from repository_presenter.core.registry.models import Registry
 from support import (
+    BEFORE_ADMISSION,
+    BEYOND_THE_REGISTRY,
+    GO_MCP,
     REPO_ROOT,
-    TODAYS_UNADMITTED,
-    TODAYS_UNREGISTERED,
+    UNREGISTERED_BEFORE_ADMISSION,
     FakeDefaultBranchReader,
     FakeOrganizationLister,
     mirror,
     monitor_registry_entry,
-    registry_without_todays_unadmitted,
+    registry_without,
     with_extra,
     write_registry_file,
 )
@@ -395,13 +399,37 @@ def real_registry_project(project: Path) -> Path:
     return project
 
 
-def _reality_evidence(path: Path) -> int:
-    """Today's reality as a standalone discovery document; returns the admitted count."""
-    registry = registry_without_todays_unadmitted(REPO_ROOT / "data" / "registry.json")
+def _pruned_project(project: Path, remove: Iterable[UpstreamRepository]) -> Path:
+    """A project whose registry is the real one minus ``remove``: the scenario is built from the
+    fixture, so it holds whatever the owner has admitted since."""
+    registry = registry_without(REPO_ROOT / "data" / "registry.json", remove)
+    write_registry_file(
+        project, [entry.model_dump(mode="json", exclude_none=True) for entry in registry.entries]
+    )
+    return project
+
+
+@pytest.fixture
+def before_admission_project(project: Path) -> Path:
+    """The 2026-10-11 finding: the registry does not list the JMAP family or the MCP server."""
+    return _pruned_project(project, BEFORE_ADMISSION)
+
+
+@pytest.fixture
+def current_project(project: Path) -> Path:
+    """Today: the family is admitted; only the MCP server and the profile repository are beyond
+    the registry."""
+    return _pruned_project(project, BEYOND_THE_REGISTRY)
+
+
+def _evidence(path: Path, project: Path, upstream_extra: Iterable[UpstreamRepository]) -> int:
+    """Discovery of ``project``'s registry plus ``upstream_extra``, as a standalone document;
+    returns the admitted count."""
+    registry: Registry = load_registry(project / "data" / "registry.json")
     report = discover(
         registry,
         load_exclusions(REPO_ROOT / EXCLUSIONS_RELATIVE_PATH),
-        lister=FakeOrganizationLister(with_extra(mirror(registry.entries), TODAYS_UNADMITTED)),
+        lister=FakeOrganizationLister(with_extra(mirror(registry.entries), upstream_extra)),
         token=TOKEN,
         observed_at="2026-10-11T12:00:00+00:00",
     )
@@ -426,12 +454,11 @@ def test_status_without_evidence_says_discovery_was_not_observed(
 
 
 def test_status_reports_the_unregistered_count_on_its_own_line_and_lists_them_with_verbose(
-    real_registry_project: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    before_admission_project: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     evidence = tmp_path / "gaps.json"
-    _reality_evidence(evidence)
-    admitted = len(load_registry(real_registry_project / "data" / "registry.json").entries)
-    argv = ["status", "--root", str(real_registry_project), "--discovery", str(evidence)]
+    admitted = _evidence(evidence, before_admission_project, BEFORE_ADMISSION)
+    argv = ["status", "--root", str(before_admission_project), "--discovery", str(evidence)]
 
     assert main(argv) == EXIT_OK
     plain = capsys.readouterr().out
@@ -442,7 +469,7 @@ def test_status_reports_the_unregistered_count_on_its_own_line_and_lists_them_wi
     registry_line = next(line for line in plain.splitlines() if line.startswith("registry:"))
     assert registry_line.startswith(expected + "9 unregistered in authorized organizations")
     assert "(list with --verbose)" in registry_line
-    for name in TODAYS_UNREGISTERED:
+    for name in UNREGISTERED_BEFORE_ADMISSION:
         assert name not in plain and name in verbose
     # The count line and the portfolio denominator are exactly what they were: discovery is its
     # own line, never a number in the denominator.
@@ -450,12 +477,36 @@ def test_status_reports_the_unregistered_count_on_its_own_line_and_lists_them_wi
     assert plain.index("canary:") < plain.index("registry:") < plain.index("portfolio:")
 
 
-def test_status_json_gains_a_registry_key_and_changes_nothing_else(
-    real_registry_project: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+def test_status_after_the_family_was_admitted_reports_one_unregistered_the_mcp_server(
+    current_project: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     evidence = tmp_path / "gaps.json"
-    admitted = _reality_evidence(evidence)
-    base = ["status", "--root", str(real_registry_project), "--json"]
+    admitted = _evidence(evidence, current_project, BEYOND_THE_REGISTRY)
+    argv = ["status", "--root", str(current_project), "--discovery", str(evidence), "-v"]
+
+    assert main(argv) == EXIT_OK
+
+    out = capsys.readouterr().out
+    registry_line = next(line for line in out.splitlines() if line.startswith("registry:"))
+    assert registry_line.startswith(
+        f"registry: {admitted} admitted; 1 unregistered in authorized organizations; "
+        "1 excluded by policy"
+    )
+    assert (
+        f"unregistered: {GO_MCP.full_name} (id {GO_MCP.repository_id}, Go, pushed 2026-07-03)"
+        in out
+    )
+    assert "excluded by policy: aspose-slides-foss/.github" in out
+    assert "JMAP" not in out
+    assert f"portfolio: {admitted} live registry entries" in out
+
+
+def test_status_json_gains_a_registry_key_and_changes_nothing_else(
+    current_project: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    evidence = tmp_path / "gaps.json"
+    admitted = _evidence(evidence, current_project, BEYOND_THE_REGISTRY)
+    base = ["status", "--root", str(current_project), "--json"]
 
     assert main(base) == EXIT_OK
     without = json.loads(capsys.readouterr().out)
@@ -463,19 +514,20 @@ def test_status_json_gains_a_registry_key_and_changes_nothing_else(
     observed = json.loads(capsys.readouterr().out)
 
     assert without["registry"]["discovery"] is None and without["registry"]["admitted"] == admitted
-    assert observed["registry"]["discovery"]["counts"]["UNREGISTERED"] == 9
+    assert observed["registry"]["discovery"]["counts"]["UNREGISTERED"] == 1
+    assert observed["registry"]["discovery"]["unregistered"][0]["repository"] == GO_MCP.full_name
     for key in ("candidates", "portfolio", "progress", "canary"):
         assert observed[key] == without[key]
     assert observed["portfolio"]["denominator"] == admitted
 
 
 def test_status_reads_discovery_from_the_drift_evidence_it_was_given(
-    real_registry_project: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    before_admission_project: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     evidence = tmp_path / "evidence"
     evidence.mkdir()
     standalone = tmp_path / "gaps.json"
-    _reality_evidence(standalone)
+    _evidence(standalone, before_admission_project, BEFORE_ADMISSION)
     section = json.loads(standalone.read_text("utf-8"))["discovery"]
     (evidence / "drift.json").write_text(
         json.dumps(
@@ -486,24 +538,24 @@ def test_status_reads_discovery_from_the_drift_evidence_it_was_given(
         encoding="utf-8",
     )
 
-    code = main(["status", "--root", str(real_registry_project), "--drift", str(evidence)])
+    code = main(["status", "--root", str(before_admission_project), "--drift", str(evidence)])
 
     assert code == EXIT_OK
     assert "9 unregistered in authorized organizations" in capsys.readouterr().out
 
 
 def test_status_picks_up_the_local_monitor_run_and_survives_its_being_unreadable(
-    real_registry_project: Path, capsys: pytest.CaptureFixture[str]
+    current_project: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    monitor = real_registry_project / "runs" / "monitor"
+    monitor = current_project / "runs" / "monitor"
     monitor.mkdir(parents=True)
-    _reality_evidence(monitor / "gaps.json")
+    _evidence(monitor / "gaps.json", current_project, BEYOND_THE_REGISTRY)
 
-    assert main(["status", "--root", str(real_registry_project)]) == EXIT_OK
-    assert "9 unregistered in authorized organizations" in capsys.readouterr().out
+    assert main(["status", "--root", str(current_project)]) == EXIT_OK
+    assert "1 unregistered in authorized organizations" in capsys.readouterr().out
 
     (monitor / "gaps.json").write_text("{nope", encoding="utf-8")
-    assert main(["status", "--root", str(real_registry_project)]) == EXIT_OK
+    assert main(["status", "--root", str(current_project)]) == EXIT_OK
     assert "monitor evidence unreadable" in capsys.readouterr().out
 
 

@@ -343,45 +343,54 @@ class FakeDefaultBranchReader:
 # records every organization it is asked for and the token it was given, and is the only seam, so a
 # test can prove what was listed and that nothing else was read.
 
-# What GitHub held on 2026-10-11 in the registry's organizations, beyond the 36 admitted entries:
-# the JMAP family (public, last pushed 2026-09-26), the PDF library's MCP server, and one
-# organization profile repository. Ids and flags are the ones GitHub reported.
-TODAYS_UNADMITTED: tuple[UpstreamRepository, ...] = (
-    *(
-        UpstreamRepository(
-            f"aspose-email-foss/Aspose.JMAP-FOSS-for-{platform}",
-            identity,
-            default_branch="main",
-            pushed_at="2026-09-26T20:04:00Z",
-            language=language,
-        )
-        for platform, identity, language in (
-            ("Python", 1389232730, "Python"),
-            ("Node.js", 1389232832, "JavaScript"),
-            ("TypeScript", 1389232963, "TypeScript"),
-            ("Go", 1389233108, "Go"),
-            ("Rust", 1389233264, "Rust"),
-            (".NET", 1389233379, "C#"),
-            ("Cpp", 1389233504, "C++"),
-            ("Java", 1389233642, "Java"),
-        )
-    ),
+# The ten repositories GitHub held on 2026-10-11 in the registry's organizations that the registry
+# did not list. Ids and flags are the ones GitHub reported.
+#
+# - JMAP_FAMILY: eight public repositories (last pushed 2026-09-26). The owner has since admitted
+#   them, so the live registry lists them; the tests that need "an unadmitted family" build it by
+#   REMOVING these entries from a registry fixture (``registry_without``), never by relying on what
+#   the live registry happens to hold.
+# - GO_MCP: the PDF library's MCP server (its name fails the registry naming contract, so it stays
+#   unregistered), and ORG_PROFILE: an organization profile repository (excluded by policy).
+JMAP_FAMILY: tuple[UpstreamRepository, ...] = tuple(
     UpstreamRepository(
-        "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go-MCP",
-        1287149459,
+        f"aspose-email-foss/Aspose.JMAP-FOSS-for-{platform}",
+        identity,
         default_branch="main",
-        pushed_at="2026-07-03T09:59:27Z",
-        language="Go",
-    ),
-    UpstreamRepository(
-        "aspose-slides-foss/.github",
-        1335892192,
-        default_branch="main",
-        pushed_at="2026-09-20T12:44:55Z",
-    ),
+        pushed_at="2026-09-26T20:04:00Z",
+        language=language,
+    )
+    for platform, identity, language in (
+        ("Python", 1389232730, "Python"),
+        ("Node.js", 1389232832, "JavaScript"),
+        ("TypeScript", 1389232963, "TypeScript"),
+        ("Go", 1389233108, "Go"),
+        ("Rust", 1389233264, "Rust"),
+        (".NET", 1389233379, "C#"),
+        ("Cpp", 1389233504, "C++"),
+        ("Java", 1389233642, "Java"),
+    )
 )
-TODAYS_UNREGISTERED = tuple(
-    repository.full_name for repository in TODAYS_UNADMITTED if repository.name != ".github"
+GO_MCP = UpstreamRepository(
+    "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go-MCP",
+    1287149459,
+    default_branch="main",
+    pushed_at="2026-07-03T09:59:27Z",
+    language="Go",
+)
+ORG_PROFILE = UpstreamRepository(
+    "aspose-slides-foss/.github",
+    1335892192,
+    default_branch="main",
+    pushed_at="2026-09-20T12:44:55Z",
+)
+# Beyond the admitted entries, now: the MCP server (UNREGISTERED) and the profile repository
+# (EXCLUDED_BY_POLICY).
+BEYOND_THE_REGISTRY: tuple[UpstreamRepository, ...] = (GO_MCP, ORG_PROFILE)
+# Before the JMAP family was admitted: the ten, nine of them candidates.
+BEFORE_ADMISSION: tuple[UpstreamRepository, ...] = (*JMAP_FAMILY, *BEYOND_THE_REGISTRY)
+UNREGISTERED_BEFORE_ADMISSION = tuple(
+    repository.full_name for repository in BEFORE_ADMISSION if repository.name != ".github"
 )
 
 
@@ -440,19 +449,18 @@ def with_extra(
     return merged
 
 
-def registry_without_todays_unadmitted(path: Path) -> Registry:
-    """The real registry minus any entry that already admits one of today's ten repositories.
+def registry_without(path: Path, repositories: Iterable[UpstreamRepository]) -> Registry:
+    """The registry at ``path`` minus any entry that admits one of ``repositories`` (by id).
 
-    The reality test stays true after the owner admits the JMAP family: those entries are removed
-    again here, so the ten always arrive as repositories the registry does not list.
+    Builds the "these are not admitted" scenario from the registry fixture itself, so a test about
+    unregistered repositories holds whatever the owner has admitted since.
     """
-    registry = load_registry(path)
-    unadmitted_ids = {repository.repository_id for repository in TODAYS_UNADMITTED}
+    removed = {repository.repository_id for repository in repositories}
     return Registry(
         entries=tuple(
             entry
-            for entry in registry.entries
-            if entry.provider_identity.repository_id not in unadmitted_ids
+            for entry in load_registry(path).entries
+            if entry.provider_identity.repository_id not in removed
         )
     )
 
