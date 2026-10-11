@@ -10,13 +10,18 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from repository_presenter.components.readme.evidence.facts.commands import (
     BUILD_COMMAND_FACT_ID,
     CI_MATRIX_FACT_ID,
     TEST_COMMAND_FACT_ID,
     ci_matrix_fact,
     command_facts,
+    command_form,
+    commands_in_text,
     matrix_axes,
+    release_workflow_fact,
 )
 from repository_presenter.core.facts import Fact
 
@@ -406,3 +411,573 @@ def test_a_release_workflow_matrix_and_an_expression_matrix_are_not_reported(
         {".github/workflows/publish.yml": release, ".github/workflows/ci.yml": expression},
     )
     assert ci_matrix_fact(clone, tree) is None
+
+
+# --- One job, one chain (L-cov3, independent reviews of 2026-10-11) ----------------------------
+# The fixtures are the real workflows of the two C++ repositories the reviewers found stitched:
+# Aspose.PDF-FOSS-for-Cpp (a release job's Debug build beside the package-consumer test's
+# `ctest --test-dir build-pkgtest`) and Aspose.Slides-FOSS-for-Cpp (the AddressSanitizer job's
+# `cmake --build build-asan` without the configure step that creates `build-asan`).
+
+
+def _fixture(name: str) -> str:
+    return (Path(__file__).parent / "fixtures" / name).read_text("utf-8")
+
+
+def _workflow(jobs: str) -> str:
+    return "name: CI\non: [push]\njobs:\n" + jobs
+
+
+def test_the_pdf_cpp_workflows_name_no_command_rather_than_a_pair_stitched_from_two_jobs(
+    tmp_path: Path,
+) -> None:
+    clone, tree = _clone(
+        tmp_path,
+        {
+            ".github/workflows/ci.yml": _fixture("pdf_cpp_ci.yml"),
+            ".github/workflows/release.yml": _fixture("pdf_cpp_release.yml"),
+            ".github/package-test/CMakeLists.txt": "",
+            "CMakeLists.txt": "",
+            "tests/CMakeLists.txt": "",
+        },
+    )
+    # ci.yml configures Linux and Windows in two conditional steps (no single configure to print);
+    # release.yml's Package job does the same, and its smoke test is a shell `if` over another
+    # source tree. The old pair was `cmake --build build --config Debug --target ...` from the
+    # Windows leg and `ctest --test-dir build-pkgtest ...` from the smoke test.
+    assert command_facts(clone, tree) == []
+
+
+def test_the_slides_cpp_workflows_name_no_sanitizer_command(tmp_path: Path) -> None:
+    clone, tree = _clone(
+        tmp_path,
+        {
+            ".github/workflows/ci.yml": _fixture("slides_cpp_ci.yml"),
+            ".github/workflows/nuget-release.yml": _fixture("slides_cpp_release.yml"),
+            "CMakeLists.txt": "",
+            "tests/CMakeLists.txt": "",
+        },
+    )
+    # The primary job configures through a shell variable (`$arch`), so its chain cannot be
+    # printed; the sanitizer job's `build-asan` and the minimum-CMake job's `build-floor` are
+    # variants a reader cannot reproduce from the plain commands.
+    assert command_facts(clone, tree) == []
+
+
+def _single_configure_pdf_cpp_ci() -> str:
+    """The real PDF-Cpp ci.yml with the Windows configure leg removed: one unconditional configure
+    for the build directory."""
+    text = _fixture("pdf_cpp_ci.yml")
+    leg = "      - name: Configure (Windows)\n        if: runner.os == 'Windows'\n"
+    leg += "        run: cmake -S . -B build\n\n"
+    assert leg in text
+    return text.replace(leg, "").replace("        if: runner.os == 'Linux'\n", "")
+
+
+def test_a_job_with_one_configure_names_its_chain_and_carries_the_configure_as_precondition(
+    tmp_path: Path,
+) -> None:
+    clone, tree = _clone(
+        tmp_path,
+        {
+            ".github/workflows/ci.yml": _single_configure_pdf_cpp_ci(),
+            ".github/workflows/release.yml": _fixture("pdf_cpp_release.yml"),
+            "tests/CMakeLists.txt": "",
+        },
+    )
+    facts = _by_id(command_facts(clone, tree))
+    configure = "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release"
+    build = facts[BUILD_COMMAND_FACT_ID]
+    test = facts[TEST_COMMAND_FACT_ID]
+    # `--config Release` and `-DCMAKE_BUILD_TYPE=Release` name a configuration, not a release.
+    assert build.value == "cmake --build build --config Release --parallel 4"
+    assert test.value == "ctest --test-dir build --build-config Release --output-on-failure"
+    assert build.attributes == {
+        "role": "build command",
+        "source": "ci workflow",
+        "precondition": configure,
+    }
+    assert (test.attributes or {})["precondition"] == configure
+    assert [(e.path, e.detail) for e in build.evidence] == [
+        (
+            ".github/workflows/ci.yml",
+            "build command; job build-and-test runs "
+            f"`cmake --build build --config Release --parallel 4`; after `{configure}`",
+        )
+    ]
+
+
+_CPP_PLAIN_AND_SANITIZER = r"""
+  asan:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: cmake -S . -B build-asan -DSANITIZE_ADDRESS=ON
+      - run: cmake --build build-asan --parallel 4
+      - run: ctest --test-dir build-asan --output-on-failure
+  main:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: cmake -S . -B build-main
+      - run: cmake --build build-main --parallel 4
+      - run: ctest --test-dir build-main --output-on-failure
+"""
+
+
+def test_the_plain_job_is_named_over_a_sanitizer_job_that_sorts_first(tmp_path: Path) -> None:
+    clone, tree = _clone(
+        tmp_path, {".github/workflows/ci.yml": _workflow(_CPP_PLAIN_AND_SANITIZER)}
+    )
+    facts = _by_id(command_facts(clone, tree))
+    assert facts[BUILD_COMMAND_FACT_ID].value == "cmake --build build-main --parallel 4"
+    assert facts[TEST_COMMAND_FACT_ID].value == "ctest --test-dir build-main --output-on-failure"
+    assert (facts[BUILD_COMMAND_FACT_ID].attributes or {})["precondition"] == (
+        "cmake -S . -B build-main"
+    )
+
+
+@pytest.mark.parametrize(
+    "job",
+    [
+        "sanitizer",
+        "asan",
+        "ubsan",
+        "valgrind",
+        "coverage",
+        "benchmarks",
+        "docs",
+        "package-test",
+        "pkgtest",
+        "smoke-test",
+        "consumer",
+        "nuget-pack",
+        "cmake-floor",
+        "minimum",
+        "reproducible",
+        "release",
+        "publish",
+        "package",
+    ],
+)
+def test_a_side_job_names_no_command_in_a_workflow_that_is_not_a_release_workflow(
+    tmp_path: Path, job: str
+) -> None:
+    jobs = f"  {job}:\n    runs-on: ubuntu-latest\n    steps:\n      - run: pytest -q\n"
+    clone, tree = _clone(tmp_path, {".github/workflows/ci.yml": _workflow(jobs)})
+    assert command_facts(clone, tree) == []
+
+
+def test_a_job_named_by_its_function_is_still_read(tmp_path: Path) -> None:
+    # `packaging` (Aspose.Email-FOSS-for-Python) and `tests` are jobs, not side jobs.
+    jobs = (
+        "  packaging:\n    steps:\n      - run: python -m build\n"
+        "  tests:\n    steps:\n      - run: pytest -q\n"
+    )
+    clone, tree = _clone(tmp_path, {".github/workflows/ci.yml": _workflow(jobs)})
+    facts = _by_id(command_facts(clone, tree))
+    assert facts[BUILD_COMMAND_FACT_ID].value == "python -m build"
+    assert facts[TEST_COMMAND_FACT_ID].value == "pytest -q"
+
+
+def test_a_step_named_for_the_package_is_still_read_but_a_smoke_test_step_is_not(
+    tmp_path: Path,
+) -> None:
+    jobs = (
+        "  j:\n    steps:\n"
+        "      - name: Build the package\n        run: cargo build\n"
+        "      - name: Smoke-test the built package\n        run: cargo test --test smoke\n"
+    )
+    clone, tree = _clone(tmp_path, {".github/workflows/ci.yml": _workflow(jobs)})
+    facts = _by_id(command_facts(clone, tree))
+    assert facts[BUILD_COMMAND_FACT_ID].value == "cargo build"
+    assert TEST_COMMAND_FACT_ID not in facts
+
+
+def test_a_release_workflows_own_job_is_still_the_last_resort(tmp_path: Path) -> None:
+    jobs = "  publish:\n    steps:\n      - run: python -m build\n      - run: pytest -q\n"
+    clone, tree = _clone(tmp_path, {".github/workflows/publish.yml": _workflow(jobs)})
+    facts = _by_id(command_facts(clone, tree))
+    assert facts[BUILD_COMMAND_FACT_ID].value == "python -m build"
+    assert facts[TEST_COMMAND_FACT_ID].value == "pytest -q"
+
+
+def test_python_m_build_carries_the_tool_it_needs_as_a_precondition(tmp_path: Path) -> None:
+    # 3D-Python, Note-Python: `python -m build` fails on a clean venv without `pip install build`.
+    clone, tree = _clone(tmp_path, {".github/workflows/ci.yml": EMAIL_PYTHON_CI})
+    build = _by_id(command_facts(clone, tree))[BUILD_COMMAND_FACT_ID]
+    assert build.value == "python -m build"
+    assert build.attributes == {
+        "role": "build command",
+        "source": "ci workflow",
+        "precondition": "pip install build",
+    }
+    assert build.evidence[0].detail == (
+        "build command; job packaging runs `python -m build`; after `pip install build`"
+    )
+
+
+@pytest.mark.parametrize(
+    ("steps", "expected"),
+    [
+        # `ctest` in a directory no earlier step of the job configured.
+        ("      - run: cmake --build build\n      - run: ctest --test-dir build\n", None),
+        # a bare `ctest` works in a directory nothing says: the build stays, the test is not named.
+        (
+            "      - run: cmake -S . -B build\n      - run: cmake --build build\n"
+            "      - run: ctest\n",
+            "cmake --build build",
+        ),
+        # the configure comes after the build.
+        ("      - run: cmake --build build\n      - run: cmake -S . -B build\n", None),
+        # the configure is for another source tree.
+        (
+            "      - run: cmake -S sub -B build\n      - run: cmake --build build\n",
+            None,
+        ),
+        # a conditional configure is not every reader's.
+        (
+            "      - if: runner.os == 'Linux'\n        run: cmake -S . -B build\n"
+            "      - run: cmake --build build\n",
+            None,
+        ),
+        # two configures that differ.
+        (
+            "      - run: cmake -S . -B build\n      - run: cmake -S . -B build -DX=1\n"
+            "      - run: cmake --build build\n",
+            None,
+        ),
+        # an unprintable configure (a shell variable, a continuation).
+        (
+            "      - run: cmake -S . -B build $arch\n      - run: cmake --build build\n",
+            None,
+        ),
+        (
+            "      - run: |\n          cmake -S . -B build \\\n            -DX=1\n"
+            "      - run: cmake --build build\n",
+            None,
+        ),
+        # steps in another directory.
+        (
+            "      - working-directory: sub\n        run: cmake -S . -B build\n"
+            "      - working-directory: sub\n        run: cmake --build build\n",
+            None,
+        ),
+        # shell control flow runs the commands conditionally.
+        (
+            "      - run: |\n          if [ -d build ]; then\n            cmake --build build\n"
+            "          fi\n",
+            None,
+        ),
+        # a decidable chain.
+        (
+            "      - run: cmake -S . -B build\n      - run: cmake --build build\n",
+            "cmake --build build",
+        ),
+    ],
+)
+def test_a_build_directory_command_needs_one_printable_configure_earlier_in_its_job(
+    tmp_path: Path, steps: str, expected: str | None
+) -> None:
+    jobs = f"  build:\n    runs-on: ubuntu-latest\n    steps:\n{steps}"
+    clone, tree = _clone(tmp_path, {".github/workflows/ci.yml": _workflow(jobs)})
+    facts = _by_id(command_facts(clone, tree))
+    assert (facts[BUILD_COMMAND_FACT_ID].value if BUILD_COMMAND_FACT_ID in facts else None) == (
+        expected
+    )
+    assert TEST_COMMAND_FACT_ID not in facts
+
+
+def test_a_test_in_a_build_directory_is_named_only_beside_the_build_of_its_own_job(
+    tmp_path: Path,
+) -> None:
+    jobs = (
+        "  main:\n    steps:\n      - run: cmake -S . -B build\n"
+        "      - run: cmake --build build\n"
+        "  other:\n    steps:\n      - run: cmake -S . -B other\n"
+        "      - run: ctest --test-dir other\n"
+    )
+    clone, tree = _clone(tmp_path, {".github/workflows/ci.yml": _workflow(jobs)})
+    facts = _by_id(command_facts(clone, tree))
+    assert facts[BUILD_COMMAND_FACT_ID].value == "cmake --build build"
+    assert TEST_COMMAND_FACT_ID not in facts
+
+
+def test_a_test_that_works_in_no_build_directory_is_named_beside_a_directory_build(
+    tmp_path: Path,
+) -> None:
+    jobs = (
+        "  main:\n    steps:\n      - run: cmake -S . -B build\n"
+        "      - run: cmake --build build\n      - run: pytest -q\n"
+    )
+    clone, tree = _clone(tmp_path, {".github/workflows/ci.yml": _workflow(jobs)})
+    facts = _by_id(command_facts(clone, tree))
+    assert facts[TEST_COMMAND_FACT_ID].value == "pytest -q"
+
+
+@pytest.mark.parametrize(
+    ("package", "expected"),
+    [
+        (None, None),
+        ({"scripts": {"test": "vitest run"}}, None),
+        ({"scripts": {"build": "tsc", "test": "vitest run"}}, "npm run build"),
+        ({"scripts": {"build": "tsc"}}, "npm run build"),
+    ],
+)
+def test_an_npm_run_command_names_a_script_the_package_defines(
+    tmp_path: Path, package: dict[str, object] | None, expected: str | None
+) -> None:
+    files = {
+        ".github/workflows/ci.yml": _workflow("  j:\n    steps:\n      - run: npm run build\n")
+    }
+    if package is not None:
+        files["package.json"] = json.dumps(package)
+    clone, tree = _clone(tmp_path, files)
+    facts = _by_id(command_facts(clone, tree))
+    assert (facts[BUILD_COMMAND_FACT_ID].value if BUILD_COMMAND_FACT_ID in facts else None) == (
+        expected
+    )
+
+
+def test_npm_test_from_ci_needs_a_test_script(tmp_path: Path) -> None:
+    workflow = _workflow("  j:\n    steps:\n      - run: npm test\n")
+    clone, tree = _clone(tmp_path, {".github/workflows/ci.yml": workflow})
+    assert command_facts(clone, tree) == []
+    placeholder = tmp_path / "placeholder"
+    package = {"scripts": {"test": 'echo "Error: no test specified" && exit 1'}}
+    clone, tree = _clone(
+        placeholder, {".github/workflows/ci.yml": workflow, "package.json": json.dumps(package)}
+    )
+    assert command_facts(clone, tree) == []
+
+
+# --- The release workflow --------------------------------------------------------------------
+
+
+def _release_of(tmp_path: Path, files: dict[str, str]) -> Fact | None:
+    clone, tree = _clone(tmp_path, files)
+    return release_workflow_fact(clone, tree)
+
+
+# acc-corr2-set2: the ci.yml of the eight JMAP repositories is a secret scan and a test run.
+JMAP_CI = """\
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gitleaks/gitleaks-action@v2
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo test --all-targets
+      - uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: target/
+"""
+# acc-corr2-set2: PDF-Go's lint.yml is golangci-lint; its releases are manual.
+PDF_GO_LINT = """\
+name: lint
+on: [push, pull_request]
+jobs:
+  golangci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: golangci/golangci-lint-action@v6
+"""
+
+
+@pytest.mark.parametrize(
+    "files",
+    [
+        {".github/workflows/ci.yml": JMAP_CI},
+        {".github/workflows/lint.yml": PDF_GO_LINT},
+        {".github/workflows/ci.yml": JMAP_CI, ".github/workflows/lint.yml": PDF_GO_LINT},
+        # a file name that says release proves nothing
+        {".github/workflows/release-notes.yml": PDF_GO_LINT},
+        {".github/workflows/release.yml": _workflow("  j:\n    steps:\n      - run: echo hi\n")},
+    ],
+)
+def test_no_workflow_with_no_releasing_step_is_a_release_workflow(
+    tmp_path: Path, files: dict[str, str]
+) -> None:
+    assert _release_of(tmp_path, files) is None
+
+
+@pytest.mark.parametrize(
+    "step",
+    [
+        "uses: pypa/gh-action-pypi-publish@release/v1",
+        "uses: softprops/action-gh-release@v2",
+        "uses: goreleaser/goreleaser-action@v6",
+        "run: python -m twine upload dist/*",
+        "run: npm publish --access public",
+        "run: yarn publish",
+        "run: cargo publish",
+        "run: dotnet nuget push pkg.nupkg --source nuget.org",
+        "run: mvn -B deploy",
+        "run: ./gradlew publish",
+        "run: gh release create v1 dist/*",
+        "run: gh release upload v1 dist/*",
+        "run: poetry publish",
+    ],
+)
+def test_a_step_that_publishes_or_releases_makes_its_workflow_the_release_workflow(
+    tmp_path: Path, step: str
+) -> None:
+    jobs = f"  j:\n    steps:\n      - {step}\n"
+    fact = _release_of(tmp_path, {".github/workflows/deliver.yml": _workflow(jobs)})
+    assert fact is not None
+    assert (fact.id, fact.kind, fact.value, fact.polarity) == (
+        "build_test_asset:release-workflow",
+        "build_test_asset",
+        ".github/workflows/deliver.yml",
+        "SUPPORTED",
+    )
+    assert fact.evidence[0].path == ".github/workflows/deliver.yml"
+    assert (fact.evidence[0].detail or "").startswith("release step; job j ")
+
+
+@pytest.mark.parametrize(
+    "step",
+    [
+        "run: python -m twine check --strict dist/*",
+        "run: python -m twine upload --repository testpypi dist/*",
+        "run: npm publish --dry-run",
+        "run: cargo publish --dry-run",
+        "run: ./gradlew publishToMavenLocal",
+        "run: gh release view v1",
+        "run: |\n          # npm publish\n          echo npm publish to registry\n"
+        "          printf cargo-publish",
+        "uses: actions/upload-artifact@v4",
+        "uses: actions/checkout@v4",
+        "uses: pypa/gh-action-pypi-publish@release/v1\n        with:\n          repository-url: https://test.pypi.org/legacy/",
+    ],
+)
+def test_a_rehearsal_or_an_artifact_upload_is_not_a_release(tmp_path: Path, step: str) -> None:
+    jobs = f"  j:\n    steps:\n      - {step}\n"
+    assert _release_of(tmp_path, {".github/workflows/deliver.yml": _workflow(jobs)}) is None
+
+
+def test_the_workflow_named_publish_or_release_is_preferred_and_the_choice_is_deterministic(
+    tmp_path: Path,
+) -> None:
+    publishing = "  publish:\n    steps:\n      - run: npm publish\n"
+    files = {
+        ".github/workflows/a-ci.yml": _workflow(publishing),
+        ".github/workflows/release.yml": _workflow(publishing),
+        ".github/workflows/z-publish.yml": _workflow(publishing),
+    }
+    fact = _release_of(tmp_path, files)
+    assert fact is not None and fact.value == ".github/workflows/release.yml"
+    assert fact == _release_of(tmp_path, files)
+
+
+def test_the_cpp_release_workflows_are_found_by_their_releasing_steps(tmp_path: Path) -> None:
+    pdf = _release_of(
+        tmp_path / "pdf", {".github/workflows/release.yml": _fixture("pdf_cpp_release.yml")}
+    )
+    assert pdf is not None
+    assert pdf.evidence[0].detail == "release step; job release runs gh release"
+    slides = _release_of(
+        tmp_path / "slides",
+        {
+            ".github/workflows/ci.yml": _fixture("slides_cpp_ci.yml"),
+            ".github/workflows/nuget-release.yml": _fixture("slides_cpp_release.yml"),
+        },
+    )
+    assert slides is not None
+    assert (slides.value, slides.evidence[0].detail) == (
+        ".github/workflows/nuget-release.yml",
+        "release step; job publish runs nuget push",
+    )
+
+
+# --- Equivalent commands ---------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("shown", "wanted"),
+    [
+        ("pytest", "python -m pytest -q"),
+        ("python -m pytest -q", "pytest"),
+        ("pytest tests/", "pytest"),
+        ("uv run pytest", "pytest"),
+        ("mvn clean package -DskipTests", "mvn package"),
+        ("./mvnw -B clean package", "mvn package"),
+        ("mvn   test", "mvn test"),
+        ("$ mvn test", "mvn test"),
+        ("npm run test", "npm test"),
+        ("yarn test", "npm test"),
+        ("dotnet build src/App/App.csproj", "dotnet build App.sln"),
+        ("dotnet test App.sln --no-build", "dotnet test"),
+        ("cargo build --release", "cargo build"),
+        ("go test -v ./...", "go test ./..."),
+        ("cmake --build build --config Release", "cmake --build build --parallel 4"),
+        ("cmake -S . -B build -DCMAKE_BUILD_TYPE=Release", "cmake -S . -B build"),
+        ("ctest --test-dir build -j4", "ctest --test-dir build --output-on-failure"),
+        ("pip install build", "python -m pip install build"),
+        ("CI=1 npm test", "npm test"),
+        ("make test", "make test"),
+        ("gradlew build", "./gradlew build"),
+    ],
+)
+def test_a_shown_command_covers_the_equivalent_wanted_one(shown: str, wanted: str) -> None:
+    have, want = command_form(shown), command_form(wanted)
+    assert have is not None and want is not None
+    assert have.covers(want), (have, want)
+
+
+@pytest.mark.parametrize(
+    ("shown", "wanted"),
+    [
+        ("mvn test", "mvn package"),
+        ("mvn package", "mvn test"),
+        ("make", "make test"),
+        ("make test", "make"),
+        ("go test ./internal/...", "go test ./..."),
+        ("pytest", "pip install pytest"),
+        ("pip install pytest", "pytest"),
+        ("npm test", "npm run build"),
+        ("cargo test", "cargo build"),
+        ("cmake --build build", "cmake -S . -B build"),
+        ("cmake -S . -B build", "cmake --build build"),
+        ("cmake --build build", "cmake --build other"),
+        ("ctest --test-dir build", "cmake --build build"),
+        ("dotnet build", "dotnet test"),
+        ("pytest -k slow", "pytest"),
+        ("python script.py", "python -m pytest"),
+    ],
+)
+def test_a_shown_command_does_not_cover_a_different_wanted_one(shown: str, wanted: str) -> None:
+    have, want = command_form(shown), command_form(wanted)
+    assert have is not None and want is not None
+    assert not have.covers(want), (have, want)
+
+
+def test_commands_are_read_from_fences_indented_blocks_prompts_and_inline_code() -> None:
+    text = (
+        "Run `mvn test` first, then `pytest -q`.\n\n"
+        "```bash\n# build it\nmake build  # all targets\ncd x && cmake --build build\n```\n\n"
+        "~~~console\n$ npm run build\n~~~\n\n"
+        "    cargo test\n\n"
+        "$ go test ./...\n\n"
+        "Plain prose about npm and mvn is not a command.\n"
+    )
+    programs = [(f.program, tuple(sorted(f.verbs))) for f in commands_in_text(text)]
+    assert programs == [
+        ("mvn", ("test",)),
+        ("pytest", ()),
+        ("make", ("build",)),
+        ("cd", ("x",)),
+        ("cmake", ("--build",)),
+        ("npm", ("build",)),
+        ("cargo", ("test",)),
+        ("go", ("test",)),
+    ]

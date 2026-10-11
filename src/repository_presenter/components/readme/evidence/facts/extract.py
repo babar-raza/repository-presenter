@@ -14,6 +14,7 @@ from repository_presenter.components.readme.evidence.facts.assets import (
 from repository_presenter.components.readme.evidence.facts.commands import (
     ci_matrix_fact,
     command_facts,
+    release_workflow_fact,
 )
 from repository_presenter.components.readme.evidence.facts.formats import format_facts
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
@@ -414,6 +415,10 @@ def extract_facts(
     matrix = ci_matrix_fact(clone_path, tree_paths)
     if matrix is not None:
         facts.append(matrix)
+    # A release sentence needs a workflow whose own step releases something, never a file name.
+    release_workflow = release_workflow_fact(clone_path, tree_paths)
+    if release_workflow is not None:
+        facts.append(release_workflow)
     # plans/idea.md: a build-status badge only for a real workflow in the clone.
     ci_badge = ci_badge_fact(entry.repository, clone_path, tree_paths)
     if ci_badge is not None:
