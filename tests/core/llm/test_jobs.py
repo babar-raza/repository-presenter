@@ -147,7 +147,7 @@ def test_messages_render_the_packet_and_the_payload_follows_the_sampling_contrac
     assert '"id": "identity:repository"' in user
     payload = request_payload(MANIFEST, messages)
     assert payload["model"] == "qwen3-next" and payload["temperature"] == 0.0
-    assert payload["max_tokens"] == 3000
+    assert payload["max_tokens"] == MANIFEST.manifest.sampling.max_output_tokens
     assert payload["response_format"] == {
         "type": "json_schema",
         "json_schema": {
@@ -632,7 +632,10 @@ def test_a_truncated_reply_fails_fast_naming_the_budget(
 ) -> None:
     gateway = _Gateway(monkeypatch, _completion('{"product_summary": {', finish_reason="length"))
     ledger = Ledger(tmp_path / "calls.jsonl")
-    with pytest.raises(JobError, match=r"truncated at the manifest's max_output_tokens \(3000\)"):
+    budget = MANIFEST.manifest.sampling.max_output_tokens
+    with pytest.raises(
+        JobError, match=rf"truncated at the manifest's max_output_tokens \({budget}\)"
+    ):
         run_job(
             MANIFEST,
             PACKET,

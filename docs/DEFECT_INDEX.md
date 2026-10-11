@@ -126,6 +126,33 @@ characters-per-token floor (`output_chars_bound`). A truncated reply is kept bes
 evidence next time. Status: fixed on the branch; closes when the live proof on sighting 3 reaches
 past S4.
 
+### `llm_jobs.truncated_at_budget_field_left_unbounded`
+
+A model job stops with `output truncated at the manifest's max_output_tokens` (`core/llm/jobs.py`
+fails closed on `finish_reason length`, no re-ask) because the schema it is decoded under leaves a
+field open: a list with no `maxItems`, a string with no `maxLength`, or an array whose floor forbids
+closing. Same family as `s4_reconciliation.output_runaway_past_budget`, which fixed one field of one
+job; the baseline reseal (cut `7c5acbf7`, 36 repositories) found the same class in three more
+places, each with its own retained `*.rejected-N.json`:
+
+| # | Repository | Job | Cause read from the retained reply |
+|---|---|---|---|
+| 1 | `aspose-font-foss/Aspose.Font-FOSS-for-Python` | `repository_investigation`, 3,000 tokens | Not a repetition: a legitimately wide API surface (13,074 characters, still inside `limitations`); no string or `uncertainties` bound, so no derivable budget. The largest sealed reply was 2,563 tokens |
+| 2 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` | `section_authoring`, 8,000 tokens | The `hub:public_symbol:workbookmodel` unit's `fact_ids` repeated the slot's four facts 212 times; the slot enum bounds what an entry is, not how many |
+| 3 | `aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET` | `source_reconciliation`, 32,000 tokens | A re-ask answered 18 of the batch's 20 units and then emitted whitespace for 45,845 characters: `minItems` equal to the batch size left no way to close the array |
+
+Fix (TC-EXT-01 / G3-W08 cut 2): S3 strings and `uncertainties` bounded in the manifest and the budget
+raised to 10,500 tokens, derived from `dossier.output_chars_bound` at 4.0 characters per token and
+held by a test; section_authoring citations capped at each slot's own citable set
+(`composition/output_bounds.py`, also for the coherence call) and `omitted` at the distinct facts;
+S4 batch `minItems` dropped so a short reply closes and the unit binding names the missing units,
+and the re-ask asks for the complete object. Prompts touched: `repository_investigation` (v3),
+`source_reconciliation` (v9). No governed version moves: a decoder bound changes no judgment, and a
+stored output is re-judged under the manifest's static schema. Status: fixed on the branch; closes
+when a live run on the three repositories reaches past the stage that truncated. Not covered:
+`section_authoring` units whose `text` is at its 2,200-character bound across many slots (the sum
+is not derived from the budget), and the same floor on `authoring_schema`'s per-slot `minItems`.
+
 ### `readme.oversized_inherited_list_bundles_many_claims_into_one_disposition`
 
 A plain top-level list (no RC-06 member-reference shape) that bundles dozens of unrelated

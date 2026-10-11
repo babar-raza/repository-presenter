@@ -306,7 +306,6 @@ def test_the_request_hash_changes_with_the_model_named_and_not_for_the_route() -
 def test_the_route_payload_is_unchanged_and_names_the_route() -> None:
     messages = render_messages(MANIFEST, PACKET)
     sampling = MANIFEST.manifest.sampling
-    assert sampling.max_output_tokens == 3000
     expected = {
         "model": PRIMARY,
         "messages": messages,
@@ -331,8 +330,9 @@ def test_a_route_run_sends_and_records_the_manifest_budget(
 ) -> None:
     gateway = FakeGateway(monkeypatch, up={PRIMARY})
     _, ledger, _ = _run(tmp_path, select_models(CONFIG, [PRIMARY]))
-    assert gateway.content_bodies[0]["max_tokens"] == 3000
-    assert ledger.records()[0].max_tokens == 3000
+    budget = MANIFEST.manifest.sampling.max_output_tokens
+    assert gateway.content_bodies[0]["max_tokens"] == budget
+    assert ledger.records()[0].max_tokens == budget
     assert ledger.records()[0].effective_model == PRIMARY
 
 

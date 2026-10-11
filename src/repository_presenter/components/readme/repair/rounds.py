@@ -44,6 +44,9 @@ from repository_presenter.components.readme.composition.coherence import (
     recover_coherence_regressions,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
+from repository_presenter.components.readme.composition.output_bounds import (
+    bound_authoring_citations,
+)
 from repository_presenter.components.readme.composition.placement import placed_texts, placements
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
@@ -409,7 +412,7 @@ def run_round(tx: TransactionInputs) -> Round:
     tasks = authoring_tasks(entry, facts, investigation.output, dispositions, planned.output)
     authored: dict[str, JobResult] = {}
     for task in tasks:
-        call_schema = authoring_schema(loaded, task)
+        call_schema = bound_authoring_citations(authoring_schema(loaded, task), task)
         # G5-W02 (27.2 RC4): a fresh clone of an already-sealed revision has nothing in its own
         # runs/ to reuse, but the sealed bundle's own content_units.json may already answer this
         # exact task - seed the store at the hash this call would use before making it.

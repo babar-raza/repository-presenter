@@ -15,6 +15,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     reconciliation_schema,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm.binding import binding_errors
 from repository_presenter.core.llm.prompts import load_manifests
 from support import REPO_ROOT
 
@@ -467,7 +468,8 @@ def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
     schema = reconciliation_schema(loaded, batch, FACTS, {})
     units = [fact.id for fact in FACTS.by_kind("inherited_unit")]
     dispositions = schema["properties"]["dispositions"]
-    assert dispositions["minItems"] == dispositions["maxItems"] == len(units)
+    assert dispositions["maxItems"] == len(units)
+    assert dispositions["minItems"] == 1  # the manifest's floor; a batch-sized one cannot close
     assert dispositions["items"]["properties"]["unit_id"] == {"type": "string", "enum": units}
     assert "maxItems" not in loaded.manifest.output.schema_["properties"]["dispositions"]
 
@@ -487,7 +489,13 @@ def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
         for error in validator.iter_errors({"dispositions": [entry(u) for u in invented]})
     ] == [f"$.dispositions[{len(units) - 1}].unit_id"]
     short = {"dispositions": [entry(u) for u in units[:-1]]}
-    assert [error.json_path for error in validator.iter_errors(short)] == ["$.dispositions"]
+    # A short reply must be able to close (a floor at the batch size left whitespace as the only
+    # continuation: Imaging-.NET, test_output_budget.py); the unit binding refuses it by name.
+    assert list(validator.iter_errors(short)) == []
+    assert any(
+        "no disposition for inherited units" in error
+        for error in binding_errors(short, FACTS, "unit_ids")
+    )
     assert list(validator.iter_errors({"dispositions": [entry(u) for u in units]})) == []
 
 
@@ -524,7 +532,8 @@ def test_each_batchs_own_schema_is_bounded_to_its_own_units_not_the_repositorys_
         for _, batch_units in batches:
             schema = reconciliation_schema(loaded, batch_units, facts, {})
             dispositions = schema["properties"]["dispositions"]
-            assert dispositions["maxItems"] == dispositions["minItems"] == len(batch_units)
+            assert dispositions["maxItems"] == len(batch_units)
+            assert dispositions["minItems"] == 1
             assert dispositions["maxItems"] <= 40
             assert dispositions["items"]["properties"]["unit_id"]["enum"] == [
                 fact.id for fact in batch_units
