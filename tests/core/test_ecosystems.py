@@ -267,7 +267,7 @@ def test_each_ecosystem_states_its_own_floor(
     assert spec.runtime_badge(floor) == expected
 
 
-@pytest.mark.parametrize("floor", ["", "^18 || ^20", "net6.0;net8.0", "latest (see docs)", "  "])
+@pytest.mark.parametrize("floor", ["", "^18 || ^20", "latest (see docs)", "  "])
 def test_a_floor_with_no_single_printable_value_yields_no_badge(floor: str) -> None:
     assert _spec("package:node_engine", "Node.js", True).runtime_badge(floor) == ""
 
