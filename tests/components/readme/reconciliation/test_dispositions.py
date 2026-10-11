@@ -26,6 +26,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     reconcile_checks,
     reconciliation_batch_facts,
     reconciliation_batches,
+    reconciliation_narrowing,
     reconciliation_packet,
     reconciliation_schema,
     recover_uncited_prose_omits,
@@ -1590,11 +1591,14 @@ def _run_s4_psd(
     *replies: httpx.Response,
     facts: FactsDocument | None = None,
     undecodable: tuple[str, ...] = (),
+    narrow: bool = False,
+    seen: list[dict[str, object]] | None = None,
 ) -> JobResult:
     """The production S4 call, with the recover= rounds.py passes. ``undecodable`` names IDs the
     batch's decoder enum does not offer (a record the packet's cap left out), as the live
-    reconciliation_packet does for a long README."""
-    seen: list[dict[str, object]] = []
+    reconciliation_packet does for a long README. ``narrow`` wires the narrowed ask as rounds.py
+    does; ``seen`` collects every request body."""
+    seen = [] if seen is None else seen
 
     def handler(request: httpx.Request) -> httpx.Response:
         seen.append(json.loads(request.content))
@@ -1620,6 +1624,7 @@ def _run_s4_psd(
             citable=frozenset(citable_fact_ids(facts, loaded.manifest, units, {}))
             - set(undecodable),
         ),
+        narrow=reconciliation_narrowing(ENTRY, facts, {}, loaded, units) if narrow else None,
     )
 
 
@@ -1936,3 +1941,160 @@ def test_a_re_ask_silent_on_a_unit_the_first_reply_also_left_out_is_still_refuse
     with pytest.raises(JobError) as caught:
         _run_s4_psd(tmp_path, monkeypatch, _reply(first), _reply(fixed))
     assert "no disposition for inherited units: inherited_unit:005.paragraph" in str(caught.value)
+
+
+def _units_of(reply: dict[str, object], *ids: str) -> dict[str, object]:
+    """``reply`` narrowed to the dispositions of the units whose ID starts with one of ``ids``."""
+    return {
+        "dispositions": [
+            e
+            for e in reply["dispositions"]  # type: ignore[attr-defined]
+            if any(e["unit_id"].split(":")[1].startswith(prefix) for prefix in ids)
+        ]
+    }
+
+
+_ALL_UNITS = ("001.", "002.", "003.", "004.", "005.", "006.", "018.")
+_REWRITE = {
+    "disposition": "VERIFIED_REWRITE",
+    "destination_section": "opening",
+    "fact_ids": ["identity:repository"],
+    "rationale": "because",
+}
+
+
+def test_units_both_replies_are_silent_on_get_one_narrowed_ask_and_the_job_is_accepted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """BarCode-Python, cut-2 wave 2026-10-11: a batch's first reply stopped short, its re-ask
+    stopped a little later, and the repository failed "output rejected twice ... no disposition
+    for inherited units: 057.paragraph, 058.heading, 059.paragraph". The units neither reply
+    answered are now asked about once more, alone, and the merged reply is judged as any other."""
+    full = _psd_reply(_REWRITE)
+    first = _units_of(full, *_ALL_UNITS[:4])  # 001-004
+    second = _units_of(full, *_ALL_UNITS[:5])  # 001-005
+    third = _units_of(full, "006.", "018.")
+    seen: list[dict[str, object]] = []
+    result = _run_s4_psd(
+        tmp_path,
+        monkeypatch,
+        _reply(first),
+        _reply(second),
+        _reply(third),
+        narrow=True,
+        seen=seen,
+    )
+    assert result.attempts == result.provider_calls == 3
+    assert {e["unit_id"] for e in result.output["dispositions"]} == {
+        fact.id for fact in _psd_facts().by_kind("inherited_unit")
+    }
+    # The third request is a fresh, narrowed one: only the silent units, in its packet and schema.
+    asked = seen[2]
+    assert [m["role"] for m in asked["messages"]] == ["system", "user"]  # type: ignore[attr-defined]
+    user = asked["messages"][1]["content"]  # type: ignore[index]
+    assert "inherited_unit:006.html_block" in user and "inherited_unit:018.paragraph" in user
+    assert "inherited_unit:003.code_block" not in user
+    shape = asked["response_format"]["json_schema"]["schema"]["properties"]["dispositions"]  # type: ignore[index]
+    assert shape["items"]["properties"]["unit_id"]["enum"] == [
+        "inherited_unit:006.html_block",
+        "inherited_unit:018.paragraph",
+    ]
+    assert shape["maxItems"] == 2
+    # Every call is in the ledger under the one logical call; the third is attempt 3, a re-ask.
+    records = [
+        json.loads(line)
+        for line in (tmp_path / "calls.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    calls = [
+        r for r in records if r["disposition"] == "provider_call" and r["outcome"] == "success"
+    ]
+    assert [r["attempt"] for r in calls] == [1, 2, 3]
+    assert {r["logical_call_id"] for r in calls} == {result.request_sha256}
+    assert calls[2]["request_sha256"] != result.request_sha256
+    assert calls[2]["derived_via_reask"] is True
+    # The accepted output is stored under the logical request: the same request later is free.
+    mock_gateway(monkeypatch, lambda request: pytest.fail("a stored output made a provider call"))
+    again = _run_s4_psd(tmp_path, monkeypatch, narrow=True)
+    assert again.cache_reused and again.provider_calls == 0
+    assert again.output == result.output
+
+
+def test_a_unit_still_silent_after_the_narrowed_ask_fails_the_job_naming_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Negative control: no unit is accepted without a disposition."""
+    full = _psd_reply(_REWRITE)
+    with pytest.raises(JobError) as caught:
+        _run_s4_psd(
+            tmp_path,
+            monkeypatch,
+            _reply(_units_of(full, *_ALL_UNITS[:4])),
+            _reply(_units_of(full, *_ALL_UNITS[:5])),
+            _reply(_units_of(full, "006.")),  # 018 stays silent
+            narrow=True,
+        )
+    message = str(caught.value)
+    assert "no disposition for inherited units: inherited_unit:018.paragraph" in message
+    assert "narrowed ask" in message
+    kept = sorted(path.name.split(".", 1)[1] for path in (tmp_path / "calls").iterdir())
+    assert kept == ["rejected-1.json", "rejected-2.json", "rejected-3.json"]
+
+
+def test_without_a_narrowing_the_second_silence_still_fails_after_two_asks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The narrowed ask is opt-in: a caller that passes no ``narrow`` is unchanged."""
+    full = _psd_reply(_REWRITE)
+    seen: list[dict[str, object]] = []
+    with pytest.raises(JobError, match="output rejected twice"):
+        _run_s4_psd(
+            tmp_path,
+            monkeypatch,
+            _reply(_units_of(full, *_ALL_UNITS[:4])),
+            _reply(_units_of(full, *_ALL_UNITS[:5])),
+            seen=seen,
+        )
+    assert len(seen) == 2
+
+
+def test_the_narrowed_ask_cannot_change_a_unit_the_earlier_replies_answered(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A unit the earlier replies answered keeps that answer whatever the narrowed reply says."""
+    full = _psd_reply(_REWRITE)
+    narrowed = _units_of(full, "006.", "018.")
+    narrowed["dispositions"].append(  # type: ignore[attr-defined]
+        _entry("inherited_unit:003.code_block", "OMIT_UNSUPPORTED", None, "example:002")
+    )
+    result = _run_s4_psd(
+        tmp_path,
+        monkeypatch,
+        _reply(_units_of(full, *_ALL_UNITS[:4])),
+        _reply(_units_of(full, *_ALL_UNITS[:5])),
+        _reply(narrowed),
+        narrow=True,
+    )
+    by_unit = {e["unit_id"]: e for e in result.output["dispositions"]}
+    assert len(by_unit) == len(result.output["dispositions"]) == 7
+    assert by_unit["inherited_unit:003.code_block"]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_narrowed_answer_is_judged_by_the_same_checks_as_any_reply(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A silent unit's answer citing a fact that does not exist is refused, naming the fact."""
+    full = _psd_reply(_REWRITE)
+    narrowed = _units_of(full, "006.")
+    narrowed["dispositions"].append(  # type: ignore[attr-defined]
+        _entry("inherited_unit:018.paragraph", "VERIFIED_REWRITE", "opening", "package:nope")
+    )
+    with pytest.raises(JobError) as caught:
+        _run_s4_psd(
+            tmp_path,
+            monkeypatch,
+            _reply(_units_of(full, *_ALL_UNITS[:4])),
+            _reply(_units_of(full, *_ALL_UNITS[:5])),
+            _reply(narrowed),
+            narrow=True,
+        )
+    assert "package:nope" in str(caught.value) and "no disposition" not in str(caught.value)

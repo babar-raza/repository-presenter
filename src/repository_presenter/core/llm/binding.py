@@ -11,7 +11,7 @@ its evidence); ``unit_ids`` name every inherited unit exactly once.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Collection, Iterator
 from dataclasses import dataclass
 from typing import Any
 
@@ -247,6 +247,44 @@ def fill_silent_units(revised: Any, original: Any) -> Any:
         if silent:
             completed[key] = [*revised_value, *silent]
     return completed
+
+
+def silent_unit_ids(output: Any, facts: FactsDocument) -> list[str]:
+    """The inherited units ``facts`` holds that ``output`` cites nowhere, in the facts' order.
+
+    Exactly the units :func:`binding_errors` reports as "no disposition for inherited units";
+    empty when ``output`` is not a JSON object (a shape failure has nothing safe to narrow).
+    """
+    if not isinstance(output, dict):
+        return []
+    cited = set(collect_ids(output).unit_ids)
+    return [fact.id for fact in facts.by_kind("inherited_unit") if fact.id not in cited]
+
+
+def add_silent_units(base: Any, narrowed: Any, silent: Collection[str]) -> Any:
+    """``base`` with each unit-keyed list extended by the ``silent`` units ``narrowed`` answers.
+
+    The one further ask a ``unit_ids`` job makes shows the model only the units both earlier
+    replies left without a disposition (cut-2 wave, 2026-10-11, BarCode-Python: units 057-059,
+    silent twice in a batch of 19). Its reply is merged here and the merged whole is judged by
+    the job's ordinary schema, binding and checks, so a unit is accepted only on the same terms as
+    any other. Only entries for units in ``silent`` are taken, appended after ``base``'s own: a
+    unit ``base`` already answers keeps that answer, whatever the narrowed reply says about it.
+    """
+    if not (isinstance(base, dict) and isinstance(narrowed, dict)):
+        return base
+    merged = dict(base)
+    for key, value in narrowed.items():
+        if not (
+            isinstance(value, list)
+            and all(isinstance(item, dict) and "unit_id" in item for item in value)
+        ):
+            continue
+        wanted = [item for item in value if item["unit_id"] in silent]
+        if wanted:
+            current = merged.get(key)
+            merged[key] = [*(current if isinstance(current, list) else []), *wanted]
+    return merged
 
 
 def binding_errors(payload: Any, facts: FactsDocument, binding: Binding) -> list[str]:

@@ -88,6 +88,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     reconcile_checks,
     reconciliation_batch_facts,
     reconciliation_batches,
+    reconciliation_narrowing,
     reconciliation_packet,
     reconciliation_schema,
     recover_uncited_prose_omits,
@@ -397,6 +398,10 @@ def run_round(tx: TransactionInputs) -> Round:
                         batch_facts, loaded.manifest, batch_units, investigation.output
                     )
                 ),
+            ),
+            # CUT-2 (BarCode-Python): units both replies left silent get one narrowed ask.
+            narrow=reconciliation_narrowing(
+                entry, batch_facts, investigation.output, loaded, batch_units
             ),
             **{**common, "facts": batch_facts},
         )
