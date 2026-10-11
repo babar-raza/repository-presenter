@@ -221,7 +221,7 @@ def test_a_not_published_sentence_about_something_else_is_left_alone() -> None:
 # --- the check as the validator runs it -------------------------------------------------------
 def test_bc14_is_a_registered_blocking_check_judged_at_s9() -> None:
     check = next(c for c in BLOCKING_CHECKS if c.id == "BC-14")
-    assert (check.version, check.judged_at) == ("1", "S9")
+    assert (check.version, check.judged_at) == ("2", "S9")
 
 
 def test_the_registry_judge_routes_each_finding_to_its_section_and_stage() -> None:
