@@ -10,6 +10,20 @@
 > Glance topology) is an owner rule and stays. **Section 8** (prose rules) now binds only text a
 > change adds; `README_STANDARD.md` section 3.5 re-bases it on the live tone. Sections 1 and 3 to 7
 > keep their authority, amended as `README_STANDARD.md` section 6.1 lists.
+>
+> **Owner rulings R1 to R7, 2026-10-11** (`README_STANDARD.md` section 7, `docs/DECISION_LOG.md`).
+> Where the legacy text below conflicts with them, the ruling governs and the text is history, not
+> to be repaired: the linked banner of row 3 is not promotion before the product is explained
+> (§1 and `plans/idea.md`, R1); the anchor of row 18 reads `Aspose.{Family} for {Platform} — Enterprise
+> Edition` and never opens "full-featured", so BC-06's prefix check is void (R2); Enterprise Edition
+> is the only name of the aspose.com product, with no exception (R3); the maintainers' tone, prose
+> structure and headings are followed (R4); the "Deliberate product-specific sections" paragraph
+> and its plan `deviation` give way to inherited additions retained in place beside a fixed core
+> (R5); row 7's three-to-eight cap and the 320-line visible budget are void, the badge order of row
+> 2 binds added badges only, and a README documents the release (R6); the `flowchart TD` of §2.1
+> and BC-07 gives way to a diagram that never clips a label and runs left to right, accepted by a
+> real render (R7). The code that still encodes the replaced wording is owner-ruled, pending the
+> next governed cut (`README_STANDARD.md` section 6.2).
 
 Status: normative for every candidate. Version 1 froze as `readme-contract-v1` at G3 exit
 (G3-W02, 2026-10-01 — deferred past the originally-planned G2 exit while G3/G4's own multi-cohort

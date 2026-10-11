@@ -463,6 +463,28 @@ observations:
   among: {enterprise_in_scope: true}
   count: 0
   of: 30
+- id: enterprise_anchor_em_dash
+  note: Enterprise anchor text carries the spaced em dash before Enterprise Edition
+  where:
+    enterprise_anchor: {contains: ' — Enterprise Edition'}
+  among: {enterprise_in_scope: true}
+  count: 27
+  of: 30
+- id: enterprise_anchor_names_platform
+  note: Among the anchors with the em dash, the anchor names a platform ('for <Platform>'); the others
+    name the family only
+  where:
+    enterprise_anchor: {contains: ' for '}
+  among:
+    enterprise_anchor: {contains: ' — Enterprise Edition'}
+  count: 23
+  of: 27
+- id: inherited_additions_present
+  note: The README carries at least one H2 heading outside the twelve standard names (an inherited addition)
+  where:
+    extra_h2: {nonempty: true}
+  count: 9
+  of: 42
 - id: banned_edition_names
   note: A banned edition name appears (commercial edition, On-Premise edition, paid version, full version)
   where:
