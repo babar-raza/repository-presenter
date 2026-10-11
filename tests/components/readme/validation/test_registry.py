@@ -325,7 +325,7 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # edition, spells its name whole, and passes all of them (it has badge-worthy facts and a
     # rendered badge row, no docstring eliciting an elision, and a clean single-read ACCEPT with no
     # triggered second read, so v13's, v14's, and v15's own allowance/note/detail never fire).
-    assert document["source_revision"] == REVISION and document["validator_version"] == "20"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "21"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(

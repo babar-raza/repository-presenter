@@ -166,7 +166,13 @@ VALIDATION_FILENAME = "validation.json"
 # the plan excludes is EXCLUDED_BY_PLAN; a PDF name literal in a code span ("/Root /Metadata") no
 # longer reads as the public symbol of the same letters (PDF-TypeScript 359). A bundle sealed
 # under 19 re-checks under 20 and shows as pending.
-VALIDATOR_VERSION = "20"
+# 21: CUT-3 (G3-W08, wave-3 acceptance review): BC-02 admits a source-checkout build only from the
+# command a build measured, BC-04 refuses an opening that states an audience, use case or spared
+# cost no accepted fact states, BC-05 checks that a kept list states every one of its items,
+# BC-14 refuses a "sole / only / first published version" claim the registry's version count
+# contradicts (each Check version moves by one). A bundle sealed under 20 re-checks under 21 and
+# shows as pending.
+VALIDATOR_VERSION = "21"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -236,7 +242,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # 4 (Imaging-FOSS for .NET and GIS, 2026-10-04): a SUPPORTED registry-kind install whose
         # own registry reading found no distribution is refused - the unverified dotnet command a
         # 404 contradicts can never ship, whatever its wording.
-        "4",
+        "5",
         "Install command verified against the manifest and the package-registry observation, "
         "against the source-build receipt naming exactly the steps it proved, or - when no "
         "build/install command ever succeeds - against a source-checkout receipt",
@@ -257,7 +263,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # fact's own literal value, example identifier, or command-fence token.
         # 3 (G7-W15): a must-carry unit the section's authoring recorded as omitted with a reason
         # is dispositioned (units document `omitted`), exactly as the authoring call judged it.
-        "3",
+        "4",
         "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact "
         "value in a code span",
         (
@@ -278,7 +284,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # section cannot carry it (dispositions.RECOVERED_COVERAGE_RATIONALE) is an ADVISORY class.
         # "5" (CUT-2, G3-W08/G7-W12): "unsupported"/"uncertain" attestations and a unit from the
         # examples section the plan excludes are classified ADVISORY; see VALIDATOR_VERSION 20.
-        "5",
+        "6",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),
@@ -418,7 +424,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-14",
-        "1",
+        "2",
         "A package version, install command, or publication statement in the README equals what "
         "the facts say: the registry's current release (or the manifest's version without that "
         "reading), the package identity fact, and the install command's registry observation",

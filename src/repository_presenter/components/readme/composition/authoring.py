@@ -375,7 +375,10 @@ _TYPE_OBJECTIVE = (
 # a code span or fence are not rewritten. allowed_identifiers additionally keeps a recorded project
 # or directory name that is itself a spelling of the product unspellable (the extractor now records
 # project names, INHERITED_UNITS_VERSION "4"); BC-12 itself is unchanged.
-NORMALISATION_VERSION = "33"
+# 34: CUT-3 (G3-W08): the opening may state an audience or use case only when an accepted fact does
+# (composition/audience.py); a kept list states every item (composition/list_coverage.py). A bundle
+# sealed under 33 re-checks under 34 and shows as pending.
+NORMALISATION_VERSION = "34"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
