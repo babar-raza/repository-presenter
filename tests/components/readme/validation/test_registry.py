@@ -362,6 +362,10 @@ def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_record
     failed = _failed(validate_candidate(_candidate(), tmp_path, ()), "BC-05")
     assert failed["causal_stage"] == "EXTRACTING"
     assert failed["details"] == [f"{unit} is deferred as NOTICES_WITHOUT_RECORD: why"]
+    # The unit is a field of the failure record, so the repair of a disposition re-asks that unit
+    # and reads it from here, never from the sentence above (wave 4: the S4 repair asked for the
+    # whole 155-unit batch because no record said which unit was at fault).
+    assert [failure["unit_id"] for failure in failed["failures"]] == [unit]
 
     advisory = DeferralFinding(unit, "SECTION_ABSENT", "ADVISORY", None, "kept off the page")
     monkeypatch.setattr(registry, "review_deferrals", lambda *_args: [advisory])

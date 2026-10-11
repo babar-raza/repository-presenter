@@ -1,0 +1,1603 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "ci workflow"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; job build runs `python -m build`",
+     "path": ".github/workflows/publish-pypi.yml"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "python -m build"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": ".github/workflows/ci.yml"
+    },
+    {
+     "detail": null,
+     "path": ".github/workflows/publish-pypi.yml"
+    },
+    {
+     "detail": "2 files; GitHub Actions workflows",
+     "path": ".github/workflows/"
+    }
+   ],
+   "id": "build_test_asset:ci",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/"
+  },
+  {
+   "attributes": {
+    "role": "ci matrix",
+    "workflow": ".github/workflows/ci.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "job test strategy.matrix axes python-version",
+     "path": ".github/workflows/ci.yml"
+    }
+   ],
+   "id": "build_test_asset:ci-matrix",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "python-version=3.10,3.11,3.12"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "examples/.gitignore"
+    },
+    {
+     "detail": null,
+     "path": "examples/MANIFEST.in"
+    },
+    {
+     "detail": null,
+     "path": "examples/README.md"
+    },
+    {
+     "detail": null,
+     "path": "examples/THIRD_PARTY_NOTICES.md"
+    },
+    {
+     "detail": null,
+     "path": "examples/export_pdf.py"
+    },
+    {
+     "detail": "8 files; example directory",
+     "path": "examples/"
+    }
+   ],
+   "id": "build_test_asset:examples",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "examples/"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "ci workflow"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; job test runs `python -m unittest tests.test_aspose_note_compat_smoke -v`",
+     "path": ".github/workflows/ci.yml"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "python -m unittest tests.test_aspose_note_compat_smoke -v"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "tests/test_aspose_note_compat_smoke.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_aspose_note_dom_content.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_aspose_note_dom_document.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_aspose_note_exceptions_and_stubs.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_aspose_note_history.py"
+    },
+    {
+     "detail": "12 files; test suite (12 test sources among the 29 files here)",
+     "path": "tests/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "tests/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'dev' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:development.dev.build-1.2",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "build>=1.2"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'dev' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:development.dev.twine-5.0",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "twine>=5.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "the `project.dependencies` list is empty",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'pdf' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:optional.pdf.reportlab-3.6",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "reportlab>=3.6"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'test-pdf' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:optional.test-pdf.pillow-10.0",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "Pillow>=10.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'test-pdf' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:optional.test-pdf.pymupdf-1.25",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "PyMuPDF>=1.25"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'test-pdf' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:optional.test-pdf.pypdf-5.3",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "pypdf>=5.3"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 104-111; python fence; unit inherited_unit:027.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: FAILED; AttributeError",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as SimpleTable.one",
+     "path": "testfiles/SimpleTable.one"
+    }
+   ],
+   "id": "example:001",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "from aspose.note import Document\n\ndoc = Document(\"SimpleTable.one\")\nprint(doc.DisplayName)\nfor page in doc:\n    print(page.Title.TitleText.Text)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 115-120; python fence; unit inherited_unit:029.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; exit 0; retried after installing declared extra providing 'reportlab' (reportlab>=3.6)",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as SimpleTable.one",
+     "path": "testfiles/SimpleTable.one"
+    },
+    {
+     "detail": "staged as out.pdf",
+     "path": "tests/goldens/pdf/page_with_subpage.pdf"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.note import Document, SaveFormat\n\ndoc = Document(\"SimpleTable.one\")\ndoc.Save(\"out.pdf\", SaveFormat.Pdf)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 129-140; python fence; unit inherited_unit:033.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as 3ImagesWithDifferentAlignment.one",
+     "path": "testfiles/3ImagesWithDifferentAlignment.one"
+    }
+   ],
+   "id": "example:003",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from pathlib import Path\nfrom aspose.note import Document, Image\n\nout_dir = Path(\"out_images\")\nout_dir.mkdir(exist_ok=True)\n\ndoc = Document(\"3ImagesWithDifferentAlignment.one\")\nfor i, img in enumerate(doc.GetChildNodes(Image), start=1):\n    name = img.FileName or f\"image_{i}.png\"\n    (out_dir / name).write_bytes(img.Bytes)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 147-153; python fence; unit inherited_unit:036.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 4: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as SimpleTable.one",
+     "path": "testfiles/SimpleTable.one"
+    }
+   ],
+   "id": "example:004",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.note import Document\n\nwith open(\"SimpleTable.one\", \"rb\") as f:\n    doc = Document(f)\nprint(doc.DisplayName, len(list(doc)))\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 157-166; python fence; unit inherited_unit:038.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 5: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as SimpleTable.one",
+     "path": "testfiles/SimpleTable.one"
+    }
+   ],
+   "id": "example:005",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.note import Document, Table, TableRow, TableCell, RichText\n\ndoc = Document(\"SimpleTable.one\")\nfor table in doc.GetChildNodes(Table):\n    for row in table.GetChildNodes(TableRow):\n        cells = row.GetChildNodes(TableCell)\n        values = [\" \".join(rt.Text for rt in cell.GetChildNodes(RichText)) for cell in cells]\n        print(values)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 170-178; python fence; unit inherited_unit:040.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 6: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as OnePageWithFile.one",
+     "path": "testfiles/OnePageWithFile.one"
+    }
+   ],
+   "id": "example:006",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from pathlib import Path\nfrom aspose.note import Document, AttachedFile\n\ndoc = Document(\"OnePageWithFile.one\")\nfor i, af in enumerate(doc.GetChildNodes(AttachedFile), start=1):\n    name = af.FileName or f\"attachment_{i}.bin\"\n    Path(name).write_bytes(af.Bytes)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 182-189; python fence; unit inherited_unit:042.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 7: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as TagSizes.one",
+     "path": "testfiles/TagSizes.one"
+    }
+   ],
+   "id": "example:007",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.note import Document, RichText\n\ndoc = Document(\"TagSizes.one\")\nfor rt in doc.GetChildNodes(RichText):\n    for tag in rt.Tags:\n        print(tag.Label, tag.Status)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 193-215; python fence; unit inherited_unit:044.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 8: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as 3ImagesWithDifferentAlignment.one",
+     "path": "testfiles/3ImagesWithDifferentAlignment.one"
+    }
+   ],
+   "id": "example:008",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.note import Document, DocumentVisitor, Page, Image, RichText\n\nclass Counter(DocumentVisitor):\n    def __init__(self):\n        self.pages = 0\n        self.rich_texts = 0\n        self.images = 0\n\n    def VisitPageStart(self, page: Page) -> None:\n        self.pages += 1\n\n    def VisitRichTextStart(self, rich_text: RichText) -> None:\n        self.rich_texts += 1\n\n    def VisitImageStart(self, image: Image) -> None:\n        self.images += 1\n\ndoc = Document(\"3ImagesWithDifferentAlignment.one\")\ncounter = Counter()\ndoc.Accept(counter)\nprint(counter.pages, counter.rich_texts, counter.images)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 219-225; python fence; unit inherited_unit:046.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 9: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as FormattedRichText.one",
+     "path": "testfiles/FormattedRichText.one"
+    }
+   ],
+   "id": "example:009",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.note import Document, RichText\n\ndoc = Document(\"FormattedRichText.one\")\ntexts = [rt.Text for rt in doc.GetChildNodes(RichText)]\nprint(\"\\n\".join(texts))\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 229-236; python fence; unit inherited_unit:048.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 10: EXECUTED; exit 0; retried after installing declared extra providing 'reportlab' (reportlab>=3.6)",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as TagSizes.one",
+     "path": "testfiles/TagSizes.one"
+    },
+    {
+     "detail": "staged as out.pdf",
+     "path": "tests/goldens/pdf/page_with_subpage.pdf"
+    }
+   ],
+   "id": "example:010",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.note import Document, SaveFormat\nfrom aspose.note.saving import PdfSaveOptions\n\ndoc = Document(\"TagSizes.one\")\nopts = PdfSaveOptions(JpegQuality=90)\ndoc.Save(\"out.pdf\", opts)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 240-248; python fence; unit inherited_unit:050.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 11: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as FormattedRichText.one",
+     "path": "testfiles/FormattedRichText.one"
+    }
+   ],
+   "id": "example:011",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.note import Document, RichText\n\ndoc = Document(\"FormattedRichText.one\")\nfor rt in doc.GetChildNodes(RichText):\n    for run in rt.TextRuns:\n        if run.Style.IsHyperlink and run.Style.HyperlinkAddress:\n            print(run.Text, \"->\", run.Style.HyperlinkAddress)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 252-261; python fence; unit inherited_unit:052.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 12: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as NumberedListWithTags.one",
+     "path": "testfiles/NumberedListWithTags.one"
+    }
+   ],
+   "id": "example:012",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.note import Document, OutlineElement\n\ndoc = Document(\"NumberedListWithTags.one\")\nfor oe in doc.GetChildNodes(OutlineElement):\n    nl = oe.NumberList\n    if nl is None:\n        continue\n    print(\"format=\", nl.Format, \"number_format=\", nl.NumberFormat, \"restart=\", nl.Restart)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "staged as SimpleTable.one; example 2 read it: EXECUTED",
+     "path": "testfiles/SimpleTable.one"
+    },
+    {
+     "detail": "staged as 3ImagesWithDifferentAlignment.one; example 3 read it: EXECUTED",
+     "path": "testfiles/3ImagesWithDifferentAlignment.one"
+    },
+    {
+     "detail": "line 150; example 4: input .one",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 4: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as SimpleTable.one; example 4 read it: EXECUTED",
+     "path": "testfiles/SimpleTable.one"
+    },
+    {
+     "detail": "staged as SimpleTable.one; example 5 read it: EXECUTED",
+     "path": "testfiles/SimpleTable.one"
+    },
+    {
+     "detail": "staged as OnePageWithFile.one; example 6 read it: EXECUTED",
+     "path": "testfiles/OnePageWithFile.one"
+    },
+    {
+     "detail": "staged as TagSizes.one; example 7 read it: EXECUTED",
+     "path": "testfiles/TagSizes.one"
+    },
+    {
+     "detail": "staged as 3ImagesWithDifferentAlignment.one; example 8 read it: EXECUTED",
+     "path": "testfiles/3ImagesWithDifferentAlignment.one"
+    },
+    {
+     "detail": "staged as FormattedRichText.one; example 9 read it: EXECUTED",
+     "path": "testfiles/FormattedRichText.one"
+    },
+    {
+     "detail": "staged as TagSizes.one; example 10 read it: EXECUTED",
+     "path": "testfiles/TagSizes.one"
+    },
+    {
+     "detail": "staged as FormattedRichText.one; example 11 read it: EXECUTED",
+     "path": "testfiles/FormattedRichText.one"
+    },
+    {
+     "detail": "staged as NumberedListWithTags.one; example 12 read it: EXECUTED",
+     "path": "testfiles/NumberedListWithTags.one"
+    }
+   ],
+   "id": "format:input.one",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".one"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 119; example 2: output .pdf",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; exit 0; retried after installing declared extra providing 'reportlab' (reportlab>=3.6)",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 235; example 10: output .pdf",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 10: EXECUTED; exit 0; retried after installing declared extra providing 'reportlab' (reportlab>=3.6)",
+     "path": "examples.json"
+    }
+   ],
+   "id": "format:output.pdf",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".pdf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "note"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-note-foss/Aspose.Note-FOSS-for-Python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "0fd1cf7bcadb279a6dd73ddcba3d5241376badd3"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose/note/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose.note",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose.note"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Note FOSS for Python"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 66-66; heading; under Aspose.Note FOSS for Python",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:011.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "## Installation"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Note FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 68-70; code_block; under Aspose.Note FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:012.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\npip install aspose-note-foss\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Note FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 72-72; paragraph; under Aspose.Note FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:013.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "PDF export needs the optional `pdf` extra, which pulls in [ReportLab](https://pypi.org/project/reportlab/):"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Note FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 74-76; code_block; under Aspose.Note FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:014.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\npip install \"aspose-note-foss[pdf]\"\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Note FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 78-79; paragraph; under Aspose.Note FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:015.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Requires Python 3.10 or later. The PyPI distribution is named `aspose-note-foss`; the import package is\n`aspose.note` — `from aspose.note import Document`."
+  },
+  {
+   "attributes": {
+    "source_checkout_command": "git clone https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python.git\ncd Aspose.Note-FOSS-for-Python\npip install ."
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "distribution name declared by the manifest",
+     "path": "pyproject.toml"
+    },
+    {
+     "detail": "package registry: found; manifest version published",
+     "path": "https://pypi.org/pypi/aspose-note-foss/json"
+    }
+   ],
+   "id": "install_command:pip",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "pip install aspose-note-foss"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'PyPI version'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://img.shields.io/pypi/v/aspose-note-foss.svg"
+    }
+   ],
+   "id": "link_target:001",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://img.shields.io/pypi/v/aspose-note-foss.svg"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'PyPI version'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://pypi.org/project/aspose-note-foss/"
+    }
+   ],
+   "id": "link_target:002",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://pypi.org/project/aspose-note-foss/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'Python Versions'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://img.shields.io/pypi/pyversions/aspose-note-foss.svg"
+    }
+   ],
+   "id": "link_target:003",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://img.shields.io/pypi/pyversions/aspose-note-foss.svg"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'License: MIT'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://img.shields.io/badge/License-MIT-blue.svg"
+    }
+   ],
+   "id": "link_target:004",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; relative; text 'License: MIT'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains LICENSE",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:005",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'CI'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/actions/workflows/ci.yml/badge.svg"
+    }
+   ],
+   "id": "link_target:006",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/actions/workflows/ci.yml/badge.svg"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'CI'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/actions/workflows/ci.yml"
+    }
+   ],
+   "id": "link_target:007",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/actions/workflows/ci.yml"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 5; external; text 'Aspose.Note FOSS for Python'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://products.aspose.org/media/note/python/banner-readme.png"
+    }
+   ],
+   "id": "link_target:008",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/note/python/banner-readme.png"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 5; external; text 'Aspose.Note FOSS for Python'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://products.aspose.org/note/python/"
+    }
+   ],
+   "id": "link_target:009",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/note/python/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 14; anchor; text 'At a Glance'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #at-a-glance exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:010",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#at-a-glance"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 15; anchor; text 'Key Capabilities'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #key-capabilities exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:011",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#key-capabilities"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 16; anchor; text 'Installation'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #installation exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:012",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#installation"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 17; anchor; text 'Quick Start'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #quick-start exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:013",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#quick-start"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 18; anchor; text 'Additional Examples'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #additional-examples exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:014",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#additional-examples"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 19; anchor; text 'API Reference'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #api-reference exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:015",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#api-reference"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 20; anchor; text 'Documentation & Resources'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #documentation--resources exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:016",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#documentation--resources"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 21; anchor; text 'Scope and Limitations'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #scope-and-limitations exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:017",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#scope-and-limitations"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 22; anchor; text 'Development and Testing'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #development-and-testing exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:018",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#development-and-testing"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 23; anchor; text 'License'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #license exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:019",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#license"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 72; external; text 'ReportLab'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://pypi.org/project/reportlab/"
+    }
+   ],
+   "id": "link_target:020",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://pypi.org/project/reportlab/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 124; relative; text 'examples/'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains examples",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:021",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "examples/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 441; external; text 'Getting started guide'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://docs.aspose.org/note/python/"
+    }
+   ],
+   "id": "link_target:022",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://docs.aspose.org/note/python/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 442; external; text 'How-to guides & FAQ'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://kb.aspose.org/note/python/"
+    }
+   ],
+   "id": "link_target:023",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://kb.aspose.org/note/python/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 443; external; text 'Full API reference'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://reference.aspose.org/note/python/"
+    }
+   ],
+   "id": "link_target:024",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://reference.aspose.org/note/python/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 444; external; text 'Open an issue'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/issues"
+    }
+   ],
+   "id": "link_target:025",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/issues"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 454; external; text 'Aspose.Note — Enterprise Edition'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://products.aspose.com/note/"
+    }
+   ],
+   "id": "link_target:026",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/note/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 470; relative; text 'ci.yml'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains .github/workflows/ci.yml",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:027",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/ci.yml"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 502; relative; text 'tools/regenerate_pdf_goldens.py'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains tools/regenerate_pdf_goldens.py",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:028",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "tools/regenerate_pdf_goldens.py"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 515; relative; text 'examples/README.md'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains examples/README.md",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:029",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "examples/README.md"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 515; relative; text 'publish-pypi.yml'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains .github/workflows/publish-pypi.yml",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:030",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/publish-pypi.yml"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 524; relative; text 'THIRD_PARTY_NOTICES.md'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains THIRD_PARTY_NOTICES.md",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:031",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "THIRD_PARTY_NOTICES.md"
+  },
+  {
+   "attributes": {
+    "role": "build status badge",
+    "workflow": ".github/workflows/ci.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "triggers push on every branch; runs test; build status badge target",
+     "path": ".github/workflows/ci.yml"
+    }
+   ],
+   "id": "link_target:badge.ci",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python/actions/workflows/ci.yml"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/note/python/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/note/python/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "family",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; family level; platform pages python: BROKEN; python-net: BROKEN; python-cpp: BROKEN; python-java: BROKEN",
+     "path": "https://products.aspose.com/note/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/note/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/note/python/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/note/python/"
+  },
+  {
+   "attributes": null,
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "license declared by the manifest",
+     "path": "pyproject.toml"
+    },
+    {
+     "detail": "the license file's text states MIT; the manifest's declaration is not the license a reader is given",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "package:license",
+   "kind": "package",
+   "polarity": "UNRESOLVED",
+   "value": "LicenseRef-Aspose-Split"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "distribution name declared by the manifest",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "aspose-note-foss"
+  },
+  {
+   "attributes": {
+    "registry": "pypi",
+    "version_count": "1"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "current stable release the pypi registry lists for the package; the registry's state, not the repository's; the registry lists 1 version in all",
+     "path": "https://pypi.org/pypi/aspose-note-foss/json"
+    }
+   ],
+   "id": "package:published_version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.9.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "python_requires declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "package:python_requires",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": ">=3.10"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "version declared by the manifest",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "package:version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.9.0"
+  },
+  {
+   "attributes": {
+    "docstring": "Aspose namespace package (Python).",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose/__init__.py"
+    }
+   ],
+   "id": "public_symbol:aspose",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose/note/__init__.py"
+    }
+   ],
+   "id": "public_symbol:aspose.note",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.note"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose.note.model.AttachedFile",
+    "public_paths": "aspose.note.model.AttachedFile",
+    "signature": "class AttachedFile(Node)",
+    "symbol_kind": "class"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1085; class; public by __all__",
+     "path": "src/aspose/note/model.py"
+    },
+    {
+     "detail": "line 11; re-exported as aspose.note.AttachedFile",
+     "path": "src/aspose/note/__init__.py"
+    }
+   ],
+   "id": "public_symbol:aspose.note.attachedfile",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.note.AttachedFile"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "third-party notices file at the root",
+     "path": "THIRD_PARTY_NOTICES.md"
+    }
+   ],
+   "id": "third_party_notices:file",
+   "kind": "third_party_notices",
+   "polarity": "SUPPORTED",
+   "value": "THIRD_PARTY_NOTICES.md"
+  }
+ ],
+ "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+ "schema_version": 1,
+ "source_revision": "0fd1cf7bcadb279a6dd73ddcba3d5241376badd3"
+}

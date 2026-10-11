@@ -77,20 +77,23 @@ def test_a_disposition_cites_a_bounded_number_of_facts_not_the_whole_citable_set
     """Before: fact_ids.maxItems was the batch's citable-set size (700+ here), so a repeating
     citation list could run to the whole budget. After: a fixed per-disposition cap."""
     schema = _forty_unit_schema(_long_citable_facts(units=40, symbols=700))
-    fact_ids = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]
+    fact_ids = schema["properties"]["dispositions"]["items"]["anyOf"][0]["properties"]["fact_ids"]
     assert len(fact_ids["items"]["enum"]) > CITATION_CAP
     assert fact_ids["maxItems"] <= CITATION_CAP
 
 
 def test_destination_section_is_an_enum_of_the_shell_sections_or_null() -> None:
     """Before: destination_section was an unbounded string. After: the shell's own section IDs
-    or null, the same enum treatment unit_id and fact_ids already have."""
+    or null, the same enum treatment unit_id and fact_ids already have - and a placing
+    disposition names only a section that can hold a kept unit (test_destinations.py)."""
     schema = _forty_unit_schema(_long_citable_facts(units=40, symbols=10))
-    destination = schema["properties"]["dispositions"]["items"]["properties"]["destination_section"]
-    options = destination["oneOf"]
+    placing, other = schema["properties"]["dispositions"]["items"]["anyOf"]
+    options = other["properties"]["destination_section"]["oneOf"]
     assert {"type": "null"} in options
     (string_option,) = [option for option in options if option != {"type": "null"}]
     assert string_option["enum"] == list(section_ids())
+    held = placing["properties"]["destination_section"]
+    assert held["type"] == "string" and set(held["enum"]) < set(section_ids())
 
 
 def test_a_full_batch_reply_the_schema_admits_fits_the_budget_at_the_floor_rate() -> None:
@@ -192,7 +195,16 @@ def _imaging_batch() -> tuple[FactsDocument, list[Fact], dict[str, Any]]:
             strict=True,
         )
     ]
-    symbols = [Fact(fact_id, kinds[fact_id], "v", (Evidence("x"),)) for fact_id in cited]
+    # A link has a real target: documentation_resources and the Enterprise row hold only on one.
+    symbols = [
+        Fact(
+            fact_id,
+            kinds[fact_id],
+            "https://example.org/x" if kinds[fact_id] == "link_target" else "v",
+            (Evidence("x"),),
+        )
+        for fact_id in cited
+    ]
     facts = FactsDocument(REPOSITORY, "a" * 40, tuple(units + symbols))
     batch = list(facts.by_kind("inherited_unit"))
     schema = dispositions.reconciliation_schema(
@@ -250,7 +262,7 @@ def test_a_reply_longer_than_the_batch_is_still_unrepresentable() -> None:
     reply = _imaging_reply()
     reply["dispositions"] = [*reply["dispositions"], *reply["dispositions"]][:21]
     assert not Draft202012Validator(schema).is_valid(reply)
-    props = schema["properties"]["dispositions"]["items"]["properties"]
+    props = schema["properties"]["dispositions"]["items"]["anyOf"][0]["properties"]
     assert props["fact_ids"]["maxItems"] <= CITATION_CAP
 
 

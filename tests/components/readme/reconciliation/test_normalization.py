@@ -23,6 +23,7 @@ from repository_presenter.core.facts import (
     FactsDocument,
 )
 from repository_presenter.core.llm.binding import binding_errors
+from repository_presenter.core.llm.jobs import schema_error_lines
 from repository_presenter.core.llm.prompts import load_manifests
 from support import REPO_ROOT
 
@@ -31,6 +32,16 @@ def _fact(
     fact_id: str, kind: str, value: str, polarity: str = "SUPPORTED", detail: str = ""
 ) -> Fact:
     return Fact(fact_id, kind, value, (Evidence("README.md", detail or None),), polarity=polarity)  # type: ignore[arg-type]
+
+
+def _refused_at(validator: Draft202012Validator, reply: dict[str, Any]) -> list[str]:
+    """The JSON paths a reply is refused at, looking into the disposition object's alternatives
+    (it is one of two shapes: ``destinations.disposition_variants``) as the re-ask does."""
+    return [
+        line.split(": ", 1)[0]
+        for error in sorted(validator.iter_errors(reply), key=lambda error: error.json_path)
+        for line in schema_error_lines(error)
+    ]
 
 
 FACTS = FactsDocument(
@@ -477,7 +488,10 @@ def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
     dispositions = schema["properties"]["dispositions"]
     assert dispositions["maxItems"] == len(units)
     assert dispositions["minItems"] == 1  # the manifest's floor; a batch-sized one cannot close
-    assert dispositions["items"]["properties"]["unit_id"] == {"type": "string", "enum": units}
+    assert dispositions["items"]["anyOf"][0]["properties"]["unit_id"] == {
+        "type": "string",
+        "enum": units,
+    }
     assert "maxItems" not in loaded.manifest.output.schema_["properties"]["dispositions"]
 
     def entry(unit_id: str) -> dict[str, Any]:
@@ -491,10 +505,9 @@ def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
 
     validator = Draft202012Validator(schema)
     invented = [*units[:-1], units[-1].rsplit(".", 1)[0] + ".paragraph"]
-    assert [
-        error.json_path
-        for error in validator.iter_errors({"dispositions": [entry(u) for u in invented]})
-    ] == [f"$.dispositions[{len(units) - 1}].unit_id"]
+    assert _refused_at(validator, {"dispositions": [entry(u) for u in invented]}) == [
+        f"$.dispositions[{len(units) - 1}].unit_id"
+    ]
     short = {"dispositions": [entry(u) for u in units[:-1]]}
     # A short reply must be able to close (a floor at the batch size left whitespace as the only
     # continuation: Imaging-.NET, test_output_budget.py); the unit binding refuses it by name.
@@ -542,13 +555,13 @@ def test_each_batchs_own_schema_is_bounded_to_its_own_units_not_the_repositorys_
             assert dispositions["maxItems"] == len(batch_units)
             assert dispositions["minItems"] == 1
             assert dispositions["maxItems"] <= 40
-            assert dispositions["items"]["properties"]["unit_id"]["enum"] == [
+            assert dispositions["items"]["anyOf"][0]["properties"]["unit_id"]["enum"] == [
                 fact.id for fact in batch_units
             ]
             # S4-REGRESSION: the citable set is bounded by the same batch - here nothing but
             # this batch's own units is citable, so the fact_ids enum never grows with the
             # repository's total either.
-            citable = dispositions["items"]["properties"]["fact_ids"]["items"]["enum"]
+            citable = dispositions["items"]["anyOf"][0]["properties"]["fact_ids"]["items"]["enum"]
             assert citable == sorted(fact.id for fact in batch_units)
 
 
@@ -604,7 +617,9 @@ def test_fact_ids_travel_as_an_enum_so_a_bare_kind_prefix_cannot_be_written() ->
     }
     batch = list(facts.by_kind("inherited_unit"))
     schema = reconciliation_schema(loaded, batch, facts, investigation)
-    items = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]["items"]
+    items = schema["properties"]["dispositions"]["items"]["anyOf"][0]["properties"]["fact_ids"][
+        "items"
+    ]
     # Exactly what the packet shows: its SUPPORTED and CONTRADICTED facts (example:001 is
     # UNRESOLVED and absent - normalize() adds it by code where a rule calls for it), the
     # investigation's cited known facts, and this batch's own units.
@@ -638,15 +653,11 @@ def test_fact_ids_travel_as_an_enum_so_a_bare_kind_prefix_cannot_be_written() ->
         "example:001",  # a real fact, UNRESOLVED, so never shown to the job
         "format:x",  # cited by the investigation but naming no fact
     ):
-        assert [error.json_path for error in validator.iter_errors(_cite(refused))] == [
-            "$.dispositions[0].fact_ids[0]"
-        ], refused
+        assert _refused_at(validator, _cite(refused)) == ["$.dispositions[0].fact_ids[0]"], refused
     # The measured runaway shape - the same prefix over and over - is refused at every position,
     # so a decoder honouring this schema can never start down that path.
     runaway = _cite(*(["public_symbol:"] * 5))
-    assert [error.json_path for error in validator.iter_errors(runaway)] == [
-        f"$.dispositions[0].fact_ids[{i}]" for i in range(5)
-    ]
+    assert _refused_at(validator, runaway) == [f"$.dispositions[0].fact_ids[{i}]" for i in range(5)]
     # Every real citation the packet can carry still validates, an inherited unit and an
     # investigation-cited symbol included.
     cited = _cite(
@@ -681,14 +692,16 @@ def test_the_folded_output_legitimately_exceeds_the_decoder_enum() -> None:
     batch = list(facts.by_kind("inherited_unit"))
     schema = reconciliation_schema(loaded, batch, facts, {})
     enum = set(
-        schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]["items"]["enum"]
+        schema["properties"]["dispositions"]["items"]["anyOf"][0]["properties"]["fact_ids"][
+            "items"
+        ]["enum"]
     )
     reply = {
         "dispositions": [
-            _entry("inherited_unit:001.heading", "VERIFIED_MOVE", "identity"),
+            _entry("inherited_unit:001.heading", "SUPERSEDE_REDUNDANT", "identity"),
             _entry("inherited_unit:002.paragraph", "VERIFIED_PRESERVE", "scope_limitations"),
-            _entry("inherited_unit:003.code_block", "VERIFIED_PRESERVE", "quick_start"),
-            _entry("inherited_unit:005.code_block", "VERIFIED_PRESERVE", "at_a_glance"),
+            _entry("inherited_unit:003.code_block", "OMIT_UNSUPPORTED", None),
+            _entry("inherited_unit:005.code_block", "SUPERSEDE_REDUNDANT", "at_a_glance"),
             _entry("inherited_unit:006.code_block", "OMIT_UNSUPPORTED", None),
         ]
     }
@@ -698,7 +711,7 @@ def test_the_folded_output_legitimately_exceeds_the_decoder_enum() -> None:
     written = {i for entry in reply["dispositions"] for i in entry["fact_ids"]}
     assert {"identity:revision", "example:001"} <= written
     assert not written <= enum  # the folded output is what the store holds
-    assert [error.json_path for error in validator.iter_errors(reply)] == [
+    assert _refused_at(validator, reply) == [
         "$.dispositions[0].fact_ids[1]",
         "$.dispositions[2].fact_ids[0]",
     ]
@@ -710,7 +723,7 @@ def test_a_batch_with_nothing_citable_pins_fact_ids_empty_rather_than_an_empty_e
     loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
     empty = FactsDocument(FACTS.repository, FACTS.source_revision, ())
     schema = reconciliation_schema(loaded, [], empty, {})
-    fact_ids = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]
+    fact_ids = schema["properties"]["dispositions"]["items"]["anyOf"][0]["properties"]["fact_ids"]
     assert fact_ids == {"type": "array", "maxItems": 0}
     assert "pattern" not in json.dumps(schema)
 
@@ -734,7 +747,7 @@ def test_fact_ids_array_itself_is_bounded_so_repeating_valid_ids_cannot_run_away
     loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
     batch = list(FACTS.by_kind("inherited_unit"))
     schema = reconciliation_schema(loaded, batch, FACTS, {})
-    fact_ids = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]
+    fact_ids = schema["properties"]["dispositions"]["items"]["anyOf"][0]["properties"]["fact_ids"]
     citable = fact_ids["items"]["enum"]
     assert citable  # this fixture has real citable facts; the empty-citable case is tested above
     assert fact_ids["maxItems"] == len(citable)
@@ -752,9 +765,7 @@ def test_fact_ids_array_itself_is_bounded_so_repeating_valid_ids_cannot_run_away
     # runaway array that repeats one real, enum-valid ID far past that count (many more than any
     # of the six real PDF-.NET batches ever cited per unit) is refused at the array itself.
     runaway = _cite(*([citable[0]] * (len(citable) + 50)))
-    assert [error.json_path for error in validator.iter_errors(runaway)] == [
-        "$.dispositions[0].fact_ids"
-    ]
+    assert _refused_at(validator, runaway) == ["$.dispositions[0].fact_ids"]
     # A normal handful of real citations, and even the full citable set cited once each, still
     # validates clean - the bound never rejects a legitimate reply.
     assert list(validator.iter_errors(_cite(citable[0]))) == []

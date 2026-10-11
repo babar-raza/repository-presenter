@@ -271,7 +271,9 @@ def test_a_stored_folded_reply_is_reused_without_the_decoder_schema(
     ledger = Ledger(tmp_path / "calls.jsonl")
     store = CallStore(tmp_path / "calls")
     packet, schema, _checks = _s4_call()
-    enum = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]["items"]["enum"]
+    enum = schema["properties"]["dispositions"]["items"]["anyOf"][0]["properties"]["fact_ids"][
+        "items"
+    ]["enum"]
     assert "identity:revision" not in enum and "identity:repository" in enum
     folded = {
         "dispositions": [
@@ -310,7 +312,7 @@ def test_a_stored_reply_the_base_schema_or_binding_rejects_is_still_replaced(
         "dispositions": [
             {
                 "unit_id": "inherited_unit:001.heading",
-                "disposition": "VERIFIED_PRESERVE",
+                "disposition": "SUPERSEDE_REDUNDANT",
                 "destination_section": "identity",
                 "fact_ids": ["identity:repository"],
                 "rationale": "kept",
@@ -347,7 +349,9 @@ def test_a_stored_reply_the_base_schema_or_binding_rejects_is_still_replaced(
     ]
     # The fresh call went out under the decoder constraint, enum and all.
     sent = gateway.requests[0]["response_format"]["json_schema"]["schema"]
-    assert sent["properties"]["dispositions"]["items"]["properties"]["fact_ids"]["items"]["enum"]
+    assert sent["properties"]["dispositions"]["items"]["anyOf"][0]["properties"]["fact_ids"][
+        "items"
+    ]["enum"]
 
 
 def test_a_stored_output_the_rules_reject_is_replaced_by_a_new_call(
