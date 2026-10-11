@@ -1682,6 +1682,30 @@ def _recover_uncovered(output: dict[str, Any], facts: FactsDocument) -> bool:
     return changed
 
 
+_DOTTED_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
+
+
+def _code_spans_name_a_symbol(text: str, facts: FactsDocument) -> bool:
+    """Whether an inline code span of ``text`` holds a name equal to a SUPPORTED symbol or import
+    path - the test BC-05's ``NO_EVIDENCE_EITHER_WAY`` applies (``validation/deferrals.py``,
+    ``DeferralContext.names_verified_symbol``, prose shape), which is looser than
+    ``uncited_omit_candidates``: it also reads a directory segment of a path such as
+    ``Aspose.Words/Aspose.Words.csproj`` as the symbol ``Aspose.Words``. A deferral written under
+    the no-evidence wording would then be UNCLASSIFIED and block, so such a unit takes the typed
+    prefix too even when it has nothing to cite (Words-.NET 020 on the cut-2 tree, where the
+    path-segment guard leaves it with no candidate). ``test_dispositions.py`` pins the two
+    agreeing through ``review_deferrals``."""
+    symbols = {
+        fact.value
+        for kind in ("public_symbol", "import_path")
+        for fact in facts.by_kind(kind)
+        if fact.polarity == "SUPPORTED"
+    }
+    return any(
+        name in symbols for span in _CODE_SPAN.findall(text) for name in _DOTTED_NAME.findall(span)
+    )
+
+
 def recover_uncited_prose_omits(
     output: dict[str, Any], facts: FactsDocument, citable: Collection[str] | None = None
 ) -> dict[str, Any] | None:
@@ -1729,18 +1753,24 @@ def recover_uncited_prose_omits(
     uncited = [entry for entry in entries if isinstance(entry, dict) and _uncited_prose_omit(entry)]
     unit_text = {fact.id: fact.value for fact in facts.by_kind("inherited_unit")}
     spelled: dict[str, list[str]] = {}
+    typed: dict[str, bool] = {}
     for entry in uncited:
         unit = str(entry.get("unit_id"))
         text = unit_text.get(unit)
         if text is None:
             return None
         spelled[unit] = uncited_omit_candidates(text, facts)
+        typed[unit] = bool(spelled[unit]) or _code_spans_name_a_symbol(text, facts)
     recovered = copy.deepcopy(output)
     for entry in recovered["dispositions"]:
         if not _uncited_prose_omit(entry):
             continue
         named = spelled[str(entry.get("unit_id"))]
-        lead = RECOVERED_NAMED_OMIT_RATIONALE if named else RECOVERED_OMIT_RATIONALE
+        lead = (
+            RECOVERED_NAMED_OMIT_RATIONALE
+            if typed[str(entry.get("unit_id"))]
+            else RECOVERED_OMIT_RATIONALE
+        )
         reason = str(entry.get("rationale") or "").strip()
         room = _RATIONALE_LIMIT - len(lead)
         if len(reason) > room:
