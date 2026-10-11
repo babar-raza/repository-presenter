@@ -7,8 +7,10 @@ facts-only path the caller supplies; a revision mismatch is a refusal, never a b
 
 A repository with nothing to correct is a result, not an error: ``no_live_readme`` (no README, or
 one the proposal effect cannot patch), ``insufficient_evidence`` (the facts-only run found it not
-processable) or ``no_corrections``. Only ``corrected`` writes a bundle; the others write a
-``status.json`` that says why, and the regeneration lane handles the first two.
+processable) or ``no_detector_fired`` (the closed detector set found nothing to change: a statement
+about the detectors, never a finding that the README is accurate or complete). Only the
+``corrected`` and ``no_detector_fired`` results write a bundle; the others write a ``status.json``
+that says why, and the regeneration lane handles the first two.
 """
 
 from __future__ import annotations
@@ -32,7 +34,7 @@ from repository_presenter.core.snapshot.capture import capture_snapshot, list_tr
 README_PATH = "README.md"
 STATUS_NAME = "status.json"
 CORRECTED = "corrected"
-NO_CORRECTIONS = "no_corrections"
+NO_CORRECTIONS = "no_detector_fired"
 NO_LIVE_README = "no_live_readme"
 INSUFFICIENT_EVIDENCE = "insufficient_evidence"
 #: ``extract_facts(revision)`` -> a ``facts.json`` for exactly that revision, or None when the

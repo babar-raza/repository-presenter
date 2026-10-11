@@ -12,15 +12,20 @@ import re
 
 from repository_presenter.components.readme_correction.detectors import detector
 from repository_presenter.components.readme_correction.model import Context, DetectorResult, Finding
+from repository_presenter.core.facts import Fact
 
 _LINES = re.compile(r"^lines (\d+)(?:-(\d+))?;")
 _MESSAGE_LIMIT = 200
+_PARSE_ERROR = re.compile(r"IndentationError|SyntaxError")
+_UPSTREAM_THRESHOLD = 3
+_SAMPLE = 6
 _NO_DIAGNOSTIC = " (no compiler diagnostic: the toolchain or environment may be at fault)"
 
 
 @detector("failing_example")
 def failing_example(ctx: Context) -> DetectorResult:
     findings: list[Finding] = []
+    parse_failures: list[Fact] = []
     for fact in ctx.facts.by_kind("example"):
         if fact.polarity != "CONTRADICTED" or not fact.evidence:
             continue
@@ -31,6 +36,8 @@ def failing_example(ctx: Context) -> DetectorResult:
         if where is None or outcome is None:
             continue
         span = where.group(1) + (f"-{where.group(2)}" if where.group(2) else "")
+        if _PARSE_ERROR.search(outcome):
+            parse_failures.append(fact)
         findings.append(
             Finding(
                 "failing_example",
@@ -40,6 +47,19 @@ def failing_example(ctx: Context) -> DetectorResult:
                 f"{outcome[:_MESSAGE_LIMIT]}"
                 + (_NO_DIAGNOSTIC if "without naming" in outcome else ""),
                 (fact.id,),
+            )
+        )
+    if len(parse_failures) >= _UPSTREAM_THRESHOLD:
+        findings.append(
+            Finding(
+                "failing_example",
+                0,
+                "",
+                f"{len(parse_failures)} examples fail with a syntax or indentation error: the "
+                "library source itself may not parse (an upstream defect for an issue to the "
+                "maintainers, not a README edit): "
+                + ", ".join(f.id for f in parse_failures[:_SAMPLE]),
+                tuple(f.id for f in parse_failures[:_SAMPLE]),
             )
         )
     return DetectorResult(findings=tuple(findings))

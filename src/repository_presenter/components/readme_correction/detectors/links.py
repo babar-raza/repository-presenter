@@ -24,6 +24,10 @@ from repository_presenter.components.readme_correction.model import (
 
 _WHERE = re.compile(r"^line (\d+); (\w+);")
 _MISSING_IN_TREE = re.compile(r"^MISSING: tree does not contain ")
+_GITHUB_WEB = re.compile(
+    r"^(?:\.\./)+(?:issues|pulls?|wiki|discussions|actions|releases|projects|security|tags|labels"
+    r"|milestones|compare|commits?)(?:[/?#].*)?$"
+)
 
 
 def _repair(ctx: Context, target: str) -> str | None:
@@ -55,6 +59,8 @@ def broken_link(ctx: Context) -> DetectorResult:
             or not _MISSING_IN_TREE.match(fact.evidence[1].detail or "")
         ):
             continue
+        if _GITHUB_WEB.match(fact.value):
+            continue  # ../../issues resolves on github.com to the repository's issues page
         number = int(where.group(1))
         if not 1 <= number <= len(ctx.lines):
             continue

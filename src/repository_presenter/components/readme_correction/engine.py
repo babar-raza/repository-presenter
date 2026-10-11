@@ -19,11 +19,39 @@ from repository_presenter.components.readme_correction.model import (
     Edit,
     Finding,
 )
+from repository_presenter.components.readme_correction.text_gate import narration
 from repository_presenter.core.errors import PresenterError
 
 
 class CorrectionError(PresenterError):
     """The engine could not honestly correct this README (a violated invariant, never a skip)."""
+
+
+def _without_narration(ctx: Context, edits: list[Edit], findings: list[Finding]) -> list[Edit]:
+    """Drop every edit whose inserted text carries internal-assurance narration, with the
+    contents-list item that points at a dropped section; the reason is reported."""
+    bad = {id(edit): narration(edit.replacement) for edit in edits if narration(edit.replacement)}
+    pairs = {
+        (e.detector, e.order) for e in edits if id(e) in bad and e.detector == "missing_sections"
+    }
+    kept: list[Edit] = []
+    for edit in edits:
+        if id(edit) in bad or (edit.detector, edit.order) in pairs:
+            hits = bad.get(id(edit)) or ["its section was dropped"]
+            line = ctx.readme.count("\n", 0, edit.start) + 1
+            findings.append(
+                Finding(
+                    edit.detector,
+                    line,
+                    "",
+                    f"the text to insert carries internal narration ({', '.join(hits)}); "
+                    "not applied",
+                    edit.fact_ids,
+                )
+            )
+        else:
+            kept.append(edit)
+    return kept
 
 
 def correct(ctx: Context) -> CorrectionResult:
@@ -32,6 +60,7 @@ def correct(ctx: Context) -> CorrectionResult:
     for result in (detector(ctx) for detector in load_detectors().values()):
         edits.extend(result.edits)
         findings.extend(result.findings)
+    edits = _without_narration(ctx, edits, findings)
     kept, dropped = order_edits(edits)
     for edit in dropped:
         line = ctx.readme.count("\n", 0, edit.start) + 1

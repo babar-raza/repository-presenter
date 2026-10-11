@@ -47,6 +47,7 @@ from repository_presenter.components.readme_correction.model import (
     Edit,
     ReadmeLine,
 )
+from repository_presenter.components.readme_correction.text_gate import clean
 from repository_presenter.core.ecosystems import EcosystemSpec, spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID
@@ -69,7 +70,7 @@ def _render_section(ctx: Context, section_id: str, facts: tuple[Fact, ...]) -> s
     plan = {"sections": [{"section_id": section_id, "include": True}]}
     text = render_readme(ctx.entry, document, plan, {"units": []}, {"dispositions": []})
     lines = text.splitlines()
-    return chr(10).join(lines[1:]).strip(chr(10)) if lines else ""
+    return clean(chr(10).join(lines[1:]).strip(chr(10))) if lines else ""
 
 
 # ----------------------------------------------------------------------- Development and Testing

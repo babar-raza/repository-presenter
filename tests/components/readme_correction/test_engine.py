@@ -70,7 +70,9 @@ def test_every_registered_detector_is_loaded_by_name() -> None:
         "missing_sections",
         "report_gaps",
         "second_h1",
+        "stale_phrase",
         "unclosed_details",
+        "unpublished_install_command",
     ]
 
 

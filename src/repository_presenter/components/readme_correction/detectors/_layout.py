@@ -109,3 +109,88 @@ def addition_text(
     newline = eol(ctx)
     lead = "" if continue_list and point.after_list else newline
     return point.prefix + lead + newline.join(lines) + newline
+
+
+# ------------------------------------------------------------------------------------ Navigation
+_TOC_ITEM = re.compile(
+    r"^(?P<indent>[ \t]*)(?P<marker>[-*+])[ \t]+\[(?P<text>[^\]]+)\]\(#(?P<anchor>[^)\s]+)\)[ \t]*$"
+)
+_NAV_HEADING = re.compile(r"navigation|table of contents|^contents$", re.IGNORECASE)
+_SLUG_STRIP = re.compile(r"[^\w\- ]")
+
+
+def slug(heading: str) -> str:
+    """GitHub's anchor for ``heading`` (what the renderer's ``anchor`` computes)."""
+    return _SLUG_STRIP.sub("", heading.strip().lower()).replace(" ", "-")
+
+
+@dataclass(frozen=True)
+class NavigationPlan:
+    status: str  # "none" (no contents list), "ok", or "unsafe" (one this path cannot extend)
+    offset: int = 0
+    text: str = ""
+    line: int = 0  # the contents-list line the new item sits beside
+
+
+def _toc_group(ctx: Context) -> list[ReadmeLine] | None:
+    group: list[ReadmeLine] = []
+    best: list[ReadmeLine] = []
+    for line in ctx.lines:
+        if not line.in_fence and _TOC_ITEM.match(line.text):
+            group.append(line)
+            continue
+        if len(group) >= 3 and not best:
+            best = group
+        group = []
+    if len(group) >= 3 and not best:
+        best = group
+    return best or None
+
+
+def navigation_plan(ctx: Context, heading: str, following_h2_start: int | None) -> NavigationPlan:
+    """Where the contents list gets the new section's item: in front of the item for the H2 that
+    now follows it, else behind the item for the nearest H2 before it. ``none`` when the README
+    has no contents list; ``unsafe`` when it has one this path cannot place an item in (a
+    Navigation heading with no parseable list, or no neighbour of the section in the list)."""
+    group = _toc_group(ctx)
+    has_heading = any(_NAV_HEADING.search(section.title) for section in h2_sections(ctx))
+    if group is None:
+        return NavigationPlan("unsafe" if has_heading else "none")
+    items: dict[str, tuple[ReadmeLine, re.Match[str]]] = {}
+    for line in group:
+        match = _TOC_ITEM.match(line.text)
+        assert match is not None
+        items.setdefault(match.group("anchor").lower(), (line, match))
+    sections = h2_sections(ctx)
+    newline = eol(ctx)
+    top = min((len(m.group("indent")) for _line, m in items.values()), default=0)
+
+    def bullet(match: re.Match[str]) -> str:
+        return f"{match.group('indent')}{match.group('marker')} [{heading}](#{slug(heading)})"
+
+    following = next((s for s in sections if s.heading.start == following_h2_start), None)
+    if following is not None and slug(following.title) in items:
+        line, match = items[slug(following.title)]
+        if len(match.group("indent")) == top:
+            return NavigationPlan("ok", line.start, bullet(match) + newline, line.number)
+    preceding = [
+        s for s in sections if following_h2_start is None or s.heading.start < following_h2_start
+    ]
+    for section in reversed(preceding):
+        if slug(section.title) in items:
+            line, match = items[slug(section.title)]
+            if len(match.group("indent")) != top:
+                continue
+            last = line
+            for candidate in group[group.index(line) + 1 :]:
+                found = _TOC_ITEM.match(candidate.text)
+                if found is None or len(found.group("indent")) <= top:
+                    break
+                last = candidate
+            terminator = ctx.readme[last.end : last.end + 2]
+            if terminator.startswith("\r\n"):
+                return NavigationPlan("ok", last.end + 2, bullet(match) + newline, line.number)
+            if terminator.startswith(chr(10)):
+                return NavigationPlan("ok", last.end + 1, bullet(match) + newline, line.number)
+            return NavigationPlan("ok", last.end, newline + bullet(match), line.number)
+    return NavigationPlan("unsafe")

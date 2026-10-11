@@ -28,14 +28,27 @@ from repository_presenter.components.readme.evidence.facts.commands import (
 )
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.components.readme_correction.detectors import detector
-from repository_presenter.components.readme_correction.detectors.additions import doc_link_bullets
+from repository_presenter.components.readme_correction.detectors._layout import (
+    fence_lines,
+    navigation_plan,
+)
+from repository_presenter.components.readme_correction.detectors.additions import (
+    _bullet_token,
+    doc_link_bullets,
+)
+from repository_presenter.components.readme_correction.detectors.stale import (
+    registry_says_unpublished,
+    unpublished_commands,
+)
 from repository_presenter.components.readme_correction.model import (
+    MISSING_INFO,
     MISSING_SECTION,
     Context,
     DetectorResult,
     Edit,
     Finding,
 )
+from repository_presenter.components.readme_correction.text_gate import clean
 from repository_presenter.core.ecosystems import EcosystemSpec, spec_for
 from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID
 
@@ -214,7 +227,33 @@ def _rendered(ctx: Context, section_id: str) -> str:
     _spec(ctx)
     plan = {"sections": [{"section_id": section_id, "include": True}]}
     text = render_readme(ctx.entry, ctx.facts, plan, {"units": []}, {"dispositions": []})
-    return text.strip("\n")
+    return clean(text.strip(NL))
+
+
+def _covered_elsewhere(ctx: Context, sid: str, block: str) -> str | None:
+    """Why inserting this section would only repeat what the README already says, or None.
+
+    Dependencies: a package the block lists is already named somewhere in the README. Installation:
+    an install snippet naming the package is already shown."""
+    readme = ctx.readme.lower()
+    if sid == "dependencies":
+        named = [
+            token
+            for line in block.splitlines()
+            if line.startswith("- ")
+            and (token := _bullet_token(line)) is not None
+            and not line.startswith("- Requires")
+        ]
+        hit = next((token for token in named if token in readme), None)
+        if hit is not None:
+            return f"the README already names {hit!r} elsewhere"
+    if sid == "installation":
+        package = ctx.supported("package:name")
+        if package is not None:
+            token = package.value.split(":")[-1].lower()
+            if any(token in text.lower() for _lang, text in fence_lines(ctx)):
+                return f"the README already shows a snippet naming {token!r}"
+    return None
 
 
 @detector("missing_sections")
@@ -245,8 +284,34 @@ def missing_sections(ctx: Context) -> DetectorResult:
                     )
                 )
             continue
+        skip = _covered_elsewhere(ctx, sid, block)
+        if sid == "installation" and registry_says_unpublished(ctx) and unpublished_commands(ctx):
+            skip = "the README installs the package from a registry that does not list it"
+        if skip is not None:
+            findings.append(
+                Finding(
+                    "missing_sections",
+                    0,
+                    "",
+                    f"{_SHELL[sid].heading} is absent but not inserted: {skip}",
+                )
+            )
+            continue
         later = [offset for offset, index in h2 if index > _ORDER[sid]]
         position = min(later) if later else len(ctx.readme)
+        heading = _SHELL[sid].heading or sid
+        navigation = navigation_plan(ctx, heading, min(later) if later else None)
+        if navigation.status == "unsafe":
+            findings.append(
+                Finding(
+                    "missing_sections",
+                    0,
+                    "",
+                    f"{heading} is absent but not inserted: the README's contents list cannot be "
+                    "extended safely",
+                )
+            )
+            continue
         at_end = position == len(ctx.readme)
         if position in used_offsets:
             lead = NL if at_end else ""  # the block before it already ended the paragraph
@@ -276,6 +341,24 @@ def missing_sections(ctx: Context) -> DetectorResult:
                 order=_ORDER[sid],
             )
         )
+        if navigation.status == "ok":
+            edits.append(
+                Edit(
+                    kind=MISSING_INFO,
+                    detector="missing_sections",
+                    start=navigation.offset,
+                    end=navigation.offset,
+                    original="",
+                    replacement=navigation.text,
+                    fact_ids=evidence,
+                    locators=(f"{ctx.readme_path}:{navigation.line}", *locators),
+                    rationale=(
+                        f"the README's contents list gains the {heading} item beside "
+                        f"line {navigation.line}, so the inserted section is reachable from it"
+                    ),
+                    order=_ORDER[sid],
+                )
+            )
         inserted.add(sid)
     for sid in _NEEDS_PROSE:
         if sid not in inserted and not _present(ctx, sid):
