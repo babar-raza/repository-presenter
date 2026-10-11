@@ -68,6 +68,7 @@ def test_every_registered_detector_is_loaded_by_name() -> None:
         "claim_version",
         "failing_example",
         "missing_sections",
+        "report_gaps",
         "second_h1",
         "unclosed_details",
     ]
