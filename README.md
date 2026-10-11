@@ -282,6 +282,7 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `metadata --apply`'s write; a token's mere presence never implies this |
 | `GH_ISSUES_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `file-upstream-defects --file` and `redetect-upstream-defects --close` read it, and only after `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled kill switch for the issue filing and closing writes (`file-upstream-defects --file`, `redetect-upstream-defects --close`): unset or not `1` disables every write; `1` never authorizes a filing by itself (that needs the handoff's own `ops/issue_approvals/` record), and a token's mere presence never implies it. In CI it is set only from the repository variable of the same name, on the gated write job |
+| `REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED` | optional | Owner-controlled switch, separate from the filing switch, for the one update comment `redetect-upstream-defects --comment` posts on a FILED issue whose defect persists with changed evidence: unset or not `1` disables it; it is read only on the gated write job |
 | `GH_PROPOSAL_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`/`GH_METADATA_WRITE_TOKEN`/`GH_ISSUES_WRITE_TOKEN`; only `propose --propose` reads it, and only after `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `propose --propose`'s write; a token's mere presence never implies this |
 | `GH_CANDIDATES_WRITE_TOKEN` | optional | Write-scoped, distinct from every token above; only `publish-candidates --publish` reads it, and only after `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` also authorizes a write. In CI it is a short-lived GitHub App installation token scoped to this control repository alone (G7-W14; never the job's ambient `GITHUB_TOKEN`, which cannot open the pull request here and starts none of its required checks) |
@@ -313,8 +314,9 @@ repository-presenter monitor-drift-contract DIR --out PATH
 repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remote REMOTE]
   [--wall-clock-seconds N] [--provider-calls N] [--max-wall-clock-seconds N]
   [--max-provider-calls N] [--stale-after-hours N]
-repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply] [--close]
-repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file] [--approvals-ref GIT_REF] [--count-writable]
+repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply] [--close] [--comment] [--resume-out FILE]
+repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file] [--approvals-ref GIT_REF] [--count-writable] [--with-updates] [--daily-cap N] [--open-cap N] [--pace-seconds N]
+repository-presenter issue-funnel [--root PATH] [--approvals-ref GIT_REF] [--max-pending-days N] [--fail-on-alert]
 repository-presenter issue-targets [--root PATH]
 repository-presenter issue-readiness [--root PATH] [--repo OWNER/NAME] [--approvals-ref GIT_REF] [--json] [--emit-approvals SCRATCH_DIR --approver LOGIN (--handoff-id ID[@DIGEST] ... | --handoff-ids-file FILE) [--valid-days N]]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
@@ -420,6 +422,8 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   for the handoff's fingerprint marker (so a fresh checkout cannot file a duplicate), rechecks that
   the defect still fires, and refuses on any inconclusive result. A handoff whose status is not
   `HANDOFF_PENDING` is skipped outright.
+- **`issue-funnel`** — read-only count of the issue handoffs by stage (pending, approved, filed, resolved) from `evidence/upstream-defects/` and the approval records; `--max-pending-days` annotates a handoff that has waited longer, and `--fail-on-alert` turns any annotation into a non-zero exit (a warning otherwise).
+- **`file-upstream-defects` pacing** — `--daily-cap`, `--open-cap` and `--pace-seconds` bound how many issues one run may file per repository, how many presenter issues may stay open per repository, and the pause between two writes; `--with-updates` also posts the evidence-change update comments (it needs the comments switch above).
 - **`issue-readiness`** — read-only report of every `evidence/upstream-defects/` handoff and what
   stands between it and a filing: the registry write gate (`full` only), whether its recheck can
   conclude (a redetector exists for its check and its evidence has the shape it replays), the
