@@ -130,3 +130,17 @@ def test_the_coverage_job_is_red_only_when_no_owner_is_observable() -> None:
     assert "continue-on-error" not in str(coverage)
     assert len(summarize) == 1
     assert "--summary" in summarize[0]["run"]
+
+
+def test_registry_discovery_is_reported_as_a_warning_in_the_coverage_job_never_a_failure() -> None:
+    # An unregistered repository must never go unnoticed, and must never turn the run red: the
+    # step reports from the legs' own evidence, in workflow mode, and holds no credential.
+    discovery = _step("coverage", "Registry discovery")
+
+    assert discovery["if"] == "always()"
+    assert "continue-on-error" not in discovery
+    assert "env" not in discovery
+    assert "registry-gaps --from monitor" in discovery["run"]
+    assert "--warn-only" in discovery["run"]
+    assert '--summary "$GITHUB_STEP_SUMMARY"' in discovery["run"]
+    assert "--no-discovery" not in _step("drift", OBSERVE_PREFIX)["run"]
