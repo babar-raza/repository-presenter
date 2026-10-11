@@ -117,6 +117,12 @@ def _stems(text: str) -> set[str]:
     return words
 
 
+def stems(text: str) -> set[str]:
+    """The word stems this module compares text by (``composition/coverage.py`` reads the same
+    test for a kept paragraph's sentences that BC-05 reads for a kept list's items)."""
+    return _stems(text)
+
+
 def item_links(item: str) -> list[str]:
     """The document links an item carries: its Markdown destinations other than in-page anchors."""
     return [dest for dest in _LINK_DESTINATION.findall(item) if not dest.startswith("#")]

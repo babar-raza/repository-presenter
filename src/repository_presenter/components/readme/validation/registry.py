@@ -57,10 +57,7 @@ from repository_presenter.components.readme.composition.list_coverage import (
     list_items,
     missing_items,
 )
-from repository_presenter.components.readme.composition.placement import (
-    Placement,
-    placements,
-)
+from repository_presenter.components.readme.composition.placement import Placement
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
@@ -755,9 +752,33 @@ def _example_for_unit(facts: FactsDocument, unit_id: str) -> Fact | None:
 
 
 def _placements(candidate: Candidate) -> list[Placement]:
-    return placements(
-        candidate.plan, candidate.dispositions, candidate.facts, candidate.entry.ecosystem
+    """Exactly what the renderer placed: the same decision, on the document as it renders with no
+    kept unit placed (``RenderContext.placements``), so a unit placement dropped as stated by its
+    destination is judged against that destination's own text and a carried remainder is judged
+    as the text it is.
+
+    Five checks ask, and deciding it renders the document once without the kept units (seconds on
+    a large API Reference), so the answer is remembered on the candidate for as long as the
+    artifacts it is a function of are unchanged."""
+    signature = _sha256(
+        json.dumps(
+            [candidate.plan, candidate.units, candidate.dispositions], sort_keys=True, default=str
+        ).encode("utf-8")
     )
+    remembered = getattr(candidate, "_placement_memo", None)
+    if remembered is not None and remembered[0] == signature:
+        decisions: list[Placement] = remembered[1]
+        return decisions
+    context = RenderContext(
+        candidate.entry,
+        candidate.facts.canonical(),
+        candidate.plan,
+        candidate.units,
+        candidate.dispositions,
+    )
+    decisions = context.placements
+    object.__setattr__(candidate, "_placement_memo", (signature, decisions))
+    return decisions
 
 
 def _placed_texts(candidate: Candidate) -> list[str]:
@@ -1099,8 +1120,14 @@ _LIST_OBLIGED = OWED_SECTIONS | {"documentation_resources"}
 def _dropped_list_failures(
     candidate: Candidate, placement: Placement, texts: Mapping[str, str]
 ) -> list[Failure]:
-    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because the plan's
-    own content "already covers that material" must in fact state every one of its items.
+    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because its
+    destination "already covers that material" must in fact state every one of its items.
+
+    The net under the whole-content drop rule: placement now drops a list only for items the
+    destination states (``composition/coverage.py``, the item test below plus the commands and
+    links an item carries), so on a placement the renderer made this finds nothing. It remains the
+    independent statement of the standard - and the check that placement and BC-05 still agree on
+    what "states an item" means.
 
     The drop is exclusive on fact IDs, so ONE shared fact dropped the whole list while the section
     stated only some of it, and BC-05 passed every such unit (wave-3 acceptance review of reseal
