@@ -280,7 +280,7 @@ def extract_facts(
     ci_badge = ci_badge_fact(entry.repository, clone_path, tree_paths)
     if ci_badge is not None:
         facts.append(ci_badge)
-    facts.extend(product_page_facts(entry))
+    facts.extend(product_page_facts(entry, probes))
     if snapshot.readme_path is not None:
         readme_bytes = (clone_path / snapshot.readme_path).read_bytes()
         public_symbol_facts = tuple(f for f in facts if f.kind == "public_symbol")

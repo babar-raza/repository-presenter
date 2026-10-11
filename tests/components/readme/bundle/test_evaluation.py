@@ -320,3 +320,79 @@ def test_a_record_sealed_before_toolchains_were_fingerprinted_reopens_extracting
     del legacy["environment"]["toolchains"]
     evaluation = evaluate(legacy, sealed)
     assert evaluation.earliest == "EXTRACTING"
+
+
+# TC-INV-01 / G7-W25: a candidate is invalidated only through a fact record it cited
+# (AGENTS.md: invalidate a candidate only through an input it consumed). dependencies.json keeps
+# the digest of every fact (additive ``consumed_fact_ids`` names the cited subset) and
+# ``evaluate`` compares only that subset when the field is present.
+def _with_consumed(consumed: list[str]) -> dict[str, Any]:
+    sealed = copy.deepcopy(SEALED)
+    sealed["consumed_fact_ids"] = consumed
+    return sealed
+
+
+def test_an_added_unconsumed_fact_reopens_nothing() -> None:
+    sealed = _with_consumed(["identity:repository"])
+    current = copy.deepcopy(sealed)
+    current["facts"]["public_symbol:new.Api"] = "9" * 64
+    assert evaluate(sealed, current).changes == ()
+
+
+def test_a_changed_unconsumed_fact_reopens_nothing() -> None:
+    sealed = _with_consumed(["identity:repository"])
+    current = copy.deepcopy(sealed)
+    current["facts"]["format:output.glb"] = "changed"
+    assert evaluate(sealed, current).earliest == "NONE"
+
+
+def test_a_removed_unconsumed_fact_reopens_nothing() -> None:
+    sealed = _with_consumed(["identity:repository"])
+    current = copy.deepcopy(sealed)
+    del current["facts"]["format:output.glb"]
+    assert evaluate(sealed, current).earliest == "NONE"
+
+
+def test_a_changed_consumed_fact_reopens_extracting() -> None:
+    sealed = _with_consumed(["identity:repository"])
+    current = copy.deepcopy(sealed)
+    current["facts"]["identity:repository"] = "changed"
+    evaluation = evaluate(sealed, current)
+    assert evaluation.earliest == "EXTRACTING"
+    assert [change.dependency for change in evaluation.changes] == ["facts"]
+    assert evaluation.changes[0].detail == "0 fact records added, 0 removed, 1 altered"
+
+
+def test_a_removed_consumed_fact_reopens_extracting() -> None:
+    sealed = _with_consumed(["identity:repository", "format:output.glb"])
+    current = copy.deepcopy(sealed)
+    del current["facts"]["format:output.glb"]
+    evaluation = evaluate(sealed, current)
+    assert evaluation.earliest == "EXTRACTING"
+    assert evaluation.changes[0].detail == "0 fact records added, 1 removed, 0 altered"
+
+
+def test_a_record_without_consumed_fact_ids_compares_every_fact_as_before() -> None:
+    """An old bundle names no subset, so an unconsumed-looking change still reopens EXTRACTING."""
+    assert "consumed_fact_ids" not in SEALED
+    added = copy.deepcopy(SEALED)
+    added["facts"]["public_symbol:new.Api"] = "9" * 64
+    assert evaluate(SEALED, added).earliest == "EXTRACTING"
+    altered = copy.deepcopy(SEALED)
+    altered["facts"]["format:output.glb"] = "changed"
+    assert evaluate(SEALED, altered).earliest == "EXTRACTING"
+
+
+def test_an_empty_consumed_set_means_no_fact_was_consumed_not_every_fact() -> None:
+    sealed = _with_consumed([])
+    current = copy.deepcopy(sealed)
+    current["facts"]["identity:repository"] = "changed"
+    assert evaluate(sealed, current).earliest == "NONE"
+
+
+def test_other_classes_still_reopen_when_the_fact_subset_is_unchanged() -> None:
+    sealed = _with_consumed(["identity:repository"])
+    current = copy.deepcopy(sealed)
+    current["facts"]["format:output.glb"] = "changed"
+    current["source"]["revision"] = "b" * 40
+    assert [c.dependency for c in evaluate(sealed, current).changes] == ["source"]

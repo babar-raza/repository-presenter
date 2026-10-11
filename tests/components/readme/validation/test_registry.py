@@ -109,7 +109,7 @@ BASE_FACTS: tuple[Fact, ...] = (
         "link_target",
         "https://docs.example.com/3d",
         "line 9; external; text 'Docs'",
-        "RESOLVED: HTTP 200",
+        "RESOLVED",
     ),
     _fact("inherited_unit:001.heading", "inherited_unit", "# Old"),
     _fact("inherited_unit:002.paragraph", "inherited_unit", "Kept verbatim from the old README."),
@@ -1082,6 +1082,34 @@ def test_an_anchor_to_a_heading_the_candidate_dropped_names_the_section_it_rende
     )
     assert resolving != readme
     assert _verdicts(validate_candidate(_candidate(resolving), tmp_path, ()))["BC-06"] == "PASS"
+
+
+def test_a_broken_external_link_fact_still_fails_bc06_on_its_verdict_alone(
+    tmp_path: Path,
+) -> None:
+    """TC-INV-02: link evidence is the verdict word only (the HTTP status lives in the probe
+    record), and a CONTRADICTED link target still fails BC-06 and names that verdict."""
+    broken = tuple(
+        Fact(
+            fact.id,
+            fact.kind,
+            fact.value,
+            (fact.evidence[0], Evidence(fact.value, "MISSING")),
+            polarity="CONTRADICTED",
+        )
+        if fact.id == "link_target:001"
+        else fact
+        for fact in BASE_FACTS
+    )
+    facts = FactsDocument(ENTRY.repository, REVISION, broken)
+    placed = _candidate(facts=facts)
+    assert "https://docs.example.com/3d" in placed.readme
+    failed = _failed(validate_candidate(placed, tmp_path, ()), "BC-06")
+    assert any(
+        "https://docs.example.com/3d is CONTRADICTED: MISSING" in str(failure)
+        for failure in failed["failures"]
+    )
+    assert _verdicts(validate_candidate(_candidate(), tmp_path, ()))["BC-06"] == "PASS"
 
 
 def test_unsafe_raw_html_surviving_from_an_adversarial_readme_fails_bc06(tmp_path: Path) -> None:

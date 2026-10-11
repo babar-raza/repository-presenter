@@ -101,6 +101,13 @@ def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
         )
     sealed_facts = dict(sealed.get("facts", {}))
     current_facts = dict(current.get("facts", {}))
+    # Only the fact records the candidate cited are a consumed input: one it never cited, added,
+    # removed or altered, reopens nothing. A record sealed before ``consumed_fact_ids`` existed
+    # names no subset, so every fact record is compared, exactly as before.
+    consumed = sealed.get("consumed_fact_ids")
+    if consumed is not None:
+        sealed_facts = {i: sealed_facts[i] for i in consumed if i in sealed_facts}
+        current_facts = {i: current_facts[i] for i in consumed if i in current_facts}
     if sealed_facts != current_facts:
         added = sorted(set(current_facts) - set(sealed_facts))
         removed = sorted(set(sealed_facts) - set(current_facts))

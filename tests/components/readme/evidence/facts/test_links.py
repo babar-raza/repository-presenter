@@ -150,7 +150,8 @@ def test_link_facts_carry_both_the_readme_location_and_the_resolution() -> None:
     assert pypi.evidence[0].path == "README.md"
     assert pypi.evidence[0].detail == "line 3; external; text 'PyPI'"
     assert pypi.evidence[1].path == "https://pypi.org/project/aspose-3d-foss/"
-    assert pypi.evidence[1].detail == "RESOLVED: HTTP 200"
+    assert pypi.evidence[1].detail == "RESOLVED"
+    assert by_value["https://example.com/"].evidence[1].detail == "MISSING"
     # One probe record per external read, with the status and the duration the fact omits.
     assert {probe.target for probe in probes} == set(statuses)
     assert {probe.outcome for probe in probes} == {"RESOLVED", "MISSING"}
@@ -159,6 +160,47 @@ def test_link_facts_carry_both_the_readme_location_and_the_resolution() -> None:
     assert (
         link_facts("README.md", README.encode(), tree, fetch=lambda u: (statuses[u], u))[0] == facts
     )
+
+
+def test_link_evidence_is_the_verdict_only_so_a_changed_status_changes_no_fact() -> None:
+    """TC-INV-02: status, redirect and timing live in the probe record, not hashed evidence."""
+    tree = ["LICENSE"]
+    text = b"[a](https://a/) [b](https://b/) [c](https://c/) [d](https://d/)\n"
+    first, first_probes = link_facts(
+        "README.md",
+        text,
+        tree,
+        fetch=lambda u: {
+            "https://a/": (200, u),
+            "https://b/": (200, u),
+            "https://c/": (404, u),
+        }.get(u, (403, u)),
+    )
+    second, second_probes = link_facts(
+        "README.md",
+        text,
+        tree,
+        fetch=lambda u: {
+            "https://a/": (204, u + "x"),
+            "https://b/": (200, "https://elsewhere/"),
+            "https://c/": (410, u),
+        }.get(u, (401, u)),
+    )
+    assert first == second  # same verdicts, so the hashed facts are identical
+    assert [f.polarity for f in first] == ["SUPPORTED", "SUPPORTED", "CONTRADICTED", "UNRESOLVED"]
+    for fact in first:
+        assert "HTTP" not in (fact.evidence[1].detail or "")
+    # The detail moved, not vanished: statuses and redirects are in the unhashed probe records.
+    assert [p.status for p in first_probes] == [200, 200, 404, 403]
+    assert [p.status for p in second_probes] == [204, 200, 410, 401]
+    assert second_probes[1].observation == "HTTP 200 via https://elsewhere/"
+    assert first_probes[3].observation == "HTTP 403 (access-gated)"
+
+
+def test_a_broken_external_link_is_still_contradicted() -> None:
+    facts, _ = link_facts("README.md", b"[gone](https://gone/)\n", [], fetch=lambda u: (404, u))
+    assert facts[0].polarity == "CONTRADICTED"
+    assert facts[0].evidence[1].detail == "MISSING"
 
 
 def test_a_head_that_condemns_a_link_is_confirmed_with_a_get() -> None:
