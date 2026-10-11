@@ -819,3 +819,49 @@ def test_a_file_the_readme_names_and_the_clone_contains_is_recorded_on_its_unit(
         "CONTRIBUTING.md"
     )
     assert "repository_files" not in (units["inherited_unit:001.heading"].attributes or {})
+
+
+CPP_ENTRY = RegistryEntry.model_validate(
+    {
+        **ENTRY.model_dump(mode="json"),
+        "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-Cpp",
+        "family": "widget",
+        "platform": "cpp",
+        "ecosystem": "cpp",
+    }
+)
+
+
+def test_a_registry_less_install_is_admitted_on_the_measured_build_when_no_example_compiles() -> (
+    None
+):
+    """Aspose.PDF for C++ (CUT-2, 2026-10-11): no registry, so install_command:cmake started
+    UNRESOLVED; the admission needed an EXECUTED example, and with every snippet failing the
+    fact stayed UNRESOLVED and BC-02 refused the candidate although the library built. The
+    measured build admits it, with exactly the steps it ran; a build that failed admits nothing."""
+    plugin_for("cpp")
+    steps = "cmake -S . -B build\ncmake --build build"
+    fact = Fact(
+        "install_command:cmake",
+        "install_command",
+        steps,
+        (
+            Evidence("CMakeLists.txt", "source build for the CMake project the manifest declares"),
+            Evidence("no package registry", "package registry: none could not be read"),
+        ),
+        polarity="UNRESOLVED",
+        confidence=0.5,
+    )
+    snippet_failed = ExampleReceipt(1, "FAILED", 1, "", "", "d", build_verified=True)
+    built = MeasuredBuild(True, steps, "succeeded")
+    admitted = _source_build_fact(fact, CPP_ENTRY, [snippet_failed], built)
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.attributes == {"install_kind": "source", "build_command": steps}
+    assert admitted.value == (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-Cpp.git\n"
+        "cd Aspose.Widget-FOSS-for-Cpp\n" + steps
+    )
+    refused = _source_build_fact(
+        fact, CPP_ENTRY, [snippet_failed], MeasuredBuild(False, "", "failed")
+    )
+    assert refused.polarity == "UNRESOLVED"

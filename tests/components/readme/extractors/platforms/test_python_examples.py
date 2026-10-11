@@ -660,6 +660,8 @@ def test_a_repository_capped_below_the_presenters_python_runs_under_a_pinned_int
     tree.append("pyproject.toml")
     toolchains = Path(os.environ.get("RP_PYTHON_TOOLCHAINS", tmp_path / "no-toolchains"))
     monkeypatch.setenv("RP_PYTHON_TOOLCHAINS", str(toolchains))
+    # What the machine happens to have installed is not what this test is about.
+    monkeypatch.setattr(python_examples, "installed_pythons", lambda: [])
     satisfying = [
         (version, path)
         for version, path in python_examples.pinned_interpreters(toolchains)
@@ -678,5 +680,41 @@ def test_a_repository_capped_below_the_presenters_python_runs_under_a_pinned_int
     else:
         assert receipts[0].outcome == "NOT_VERIFIED"
         assert receipts[0].detail.startswith(
-            f"no interpreter satisfies requires-python '>=3.8,<{running}'"
+            f"BLOCKED_TOOLCHAIN: no interpreter satisfies requires-python '>=3.8,<{running}'"
         )
+
+
+def test_a_machine_interpreter_satisfies_a_range_the_presenter_and_runs_verify_cannot(
+    tmp_path: Path,
+) -> None:
+    """Words-Python (`>=3.10,<3.13`, presenter on 3.13, lane worktree without runs/verify): the
+    resolution order is the presenter's own, then the pinned toolchains, then what the machine
+    already has - the highest installed version the declaration admits."""
+    capped = f">=3.8,<{sys.version_info.major}.{sys.version_info.minor}"
+    low, high = tmp_path / "py39" / "python.exe", tmp_path / "py311" / "python.exe"
+    installed = [("3.9", low), ("3.11", high), (f"{sys.version_info.major + 1}.0", tmp_path / "x")]
+    found = python_examples.select_interpreter(capped, tmp_path / "no-verify", lambda: installed)
+    assert found is not None
+    assert (found.executable, found.version, found.label) == (high, "3.11", "machine-py311")
+    # A pinned toolchain outranks the machine's.
+    pinned = _fake_pinned(tmp_path / "verify", "py310", "3.10")
+    first = python_examples.select_interpreter(capped, tmp_path / "verify", lambda: installed)
+    assert first is not None and first.executable == pinned and first.label == "py310"
+    # The presenter's own outranks both whenever the range admits it.
+    own = python_examples.select_interpreter("", tmp_path / "verify", lambda: installed)
+    assert own is not None and own.executable == Path(sys.executable) and own.label == ""
+
+
+def test_no_interpreter_in_range_is_a_typed_blocked_toolchain_reason(tmp_path: Path) -> None:
+    """A range the presenter's Python is outside and nothing provisioned or installed satisfies is
+    named BLOCKED_TOOLCHAIN with everything that was looked at - never a bare NOT_VERIFIED."""
+    wanted = ">=3.10,<3.13" if sys.version_info >= (3, 13) else ">=3.99"
+    assert python_examples.select_interpreter(wanted, tmp_path, lambda: [("3.9", tmp_path)]) is None
+    reason = python_examples.no_interpreter_reason(wanted, tmp_path, lambda: [("3.9", tmp_path)])
+    running = ".".join(str(part) for part in sys.version_info[:3])
+    assert reason.startswith(
+        f"BLOCKED_TOOLCHAIN: no interpreter satisfies requires-python {wanted!r}"
+    )
+    assert f"presenter runs Python {running}, which is outside it" in reason
+    assert "pinned toolchains offer none" in reason
+    assert "installed interpreters are 3.9" in reason

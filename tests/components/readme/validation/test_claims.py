@@ -237,3 +237,45 @@ def test_the_registry_judge_routes_each_finding_to_its_section_and_stage() -> No
 
 def test_a_readme_with_no_package_identity_fact_is_not_judged() -> None:
     assert claim_findings(SLIDES_JAVA_README, _facts()) == []
+
+
+# --- a distribution the repository's own README names, confirmed by a registry (CUT-2) ---------
+CELLS_CPP_INSTALL = (
+    "## Installation\n\n```bash\nnuget install Aspose.Cells.Cpp.FOSS\n```\n\n"
+    "Or build from source with CMake.\n"
+)
+
+
+def _cells_cpp(polarity: str) -> FactsDocument:
+    """Aspose.Cells for C++: the CMake `project()` is `aspose_cells_foss_cpp`; the README names
+    the NuGet package `Aspose.Cells.Cpp.FOSS`, which NuGet lists with this repository's URL."""
+    return _facts(
+        _fact("package:name", "package", "aspose_cells_foss_cpp"),
+        _fact(
+            "package:distribution.aspose-cells-cpp-foss",
+            "package",
+            "Aspose.Cells.Cpp.FOSS",
+            "NuGet package the repository's own README names",
+            polarity=polarity,
+            attributes={"registry": "nuget"},
+        ),
+    )
+
+
+def test_an_install_naming_a_registry_confirmed_distribution_is_not_a_near_miss() -> None:
+    """The BC-14 failure `the install command names 'Aspose.Cells.Cpp.FOSS', but the package
+    identity is 'aspose_cells_foss_cpp'`: both names are facts, from the same README, and the
+    second was confirmed by NuGet - so the install command is consistent with the facts."""
+    assert claim_findings(CELLS_CPP_INSTALL, _cells_cpp("SUPPORTED")) == []
+
+
+def test_an_unconfirmed_distribution_does_not_excuse_the_near_miss() -> None:
+    """Negative control: BC-14 is not loosened. A name NuGet did not confirm as this
+    repository's (UNRESOLVED) or said does not exist (CONTRADICTED) is still a near-miss."""
+    for polarity in ("UNRESOLVED", "CONTRADICTED"):
+        [finding] = claim_findings(CELLS_CPP_INSTALL, _cells_cpp(polarity))
+        assert "Aspose.Cells.Cpp.FOSS" in finding.detail
+        assert "aspose_cells_foss_cpp" in finding.detail
+    # And a different package that merely resembles the project is still refused.
+    other = CELLS_CPP_INSTALL.replace("Aspose.Cells.Cpp.FOSS", "Aspose.Cells.Cpp")
+    assert claim_findings(other, _cells_cpp("SUPPORTED"))

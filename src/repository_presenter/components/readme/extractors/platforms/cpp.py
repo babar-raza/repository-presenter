@@ -7,8 +7,10 @@ consumer links, and which headers are public.
 
 Two things separate C++ from every ecosystem before it. It has no registry: `surface/registry.py`
 says so outright and no `CMakeLists.txt` names a package on one, so the install command is the
-source build the verifier itself drives and its claim stays UNRESOLVED — a package registry that
-does not exist was read, not assumed away. And its public surface is a directory rather than a
+source build the verifier itself drives. Its claim is UNRESOLVED until that build is measured
+(`verify_build`, independent of any README example); when the build exits 0 the shared
+source-install rule admits it as a verified source build, so having no registry never leaves the
+install unresolved by itself. And its public surface is a directory rather than a
 declaration — `include/` is what a consumer may include and `src/` is not, which is why the
 surface is read from the include root alone and narrowed to the headers a consumer may reach
 (Aspose.PDF ships `include/internal/`, Aspose.Slides `include/.../_internal/`).
@@ -26,6 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme.extractors.platforms.cpp_examples import (
+    measured_cpp_build,
     verify_cpp_examples,
 )
 from repository_presenter.components.readme.extractors.surface.extractor import (
@@ -33,16 +36,21 @@ from repository_presenter.components.readme.extractors.surface.extractor import 
     surface_symbols,
 )
 from repository_presenter.components.readme.extractors.surface.manifest import read_identity
-from repository_presenter.components.readme.extractors.surface.registry import observe
+from repository_presenter.components.readme.extractors.surface.registry import (
+    observe,
+    repository_of,
+)
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
 from repository_presenter.core.examples import (
     ExampleCandidate,
     ExampleReceipt,
     FormatClaim,
     FormatDeclaration,
+    MeasuredBuild,
 )
 from repository_presenter.core.facts import Evidence, Fact, fact_id, slug
 from repository_presenter.core.grammars import get_parser
+from repository_presenter.core.package_registry import DISTRIBUTION_FACT_PREFIX
 from repository_presenter.core.probes import ProbeRecord
 
 CPP = EcosystemSpec(
@@ -132,6 +140,37 @@ _LINK_KEYWORDS = frozenset({"PUBLIC", "PRIVATE", "INTERFACE"})
 # with the leading underscore the language reserves for implementation detail, and upstream
 # exempts it by name from its own private-directory rule.
 _PRIVATE_SEGMENTS = frozenset({"internal", "_internal", "detail", "details", "impl"})
+
+
+# Resolved at call time through this module attribute so a test injects its own reading and the
+# suite never reaches a registry (tests/conftest.py replaces it with an inconclusive one).
+_observe = observe
+
+# A C++ library with no registry of its own is still distributed on NuGet by some vendors (the
+# Aspose C++ FOSS libraries ship prebuilt static libraries as a NuGet package). The repository's
+# own README is the source of that package's name; NuGet and its project URL are what confirm it
+# is this repository's. Five spellings a README gives it: the badge, the package page, a command.
+_README_NAME = re.compile(r"^readme(?:\.(?:md|markdown|rst|txt))?$", re.IGNORECASE)
+_NUGET_ID = r"([A-Za-z0-9][A-Za-z0-9_.-]*[A-Za-z0-9])"
+_NUGET_DECLARATIONS = (
+    re.compile(rf"img\.shields\.io/nuget/v(?:pre)?/{_NUGET_ID}"),
+    re.compile(rf"nuget\.org/packages/{_NUGET_ID}"),
+    re.compile(rf"\bnuget\s+install\s+{_NUGET_ID}", re.IGNORECASE),
+    re.compile(rf"\bdotnet\s+add\s+(?:\S+\s+)?package\s+{_NUGET_ID}", re.IGNORECASE),
+    re.compile(rf"<PackageReference\s+Include=[\"']{_NUGET_ID}[\"']", re.IGNORECASE),
+)
+_MAX_DECLARED_DISTRIBUTIONS = 3
+
+
+def declared_nuget_packages(text: str) -> list[str]:
+    """The NuGet package ids a README text names, in the order it first names them."""
+    found: dict[str, int] = {}
+    for pattern in _NUGET_DECLARATIONS:
+        for match in pattern.finditer(text):
+            # A shields.io badge ends in its image suffix: `.../Aspose.Cells.Cpp.FOSS.svg`.
+            package = re.sub(r"\.(?:svg|png|json)$", "", match.group(1), flags=re.IGNORECASE)
+            found.setdefault(package, match.start())
+    return [name for name, _ in sorted(found.items(), key=lambda item: item[1])]
 
 
 def _is_private(source_path: str) -> bool:
@@ -327,6 +366,31 @@ def _dependency_facts(text: str, where: str) -> list[Fact]:
     return facts
 
 
+def _resolve_distribution(fact: Fact, repository: str | None) -> tuple[Fact, ProbeRecord]:
+    """``fact`` with NuGet's reading of the package it names: SUPPORTED only when NuGet lists it
+    and its own project URL names this repository."""
+    reading = _observe("net", fact.value, repository=repository)
+    polarity, confidence, detail = reading.install_verdict()
+    resolved = Fact(
+        fact.id,
+        fact.kind,
+        fact.value,
+        (*fact.evidence, Evidence(reading.evidence_url or reading.registry, detail)),
+        polarity=polarity,
+        confidence=confidence,
+        attributes=fact.attributes,
+    )
+    probe = ProbeRecord(
+        kind="registry",
+        target=f"{reading.registry}:{fact.value}",
+        outcome=polarity,
+        status=None,
+        elapsed_ms=0,
+        observation=reading.method or reading.source,
+    )
+    return resolved, probe
+
+
 class CppPlugin:
     """What the facts stage asks of C++."""
 
@@ -460,7 +524,40 @@ class CppPlugin:
                 )
             )
         facts.extend(_dependency_facts(text, where))
+        facts.extend(self._declared_distributions(root, tree_paths))
         return facts
+
+    @staticmethod
+    def _declared_distributions(root: Path, tree_paths: list[str]) -> list[Fact]:
+        """The NuGet packages the repository's own README names, each awaiting the registry.
+
+        `package:name` is the CMake project name - a build target, not a distribution - so the
+        name a reader installs is a separate fact (`package:distribution.<id>`), derived from the
+        same README that carries the install command and confirmed or refused by `registry_facts`.
+        Until NuGet answers the fact is UNRESOLVED and no claim may rest on it.
+        """
+        readme = next(
+            (path for path in sorted(tree_paths) if "/" not in path and _README_NAME.match(path)),
+            None,
+        )
+        if readme is None:
+            return []
+        try:
+            text = (root / readme).read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return []
+        return [
+            Fact(
+                fact_id("package", "distribution", name),
+                "package",
+                name,
+                (Evidence(readme, "NuGet package the repository's own README names"),),
+                polarity="UNRESOLVED",
+                confidence=0.5,
+                attributes={"registry": "nuget"},
+            )
+            for name in declared_nuget_packages(text)[:_MAX_DECLARED_DISTRIBUTIONS]
+        ]
 
     def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
         """The public types and members declared under the library's include root.
@@ -507,43 +604,59 @@ class CppPlugin:
         return facts
 
     def registry_facts(self, facts: Sequence[Fact]) -> tuple[list[Fact], list[ProbeRecord]]:
-        """Record that there is no registry to ask, and leave the install claim UNRESOLVED.
+        """Record that there is no registry to ask for the build, and resolve each NuGet package
+        the README names.
 
         `surface/registry.py`'s `REGISTRY_TYPES` has no `cpp` entry, so `observe` reads nothing
         and returns an inconclusive observation without a network call - which is the honest
         answer and not a negative one (§29.6 E5). The reading still becomes evidence, because a
         reader of the install fact should see that the absence of a published package was
         observed rather than assumed.
+
+        A NuGet package the README names is asked of NuGet as a .NET package would be, and it
+        becomes a SUPPORTED distribution identity only when NuGet lists it and its project URL
+        points back at this repository (a name on a registry is not ownership, TC-EXT-01).
         """
         by_id = {fact.id: fact for fact in facts}
+        resolved_facts: list[Fact] = []
+        probes: list[ProbeRecord] = []
         install = by_id.get(CPP.install_fact_id)
         name = by_id.get("package:name")
-        if install is None or name is None:
-            return [], []
-        reading = observe(self.ecosystem, name.value)
-        resolved = Fact(
-            install.id,
-            install.kind,
-            install.value,
-            (
-                *install.evidence,
-                Evidence(
-                    reading.evidence_url or reading.registry or "no package registry",
-                    reading.summary,
-                ),
-            ),
-            polarity="UNRESOLVED",
-            confidence=0.5,
-        )
-        probe = ProbeRecord(
-            kind="registry",
-            target=f"{reading.registry or 'none'}:{name.value}",
-            outcome="UNRESOLVED",
-            status=None,
-            elapsed_ms=0,
-            observation=reading.method or reading.source,
-        )
-        return [resolved], [probe]
+        if install is not None and name is not None:
+            reading = observe(self.ecosystem, name.value)
+            resolved_facts.append(
+                Fact(
+                    install.id,
+                    install.kind,
+                    install.value,
+                    (
+                        *install.evidence,
+                        Evidence(
+                            reading.evidence_url or reading.registry or "no package registry",
+                            reading.summary,
+                        ),
+                    ),
+                    polarity="UNRESOLVED",
+                    confidence=0.5,
+                )
+            )
+            probes.append(
+                ProbeRecord(
+                    kind="registry",
+                    target=f"{reading.registry or 'none'}:{name.value}",
+                    outcome="UNRESOLVED",
+                    status=None,
+                    elapsed_ms=0,
+                    observation=reading.method or reading.source,
+                )
+            )
+        repository = repository_of(facts)
+        for fact in facts:
+            if fact.id.startswith(DISTRIBUTION_FACT_PREFIX) and fact.polarity == "UNRESOLVED":
+                resolved, probe = _resolve_distribution(fact, repository)
+                resolved_facts.append(resolved)
+                probes.append(probe)
+        return resolved_facts, probes
 
     def verify_examples(
         self,
@@ -568,6 +681,20 @@ class CppPlugin:
             workspace,
             CPP.example_timeout_seconds,
         )
+
+    def verify_build(self, root: Path, manifest: Path, workspace: Path) -> MeasuredBuild:
+        """The library's own CMake build, measured whether or not a README example compiles.
+
+        The one proof a registry-less install can stand on: when the build exits 0 the install
+        is the source checkout plus exactly the two steps that were run, admitted by the shared
+        rule in `evidence/facts/extract.py` rather than left UNRESOLVED for want of a registry.
+        A build that did not succeed advertises nothing.
+        """
+        product = measured_cpp_build(manifest, workspace)
+        if not product.startswith("succeeded"):
+            return MeasuredBuild(False, "", product)
+        command = source_build_command(manifest.parent.relative_to(root).as_posix())
+        return MeasuredBuild(True, command, f"succeeded (`{' then '.join(command.splitlines())}`)")
 
     def format_claims(self, code: str) -> Sequence[FormatClaim]:
         """Not yet built; a claim this plugin cannot read is no claim at all."""
