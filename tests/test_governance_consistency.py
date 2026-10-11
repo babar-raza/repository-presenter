@@ -108,6 +108,38 @@ def test_a_governance_document_stays_within_its_line_budget(path: Path, key: str
     assert lines <= cap, f"{path.name} is {lines} lines against its budget of {cap}"
 
 
+def test_the_line_caps_the_prose_states_are_the_caps_the_cursor_carries() -> None:
+    """The caps are raised by an owner decision (2026-10-11: 200 to 210 and 500 to 520, because the
+    two-lane shape and the new progress unit did not fit without deleting a live rule), and three
+    places state them in words. Each must say what ``execution_limits.governance_budget`` says, so
+    a later raise is one coherent edit and never a prose figure left behind."""
+    budget = state()["execution_limits"]["governance_budget"]
+    agents_cap = budget["agents_md_max_lines"]
+    plan_cap = budget["execution_state_machine_max_lines"]
+    agents = AGENTS.read_text("utf-8")
+    stated = f"this file at most {agents_cap} lines, the build plan at most {plan_cap} lines"
+    assert stated in agents
+    esm = ESM.read_text("utf-8")
+    assert f"Cap: {plan_cap} lines" in esm
+    assert f"`AGENTS.md` at most {agents_cap} lines, this document at most {plan_cap}," in esm
+
+
+def test_the_progress_unit_is_authorizable_and_stated_the_same_everywhere() -> None:
+    """Owner decision D4 (2026-10-11): progress counts authorizable candidates; the sealed count is
+    reported alongside and is not progress. The cursor, the governance file, the plan and the two
+    entry documents must not state a different unit."""
+    progress = state()["progress"]
+    assert progress["unit"] == "authorizable README candidates"
+    authorizable = progress["authorizable_candidates"]
+    assert isinstance(authorizable, int) and 0 <= authorizable <= progress["denominator"]
+    for path in (AGENTS, ESM, REPO_ROOT / "README.md", REPO_ROOT / "project" / "loop-prompt.md"):
+        text = path.read_text("utf-8")
+        assert "authorizable" in text, f"{path.name} does not state the authorizable progress unit"
+        assert "current reviewable no-op-proven candidates, N/" not in text, (
+            f"{path.name} still states the retired sealed progress unit"
+        )
+
+
 def blocking_check_rows() -> list[str]:
     """The numbered rows of README_CONTRACT.md section 5."""
     contract = CONTRACT.read_text("utf-8")
