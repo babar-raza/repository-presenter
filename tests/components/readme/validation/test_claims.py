@@ -221,7 +221,7 @@ def test_a_not_published_sentence_about_something_else_is_left_alone() -> None:
 # --- the check as the validator runs it -------------------------------------------------------
 def test_bc14_is_a_registered_blocking_check_judged_at_s9() -> None:
     check = next(c for c in BLOCKING_CHECKS if c.id == "BC-14")
-    assert (check.version, check.judged_at) == ("2", "S9")
+    assert (check.version, check.judged_at) == ("3", "S9")
 
 
 def test_the_registry_judge_routes_each_finding_to_its_section_and_stage() -> None:
@@ -279,6 +279,31 @@ def test_an_unconfirmed_distribution_does_not_excuse_the_near_miss() -> None:
     # And a different package that merely resembles the project is still refused.
     other = CELLS_CPP_INSTALL.replace("Aspose.Cells.Cpp.FOSS", "Aspose.Cells.Cpp")
     assert claim_findings(other, _cells_cpp("SUPPORTED"))
+
+
+SLIDES_CPP_NOT_PUBLISHED = (
+    "## Installation\n\n`AsposeSlidesFoss` is not yet published on any package registry; build it "
+    "from a source checkout instead, verified against this revision:\n"
+)
+CPP_PUBLISHED = "## Installation\n\nThe library is published on NuGet as `Aspose.Cells.Cpp.FOSS`.\n"
+
+
+def test_a_confirmed_distribution_is_a_positive_registry_reading() -> None:
+    """Slides-Cpp, wave 3: the Installation section said "not yet published on any package
+    registry" beside a NuGet package NuGet lists (the independent review's F01). A distribution a
+    registry confirmed as this repository's own is a reading that the package is published, so a
+    sentence denying it is flagged exactly as one beside `package:published_version` is."""
+    [finding] = claim_findings(SLIDES_CPP_NOT_PUBLISHED, _cells_cpp("SUPPORTED"))
+    assert finding.stage == "COMPOSING" and "not published" in finding.detail
+    # What the renderer now writes of such a library is not a denial.
+    assert claim_findings(CPP_PUBLISHED, _cells_cpp("SUPPORTED")) == []
+
+
+def test_an_unconfirmed_distribution_is_no_reading_so_the_denial_is_not_judged() -> None:
+    """Negative control: the check flags only against a reading. A name NuGet did not confirm
+    (UNRESOLVED) or said does not exist (CONTRADICTED) leaves nothing to hold the sentence to."""
+    for polarity in ("UNRESOLVED", "CONTRADICTED"):
+        assert claim_findings(SLIDES_CPP_NOT_PUBLISHED, _cells_cpp(polarity)) == []
 
 
 # --- Cells-Java: "the sole published version" while the registry lists two ---------------------
@@ -360,3 +385,45 @@ def test_the_registry_judge_routes_the_exclusivity_finding_to_its_section() -> N
     )
     [failure] = _check_claims(candidate)
     assert failure.stage == "COMPOSING" and failure.section == "api_reference"
+
+
+# --- rule (e): the licence is stated once, by the licence fact (wave-3 acceptance, Note-Python) ---
+LICENSE_FACTS = (
+    _fact("package:name", "package", "aspose-note-foss"),
+    _fact("license:spdx", "license", "MIT", "license text states this license"),
+)
+
+
+def test_a_scope_sentence_naming_a_license_reference_beside_an_mit_license_is_flagged() -> None:
+    readme = (
+        "# Aspose.Note FOSS\n\nIt supports Python 3.10 and later, and is distributed under the "
+        "LicenseRef-Aspose-Split license.\n\n## License\n\n"
+        "This project is licensed under the [MIT License](LICENSE).\n"
+    )
+    [finding] = claim_findings(readme, _facts(*LICENSE_FACTS))
+    assert finding.stage == "COMPOSING" and finding.line == 2
+    assert "LicenseRef-Aspose-Split" in finding.detail and "states MIT" in finding.detail
+
+
+def test_a_different_recognised_license_is_flagged_and_the_facts_own_is_not() -> None:
+    other = "The package is released under the Apache License 2.0 terms.\n"
+    assert claim_findings(other, _facts(*LICENSE_FACTS)) == []  # not classifiable: left alone
+    different = "The project is licensed under the BSD 3-Clause license.\n"
+    [finding] = claim_findings(different, _facts(*LICENSE_FACTS))
+    assert "BSD-3-Clause" in finding.detail
+    same = "The project is distributed under the MIT license.\n"
+    assert claim_findings(same, _facts(*LICENSE_FACTS)) == []
+
+
+def test_the_license_rule_is_silent_without_a_supported_license_fact_or_inside_a_fence() -> None:
+    readme = "Distributed under the LicenseRef-Aspose-Split license.\n"
+    assert claim_findings(readme, _facts(LICENSE_FACTS[0])) == []
+    unclassified = _fact("license:spdx", "license", "UNCLASSIFIED", polarity="UNRESOLVED")
+    assert claim_findings(readme, _facts(LICENSE_FACTS[0], unclassified)) == []
+    fenced = "```text\nLicenseRef-Aspose-Split\n```\n"
+    assert claim_findings(fenced, _facts(*LICENSE_FACTS)) == []
+
+
+def test_a_sentence_about_a_dependencys_or_fonts_license_is_not_the_projects_statement() -> None:
+    readme = "The optional PDF dependency is distributed under the BSD 3-Clause license.\n"
+    assert claim_findings(readme, _facts(*LICENSE_FACTS)) == []

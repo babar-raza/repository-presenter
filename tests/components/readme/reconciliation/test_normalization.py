@@ -968,3 +968,50 @@ def test_the_rendered_commands_follow_the_source_checkout_record() -> None:
         _net_install_facts(**{SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE: "no build exited 0"})
     )
     assert not any(line.startswith(("dotnet build", "git clone")) for line in refused)
+
+
+def test_an_install_command_is_recognised_by_its_text_when_its_heading_does_not_say_install() -> (
+    None
+):
+    """``_INSTALL_COMMAND`` ended in a literal backspace instead of a word boundary, so it matched
+    nothing and an install block was told apart from a build block by its heading alone: a
+    ``pip install`` under 'Usage' went to Development and Testing instead of the Installation row
+    that prints the verified install."""
+    from repository_presenter.components.readme.reconciliation.dispositions import (
+        _INSTALL_COMMAND,
+    )
+
+    for text in (
+        "pip install aspose-x-foss",
+        "$ python -m pip install aspose-x-foss",
+        "npm install widget",
+        "git clone https://github.com/org/repo.git",
+        "dotnet add package Aspose.Widget",
+    ):
+        assert _INSTALL_COMMAND.search("```bash" + chr(10) + text + chr(10) + "```")
+    for text in ("pip installer-notes", "python -m unittest discover tests/", "pytest"):
+        assert _INSTALL_COMMAND.search(text) is None
+
+    block = Fact(
+        "inherited_unit:020.code_block",
+        "inherited_unit",
+        "```bash" + chr(10) + "pip install aspose-x-foss" + chr(10) + "```",
+        (Evidence("README.md", "lines 30-32; code_block; under X > Usage"),),
+    )
+    pip = Fact(
+        "install_command:pip",
+        "install_command",
+        "pip install aspose-x-foss",
+        (Evidence("setup.py", "manifest"), Evidence("pypi", "package registry: found")),
+    )
+    assets = Fact("build_test_asset:tests", "build_test_asset", "tests/", (Evidence("tests/"),))
+    facts = FactsDocument(
+        FACTS.repository, FACTS.source_revision, (*FACTS.facts, block, pip, assets)
+    )
+    output = {"dispositions": [_entry("inherited_unit:020.code_block", "OMIT_UNSUPPORTED", None)]}
+    assert normalize(output, facts) == []
+    [entry] = output["dispositions"]
+    assert (entry["disposition"], entry["destination_section"]) == (
+        "SUPERSEDE_REDUNDANT",
+        "installation",
+    )

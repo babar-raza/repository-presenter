@@ -37,9 +37,7 @@ from repository_presenter.components.readme.composition.authoring import (
     verified_members,
 )
 from repository_presenter.components.readme.composition.components.glance import (
-    GLANCE_LINE_CHARS,
-    GLANCE_MAX_LINES,
-    wrapped_lines,
+    diagram_failures,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.components.shell import (
@@ -57,14 +55,12 @@ from repository_presenter.components.readme.composition.list_coverage import (
     list_items,
     missing_items,
 )
-from repository_presenter.components.readme.composition.placement import (
-    Placement,
-    placements,
-)
+from repository_presenter.components.readme.composition.placement import Placement
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
 )
+from repository_presenter.components.readme.composition.references import dangling_references
 from repository_presenter.components.readme.composition.renderer import (
     ENTERPRISE_SENTENCE_LEAD,
     RenderContext,
@@ -93,7 +89,7 @@ from repository_presenter.components.readme.validation.links.rules import (
     readme_link_budget,
 )
 from repository_presenter.core.ecosystems import spec_for
-from repository_presenter.core.examples import collapse_blank_runs
+from repository_presenter.core.examples import collapse_blank_runs, printed_example
 from repository_presenter.core.facts import (
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
     Fact,
@@ -172,7 +168,14 @@ VALIDATION_FILENAME = "validation.json"
 # BC-14 refuses a "sole / only / first published version" claim the registry's version count
 # contradicts (each Check version moves by one). A bundle sealed under 20 re-checks under 21 and
 # shows as pending.
-VALIDATOR_VERSION = "21"
+# 22: CUT-4 (G3-W08, wave-3 triage and acceptance review): BC-03 judges a printed example by what the
+# verifier compiled, BC-04 also enforces the text-hygiene and audience guards, BC-05 checks a kept unit
+# against the whole destination document and blocks silent deferrals, BC-07 judges the horizontal
+# At a Glance drawing by the width model and flags a dangling reference, BC-12 treats a name that
+# heads a longer dotted or scoped identifier as an identifier, BC-14 counts a registry-confirmed
+# distribution as a positive reading (each Check version moves by one). A bundle sealed under 21
+# re-checks under 22 and shows as pending.
+VALIDATOR_VERSION = "22"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -251,7 +254,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-03",
-        "2",
+        "3",
         "Every rendered example was executed or compiled in isolation at this revision",
         ("quick_start", "additional_examples"),
         "S9",
@@ -263,7 +266,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # fact's own literal value, example identifier, or command-fence token.
         # 3 (G7-W15): a must-carry unit the section's authoring recorded as omitted with a reason
         # is dispositioned (units document `omitted`), exactly as the authoring call judged it.
-        "4",
+        "5",
         "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact "
         "value in a code span",
         (
@@ -284,7 +287,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # section cannot carry it (dispositions.RECOVERED_COVERAGE_RATIONALE) is an ADVISORY class.
         # "5" (CUT-2, G3-W08/G7-W12): "unsupported"/"uncertain" attestations and a unit from the
         # examples section the plan excludes are classified ADVISORY; see VALIDATOR_VERSION 20.
-        "6",
+        "7",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),
@@ -369,7 +372,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # badge-specific link_target fact in its evidence at all needs no badge row, since no
         # badge slot could ever render from it. Any badge-worthy fact present and still no
         # rendered row is unchanged: that is a real composition defect.
-        "10",
+        "11",
         "Exactly one factual H1; one badge row in the stable order, each badge supported by a "
         "verified fact; title-case headings of every level; canonical abbreviations in prose and "
         "headings; At a Glance topology, column rules and label geometry; fence languages and "
@@ -416,7 +419,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-12",
-        "1",
+        "2",
         "Every product-name position in the prose spells the registry's canonical product name "
         "exactly; no separator, case, or suffix variant of it (plans/idea.md L84-85)",
         ("all",),
@@ -424,7 +427,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-14",
-        "2",
+        "3",
         "A package version, install command, or publication statement in the README equals what "
         "the facts say: the registry's current release (or the manifest's version without that "
         "reading), the package identity fact, and the install command's registry observation",
@@ -543,9 +546,6 @@ _COMMAND = re.compile(
     r"cargo|cmake|make|git)\b(?!-)",
     re.IGNORECASE,
 )
-_CAPABILITY_NODE = re.compile(r"^\s*c(\d+)\[", re.MULTILINE)
-_GLANCE_LABEL = re.compile(r"\[\"([^\"]*)\"\]")
-_GLANCE_DIRECTIVE = re.compile(r"^(?:style|classDef|linkStyle|click)\b")
 _GLANCE_FENCE = re.compile(r"```mermaid\n.*?\n```", re.DOTALL)
 _NARRATION = (
     "preserved repository details",
@@ -755,9 +755,33 @@ def _example_for_unit(facts: FactsDocument, unit_id: str) -> Fact | None:
 
 
 def _placements(candidate: Candidate) -> list[Placement]:
-    return placements(
-        candidate.plan, candidate.dispositions, candidate.facts, candidate.entry.ecosystem
+    """Exactly what the renderer placed: the same decision, on the document as it renders with no
+    kept unit placed (``RenderContext.placements``), so a unit placement dropped as stated by its
+    destination is judged against that destination's own text and a carried remainder is judged
+    as the text it is.
+
+    Five checks ask, and deciding it renders the document once without the kept units (seconds on
+    a large API Reference), so the answer is remembered on the candidate for as long as the
+    artifacts it is a function of are unchanged."""
+    signature = _sha256(
+        json.dumps(
+            [candidate.plan, candidate.units, candidate.dispositions], sort_keys=True, default=str
+        ).encode("utf-8")
     )
+    remembered = getattr(candidate, "_placement_memo", None)
+    if remembered is not None and remembered[0] == signature:
+        decisions: list[Placement] = remembered[1]
+        return decisions
+    context = RenderContext(
+        candidate.entry,
+        candidate.facts.canonical(),
+        candidate.plan,
+        candidate.units,
+        candidate.dispositions,
+    )
+    decisions = context.placements
+    object.__setattr__(candidate, "_placement_memo", (signature, decisions))
+    return decisions
 
 
 def _placed_texts(candidate: Candidate) -> list[str]:
@@ -977,7 +1001,11 @@ def _check_examples(candidate: Candidate) -> list[Failure]:
                     f"{fact_id} was not executed or compiled at this revision ({fact.polarity})",
                 )
             )
-    values = {by_id[fact_id].value.rstrip("\n") for fact_id in planned if fact_id in by_id}
+    # A printed example is the program its receipt compiled: the snippet with the usings or imports
+    # the verifier supplied in front of it (core/examples.py ``printed_example``).
+    values = {
+        printed_example(by_id[fact_id]).rstrip("\n") for fact_id in planned if fact_id in by_id
+    }
     # D5: a fence's language is compared against the ecosystem's own declared aliases
     # (EcosystemSpec.example_fences - `py`/`python3` for Python, `csharp`/`cs`/`c#` for .NET),
     # never against the bare ecosystem string itself - a .NET example is fenced ```csharp, never
@@ -1099,8 +1127,14 @@ _LIST_OBLIGED = OWED_SECTIONS | {"documentation_resources"}
 def _dropped_list_failures(
     candidate: Candidate, placement: Placement, texts: Mapping[str, str]
 ) -> list[Failure]:
-    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because the plan's
-    own content "already covers that material" must in fact state every one of its items.
+    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because its
+    destination "already covers that material" must in fact state every one of its items.
+
+    The net under the whole-content drop rule: placement now drops a list only for items the
+    destination states (``composition/coverage.py``, the item test below plus the commands and
+    links an item carries), so on a placement the renderer made this finds nothing. It remains the
+    independent statement of the standard - and the check that placement and BC-05 still agree on
+    what "states an item" means.
 
     The drop is exclusive on fact IDs, so ONE shared fact dropped the whole list while the section
     stated only some of it, and BC-05 passed every such unit (wave-3 acceptance review of reseal
@@ -1168,7 +1202,9 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
             )
     # A deferred unit is never placed, so it cannot reach the public text; what its cause may do
     # is fail the candidate (validation/deferrals.py). ADVISORY causes surface in advisory_notes.
-    for finding in review_deferrals(candidate.dispositions, candidate.facts, candidate.plan):
+    for finding in review_deferrals(
+        candidate.dispositions, candidate.facts, candidate.plan, candidate.readme
+    ):
         if finding.decision == "BLOCK":
             failures.append(
                 Failure(
@@ -1379,19 +1415,66 @@ _IDENTIFIER_CUE_AFTER = re.compile(
 )
 
 
-def _is_technical_identifier(found: str, before: str, after: str) -> bool:
+# What makes a no-space match part of a LONGER identifier rather than a spelling of the product
+# name: a qualified-name or file-extension continuation (``.DataSet``, ``.Tests``, ``.csproj``), a
+# path or scope separator (``/``, a backslash, ``::``) after it, or the same before it (``src/``,
+# ``Contoso.``). A dot only continues a name when a letter follows it, so a sentence that ends
+# with the shorthand ("... built on Aspose.GIS.FOSS.") is not continued. Underscores are left to
+# the slug rule above: ``_Aspose.GIS.FOSS_`` is Markdown emphasis, not an identifier.
+_IDENTIFIER_CONTINUES = re.compile(r"^(?:\.[A-Za-z_]|[/\\]|::)")
+_IDENTIFIER_CONTINUED = re.compile(r"(?:[A-Za-z0-9_]\.|[/\\]|::)$")
+_DOTTED_SEGMENT = re.compile(r"^\.([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def _name_tail(canonical: str) -> frozenset[str]:
+    """The lower-cased segments a canonical name carries after its FOSS segment, less the word
+    "for": ``Aspose.GIS.FOSS for .Net`` -> ``{"net"}``. A dotted continuation that spells one of
+    them (``Aspose.GIS.FOSS.Net``) is the product name's own suffix run together, not a type."""
+    segments = [part for part in re.split(r"[\s._-]+", canonical) if part]
+    foss = next((i for i, part in enumerate(segments) if part.lower() == "foss"), None)
+    tail = [] if foss is None else segments[foss + 1 :]
+    return frozenset(part.lower() for part in tail if part.lower() != "for")
+
+
+def _is_technical_identifier(
+    found: str,
+    before: str,
+    after: str,
+    *,
+    around: tuple[str, str] | None = None,
+    tail: Collection[str] = (),
+) -> bool:
     """plans/idea.md L81-83: package names, import paths, namespaces, and commands "may use their
-    exact technical forms only where that technical identifier is itself the subject". Two
+    exact technical forms only where that technical identifier is itself the subject". Three
     lexical, deterministic signs of that: a spelling with no whitespace that carries a hyphen or
     an underscore is a package, module, or repository slug (``aspose-3d-foss``,
-    ``Aspose.Cells_FOSS``), never a spelling of the product name; and any other no-space spelling
-    (``Aspose.3D.FOSS``) is an identifier only when a package/namespace/version cue sits beside it.
-    A sentence that merely opens with the shorthand ("Aspose.3D.FOSS provides ...") has no cue."""
+    ``Aspose.Cells_FOSS``), never a spelling of the product name; any other no-space spelling
+    (``Aspose.3D.FOSS``) is an identifier when a package/namespace/version cue sits beside it;
+    and it is one when it is only the head of a longer dotted, slashed or scoped identifier -
+    ``Aspose.GIS.FOSS.DataSet`` (a type), ``Aspose.GIS.FOSS.Tests/`` (a project directory),
+    ``src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj`` (a path): the longer identifier is the subject
+    and no product-name position is spelled (wave 3: GIS-.Net, Imaging-.NET, PSD-.NET, whose
+    repairs were refused as unchanged because the text was right). A sentence that merely opens or
+    closes with the shorthand ("Aspose.3D.FOSS provides ...", "... on Aspose.3D.FOSS.") has no cue
+    and no continuation, and a continuation that spells the canonical name's own suffix
+    (``tail``: ``Aspose.GIS.FOSS.Net``) is that name mangled, not a type.
+
+    ``before``/``after`` are the prose the match sits in, code spans blanked. ``around`` is the
+    same window read from the README itself, code-span backticks removed: a path the normaliser
+    split into adjacent spans (``src/`Aspose.PSD.FOSS/`Aspose.PSD.FOSS`.csproj```) is blank on
+    both sides in the prose and a plain path in the source. It decides the continuation only; a
+    cue word inside a code span is not a cue."""
     if any(character.isspace() for character in found):
         return False
     if "-" in found or "_" in found:
         return True
-    return bool(_IDENTIFIER_CUE_BEFORE.search(before) or _IDENTIFIER_CUE_AFTER.match(after))
+    if _IDENTIFIER_CUE_BEFORE.search(before) or _IDENTIFIER_CUE_AFTER.match(after):
+        return True
+    near_before, near_after = around if around is not None else (before, after)
+    if not (_IDENTIFIER_CONTINUES.match(near_after) or _IDENTIFIER_CONTINUED.search(near_before)):
+        return False
+    segment = _DOTTED_SEGMENT.match(near_after)
+    return segment is None or segment.group(1).lower() not in tail
 
 
 def _check_canonical_name(candidate: Candidate) -> list[Failure]:
@@ -1403,16 +1486,29 @@ def _check_canonical_name(candidate: Candidate) -> list[Failure]:
     canonical = product_name(candidate.entry)
     pattern = canonical_name_pattern(canonical)
     text = _visible_prose(candidate.readme)
+    tail = _name_tail(canonical)
+    source = candidate.readme.splitlines()
     failures: list[Failure] = []
     seen: set[tuple[str, str | None]] = set()
     for match in pattern.finditer(text):
         found = match.group(0)
         if found == canonical:
             continue
+        # The prose is the README with each code span blanked to spaces of the same length, so a
+        # match sits at the same column of the same line in the source.
+        line = text.count("\n", 0, match.start())
+        column = match.start() - (text.rfind("\n", 0, match.start()) + 1)
+        row = source[line] if line < len(source) else ""
+        around = (
+            row[max(0, column - 24) : column].replace("`", ""),
+            row[column + len(found) : column + len(found) + 24].replace("`", ""),
+        )
         if _is_technical_identifier(
             found,
             text[max(0, match.start() - 24) : match.start()],
             text[match.end() : match.end() + 24],
+            around=around,
+            tail=tail,
         ):
             continue
         section = _located(candidate.readme, text, match.start())
@@ -1500,98 +1596,13 @@ def _check_links(candidate: Candidate) -> list[Failure]:
     return failures
 
 
-def _column_size(lines: list[str], name: str) -> int | None:
-    """How many capability nodes the named column subgraph holds; None when it is absent."""
-    try:
-        index = lines.index(f'subgraph {name}[" "]')
-    except ValueError:
-        return None
-    size = 0
-    for line in lines[index + 1 :]:
-        if line == "end":
-            break
-        if _CAPABILITY_NODE.match(line):
-            size += 1
-    return size
-
-
 def _topology_failures(body: str, has_inputs: bool) -> list[Failure]:
-    """README_CONTRACT.md section 2.1: one chain with one edge per hop, groups as single
-    listing nodes, Starting Points only with a verified input format, one column up to five
-    capabilities and two balanced columns from six, geometry-safe labels, no styling."""
-    failures: list[Failure] = []
-    lines = [line.strip() for line in body.splitlines() if line.strip()]
-    if not lines or lines[0] != "flowchart TD":
-        failures.append(Failure("COMPOSING", "At a Glance is a flowchart TD"))
-    starting = any(line.startswith("subgraph StartingPoints[") for line in lines)
-    outputs = any(line.startswith("subgraph Outputs[") for line in lines)
-    chain = " --> ".join(
-        group
-        for group, present in (
-            ("StartingPoints", starting),
-            ("PRODUCT", True),
-            ("Capabilities", True),
-            ("Outputs", outputs),
-        )
-        if present
-    )
-    edges = [line for line in lines if "-->" in line or "---" in line or "~~~" in line]
-    if edges != [chain]:
-        failures.append(
-            Failure("COMPOSING", f"At a Glance is the one chain {chain!r}; found {edges}")
-        )
-    if starting and not has_inputs:
-        failures.append(
-            Failure("PLANNING", "At a Glance shows Starting Points without a verified input format")
-        )
-    if any(_GLANCE_DIRECTIVE.match(line) for line in lines):
-        failures.append(Failure("COMPOSING", "At a Glance carries a styling directive"))
-    count = len(_CAPABILITY_NODE.findall(body))
-    columns = {name: _column_size(lines, name) for name in ("capl", "capr")}
-    present = [name for name, size in columns.items() if size is not None]
-    if count > 8:
-        failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at most 8"))
-    elif count < 3:
-        failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at least 3"))
-    elif count <= 5 and present:
-        failures.append(
-            Failure("COMPOSING", f"At a Glance: {count} capabilities form one column, not two")
-        )
-    elif count >= 6 and len(present) != 2:
-        failures.append(
-            Failure(
-                "COMPOSING",
-                f"At a Glance: {count} capabilities form two balanced columns; "
-                f"found {len(present)} column(s)",
-            )
-        )
-    elif count >= 6 and abs((columns["capl"] or 0) - (columns["capr"] or 0)) > 1:
-        failures.append(
-            Failure(
-                "COMPOSING",
-                f"At a Glance: {count} capabilities form two balanced columns; "
-                f"found {columns['capl']} and {columns['capr']}",
-            )
-        )
-    for label in _GLANCE_LABEL.findall(body):
-        for token in label.split():
-            if len(token) > GLANCE_LINE_CHARS:
-                failures.append(
-                    Failure("COMPOSING", f"At a Glance label token over 28 characters: {token!r}")
-                )
-        # README_CONTRACT.md section 2.1: "no label wrapping past three lines at Mermaid's default
-        # node width - a longer title is shortened at planning, never clipped at render". Every
-        # label, endpoint or capability, wraps under the one common width of components/glance.py.
-        height = len(wrapped_lines(label))
-        if height > GLANCE_MAX_LINES:
-            failures.append(
-                Failure(
-                    "PLANNING",
-                    f"At a Glance label {label!r} wraps to {height} lines at the common node "
-                    f"width of {GLANCE_LINE_CHARS} characters; at most {GLANCE_MAX_LINES}",
-                )
-            )
-    return failures
+    """README_CONTRACT.md section 2.1, judged by ``components/readme_diagram/contract.py``: the
+    horizontal drawing of the diagram's own content, three to eight capabilities in one column
+    to five or two balanced columns from six, geometry-safe labels."""
+    return [
+        Failure(failure.stage, failure.message) for failure in diagram_failures(body, has_inputs)
+    ]
 
 
 def _outside_lines(readme: str) -> list[tuple[str, str | None]]:
@@ -1716,6 +1727,48 @@ def _fence_and_spacing_failures(candidate: Candidate) -> list[Failure]:
                 )
         else:
             blank = 0
+    return failures
+
+
+def _reference_failures(candidate: Candidate) -> list[Failure]:
+    """A sentence that points at a table, list, example or section the README does not have
+    (composition/references.py; wave-3 acceptance review: Cells-.NET "the table below" with no
+    table, Slides-.NET "Every example below" after its last example and an opening that sends the
+    reader to a deleted "What it cannot do" section).
+
+    A sentence a placed inherited unit carries was kept while its referent was dropped or moved,
+    which only reconciliation can undo (RECONCILING, naming the unit); any other sentence is
+    authored prose, routed to the section whose text holds it (COMPOSING)."""
+    placed = [
+        (p.unit_id, _normalized(p.text)) for p in _placements(candidate) if p.outcome == "placed"
+    ]
+    sections = _section_texts(candidate.readme)
+    failures: list[Failure] = []
+    for reference in dangling_references(candidate.readme):
+        sentence = _normalized(reference.sentence)
+        unit = next(
+            (unit_id for unit_id, text in placed if sentence in " ".join(text.split())), None
+        )
+        located = next(
+            (sid for sid, text in sections.items() if sentence in " ".join(text.split())), None
+        )
+        if unit is not None:
+            failures.append(
+                Failure(
+                    "RECONCILING",
+                    f"{unit} is kept as written but {reference.reason}: "
+                    f"{reference.sentence[:140]!r}",
+                    located,
+                )
+            )
+        else:
+            failures.append(
+                Failure(
+                    "COMPOSING",
+                    f"dangling reference: {reference.reason}: {reference.sentence[:140]!r}",
+                    located,
+                )
+            )
     return failures
 
 
@@ -1966,6 +2019,7 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
                 (sid for sid, text in section_prose.items() if pattern.search(text)), None
             )
             failures.append(Failure("COMPOSING", f"internal narration {phrase!r}", located))
+    failures.extend(_reference_failures(candidate))
     visible, total = line_counts(candidate.readme)
     policy = candidate.policy
     # Check 7 judges the visible-length budget; collapsed content is unbounded (contract row 14).
@@ -2081,7 +2135,9 @@ def advisory_notes(candidate: Candidate) -> list[str]:
     notes: list[str] = [
         f"{finding.unit_id}: deferred as {finding.class_id} (advisory, never published): "
         f"{finding.reason}"
-        for finding in review_deferrals(candidate.dispositions, candidate.facts, candidate.plan)
+        for finding in review_deferrals(
+            candidate.dispositions, candidate.facts, candidate.plan, candidate.readme
+        )
         if finding.decision == "ADVISORY"
     ]
     context = RenderContext(

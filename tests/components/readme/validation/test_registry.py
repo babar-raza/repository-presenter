@@ -43,6 +43,9 @@ from repository_presenter.components.readme.validation.registry import (
     validate_candidate,
     write_validation,
 )
+from repository_presenter.components.readme_diagram import Glance, build_body, parse
+from repository_presenter.components.readme_diagram.rebuild import mermaid_fences
+from repository_presenter.core.examples import PRELUDE_ATTRIBUTE
 from repository_presenter.core.facts import (
     SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
@@ -275,6 +278,23 @@ def _candidate(
     )
 
 
+def _diagram_fence(readme: str) -> tuple[list[str], Any]:
+    lines = readme.splitlines(keepends=True)
+    (fence,) = mermaid_fences(lines)
+    return lines, fence
+
+
+def _drawn_glance(readme: str) -> Glance:
+    """The meaning of the At a Glance diagram a README carries."""
+    return parse(_diagram_fence(readme)[1].body).glance
+
+
+def _redrawn(readme: str, glance: Glance) -> str:
+    """``readme`` with its At a Glance diagram replaced by the contract's drawing of ``glance``."""
+    lines, fence = _diagram_fence(readme)
+    return "".join([*lines[: fence.first], build_body(glance), *lines[fence.last :]])
+
+
 def _verdicts(document: dict[str, Any]) -> dict[str, str]:
     return {check["id"]: check["verdict"] for check in document["checks"]}
 
@@ -325,7 +345,7 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # edition, spells its name whole, and passes all of them (it has badge-worthy facts and a
     # rendered badge row, no docstring eliciting an elision, and a clean single-read ACCEPT with no
     # triggered second read, so v13's, v14's, and v15's own allowance/note/detail never fire).
-    assert document["source_revision"] == REVISION and document["validator_version"] == "21"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "22"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(
@@ -1372,8 +1392,28 @@ def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
         "expected exactly one H1 '# Aspose.3D FOSS for Python'; found 2"
     ]
 
-    one_column = validate_candidate(
+    # Updated for R7 (OD-10): BC-07 holds the diagram to the one horizontal drawing of its own
+    # content, so a renamed column cluster is a drawing that is not the contract's (the old test
+    # saw "found 1 column(s)" because it counted `capr` by name); six capabilities drawn as one
+    # column still fail with the original column-rule message, asserted next.
+    renamed = validate_candidate(
         _candidate(readme.replace('subgraph capr[" "]', 'subgraph capx[" "]')), tmp_path, ()
+    )
+    renamed_failure = _failed(renamed, "BC-07")
+    assert renamed_failure["causal_stage"] == "COMPOSING"
+    assert renamed_failure["details"] == [
+        "At a Glance is not the contract's horizontal drawing of its own content "
+        "(line 10: '    subgraph capx[\" \"]' != '    subgraph capr[\" \"]')"
+    ]
+    meaning = _drawn_glance(readme)
+    one_column = validate_candidate(
+        _candidate(
+            _redrawn(
+                readme, dataclasses.replace(meaning, capability_columns=(meaning.capabilities,))
+            )
+        ),
+        tmp_path,
+        (),
     )
     assert _failed(one_column, "BC-07")["details"] == [
         "At a Glance: 6 capabilities form two balanced columns; found 1 column(s)"
@@ -1862,9 +1902,9 @@ def test_narration_covers_the_vocabulary_idea_md_lists_in_every_form(tmp_path: P
         assert f"internal narration {phrase!r}" in details, sentence
 
 
-def test_an_at_a_glance_label_that_wraps_past_three_lines_fails(tmp_path: Path) -> None:
-    """README_CONTRACT section 2.1: "no label wrapping past three lines at Mermaid's default node
-    width - a longer title is shortened at planning, never clipped at render"."""
+def test_an_at_a_glance_label_that_wraps_past_the_line_ceiling_fails(tmp_path: Path) -> None:
+    """README_CONTRACT section 2.1 (R7, OD-10): no label wraps past four lines at the diagram's
+    pixel budget - a longer title is shortened at planning, never clipped at render."""
     readme = _candidate().readme
     long_label = " ".join(["Export", "scenes"] * 10)
     widened = readme.replace('c1["Build scenes"]', f'c1["{long_label}"]')
@@ -1873,8 +1913,22 @@ def test_an_at_a_glance_label_that_wraps_past_three_lines_fails(tmp_path: Path) 
     structure = _failed(document, "BC-07")
     located = next(f for f in structure["failures"] if "wraps to" in f["detail"])
     assert located["causal_stage"] == "PLANNING"
-    assert "lines at the common node width of 28 characters; at most 3" in located["detail"]
+    # Updated for R7 (OD-10): the ceiling is four lines at the diagram's pixel budget (two columns
+    # share a README's width, so 160 px) from the one width model, not three lines of 28 characters.
+    assert "lines at the 160px line budget; at most 4" in located["detail"]
     assert not any("wraps to" in d for d in _structure_details(_candidate(), tmp_path))
+    # The same title drawn the contract's way (wrapped by the model) is still too long: BC-07 does
+    # not accept a label that only *looks* wrapped (README_STANDARD.md STR-28: never repaired by
+    # shortening a label at render).
+    meaning = _drawn_glance(readme)
+    columns = (
+        (long_label, *meaning.capability_columns[0][1:]),
+        meaning.capability_columns[1],
+    )
+    wrapped = _redrawn(readme, dataclasses.replace(meaning, capability_columns=columns))
+    wrapped_failures = _failed(validate_candidate(_candidate(wrapped), tmp_path, ()), "BC-07")
+    assert [f["causal_stage"] for f in wrapped_failures["failures"]] == ["PLANNING"]
+    assert "wraps to 10 lines" in wrapped_failures["details"][0]
 
 
 def _link_fact(name: str, url: str) -> Fact:
@@ -2741,7 +2795,7 @@ def test_check_four_honours_a_must_carry_omission_the_authoring_recorded(tmp_pat
     assert verdict([{"section": "development_testing", "fact_id": unit, "reason": reason}]) != []
 
 
-# --- LST-01: BC-05 judges the items of a list placement dropped as covered -----------------------
+# --- LST-01: a kept list is dropped only for the items its destination states ---------------------
 # 3D Java 3d2ed6be (wave-3 acceptance review, reseal f69f75c7): both kept lists were dropped by
 # placement because one fact each cites is covered by the plan, and the candidate rendered four of
 # the eight documentation links and six of the nine scope bullets with BC-05 passing.
@@ -2841,40 +2895,104 @@ def _java_candidate(docs: str, scope: str, handed: bool = True) -> Candidate:
     return _candidate(readme=readme, facts=facts, dispositions=dispositions, plan=plan)
 
 
-def test_a_kept_list_placement_dropped_must_have_every_item_rendered() -> None:
-    from repository_presenter.components.readme.validation.registry import _check_dispositions
+def test_a_kept_list_the_destination_does_not_fully_state_is_placed_for_what_it_lacks() -> None:
+    """3D Java 3d2ed6be, the real units. Placement dropped both lists on one shared fact each, and
+    the sealed README stated four of the eight documentation links and six of the nine scope
+    bullets. Now the destination is asked what it states: the document links the plan prints are
+    covered, the four repository documents are not and are placed; BC-05 holds a README that
+    does not render the placed remainder to account."""
+    from repository_presenter.components.readme.validation.registry import (
+        _check_dispositions,
+        _placements,
+    )
 
-    failures = _check_dispositions(_java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION))
-    by_section = {failure.section: failure for failure in failures}
-    assert set(by_section) == {"documentation_resources", "scope_limitations"}, failures
-    docs, scope = by_section["documentation_resources"], by_section["scope_limitations"]
-    assert docs.stage == "PLANNING" and scope.stage == "COMPOSING"
+    candidate = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION)
+    decisions = {p.unit_id: p for p in _placements(candidate)}
+    docs, scope = decisions[_DOCS_UNIT], decisions[_SCOPE_UNIT]
+    assert docs.outcome == "placed"
     for document in ("PUBLISHING.md", "api-diff-26.1.0.md", "directory-structures.md"):
-        assert document in docs.detail
-    assert f"{_DOCS_UNIT}: kept as written" in docs.detail and "of its 8 items" in docs.detail
-    assert "PbrSpecularMaterial" in scope.detail and "NurbsCurve" in scope.detail
-    assert "of its 9 items" in scope.detail
+        assert document in docs.text
+    assert "foss-java-progress.md" in docs.text
+    for stated in ("docs.aspose.org/3d", "kb.aspose.org/3d", "reference.aspose.org/3d"):
+        assert stated not in docs.text  # the plan's own link lines state them
+    assert scope.outcome == "placed"
+    assert "PbrSpecularMaterial" in scope.text and "NurbsCurve" in scope.text
+    failures = _check_dispositions(candidate)  # the hand-written README renders neither
+    assert {f.detail for f in failures} == {
+        f"{_DOCS_UNIT} was placed in documentation_resources but the candidate does not render "
+        "it there",
+        f"{_SCOPE_UNIT} was placed in scope_limitations but the candidate does not render it there",
+    }
 
 
-def test_a_kept_list_every_item_of_which_is_rendered_passes_bc05() -> None:
+def test_the_rendered_readme_keeps_every_item_of_the_kept_lists_and_passes_bc05() -> None:
+    """The same units end to end: the renderer carries what the destination lacks, so nothing the
+    reconciler kept is lost, nothing the section already says is printed twice, and BC-05 -- which
+    judges the very placement the renderer made -- finds nothing to name."""
     from repository_presenter.components.readme.validation.registry import _check_dispositions
 
-    docs = (
-        _JAVA_DOCS_SECTION
-        + "\n"
-        + "\n".join(f"- [{url}]({url})" for url in list(_JAVA_LINKS.values())[3:7])
+    base = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION)
+    readme = render_readme(base.entry, base.facts, base.plan, base.units, base.dispositions)
+    candidate = dataclasses.replace(base, readme=readme)
+    assert _check_dispositions(candidate) == []
+    for link in _JAVA_LINKS.values():
+        assert link in readme
+    for bullet in JAVA3D_SCOPE_LIST.splitlines():
+        assert bullet in readme  # all nine, as the old README wrote them
+    assert readme.count("](https://docs.aspose.org/3d/java/)") == 1  # printed once, not twice
+
+
+def test_a_scope_list_the_plan_never_handed_on_is_carried_as_written() -> None:
+    """Formerly a planning defect (a dropped list no slot owed); now there is no drop to owe:
+    the destination states none of it, so placement prints it whole and BC-05 finds nothing."""
+    from repository_presenter.components.readme.validation.registry import (
+        _check_dispositions,
+        _placements,
     )
-    assert _check_dispositions(_java_candidate(docs, _JAVA_SCOPE_COMPLETE)) == []
+
+    base = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION, handed=False)
+    readme = render_readme(base.entry, base.facts, base.plan, base.units, base.dispositions)
+    candidate = dataclasses.replace(base, readme=readme)
+    scope = {p.unit_id: p for p in _placements(candidate)}[_SCOPE_UNIT]
+    assert scope.outcome == "placed" and scope.text == JAVA3D_SCOPE_LIST
+    assert JAVA3D_SCOPE_LIST in readme
+    assert _check_dispositions(candidate) == []
 
 
-def test_a_scope_list_the_plan_never_handed_on_is_a_planning_defect() -> None:
-    from repository_presenter.components.readme.validation.registry import _check_dispositions
-
-    failures = _check_dispositions(
-        _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION, handed=False)
+def test_the_dropped_list_net_still_names_every_item_a_drop_left_unstated() -> None:
+    """The net under placement: should a list ever be dropped as stated while its items are not
+    (a drift between placement's item test and this one), BC-05 names each missing item, at the
+    stage that owed it."""
+    from repository_presenter.components.readme.composition.placement import Placement
+    from repository_presenter.components.readme.validation.registry import (
+        _dropped_list_failures,
+        _section_texts,
     )
-    scope = next(f for f in failures if f.section == "scope_limitations")
-    assert scope.stage == "PLANNING"
+
+    for handed, stage in ((True, "COMPOSING"), (False, "PLANNING")):
+        candidate = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION, handed=handed)
+        texts = _section_texts(candidate.readme)
+        docs = Placement(
+            _DOCS_UNIT, "documentation_resources", JAVA3D_DOCS_LIST, "overlap", ("link_target:022",)
+        )
+        scope = Placement(
+            _SCOPE_UNIT,
+            "scope_limitations",
+            JAVA3D_SCOPE_LIST,
+            "overlap",
+            ("install_command:maven",),
+        )
+        (docs_failure,) = _dropped_list_failures(candidate, docs, texts)
+        (scope_failure,) = _dropped_list_failures(candidate, scope, texts)
+        assert docs_failure.stage == "PLANNING"  # a docs list is never handed to a slot
+        assert scope_failure.stage == stage
+        for document in ("PUBLISHING.md", "api-diff-26.1.0.md", "directory-structures.md"):
+            assert document in docs_failure.detail
+        assert "of its 8 items" in docs_failure.detail
+        assert (
+            "PbrSpecularMaterial" in scope_failure.detail
+            and "of its 9 items" in scope_failure.detail
+        )
 
 
 def test_a_list_placement_prints_whole_is_checked_by_the_placed_rule_as_before() -> None:
@@ -2889,3 +3007,185 @@ def test_a_list_placement_prints_whole_is_checked_by_the_placed_rule_as_before()
         readme=candidate.readme + "\n" + JAVA3D_DOCS_LIST + "\n" + JAVA3D_SCOPE_LIST,
     )
     assert [f for f in _check_dispositions(candidate) if "kept as written" in f.detail] == []
+
+
+def test_bc03_holds_a_printed_example_to_the_program_its_receipt_compiled(tmp_path: Path) -> None:
+    """Wave-3 acceptance review, Slides-.NET: the harness supplied a `using` that the README never
+    printed, so three of seven printed examples did not compile. The renderer now prints the
+    receipt's prelude in front of the snippet, and BC-03 accepts that fence and only that fence: a
+    fence that drops the supplied lines is no longer the verified program."""
+    prelude = "import math"
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        tuple(
+            Fact(
+                fact.id,
+                fact.kind,
+                fact.value,
+                fact.evidence,
+                polarity=fact.polarity,
+                attributes={PRELUDE_ATTRIBUTE: prelude} if fact.id == "example:001" else None,
+            )
+            for fact in BASE_FACTS
+        ),
+    )
+    candidate = _candidate(facts=facts)
+    assert f"```python\n{prelude}\n{EXAMPLE}" in candidate.readme
+    assert "BC-03" not in {
+        f["id"] for f in blocking_failures(validate_candidate(candidate, tmp_path, ()))
+    }
+
+    stripped = _candidate(candidate.readme.replace(f"{prelude}\n", "", 1), facts=facts)
+    failing = _failed(validate_candidate(stripped, tmp_path, ()), "BC-03")
+    assert "not a planned verified example" in failing["details"][0]
+
+
+def test_bc07_refuses_a_sentence_that_points_at_a_table_the_readme_does_not_have(
+    tmp_path: Path,
+) -> None:
+    """Wave-3 acceptance review: Cells-.NET kept 'the table below' with no table, Slides-.NET kept
+    'Every example below' after its last example. Authored prose is routed to its section."""
+    dangling = "\nThe table below summarizes the supported surface.\n"
+    failing = _failed(
+        validate_candidate(_candidate(_candidate().readme + dangling), tmp_path, ()), "BC-07"
+    )
+    detail = next(d for d in failing["details"] if "dangling reference" in d)
+    assert "no table follows it" in detail
+    assert failing["causal_stage"] == "COMPOSING"
+    # Control: the same sentence with its table is a promise something keeps.
+    kept = dangling + "\n| Area | Status |\n| --- | --- |\n| Scenes | supported |\n"
+    passing = validate_candidate(_candidate(_candidate().readme + kept), tmp_path, ())
+    assert "BC-07" not in {f["id"] for f in blocking_failures(passing)}
+
+
+def test_bc07_routes_a_kept_sentence_whose_referent_was_dropped_to_reconciliation(
+    tmp_path: Path,
+) -> None:
+    """A placed inherited paragraph is verbatim: only reconciliation can drop or rewrite it."""
+    sentence = "The table below summarizes the supported surface."
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        tuple(
+            Fact(f.id, f.kind, sentence, f.evidence, polarity=f.polarity)
+            if f.id == "inherited_unit:002.paragraph"
+            else f
+            for f in BASE_FACTS
+        ),
+    )
+    failing = _failed(validate_candidate(_candidate(facts=facts), tmp_path, ()), "BC-07")
+    assert failing["causal_stage"] == "RECONCILING"
+    assert any("inherited_unit:002.paragraph is kept as written" in d for d in failing["details"])
+
+
+# ---- wave 3: BC-12 read a qualified name, a namespace and a path as the product name -----------
+#
+# The READMEs below are the lines of the wave-3 candidates (cut f69f75c7, 2026-10-11) that BC-12
+# failed: Aspose.GIS.FOSS-for-.Net (Class1/DataSet rows and the Tests/ path), Aspose.Imaging-FOSS-
+# for-.NET (the ImageInfo/ImageProbe/ImageFormat rows) and Aspose.PSD-FOSS-for-.NET (a path whose
+# code spans the normaliser split). Each repair was "revised_output matches the causal stage's
+# own output unchanged", because the model's text was right: the match was the validator's.
+
+
+def _bc12_entry(suffix: str) -> RegistryEntry:
+    registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text(encoding="utf-8"))
+    return RegistryEntry.model_validate(
+        next(e for e in registry["entries"] if e["repository"].endswith(suffix))
+    )
+
+
+def _bc12_details(suffix: str, readme: str) -> list[str]:
+    entry = _bc12_entry(suffix)
+    return [f.detail for f in _check_canonical_name(SimpleNamespace(entry=entry, readme=readme))]
+
+
+_GIS = "Aspose.GIS.FOSS-for-.Net"
+_GIS_README = "\n".join(
+    [
+        "# Aspose.GIS.FOSS for .Net",
+        "",
+        "| Type | Description |",
+        "|---|---|",
+        "| `Class1` | Aspose.GIS.FOSS.Class1 represents a base class for GIS data processing "
+        "operations in Aspose.GIS.FOSS for .Net. |",
+        "| `DataSet` | Aspose.GIS.FOSS.DataSet provides functionality to load, manipulate, and "
+        "convert geospatial datasets, including the Convert method for format transformations. |",
+        "",
+        "Aspose.GIS.FOSS for .Net targets net10.0 and is built from the "
+        "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net repository. The test suite resides in "
+        "Aspose.GIS.FOSS.Tests/ and validates the library's functionality.",
+        "",
+    ]
+)
+_IMAGING = "Aspose.Imaging-FOSS-for-.NET"
+_IMAGING_README = "\n".join(
+    [
+        "# Aspose.Imaging FOSS for .NET",
+        "",
+        "| Type | Description |",
+        "|---|---|",
+        "| `ImageInfo` | The Aspose.Imaging.Foss.ImageInfo type provides basic metadata about an "
+        "image, including its format, dimensions, bit depth, and frame count. |",
+        "| `ImageProbe` | The Aspose.Imaging.Foss.ImageProbe type enables detection and "
+        "inspection of image formats from various input sources. |",
+        "| `ImageFormat` | The Aspose.Imaging.Foss.ImageFormat type represents an image file "
+        "format supported by Aspose.Imaging FOSS for .NET. |",
+        "",
+    ]
+)
+_PSD = "Aspose.PSD-FOSS-for-.NET"
+_PSD_README = "\n".join(
+    [
+        "# Aspose.PSD FOSS for .NET",
+        "",
+        "- The library is installed by cloning the repository and building the project with "
+        "dotnet build src/`Aspose.PSD.FOSS/`Aspose.PSD.FOSS`.csproj`, and it targets net10.0.",
+        "",
+    ]
+)
+
+
+@pytest.mark.parametrize(
+    ("suffix", "readme"),
+    [(_GIS, _GIS_README), (_IMAGING, _IMAGING_README), (_PSD, _PSD_README)],
+    ids=["gis", "imaging", "psd"],
+)
+def test_bc12_does_not_read_a_qualified_name_or_a_path_as_the_product_name(
+    suffix: str, readme: str
+) -> None:
+    """The canonical name's head sits inside a longer dotted type name
+    (``Aspose.GIS.FOSS.DataSet``), a project path (``Aspose.GIS.FOSS.Tests/``,
+    ``src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj``) or a namespace: the longer identifier is the
+    subject, so no product-name position is spelled."""
+    assert _bc12_details(suffix, readme) == []
+
+
+@pytest.mark.parametrize(
+    ("suffix", "sentence", "found"),
+    [
+        (_GIS, "Aspose.GIS.FOSS provides readers for geospatial formats.", "Aspose.GIS.FOSS"),
+        (_GIS, "Use Aspose.GIS.FOSS to read a shapefile.", "Aspose.GIS.FOSS"),
+        (_GIS, "It is the work of the team behind Aspose.GIS.FOSS.", "Aspose.GIS.FOSS"),
+        (_GIS, "Install Aspose.GIS.FOSS, then open a dataset.", "Aspose.GIS.FOSS"),
+        (_GIS, "Aspose.GIS.FOSS.Net reads shapefiles.", "Aspose.GIS.FOSS"),
+        (_IMAGING, "Aspose.Imaging.Foss reads image metadata.", "Aspose.Imaging.Foss"),
+        (
+            _IMAGING,
+            "Aspose Imaging Foss for .NET reads image metadata.",
+            "Aspose Imaging Foss for .NET",
+        ),
+        (_PSD, "Aspose.PSD.FOSS edits layer names.", "Aspose.PSD.FOSS"),
+    ],
+)
+def test_bc12_still_fails_a_misspelled_product_name_in_prose(
+    suffix: str, sentence: str, found: str
+) -> None:
+    """Negative controls: a spelling that stands where the product name belongs - a sentence that
+    opens with the shorthand, one that ends with it, one with a comma after it, or the canonical
+    suffix mangled into a dotted tail - is still a product-name position, and still fails."""
+    entry = _bc12_entry(suffix)
+    readme = f"# {entry.name.replace('-', ' ')}\n\n{sentence}\n"
+    details = _bc12_details(suffix, readme)
+    assert details, sentence
+    assert all(f"product name {found!r} is not the canonical name" in d for d in details), details

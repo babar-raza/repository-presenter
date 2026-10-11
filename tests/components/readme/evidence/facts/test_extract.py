@@ -176,6 +176,43 @@ def test_a_license_the_manifest_declares_is_a_fact_when_the_repository_ships_no_
     )
 
 
+def test_the_readmes_own_enterprise_link_settles_two_live_product_pages(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Wave-3 acceptance review, Slides-Python: `python` and `python-net` product pages both
+    answer, so the lookup was ambiguous and the Enterprise Edition paragraph was dropped. The
+    README's own live link to one of them settles it, end to end through `extract_facts`."""
+    enterprise = "https://products.aspose.com/example/python-net/"
+    live = {"https://products.aspose.com/example/python/", enterprise}
+    monkeypatch.setattr(links, "fetch_status", lambda url: (200 if url in live else 404, url))
+    monkeypatch.setattr(
+        python_registry,
+        "fetch_project_json",
+        lambda url, transport=None: httpx.Response(404, json={"message": "Not Found"}),
+    )
+    source = _canary_like_source(tmp_path)
+    (source / "README.md").write_text(
+        "# Example\n\nThese limitations do not apply to "
+        f"[Aspose.Example for Python - Enterprise Edition]({enterprise}).\n",
+        encoding="utf-8",
+    )
+    commit_all(source, "readme")
+    clone = pinned_read_only_clone(str(source), tmp_path / "clone")
+    snapshot = capture_snapshot(ENTRY.repository, clone)
+    plugin = plugin_for(ENTRY.ecosystem)
+    document, _ = extract_facts(
+        ENTRY,
+        snapshot,
+        clone.path,
+        list_tree_paths(clone.path),
+        plugin,
+        plugin.detect_manifest(clone.path),
+    )
+    target = {fact.id: fact for fact in document.facts}["link_target:product.enterprise"]
+    assert (target.polarity, target.value) == ("SUPPORTED", enterprise)
+    assert target.attributes is not None and target.attributes["level"] == "platform"
+
+
 def test_without_a_manifest_only_identity_license_and_assets_remain(tmp_path: Path) -> None:
     source = init_git_repository(tmp_path / "upstream", with_commit=False)
     (source / "README.md").write_text("# Example\n", encoding="utf-8")

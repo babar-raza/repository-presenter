@@ -1,5 +1,5 @@
-# Off-template README: hand-written or minimal structure of its own. 4 of 36 repositories
-# (Cells Python, Font Python, Slides .NET, Words .NET).
+# Off-template README: hand-written or minimal structure of its own
+# (Cells Python, Font Python, Slides .NET, Words .NET at the survey).
 schema_version: 1
 id: offtemplate
 title: Off-template README, insertion mode
@@ -77,6 +77,11 @@ better_than_live:
     statement: The README's voice is kept; no marketing wording, emoji or first person is added and none is rewritten into the portfolio default.
     measured_by: marketing_words, emoji, first_person_words not higher than live
     rules: [PRC-01, TON-03, TON-04, TON-05]
+inherited_additions: >-
+  Nearly every heading is an inherited addition or the live name of a core element. All are
+  retained in place with their text, level and order (STR-27); the heading-equivalence map (STR-26)
+  marks which live heading serves which core element, and a missing core element is inserted beside
+  its neighbour. Headings are never renamed to the standard names.
 insertion_policy: >-
   Map each standard element to the live heading that already serves it (STR-26). Insert a missing
   element as a new section next to the nearest related live heading, under its standard name,

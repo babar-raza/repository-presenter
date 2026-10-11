@@ -30,7 +30,7 @@ today; [`project/state.yaml`](project/state.yaml) is the one live cursor and win
 | Accepted gates | `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UNDER_CHANGE` |
 | Current gate | `G3_PYTHON_COHORT` (READY) |
 | Active work item | `G4-W17` — landing shared-code fixes from the lane agents, and resealing candidates they invalidate |
-| Progress | **28 of 36** registry repositories hold a current, reviewable, no-op-proven candidate (29 ever sealed; 5 registry entries have no bundle yet; 2 are disabled) |
+| Progress | **0 of 44** registry repositories hold a current, independently accepted, no-op-proven candidate (30 ever sealed, 1 current-code reproducible; 14 registry entries have no bundle yet; 2 are disabled; the denominator is the registry size) |
 | Pending update | 1 candidate (`Aspose.Slides-FOSS-for-Java`) is `VALID_UPDATE_AVAILABLE`: still valid, update not yet re-sealed |
 | Independent acceptance | 0 candidates — the 30-point acceptance profile is still advisory, not ratified (`G3-W02`) |
 | Pull requests against target repos | **None opened yet.** The proposal path is built and gated; its first live proof is open (see below) |
@@ -75,7 +75,7 @@ GitHub token — see [Configuration](#configuration) and the [Example](#example)
 
 | Term | Meaning |
 |---|---|
-| **Registry** | [`data/registry.json`](data/registry.json): the hard allow-list of admitted repositories (43 entries across 15 `aspose-*-foss` organizations; Python 14, .NET 10, Java 5, C++ 5, TypeScript 4, Go 3, Rust 2). Nothing outside it is ever reached. |
+| **Registry** | [`data/registry.json`](data/registry.json): the hard allow-list of admitted repositories (44 entries across 15 `aspose-*-foss` organizations; Python 14, .NET 10, Java 5, C++ 5, TypeScript 4, Go 3, Rust 2, Node.js 1). Nothing outside it is ever reached. |
 | **Mode** | Per registry entry: `dry_run` (analyze and seal locally, can never write), `full` (may propose, if separately authorized), or `disabled`. |
 | **Facts** | Deterministic, provenance-bound claims extracted from an immutable upstream revision. Every public README claim must map to one. |
 | **Candidate / bundle** | A proposed README plus the content-addressed evidence that justifies it, under `candidates/<owner>__<name>/<revision>/`; `CURRENT` points at the live one. |
@@ -86,7 +86,7 @@ GitHub token — see [Configuration](#configuration) and the [Example](#example)
 | **Handoff** | A local, evidence-backed record of a genuine upstream product defect, which may become a GitHub issue (gated). |
 | **`BLOCKED_EXTERNAL` / `FAILED_INTERNAL`** | Blocker classes: something only an owner can supply, versus a defect in this code. The second is never an acceptable stopping point. |
 
-The unit of progress is one: **authorizable candidates, N/43** (independent acceptance review
+The unit of progress is one: **authorizable candidates, N/44** (independent acceptance review
 passed and not worse than the live README; sealed counts are reported alongside, not as progress).
 Code volume, plans, and evidence files are supporting work, not progress.
 
@@ -179,7 +179,7 @@ families through registries rather than central `if/elif` chains.
 |---|---|
 | Snapshot → facts → investigation → reconciliation → planning → composition → validation → independent review → repair → seal | **Built**; 28 current sealed candidates |
 | Deterministic Markdown renderer; the LLM never writes the final document | **Built** |
-| Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript) with pinned per-language tree-sitter wheels (no parser is downloaded at run time) | **Built**; sealed candidates exist for all seven |
+| Multi-ecosystem extraction (Python, .NET, Java, C++, Rust, Go, TypeScript, Node.js) with pinned per-language tree-sitter wheels (no parser is downloaded at run time) | **Built**; sealed candidates exist for the first seven; Node.js (read through the TypeScript grammar) has no sealed candidate yet |
 | Safety: pinned, read-only, push-neutered clones; secret-canary scan before sealing | **Built** |
 | Durable state (content-addressed storage, leases, fencing tokens, recovery) | **Built** (`core/state/`) |
 | Drift monitoring (`monitor`) and unattended sealing plan (`sealing-plan`) | **Built**; the scheduled path is not yet proven by a real cron-fired run |
@@ -282,6 +282,7 @@ The CLI reads credentials from the process environment, never from a `.env` file
 | `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `metadata --apply`'s write; a token's mere presence never implies this |
 | `GH_ISSUES_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`; only `file-upstream-defects --file` and `redetect-upstream-defects --close` read it, and only after `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | optional | Owner-controlled kill switch for the issue filing and closing writes (`file-upstream-defects --file`, `redetect-upstream-defects --close`): unset or not `1` disables every write; `1` never authorizes a filing by itself (that needs the handoff's own `ops/issue_approvals/` record), and a token's mere presence never implies it. In CI it is set only from the repository variable of the same name, on the gated write job |
+| `REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED` | optional | Owner-controlled switch, separate from the filing switch, for the one update comment `redetect-upstream-defects --comment` posts on a FILED issue whose defect persists with changed evidence: unset or not `1` disables it; it is read only on the gated write job |
 | `GH_PROPOSAL_WRITE_TOKEN` | optional | Write-scoped, distinct from `GH_TOKEN`/`GH_METADATA_WRITE_TOKEN`/`GH_ISSUES_WRITE_TOKEN`; only `propose --propose` reads it, and only after `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` also authorizes a write |
 | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` | optional | Owner-controlled go-ahead for `propose --propose`'s write; a token's mere presence never implies this |
 | `GH_CANDIDATES_WRITE_TOKEN` | optional | Write-scoped, distinct from every token above; only `publish-candidates --publish` reads it, and only after `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED` also authorizes a write. In CI it is a short-lived GitHub App installation token scoped to this control repository alone (G7-W14; never the job's ambient `GITHUB_TOKEN`, which cannot open the pull request here and starts none of its required checks) |
@@ -310,11 +311,13 @@ repository-presenter monitor [--root PATH] [--owner OWNER] [--out PATH]
 repository-presenter monitor-install-record --owner OWNER --outcome {success,failure} --repositories NAMES --out PATH
 repository-presenter monitor-install-summary DIR [--summary PATH]
 repository-presenter monitor-drift-contract DIR --out PATH
+repository-presenter registry-gaps [--root PATH] [--owner OWNER] [--json] [--from PATH] [--out PATH] [--summary PATH] [--warn-only]
 repository-presenter health-check --repo OWNER/NAME [--root PATH] [--state-remote REMOTE]
   [--wall-clock-seconds N] [--provider-calls N] [--max-wall-clock-seconds N]
   [--max-provider-calls N] [--stale-after-hours N]
-repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply] [--close]
-repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file] [--approvals-ref GIT_REF] [--count-writable]
+repository-presenter redetect-upstream-defects [--root PATH] [--repo OWNER/NAME] [--apply] [--close] [--comment] [--resume-out FILE]
+repository-presenter file-upstream-defects [--root PATH] [--repo OWNER/NAME] [--file] [--approvals-ref GIT_REF] [--count-writable] [--with-updates] [--daily-cap N] [--open-cap N] [--pace-seconds N]
+repository-presenter issue-funnel [--root PATH] [--approvals-ref GIT_REF] [--max-pending-days N] [--fail-on-alert]
 repository-presenter issue-targets [--root PATH]
 repository-presenter issue-readiness [--root PATH] [--repo OWNER/NAME] [--approvals-ref GIT_REF] [--json] [--emit-approvals SCRATCH_DIR --approver LOGIN (--handoff-id ID[@DIGEST] ... | --handoff-ids-file FILE) [--valid-days N]]
 repository-presenter metadata --repo OWNER/NAME [--root PATH] [--apply]
@@ -420,6 +423,9 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   for the handoff's fingerprint marker (so a fresh checkout cannot file a duplicate), rechecks that
   the defect still fires, and refuses on any inconclusive result. A handoff whose status is not
   `HANDOFF_PENDING` is skipped outright.
+- **`registry-gaps`** — read-only reconciliation of the registry's organizations against the registry itself: lists every repository in an admitted organization as registered, unregistered (a candidate for the owner's admission decision), excluded by policy (`data/registry_exclusions.json`) or missing upstream. `--from` reads a saved monitor/listing document instead of GitHub, `--warn-only` never fails the run. It never admits anything: the registry stays a hard allow-list. `status --discovery` / `--no-discovery` / `--verbose` report the same result on the `registry:` line from recorded evidence (offline); `monitor --no-discovery` leaves the section out of the drift document.
+- **`issue-funnel`** — read-only count of the issue handoffs by stage (pending, approved, filed, resolved) from `evidence/upstream-defects/` and the approval records; `--max-pending-days` annotates a handoff that has waited longer, and `--fail-on-alert` turns any annotation into a non-zero exit (a warning otherwise).
+- **`file-upstream-defects` pacing** — `--daily-cap`, `--open-cap` and `--pace-seconds` bound how many issues one run may file per repository, how many presenter issues may stay open per repository, and the pause between two writes; `--with-updates` also posts the evidence-change update comments (it needs the comments switch above).
 - **`issue-readiness`** — read-only report of every `evidence/upstream-defects/` handoff and what
   stands between it and a filing: the registry write gate (`full` only), whether its recheck can
   conclude (a redetector exists for its check and its evidence has the shape it replays), the

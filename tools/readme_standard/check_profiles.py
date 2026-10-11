@@ -48,7 +48,7 @@ DOCUMENT = REPO_ROOT / "docs" / "README_STANDARD.md"
 
 # Rule, defect and decision identifiers: the document and common.yaml must name the same set.
 ID_TOKEN = re.compile(r"\b(?:PRC|STR|LNK|TON|DET|DEF|OD)-\d{2}\b")
-FREQUENCY_TAG = re.compile(r"(\d+)/(\d+) \(obs:([a-z0-9_]+)\)")
+FREQUENCY_TAG = re.compile(r"(\d+)/(\d+)(\s+)\(obs:([a-z0-9_]+)\)")
 OBS_TAG = re.compile(r"\(obs:([a-z0-9_]+)\)")
 PLACEHOLDER = render_tables.PLACEHOLDER
 STAT_TAG = re.compile(r"\[stat:([a-z0-9_]+)=(-?[0-9]+(?:\.[0-9])?)\]")
@@ -172,6 +172,33 @@ def check(
     return errors
 
 
+def refresh_tags(text: str, observation_file: dict[str, Any]) -> str:
+    """The document with every ``N/M (obs:ID)`` and ``[stat:ID=VALUE]`` set to its current value.
+
+    A tag naming an unknown id is left as written so the check reports it; the prose around a
+    tag is never touched, so a frequency that moves still needs its sentence read by a person.
+    """
+    counts = {o["id"]: (o["count"], o["of"]) for o in observation_file["observations"]}
+    values = {s["id"]: float(s["value"]) for s in observation_file["statistics"]}
+
+    def frequency(match: re.Match[str]) -> str:
+        ref = match.group(4)
+        if ref not in counts:
+            return match.group(0)
+        return f"{counts[ref][0]}/{counts[ref][1]}{match.group(3)}(obs:{ref})"
+
+    def statistic(match: re.Match[str]) -> str:
+        ref, written = match.group(1), match.group(2)
+        if ref not in values:
+            return match.group(0)
+        value = values[ref]
+        if "." not in written and value == int(value):  # keep an integer written as an integer
+            return f"[stat:{ref}={int(value)}]"
+        return f"[stat:{ref}={value:.1f}]"
+
+    return STAT_TAG.sub(statistic, FREQUENCY_TAG.sub(frequency, text))
+
+
 def load_all(data_dir: Path) -> tuple[Any, Any, Any, Any]:
     """(common, archetypes by id, assignments, observations) as parsed from ``data_dir``."""
     archetypes = {p.stem: load_yaml(p) for p in sorted((data_dir / "archetypes").glob("*.yaml"))}
@@ -216,6 +243,13 @@ def _check_assignments(
             errors.append(
                 f"assignments.yaml: {repository} api_size_class {entry['api_size_class']} "
                 f"but survey.json lists {listed} API entries ({derived})"
+            )
+        recorded = list(entry.get("inherited_headings", []))
+        measured = list(row.get("extra_h2") or []) if row.get("readme") else []
+        if recorded != measured:
+            errors.append(
+                f"assignments.yaml: {repository} inherited_headings {recorded} "
+                f"but survey.json lists {measured} outside the twelve standard names"
             )
     for archetype_id in sorted(archetypes):
         if used[archetype_id] == 0:
@@ -267,11 +301,18 @@ def _check_axes(schema: dict[str, Any], common: dict[str, Any]) -> list[str]:
 def _check_archetypes(archetypes: dict[str, Any], common: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     elements = {element["id"] for element in common["elements"]}
+    inherited = {e["id"] for e in common["elements"] if e["structure"] == "inherited"}
     rules = {rule["id"] for rule in common["rules"]}
     defects = {defect["id"] for defect in common["defect_classes"]}
     for stem, profile in archetypes.items():
         label = f"archetypes/{stem}.yaml"
         defined = set(profile["elements"])
+        for element_id in sorted(inherited & defined):
+            if profile["elements"][element_id] in ("required", "expected", "conditional"):
+                errors.append(
+                    f"{label}: element {element_id} is an inherited addition and cannot be "
+                    f"{profile['elements'][element_id]} (it is retained when live, never added)"
+                )
         for missing in sorted(elements - defined):
             errors.append(f"{label}: element {missing} has no requirement")
         for unknown in sorted(defined - elements):
@@ -299,7 +340,7 @@ def _check_common(
     elements = [element["id"] for element in common["elements"]]
     rules = [rule["id"] for rule in common["rules"]]
     defects = [defect["id"] for defect in common["defect_classes"]]
-    decisions = [decision["id"] for decision in common["open_decisions"]]
+    decisions = [decision["id"] for decision in common["decisions"]]
     observation_ids = [definition["id"] for definition in observation_file["observations"]]
     for label, ids in (
         ("element", elements),
@@ -356,10 +397,15 @@ def _check_common(
         for rule in defect.get("rules", []):
             if rule not in set(rules):
                 errors.append(f"common.yaml: defect {defect['id']} cites unknown rule {rule}")
-    for decision in common["open_decisions"]:
+    for decision in common["decisions"]:
         for rule in decision.get("rules", []):
             if rule not in set(rules):
                 errors.append(f"common.yaml: decision {decision['id']} cites unknown rule {rule}")
+        ruled = decision["status"] == "owner_ruled"
+        if ruled and not decision["ruled"]:
+            errors.append(f"common.yaml: decision {decision['id']} is owner_ruled without a date")
+        if not ruled and decision["ruled"]:
+            errors.append(f"common.yaml: decision {decision['id']} is open but carries a date")
     errors += _check_bases(common, observation_file)
     for placeholder in sorted(set(PLACEHOLDER.findall(json.dumps(common)))):
         if placeholder not in known_observations:
@@ -455,7 +501,7 @@ def _check_document(
         for definition in observation_file["observations"]
     }
     for match in FREQUENCY_TAG.finditer(text):
-        count, of, ref = int(match.group(1)), int(match.group(2)), match.group(3)
+        count, of, ref = int(match.group(1)), int(match.group(2)), match.group(4)
         if ref not in counts:
             errors.append(f"{document.name}: {match.group(0)} names an unknown observation")
         elif counts[ref] != (count, of):
@@ -477,7 +523,7 @@ def _check_document(
             )
     declared = {
         entry["id"]
-        for key in ("rules", "defect_classes", "open_decisions")
+        for key in ("rules", "defect_classes", "decisions")
         for entry in common[key]
     }
     used = set(ID_TOKEN.findall(text))
@@ -514,9 +560,8 @@ def main(argv: list[str] | None = None) -> int:
         common, archetypes, assignments, observation_file = load_all(args.data_dir)
         blocks = render_tables.render_blocks(common, archetypes, assignments, observation_file)
         text = args.document.read_text(encoding="utf-8").replace("\r\n", "\n")
-        args.document.write_text(
-            render_tables.apply_blocks(text, blocks), encoding="utf-8", newline="\n"
-        )
+        text = refresh_tags(render_tables.apply_blocks(text, blocks), observation_file)
+        args.document.write_text(text, encoding="utf-8", newline="\n")
     problems = check(args.data_dir, args.registry, args.document)
     if problems:
         print(f"{len(problems)} problem(s):")

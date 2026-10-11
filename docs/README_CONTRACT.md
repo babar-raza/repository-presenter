@@ -10,6 +10,20 @@
 > Glance topology) is an owner rule and stays. **Section 8** (prose rules) now binds only text a
 > change adds; `README_STANDARD.md` section 3.5 re-bases it on the live tone. Sections 1 and 3 to 7
 > keep their authority, amended as `README_STANDARD.md` section 6.1 lists.
+>
+> **Owner rulings R1 to R7, 2026-10-11** (`README_STANDARD.md` section 7, `docs/DECISION_LOG.md`).
+> Where the legacy text below conflicts with them, the ruling governs and the text is history, not
+> to be repaired: the linked banner of row 3 is not promotion before the product is explained
+> (§1 and `plans/idea.md`, R1); the anchor of row 18 reads `Aspose.{Family} for {Platform} — Enterprise
+> Edition` and never opens "full-featured", so BC-06's prefix check is void (R2); Enterprise Edition
+> is the only name of the aspose.com product, with no exception (R3); the maintainers' tone, prose
+> structure and headings are followed (R4); the "Deliberate product-specific sections" paragraph
+> and its plan `deviation` give way to inherited additions retained in place beside a fixed core
+> (R5); row 7's three-to-eight cap and the 320-line visible budget are void, the badge order of row
+> 2 binds added badges only, and a README documents the release (R6); the `flowchart TD` of §2.1
+> and BC-07 gives way to a diagram that never clips a label and runs left to right, accepted by a
+> real render (R7). The code that still encodes the replaced wording is owner-ruled, pending the
+> next governed cut (`README_STANDARD.md` section 6.2).
 
 Status: normative for every candidate. Version 1 froze as `readme-contract-v1` at G3 exit
 (G3-W02, 2026-10-01 — deferred past the originally-planned G2 exit while G3/G4's own multi-cohort
@@ -147,10 +161,16 @@ file"), the product node, the `Core Capabilities` group, and an `Outputs` group 
 node that lists the verified output formats — connected by exactly one edge per hop
 (`StartingPoints --> PRODUCT --> Capabilities --> Outputs`); `Starting Points` is omitted, with its
 edge, when no input format is verified, and `Outputs` likewise. Individual capabilities never fan
-out to the product or to outputs; no per-format node edges. Up to five capability nodes form one
-column; six to eight form two balanced columns. Every label is geometry-safe: no unbroken token over
-28 characters, and no label wrapping past three lines at Mermaid's default node width — a longer
-title is shortened at planning, never clipped at render. No custom styling directives. The LLM
+out to the product or to outputs; no per-format node edges. The blocks run left to right
+(`flowchart LR`: Starting Points, the product, Core Capabilities, Outputs), each group a column of
+boxes in reading order, split by key capability. Up to five capability nodes form one column; six
+to eight form two balanced columns, side by side. Every label is geometry-safe and every box
+grows with its text: labels are SVG text (`htmlLabels: false`), wrapped by one character-width
+model into lines inside one pixel budget per diagram, so no word is wider than the budget and no
+label wraps past four lines - a longer title is shortened at planning, never clipped at render.
+No custom styling directives. The drawing is `components/readme_diagram`'s, shared with the
+live-first correction path; the diagram is accepted by its own structure and width model and, in
+tests, by a real render (README_STANDARD.md STR-28, owner ruling R7). The LLM
 chooses which verified formats and which core capabilities appear; the renderer owns every node,
 edge, and label.
 
@@ -262,7 +282,7 @@ Exactly these block acceptance at G1. Everything else is advisory until contract
 | 4 | Every content unit's fact IDs exist, are `SUPPORTED`, and lie within the fact set the plan assigned to that unit's slot — a capability description cites its own title's facts, never another slot's, and the capability's title is supported by the facts its unit cites; every identifier in prose is a fact value in a code span; an `opening` sentence that names an audience, use case, suitability, or spared cost is refused unless an accepted fact of that section states the same claim (`composition/audience.py`) | `opening`, `key_capabilities`, `scope_limitations`, `api_reference`, `documentation_resources`, `enterprise_relationship` |
 | 5 | Every material inherited unit has exactly one disposition; placed units appear in their destination | all |
 | 6 | Every link resolves; Aspose links are contextual and within the ceilings derived for this document (total, `aspose.org`/`aspose.com`, and `products`/`docs`/`kb`/`blog`/`reference` slots, from its visible content size and verified examples, or the configured maxima; `composition/link_budget.py`); "Enterprise Edition" is the only edition name (no substitute such as "commercial edition" or "paid version", in any letter case — `plans/idea.md` L51-53); no unsafe raw HTML (`<script>`/`<iframe>`/an event-handler attribute, or a `javascript:` or `vbscript:` scheme at a URL position - a link or image destination, a reference definition, an autolink, or a URL-bearing attribute value; prose that merely contains the words is not a URL) renders outside a fenced code block | `documentation_resources`, `enterprise_relationship`, `badges` |
-| 7 | Exactly one factual H1; one badge row in the stable order, each badge supported by a verified fact; title-case headings of every level; canonical abbreviations in prose and headings; At a Glance topology, column rules and label geometry (no label wraps past three lines); every code fence carries a language and no empty-line run appears in the document or an example; no section the shell marks visible renders inside `<details>`; no internal narration; within the visible-length budget (content inside `<details>` is unbounded but verified) | structure |
+| 7 | Exactly one factual H1; one badge row in the stable order, each badge supported by a verified fact; title-case headings of every level; canonical abbreviations in prose and headings; At a Glance topology, column rules and label geometry (the horizontal drawing; no label wraps past four lines at the line budget); every code fence carries a language and no empty-line run appears in the document or an example; no section the shell marks visible renders inside `<details>`; no internal narration; within the visible-length budget (content inside `<details>` is unbounded but verified) | structure |
 | 8 | Protected content preserved | all |
 | 9 | No configured secret in the bundle | bundle |
 | 10 | Independent review returns `ACCEPT` with the reviewer identity separate from authoring, and no advisory is left on a required row (§6) | review |

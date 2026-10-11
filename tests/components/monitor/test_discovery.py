@@ -43,13 +43,16 @@ from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.registry.loader import load_registry
 from repository_presenter.core.registry.models import Registry, RegistryEntry
 from support import (
+    BEFORE_ADMISSION,
+    BEYOND_THE_REGISTRY,
+    GO_MCP,
+    JMAP_FAMILY,
     REPO_ROOT,
-    TODAYS_UNADMITTED,
-    TODAYS_UNREGISTERED,
+    UNREGISTERED_BEFORE_ADMISSION,
     FakeOrganizationLister,
     mirror,
     monitor_registry_entry,
-    registry_without_todays_unadmitted,
+    registry_without,
     with_extra,
 )
 
@@ -90,28 +93,55 @@ def _repo(full_name: str, identity: int, **flags: Any) -> UpstreamRepository:
 # --- Today's reality ---
 
 
-def test_todays_reality_is_detected_36_admitted_9_unregistered_1_excluded() -> None:
-    registry = registry_without_todays_unadmitted(REGISTRY_PATH)
+def test_todays_reality_is_detected_the_family_registered_one_unregistered_one_excluded() -> None:
+    # GitHub holds 46 repositories in the 15 authorized organizations: 44 admitted (the JMAP family
+    # included), the Go MCP server (unregistered) and one organization profile repository. Built
+    # from the live registry, minus the two so a later admission of either cannot break it.
+    registry = registry_without(REGISTRY_PATH, BEYOND_THE_REGISTRY)
     admitted = len(registry.entries)
-    lister = FakeOrganizationLister(with_extra(mirror(registry.entries), TODAYS_UNADMITTED))
+    lister = FakeOrganizationLister(with_extra(mirror(registry.entries), BEYOND_THE_REGISTRY))
 
     report = _report(registry, lister)
 
-    counts = report.counts()
-    assert counts == {
+    assert report.counts() == {
+        "REGISTERED": admitted,
+        "UNREGISTERED": 1,
+        "EXCLUDED_BY_POLICY": 1,
+        "MISSING_UPSTREAM": 0,
+    }
+    assert report.listed == admitted + 2 and report.admitted == admitted
+    assert {repository.full_name for repository in JMAP_FAMILY} <= {
+        entry.repository for entry in registry.entries
+    }
+    assert [row.repository for row in report.unregistered] == [GO_MCP.full_name]
+    (profile,) = report.excluded
+    assert profile.repository == "aspose-slides-foss/.github"
+    assert profile.reason == "org-profile-repository" and profile.detail
+    assert report.complete and report.missing_upstream == ()
+
+
+def test_a_family_the_registry_does_not_list_is_detected_as_nine_unregistered_one_excluded() -> (
+    None
+):
+    # The 2026-10-11 finding, rebuilt from the registry fixture by REMOVING the family (not by
+    # relying on what the live registry holds): ten upstream repositories the registry never listed.
+    registry = registry_without(REGISTRY_PATH, BEFORE_ADMISSION)
+    admitted = len(registry.entries)
+    lister = FakeOrganizationLister(with_extra(mirror(registry.entries), BEFORE_ADMISSION))
+
+    report = _report(registry, lister)
+
+    assert report.counts() == {
         "REGISTERED": admitted,
         "UNREGISTERED": 9,
         "EXCLUDED_BY_POLICY": 1,
         "MISSING_UPSTREAM": 0,
     }
     assert report.listed == admitted + 10 and report.admitted == admitted
-    assert {row.repository for row in report.unregistered} == set(TODAYS_UNREGISTERED)
+    assert {row.repository for row in report.unregistered} == set(UNREGISTERED_BEFORE_ADMISSION)
     assert sum("JMAP" in row.repository for row in report.unregistered) == 8
-    assert "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go-MCP" in {
-        r.repository for r in report.unregistered
-    }
+    assert GO_MCP.full_name in {r.repository for r in report.unregistered}
     (profile,) = report.excluded
-    assert profile.repository == "aspose-slides-foss/.github"
     assert profile.reason == "org-profile-repository" and profile.detail
     assert report.complete and report.missing_upstream == ()
 
@@ -134,10 +164,10 @@ def test_the_real_registry_and_policy_load_and_the_registry_is_what_it_was() -> 
 
 
 def test_discovery_admits_nothing_and_leaves_registry_and_denominator_alone() -> None:
-    registry = registry_without_todays_unadmitted(REGISTRY_PATH)
+    registry = registry_without(REGISTRY_PATH, BEFORE_ADMISSION)
     before_file = REGISTRY_PATH.read_bytes()
     before_entries = registry.model_dump_json()
-    lister = FakeOrganizationLister(with_extra(mirror(registry.entries), TODAYS_UNADMITTED))
+    lister = FakeOrganizationLister(with_extra(mirror(registry.entries), BEFORE_ADMISSION))
 
     report = _report(registry, lister)
 
@@ -145,7 +175,7 @@ def test_discovery_admits_nothing_and_leaves_registry_and_denominator_alone() ->
     assert REGISTRY_PATH.read_bytes() == before_file
     assert len(registry.entries) == report.counts()["REGISTERED"]
     admitted_names = {entry.repository for entry in registry.entries}
-    assert not admitted_names & set(TODAYS_UNREGISTERED)
+    assert not admitted_names & set(UNREGISTERED_BEFORE_ADMISSION)
     assert not hasattr(discovery, "admit") and not hasattr(report, "admit")
 
 
@@ -442,14 +472,15 @@ def discovery_row(name: str) -> discovery.DiscoveryRow:
 # --- Evidence: the drift section, the standalone document, loading and merging ---
 
 
-def _reality_report() -> DiscoveryReport:
-    registry = registry_without_todays_unadmitted(REGISTRY_PATH)
-    lister = FakeOrganizationLister(with_extra(mirror(registry.entries), TODAYS_UNADMITTED))
+def _before_admission_report() -> DiscoveryReport:
+    """Nine unregistered and one excluded, built by removing the family from the registry."""
+    registry = registry_without(REGISTRY_PATH, BEFORE_ADMISSION)
+    lister = FakeOrganizationLister(with_extra(mirror(registry.entries), BEFORE_ADMISSION))
     return _report(registry, lister)
 
 
 def test_the_section_round_trips_and_carries_counts_and_the_unregistered_list() -> None:
-    report = _reality_report()
+    report = _before_admission_report()
 
     section = report.to_json()
     again = DiscoveryReport.from_json(json.loads(json.dumps(section)))
@@ -464,7 +495,7 @@ def test_the_section_round_trips_and_carries_counts_and_the_unregistered_list() 
 def test_drift_document_gains_a_discovery_section_without_changing_schema_one() -> None:
     plain = drift_document([], observed_at=OBSERVED, owner=None)
     with_section = drift_document(
-        [], observed_at=OBSERVED, owner=None, discovery=_reality_report().to_json()
+        [], observed_at=OBSERVED, owner=None, discovery=_before_admission_report().to_json()
     )
 
     assert "discovery" not in plain
@@ -474,7 +505,7 @@ def test_drift_document_gains_a_discovery_section_without_changing_schema_one() 
 
 
 def test_load_discovery_reads_drift_documents_and_ignores_install_records(tmp_path: Path) -> None:
-    section = _reality_report().to_json()
+    section = _before_admission_report().to_json()
     (tmp_path / "drift-aspose-email-foss.json").write_text(
         json.dumps(
             drift_document([], observed_at=OBSERVED, owner="aspose-email-foss", discovery=section)
@@ -512,7 +543,7 @@ def test_load_discovery_is_none_without_a_section_and_strict_about_bad_files(
 
 
 def test_the_standalone_document_loads_like_a_drift_section(tmp_path: Path) -> None:
-    report = _reality_report()
+    report = _before_admission_report()
     path = tmp_path / "gaps.json"
     path.write_text(json.dumps(discovery_document(report)), encoding="utf-8")
 
@@ -550,7 +581,7 @@ def test_merge_keeps_the_newest_word_per_organization_and_the_oldest_stamp() -> 
 
 
 def test_the_status_line_is_a_separate_line_that_leaves_the_denominator_alone() -> None:
-    report = _reality_report()
+    report = _before_admission_report()
     admitted = report.counts()["REGISTERED"]
 
     (line,) = status_lines(admitted, report, authorized_organizations=15)
@@ -564,7 +595,7 @@ def test_the_status_line_is_a_separate_line_that_leaves_the_denominator_alone() 
 
 
 def test_verbose_status_lists_each_repository_with_what_the_owner_needs() -> None:
-    report = _reality_report()
+    report = _before_admission_report()
 
     lines = status_lines(36, report, authorized_organizations=15, verbose=True)
 
@@ -594,7 +625,7 @@ def test_the_status_line_says_when_discovery_was_not_observed_or_is_incomplete()
 
 
 def test_status_json_adds_a_registry_key_with_the_section() -> None:
-    report = _reality_report()
+    report = _before_admission_report()
 
     payload = registry_status_json(36, 15, report)
 
@@ -604,15 +635,26 @@ def test_status_json_adds_a_registry_key_with_the_section() -> None:
 
 
 def test_annotations_are_warnings_that_name_the_unregistered_repositories() -> None:
-    report = _reality_report()
+    report = _before_admission_report()
 
     lines = workflow_annotations(report, authorized_organizations=15)
 
     assert len(lines) == 1
     assert lines[0].startswith("::warning title=Repositories not in the registry::9 repositor")
-    for name in TODAYS_UNREGISTERED:
+    for name in UNREGISTERED_BEFORE_ADMISSION:
         assert name in lines[0]
     assert ".github" not in lines[0]  # the policy-excluded one is not a warning
+
+
+def test_once_the_family_is_admitted_only_the_mcp_server_is_a_warning() -> None:
+    registry = registry_without(REGISTRY_PATH, BEYOND_THE_REGISTRY)
+    lister = FakeOrganizationLister(with_extra(mirror(registry.entries), BEYOND_THE_REGISTRY))
+    report = _report(registry, lister)
+
+    (line,) = workflow_annotations(report, authorized_organizations=15)
+
+    assert line.startswith("::warning title=Repositories not in the registry::1 repositor(ies)")
+    assert GO_MCP.full_name in line and "JMAP" not in line and ".github" not in line
 
 
 def test_annotations_withhold_private_names_cap_the_list_and_escape_workflow_commands() -> None:
@@ -648,7 +690,7 @@ def test_annotations_flag_missing_upstream_and_incomplete_discovery_but_stay_qui
 
 
 def test_the_markdown_summary_tables_what_needs_an_owner_decision() -> None:
-    report = _reality_report()
+    report = _before_admission_report()
     admitted = report.counts()["REGISTERED"]
 
     text = summary_markdown(report, admitted=admitted, authorized_organizations=15)

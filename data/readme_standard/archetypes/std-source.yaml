@@ -1,5 +1,5 @@
 # Standard skeleton, library installed from source (not published, or no registry install).
-# 11 of 36 repositories.
+# Members are listed in assignments.yaml.
 schema_version: 1
 id: std-source
 title: Standard skeleton, source-installed library
@@ -33,7 +33,10 @@ elements:
 element_notes:
   badge_row: no package badge while unpublished; license, runtime floor and build status only when verified
   installation: the unpublished statement and the verified source steps are both required
-  dependencies: include toolchain and native requirements the source build needs
+  dependencies: include toolchain and native requirements the source build needs; a bucket that only points at the manifest is listed out (JMAP Java)
+  api_reference: a prose-only API Reference (the JMAP family) gains the collapsed listing and keeps its intro
+  docs_resources: only verified targets; a family with no Aspose pages lists the issues item alone (LNK-11)
+  enterprise_paragraph: omitted while no verified aspose.com product target exists for the family
 channel_variant:
   install_forms:
     - "git clone, then the verified build (pip install -e ., npm install and npm run build, dotnet build, cargo build)"
@@ -62,7 +65,7 @@ better_than_live:
     statement: Dependencies lists runtime, optional, native and development requirements, including toolchain floors, from the manifest.
     measured_by: bucket contents equal the dependency snapshot; Python, Node, Rust or .NET floors equal the manifest
     rules: [STR-11, DET-02]
-    defect_classes: [DEF-19, DEF-06]
+    defect_classes: [DEF-19, DEF-06, DEF-27]
   - id: BTL-SRC-04
     statement: The license sentence matches a license file in the tree; where none exists the README links nothing missing and an upstream issue handoff exists.
     measured_by: license fact against the tree; handoff present
@@ -79,10 +82,21 @@ better_than_live:
     rules: [DET-03]
     defect_classes: [DEF-20]
   - id: BTL-SRC-07
-    statement: API Reference holds only public types with the verified count and no stock descriptions where documentation exists.
+    statement: >-
+      API Reference holds only public types with the verified count and no stock descriptions
+      where documentation exists; a prose-only API Reference gains the collapsed listing.
     measured_by: survey_features api_count_mismatch, api_boilerplate_rows; row set equals the public_symbol facts
     rules: [STR-14, DET-04]
-    defect_classes: [DEF-10, DEF-11, DEF-12]
+    defect_classes: [DEF-10, DEF-11, DEF-12, DEF-28]
+  - id: BTL-SRC-08
+    statement: At a Glance renders unclipped, with Starting Points, Core Capabilities and Outputs left to right, split by key capability.
+    measured_by: a real render of the diagram (STR-28), with no label clipped and the three mother blocks side by side from left to right
+    rules: [STR-08, STR-28]
+    defect_classes: [DEF-29, DEF-30]
+inherited_additions: >-
+  Headings outside the fixed core (Project Structure and any other the live README carries) are
+  retained in place as written, their paths and assets verified against the tree, and none is added
+  to a README that lacks it (STR-25, STR-27).
 insertion_policy: >-
   Insert a missing standard element beside its live neighbours from verified facts only. Do not
   add a package badge, a registry install line or a version while the registry shows none.

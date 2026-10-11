@@ -8,9 +8,10 @@ schema_version: 1
 standard:
   name: README standard v1
   status: >-
-    normative for generation policy from 2026-10-11; code enforcement is pending the migration
-    in docs/README_STANDARD.md section 6, until which docs/README_CONTRACT.md section 2 remains
-    the legacy encoding of what the code does
+    normative for generation policy from 2026-10-11, with the owner rulings R1 to R7 of that date
+    applied (docs/DECISION_LOG.md); code enforcement is owner-ruled and pending the next governed
+    cut, the migration in docs/README_STANDARD.md section 6, until which docs/README_CONTRACT.md
+    section 2 remains the legacy encoding of what the code does
   directive: >-
     docs/README_CONTRACT.md IS NOT THE STRUCTURE & COMPOSITION STANDARD. WE NEED TO FOLLOW THE
     LIVE UPSTREAM REPO README FOR EACH CASE. CORRECT THIS EVERYWHERE, ESPECIALLY IN
@@ -18,7 +19,7 @@ standard:
     AND COMPOSITION, LINKS, TONE, EVERYTHING, AND A SCHEMA FOR PRODUCT-WISE DIFFERENCES. WITH
     EVERY ITERATION WE NEED TO DO BETTER THAN WHAT IS CURRENTLY LIVE. (owner, 2026-10-11)
   survey: >-
-    36 registry repositories, 35 with a README, live default-branch heads captured 2026-10-11
+    the registry repositories with a README, live default-branch heads captured 2026-10-11
     (survey.json); measured by tools/readme_standard/survey_features.py
 
 precedence:
@@ -31,9 +32,10 @@ precedence:
   - rank: 2
     name: owner rules
     statement: >-
-      Standing constraints of plans/idea.md and the 2026-10-11 directive: one factual H1, one
-      badge row, Enterprise Edition as the only edition name, product explained before promotion,
-      no assurance narration, no invented claims. Where a live README breaks one and a
+      Standing constraints of plans/idea.md (as the owner corrected it on 2026-10-11) and the
+      directive: one factual H1, one badge row, Enterprise Edition as the only name of the
+      aspose.com product, product explained before promotion (the linked banner above the opening
+      is not promotion, OD-01), no assurance narration, no invented claims. Where a live README breaks one and a
       deterministic detector proves it, correct it with the smallest edit; where a rule and the
       live README disagree and the rule is not about truth or naming, the disagreement is an open
       decision and the live README stands (section 7).
@@ -53,6 +55,18 @@ precedence:
     statement: >-
       OBSERVED_VARIANT rules apply only through the repository's archetype and axes
       (assignments.yaml), never as a portfolio-wide default.
+
+structure_kinds:
+  core: >-
+    The fixed core: the sections every product's candidate shares, the elements of kind core
+    below. A core element is present in the output, added from verified facts when the live README
+    lacks it, as far as its requirement for the archetype and its condition say.
+  inherited: >-
+    The inherited additions: any heading or section beyond the fixed core that a live README
+    carries (History, an MCP server section where the product supports one, Project Structure,
+    Feature Showcase, a persona or provenance section, and similar). Each is retained in place
+    with its text, level and order; it is not a deviation and needs no justification; its content
+    is judged by the unit dispositions. The standard never adds one.
 
 axes:
   install_channel:
@@ -111,11 +125,15 @@ axes:
     provenance_story: a section telling where the code came from
     cli_reference: command-line usage documented as its own section
     mcp_section: an H2 documenting an MCP server
+    no_aspose_product_pages: >-
+      the family has no Aspose product, documentation or reference pages yet, so the README
+      carries no Aspose link, banner or Enterprise Edition paragraph (LNK-11)
 
 elements:
   - id: identity_h1
     heading: null
     order: 1
+    structure: core
     requirement: required
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: Exactly one H1, the complete canonical product name.
@@ -127,6 +145,7 @@ elements:
   - id: badge_row
     heading: null
     order: 2
+    structure: core
     requirement: required
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: One badge paragraph under the H1; images only, each backed by a verified target.
@@ -142,17 +161,21 @@ elements:
   - id: banner
     heading: null
     order: 3
+    structure: inherited
     requirement: optional
-    basis: [OBSERVED_COMMON]
-    summary: A linked product banner between the badge row and the opening.
+    basis: [OBSERVED_VARIANT]
+    summary: >-
+      A linked product banner between the badge row and the opening: one image whose single link
+      goes to products.aspose.org/{family}/{platform}/, correct and not promotion (owner ruling R1).
     observations: [banner_present, banner_image_on_products_org, banner_links_to_aspose,
       aspose_link_before_opening]
     forms:
       - "[![Aspose.<Family> FOSS for <Platform>](https://products.aspose.org/media/<family>/<platform>/banner-readme.png)](https://products.aspose.org/<family>/<platform>/)"
-    preferred_form: preserved exactly when the live README has it; never added
+    preferred_form: preserved exactly when the live README has it; never added (OD-01)
   - id: opening
     heading: null
     order: 4
+    structure: core
     requirement: required
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: >-
@@ -167,6 +190,7 @@ elements:
   - id: navigation
     heading: Navigation
     order: 5
+    structure: core
     requirement: expected
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: A flat list of in-page links to every H2 of the document, in document order.
@@ -178,21 +202,27 @@ elements:
   - id: at_a_glance
     heading: At a Glance
     order: 6
+    structure: core
     requirement: expected
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: >-
-      A Mermaid flowchart: Starting Points, the product, Core Capabilities in at most two columns,
-      Outputs; nothing else in the section.
+      A Mermaid flowchart: Starting Points, the product, Core Capabilities, Outputs. The three
+      mother blocks run left to right and each is split by key capability, Core included; every
+      box grows with its text so no label is clipped (owner ruling R7); nothing else in the
+      section.
     condition: at least three verified core capabilities
     observations: [glance_present, glance_mermaid, glance_starting_points, glance_core_capabilities,
       glance_outputs_group]
     forms:
-      - "flowchart TD with subgraphs Starting Points, Core Capabilities (two nested columns), Outputs"
+      - "flowchart with subgraphs Starting Points, Core Capabilities (nested columns), Outputs, in the direction the live README draws it (a top-to-bottom direction stacks the mother blocks, DEF-30)"
       - image only (PDF .NET)
-    preferred_form: the Mermaid topology of plans/idea.md, topology verified against facts
+    preferred_form: >-
+      the Mermaid topology of plans/idea.md with the three mother blocks left to right, each split
+      by key capability, boxes grown to their text, verified by a real render (STR-28)
   - id: key_capabilities
     heading: Key Capabilities
     order: 7
+    structure: core
     requirement: required
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: A bulleted list of what the library does, each bullet naming the real types it rests on.
@@ -205,6 +235,7 @@ elements:
   - id: installation
     heading: Installation
     order: 8
+    structure: core
     requirement: required
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: >-
@@ -223,6 +254,7 @@ elements:
   - id: dependencies
     heading: Dependencies
     order: 9
+    structure: core
     requirement: expected
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: >-
@@ -238,6 +270,7 @@ elements:
   - id: quick_start
     heading: Quick Start
     order: 10
+    structure: core
     requirement: expected
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: One to three minimal examples that compile or run, each with a lead-in sentence.
@@ -250,6 +283,7 @@ elements:
   - id: feature_showcase
     heading: Feature Showcase
     order: 11
+    structure: inherited
     requirement: optional
     basis: [OBSERVED_VARIANT]
     summary: A linked preview image of a repository-owned asset that proves a capability.
@@ -259,6 +293,7 @@ elements:
   - id: additional_examples
     heading: Additional Examples
     order: 12
+    structure: core
     requirement: expected
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: >-
@@ -272,6 +307,7 @@ elements:
   - id: project_structure
     heading: Project Structure
     order: 13
+    structure: inherited
     requirement: optional
     basis: [OBSERVED_VARIANT]
     summary: A fenced directory tree of the repository, kept current with the tree.
@@ -281,6 +317,7 @@ elements:
   - id: api_reference
     heading: API Reference
     order: 14
+    structure: core
     requirement: expected
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: >-
@@ -297,6 +334,7 @@ elements:
   - id: docs_resources
     heading: Documentation & Resources
     order: 15
+    structure: core
     requirement: expected
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: >-
@@ -311,6 +349,7 @@ elements:
   - id: scope_limitations
     heading: Scope and Limitations
     order: 16
+    structure: core
     requirement: required
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: >-
@@ -324,22 +363,28 @@ elements:
   - id: enterprise_paragraph
     heading: null
     order: 17
+    structure: core
     requirement: conditional
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: >-
       The final paragraph of Scope and Limitations: one to three sentences relating the FOSS scope
       to the Enterprise Edition, with one link to the verified product page.
     condition: a verified aspose.com product target exists for the family and platform
-    observations: [enterprise_in_scope, enterprise_closes_scope, enterprise_once, enterprise_dont_apply,
-      enterprise_apply_only, enterprise_see_for, enterprise_full_featured_anchor]
+    observations: [enterprise_in_scope_when_aspose_linked, enterprise_in_scope,
+      enterprise_closes_scope, enterprise_once, enterprise_dont_apply, enterprise_apply_only,
+      enterprise_see_for, enterprise_full_featured_anchor]
     forms:
       - "These limitations don't apply to [Aspose.<Family> for <Platform> — Enterprise Edition](url), which adds ..."
       - "These limitations apply only to <FOSS product> — they don't carry over to [..], which adds ..."
       - "For <needs>, see [..], which adds ..."
-    preferred_form: the live sentence shape; anchor and target verified against product-page facts
+    preferred_form: >-
+      the live sentence shape; anchor 'Aspose.<Family> for <Platform> — Enterprise Edition' (the
+      family alone when the verified target is the family page), target verified against
+      product-page facts
   - id: development_testing
     heading: Development and Testing
     order: 18
+    structure: core
     requirement: expected
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: Build and test commands from the repository's own files, never collapsed.
@@ -350,6 +395,7 @@ elements:
   - id: third_party_notices
     heading: Third-Party Notices
     order: 19
+    structure: core
     requirement: conditional
     basis: [OBSERVED_VARIANT, OWNER_RULE]
     summary: A visible heading with a repository-relative link to the notices file.
@@ -362,6 +408,7 @@ elements:
   - id: license
     heading: License
     order: 20
+    structure: core
     requirement: required
     basis: [OBSERVED_COMMON, OWNER_RULE]
     summary: A prose declaration of the license with a repository-relative link, never a bare link.
@@ -379,9 +426,10 @@ rules:
     severity: blocking
     statement: >-
       The live README of the exact upstream revision is the structural authority: its heading
-      skeleton, section order, voice and links are preserved.
+      skeleton, section order, tone, prose structure and links are preserved (owner ruling R4:
+      plans/idea.md no longer says the template owns tone and headings).
     detector: "NEW: skeleton diff of candidate against live (headings, levels, order); every difference carries an edit record"
-    owner_ref: "directive 2026-10-11"
+    owner_ref: "directive 2026-10-11; owner ruling R4 (OD-04), 2026-10-11"
   - id: PRC-02
     element: document
     basis: [OWNER_RULE]
@@ -501,16 +549,19 @@ rules:
       reason.
     detector: "existing: BC-07 order check (to be made baseline-relative); NEW: survey_features.badge_order_ok"
     observations: [badge_order_ok]
-    owner_ref: "plans/idea.md L75-76"
+    owner_ref: "plans/idea.md L75-76; owner ruling R6 (OD-05), 2026-10-11"
   - id: STR-05
     element: banner
-    basis: [OBSERVED_COMMON]
+    basis: [OBSERVED_COMMON, OBSERVED_VARIANT]
     severity: advisory
     statement: >-
-      A live banner stays exactly as written; a banner is never added. Its image comes from
-      products.aspose.org and its link from a verified product page.
-    detector: "existing: evidence/facts/product_pages.py banner fact; text_checks.promotion_after_product (see OD-01)"
+      A live banner stays exactly as written; a banner is never added to a README that lacks
+      one. Its image comes from products.aspose.org and its single link goes to the verified
+      product page products.aspose.org/{family}/{platform}/; that link is correct and is not
+      promotion before the product is explained (owner ruling R1).
+    detector: "existing: evidence/facts/product_pages.py banner fact; text_checks.promotion_after_product (migrates to exempt the banner link, section 6.2 item 14)"
     observations: [banner_present, banner_image_on_products_org, banner_links_to_aspose]
+    owner_ref: "owner ruling R1 (OD-01), 2026-10-11"
   - id: STR-06
     element: opening
     basis: [OBSERVED_COMMON, OWNER_RULE]
@@ -518,7 +569,7 @@ rules:
     statement: >-
       The opening starts with the product name and says what it is and does in two to four
       sentences; it names an audience or use only when a fact or the live text states it, and it
-      carries no Aspose promotion.
+      carries no Aspose promotion of its own (the banner above it is the one allowed link).
     detector: "existing: composition/audience.py, BC-04, BC-12; text_checks.promotion_after_product"
     observations: [opening_starts_with_product, opening_two_to_four_sentences, opening_audience_phrase, opening_free_open_source]
     owner_ref: "plans/idea.md L37-48, L79"
@@ -538,11 +589,13 @@ rules:
     severity: blocking
     statement: >-
       At a Glance is one Mermaid chain Starting Points, product, Core Capabilities, Outputs with
-      the topology rules of plans/idea.md; an image-only At a Glance gets a verified Mermaid
-      diagram and keeps the image.
-    detector: "existing: BC-07 topology and label geometry; NEW: image_only detector"
+      the topology rules of plans/idea.md. The three mother blocks run left to right, each split
+      by key capability, Core included, and no label is clipped: every box grows with its text
+      (owner ruling R7; acceptance by a real render, STR-28). An image-only At a Glance gets a
+      verified Mermaid diagram and keeps the image.
+    detector: "existing: BC-07 topology and label geometry (migrates to the orientation and growth rules, section 6.2 item 15); NEW: image_only detector"
     observations: [glance_mermaid, glance_starting_points, glance_core_capabilities, glance_outputs_group]
-    owner_ref: "plans/idea.md L99"
+    owner_ref: "plans/idea.md L99; owner ruling R7 (OD-10), 2026-10-11"
   - id: STR-09
     element: key_capabilities
     basis: [OBSERVED_COMMON, OWNER_RULE]
@@ -553,7 +606,7 @@ rules:
       corrected, and a verified capability the list lacks may be added.
     detector: "NEW: capability claim audit against symbols, importers and exporters (DEF-06)"
     observations: [key_capabilities_present, capabilities_3_to_8, capabilities_over_12]
-    owner_ref: "plans/idea.md L107"
+    owner_ref: "plans/idea.md L107; owner ruling R6 (OD-03), 2026-10-11"
   - id: STR-10
     element: installation
     basis: [OBSERVED_COMMON, OWNER_RULE]
@@ -600,9 +653,11 @@ rules:
     severity: blocking
     statement: >-
       API Reference keeps its visible intro and one collapsed block; the stated type count equals
-      the listed rows, every listed type is public, and no description is a stock sentence.
+      the listed rows, every listed type is public, and no description is a stock sentence. A
+      prose-only API Reference gains the collapsed listing built from the verified public
+      symbols, with its intro kept.
     detector: "existing: public_symbol facts, validation/claims; NEW: count, internal-type and boilerplate-row detectors (survey_features.api_*)"
-    observations: [api_present, api_collapsed, api_class_description_table, api_member_reference, api_states_type_count, api_count_mismatch, api_boilerplate_rows_over_20]
+    observations: [api_present, api_collapsed, api_class_description_table, api_member_reference, api_states_type_count, api_count_mismatch, api_boilerplate_rows_over_20, api_listing_absent]
     owner_ref: "plans/idea.md L105-107"
   - id: STR-15
     element: docs_resources
@@ -612,7 +667,7 @@ rules:
       Documentation & Resources lists the docs, knowledge-base and reference sites, repository
       files that help a reader, and an issues link; every target is verified.
     detector: "existing: BC-06 link resolution and ceilings (composition/link_budget.py)"
-    observations: [docs_present, docs_trio, docs_getting_started_guide, docs_how_to_guides_faq, docs_full_api_reference, docs_open_issue, docs_repo_relative, issues_link]
+    observations: [docs_present, docs_trio_when_aspose_linked, docs_trio, docs_getting_started_guide, docs_how_to_guides_faq, docs_full_api_reference, docs_open_issue, docs_repo_relative, issues_link]
     owner_ref: "plans/idea.md L51-58"
   - id: STR-16
     element: scope_limitations
@@ -703,26 +758,55 @@ rules:
       budget is not trimmed to fit it.
     detector: "existing: composition/renderer.line_counts; NEW: baseline-relative budget"
     observations: [visible_lines_over_300, lines_over_1000]
+    owner_ref: "owner ruling R6 (OD-06), 2026-10-11"
   - id: STR-25
     element: project_structure
-    basis: [OBSERVED_VARIANT]
-    severity: advisory
+    basis: [OBSERVED_VARIANT, OWNER_RULE]
+    severity: blocking
     statement: >-
-      Project Structure, Feature Showcase and other product-specific sections are preserved as
-      written, their paths and assets verified against the tree, and never added to a README
-      that lacks them.
+      Project Structure, Feature Showcase and every other inherited addition are retained in
+      place as written (STR-27), their paths and assets verified against the tree, and are never
+      added to a README that lacks them.
     detector: "existing: repository_files.py path facts; NEW: tree-diff of the fenced tree"
     observations: [project_structure_section, feature_showcase_section]
+    owner_ref: "owner ruling R5 (OD-09), 2026-10-11"
   - id: STR-26
     element: document
     basis: [OWNER_RULE]
     severity: blocking
     statement: >-
-      An off-template README keeps its own headings; missing standard elements are inserted next
-      to the live heading that hosts them, under their standard name only when the live README
-      has no equivalent.
+      A README keeps its own headings (STR-27); missing core elements are inserted next to the
+      live heading that hosts them, under their standard name only when the live README has no
+      equivalent. The heading-equivalence map also classifies each live heading as a core
+      element or an inherited addition.
     detector: "NEW: heading-equivalence map (insertion mode)"
     owner_ref: "directive 2026-10-11"
+  - id: STR-27
+    element: document
+    basis: [OWNER_RULE]
+    severity: blocking
+    statement: >-
+      There are two kinds of structure. The fixed core is the elements of kind core, the sections
+      every candidate shares. Every other heading of the live README is an inherited addition
+      (History, an MCP server section where supported, Project Structure and similar): it is
+      retained in place with its text, level and order, is not a deviation and needs no
+      justification, and its content is judged by the unit dispositions, never dropped, merged or
+      renamed because it is outside the core. The structure is not a fixed template.
+    detector: "NEW: heading-equivalence map (STR-26) classifies every live heading; skeleton diff (PRC-01) shows no inherited heading lost, moved or renamed; BC-05 and BC-08 unit dispositions for its content"
+    observations: [inherited_additions_present, order_follows_standard]
+    owner_ref: "owner ruling R5 (OD-09), 2026-10-11"
+  - id: STR-28
+    element: at_a_glance
+    basis: [OWNER_RULE]
+    severity: blocking
+    statement: >-
+      An At a Glance diagram is accepted only when a real render of its Mermaid source shows
+      every label inside its box and the three mother blocks side by side from left to right; a
+      syntax-valid diagram or a static prediction from label length does not pass. A clipped or
+      vertically stacked diagram is a rendered-layout defect (DEF-29, DEF-30) routed to the
+      diagram builder, never repaired by shortening a label.
+    detector: "NEW: headless Mermaid render of every glance block, then measure each label's extent against its box and each mother block's position (TC-MMD-02); BC-07 geometry migrates to it (section 6.2 item 15)"
+    owner_ref: "owner ruling R7 (OD-10), 2026-10-11"
 
   # ---- links
   - id: LNK-01
@@ -730,17 +814,20 @@ rules:
     basis: [OBSERVED_COMMON]
     severity: advisory
     statement: >-
-      The Aspose link set is five links: the banner and the Enterprise Edition on the product
-      site, and the docs, knowledge-base and reference sites in Documentation & Resources.
+      Where the family has Aspose pages the Aspose link set is five links: the banner and the
+      Enterprise Edition on the product site, and the docs, knowledge-base and reference sites
+      in Documentation & Resources.
     detector: "existing: composition/link_budget.py ceilings; BC-06"
-    observations: [aspose_links_exactly_five, aspose_links_at_most_five]
+    observations: [aspose_links_exactly_five_when_aspose_linked, aspose_links_exactly_five,
+      aspose_links_at_most_five, aspose_links_none]
   - id: LNK-02
     element: docs_resources
     basis: [OBSERVED_COMMON, OWNER_RULE]
     severity: advisory
     statement: >-
-      Aspose links sit where they help: the banner above the opening (live), documentation links
-      in Documentation & Resources or beside the code they explain, the Enterprise link closing
+      Aspose links sit where they help: the banner above the opening with its single link to
+      products.aspose.org/{family}/{platform}/ (live, owner ruling R1), documentation links in
+      Documentation & Resources or beside the code they explain, the Enterprise link closing
       Scope and Limitations. A link is added only when a verified target explains the adjacent
       material.
     detector: "existing: text_checks.promotion_after_product, BC-06"
@@ -751,12 +838,14 @@ rules:
     basis: [OBSERVED_COMMON, OWNER_RULE]
     severity: blocking
     statement: >-
-      Enterprise Edition is the only edition name and appears once, as the anchor of the closing
-      paragraph; commercial, On-Premise, paid and full-version wordings that refer to the
-      aspose.com product are replaced.
+      Enterprise Edition is the only name of the aspose.com product, with no exception (owner
+      ruling R3): commercial, paid, full, On-Premise and Enterprise product wordings that stand
+      for it are always rewritten to Enterprise Edition. The anchor of the closing paragraph
+      carries it once; any further reference elsewhere in the README uses the same name.
     detector: "existing: text_checks.edition_name, BC-06; NEW: commercial-substitute heuristic (survey_features.commercial_substitute_mentions)"
-    observations: [enterprise_once, banned_edition_names, commercial_substitute]
-    owner_ref: "plans/idea.md L51-53"
+    observations: [enterprise_once_when_aspose_linked, enterprise_once, banned_edition_names,
+      commercial_substitute]
+    owner_ref: "plans/idea.md L51-53; owner ruling R3 (OD-07), 2026-10-11"
   - id: LNK-04
     element: enterprise_paragraph
     basis: [OBSERVED_COMMON, OBSERVED_VARIANT]
@@ -764,10 +853,12 @@ rules:
     statement: >-
       The paragraph closes Scope and Limitations in the live sentence shape; a missing paragraph
       is added as 'These limitations don't apply to [Aspose.<Family> for <Platform> — Enterprise
-      Edition](url), which adds ...' naming only what verified facts or policy state it adds.
+      Edition](url), which adds ...' naming only what verified facts or policy state it adds. The
+      anchor is 'Aspose.<Family> for <Platform> — Enterprise Edition' (the family alone when the
+      verified target is the family page) and never opens 'full-featured' (owner ruling R2).
     detector: "existing: enterprise_relationship section, BC-06; NEW: shape detector (survey_features.enterprise_shape)"
-    observations: [enterprise_in_scope, enterprise_closes_scope, enterprise_dont_apply, enterprise_apply_only, enterprise_see_for, enterprise_full_featured_anchor]
-    owner_ref: "plans/idea.md L109 (see OD-02)"
+    observations: [enterprise_in_scope_when_aspose_linked, enterprise_in_scope, enterprise_closes_scope, enterprise_dont_apply, enterprise_apply_only, enterprise_see_for, enterprise_full_featured_anchor]
+    owner_ref: "plans/idea.md L109 as corrected; owner ruling R2 (OD-02), 2026-10-11"
   - id: LNK-05
     element: enterprise_paragraph
     basis: [OWNER_RULE]
@@ -824,6 +915,18 @@ rules:
       or a planning directory is not presented as a user resource.
     detector: "NEW: survey_features.agent_file_links"
     observations: [agent_file_links]
+
+  - id: LNK-11
+    element: docs_resources
+    basis: [OBSERVED_VARIANT, OWNER_RULE]
+    severity: advisory
+    statement: >-
+      A README whose family has no Aspose product, documentation or reference page carries no
+      Aspose link, banner or Enterprise Edition paragraph; they are added when the product-page
+      fact turns verified, never inferred from the pattern of other families.
+    detector: "existing: evidence/facts/product_pages.py (a verified target, or none); NEW: survey_features.aspose_links_total"
+    observations: [aspose_links_none]
+    owner_ref: "plans/idea.md L57-58 (no verified target, the natural result is no link)"
 
   # ---- tone
   - id: TON-01
@@ -1115,22 +1218,21 @@ defect_classes:
       - aspose-words-foss/Aspose.Words-FOSS-for-.NET
       - aspose-words-foss/Aspose.Words-FOSS-for-Python
     detector: {kind: existing, ref: "text_checks.edition_name; BC-06 (banned list); NEW: commercial-substitute heuristic", measure: commercial_substitute_mentions, where: {commercial_substitute_mentions: {gt: 0}}}
-    correction: Where the phrase refers to the aspose.com product, say Enterprise Edition (see OD-07); where it describes the FOSS code's own origin, leave it.
+    correction: Where the phrase refers to the aspose.com product, say Enterprise Edition, with no exception (OD-07); where it describes the FOSS code's own origin, leave it.
     preserves: the sentence meaning
     rules: [LNK-03]
   - id: DEF-15
-    name: Enterprise Edition paragraph missing or repeated
+    name: Enterprise Edition paragraph missing or repeated in a README that links Aspose pages
     repositories:
       - aspose-cells-foss/Aspose.Cells-FOSS-for-Python
-      - aspose-font-foss/Aspose.Font-FOSS-for-Python
       - aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET
+      - aspose-pdf-foss/Aspose.PDF-FOSS-for-Java
       - aspose-slides-foss/Aspose.Slides-FOSS-for-.NET
       - aspose-words-foss/Aspose.Words-FOSS-for-.NET
-      - aspose-pdf-foss/Aspose.PDF-FOSS-for-Java
-    detector: {kind: new, ref: "enterprise mentions equal one and the paragraph closes Scope", measure: enterprise_mentions, where: {enterprise_mentions: {not: 1}}}
-    correction: Add the standard closing paragraph when a verified target exists and the README has a Scope section or an equivalent; collapse a duplicate into the closing paragraph.
+    detector: {kind: new, ref: "Aspose pages are linked and Enterprise Edition is not named exactly once", measure: enterprise_mentions, where: {aspose_links_total: {gte: 1}, enterprise_mentions: {not: 1}}}
+    correction: Add the standard closing paragraph when a verified target exists and the README has a Scope section or an equivalent; collapse a duplicate into the closing paragraph. A family with no Aspose pages (LNK-11) is not a case.
     preserves: the live commercial pointers' facts
-    rules: [LNK-03, LNK-04]
+    rules: [LNK-03, LNK-04, LNK-11]
   - id: DEF-16
     name: mislabeled Enterprise link
     repositories: [aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript]
@@ -1237,54 +1339,195 @@ defect_classes:
     detector: {kind: existing, ref: "snapshot: default branch has no README; processability gate"}
     correction: Author the standard skeleton from verified facts only if the tree carries a real public surface; otherwise insufficient_evidence.
     rules: [PRC-07]
-
-open_decisions:
+  - id: DEF-27
+    name: Dependencies section points at the manifest instead of listing it
+    repositories:
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Java
+    detector: {kind: new, ref: "a dependency bucket that defers to the manifest file and names no dependency"}
+    correction: List the manifest's dependencies with their versions in the bucket and keep the pointer as one sentence.
+    preserves: the pointer sentence
+    rules: [STR-11, DET-02]
+  - id: DEF-28
+    name: API Reference without a listing
+    repositories:
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-.NET
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Go
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Java
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Python
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Rust
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript
+    detector: {kind: new, ref: "API Reference holds prose only: no table rows and no member bullets", measure: api_rows, where: {standard_h2_present.API Reference: true, api_rows: 0, api_top_level_bullets: 0}}
+    correction: Keep the intro paragraph and add the collapsed Class | Description listing built from the verified public symbols, with the verified count; leave an undocumented type undescribed.
+    preserves: the intro paragraph and its error-handling description
+    rules: [STR-14, DET-04]
+  - id: DEF-29
+    name: "MERMAID_CLIPPED: an At a Glance label clipped in a box too small for its text"
+    repositories: []
+    detector: {kind: new, ref: "a real render of the Mermaid block (headless Mermaid at the version GitHub ships) with each label's extent measured against its box; a label wider or taller than its box is clipped, and a static prediction from label length is advisory only (STR-28)"}
+    correction: Rebuild the diagram so every box grows with its text (no fixed width, no truncation, wrapped labels with the box height grown to fit) and render it again to prove nothing is clipped; never shorten a label to make it fit.
+    preserves: every node, label, edge and group name
+    rules: [STR-08, STR-28]
+  - id: DEF-30
+    name: "MERMAID_VERTICAL: the At a Glance mother blocks stacked vertically"
+    repositories: []
+    detector: {kind: new, ref: "a real render of the Mermaid block with the position of the Starting Points, Core Capabilities and Outputs groups measured; groups laid out top to bottom instead of left to right fail (STR-28)"}
+    correction: Lay the diagram out left to right, one mother block after another, each split by key capability and Core included, as some older live revisions drew it; keep every node and edge and render it again.
+    preserves: every node, label, edge and group name
+    rules: [STR-08, STR-28]
+decisions:
+  # Every decision below was answered by the owner through the interactive form on 2026-10-11.
+  # The code gates that still encode the replaced rule migrate on a later governed cut
+  # (docs/README_STANDARD.md section 6.2); until then the ruling governs generation policy.
   - id: OD-01
     question: >-
-      The banner links to products.aspose.org above the opening, which plans/idea.md L79 reads as
+      The banner links to products.aspose.org above the opening, which plans/idea.md read as
       promotion before the product is explained, while the live portfolio does it in
       {obs:banner_present} READMEs.
-    default: Preserve the live banner unchanged and never add one; the promotion_after_product predicate judges only links the change adds.
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R1: the banner above the opening, one image with a single link to
+      products.aspose.org/{family}/{platform}/, is correct and is not promotion before the product
+      is explained; plans/idea.md was wrong and is corrected. A live banner is preserved exactly
+      and none is added to a README that lacks one (the live README stands). The
+      promotion_after_product predicate exempts the banner link.
+    migration: >-
+      Item 14 (text_checks.promotion_after_product exempts the banner link) and item 7 (the
+      banner counts as one of the five Aspose links). Owner-ruled, pending the next governed cut.
     rules: [STR-05, LNK-02]
   - id: OD-02
     question: >-
-      plans/idea.md L109 asks for a 'full-featured ... Enterprise Edition' anchor and BC-06
-      enforces the prefix; no live anchor uses it ({obs:enterprise_full_featured_anchor}).
-    default: Keep the live anchor; new anchors read 'Aspose.<Family> for <Platform> — Enterprise Edition'. The prefix check stays off in live-first mode until the owner rules.
+      plans/idea.md asked for a 'full-featured ... Enterprise Edition' anchor and BC-06 enforces
+      the prefix; no live anchor uses it ({obs:enterprise_full_featured_anchor}).
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R2: the live anchor is correct and plans/idea.md was wrong. The anchor reads
+      'Aspose.<Family> for <Platform> — Enterprise Edition' with a spaced em dash, as the live
+      READMEs write it ({obs:enterprise_anchor_em_dash} use that dash; the family alone,
+      'Aspose.<Family> — Enterprise Edition', when the verified target is the family page). The
+      'full-featured' prefix is not required and is not checked.
+    migration: >-
+      Item 7 (the BC-06 anchor-prefix check in validation/links/rules.py and validation/registry.py
+      becomes an anchor-shape check) and item 3 (the renderer prints the live shape). Owner-ruled,
+      pending the next governed cut.
     rules: [LNK-04]
   - id: OD-03
     question: >-
-      README_CONTRACT row 7 caps Key Capabilities at three to eight items; only {obs:capabilities_3_to_8}
-      live READMEs stay inside that range.
-    default: The live count stands; no cap in live-first mode.
+      README_CONTRACT row 7 caps Key Capabilities at three to eight items; only
+      {obs:capabilities_3_to_8} live READMEs stay inside that range.
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R6: the default is accepted. The live count stands; there is no cap on Key Capabilities in
+      live-first mode.
+    migration: >-
+      Item 10 (capabilities_min and capabilities_max in composition/policy.py) and item 2 (the
+      range check in composition/planning.py). Owner-ruled, pending the next governed cut.
     rules: [STR-09]
   - id: OD-04
     question: >-
-      plans/idea.md L110 says source tone and prose structure are not preservation obligations;
-      the 2026-10-11 directive says the opposite. The owner may wish to amend idea.md.
-    default: The directive governs; idea.md is not edited by agents.
+      plans/idea.md said source tone and prose structure are not preservation obligations and that
+      the approved presentation template owns tone, headings and organization; the 2026-10-11
+      directive says the opposite.
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R4: that line of plans/idea.md was wrong. Follow each live README for tone, prose structure
+      and headings; plans/idea.md is corrected at the owner's explicit request.
+    migration: >-
+      Item 4 (reconciliation defaults to keep-in-place), item 2 (planning is edits, not sections)
+      and item 12 (documents that name the contract as the structure authority); plans/idea.md
+      itself is already corrected. Owner-ruled, pending the next governed cut.
     rules: [PRC-01]
   - id: OD-05
     question: >-
       The owner's badge order (package, runtime, build, license, contributors) is followed by
       {obs:badge_order_ok} of the live rows that have two or more badges.
-    default: Apply the order to added badges; never reorder an existing row alone.
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R6: the default is accepted. The order applies only to badges the change adds; an existing
+      row is never reordered on its own.
+    migration: >-
+      Item 5 (the BC-07 badge-order check becomes baseline-relative). Owner-ruled, pending the
+      next governed cut.
     rules: [STR-04]
   - id: OD-06
     question: >-
-      The visible-length budget is 300 lines in code and 320 in the contract; {obs:visible_lines_over_300} live
-      READMEs exceed 300.
-    default: Visible length may not grow except to add a required element; no trimming to a budget.
+      The visible-length budget is 300 lines in code and 320 in the contract;
+      {obs:visible_lines_over_300} live READMEs exceed 300.
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R6: the default is accepted. Visible length may not grow except to add a required element;
+      nothing is trimmed to a budget.
+    migration: >-
+      Item 5 (the BC-07 visible-length check) and item 10 (visible_lines_budget in
+      composition/policy.py, also read by repair/rounds.py). Owner-ruled, pending the next governed
+      cut.
     rules: [STR-24]
   - id: OD-07
     question: >-
-      {obs:commercial_substitute} live READMEs use 'commercial' for the aspose.com product; the owner rule allows
-      Enterprise Edition only.
-    default: Rewrite when the phrase refers to the aspose.com product, with the diff shown to the reviewer; leave phrases about the code's own origin.
+      {obs:commercial_substitute} live READMEs use 'commercial' for the aspose.com product; the
+      owner rule allows Enterprise Edition only.
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R3: the aspose.com product is always called Enterprise Edition, with no exception (the owner
+      chose 'Enterprise Edition' over 'Enterprise product'). 'Commercial', 'paid', 'full' and any
+      similar word standing for it are always rewritten to Enterprise Edition, with the diff shown
+      to the reviewer; a phrase about the code's own origin is not about the product and is left.
+    migration: >-
+      Item 7 (the BC-06 banned list and the commercial-substitute heuristic) and item 14
+      (text_checks.edition_name). Owner-ruled, pending the next governed cut.
     rules: [LNK-03]
   - id: OD-08
     question: >-
-      Cells Go documents the v26.7.1 release while main is ahead of that release; no policy says whether
-      a README documents the release, main, or both.
-    default: Document the release and mark main-only features unreleased (PRC-08).
+      Cells Go documents the v26.7.1 release while main is ahead of that release; no policy said
+      whether a README documents the release, main, or both.
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R6: the default is accepted. The README documents the release and marks main-only features
+      unreleased (PRC-08).
+    migration: >-
+      Item 13 (the published-versus-head claim model in the live-first lane) and item 5 (BC-14).
+      Owner-ruled, pending the next governed cut.
     rules: [PRC-08]
+  - id: OD-09
+    question: >-
+      Is the structure a fixed template? The standard allowed a section beyond the standard set
+      only as a justified deviation, while {obs:inherited_additions_present} live READMEs carry
+      headings of their own.
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R5: there are two kinds of structure. The fixed core is the sections every product's
+      candidate shares. The inherited additions are the extra headings some live READMEs carry
+      (History, an MCP server section where supported, and similar); they must be retained in
+      place, and are not deviations. So the structure is not fixed like a template.
+    migration: >-
+      Item 1 (SEMANTIC_SHELL and the plan deviation mechanism), items 2 to 4 (planning, renderer
+      and reconciliation keep inherited sections in place) and item 12. Owner-ruled, pending the
+      next governed cut.
+    rules: [STR-25, STR-26, STR-27]
+  - id: OD-10
+    question: >-
+      Some live At a Glance diagrams clip their text in boxes too small for it, and some lay the
+      Starting Points, Core Capabilities and Outputs blocks out vertically; recent aspose.org skill
+      changes did not fully fix it.
+    status: owner_ruled
+    ruled: "2026-10-11"
+    ruling: >-
+      R7: no clipping, a box grows with its text. The three mother blocks run left to right, each
+      split by key capability, Core included, as some older live revisions drew it. Acceptance is
+      by a real render (STR-28); the defect classes are MERMAID_CLIPPED (DEF-29) and
+      MERMAID_VERTICAL (DEF-30). Cards TC-MMD-01 to TC-MMD-03 in plans/reseal-and-refresh/PLAN.md
+      section 11A.
+    migration: >-
+      Item 15 (the At a Glance builder, BC-07 label geometry and the renderer): TC-MMD-03. Owner-ruled,
+      pending the next governed cut.
+    rules: [STR-08, STR-28]

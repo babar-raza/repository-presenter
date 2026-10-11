@@ -109,7 +109,7 @@ def test_checks_hold_every_returned_unit_to_its_sections_rules() -> None:
             {
                 "section": "opening",
                 "slot": "opening",
-                "text": "See `GLB`",
+                "text": "See `GLB`.",
                 "fact_ids": ["format:output.glb"],
             },
             {
@@ -118,7 +118,7 @@ def test_checks_hold_every_returned_unit_to_its_sections_rules() -> None:
                 "text": "Scene builds scenes.",
                 "fact_ids": ["format:output.glb"],
             },
-            {"section": "license", "slot": "prose", "text": "x", "fact_ids": []},
+            {"section": "license", "slot": "prose", "text": "x.", "fact_ids": []},
         ],
         "omitted": [],
     }
@@ -127,7 +127,7 @@ def test_checks_hold_every_returned_unit_to_its_sections_rules() -> None:
         "units name a section the plan did not author: license",
         "unit capability:1: cites facts outside this section's set: format:output.glb",
     ]
-    assert bad["units"][0]["text"] == "See GLB"  # the span is dropped; the renderer owns spans
+    assert bad["units"][0]["text"] == "See GLB."  # the span is dropped; the renderer owns spans
     missing = {"units": UNITS["units"][:1], "omitted": []}
     assert coherence_checks(missing, TASKS, FACTS, NAME) == [
         "units must fill exactly these slots once each: capability:1; got "
@@ -876,7 +876,9 @@ def test_a_document_too_large_for_one_call_completes_via_several_bounded_calls()
         # legitimately revise its own section without ever seeing (or needing to return) another
         # batch's units in this same reply.
         output = {
-            "units": [{**unit, "text": unit["text"] + " REVISED"} for unit in return_units],
+            "units": [
+                {**unit, "text": unit["text"].rstrip(".") + " revised."} for unit in return_units
+            ],
             "omitted": [],
         }
         validator = Draft202012Validator(schema)
@@ -889,7 +891,7 @@ def test_a_document_too_large_for_one_call_completes_via_several_bounded_calls()
         revised.extend(batch_revised)
     assert calls == 2  # confirms this document genuinely needed more than the old one call
     assert len(revised) == 20
-    assert all(unit["text"].endswith(" REVISED") for unit in units["units"])
+    assert all(unit["text"].endswith(" revised.") for unit in units["units"])
     assert {(u["section"], u["slot"]) for u in units["units"]} == {
         (task.section_id, slot) for task in BIG_TASKS for slot in task.slots
     }

@@ -5,7 +5,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from repository_presenter.components.readme.composition.coverage import Destinations
 from repository_presenter.components.readme.composition.placement import (
+    Placement,
     api_reference_covered_fact_ids,
     api_reference_hub_methods,
     has_member_summary,
@@ -793,3 +795,309 @@ def test_a_unit_the_plan_hands_to_a_limitation_slot_is_not_also_printed_verbatim
     [decision] = placements(bare, dispositions, facts, "python")
     assert decision.outcome == "placed"
     assert placed_texts([decision]) == {"scope_limitations": [CELLS_NET_SCOPE_LIST]}
+
+
+def test_a_limitations_table_moved_into_scope_is_printed_not_dropped_as_overlap() -> None:
+    """Wave-3 acceptance review, Slides-.NET: the 'Not in the public API' and 'Save formats'
+    tables were VERIFIED_MOVEd to Scope, shared one fact (`format:input.obj` here, `package:name`
+    there) with a limitation slot, and were dropped as overlap; no slot is handed a table and
+    nothing judges its rows, so the section kept only the positive bullets."""
+    table = "| Feature | Status |\n| --- | --- |\n| Charts | not implemented |"
+    facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:020.table", "inherited_unit", table),
+            _fact("inherited_unit:021.list", "inherited_unit", "- a\n- b"),
+        ),
+    )
+    moved = {**_entry("inherited_unit:020.table", "scope_limitations", "format:input.obj")}
+    moved["disposition"] = "VERIFIED_MOVE"
+    dispositions = {
+        "dispositions": [
+            moved,
+            _entry("inherited_unit:021.list", "scope_limitations", "format:input.obj"),
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(_plan(), dispositions, facts, "python")}
+    assert decisions["inherited_unit:020.table"].outcome == "placed"
+    assert placed_texts(list(decisions.values()))["scope_limitations"] == [table]
+    # Controls: the same citation still drops a list (the slots state its items), and a table
+    # bound for the API Reference is still covered by the renderer's own table there.
+    assert decisions["inherited_unit:021.list"].outcome == "overlap"
+    api = {
+        **_entry("inherited_unit:020.table", "api_reference", "public_symbol:aspose.threed.scene")
+    }
+    api["disposition"] = "VERIFIED_MOVE"
+    only = placements(_plan(), {"dispositions": [api]}, facts, "python")
+    assert [p.outcome for p in only] == ["overlap"]
+    # A table the plan handed to a slot by ID is printed as well: the slot cannot be held to rows.
+    handed = _plan(
+        material_limitations=[
+            {"fact_ids": ["format:input.obj"], "unit_ids": ["inherited_unit:020.table"]}
+        ]
+    )
+    again = {p.unit_id: p for p in placements(handed, dispositions, facts, "python")}
+    assert again["inherited_unit:020.table"].outcome == "placed"
+
+
+def test_once_the_document_is_known_the_whole_content_test_decides_a_limitations_table() -> None:
+    """With text in hand (render, validator) ``coverage.uncovered`` decides, and it agrees: a Scope
+    that states nothing of the table places it whole, one that states every row drops it."""
+    table = "| Feature | Status |\n| --- | --- |\n| Charts | not implemented |"
+    unit = "inherited_unit:020.table"
+    facts = FactsDocument(
+        REPOSITORY, "a" * 40, (*FACTS.facts, _fact(unit, "inherited_unit", table))
+    )
+    moved = {
+        **_entry(unit, "scope_limitations", "format:input.obj"),
+        "disposition": "VERIFIED_MOVE",
+    }
+    dispositions = {"dispositions": [moved]}
+    silent = _shown(scope_limitations="Scenes load and save.")
+    [placed] = placements(_plan(), dispositions, facts, "python", _Asked(silent))
+    assert placed.outcome == "placed" and placed.text == table
+    stated = _shown(scope_limitations=table)
+    [dropped] = placements(_plan(), dispositions, facts, "python", _Asked(stated))
+    assert dropped.outcome == "overlap"
+
+
+# --- whole-content drop rule: a shared fact is a citation, not a statement ----------------------
+# The units are the real ones of the wave-3 transactions (reseal f69f75c7) that the fact-id rule
+# dropped and BC-08 then demanded back; `destinations` is the document with no kept unit placed.
+def _shown(**sections: str) -> Destinations:
+    return Destinations.of(sections)
+
+
+class _Asked:
+    """A ``destinations`` callable that counts how often placement asked for the document."""
+
+    def __init__(self, shown: Destinations) -> None:
+        self.shown = shown
+        self.calls = 0
+
+    def __call__(self) -> Destinations:
+        self.calls += 1
+        return self.shown
+
+
+def _kept(*units: tuple[str, str], extra: tuple[Fact, ...] = ()) -> FactsDocument:
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *(f for f in FACTS.facts if f.id not in {e.id for e in extra}),
+            *extra,
+            *(_fact(u, "inherited_unit", text) for u, text in units),
+        ),
+    )
+
+
+def test_cells_go_run_paragraph_beside_the_quick_start_example_is_placed_not_dropped() -> None:
+    """Cells-Go: ``Run `go run main.go` to produce `hello.xlsx`.`` sits one ordinal after the
+    example's code block, so the adjacency rule called it the example's lead-in and dropped it,
+    while BC-08 demanded ``go run main.go``. It states a command no lead-in prints."""
+    run = "inherited_unit:024.paragraph"
+    sentence = "Run `go run main.go` to produce `hello.xlsx`."
+    facts = _kept(
+        ("inherited_unit:023.code_block", "```python\nprint(1)\n```"),
+        (run, sentence),
+        extra=(_example("example:001", "print(1)", "inherited_unit:023.code_block"),),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:023.code_block", "quick_start", "example:001"),
+            _entry(run, "quick_start", "example:001"),
+        ]
+    }
+    shown = _shown(quick_start="Create a workbook and save it.\n\n```python\nprint(1)\n```")
+    # Before any text exists (planning, authoring) the fact-id rule is all that is knowable ...
+    before = {p.unit_id: p for p in placements(_plan(), dispositions, facts, "python")}
+    assert before[run].outcome == "overlap"
+    # ... and the document decides: the command is in no section, so the sentence is placed.
+    asked = _Asked(shown)
+    decisions = {p.unit_id: p for p in placements(_plan(), dispositions, facts, "python", asked)}
+    assert decisions[run].outcome == "placed" and decisions[run].overlap == ()
+    assert decisions[run].text == sentence
+    assert placed_texts(list(decisions.values())) == {"quick_start": [sentence]}
+
+
+def test_a_pure_lead_in_beside_the_example_is_still_dropped_and_asks_the_document_once() -> None:
+    """Negative control for the four above (items 65/76/92 stay fixed): the sentence introducing
+    the example adds no command and no link, so the section's own lead-in covers it."""
+    facts = _kept(
+        ("inherited_unit:040.paragraph", "Round-trip a scene:"),
+        ("inherited_unit:041.code_block", "```python\nprint(9)\n```"),
+        extra=(_example("example:009", "print(9)", "inherited_unit:041.code_block"),),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:040.paragraph", "additional_examples", "example:009"),
+            _entry("inherited_unit:041.code_block", "additional_examples", "example:009"),
+        ]
+    }
+    plan = _plan(additional_example_ids=["example:002", "example:009"])
+    asked = _Asked(_shown(additional_examples="The following examples show common tasks."))
+    decisions = {p.unit_id: p for p in placements(plan, dispositions, facts, "python", asked)}
+    assert decisions["inherited_unit:040.paragraph"].outcome == "overlap"
+    assert decisions["inherited_unit:040.paragraph"].overlap == ("example:009",)
+    assert placed_texts(list(decisions.values())) == {}
+    assert asked.calls == 1
+
+
+def test_the_document_is_asked_only_when_something_overlaps() -> None:
+    asked = _Asked(_shown())
+    decisions = {p.unit_id: p for p in placements(_plan(), DISPOSITIONS, FACTS, "python", asked)}
+    # 010 and 012 overlap the plan's content, so the document was asked, once; it states nothing
+    # of either, so both are placed (the fact-id rule alone would have dropped them).
+    assert asked.calls == 1
+    assert decisions["inherited_unit:010.paragraph"].outcome == "placed"
+    assert decisions["inherited_unit:012.paragraph"].outcome == "placed"
+    quiet = {"dispositions": [_entry("inherited_unit:011.paragraph", "scope_limitations")]}
+    asked = _Asked(_shown())
+    [decision] = placements(_plan(), quiet, FACTS, "python", asked)
+    assert decision.outcome == "placed" and asked.calls == 0
+
+
+def test_page_python_make_paragraph_overlapping_the_test_asset_keeps_every_make_command() -> None:
+    """Page-Python: ``make test`` / ``make build`` / ``make check`` overlapped
+    ``build_test_asset:tests`` -- the renderer prints the suite size, not these commands."""
+    make = "inherited_unit:092.paragraph"
+    text = (
+        "`make test` runs `python3 -m unittest discover -s tests`; `make build` produces wheel "
+        "and sdist artifacts, and `make check` runs both test and build."
+    )
+    facts = _kept((make, text))
+    dispositions = {"dispositions": [_entry(make, "development_testing", "build_test_asset:tests")]}
+    shown = _shown(
+        development_testing="The suite covers 12 test files under `tests`.\n\n"
+        "To run the tests from a clone, run:\n\n```bash\npython -m pytest\n```"
+    )
+    [decision] = placements(_plan(), dispositions, facts, "python", _Asked(shown))
+    assert decision.outcome == "placed" and decision.text == text
+
+
+def test_pdf_go_paragraph_overlapping_a_planned_link_keeps_its_command_and_its_link() -> None:
+    """PDF-Go: the paragraph links docs/feature_showcase.pdf and tells the reader to run
+    ``go run ./_examples/feature_showcase``; the plan's link to ``_examples/`` shared one fact."""
+    showcase = "inherited_unit:025.paragraph"
+    text = (
+        "[**docs/feature_showcase.pdf**](docs/feature_showcase.pdf) is a single 20-page PDF. "
+        "Regenerate it locally with `go run ./_examples/feature_showcase`."
+    )
+    facts = _kept((showcase, text), extra=(_fact("link_target:029", "link_target", "_examples/"),))
+    dispositions = {"dispositions": [_entry(showcase, "additional_examples", "link_target:029")]}
+    plan = _plan(links=[{"link_fact_id": "link_target:029", "section_id": "additional_examples"}])
+    assert "link_target:029" in planned_fact_ids(plan, "additional_examples")
+    shown = _shown(additional_examples="See [_examples/](_examples/) for runnable programs.")
+    [decision] = placements(plan, dispositions, facts, "python", _Asked(shown))
+    assert decision.outcome == "placed" and decision.text == text
+
+
+def test_pdf_dotnet_paragraph_overlapping_the_test_asset_keeps_dotnet_add_reference() -> None:
+    reference = "inherited_unit:019.paragraph"
+    text = (
+        "Building all five targets needs the .NET 10 SDK. Then reference "
+        "`src/Aspose.Pdf.Foss.csproj` from your project (e.g. `dotnet add reference`)."
+    )
+    facts = _kept((reference, text))
+    dispositions = {
+        "dispositions": [_entry(reference, "development_testing", "build_test_asset:tests")]
+    }
+    shown = _shown(development_testing="The suite covers 40 test files under `tests`.")
+    [decision] = placements(_plan(), dispositions, facts, "python", _Asked(shown))
+    assert decision.outcome == "placed" and decision.text == text
+
+
+def test_a_unit_the_destination_states_in_full_is_still_dropped_and_never_printed_twice() -> None:
+    """The other half of the rule: the suite-size sentence the renderer prints already says what
+    the kept paragraph says, so the paragraph drops, exactly as the fact-id rule dropped it."""
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:074.paragraph", "development_testing", "build_test_asset:tests")
+        ]
+    }
+    shown = _shown(development_testing="The suite covers 33 test files under `tests`.")
+    [decision] = placements(_plan(), dispositions, FACTS, "python", _Asked(shown))
+    assert decision.outcome == "overlap" and decision.overlap == ("build_test_asset:tests",)
+    assert placed_texts([decision]) == {}
+
+
+def test_a_kept_list_places_only_the_items_its_destination_does_not_state() -> None:
+    """3D Java 070.list: the plan prints some of the list's links. The other items are the
+    repository's own documents and are placed -- those items only, as the list wrote them."""
+    docs = "inherited_unit:070.list"
+    items = (
+        "- **[Getting started guide](https://docs.example.com/3d)** - the guide.\n"
+        "- **[Publishing guide](PUBLISHING.md)** - how the package is released.\n"
+        "- **[Directory structures](docs/directory-structures.md)** - repository layout."
+    )
+    facts = _kept((docs, items))
+    dispositions = {"dispositions": [_entry(docs, "documentation_resources", "link_target:002")]}
+    shown = _shown(
+        documentation_resources="- **[Docs](https://docs.example.com/3d)** - The docs explain it."
+    )
+    [decision] = placements(_plan(), dispositions, facts, "python", _Asked(shown))
+    assert decision.outcome == "placed"
+    assert decision.text == "\n".join(items.splitlines()[1:])
+    # Control: every link stated, so the list drops whole (the old rule's answer, now earned).
+    full = _shown(
+        documentation_resources=(
+            "- **[Docs](https://docs.example.com/3d)** - guide.\n"
+            "- **[Publishing](PUBLISHING.md)** - releases.\n"
+            "- **[Layout](docs/directory-structures.md)** - layout."
+        )
+    )
+    [decision] = placements(_plan(), dispositions, facts, "python", _Asked(full))
+    assert decision.outcome == "overlap" and placed_texts([decision]) == {}
+
+
+def test_a_remainder_is_the_units_own_text_with_its_anchors_still_resolved() -> None:
+    unit = "inherited_unit:099.paragraph"
+    text = "Encryption is covered in [Encryption and Signing](#encryption-and-signing) below."
+    facts = _kept((unit, text))
+    dispositions = {"dispositions": [_entry(unit, "scope_limitations", "format:input.obj")]}
+    shown = _shown(scope_limitations="Importing OBJ files is not verified.")
+    [decision] = placements(_plan(), dispositions, facts, "python", _Asked(shown))
+    assert decision.outcome == "placed"
+    assert decision.text == "Encryption is covered in Encryption and Signing below."
+
+
+def test_a_kept_lead_in_whose_block_is_not_rendered_after_it_is_dropped_not_left_dangling() -> None:
+    """Aspose.BarCode FOSS for Python (a sealed candidate): reconciliation kept ``Clone the
+    repository and run the test suite:`` (VERIFIED_PRESERVE) and superseded the ``bash`` block it
+    introduces. Carrying the sentence would leave a colon with nothing after it, so the overlap
+    rule's drop stands -- and it is the pair that stays together when the block is kept too."""
+    lead_in, block = "inherited_unit:055.paragraph", "inherited_unit:056.code_block"
+    facts = _kept(
+        (lead_in, "Clone the repository and run the test suite:"),
+        (block, "```bash\npytest\n```"),
+    )
+    shown = _shown(development_testing="The suite covers 48 test files under `tests`.")
+
+    def run(block_disposition: str) -> dict[str, Placement]:
+        dispositions = {
+            "dispositions": [
+                _entry(lead_in, "development_testing", "build_test_asset:tests"),
+                {
+                    **_entry(block, "development_testing", "build_test_asset:tests"),
+                    "disposition": block_disposition,
+                },
+            ]
+        }
+        return {
+            p.unit_id: p for p in placements(_plan(), dispositions, facts, "python", _Asked(shown))
+        }
+
+    superseded = run("SUPERSEDE_REDUNDANT")
+    assert superseded[lead_in].outcome == "overlap"
+    assert block not in superseded  # nothing places the block either: no orphan in either direction
+    kept = run("VERIFIED_PRESERVE")
+    assert kept[lead_in].outcome == "placed"
+    assert kept[lead_in].text == "Clone the repository and run the test suite:"
+    assert kept[block].outcome == "placed"
+    assert placed_texts(list(kept.values()))["development_testing"] == [
+        "Clone the repository and run the test suite:",
+        "```bash\npytest\n```",
+    ]

@@ -1627,7 +1627,25 @@ def test_at_a_glance_labels_are_geometry_safe_and_number_three_to_eight() -> Non
             "capability_titles": [long_token, "Export STL", "Run examples"],
         },
     )
-    assert any("unbroken token over 28 characters" in error for error in plan_checks(wide, FACTS))
+    # Updated for R7 (OD-10): the limit is a word wider than the diagram's pixel budget (200 px
+    # for one column, from the width model), not an unbroken token over 28 characters.
+    assert any(
+        "word wider than the 200px line budget" in error for error in plan_checks(wide, FACTS)
+    )
+    # A title whose words all fit the budget draws, however many words it has.
+    fits = _plan(
+        core_capabilities=[
+            {"title": "Build scenes from meshes", "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+            {"title": "Run examples", "fact_ids": ["example:001"]},
+        ],
+        at_a_glance={
+            "input_format_ids": [],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": ["Build scenes from meshes", "Export STL", "Run examples"],
+        },
+    )
+    assert not any("capability title" in error for error in plan_checks(fits, FACTS))
 
 
 def test_the_shell_decisions_are_composed_by_code_never_asked_of_the_plan() -> None:
@@ -2244,9 +2262,9 @@ def test_bound_visible_line_overage_is_none_without_an_overage_or_a_lever_to_cle
     assert bound_visible_line_overage(cleared, overage=5, levers=flagship) is None
 
 
-def test_an_at_a_glance_title_that_wraps_past_three_lines_is_shortened_at_planning() -> None:
-    """README_CONTRACT.md section 2.1: "no label wrapping past three lines at Mermaid's default
-    node width - a longer title is shortened at planning, never clipped at render"."""
+def test_an_at_a_glance_title_that_wraps_past_the_line_ceiling_is_shortened_at_planning() -> None:
+    """README_CONTRACT.md section 2.1 (R7, OD-10): no label wraps past four lines at the diagram's
+    pixel budget - a longer title is shortened at planning, never clipped at render."""
     long_title = " ".join(["Export", "scenes"] * 10)
     wide = _plan(
         core_capabilities=[
@@ -2260,7 +2278,10 @@ def test_an_at_a_glance_title_that_wraps_past_three_lines_is_shortened_at_planni
             "capability_titles": [long_title, "Export STL", "Run examples"],
         },
     )
-    assert any("wraps past 3 lines" in error for error in plan_checks(wide, FACTS))
+    assert any(
+        "wraps to" in error and "at most 4" in error and "shorten the title" in error
+        for error in plan_checks(wide, FACTS)
+    )
 
 
 def _slot_facts(*urls: str) -> FactsDocument:

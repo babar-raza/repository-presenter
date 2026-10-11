@@ -51,6 +51,7 @@ from repository_presenter.components.readme.composition.list_coverage import (
     list_items,
 )
 from repository_presenter.components.readme.composition.placement import placements
+from repository_presenter.components.readme.composition.text_hygiene import hygiene_errors
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.core.facts import (
     REPOSITORY_FILES_ATTRIBUTE,
@@ -378,7 +379,9 @@ _TYPE_OBJECTIVE = (
 # 34: CUT-3 (G3-W08): the opening may state an audience or use case only when an accepted fact does
 # (composition/audience.py); a kept list states every item (composition/list_coverage.py). A bundle
 # sealed under 33 re-checks under 34 and shows as pending.
-NORMALISATION_VERSION = "34"
+# 35: CUT-4 (G3-W08): the re-ask names every violation and narrows to the failing slots, text hygiene
+# and the audience guard run in the unit checks. A bundle sealed under 34 re-checks under 35.
+NORMALISATION_VERSION = "35"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -2241,6 +2244,9 @@ def unit_checks(
     # refusal quotes it so the one re-ask deletes it, and composition/audience.py holds the rule,
     # its recovery, and the reason. BC-04 reaches the same check through this function.
     errors.extend(audience_errors(output.get("units", []), supporting, task.section_id))
+    # Wave-3 acceptance review (Slides-Python): a Scope bullet cut off mid-sentence on a Chinese
+    # character passed every check above. composition/text_hygiene.py holds the rule.
+    errors.extend(hygiene_errors(output.get("units", []), facts))
     errors.extend(carried_unit_errors(output, task, elsewhere_cited))
     return errors
 

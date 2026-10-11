@@ -1,4 +1,4 @@
-# No README exists. 1 of 36 repositories (GIS .NET).
+# No README exists (GIS .NET at the survey).
 schema_version: 1
 id: greenfield
 title: Greenfield, no live README
@@ -55,6 +55,15 @@ better_than_live:
     measured_by: handoff present for each missing community file
     rules: [DET-06]
     defect_classes: [DEF-07, DEF-26]
+  - id: BTL-GRN-04
+    statement: When At a Glance is authored it is unclipped and its three mother blocks run left to right, split by key capability.
+    measured_by: a real render of the diagram (STR-28), with no label clipped and the three mother blocks side by side from left to right
+    rules: [STR-08, STR-28]
+    defect_classes: [DEF-29, DEF-30]
+inherited_additions: >-
+  There is no live README, so there are no inherited additions; the fixed core is authored from
+  verified facts only. The first merged README becomes the baseline and every heading it then
+  carries is retained in place by the iterations after it (PRC-09, STR-27).
 insertion_policy: >-
   Author the standard skeleton in order, omitting every element whose facts are missing and
   recording why; no placeholder prose.

@@ -91,6 +91,7 @@ def elements_table(common: dict[str, Any], counts: dict[str, tuple[int, int]]) -
                 element["order"],
                 f"`{element['id']}`",
                 heading,
+                element["structure"],
                 element["requirement"]
                 + (f" ({element['condition']})" if "condition" in element else ""),
                 " + ".join(element["basis"]),
@@ -98,7 +99,9 @@ def elements_table(common: dict[str, Any], counts: dict[str, tuple[int, int]]) -
                 element["summary"],
             ]
         )
-    return _table(["#", "Element", "Heading", "Requirement", "Basis", "Live", "What it is"], rows)
+    return _table(
+        ["#", "Element", "Heading", "Structure", "Requirement", "Basis", "Live", "What it is"], rows
+    )
 
 
 def rules_table(common: dict[str, Any], prefix: str) -> str:
@@ -141,10 +144,54 @@ def defects_table(common: dict[str, Any]) -> str:
 
 def decisions_table(common: dict[str, Any]) -> str:
     rows = [
-        [d["id"], d["question"], d["default"], ", ".join(d.get("rules", []))]
-        for d in common["open_decisions"]
+        [
+            d["id"],
+            d["question"],
+            f"owner-ruled {d['ruled']}" if d["status"] == "owner_ruled" else "open",
+            d["ruling"],
+            d["migration"],
+            ", ".join(d.get("rules", [])),
+        ]
+        for d in common["decisions"]
     ]
-    return _table(["ID", "Question", "Default until the owner rules", "Rules"], rows)
+    header = ["ID", "Question", "Status", "Ruling", "Code gate that still encodes the old rule", "Rules"]
+    return _table(header, rows)
+
+
+def kinds_table(common: dict[str, Any]) -> str:
+    """The two kinds of structure, each with the elements of that kind."""
+    rows = []
+    for kind, meaning in common["structure_kinds"].items():
+        members = [
+            f"`{e['id']}`"
+            for e in sorted(common["elements"], key=lambda e: e["order"])
+            if e["structure"] == kind
+        ]
+        rows.append([kind, meaning, ", ".join(members)])
+    return _table(["Kind", "Meaning", "Elements of this kind"], rows)
+
+
+def inherited_policy_table(archetypes: dict[str, Any]) -> str:
+    rows = [
+        [f"`{archetype_id}`", archetypes[archetype_id]["inherited_additions"]]
+        for archetype_id in sorted(archetypes)
+    ]
+    return _table(["Archetype", "How inherited additions are handled"], rows)
+
+
+def inherited_table(assignments: dict[str, Any]) -> str:
+    """Per repository, the live headings outside the twelve standard names: retained in place."""
+    rows = [
+        [
+            short_name(entry["repository"]),
+            f"`{entry['archetype']}`",
+            "; ".join(entry["inherited_headings"]),
+        ]
+        for entry in assignments["assignments"]
+        if entry.get("inherited_headings")
+    ]
+    header = ["Repository", "Archetype", "Live headings outside the twelve standard names"]
+    return _table(header, rows)
 
 
 def axes_table(common: dict[str, Any]) -> str:
@@ -268,6 +315,7 @@ def render_blocks(
     counts = _counts(observation_file)
     blocks = {
         "precedence": precedence_table(common),
+        "kinds": kinds_table(common),
         "elements": elements_table(common, counts),
         "forms": forms_table(common),
         "defects": defects_table(common),
@@ -278,6 +326,8 @@ def render_blocks(
         "channels": channel_table(archetypes),
         "better": better_table(archetypes),
         "assignments": assignments_table(assignments),
+        "inherited-policy": inherited_policy_table(archetypes),
+        "inherited": inherited_table(assignments),
     }
     for name, (prefix, _title) in RULE_GROUPS.items():
         blocks[name] = rules_table(common, prefix)

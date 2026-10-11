@@ -179,7 +179,9 @@ ACCEPT = "ACCEPT"
 # longer folds a first-read rejection, a rejection returned with no finding stands, and a
 # rejection overturned deterministically needs a second read (``REJECTION_REFUTED``). Changes
 # which findings block and what the verdict is.
-REVIEWER_LOGIC_VERSION = "19"
+# 20: CUT-4 (G3-W08): a finding about a unit the plan omitted, deferred or superseded folds only with a
+# recorded refutation, and the asserting fact is cited in preference to a bare name.
+REVIEWER_LOGIC_VERSION = "20"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -649,11 +651,23 @@ _LITERAL_VALUE_LENGTH = 3
 
 
 def _cited_literal(product: Sequence[Fact], quote: str) -> Fact | None:
-    """The first cited SUPPORTED product fact whose literal value the quote contains, or None.
+    """The cited SUPPORTED product fact whose literal value the quote contains, or None - the
+    first one that ASSERTS something, else the first that only names something.
 
     Shared by ``factuality_defect`` and ``cited_fact_defect``: the prompt's own rule - "a quote
     that contains the literal value of a SUPPORTED fact you cite is supported by definition"
     (prompts/independent_review.yaml) - measured the same way whichever criterion files it.
+
+    Wave 3 (Aspose.Words-FOSS-for-.NET F01, 2026-10-11): the answer used to be the first match in
+    the reviewer's own citation order. A finding listing ``package:name`` before
+    ``package:published_version`` was therefore refuted - if at all - by the bare name, which
+    ``_literal_rule`` classes CITED_SYMBOL_NAMED (a judgment: a name in a quote says nothing about
+    what the sentence claims of it), although the quote carried the version the finding itself
+    cited as its evidence and the finding said "no fact supports this version". Which fact the
+    reviewer happened to list first decided whether a finding contradicted by its own citation
+    folded or blocked an unrepairable section. A fact that asserts something (``_literal_rule`` ==
+    CITED_FACT_LITERAL) now wins over one that only names; with no asserting match the first
+    naming match is returned as before, so a quote carrying only a name is still only a judgment.
 
     Checked against both ``_normalized``'s reader-facing form and ``_normalized_with_targets``'s
     link-preserving form (G4-W17 arrival item 71, PROPOSAL AF): most cited facts are prose a
@@ -674,6 +688,7 @@ def _cited_literal(product: Sequence[Fact], quote: str) -> Fact | None:
     """
     wanted = _normalized(quote)
     wanted_with_targets = _normalized_with_targets(quote)
+    naming: Fact | None = None
     for fact in product:
         if fact.polarity != "SUPPORTED":
             continue
@@ -682,8 +697,11 @@ def _cited_literal(product: Sequence[Fact], quote: str) -> Fact | None:
             if len(value) < _LITERAL_VALUE_LENGTH:
                 continue
             if value in wanted or value in wanted_with_targets:
-                return fact
-    return None
+                if _literal_rule(fact) == "CITED_FACT_LITERAL":
+                    return fact
+                naming = naming or fact
+                break
+    return naming
 
 
 # A restated fact must contribute at least this many of its own distinctive tokens before a
@@ -1926,13 +1944,84 @@ def excluded_evidence_defect(
     return None
 
 
+# What reconciliation recorded for an inherited unit that the page does not carry as written, and
+# the half-sentence a ruling about it ends in. OMIT_UNSUPPORTED and DEFER_UNRESOLVED are text that
+# is never composed; SUPERSEDE_REDUNDANT is text whose substance the destination section already
+# renders from facts (reconciliation/dispositions.py keeps that promise; the rule re-checks it).
+_WITHHELD_DISPOSITIONS = ("OMIT_UNSUPPORTED", "DEFER_UNRESOLVED")
+_SUPERSEDED = "SUPERSEDE_REDUNDANT"
+_WITHHELD_REASON = {
+    "OMIT_UNSUPPORTED": (
+        "excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, "
+        "so no stage the loop can reopen would restore it"
+    ),
+    "DEFER_UNRESOLVED": (
+        "deferred (DEFER_UNRESOLVED, never rendered): whether leaving it out is acceptable is "
+        "BC-05's deferral policy to judge, not the reviewer's, and no stage the loop can reopen "
+        "renders a deferred unit"
+    ),
+}
+
+
+def _claim_in_unit(claim: str, unit_text: str, *, short_ok: bool) -> bool:
+    """Whether one claim of a finding is text of ``unit_text``.
+
+    A claim of the floor's length (``_EXCLUDED_QUOTE_LENGTH``) or more is located exactly as an
+    ``absent`` claim is located in the evidence (``quote_located``: a contiguous run, an ellipsis
+    fragment, or the 80-character anchor that the reviewer's own 120-character cut still carries).
+    A shorter claim - "Outputs", "i1" - can sit inside unrelated text by coincidence, so it counts
+    only when the caller has other claims beside it (``short_ok``) and only as whole words.
+    """
+    wanted = _normalized(claim)
+    if not wanted:
+        return False
+    if len(wanted) >= _EXCLUDED_QUOTE_LENGTH:
+        return quote_located(claim, unit_text)
+    if not short_ok:
+        return False
+    if _ELLIPSIS.search(wanted):
+        return quote_located(claim, unit_text)
+    pattern = rf"(?<![a-z0-9]){re.escape(wanted)}(?![a-z0-9])"
+    return re.search(pattern, _normalized(unit_text)) is not None
+
+
+def _unsettled_claims(
+    finding: Mapping[str, Any],
+    candidate_readme: str,
+    by_id: Mapping[str, Fact],
+    evidence: str,
+    units: Mapping[str, Any] | None,
+) -> list[str]:
+    """Every claim of absence a finding makes that the candidate's own bytes and the evidence do
+    not settle: its ``absent`` strings and typed ``omission`` ids and phrases, minus those the named
+    section contains literally or that occur in no evidence. A claim present only as a similarity
+    match (``absence_restated``) is a heuristic and stays unsettled here."""
+    section_id = str(finding.get("section_id") or "")
+    haystack = _section_slice(section_id, candidate_readme)
+    present, _, remaining = absence_partition(finding, candidate_readme, evidence)
+    claims = [*remaining, *(c for c in present if not quote_located(c, haystack))]
+    if omission_claim(finding) is not None:
+        claims.extend(omission_partition(finding, candidate_readme, by_id, evidence, units)[2])
+    seen: set[str] = set()
+    unique: list[str] = []
+    for text in claims:
+        key = _normalized(text) or text
+        if key not in seen:
+            seen.add(key)
+            unique.append(text)
+    return unique
+
+
 def excluded_disposition_defect(
     finding: Mapping[str, Any],
     by_id: Mapping[str, Fact],
     dispositions: Mapping[str, Any] | None,
+    candidate_readme: str = "",
+    evidence: str = "",
+    units: Mapping[str, Any] | None = None,
 ) -> Ruling | None:
-    """Why a finding demanding restoration of an inherited_unit reconciliation deliberately
-    marked ``OMIT_UNSUPPORTED`` is the reviewer's own defect - the disposition-aware sibling of
+    """Why a finding demanding back text that reconciliation deliberately did not carry into the
+    page is the reviewer's own defect - the disposition-aware sibling of
     ``excluded_evidence_defect``, which reads only a fact's polarity.
 
     G4-W17 arrival item 86 (lane E E17, Words-Python's S10 blocker). Polarity answers "did the
@@ -1950,6 +2039,36 @@ def excluded_disposition_defect(
     with the excluded fact uncitable, its only move was a bare filename list, and the identical
     finding re-raised.
 
+    Wave 3 (cut f69f75c7, 2026-10-11) widened the ``absent``/``omission`` claims it reads to the
+    three dispositions that keep a unit's own text off the page, and to the short claims a
+    reviewer really makes (the quote rule, which reads a finding's QUOTE, stays OMIT_UNSUPPORTED
+    only):
+
+    - ``DEFER_UNRESOLVED`` is withheld exactly as ``OMIT_UNSUPPORTED`` is: a deferred unit is never
+      placed (``composition/placement.py``) and the BC-05 deferral policy (``validation/
+      deferrals.py``) already judges it - a BLOCK class fails the candidate there, an ADVISORY one
+      is recorded on ``validation.json`` for the reviewer to read. Cells-Rust F03 asked for the
+      original's git and path ``[dependencies]`` snippets (units 013/015, both deferred).
+    - ``SUPERSEDE_REDUNDANT`` means the destination already carries what the unit says, from facts.
+      The finding is refuted only while that is still true of the page in front of the reviewer:
+      the unit's destination is the section the finding names and every fact the disposition cites
+      is rendered there (``_id_rendered``). Email-.Net F03 asked for the sentence "The published
+      NuGet package ID is `Aspose.Email.Foss` (confirmed against the library's own `.csproj` ...)"
+      back into the deterministic Installation section, whose line already states the package ID
+      and version; no stage can write assurance narration into a renderer section.
+    - A claim shorter than ``_EXCLUDED_QUOTE_LENGTH`` ("Outputs", "i1", "path dependency") cannot
+      be told from coincidence alone, so it counts only beside other claims and as whole words, and
+      the finding is refuted only when EVERY claim it still makes - ``absent`` strings and typed
+      ``omission`` ids and phrases that the candidate and the evidence do not already settle - is
+      text of a unit reconciliation withheld or superseded. One claim outside them is a real
+      remainder and the finding stands, however many of its other claims are covered (Cells-Rust
+      F01 named the original's Mermaid Starting Points/Outputs subgraphs, unit 008,
+      ``OMIT_UNSUPPORTED``: four words, none of 40 characters).
+
+    The ruling is deterministic only because each ground is recorded bytes: the disposition, the
+    unit it names, the claim located in that unit's text, and for a supersession the rendered
+    facts. ``refuted_by.evidence`` carries all of them, so review.json shows why the finding fell.
+
     ``dispositions`` is ``None`` until the one call site that has it in scope
     (``repair/rounds.py``, which already threads it into ``renderer_sentences`` three lines before
     its ``review_document`` call) also threads it here - this function then never fires, matching
@@ -1957,39 +2076,100 @@ def excluded_disposition_defect(
     """
     if not dispositions:
         return None
-    excluded_ids = {
-        str(entry.get("unit_id"))
-        for entry in dispositions.get("dispositions", [])
-        if entry.get("disposition") == "OMIT_UNSUPPORTED"
-    }
-    if not excluded_ids:
+    section_id = str(finding.get("section_id") or "")
+    section_text = _section_slice(section_id, candidate_readme)
+    withheld: dict[str, tuple[Fact, str, Mapping[str, Any]]] = {}
+    for entry in dispositions.get("dispositions", []):
+        unit_id = str(entry.get("unit_id"))
+        disposition = str(entry.get("disposition"))
+        fact = by_id.get(unit_id)
+        if fact is None or unit_id in withheld:
+            continue
+        if disposition in _WITHHELD_DISPOSITIONS or (
+            disposition == _SUPERSEDED and entry.get("destination_section") == section_id
+        ):
+            withheld[unit_id] = (fact, disposition, entry)
+    if not withheld:
         return None
-    excluded_facts = [fact for fact in by_id.values() if fact.id in excluded_ids]
+
+    def carried(entry: Mapping[str, Any]) -> list[str] | None:
+        """The facts a supersession cites when every one is SUPPORTED and on the page; else None."""
+        ids = [str(i) for i in entry.get("fact_ids", [])]
+        if not ids:
+            return None
+        for fact_id in ids:
+            fact = by_id.get(fact_id)
+            if fact is None or fact.polarity != "SUPPORTED":
+                return None
+            if not _id_rendered(fact_id, section_id, section_text, by_id, units):
+                return None
+        return ids
+
+    # The quote rule is item 86's, unchanged: it reads OMIT_UNSUPPORTED only. Widening it to a
+    # deferred unit would fold a finding that quotes candidate text which merely restates a unit
+    # reconciliation held back - a sentence that may really be unsupported.
     quote = _normalized(str(finding.get("quote", "")))
     if len(quote) >= _EXCLUDED_QUOTE_LENGTH:
-        for fact in excluded_facts:
-            if quote in _normalized(fact.value):
+        for unit_id, (fact, disposition, _) in withheld.items():
+            if disposition == "OMIT_UNSUPPORTED" and quote in _normalized(fact.value):
                 return Ruling(
-                    f"the quote is {fact.id}'s own text, which reconciliation excluded "
-                    "(OMIT_UNSUPPORTED, not composed): the contract admits it only once "
-                    "verified, so no stage the loop can reopen would restore it",
+                    f"the quote is {unit_id}'s own text, which reconciliation "
+                    f"{_WITHHELD_REASON[disposition]}",
                     "EXCLUDED_DISPOSITION",
-                    {"fact": fact.id, "disposition": "OMIT_UNSUPPORTED", "via": "quote"},
+                    {"fact": unit_id, "disposition": disposition, "via": "quote"},
                 )
-    for claim in _claimed_absent(finding):
-        claimed = _normalized(claim)
-        if len(claimed) < _EXCLUDED_QUOTE_LENGTH:
-            continue
-        for fact in excluded_facts:
-            if claimed in _normalized(fact.value):
-                return Ruling(
-                    f"the omission it names is {fact.id}'s own text, which reconciliation "
-                    "excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only "
-                    "once verified, so no stage the loop can reopen would restore it",
-                    "EXCLUDED_DISPOSITION",
-                    {"fact": fact.id, "disposition": "OMIT_UNSUPPORTED", "via": "absent"},
-                )
-    return None
+    claims = _unsettled_claims(finding, candidate_readme, by_id, evidence, units)
+    if not claims:
+        return None
+    covering: dict[str, str] = {}
+    rendered: dict[str, list[str]] = {}
+    for claim in claims:
+        owner: str | None = None
+        for unit_id, (fact, disposition, entry) in withheld.items():
+            if claim != unit_id and not _claim_in_unit(
+                claim, fact.value, short_ok=len(claims) >= 2
+            ):
+                continue
+            if disposition == _SUPERSEDED:
+                facts_rendered = carried(entry)
+                if facts_rendered is None:
+                    continue
+                rendered[unit_id] = facts_rendered
+            owner = unit_id
+            break
+        if owner is None:
+            return None  # a claim no withheld unit holds: a real remainder, the finding stands
+        covering.setdefault(owner, withheld[owner][1])
+    via = "claims" if omission_claim(finding) is not None else "absent"
+    first = next(iter(covering))
+    if len(covering) == 1:
+        if covering[first] == _SUPERSEDED:
+            tail = (
+                f"superseded into the {section_id} section (SUPERSEDE_REDUNDANT): every fact it "
+                f"cites ({', '.join(rendered[first])}) is rendered there, so what it says is "
+                "already on the page and no stage the loop can reopen would restate its wording"
+            )
+        else:
+            tail = _WITHHELD_REASON[covering[first]]
+        reason = f"the omission it names is {first}'s own text, which reconciliation {tail}"
+    else:
+        names = "; ".join(f"{unit_id} ({kind})" for unit_id, kind in covering.items())
+        reason = (
+            "the omission it names is text of inherited units reconciliation did not carry as "
+            f"written: {names}; an omitted or deferred unit is never composed and a superseded "
+            "one is already carried by the facts its section renders, so no stage the loop can "
+            "reopen would restore any of it"
+        )
+    record: dict[str, Any] = {
+        "fact": first,
+        "disposition": covering[first],
+        "via": via,
+        "units": [{"fact": unit_id, "disposition": kind} for unit_id, kind in covering.items()],
+        "claims": claims,
+    }
+    if rendered:
+        record["rendered_facts"] = rendered
+    return Ruling(reason, "EXCLUDED_DISPOSITION", record)
 
 
 def scope_defect(
@@ -2103,7 +2283,9 @@ def scope_rulings(
             )
     for ruling in (
         excluded_evidence_defect(finding, by_id),
-        excluded_disposition_defect(finding, by_id, dispositions),
+        excluded_disposition_defect(
+            finding, by_id, dispositions, candidate_readme, evidence, units
+        ),
         rendered_defect(finding, rendered),
     ):
         if ruling is not None:

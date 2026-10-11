@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from repository_presenter.core.examples import ExampleCandidate, ExampleOutcome, ExampleReceipt
+from repository_presenter.core.examples import (
+    PRELUDE_ATTRIBUTE,
+    ExampleCandidate,
+    ExampleOutcome,
+    ExampleReceipt,
+)
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
 
 _POLARITY: dict[ExampleOutcome, Polarity] = {
@@ -55,6 +60,13 @@ def example_facts(
                 tuple(evidence),
                 polarity=_POLARITY[outcome],
                 confidence=1.0 if outcome in {"EXECUTED", "FAILED", "TIMED_OUT"} else 0.5,
+                # The lines the verifier compiled in front of the snippet; the renderer prints
+                # them so the shown example is the verified program (core/examples.py).
+                attributes=(
+                    {PRELUDE_ATTRIBUTE: receipt.prelude}
+                    if receipt is not None and receipt.prelude and outcome == "EXECUTED"
+                    else None
+                ),
             )
         )
     return facts

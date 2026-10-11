@@ -37,6 +37,15 @@ cause ADVISORY (OWNER-14: a deferred unit is never public, and blocks only in sp
 matched on the typed prefix and never on free text, and last in precedence so every BLOCK class
 above still decides first.
 
+Wave-3 acceptance review (reseal f69f75c7) found that same class, and two more, hiding true losses
+behind an advisory that blocks nothing (Note-Python's ``[pdf]`` install extra, Slides-Python's
+namespace-collision warning and Enterprise Edition paragraph, Slides-.NET's ``using`` lead-in). An
+advisory says "withheld, never published, nothing lost", which holds only when the finished README
+states the content elsewhere. ``review_deferrals(..., readme)`` therefore holds
+NOT_CARRIED_BY_NAMED_SECTION, ENTERPRISE_NO_VERIFIED_TARGET and LEADIN_OF_WITHHELD_CONTENT to that
+claim (``ESCALATIONS``): the test is mechanical (``validation/content_presence.py``), and a deferral
+the README does not back is a BLOCK at the stage that caused the loss.
+
 CUT-2 (G3-W08/G7-W12) read the three free-text rationales the 2026-10-10 baseline left UNCLASSIFIED
 (3D-.NET 066, Page-Python 014/016/038/040, Email-Cpp 032) and added no class: two existing classes
 learned the cause. ``NO_EVIDENCE_EITHER_WAY`` accepts the model's other words for the same
@@ -69,14 +78,18 @@ from typing import Any, Literal
 from repository_presenter.components.readme.composition.planning import section_conditions
 from repository_presenter.components.readme.evidence.facts.product_pages import (
     ENTERPRISE_FACT_ID,
+    ENTERPRISE_HOST,
     enterprise_target,
 )
+from repository_presenter.components.readme.evidence.facts.registry_lag import REGISTRY_LAG_FACT_ID
 from repository_presenter.components.readme.reconciliation.dispositions import (
     RECOVERED_COVERAGE_RATIONALE,
     code_units_by_polarity,
     command_block_units,
     contradicted_code_units,
+    is_version_skew_warning,
 )
+from repository_presenter.components.readme.validation.content_presence import unstated
 from repository_presenter.core.facts import Fact, FactsDocument
 
 Decision = Literal["BLOCK", "ADVISORY"]
@@ -136,6 +149,12 @@ _PDF_NAME = re.compile(r"(?<![\w.)\]/])/[A-Za-z_]\w*")
 _PATH_TOKEN = re.compile(r"\S*[/\\]\S*")
 _DOTTED_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
 _MIN_SYMBOL_TAIL = 4
+_LINK_DESTINATION = re.compile(r"\]\(\s*<?([^)\s>]+)")
+
+
+def _destination(target: str) -> str:
+    """A link destination as it is compared: no trailing slash, lower case."""
+    return target.strip().rstrip("/").lower()
 
 
 def _section_parts(raw: str | None) -> tuple[str, ...]:
@@ -167,6 +186,8 @@ class DeferralContext:
     contradicted: frozenset[str]
     license_rendered: bool
     verified_code: frozenset[str]
+    enterprise_links: frozenset[str]
+    registry_lag: bool = False
 
     @classmethod
     def build(
@@ -230,6 +251,20 @@ class DeferralContext:
                 fact.id == "license:spdx" and fact.polarity == "SUPPORTED"
                 for fact in facts.by_kind("license")
             ),
+            # The upstream's own Enterprise Edition links, each read live (RESOLVED) by the link
+            # extractor: a target the product-page lookup may have left unresolved.
+            enterprise_links=frozenset(
+                _destination(fact.value)
+                for fact in facts.by_kind("link_target")
+                if fact.polarity == "SUPPORTED"
+                and fact.id != ENTERPRISE_FACT_ID
+                and fact.value.startswith(ENTERPRISE_HOST)
+                and any(_ENTERPRISE.search(e.detail or "") for e in fact.evidence)
+            ),
+            registry_lag=any(
+                fact.id == REGISTRY_LAG_FACT_ID and fact.polarity == "SUPPORTED"
+                for fact in facts.facts
+            ),
         )
 
     def text(self, unit_id: str) -> str:
@@ -282,21 +317,26 @@ class DeferralContext:
                     return True
         return False
 
+    def next_unit(self, unit_id: str) -> str | None:
+        """The block the extractor numbered next, of any content kind, or None. A heading is not
+        content a lead-in introduces, so it never counts."""
+        match = re.match(r"^inherited_unit:(\d{3})(?:\.\d{3})?\.[a-z_]+$", unit_id)
+        if match is None:
+            return None
+        prefix = f"inherited_unit:{int(match.group(1)) + 1:03d}."
+        following = sorted(
+            key for key in self.entries if key.startswith(prefix) and _kind(key) != "heading"
+        )
+        return following[0] if following else None
+
     def neighbor_dropped(self, unit_id: str) -> bool:
         """The next block in document order is withheld: OMIT_UNSUPPORTED or DEFER_UNRESOLVED.
 
         The next block is whatever the extractor numbered next, of any content kind: a lead-in
         introduces a code block, a link line ("see:" then ``**[Guide](docs/guide.md)**``) or a
-        list alike (CUT-2, Font-Python 087, whose linked guide was omitted as CONTRADICTED). A
-        heading is not content the lead-in introduces, so it never counts."""
-        match = re.match(r"^inherited_unit:(\d{3})(?:\.\d{3})?\.[a-z_]+$", unit_id)
-        if match is None:
-            return False
-        prefix = f"inherited_unit:{int(match.group(1)) + 1:03d}."
-        following = sorted(
-            key for key in self.entries if key.startswith(prefix) and _kind(key) != "heading"
-        )
-        return bool(following) and self.entries[following[0]].get("disposition") in {
+        list alike (CUT-2, Font-Python 087, whose linked guide was omitted as CONTRADICTED)."""
+        following = self.next_unit(unit_id)
+        return following is not None and self.entries[following].get("disposition") in {
             "OMIT_UNSUPPORTED",
             "DEFER_UNRESOLVED",
         }
@@ -483,6 +523,9 @@ def _no_evidence(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -
     return (
         _uncited(entry)
         and bool(_NO_EVIDENCE.search(str(entry.get("rationale") or "")))
+        # "No fact either way" is false for a warning that the registry's release lags this source
+        # tree once ``package:registry_lag`` verifies it (Slides-Python): that deferral blocks.
+        and not (ctx.registry_lag and is_version_skew_warning(ctx.text(unit_id)))
         and not ctx.names_verified_symbol(
             unit_id, shape="listing" if _kind(unit_id) in {"list", "table"} else "prose"
         )
@@ -713,12 +756,107 @@ def _check_registry() -> None:
 _check_registry()
 
 
+# An ADVISORY class says "the unit is withheld, never published, and nothing is lost". That is true
+# only when the content is stated somewhere the reader will find it. Three classes made the claim
+# on no evidence, and in the wave-3 acceptance review (reseal f69f75c7) each hid a true loss behind
+# an advisory that blocks nothing: NOT_CARRIED_BY_NAMED_SECTION (Note-Python 013, the ``[pdf]``
+# install extra the first Quick Start example needs; Slides-Python 018, the shared-namespace
+# warning), ENTERPRISE_NO_VERIFIED_TARGET (Slides-Python 117, the Enterprise Edition paragraph,
+# whose link the upstream's own README had verified live) and LEADIN_OF_WITHHELD_CONTENT
+# (Slides-.NET 033, the lead-in of the ``using`` block that makes the printed examples compile).
+# With the finished README in hand, each of them is checked before it is believed; a deferral whose
+# content the README does not carry becomes the BLOCK finding it should have been, at the stage
+# that caused it.
+_Explain = Callable[[str, Mapping[str, Any], DeferralContext, str], str | None]
+
+
+@dataclass(frozen=True)
+class Escalation:
+    """When an advisory class may not stand: the stage a failure belongs to and the test."""
+
+    stage: Stage
+    explain: _Explain
+
+
+def _lost_content(
+    unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext, readme: str
+) -> str | None:
+    """The unit's content is stated nowhere in the README (``content_presence.unstated``)."""
+    text = ctx.text(unit_id)
+    if not text.strip():
+        return None
+    missing = unstated(text, readme, kind=_kind(unit_id))
+    if not missing:
+        return None
+    shown = "; ".join(missing[:4])
+    return (
+        f"the README does not state {len(missing)} piece(s) of it ({shown}), so deferring it "
+        "loses content: keep it where a reader will find it, restate it, or omit it citing "
+        "the fact that contradicts it"
+    )
+
+
+def _verified_enterprise_target(
+    unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext, readme: str
+) -> str | None:
+    """The unit is the upstream's own Enterprise Edition paragraph and the link it carries was
+    read live (RESOLVED) by the link extractor, so a verified target exists even though the
+    product-page lookup left ``link_target:product.enterprise`` unresolved (Slides-Python: the
+    ``python`` and ``python-net`` pages both answer, and the README chose ``python-net``)."""
+    own = {_destination(target) for target in _LINK_DESTINATION.findall(ctx.text(unit_id))}
+    verified = sorted(own & ctx.enterprise_links)
+    if not verified:
+        return None
+    return (
+        f"the upstream's own link {verified[0]} was verified live, so a verified Enterprise "
+        "Edition target exists and the paragraph must render: resolve the product-page lookup "
+        "from the README's own link instead of dropping the paragraph"
+    )
+
+
+def _lost_leadin(
+    unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext, readme: str
+) -> str | None:
+    """The lead-in's code block was withheld, but not on a verification verdict, and the README
+    states none of its lines: the reader loses the block and the sentence that introduced it. A
+    block withheld because its example failed or could not run (UNRESOLVED, CONTRADICTED) is the
+    truth-safe result and keeps its lead-in advisory; so does a block whose lines the README
+    carries elsewhere (the usings an example prints, an install command Installation renders)."""
+    following = ctx.next_unit(unit_id)
+    if (
+        following is None
+        or _kind(following) != "code_block"
+        or following in ctx.unresolved
+        or following in ctx.contradicted
+    ):
+        return None
+    missing = unstated(ctx.text(following), readme, kind="code_block")
+    if not missing:
+        return None
+    return (
+        f"the code block it introduces ({following}) was withheld and the README states none of "
+        f"it ({'; '.join(missing[:3])}): keep the block, or the lead-in has nothing to lead"
+    )
+
+
+ESCALATIONS: dict[str, Escalation] = {
+    "NOT_CARRIED_BY_NAMED_SECTION": Escalation("RECONCILING", _lost_content),
+    "ENTERPRISE_NO_VERIFIED_TARGET": Escalation("EXTRACTING", _verified_enterprise_target),
+    "LEADIN_OF_WITHHELD_CONTENT": Escalation("RECONCILING", _lost_leadin),
+}
+
+
 def review_deferrals(
     dispositions: Mapping[str, Any],
     facts: FactsDocument,
     plan: Mapping[str, Any] | None = None,
+    readme: str | None = None,
 ) -> list[DeferralFinding]:
-    """Every DEFER_UNRESOLVED unit classified; an unmatched one is a BLOCK finding."""
+    """Every DEFER_UNRESOLVED unit classified; an unmatched one is a BLOCK finding.
+
+    Given the finished ``readme``, an ADVISORY class listed in ``ESCALATIONS`` is also held to its
+    claim that nothing is lost: when the README does not carry the unit's content the finding is a
+    BLOCK at the escalation's stage. Without a README the registry's own decision stands."""
     ctx = DeferralContext.build(dispositions, facts, plan)
     findings: list[DeferralFinding] = []
     for entry in dispositions.get("dispositions", []):
@@ -730,6 +868,11 @@ def review_deferrals(
             findings.append(
                 DeferralFinding(unit_id, UNCLASSIFIED, "BLOCK", "RECONCILING", _UNCLASSIFIED_REASON)
             )
+            continue
+        escalation = ESCALATIONS.get(cls.id)
+        lost = escalation.explain(unit_id, entry, ctx, readme) if escalation and readme else None
+        if escalation is not None and lost is not None:
+            findings.append(DeferralFinding(unit_id, cls.id, "BLOCK", escalation.stage, f"{lost}."))
         else:
             findings.append(DeferralFinding(unit_id, cls.id, cls.decision, cls.stage, cls.reason))
     return findings
