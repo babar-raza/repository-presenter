@@ -21,6 +21,7 @@ _TITLES = {
     "BROKEN_LINK": "repair a broken README link",
     "STRUCTURE_FIX": "repair broken README markup",
     "MISSING_INFO": "add verified information the README lacks",
+    "DIAGRAM_FIX": "redraw the At a Glance diagram so it is neither clipped nor stacked",
 }
 _LABELS = {
     "FALSE_CLAIM_FIX": "Claim the repository contradicts",
@@ -28,6 +29,7 @@ _LABELS = {
     "BROKEN_LINK": "Broken link repaired",
     "STRUCTURE_FIX": "Broken markup repaired",
     "MISSING_INFO": "Verified information added",
+    "DIAGRAM_FIX": "At a Glance diagram redrawn (same words and edges)",
 }
 _SHOWN = 120
 
@@ -45,6 +47,8 @@ def _item(edit: dict[str, Any]) -> list[str]:
     if edit["kind"] == "MISSING_SECTION":
         heading = next(line for line in edit["replacement"].splitlines() if line.startswith("## "))
         change = f"inserted `{heading}` before line {edit['line']}"
+    elif edit["kind"] == "DIAGRAM_FIX":
+        change = f"redrew the Mermaid diagram at line {edit['line']} (labels and edges unchanged)"
     elif edit["kind"] == "MISSING_INFO":
         shown = next((ln for ln in edit["replacement"].splitlines() if ln.strip()), "")
         extra = len([ln for ln in edit["replacement"].splitlines() if ln.strip()]) - 1

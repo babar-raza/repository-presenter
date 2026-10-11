@@ -13,6 +13,7 @@ Nothing here consults a model. The path makes zero provider calls by constructio
 from __future__ import annotations
 
 import functools
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -30,10 +31,18 @@ STRUCTURE_FIX = "STRUCTURE_FIX"
 #: test command, an install form, a link to a file the tree holds, the published-version badge).
 #: A pure insertion: no maintainer byte is replaced, no heading is introduced.
 MISSING_INFO = "MISSING_INFO"
+#: The README's own At a Glance diagram, redrawn: every label, group title and edge unchanged, the
+#: body between the fence markers replaced by the drawing ``components/readme_diagram`` writes. The
+#: one correction that replaces several lines; evidence is the README's own fence (a locator).
+DIAGRAM_FIX = "DIAGRAM_FIX"
 #: The closed set of correction kinds; nothing outside it can be applied or proposed.
 EDIT_KINDS: frozenset[str] = frozenset(
-    {FALSE_CLAIM_FIX, MISSING_SECTION, BROKEN_LINK, STRUCTURE_FIX, MISSING_INFO}
+    {FALSE_CLAIM_FIX, MISSING_SECTION, BROKEN_LINK, STRUCTURE_FIX, MISSING_INFO, DIAGRAM_FIX}
 )
+#: A diagram body is a few dozen lines, never more than this.
+MAX_DIAGRAM = 8000
+#: A line that opens or closes a fenced block (an invisible Mermaid link, ``a ~~~ b``, is not one).
+_FENCE_LINE = re.compile(r"^[ \t]{0,3}(?:`{3,}|~{3,})", re.MULTILINE)
 #: An addition is a few lines, never a rewrite of a section.
 MAX_ADDITION = 4000
 #: A one-line fix touches a few words, never a sentence the maintainers wrote.
@@ -88,6 +97,9 @@ class Edit:
         elif self.kind in {MISSING_INFO, MISSING_SECTION}:
             if not (self.fact_ids or self.locators):
                 raise InvalidEditError(f"{self.detector}: an addition cites a fact or a tree path")
+        elif self.kind == DIAGRAM_FIX:
+            if not self.locators:
+                raise InvalidEditError(f"{self.detector}: a diagram fix cites the README line")
         elif not self.fact_ids:
             raise InvalidEditError(f"{self.detector}: an edit needs at least one evidence fact")
         if self.replacement == self.original:
@@ -105,6 +117,13 @@ class Edit:
                 raise InvalidEditError(f"{self.detector}: a section is inserted, never replaces")
             if not self.replacement.lstrip("\n").startswith("## "):
                 raise InvalidEditError(f"{self.detector}: an inserted section starts at an H2")
+        elif self.kind == DIAGRAM_FIX:
+            if not self.original or not self.replacement or self.start == self.end:
+                raise InvalidEditError(f"{self.detector}: a diagram fix replaces a diagram body")
+            if any(_FENCE_LINE.search(text) for text in (self.original, self.replacement)):
+                raise InvalidEditError(f"{self.detector}: a diagram fix stays inside one fence")
+            if max(len(self.original), len(self.replacement)) > MAX_DIAGRAM:
+                raise InvalidEditError(f"{self.detector}: a diagram body is not this long")
         else:
             if not self.original or "\n" in self.original or len(self.original) > MAX_SPAN:
                 raise InvalidEditError(

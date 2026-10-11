@@ -10,6 +10,7 @@ from typing import Any
 import pytest
 
 from repository_presenter.components.readme_correction import bundle as files
+from repository_presenter.components.readme_correction import check
 from repository_presenter.components.readme_correction.check import validation_delta
 from repository_presenter.components.readme_correction.engine import correct
 from repository_presenter.components.readme_correction.gate import load_proposable_correction
@@ -60,6 +61,41 @@ Run mvn test.
 
 MIT.
 """
+
+
+DIAGRAM = """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing OBJ, STL, or 3MF file"]
+  end
+  PRODUCT["Aspose.3D FOSS for Java"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Scene-graph construction and traversal"]
+      c2["Mesh authoring and editing"]
+      c3["Parameterized primitive geometry"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Lambert, Phong, and PBR material assignment"]
+      c5["Polygon triangulation"]
+      c6["Keyframe animation and skeletal pose data"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["OBJ, STL, or 3MF file"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs
+"""
+NL = chr(10)
+README_WITH_DIAGRAM = README.replace(
+    "## Installation",
+    NL.join(["## At a Glance", "", "```mermaid", DIAGRAM + "```", "", "## Installation"]),
+    1,
+)
 
 
 def make_bundle(tmp_path: Path, make_context: Any, readme: str = README) -> Path:
@@ -314,3 +350,55 @@ def test_a_locator_naming_a_path_the_tree_lacks_or_a_line_past_the_end_is_a_prob
     assert _locator_problem(edit("tree:CHANGELOG.md"), ctx, {"CHANGELOG.md"}) is None
     assert "does not hold" in str(_locator_problem(edit("tree:GONE.md"), ctx, {"CHANGELOG.md"}))
     assert "not a line" in str(_locator_problem(edit("README.md:9"), ctx, set()))
+
+
+def test_a_diagram_rebuild_is_proposable_and_its_allowance_is_recorded(
+    tmp_path: Path, make_context: Any
+) -> None:
+    directory = make_bundle(tmp_path, make_context, README_WITH_DIAGRAM)
+    document = json.loads((directory / files.CORRECTIONS_NAME).read_text(encoding="utf-8"))
+    (edit,) = [e for e in document["edits"] if e["kind"] == "DIAGRAM_FIX"]
+    assert edit["detector"] == "at_a_glance_diagram" and edit["line"] == 8
+    assert [(ev["status"], ev["value"]) for ev in edit["evidence"]] == [
+        ("README_TEXT", "README.md:8")
+    ]
+    delta = json.loads((directory / "validation_delta.json").read_text(encoding="utf-8"))
+    assert delta["introduced"] == [] and delta["allowed"][0]["ruling"] == "R7"
+    candidate = load_proposable_correction(directory, REPOSITORY, root=REPO_ROOT)
+    assert "flowchart TD" not in candidate.readme_text
+    assert "Core Capabilities" in candidate.readme_text  # the labels are the maintainers' own
+    content = compose_correction_pull_request(
+        bundle=directory,
+        repository=REPOSITORY,
+        candidate_hash="h" * 64,
+        source_revision="a" * 40,
+        policy_version="p1",
+    )
+    assert "At a Glance diagram redrawn (same words and edges)" in content.body
+    assert "redrew the Mermaid diagram at line 8 (labels and edges unchanged)" in content.body
+    assert "`README.md:8`" in content.body
+
+
+def test_the_gate_applies_the_allowance_itself_so_without_it_the_stored_rebuild_is_refused(
+    tmp_path: Path, make_context: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    directory = make_bundle(tmp_path, make_context, README_WITH_DIAGRAM)
+    monkeypatch.setattr(check, "ALLOWANCES", ())
+    error = refusal(directory)  # settling would drop the rebuild, so the stored bytes differ
+    assert error.code == Refusal.CORRECTION_NOT_PROVEN
+    assert "does not reproduce README.md byte for byte" in error.message
+
+
+def test_a_forged_validation_delta_cannot_stand_in_for_the_gates_own_judgement(
+    tmp_path: Path, make_context: Any
+) -> None:
+    directory = make_bundle(tmp_path, make_context, README_WITH_DIAGRAM)
+    path = directory / "validation_delta.json"
+    forged = json.loads(path.read_text(encoding="utf-8"))
+    forged["allowed"] = []
+    forged["introduced"] = [{"check": "BC-07", "extra": 9, "details": ["forged"]}]
+    path.write_text(json.dumps(forged), encoding="utf-8")
+    reseal(directory)
+    # the gate re-derives the delta from the bundle's bytes: what the file says is not read
+    candidate = load_proposable_correction(directory, REPOSITORY, root=REPO_ROOT)
+    assert candidate.repository == REPOSITORY

@@ -26,6 +26,7 @@ from typing import Any
 from repository_presenter.components.readme_correction import bundle as files
 from repository_presenter.components.readme_correction.engine import CorrectionError
 from repository_presenter.components.readme_correction.model import (
+    DIAGRAM_FIX,
     EDIT_KINDS,
     KIND_CORRECTION,
     KIND_FIELD,
@@ -66,8 +67,8 @@ def _locator_problem(edit: Edit, ctx: Context, tree: set[str]) -> str | None:
         path, _, number = locator.rpartition(":")
         if path != ctx.readme_path or not number.isdigit() or not 1 <= int(number) <= lines:
             return f"{edit.detector} cites {locator!r}, which is not a line of the README"
-    if edit.kind == STRUCTURE_FIX and not edit.locators:
-        return f"{edit.detector} is a structure fix with no README line cited"
+    if edit.kind in {STRUCTURE_FIX, DIAGRAM_FIX} and not edit.locators:
+        return f"{edit.detector} is a {edit.kind} with no README line cited"
     return None
 
 

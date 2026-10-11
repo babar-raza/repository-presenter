@@ -8,30 +8,30 @@ label, group title and edge unchanged - redrawn left to right with SVG text labe
 their text. It is one multi-line edit to the lines between the fence markers; the README text
 outside them is untouched.
 
-Two things must hold before the detector may edit, and until they do it reports instead:
+The edit is a ``DIAGRAM_FIX``: an edit that replaces a whole diagram body, which the one-line kinds
+cannot express. The detector edits only when the horizontal At a Glance contract
+(``readme_diagram.contract``) finds nothing wrong with the redrawn body, and reports otherwise.
 
-* the correction shape exists in this build (``model.DIAGRAM_FIX``: an edit that replaces a whole
-  diagram body, which the one-line kinds cannot express); and
-* the validator the correction is judged by accepts the redrawn diagram. BC-07 as it stands demands
-  the old ``flowchart TD`` chain, so applying the edit today would make the whole bundle fail the
-  "no check fails more often than on the live README" gate. The detector asks the running BC-07
-  directly, so it starts editing in the same build that teaches BC-07 the horizontal contract
-  (``readme_diagram.contract``) and never needs a flag flipped.
+BC-07 as it stands still demands the old ``flowchart TD`` chain, so the redrawn body adds At a
+Glance topology failures under it. Owner ruling R7 (BC-07's topology rule migrates to the contract)
+is carried by the typed ``check.ALLOWANCES`` entry, which names this edit kind, that check and that
+wording, and records each use in ``validation_delta.json`` under ``allowed``; no other failure a
+rebuild brings is let through.
 
 A diagram that is not the At a Glance chain, or already conforms, is not touched.
 """
 
 from __future__ import annotations
 
-from repository_presenter.components.readme.validation import registry as validation
-from repository_presenter.components.readme_correction import model
 from repository_presenter.components.readme_correction.detectors import detector
 from repository_presenter.components.readme_correction.model import (
+    DIAGRAM_FIX,
     Context,
     DetectorResult,
     Edit,
     Finding,
 )
+from repository_presenter.components.readme_diagram import contract
 from repository_presenter.components.readme_diagram.lint import lint_parsed, normalize
 from repository_presenter.components.readme_diagram.model import NotAGlanceError
 from repository_presenter.components.readme_diagram.parse import parse
@@ -41,21 +41,17 @@ DETECTOR = "at_a_glance_diagram"
 
 
 def _validator_accepts(body: str, has_inputs: bool) -> bool:
-    """Whether the running BC-07 finds nothing wrong with ``body`` as an At a Glance diagram;
-    false when its topology check cannot be asked (fail closed, never a guess)."""
-    topology = getattr(validation, "_topology_failures", None)
-    if topology is None:
-        return False
-    return not topology(body, has_inputs)
+    """Whether the horizontal At a Glance contract (``readme_diagram.contract``, the rule BC-07's
+    topology check is being migrated to under owner ruling R7) finds nothing wrong with ``body``.
+
+    BC-07 as it stands still demands the vertical ``flowchart TD`` drawing, so asking it would
+    forbid every rebuild; ``check.ALLOWANCES`` lets its At a Glance failures on a rebuilt drawing
+    through, and this is the check that earns that allowance."""
+    return not contract.topology_failures(body, has_inputs)
 
 
-def _withheld(shape_exists: bool, accepted: bool) -> str:
-    reasons = []
-    if not shape_exists:
-        reasons.append("this build has no correction kind that replaces a whole diagram body")
-    if not accepted:
-        reasons.append("the running BC-07 still requires the vertical `flowchart TD` drawing")
-    return "; ".join(reasons)
+def _withheld(accepted: bool) -> str:
+    return "" if accepted else "the horizontal At a Glance contract rejects the redrawn diagram"
 
 
 @detector(DETECTOR)
@@ -65,7 +61,6 @@ def at_a_glance_diagram(ctx: Context) -> DetectorResult:
     offsets = [0]
     for line in lines:
         offsets.append(offsets[-1] + len(line))
-    kind = getattr(model, "DIAGRAM_FIX", None)
     edits: list[Edit] = []
     findings: list[Finding] = []
     for fence in mermaid_fences(lines):
@@ -83,21 +78,21 @@ def at_a_glance_diagram(ctx: Context) -> DetectorResult:
         number = fence.first + 1
         codes = ", ".join(sorted(report.codes))
         accepted = _validator_accepts(after, bool(parsed.glance.starting_points))
-        if kind is None or not accepted:
+        if not accepted:
             findings.append(
                 Finding(
                     DETECTOR,
                     number,
                     fence.body.splitlines()[0] if fence.body else "",
                     f"the diagram is drawn with {codes}; the corrected drawing is withheld "
-                    f"({_withheld(kind is not None, accepted)})",
+                    f"({_withheld(accepted)})",
                 )
             )
             continue
         eol = "\r\n" if opener.endswith("\r\n") else "\n"
         edits.append(
             Edit(
-                kind=kind,
+                kind=DIAGRAM_FIX,
                 detector=DETECTOR,
                 start=offsets[fence.first],
                 end=offsets[fence.last],
