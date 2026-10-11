@@ -19,6 +19,8 @@ from repository_presenter.core.registry.naming import (
         ("aspose-pdf-foss-for-go", "pdf", "go"),
         ("Aspose.Email-FOSS-for-.Net", "email", "net"),
         ("Aspose.GIS.FOSS-for-.Net", "gis", "net"),
+        ("Aspose.JMAP-FOSS-for-.NET", "jmap", "net"),
+        ("Aspose.JMAP-FOSS-for-Cpp", "jmap", "cpp"),
     ],
 )
 def test_governed_name_forms_classify(repo_name: str, family: str, platform: str) -> None:
