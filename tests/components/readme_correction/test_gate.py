@@ -270,7 +270,7 @@ def test_the_pull_request_lists_each_edit_with_its_evidence_and_claims_nothing_e
     assert "`26.5.0` -> `26.7.0`" in content.body
     assert "`package:published_version` (SUPPORTED)" in content.body
     assert "Refreshes the README" not in content.body and "reconciled" not in content.body
-    assert "kind: correction" in content.body and "no model wrote" in content.body
+    assert "kind: correction" in content.body and "No model wrote" in content.body
 
 
 STRUCTURE_README = README.replace("## Dependencies", "# Dependencies note").replace(
@@ -301,7 +301,9 @@ def test_structure_fixes_are_proposable_evidenced_by_their_readme_lines(
         source_revision="a" * 40,
         policy_version="p1",
     )
-    assert "Broken markup repaired" in content.body and "`README.md:" in content.body
+    assert content.title.startswith("docs(readme): ")
+    assert "unclosed <details>" in content.title and "second H1" in content.title
+    assert "`README.md:" in content.body
     assert "inserted `</details>` before line" in content.body
 
 
@@ -334,7 +336,7 @@ def test_additions_are_proposable_with_their_tree_paths_as_evidence(
         source_revision="a" * 40,
         policy_version="p1",
     )
-    assert "Verified information added" in content.body and "`tree:CHANGELOG.md`" in content.body
+    assert "`tree:CHANGELOG.md`" in content.body
     assert "added at line" in content.body
 
 
@@ -376,9 +378,12 @@ def test_a_diagram_rebuild_is_proposable_with_its_pull_request_text(
         source_revision="a" * 40,
         policy_version="p1",
     )
-    assert "At a Glance diagram redrawn (same words and edges)" in content.body
-    assert "redrew the Mermaid diagram at line 8 (labels and edges unchanged)" in content.body
-    assert "`README.md:8`" in content.body
+    assert content.title == (
+        "docs(readme): show the current release (26.7.0) in the install snippets "
+        "and lay out the At a Glance diagram left to right"
+    )
+    assert "redrawn left to right so text no longer clips" in content.body
+    assert "(compared by script)" in content.body and "`README.md:8`" in content.body
 
 
 def tight_readme() -> str:

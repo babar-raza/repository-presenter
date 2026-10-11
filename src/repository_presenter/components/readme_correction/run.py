@@ -24,6 +24,8 @@ from typing import Any
 from repository_presenter.components.readme_correction.bundle import write_bundle
 from repository_presenter.components.readme_correction.engine import CorrectionError
 from repository_presenter.components.readme_correction.model import Context
+from repository_presenter.components.readme_correction.render import measure_diagrams
+from repository_presenter.components.readme_correction.send import NO_PUSH_REASONS
 from repository_presenter.components.readme_correction.settle import correct_settled
 from repository_presenter.core.facts import read_facts
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
@@ -62,6 +64,8 @@ def _record(
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"{out} is not empty; a correction result is written whole")
     out.mkdir(parents=True, exist_ok=True)
+    no_push = "NO_LIVE_README" if status == NO_LIVE_README else status.upper()
+    assert no_push in NO_PUSH_REASONS
     document = {
         "schema_version": 1,
         "kind": "correction",
@@ -69,6 +73,7 @@ def _record(
         "repository": entry.repository,
         "revision": revision,
         "reason": reason,
+        "send": {"pr_order": None, "hold_reason": None, "no_push_reason": no_push},
     }
     (out / STATUS_NAME).write_text(
         json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
@@ -129,7 +134,9 @@ def produce_correction(
             "the correction introduces failing checks the live README did not have: "
             + ", ".join(item["check"] for item in delta["introduced"])
         )
-    manifest = write_bundle(ctx, original, result, delta, out_directory)
+    manifest = write_bundle(
+        ctx, original, result, delta, out_directory, render=measure_diagrams(result)
+    )
     return CorrectionOutcome(
         repository=entry.repository,
         revision=clone.revision,

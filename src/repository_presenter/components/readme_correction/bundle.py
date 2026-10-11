@@ -28,6 +28,7 @@ from repository_presenter.components.readme_correction.model import (
     CorrectionResult,
     Edit,
 )
+from repository_presenter.components.readme_correction.send import send_plan
 from repository_presenter.components.readme_correction.settle import correct_settled
 from repository_presenter.core.facts import FACTS_FILENAME, write_facts
 
@@ -85,7 +86,12 @@ def edit_record(ctx: Context, index: int, edit: Edit) -> dict[str, Any]:
 
 
 def corrections_document(
-    ctx: Context, original: bytes, result: CorrectionResult, deterministic: bool, idempotent: bool
+    ctx: Context,
+    original: bytes,
+    result: CorrectionResult,
+    deterministic: bool,
+    idempotent: bool,
+    render: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     edits = [edit_record(ctx, index, edit) for index, edit in enumerate(result.edits)]
     kinds: dict[str, int] = {}
@@ -128,6 +134,8 @@ def corrections_document(
             for finding in result.findings
             if finding.report_only_reason
         ],
+        "send": send_plan(ctx.facts.repository, set(kinds), result.findings),
+        **({"render_check": render} if render is not None else {}),
         "confinement": {
             "verified": True,
             "statement": "the corrected text with every edit's span removed equals the original "
@@ -148,13 +156,15 @@ def write_bundle(
     result: CorrectionResult,
     delta: dict[str, Any],
     directory: Path,
+    render: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Write the bundle into ``directory`` (created, never merged into) and return its manifest."""
+    """Write the bundle into ``directory`` (created, never merged into) and return its manifest.
+    ``render`` is the real-render record of the redrawn diagrams (``render.measure_diagrams``)."""
     if directory.exists() and any(directory.iterdir()):
         raise FileExistsError(f"{directory} is not empty; a correction bundle is written whole")
     directory.mkdir(parents=True, exist_ok=True)
     deterministic, idempotent = is_stable(ctx, result, lambda c: correct_settled(c, original)[0])
-    document = corrections_document(ctx, original, result, deterministic, idempotent)
+    document = corrections_document(ctx, original, result, deterministic, idempotent, render)
     corrected = result.corrected.encode("utf-8")
     (directory / README_NAME).write_bytes(corrected)
     (directory / ORIGINAL_NAME).write_bytes(original)
