@@ -16,6 +16,8 @@ from repository_presenter.components.readme.extractors.platforms.registry import
     plugin_for,
 )
 from repository_presenter.core.errors import ConfigError
+from repository_presenter.core.registry.loader import REGISTRY_RELATIVE_PATH, load_registry
+from support import REPO_ROOT
 
 
 def _package_module_names() -> list[str]:
@@ -36,6 +38,19 @@ def test_python_is_the_first_registered_plugin() -> None:
     assert [(c.direction, c.extension) for c in plugin.format_claims('s.save("a.glb")\n')] == [
         ("output", ".glb")
     ]
+
+
+def test_every_admitted_registry_entry_has_a_platform_plugin() -> None:
+    """Admission is a promise the facts stage can keep: an entry whose ecosystem has no
+    ``platforms/<ecosystem>.py`` would fail closed at its first run. That is why
+    aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js (pure JavaScript; no ``nodejs``/``javascript``
+    plugin exists) is not in the registry, and the guard that keeps the next such admission from
+    landing as data alone."""
+    registry = load_registry(REPO_ROOT / REGISTRY_RELATIVE_PATH)
+    unserved = sorted(
+        entry.repository for entry in registry.entries if entry.ecosystem not in known_ecosystems()
+    )
+    assert unserved == []
 
 
 def test_unknown_ecosystem_fails_closed() -> None:
