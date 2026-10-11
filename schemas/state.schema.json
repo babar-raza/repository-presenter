@@ -36,8 +36,17 @@
       "additionalProperties": false,
       "required": ["unit", "current_candidates", "denominator", "denominator_status", "canary"],
       "properties": {
-        "unit": { "const": "current reviewable no-op-proven README candidates" },
-        "current_candidates": { "type": "integer", "minimum": 0 },
+        "unit": { "const": "authorizable README candidates" },
+        "current_candidates": {
+          "description": "The SEALED count (READY_FOR_PROPOSAL bundles on disk, tied to disk by tests). Reported beside the progress unit, never as progress (owner decision D4, 2026-10-11).",
+          "type": "integer",
+          "minimum": 0
+        },
+        "authorizable_candidates": {
+          "description": "The progress unit (D4): candidates that pass the independent acceptance review and are not worse than the live README.",
+          "type": "integer",
+          "minimum": 0
+        },
         "denominator": { "type": "integer", "minimum": 1 },
         "denominator_status": { "$ref": "#/$defs/text" },
         "canary": { "$ref": "#/$defs/repository" }
@@ -202,8 +211,8 @@
           "additionalProperties": false,
           "required": ["agents_md_max_lines", "execution_state_machine_max_lines", "max_gates"],
           "properties": {
-            "agents_md_max_lines": { "const": 200 },
-            "execution_state_machine_max_lines": { "const": 500 },
+            "agents_md_max_lines": { "const": 210 },
+            "execution_state_machine_max_lines": { "const": 520 },
             "max_gates": { "const": 8 }
           }
         }

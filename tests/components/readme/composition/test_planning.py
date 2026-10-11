@@ -44,7 +44,14 @@ from repository_presenter.core.llm.jobs import CallStore, JobContext, JobResult,
 from repository_presenter.core.llm.ledger import Ledger
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
-from support import REPO_ROOT, assert_no_empty_enums, empty_enum_paths, mock_gateway
+from support import (
+    JAVA3D_DOCS_LIST,
+    JAVA3D_SCOPE_LIST,
+    REPO_ROOT,
+    assert_no_empty_enums,
+    empty_enum_paths,
+    mock_gateway,
+)
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -2588,3 +2595,182 @@ def test_a_sealed_plan_citing_more_than_a_cap_still_replays_under_the_static_sch
         }.items():
             over_a_cap += sum(len(item.get(field, [])) > cap for item in plan.get(array, []))
     assert over_a_cap > 0, "no sealed plan exceeds a cap: this test would prove nothing"
+
+
+# --- LST-01: a list kept as written is never half carried by the plan -----------------------
+# The real shapes from 3D Java 3d2ed6be (wave-3 acceptance review, reseal f69f75c7): the
+# documentation list cites eight link_target facts and the plan carried four of them; the scope
+# list cites facts four limitation slots cover and was handed to none of them.
+_DOCS_UNIT = "inherited_unit:070.list"
+_SCOPE_UNIT = "inherited_unit:072.list"
+_DOC_LINKS = {
+    "link_target:022": "https://docs.aspose.org/3d/java/",
+    "link_target:023": "https://kb.aspose.org/3d/java/",
+    "link_target:024": "https://reference.aspose.org/3d/java/",
+    "link_target:025": "PUBLISHING.md",
+    "link_target:026": "docs/api-diff-26.1.0.md",
+    "link_target:027": "docs/directory-structures.md",
+    "link_target:028": "docs/foss-java-progress.md",
+    "link_target:029": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/issues",
+}
+
+
+def _kept_list_facts(*extra: Fact) -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            *(_fact(fact_id, "link_target", url) for fact_id, url in _DOC_LINKS.items()),
+            _fact("link_target:011", "link_target", "#scope-and-limitations"),
+            _fact("install_command:maven", "install_command", "mvn dependency:get"),
+            _fact("package:published_version", "package", "26.5.0"),
+            _fact(_DOCS_UNIT, "inherited_unit", JAVA3D_DOCS_LIST),
+            _fact(_SCOPE_UNIT, "inherited_unit", JAVA3D_SCOPE_LIST),
+            *extra,
+        ),
+    )
+
+
+def _keep(
+    unit: str, destination: str, *fact_ids: str, disposition: str = "VERIFIED_PRESERVE"
+) -> dict[str, Any]:
+    return {
+        "dispositions": [
+            {
+                "unit_id": unit,
+                "disposition": disposition,
+                "destination_section": destination,
+                "fact_ids": list(fact_ids),
+                "rationale": "All links in the list are verified by the link_target facts.",
+            }
+        ]
+    }
+
+
+def _docs_plan(*planned: str) -> dict[str, Any]:
+    return _plan(
+        links=[{"link_fact_id": t, "section_id": "documentation_resources"} for t in planned]
+    )
+
+
+def _links_of(plan: dict[str, Any]) -> list[str]:
+    return [link["link_fact_id"] for link in plan["links"]]
+
+
+def test_a_kept_documentation_list_the_plan_only_partly_carries_is_completed() -> None:
+    """The plan carried link_target:022/023/024/029 of the eight the list cites, so placement
+    dropped the list as covered and the four repository documents (025-028) vanished."""
+    dispositions = _keep(_DOCS_UNIT, "documentation_resources", *_DOC_LINKS, "link_target:011")
+    plan = _docs_plan("link_target:022", "link_target:023", "link_target:024", "link_target:029")
+    errors = plan_checks(plan, _kept_list_facts(), dispositions=dispositions, ecosystem="python")
+    assert errors == []
+    assert _links_of(plan) == [
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:029",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+    ]
+    assert {link["section_id"] for link in plan["links"]} == {"documentation_resources"}
+    # The in-page anchor the list also cites is never an assignable link.
+    assert "link_target:011" not in _links_of(plan)
+
+
+def test_a_documentation_list_none_of_whose_links_the_plan_carries_is_left_to_placement() -> None:
+    """Negative control: placement prints the list whole when nothing in the plan covers it, so the
+    plan owes it no link; a list kept for another section, a one-item list and an unverified link
+    are not completed either."""
+    dispositions = _keep(_DOCS_UNIT, "documentation_resources", *_DOC_LINKS)
+    bare = _docs_plan("link_target:002")
+    plan_checks(bare, _kept_list_facts(), dispositions=dispositions, ecosystem="python")
+    assert _links_of(bare) == ["link_target:002"]
+
+    elsewhere = _keep(_DOCS_UNIT, "scope_limitations", *_DOC_LINKS)
+    partial = _docs_plan("link_target:022")
+    plan_checks(partial, _kept_list_facts(), dispositions=elsewhere, ecosystem="python")
+    assert _links_of(partial) == ["link_target:022"]
+
+    one_item = _kept_list_facts(
+        _fact("inherited_unit:071.list", "inherited_unit", "- **[Only](PUBLISHING.md)** — one.")
+    )
+    single = _docs_plan("link_target:022")
+    single_kept = _keep("inherited_unit:071.list", "documentation_resources", *_DOC_LINKS)
+    plan_checks(single, one_item, dispositions=single_kept, ecosystem="python")
+    assert _links_of(single) == ["link_target:022"]
+
+    unverified = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            _fact(f.id, f.kind, f.value, "UNRESOLVED") if f.id == "link_target:025" else f
+            for f in _kept_list_facts().facts
+        ),
+    )
+    guarded = _docs_plan("link_target:022")
+    plan_checks(guarded, unverified, dispositions=dispositions, ecosystem="python")
+    assert "link_target:025" not in _links_of(guarded)
+    assert "link_target:026" in _links_of(guarded)
+
+
+_SCOPE_FACTS = ("install_command:maven", "package:published_version", "example:001")
+
+
+def _limitations(unit_ids: list[str] | None = None) -> list[dict[str, Any]]:
+    return [
+        {"fact_ids": ["install_command:maven"], "unit_ids": list(unit_ids or [])},
+        {"fact_ids": ["package:published_version"], "unit_ids": list(unit_ids or [])},
+        {"fact_ids": ["example:001"], "unit_ids": list(unit_ids or [])},
+    ]
+
+
+def _handed(plan: dict[str, Any]) -> list[list[str]]:
+    return [item["unit_ids"] for item in plan["material_limitations"]]
+
+
+def test_a_kept_scope_list_placement_would_drop_is_handed_to_every_limitation_slot() -> None:
+    """3D Java: the list cites install_command:maven, which a limitation slot carries, so placement
+    dropped the nine-bullet list as covered while no slot was owed its items."""
+    dispositions = _keep(_SCOPE_UNIT, "scope_limitations", *_SCOPE_FACTS)
+    plan = _plan(material_limitations=_limitations())
+    errors = plan_checks(plan, _kept_list_facts(), dispositions=dispositions, ecosystem="python")
+    assert errors == []
+    assert _handed(plan) == [[_SCOPE_UNIT]] * 3
+    # Idempotent: a plan the model already handed it to is not changed again.
+    again = _plan(material_limitations=_limitations([_SCOPE_UNIT]))
+    plan_checks(again, _kept_list_facts(), dispositions=dispositions, ecosystem="python")
+    assert _handed(again) == [[_SCOPE_UNIT]] * 3
+    # A plan with no limitation at all still gets one that carries the list: here the list is
+    # dropped because the plan assigned a link it cites to Scope and Limitations itself.
+    linked = _keep(_SCOPE_UNIT, "scope_limitations", "link_target:025")
+    empty = _plan(
+        material_limitations=[],
+        links=[{"link_fact_id": "link_target:025", "section_id": "scope_limitations"}],
+    )
+    plan_checks(empty, _kept_list_facts(), dispositions=linked, ecosystem="python")
+    assert empty["material_limitations"] == [{"fact_ids": [], "unit_ids": [_SCOPE_UNIT]}]
+
+
+def test_a_scope_list_placement_prints_whole_or_the_composer_condenses_is_not_handed_off() -> None:
+    """Negative control: a list no limitation covers is printed as written, a rewritten list is the
+    composer's to condense, and a one-item list is not a list."""
+    nothing_shared = _keep(_SCOPE_UNIT, "scope_limitations", "public_symbol:widget.scene")
+    plan = _plan(material_limitations=_limitations())
+    plan_checks(plan, _kept_list_facts(), dispositions=nothing_shared, ecosystem="python")
+    assert _handed(plan) == [[], [], []]
+
+    rewritten = _keep(
+        _SCOPE_UNIT, "scope_limitations", *_SCOPE_FACTS, disposition="VERIFIED_REWRITE"
+    )
+    plan = _plan(material_limitations=_limitations())
+    plan_checks(plan, _kept_list_facts(), dispositions=rewritten, ecosystem="python")
+    assert _handed(plan) == [[], [], []]
+
+    single = _kept_list_facts(_fact("inherited_unit:073.list", "inherited_unit", "- Only one."))
+    plan = _plan(material_limitations=_limitations())
+    one = _keep("inherited_unit:073.list", "scope_limitations", *_SCOPE_FACTS)
+    plan_checks(plan, single, dispositions=one, ecosystem="python")
+    assert _handed(plan) == [[], [], []]

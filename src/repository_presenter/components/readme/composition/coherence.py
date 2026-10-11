@@ -46,6 +46,12 @@ import re
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from repository_presenter.components.readme.composition.audience import (
+    AUDIENCE_SECTIONS,
+    strip_audience_claims,
+    support_texts,
+    unsupported_audience_sentences,
+)
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     restates_own_title,
@@ -640,6 +646,54 @@ def recover_coherence_title_restatements(
     return output if changed else None
 
 
+def recover_coherence_audience_claims(
+    output: dict[str, Any],
+    *,
+    existing_units: list[dict[str, Any]],
+    tasks: list[SectionTask],
+    facts: FactsDocument,
+) -> dict[str, Any] | None:
+    """Last-resort correction for S8 coherence's own ``run_job`` call, alongside
+    ``recover_coherence_title_restatements``: an opening the coherence pass rewrote so that it now
+    states an audience, use case, or spared cost no accepted fact states (``composition/
+    audience.py``; the wave-3 acceptance review's U-AUDIENCE) is reverted, in full, to the S6 text
+    when that text stated none - restoring exactly what already passed - and otherwise has the
+    claim deleted. Nothing is rewritten; ``run_job`` re-validates the result through the real
+    checks. Returns ``None`` when nothing was corrected."""
+    units = output.get("units")
+    if not isinstance(units, list):
+        return None
+    existing_by_key = {
+        (str(unit.get("section")), str(unit.get("slot"))): unit for unit in existing_units
+    }
+    changed = False
+    for task in tasks:
+        if task.section_id not in AUDIENCE_SECTIONS:
+            continue
+        support = support_texts(task.accepted_ids, facts)
+        for unit in units:
+            if not isinstance(unit, dict) or unit.get("section") != task.section_id:
+                continue
+            text = str(unit.get("text", ""))
+            if not unsupported_audience_sentences(text, support):
+                continue
+            existing = existing_by_key.get((task.section_id, str(unit.get("slot"))))
+            if existing is not None and not unsupported_audience_sentences(
+                str(existing.get("text", "")), support
+            ):
+                unit["text"] = existing.get("text", text)
+                existing_fact_ids = existing.get("fact_ids")
+                if isinstance(existing_fact_ids, list) and existing_fact_ids:
+                    unit["fact_ids"] = list(existing_fact_ids)
+                changed = True
+                continue
+            stripped = strip_audience_claims(text, support)
+            if stripped is not None:
+                unit["text"] = stripped
+                changed = True
+    return output if changed else None
+
+
 def recover_coherence_regressions(
     output: dict[str, Any],
     *,
@@ -652,8 +706,10 @@ def recover_coherence_regressions(
     (the generic dropped-fact-with-no-trace revert, G3-W05), then
     ``recover_coherence_carried_units`` (the must-carry-specific revert and stray-citation strip,
     above) against whatever the first pass left, then ``recover_coherence_title_restatements``
-    (a revision that newly restates its own slot title reverts to the accepted unit). Each
-    correction judges the live, possibly-already-corrected output rather than a stale view.
+    (a revision that newly restates its own slot title reverts to the accepted unit), then
+    ``recover_coherence_audience_claims`` (an opening that newly states an unsupported audience
+    reverts to the accepted unit, or loses the claim). Each correction judges the live,
+    possibly-already-corrected output rather than a stale view.
     ``run_job`` only ever accepts the result on its own re-validation against the real checks,
     never on either function's say-so, so an incomplete correction here changes nothing: the job
     fails exactly as it would have without this at all. Returns ``None`` only when no correction
@@ -676,6 +732,12 @@ def recover_coherence_regressions(
     )
     if title_fixed is not None:
         output = title_fixed
+        changed = True
+    audience_fixed = recover_coherence_audience_claims(
+        output, existing_units=existing_units, tasks=tasks, facts=facts
+    )
+    if audience_fixed is not None:
+        output = audience_fixed
         changed = True
     return output if changed else None
 

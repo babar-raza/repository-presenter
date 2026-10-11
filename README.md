@@ -86,8 +86,9 @@ GitHub token — see [Configuration](#configuration) and the [Example](#example)
 | **Handoff** | A local, evidence-backed record of a genuine upstream product defect, which may become a GitHub issue (gated). |
 | **`BLOCKED_EXTERNAL` / `FAILED_INTERNAL`** | Blocker classes: something only an owner can supply, versus a defect in this code. The second is never an acceptable stopping point. |
 
-The unit of progress is one: **current reviewable no-op-proven candidates, N/36**. Code volume,
-plans, and evidence files are supporting work, not progress.
+The unit of progress is one: **authorizable candidates, N/36** (independent acceptance review
+passed and not worse than the live README; sealed counts are reported alongside, not as progress).
+Code volume, plans, and evidence files are supporting work, not progress.
 
 ## How it works
 
@@ -218,7 +219,7 @@ Requirements: Python 3.11+; core dependencies `httpx`, `jsonschema`, `markdown-i
 
 ## For coding agents
 
-This section is a map, not the rules — the rules live in [`AGENTS.md`](AGENTS.md) (≤200 lines).
+This section is a map, not the rules — the rules live in [`AGENTS.md`](AGENTS.md) (≤210 lines).
 
 **Read order at session start**
 
@@ -297,7 +298,8 @@ repository_presenter`).
 
 ```
 repository-presenter --version
-repository-presenter status [--root PATH] [--stale] [--json] [--drift PATH] [--authorizations PATH]
+repository-presenter status [--root PATH] [--stale] [--recheck] [--json] [--drift PATH] [--authorizations PATH]
+repository-presenter recheck [--root PATH] [--repo OWNER/NAME ...] [--write-receipts] [--json]
 repository-presenter preflight [--root PATH]
 repository-presenter present --repo OWNER/NAME [--root PATH] [--facts-only] [--fresh]
   [--invocation-record PATH]
@@ -336,6 +338,18 @@ repository-presenter stage-transaction-artifact --transaction DIR --staging DIR
   `--json` prints one machine-readable document instead. `--drift PATH` supplies a monitor drift
   document so source-fresh can be observed (otherwise it is reported unobserved), and
   `--authorizations PATH` supplies authorization records for the effect-authorized count.
+  `--recheck` computes the consumed-scope recheck (see `recheck`) of every bundle that is behind the
+  running code instead of only reading cached receipts; it takes minutes for the whole portfolio,
+  runs offline, makes no provider call and writes nothing.
+- **`recheck`** — is each sealed candidate still current under the running code (G7-W25)? Re-runs,
+  offline and over the bundle's own sealed artifacts, exactly the checks whose recorded inputs
+  differ, and reports `CURRENT`, `RECHECKED_CURRENT`, `UPDATE_OPTIONAL`, `UPDATE_REQUIRED`
+  (`rerender_only` or `recompose`) or `UNVERIFIED`. It never invalidates or edits a bundle and
+  never calls a provider. `--repo OWNER/NAME` (repeatable) limits it to the named repositories;
+  the default is every `CURRENT` bundle. `--write-receipts` caches each result at
+  `candidates/<owner>__<name>/rechecks/<revision>.json`, keyed by the manifest digest and the
+  running code's consumed inputs and never inside a sealed bundle. `--json` prints one
+  machine-readable document instead of the text report.
 - **`preflight`** — reaches the LLM gateway using the process environment, lists its live models,
   and records the catalog under `runs/preflight/catalog.json`.
 - **`present --repo OWNER/NAME`** — runs the full transaction for one repository listed in the

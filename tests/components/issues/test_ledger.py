@@ -72,9 +72,9 @@ def test_discover_and_load_the_real_backfilled_artifacts() -> None:
     # 2026-10-10 (TC-ISS-01, G6-W01): six more, from the deduplicated review inventory, each
     # re-verified by command at the live head (analysis/issue-inventory.md).
     paths = discover_handoff_paths(REAL_UPSTREAM_DEFECTS)
-    assert len(paths) == 24
+    assert len(paths) == 26
     ledger = load_ledger(REAL_UPSTREAM_DEFECTS)
-    assert len(ledger) == 24
+    assert len(ledger) == 26
     html = lookup(
         ledger,
         "aspose-html-foss/Aspose.HTML-FOSS-for-Python",

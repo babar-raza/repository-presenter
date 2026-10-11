@@ -359,3 +359,46 @@ def require_issue_quality(handoff: Handoff) -> None:
     findings = issue_quality_findings(handoff)
     if findings:
         raise HandoffQualityError(findings)
+
+
+def text_quality_findings(text: str, *, where: Where = "body") -> list[Finding]:
+    """The secret, internal-name, edition and tone checks for one free text - an issue *comment*
+    (``lifecycle.py``), which has no title and no reproduction sections to hold to the shape checks.
+    HTML comments (the dedup markers) are not scanned. Pure and deterministic, like the rest."""
+    visible = _HTML_COMMENT.sub(" ", text)
+    findings: list[Finding] = []
+    if _has_secret(visible):
+        findings.append(
+            Finding("SECRET", where, "contains a secret-shaped value (not echoed here)")
+        )
+    names = sorted({m.group(0) for m in _INTERNAL.finditer(visible)}, key=str.lower)
+    if names:
+        findings.append(
+            Finding(
+                "INTERNAL_NAME",
+                where,
+                "names this system's internals, which upstream maintainers cannot use: "
+                + ", ".join(repr(n) for n in names[:5]),
+            )
+        )
+    prose = _prose(text)
+    edition = sorted({m.group(0).lower() for m in _EDITION.finditer(prose)})
+    if edition:
+        findings.append(
+            Finding(
+                "EDITION_WORDING",
+                where,
+                "edition or bridge wording: " + ", ".join(repr(e) for e in edition[:5]),
+            )
+        )
+    for label, pattern in (
+        ("first person", _FIRST_PERSON),
+        ("promotional", _PROMOTIONAL),
+        ("blame", _BLAME),
+    ):
+        hits = sorted({m.group(0).lower() for m in pattern.finditer(prose)})
+        if hits:
+            findings.append(
+                Finding("TONE", where, f"{label} language: " + ", ".join(repr(h) for h in hits[:5]))
+            )
+    return findings

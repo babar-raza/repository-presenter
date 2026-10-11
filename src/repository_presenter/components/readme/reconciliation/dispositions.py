@@ -29,7 +29,7 @@ import hashlib
 import json
 import re
 from collections import Counter
-from collections.abc import Collection, Iterator, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -293,6 +293,36 @@ def reconciliation_batch_facts(facts: FactsDocument, batch_units: Sequence[Fact]
         tuple(fact for fact in facts.facts if fact.kind != "inherited_unit" or fact.id in keep),
         facts.schema_version,
     )
+
+
+def reconciliation_narrowing(
+    entry: RegistryEntry,
+    batch_facts: FactsDocument,
+    investigation: Mapping[str, Any],
+    manifest: LoadedManifest,
+    batch_units: Sequence[Fact],
+) -> Callable[[Sequence[str]], tuple[dict[str, Any], dict[str, Any]]]:
+    """The ``narrow`` argument of ``run_job`` for one batch: the same job asked about only the
+    units both of its replies left without a disposition.
+
+    Cut-2 wave, 2026-10-11, BarCode-Python: a 19-unit batch's first reply stopped at unit 052 and
+    its re-ask at 056, so units 057-059 had no disposition and the whole repository failed
+    ("output rejected twice ... no disposition for inherited units"). The narrowed ask is the
+    batch's own request rebuilt around just those units - the same prompt, the same packet
+    builder (so the facts, the investigation and the shell's sections travel unchanged) and the
+    same schema builder, whose unit enum and size bound now name only those units. The merged
+    reply is judged by the full batch's checks, so nothing is accepted unjudged.
+    """
+    known = frozenset(fact.id for fact in batch_units)
+
+    def narrow(unit_ids: Sequence[str]) -> tuple[dict[str, Any], dict[str, Any]]:
+        wanted = frozenset(unit_ids)
+        units = [fact for fact in batch_units if fact.id in wanted and fact.id in known]
+        scoped = reconciliation_batch_facts(batch_facts, units)
+        packet = reconciliation_packet(entry, scoped, dict(investigation), manifest.manifest, units)
+        return packet, reconciliation_schema(manifest, units, scoped, investigation)
+
+    return narrow
 
 
 def merge_dispositions(outputs: Sequence[dict[str, Any]]) -> dict[str, Any]:
@@ -690,7 +720,11 @@ def _rendered_commands(facts: FactsDocument) -> frozenset[str]:
     )
     kind = (install.attributes or {}).get("install_kind") if install is not None else None
     if executed and repository and kind not in {"source", "source_checkout"}:
-        lines.update(_command_lines(spec.clone_and_build(repository, repository.split("/")[-1])))
+        lines.update(
+            _command_lines(
+                spec.source_checkout_command(install, repository, repository.split("/")[-1])
+            )
+        )
     imported = [
         fact.value
         for fact in facts.by_kind("import_path")

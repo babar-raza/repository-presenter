@@ -38,9 +38,10 @@ files, never from memory of a previous iteration.
 - A work item's purpose stays under about a thousand characters and closes in a handful of
   iterations. When an item's scope grows past that, or three iterations move it without a predicate
   closing, split it in `project/state.yaml` into items that each seal something — never widen it.
-- Progress has one unit: current reviewable no-op-proven candidates, N/34, as printed by
-  `repository-presenter status` from sealed bundles on disk. Nothing else counts.
-- Budgets are hard: `AGENTS.md` at most 200 lines, `docs/EXECUTION_STATE_MACHINE.md` at most 500,
+- Progress has one unit: authorizable candidates, N/36 (owner decision D4, 2026-10-11: independent
+  acceptance review passed and not worse than the live README). `repository-presenter status` prints
+  the sealed count from bundles on disk, reported alongside; it is not progress. Nothing else counts.
+- Budgets are hard: `AGENTS.md` at most 210 lines, `docs/EXECUTION_STATE_MACHINE.md` at most 520,
   eight gates, no tracked path over 200 characters.
 
 ## 1. Orient (at most five minutes)

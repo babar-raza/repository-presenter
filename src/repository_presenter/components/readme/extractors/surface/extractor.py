@@ -22,6 +22,9 @@ from typing import Any, Literal, Protocol
 from repository_presenter.components.readme.extractors.surface._vendor.aspose_extraction import (
     api_surface,
 )
+from repository_presenter.components.readme.extractors.surface.doc_text import (
+    normalise_source_docs,
+)
 from repository_presenter.core.facts import slug
 
 # G5-W02 (27.2 RC7). Bumped whenever this module's own mapping or extraction logic changes, the
@@ -31,7 +34,9 @@ from repository_presenter.core.facts import slug
 # 2 (TC-EXT-01, G3-W08 cut 2): PEP 508 requirements kept whole, src-layout import paths, dynamic
 # Python dependencies unresolved, relative manifest discovery, Maven identity from the project's
 # own POM children, install claims gated on registry ownership, unexposed Rust items dropped.
-EXTRACTOR_VERSION = "2"
+# 3 (TC-COV-02, G3-W08, cut 3): build_test_asset facts for the build command, the test command and
+# the CI matrix, read from the clone's workflows, package.json, Makefile and toolchain manifests.
+EXTRACTOR_VERSION = "3"
 
 SymbolKind = Literal["module", "class", "enum", "function", "method", "unknown"]
 
@@ -81,6 +86,23 @@ class Parser(Protocol):
     def parse(self, source: bytes) -> Any: ...
 
 
+class DocNormalisingParser:
+    """A parser that resolves each doc comment's inline markup before the engine reads it.
+
+    The vendored engine is never edited, and it loses text it meets in a doc comment
+    (``<see langword="null"/>``, ``<see cref="X">label</see>``, ``cref="M:T.M(System.Int32)"``;
+    ``doc_text`` has the measurements). It reads the source through ``parse``, so the rewrite sits
+    here: same lines, same line count, only the text of a comment changes.
+    """
+
+    def __init__(self, parser: Parser, language: str) -> None:
+        self._parser = parser
+        self._language = language
+
+    def parse(self, source: bytes) -> Any:
+        return self._parser.parse(normalise_source_docs(source, self._language))
+
+
 @dataclass(frozen=True)
 class SurfaceSymbol:
     """One public symbol, with the provenance a fact's evidence needs."""
@@ -117,6 +139,30 @@ def slug_safe(value: str) -> str:
         plain = plain.replace(separator, ".")
     plain = _UNSAFE.sub(".", plain)
     return ".".join(part for part in plain.split(".") if part)
+
+
+def _simple_name(entry: dict[str, Any]) -> str:
+    return slug_safe(str(entry.get("class_import") or entry.get("name", ""))).rsplit(".", 1)[-1]
+
+
+def _inherited_constructor(
+    method: dict[str, Any], owner: dict[str, Any], declared_in: dict[str, set[str]]
+) -> bool:
+    """Whether ``method`` is another type's constructor, listed under a type that derives from it.
+
+    The engine lists a derived type's inherited members under it, and a base class's constructor
+    comes along: Aspose.3D for .NET's ``Scene`` listed ``A3DObject`` and ``SceneObject``, its
+    ancestors' constructors, as members of its own (wave-3 acceptance review, 2026-10-11). A
+    constructor has no return type, is named after the type that declares it, and sits in that
+    type's file; a method that merely shares a type's name does not meet all three.
+    """
+    name = slug_safe(str(method.get("name", "")))
+    if not name or str(method.get("return_type") or "").strip():
+        return False
+    if name == _simple_name(owner):
+        return False
+    declared = str(method.get("file") or "")
+    return bool(declared) and declared in declared_in.get(name, set())
 
 
 def symbol_kind(node_type: str) -> SymbolKind:
@@ -172,8 +218,11 @@ def surface_symbols(
     which is the earliest line, and the contract's API Reference lists a member once anyway.
     """
     types, *_ = api_surface.extract_api_surface(
-        parser, language, package_root, repository_root, family
+        DocNormalisingParser(parser, language), language, package_root, repository_root, family
     )
+    declared_in: dict[str, set[str]] = {}
+    for entry in types:
+        declared_in.setdefault(_simple_name(entry), set()).add(str(entry.get("file", "")))
     symbols: list[SurfaceSymbol] = []
     for entry in types:
         # The vendored engine already knows a class from a vendor or private directory is not
@@ -205,6 +254,8 @@ def surface_symbols(
             )
         )
         for method in entry.get("methods", []):
+            if _inherited_constructor(method, entry, declared_in):
+                continue
             symbols.append(
                 SurfaceSymbol(
                     value=f"{qualified}.{slug_safe(str(method.get('name', '')))}",

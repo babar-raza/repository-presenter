@@ -50,6 +50,12 @@ from repository_presenter.components.readme.composition.placement import (
     renders_verbatim,
 )
 from repository_presenter.components.readme.evidence.facts.assets import CI_BADGE_FACT_ID
+from repository_presenter.components.readme.evidence.facts.commands import (
+    BUILD_COMMAND_FACT_ID,
+    CI_MATRIX_FACT_ID,
+    TEST_COMMAND_FACT_ID,
+    matrix_axes,
+)
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.components.readme.evidence.facts.product_pages import (
     banner_target,
@@ -100,6 +106,12 @@ RENDERER_VERSION = "29"
 # under a registry install; a multi-framework .NET project's runtime badge lists every target
 # framework. A repository with a single target and no published_version fact renders as before.
 RENDERER_VERSION = "31"
+# 32 (TC-COV-02, G3-W08, cut 3): Development and Testing prints the build and test commands the
+# clone's own workflow, package.json, Makefile or toolchain manifest names (a fenced block after
+# the section's sentences, minus any command a placed inherited block already carries) and one
+# sentence on the CI matrix's operating systems and runtimes. A repository whose facts name
+# neither renders as before.
+RENDERER_VERSION = "32"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -494,6 +506,43 @@ def _documentation_resources(context: RenderContext) -> list[str]:
     return lines
 
 
+def _join_and(parts: list[str]) -> str:
+    """``a``, ``a and b``, ``a, b and c``."""
+    if len(parts) <= 1:
+        return "".join(parts)
+    return f"{', '.join(parts[:-1])} and {parts[-1]}"
+
+
+_COMMAND_PROMPT = re.compile(r"^\s*(?:[$>]\s*)?")
+
+
+def _placed_command_lines(context: RenderContext) -> frozenset[str]:
+    """Every line of every inherited block already placed in Development and Testing, so a
+    command the renderer would print is not printed a second time beside the maintainers' own."""
+    lines: set[str] = set()
+    for text in context.placed.get("development_testing", []):
+        for line in text.splitlines():
+            lines.add(_COMMAND_PROMPT.sub("", line).strip())
+    return frozenset(lines)
+
+
+def _development_commands(context: RenderContext) -> tuple[str, list[str]]:
+    """TC-COV-02: the lead-in sentence and the commands of the build and test facts, in build
+    then test order, minus any a placed inherited block already carries. ``("", [])`` when the
+    facts name none, so a repository without them renders as before."""
+    present = _placed_command_lines(context)
+    roles: list[tuple[str, str]] = []
+    for role, fact_id_ in (("build", BUILD_COMMAND_FACT_ID), ("test", TEST_COMMAND_FACT_ID)):
+        fact = context.fact(fact_id_)
+        if fact is not None and fact.polarity == "SUPPORTED" and fact.value not in present:
+            roles.append((role, fact.value))
+    if not roles:
+        return "", []
+    names = {"build": "build", "test": "run the tests"}
+    lead = f"To {' and '.join(names[role] for role, _ in roles)} from a clone, run:"
+    return lead, ["```bash", *(command for _, command in roles), "```"]
+
+
 def _development_sentences(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2 row 17: the suite-size sentence when a test-file count is
     verified, and the release sentence linking the publish workflow file when one exists;
@@ -508,6 +557,14 @@ def _development_sentences(context: RenderContext) -> list[str]:
         ]
         if counts:
             sentences.append(f"The suite covers {counts[-1]} test files under `{tests.value}`.")
+    matrix = context.fact(CI_MATRIX_FACT_ID)
+    if matrix is not None and matrix.polarity == "SUPPORTED" and matrix.evidence:
+        axes = matrix_axes(matrix)
+        path = matrix.evidence[0].path
+        if axes:
+            stem = path.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+            parts = [f"{axis} ({', '.join(values)})" for axis, values in axes]
+            sentences.append(f"The [{stem} workflow]({path}) runs across {_join_and(parts)}.")
     ci = context.fact("build_test_asset:ci")
     if ci is not None and ci.polarity == "SUPPORTED":
         prefix = ci.value if ci.value.endswith("/") else ci.value + "/"
@@ -539,6 +596,9 @@ def renderer_sentences(
     """
     context = RenderContext(entry, facts, plan, units, dispositions)
     sentences = list(_development_sentences(context))
+    command_lead = _development_commands(context)[0]
+    if command_lead:
+        sentences.append(command_lead)
     if any(section.id == "api_reference" for section in context.included):
         kinds = [
             (fact.attributes or {}).get("symbol_kind", "")
@@ -588,6 +648,21 @@ def _symbol_description(context: RenderContext, fact: Fact) -> str:
     # LLM-owned section for the repair to route to (docs/RESEARCH_AND_GUIDELINES.md section 27.10,
     # owner decision 2(c) of 2026-09-04: normalise constructively, keep the check).
     return context.canonical(text.replace("|", "/").replace("`", ""))
+
+
+def _member_summary(context: RenderContext, fact: Fact) -> str:
+    """A hub member's own documentation summary, table-safe, or an empty string.
+
+    Never the authored type sentence, the signature, or a kind label: a Detailed Member Reference
+    bullet is a member's own documented purpose or nothing (``placement.has_member_summary`` is
+    the one predicate the coverage model shares). The same BC-12 elision and abbreviation
+    normalisation ``_symbol_description`` applies to a quoted docstring apply here.
+    """
+    docstring = (fact.attributes or {}).get("docstring") or ""
+    if not docstring:
+        return ""
+    text, _ = elide_noncanonical(docstring, context.name)
+    return context.canonical(text.replace("|", "/").replace("`", "")).strip()
 
 
 def quoted_evidence_elisions(context: RenderContext) -> list[tuple[str, str]]:
@@ -681,14 +756,21 @@ def _api_reference(context: RenderContext) -> list[str]:
             lines += ["", f"### {names.get(symbol.value, symbol.value.rsplit('.', 1)[-1])}", ""]
             lines.append(context.unit(sid, f"hub:{hub['symbol_fact_id']}"))
             owned = sorted(hub_methods.get(symbol.value, []), key=lambda f: f.value)
-            if owned:
+            bullets = [
+                f"- `{f.value.rsplit('.', 1)[-1]}`: {summary}"
+                for f in owned
+                if (summary := _member_summary(context, f))
+            ]
+            if bullets:
                 lines.append("")
-                lines += [
-                    f"- `{f.value.rsplit('.', 1)[-1]}`: {_symbol_description(context, f)}"
-                    for f in owned
-                ]
+                lines += bullets
     lines += ["", "</details>"]
     return lines
+
+
+# The opening words of the closing Enterprise paragraph (README_CONTRACT.md section 2 row 18):
+# validation reads a section's own limitations apart from what the commercial edition adds.
+ENTERPRISE_SENTENCE_LEAD = "These limitations don't apply to"
 
 
 def enterprise_anchor(name: str) -> str:
@@ -716,9 +798,32 @@ def _enterprise_paragraph(context: RenderContext) -> str:
     name = context.name.replace(" FOSS", "")
     if level == "family":
         name = name.split(" for ", 1)[0]
-    sentence = f"These limitations don't apply to [{enterprise_anchor(name)}]({target.value})."
-    adds = context.unit("enterprise_relationship", "context").strip()
+    sentence = f"{ENTERPRISE_SENTENCE_LEAD} [{enterprise_anchor(name)}]({target.value})."
+    adds = _sentence_start(context.unit("enterprise_relationship", "context").strip())
     return f"{sentence} {adds}" if adds else sentence
+
+
+_PLAIN_FIRST_WORD = re.compile(r"[a-z]+(?:['\u2019][a-z]+)?(?=\s|$)")
+_RELATIVE_OPENING = re.compile(r"(?:which|that)\s+(?=[a-z])")
+
+
+def _sentence_start(text: str) -> str:
+    """``text`` as the start of a sentence that follows a full stop.
+
+    The authoring objective tells the Enterprise unit to say "it adds ..." (the edition name and
+    link are printed in the sentence before it), and the coherence pass rewrote it that way in two
+    of the five wave-3 candidates (Cells .NET 941814fd, Cells Java c65329e7), leaving
+    ``...Enterprise Edition](url). it adds broader ...`` in the public README. The renderer owns
+    the join, so it owns the capital: a relative opening ("which adds ...") becomes "It adds ...",
+    and a plain lower-case first word is capitalised. A text that opens with a code span, an
+    identifier, a digit or an abbreviation ("e.g.") is left exactly as written.
+    """
+    relative = _RELATIVE_OPENING.match(text)
+    if relative is not None:
+        return "It " + text[relative.end() :]
+    if _PLAIN_FIRST_WORD.match(text) is None:
+        return text
+    return text[0].upper() + text[1:]
 
 
 def _oxford(items: list[str]) -> str:
@@ -815,7 +920,7 @@ def _installation(context: RenderContext) -> list[str]:
     repository = context.fact("identity:repository")
     if executed and repository is not None and not source_kind and not checkout_kind:
         name = repository.value.split("/")[-1]
-        command = context.spec.clone_and_build(repository.value, name)
+        command = context.spec.source_checkout_command(install, repository.value, name)
         if command and context.spec.source_install_lead:
             lines.append("")
             lines.append(
@@ -1059,6 +1164,9 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         if facts_sentences:
             lines.append("")
             lines.append(" ".join(facts_sentences))
+        lead, commands = _development_commands(context)
+        if commands:
+            lines.extend(["", lead, "", *commands])
     elif sid == "enterprise_relationship":
         pass  # rendered as the closing paragraph of Scope and Limitations (row 18)
     elif sid == "third_party_notices":

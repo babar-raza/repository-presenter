@@ -52,6 +52,11 @@ from repository_presenter.components.readme.composition.components.terminology i
     title_case_violations,
 )
 from repository_presenter.components.readme.composition.link_budget import slot_violations
+from repository_presenter.components.readme.composition.list_coverage import (
+    OWED_SECTIONS,
+    list_items,
+    missing_items,
+)
 from repository_presenter.components.readme.composition.placement import (
     Placement,
     placements,
@@ -61,6 +66,7 @@ from repository_presenter.components.readme.composition.policy import (
     PlanningPolicy,
 )
 from repository_presenter.components.readme.composition.renderer import (
+    ENTERPRISE_SENTENCE_LEAD,
     RenderContext,
     api_reference_names,
     badge_slots,
@@ -88,7 +94,11 @@ from repository_presenter.components.readme.validation.links.rules import (
 )
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import collapse_blank_runs
-from repository_presenter.core.facts import Fact, FactsDocument
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Fact,
+    FactsDocument,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
 
@@ -156,7 +166,13 @@ VALIDATION_FILENAME = "validation.json"
 # the plan excludes is EXCLUDED_BY_PLAN; a PDF name literal in a code span ("/Root /Metadata") no
 # longer reads as the public symbol of the same letters (PDF-TypeScript 359). A bundle sealed
 # under 19 re-checks under 20 and shows as pending.
-VALIDATOR_VERSION = "20"
+# 21: CUT-3 (G3-W08, wave-3 acceptance review): BC-02 admits a source-checkout build only from the
+# command a build measured, BC-04 refuses an opening that states an audience, use case or spared
+# cost no accepted fact states, BC-05 checks that a kept list states every one of its items,
+# BC-14 refuses a "sole / only / first published version" claim the registry's version count
+# contradicts (each Check version moves by one). A bundle sealed under 20 re-checks under 21 and
+# shows as pending.
+VALIDATOR_VERSION = "21"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -226,7 +242,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # 4 (Imaging-FOSS for .NET and GIS, 2026-10-04): a SUPPORTED registry-kind install whose
         # own registry reading found no distribution is refused - the unverified dotnet command a
         # 404 contradicts can never ship, whatever its wording.
-        "4",
+        "5",
         "Install command verified against the manifest and the package-registry observation, "
         "against the source-build receipt naming exactly the steps it proved, or - when no "
         "build/install command ever succeeds - against a source-checkout receipt",
@@ -247,7 +263,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # fact's own literal value, example identifier, or command-fence token.
         # 3 (G7-W15): a must-carry unit the section's authoring recorded as omitted with a reason
         # is dispositioned (units document `omitted`), exactly as the authoring call judged it.
-        "3",
+        "4",
         "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact "
         "value in a code span",
         (
@@ -268,7 +284,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # section cannot carry it (dispositions.RECOVERED_COVERAGE_RATIONALE) is an ADVISORY class.
         # "5" (CUT-2, G3-W08/G7-W12): "unsupported"/"uncertain" attestations and a unit from the
         # examples section the plan excludes are classified ADVISORY; see VALIDATOR_VERSION 20.
-        "5",
+        "6",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),
@@ -408,7 +424,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-14",
-        "1",
+        "2",
         "A package version, install command, or publication statement in the README equals what "
         "the facts say: the registry's current release (or the manifest's version without that "
         "reading), the package identity fact, and the install command's registry observation",
@@ -866,7 +882,53 @@ def _check_install(candidate: Candidate) -> list[Failure]:
             failures.append(
                 Failure("COMPOSING", f"the Installation section does not render {fact.value!r}")
             )
+    failures.extend(_check_source_checkout(candidate))
     return failures
+
+
+def _check_source_checkout(candidate: Candidate) -> list[Failure]:
+    """TC-TST-01: a "work from a source checkout instead" block is only the command the facts
+    recorded as proven from the checkout root.
+
+    Aspose.3D for .NET (2026-10-11): the block read ``dotnet build`` and BC-02 passed it, though
+    the checkout root holds no project or solution and the command fails there with MSB1003. The
+    block was the ecosystem's template, never a fact, so nothing held it to a directory. The
+    facts stage now records on the install fact the exact command a build proved from the root,
+    or why none did (``EcosystemSpec.source_checkout_command``); a README that renders any other
+    block, or one the record refuses, states a command no one ran from the directory it names.
+    """
+    spec = spec_for(candidate.entry.ecosystem)
+    if not spec.source_install_lead:
+        return []
+    lead = f"To work from a source checkout instead, {spec.source_install_lead}:"
+    block = re.search(re.escape(lead) + r"\n\n```bash\n(.*?)\n```", candidate.readme, re.DOTALL)
+    if block is None:
+        return []
+    install = next(
+        (f for f in candidate.facts.by_kind("install_command") if f.id == spec.install_fact_id),
+        None,
+    )
+    repository = candidate.entry.repository
+    expected = spec.source_checkout_command(install, repository, repository.split("/")[-1])
+    rendered = block.group(1)
+    if expected and rendered == expected:
+        return []
+    why = (
+        (install.attributes or {}).get(SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE)
+        if install is not None
+        else None
+    )
+    if expected:
+        detail = (
+            f"the source-checkout block renders {rendered!r}, not the command the facts record "
+            f"as proven from the checkout root, {expected!r}"
+        )
+    else:
+        detail = (
+            f"the source-checkout block renders {rendered!r}, which no build proved from the "
+            f"checkout root ({why or 'no source-checkout command recorded'})"
+        )
+    return [Failure("COMPOSING", detail, "installation")]
 
 
 def _check_claims(candidate: Candidate) -> list[Failure]:
@@ -1028,6 +1090,64 @@ def _check_units(candidate: Candidate) -> list[Failure]:
     return failures
 
 
+# The sections whose rendered text must state every item of a list kept as written that placement
+# dropped as covered by the section's own content: the authored limitation and summary slots, and
+# the one authored line per link of Documentation and Resources.
+_LIST_OBLIGED = OWED_SECTIONS | {"documentation_resources"}
+
+
+def _dropped_list_failures(
+    candidate: Candidate, placement: Placement, texts: Mapping[str, str]
+) -> list[Failure]:
+    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because the plan's
+    own content "already covers that material" must in fact state every one of its items.
+
+    The drop is exclusive on fact IDs, so ONE shared fact dropped the whole list while the section
+    stated only some of it, and BC-05 passed every such unit (wave-3 acceptance review of reseal
+    f69f75c7, LST-01: 3D Java lost five documentation links and three limitations, 3D TypeScript
+    six limitations, Cells Java one, 3D .NET one). An item of a Documentation and Resources list is
+    judged by the link it carries; any other by its subject words, as list_coverage judges the
+    authored reply. A list the plan never handed to a slot is a planning defect; one it handed and
+    the composer did not finish is a composing defect.
+    """
+    destination = placement.destination
+    if (
+        destination not in _LIST_OBLIGED
+        or not placement.unit_id.endswith(".list")
+        or len(list_items(placement.text)) < 2
+    ):
+        return []
+    by_link = destination == "documentation_resources"
+    # What the commercial edition adds is not a limitation of this one: the closing Enterprise
+    # paragraph never states a kept list's items.
+    section_text = texts.get(destination, "").split(ENTERPRISE_SENTENCE_LEAD, 1)[0]
+    missing = missing_items(
+        placement.text,
+        section_text,
+        by_link=by_link,
+        document_text=candidate.readme,
+    )
+    if not missing:
+        return []
+    handed = any(
+        placement.unit_id in (item.get("unit_ids") or [])
+        for item in candidate.plan.get("material_limitations", [])
+    )
+    unplanned = destination == "documentation_resources" or (
+        destination == "scope_limitations" and not handed
+    )
+    stage: CausalStage = "PLANNING" if unplanned else "COMPOSING"
+    shown = "; ".join(repr(" ".join(item.replace("**", "").split())[:120]) for item in missing)
+    return [
+        Failure(
+            stage,
+            f"{placement.unit_id}: kept as written in {destination}, but the section does not "
+            f"state {len(missing)} of its {len(list_items(placement.text))} items: {shown}",
+            destination,
+        )
+    ]
+
+
 def _check_dispositions(candidate: Candidate) -> list[Failure]:
     failures: list[Failure] = []
     inherited = {fact.id: fact for fact in candidate.facts.by_kind("inherited_unit")}
@@ -1068,8 +1188,11 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
                 )
             )
             continue
+        if placement.outcome == "overlap":
+            failures.extend(_dropped_list_failures(candidate, placement, texts))
+            continue  # the plan's own content covers it (the list's items are judged above)
         if placement.outcome != "placed":
-            continue  # owned by the plan or the renderer, or dropped for fact-ID overlap
+            continue  # owned by the plan or the renderer
         haystack = texts.get(destination, "") if destination in headed else candidate.readme
         if _normalized(placement.text) not in _normalized(haystack):
             failures.append(

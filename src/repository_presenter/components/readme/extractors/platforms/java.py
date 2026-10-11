@@ -29,7 +29,7 @@ from repository_presenter.components.readme.extractors.surface.registry import (
     observe,
     repository_of,
 )
-from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.core.ecosystems import SPECS, EcosystemSpec, SuiteFileRule
 from repository_presenter.core.examples import (
     ExampleCandidate,
     ExampleReceipt,
@@ -72,6 +72,16 @@ JAVA: Final = EcosystemSpec(
     floor_is_minimum=True,
     manifest_globs=("pom.xml",),
     source_suffixes=frozenset({".java"}),
+    # A class in a test tree is a test when it carries a test annotation (JUnit 4/5, TestNG) or
+    # extends JUnit 3's TestCase; the assertion helpers, scenario factories, and temp-directory
+    # utilities beside the tests do not (Aspose.Cells for Java: 38 files, 23 of them tests).
+    suite_files=SuiteFileRule(
+        name=r"\.java$",
+        marker=(
+            r"@(?:[\w.]+\.)?(?:Test|ParameterizedTest|RepeatedTest|TestFactory|TestTemplate)\b"
+            r"|\bextends[ \t]+TestCase\b"
+        ),
+    ),
     # The two declarations the upstream READMEs also give next to `mvn dependency:get`; both are
     # the coordinate and version the Installation sentence already states, in another syntax.
     install_alternatives=(

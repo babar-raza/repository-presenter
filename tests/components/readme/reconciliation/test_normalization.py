@@ -8,13 +8,20 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.reconciliation.dispositions import (
+    _rendered_commands,
     code_units_by_polarity,
     normalize,
     placement_errors,
     reconciliation_batches,
     reconciliation_schema,
 )
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Evidence,
+    Fact,
+    FactsDocument,
+)
 from repository_presenter.core.llm.binding import binding_errors
 from repository_presenter.core.llm.prompts import load_manifests
 from support import REPO_ROOT
@@ -923,3 +930,41 @@ def test_a_folded_command_defer_is_no_longer_a_withheld_command_for_bc_05() -> N
     assert [f.class_id for f in review_deferrals(output, facts)] == ["COMMAND_BLOCK_WITHHELD"]
     normalize(output, facts)
     assert review_deferrals(output, facts) == []
+
+
+# TC-TST-01: the command lines the Installation row prints follow the source-checkout record, so
+# an inherited `dotnet build` is not called redundant against a block the row no longer prints.
+def _net_install_facts(**attributes: str) -> FactsDocument:
+    repository = "aspose-3d-foss/Aspose.3D-FOSS-for-.NET"
+    return FactsDocument(
+        repository,
+        "a" * 40,
+        (
+            Fact("identity:repository", "identity", repository, (Evidence("data/registry.json"),)),
+            Fact("identity:ecosystem", "identity", "net", (Evidence("data/registry.json"),)),
+            Fact("example:001", "example", "var s = 1;", (Evidence("examples.json", "unit 001"),)),
+            Fact(
+                "install_command:dotnet",
+                "install_command",
+                "dotnet add package Aspose.3D.FOSS",
+                (Evidence("Aspose.ThreeD.csproj", "manifest"), Evidence("nuget", "found")),
+                attributes=attributes or None,
+            ),
+        ),
+    )
+
+
+def test_the_rendered_commands_follow_the_source_checkout_record() -> None:
+    template = _rendered_commands(_net_install_facts())
+    assert "dotnet build" in template  # a fact extracted before the record keeps the template
+    measured = (
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET.git\n"
+        "cd Aspose.3D-FOSS-for-.NET\ndotnet build src/main/Aspose.ThreeD/Aspose.ThreeD.csproj"
+    )
+    proven = _rendered_commands(_net_install_facts(**{SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: measured}))
+    assert "dotnet build src/main/aspose.threed/aspose.threed.csproj" in proven
+    assert "dotnet build" not in proven
+    refused = _rendered_commands(
+        _net_install_facts(**{SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE: "no build exited 0"})
+    )
+    assert not any(line.startswith(("dotnet build", "git clone")) for line in refused)

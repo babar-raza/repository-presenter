@@ -14,6 +14,12 @@ from repository_presenter.core.ecosystems import (
 )
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.execution import MAX_TIMEOUT_SECONDS
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Evidence,
+    Fact,
+)
 
 
 def test_the_python_spec_carries_what_the_renderer_used_to_hard_code() -> None:
@@ -283,3 +289,95 @@ def test_shields_separators_in_a_floor_are_escaped() -> None:
         badge
         == "![My_Runtime-Name](https://img.shields.io/badge/my__runtime--name-1--rc__2-blue.svg)"
     )
+
+
+# --- TC-TST-01 ---
+
+
+def _install(**attributes: str) -> Fact:
+    return Fact(
+        "install_command:dotnet",
+        "install_command",
+        "dotnet add package Widget",
+        (Evidence("Widget.csproj", "manifest"),),
+        attributes=attributes or None,
+    )
+
+
+def test_the_source_checkout_block_is_what_the_facts_proved_never_the_template_alone() -> None:
+    measured = (
+        "git clone https://github.com/org/Widget-NET.git\ncd Widget-NET\n"
+        "dotnet build src/Widget/Widget.csproj"
+    )
+    proven = _install(**{SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: measured})
+    assert NET.source_checkout_command(proven, "org/Widget-NET", "Widget-NET") == measured
+    refused = _install(**{SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE: "no build exited 0"})
+    assert NET.source_checkout_command(refused, "org/Widget-NET", "Widget-NET") == ""
+    # A refusal outranks a command: the record never states both.
+    both = _install(
+        **{
+            SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: measured,
+            SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE: "no build exited 0",
+        }
+    )
+    assert NET.source_checkout_command(both, "org/Widget-NET", "Widget-NET") == ""
+
+
+def test_a_fact_extracted_before_the_record_existed_keeps_the_template() -> None:
+    template = NET.clone_and_build("org/Widget-NET", "Widget-NET")
+    assert template.endswith("dotnet build")
+    assert NET.source_checkout_command(_install(), "org/Widget-NET", "Widget-NET") == template
+    assert NET.source_checkout_command(None, "org/Widget-NET", "Widget-NET") == template
+
+
+def test_a_spec_with_no_template_offers_no_block_without_a_record() -> None:
+    silent = EcosystemSpec(
+        ecosystem="typescript",
+        language="TypeScript",
+        fence="typescript",
+        registry="npm",
+        install_fact_id="install_command:npm",
+    )
+    assert silent.source_checkout_command(None, "org/W", "W") == ""
+
+
+@pytest.mark.parametrize(
+    ("path", "text", "expected"),
+    [
+        ("tests/test_scene.py", "", True),
+        ("tests/scene_test.py", "", True),
+        ("tests/conftest.py", "", False),
+        ("tests/__init__.py", "", False),
+        ("tests/helpers.py", "def test_like_name(): pass\n", False),
+    ],
+)
+def test_python_tells_a_pytest_module_by_its_file_name(
+    path: str, text: str, expected: bool
+) -> None:
+    rule = PYTHON.suite_files
+    assert rule is not None
+    assert (rule.accepts_name(path) and rule.accepts_text(text)) is expected
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("[Fact]\npublic void A() { }", True),
+        ("[Theory]\n[InlineData(1)]\npublic void A(int n) { }", True),
+        ('[Test, Category("io")]\npublic void A() { }', True),
+        ("[TestCase(1)]\npublic void A(int n) { }", True),
+        ("[TestMethod]\npublic void A() { }", True),
+        ("[DataTestMethod]\npublic void A() { }", True),
+        ("[TestClass]\npublic static class Loader { }", False),
+        ("[TestFixture]\npublic class Base { }", False),
+        ("public class Helper { public string Path(string n) => n; }", False),
+    ],
+)
+def test_dotnet_tells_a_test_by_the_attribute_a_test_method_carries(
+    text: str, expected: bool
+) -> None:
+    rule = NET.suite_files
+    assert rule is not None
+    assert rule.accepts_name("Tests.cs") and not rule.accepts_name("Tests.csproj")
+    assert not rule.accepts_name("test.log")
+    assert rule.accepts_text(text) is expected

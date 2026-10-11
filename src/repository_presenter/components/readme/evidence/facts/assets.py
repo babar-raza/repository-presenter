@@ -4,14 +4,21 @@ from __future__ import annotations
 
 import re
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from repository_presenter.core.ecosystems import SuiteFileRule
 from repository_presenter.core.facts import Evidence, Fact, fact_id
+from repository_presenter.core.long_paths import long_path
 
 _MAX_EVIDENCE_PATHS = 5
+# A marker rule reads each candidate's text. A suite past this many candidates, or one file past
+# this size, is not read at all and its size is not stated (TC-TST-01).
+_MAX_SUITE_FILES_READ = 4000
+_MAX_SUITE_FILE_BYTES = 1024 * 1024
 _WORKFLOW_PREFIX = ".github/workflows/"
 _MAX_WORKFLOW_BYTES = 256 * 1024
 # The workflow file names the badge URL carries verbatim: no path separator, no query, no space.
@@ -36,16 +43,120 @@ _DEFAULT_BRANCHES = frozenset({"main", "master", "**", "*"})
 CI_BADGE_FACT_ID = fact_id("link_target", "badge.ci")
 
 
-def _directory_fact(name: str, prefix: str, paths: Sequence[str], detail: str) -> Fact | None:
+@dataclass(frozen=True)
+class _Suite:
+    """What it takes to count a test directory's test sources: the ecosystem's rule, and the
+    checkout whose files a text marker is read from (``None`` when only names are available)."""
+
+    rule: SuiteFileRule | None
+    root: Path | None
+
+
+def _test_sources(paths: Sequence[str], suite: _Suite) -> list[str] | None:
+    """The paths among ``paths`` that are test sources, or ``None`` when that cannot be told.
+
+    TC-TST-01. Undecidable is not zero and not "all of them": an ecosystem that declares no rule,
+    a marker rule with no checkout to read, a file that will not read, and a suite too large to
+    read all return ``None``, and no size is stated.
+    """
+    rule = suite.rule
+    if rule is None:
+        return None
+    candidates = [path for path in paths if rule.accepts_name(path)]
+    if not rule.marker:
+        return candidates
+    if suite.root is None or len(candidates) > _MAX_SUITE_FILES_READ:
+        return None
+    found: list[str] = []
+    for path in candidates:
+        try:
+            file = long_path(suite.root / path)
+            if file.stat().st_size > _MAX_SUITE_FILE_BYTES:
+                return None
+            text = file.read_text("utf-8", errors="replace")
+        except OSError:
+            return None
+        if rule.accepts_text(text):
+            found.append(path)
+    return found
+
+
+def _directory_fact(
+    name: str, prefix: str, paths: Sequence[str], detail: str, suite: _Suite | None = None
+) -> Fact | None:
     matches = sorted(path for path in paths if path.startswith(prefix))
     if not matches:
         return None
-    evidence = tuple(Evidence(path) for path in matches[:_MAX_EVIDENCE_PATHS])
+    evidence_paths = matches
+    summary = f"{len(matches)} files; {detail}"
+    if suite is not None:
+        # "N files" is read as the suite's size (renderer._development_sentences), so it is the
+        # count of test sources, with the directory's own size beside it for the reader of the
+        # evidence. When the sources cannot be told apart the evidence leads with no number.
+        sources = _test_sources(matches, suite)
+        if sources:
+            evidence_paths = sources
+            summary = (
+                f"{len(sources)} files; {detail} "
+                f"({len(sources)} test sources among the {len(matches)} files here)"
+            )
+        else:
+            summary = f"{detail}; {len(matches)} files here, test sources not told apart"
+    evidence = tuple(Evidence(path) for path in evidence_paths[:_MAX_EVIDENCE_PATHS])
     return Fact(
         fact_id("build_test_asset", name),
         "build_test_asset",
         prefix,
-        (*evidence, Evidence(prefix, f"{len(matches)} files; {detail}")),
+        (*evidence, Evidence(prefix, summary)),
+    )
+
+
+class _LiteralLoader(yaml.SafeLoader):
+    """A YAML loader that never reads a float: ``python-version: 3.10`` is the text ``3.10``,
+    not the number 3.1, which would print a runtime nobody tests against."""
+
+
+_LiteralLoader.yaml_implicit_resolvers = {
+    first: [(tag, pattern) for tag, pattern in resolvers if tag != "tag:yaml.org,2002:float"]
+    for first, resolvers in yaml.SafeLoader.yaml_implicit_resolvers.items()
+}
+
+
+def is_release_workflow(path: str) -> bool:
+    """Whether a workflow file exists to publish, deploy, scan, or tend the repository rather
+    than to build and test it (the same name test ``ci_badge_fact`` applies)."""
+    return _NOT_BUILD_STATUS.search(path[len(_WORKFLOW_PREFIX) :]) is not None
+
+
+def workflow_documents(
+    clone_path: Path, tree_paths: Sequence[str]
+) -> list[tuple[str, dict[Any, Any]]]:
+    """Every parseable workflow mapping in the clone, as ``(path, document)`` in path order, with
+    scalars kept literal (``_LiteralLoader``). An unreadable, oversized, or non-mapping file is
+    skipped: it names nothing a fact may rest on."""
+    found: list[tuple[str, dict[Any, Any]]] = []
+    for path in sorted(tree_paths):
+        name = path[len(_WORKFLOW_PREFIX) :]
+        if not path.startswith(_WORKFLOW_PREFIX) or not _WORKFLOW_FILE.fullmatch(name):
+            continue
+        file = clone_path / path
+        try:
+            if file.stat().st_size > _MAX_WORKFLOW_BYTES:
+                continue
+            document = yaml.load(file.read_text("utf-8"), Loader=_LiteralLoader)
+        except (OSError, UnicodeDecodeError, yaml.YAMLError):
+            continue
+        if isinstance(document, dict):
+            found.append((path, document))
+    return found
+
+
+def has_test_evidence(tree_paths: Sequence[str]) -> bool:
+    """Whether the tree shows tests: a test directory at the root or nested, or a Go test file."""
+    return (
+        any(path.startswith("tests/") for path in tree_paths)
+        or _nested_directory(tree_paths, _TEST_DIR_NAME) is not None
+        or any(path.endswith("_test.go") for path in tree_paths)
     )
 
 
@@ -208,20 +319,36 @@ def _nested_directory(paths: Sequence[str], name: re.Pattern[str]) -> str | None
 
 
 def _asset_directory(
-    name: str, root: str, pattern: re.Pattern[str], paths: Sequence[str], detail: str
+    name: str,
+    root: str,
+    pattern: re.Pattern[str],
+    paths: Sequence[str],
+    detail: str,
+    suite: _Suite | None = None,
 ) -> Fact | None:
     """The root directory's fact when it exists, else the best nested directory's."""
-    return _directory_fact(name, root, paths, detail) or (
-        _directory_fact(name, nested, paths, detail)
+    return _directory_fact(name, root, paths, detail, suite) or (
+        _directory_fact(name, nested, paths, detail, suite)
         if (nested := _nested_directory(paths, pattern)) is not None
         else None
     )
 
 
-def asset_facts(tree_paths: Sequence[str]) -> list[Fact]:
-    """One fact per asset class present in the tree, with the paths that prove it."""
+def asset_facts(
+    tree_paths: Sequence[str],
+    *,
+    suite_files: SuiteFileRule | None = None,
+    root: Path | None = None,
+) -> list[Fact]:
+    """One fact per asset class present in the tree, with the paths that prove it.
+
+    ``suite_files`` is the ecosystem's rule for what a test source is and ``root`` the checkout a
+    text marker is read from; the tests fact states a suite size only when they settle it
+    (TC-TST-01).
+    """
+    suite = _Suite(suite_files, root)
     candidates = (
-        _asset_directory("tests", "tests/", _TEST_DIR_NAME, tree_paths, "test suite"),
+        _asset_directory("tests", "tests/", _TEST_DIR_NAME, tree_paths, "test suite", suite),
         _directory_fact("ci", ".github/workflows/", tree_paths, "GitHub Actions workflows"),
         _directory_fact("docs", "docs/", tree_paths, "documentation directory"),
         _asset_directory(

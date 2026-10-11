@@ -1464,6 +1464,108 @@ cited inherited unit's sibling shorthand) covers only a spelling the README itse
 
 **Work item** G7-W23 · **Register status** PENDING · logged, unfixed under the freeze; three sightings, so settled priority once the freeze lifts (AGENTS.md).
 
+### Sprint 2026-10-11 (cut 1 and cut 2): classes found by the acceptance reviews, the BC-10 triage and waves 1 to 3
+
+Evidence: `acc-baseline-vs-slice` (six bundles, independent reviewer), `bc10-triage` (17 BC-10 failures, 60 final findings), the wave logs (wave 1: SEALED 1 of 36; cut-2 sample: SEALED 1 of 23; wave 3 in progress) and the archived rejected replies. Every fix below is on `integration/cut2c`, pull request pending, and is verified by a RED-first fixture or a replay over the committed bundles, **not yet by a sealed run of a listed sighting**; each entry stays Open until a wave-3 (or later) transaction for one of its repositories passes the check it concerns. The review-demotion class, which a replay did verify, is under Resolved.
+
+### `reviewer.bc10_over_strictness_on_renderer_owned_text`
+
+The independent reviewer judged deterministic, renderer-owned text (banner, badges, identity, installation, dependencies, At-a-Glance, API tables, notices) against the original README, wrote fact IDs into findings, and asked for text no repair can change (13 of 74 repair attempts, below). 31 of the 60 final BC-10 findings were reviewer error or renderer-owned text (17 excluding HTML-Python), 25 true candidate defects, 4 upstream-caused; 5 of 17 BC-10 failures contained no real candidate defect. Fixed in the prompts: `independent_review` v11 to v12 (a fact ID is an internal reference; renderer-owned text is not a candidate defect; the original README is evidence, not the standard; a dropped inherited item stays a preservation finding) and `section_authoring` v19 to v20 (invent nothing absent from accepted fact values). Commit `d9731901`; prompt-only, so no governed constant moved; not validated against the live model.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-html-foss/Aspose.HTML-FOSS-for-Python` | 2026-10-11 | `bc10-triage`: 14 final findings, lowercase fact-ID findings |
+| 2 | `aspose-email-foss/Aspose.Email-FOSS-for-.Net` | 2026-10-11 | `bc10-triage`, cut 1: F02 dependency wording, F04 to F06 claims verbatim from the original |
+| 3 | `aspose-note-foss/Aspose.Note-FOSS-for-Python`, `aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET`, `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` | 2026-10-11 | `bc10-triage`: failures entirely classes (b)/(c) |
+
+**Work item** G3-W08 · **Register status** PENDING · fix landed on `integration/cut2c` (`d9731901`), pull request pending; closes on a wave-3 BC-10 pass for one of these repositories.
+
+### `composition.lead_in_without_payload`
+
+A preserved colon-ending paragraph lost the code block, list or table it introduced: the lead-in was kept as written while its payload was superseded into the verified example, or the carry section authored it as a slot of its own, so the README ends with "Create a workbook, write and format cells, and save it:" and nothing after it (and in Slides-Python the composer invented a 58-name absent-API list). The repair for these defects was misrouted to RECONCILING and rejected twice (6 of 74 repair attempts). Fixed: `coordinate_neighbor_promises` keeps a lead-in and its payload one thing (withheld payload defers the lead-in, a rendered example supersedes it, a list in the same section supersedes it); `validation/deferrals.py` `neighbor_dropped` learns the same payload kinds; the prompts state the rule. Commit `b9317e60`.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-cells-foss/Aspose.Cells-FOSS-for-.NET` | 2026-10-11 | `bc10-triage` F02 (quick start), F07 (additional examples orphan "Load a workbook with recovery diagnostics:") |
+| 2 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` | 2026-10-10 | `acc-baseline-vs-slice` B: dangling "Run every bundled example program:" |
+| 3 | `aspose-3d-foss/Aspose.3D-FOSS-for-Python` | 2026-10-10 | `acc-baseline-vs-slice`: two dangling lead-ins in the baseline, one orphan lead-in plus "real, verified snippets" narration in the slice |
+| 4 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Python`, `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` | 2026-10-11 | units 114/115 and 025 |
+
+**Work item** G3-W08 · **Register status** PENDING · fix landed on `integration/cut2c` (`b9317e60`), pull request pending; four sightings, so settled priority; closes on a wave-3 pass for one of these repositories.
+
+### `composition.partial_list_preservation_and_duplicate_scope_slots`
+
+A list unit marked VERIFIED_PRESERVE (or VERIFIED_MOVE) was handed to a slot and rendered with items missing (PDF-Java `131.list`: six bullets dropped; Cells-Java `048`: 5 items, 3 rendered; 3D-Java `072`: two items absent and an opening that overclaims formats), and, separately, authored limitation slots and the preserved inherited list both rendered with no dedupe (Cells-.NET F05; BarCode-Python stated its PDF limitation three times). Fixed for the first half: `composition/list_coverage.py` refuses a `section_authoring` reply (initial draft and S6 repair) when a kept list has an item whose subject the section never states; replay over the 30-row clones' scope lists flagged 5 of 12 (PDF-Java 131, PDF-Go 083, PDF-Python 108, Slides-Cpp 102, PDF-Python wave 2). Commit `b9317e60`. **Not fixed:** the duplicate authored/preserved scope slots (dedupe per fact across slots).
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-pdf-foss/Aspose.PDF-FOSS-for-Java` | 2026-10-11 | `131.list`, six bullets dropped |
+| 2 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Java` | 2026-10-11 | `bc10-triage` F07: unit 048, 3 of 5 items rendered |
+| 3 | `aspose-3d-foss/Aspose.3D-FOSS-for-Java` | 2026-10-11 | `bc10-triage` F04: unit 072 |
+| 4 | `aspose-cells-foss/Aspose.Cells-FOSS-for-.NET`, `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` | 2026-10-11 | duplicate scope section (F05); PDF limitation stated 3 times (F03) |
+
+**Work item** G3-W08 · **Register status** PENDING · partial list preservation fixed on `integration/cut2c` (`b9317e60`), pull request pending; the duplicate-slot half is logged, unfixed, under the G7-W22 freeze (non-blocking).
+
+### `renderer.lossy_output_dropped_alternatives_and_wrong_version`
+
+The renderer emitted less than the facts verified: only the lowest declared target framework (`slides-net` `net8.0;net10.0` rendered as one), the manifest version where the registry's published release was the supported one (`email-net` 0.1.0 against 26.7.0), and a single install command where the original carried Maven and Gradle alternatives (3D-Java, PDF-Java: moved into additional examples). Fixed: `package:target_framework` keeps every declared framework (RENDERER 30 to 31); Installation states `package:published_version` when SUPPORTED and `pin_install_version` rewrites a coordinate-form registry install to the registry release (so BC-14 agrees); `EcosystemSpec.install_alternatives` renders the Maven POM entry and Gradle line under a registry install. Commit `85e38fac`, `RENDERER_VERSION` 31. **Not covered:** At-a-Glance diagram titles and the Outputs subgraph (BarCode-Python, Cells-Python, Email-Python are renderer-owned and unrepairable by the S6 loop), and member-reference filler such as "Defined as `def copy(self)`" (Cells-Python, 3D-Python).
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` | 2026-10-11 | multi-target framework |
+| 2 | `aspose-email-foss/Aspose.Email-FOSS-for-.Net` | 2026-10-11 | manifest 0.1.0 against NuGet 26.7.0 |
+| 3 | `aspose-3d-foss/Aspose.3D-FOSS-for-Java`, `aspose-pdf-foss/Aspose.PDF-FOSS-for-Java` | 2026-10-11 | Maven/Gradle alternatives moved out of Installation |
+
+**Work item** G3-W08 · **Register status** PENDING · installation and framework half fixed on `integration/cut2c` (`85e38fac`), pull request pending; diagram and member-filler half logged, unfixed, under the freeze (non-blocking).
+
+### `llm_jobs.model_output_rejected_at_the_decoder_or_by_an_avoidable_check`
+
+Model-output rejections were the largest failure class of waves 1 and 2 (7 of 35 and 7 of 22), diagnosed from the archived rejected replies (`calls/*.rejected-*.json`). Five classes fixed at the earliest deterministic stage, none by weakening a downstream check: (1) a `recover=` copy judged by the decoder enum, whose packet cap had dropped the unit's own verified example, so `example:004` failed "is not one of [hundreds of IDs]"; `run_job` now judges a recover copy by the manifest schema, the binding and the checks, as a stored output already is; (2) a long enum quoted whole into the re-ask, the rejected record and the JobError (now the refused value, 12 IDs and a count); (3) a re-ask that answered only the rejected units, leaving the others silent (units the second reply is silent on keep the first reply's disposition: `binding.fill_silent_units`); (4) a `presentation_planning` rejection for "declares shared facts it does not cite", a field that is a pure function of the citations and was already overwritten; (5) an unknown fact ID in an `independent_review` finding (`scope:pdf_import_absent`) now dropped from the finding's `fact_ids` (`binding.drop_unknown_finding_ids`); and the version range `quickjs>=1.19,<2` read as HTML by `unit_checks`. Commit `2dd525ad`, no constant bumped. **Left:** stray-identifier units (`css_text`, `SaveFormat.DOCX`), a review whose every quote is unlocated (Imaging), the ".pdf as input" direction (Note), "restates its own title" and "restates a command".
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-3d-foss/Aspose.3D-FOSS-for-Python`, `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp`, `aspose-cells-foss/Aspose.Cells-FOSS-for-Go`, `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`, `aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET` | 2026-10-11 | (1) enum-pinned recover copy |
+| 2 | `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` | 2026-10-11 | (3) 4 of 40 units answered by the re-ask |
+| 3 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python`, `aspose-page-foss/Aspose.Page-FOSS-for-Python`, `aspose-html-foss/Aspose.HTML-FOSS-for-Python` | 2026-10-11 | (4), (5), and the `<` version range |
+
+**Work item** G3-W08 · **Register status** PENDING · fixed on `integration/cut2c` (`2dd525ad`), pull request pending; closes on a wave-3 pass of one of these repositories.
+
+### `extractors.six_defects_found_by_review_and_fixtures`
+
+TC-EXT-01 found six extractor defects, each reproduced RED from a real repository fixture: a PEP 508 specifier (`skia-python>=87.0,<145`) split on commas into two facts (`aspose-html-foss` `bf0f1e7a`); manifest detection filtering ignored directories on the absolute path, so a checkout under `build/`, `out/` or `lib/` lost every manifest fact; the src-layout import path `src.pkg` for `pkg`; dynamic Python dependencies recorded as the verified-zero `dependency:none` (`segment-geospatial` `0d7a4ac1`); registry presence taken for ownership, and the vendored Rust `reachable` flag trusted alone (`dtolnay/ryu` `75f9e707`); Maven identity ignoring `<parent>` inheritance (`spring-petclinic` `500158f7`, `commons-lang` `dd2c9e85`). Commit `25897d22`, `EXTRACTOR_VERSION` 1 to 2. The registry-ownership fix has a real-world consequence, measured in `docs/DECISION_LOG.md` (2026-10-11, ownership rule): four repositories flipped from SUPPORTED to UNRESOLVED; the NuGet pair is fixed by `f69f75c7` (the adapter fell back to the nuget.org `licenseUrl`), the PyPI pair is upstream.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-3d-foss/Aspose.3D-FOSS-for-.NET`, `aspose-email-foss/Aspose.Email-FOSS-for-.Net` | 2026-10-11 | NuGet `projectUrl` empty, adapter read `licenseUrl`; fixed `f69f75c7` |
+| 2 | `aspose-3d-foss/Aspose.3D-FOSS-for-Python` | 2026-10-11 | PyPI `Homepage` is a 404 on another organisation's path; stays BC-02 blocked (wave 3: BC-02) |
+| 3 | `aspose-page-foss/Aspose.Page-FOSS-for-Python` | 2026-10-11 | PyPI record carries no project URL; stays BC-02 blocked |
+
+**Work item** G3-W08 · **Register status** PENDING · extractor fixes and the NuGet fix landed on `integration/cut2c`, pull request pending; the PyPI pair is an upstream defect (issue list, G6-W07); `redetect` still asks for a distribution of the name without ownership and Cells-Python is SUPPORTED only through a GitHub rename redirect (logged, unfixed).
+
+### `validation.deferral_classes_unclassified_or_over_broad`
+
+BC-05 reported a deferral as UNCLASSIFIED BLOCK, or classed a harmless sentence as a notices deferral, so a unit the pipeline had safely withheld blocked a candidate. Cut 2: the `_NOTICES` cause no longer reads the bare words licence, notice or third-party (PSD-.NET `060`, Email-Cpp `016` "no third-party dependency"); new ADVISORY classes `OWN_LICENSE_COVERED_BY_LICENSE_SECTION`, `OWN_LICENSE_UNVERIFIED` (README says MIT, the tree has no licence), `DEPENDENCY_TEXT_COVERED_BY_DEPENDENCIES` (PSD-Python 017 to 024) and `INSTALL_SNIPPET_COVERED_BY_INSTALLATION` (Email-Cpp `013`); a lead-in follows any withheld next block (Font-Python `087`); a root `LICENSE-FONTS`/`-THIRD_PARTY` file or a licence file under `third_party/` or `fonts/` is the notices record (TeX-Python, PDF-Go). Commit `75c259d4`, BC-05 4 to 5, `VALIDATOR_VERSION` 20. Cut 1 added the typed `NOT_CARRIED_BY_NAMED_SECTION` class for TC-DSP-01 recoveries (`e3a0026b`: 52 units in 21 repositories moved from UNCLASSIFIED BLOCK to advisory). Not changed: `NO_VERIFIED_QUICK_START` (Words-Python's 12 examples read NOT_VERIFIED only because the lane worktree lacked a py312 toolchain: environment, not a classifier defect).
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-psd-foss/Aspose.PSD-FOSS-for-.NET`, `aspose-email-foss/Aspose.Email-FOSS-for-Cpp` | 2026-10-11 | `060`; `016` and `013` |
+| 2 | `aspose-psd-foss/Aspose.PSD-FOSS-for-Python`, `aspose-font-foss/Aspose.Font-FOSS-for-Python` | 2026-10-11 | `017` to `024`; `087` |
+| 3 | `aspose-tex-foss/Aspose.TeX-FOSS-for-Python`, `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` | 2026-10-11 | bundled-material notice files |
+
+**Work item** G3-W08 · **Register status** PENDING · fixed on `integration/cut2c` (`75c259d4`) and, for cut 1, in `e3a0026b`; pull request pending; wave 2 still failed four repositories at BC-05, so closes only on a wave-3 BC-05 pass for one of these repositories.
+
+### `repair.loop_cannot_repair_deterministic_or_misrouted_findings`
+
+Of 74 repair attempts across the 17 BC-10 failures, 45 repaired and 29 did not: 13 were refused as "section X is deterministic; its blocks change only when facts change" (installation 7, At-a-Glance 5, identity 1), 6 were misrouted to RECONCILING for lead-in or duplicate-example defects and rejected twice ("change claims X changed"), 4 matched the stage's own output unchanged ("a no-op cannot repair"), 5 escalated to S5 and were not resolved, and 2 were blocked by BC-04 ("identifiers that are not accepted fact values": PDF-Java, BarCode-Python). The reviewer's finding on deterministic text is not repairable by construction (AGENTS.md: a finding names a section and a causal stage, or it is advisory); the mechanism that routes it to a repair is the defect. Not fixed: logged under the G7-W22 freeze (clause 3), partly mitigated by the reviewer prompt in `reviewer.bc10_over_strictness_on_renderer_owned_text`.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python`, `aspose-pdf-foss/Aspose.PDF-FOSS-for-Java` | 2026-10-11 | `bc10-triage`: BC-04 blocks a repair that names an identifier |
+| 2 | `aspose-cells-foss/Aspose.Cells-FOSS-for-.NET` | 2026-10-11 | `bc10-triage`: misrouted lead-in and duplicate-example repairs |
+| 3 | `aspose-email-foss/Aspose.Email-FOSS-for-Python` | 2026-10-11 | `bc10-triage` F02: At-a-Glance diagram is deterministic and unrepairable |
+
+**Work item** G3-W08 · **Register status** PENDING · logged, unfixed under the freeze; three sightings, so settled priority once the freeze lifts (AGENTS.md).
+
 ## Resolved
 
 ### `review.cited_paraphrase_whole_fact_dilution`
@@ -1582,6 +1684,20 @@ the exact live-measured shape (`tests/components/readme/review/test_independent.
 `test_absence_restated_recognizes_a_paraphrase_but_not_an_unrelated_or_a_short_claim` - the latter
 also a negative scope control and the minimum-word-floor case), not yet against a fresh live draw
 of the originating repository (this session had no live stochastic provider call available).
+
+### `review.returned_rejection_demoted_to_accept` (REV-01)
+
+`review_document` converted a returned REJECT into ACCEPT whenever every finding was folded to advisory, and 27 of the 30 sealed reviews were `REJECT_*` demoted that way. Most demotions rested on heuristics, not refutations: a quote that merely names a verified symbol (`VERIFIED_SYMBOL_NAMED`, which hid the Slides-Java dropped security warning and the false `getFontName` claim), a factuality finding about renderer text, a lone prose judgment, a similarity ratio. The independent comparison lane confirmed the harm on five baseline bundles: each carried `review_verdict_as_returned: REJECT_PRESENTATION` converted to `ACCEPT`, and the demoted findings were mostly true.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` | 2026-10-10 | `acc-baseline-vs-slice` 1: garbled prose and a false enum claim demoted from a returned REJECT |
+| 2 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | 2026-10-10 | `acc-baseline-vs-slice` 2: CSV import denied, demoted |
+| 3 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Java` | 2026-10-10 | `acc-baseline-vs-slice` 3 |
+| 4 | `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` | 2026-10-10 | `acc-baseline-vs-slice` 4: dangling lead-in demoted |
+| 5 | `aspose-3d-foss/Aspose.3D-FOSS-for-Python` | 2026-10-10 | `acc-baseline-vs-slice` 5: five introduced false or misleading claims demoted |
+
+**Fixed** 2026-10-11, commit `e482390b` (TC-REV-01, cut 1; `REVIEWER_LOGIC_VERSION` 18 to 19): every scope rule is classed; `DETERMINISTIC_RULES` refute and are recorded as `refuted_by {rule, evidence}`, `JUDGMENT_RULES` annotate (`unrefuted_scope_rules`) and never fold; a rejection stands unless every finding carries a deterministic refutation, and one that code does overturn needs a second read. **Verified** by replay of the 30 sealed reviews and the 6 raw-read bundles (3 returned ACCEPT stay ACCEPT, 1 rejection refuted in full, 26 stand), and by the slice 3D-Python bundle, whose review came back an unconverted `ACCEPT` (`acc-baseline-vs-slice` 6). The propose gate refuses a bundle with no honesty record or a rejection overridden without a deterministic refutation (`184b0589`, on `integration/cut2c`, pull request pending). The slice bundle was still not authorizable (an introduced `.dae` export claim the claim-support check missed), a separate claim-support defect, not this one.
 
 ## Register addendum (items without a REV id, 2026-10-05)
 

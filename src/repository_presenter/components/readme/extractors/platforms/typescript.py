@@ -40,7 +40,7 @@ from repository_presenter.components.readme.extractors.surface.registry import (
     observe,
     repository_of,
 )
-from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.core.ecosystems import SPECS, EcosystemSpec, SuiteFileRule
 from repository_presenter.core.examples import (
     ExampleCandidate,
     ExampleReceipt,
@@ -78,6 +78,10 @@ TYPESCRIPT = EcosystemSpec(
     floor_is_minimum=True,
     manifest_globs=("package.json",),
     source_suffixes=frozenset({".ts", ".tsx"}),
+    # Jest, Vitest, and Mocha all collect `*.test.*` and `*.spec.*`; `tests/setup.ts` (a global
+    # hook the runner loads first) and fixtures beside them are not tests. A suite that names
+    # its tests otherwise gets no size rather than a guess.
+    suite_files=SuiteFileRule(name=r"\.(?:test|spec)\.[cm]?[jt]sx?$"),
 )
 # The spec layer registers by name and never grows a list of ecosystems (§29.6 E3): a plugin
 # module declares its own spec when it is imported, which is what `plugin_for` does before any

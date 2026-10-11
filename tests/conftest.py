@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from repository_presenter.components.readme.evidence.facts import links, published_version
-from repository_presenter.components.readme.extractors.platforms import python_registry
+from repository_presenter.components.readme.extractors.platforms import cpp, python_registry
 from repository_presenter.components.readme.extractors.surface.registry import observe
 from repository_presenter.core.llm import transport
 from support import REPO_ROOT, distinct_process_identities, write_cursor
@@ -51,11 +51,10 @@ def read_no_registry_for_the_published_version() -> Iterator[None]:
     `package:published_version` fact in the sealed bundle that no later offline run reproduces.
     Offline, the reading is "could not read" without a request, so no fact is emitted."""
     with pytest.MonkeyPatch.context() as patch:
-        patch.setattr(
-            published_version,
-            "_observe",
-            lambda ecosystem, name, **_: observe(ecosystem, name, offline=True),
-        )
+        offline = lambda ecosystem, name, **_: observe(ecosystem, name, offline=True)  # noqa: E731
+        patch.setattr(published_version, "_observe", offline)
+        # The C++ plugin asks NuGet about a package its README names; same rule, same reason.
+        patch.setattr(cpp, "_observe", offline)
         yield
 
 

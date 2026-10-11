@@ -39,6 +39,12 @@ FACTS_FILENAME = "facts.json"
 # The attribute an ``inherited_unit`` fact carries: comma-joined repository file names its text
 # spells that the pinned tree contains (evidence/facts/repository_files.py). Prose may spell them.
 REPOSITORY_FILES_ATTRIBUTE = "repository_files"
+# The attributes an ``install_command`` fact carries about the clone-and-build block the
+# Installation section may offer beside the registry install (TC-TST-01). Either the exact
+# command a build proved from the checkout root, or the reason none did; a fact carrying neither
+# was extracted before the check existed and keeps the ecosystem's template.
+SOURCE_CHECKOUT_COMMAND_ATTRIBUTE = "source_checkout_command"
+SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE = "source_checkout_unverified"
 
 _SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:[._-][a-z0-9]+)*$")
 _UNSAFE = re.compile(r"[^a-z0-9._-]+")

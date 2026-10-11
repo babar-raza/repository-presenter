@@ -251,3 +251,86 @@ def test_the_header_names_json_approval_records_and_the_issues_mode_gate() -> No
     assert "ops/issue_approvals/<handoff-id>.json" in header
     assert ".yaml" not in header
     assert "issues_mode" in header
+
+
+# ---------------------------------------------------------------------------
+# TC-ISS-09/11: the batch is bounded and paced in the workflow itself, not only by CLI defaults
+# ---------------------------------------------------------------------------
+
+
+def test_the_filing_step_states_its_per_repository_caps_and_pacing_explicitly() -> None:
+    filing = next(
+        str(st["run"])
+        for st in _steps(_jobs()["file-and-close"])
+        if "file-upstream-defects" in str(st.get("run", "")) and "--file" in str(st.get("run", ""))
+    )
+    for flag in ("--daily-cap", "--open-cap", "--pace-seconds"):
+        assert flag in filing, f"the filing step must state {flag} so a reviewer sees the bound"
+    tokens = filing.split()
+    daily = int(tokens[tokens.index("--daily-cap") + 1])
+    opened = int(tokens[tokens.index("--open-cap") + 1])
+    assert 1 <= daily <= opened
+
+
+# ---------------------------------------------------------------------------
+# TC-ISS-10: the lifecycle in the workflow - update comments are owner-enabled and gated like a
+# filing; the read-only analysis publishes the resume contract for the sealing plan.
+# ---------------------------------------------------------------------------
+
+COMMENTS_VARIABLE = "REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED"
+COMMENTS_MIRROR = "${{ vars.REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED }}"
+
+
+def test_the_update_step_is_gated_by_a_counted_approval_and_the_owners_comment_switch() -> None:
+    steps = [
+        st for st in _steps(_jobs()["file-and-close"]) if "--comment" in str(st.get("run", ""))
+    ]
+    assert len(steps) == 1
+    step = steps[0]
+    assert step.get("if") == HAS_APPROVAL
+    assert '--repo "$REPO"' in str(step["run"]) and "redetect-upstream-defects" in str(step["run"])
+    env = step["env"]
+    assert env[GATE_VARIABLE] == "1" and WRITE_TOKEN in env
+    # The comments switch is only ever mirrored from the owner's variable, never a literal.
+    assert env[COMMENTS_VARIABLE] == COMMENTS_MIRROR
+
+
+def test_the_comments_switch_is_never_a_literal_anywhere() -> None:
+    for name, job in _jobs().items():
+        for step in _steps(job):
+            value = (step.get("env") or {}).get(COMMENTS_VARIABLE, COMMENTS_MIRROR)
+            assert value == COMMENTS_MIRROR, name
+
+
+def test_the_approval_count_includes_filed_issues_only_while_comments_are_enabled() -> None:
+    counting = next(st for st in _steps(_jobs()["file-and-close"]) if st.get("id") == "approvals")
+    assert counting["env"][COMMENTS_VARIABLE] == COMMENTS_MIRROR
+    run = str(counting["run"])
+    assert "--with-updates" in run and COMMENTS_VARIABLE in run
+
+
+def test_the_analysis_publishes_the_resume_contract_without_any_write() -> None:
+    steps = _steps(_jobs()["analyse"])
+    producing = [st for st in steps if "--resume-out" in str(st.get("run", ""))]
+    assert len(producing) == 1
+    assert "--close" not in str(producing[0]["run"]) and "--comment" not in str(producing[0]["run"])
+    uploads = [st for st in steps if "resume" in str((st.get("with") or {}).get("path", ""))]
+    assert uploads, "the resume contract must be kept as a run artifact"
+
+
+# ---------------------------------------------------------------------------
+# TC-ISS-11: the funnel and the age alert are visible every cycle, with no credential at all
+# ---------------------------------------------------------------------------
+
+
+def test_the_targets_job_reports_the_funnel_and_aged_handoffs_with_full_history() -> None:
+    job = _jobs()["targets"]
+    checkout = next(
+        st for st in _steps(job) if str(st.get("uses", "")).startswith("actions/checkout@")
+    )
+    assert checkout["with"]["fetch-depth"] == 0  # a handoff's age is when git first saw it
+    assert checkout["with"]["persist-credentials"] is False
+    funnel = [st for st in _steps(job) if "issue-funnel" in str(st.get("run", ""))]
+    assert len(funnel) == 1
+    assert "--max-pending-days" in str(funnel[0]["run"])
+    assert WRITE_TOKEN not in _text(job) and "GH_TOKEN" not in _text(job)

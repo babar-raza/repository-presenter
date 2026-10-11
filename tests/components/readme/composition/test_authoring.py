@@ -69,7 +69,7 @@ from repository_presenter.core.llm.jobs import CallStore, JobContext, run_job
 from repository_presenter.core.llm.ledger import Ledger, canonical_hash
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
-from support import REPO_ROOT, mock_gateway
+from support import CELLS_NET_SCOPE_LIST, REPO_ROOT, mock_gateway
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -4437,3 +4437,76 @@ def test_a_technical_identifier_that_starts_with_the_family_name_is_not_rewritte
         output = _name_output(text)
         unit_checks(output, _name_task(), FACTS, NAME)
         assert output["units"][0]["text"] == text, text
+
+
+# --- LST-01: the objective names the lists a section must state in full ---------------------------
+_DEV_DEPS_UNIT = "inherited_unit:021.list"
+_DEV_DEPS_LIST = "\n".join(
+    [
+        "- `Microsoft.NET.Test.Sdk` (17.12.0), `xunit` (2.9.2), and `xunit.runner.visualstudio` "
+        "(2.8.2) — the test framework and runner used by the test suite.",
+        "- `coverlet.collector` (6.0.2) — code-coverage collection for the test suite.",
+    ]
+)
+
+
+def _kept_list_dispositions(unit: str, destination: str, *fact_ids: str) -> dict[str, Any]:
+    return {
+        "dispositions": [
+            {
+                "unit_id": unit,
+                "disposition": "VERIFIED_MOVE",
+                "destination_section": destination,
+                "fact_ids": list(fact_ids),
+                "rationale": "r",
+            }
+        ]
+    }
+
+
+def test_a_list_placement_dropped_from_development_testing_is_owed_in_full() -> None:
+    """3D .NET 52b0f00e: the development dependencies list was moved into Development and Testing,
+    dropped by placement because it cites build_test_asset:tests (which the section prints), and
+    the one summary unit authored there stated neither package. The section's slot is unbound, so
+    nothing owed the composer the list."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact(_DEV_DEPS_UNIT, "inherited_unit", _DEV_DEPS_LIST)),
+    )
+    owed = _kept_list_dispositions(_DEV_DEPS_UNIT, "development_testing", "build_test_asset:tests")
+    tasks = {t.section_id: t for t in authoring_tasks(ENTRY, facts, INVESTIGATION, owed, PLAN)}
+    task = tasks["development_testing"]
+    assert task.owed_lists == frozenset({_DEV_DEPS_UNIT})
+    assert f"{_DEV_DEPS_UNIT} (2 items)" in task.packet["objective"]
+    assert "every item of which your units must state" in task.packet["objective"]
+    assert _DEV_DEPS_UNIT in citable(task, "summary")  # an unbound slot may cite it
+    # Negative control: a list the section does not cover is printed whole, so nothing is owed,
+    # and no other section's objective gains the rule.
+    printed = _kept_list_dispositions(_DEV_DEPS_UNIT, "development_testing", "example:002")
+    plain = {t.section_id: t for t in authoring_tasks(ENTRY, facts, INVESTIGATION, printed, PLAN)}
+    assert plain["development_testing"].owed_lists == frozenset()
+    assert "Lists kept as written" not in plain["development_testing"].packet["objective"]
+    assert "Lists kept as written" not in tasks["opening"].packet["objective"]
+
+
+def test_a_list_the_plan_handed_to_the_limitation_slots_is_named_in_their_objective() -> None:
+    """Cells .NET 941814fd: the plan handed the Scope list to every limitation slot; nothing told
+    the composer that every one of its seven bullets had to be stated."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact(_DEV_DEPS_UNIT, "inherited_unit", CELLS_NET_SCOPE_LIST)),
+    )
+    plan = {
+        **PLAN,
+        "material_limitations": [{"fact_ids": ["example:001"], "unit_ids": [_DEV_DEPS_UNIT]}],
+    }
+    kept = _kept_list_dispositions(_DEV_DEPS_UNIT, "scope_limitations", "example:001")
+    tasks = {t.section_id: t for t in authoring_tasks(ENTRY, facts, INVESTIGATION, kept, plan)}
+    objective = tasks["scope_limitations"].packet["objective"]
+    assert f"{_DEV_DEPS_UNIT} (7 items)" in objective
+    assert tasks["scope_limitations"].owed_lists == frozenset()  # bound: owed through its slots
+    bare = {**PLAN, "material_limitations": [{"fact_ids": ["example:001"], "unit_ids": []}]}
+    unhanded = {t.section_id: t for t in authoring_tasks(ENTRY, facts, INVESTIGATION, kept, bare)}
+    assert "Lists kept as written" not in unhanded["scope_limitations"].packet["objective"]

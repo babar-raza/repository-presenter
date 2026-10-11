@@ -35,11 +35,13 @@ from repository_presenter.core.errors import ConfigError, JobError
 from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm import transport
 from repository_presenter.core.llm.binding import (
+    add_silent_units,
     binding_errors,
     drop_unknown_finding_ids,
     fill_silent_units,
     fold_duplicate_units,
     resolve_symbol_ids,
+    silent_unit_ids,
 )
 from repository_presenter.core.llm.fallback import ModelSelection
 from repository_presenter.core.llm.ledger import CallRecord, Ledger, canonical_hash
@@ -460,6 +462,7 @@ class _Attempts:
 
 
 Checks = Callable[[dict[str, Any]], list[str]]
+Narrow = Callable[[Sequence[str]], tuple[Mapping[str, Any], dict[str, Any] | None]]
 
 
 _ENUM_SHOWN = 12
@@ -554,6 +557,7 @@ def run_job(
     checks: Checks | None = None,
     call_schema: dict[str, Any] | None = None,
     recover: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None,
+    narrow: Narrow | None = None,
 ) -> JobResult:
     """The accepted output of one job, from the store when the same request was accepted before.
 
@@ -572,6 +576,17 @@ def run_job(
     generic one-universal-reask budget below cannot distinguish an informed rejection (one whose
     own message already named a real, citable fix) from a blind one; a job with no such narrow,
     verifiable correction passes nothing here and this parameter is inert for it.
+
+    ``narrow`` serves a ``unit_ids`` job only (cut-2 wave, 2026-10-11, BarCode-Python): when the
+    second reply is still silent on some inherited units - after the first reply's answers have
+    been carried over (:func:`fill_silent_units`) - one further ask is made that shows the model
+    exactly those units and nothing else. ``narrow(unit_ids)`` returns that ask's packet and call
+    schema (the same prompt, narrowed to the units). Its reply adds an entry only for a unit that
+    was silent; the merged whole is then judged by the same schema, binding and ``checks`` as any
+    reply, so no unit is accepted unjudged, and a unit still silent fails the job naming it. The
+    ask is an ordinary ledger record (attempt 3, the logical call's own id), the accepted output is
+    stored under the logical request's hash as always (so a replay reuses it with zero calls), and
+    ``recover`` runs after it, on the merged reply, instead of after the second.
     """
     job = manifest.manifest.prompt_id
     model = effective_model(manifest, context)
@@ -649,7 +664,19 @@ def run_job(
     rejection: list[str] = []
     recovered_rejection: list[str] = []
     first_reply = ""
-    for ask in (1, 2):
+    narrowed_units: list[str] = []
+    merged_so_far = ""
+    for ask in (1, 2, 3):
+        if ask == 3:
+            if not narrowed_units:
+                break
+            narrowed_packet, narrowed_schema = narrow(narrowed_units)  # type: ignore[misc]
+            current = request_payload(
+                manifest,
+                render_messages(manifest, narrowed_packet, narrowed_schema),
+                narrowed_schema,
+                model=model,
+            )
         reply = run_with_retry("llm_call", functools.partial(attempts.call, config, current))
         if reply.finish_reason == "length":
             # A re-ask under the same budget cannot help; the manifest's budget must change.
@@ -666,6 +693,8 @@ def run_job(
         content = reply.content
         if ask == 2 and manifest.manifest.output.binding == "unit_ids":
             content = _complete_from_first_reply(content, first_reply)
+        elif ask == 3:
+            content = _add_narrowed_units(content, merged_so_far, narrowed_units)
         first_reply = reply.content
         output, rejection = _parse(manifest, content, facts, checks, call_schema)
         if output is not None:
@@ -684,48 +713,83 @@ def run_job(
         store.reject(request_sha256, ask, job, reply.content, rejection)
         if ask == 1:
             current = _re_ask(manifest, payload, reply.content, rejection)
-        elif recover is not None:
-            # Last resort (G4-W17 arrival item 111): only after the final attempt is still
-            # rejected, and only on that exact raw reply - never on the first attempt, so the
-            # model's own re-ask is always tried before any deterministic correction.
-            try:
-                raw = json.loads(content)
-            except json.JSONDecodeError:
-                raw = None
-            corrected = recover(raw) if isinstance(raw, dict) else None
-            if corrected is not None:
-                # Judged by the manifest's own schema, the binding and the checks - not by
-                # ``call_schema``: that pins what a *decoder* may emit (a packet-capped ID list)
-                # and a deterministic correction legitimately writes IDs the decoder was never
-                # offered, the same reason a stored output is re-judged without it (above).
-                # Measured 2026-10-11: a deferral citing the unit's own verified example was
-                # refused as "'example:004' is not one of [...]" on six repositories.
-                fixed, fixed_rejection = _parse(
-                    manifest, json.dumps(corrected), facts, checks, None
-                )
-                if fixed is not None:
-                    store.put(request_sha256, job, reply.model, fixed)
-                    return JobResult(
-                        job,
-                        fixed,
-                        request_sha256,
-                        attempts.count,
-                        attempts.count,
-                        False,
-                        reply.model,
-                        attempts.last_tokens,
+        else:
+            if ask == 2 and narrow is not None and manifest.manifest.output.binding == "unit_ids":
+                narrowed_units = _silent_units(content, facts)
+                if narrowed_units:
+                    # The model's own two asks are spent; one narrowed ask for the units still
+                    # without a disposition comes before any deterministic last resort.
+                    merged_so_far = content
+                    continue
+            if recover is not None:
+                # Last resort (G4-W17 arrival item 111): only after the final attempt is still
+                # rejected, and only on that exact raw reply - never on the first attempt, so the
+                # model's own re-ask is always tried before any deterministic correction.
+                try:
+                    raw = json.loads(content)
+                except json.JSONDecodeError:
+                    raw = None
+                corrected = recover(raw) if isinstance(raw, dict) else None
+                if corrected is not None:
+                    # Judged by the manifest's own schema, the binding and the checks - not by
+                    # ``call_schema``: that pins what a *decoder* may emit (a packet-capped ID list)
+                    # and a deterministic correction legitimately writes IDs the decoder was never
+                    # offered, the same reason a stored output is re-judged without it (above).
+                    # Measured 2026-10-11: a deferral citing the unit's own verified example was
+                    # refused as "'example:004' is not one of [...]" on six repositories.
+                    fixed, fixed_rejection = _parse(
+                        manifest, json.dumps(corrected), facts, checks, None
                     )
-                # The corrected copy failed too. It is kept beside the model's own reply, and
-                # its rejection is reported after - never instead of - the model's: the model's
-                # rejection is the one its reply earned, and the copy's is derived from it.
-                store.reject(
-                    request_sha256, ask, job, json.dumps(corrected), fixed_rejection, stage="fix"
-                )
-                recovered_rejection = fixed_rejection
-    message = f"{job}: output rejected twice; last rejection: {'; '.join(rejection)}"
+                    if fixed is not None:
+                        store.put(request_sha256, job, reply.model, fixed)
+                        return JobResult(
+                            job,
+                            fixed,
+                            request_sha256,
+                            attempts.count,
+                            attempts.count,
+                            False,
+                            reply.model,
+                            attempts.last_tokens,
+                        )
+                    # The corrected copy failed too. It is kept beside the model's own reply, and
+                    # its rejection is reported after - never instead of - the model's: the model's
+                    # rejection is the one its reply earned, and the copy's is derived from it.
+                    store.reject(
+                        request_sha256,
+                        ask,
+                        job,
+                        json.dumps(corrected),
+                        fixed_rejection,
+                        stage="fix",
+                    )
+                    recovered_rejection = fixed_rejection
+    asked = (
+        "three times (the third a narrowed ask for the silent units)" if narrowed_units else "twice"
+    )
+    message = f"{job}: output rejected {asked}; last rejection: {'; '.join(rejection)}"
     if recovered_rejection:
         message += f"; recover's correction was rejected too: {'; '.join(recovered_rejection)}"
     raise JobError(message)
+
+
+def _silent_units(content: str, facts: FactsDocument) -> list[str]:
+    """The inherited units ``content`` leaves without a disposition (see :func:`silent_unit_ids`);
+    empty when ``content`` is not a JSON object."""
+    try:
+        return silent_unit_ids(json.loads(content), facts)
+    except json.JSONDecodeError:
+        return []
+
+
+def _add_narrowed_units(narrowed: str, merged: str, silent: Sequence[str]) -> str:
+    """``merged`` extended with the ``silent`` units' entries from the ``narrowed`` reply (see
+    :func:`add_silent_units`); ``merged`` unchanged when either is not a JSON object."""
+    try:
+        base, extra = json.loads(merged), json.loads(narrowed)
+    except json.JSONDecodeError:
+        return merged
+    return json.dumps(add_silent_units(base, extra, frozenset(silent)))
 
 
 def _complete_from_first_reply(content: str, first: str) -> str:

@@ -44,7 +44,7 @@ from repository_presenter.components.readme.extractors.surface.registry import (
     observe,
     repository_of,
 )
-from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.core.ecosystems import SPECS, EcosystemSpec, SuiteFileRule
 from repository_presenter.core.examples import (
     ExampleCandidate,
     ExampleReceipt,
@@ -101,6 +101,12 @@ RUST = EcosystemSpec(
     floor_declaration="edition",
     manifest_globs=("Cargo.toml",),
     source_suffixes=frozenset({".rs"}),
+    # An integration test is a `tests/*.rs` crate with a `#[test]` (or `#[tokio::test]`,
+    # `#[rstest]`, ...) function; `tests/common/mod.rs` and its siblings are helpers.
+    suite_files=SuiteFileRule(
+        name=r"\.rs$",
+        marker=r"#\[[ \t]*(?:\w+::)*(?:test|rstest|test_case|quickcheck)\b",
+    ),
 )
 # The spec layer registers by name and never grows a list of ecosystems (§29.6 E3): a plugin
 # module declares its own spec when it is imported, which is what `plugin_for` does before any

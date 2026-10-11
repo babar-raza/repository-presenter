@@ -366,6 +366,26 @@ for _name in _LINKS_ANCHOR_BADGES_STALE:
     )
 
 
+# Wave-3 acceptance review (TC-ACC-01, f69f75c7 reseal, 2026-10-11) defect 8: the Detailed Member
+# Reference listed a hub's every method, a signature-only one as "Defined as `def f(self)`." (312
+# such bullets in one candidate); a member now appears only with its own documentation summary. The
+# sealed Cells-Python README differs from a fresh render in exactly its four such bullet pairs
+# (diff checked directly: removed lines only, nothing else moves). A real, deliberate, correct
+# rendering-behavior change; the candidate needs a real re-seal through `present`, since validation
+# and review were judged against the old bytes. `strict=True` as above.
+_merge_ledger(
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Python",
+    since="2026-10-11",
+    expires="2026-11-10",
+    reason=(
+        "the Detailed Member Reference lists a hub member only with its own documentation "
+        "summary, so the sealed bytes' signature-only 'Defined as' bullets (eight lines) are "
+        "gone from a fresh render - see comment above"
+    ),
+    ref="G7-W23 wave-3 acceptance review (TC-ACC-01) defect 8, member reference rendering",
+)
+
+
 def block_is_live(record: dict[str, str], today: dt.date) -> bool:
     """Whether a ledger record still excuses its candidate: true through its `expires` date."""
     return today <= dt.date.fromisoformat(record["expires"])

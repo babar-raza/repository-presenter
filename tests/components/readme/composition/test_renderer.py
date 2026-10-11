@@ -22,11 +22,18 @@ from repository_presenter.components.readme.composition.renderer import (
     line_counts,
     render_patch,
     render_readme,
+    renderer_sentences,
     renders_verbatim,
     write_text,
 )
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Evidence,
+    Fact,
+    FactsDocument,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 
 ENTRY = RegistryEntry.model_validate(
@@ -75,7 +82,7 @@ FACTS = FactsDocument(
             "public_symbol",
             "aspose.threed.Scene.save",
             (Evidence("x", "line 9; method; public by name"),),
-            attributes={"symbol_kind": "method"},
+            attributes={"symbol_kind": "method", "docstring": "Saves the scene to a file."},
         ),
         _fact("format:output.glb", "format", ".glb"),
         _fact("format:input.obj", "format", ".obj"),
@@ -291,7 +298,8 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
     assert "<summary>View the Complete Public API Surface</summary>" in lines
     assert "| `Scene` | Public class. |" in lines and "### Scene" in lines
     assert "`Scene` holds the scene graph." in lines
-    assert "- `save`: Public method. |" not in lines and "- `save`: Public method." in lines
+    assert "- `save`: Saves the scene to a file." in lines
+    assert not any("Public method" in line for line in lines)
     assert "- **[Docs](https://docs.example.com/3d)** — The docs explain the API." in lines
     assert (
         "- Found a bug or have a feature request? [Open an issue]"
@@ -565,6 +573,100 @@ def test_a_placed_command_block_appears_in_its_destination() -> None:
     section = readme.split("## Development and Testing\n", 1)[1].split("\n## ", 1)[0]
     assert section.rstrip("\n").endswith(commands)
     assert readme.count("print(2)") == 1
+
+
+def _command_facts() -> tuple[Fact, ...]:
+    """Build, test and CI-matrix facts as the extractor records them (TC-COV-02)."""
+    return (
+        Fact(
+            "build_test_asset:build-command",
+            "build_test_asset",
+            "python -m build",
+            (Evidence(".github/workflows/ci.yml", "build command; job packaging runs `x`"),),
+        ),
+        Fact(
+            "build_test_asset:test-command",
+            "build_test_asset",
+            "python -m unittest discover -s tests -v",
+            (Evidence(".github/workflows/ci.yml", "test command; job tests runs `x`"),),
+        ),
+        Fact(
+            "build_test_asset:ci-matrix",
+            "build_test_asset",
+            "os=ubuntu-latest,windows-latest;python-version=3.10,3.11",
+            (Evidence(".github/workflows/ci.yml", "job tests strategy.matrix axes os"),),
+        ),
+    )
+
+
+def _development_section(readme: str) -> str:
+    return readme.split("## Development and Testing\n", 1)[1].split("\n## ", 1)[0]
+
+
+def test_development_and_testing_prints_the_build_and_test_commands_and_the_ci_matrix() -> None:
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *_command_facts()))
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    section = _development_section(readme)
+    assert (
+        "The [ci workflow](.github/workflows/ci.yml) runs across os (ubuntu-latest, "
+        "windows-latest) and python-version (3.10, 3.11)."
+    ) in section
+    assert section.rstrip("\n").endswith(
+        "To build and run the tests from a clone, run:\n\n"
+        "```bash\npython -m build\npython -m unittest discover -s tests -v\n```"
+    )
+
+
+def test_a_command_the_placed_inherited_block_already_carries_is_not_printed_twice() -> None:
+    commands = "```bash\npip install -e .\npython -m unittest discover -s tests -v\n```"
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            *_command_facts(),
+            Fact(
+                "inherited_unit:010.code_block",
+                "inherited_unit",
+                commands,
+                (Evidence("README.md", "lines 20-24; code_block"),),
+            ),
+        ),
+    )
+    dispositions: dict[str, Any] = {
+        "dispositions": [
+            *DISPOSITIONS["dispositions"],
+            {
+                "unit_id": "inherited_unit:010.code_block",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "development_testing",
+                "fact_ids": ["build_test_asset:test-command"],
+                "rationale": "r",
+            },
+        ]
+    }
+    section = _development_section(render_readme(ENTRY, facts, PLAN, UNITS, dispositions))
+    assert section.count("python -m unittest discover -s tests -v") == 1
+    assert "To build from a clone, run:\n\n```bash\npython -m build\n```" in section
+    assert section.rstrip("\n").endswith(commands)
+
+
+def test_an_unsupported_command_fact_is_never_printed() -> None:
+    contradicted = tuple(
+        Fact(f.id, f.kind, f.value, f.evidence, polarity="UNRESOLVED")
+        for f in _command_facts()
+        if f.id != "build_test_asset:ci-matrix"
+    )
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *contradicted))
+    section = _development_section(render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS))
+    assert "from a clone" not in section
+
+
+def test_the_command_lead_in_and_matrix_sentence_are_renderer_sentences() -> None:
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *_command_facts()))
+    sentences = renderer_sentences(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "To build and run the tests from a clone, run:" in sentences
+    assert any(s.startswith("The [ci workflow]") for s in sentences)
 
 
 def test_a_placed_unit_inherits_its_sections_visibility_and_overlap_is_exclusive() -> None:
@@ -973,6 +1075,77 @@ def test_the_source_checkout_command_is_the_ecosystems_own_not_a_hard_coded_pip_
     assert "pip install" not in installation
 
 
+def _net_published_install(**attributes: str) -> tuple[RegistryEntry, FactsDocument]:
+    """Aspose.3D for .NET's shape: a package NuGet lists, an executed example, and an install fact
+    that carries (or lacks) the record of what a build proved from the checkout root."""
+    entry = RegistryEntry.model_validate(
+        {
+            **ENTRY.model_dump(mode="json"),
+            "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-.NET",
+            "family": "widget",
+            "platform": "net",
+            "ecosystem": "net",
+        }
+    )
+    install = Fact(
+        "install_command:dotnet",
+        "install_command",
+        "dotnet add package Aspose.Widget",
+        (
+            Evidence(
+                "Widget.csproj", "install command for the package id declared by the manifest"
+            ),
+            Evidence("https://api.nuget.org/", "package registry: found on nuget"),
+        ),
+        attributes=attributes or None,
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id not in {"identity:repository", "install_command:pip"}),
+            Fact("identity:repository", "identity", entry.repository, (Evidence("x"),)),
+            install,
+        ),
+    )
+    return entry, facts
+
+
+def _installation(readme: str) -> str:
+    return readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+
+
+def test_the_source_checkout_block_is_the_command_a_build_proved_from_the_root() -> None:
+    """TC-TST-01 (Aspose.3D for .NET): the template `dotnet build` fails at a root that holds no
+    project; the block is the measured `dotnet build <project>` the verifier ran there."""
+    measured = (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-.NET.git\n"
+        "cd Aspose.Widget-FOSS-for-.NET\ndotnet build src/Widget/Widget.csproj"
+    )
+    entry, facts = _net_published_install(**{SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: measured})
+    installation = _installation(render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS))
+    assert (
+        f"To work from a source checkout instead, build the clone with dotnet build:\n\n"
+        f"```bash\n{measured}\n```"
+    ) in installation
+    assert "cd Aspose.Widget-FOSS-for-.NET\ndotnet build\n" not in installation
+
+
+def test_a_build_that_proved_nothing_from_the_root_leaves_no_source_checkout_block() -> None:
+    entry, facts = _net_published_install(
+        **{SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE: "no build exited 0: failed (exited 1)"}
+    )
+    installation = _installation(render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS))
+    assert "source checkout" not in installation and "git clone" not in installation
+    assert "```bash\ndotnet add package Aspose.Widget\n```" in installation
+
+
+def test_a_fact_with_no_record_still_renders_the_template_so_sealed_bytes_hold() -> None:
+    entry, facts = _net_published_install()
+    installation = _installation(render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS))
+    assert "cd Aspose.Widget-FOSS-for-.NET\ndotnet build\n```" in installation
+
+
 def test_a_verified_source_build_is_the_installation_not_an_additional_suggestion() -> None:
     """G4-W17 arrival item 0. `extract.py` promotes an unpublished package's install fact to
     SUPPORTED with `install_kind: source` once an example proves the source compiles; the
@@ -1206,7 +1379,18 @@ def test_the_api_reference_follows_row_fourteen_with_docstring_first_description
                 "public_symbol",
                 "aspose.threed.Scene.save",
                 (Evidence("aspose/threed/scene.py", "line 9; method; public by name"),),
-                attributes={"symbol_kind": "method", "signature": "def save(self, path)"},
+                attributes={
+                    "symbol_kind": "method",
+                    "signature": "def save(self, path)",
+                    "docstring": "Writes the scene to a file.",
+                },
+            ),
+            Fact(
+                "public_symbol:aspose.threed.scene.clear",
+                "public_symbol",
+                "aspose.threed.Scene.clear",
+                (Evidence("aspose/threed/scene.py", "line 12; method; public by name"),),
+                attributes={"symbol_kind": "method", "signature": "def clear(self)"},
             ),
             Fact(
                 "public_symbol:aspose.threed.axis",
@@ -1227,9 +1411,14 @@ def test_the_api_reference_follows_row_fourteen_with_docstring_first_description
         "#### Enumerations\n\n| Enumeration | Description |\n| --- | --- |\n"
         "| `Axis` | Defined as `class Axis(Enum)`. |\n\n#### Detailed Member Reference\n\n"
         "### Scene\n\n`Scene` holds the scene graph.\n\n"
-        "- `save`: Defined as `def save(self, path)`.\n"
+        "- `save`: Writes the scene to a file.\n"
     )
     assert section.rstrip("\n").endswith("</details>")
+    # A member with no documentation of its own is left out of the Detailed Member Reference:
+    # a "Defined as `def clear(self)`." bullet says nothing its name did not (312 of them in
+    # the Aspose.3D FOSS for TypeScript candidate, wave-3 acceptance review 2026-10-11).
+    assert "clear" not in section
+    assert "Defined as `def" not in section
 
 
 def test_api_reference_covered_fact_ids_matches_what_this_render_actually_shows() -> None:
@@ -1256,7 +1445,7 @@ def test_api_reference_covered_fact_ids_matches_what_this_render_actually_shows(
                 "public_symbol",
                 "aspose.threed.Scene.save",
                 (Evidence("x", "line 9; method; public by name"),),
-                attributes={"symbol_kind": "method"},
+                attributes={"symbol_kind": "method", "docstring": "Saves the scene."},
             ),
             Fact(
                 "public_symbol:aspose.threed.node",
@@ -2054,3 +2243,59 @@ def test_no_alternative_renders_for_a_source_install_or_without_a_version() -> N
     )
     readme = render_readme(_java_entry(), versionless, PLAN, UNITS, DISPOSITIONS)
     assert "<dependency>" not in readme
+
+
+# The two sealed READMEs the wave-3 acceptance review found with the Enterprise paragraph emitted
+# as a fragment (Cells .NET 941814fd, Cells Java c65329e7, LST-01): the coherence pass is told to
+# write 'it adds ...' because the renderer prints the edition sentence before it, and the renderer
+# joined the two with a full stop and no capital.
+_FRAGMENT_UNITS = (
+    (
+        "it adds broader spreadsheet functionality, including more file formats, a formula "
+        "calculation engine, pivot tables, and richer rendering/export features.",
+        "It adds broader spreadsheet functionality, including more file formats, a formula "
+        "calculation engine, pivot tables, and richer rendering/export features.",
+    ),
+    (
+        "it adds additional spreadsheet save formats beyond .xlsx, a full formula calculation "
+        "engine, ChartEx chart type creation, and dedicated enterprise support.",
+        "It adds additional spreadsheet save formats beyond .xlsx, a full formula calculation "
+        "engine, ChartEx chart type creation, and dedicated enterprise support.",
+    ),
+    ("which adds rendering and extra formats.", "It adds rendering and extra formats."),
+    ("It adds rendering.", "It adds rendering."),
+    ("`Chart` rendering is added.", "`Chart` rendering is added."),
+    ("e.g. rendering is added.", "e.g. rendering is added."),
+)
+
+
+@pytest.mark.parametrize(("authored", "printed"), _FRAGMENT_UNITS)
+def test_the_enterprise_paragraph_never_follows_its_full_stop_with_a_lower_case_fragment(
+    authored: str, printed: str
+) -> None:
+    target = Fact(
+        "link_target:product.enterprise",
+        "link_target",
+        "https://products.aspose.com/3d/python-net/",
+        (Evidence("https://products.aspose.com/3d/python-net/", "HTTP 200; enterprise target"),),
+        attributes={"role": "enterprise", "level": "platform", "platform": "python"},
+    )
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, target))
+    plan = {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True}
+            if entry["section_id"] == "enterprise_relationship"
+            else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+    units = {
+        "units": [*UNITS["units"], _unit("enterprise_relationship", "context", authored)],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, plan, units, DISPOSITIONS)
+    scope = readme.split("## Scope and Limitations\n\n", 1)[1].split("\n## ", 1)[0]
+    assert scope.rstrip("\n").endswith(
+        "(https://products.aspose.com/3d/python-net/). " + printed
+    ), scope

@@ -24,6 +24,10 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any
 
+from repository_presenter.components.readme.composition.audience import (
+    audience_errors,
+    support_texts,
+)
 from repository_presenter.components.readme.composition.components.ecosystems import (
     REGISTRY_NAMES,
     host_names,
@@ -41,6 +45,12 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.components.readme.composition.components.terminology import (
     canonical_forms,
 )
+from repository_presenter.components.readme.composition.list_coverage import (
+    OWED_SECTIONS,
+    kept_lists,
+    list_items,
+)
+from repository_presenter.components.readme.composition.placement import placements
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.core.facts import (
     REPOSITORY_FILES_ATTRIBUTE,
@@ -365,7 +375,10 @@ _TYPE_OBJECTIVE = (
 # a code span or fence are not rewritten. allowed_identifiers additionally keeps a recorded project
 # or directory name that is itself a spelling of the product unspellable (the extractor now records
 # project names, INHERITED_UNITS_VERSION "4"); BC-12 itself is unchanged.
-NORMALISATION_VERSION = "33"
+# 34: CUT-3 (G3-W08): the opening may state an audience or use case only when an accepted fact does
+# (composition/audience.py); a kept list states every item (composition/list_coverage.py). A bundle
+# sealed under 33 re-checks under 34 and shows as pending.
+NORMALISATION_VERSION = "34"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -466,10 +479,17 @@ def _strip_echoed_fact_ids(text: str, fact_ids: Any) -> str | None:
 
 _OBJECTIVES: dict[str, tuple[str, str]] = {
     "opening": (
-        "Two to four sentences: what the product does, the problems it solves, who uses it. "
-        "A format fact's own `direction` field says whether the product reads that extension as "
-        "input or writes it as output; when the opening names a format, state exactly that "
-        "direction, never the opposite and never a direction the fact does not carry.",
+        "Two to four sentences that state what the product is and does, as its own actions "
+        "('it reads ...', 'it writes ...', 'it converts ...'), from the accepted facts alone: the "
+        "formats, capabilities and runtime they carry, and the problem it solves only where a "
+        "fact states it. State no audience, use case or benefit - not who uses it, what it is "
+        "used for, what it is suitable for, or what it spares the reader ('developers use it "
+        "to ...', 'enables developers to ...', 'ideal for ...', 'used by ...', 'without "
+        "requiring a license') - unless an accepted fact, or an inherited unit among them, says "
+        "so in those words. A format fact's own `direction` field says whether the product reads "
+        "that extension as input or writes it as output; when the opening names a format, state "
+        "exactly that direction, never the opposite and never a direction the fact does not "
+        "carry.",
         "one unit of two to four sentences",
     ),
     "key_capabilities": (
@@ -557,6 +577,10 @@ class SectionTask:
     # reconciliation disposition names. A refusal quotes it back, so the re-ask carries what the
     # unit says, not only its ID (a bare ID let a second reply omit it unchanged).
     must_carry_text: Mapping[str, str] = field(default_factory=dict)
+    # The list units kept as written that placement dropped from this section and whose slots
+    # the plan does not bind, so the section's authored units owe every item (list_coverage.py,
+    # LST-01). A bound section is owed the lists the plan handed to a slot (slot_facts).
+    owed_lists: frozenset[str] = frozenset()
 
     @property
     def label(self) -> str:
@@ -1073,6 +1097,38 @@ def citable(task: SectionTask, slot: str) -> list[str]:
 _NEUTRAL_KINDS = ("identity:", "package:")
 
 
+def owed_list_units(
+    entry: RegistryEntry,
+    facts: FactsDocument,
+    dispositions: dict[str, Any],
+    plan: dict[str, Any],
+    section: str,
+    slot_facts: Mapping[str, frozenset[str]],
+) -> frozenset[str]:
+    """The list units kept as written that placement drops from ``section`` as covered by its own
+    content, in a section whose slots the plan does not bind (Development and Testing): nothing
+    else prints them, so the section's units owe every item (list_coverage.py, LST-01). A bound
+    section is owed the lists the plan handed to a slot instead (planning.plan_checks)."""
+    if section not in OWED_SECTIONS or slot_facts:
+        return frozenset()
+    kept = {
+        str(item.get("unit_id"))
+        for item in dispositions.get("dispositions", [])
+        if item.get("destination_section") == section
+        and item.get("disposition") in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}
+        and str(item.get("unit_id", "")).endswith(".list")
+    }
+    if not kept:
+        return frozenset()
+    return frozenset(
+        decision.unit_id
+        for decision in placements(plan, dispositions, facts, entry.ecosystem)
+        if decision.unit_id in kept
+        and decision.destination == section
+        and decision.outcome == "overlap"
+    )
+
+
 def authoring_tasks(
     entry: RegistryEntry,
     facts: FactsDocument,
@@ -1167,6 +1223,26 @@ def authoring_tasks(
             if must_carry
             else ""
         )
+        owed = owed_list_units(entry, facts, dispositions, plan, section, slot_facts)
+        kept_lists_owed = kept_lists(
+            dispositions,
+            section,
+            set().union(*slot_facts.values()) | owed if slot_facts else owed,
+            facts,
+        )
+        # A list reconciliation kept as written is not printed beside the section's own content
+        # (placement.py drops it as covered), so every item must reach a unit; naming the lists in
+        # the objective is what makes the first reply state them (list_coverage.py, LST-01).
+        carry_rule += (
+            "Lists kept as written, every item of which your units must state - fold related "
+            "items into one unit, in plain words, and cite the list in it: "
+            + ", ".join(
+                f"{unit} ({len(list_items(text))} items)" for unit, text in kept_lists_owed.items()
+            )
+            + ". "
+            if kept_lists_owed
+            else ""
+        )
         if must_carry and section == "enterprise_relationship":
             # The inherited paragraph names the commercial product and links it, but the renderer
             # prints that name and link itself in the sentence before this unit (exactly once,
@@ -1205,6 +1281,7 @@ def authoring_tasks(
                 slot_render_lines=render_lines,
                 must_carry=must_carry,
                 must_carry_text=carried_substance(must_carry, facts),
+                owed_lists=owed,
             )
         )
         if section == "api_reference":
@@ -2013,11 +2090,8 @@ def unit_checks(
             )
     # An exception class name is written only when a fact this section may cite records it
     # verbatim (README_CONTRACT.md section 2 row 16: the precise mechanism a fact records).
-    recorded = " ".join(
-        fact.value
-        for fact in facts.facts
-        if fact.id in task.accepted_ids and fact.polarity == "SUPPORTED"
-    )
+    supporting = support_texts(task.accepted_ids, facts)
+    recorded = " ".join(supporting)
     for unit in output.get("units", []):
         slot = unit.get("slot", "?")
         if unit.get("section") != task.section_id:
@@ -2105,6 +2179,15 @@ def unit_checks(
         errors.extend(
             f"unit {slot}: {mismatch}" for mismatch in unit_example_action_mismatches(unit, facts)
         )
+    # Wave-3 acceptance review (f69f75c7, 4 of 5 candidates): the opening named an audience and a
+    # use case ("Developers use it to generate reports ...", "used by Java developers building
+    # ... CAD viewers, simulation tools ...") and what the product spares the reader ("without
+    # requiring a commercial license") that no fact and no inherited README text said. Every unit
+    # above passed: its citations were identity and package facts, which carry no audience. The
+    # sentence is refused unless an accepted fact of this section states the same claim; the
+    # refusal quotes it so the one re-ask deletes it, and composition/audience.py holds the rule,
+    # its recovery, and the reason. BC-04 reaches the same check through this function.
+    errors.extend(audience_errors(output.get("units", []), supporting, task.section_id))
     errors.extend(carried_unit_errors(output, task, elsewhere_cited))
     return errors
 
