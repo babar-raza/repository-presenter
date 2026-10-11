@@ -126,6 +126,8 @@ __all__ = ["renders_verbatim"]  # re-exported for the validator and the tests
 _WORD = re.compile(r"\b[A-Z][A-Za-z0-9]*\b")
 _EXTENSION = re.compile(r"(?<![\w`.])\.[a-z0-9]{2,}\b")
 _SLUG_STRIP = re.compile(r"[^\w\- ]")
+# A code span already in the text: the author's, or one an earlier, longer token made.
+_CODE_SPAN_RUN = re.compile(r"`[^`\n]*`")
 # README_CONTRACT.md section 2 row 20: the declaration, then for a permissive license one
 # sentence of practical permissions and the notice condition, and the absence of warranty.
 _MIT_PROSE = (
@@ -270,12 +272,23 @@ class RenderContext:
                 and not identifier_allowed(token, self.allowed, self.members, self.methods)
             ):
                 continue
-            rendered = re.sub(
-                rf"(?<![`\w.]){re.escape(token)}(\(\))?(?![`\w])",
-                lambda m: f"`{m.group(0)}`",
-                rendered,
-            )
+            # A token inside a span the text already has (the author's, or a longer token's a
+            # moment ago) is in a code span already; wrapping it again splits the span in three
+            # (``src/`W/`W`.csproj` ``, PSD-.NET), so only matches outside a span are wrapped.
+            rendered = _wrap_outside_spans(rendered, token)
         return rendered
+
+
+def _wrap_outside_spans(text: str, token: str) -> str:
+    """``text`` with each whole-word ``token`` (and a call's trailing ``()``) in a code span,
+    except where it already sits inside one."""
+    spans = [match.span() for match in _CODE_SPAN_RUN.finditer(text)]
+
+    def wrap(match: re.Match[str]) -> str:
+        inside = any(start <= match.start() < end for start, end in spans)
+        return match.group(0) if inside else f"`{match.group(0)}`"
+
+    return re.sub(rf"(?<![`\w.]){re.escape(token)}(\(\))?(?![`\w])", wrap, text)
 
 
 def anchor(heading: str) -> str:

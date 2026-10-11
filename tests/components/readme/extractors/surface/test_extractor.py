@@ -286,3 +286,99 @@ def test_a_namespace_is_a_symbol_the_way_a_python_module_is(tmp_path: Path) -> N
     # Namespaces come first and in sorted order, so the grammar's traversal cannot move them.
     leading = [s.value for s in symbols[:3]]
     assert leading == ["Aspose", "Aspose.Widget", "Aspose.Widget.Shapes"]
+
+
+# The shapes below are the real ones from Aspose.Cells-FOSS-for-TypeScript fc186507 `workbook.ts`
+# (wave-3 triage U10): a type literal in a PRIVATE method's return type (line 905), in a public
+# method's options parameter (line 392), in a local `type XfEntry = {...}` (line 1100), in an array
+# element type (line 1087), and in a nested generic. The class's own members are the control.
+TS_NESTED_LITERALS = """
+export class Workbook {
+  private _sheets: string[] = [];
+  note: string = "";
+
+  get worksheets(): string[] {
+    return this._sheets;
+  }
+
+  async save(
+    filePath: string,
+    options?: { password?: string; saveFormat?: string },
+  ) {
+    return filePath;
+  }
+
+  private getAnchorForPositionEMU(
+    xEmu: number,
+  ): { col: number; colOff: number; row: number; rowOff: number } {
+    return { col: 0, colOff: xEmu, row: 0, rowOff: 0 };
+  }
+
+  toJson(): string {
+    const numFmtEntries: { id: number; code: string }[] = [];
+    type XfEntry = {
+      fontId: number;
+      fillId: number;
+      style: string;
+    };
+    const cellXfEntries: XfEntry[] = [];
+    class Local {
+      localMethod(): void {}
+    }
+    return JSON.stringify([numFmtEntries, cellXfEntries]);
+  }
+}
+
+export interface Placement {
+  anchor: { col: number; row: number };
+  label: string;
+  describe(): { text: string };
+}
+
+export type Pair = { left: number; right: { depth: number } };
+
+export type Both = { a: number } & { b: string };
+"""
+
+
+def _ts_values(tmp_path: Path, source: str) -> dict[str, SurfaceSymbol]:
+    package = tmp_path / "src" / "widget"
+    package.mkdir(parents=True)
+    (package / "workbook.ts").write_text(source, encoding="utf-8")
+    symbols = surface_symbols(get_parser("typescript"), "typescript", package, tmp_path, "widget")
+    return {symbol.value: symbol for symbol in symbols}
+
+
+def test_a_type_literal_nested_in_a_signature_adds_no_member_to_the_class(tmp_path: Path) -> None:
+    """Measured 2026-10-11: the deep walk read the properties of every nested object type as
+    members of the class, so `Workbook.rowOff` and `Workbook.fontId` were SUPPORTED public symbols
+    and the API reference published members that do not exist (BC-10 REJECT_FACTUAL, 9 findings)."""
+    values = _ts_values(tmp_path, TS_NESTED_LITERALS)
+    members = {value.rsplit(".", 1)[-1] for value in values if ".Workbook." in f".{value}."}
+
+    # The class's own members survive.
+    assert {"note", "worksheets", "save", "toJson"} <= members
+    # A private method's return literal, a parameter's options literal, a local alias, an array
+    # element literal and a method of a class declared in a method body belong to none of them.
+    bogus = {
+        "col", "colOff", "row", "rowOff", "password", "saveFormat", "id", "code",
+        "fontId", "fillId", "style", "localMethod",
+    }  # fmt: skip
+    assert not (members & bogus), members & bogus
+
+
+def test_an_interface_and_a_type_alias_keep_their_own_properties_but_not_nested_ones(
+    tmp_path: Path,
+) -> None:
+    """Negative control for the fix: the owner's own literal body is still its member list, for
+    an interface, a `type X = {...}` and an intersection of literals, while a literal one level
+    down (a property's type, a method's return type) is not."""
+    values = set(_ts_values(tmp_path, TS_NESTED_LITERALS))
+
+    def has(owner: str, member: str) -> bool:
+        return any(value.endswith(f"{owner}.{member}") for value in values)
+
+    assert has("Placement", "anchor") and has("Placement", "label") and has("Placement", "describe")
+    assert not any(has("Placement", nested) for nested in ("col", "row", "text"))
+    assert has("Pair", "left") and has("Pair", "right") and not has("Pair", "depth")
+    assert has("Both", "a") and has("Both", "b")

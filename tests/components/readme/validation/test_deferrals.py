@@ -1068,6 +1068,77 @@ def test_a_real_symbol_in_a_code_span_still_names_a_verified_symbol(text: str) -
     assert _classify(facts, deferred).decision == "BLOCK"
 
 
+# Wave-3 triage U2 (Cells-Python f69f75c7 inherited_unit:038): a path in a code span is a place on
+# disk, not an API name. Its directory segments were read as names, so `examples/outputfiles/`
+# "spelled" the verified import path `examples` (the examples directory, a real fact) and vetoed
+# NO_EVIDENCE_EITHER_WAY, leaving the deferral UNCLASSIFIED and blocking the whole candidate.
+_CELLS_038 = (
+    "Generated workbooks are written below `examples/outputfiles/` and are not intended for "
+    "source control."
+)
+_CELLS_038_WHY = (
+    "No fact confirms the outputfiles directory or its intended exclusion from source control; "
+    "the claim is unsupported and undetermined."
+)
+
+
+def _cells_python_facts(text: str) -> FactsDocument:
+    return _facts(
+        _fact("import_path", "examples", "examples"),
+        _fact("import_path", "aspose.cells_foss", "aspose.cells_foss"),
+        _fact("build_test_asset", "examples", "examples/"),
+        _example(1, "SUPPORTED", unit=2),
+        _example(2, "SUPPORTED", unit=3),
+        _unit(38, "paragraph", text, "Aspose.Cells FOSS for Python > Examples"),
+    )
+
+
+def test_a_directory_path_never_names_a_verified_symbol_of_the_same_letters() -> None:
+    finding = _classify(
+        _cells_python_facts(_CELLS_038), _deferred("inherited_unit:038.paragraph", _CELLS_038_WHY)
+    )
+    assert (finding.class_id, finding.decision) == ("NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+
+
+@pytest.mark.parametrize(
+    "span",
+    [
+        "examples/outputfiles/",
+        "./examples/outputfiles",
+        "src\\examples\\out.xlsx",
+        "Aspose.Words/Aspose.Words.csproj",
+        "go run ./examples/feature_showcase",
+        "https://example.com/examples/guide",
+    ],
+)
+def test_no_path_in_a_code_span_names_a_verified_symbol(span: str) -> None:
+    facts = _cells_python_facts(f"Files land in `{span}` after the run.")
+    facts = _facts(*facts.facts, _fact("public_symbol", "words", "Aspose.Words"))
+    assert not DeferralContext.build({"dispositions": []}, facts).names_verified_symbol(
+        "inherited_unit:038.paragraph"
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Generated workbooks are written by `examples`, which is not intended for source control.",
+        "Import `aspose.cells_foss` and then write below `outputfiles/`.",
+        "Run `go run ./out` first, then `examples` to list them.",
+    ],
+)
+def test_a_name_beside_or_apart_from_a_path_still_names_a_verified_symbol(text: str) -> None:
+    """Negative control: only the slash-bearing token is dropped; a verified name spelled as its
+    own word or its own span is still evidence the facts hold what the unit claims, so the same
+    deferral stays a BLOCK."""
+    facts = _cells_python_facts(text)
+    assert DeferralContext.build({"dispositions": []}, facts).names_verified_symbol(
+        "inherited_unit:038.paragraph"
+    )
+    deferred = _deferred("inherited_unit:038.paragraph", _CELLS_038_WHY)
+    assert _classify(facts, deferred).decision == "BLOCK"
+
+
 # CUT-2 (BC-05 v5 extension): the notices, licence, dependency, lead-in and install-snippet causes
 # the 2026-10-10 baseline and the first cut-2 wave left blocking. Each unit is trimmed from the
 # real transaction named in its docstring.
