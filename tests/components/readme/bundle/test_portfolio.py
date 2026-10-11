@@ -862,6 +862,7 @@ def test_the_proposal_gate_passes_only_a_ratified_pass(tmp_path: Path) -> None:
     unratified_profile = proposal_acceptance_gate(tmp_path, ratified=False, scorer=scorer)
     assert "not ratified" in str(unratified_profile(tmp_path, "pass"))
 
+
 # --- the consumed-scope recheck splits the update bucket (G7-W25, doc 13 section 6.3) -----------
 
 

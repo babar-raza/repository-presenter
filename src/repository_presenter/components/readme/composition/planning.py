@@ -681,8 +681,8 @@ def planning_schema(
     return schema
 
 
-def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
-    """Why two capabilities may not rest on the same facts, with the bookkeeping composed here.
+def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> None:
+    """Compose, in place, which facts two capabilities share, from the citations themselves.
 
     Overlapping fact sets are why a subset check cannot separate one capability's prose from
     another's even in principle (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC2). What matters
@@ -692,26 +692,24 @@ def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
     RC1, the same reason the shell's inclusion decisions are composed below.
 
     Measured 2026-09-06: `shared_fact_ids` unstated by one of the citing capabilities rejected
-    `presentation_planning` twice on Aspose.3D, Cells, Email and Words for .NET - four of the six
-    - each naming a fact the model had already declared shared everywhere else.
+    `presentation_planning` twice on Aspose.3D, Cells, Email and Words for .NET - four of the six -
+    each naming a fact the model had already declared shared everywhere else.
 
     The rule has always offered two equal arms - give each capability its own facts, *or* declare
     the sharing - so declaring was always sufficient and distinctness was never demanded. The
     fold supplies the declaration and always supplies it correctly; nothing the rule enforced is
     lost. Requiring a discriminating fact as well was tried the same day and rejected the first
     .NET candidate on three capabilities at once, which is a bar the rule never set.
+
+    The same fold now also drops a declared fact the capability does not cite (Aspose.Cells for
+    Python, 2026-10-11: capabilities 3 and 5 listed `public_symbol:aspose.cells_foss.workbook` as
+    shared without citing it; the plan was refused twice on a field the code overwrites anyway and
+    the repository failed). The field is a pure function of the citations, so the overwrite is
+    exact: no citation, claim or fact is added or removed, only a derived list is made true.
     """
-    errors: list[str] = []
     holders: dict[str, set[int]] = {}
     for index, item in enumerate(capabilities, start=1):
-        cited = set(item.get("fact_ids", []))
-        stray = sorted(set(item.get("shared_fact_ids") or []) - cited)
-        if stray:
-            errors.append(
-                f"capability {index} declares shared facts it does not cite: {', '.join(stray)}; "
-                "shared_fact_ids is a subset of that capability's fact_ids"
-            )
-        for fact_id in cited:
+        for fact_id in set(item.get("fact_ids", [])):
             holders.setdefault(fact_id, set()).add(index)
     shared = {fact_id for fact_id, holding in holders.items() if len(holding) > 1}
     for item in capabilities:
@@ -721,7 +719,6 @@ def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
         # capabilities share nothing keeps the shape the model wrote.
         if declared or item.get("shared_fact_ids"):
             item["shared_fact_ids"] = declared
-    return errors
 
 
 # RC-01, RESEARCH_AND_GUIDELINES.md 27.2 RC1/SW1, 2026-09-08: a free-form plan field that must
@@ -933,7 +930,7 @@ def plan_checks(
     titles = [item.get("title", "").strip().lower() for item in capabilities]
     if len(set(titles)) != len(titles):
         errors.append("core_capabilities titles must be distinct")
-    errors.extend(_capability_facts_apart(capabilities))
+    _capability_facts_apart(capabilities)
     # README_CONTRACT.md check 4: a capability title is supported by the facts its own capability
     # cites. This used to judge a title's format terms against every format fact in the whole
     # document, while authoring.py's unit_checks (~1099-1118) judges the very same title against

@@ -21,6 +21,7 @@ from repository_presenter.core.llm.jobs import (
     CallStore,
     JobContext,
     _Attempts,
+    _parse,
     render_messages,
     request_payload,
     run_job,
@@ -250,6 +251,77 @@ def test_an_out_of_enum_reply_is_still_rejected_even_though_the_prompt_never_spe
     assert big_enum[-1] not in first_system  # the prompt itself never spelled the enum out...
     rejection = gateway.requests[1]["messages"][-1]["content"]
     assert "'not-a-real-choice' is not one of" in rejection  # ...yet the illegal choice was caught
+
+
+def test_a_long_enum_rejection_names_the_refused_value_and_shows_a_bounded_list(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measured 2026-10-11 (six cut-2 failures): one refused ID quoted the whole decoder enum -
+    hundreds of ``public_symbol:`` IDs - into the re-ask, the rejected record and the JobError, so
+    the failure read as a wall of IDs with the cause cut off. The refused value stays, the list is
+    bounded; a short enum is still quoted whole."""
+    big_enum = [f"citable:{i:04d}" for i in range(400)]
+    schema = {
+        "type": "object",
+        "required": ["choice", "small"],
+        "additionalProperties": False,
+        "properties": {
+            "choice": {"type": "string", "enum": big_enum},
+            "small": {"type": "string", "enum": ["a", "b"]},
+        },
+    }
+    gateway = _Gateway(
+        monkeypatch,
+        _completion({"choice": "nope", "small": "c"}),
+        _completion({"choice": big_enum[3], "small": "a"}),
+    )
+    run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=CONTEXT,
+        call_schema=schema,
+    )
+    rejection = gateway.requests[1]["messages"][-1]["content"]
+    assert "'nope' is not one of ['citable:0000'" in rejection
+    assert "citable:0399" not in rejection and "388 more allowed values" in rejection
+    assert "'c' is not one of ['a', 'b']" in rejection
+    assert len(rejection) < 2000
+
+
+def test_a_review_with_one_invented_fact_pointer_is_parsed_not_refused() -> None:
+    """Aspose.Page-FOSS-for-Python independent_review, trimmed from the rejected record
+    (2026-10-11, ``unknown fact ID scope:pdf_import_absent``, refused on both attempts)."""
+    review = load_manifests(REPO_ROOT / "prompts")["independent_review"]
+    reply = {
+        "verdict": "REJECT_PRESENTATION",
+        "findings": [
+            {
+                "id": "F01",
+                "section_id": "opening",
+                "causal_stage": "S6",
+                "criterion": "presentation",
+                "text": "The opening overstates the input formats.",
+                "quote": "reads PostScript and Portable Document Format files as input.",
+                "fact_ids": ["example:001", "scope:pdf_import_absent"],
+                "absent": [],
+                "omission": None,
+                "repair": "Remove PDF from the list of input formats.",
+            }
+        ],
+        "preserve": [],
+    }
+    output, rejection = _parse(review, json.dumps(reply), FACTS)
+    assert rejection == [], rejection
+    assert output is not None and output["findings"][0]["fact_ids"] == ["example:001"]
+    # Negative control: the same invented pointer in a job that binds its citations is refused.
+    investigation = _investigation("package:name", "example:001", "identity:repository")
+    investigation["capabilities"][0]["fact_ids"] = ["scope:pdf_import_absent"]
+    refused, why = _parse(MANIFEST, json.dumps(investigation), FACTS)
+    assert refused is None and why == ["unknown fact ID scope:pdf_import_absent"]
 
 
 def test_an_accepted_output_is_stored_and_reused_without_a_second_call(

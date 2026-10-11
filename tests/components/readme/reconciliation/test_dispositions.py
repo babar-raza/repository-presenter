@@ -1589,8 +1589,11 @@ def _run_s4_psd(
     monkeypatch: pytest.MonkeyPatch,
     *replies: httpx.Response,
     facts: FactsDocument | None = None,
+    undecodable: tuple[str, ...] = (),
 ) -> JobResult:
-    """The production S4 call, with the recover= rounds.py passes."""
+    """The production S4 call, with the recover= rounds.py passes. ``undecodable`` names IDs the
+    batch's decoder enum does not offer (a record the packet's cap left out), as the live
+    reconciliation_packet does for a long README."""
     seen: list[dict[str, object]] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -1610,13 +1613,30 @@ def _run_s4_psd(
         store=CallStore(tmp_path / "calls"),
         context=JobContext(ENTRY.repository, facts.source_revision),
         checks=functools.partial(reconcile_checks, facts=facts),
-        call_schema=reconciliation_schema(loaded, units, facts, {}),
+        call_schema=_without_ids(reconciliation_schema(loaded, units, facts, {}), undecodable),
         recover=functools.partial(
             recover_uncited_prose_omits,
             facts=facts,
-            citable=frozenset(citable_fact_ids(facts, loaded.manifest, units, {})),
+            citable=frozenset(citable_fact_ids(facts, loaded.manifest, units, {}))
+            - set(undecodable),
         ),
     )
+
+
+def _without_ids(schema: Any, ids: tuple[str, ...]) -> Any:
+    """``schema`` with ``ids`` removed from every enum, whatever its depth."""
+    if isinstance(schema, dict):
+        return {
+            key: (
+                [item for item in value if item not in ids]
+                if key == "enum" and isinstance(value, list)
+                else _without_ids(value, ids)
+            )
+            for key, value in schema.items()
+        }
+    if isinstance(schema, list):
+        return [_without_ids(item, ids) for item in schema]
+    return schema
 
 
 def test_two_uncited_omits_are_recovered_once_and_the_deferral_is_advisory(
@@ -1846,3 +1866,73 @@ def test_the_lead_in_fold_is_idempotent() -> None:
     once = json.dumps(dispositions, sort_keys=True)
     coordinate_neighbor_promises(dispositions, facts)
     assert json.dumps(dispositions, sort_keys=True) == once
+
+
+def test_a_recovered_correction_may_cite_a_fact_the_decoder_enum_never_offered(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measured 2026-10-11, six repositories (3D-Python, Cells-Cpp, Cells-Go twice, PDF-Go):
+    recover= folded a coverage gap into a deferral citing the unit's own verified example, which
+    the packet's cap had left out of the decoder enum, so the corrected copy failed the *decoder*
+    schema ("'example:004' is not one of [... hundreds of IDs]") and the repository failed on a
+    constraint that exists only to steer a model. recover is deterministic code, not a decoder:
+    its copy is judged by the manifest's schema, the binding and the checks."""
+    bad = _psd_reply(_UNCITED_OMIT)
+    bad["dispositions"][2] = _entry("inherited_unit:003.code_block", "OMIT_UNSUPPORTED", None)
+    reply = _reply(bad)
+    result = _run_s4_psd(tmp_path, monkeypatch, reply, reply, undecodable=("example:001",))
+    folded = next(
+        e for e in result.output["dispositions"] if e["unit_id"].endswith("003.code_block")
+    )
+    assert folded["disposition"] in {"SUPERSEDE_REDUNDANT", "DEFER_UNRESOLVED"}
+    assert folded["fact_ids"] == ["example:001"]
+
+
+def test_a_re_ask_that_answers_only_the_rejected_unit_keeps_the_first_replys_other_units(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measured 2026-10-11 on PDF-TypeScript (two batches): the re-ask quotes only the units that
+    were wrong, the model re-answered those (4 of 40) and nothing else, and the reply was refused
+    as "no disposition for inherited units: <36 IDs>" - the first reply had answered all 36
+    validly. A unit the re-ask is silent on keeps its first disposition; the stated one is the
+    re-ask's own and every unit is judged again."""
+    first = _psd_reply(_UNCITED_OMIT)
+    fixed = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:018.paragraph", "VERIFIED_REWRITE", "opening", "identity:repository"
+            )
+        ]
+    }
+    result = _run_s4_psd(tmp_path, monkeypatch, _reply(first), _reply(fixed))
+    assert result.attempts == 2
+    by_unit = {entry["unit_id"]: entry for entry in result.output["dispositions"]}
+    assert set(by_unit) == {fact.id for fact in _psd_facts().by_kind("inherited_unit")}
+    assert by_unit["inherited_unit:018.paragraph"]["disposition"] == "VERIFIED_REWRITE"
+    assert by_unit["inherited_unit:003.code_block"] == next(
+        e
+        for e in first["dispositions"]
+        if e["unit_id"] == "inherited_unit:003.code_block"  # type: ignore[attr-defined]
+    )
+
+
+def test_a_re_ask_silent_on_a_unit_the_first_reply_also_left_out_is_still_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Negative control: completion copies only what the first reply stated."""
+    first = _psd_reply(_UNCITED_OMIT)
+    first["dispositions"] = [  # type: ignore[index]
+        e
+        for e in first["dispositions"]
+        if not e["unit_id"].startswith("inherited_unit:005")  # type: ignore[attr-defined]
+    ]
+    fixed = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:018.paragraph", "VERIFIED_REWRITE", "opening", "identity:repository"
+            )
+        ]
+    }
+    with pytest.raises(JobError) as caught:
+        _run_s4_psd(tmp_path, monkeypatch, _reply(first), _reply(fixed))
+    assert "no disposition for inherited units: inherited_unit:005.paragraph" in str(caught.value)
