@@ -1265,3 +1265,92 @@ def test_a_must_carry_unit_s6_validly_omitted_is_not_refused_again_by_coherence(
     ):
         errors = coherence_checks(output, [task], facts, "Aspose.Slides", prior_omitted=[bad])
         assert len(errors) == 1 and errors[0].startswith(f"{unit_id}: superseded")
+
+
+# Slides-Java (baseline reseal of 7c5acbf7, 2026-10-10, call e8a829c1dc81): the S6 units had
+# already been repaired off their titles, then the S8 revision wrote both back as title
+# restatements on both attempts and the transaction failed closed.
+SLIDES_TITLES = {"capability:1": "Embed images", "capability:2": "Apply visual effects"}
+SLIDES_S6 = {
+    "capability:1": "Into presentations using the Relationship class to manage picture frames.",
+    "capability:2": "Like outer shadow to shapes by enabling effect formats and configuring blur.",
+}
+SLIDES_S8 = {
+    "capability:1": (
+        "Embed images into presentations using the Relationship class to manage picture frames."
+    ),
+    "capability:2": (
+        "Apply visual effects like outer shadow to shapes by enabling effect formats and "
+        "configuring blur."
+    ),
+}
+SLIDES_TASKS = [
+    SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"identity:repository"}),
+        tuple(SLIDES_TITLES),
+        slot_facts={slot: frozenset({"identity:repository"}) for slot in SLIDES_TITLES},
+        slot_titles=SLIDES_TITLES,
+    )
+]
+
+
+def _slides_units(texts: dict[str, str]) -> list[dict[str, Any]]:
+    return [
+        {
+            "section": "key_capabilities",
+            "slot": slot,
+            "text": text,
+            "fact_ids": ["identity:repository"],
+        }
+        for slot, text in texts.items()
+    ]
+
+
+def test_a_revision_that_restates_a_title_the_accepted_unit_did_not_is_reverted() -> None:
+    existing = _slides_units(SLIDES_S6)
+    revised = {"units": _slides_units(SLIDES_S8), "omitted": []}
+    errors = coherence_checks(revised, SLIDES_TASKS, FACTS, NAME, existing_units=existing)
+    assert len(errors) == 2 and all("restates its own title" in error for error in errors)
+    corrected = recover_coherence_regressions(
+        copy.deepcopy(revised), existing_units=existing, facts=FACTS, tasks=SLIDES_TASKS
+    )
+    assert corrected is not None
+    assert [u["text"] for u in corrected["units"]] == list(SLIDES_S6.values())
+    assert coherence_checks(corrected, SLIDES_TASKS, FACTS, NAME, existing_units=existing) == []
+
+
+def test_only_the_unit_whose_revision_restates_its_title_is_reverted() -> None:
+    """A revision of the other unit that is a genuine improvement survives; a unit whose accepted
+    text already restated the title is left to the model's re-ask rather than 'reverted' into the
+    same defect; and a unit that merely adds a concrete term the title lacks is no restatement."""
+    existing = _slides_units(SLIDES_S6)
+    improved = "Like outer shadow, soften shapes by enabling effect formats and configuring blur."
+    revised = {
+        "units": _slides_units(
+            {"capability:1": SLIDES_S8["capability:1"], "capability:2": improved}
+        ),
+        "omitted": [],
+    }
+    corrected = recover_coherence_regressions(
+        copy.deepcopy(revised), existing_units=existing, facts=FACTS, tasks=SLIDES_TASKS
+    )
+    assert corrected is not None
+    assert [u["text"] for u in corrected["units"]] == [SLIDES_S6["capability:1"], improved]
+    already = _slides_units(
+        SLIDES_S8
+    )  # the accepted unit restated its title too: nothing to revert to
+    assert (
+        recover_coherence_regressions(
+            copy.deepcopy(revised), existing_units=already, facts=FACTS, tasks=SLIDES_TASKS
+        )
+        is None
+    )
+    clean = {"units": existing, "omitted": []}
+    assert (
+        recover_coherence_regressions(
+            copy.deepcopy(clean), existing_units=existing, facts=FACTS, tasks=SLIDES_TASKS
+        )
+        is None
+    )

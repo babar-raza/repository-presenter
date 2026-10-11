@@ -27,7 +27,6 @@ from repository_presenter.components.readme.composition.authoring import (
     carried_unit_errors,
     merge_units,
     reconstructed_task_output,
-    recover_section_authoring_output,
     recover_title_verbatim_opening,
     repair_title_verbatim_opening_errors,
     unit_checks,
@@ -67,6 +66,9 @@ from repository_presenter.components.readme.composition.renderer import (
     render_readme,
     renderer_sentences,
     write_text,
+)
+from repository_presenter.components.readme.composition.type_fallback import (
+    recover_section_authoring_with_type_fallback,
 )
 from repository_presenter.components.readme.investigation.dossier import (
     INVESTIGATION_FILENAME,
@@ -444,9 +446,15 @@ def run_round(tx: TransactionInputs) -> Round:
             # needed, gets one deterministic last-resort correction (composed - either, both,
             # or neither may apply), re-validated through the real unit_checks before ever
             # being accepted.
+            # Plus the API Reference type-description fallback (composition/type_fallback.py):
+            # a type: unit refused only for an unevidenced identifier takes its verified summary
+            # instead of failing the whole batch (3D-Java, baseline reseal 7c5acbf7).
             recover=functools.partial(
-                recover_section_authoring_output,
+                recover_section_authoring_with_type_fallback,
                 slot_titles=task.slot_titles,
+                task=task,
+                facts=facts,
+                name=name,
             ),
             **common,
         )

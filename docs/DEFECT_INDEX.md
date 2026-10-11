@@ -16,6 +16,123 @@ against at least one of its own listed sightings, not merely proposed.
 
 ## Open
 
+### Baseline reseal of `7c5acbf7`: nine repositories failed `section_authoring` (TC-EXT-01 / G3-W08, cut 2)
+
+The 36-repository baseline reseal (2026-10-10, `runs/reseal/7c5acbf7/results.jsonl`, archived
+transactions under `E:/rp-archive/<family>-<platform>/runs/transactions/**/calls/*.rejected-*.json`)
+left nine repositories at `output rejected twice`. Each was classified from the rejected file, the
+check that fired and what the correct output would have been: (a) an over-strict guard on a
+legitimate string, (b) a model error the guard rightly caught, (c) a conflict between two checks.
+Lane L-guards landed the mechanisms below under one `NORMALISATION_VERSION` bump (32 to 33); no other
+governed constant moved.
+
+| Repository | Call, stage | Rejected string | Check | Class | Disposition |
+|---|---|---|---|---|---|
+| `3d` Java | `d4499ff1de77`, S6 api_reference | `ArrayListAdapter provides a wrapper around Java's ArrayList` | stray identifier `ArrayList` | (b) | unevidenced claim inferred from a name; stays refused. The re-ask repeated it byte for byte. Owner decision below |
+| `email` .NET | `0bc4856a6613`, S6 enterprise_relationship | `TNEF (winmail.dat) support`, from the must-carry `inherited_unit:058` | stray identifier | (c) carry rule against identifier guard | fixed, mechanism 1 |
+| `note` Python | `097393d943fa`, S6 scope_limitations | `declares python_requires as >=3.10` (fact id `package:python_requires` read aloud); attempt 1 also `tests/out/pdf_golden_failures/` (must-carry 093) | stray identifier | (b); (c) for the directory | directory fixed, mechanism 1; `python_requires` stays refused, single sighting |
+| `html` Python | `c2a4e73e7887`, S6 development_testing | ten `test_*` directories and `pytest.importorskip`, from the must-carry 096 and 097 | stray identifier | (c) | fixed, mechanism 1 |
+| `pdf` Go | `09a519cad704`, S6 development_testing | `examples in _examples/<name>/main.go` | `text contains HTML ('<')` | (b) | fixed, mechanism 2 |
+| `slides` .NET | `0206e4205674`, S6 scope_limitations | attempt 1 omitted `068` with a reason; the re-ask named `074/076/078` and attempt 2 listed only those | `carried_unit_errors` | (b) | sampling variance, one sighting; sticky-omission idea below |
+| `slides` Java | `e8a829c1dc81`, S8 coherence | `Embed images into presentations ...` (S6 had repaired it off its title) | title restatement | (b) | fixed, mechanism 3 |
+| `words` .NET | `cc6158eda3eb`, S4 reconciliation | `Then add a project reference to Aspose.Words/Aspose.Words.csproj ...` omitted uncited | recovery declined: text "spells" `public_symbol:aspose.words` | (a) | fixed, mechanism 4 |
+| `pdf` TypeScript | `ed358f8428e6`, S4 reconciliation | 19 uncited prose omissions; `inherited_unit:356` spells `Attachment.SetField` | recovery declined | (c) | owner decision below |
+
+### `composition.authoring.must_carry_names_refused_outside_scope_limitations`
+
+A paragraph reconciliation superseded into `development_testing` or `enterprise_relationship` is a
+must-carry unit (`carried_unit_errors` obliges the section to state its substance), but the pass that
+lets a unit spell what a cited inherited paragraph spells (`cited_inherited_identifiers`, item 69)
+applied to `scope_limitations` alone. The model was obliged to carry a paragraph and refused for the
+names that paragraph spells, on both attempts. Fixed in `unit_checks`: the names a **must-carry**
+paragraph the unit cites spells are admitted in any carry section. A paragraph a unit merely cites, a
+name the paragraph does not spell, and `key_capabilities` or `api_reference` stay refused
+(`test_the_same_sentence_is_still_refused_when_the_extractor_recorded_no_file` is unchanged).
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-email-foss/Aspose.Email-FOSS-for-.Net` | 2026-10-10 | `0bc4856a6613.rejected-1/2`: `winmail.dat` |
+| 2 | `aspose-html-foss/Aspose.HTML-FOSS-for-Python` | 2026-10-10 | `c2a4e73e7887.rejected-2`: ten `test_*` directories, `pytest.importorskip` |
+| 3 | `aspose-note-foss/Aspose.Note-FOSS-for-Python` | 2026-10-10 | `097393d943fa.rejected-1`: `pdf_golden_failures` |
+
+Not done, deliberately: `renderer.RenderContext.unit` and BC-04's union still scope the code-span wrap
+and the span check to `scope_limitations`, so in the other two sections an admitted name is written
+bare. BC-04 judges spans only, so nothing fails; wrapping them moves `RENDERER_VERSION` and
+`VALIDATOR_VERSION` and is left for the owner's second-cut decision. Directory names such as
+`test_html/` are README claims no extractor verifies against the tree (`repository_files` checks
+file-like tokens only); verifying them there is the earlier-stage alternative and is an
+extractor-version change. This reverses the G7-W23 note (under `readme.dotted_file_name_in_prose_not_a_recorded_fact`)
+that `winmail.dat` stays refused, for a paragraph the pipeline itself obliged the section to carry;
+confirmed by the supervisor on the owner's delegation, 2026-10-11, and recorded in `docs/DECISION_LOG.md`
+(2026-10-11, TC-EXT-01 cut 2). Provenance in a carried unit is the ground: the name is the maintainers' own
+text. A name only in README text with no cited carried paragraph, and any invented name, stay refused.
+
+### `section_authoring.angle_bracket_mention_not_recovered`
+
+A unit that names an element or a path placeholder in angle brackets is refused `text contains HTML
+('<')`; the re-ask names the marker and the model reproduces it. `recover_forbidden_command_units`
+covered the other `_FORBIDDEN` literals only. Fixed: `recover_angle_bracket_mentions` (composed into
+`recover_section_authoring_output`) rewrites `<name>` outside code spans to the bare name, or `{name}`
+inside a path; closing tags and tags with attributes are markup and stay refused, as does a
+placeholder inside a code span. Re-validated by `unit_checks` before it is accepted, so `<a:rPr>`
+becoming `a:rPr` is still refused as a stray identifier.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` | 2026-10-10 | `09a519cad704.rejected-2`: `_examples/<name>/main.go` (final failure) |
+| 2 | `aspose-html-foss/Aspose.HTML-FOSS-for-Python` | 2026-10-10 | `22122970627c`, `ec604a5cb7e7`: `<address>`, `<div>` and thirty more in HTMLxxxElement units |
+| 3 | `aspose-tex-foss/Aspose.TeX-FOSS-for-Python` | 2026-10-10 | `0f01b6d2ef4e`: `<path>` |
+| 4 | `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` | 2026-10-10 | `0206e4205674.rejected-1`: `<a:rPr>` |
+
+### `composition.coherence.title_restatement_reintroduced_no_recover`
+
+S6 repairs a title-restating unit (`recover_section_authoring_output`); S8 coherence regenerates the
+unit and writes the title back, and S8's `recover=` knew only the content-loss and must-carry reverts,
+so the transaction failed closed after two attempts. Fixed: `recover_coherence_title_restatements`
+reverts exactly the unit whose revision newly restates its title (judged by the one shared
+`restates_own_title`) to the unit S6 accepted. A unit whose accepted text restated the title too is
+left to the re-ask. Quality caveat for the owner: the S6 recovery strips the opening clause and does
+not repair grammar (`Into presentations using ...`), so the reverted text can read as a fragment.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` | 2026-10-10 | `e8a829c1dc81.rejected-1/2`, S8 (the S6 call `df1d40795f8f` recovered) |
+| 2 | `aspose-words-foss/Aspose.Words-FOSS-for-Python` | 2026-09-17 | S8 reverted six repaired units (`unit_checks` comment, item 99) |
+
+### `reconciliation.repository_path_segment_read_as_symbol`
+
+`inherited_unit_named_symbols` matched every dotted token, including the directory segments of a
+repository path, so a paragraph that names `Aspose.Words/Aspose.Words.csproj` "spelled" the module
+symbol `Aspose.Words`. `recover_uncited_prose_omits` then declined (it will not defer a unit whose own
+text spells a verified symbol) and S4 failed closed. Fixed: paths the extractor verified against the
+tree (`repository_files`, G7-W23) are blanked before matching; exact recorded paths only, never a shape
+guess, so `Document.Save/Document.Load` still names `Document.Save`.
+
+| # | Repository | Date | Evidence |
+|---|---|---|---|
+| 1 | `aspose-words-foss/Aspose.Words-FOSS-for-.NET` | 2026-10-10 | `cc6158eda3eb.rejected-2`: `inherited_unit:020.paragraph` |
+| 2 | `aspose-3d-foss/Aspose.3D-FOSS-for-.NET` | 2026-10-10 | `2a721f303b9e.rejected-1`: `src/main/Aspose.ThreeD/Aspose.ThreeD.csproj` beside candidate `public_symbol:aspose` |
+
+### Classes found and not fixed (owner decision, or sampling variance)
+
+* **Uncited prose omission that spells a real symbol** (PDF-TypeScript `inherited_unit:356`,
+  `Attachment.SetField`): `recover_uncited_prose_omits` declines, as designed, because
+  `validation/deferrals.py` `NO_EVIDENCE_EITHER_WAY` refuses a deferral whose unit names a verified
+  symbol (it would be UNCLASSIFIED and BLOCK at BC-05). Deferring anyway only moves the failure.
+  Owner decision: whether a paragraph that merely names a verified symbol may be deferred ADVISORY.
+  Belongs to the S4 lane (`wt/ls4-s401`, `reconciliation/dispositions.py`); not touched here.
+* **A stdlib or platform type inferred from a symbol name** (3D-Java `ArrayList`): an unevidenced
+  claim, refused by design (`readme.dotted_file_name_in_prose_not_a_recorded_fact`); the guard stays.
+  One bad description used to take the whole `api_reference` type batch down. Fixed on the supervisor's
+  instruction (2026-10-11): on the final attempt a `type:` unit refused only for stray identifiers takes
+  the verified summary README_CONTRACT row 14 prescribes (`Public class.`, or `Defined as <signature>.`),
+  `composition/type_fallback.py`, no governed constant moved. Any other defect still fails the batch.
+* **A fact id read aloud** (Note-Python `python_requires`): one sighting, sampling variance.
+* **An omission list rewritten across the re-ask** (Slides-.NET `068`): attempt 2 kept only the
+  omissions the rejection named. One more sighting of `composition.authoring.superseded_unit_not_carried`;
+  a sticky-omission wrapper (carry forward omissions the model itself gave on attempt 1) is the
+  candidate mechanism if it recurs.
+
 ### `issues.redetect_bc02_pypi_only`
 
 `components/issues/redetect.py`'s sole registered `BC-02` redetector

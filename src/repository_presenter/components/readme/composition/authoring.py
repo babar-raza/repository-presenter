@@ -340,7 +340,19 @@ _TYPE_OBJECTIVE = (
 # cited inherited unit's own sibling shorthand "`EciHelper.normalize`/`.validate`" also spells
 # EciHelper.validate (aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python limitation:3, 2026-10-10,
 # refused as "EciHelper.validate" although the cited paragraph abbreviates exactly that name).
-NORMALISATION_VERSION = "32"
+# "33": the baseline reseal of 7c5acbf7 (2026-10-10) failed nine repositories on
+# `section_authoring: output rejected twice`; four mechanisms (TC-EXT-01 / G3-W08 cut 2, lane
+# L-guards, docs/DEFECT_INDEX.md): (1) unit_checks admits what a MUST-CARRY inherited paragraph the
+# unit cites spells, in every carry section, not scope_limitations alone (Email-.NET `winmail.dat`,
+# HTML-Python `pytest.importorskip` and ten `test_*` directories, Note-Python
+# `pdf_golden_failures`);
+# (2) recover_section_authoring_output also rewrites an element or placeholder mentioned in angle
+# brackets to its bare name (PDF-Go `_examples/<name>/main.go`; HTML-Python, TeX-Python and
+# Slides-.NET before it); (3) restates_own_title is shared by unit_checks and the S8 revert of a
+# coherence revision that newly restates its title (Slides-Java); (4) inherited_unit_named_symbols
+# no longer reads a verified repository path's directory segments as names the unit spells, so the
+# omission recovery stops declining on `Aspose.Words/Aspose.Words.csproj` (Words-.NET).
+NORMALISATION_VERSION = "33"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -1510,6 +1522,23 @@ def cited_inherited_identifiers(facts: FactsDocument, fact_ids: Iterable[str]) -
     )
 
 
+def _without_repository_paths(text: str, facts: FactsDocument) -> str:
+    """``text`` with every repository path the extractor verified against the pinned tree
+    (``REPOSITORY_FILES_ATTRIBUTE``, G7-W23) blanked out, so a segment that is only a directory
+    name is not read as a name the text spells. Exact recorded paths only - never a shape guess:
+    ``Document.Save/Document.Load`` joins two member names with a slash and is no path."""
+    paths = {
+        name
+        for fact in facts.by_kind("inherited_unit")
+        if fact.polarity == "SUPPORTED"
+        for name in (fact.attributes or {}).get(REPOSITORY_FILES_ATTRIBUTE, "").split(",")
+        if "/" in name
+    }
+    for path in sorted(paths, key=len, reverse=True):
+        text = re.sub(rf"(?<![\w/.-]){re.escape(path)}(?![\w/-])", " ", text)
+    return text
+
+
 def inherited_unit_named_symbols(facts: FactsDocument, value: str) -> frozenset[str]:
     """SUPPORTED ``public_symbol``/``import_path`` fact IDs spelled verbatim inside an inherited
     unit's own text - the deterministic counterpart of ``cited_inherited_identifiers``: that
@@ -1533,6 +1562,10 @@ def inherited_unit_named_symbols(facts: FactsDocument, value: str) -> frozenset[
     tokens = _inherited_unit_tokens(value)
     if not tokens:
         return frozenset()
+    # A repository path spells its directory names, not the symbols that share them: the dotted
+    # segments that occur only inside a path (`Aspose.Words/Aspose.Words.csproj`) name a directory.
+    named_outside_paths = _inherited_unit_tokens(_without_repository_paths(value, facts))
+    tokens = {token for token in tokens if "/" in token or token in named_outside_paths}
     return frozenset(
         fact.id
         for fact in facts.facts
@@ -1792,6 +1825,15 @@ def unit_example_action_mismatches(unit: Mapping[str, Any], facts: FactsDocument
     return errors
 
 
+def restates_own_title(text: str, title: str, facts: FactsDocument) -> bool:
+    """Whether ``text`` says nothing its slot ``title`` does not: the title appears in it and no
+    identifier or format term beyond the title's own does (the item 99/106 rule ``unit_checks``
+    applies, shared with S8's ``recover_coherence_title_restatements`` so both judge one way)."""
+    return title.lower() in text.lower() and not (
+        title_terms(text, facts) - title_terms(title, facts)
+    )
+
+
 def unit_checks(
     output: dict[str, Any],
     task: SectionTask,
@@ -1864,11 +1906,7 @@ def unit_checks(
     for unit in output.get("units", []):
         title = task.slot_titles.get(str(unit.get("slot")))
         text = str(unit.get("text", ""))
-        if (
-            title
-            and title.lower() in text.lower()
-            and not (title_terms(text, facts) - title_terms(title, facts))
-        ):
+        if title and restates_own_title(text, title, facts):
             errors.append(
                 f"unit {unit.get('slot')}: restates its own title {title!r}; the title is "
                 "printed immediately before the unit, so its text adds what the title does "
@@ -1994,10 +2032,21 @@ def unit_checks(
         # broad inherited fact for unrelated evidence must not gain the same free pass - exactly
         # the capability-mis-advertising risk item 44's own docstring names, measured live on
         # Aspose.PDF for .NET's key_capabilities capability:3 before this gate was added.
-        cited_inherited = (
-            cited_inherited_identifiers(facts, unit_fact_ids)
+        # A must-carry paragraph (carried_units) is the one other case: reconciliation superseded it
+        # into this section and carried_unit_errors obliges the unit to state its substance, so
+        # the names that paragraph itself spells cannot also be refused - the obligation would be
+        # unsatisfiable (baseline reseal 7c5acbf7, 2026-10-10: `winmail.dat` in Email-.NET's
+        # Enterprise sentence, `pytest.importorskip` and ten `test_*` directories in HTML-Python's
+        # test summary, `pdf_golden_failures` in Note-Python's, each refused twice while the cited
+        # paragraph, which the unit was required to carry, spelled them). Scoped to the paragraphs
+        # the task obliges this section to carry: any other inherited paragraph a unit cites there
+        # stays a mention, not a licence (a file the README names that the tree lacks is refused,
+        # test_the_same_sentence_is_still_refused_when_the_extractor_recorded_no_file).
+        cited_inherited = cited_inherited_identifiers(
+            facts,
+            unit_fact_ids
             if task.section_id == "scope_limitations"
-            else frozenset()
+            else [fact_id for fact_id in unit_fact_ids if fact_id in task.must_carry],
         )
         strays = sorted(
             token
@@ -2178,6 +2227,68 @@ def recover_forbidden_command_units(output: dict[str, Any]) -> dict[str, Any] | 
     return output if changed else None
 
 
+# An element or placeholder MENTIONED in angle brackets: "<address>", "<name>", "<br/>", "<a:rPr>".
+# A closing tag, or a tag with attributes, is markup the unit meant to write, never a mention.
+_ANGLE_MENTION = re.compile(r"<([A-Za-z_][\w.:-]*)/?>")
+_ANGLE_MARKUP = re.compile(r"</|<[A-Za-z_][\w.:-]*\s")
+_CODE_SPAN_PIECES = re.compile(r"(`[^`\n]*`)")
+
+
+def _strip_angle_mentions(text: str) -> str | None:
+    """``text`` with each ``<name>`` it mentions outside a code span read as the bare name
+    (``{name}`` when it stands inside a path, so ``_examples/<name>/main.go`` keeps its shape), or
+    ``None`` when there is nothing to rewrite or the text carries real markup (a closing tag, a
+    tag with attributes) that no rewrite can honestly make prose. A placeholder inside a code span
+    is a protected command's own syntax (``_bare_angle_bracket``) and is left exactly as written."""
+    outside = _CODE_SPAN.sub("", text)
+    if "<" not in outside or _ANGLE_MARKUP.search(outside):
+        return None
+
+    def rewrite(piece: str) -> str:
+        def read(match: re.Match[str]) -> str:
+            before = piece[match.start() - 1 : match.start()]
+            after = piece[match.end() : match.end() + 1]
+            name = match.group(1)
+            return "{" + name + "}" if "/" in (before, after) else name
+
+        return _ANGLE_MENTION.sub(read, piece)
+
+    pieces = _CODE_SPAN_PIECES.split(text)
+    rebuilt = "".join(piece if index % 2 else rewrite(piece) for index, piece in enumerate(pieces))
+    return rebuilt if rebuilt != text else None
+
+
+def recover_angle_bracket_mentions(output: dict[str, Any]) -> dict[str, Any] | None:
+    """Last-resort correction for ``run_job``'s final rejected attempt only (``recover=``): a unit
+    that names an element or a path placeholder in angle brackets - ``text contains HTML ('<')``
+    - is rewritten to the bare name, mirroring ``recover_forbidden_command_units``.
+
+    Baseline reseal of 7c5acbf7 (2026-10-10), the same shape in four repositories: PDF-Go's
+    development summary kept ``_examples/<name>/main.go`` through the re-ask and the job failed
+    closed; HTML-Python wrote ``<address>``, ``<div>`` and thirty more element names into its
+    HTMLxxxElement descriptions, TeX-Python ``<path>``, Slides-.NET ``<a:rPr>``, and each paid its
+    one re-ask for it. The re-ask names the marker but the model reproduces it, so the earliest
+    deterministic stage is a rewrite of exactly the mention - nothing is invented, and the check
+    itself stays as strict as before for real markup. Re-validated by ``run_job`` through the real
+    ``unit_checks`` before it is accepted: ``<a:rPr>`` becomes ``a:rPr``, which is still no fact
+    value, so that unit stays refused.
+
+    Returns ``None`` when nothing was rewritten, never a no-op copy of ``output``.
+    """
+    units = output.get("units")
+    if not isinstance(units, list):
+        return None
+    changed = False
+    for unit in units:
+        if not isinstance(unit, dict) or not isinstance(unit.get("text"), str):
+            continue
+        rewritten = _strip_angle_mentions(unit["text"])
+        if rewritten is not None:
+            unit["text"] = rewritten
+            changed = True
+    return output if changed else None
+
+
 def _title_verbatim_opening_length(text: str, title: str) -> int | None:
     """How many leading characters of ``text`` are ``title`` restated verbatim as its own opening
     clause - the title itself, any leading whitespace before it, and any immediate sentence-
@@ -2330,9 +2441,11 @@ def recover_section_authoring_output(
     ``key_capabilities`` is one call for every capability slot, taking every one of that call's
     units down with the failure, not only the one the model touched.
 
-    Composes both known last-resort corrections for this call site, in order: first
+    Composes the known last-resort corrections for this call site, in order: first
     ``recover_forbidden_command_units``'s own literal command-marker strip (unchanged, still
-    independently tested), then ``_strip_title_verbatim_opening_units`` (shared with
+    independently tested), then ``recover_angle_bracket_mentions`` (an element or placeholder named
+    in angle brackets read as its bare name, NORMALISATION "33"), then
+    ``_strip_title_verbatim_opening_units`` (shared with
     ``recover_title_verbatim_opening``'s own repair-path correction) against whatever
     ``output["units"]`` holds afterward - a fresh ``section_authoring`` reply's own shape, never
     wrapped in ``revised_output`` the way a ``targeted_repair`` reply is. Either, both, or neither
@@ -2343,6 +2456,8 @@ def recover_section_authoring_output(
     Returns ``None`` when nothing was corrected (nothing to try), never a no-op copy of ``output``.
     """
     changed = recover_forbidden_command_units(output) is not None
+    if recover_angle_bracket_mentions(output) is not None:
+        changed = True
     units = output.get("units")
     if isinstance(units, list) and _strip_title_verbatim_opening_units(units, slot_titles):
         changed = True

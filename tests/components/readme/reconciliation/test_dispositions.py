@@ -1372,6 +1372,46 @@ def test_recover_declines_when_the_units_own_text_spells_a_verified_symbol() -> 
     assert recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), spelled) is None
 
 
+def test_recover_defers_a_unit_whose_only_symbol_is_the_directory_of_a_path_it_names() -> None:
+    """Words-.NET (7c5acbf7 reseal, inherited_unit:020.paragraph): the sentence names the project
+    file `Aspose.Words/Aspose.Words.csproj`, whose directory segment is also the verified module
+    symbol `Aspose.Words`. Read as spelling that symbol, the omission was declined as unsafe and
+    S4 failed closed on "Then add a project reference ...". The extractor recorded the path as one
+    the pinned tree holds, so its segments are not names the sentence spells."""
+    text = (
+        "Then add a project reference to `Aspose.Words/Aspose.Words.csproj` from your application."
+    )
+    path = Fact(
+        "inherited_unit:018.paragraph",
+        "inherited_unit",
+        text,
+        (Evidence("README.md"),),
+        attributes={"repository_files": "Aspose.Words.csproj,Aspose.Words/Aspose.Words.csproj"},
+    )
+    base = _prose_omit_facts().facts
+    facts = FactsDocument(
+        FACTS.repository, FACTS.source_revision, (*base, _symbol("Aspose.Words", "module"), path)
+    )
+    recovered = recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), facts)
+    assert recovered is not None
+    folded = next(e for e in recovered["dispositions"] if e["unit_id"].endswith("018.paragraph"))
+    assert folded["disposition"] == "DEFER_UNRESOLVED" and folded["fact_ids"] == []
+    # Negative control: the same sentence with the namespace named in prose is not unresolved.
+    spelled = Fact(
+        "inherited_unit:018.paragraph",
+        "inherited_unit",
+        text + " It adds the Aspose.Words namespace.",
+        (Evidence("README.md"),),
+        attributes=path.attributes,
+    )
+    declined = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (*base, _symbol("Aspose.Words", "module"), spelled),
+    )
+    assert recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), declined) is None
+
+
 def test_recover_declines_when_any_uncited_omit_is_unsafe_even_if_another_is_safe() -> None:
     """All or nothing: a partial fix would be accepted only to fail the same checks."""
     facts = _psd_facts(_symbol("Aspose.PSD.FOSS", "namespace"))
