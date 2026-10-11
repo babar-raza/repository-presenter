@@ -5,8 +5,9 @@ files, never from memory of a previous iteration.
 ## 0. Rules that override everything else
 
 - Authority, in order: `AGENTS.md`, `project/state.yaml`, the current gate section only of
-  `docs/EXECUTION_STATE_MACHINE.md`, `docs/STATE_MACHINE.md`, `docs/README_CONTRACT.md` (facts,
-  composition, validation, review), `docs/REPOSITORY_LAYOUT.md` (before creating any path),
+  `docs/EXECUTION_STATE_MACHINE.md`, `docs/STATE_MACHINE.md`, `docs/README_STANDARD.md` (a README's
+  structure, composition, links, tone), `docs/README_CONTRACT.md` (the legacy encoding of assembly,
+  facts, validation, review until the gates migrate), `docs/REPOSITORY_LAYOUT.md` (before creating any path),
   `docs/RESEARCH_AND_GUIDELINES.md` — §27.0 every iteration; §18 before any new mechanism (library
   registry first); §7.4 before a platform module; §7.2.1 before pulling a profile, policy, or
   catalog asset; §24 before composition or rendering changes; §27 before composition, review,

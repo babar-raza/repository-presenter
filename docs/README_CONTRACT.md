@@ -353,7 +353,9 @@ first-attempt acceptance filters on it). The manifest records `sealed_by` (the i
 process that wrote the bundle) and `ledger_totals` (sums over `calls.jsonl`), and verification
 fails closed when they stop reconciling with the ledger. The
 manifest seals the
-bundle (`schemas/candidate-bundle.schema.json`); only `READY_FOR_PROPOSAL` counts toward N/34.
+bundle (`schemas/candidate-bundle.schema.json`); `READY_FOR_PROPOSAL` is the sealed state. Progress
+is the authorizable count, N of the registry size (44 on 2026-10-11), under owner decision D4 and
+`AGENTS.md`.
 The manifest also carries an optional `call_variance`: when a job's successful attempts across
 the transaction's whole history - every repair round and reopening, not only what the accepted
 composition ultimately consumed - never settled on one response, that job and every distinct

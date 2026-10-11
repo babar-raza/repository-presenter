@@ -98,7 +98,7 @@ The owner's quality bar (this session): ALL useful information from the cloned r
 
 ## 3. Requirements (stable IDs)
 
-REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-LIV-01 the live-first candidate starts from the live README and changes it only by verified corrections and verified missing information, each citing accepted facts · REQ-LIV-02 a correction candidate is authorizable only if it passes the independent acceptance review and is not worse than the live README (D4) · REQ-LIV-03 all 36 registry entries have a correction candidate or a typed terminal state, and the only push is the sandbox canary (D6, D7) · REQ-STD-01 the README standard is surveyed from the 36 live READMEs as a common schema plus a product-differences schema, `docs/README_CONTRACT.md` is rewritten from it, and both lanes must beat live (D2) · REQ-IDM-01 regeneration from a conformant source is a fixed point (D1) · REQ-MMD-01 the At a Glance diagram is never clipped and its three mother blocks (Starting Points, Core Capabilities, Outputs) run left to right, split by key capability, every box growing with its text, accepted only by a real render (owner ruling R7, 2026-10-11) · REQ-REF-01…12 refresh app (§11): REF-10 every workflow rehearsed locally in its hosted shape, REF-11 the whole autonomous cycle rehearsed locally on synthetic upstreams, REF-12 production hosting go-live.
+REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-LIV-01 the live-first candidate starts from the live README and changes it only by verified corrections and verified missing information, each citing accepted facts · REQ-LIV-02 a correction candidate is authorizable only if it passes the independent acceptance review and is not worse than the live README (D4) · REQ-LIV-03 all 36 registry entries have a correction candidate or a typed terminal state, and the only push is the sandbox canary (D6, D7) · REQ-STD-01 the README standard is surveyed from the 36 live READMEs as a common schema plus a product-differences schema, `docs/README_CONTRACT.md` is rewritten from it, and both lanes must beat live (D2) · REQ-IDM-01 regeneration from a conformant source is a fixed point (D1) · REQ-MMD-01 the At a Glance diagram is never clipped and its three mother blocks (Starting Points, Core Capabilities, Outputs) run left to right, split by key capability, every box growing with its text, accepted only by a real render (owner ruling R7, 2026-10-11) · REQ-DIS-01 the registry allow-list is reconciled read-only against what its authorized organizations hold, and discovery never admits an entry or moves the denominator (owner finding 2026-10-11) · REQ-ADM-01 an admitted library is served by a registered platform plugin and the cursor denominator tracks the registry (owner decision 2026-10-11, the JMAP family) · REQ-WV4-01 a regression a wave triage finds in a stricter gate is repaired at its earliest causal stage, never by weakening a check, and verified by the next wave · REQ-REF-01…12 refresh app (§11): REF-10 every workflow rehearsed locally in its hosted shape, REF-11 the whole autonomous cycle rehearsed locally on synthetic upstreams, REF-12 production hosting go-live.
 
 ---
 
@@ -1505,7 +1505,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-REF-12]
   item: G7-W06
   lane: supervisor
-  depends: [TC-REF-11, TC-REF-07, TC-REF-08, TC-REF-04, TC-REF-06, TC-REF-02, TC-RSL-02]
+  depends: [TC-REF-11, TC-REF-07, TC-REF-08, TC-REF-04, TC-REF-06, TC-REF-02, TC-RSL-02, TC-DIS-01]
   governed: false
   no_bump: true
   paths: {write: [docs/OPERATIONS_RUNBOOK.md, project/state.yaml, docs/DECISION_LOG.md, .github/workflows/, tools/workflow_rehearsal/, tests/test_hosting_preflight.py]}
@@ -1755,7 +1755,7 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
   reqs: [REQ-STD-01]
   item: G3-W10
   lane: L-std
-  depends: [TC-STD-03, TC-R2-02]
+  depends: [TC-STD-03, TC-R2-02, TC-Q2-01]
   cut: "4 - a declared cut after the second portfolio reseal; never inside cut 3"
   governed: true
   ground: "owner decision D2 (2026-10-11, docs/DECISION_LOG.md): every iteration must do better than live, recorded as the owner approval G7-W22 clause 2 requires"
@@ -1799,7 +1799,7 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
   reqs: [REQ-IDM-01]
   item: G3-W11
   lane: L-idm
-  depends: [TC-IDM-01, TC-STD-03, TC-R2-02]
+  depends: [TC-IDM-01, TC-STD-03, TC-R2-02, TC-Q1-01, TC-Q2-01]
   cut: "4 - with TC-STD-04; never inside cut 3"
   governed: true
   ground: "owner decision D1 (2026-10-11, docs/DECISION_LOG.md): Lane R's non-idempotence is fixed with production-grade design changes; recorded as the owner approval G7-W22 clause 2 requires"
@@ -1818,7 +1818,7 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
   reqs: [REQ-VER-01]
   item: G3-W11
   lane: L-core
-  depends: [TC-STD-04, TC-IDM-02, TC-MMD-03]
+  depends: [TC-STD-04, TC-IDM-02, TC-MMD-03, TC-Q1-01, TC-Q2-01, TC-Q3-01, TC-NOD-01]
   cut: "4"
   governed: true
   ground: "owner decisions D2 and D1 (2026-10-11, docs/DECISION_LOG.md), with the cut declared by the owner before this card runs"
@@ -1906,7 +1906,7 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
   reqs: [REQ-MMD-01]
   item: G3-W10
   lane: L-mmd
-  depends: [TC-MMD-02, TC-STD-04, TC-IDM-02]
+  depends: [TC-MMD-02, TC-STD-04, TC-IDM-02, TC-Q1-01, TC-Q2-01]
   cut: "4 - with TC-STD-04 and TC-IDM-02; never inside cut 3"
   governed: true
   ground: "owner ruling R7 (2026-10-11, docs/DECISION_LOG.md): a clipped or vertically stacked At a Glance diagram is a visitor-facing rendered-output defect in a public README, recorded as the owner approval G7-W22 clause 2 requires; plans/idea.md L99 is corrected accordingly"
@@ -1920,6 +1920,203 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
         - "inspect | the production wiring of the glance component and the BC-07 geometry checks | the lines to replace and the tests that pin them"
         - "edit | composition/renderer.py, composition/components/glance.py and the BC-07 diagram checks to use the builder and the render | the golden and negative-control tests green, RED first"
         - "record | the item 15 status in docs/README_STANDARD.md section 6.2 and the cut-4 constant list for TC-VER-03 | landed in the same commit"
+```
+
+### As built, 2026-10-11 (later): cards for the day's work
+
+**What the code did differently, and what the cards below are.** `docs/DECISION_LOG.md` (the 2026-10-11 entries on pull request #330, registry 44, the wave results and Lane L) is the record; the registered items and the code win over this plan. Three placements changed: Lane L's engine is `src/repository_presenter/components/readme_correction/` with `repository-presenter correct-readme --repo OWNER/NAME` and `propose --correction-bundle` (TC-LIV-06 records it; the `tools/live_first/` paths of TC-LIV-01 to TC-LIV-04 were not created and those cards stay as history); the At a Glance builder is `src/repository_presenter/components/readme_diagram/` (TC-MMD-01 to TC-MMD-03 stay as history, and the renderer and BC-07 migration of TC-MMD-03 is in `integration/cut4` at `67bc4df4`); registry discovery is a component beside the monitor. Pull request #330 put cut 2 and cut 3 on `main` (`904aa756`); everything below marked `built:` is on `integration/cut4` (head `e407503a`, pull request pending, nothing on `main`).
+
+**State of these cards.** TC-DIS-01, TC-ADM-01, TC-NOD-01, TC-LIV-06, TC-Q1-01, TC-Q2-01 and TC-Q3-01 describe work already committed. None is marked CLOSED: section 6 closes a card only through `loop-status.jsonl` with every mandatory score at least 4 of 5 given by a non-author, and no non-author has scored them, so each stays in its initial state until one does (a card whose commits are named in `built:` is IMPLEMENTED in substance, not CLOSED). TC-CAN-01 (the sandbox canary) and TC-ISS-12 (the final issue list) are READY in the ledger: both wait for the owner's exact authorization (OWNER-11 and OWNER-20 for the canary; the approval of the exact issue list for TC-ISS-12). Nothing on either card writes to a product repository.
+
+**Waves.** Wave 3 (`f69f75c7`) sealed 8 of 36 and its acceptance review judged 0 of 8 authorizable; wave 4 (`8c48f4d2`) sealed 4 of 44; wave 5 (`e407503a`) is running. They are runs of TC-RSL-03 and TC-TRI-01 on successive cuts and need no card of their own; their counts are in the decision log.
+
+**Lanes.** L-adm: `data/registry.json` and the registry tests. L-fix: `components/readme_correction/` and its tests. TC-Q1-01, TC-Q2-01 and TC-Q3-01 run in the lanes that already own the composition, reconciliation and review packages (L-compose, L-disp, L-review); TC-Q2-01 waits for TC-Q1-01 because both write `repair/rounds.py`. Their governed files (`authoring.py`, `validation/registry.py`, `review.py`) carry the ground the lint requires.
+
+```yaml
+- id: TC-DIS-01
+  title: Registry discovery reconciles the allow-list against its authorized organizations
+  reqs: [REQ-DIS-01]
+  item: G7-W06
+  lane: L-hosted
+  depends: [TC-REF-01, TC-CUR-01]
+  governed: false
+  built: ["8ef226a3 discovery, org_listing, registry-gaps, monitor.yml warn-only step", "4db10c39 reality fixtures after the JMAP admission", "43bcc048 README reference for registry-gaps and the discovery flags"]
+  paths: {write: [src/repository_presenter/components/monitor/discovery.py, src/repository_presenter/components/monitor/org_listing.py, src/repository_presenter/components/monitor/drift.py, data/registry_exclusions.json, .github/workflows/monitor.yml, src/repository_presenter/cli.py, tests/components/monitor/, tests/test_cli_registry_gaps.py, tests/test_monitor_workflow.py]}
+  outcome: every repository GitHub lists in a registry organization is classified REGISTERED, UNREGISTERED, EXCLUDED_BY_POLICY or MISSING_UPSTREAM from one read-only listing per organization, so a new product family can no longer change no number; discovery never admits an entry and never moves the denominator
+  accept: ["a fake organization lister reproducing 2026-10-11 (36 registered, 9 unregistered, 1 excluded) classifies each repository exactly once, and after the JMAP admission the reality is 46 listed = 44 registered, 1 UNREGISTERED, 1 EXCLUDED_BY_POLICY, 0 missing", "negative controls: nothing is admitted, no other network call is made, an unknown organization is refused before any listing, a rename is an UNREGISTERED joined to a MISSING_UPSTREAM by repository id, an unreadable or truncated listing is incomplete and never an absence, the token never reaches an output, a malformed exclusions file fails closed", "wired additively: the monitor drift document gains a discovery section (schema_version unchanged, off with --no-discovery), status prints a separate registry line from recorded evidence and stays offline, registry-gaps prints the same live or from evidence, and the last step of monitor.yml's coverage job is warn-only and never turns the run red", "no governed file is touched and no governed version moves"]
+  children:
+    - id: TC-DIS-01-01
+      title: Classify and wire
+      steps:
+        - "inspect | the allow-list (data/registry.json), the fifteen registry organizations and what GitHub lists in them | 46 listed against 36 admitted, the nine unregistered and the excluded profile repository named"
+        - "create | components/monitor/discovery.py, org_listing.py and data/registry_exclusions.json with reasons, tests built on a fake lister | the four classes and every negative control green, RED first"
+        - "edit | the monitor drift document, status, registry-gaps and monitor.yml's coverage job | the additive wiring above, the README reference test green"
+    - id: TC-DIS-01-02
+      title: Reality fixtures
+      steps:
+        - "edit | the discovery tests so the unadmitted-family scenario is built by removing entries from the registry fixture, not by relying on what the live registry holds | the reality test asserts 46 = 44 + 1 + 1 and the scenario tests cannot break when the owner admits more"
+
+- id: TC-ADM-01
+  title: Admit the eight Aspose.JMAP libraries at dry_run (registry 44)
+  reqs: [REQ-ADM-01]
+  item: G3-W08
+  lane: L-adm
+  depends: [TC-ISS-05, TC-COV-02, TC-EXT-01]
+  governed: false
+  built: ["6b66da8c seven libraries, registry 43", "356a089c the eighth (Node.js), registry 44", "7a1ca05e denominator 44", "4ee5e544 and 6b6284a5 survey and assignments of all 44"]
+  paths: {write: [data/registry.json, tests/core/registry/, tests/components/readme/extractors/platforms/test_registry.py]}
+  outcome: the eight Aspose.JMAP-FOSS-for-* libraries are registry entries at mode dry_run in a new jmap family inside the Email organization, nothing is ever pushed to them, and the cursor denominator is 44
+  accept: ["owner decision 2026-10-11 recorded: admit all eight at dry_run; Aspose-PDF-FOSS-for-Go-MCP stays unregistered because the owner did not choose it", "repository ids and node ids are read from the GitHub API, and a guard test refuses a data-only admission of an ecosystem no platform plugin serves", "pinned counts move (registry 36 to 43 to 44 in test_loader and test_write_gate, the README ecosystem counts, the G4 goal line of the execution plan) without weakening an assertion, and progress.denominator is 44 in the same merge (test_governance_consistency)", "the family has no aspose.com or aspose.org product page (404), so no Enterprise Edition paragraph or banner is owed; docs/README_STANDARD.md surveys and assigns all 44 (std-source for six, std-native for the C++ one, defect classes DEF-27 and DEF-28)", "wave 4 sealed 0 of the 8 and that is recorded, not hidden"]
+  children:
+    - id: TC-ADM-01-01
+      title: Admit
+      steps:
+        - "inspect | the GitHub API for each JMAP repository (ids, default branch, language) and the platform plugin each ecosystem needs | seven served, Node.js not served"
+        - "edit | data/registry.json with seven dry_run entries, then the eighth after TC-NOD-01 | registry 43, then 44, the guard test green"
+        - "edit | the pinned counts and progress.denominator | the cursor-denominator test green"
+    - id: TC-ADM-01-02
+      title: Survey and assign
+      steps:
+        - "run | the README survey over the eight live READMEs | survey rows added, the 36 earlier rows unchanged byte for byte"
+        - "record | the assignments and the two defect classes in data/readme_standard/ | check_profiles passes for all 44"
+
+- id: TC-NOD-01
+  title: Node.js platform plugin (the eighth JMAP library)
+  reqs: [REQ-ADM-01]
+  item: G3-W08
+  lane: L-extract
+  depends: [TC-EXT-01, TC-ADM-01, TC-ISS-05, TC-VER-02]
+  governed: false
+  built: ["356a089c plugin, npm facades, registry entry"]
+  paths: {write: [src/repository_presenter/components/readme/extractors/platforms/nodejs.py, src/repository_presenter/components/readme/extractors/platforms/nodejs_examples.py, src/repository_presenter/components/readme/extractors/platforms/typescript.py, src/repository_presenter/components/readme/extractors/platforms/typescript_barrel.py, src/repository_presenter/components/readme/extractors/platforms/typescript_examples.py, src/repository_presenter/components/readme/extractors/surface/npm_package.py, src/repository_presenter/components/readme/extractors/surface/npm_build.py, src/repository_presenter/components/readme/extractors/surface/extractor.py, src/repository_presenter/components/readme/extractors/surface/registry.py, src/repository_presenter/core/registry/naming.py, tests/components/readme/extractors/]}
+  outcome: a Node.js ecosystem is served by a plugin discovered by module name, so Aspose.JMAP-FOSS-for-Node.js yields identity, install, import, runtime-floor and public-symbol facts and checked examples, without a central branch and without a second copy of the npm-generic code
+  accept: ["identity, install and import facts come from package.json, the runtime floor from engines.node, and the surface from the entry point's ESM (export from, export star, local export, async functions and generators) and CommonJS (module.exports object, exports.A, module.exports = require) exports with JSDoc descriptions, read by the pinned TypeScript grammar so no new wheel is added", "examples are checked, never run: node --check, then the snippet's own imports loaded against a copy staged at node_modules/<name>; a named import the package lacks is FAILED, an unbuilt package, a missing node or a snippet importing nothing from the package is NOT_VERIFIED, never CONTRADICTED", "npm-generic code lives in two neutral facades (surface/npm_package.py, surface/npm_build.py) and the TypeScript plugin delegates to them: old and new TypeScript output are byte-identical on the Aspose.PDF-FOSS-for-TypeScript clone (687,705 bytes of facts) and the existing TypeScript tests pass unmodified", "EXTRACTOR_VERSION is not bumped by the commit; the cut-4 bump carries it (8c48f4d2)"]
+  children:
+    - id: TC-NOD-01-01
+      title: Facades first, then the plugin
+      steps:
+        - "edit | move the npm-generic code of the TypeScript plugin into surface/npm_package.py and surface/npm_build.py behind the existing public names | the TypeScript clone's facts are byte-identical before and after, existing tests unmodified"
+        - "create | platforms/nodejs.py and nodejs_examples.py, the nodejs alias and the npm registry type | the plugin test files (identity, exports of both module systems, examples) green, RED first"
+        - "run | the plugin over the Aspose.JMAP-FOSS-for-Node.js clone | its public symbols and install fact present, its exported classes carry their JSDoc descriptions"
+
+- id: TC-LIV-06
+  title: Lane L as built, the correction engine and its first run over all 44 entries
+  reqs: [REQ-LIV-01, REQ-LIV-03]
+  item: G3-W09
+  lane: L-fix
+  depends: []
+  governed: false
+  built: ["0488659a correct-readme patch bundles", "2c34899e structure fixes and non-correctable statuses", "f94ca9d4 and a65db4b4 and 10138c2b MISSING_INFO additions and gaps", "06b9ac21 settle", "7c1e21f4 and 399eec45 and e576d7ce the At a Glance diagram correction", "b49120c1 and 4e2da176 redundancy and report-only detectors"]
+  paths: {write: [src/repository_presenter/components/readme_correction/, tests/components/readme_correction/]}
+  outcome: repository-presenter correct-readme --repo OWNER/NAME reads the live README at the pinned revision, makes no model call, and writes a correction bundle of small verified edits (or a typed status), and a run over all 44 registry entries is recorded in the owner table; no candidate is counted authorizable
+  accept: ["each edit is one of a closed shape (a short line fragment, a pure section insertion, or a whole Mermaid body for the diagram fix) and carries the fact ids and the evidence that justify it; the corrected text minus the edit spans equals the original minus the same spans (the confinement proof)", "a re-run is byte-identical and zero-call, a corrected bundle taken as the new live README makes zero further edits (39 of 39), and validate_candidate introduces no failing check the live README lacked (a diagram rebuild may bring only BC-07's visible-length budget, typed and bounded, owner rulings R7 and OD-06)", "result at 4e2da176 over 44 entries: corrected 39 (34 diagram-only, 5 with a content correction), no_detector_fired 4, no_live_readme 1; the independent review of the 44 bundles found every failing hunk in add_dev_commands or add_doc_links, which therefore report only with a typed report_only_reason and a recorded re-enable condition (docs/DEFECT_INDEX.md REG-25)", "the typed alternative propose gate (gate.py, propose --correction-bundle) re-derives the correction and refuses unless it is exactly the evidenced edits; every other propose check is shared", "authorizable_candidates stays 0 until an independent review of the current bundles passes the TC-LIV-03 rule; the bundles are never written under candidates/"]
+  children:
+    - id: TC-LIV-06-01
+      title: Engine, detectors and gate
+      steps:
+        - "create | components/readme_correction (model, apply, engine, settle, check, bundle, gate, pull_request, run) and the closed detector registry loaded by name | the confinement, determinism, idempotence and gate tests green, RED first"
+        - "create | the detectors for claims, statements, links, sections, structure, additions, gaps, stale phrases, examples and the At a Glance diagram | one fixture per detector, two false positives caught on the live fleet and fixed"
+    - id: TC-LIV-06-02
+      title: Run, review, hold back
+      steps:
+        - "run | correct-readme over all 44 registry entries at 4e2da176 | the owner table with a typed status per entry"
+        - "run | an independent read-only review of all 44 bundles in three sets | 17 PUSHABLE, 24 FIX_REQUIRED, 2 DO_NOT_PUSH at the earlier head e576d7ce, every failing hunk in two detectors"
+        - "edit | add_dev_commands and add_doc_links to report only, with typed reasons and re-enable conditions | the 4e2da176 bundles carry them under report_only; independent re-review of these bundles is not yet done"
+
+- id: TC-Q1-01
+  title: Wave-4 cause 1 and 4, list items judged by content, authoring stops refusing an unstated item, slash pairs judged name by name
+  reqs: [REQ-WV4-01]
+  item: G3-W08
+  lane: L-compose
+  depends: [TC-VER-01, TC-VER-02]
+  governed: true
+  ground: "factual accuracy, G7-W22 clause 2: LST-01 (ebc79449) refused correct restated lists and deadlocked with the identifier gate, on seven wave-4 rows, which sealed nothing for that reason; cut 4 is unreleased, so the change rides the cut-4 NORMALISATION_VERSION 35 without a further bump"
+  built: ["caf4ada6"]
+  paths: {write: [src/repository_presenter/components/readme/composition/authoring.py, src/repository_presenter/components/readme/composition/authoring_retry.py, src/repository_presenter/components/readme/composition/list_coverage.py, src/repository_presenter/components/readme/composition/planning.py, src/repository_presenter/components/readme/repair/rounds.py, tests/components/readme/composition/, tests/components/readme/repair/test_rounds.py]}
+  outcome: an item of a kept list is present when the section holds half of its lead's words or half of the words only that item says, the authoring-time list refusal is gone (placement prints every unstated item and BC-05 stays the independent check), and a slash-joined pair of names is judged name by name
+  accept: ["measured on every archived reply: restated lists keep 0.61 to 0.92 of their own words and the items really dropped 0.00 to 0.32, and a plain half-of-all-words rule would have passed 3D-.NET's Text watermarking item, so it is not used", "the true omissions of 3D-.NET, 3D-Java, PDF-.NET and PDF-Java stay named", "replayed through the real renderer on the last archived reply of eleven repositories with the refusal off, placement printed each unstated item and BC-05 found none missing", "negative controls: a list longer than its slots, an item naming a package no fact spells, Scene.Open/Scene.Save, Document.validate/Document.convert and aspose_html.dom.Node/aspose_html.dom.Element, and a path (hyphen, file suffix) still one token", "no live sealed row has verified it yet: wave 5 is the measurement"]
+  children:
+    - id: TC-Q1-01-01
+      title: Judge by content, remove the deadlock
+      steps:
+        - "inspect | the archived wave-4 replies of the five label false positives and two deadlocks | the per-item word retention that separates a restated item from a dropped one"
+        - "edit | list_coverage.missing_items, the authoring-time refusal and the slash-pair rule | the fixtures built from the archived replies green, RED first"
+        - "validate | placement and BC-05 over eleven archived replies with the refusal off | every unstated item printed, none missing"
+
+- id: TC-Q2-01
+  title: Wave-4 cause 2, a kept unit goes where a section can hold it and is never deferred out of the README
+  reqs: [REQ-WV4-01]
+  item: G3-W08
+  lane: L-disp
+  depends: [TC-Q1-01, TC-VER-01, TC-VER-02]
+  governed: true
+  ground: "factual accuracy, G7-W22 clause 2: BC-05 version 7 correctly blocks silent content loss, and the generator offered renderer-owned sections as destinations, so nine repositories lost content the gate rightly refused; cut 4 is unreleased, so the change rides the cut-4 VALIDATOR_VERSION 22 without a further bump"
+  built: ["8776705d"]
+  paths: {write: [src/repository_presenter/components/readme/reconciliation/destinations.py, src/repository_presenter/components/readme/reconciliation/dispositions.py, src/repository_presenter/components/readme/reconciliation/patch.py, src/repository_presenter/components/readme/repair/rounds.py, src/repository_presenter/components/readme/repair/targeted.py, src/repository_presenter/components/readme/validation/registry.py, tests/components/readme/reconciliation/, tests/components/readme/validation/test_registry.py]}
+  outcome: holdable_sections() is the one answer to which sections can hold a kept unit, the S4 schema offers a placing disposition only those, recover keeps a unit its destination cannot print in the nearest holdable section instead of deferring it, and the S4 repair is a per-unit patch bounded by construction
+  accept: ["the tests are built from the retained rejected replies of 3D-Java and Note-Python (fixtures)", "a unit is deferred, typed, only when no section suits it; the narrowed ask covers the units the checks still refuse with the earlier answer, the reason and the nearest section; a schema union failure reports the closest alternative's own errors", "BC-05 failure records gain unit_id and verdicts are unchanged; S4 request digests change (schema and packet sections)", "no live sealed row has verified it yet: wave 5 is the measurement"]
+  children:
+    - id: TC-Q2-01-01
+      title: Destinations, recover, patch
+      steps:
+        - "create | reconciliation/destinations.py holdable_sections and the two-shape S4 schema | the 3D-Java and Note-Python fixtures no longer yield a renderer-owned destination, RED first"
+        - "edit | recover (nearest holdable section, lead-in kept with its block) and the per-unit S4 repair patch (reconciliation/patch.py) | the content-loss fixtures green and the patch reply fits the repair prompt's output budget"
+
+- id: TC-Q3-01
+  title: Wave-4 cause 5, a finding that denies a name any fact supports is refuted by that fact
+  reqs: [REQ-WV4-01, REQ-REV-01]
+  item: G3-W08
+  lane: L-review
+  depends: [TC-VER-01, TC-VER-02]
+  governed: true
+  ground: "factual accuracy, G7-W22 clause 2: the independent reviewer denied names that SUPPORTED facts spell (12 findings on Cells-Go, the package name on Cells-TypeScript, aspose_html.dom.html on HTML-Python), and a judgment rule never folds, so a false finding held BC-10; cut 4 is unreleased, so the change rides the cut-4 REVIEWER_LOGIC_VERSION 20 without a further bump"
+  built: ["8411ea78"]
+  paths: {write: [src/repository_presenter/components/readme/review/independent/review.py, prompts/independent_review.yaml, tests/components/readme/review/]}
+  outcome: a new deterministic rule NAME_DENIAL_REFUTED folds a finding whose denial of a symbol or package name is contradicted by a SUPPORTED fact of that kind, recording the name-to-fact map in refuted_by with verdict_as_returned unchanged, and the review packet carries symbol_index so the reviewer sees the symbols it judges
+  accept: ["it reads the finding's prose only for a narrow set of denial shapes attached to a symbol or package-name noun, and the refutation is a lookup: every denied name must resolve to a SUPPORTED fact or the finding stands", "negative controls: a multi-word quote, a claim noun (signatures, fields, count) between the names and the denial, a cited non-SUPPORTED fact, a standing absence or omission claim and a non-factuality criterion all leave the finding standing", "replay of the four archived wave-4 reviews: Cells-Go 12 blocking findings become 0 on the first read, Cells-TypeScript F01 and F02 fold and the real F03 stands, HTML-Python F05 folds and the renderer table-label complaints stand; across all 170 archived findings of waves 3 and 4 (53 rows) the rule fires on 27, all denials", "independent_review prompt version 13 adds the field and the rule that a name the reviewer can cite is supported, and its pin in tests/core/llm/test_prompts.py moves with the version (that directory is owned by TC-BND-01 and TC-REF-06 otherwise); no row reaches ACCEPT from this alone, and no live sealed row has verified it yet"]
+  children:
+    - id: TC-Q3-01-01
+      title: Rule, packet field, replay
+      steps:
+        - "create | review.py name_denial_defect and the symbol_index packet field, with prompt version 13 | tests/components/readme/review/test_name_denial.py with real payloads and mutation tests, RED first"
+        - "run | review_document over the archived raw_calls.json of the four wave-4 rows | the harness reproduces each sealed review's finding ids with the rule off, and the fold counts above with it on"
+
+- id: TC-CAN-01
+  title: The sandbox canary (D6), then ask the owner again
+  reqs: [REQ-LIV-03]
+  item: G3-W09
+  lane: L-hosted
+  depends: [TC-LIV-06]
+  governed: false
+  paths: {write: [ops/proposal-authorizations/, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/canary/]}
+  outcome: one correction pull request exists on babar-raza/presenter-sandbox, opened through the propose gate under the recorded exact owner authorization, and a second identical run changes nothing; no product repository is written
+  accept: ["READY, not started: the owner has not authorized the canary; OWNER-11 (the disposable target) and OWNER-20 (the exact product list, asked again only after the canary) stand", "the corrected README hash equals the authorized hash, the upstream revision is rechecked immediately before the effect, the write gate permits only the sandbox, and no registry entry is added for it so the denominator stays 44", "a duplicate trigger creates nothing and a lost response reconciles before any retry", "the authorization record is committed by the owner through a pull request, never by a lane, and no token value appears in any log or artifact"]
+  children:
+    - id: TC-CAN-01-01
+      title: Authorize, open, repeat
+      steps:
+        - "decide-owner | the exact authorization for one canary pull request on babar-raza/presenter-sandbox, which correction bundle it carries, and whether rollback is exercised | recorded in docs/DECISION_LOG.md and under ops/proposal-authorizations"
+        - "run | propose --correction-bundle on the sandbox with the authorized bundle | one pull request, its checks and its URL recorded"
+        - "run | the same command again | no change and no duplicate"
+        - "decide-owner | after the canary, the exact product list for OWNER-20 | the answer recorded; nothing else is pushed before it"
+
+- id: TC-ISS-12
+  title: The final issue list for the owner's approval
+  reqs: [REQ-ISS-07]
+  item: G6-W07
+  lane: L-issues
+  depends: [TC-ISS-07]
+  governed: false
+  paths: {write: [evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/issue-list/]}
+  outcome: one owner-readable list of every upstream defect that is CONFIRMED against the live head, passes the issue-body quality gate and can be filed, with the blockers of the rest, so the owner approves an exact list or none
+  accept: ["READY, not started: no issue, comment or label is written on an Aspose repository, and nothing is filed before the owner approves the exact list", "each row names the repository, defect class, title, severity, evidence link, whether the redetector reproduced it today, the registry mode that gates filing (issue_filing needs full or an issues_mode of file) and its issue-readiness blockers", "the harvest of 2026-10-10 (15 CONFIRMED handoffs, 2 stale npm handoffs flagged NOT_A_DEFECT) is re-verified against the live heads, and the two ownership defects of 2026-10-11 (3D-Python dead url=, Page-Python no project URL) are added as drafts only", "approval records are emitted to a scratch directory only; the owner commits them through a pull request"]
+  children:
+    - id: TC-ISS-12-01
+      title: Re-verify and present
+      steps:
+        - "run | issue-readiness over every handoff with the redetectors that exist, re-verifying each against the live head | a CONFIRMED, NOT_A_DEFECT or FIXED_OR_CHANGED verdict per handoff"
+        - "create | the owner table of the exact list with the blockers of every row left out | a readable list in analysis/issue-list/"
+        - "decide-owner | the owner marks the issues to approve and the window | the list recorded, then TC-ISS-07 emits the records"
 ```
 
 ---
